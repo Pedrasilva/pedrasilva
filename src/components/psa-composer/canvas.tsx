@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -325,6 +325,13 @@ export function ComposerCanvas({
   // off-screen while Paged.js renders the visible, physically separated A4
   // sheets used by both editing and PDF export.
   const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
+  const [paginationStatus, setPaginationStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
+  const handlePaginationStatus = useCallback(
+    (status: "loading" | "ready" | "error") => setPaginationStatus(status),
+    [],
+  );
   const paginationKey = useMemo(
     () =>
       JSON.stringify(
@@ -344,6 +351,7 @@ export function ComposerCanvas({
       className={cn(
         "proposal-print-area",
         previewMode ? "proposal-canvas-preview" : "proposal-canvas-edit",
+        previewMode && paginationStatus === "error" && "proposal-pagination-error",
       )}
     >
       <div
@@ -415,12 +423,15 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
-      <PaginatedPreview
-        source={paginationSource}
-        selectedId={selectedId}
-        onSelect={onSelect}
-        invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:${previewMode ? 1 : 0}`}
-      />
+      {previewMode && (
+        <PaginatedPreview
+          source={paginationSource}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onStatusChange={handlePaginationStatus}
+          invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:1`}
+        />
+      )}
     </div>
   );
 }

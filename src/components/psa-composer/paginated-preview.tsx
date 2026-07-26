@@ -72,11 +72,13 @@ export function PaginatedPreview({
   invalidateKey,
   selectedId,
   onSelect,
+  onStatusChange,
 }: {
   source: HTMLDivElement | null;
   invalidateKey: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onStatusChange?: (status: "loading" | "ready" | "error") => void;
 }) {
   const targetRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -89,6 +91,7 @@ export function PaginatedPreview({
     let cancelled = false;
     target.replaceChildren();
     setStatus("loading");
+    onStatusChange?.("loading");
 
     const render = async () => {
       try {
@@ -159,10 +162,15 @@ export function PaginatedPreview({
           throw new Error("Pagination produced an incomplete page set");
         }
         setStatus("ready");
+        onStatusChange?.("ready");
       } catch (error) {
         if (cancelled) return;
         console.error("Proposal pagination failed", error);
+        // Paged.js may leave one incomplete sheet in the target before it
+        // throws. Never present that fragment as if it were the document.
+        target.replaceChildren();
         setStatus("error");
+        onStatusChange?.("error");
       }
     };
 
@@ -171,7 +179,7 @@ export function PaginatedPreview({
       cancelled = true;
       target.replaceChildren();
     };
-  }, [source, invalidateKey]);
+  }, [source, invalidateKey, onStatusChange]);
 
   useEffect(() => {
     const target = targetRef.current;
