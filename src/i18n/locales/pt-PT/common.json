@@ -38,6 +38,12 @@
   "noData": "Sem dados",
   "ofTotal": "{{shown}} de {{total}}",
   "page": "Página {{current}} de {{total}}",
+  "proposalComposer": {
+    "pagination": {
+      "loading": "A compor as páginas da proposta…",
+      "error": "Não foi possível gerar as páginas da proposta. Tente atualizar a pré-visualização."
+    }
+  },
   "companyPicker": {
     "search": "Procurar empresa…",
     "empty": "Sem empresas",

@@ -363,10 +363,12 @@ function printWithFilename(proposal: PsaProposal) {
   const original = document.title;
   document.title = filename;
   const restore = () => {
+    document.documentElement.classList.remove("proposal-exporting-paged");
     document.title = original;
     window.removeEventListener("afterprint", restore);
   };
   window.addEventListener("afterprint", restore);
+  document.documentElement.classList.add("proposal-exporting-paged");
   window.print();
   // Fallback in case afterprint doesn't fire.
   setTimeout(restore, 2000);

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function collectDocumentStyles(): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
@@ -19,11 +20,17 @@ function collectDocumentStyles(): Array<Record<string, string>> {
 export function PaginatedPreview({
   source,
   invalidateKey,
+  selectedId,
+  onSelect,
 }: {
   source: HTMLDivElement | null;
   invalidateKey: string;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }) {
   const targetRef = useRef<HTMLDivElement | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     const target = targetRef.current;
@@ -31,13 +38,26 @@ export function PaginatedPreview({
 
     let cancelled = false;
     target.replaceChildren();
+    setStatus("loading");
 
     const render = async () => {
-      await document.fonts?.ready;
-      if (cancelled) return;
+      try {
+        await document.fonts?.ready;
+        const sourceImages = Array.from(source.querySelectorAll<HTMLImageElement>("img"));
+        await Promise.all(
+          sourceImages.map(async (image) => {
+            if (image.complete) return;
+            try {
+              await image.decode();
+            } catch {
+              // A failed decorative image must not prevent document pagination.
+            }
+          }),
+        );
+        if (cancelled) return;
 
-      const clone = source.cloneNode(true) as HTMLDivElement;
-      clone.removeAttribute("id");
+        const clone = source.cloneNode(true) as HTMLDivElement;
+        clone.removeAttribute("id");
       // The live editor source is moved off-screen while preview mode is open.
       // Never copy that state into Paged.js: it would paginate an off-canvas,
       // fixed-position document and create header-only sheets before content.
@@ -67,23 +87,35 @@ export function PaginatedPreview({
       // Paged.js currently creates a blank page for running/fixed elements.
       // Remove page furniture from the fragmented flow and add a visual copy
       // to each generated page box after pagination instead.
-      const runningElements = Array.from(
-        clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
-      );
-      runningElements.forEach((element) => element.remove());
+        const runningElements = Array.from(
+          clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
+        );
+        runningElements.forEach((element) => element.remove());
 
-      const printRoot = document.createElement("div");
-      printRoot.className = "print-area proposal-paged-source";
-      printRoot.appendChild(clone);
+        const printRoot = document.createElement("div");
+        printRoot.className = "proposal-print-area proposal-paged-source";
+        printRoot.appendChild(clone);
 
-      const { Previewer } = await import("pagedjs");
-      if (cancelled) return;
-      const previewer = new Previewer();
-      await previewer.preview(printRoot, collectDocumentStyles(), target);
-      if (cancelled) return;
-      target.querySelectorAll<HTMLElement>(".pagedjs_pagebox").forEach((pageBox) => {
-        runningElements.forEach((element) => pageBox.appendChild(element.cloneNode(true)));
-      });
+        const { Previewer } = await import("pagedjs");
+        if (cancelled) return;
+        const previewer = new Previewer();
+        await previewer.preview(printRoot, collectDocumentStyles(), target);
+        if (cancelled) return;
+        target.querySelectorAll<HTMLElement>(".pagedjs_pagebox").forEach((pageBox) => {
+          runningElements.forEach((element) => pageBox.appendChild(element.cloneNode(true)));
+        });
+        target.querySelectorAll<HTMLElement>("[data-proposal-block-id]").forEach((fragment) => {
+          fragment.classList.toggle(
+            "proposal-paged-block-selected",
+            fragment.dataset.proposalBlockId === selectedId,
+          );
+        });
+        setStatus("ready");
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Proposal pagination failed", error);
+        setStatus("error");
+      }
     };
 
     void render();
@@ -91,7 +123,31 @@ export function PaginatedPreview({
       cancelled = true;
       target.replaceChildren();
     };
-  }, [source, invalidateKey]);
+  }, [source, invalidateKey, selectedId]);
 
-  return <div ref={targetRef} className="proposal-paginated-preview" aria-live="polite" />;
+  return (
+    <div className="proposal-paginated-stage">
+      {status === "loading" && (
+        <div className="proposal-pagination-status" role="status">
+          {t("proposalComposer.pagination.loading")}
+        </div>
+      )}
+      {status === "error" && (
+        <div className="proposal-pagination-status proposal-pagination-status-error" role="alert">
+          {t("proposalComposer.pagination.error")}
+        </div>
+      )}
+      <div
+        ref={targetRef}
+        className="proposal-paginated-preview"
+        aria-live="polite"
+        onClick={(event) => {
+          const element = event.target as HTMLElement;
+          const fragment = element.closest<HTMLElement>("[data-proposal-block-id]");
+          const id = fragment?.dataset.proposalBlockId;
+          if (id) onSelect(id);
+        }}
+      />
+    </div>
+  );
 }
