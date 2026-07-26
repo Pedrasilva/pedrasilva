@@ -1430,6 +1430,10 @@
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
   /* Export the exact Paged.js sheets visible in the builder. The hidden source
      tree is not printed, eliminating the former second pagination pipeline. */
   .proposal-exporting-paged .proposal-pagination-source {
