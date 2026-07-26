@@ -288,11 +288,11 @@ function PhaseSummaryCard({
     rows.push({ label: L.bimLod, value: bimLod });
 
   return (
-    <div className="proposal-phase-summary-card mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
-      <h3 className="proposal-print-heading mb-3 text-sm font-semibold tracking-tight text-zinc-900">
+    <div className="proposal-phase-summary-card mt-5 rounded-md border border-zinc-200 bg-zinc-50/60 px-4 py-3">
+      <h3 className="proposal-print-heading mb-1.5 text-sm font-semibold leading-snug tracking-tight text-zinc-900">
         {L.phaseSummary}
       </h3>
-      <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6 gap-y-2 text-sm">
+      <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6 gap-y-0 text-sm leading-snug">
         {rows.map((r, i) => (
           <React.Fragment key={i}>
             <dt className="text-zinc-500">{r.label}</dt>
