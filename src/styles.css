@@ -912,6 +912,15 @@
     display: none;
   }
 
+  .proposal-pagination-staging {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: var(--psa-page-w, 210mm);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .proposal-print-document {
     position: relative;
     /* Keep the editing sheet at the same physical width as the printed A4.

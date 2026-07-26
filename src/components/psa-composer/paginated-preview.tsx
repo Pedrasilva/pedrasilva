@@ -94,6 +94,7 @@ export function PaginatedPreview({
     onStatusChange?.("loading");
 
     const render = async () => {
+      let staging: HTMLDivElement | null = null;
       try {
         await document.fonts?.ready;
         const sourceImages = Array.from(source.querySelectorAll<HTMLImageElement>("img"));
@@ -146,9 +147,15 @@ export function PaginatedPreview({
         const { Previewer } = await import("pagedjs");
         if (cancelled) return;
         const previewer = new Previewer();
-        const result = await previewer.preview(printRoot, collectDocumentStyles(source), target);
+        // Render away from React's live target. In development/fast toggles an
+        // effect cleanup can otherwise remove Paged.js' current page while its
+        // async layout is still measuring it, causing the one-page/null crash.
+        staging = document.createElement("div");
+        staging.className = "proposal-pagination-staging";
+        document.body.appendChild(staging);
+        const result = await previewer.preview(printRoot, collectDocumentStyles(source), staging);
         if (cancelled) return;
-        const pageBoxes = target.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
+        const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
           pageBox.setAttribute("style", source.getAttribute("style") ?? "");
@@ -161,6 +168,7 @@ export function PaginatedPreview({
         if (result.total !== pageBoxes.length || pageBoxes.length === 0) {
           throw new Error("Pagination produced an incomplete page set");
         }
+        target.replaceChildren(...Array.from(staging.childNodes));
         setStatus("ready");
         onStatusChange?.("ready");
       } catch (error) {
@@ -171,6 +179,8 @@ export function PaginatedPreview({
         target.replaceChildren();
         setStatus("error");
         onStatusChange?.("error");
+      } finally {
+        staging?.remove();
       }
     };
 
