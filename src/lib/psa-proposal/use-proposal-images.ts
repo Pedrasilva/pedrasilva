@@ -91,7 +91,7 @@ export function useUploadProposalImage() {
           width: dims.w,
           height: dims.h,
           category: category ?? "general",
-          created_by: user.user?.id ?? null,
+          created_by: userId,
         })
         .select("*")
         .single();
