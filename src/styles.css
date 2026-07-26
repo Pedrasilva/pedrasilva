@@ -1463,12 +1463,9 @@
     display: block !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page {
-    width: 210mm !important;
-    height: 297mm !important;
+    page: proposal-a4;
     margin: 0 !important;
     box-shadow: none !important;
-    break-after: page;
-    page-break-after: always;
   }
   .proposal-exporting-paged .proposal-paginated-preview .proposal-paged-block-selected {
     box-shadow: none !important;
