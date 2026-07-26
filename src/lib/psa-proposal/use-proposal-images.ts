@@ -80,6 +80,8 @@ export function useUploadProposalImage() {
       });
 
       const { data: user } = await supabase.auth.getUser();
+      const userId = user.user?.id;
+      if (!userId) throw new Error("You must be signed in to upload images.");
       const { data, error } = await sb
         .from("psa_image_library")
         .insert({
@@ -89,7 +91,7 @@ export function useUploadProposalImage() {
           width: dims.w,
           height: dims.h,
           category: category ?? "general",
-          created_by: user.user?.id ?? null,
+          created_by: userId,
         })
         .select("*")
         .single();
