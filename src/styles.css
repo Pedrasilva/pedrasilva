@@ -891,6 +891,17 @@
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
+  /* The continuous React tree is only the live source for pagination. The
+     editor displays Paged.js' physical sheets, so there is no second set of
+     guessed dividers or screen-only break spacing. */
+  .proposal-pagination-source {
+    position: fixed !important;
+    left: -10000px !important;
+    top: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   .proposal-print-document {
     position: relative;
     /* Keep the editing sheet at the same physical width as the printed A4.
@@ -909,7 +920,7 @@
      so users can see where pages will break in the PDF. The dashes only
      appear in the side margins (left/right gutters) so they never cross
      proposal text. */
-  .proposal-print-document::before {
+  .proposal-print-document:not(.proposal-pagination-source)::before {
     content: "";
     position: absolute;
     top: 0;
@@ -946,25 +957,6 @@
   .proposal-page-footer { bottom: var(--psa-footer-bottom); }
   /* Ensure CSS page-break hints in content also push elements down on screen
      by adding spacing visually around the break markers. */
-  .proposal-print-document .proposal-page-break-before {
-    break-before: page;
-    page-break-before: always;
-    margin-top: var(--proposal-screen-break-before-space, 0px);
-  }
-  .proposal-print-document .proposal-page-break-after {
-    break-after: page;
-    page-break-after: always;
-    /* Mirror the printed break outside the block. Padding made the editor's
-       selection box grow by a whole page (especially visible on the index),
-       while the PDF break never changes the block's own height. */
-    margin-bottom: calc(1.5rem + var(--proposal-screen-break-space, 0px));
-  }
-  /* Keep the editor's physical page flow aligned with print when smart
-     pagination predicts that the browser will move a section heading to the
-     next page. Margin keeps the selection outline fitted to actual content. */
-  .proposal-print-document .proposal-smart-break-screen {
-    margin-top: var(--proposal-smart-break-space, 0px);
-  }
   /* Editor metadata is useful, but must not consume document flow space: the
      PDF hides it, so keeping it in-flow made every later page marker drift. */
   .proposal-print-document .proposal-print-block > .mb-2.print\:hidden {
@@ -1024,7 +1016,7 @@
     size: A4;
     margin: 0;
   }
-  .print-area .proposal-print-document {
+  .proposal-print-area .proposal-print-document {
     box-sizing: border-box;
     position: relative;
     width: var(--psa-page-w);
@@ -1048,86 +1040,86 @@
   /* Match the screen preview: same A4 sheet, same content padding, same
      brand-frame coordinates. @page margin: 0 prevents the browser's own
      URL/date/page headers from stealing space or appearing in the PDF. */
-  .print-area .proposal-page-header,
-  .print-area .proposal-page-footer {
+  .proposal-print-area .proposal-page-header,
+  .proposal-print-area .proposal-page-footer {
     position: fixed;
     left: var(--psa-frame-left);
     right: var(--psa-frame-right);
     background: white;
     z-index: 100;
   }
-  .print-area .proposal-page-header { top: var(--psa-header-top); }
-  .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
+  .proposal-print-area .proposal-page-header { top: var(--psa-header-top); }
+  .proposal-print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
   /* Let content flow continuously across pages to avoid large gaps.
      Only keep short atomic units together (individual paragraphs/list items
      and explicit avoid-break wrappers). Blocks themselves are allowed to
      split so a long block doesn't push a mostly-empty page. */
-  .print-area .proposal-print-document p {
+  .proposal-print-area .proposal-print-document p {
     page-break-inside: auto;
     break-inside: auto;
     orphans: 2;
     widows: 2;
   }
-  .print-area .proposal-print-document li {
+  .proposal-print-area .proposal-print-document li {
     page-break-inside: avoid;
     break-inside: avoid;
     orphans: 2;
     widows: 2;
   }
-  .print-area .proposal-print-document .proposal-print-block {
+  .proposal-print-area .proposal-print-document .proposal-print-block {
     /* allow natural splitting to close page gaps */
     page-break-inside: auto;
     break-inside: auto;
   }
-  .print-area .proposal-avoid-break,
-  .print-area .proposal-phase-summary-card {
+  .proposal-print-area .proposal-avoid-break,
+  .proposal-print-area .proposal-phase-summary-card {
     page-break-inside: avoid;
     break-inside: avoid;
   }
-  .print-area .proposal-page-break-before {
+  .proposal-print-area .proposal-page-break-before {
     page-break-before: always;
     break-before: page;
   }
-  .print-area .proposal-print-block[data-first-printable="true"] {
+  .proposal-print-area .proposal-print-block[data-first-printable="true"] {
     page-break-before: auto !important;
     break-before: auto !important;
   }
-  .print-area .proposal-print-document > div > .proposal-print-block:first-child {
+  .proposal-print-area .proposal-print-document > div > .proposal-print-block:first-child {
     page-break-before: auto !important;
     break-before: auto !important;
   }
-  .print-area .proposal-page-break-after {
+  .proposal-print-area .proposal-page-break-after {
     page-break-after: always;
     break-after: page;
   }
   /* Appendix breaks live on the outer proposal block. Keeping another break
      on the nested appendix creates header/footer-only pages in Chromium. */
-  .print-area .proposal-appendix {
+  .proposal-print-area .proposal-appendix {
     page-break-before: auto;
     break-before: auto;
   }
   /* Chromium does not reliably export mixed A4/A3 page sizes. Keep Appendix B
      on its own A4 sheet and rotate the chart so its time axis uses the long
      edge of the paper without clipping. */
-  .print-area .proposal-print-block-gantt-landscape {
+  .proposal-print-area .proposal-print-block-gantt-landscape {
     width: 100%;
     min-width: 0;
     min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
     page-break-after: always;
     break-after: page;
   }
-  .print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
+  .proposal-print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
     width: 100%;
     min-height: 0;
   }
-  .print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
+  .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
     width: 145mm !important;
     height: 205mm !important;
     margin: 3mm auto 0;
     overflow: hidden;
   }
-  .print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
+  .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
@@ -1138,10 +1130,10 @@
   }
   /* Print: hide the on-screen horizontal preview; only the rotated/print
      chart should appear on paper. */
-  .print-area .proposal-appendix-landscape .proposal-gantt-screen {
+  .proposal-print-area .proposal-appendix-landscape .proposal-gantt-screen {
     display: none !important;
   }
-  .print-area .proposal-print-heading {
+  .proposal-print-area .proposal-print-heading {
     page-break-after: avoid;
     break-after: avoid-page;
     page-break-inside: avoid;
@@ -1150,27 +1142,27 @@
     widows: 2;
     color: #111 !important;
   }
-  .print-area .proposal-print-document table thead {
+  .proposal-print-area .proposal-print-document table thead {
     display: table-header-group;
   }
-  .print-area .proposal-print-document table tbody tr {
+  .proposal-print-area .proposal-print-document table tbody tr {
     page-break-inside: avoid;
     break-inside: avoid;
   }
   /* Hide any editor affordance that may have leaked in. */
-  .print-area .proposal-print-document button,
-  .print-area .proposal-print-document [role="switch"],
-  .print-area .proposal-print-document [role="tab"],
-  .print-area .proposal-print-document [data-slot="badge"] {
+  .proposal-print-area .proposal-print-document button,
+  .proposal-print-area .proposal-print-document [role="switch"],
+  .proposal-print-area .proposal-print-document [role="tab"],
+  .proposal-print-area .proposal-print-document [data-slot="badge"] {
     display: none !important;
   }
   /* Cover sits flush at the top of the content box; @page margin already
      reserves space at the top for the fixed header. */
-  .print-area .proposal-cover {
+  .proposal-print-area .proposal-cover {
     margin-top: 0;
   }
   /* Keep the signature lines crisp and dark on paper. */
-  .print-area .proposal-signature-line {
+  .proposal-print-area .proposal-signature-line {
     border-bottom-color: #111 !important;
   }
 }
@@ -1337,16 +1329,41 @@
     pointer-events: none !important;
   }
 
+  .proposal-paginated-stage,
   .proposal-paginated-preview {
     width: 100%;
-    padding: 24px 0 48px;
+  }
+
+  .proposal-paginated-stage {
+    position: relative;
+    min-height: 100%;
+    padding: 36px 0 72px;
+  }
+
+  .proposal-pagination-status {
+    position: sticky;
+    top: 16px;
+    z-index: 200;
+    width: max-content;
+    max-width: calc(100% - 32px);
+    margin: 0 auto 20px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+
+  .proposal-pagination-status-error {
+    color: var(--destructive);
   }
 
   .proposal-paginated-preview .pagedjs_pages {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
+    gap: 56px;
     width: 100%;
   }
 
@@ -1355,6 +1372,7 @@
     margin: 0 !important;
     background: white;
     box-shadow: 0 2px 9px rgba(0, 0, 0, 0.28);
+    cursor: default;
   }
 
   .proposal-paginated-preview,
@@ -1388,6 +1406,42 @@
 
   .proposal-paginated-preview .proposal-print-document::before {
     display: none !important;
+  }
+
+  .proposal-paginated-preview [data-proposal-block-id] {
+    cursor: pointer;
+    transition: box-shadow 120ms ease;
+  }
+
+  .proposal-paginated-preview .proposal-paged-block-selected {
+    box-shadow: inset 0 0 0 1.5px var(--ring) !important;
+  }
+}
+
+@media print {
+  /* Export the exact Paged.js sheets visible in the builder. The hidden source
+     tree is not printed, eliminating the former second pagination pipeline. */
+  .proposal-exporting-paged .proposal-pagination-source {
+    display: none !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-stage {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .proposal-exporting-paged .proposal-pagination-status {
+    display: none !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_pages {
+    display: block !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page {
+    margin: 0 !important;
+    box-shadow: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .proposal-paged-block-selected {
+    box-shadow: none !important;
   }
 }
 

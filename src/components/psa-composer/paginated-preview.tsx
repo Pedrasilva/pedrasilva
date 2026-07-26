@@ -104,12 +104,6 @@ export function PaginatedPreview({
         target.querySelectorAll<HTMLElement>(".pagedjs_pagebox").forEach((pageBox) => {
           runningElements.forEach((element) => pageBox.appendChild(element.cloneNode(true)));
         });
-        target.querySelectorAll<HTMLElement>("[data-proposal-block-id]").forEach((fragment) => {
-          fragment.classList.toggle(
-            "proposal-paged-block-selected",
-            fragment.dataset.proposalBlockId === selectedId,
-          );
-        });
         setStatus("ready");
       } catch (error) {
         if (cancelled) return;
@@ -123,7 +117,18 @@ export function PaginatedPreview({
       cancelled = true;
       target.replaceChildren();
     };
-  }, [source, invalidateKey, selectedId]);
+  }, [source, invalidateKey]);
+
+  useEffect(() => {
+    const target = targetRef.current;
+    if (!target) return;
+    target.querySelectorAll<HTMLElement>("[data-proposal-block-id]").forEach((fragment) => {
+      fragment.classList.toggle(
+        "proposal-paged-block-selected",
+        fragment.dataset.proposalBlockId === selectedId,
+      );
+    });
+  }, [selectedId, status]);
 
   return (
     <div className="proposal-paginated-stage">

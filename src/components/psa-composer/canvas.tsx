@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -324,7 +324,7 @@ export function ComposerCanvas({
   // The React document is the authoritative content source. It remains
   // off-screen while Paged.js renders the visible, physically separated A4
   // sheets used by both editing and PDF export.
-  const docRef = useRef<HTMLDivElement | null>(null);
+  const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
   const paginationKey = useMemo(
     () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
     [blocks],
@@ -332,7 +332,7 @@ export function ComposerCanvas({
   return (
     <div className="proposal-print-area">
       <div
-        ref={docRef}
+        ref={setPaginationSource}
         className="proposal-print-document proposal-pagination-source"
         style={styleVars}
       >
@@ -401,7 +401,7 @@ export function ComposerCanvas({
         )}
       </div>
       <PaginatedPreview
-        source={docRef.current}
+        source={paginationSource}
         selectedId={selectedId}
         onSelect={onSelect}
         invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:${previewMode ? 1 : 0}`}
