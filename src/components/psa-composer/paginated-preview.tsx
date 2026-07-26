@@ -23,11 +23,11 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
   const left = computed.getPropertyValue("--psa-margin-left").trim() || "14mm";
   styles.push({
     "proposal-a4.css": `
-      @page {
+      @page proposal-document {
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
       }
-      .proposal-paged-source { page: auto; }
+      .proposal-paged-source { page: proposal-document; }
       .proposal-paged-content { display: flow-root; }
       .proposal-paged-content p {
         break-inside: auto;
