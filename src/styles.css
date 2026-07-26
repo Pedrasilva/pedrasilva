@@ -1424,7 +1424,20 @@
   .proposal-exporting-paged .proposal-pagination-source {
     display: none !important;
   }
+  .proposal-exporting-paged body * {
+    visibility: hidden !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-stage,
+  .proposal-exporting-paged .proposal-paginated-stage * {
+    visibility: visible !important;
+  }
+  .proposal-exporting-paged .proposal-print-area {
+    position: static !important;
+  }
   .proposal-exporting-paged .proposal-paginated-stage {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
     display: block !important;
     padding: 0 !important;
   }

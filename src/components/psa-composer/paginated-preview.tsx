@@ -58,35 +58,25 @@ export function PaginatedPreview({
 
         const clone = source.cloneNode(true) as HTMLDivElement;
         clone.removeAttribute("id");
-      // The live editor source is moved off-screen while preview mode is open.
-      // Never copy that state into Paged.js: it would paginate an off-canvas,
-      // fixed-position document and create header-only sheets before content.
-      clone.classList.remove("proposal-preview-source");
-      clone.querySelectorAll(
-        '[data-editor-toolbar="true"], button, .print\\:hidden, [contenteditable="true"] .ProseMirror-menu',
-      ).forEach((node) => node.remove());
-      clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
-        node.removeAttribute("contenteditable");
-      });
-      clone.querySelectorAll<HTMLElement>("[style*='--proposal-screen-break']").forEach((node) => {
-        node.style.removeProperty("--proposal-screen-break-space");
-        node.style.removeProperty("--proposal-screen-break-before-space");
-      });
-      clone.querySelectorAll<HTMLElement>("[data-smart-break='true']").forEach((node) => {
-        node.style.removeProperty("--proposal-smart-break-space");
-        node.classList.remove("proposal-smart-break-screen");
-        node.removeAttribute("data-smart-break");
-      });
-      const firstPrintable = clone.querySelector<HTMLElement>(
-        '.proposal-print-block[data-first-printable="true"]',
-      );
-      if (firstPrintable) {
-        firstPrintable.style.setProperty("break-before", "auto", "important");
-        firstPrintable.style.setProperty("page-break-before", "auto", "important");
-      }
-      // Paged.js currently creates a blank page for running/fixed elements.
-      // Remove page furniture from the fragmented flow and add a visual copy
-      // to each generated page box after pagination instead.
+        // Never copy the hidden source state into Paged.js. The clone must be
+        // ordinary document flow before the fragmentation engine measures it.
+        clone.classList.remove("proposal-pagination-source", "proposal-preview-source");
+        clone.querySelectorAll(
+          '[data-editor-toolbar="true"], button, .print\\:hidden, [contenteditable="true"] .ProseMirror-menu',
+        ).forEach((node) => node.remove());
+        clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
+          node.removeAttribute("contenteditable");
+        });
+        const firstPrintable = clone.querySelector<HTMLElement>(
+          '.proposal-print-block[data-first-printable="true"]',
+        );
+        if (firstPrintable) {
+          firstPrintable.style.setProperty("break-before", "auto", "important");
+          firstPrintable.style.setProperty("page-break-before", "auto", "important");
+        }
+        // Paged.js currently creates a blank page for running/fixed elements.
+        // Remove page furniture from the fragmented flow and add a visual copy
+        // to each generated page box after pagination instead.
         const runningElements = Array.from(
           clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
         );

@@ -326,7 +326,17 @@ export function ComposerCanvas({
   // sheets used by both editing and PDF export.
   const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
   const paginationKey = useMemo(
-    () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
+    () =>
+      JSON.stringify(
+        blocks.map((block) => ({
+          id: block.id,
+          visible: block.is_visible,
+          order: block.sort_order,
+          title: block.title,
+          content: block.content_rich,
+          source: block.source_ref,
+        })),
+      ),
     [blocks],
   );
   return (
