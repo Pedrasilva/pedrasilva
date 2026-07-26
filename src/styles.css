@@ -891,15 +891,25 @@
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
+  /* Legacy collaborator export styles hide every body descendant while
+     printing. Screen mode must never inherit that global visibility state. */
+  html:not(.proposal-exporting-paged) body * {
+    visibility: visible !important;
+  }
+
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-pagination-source {
+  .proposal-canvas-preview .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
+  }
+
+  .proposal-canvas-edit .proposal-paginated-stage {
+    display: none;
   }
 
   .proposal-print-document {
@@ -1010,17 +1020,6 @@
 
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
-
-/* Named page keeps this composer isolated from the application's older
-   collaborator-report print rules and gives Paged.js an A4 size outside a
-   media query (Paged.js does not evaluate @page nested in @media print). */
-.proposal-paged-source {
-  page: proposal-a4;
-}
-@page proposal-a4 {
-  size: A4;
-  margin: 0;
-}
 
 @media print {
   @page {
@@ -1402,7 +1401,7 @@
     color: #64748b;
   }
 
-  .proposal-paginated-preview .proposal-print-document {
+  .proposal-paginated-preview .proposal-print-document:not(.proposal-generated-pagebox) {
     width: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
@@ -1410,9 +1409,40 @@
     box-shadow: none !important;
   }
 
+  .proposal-paginated-preview .proposal-generated-pagebox {
+    position: relative;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-header,
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-footer {
+    position: absolute !important;
+    left: var(--psa-frame-left) !important;
+    right: var(--psa-frame-right) !important;
+    z-index: 100;
+    margin: 0;
+    background: transparent;
+  }
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-header {
+    top: var(--psa-header-top) !important;
+  }
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-footer {
+    top: auto !important;
+    bottom: var(--psa-footer-bottom) !important;
+  }
+
   .proposal-paginated-preview .proposal-paged-source {
     position: static !important;
     width: auto !important;
+  }
+
+  .proposal-paginated-preview .proposal-paged-content {
+    width: 100%;
   }
 
   .proposal-paginated-preview .proposal-print-document::before {
@@ -1463,9 +1493,17 @@
     display: block !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page {
-    page: proposal-a4;
+    break-after: page !important;
+    page-break-after: always !important;
     margin: 0 !important;
     box-shadow: none !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page::after {
+    display: none !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .proposal-paged-block-selected {
     box-shadow: none !important;

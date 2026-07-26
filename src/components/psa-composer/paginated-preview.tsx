@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function collectDocumentStyles(): Array<Record<string, string>> {
+function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
 
   for (const sheet of Array.from(document.styleSheets)) {
+    const owner = sheet.ownerNode;
+    if (
+      owner instanceof HTMLElement &&
+      (owner.hasAttribute("data-pagedjs-inserted-styles") ||
+        owner.hasAttribute("data-pagedjs-ignore"))
+    ) {
+      continue;
+    }
     try {
       const css = Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
       if (css) styles.push({ [sheet.href ?? window.location.href]: css });
@@ -16,8 +24,44 @@ function collectDocumentStyles(): Array<Record<string, string>> {
 
   // Keep the proposal page contract last so older feature-specific @page
   // rules cannot make Paged.js fall back to its default US Letter sheet.
+  const computed = window.getComputedStyle(source);
+  const top = computed.getPropertyValue("--psa-margin-top").trim() || "34mm";
+  const right = computed.getPropertyValue("--psa-margin-right").trim() || "14mm";
+  const bottom = computed.getPropertyValue("--psa-margin-bottom").trim() || "32mm";
+  const left = computed.getPropertyValue("--psa-margin-left").trim() || "14mm";
   styles.push({
-    "proposal-a4.css": "@page { size: A4; margin: 0; } .proposal-paged-source { page: auto; }",
+    "proposal-a4.css": `
+      @page proposal-document {
+        size: A4;
+        margin: ${top} ${right} ${bottom} ${left};
+      }
+      .proposal-paged-source,
+      .proposal-paged-content { page: proposal-document; }
+      .proposal-paged-content { display: flow-root; }
+      .proposal-paged-content p {
+        break-inside: auto;
+        orphans: 2;
+        widows: 2;
+      }
+      .proposal-paged-content li,
+      .proposal-paged-content .proposal-avoid-break,
+      .proposal-paged-content .proposal-phase-summary-card {
+        break-inside: avoid;
+      }
+      .proposal-paged-content .proposal-page-break-before {
+        break-before: page;
+      }
+      .proposal-paged-content .proposal-page-break-after {
+        break-after: page;
+      }
+      .proposal-paged-content .proposal-print-block[data-first-printable="true"],
+      .proposal-paged-content > div > .proposal-print-block:first-child {
+        break-before: auto !important;
+      }
+      .proposal-paged-content .proposal-appendix {
+        break-before: auto;
+      }
+    `,
   });
 
   return styles;
@@ -89,17 +133,31 @@ export function PaginatedPreview({
         runningElements.forEach((element) => element.remove());
 
         const printRoot = document.createElement("div");
-        printRoot.className = "proposal-print-area proposal-paged-source";
-        printRoot.appendChild(clone);
+        printRoot.className = "proposal-print-area proposal-print-document proposal-paged-source";
+        printRoot.setAttribute("style", source.getAttribute("style") ?? "");
+        const content = document.createElement("div");
+        content.className = "proposal-paged-content";
+        while (clone.firstChild) content.appendChild(clone.firstChild);
+        printRoot.appendChild(content);
 
         const { Previewer } = await import("pagedjs");
         if (cancelled) return;
         const previewer = new Previewer();
-        await previewer.preview(printRoot, collectDocumentStyles(), target);
+        const result = await previewer.preview(printRoot, collectDocumentStyles(source), target);
         if (cancelled) return;
-        target.querySelectorAll<HTMLElement>(".pagedjs_pagebox").forEach((pageBox) => {
+        const pageBoxes = target.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
+        pageBoxes.forEach((pageBox, index) => {
+          pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
+          pageBox.setAttribute("style", source.getAttribute("style") ?? "");
           runningElements.forEach((element) => pageBox.appendChild(element.cloneNode(true)));
+          pageBox.closest<HTMLElement>(".pagedjs_page")?.setAttribute(
+            "data-page-number",
+            String(index + 1),
+          );
         });
+        if (result.total !== pageBoxes.length || pageBoxes.length === 0) {
+          throw new Error("Pagination produced an incomplete page set");
+        }
         setStatus("ready");
       } catch (error) {
         if (cancelled) return;

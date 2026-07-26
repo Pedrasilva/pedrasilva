@@ -340,7 +340,12 @@ export function ComposerCanvas({
     [blocks],
   );
   return (
-    <div className="proposal-print-area">
+    <div
+      className={cn(
+        "proposal-print-area",
+        previewMode ? "proposal-canvas-preview" : "proposal-canvas-edit",
+      )}
+    >
       <div
         ref={setPaginationSource}
         className="proposal-print-document proposal-pagination-source"
