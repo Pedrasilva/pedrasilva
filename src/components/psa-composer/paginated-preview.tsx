@@ -5,6 +5,14 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
   const styles: Array<Record<string, string>> = [];
 
   for (const sheet of Array.from(document.styleSheets)) {
+    const owner = sheet.ownerNode;
+    if (
+      owner instanceof HTMLElement &&
+      (owner.hasAttribute("data-pagedjs-inserted-styles") ||
+        owner.hasAttribute("data-pagedjs-ignore"))
+    ) {
+      continue;
+    }
     try {
       const css = Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
       if (css) styles.push({ [sheet.href ?? window.location.href]: css });
