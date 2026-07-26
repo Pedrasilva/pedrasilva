@@ -893,8 +893,8 @@
 @media screen {
   /* Legacy collaborator export styles hide every body descendant while
      printing. Screen mode must never inherit that global visibility state. */
-  body * {
-    visibility: revert;
+  html:not(.proposal-exporting-paged) body * {
+    visibility: visible !important;
   }
 
   /* The continuous React tree is only the live source for pagination. The
