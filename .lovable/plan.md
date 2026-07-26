@@ -1,41 +1,54 @@
-The issue is that the **Index block currently forces a page break after itself**, so any image placed after it jumps to the next page — leaving the page-1 space empty and the image disconnected from the content that follows. The builder also does not make page boundaries and available space obvious enough to reason about.
+## Confirmed problem
 
-I will change the composer so the user can see exactly where pages break and how much space is free, then place images that fit that space without bouncing.
+The builder currently uses four different pagination paths:
 
-## What we will build
+1. fixed 297 mm divider lines over a continuous document;
+2. JavaScript heuristics and injected margins that guess where print will move content;
+3. Paged.js for the in-app paginated preview;
+4. the browser’s separate native print engine for the downloaded PDF.
 
-### 1. Optional page-break after the index
-- Remove the hardcoded `proposal-page-break-after` on the `index` block.
-- Add a per-block setting **"Quebra de página depois"** (page-break-after) to the right-hand panel, defaulting to `true` for index blocks so existing behaviour is preserved.
-- When the user turns this off, the next block can flow on the same page after the index, allowing an image to fill the leftover space.
+The attached screenshots are the direct consequence: the editor ruler divides the uninterrupted screen layout mid-paragraph, while print applies heading, widow/orphan, and break-avoidance rules and moves “Project Description” to the following sheet. Further threshold tuning cannot make those independent engines reliably identical.
 
-### 2. Visible page boundaries in the builder
-- Render faint horizontal **page-break lines** across the canvas at every A4 boundary (screen-only), labelled with page numbers (Página 1, Página 2, …).
-- These lines make it immediately obvious why an image sits on a new page and where the empty space is.
+## Implementation
 
-### 3. Smarter gap placeholders
-- Keep the existing amber dashed gap overlays, but make them more informative:
-  - Show the exact height in mm (e.g. *"Espaço livre: 132 mm"*).
-  - Suggest the best image size bucket (1/4, 1/3, 1/2, 2/3).
-- Ensure the gap is re-measured after explicit page-breaks (currently it is, but we will verify it is visible after the index when the page-break-after is toggled off).
+### 1. Establish one authoritative pagination pipeline
+- Use the existing Paged.js page output as the single rendered document for both builder page layout and PDF export.
+- Print/export the already-paginated page boxes instead of repaginating the continuous source with the browser’s separate print path.
+- Ensure the exact same cloned content, proposal variables, fonts, margins, visibility rules, headers, footers, and break rules feed both the editable page view and export.
 
-### 4. Insert images that fit the gap
-- When the user clicks a gap placeholder, insert an `image` block whose `size` is set to the suggested bucket, so its height matches the available space.
-- If the previous block has `pageBreakAfter` enabled, the insert will first **disable that break** (with a toast explaining why), so the image stays on the same page and actually fills the space.
-- After insertion, the image block is selected and the settings panel shows the chosen size.
+### 2. Replace continuous editing with true A4 sheets
+- Keep a hidden React source document only as the content/state source for pagination.
+- Display the generated A4 page stack as the main composer canvas in editing mode—not only after clicking Preview.
+- Preserve block selection and editing by mapping every paginated fragment back to its `data-proposal-block-id`; clicking a fragment selects the original block and opens its editing controls.
+- For inline rich text, activate an editor for the selected block and repaginate after committed/debounced changes so the document remains usable while content is changing.
+- Preserve drag/reorder and block settings through the existing proposal block state rather than attempting to mutate cloned Paged.js DOM.
 
-### 5. Image size quick-pick in settings
-- In the image block settings panel, expose the gap size when a gap is detected before/after the block, with a **"Ajustar ao espaço livre"** button that sets the image size to the bucket that fits.
+### 3. Remove the conflicting simulation
+- Remove fixed page-marker calculations and dashed divider overlays from `canvas.tsx`.
+- Retire `syncExplicitScreenBreaks`, `syncSmartScreenBreaks`, the 65 mm heading heuristic, forced-break spacer variables, and associated screen-only CSS.
+- Retain only explicit user page-break settings and actual CSS fragmentation rules consumed by the authoritative paginator.
+- Continue gap/image analysis only from real generated page geometry; do not let it alter pagination.
 
-## Files to change
-- `src/components/psa-composer/canvas.tsx` — page-break-after logic, page-boundary lines, gap overlay improvements.
-- `src/components/psa-composer/block-settings-panel.tsx` — add "Quebra de página depois" toggle and image size quick-pick.
-- `src/styles.css` — styles for page-boundary lines and gap overlays.
-- `src/lib/psa-proposal/types.ts` — if needed, type the new `pageBreakAfter` content flag.
+### 4. Make page boundaries visually unambiguous
+- Render each page as an individual white A4 sheet on the neutral workspace background.
+- Increase the vertical gap between sheets substantially and add a restrained page shadow/border.
+- Show page numbers outside the printable content area.
+- Leave unused page area plain white, as requested, so remaining space is visible exactly as it will be in the PDF—without dashed lines or tinted overlays crossing content.
 
-## What stays the same
-- Cover still starts on its own page and appendix blocks keep their own page-break rules.
-- The PDF export continues to use the same A4 print rules; only the on-screen preview gets clearer visual guidance.
+### 5. Isolate proposal print styles
+- Replace the proposal’s generic `.print-area` wrapper with a proposal-specific scope so unrelated legacy print rules cannot affect its fragmentation.
+- Consolidate duplicate heading/block break rules into one proposal pagination section.
+- Ensure invisible blocks, cover/index breaks, page-aligned blocks, images, tables, and the rotated Gantt follow the same rules in builder and exported PDF.
 
-## One question before I start
-Do you want the index block to **keep starting on its own page by default** (and only share the page when you explicitly turn off the page-break), or should the default be **sharing the page** so images naturally fill the space after the index?
+### 6. Loading and failure handling
+- Add a stable pagination/loading state while fonts, images, or content are being laid out, preventing blank or partially generated sheets from flashing.
+- Cancel stale pagination runs during rapid edits and apply only the latest result.
+- Surface a clear localized EN/PT error state if pagination fails instead of silently showing blank pages.
+
+## Verification
+
+- Reproduce against the current proposal and specifically compare the “2. Project Description” break shown in the supplied screenshots.
+- Verify builder and exported PDF have the same page count and the same first/last visible text on every page.
+- Test default and customized body size, heading scale, margins, header/footer visibility, explicit breaks, index, images, long paragraphs, tables, hidden blocks, and Gantt appendix.
+- Use browser automation to capture every builder sheet and every exported PDF page at desktop size and inspect all pages for blank sheets, clipped content, overlaps, incorrect headers/footers, and divergent break positions.
+- Add a focused regression check that records block fragments per page and compares the builder page map with the exported page map.
