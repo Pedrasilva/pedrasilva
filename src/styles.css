@@ -891,6 +891,12 @@
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
+  /* Legacy collaborator export styles hide every body descendant while
+     printing. Screen mode must never inherit that global visibility state. */
+  body * {
+    visibility: revert;
+  }
+
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
