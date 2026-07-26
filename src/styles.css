@@ -894,12 +894,16 @@
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-pagination-source {
+  .proposal-canvas-preview .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
+  }
+
+  .proposal-canvas-edit .proposal-paginated-stage {
+    display: none;
   }
 
   .proposal-print-document {

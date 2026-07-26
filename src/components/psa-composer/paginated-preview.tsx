@@ -35,7 +35,8 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
       }
-      .proposal-paged-source { page: proposal-document; }
+      .proposal-paged-source,
+      .proposal-paged-content { page: proposal-document; }
       .proposal-paged-content { display: flow-root; }
       .proposal-paged-content p {
         break-inside: auto;
