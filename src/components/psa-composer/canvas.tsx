@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -29,15 +29,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, EyeOff, Lock, ImagePlus } from "lucide-react";
-import { toast } from "sonner";
+import { GripVertical, EyeOff, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { PsaProposalBlock, PsaBlockType, PsaLibraryEntry } from "@/lib/psa-proposal/types";
+import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
-import { useAddLibraryBlock, useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
-import { useSmartPagination, type ImageSizeBucket } from "./use-smart-pagination";
+import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import { PaginatedPreview } from "./paginated-preview";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
@@ -75,7 +73,6 @@ function SortableRow({
   onSelect,
   onPatchContent,
   siblings,
-  forceBreakBefore,
   isFirstPrintable,
 }: {
   block: PsaProposalBlock;
@@ -87,7 +84,6 @@ function SortableRow({
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
   siblings: PsaProposalBlock[];
-  forceBreakBefore: boolean;
   isFirstPrintable: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -160,7 +156,6 @@ function SortableRow({
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
-      data-smart-break={forceBreakBefore ? "true" : undefined}
       data-visible-print={isPrintable ? "true" : "false"}
       data-first-printable={isFirstPrintable ? "true" : undefined}
       onClick={onSelect}
@@ -181,7 +176,6 @@ function SortableRow({
         block.block_type === "cover" && isPrintable && "proposal-page-break-after",
         isIndexBlock && isPrintable && pageBreakAfter && "proposal-page-break-after",
         !isIndexBlock && pageBreakAfter && isPrintable && "proposal-page-break-after",
-        forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
 
@@ -327,86 +321,29 @@ export function ComposerCanvas({
   if (styleSettings?.marginLeft != null) (styleVars as Record<string, string>)["--psa-margin-left"] = `${styleSettings.marginLeft}mm`;
   if (styleSettings?.marginRight != null) (styleVars as Record<string, string>)["--psa-margin-right"] = `${styleSettings.marginRight}mm`;
 
-  // Smart pagination: measure gaps and awkward breaks against the A4 sheet.
-  const docRef = useRef<HTMLDivElement | null>(null);
+  // The React document is the authoritative content source. It remains
+  // off-screen while Paged.js renders the visible, physically separated A4
+  // sheets used by both editing and PDF export.
+  const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
   const paginationKey = useMemo(
-    () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
+    () =>
+      JSON.stringify(
+        blocks.map((block) => ({
+          id: block.id,
+          visible: block.is_visible,
+          order: block.sort_order,
+          title: block.title,
+          content: block.content_rich,
+          source: block.source_ref,
+        })),
+      ),
     [blocks],
   );
-  const { gaps, forcedBreaks, mmToPx } = useSmartPagination(docRef, paginationKey);
-  // Compute page starts from the same physical A4 height used by print. Showing
-  // page 1 as well makes the full sheet geometry explicit in the editor.
-  const [docHeight, setDocHeight] = useState(0);
-  useEffect(() => {
-    const el = docRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setDocHeight(el.scrollHeight));
-    ro.observe(el);
-    setDocHeight(el.scrollHeight);
-    return () => ro.disconnect();
-  }, [paginationKey]);
-  const pageMarkers = useMemo(() => {
-    if (!mmToPx || mmToPx < 0.1 || docHeight < 100) return [] as { page: number; top: number }[];
-    const pageHpx = 297 * mmToPx;
-    const count = Math.max(1, Math.ceil(docHeight / pageHpx));
-    const out: { page: number; top: number }[] = [];
-    for (let i = 0; i < count; i++) out.push({ page: i + 1, top: i * pageHpx });
-    return out;
-  }, [mmToPx, docHeight]);
-
-  const addLibraryBlock = useAddLibraryBlock(proposalId);
-
-  const insertImagePlaceholder = (afterBlockId: string, size: ImageSizeBucket) => {
-    const idx = blocks.findIndex((b) => b.id === afterBlockId);
-    if (idx < 0) return;
-    const after = blocks[idx];
-    // If the preceding block is forcing a page break after itself, disable it
-    // so the newly inserted image actually fills the visible gap instead of
-    // bouncing to the next page.
-    const priorBreakAfter = (after.content_rich as { pageBreakAfter?: boolean } | undefined)
-      ?.pageBreakAfter;
-    const priorIsIndexDefault =
-      after.block_type === "index" && priorBreakAfter === undefined;
-    if (priorBreakAfter === true || priorIsIndexDefault) {
-      update.mutate({
-        id: after.id,
-        patch: {
-          content_rich: { ...(after.content_rich ?? {}), pageBreakAfter: false },
-        },
-      });
-    }
-    const entry: PsaLibraryEntry = {
-      id: "image-gap-placeholder",
-      kind: "image",
-      label: "Imagem",
-      default_title: "Imagem",
-      default_content_rich: { size, image_id: null, caption: "" },
-      default_source_type: "manual",
-      default_source_ref: {},
-      default_contract_relevance: "proposal_only",
-      sort_hint: 999,
-      is_system: false,
-    };
-    addLibraryBlock.mutate(
-      { lib: entry, afterOrder: after.sort_order },
-      {
-        onSuccess: (res) => {
-          toast.success(`Imagem ${size} adicionada — escolha uma imagem`);
-          onSelect(res.id);
-        },
-        onError: (e: unknown) => {
-          toast.error(e instanceof Error ? e.message : "Erro ao adicionar imagem");
-        },
-      },
-    );
-  };
-
-
   return (
-    <div className="print-area">
+    <div className="proposal-print-area">
       <div
-        ref={docRef}
-        className={cn("proposal-print-document", previewMode && "proposal-preview-source")}
+        ref={setPaginationSource}
+        className="proposal-print-document proposal-pagination-source"
         style={styleVars}
       >
         {/* PSA running header — fixed in print so it repeats per page.
@@ -451,7 +388,6 @@ export function ComposerCanvas({
                     })
                   }
                   siblings={blocks}
-                  forceBreakBefore={forcedBreaks.has(b.id)}
                   isFirstPrintable={b.id === firstPrintableId}
                 />
               ))}
@@ -459,62 +395,6 @@ export function ComposerCanvas({
             </div>
           </SortableContext>
         </DndContext>
-
-        {/* Page-start lines — screen-only markers at every A4 sheet, including
-            page 1, using the exact physical height used by the print CSS. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 print:hidden"
-        >
-          {pageMarkers.map((pb) => (
-            <div
-              key={pb.page}
-              className={cn(
-                "absolute left-0 right-0",
-                pb.page > 1 && "border-t border-dashed border-sky-300/70",
-              )}
-              style={{ top: pb.top }}
-            >
-              <span className="absolute right-2 top-1 rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-sky-700">
-                Página {pb.page}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Smart-pagination overlays — dashed placeholders sitting inside the
-            gap at the bottom of a page. Screen only; the PDF export keeps the
-            natural page break in that spot. */}
-        <div
-          aria-hidden={false}
-          className="pointer-events-none absolute inset-0 print:hidden"
-          style={{ position: "absolute", inset: 0 }}
-        >
-          {gaps.map((g, i) => (
-            <button
-              key={`${g.afterBlockId}-${i}`}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                insertImagePlaceholder(g.afterBlockId, g.size);
-              }}
-              className="pointer-events-auto absolute left-[14mm] right-[14mm] flex flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-amber-400/70 bg-amber-50/40 text-amber-800 transition hover:border-amber-500 hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-              style={{ top: g.top + 4, height: Math.max(24, g.height - 8) }}
-              title={`Sugerido: imagem ${g.size} de página · espaço livre ~${g.gapMm}mm`}
-            >
-              <ImagePlus className="h-5 w-5" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider">
-                Espaço livre · {g.gapMm} mm
-              </span>
-              <span className="text-[10px] opacity-80">
-                Sugestão: imagem {g.size} de página — clique para inserir
-              </span>
-            </button>
-          ))}
-        </div>
-
-
-
 
         {/* PSA running footer — editable via the Style panel. */}
         {showFooter && (
@@ -530,12 +410,12 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
-      {previewMode && (
-        <PaginatedPreview
-          source={docRef.current}
-          invalidateKey={`${paginationKey}:${docHeight}:${JSON.stringify(styleSettings ?? {})}`}
-        />
-      )}
+      <PaginatedPreview
+        source={paginationSource}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:${previewMode ? 1 : 0}`}
+      />
     </div>
   );
 }

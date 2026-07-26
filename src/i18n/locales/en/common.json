@@ -38,6 +38,12 @@
   "noData": "No data",
   "ofTotal": "{{shown}} of {{total}}",
   "page": "Page {{current}} of {{total}}",
+  "proposalComposer": {
+    "pagination": {
+      "loading": "Laying out proposal pages…",
+      "error": "The proposal pages could not be generated. Try refreshing the preview."
+    }
+  },
   "companyPicker": {
     "search": "Search company…",
     "empty": "No companies found",
