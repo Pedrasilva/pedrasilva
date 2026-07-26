@@ -1011,6 +1011,17 @@
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
+/* Named page keeps this composer isolated from the application's older
+   collaborator-report print rules and gives Paged.js an A4 size outside a
+   media query (Paged.js does not evaluate @page nested in @media print). */
+.proposal-paged-source {
+  page: proposal-a4;
+}
+@page proposal-a4 {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
   @page {
     size: A4;
@@ -1448,6 +1459,8 @@
     display: block !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page {
+    width: 210mm !important;
+    height: 297mm !important;
     margin: 0 !important;
     box-shadow: none !important;
     break-after: page;
