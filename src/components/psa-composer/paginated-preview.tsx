@@ -14,6 +14,12 @@ function collectDocumentStyles(): Array<Record<string, string>> {
     }
   }
 
+  // Keep the proposal page contract last so older feature-specific @page
+  // rules cannot make Paged.js fall back to its default US Letter sheet.
+  styles.push({
+    "proposal-a4.css": "@page { size: A4; margin: 0; } .proposal-paged-source { page: auto; }",
+  });
+
   return styles;
 }
 
