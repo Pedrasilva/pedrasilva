@@ -23,12 +23,35 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
   const left = computed.getPropertyValue("--psa-margin-left").trim() || "14mm";
   styles.push({
     "proposal-a4.css": `
-      @page proposal-a4 {
+      @page {
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
       }
-      .proposal-paged-source { page: proposal-a4; }
+      .proposal-paged-source { page: auto; }
       .proposal-paged-content { display: flow-root; }
+      .proposal-paged-content p {
+        break-inside: auto;
+        orphans: 2;
+        widows: 2;
+      }
+      .proposal-paged-content li,
+      .proposal-paged-content .proposal-avoid-break,
+      .proposal-paged-content .proposal-phase-summary-card {
+        break-inside: avoid;
+      }
+      .proposal-paged-content .proposal-page-break-before {
+        break-before: page;
+      }
+      .proposal-paged-content .proposal-page-break-after {
+        break-after: page;
+      }
+      .proposal-paged-content .proposal-print-block[data-first-printable="true"],
+      .proposal-paged-content > div > .proposal-print-block:first-child {
+        break-before: auto !important;
+      }
+      .proposal-paged-content .proposal-appendix {
+        break-before: auto;
+      }
     `,
   });
 
