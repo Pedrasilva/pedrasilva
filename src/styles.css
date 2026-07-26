@@ -900,7 +900,7 @@
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-canvas-preview .proposal-pagination-source {
+  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
@@ -910,6 +910,15 @@
 
   .proposal-canvas-edit .proposal-paginated-stage {
     display: none;
+  }
+
+  .proposal-pagination-staging {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: var(--psa-page-w, 210mm);
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .proposal-print-document {
@@ -1307,7 +1316,7 @@
    Mirrors the print output on-screen: hides editor chrome, side panels,
    selection borders and block metadata badges, and switches the workspace
    background to white so the A4 sheet reads as the final document. */
-.psa-preview-mode .print\:hidden {
+.psa-preview-mode .proposal-print-document .print\:hidden {
   display: none !important;
 }
 .psa-preview-mode .bg-zinc-100 {
