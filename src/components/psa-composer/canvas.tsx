@@ -352,7 +352,7 @@ export function ComposerCanvas({
       className={cn(
         "proposal-print-area",
         previewMode ? "proposal-canvas-preview" : "proposal-canvas-edit",
-        previewMode && paginationStatus === "error" && "proposal-pagination-error",
+        paginationStatus === "error" && "proposal-pagination-error",
       )}
     >
       <div
