@@ -900,16 +900,13 @@
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source {
+  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source,
+  .proposal-canvas-edit:not(.proposal-pagination-error) .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-  }
-
-  .proposal-canvas-edit .proposal-paginated-stage {
-    display: none;
   }
 
   .proposal-pagination-staging {
@@ -939,7 +936,6 @@
      A4 boundary we draw a full-width "cut" band (soft grey strip framed by
      two solid rules) that runs past the paper edges, so the document reads
      as a stack of sheets instead of one endless roll. */
-  .proposal-canvas-edit .proposal-print-document::before,
   .proposal-canvas-preview.proposal-pagination-error .proposal-print-document::before {
     content: "";
     position: absolute;
@@ -980,6 +976,15 @@
     top: -1rem;
     left: 0;
     margin: 0;
+  }
+
+  /* The Contents block is an atomic, single-page unit. The former divider was
+     only painted over continuous content, so rows could visibly cross it even
+     though the PDF fragmented elsewhere. Keep the block intact in both the
+     browser print path and the Paged.js path. */
+  .proposal-print-document [data-proposal-block-type="index"] {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
   }
 }
 
@@ -1089,7 +1094,8 @@
     break-inside: auto;
   }
   .proposal-print-area .proposal-avoid-break,
-  .proposal-print-area .proposal-phase-summary-card {
+  .proposal-print-area .proposal-phase-summary-card,
+  .proposal-print-area [data-proposal-block-type="index"] {
     page-break-inside: avoid;
     break-inside: avoid;
   }

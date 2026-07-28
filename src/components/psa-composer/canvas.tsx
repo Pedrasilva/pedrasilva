@@ -153,6 +153,7 @@ function SortableRow({
       style={style}
       id={chapter != null ? `chapter-${chapter}` : undefined}
       data-proposal-block-id={block.id}
+      data-proposal-block-type={block.block_type}
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
@@ -423,15 +424,13 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
-      {previewMode && (
-        <PaginatedPreview
-          source={paginationSource}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          onStatusChange={handlePaginationStatus}
-          invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:1`}
-        />
-      )}
+      <PaginatedPreview
+        source={paginationSource}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        onStatusChange={handlePaginationStatus}
+        invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:2`}
+      />
     </div>
   );
 }

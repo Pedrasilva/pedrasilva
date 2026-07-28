@@ -45,8 +45,10 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
       }
       .proposal-paged-content li,
       .proposal-paged-content .proposal-avoid-break,
-      .proposal-paged-content .proposal-phase-summary-card {
+      .proposal-paged-content .proposal-phase-summary-card,
+      .proposal-paged-content [data-proposal-block-type="index"] {
         break-inside: avoid;
+        page-break-inside: avoid;
       }
       .proposal-paged-content .proposal-page-break-before {
         break-before: page;
