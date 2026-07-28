@@ -322,9 +322,9 @@ export function ComposerCanvas({
   if (styleSettings?.marginLeft != null) (styleVars as Record<string, string>)["--psa-margin-left"] = `${styleSettings.marginLeft}mm`;
   if (styleSettings?.marginRight != null) (styleVars as Record<string, string>)["--psa-margin-right"] = `${styleSettings.marginRight}mm`;
 
-  // The React document is the authoritative content source. It remains
-  // off-screen while Paged.js renders the visible, physically separated A4
-  // sheets used by both editing and PDF export.
+  // The React document is the authoritative editable canvas. Paged.js is only
+  // mounted in explicit preview mode so an async pagination failure can never
+  // hide the builder, its toolbars, or the remaining proposal blocks.
   const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
   const [paginationStatus, setPaginationStatus] = useState<"loading" | "ready" | "error">(
     "loading",
@@ -424,13 +424,15 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
-      <PaginatedPreview
-        source={paginationSource}
-        selectedId={selectedId}
-        onSelect={onSelect}
-        onStatusChange={handlePaginationStatus}
-        invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:2`}
-      />
+      {previewMode && (
+        <PaginatedPreview
+          source={paginationSource}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onStatusChange={handlePaginationStatus}
+          invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:3`}
+        />
+      )}
     </div>
   );
 }

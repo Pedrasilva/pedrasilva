@@ -900,8 +900,7 @@
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source,
-  .proposal-canvas-edit:not(.proposal-pagination-error) .proposal-pagination-source {
+  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
@@ -1097,10 +1096,13 @@
     break-inside: auto;
   }
   .proposal-print-area .proposal-avoid-break,
-  .proposal-print-area .proposal-phase-summary-card,
-  .proposal-print-area [data-proposal-block-type="index"] {
+  .proposal-print-area .proposal-phase-summary-card {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+  .proposal-print-area [data-proposal-block-type="index"] {
+    page-break-inside: auto;
+    break-inside: auto;
   }
   .proposal-print-area .proposal-page-break-before {
     page-break-before: always;
