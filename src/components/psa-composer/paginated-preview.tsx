@@ -164,7 +164,10 @@ export function PaginatedPreview({
         // completed sheets out of the staging container otherwise triggers an
         // underflow pass against detached nodes (`findElement(null)`), which
         // can collapse the visible result back to its first page.
-        previewer.chunker.pages.forEach((page) => page.removeListeners());
+        const pagedInternals = previewer as unknown as {
+          chunker?: { pages?: Array<{ removeListeners: () => void }> };
+        };
+        pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
         const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
