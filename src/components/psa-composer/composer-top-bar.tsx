@@ -219,8 +219,7 @@ export function ComposerTopBar({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                printWithFilename(proposal);
-                toast.message("Use 'Guardar como PDF' no diálogo de impressão.");
+                void prepareAndPrintPdf(proposal, previewMode, onTogglePreview);
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
@@ -379,6 +378,45 @@ function printWithFilename(proposal: PsaProposal) {
   window.print();
   // Fallback in case afterprint doesn't fire.
   setTimeout(restore, 2000);
+}
+
+async function prepareAndPrintPdf(
+  proposal: PsaProposal,
+  previewMode: boolean,
+  onTogglePreview?: () => void,
+) {
+  if (!previewMode) onTogglePreview?.();
+
+  const loadingToast = toast.loading("A preparar todas as páginas do PDF…");
+  const deadline = Date.now() + 20_000;
+
+  while (Date.now() < deadline) {
+    const statusError = document.querySelector(".proposal-pagination-status-error");
+    if (statusError) {
+      toast.error("Não foi possível preparar a pré-visualização do PDF.", {
+        id: loadingToast,
+      });
+      return;
+    }
+
+    const pages = document.querySelectorAll(
+      ".proposal-paginated-preview .pagedjs_page",
+    );
+    const loading = document.querySelector(
+      ".proposal-pagination-status:not(.proposal-pagination-status-error)",
+    );
+    if (pages.length > 0 && !loading) {
+      toast.dismiss(loadingToast);
+      printWithFilename(proposal);
+      return;
+    }
+
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
+  }
+
+  toast.error("A preparação do PDF demorou demasiado. Tente novamente.", {
+    id: loadingToast,
+  });
 }
 
 function downloadAsWord(title: string) {
