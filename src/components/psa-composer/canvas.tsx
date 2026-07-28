@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -333,6 +333,9 @@ export function ComposerCanvas({
     (status: "loading" | "ready" | "error") => setPaginationStatus(status),
     [],
   );
+  useEffect(() => {
+    if (previewMode) setPaginationStatus("loading");
+  }, [previewMode]);
   const paginationKey = useMemo(
     () =>
       JSON.stringify(
@@ -352,6 +355,7 @@ export function ComposerCanvas({
       className={cn(
         "proposal-print-area",
         previewMode ? "proposal-canvas-preview" : "proposal-canvas-edit",
+        paginationStatus === "ready" && "proposal-pagination-ready",
         paginationStatus === "error" && "proposal-pagination-error",
       )}
     >

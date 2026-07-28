@@ -900,7 +900,10 @@
   /* The continuous React tree is only the live source for pagination. The
      editor displays Paged.js' physical sheets, so there is no second set of
      guessed dividers or screen-only break spacing. */
-  .proposal-canvas-preview:not(.proposal-pagination-error) .proposal-pagination-source {
+  /* Keep the original document visible while pagination is loading. Hiding it
+     before Paged.js has committed its sheets leaves a completely blank canvas
+     on slower documents. Switch to generated pages only after `ready`. */
+  .proposal-canvas-preview.proposal-pagination-ready .proposal-pagination-source {
     position: fixed !important;
     left: -10000px !important;
     top: 0 !important;
