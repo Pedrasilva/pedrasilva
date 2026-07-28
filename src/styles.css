@@ -913,23 +913,6 @@
   /* Keep the original document visible while pagination is loading. Hiding it
      before Paged.js has committed its sheets leaves a completely blank canvas
      on slower documents. Switch to generated pages only after `ready`. */
-  .proposal-canvas-preview.proposal-pagination-ready .proposal-pagination-source {
-    position: fixed !important;
-    left: -10000px !important;
-    top: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  .proposal-pagination-staging {
-    position: fixed;
-    left: -10000px;
-    top: 0;
-    width: var(--psa-page-w, 210mm);
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   .proposal-print-document {
     position: relative;
     /* Keep the editing sheet at the same physical width as the printed A4.
