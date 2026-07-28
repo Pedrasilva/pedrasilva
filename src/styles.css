@@ -891,6 +891,16 @@
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
+  /* Paged.js temporarily evaluates print-oriented rules while composing the
+     document. Keep the dedicated escape control visible regardless, so a
+     preview can never trap the user outside the builder. */
+  .psa-preview-mode .proposal-preview-toolbar {
+    display: flex !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 300;
+  }
+
   /* Legacy collaborator export styles hide every body descendant while
      printing. Screen mode must never inherit that global visibility state. */
   html:not(.proposal-exporting-paged) body * {
@@ -1038,6 +1048,9 @@
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
 @media print {
+  .proposal-preview-toolbar {
+    display: none !important;
+  }
   @page {
     size: A4;
     margin: 0;
@@ -1351,19 +1364,6 @@
    mode therefore uses Paged.js to render actual A4 page boxes from the same
    source DOM and print CSS used by PDF export. */
 @media screen {
-  /* Keep the React document mounted as Paged.js' measurement source, but move
-     it completely out of the preview flow. The source is named
-     `proposal-pagination-source`; the former stale selector left the full
-     continuous document above the generated sheets, making Preview appear to
-     do nothing. */
-  .psa-preview-mode .proposal-pagination-source {
-    position: fixed !important;
-    left: -10000px !important;
-    top: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
   .proposal-paginated-stage,
   .proposal-paginated-preview {
     width: 100%;

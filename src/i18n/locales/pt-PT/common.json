@@ -44,7 +44,8 @@
       "error": "Não foi possível gerar as páginas da proposta. Tente atualizar a pré-visualização.",
       "pdfLoading": "A preparar todas as páginas do PDF…",
       "pdfError": "Não foi possível preparar a pré-visualização do PDF.",
-      "pdfTimeout": "A preparação do PDF demorou demasiado. Tente novamente."
+      "pdfTimeout": "A preparação do PDF demorou demasiado. Tente novamente.",
+      "backToBuilder": "Voltar ao criador de propostas"
     }
   },
   "companyPicker": {

@@ -181,7 +181,14 @@ export function PaginatedPreview({
         if (result.total !== pageBoxes.length || pageBoxes.length === 0) {
           throw new Error("Pagination produced an incomplete page set");
         }
-        target.replaceChildren(...Array.from(staging.childNodes));
+        // Commit a snapshot instead of moving Paged.js' observed live nodes.
+        // Moving those nodes can trigger a late underflow/layout pass which
+        // removes every generated sheet after page one.
+        const completedPages = staging.querySelector<HTMLElement>(".pagedjs_pages");
+        if (!completedPages) {
+          throw new Error("Pagination did not produce a page container");
+        }
+        target.replaceChildren(completedPages.cloneNode(true));
         setStatus("ready");
         onStatusChange?.("ready");
       } catch (error) {

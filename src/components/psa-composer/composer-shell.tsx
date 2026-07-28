@@ -4,7 +4,8 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { FilePlus2 } from "lucide-react";
+import { ArrowLeft, FilePlus2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
@@ -18,6 +19,7 @@ import {
 } from "@/lib/psa-proposal/use-psa-proposal";
 
 export function ComposerShell({ proposalId }: { proposalId: string }) {
+  const { t } = useTranslation("common");
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
   const reorder = useReorderBlocks(proposalId);
@@ -85,6 +87,19 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         previewMode={previewMode}
         onTogglePreview={() => setPreviewMode((v) => !v)}
       />
+      {previewMode && (
+        <div className="proposal-preview-toolbar flex shrink-0 items-center border-b bg-background px-4 py-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewMode(false)}
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            {t("proposalComposer.pagination.backToBuilder")}
+          </Button>
+        </div>
+      )}
       {isFinalLocked && (
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           Proposta bloqueada

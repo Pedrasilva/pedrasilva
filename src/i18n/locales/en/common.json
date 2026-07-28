@@ -44,7 +44,8 @@
       "error": "The proposal pages could not be generated. Try refreshing the preview.",
       "pdfLoading": "Preparing all PDF pages…",
       "pdfError": "The PDF preview could not be prepared.",
-      "pdfTimeout": "PDF preparation took too long. Try again."
+      "pdfTimeout": "PDF preparation took too long. Try again.",
+      "backToBuilder": "Back to quote builder"
     }
   },
   "companyPicker": {
