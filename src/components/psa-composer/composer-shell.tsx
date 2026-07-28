@@ -2,7 +2,7 @@
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
  * Owns the selected-block state.
  */
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { FilePlus2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,12 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const canvasScrollerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!previewMode) return;
+    canvasScrollerRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [previewMode]);
 
   const items = useMemo(() => blocks.data ?? [], [blocks.data]);
   const selected = items.find((b) => b.id === selectedId) ?? null;
@@ -115,6 +121,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </div>
         )}
         <div
+          ref={canvasScrollerRef}
           className={`min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white ${isReadOnly ? "relative select-none" : ""}`}
           onClickCapture={
             isReadOnly
