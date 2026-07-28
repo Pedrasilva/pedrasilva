@@ -359,6 +359,13 @@ function buildProposalFilename(proposal: PsaProposal): string {
 }
 
 function printWithFilename(proposal: PsaProposal) {
+  const paginatedPages = document.querySelectorAll(
+    ".proposal-paginated-preview .pagedjs_page",
+  );
+  if (paginatedPages.length === 0) {
+    toast.error("A pré-visualização do PDF ainda está a ser preparada. Tente novamente em instantes.");
+    return;
+  }
   const filename = buildProposalFilename(proposal);
   const original = document.title;
   document.title = filename;
