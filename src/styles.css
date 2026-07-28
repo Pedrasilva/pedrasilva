@@ -935,36 +935,33 @@
     background: white;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   }
-  /* Dashed horizontal markers at each A4 boundary, drawn over the sheet
-     so users can see where pages will break in the PDF. The dashes only
-     appear in the side margins (left/right gutters) so they never cross
-     proposal text. */
+  /* Physical sheet separation on the continuous editing document: at every
+     A4 boundary we draw a full-width "cut" band (soft grey strip framed by
+     two solid rules) that runs past the paper edges, so the document reads
+     as a stack of sheets instead of one endless roll. */
   .proposal-print-document:not(.proposal-pagination-source)::before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    left: -28px;
+    right: -28px;
     bottom: 0;
     pointer-events: none;
-    background-image:
-      repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent calc(var(--psa-page-h) - 1px),
-        #cbd5e1 calc(var(--psa-page-h) - 1px),
-        #cbd5e1 var(--psa-page-h)
-      );
-    /* Restrict to the left/right margin gutters only. */
-    background-size: 100% auto;
-    -webkit-mask-image: linear-gradient(to right,
-      black 0, black var(--psa-margin-left),
-      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-right)),
-      black calc(100% - var(--psa-margin-left)), black 100%);
-            mask-image: linear-gradient(to right,
-      black 0, black var(--psa-margin-left),
-      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-right)),
-      black calc(100% - var(--psa-margin-left)), black 100%);
+    z-index: 60;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--psa-page-h) - 9px),
+      #94a3b8 calc(var(--psa-page-h) - 9px),
+      #94a3b8 calc(var(--psa-page-h) - 8px),
+      rgba(100, 116, 139, 0.16) calc(var(--psa-page-h) - 8px),
+      rgba(100, 116, 139, 0.16) var(--psa-page-h),
+      #94a3b8 var(--psa-page-h),
+      #94a3b8 calc(var(--psa-page-h) + 1px),
+      transparent calc(var(--psa-page-h) + 1px),
+      transparent calc(var(--psa-page-h) + 9px)
+    );
+    background-size: 100% calc(var(--psa-page-h) + 9px);
   }
   .proposal-page-header,
   .proposal-page-footer {
