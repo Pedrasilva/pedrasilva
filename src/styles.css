@@ -1351,19 +1351,6 @@
    mode therefore uses Paged.js to render actual A4 page boxes from the same
    source DOM and print CSS used by PDF export. */
 @media screen {
-  /* Keep the React document mounted as Paged.js' measurement source, but move
-     it completely out of the preview flow. The source is named
-     `proposal-pagination-source`; the former stale selector left the full
-     continuous document above the generated sheets, making Preview appear to
-     do nothing. */
-  .psa-preview-mode .proposal-pagination-source {
-    position: fixed !important;
-    left: -10000px !important;
-    top: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
   .proposal-paginated-stage,
   .proposal-paginated-preview {
     width: 100%;
