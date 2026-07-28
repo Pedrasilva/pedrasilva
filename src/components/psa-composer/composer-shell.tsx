@@ -88,7 +88,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         onTogglePreview={() => setPreviewMode((v) => !v)}
       />
       {previewMode && (
-        <div className="flex shrink-0 items-center border-b bg-background px-4 py-2 print:hidden">
+        <div className="proposal-preview-toolbar flex shrink-0 items-center border-b bg-background px-4 py-2">
           <Button
             type="button"
             variant="outline"

@@ -891,6 +891,16 @@
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
+  /* Paged.js temporarily evaluates print-oriented rules while composing the
+     document. Keep the dedicated escape control visible regardless, so a
+     preview can never trap the user outside the builder. */
+  .psa-preview-mode .proposal-preview-toolbar {
+    display: flex !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 300;
+  }
+
   /* Legacy collaborator export styles hide every body descendant while
      printing. Screen mode must never inherit that global visibility state. */
   html:not(.proposal-exporting-paged) body * {
@@ -1038,6 +1048,9 @@
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
 @media print {
+  .proposal-preview-toolbar {
+    display: none !important;
+  }
   @page {
     size: A4;
     margin: 0;
