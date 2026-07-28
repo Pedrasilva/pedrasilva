@@ -4,6 +4,7 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FileDown,
   Printer,
@@ -91,6 +92,7 @@ export function ComposerTopBar({
   previewMode?: boolean;
   onTogglePreview?: () => void;
 }) {
+  const { t } = useTranslation("common");
   const update = useUpdateProposal(proposal.id);
   const [convertOpen, setConvertOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
@@ -219,7 +221,11 @@ export function ComposerTopBar({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                void prepareAndPrintPdf(proposal, previewMode, onTogglePreview);
+                void prepareAndPrintPdf(proposal, previewMode, onTogglePreview, {
+                  loading: t("proposalComposer.pagination.pdfLoading"),
+                  error: t("proposalComposer.pagination.pdfError"),
+                  timeout: t("proposalComposer.pagination.pdfTimeout"),
+                });
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
@@ -384,16 +390,21 @@ async function prepareAndPrintPdf(
   proposal: PsaProposal,
   previewMode: boolean,
   onTogglePreview?: () => void,
+  messages: { loading: string; error: string; timeout: string } = {
+    loading: "Preparing PDF pages…",
+    error: "The PDF preview could not be prepared.",
+    timeout: "PDF preparation timed out.",
+  },
 ) {
   if (!previewMode) onTogglePreview?.();
 
-  const loadingToast = toast.loading("A preparar todas as páginas do PDF…");
+  const loadingToast = toast.loading(messages.loading);
   const deadline = Date.now() + 20_000;
 
   while (Date.now() < deadline) {
     const statusError = document.querySelector(".proposal-pagination-status-error");
     if (statusError) {
-      toast.error("Não foi possível preparar a pré-visualização do PDF.", {
+      toast.error(messages.error, {
         id: loadingToast,
       });
       return;
@@ -414,7 +425,7 @@ async function prepareAndPrintPdf(
     await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
   }
 
-  toast.error("A preparação do PDF demorou demasiado. Tente novamente.", {
+  toast.error(messages.timeout, {
     id: loadingToast,
   });
 }
