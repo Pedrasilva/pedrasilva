@@ -939,7 +939,8 @@
      A4 boundary we draw a full-width "cut" band (soft grey strip framed by
      two solid rules) that runs past the paper edges, so the document reads
      as a stack of sheets instead of one endless roll. */
-  .proposal-print-document:not(.proposal-pagination-source)::before {
+  .proposal-canvas-edit .proposal-print-document::before,
+  .proposal-canvas-preview.proposal-pagination-error .proposal-print-document::before {
     content: "";
     position: absolute;
     top: 0;
