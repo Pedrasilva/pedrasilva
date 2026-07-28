@@ -978,12 +978,15 @@
     margin: 0;
   }
 
-  /* The Contents block is an atomic, single-page unit. The former divider was
-     only painted over continuous content, so rows could visibly cross it even
-     though the PDF fragmented elsewhere. Keep the block intact in both the
-     browser print path and the Paged.js path. */
+  /* Contents may span sheets when it is taller than the printable area. Keep
+     each entry intact, but never make the entire index an impossible-to-place
+     atomic item (Paged.js otherwise aborts after the first sheet). */
   .proposal-print-document [data-proposal-block-type="index"] {
-    break-inside: avoid-page;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .proposal-print-document [data-proposal-block-type="index"] li {
+    break-inside: avoid;
     page-break-inside: avoid;
   }
 }

@@ -45,10 +45,13 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
       }
       .proposal-paged-content li,
       .proposal-paged-content .proposal-avoid-break,
-      .proposal-paged-content .proposal-phase-summary-card,
-      .proposal-paged-content [data-proposal-block-type="index"] {
+      .proposal-paged-content .proposal-phase-summary-card {
         break-inside: avoid;
         page-break-inside: avoid;
+      }
+      .proposal-paged-content [data-proposal-block-type="index"] {
+        break-inside: auto;
+        page-break-inside: auto;
       }
       .proposal-paged-content .proposal-page-break-before {
         break-before: page;
@@ -157,6 +160,11 @@ export function PaginatedPreview({
         document.body.appendChild(staging);
         const result = await previewer.preview(printRoot, collectDocumentStyles(source), staging);
         if (cancelled) return;
+        // Paged.js keeps a ResizeObserver on every generated sheet. Moving the
+        // completed sheets out of the staging container otherwise triggers an
+        // underflow pass against detached nodes (`findElement(null)`), which
+        // can collapse the visible result back to its first page.
+        previewer.chunker.pages.forEach((page) => page.removeListeners());
         const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
