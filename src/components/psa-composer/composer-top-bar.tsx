@@ -221,11 +221,24 @@ export function ComposerTopBar({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                void prepareAndPrintPdf(proposal, previewMode, onTogglePreview, {
-                  loading: t("proposalComposer.pagination.pdfLoading"),
-                  error: t("proposalComposer.pagination.pdfError"),
-                  timeout: t("proposalComposer.pagination.pdfTimeout"),
-                });
+                const printWindow = window.open("", "_blank");
+                if (printWindow) {
+                  printWindow.document.write(
+                    `<!doctype html><html><head><title>${escapeHtml(buildProposalFilename(proposal))}</title></head><body><p>${escapeHtml(t("proposalComposer.pagination.pdfLoading"))}</p></body></html>`,
+                  );
+                  printWindow.document.close();
+                }
+                void prepareAndPrintPdf(
+                  proposal,
+                  previewMode,
+                  onTogglePreview,
+                  {
+                    loading: t("proposalComposer.pagination.pdfLoading"),
+                    error: t("proposalComposer.pagination.pdfError"),
+                    timeout: t("proposalComposer.pagination.pdfTimeout"),
+                  },
+                  printWindow,
+                );
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
@@ -395,6 +408,7 @@ async function prepareAndPrintPdf(
     error: "The PDF preview could not be prepared.",
     timeout: "PDF preparation timed out.",
   },
+  printWindow: Window | null = null,
 ) {
   if (!previewMode) onTogglePreview?.();
 
@@ -404,6 +418,7 @@ async function prepareAndPrintPdf(
   while (Date.now() < deadline) {
     const statusError = document.querySelector(".proposal-pagination-status-error");
     if (statusError) {
+      printWindow?.close();
       toast.error(messages.error, {
         id: loadingToast,
       });
@@ -418,16 +433,64 @@ async function prepareAndPrintPdf(
     );
     if (pages.length > 0 && !loading) {
       toast.dismiss(loadingToast);
-      printWithFilename(proposal);
+      if (printWindow && !printWindow.closed) {
+        printPaginatedDocumentInWindow(proposal, printWindow);
+      } else {
+        printWithFilename(proposal);
+      }
       return;
     }
 
     await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
   }
 
+  printWindow?.close();
   toast.error(messages.timeout, {
     id: loadingToast,
   });
+}
+
+function printPaginatedDocumentInWindow(proposal: PsaProposal, printWindow: Window) {
+  const pages = document.querySelector(".proposal-paginated-stage");
+  if (!pages) {
+    printWindow.close();
+    printWithFilename(proposal);
+    return;
+  }
+
+  const styles = Array.from(
+    document.querySelectorAll('style, link[rel="stylesheet"]'),
+  )
+    .map((node) => node.outerHTML)
+    .join("\n");
+  const filename = buildProposalFilename(proposal);
+  printWindow.document.open();
+  printWindow.document.write(
+    `<!doctype html><html class="proposal-exporting-paged"><head><meta charset="utf-8"><title>${escapeHtml(filename)}</title>${styles}</head><body><div class="proposal-print-area">${pages.outerHTML}</div></body></html>`,
+  );
+  printWindow.document.close();
+
+  const triggerPrint = () => {
+    printWindow.focus();
+    printWindow.print();
+  };
+  if (printWindow.document.readyState === "complete") {
+    window.setTimeout(triggerPrint, 250);
+  } else {
+    printWindow.addEventListener("load", () => window.setTimeout(triggerPrint, 250), {
+      once: true,
+    });
+  }
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>'"]/g,
+    (character) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        character
+      ] ?? character,
+  );
 }
 
 function downloadAsWord(title: string) {
