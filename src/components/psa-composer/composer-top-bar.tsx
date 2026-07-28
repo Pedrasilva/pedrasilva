@@ -395,12 +395,34 @@ async function printProposalDocument(
     const styles = Array.from(
       document.querySelectorAll('style, link[rel="stylesheet"]'),
     )
-      .map((node) => node.outerHTML)
+      .map((node) => {
+        if (node instanceof HTMLLinkElement) {
+          const absoluteHref = new URL(node.href, document.baseURI).href;
+          return `<link rel="stylesheet" href="${escapeHtml(absoluteHref)}">`;
+        }
+        return node.outerHTML;
+      })
       .join("\n");
     const filename = buildProposalFilename(proposal);
+    const baseUrl = new URL(".", document.baseURI).href;
     printWindow.document.open();
     printWindow.document.write(
-      `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(filename)}</title>${styles}</head><body><div class="proposal-print-area">${clone.outerHTML}</div></body></html>`,
+      `<!doctype html><html><head><meta charset="utf-8"><base href="${escapeHtml(baseUrl)}"><title>${escapeHtml(filename)}</title>${styles}<style>
+        @media print {
+          @page { size: A4; margin: 0; }
+          html, body { width: 210mm; margin: 0 !important; padding: 0 !important; background: white !important; }
+          body.proposal-pdf-export,
+          body.proposal-pdf-export * { visibility: visible !important; }
+          body.proposal-pdf-export > .proposal-print-area {
+            position: static !important;
+            inset: auto !important;
+            width: 210mm !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+        }
+      </style></head><body class="proposal-pdf-export"><div class="proposal-print-area">${clone.outerHTML}</div></body></html>`,
     );
     printWindow.document.close();
 
@@ -408,6 +430,19 @@ async function printProposalDocument(
       if (printWindow.document.readyState === "complete") resolve();
       else printWindow.addEventListener("load", () => resolve(), { once: true });
     });
+    await Promise.all(
+      Array.from(printWindow.document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')).map(
+        (link) =>
+          new Promise<void>((resolve) => {
+            if (link.sheet) {
+              resolve();
+              return;
+            }
+            link.addEventListener("load", () => resolve(), { once: true });
+            link.addEventListener("error", () => resolve(), { once: true });
+          }),
+      ),
+    );
     await printWindow.document.fonts?.ready;
     await Promise.all(
       Array.from(printWindow.document.images).map(async (image) => {
