@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -36,7 +36,6 @@ import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
-import { PaginatedPreview } from "./paginated-preview";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
@@ -322,46 +321,15 @@ export function ComposerCanvas({
   if (styleSettings?.marginLeft != null) (styleVars as Record<string, string>)["--psa-margin-left"] = `${styleSettings.marginLeft}mm`;
   if (styleSettings?.marginRight != null) (styleVars as Record<string, string>)["--psa-margin-right"] = `${styleSettings.marginRight}mm`;
 
-  // The React document is the authoritative editable canvas. Paged.js is only
-  // mounted in explicit preview mode so an async pagination failure can never
-  // hide the builder, its toolbars, or the remaining proposal blocks.
-  const [paginationSource, setPaginationSource] = useState<HTMLDivElement | null>(null);
-  const [paginationStatus, setPaginationStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
-  const handlePaginationStatus = useCallback(
-    (status: "loading" | "ready" | "error") => setPaginationStatus(status),
-    [],
-  );
-  useEffect(() => {
-    if (previewMode) setPaginationStatus("loading");
-  }, [previewMode]);
-  const paginationKey = useMemo(
-    () =>
-      JSON.stringify(
-        blocks.map((block) => ({
-          id: block.id,
-          visible: block.is_visible,
-          order: block.sort_order,
-          title: block.title,
-          content: block.content_rich,
-          source: block.source_ref,
-        })),
-      ),
-    [blocks],
-  );
   return (
     <div
       className={cn(
         "proposal-print-area",
         previewMode ? "proposal-canvas-preview" : "proposal-canvas-edit",
-        paginationStatus === "ready" && "proposal-pagination-ready",
-        paginationStatus === "error" && "proposal-pagination-error",
       )}
     >
       <div
-        ref={setPaginationSource}
-        className="proposal-print-document proposal-pagination-source"
+        className="proposal-print-document"
         style={styleVars}
       >
         {/* PSA running header — fixed in print so it repeats per page.
@@ -428,15 +396,6 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
-      {previewMode && (
-        <PaginatedPreview
-          source={paginationSource}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          onStatusChange={handlePaginationStatus}
-          invalidateKey={`${paginationKey}:${JSON.stringify(styleSettings ?? {})}:${language ?? ""}:3`}
-        />
-      )}
     </div>
   );
 }

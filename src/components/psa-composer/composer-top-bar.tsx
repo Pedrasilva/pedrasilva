@@ -222,23 +222,14 @@ export function ComposerTopBar({
             <DropdownMenuItem
               onClick={() => {
                 const printWindow = window.open("", "_blank");
-                if (printWindow) {
-                  printWindow.document.write(
-                    `<!doctype html><html><head><title>${escapeHtml(buildProposalFilename(proposal))}</title></head><body><p>${escapeHtml(t("proposalComposer.pagination.pdfLoading"))}</p></body></html>`,
-                  );
-                  printWindow.document.close();
+                 if (!printWindow) {
+                   toast.error(t("proposalComposer.pagination.pdfError"));
+                   return;
                 }
-                void prepareAndPrintPdf(
-                  proposal,
-                  previewMode,
-                  onTogglePreview,
-                  {
-                    loading: t("proposalComposer.pagination.pdfLoading"),
-                    error: t("proposalComposer.pagination.pdfError"),
-                    timeout: t("proposalComposer.pagination.pdfTimeout"),
-                  },
-                  printWindow,
-                );
+                 void printProposalDocument(proposal, printWindow, {
+                   loading: t("proposalComposer.pagination.pdfLoading"),
+                   error: t("proposalComposer.pagination.pdfError"),
+                 });
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
@@ -376,110 +367,65 @@ function buildProposalFilename(proposal: PsaProposal): string {
   return `${name} ${dateStr} proposal rev ${rev}`;
 }
 
-function printWithFilename(proposal: PsaProposal) {
-  const paginatedPages = document.querySelectorAll(
-    ".proposal-paginated-preview .pagedjs_page",
-  );
-  if (paginatedPages.length === 0) {
-    toast.error("A pré-visualização do PDF ainda está a ser preparada. Tente novamente em instantes.");
-    return;
-  }
-  const filename = buildProposalFilename(proposal);
-  const original = document.title;
-  document.title = filename;
-  const restore = () => {
-    document.documentElement.classList.remove("proposal-exporting-paged");
-    document.title = original;
-    window.removeEventListener("afterprint", restore);
-  };
-  window.addEventListener("afterprint", restore);
-  document.documentElement.classList.add("proposal-exporting-paged");
-  window.print();
-  // Fallback in case afterprint doesn't fire.
-  setTimeout(restore, 2000);
-}
-
-async function prepareAndPrintPdf(
+async function printProposalDocument(
   proposal: PsaProposal,
-  previewMode: boolean,
-  onTogglePreview?: () => void,
-  messages: { loading: string; error: string; timeout: string } = {
+  printWindow: Window,
+  messages: { loading: string; error: string } = {
     loading: "Preparing PDF pages…",
     error: "The PDF preview could not be prepared.",
-    timeout: "PDF preparation timed out.",
   },
-  printWindow: Window | null = null,
 ) {
-  if (!previewMode) onTogglePreview?.();
-
   const loadingToast = toast.loading(messages.loading);
-  const deadline = Date.now() + 20_000;
-
-  while (Date.now() < deadline) {
-    const statusError = document.querySelector(".proposal-pagination-status-error");
-    if (statusError) {
-      printWindow?.close();
-      toast.error(messages.error, {
-        id: loadingToast,
-      });
-      return;
-    }
-
-    const pages = document.querySelectorAll(
-      ".proposal-paginated-preview .pagedjs_page",
+  try {
+    const source = document.querySelector<HTMLElement>(
+      ".proposal-print-area .proposal-print-document",
     );
-    const loading = document.querySelector(
-      ".proposal-pagination-status:not(.proposal-pagination-status-error)",
+    if (!source) throw new Error("Proposal document was not found");
+
+    const clone = source.cloneNode(true) as HTMLElement;
+    clone
+      .querySelectorAll(
+        '[data-editor-toolbar="true"], .ProseMirror-menubar, button, .print\\:hidden',
+      )
+      .forEach((node) => node.remove());
+    clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
+      node.removeAttribute("contenteditable");
+    });
+
+    const styles = Array.from(
+      document.querySelectorAll('style, link[rel="stylesheet"]'),
+    )
+      .map((node) => node.outerHTML)
+      .join("\n");
+    const filename = buildProposalFilename(proposal);
+    printWindow.document.open();
+    printWindow.document.write(
+      `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(filename)}</title>${styles}</head><body><div class="proposal-print-area">${clone.outerHTML}</div></body></html>`,
     );
-    if (pages.length > 0 && !loading) {
-      toast.dismiss(loadingToast);
-      if (printWindow && !printWindow.closed) {
-        printPaginatedDocumentInWindow(proposal, printWindow);
-      } else {
-        printWithFilename(proposal);
-      }
-      return;
-    }
+    printWindow.document.close();
 
-    await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
-  }
-
-  printWindow?.close();
-  toast.error(messages.timeout, {
-    id: loadingToast,
-  });
-}
-
-function printPaginatedDocumentInWindow(proposal: PsaProposal, printWindow: Window) {
-  const pages = document.querySelector(".proposal-paginated-stage");
-  if (!pages) {
-    printWindow.close();
-    printWithFilename(proposal);
-    return;
-  }
-
-  const styles = Array.from(
-    document.querySelectorAll('style, link[rel="stylesheet"]'),
-  )
-    .map((node) => node.outerHTML)
-    .join("\n");
-  const filename = buildProposalFilename(proposal);
-  printWindow.document.open();
-  printWindow.document.write(
-    `<!doctype html><html class="proposal-exporting-paged"><head><meta charset="utf-8"><title>${escapeHtml(filename)}</title>${styles}</head><body><div class="proposal-print-area">${pages.outerHTML}</div></body></html>`,
-  );
-  printWindow.document.close();
-
-  const triggerPrint = () => {
+    await new Promise<void>((resolve) => {
+      if (printWindow.document.readyState === "complete") resolve();
+      else printWindow.addEventListener("load", () => resolve(), { once: true });
+    });
+    await printWindow.document.fonts?.ready;
+    await Promise.all(
+      Array.from(printWindow.document.images).map(async (image) => {
+        if (image.complete) return;
+        try {
+          await image.decode();
+        } catch {
+          // A missing decorative image must not block the printable document.
+        }
+      }),
+    );
+    toast.dismiss(loadingToast);
     printWindow.focus();
     printWindow.print();
-  };
-  if (printWindow.document.readyState === "complete") {
-    window.setTimeout(triggerPrint, 250);
-  } else {
-    printWindow.addEventListener("load", () => window.setTimeout(triggerPrint, 250), {
-      once: true,
-    });
+  } catch (error) {
+    console.error("Proposal PDF preparation failed", error);
+    printWindow.close();
+    toast.error(messages.error, { id: loadingToast });
   }
 }
 
