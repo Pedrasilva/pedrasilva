@@ -134,7 +134,6 @@ export function useRetainerMonthlyActuals(args: {
       );
 
       const entries: RetainerMonthlyEntry[] = rawEntries.map((e) => ({
-
         id: e.id,
         entry_date: e.entry_date,
         hours: Number(e.hours),
