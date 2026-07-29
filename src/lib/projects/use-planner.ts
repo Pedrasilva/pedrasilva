@@ -173,7 +173,7 @@ export function useUpdateStage() {
       patch,
     }: {
       id: string;
-      patch: Partial<Pick<Stage, "name" | "budget" | "start_date" | "end_date" | "color" | "sort_order" | "parent_stage_id" | "is_milestone">> & { status?: "active" | "cancelled" };
+      patch: Partial<Pick<Stage, "name" | "budget" | "start_date" | "end_date" | "color" | "sort_order" | "parent_stage_id" | "is_milestone">> & { status?: "planned" | "active" | "done" | "cancelled" };
       projectId: string;
     }): Promise<Stage> => {
       const { data, error } = await supabase
