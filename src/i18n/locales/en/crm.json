@@ -470,7 +470,6 @@
       "stagesTitle": "Stages",
       "depsTitle": "Dependencies",
       "allocTitle": "Allocations",
-
       "startDate": "Start date",
       "endDate": "End date",
       "budget": "Budget",
@@ -568,6 +567,18 @@
           "signInError": "Sign in to log hours.",
           "hoursError": "Enter a positive hours value."
         }
+      },
+      "saleMargin": {
+        "title": "Sale margin",
+        "button": "Margin",
+        "tooltip": "Sale margin applied to resource cost on this quote.",
+        "hint": "Sale rate = cost × (1 + margin). Default is 50%; set a different value for this quote only.",
+        "field": "Margin (%)",
+        "applyExisting": "Re-price existing allocations",
+        "reset": "Use default (50%)",
+        "save": "Save",
+        "saved": "Sale margin updated",
+        "invalid": "Enter a valid percentage."
       }
     },
     "warnings": {

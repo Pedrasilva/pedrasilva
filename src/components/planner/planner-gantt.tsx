@@ -26,6 +26,7 @@ import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
+import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
@@ -1078,6 +1079,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
               : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
           </Button>
+          <QuoteSaleMarginSettings quoteId={quoteId} />
           {onAddRetainerPhase && (
             <Button
               type="button"

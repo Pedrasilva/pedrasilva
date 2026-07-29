@@ -35,6 +35,7 @@ import {
 } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
+import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
@@ -61,6 +62,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
   const delDep = useDeleteQuoteDependency(quoteId);
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
+  const { data: quoteMargin } = useQuoteSaleMargin(quoteId);
 
   const stage = (stagesQ.data ?? []).find((s) => s.id === stageId);
   const allStages = stagesQ.data ?? [];
@@ -215,7 +217,11 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
       toast.error(t("workspace.planning.resourceUnavailable", { defaultValue: "Selected resource is no longer available." }));
       return;
     }
-    const rates = effectiveRates(res, defaultRates);
+    const base = effectiveRates(res, defaultRates);
+    const rates = {
+      cost: base.cost,
+      sale: saleFromCost(base.cost, base.sale, quoteMargin ?? null),
+    };
     try {
       await upsertAlloc.mutateAsync({
         quote_id: quoteId,

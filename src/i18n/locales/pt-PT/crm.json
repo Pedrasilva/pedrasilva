@@ -470,7 +470,6 @@
       "stagesTitle": "Fases",
       "depsTitle": "Dependências",
       "allocTitle": "Alocações",
-
       "startDate": "Data de início",
       "endDate": "Data de fim",
       "budget": "Orçamento",
@@ -568,6 +567,18 @@
           "signInError": "Inicie sessão para registar horas.",
           "hoursError": "Indique um valor de horas positivo."
         }
+      },
+      "saleMargin": {
+        "title": "Margem de venda",
+        "button": "Margem",
+        "tooltip": "Margem de venda aplicada ao custo dos recursos nesta proposta.",
+        "hint": "Valor de venda = custo × (1 + margem). O predefinido é 50%; defina um valor diferente apenas para esta proposta.",
+        "field": "Margem (%)",
+        "applyExisting": "Recalcular alocações existentes",
+        "reset": "Usar predefinido (50%)",
+        "save": "Guardar",
+        "saved": "Margem de venda actualizada",
+        "invalid": "Introduza uma percentagem válida."
       }
     },
     "warnings": {
