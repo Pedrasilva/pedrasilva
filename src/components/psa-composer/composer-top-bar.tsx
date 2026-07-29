@@ -404,7 +404,7 @@ export async function printProposalDocument(
         return node.outerHTML;
       })
       .join("\n");
-    const filename = buildProposalFilename(proposal);
+    const filename = filenameOverride?.trim() || buildProposalFilename(proposal);
     const baseUrl = new URL(".", document.baseURI).href;
     printWindow.document.open();
     printWindow.document.write(
