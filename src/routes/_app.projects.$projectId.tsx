@@ -90,6 +90,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
+  AllocationRowActions,
+  StageRowActions,
+  StageStatusCell,
+  normalizeStageStatus,
+} from "@/components/projects/stage-row-actions";
+import {
   ArrowLeft,
   ZoomIn,
   ZoomOut,
@@ -114,9 +120,7 @@ import {
   Search,
   ArrowUpDown,
   Plus,
-  MoreVertical,
   Pencil,
-  UserPlus,
   DollarSign,
   FileText,
 } from "lucide-react";
@@ -849,6 +853,7 @@ function ProjectDetail() {
 
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable
+                    projectId={projectId}
                     stages={stages}
                     invoiced={invoicedTotal}
                     totalBudget={totalBudget}
@@ -1504,6 +1509,7 @@ function KpiCard({
 }
 
 function MilestonesTable({
+  projectId,
   stages,
   stageCost,
   stageActualRevenue,
@@ -1515,6 +1521,7 @@ function MilestonesTable({
   onEditPlan,
   onOpenStageInsights,
 }: {
+  projectId: string;
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
       ? S
@@ -1799,7 +1806,11 @@ function MilestonesTable({
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
+                        <StageStatusCell
+                          stageId={s.id}
+                          projectId={projectId}
+                          status={normalizeStageStatus((s as { status?: string }).status)}
+                        />
                       </td>
                       {canSeeFinancials && (
                         <>
@@ -1824,17 +1835,15 @@ function MilestonesTable({
                         <DateLink date={parseISO(s.end_date)} />
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <div className="inline-flex items-center gap-1 text-muted-foreground">
-                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
-                            <UserPlus className="h-3.5 w-3.5" />
-                          </button>
-                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
-                            <MoreVertical className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
+                        <StageRowActions
+                          stageId={s.id}
+                          projectId={projectId}
+                          status={normalizeStageStatus((s as { status?: string }).status)}
+                          startDate={s.start_date}
+                          endDate={s.end_date}
+                          assignedResourceIds={s.allocations.map((a) => a.resource.id)}
+                          onEdit={onEditPlan}
+                        />
                       </td>
                     </tr>
 
@@ -1894,17 +1903,11 @@ function MilestonesTable({
                               <DateLink date={parseISO(a.end_date)} />
                             </td>
                             <td className="px-4 py-2.5 text-right">
-                              <div className="inline-flex items-center gap-1 text-muted-foreground">
-                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
-                                  <UserPlus className="h-3.5 w-3.5" />
-                                </button>
-                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
-                                  <MoreVertical className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
+                              <AllocationRowActions
+                                allocationId={a.id}
+                                projectId={projectId}
+                                onEdit={onEditPlan}
+                              />
                             </td>
                           </tr>
                         );
