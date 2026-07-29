@@ -92,10 +92,12 @@ function useActualHoursByResource(stageIds: string[]) {
     enabled: stageIds.length > 0,
     queryFn: async (): Promise<Map<string, number>> => {
       const m = new Map<string, number>();
+      // Task-based entries do NOT carry pm_stage_id — the stage link runs
+      // task → allocation → stage. Filter on the nested allocation stage.
       const { data } = await supabase
         .from("pm_time_entries")
-        .select("hours, pm_tasks!inner(pm_allocations!inner(resource_id))")
-        .in("pm_stage_id", stageIds)
+        .select("hours, pm_tasks!inner(pm_allocations!inner(resource_id, stage_id))")
+        .in("pm_tasks.pm_allocations.stage_id", stageIds)
         .not("task_id", "is", null);
       for (const r of (data ?? []) as Array<{
         hours: number | string;
@@ -106,6 +108,7 @@ function useActualHoursByResource(stageIds: string[]) {
         m.set(rid, (m.get(rid) ?? 0) + Number(r.hours));
       }
       return m;
+
     },
   });
 }
