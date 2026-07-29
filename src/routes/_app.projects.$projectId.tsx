@@ -120,9 +120,7 @@ import {
   Search,
   ArrowUpDown,
   Plus,
-  MoreVertical,
   Pencil,
-  UserPlus,
   DollarSign,
   FileText,
 } from "lucide-react";
