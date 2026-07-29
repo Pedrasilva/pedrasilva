@@ -841,12 +841,19 @@ export function GanttChart({
   // whole group moves together.
   async function handleShiftSubtree(id: string, days: number) {
     if (!days) return;
-    const targets = collectDescendants(id).filter(
-      (d) => !(hierarchy?.get(d.id)?.isSummary ?? false),
+    // The top "Project" row is synthetic (not a real pm_stage): shifting it
+    // must move every real stage in the plan. For real parent rows we shift
+    // the row itself plus its whole subtree.
+    const self = stagesAll.find((s) => s.id === id);
+    const targets = self
+      ? [self, ...collectDescendants(id)]
+      : stagesAll.slice();
+    const real = targets.filter(
+      (d) => stagesAll.some((s) => s.id === d.id) && d.start_date && d.end_date,
     );
-    if (targets.length === 0) return;
+    if (real.length === 0) return;
     try {
-      for (const d of targets) {
+      for (const d of real) {
         await adapter.updateStage({
           id: d.id,
           projectId: d.projectId,
@@ -854,6 +861,7 @@ export function GanttChart({
           end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
         });
       }
+      toast.success(`${real.length} stage(s) shifted by ${days} day(s)`);
     } catch (err) {
       toast.error((err as Error).message);
     }
