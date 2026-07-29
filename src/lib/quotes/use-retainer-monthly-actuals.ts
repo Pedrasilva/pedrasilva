@@ -67,29 +67,73 @@ export function useRetainerMonthlyActuals(args: {
     queryKey: ["retainer-monthly-actuals", stageId, anchorMonth, months, monthlyFee],
     enabled: !!stageId,
     queryFn: async (): Promise<RetainerMonthlyActuals> => {
-      const { data: rawEntries, error } = await supabase
-        .from("pm_time_entries")
-        .select(
-          "id, entry_date, hours, billable, notes, user_id, cost_rate_snapshot, sale_rate_snapshot",
-        )
-        .eq("entry_type", "retainer" as never)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .eq("quote_stage_id" as any, stageId)
-        .order("entry_date", { ascending: true });
-      if (error) throw error;
+      type RawEntry = {
+        id: string;
+        entry_date: string;
+        hours: number | string;
+        billable: boolean;
+        notes: string | null;
+        user_id: string;
+        cost_rate_snapshot: number | string | null;
+        sale_rate_snapshot: number | string | null;
+      };
+      const SELECT =
+        "id, entry_date, hours, billable, notes, user_id, cost_rate_snapshot, sale_rate_snapshot";
 
-      const entries: RetainerMonthlyEntry[] = (
-        (rawEntries ?? []) as Array<{
-          id: string;
-          entry_date: string;
-          hours: number | string;
-          billable: boolean;
-          notes: string | null;
-          user_id: string;
-          cost_rate_snapshot: number | string | null;
-          sale_rate_snapshot: number | string | null;
-        }>
-      ).map((e) => ({
+      // Hours reach a retainer stage through three different shapes, and
+      // matching on entry_type='retainer' only ever caught the first one:
+      //   1. quote-side inline logging  → quote_stage_id = this stage
+      //   2. project-side open logging  → pm_stage_id = mirrored pm_stage
+      //   3. normal timesheet logging   → task → allocation → pm_stage
+      // Match by stage association regardless of entry_type.
+      const { data: pmStageRows } = await supabase
+        .from("pm_stages")
+        .select("id")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .eq("source_quote_stage_id" as any, stageId);
+      const parentIds = ((pmStageRows ?? []) as Array<{ id: string }>).map((r) => r.id);
+      let pmStageIds = [...parentIds];
+      if (parentIds.length > 0) {
+        const { data: childRows } = await supabase
+          .from("pm_stages")
+          .select("id")
+          .in("parent_stage_id", parentIds);
+        pmStageIds = pmStageIds.concat(
+          ((childRows ?? []) as Array<{ id: string }>).map((r) => r.id),
+        );
+      }
+
+      const queries: Array<PromiseLike<{ data: unknown; error: unknown }>> = [
+        supabase
+          .from("pm_time_entries")
+          .select(SELECT)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .eq("quote_stage_id" as any, stageId),
+      ];
+      if (pmStageIds.length > 0) {
+        queries.push(
+          supabase.from("pm_time_entries").select(SELECT).in("pm_stage_id", pmStageIds),
+          supabase
+            .from("pm_time_entries")
+            .select(`${SELECT}, pm_tasks!inner(pm_allocations!inner(stage_id))`)
+            .in("pm_tasks.pm_allocations.stage_id", pmStageIds)
+            .not("task_id", "is", null),
+        );
+      }
+
+      const results = await Promise.all(queries);
+      const firstError = results.find((r) => r.error)?.error;
+      if (firstError) throw firstError;
+
+      const byId = new Map<string, RawEntry>();
+      for (const r of results) {
+        for (const row of ((r.data ?? []) as RawEntry[])) byId.set(row.id, row);
+      }
+      const rawEntries = Array.from(byId.values()).sort((a, b) =>
+        a.entry_date < b.entry_date ? -1 : a.entry_date > b.entry_date ? 1 : 0,
+      );
+
+      const entries: RetainerMonthlyEntry[] = rawEntries.map((e) => ({
         id: e.id,
         entry_date: e.entry_date,
         hours: Number(e.hours),
