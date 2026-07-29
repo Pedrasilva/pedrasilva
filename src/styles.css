@@ -295,9 +295,12 @@
     visibility: hidden;
   }
   .print-area,
-  .print-area * {
+  .print-area *,
+  .proposal-print-area,
+  .proposal-print-area * {
     visibility: visible;
   }
+
   /* Promove a print-area para o topo do documento ocupando toda a largura,
      ignorando sidebars/top-nav/grids que reservariam espaço com visibility:hidden
      e empurrariam o conteúdo para uma coluna estreita à direita. */
