@@ -9078,6 +9078,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_project_stage_hours: {
+        Args: { p_project_id: string }
+        Returns: {
+          billable_hours: number
+          hours: number
+          month: string
+          non_billable_hours: number
+          stage_id: string
+        }[]
+      }
       pm_resource_map_for_users: {
         Args: { _user_ids: string[] }
         Returns: {
