@@ -841,15 +841,15 @@ export function GanttChart({
   // whole group moves together.
   async function handleShiftSubtree(id: string, days: number) {
     if (!days) return;
-    // The top "Project" row is synthetic (not a real pm_stage): shifting it
-    // must move every real stage in the plan. For real parent rows we shift
-    // the row itself plus its whole subtree.
-    const self = stagesAll.find((s) => s.id === id);
-    const targets = self
-      ? [self, ...collectDescendants(id)]
-      : stagesAll.slice();
+    // Synthetic rows (the top "Project" summary) use non-uuid ids like
+    // "__quote_project__" / "__project_summary__" and have no DB row.
+    const isSynthetic = (sid: string) => sid.startsWith("__");
+    const self = isSynthetic(id) ? undefined : stagesAll.find((s) => s.id === id);
+    // Shifting the synthetic project row moves every real stage in the plan;
+    // shifting a real parent moves that row plus its whole subtree.
+    const targets = self ? [self, ...collectDescendants(id)] : stagesAll.slice();
     const real = targets.filter(
-      (d) => stagesAll.some((s) => s.id === d.id) && d.start_date && d.end_date,
+      (d) => !isSynthetic(d.id) && d.start_date && d.end_date,
     );
     if (real.length === 0) return;
     try {
