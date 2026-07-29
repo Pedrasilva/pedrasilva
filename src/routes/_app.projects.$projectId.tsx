@@ -212,9 +212,32 @@ function ProjectDetail() {
     queryFn: async () => {
       if (!data)
         return [] as { stage_id: string; month: string; hours: number; billableHours: number; nonBillableHours: number }[];
+      // Aggregated, privacy-safe hours per stage/month. This lets any team
+      // member with project visibility see how the project is performing
+      // time-wise, not only their own logged hours (RLS on pm_time_entries
+      // restricts non-admins to their own rows).
+      const summary = await supabase.rpc("pm_project_stage_hours", {
+        p_project_id: projectId,
+      });
+      if (!summary.error && summary.data) {
+        return (summary.data as Array<{
+          stage_id: string;
+          month: string;
+          hours: number | string;
+          billable_hours: number | string;
+          non_billable_hours: number | string;
+        }>).map((row) => ({
+          stage_id: row.stage_id,
+          month: row.month,
+          hours: Number(row.hours) || 0,
+          billableHours: Number(row.billable_hours) || 0,
+          nonBillableHours: Number(row.non_billable_hours) || 0,
+        }));
+      }
       const allocIds = data.stages.flatMap((s) =>
         s.allocations.map((a) => a.id),
       );
+
       // task ids belong to allocations
       const { data: tasks } = await supabase
         .from("pm_tasks")
