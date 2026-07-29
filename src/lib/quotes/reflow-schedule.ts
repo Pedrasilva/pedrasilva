@@ -98,7 +98,9 @@ export async function reflowQuoteSchedule(quoteId: string): Promise<ReflowResult
           newStart = addDays(newEnd, -duration);
           break;
       }
-      if (newStart > succStart) {
+      // Exact placement: successors sit exactly at the constrained date, so a
+      // lag of 0 means no visible gap on the chart.
+      if (ymd(newStart) !== succ.start_date || ymd(newEnd) !== succ.end_date) {
         bounds.set(succ.id, {
           id: succ.id,
           start_date: ymd(newStart),
