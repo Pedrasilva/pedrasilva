@@ -77,79 +77,101 @@ export function computeCascade(
   });
 
   const outgoing = new Map<string, StageDependency[]>();
+  const incoming = new Map<string, StageDependency[]>();
   for (const d of deps) {
-    const arr = outgoing.get(d.predecessor_id) ?? [];
-    arr.push(d);
-    outgoing.set(d.predecessor_id, arr);
+    const out = outgoing.get(d.predecessor_id) ?? [];
+    out.push(d);
+    outgoing.set(d.predecessor_id, out);
+    const inc = incoming.get(d.successor_id) ?? [];
+    inc.push(d);
+    incoming.set(d.successor_id, inc);
   }
 
   const updated = new Map<string, { start_date: string; end_date: string }>();
   updated.set(changedStageId, { start_date: proposedStart, end_date: proposedEnd });
 
   const queue: string[] = [changedStageId];
-  const seenAtThisLevel = new Set<string>();
+  const visits = new Map<string, number>();
+  const maxVisits = Math.max(10, deps.length + 2);
 
   while (queue.length) {
     const currentId = queue.shift()!;
     const succs = outgoing.get(currentId);
     if (!succs?.length) continue;
-    const pred = bounds.get(currentId);
-    if (!pred) continue;
 
-    for (const dep of succs) {
-      const succ = bounds.get(dep.successor_id);
+    for (const edge of succs) {
+      const succId = edge.successor_id;
+      // Never reposition the stage the user just moved.
+      if (succId === changedStageId) continue;
+      const succ = bounds.get(succId);
       if (!succ) continue;
+
       const succStart = parse(succ.start_date);
       const succEnd = parse(succ.end_date);
       const durationDays = differenceInCalendarDays(succEnd, succStart);
 
-      let newStart: Date;
-      let newEnd: Date;
-      const predStart = parse(pred.start_date);
-      const predEnd = parse(pred.end_date);
+      // Evaluate every incoming constraint so the stage lands exactly where
+      // the dependency graph says it should — the latest constraint wins.
+      let bestStart: Date | null = null;
+      let bestEnd: Date | null = null;
+      for (const dep of incoming.get(succId) ?? []) {
+        const pred = bounds.get(dep.predecessor_id);
+        if (!pred) continue;
+        const predStart = parse(pred.start_date);
+        const predEnd = parse(pred.end_date);
 
-      switch (dep.type) {
-        case "FS": {
-          newStart = snapToWorkingDay(addWorkingDays(predEnd, 1 + dep.lag_days));
-          newEnd = addDays(newStart, durationDays);
-          break;
+        let newStart: Date;
+        let newEnd: Date;
+        switch (dep.type) {
+          case "FS": {
+            newStart = snapToWorkingDay(addWorkingDays(predEnd, 1 + dep.lag_days));
+            newEnd = addDays(newStart, durationDays);
+            break;
+          }
+          case "SS": {
+            newStart = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
+            newEnd = addDays(newStart, durationDays);
+            break;
+          }
+          case "FF": {
+            newEnd = snapToWorkingDay(addWorkingDays(predEnd, dep.lag_days));
+            newStart = addDays(newEnd, -durationDays);
+            break;
+          }
+          case "SF": {
+            newEnd = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
+            newStart = addDays(newEnd, -durationDays);
+            break;
+          }
         }
-        case "SS": {
-          newStart = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
-          newEnd = addDays(newStart, durationDays);
-          break;
-        }
-        case "FF": {
-          newEnd = snapToWorkingDay(addWorkingDays(predEnd, dep.lag_days));
-          newStart = addDays(newEnd, -durationDays);
-          break;
-        }
-        case "SF": {
-          newEnd = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
-          newStart = addDays(newEnd, -durationDays);
-          break;
+        if (!bestStart || newStart > bestStart) {
+          bestStart = newStart;
+          bestEnd = newEnd;
         }
       }
 
-      const requiredStart = newStart;
-      if (requiredStart > succStart) {
-        const shiftedStart = ymd(newStart);
-        const shiftedEnd = ymd(newEnd);
-        const prev = updated.get(succ.id);
-        if (!prev || parse(shiftedStart) > parse(prev.start_date)) {
-          updated.set(succ.id, { start_date: shiftedStart, end_date: shiftedEnd });
-          bounds.set(succ.id, { id: succ.id, start_date: shiftedStart, end_date: shiftedEnd });
-          if (!seenAtThisLevel.has(succ.id)) {
-            seenAtThisLevel.add(succ.id);
-            queue.push(succ.id);
-          }
-        }
+      if (!bestStart || !bestEnd) continue;
+
+      const shiftedStart = ymd(bestStart);
+      const shiftedEnd = ymd(bestEnd);
+      // Exact placement: move the successor forward OR backward so the gap on
+      // the chart always equals the configured lag.
+      if (shiftedStart === succ.start_date && shiftedEnd === succ.end_date) continue;
+
+      updated.set(succId, { start_date: shiftedStart, end_date: shiftedEnd });
+      bounds.set(succId, { id: succId, start_date: shiftedStart, end_date: shiftedEnd });
+
+      const seen = visits.get(succId) ?? 0;
+      if (seen < maxVisits) {
+        visits.set(succId, seen + 1);
+        queue.push(succId);
       }
     }
   }
 
   return updated;
 }
+
 
 export function depEndpoints(
   pred: { x: number; y: number; w: number; h: number },

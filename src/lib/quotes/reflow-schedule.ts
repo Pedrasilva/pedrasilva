@@ -60,6 +60,15 @@ export async function reflowQuoteSchedule(quoteId: string): Promise<ReflowResult
     }),
   );
 
+  // Group constraints per successor so a stage with several predecessors
+  // settles on the latest constraint instead of flip-flopping between them.
+  const bySuccessor = new Map<string, StageDependency[]>();
+  for (const dep of normDeps) {
+    const arr = bySuccessor.get(dep.successor_id) ?? [];
+    arr.push(dep);
+    bySuccessor.set(dep.successor_id, arr);
+  }
+
   // Iterate until stable. Cap iterations to avoid infinite loops on cycles
   // (the DB trigger blocks cycles, but defensive cap is cheap).
   const maxIter = Math.max(10, normDeps.length * 4);
@@ -68,41 +77,57 @@ export async function reflowQuoteSchedule(quoteId: string): Promise<ReflowResult
   while (changed && iter < maxIter) {
     changed = false;
     iter++;
-    for (const dep of normDeps) {
-      const pred = bounds.get(dep.predecessor_id);
-      const succ = bounds.get(dep.successor_id);
-      if (!pred || !succ) continue;
-      const predStart = parseISO(pred.start_date);
-      const predEnd = parseISO(pred.end_date);
-      const succStart = parseISO(succ.start_date);
-      const succEnd = parseISO(succ.end_date);
-      const duration = differenceInCalendarDays(succEnd, succStart);
+    for (const [succId, succDeps] of bySuccessor) {
+      const succ = bounds.get(succId);
+      if (!succ) continue;
+      const duration = differenceInCalendarDays(
+        parseISO(succ.end_date),
+        parseISO(succ.start_date),
+      );
 
-      let newStart: Date;
-      let newEnd: Date;
-      switch (dep.type) {
-        case "FS":
-          newStart = snapToWorkingDay(addWorkingDays(predEnd, 1 + dep.lag_days));
-          newEnd = addDays(newStart, duration);
-          break;
-        case "SS":
-          newStart = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
-          newEnd = addDays(newStart, duration);
-          break;
-        case "FF":
-          newEnd = snapToWorkingDay(addWorkingDays(predEnd, dep.lag_days));
-          newStart = addDays(newEnd, -duration);
-          break;
-        case "SF":
-          newEnd = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
-          newStart = addDays(newEnd, -duration);
-          break;
+      let bestStart: Date | null = null;
+      let bestEnd: Date | null = null;
+
+      for (const dep of succDeps) {
+        const pred = bounds.get(dep.predecessor_id);
+        if (!pred) continue;
+        const predStart = parseISO(pred.start_date);
+        const predEnd = parseISO(pred.end_date);
+
+        let newStart: Date;
+        let newEnd: Date;
+        switch (dep.type) {
+          case "FS":
+            newStart = snapToWorkingDay(addWorkingDays(predEnd, 1 + dep.lag_days));
+            newEnd = addDays(newStart, duration);
+            break;
+          case "SS":
+            newStart = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
+            newEnd = addDays(newStart, duration);
+            break;
+          case "FF":
+            newEnd = snapToWorkingDay(addWorkingDays(predEnd, dep.lag_days));
+            newStart = addDays(newEnd, -duration);
+            break;
+          case "SF":
+            newEnd = snapToWorkingDay(addWorkingDays(predStart, dep.lag_days));
+            newStart = addDays(newEnd, -duration);
+            break;
+        }
+        if (!bestStart || newStart > bestStart) {
+          bestStart = newStart;
+          bestEnd = newEnd;
+        }
       }
-      if (newStart > succStart) {
-        bounds.set(succ.id, {
-          id: succ.id,
-          start_date: ymd(newStart),
-          end_date: ymd(newEnd),
+
+      if (!bestStart || !bestEnd) continue;
+      // Exact placement: successors sit exactly at the constrained date, so a
+      // lag of 0 means no visible gap on the chart.
+      if (ymd(bestStart) !== succ.start_date || ymd(bestEnd) !== succ.end_date) {
+        bounds.set(succId, {
+          id: succId,
+          start_date: ymd(bestStart),
+          end_date: ymd(bestEnd),
         });
         changed = true;
       }
