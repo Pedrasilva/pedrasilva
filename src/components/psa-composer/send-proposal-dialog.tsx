@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useSendProposal } from "@/lib/psa-proposal/use-proposal-revisions";
+import { printProposalDocument } from "./composer-top-bar";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
 
 function buildProposalBaseFilename(proposal: PsaProposal, revNumber: number): string {
@@ -50,17 +51,25 @@ export function SendProposalDialog({
   const send = useSendProposal(proposal.id);
 
   const openPrint = useCallback(() => {
-    const original = document.title;
-    document.title = filename;
-    const restore = () => {
-      document.title = original;
-      window.removeEventListener("afterprint", restore);
-    };
-    window.addEventListener("afterprint", restore);
+    // Use the same isolated print window as "Descarregar › PDF": printing the
+    // live app document is governed by the legacy print whitelist and can
+    // produce blank pages.
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.error("Não foi possível abrir a janela de impressão.");
+      return;
+    }
     setPrinted(true);
-    window.print();
-    setTimeout(restore, 2000);
-  }, [filename]);
+    void printProposalDocument(
+      proposal,
+      printWindow,
+      {
+        loading: "A preparar o PDF…",
+        error: "Não foi possível preparar o PDF.",
+      },
+      filename,
+    );
+  }, [filename, proposal]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];

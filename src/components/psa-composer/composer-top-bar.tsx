@@ -367,13 +367,14 @@ function buildProposalFilename(proposal: PsaProposal): string {
   return `${name} ${dateStr} proposal rev ${rev}`;
 }
 
-async function printProposalDocument(
+export async function printProposalDocument(
   proposal: PsaProposal,
   printWindow: Window,
   messages: { loading: string; error: string } = {
     loading: "Preparing PDF pages…",
     error: "The PDF preview could not be prepared.",
   },
+  filenameOverride?: string,
 ) {
   const loadingToast = toast.loading(messages.loading);
   try {
@@ -403,7 +404,7 @@ async function printProposalDocument(
         return node.outerHTML;
       })
       .join("\n");
-    const filename = buildProposalFilename(proposal);
+    const filename = filenameOverride?.trim() || buildProposalFilename(proposal);
     const baseUrl = new URL(".", document.baseURI).href;
     printWindow.document.open();
     printWindow.document.write(
