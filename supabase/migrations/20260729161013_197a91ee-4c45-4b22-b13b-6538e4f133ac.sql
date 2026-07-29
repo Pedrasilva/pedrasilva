@@ -1,0 +1,2 @@
+ALTER TABLE public.pm_stages DROP CONSTRAINT IF EXISTS pm_stages_status_check;
+ALTER TABLE public.pm_stages ADD CONSTRAINT pm_stages_status_check CHECK (status = ANY (ARRAY['planned'::text,'active'::text,'done'::text,'cancelled'::text]));
