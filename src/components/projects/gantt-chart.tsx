@@ -858,6 +858,7 @@ export function GanttChart({
           resourcesCollapsed={resourcesCollapsed}
           onToggleResourcesCollapse={onToggleResourcesCollapse}
           onUpdateStageBounds={onUpdateStageBounds}
+          onShiftSubtree={handleShiftSubtree}
           onUpdateStageBudget={onUpdateStageBudget}
           dependencyLabels={depLabels}
           onAppendRoot={onAppendRoot}
