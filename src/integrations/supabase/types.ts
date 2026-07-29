@@ -2021,6 +2021,7 @@ export type Database = {
           quote_status: Database["public"]["Enums"]["crm_quote_status"]
           quote_type: Database["public"]["Enums"]["crm_quote_type"]
           revision_number: number
+          sale_margin_pct: number | null
           time_based_settings: Json
           titulo: string
           trip_billing_mode: string
@@ -2075,6 +2076,7 @@ export type Database = {
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
           quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
+          sale_margin_pct?: number | null
           time_based_settings?: Json
           titulo: string
           trip_billing_mode?: string
@@ -2129,6 +2131,7 @@ export type Database = {
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
           quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
+          sale_margin_pct?: number | null
           time_based_settings?: Json
           titulo?: string
           trip_billing_mode?: string

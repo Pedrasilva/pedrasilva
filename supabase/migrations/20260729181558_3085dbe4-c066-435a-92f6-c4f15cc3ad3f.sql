@@ -1,0 +1,1 @@
+ALTER TABLE public.fee_proposals ADD COLUMN IF NOT EXISTS sale_margin_pct numeric;
