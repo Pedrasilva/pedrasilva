@@ -356,8 +356,20 @@ export function GanttOutlineColumn({
                   <div style={{ width: COL.start }} className="shrink-0 text-right">
                     <DateCell
                       value={stage.start_date}
-                      editable={editable && !isSummary}
+                      editable={isSummary ? !!onShiftSubtree : editable}
                       onCommit={async (next) => {
+                        if (isSummary) {
+                          // Moving a parent/summary row drags the whole
+                          // subtree forward/backward by the same delta.
+                          if (!onShiftSubtree || !stage.start_date) return;
+                          const days = differenceInCalendarDays(
+                            parseISO(next),
+                            parseISO(stage.start_date),
+                          );
+                          if (days === 0) return;
+                          await onShiftSubtree(stage.id, days);
+                          return;
+                        }
                         const a = parseISO(next);
                         const end = addDays(a, Math.max(0, dur - 1));
                         await commitBounds({
