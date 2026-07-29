@@ -215,7 +215,11 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
       toast.error(t("workspace.planning.resourceUnavailable", { defaultValue: "Selected resource is no longer available." }));
       return;
     }
-    const rates = effectiveRates(res, defaultRates);
+    const base = effectiveRates(res, defaultRates);
+    const rates = {
+      cost: base.cost,
+      sale: saleFromCost(base.cost, base.sale, quoteMargin ?? null),
+    };
     try {
       await upsertAlloc.mutateAsync({
         quote_id: quoteId,

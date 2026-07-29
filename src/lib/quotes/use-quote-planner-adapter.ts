@@ -27,6 +27,7 @@ import type { Resource } from "@/lib/projects/types";
 import type { StageDependency, DepType } from "@/lib/projects/dependencies";
 import { QUOTE_FEATURES, type PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
+import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -51,16 +52,19 @@ export function useQuotePlannerAdapter(
   // pricing model, not on pm_resources). Without these, every dragged
   // allocation snapshots €0/h and stage rollups are stuck at €0.
   const { data: defaults } = useDefaultResourceRates();
+  // Per-quote sale margin override (null = project default 50% via HR rates).
+  const { data: quoteMargin } = useQuoteSaleMargin(quoteId);
 
   // Snapshot rates: prefer the resource's manual rate when > 0, otherwise
   // fall back to the HR-computed default for that resource.
   function snapshotRates(resourceId: string): { cost: number; sale: number } {
     const r = resources.find((x) => x.id === resourceId);
     if (!r) return { cost: 0, sale: 0 };
-    return effectiveRates(
+    const base = effectiveRates(
       { id: r.id, hourly_rate: r.hourly_rate ?? r.sale_rate, cost_rate: r.cost_rate },
       defaults,
     );
+    return { cost: base.cost, sale: saleFromCost(base.cost, base.sale, quoteMargin ?? null) };
   }
 
   // Quote allocation drag/move uses an upsert, so we need a tiny wrapper that
