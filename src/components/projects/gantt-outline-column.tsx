@@ -139,6 +139,7 @@ export function GanttOutlineColumn({
   resourcesCollapsed,
   onToggleResourcesCollapse,
   onUpdateStageBounds,
+  onShiftSubtree,
   onUpdateStageBudget,
   dependencyLabels,
   onAppendRoot,
