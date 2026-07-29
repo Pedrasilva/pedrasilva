@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useSendProposal } from "@/lib/psa-proposal/use-proposal-revisions";
+import { printProposalDocument } from "./composer-top-bar";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
 
 function buildProposalBaseFilename(proposal: PsaProposal, revNumber: number): string {
