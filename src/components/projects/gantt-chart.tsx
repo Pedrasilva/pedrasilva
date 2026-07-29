@@ -836,6 +836,30 @@ export function GanttChart({
     return m;
   }, [adapter.dependencies, hierarchy]);
 
+  // Editing the Start date of a summary/parent row (including the synthetic
+  // project row) shifts every real descendant stage by the same delta, so the
+  // whole group moves together.
+  async function handleShiftSubtree(id: string, days: number) {
+    if (!days) return;
+    const targets = collectDescendants(id).filter(
+      (d) => !(hierarchy?.get(d.id)?.isSummary ?? false),
+    );
+    if (targets.length === 0) return;
+    try {
+      for (const d of targets) {
+        await adapter.updateStage({
+          id: d.id,
+          projectId: d.projectId,
+          start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+          end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+        });
+      }
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  }
+
+
   return (
     <div className="flex" style={{ width: outlineWidth + (onResizeOutline ? 6 : 0) + totalDays * dayWidth }}>
       {outlineWidth > 0 && hierarchy && onToggleCollapse && (
