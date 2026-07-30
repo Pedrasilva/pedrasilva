@@ -54,7 +54,7 @@ export function useDeleteProject() {
   });
 }
 
-export type ProjectStatus = "active" | "paused" | "archived";
+export type ProjectStatus = "active" | "paused" | "closing" | "archived";
 
 export function useUpdateProject() {
   const qc = useQueryClient();

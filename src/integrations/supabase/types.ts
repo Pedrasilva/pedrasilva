@@ -9340,7 +9340,7 @@ export type Database = {
         | "status"
         | "other"
       pm_project_note_source: "voice" | "typed"
-      pm_project_status: "active" | "paused" | "archived"
+      pm_project_status: "active" | "paused" | "closing" | "archived"
       pm_role:
         | "admin"
         | "partner"
@@ -9746,7 +9746,7 @@ export const Constants = {
         "other",
       ],
       pm_project_note_source: ["voice", "typed"],
-      pm_project_status: ["active", "paused", "archived"],
+      pm_project_status: ["active", "paused", "closing", "archived"],
       pm_role: [
         "admin",
         "partner",

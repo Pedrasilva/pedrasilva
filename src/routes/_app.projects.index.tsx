@@ -61,12 +61,14 @@ export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
 });
 
-const STATUS_FILTER_KEYS: { key: "active" | "paused" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
+const STATUS_FILTER_KEYS: { key: "active" | "paused" | "closing" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
   { key: "active", value: "active" },
   { key: "paused", value: "paused" },
+  { key: "closing", value: "closing" },
   { key: "archived", value: "archived" },
   { key: "all", value: "all" },
 ];
+
 
 type Period = "week" | "month";
 
@@ -323,12 +325,25 @@ function DashboardPage() {
       materialsSale: number;
       expensesCost: number;
       loggedHours: number;
+      /** Revenue earned on time-and-materials (hourly) stages: billable hours × sale rate. */
+      tmRevenue: number;
+      /** Hours logged to the project that are not chargeable to the client (cost only). */
+      nonBillableHours: number;
     };
     const m = new Map<string, Row>();
     const ensure = (pid: string): Row => {
       let cur = m.get(pid);
       if (!cur) {
-        cur = { invoicedRevenue: 0, laborCost: 0, materialsCost: 0, materialsSale: 0, expensesCost: 0, loggedHours: 0 };
+        cur = {
+          invoicedRevenue: 0,
+          laborCost: 0,
+          materialsCost: 0,
+          materialsSale: 0,
+          expensesCost: 0,
+          loggedHours: 0,
+          tmRevenue: 0,
+          nonBillableHours: 0,
+        };
         m.set(pid, cur);
       }
       return cur;
@@ -346,13 +361,29 @@ function DashboardPage() {
         const resourceId = repAlloc?.resource_id;
         const cur = ensure(stage.project_id);
         cur.loggedHours += e.hours;
+        if (!e.billable) cur.nonBillableHours += e.hours;
         if (resourceId) {
           const res = resources?.find((r) => r.id === resourceId);
           const costRate = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
           cur.laborCost += e.hours * costRate;
+          // Time-and-materials stages carry no fixed budget: revenue is earned
+          // per billable hour at the resource's sale rate. Non-billable hours
+          // stay on the cost side only (correctly dragging margin down).
+          const isHourly =
+            (stage as { billing_model?: string | null }).billing_model === "hourly";
+          if (isHourly && e.billable) {
+            const saleRate = effectiveSaleRate(
+              res?.hourly_rate,
+              resourceId,
+              defaultRates,
+              !!res?.hourly_rate_is_override,
+            );
+            cur.tmRevenue += e.hours * saleRate;
+          }
         }
       }
     }
+
     if (extraByProject) {
       for (const [pid, x] of extraByProject) {
         const cur = ensure(pid);
@@ -405,15 +436,23 @@ function DashboardPage() {
         materialsSale: 0,
         expensesCost: 0,
         loggedHours: 0,
+        tmRevenue: 0,
+        nonBillableHours: 0,
       };
+      const isTM =
+        actual.tmRevenue > 0 ||
+        ps.some((s) => (s as { billing_model?: string | null }).billing_model === "hourly");
       // Actual Revenue column = invoiced-to-date (sent/paid/overdue invoices).
-      const actualRevenue = actual.invoicedRevenue;
+      // Time-and-materials work that hasn't been invoiced yet still counts as
+      // earned revenue, so it fills in when no invoice exists.
+      const actualRevenue = actual.invoicedRevenue > 0 ? actual.invoicedRevenue : actual.tmRevenue;
       // Actual Cost column = true burn: labour + materials + expenses (purchase).
       const actualCost = actual.laborCost + actual.materialsCost + actual.expensesCost;
-      // Profit = (Budget + materials.sale_price) − (labour cost + expenses cost).
+      // Profit = (Budget + T&M earned + materials.sale_price) − (labour + expenses).
       // Materials sit on the revenue side (charged on top of budget); expenses
-      // and hours are pure cost. Per user-defined formula.
-      const totalRevenueBase = budget + actual.materialsSale;
+      // and hours are pure cost. Hourly stages carry no budget, so their
+      // revenue comes from billable hours × sale rate instead.
+      const totalRevenueBase = budget + actual.tmRevenue + actual.materialsSale;
       const profit = totalRevenueBase - actual.laborCost - actual.expensesCost;
       const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
 
@@ -436,6 +475,8 @@ function DashboardPage() {
       } else if (totalRevenueBase > 0 && marginPct < 15) {
         status = "warn";
         statusReason = `Low margin`;
+      } else if (isTM && totalRevenueBase > 0) {
+        statusReason = "T&M — billed by the hour";
       }
 
       return {
@@ -446,9 +487,13 @@ function DashboardPage() {
         budgetRemaining: budget - actualCost,
         profit,
         marginPct,
+        isTM,
+        tmRevenue: actual.tmRevenue,
+        nonBillableHours: actual.nonBillableHours,
         status,
         statusReason,
       };
+
     });
   }, [filteredProjects, stagesByProject, projectActuals]);
 

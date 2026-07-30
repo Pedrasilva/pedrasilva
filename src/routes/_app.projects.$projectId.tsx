@@ -556,7 +556,7 @@ function ProjectDetail() {
   );
 
   // ---- Header status workflow ------------------------------------------
-  const setStatus = (status: "active" | "paused" | "archived") => {
+  const setStatus = (status: "active" | "paused" | "closing" | "archived") => {
     updateProject.mutate({ id: project.id, patch: { status } });
   };
 
@@ -1266,13 +1266,17 @@ function StatusBadge({ status }: { status: string }) {
       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
       : status === "paused"
         ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-        : "bg-muted text-muted-foreground";
+        : status === "closing"
+          ? "bg-sky-500/15 text-sky-700 dark:text-sky-400"
+          : "bg-muted text-muted-foreground";
   const label =
     status === "active"
       ? t("projects:detail.status.active")
       : status === "paused"
         ? t("projects:detail.status.paused")
-        : t("projects:detail.status.archived");
+        : status === "closing"
+          ? t("projects:detail.status.closing")
+          : t("projects:detail.status.archived");
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider", tone)}>
       {label}
@@ -1285,8 +1289,9 @@ function StatusToggle({
   onChange,
 }: {
   current: string;
-  onChange: (s: "active" | "paused" | "archived") => void;
+  onChange: (s: "active" | "paused" | "closing" | "archived") => void;
 }) {
+
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
@@ -1306,6 +1311,15 @@ function StatusToggle({
       >
         <Pause className="h-3.5 w-3.5" /> {t("projects:detail.actions.pause")}
       </Button>
+      <Button
+        size="sm"
+        variant={current === "closing" ? "default" : "ghost"}
+        className="h-8 gap-1.5 text-xs"
+        onClick={() => onChange("closing")}
+      >
+        <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.close")}
+      </Button>
+
       <Button
         size="sm"
         variant={current === "archived" ? "default" : "ghost"}
@@ -1838,7 +1852,16 @@ function MilestonesTable({
                       {canSeeFinancials && (
                         <>
                           <td className="px-4 py-3 min-w-[200px] w-[18%]">
-                            <CostVsBudgetCell cost={cost} budget={budget} over={over} />
+                            <CostVsBudgetCell
+                              cost={cost}
+                              budget={budget}
+                              over={over}
+                              isHourly={
+                                (s as { billing_model?: string | null }).billing_model === "hourly"
+                              }
+                              revenue={revenue}
+                            />
+
                           </td>
                           <td className="px-4 py-3 min-w-[160px] w-[15%]">
                             <RevenueEarnedCell revenue={revenue} />
@@ -2991,13 +3014,26 @@ function CostVsBudgetCell({
   cost,
   budget,
   over,
+  isHourly,
+  revenue = 0,
 }: {
   cost: number;
   budget: number;
   over: boolean;
+  /** Time-and-materials stage: no fixed budget, revenue comes from billable hours. */
+  isHourly?: boolean;
+  /** Earned revenue (billable hours × sale rate), used as the T&M reference. */
+  revenue?: number;
 }) {
   const hasBudget = budget > 0;
-  const pct = hasBudget ? Math.min(1, cost / budget) : 0;
+  // T&M stages have no budget by design: compare cost against earned revenue
+  // instead of showing a meaningless "no budget" marker.
+  const tm = !hasBudget && !!isHourly;
+  const pct = hasBudget
+    ? Math.min(1, cost / budget)
+    : tm && revenue > 0
+      ? Math.min(1, cost / revenue)
+      : 0;
   return (
     <div>
       <div className="flex items-baseline justify-between text-xs">
@@ -3007,34 +3043,47 @@ function CostVsBudgetCell({
           </span>
           {hasBudget ? (
             <span className="text-muted-foreground"> / {euros(budget)}</span>
+          ) : tm ? (
+            <span className="text-muted-foreground">
+              {" "}
+              / {euros(revenue)}
+              <span className="ml-1 text-[10px] uppercase tracking-wider">T&amp;M</span>
+            </span>
           ) : (
             <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">
               no budget
             </span>
           )}
         </span>
-        {hasBudget && (
+
+        {(hasBudget || (tm && revenue > 0)) && (
           <span
             className={cn(
               "tabular-nums",
-              over ? "text-destructive font-semibold" : "text-muted-foreground",
+              over || (tm && cost > revenue)
+                ? "text-destructive font-semibold"
+                : "text-muted-foreground",
             )}
           >
             {Math.round(pct * 100)}%
           </span>
         )}
       </div>
-      {hasBudget && (
+      {(hasBudget || (tm && revenue > 0)) && (
         <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full"
             style={{
               width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-              backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+              backgroundColor:
+                over || (tm && cost > revenue)
+                  ? "var(--color-budget-over)"
+                  : "var(--color-budget-spent)",
             }}
           />
         </div>
       )}
+
     </div>
   );
 }

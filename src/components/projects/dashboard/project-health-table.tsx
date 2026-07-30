@@ -16,9 +16,16 @@ export interface HealthRow {
   budgetRemaining: number;
   profit: number;
   marginPct: number;
+  /** Project bills time-and-materials (hourly stages) rather than a fixed budget. */
+  isTM?: boolean;
+  /** Revenue earned from billable hours on hourly stages. */
+  tmRevenue?: number;
+  /** Hours logged that are not chargeable to the client (cost without revenue). */
+  nonBillableHours?: number;
   status: HealthStatus;
   /** Pre-translated status reason string. */
   statusReason: string;
+
 }
 
 const PAGE_SIZE = 10;
@@ -126,10 +133,24 @@ export function ProjectHealthTable({
                   </button>
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
-                  {r.budget > 0 ? euros(r.budget) : "—"}
+                  {r.budget > 0 ? (
+                    euros(r.budget)
+                  ) : r.isTM ? (
+                    <span className="text-[10px] font-sans uppercase tracking-wider">T&amp;M</span>
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
                   {euros(r.actualRevenue)}
+                  {!!r.nonBillableHours && (
+                    <span
+                      className="ml-1 text-[10px] font-sans text-muted-foreground"
+                      title="Non-billable hours logged (cost without revenue)"
+                    >
+                      +{Math.round(r.nonBillableHours)}h nb
+                    </span>
+                  )}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
                   {euros(r.actualCost)}
@@ -155,8 +176,12 @@ export function ProjectHealthTable({
                   {euros(r.profit)}
                 </td>
                 <td className="px-3 py-2.5 text-right">
-                  <MarginBadge marginPct={r.marginPct} hasRevenue={r.budget > 0 || r.actualRevenue > 0} />
+                  <MarginBadge
+                    marginPct={r.marginPct}
+                    hasRevenue={r.budget > 0 || r.actualRevenue > 0 || (r.tmRevenue ?? 0) > 0}
+                  />
                 </td>
+
                 <td className="px-5 py-2.5">
                   <span className="text-[11px] text-muted-foreground">{r.statusReason}</span>
                 </td>
