@@ -281,7 +281,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                       placeholder="Fee €"
                     />
                   </div>
-                  <div className="sm:col-span-1.5 sm:col-span-2">
+                  <div className="sm:col-span-2">
                     <Input
                       type="date"
                       value={s.start_date}
