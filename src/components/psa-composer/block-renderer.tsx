@@ -393,10 +393,25 @@ export function BlockBody({
           )}
           <div className="mt-10 text-xs text-zinc-500">
             {live?.projectNumber ? `${L.refPrefix} ${live.projectNumber} · ` : ""}
-            {formatDatePT(live?.date, lang)}
+            {formatDatePT(
+              live?.revision && !live.revision.isDraft
+                ? live.revision.sentAt
+                : live?.date,
+              lang,
+            )}
+          </div>
+          <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-zinc-400">
+            {live?.revision && !live.revision.isDraft
+              ? `${lang === "en" ? "Revision" : "Revisão"} ${String(
+                  live.revision.number ?? 0,
+                ).padStart(2, "0")}`
+              : lang === "en"
+                ? "Draft"
+                : "Rascunho"}
           </div>
         </div>
       );
+
 
     case "index":
       return (
