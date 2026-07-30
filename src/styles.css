@@ -1030,6 +1030,18 @@
 }
 
 
+/* The appendix header (label + title + intro) is the value the rotated chart
+   viewport subtracts from the page box. Constrain it to the printable page
+   width in every medium so the height measured on screen is exactly the
+   height it occupies on paper — even when the landscape appendix block is
+   rendered wider in the composer. */
+.proposal-gantt-appendix-header {
+  width: calc(var(--psa-page-w) - var(--psa-margin-left) - var(--psa-margin-right));
+  max-width: 100%;
+}
+
+
+
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
@@ -1137,26 +1149,51 @@
     min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
     page-break-after: always;
     break-after: page;
+    /* The rotated chart is an absolutely positioned transformed subtree.
+       Chromium cannot fragment it correctly: the second fragment repaints it
+       from the first fragment's origin, which is what made the WBS/STAGE/
+       DURATION headers slide over the bars. Keep the sheet atomic. */
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-before: always;
+    break-before: page;
   }
   .proposal-print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
     width: 100%;
-    min-height: 0;
+    min-height: 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    /* Rotation viewport derived from the real page box minus the measured
+       appendix header (--psa-gantt-head-h is published by
+       GanttRotatedAppendix). The 4mm gutter absorbs sub-pixel rounding so the
+       transformed subtree can never spill onto a second sheet. */
+    --psa-gantt-rot-w: calc(
+      var(--psa-page-w) - var(--psa-margin-left) - var(--psa-margin-right)
+    );
+    --psa-gantt-rot-h: calc(
+      var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom) -
+        var(--psa-gantt-head-h, 60px) - 7mm
+    );
   }
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
-    width: 145mm !important;
-    height: 205mm !important;
+    width: var(--psa-gantt-rot-w, 182mm) !important;
+    height: var(--psa-gantt-rot-h, 205mm) !important;
     margin: 3mm auto 0;
     overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-    width: 205mm !important;
-    height: 145mm !important;
+    width: var(--psa-gantt-rot-h, 205mm) !important;
+    height: var(--psa-gantt-rot-w, 182mm) !important;
     transform-origin: top left !important;
     transform: rotate(-90deg) translate(-100%, 0) !important;
+
   }
+
   /* Print: hide the on-screen horizontal preview; only the rotated/print
      chart should appear on paper. */
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-screen {
