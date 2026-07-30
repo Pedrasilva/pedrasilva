@@ -556,7 +556,7 @@ function ProjectDetail() {
   );
 
   // ---- Header status workflow ------------------------------------------
-  const setStatus = (status: "active" | "paused" | "archived") => {
+  const setStatus = (status: "active" | "paused" | "closing" | "archived") => {
     updateProject.mutate({ id: project.id, patch: { status } });
   };
 
