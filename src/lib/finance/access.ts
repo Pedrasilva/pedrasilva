@@ -13,10 +13,8 @@
  *   - Wait for the Supabase session to hydrate (localStorage → memory) before
  *     querying — otherwise navigating right after page load returns `false`
  *     and the route bounces back to `/`.
- *   - If we have a session but every permission query errors (network blip,
- *     transient RLS), we fail OPEN — the page's own RLS still protects data,
- *     and bouncing the user home with no feedback is a worse UX than letting
- *     them in and showing empty/denied data inline.
+ *   - Fail CLOSED: any query error, exception, timeout or unexpected state
+ *     denies access. Only an explicit, successful positive check grants it.
  */
 import { supabase } from "@/integrations/supabase/client";
 
