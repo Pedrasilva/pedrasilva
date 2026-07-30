@@ -16,9 +16,16 @@ export interface HealthRow {
   budgetRemaining: number;
   profit: number;
   marginPct: number;
+  /** Project bills time-and-materials (hourly stages) rather than a fixed budget. */
+  isTM?: boolean;
+  /** Revenue earned from billable hours on hourly stages. */
+  tmRevenue?: number;
+  /** Hours logged that are not chargeable to the client (cost without revenue). */
+  nonBillableHours?: number;
   status: HealthStatus;
   /** Pre-translated status reason string. */
   statusReason: string;
+
 }
 
 const PAGE_SIZE = 10;
