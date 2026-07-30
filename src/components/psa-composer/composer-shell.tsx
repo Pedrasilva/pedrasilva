@@ -158,7 +158,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           descarregar as revisões enviadas em qualquer altura.
         </div>
       )}
-      {isSentLocked && (
+      {isSentLocked && !historical && (
         <div className="flex items-center justify-between gap-3 border-b border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 print:hidden">
           <span>
             Versão enviada bloqueada. Para alterar qualquer campo, cria uma
