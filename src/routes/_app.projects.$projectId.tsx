@@ -3042,28 +3042,34 @@ function CostVsBudgetCell({
           )}
         </span>
 
-        {hasBudget && (
+        {(hasBudget || (tm && revenue > 0)) && (
           <span
             className={cn(
               "tabular-nums",
-              over ? "text-destructive font-semibold" : "text-muted-foreground",
+              over || (tm && cost > revenue)
+                ? "text-destructive font-semibold"
+                : "text-muted-foreground",
             )}
           >
             {Math.round(pct * 100)}%
           </span>
         )}
       </div>
-      {hasBudget && (
+      {(hasBudget || (tm && revenue > 0)) && (
         <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full"
             style={{
               width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-              backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+              backgroundColor:
+                over || (tm && cost > revenue)
+                  ? "var(--color-budget-over)"
+                  : "var(--color-budget-spent)",
             }}
           />
         </div>
       )}
+
     </div>
   );
 }
