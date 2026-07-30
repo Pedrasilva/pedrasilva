@@ -16,7 +16,9 @@
  *    `expected_invoice_date`, `sort_order`.
  */
 import { useQuery } from "@tanstack/react-query";
+import { useFrozenQuoteSnapshot } from "./revision-context";
 import { supabase } from "@/integrations/supabase/client";
+
 import {
   resolveSupplierMarkupPct,
   type SupplierMarkupRow,
