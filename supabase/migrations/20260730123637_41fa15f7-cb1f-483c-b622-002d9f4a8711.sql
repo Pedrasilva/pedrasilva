@@ -1,0 +1,1 @@
+DELETE FROM public.role_permissions WHERE role = 'hr' AND permission_key = 'hr.leave.approve';
