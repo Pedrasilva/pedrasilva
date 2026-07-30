@@ -8334,6 +8334,7 @@ export type Database = {
         Row: {
           assigned_at: string
           assigned_by: string | null
+          id: string
           notes: string | null
           role: Database["public"]["Enums"]["pm_role"]
           user_id: string
@@ -8341,6 +8342,7 @@ export type Database = {
         Insert: {
           assigned_at?: string
           assigned_by?: string | null
+          id?: string
           notes?: string | null
           role: Database["public"]["Enums"]["pm_role"]
           user_id: string
@@ -8348,6 +8350,7 @@ export type Database = {
         Update: {
           assigned_at?: string
           assigned_by?: string | null
+          id?: string
           notes?: string | null
           role?: Database["public"]["Enums"]["pm_role"]
           user_id?: string
@@ -8980,7 +8983,7 @@ export type Database = {
       list_users_with_role_v2: {
         Args: never
         Returns: {
-          assigned_role: Database["public"]["Enums"]["pm_role"]
+          assigned_roles: Database["public"]["Enums"]["pm_role"][]
           collaborator_id: string
           collaborator_nome: string
           effective_keys: string[]
@@ -9094,6 +9097,13 @@ export type Database = {
         }
         Returns: string
       }
+      remove_user_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["pm_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
       restore_fee_proposal: {
         Args: { _proposal_id: string }
@@ -9123,6 +9133,13 @@ export type Database = {
         Args: {
           _apply_preset?: boolean
           _role: Database["public"]["Enums"]["pm_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      set_user_roles: {
+        Args: {
+          _roles: Database["public"]["Enums"]["pm_role"][]
           _user_id: string
         }
         Returns: undefined

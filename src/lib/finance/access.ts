@@ -49,14 +49,15 @@ export async function checkFinanceAccess(): Promise<boolean> {
     // fail closed: continue to next check, never grant on error
   }
 
-  // 2) V2 admin role assignment
+  // 2) V2 admin role assignment (a user can hold several roles)
   try {
     const { data, error } = await supabase
       .from("user_role_assignments")
       .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (!error && data?.role === "admin") return true;
+      .eq("user_id", userId);
+    if (!error && (data ?? []).some((r: { role?: string }) => r.role === "admin")) {
+      return true;
+    }
   } catch {
     // fail closed
   }

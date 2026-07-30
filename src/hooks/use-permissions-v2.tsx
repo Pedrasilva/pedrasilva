@@ -30,17 +30,17 @@ export function useMyPermissionsV2() {
   const { user, isAdmin, loading: authLoading } = useAuth();
 
   const roleQuery = useQuery({
-    queryKey: ["my-pm-role", user?.id],
+    queryKey: ["my-pm-roles", user?.id],
     enabled: !!user && !authLoading,
     staleTime: 60_000,
-    queryFn: async (): Promise<PmRole | null> => {
+    queryFn: async (): Promise<PmRole[]> => {
+      // A user can hold several roles (e.g. hr + partner).
       const { data, error } = await supabase
         .from("user_role_assignments")
         .select("role")
-        .eq("user_id", user!.id)
-        .maybeSingle();
+        .eq("user_id", user!.id);
       if (error) throw error;
-      return (data?.role ?? null) as PmRole | null;
+      return ((data ?? []) as { role: string }[]).map((r) => r.role as PmRole);
     },
   });
 
@@ -64,6 +64,7 @@ export function useMyPermissionsV2() {
 
   return useMemo(() => {
     const effective = effectiveQuery.data ?? [];
+    const roles = roleQuery.data ?? [];
     const can = (key: V2PermissionKey, scope: PermissionScope = "own") => {
       if (isAdmin) return true;
       return hasModuleScope(effective, key, scope);
@@ -74,7 +75,10 @@ export function useMyPermissionsV2() {
     };
     return {
       isAdmin,
-      role: roleQuery.data ?? null,
+      roles,
+      /** @deprecated users can hold multiple roles — prefer `roles`. */
+      role: roles[0] ?? null,
+      hasRole: (r: PmRole) => roles.includes(r),
       effective,
       loading: authLoading || roleQuery.isLoading || effectiveQuery.isLoading,
       can,
