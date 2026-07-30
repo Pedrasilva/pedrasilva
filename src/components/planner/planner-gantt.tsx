@@ -481,6 +481,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       retainer_review_months: null,
       stage_kind: "regular",
       archived_at: null,
+      origin: null,
       parent_stage_id: s.parent_stage_id ?? null,
       billing_model: "stage",
       retainer_monthly_amount: 0,

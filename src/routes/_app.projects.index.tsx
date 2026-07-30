@@ -52,6 +52,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { useAuth } from "@/hooks/use-auth";
+import { CreateProjectDirectDialog } from "@/components/projects/create-project-direct-dialog";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -172,6 +174,7 @@ function DashboardPage() {
   // "your own utilization" + only your alerts.
   const canSeeTeam = can("scheduling.view_team", "team");
   const { user, profile } = useProjectsAuth();
+  const { isAdmin } = useAuth();
   const myAuthId = user?.id ?? null;
   const myResourceId = profile?.resource_id ?? null;
   const { data: projects, isLoading: pLoading } = useProjects();
@@ -828,6 +831,7 @@ function DashboardPage() {
                   className="w-64 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none xl:w-72"
                 />
               </div>
+              {isAdmin && <CreateProjectDirectDialog compact />}
             </div>
           </div>
 
