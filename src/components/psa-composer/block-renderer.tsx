@@ -2359,6 +2359,3 @@ function GanttRotatedAppendix({
     </div>
   );
 }
-
-  );
-}
