@@ -108,6 +108,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
   const [description, setDescription] = useState(tx.description);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [notProjectRelated, setNotProjectRelated] = useState(false);
   const [nif, setNif] = useState("");
 
   // Money: edit gross OR (net + vat rate); we keep gross as the source of truth.
@@ -176,6 +177,10 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
       toast.error(t("finance:createDoc.grossRequired"));
       return;
     }
+    if (direction === "issued" && !projectId && !notProjectRelated) {
+      toast.error(t("finance:documents.form.projectRequired"));
+      return;
+    }
     const counterpartyId = direction === "received" ? supplierId : clientId;
     if (!counterpartyId) {
       toast.error(
@@ -208,6 +213,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
             direction === "issued" ? counterpartyId : null,
           counterparty_name_snapshot: counterpartyName,
           project_id: projectId,
+          not_project_related: notProjectRelated,
           classification_id: classificationId,
           currency: tx.currency || "EUR",
           notes:
@@ -506,16 +512,22 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
                 {t("finance:bankRec.project")}
               </Label>
               <Select
-                value={projectId ?? "__none"}
-                onValueChange={(v) =>
-                  setProjectId(v === "__none" ? null : v)
+                value={
+                  projectId ?? (notProjectRelated ? "__no_project" : "__none")
                 }
+                onValueChange={(v) => {
+                  setProjectId(v === "__none" || v === "__no_project" ? null : v);
+                  setNotProjectRelated(v === "__no_project");
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-[260px]">
                   <SelectItem value="__none">—</SelectItem>
+                  <SelectItem value="__no_project">
+                    {t("finance:documents.form.notProjectRelated")}
+                  </SelectItem>
                   {(projectsQ.data ?? []).map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
