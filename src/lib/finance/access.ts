@@ -94,6 +94,3 @@ export async function checkFinanceAccess(): Promise<boolean> {
   // No successful positive check → deny.
   return false;
 }
-
-  return false;
-}
