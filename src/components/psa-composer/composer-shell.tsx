@@ -53,7 +53,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
   const isFinalLocked = !!proposal.data.locked_at; // won / lost
   const isSentLocked = !isFinalLocked && proposal.data.status === "sent";
-  const isReadOnly = isFinalLocked || isSentLocked;
+  const isReadOnly = isFinalLocked || isSentLocked || !!historical;
+
 
   const startNewRevision = () => {
     update.mutate(
