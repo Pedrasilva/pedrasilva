@@ -2572,6 +2572,7 @@ export type Database = {
           issued_at: string | null
           last_sync_at: string | null
           last_sync_error: string | null
+          not_project_related: boolean
           notes: string | null
           ocr_metadata: Json | null
           outstanding_amount: number | null
@@ -2612,6 +2613,7 @@ export type Database = {
           issued_at?: string | null
           last_sync_at?: string | null
           last_sync_error?: string | null
+          not_project_related?: boolean
           notes?: string | null
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
@@ -2652,6 +2654,7 @@ export type Database = {
           issued_at?: string | null
           last_sync_at?: string | null
           last_sync_error?: string | null
+          not_project_related?: boolean
           notes?: string | null
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
