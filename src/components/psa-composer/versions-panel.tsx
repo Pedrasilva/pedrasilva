@@ -75,9 +75,9 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
           <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wide">
-          Revisões
+          Histórico de revisões
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!isLocked && (
@@ -99,26 +99,54 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
           </div>
         )}
         {revisions.map((r) => (
-          <DropdownMenuItem
+          <div
             key={r.id}
-            onSelect={(e) => {
-              e.preventDefault();
-              void downloadRevision(r);
-            }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 rounded-sm px-2 py-1.5 hover:bg-accent"
           >
-            <Lock className="h-3.5 w-3.5 text-emerald-600" />
-            <div className="flex-1">
+            <Lock className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+            <div className="min-w-0 flex-1">
               <div className="text-sm font-medium">
                 Rev {String(r.rev_number).padStart(2, "0")} — enviada
               </div>
-              <div className="text-[11px] text-muted-foreground">
+              <div className="truncate text-[11px] text-muted-foreground">
                 {formatDate(r.created_at)} · {r.pdf_filename ?? "sem ficheiro"}
               </div>
+              {!revisionIsViewable(r) && (
+                <div className="text-[11px] text-amber-700">
+                  Sem dados arquivados — só PDF
+                </div>
+              )}
             </div>
-            <Download className="h-3.5 w-3.5" />
-          </DropdownMenuItem>
+            {revisionIsViewable(r) ? (
+              <Button
+                asChild
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7 shrink-0"
+                title="Ver revisão (só leitura)"
+              >
+                <Link
+                  to="/proposals/$proposalId/revisions/$revisionId"
+                  params={{ proposalId: proposal.id, revisionId: r.id }}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            ) : (
+              <span className="h-7 w-7 shrink-0" />
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 shrink-0"
+              title="Descarregar PDF"
+              onClick={() => void downloadRevision(r)}
+            >
+              <Download className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         ))}
+
       </DropdownMenuContent>
     </DropdownMenu>
   );
