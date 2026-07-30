@@ -28,7 +28,10 @@ export type PermissionModule =
   | "Projects"
   | "Scheduling"
   | "Timesheets"
-  | "Financials";
+  | "Financials"
+  | "CRM"
+  | "HR"
+  | "Finance";
 
 export type V2PermissionKey =
   // Projects (operational)
@@ -48,7 +51,35 @@ export type V2PermissionKey =
   | "timesheets.approve"
   // Financials (cross-project)
   | "financials.view"
-  | "financials.view_rates";
+  | "financials.view_rates"
+  // CRM (legacy: crm.companies / crm.contacts / crm.pipeline)
+  | "crm.companies.view"
+  | "crm.companies.edit"
+  | "crm.contacts.view"
+  | "crm.contacts.edit"
+  | "crm.pipeline.view"
+  | "crm.pipeline.edit"
+  | "crm.quotes.manage"
+  // HR (legacy: hr.* key family)
+  | "hr.self.view"
+  | "hr.collaborators.view"
+  | "hr.collaborator.view"
+  | "hr.collaborator.edit"
+  | "hr.compensation.view"
+  | "hr.benefits.submit"
+  | "hr.benefits.approve"
+  | "hr.leave.request"
+  | "hr.leave.approve"
+  | "hr.admin"
+  // Finance / backoffice (legacy: finance.dashboard, hr.valor-bo, hr.subsidio-alimentacao)
+  | "finance.dashboard.view"
+  | "finance.documents.view"
+  | "finance.documents.edit"
+  | "finance.banking.view"
+  | "finance.banking.edit"
+  | "finance.reports.view"
+  | "finance.settings.manage";
+
 
 export interface PermissionDefinition {
   key: V2PermissionKey;
