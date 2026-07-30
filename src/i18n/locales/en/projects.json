@@ -148,12 +148,14 @@
       "pause": "Pause",
       "archive": "Archive",
       "more": "More",
-      "addStage": "Add stage"
+      "addStage": "Add stage",
+      "close": "Close out"
     },
     "status": {
       "active": "Active",
       "paused": "Paused",
-      "archived": "Archived"
+      "archived": "Archived",
+      "closing": "Closing"
     }
   },
   "quickCreate": {
@@ -370,7 +372,8 @@
       "active": "Active",
       "paused": "Paused",
       "archived": "Archived",
-      "all": "All"
+      "all": "All",
+      "closing": "Closing"
     },
     "yourUtilization": "Your utilization",
     "teamPerformance": "Team performance",

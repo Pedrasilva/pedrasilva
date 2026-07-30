@@ -148,12 +148,14 @@
       "pause": "Pausar",
       "archive": "Arquivar",
       "more": "Mais",
-      "addStage": "Nova fase"
+      "addStage": "Nova fase",
+      "close": "Encerrar"
     },
     "status": {
       "active": "Activo",
       "paused": "Em pausa",
-      "archived": "Arquivado"
+      "archived": "Arquivado",
+      "closing": "Em encerramento"
     }
   },
   "quickCreate": {
@@ -370,7 +372,8 @@
       "active": "Activos",
       "paused": "Em pausa",
       "archived": "Arquivados",
-      "all": "Todos"
+      "all": "Todos",
+      "closing": "Em encerramento"
     },
     "yourUtilization": "A tua utilização",
     "teamPerformance": "Desempenho da equipa",
