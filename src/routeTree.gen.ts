@@ -96,6 +96,7 @@ import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_
 import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
 import { Route as AppCrmAccountsAccountIdRouteImport } from './routes/_app.crm.accounts.$accountId'
+import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
 
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
@@ -562,6 +563,12 @@ const AppCrmAccountsAccountIdRoute = AppCrmAccountsAccountIdRouteImport.update({
   path: '/$accountId',
   getParentRoute: () => AppCrmAccountsRoute,
 } as any)
+const AppProposalsProposalIdRevisionsRevisionIdRoute =
+  AppProposalsProposalIdRevisionsRevisionIdRouteImport.update({
+    id: '/proposals/$proposalId/revisions/$revisionId',
+    path: '/proposals/$proposalId/revisions/$revisionId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -650,6 +657,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
+  '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -735,6 +743,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
+  '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -825,6 +834,7 @@ export interface FileRoutesById {
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
+  '/_app/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -915,6 +925,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities/'
     | '/finance/documents/'
+    | '/proposals/$proposalId/revisions/$revisionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -1000,6 +1011,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities'
     | '/finance/documents'
+    | '/proposals/$proposalId/revisions/$revisionId'
   id:
     | '__root__'
     | '/_app'
@@ -1089,6 +1101,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/run-backup'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
+    | '/_app/proposals/$proposalId/revisions/$revisionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1714,6 +1727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmAccountsAccountIdRouteImport
       parentRoute: typeof AppCrmAccountsRoute
     }
+    '/_app/proposals/$proposalId/revisions/$revisionId': {
+      id: '/_app/proposals/$proposalId/revisions/$revisionId'
+      path: '/proposals/$proposalId/revisions/$revisionId'
+      fullPath: '/proposals/$proposalId/revisions/$revisionId'
+      preLoaderRoute: typeof AppProposalsProposalIdRevisionsRevisionIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -1925,6 +1945,7 @@ interface AppRouteChildren {
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
   AppProposalsIndexRoute: typeof AppProposalsIndexRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
+  AppProposalsProposalIdRevisionsRevisionIdRoute: typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1952,6 +1973,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsIndexRoute: AppProjectsIndexRoute,
   AppProposalsIndexRoute: AppProposalsIndexRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
+  AppProposalsProposalIdRevisionsRevisionIdRoute:
+    AppProposalsProposalIdRevisionsRevisionIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
