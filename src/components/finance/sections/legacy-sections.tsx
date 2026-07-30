@@ -180,18 +180,25 @@ export function useFinanceData() {
     },
   });
 
-  const incomeQ = useQuery({
-    queryKey: ["finance", "income", FINANCE_YEAR],
-    queryFn: async (): Promise<IncomeRow[]> => {
-      const { data, error } = await supabase
-        .from("financial_income_items")
-        .select(
-          "id, period_id, amount_ex_vat, vat_amount, amount_inc_vat, invoice_status, expected_payment_date, paid_date",
-        );
-      if (error) throw error;
-      return (data ?? []) as IncomeRow[];
-    },
-  });
+  // Income now reads financial_documents (issued side) — see
+  // src/lib/finance/use-income-documents.ts. financial_income_items is retired.
+  const incomeDocsQ = useIncomeDocuments(FINANCE_YEAR);
+  const incomeQ = {
+    ...incomeDocsQ,
+    data: (incomeDocsQ.data ?? []).map(
+      (r): IncomeRow => ({
+        id: r.id,
+        period_id: r.period_id,
+        amount_ex_vat: r.amount_ex_vat,
+        vat_amount: r.vat_amount,
+        amount_inc_vat: r.amount_inc_vat,
+        invoice_status: r.invoice_status,
+        expected_payment_date: r.expected_payment_date,
+        paid_date: r.paid_date,
+      }),
+    ),
+  };
+
 
   const expensesQ = useQuery({
     queryKey: ["finance", "expenses", FINANCE_YEAR],
