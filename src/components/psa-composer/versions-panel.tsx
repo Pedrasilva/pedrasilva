@@ -1,10 +1,13 @@
 /**
- * Versions panel — dropdown listing every "sent" revision of a proposal
- * with download links to the frozen PDF. The current editable working copy
- * is shown at the top for reference.
+ * Revision history — the primary surface for sent revisions.
+ *
+ * Each sent revision can be viewed as a frozen, read-only document (exactly
+ * what was sent) or downloaded as the archived PDF. Nothing here writes to
+ * the live quote.
  */
 import { toast } from "sonner";
-import { Download, History, Lock, Pencil } from "lucide-react";
+import { Download, Eye, History, Lock, Pencil } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,9 +21,11 @@ import {
   useNextRevNumber,
   useProposalRevisions,
   getRevisionPdfUrl,
+  revisionIsViewable,
   type ProposalRevision,
 } from "@/lib/psa-proposal/use-proposal-revisions";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
+
 
 function formatDate(iso: string): string {
   try {
