@@ -28,7 +28,10 @@ export type PermissionModule =
   | "Projects"
   | "Scheduling"
   | "Timesheets"
-  | "Financials";
+  | "Financials"
+  | "CRM"
+  | "HR"
+  | "Finance";
 
 export type V2PermissionKey =
   // Projects (operational)
@@ -48,7 +51,35 @@ export type V2PermissionKey =
   | "timesheets.approve"
   // Financials (cross-project)
   | "financials.view"
-  | "financials.view_rates";
+  | "financials.view_rates"
+  // CRM (legacy: crm.companies / crm.contacts / crm.pipeline)
+  | "crm.companies.view"
+  | "crm.companies.edit"
+  | "crm.contacts.view"
+  | "crm.contacts.edit"
+  | "crm.pipeline.view"
+  | "crm.pipeline.edit"
+  | "crm.quotes.manage"
+  // HR (legacy: hr.* key family)
+  | "hr.self.view"
+  | "hr.collaborators.view"
+  | "hr.collaborator.view"
+  | "hr.collaborator.edit"
+  | "hr.compensation.view"
+  | "hr.benefits.submit"
+  | "hr.benefits.approve"
+  | "hr.leave.request"
+  | "hr.leave.approve"
+  | "hr.admin"
+  // Finance / backoffice (legacy: finance.dashboard, hr.valor-bo, hr.subsidio-alimentacao)
+  | "finance.dashboard.view"
+  | "finance.documents.view"
+  | "finance.documents.edit"
+  | "finance.banking.view"
+  | "finance.banking.edit"
+  | "finance.reports.view"
+  | "finance.settings.manage";
+
 
 export interface PermissionDefinition {
   key: V2PermissionKey;
@@ -174,7 +205,189 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
     scopes: ["all"],
     financial: true,
   },
+  // CRM
+  {
+    key: "crm.companies.view",
+    module: "CRM",
+    label: "View companies",
+    description: "Client, supplier and prospect records (legacy crm.companies).",
+    scopes: ["own", "team", "all"],
+  },
+  {
+    key: "crm.companies.edit",
+    module: "CRM",
+    label: "Edit companies",
+    description: "Create and update company records.",
+    scopes: ["team", "all"],
+  },
+  {
+    key: "crm.contacts.view",
+    module: "CRM",
+    label: "View contacts",
+    description: "Contact directory (legacy crm.contacts).",
+    scopes: ["own", "team", "all"],
+  },
+  {
+    key: "crm.contacts.edit",
+    module: "CRM",
+    label: "Edit contacts",
+    description: "Create and update contacts.",
+    scopes: ["team", "all"],
+  },
+  {
+    key: "crm.pipeline.view",
+    module: "CRM",
+    label: "View pipeline & proposals",
+    description: "Opportunities, quotes and fee proposals (legacy crm.pipeline).",
+    scopes: ["own", "assigned", "team", "all"],
+  },
+  {
+    key: "crm.pipeline.edit",
+    module: "CRM",
+    label: "Edit pipeline",
+    description: "Move opportunity stages, edit proposals and outcomes.",
+    scopes: ["assigned", "team", "all"],
+  },
+  {
+    key: "crm.quotes.manage",
+    module: "CRM",
+    label: "Manage quotes & templates",
+    description: "Build quotes, templates and convert them to projects.",
+    scopes: ["assigned", "team", "all"],
+  },
+  // HR
+  {
+    key: "hr.self.view",
+    module: "HR",
+    label: "View own HR record",
+    description: "Own payslip snapshot, working days and personal data.",
+    scopes: ["own"],
+  },
+  {
+    key: "hr.collaborators.view",
+    module: "HR",
+    label: "View collaborator list",
+    description: "People directory without opening individual records.",
+    scopes: ["team", "department", "all"],
+  },
+  {
+    key: "hr.collaborator.view",
+    module: "HR",
+    label: "Open collaborator record",
+    description: "Individual HR record, excluding compensation values.",
+    scopes: ["team", "department", "all"],
+  },
+  {
+    key: "hr.collaborator.edit",
+    module: "HR",
+    label: "Edit collaborator record",
+    description: "Update contracts, capacity and personal HR data.",
+    scopes: ["department", "all"],
+  },
+  {
+    key: "hr.compensation.view",
+    module: "HR",
+    label: "View compensation",
+    description:
+      "Salary snapshots, net/gross, benefits balances and comparison summary values.",
+    scopes: ["own", "department", "all"],
+    financial: true,
+  },
+  {
+    key: "hr.benefits.submit",
+    module: "HR",
+    label: "Submit own benefit expenses",
+    description: "Upload receipts and consult own benefit balance.",
+    scopes: ["own"],
+  },
+  {
+    key: "hr.benefits.approve",
+    module: "HR",
+    label: "Approve benefit expenses",
+    description: "Approve or reject other collaborators' benefit expenses.",
+    scopes: ["team", "department", "all"],
+  },
+  {
+    key: "hr.leave.request",
+    module: "HR",
+    label: "Request own leave",
+    description: "Submit and track own vacation requests.",
+    scopes: ["own"],
+  },
+  {
+    key: "hr.leave.approve",
+    module: "HR",
+    label: "Approve leave",
+    description: "Approve or reject vacation requests of others.",
+    scopes: ["team", "department", "all"],
+  },
+  {
+    key: "hr.admin",
+    module: "HR",
+    label: "HR administration",
+    description:
+      "Permission matrix, meal allowance table, backoffice hourly value and HR configuration.",
+    scopes: ["all"],
+  },
+  // Finance (backoffice module)
+  {
+    key: "finance.dashboard.view",
+    module: "Finance",
+    label: "View finance dashboard",
+    description: "Office cash flow, income and expense indicators (legacy finance.dashboard).",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.documents.view",
+    module: "Finance",
+    label: "View financial documents",
+    description: "Invoices, credit notes and receipts, issued and received.",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.documents.edit",
+    module: "Finance",
+    label: "Edit financial documents",
+    description: "Create, edit and settle documents, expenses and payments.",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.banking.view",
+    module: "Finance",
+    label: "View banking",
+    description: "Bank accounts, balances and transactions.",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.banking.edit",
+    module: "Finance",
+    label: "Manage banking",
+    description: "Import statements, classify and reconcile transactions.",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.reports.view",
+    module: "Finance",
+    label: "View finance reports",
+    description: "Cash flow, VAT, forecast and per-project financial reports.",
+    scopes: ["all"],
+    financial: true,
+  },
+  {
+    key: "finance.settings.manage",
+    module: "Finance",
+    label: "Manage finance settings",
+    description: "Classifications, VAT rates, classification rules and imports.",
+    scopes: ["all"],
+    financial: true,
+  },
 ];
+
 
 export const PERMISSION_BY_KEY = new Map(
   PERMISSION_CATALOGUE.map((p) => [p.key, p]),
@@ -213,6 +426,10 @@ export const MODULES: PermissionModule[] = [
   "Scheduling",
   "Timesheets",
   "Financials",
+  "CRM",
+  "HR",
+  "Finance",
+
 ];
 
 export interface EffectivePermissionRow {
