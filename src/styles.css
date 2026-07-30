@@ -1026,7 +1026,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
 }
+
 
 /* The appendix header (label + title + intro) is the value the rotated chart
    viewport subtracts from the page box. Constrain it to the printable page
