@@ -426,6 +426,10 @@ export const MODULES: PermissionModule[] = [
   "Scheduling",
   "Timesheets",
   "Financials",
+  "CRM",
+  "HR",
+  "Finance",
+
 ];
 
 export interface EffectivePermissionRow {
