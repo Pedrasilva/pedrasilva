@@ -1399,7 +1399,9 @@ export function IncomeSection({ vatMode }: { vatMode: VatMode }) {
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">{period?.month_name ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{client ?? "—"}</TableCell>
+                  <TableCell className="text-sm">
+                    {client ?? (r as any).counterparty_name ?? "—"}
+                  </TableCell>
                   <TableCell className="text-sm">
                     {r.project_code ? (
                       <span className="text-muted-foreground mr-1">{r.project_code}</span>

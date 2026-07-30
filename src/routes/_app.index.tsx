@@ -619,17 +619,26 @@ function FinanceSnapshotBlock() {
     queryKey: ["home-finance", "income", periodId],
     enabled: !!periodId,
     queryFn: async () => {
+      // Income source of truth: financial_documents (issued side).
+      const from = `${FINANCE_HOME_YEAR}-${String(month).padStart(2, "0")}-01`;
+      const end = new Date(Date.UTC(FINANCE_HOME_YEAR, month, 0))
+        .toISOString()
+        .slice(0, 10);
       const { data, error } = await supabase
-        .from("financial_income_items")
-        .select("amount_inc_vat, amount_ex_vat, vat_amount")
-        .eq("period_id", periodId!);
+        .from("financial_documents")
+        .select("total_inc_vat, subtotal_ex_vat, vat_amount")
+        .eq("direction", "issued")
+        .neq("status", "cancelled")
+        .neq("status", "draft")
+        .gte("issue_date", from)
+        .lte("issue_date", end);
       if (error) throw error;
       return (data ?? []).reduce(
         (s, r) =>
           s +
-          (r.amount_inc_vat != null
-            ? Number(r.amount_inc_vat)
-            : Number(r.amount_ex_vat || 0) + Number(r.vat_amount || 0)),
+          (r.total_inc_vat != null
+            ? Number(r.total_inc_vat)
+            : Number(r.subtotal_ex_vat || 0) + Number(r.vat_amount || 0)),
         0,
       );
     },
