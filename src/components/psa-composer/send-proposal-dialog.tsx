@@ -98,7 +98,7 @@ export function SendProposalDialog({
       return;
     }
     send.mutate(
-      { pdfBlob: file, filename, revNumber: nextRev },
+      { pdfBlob: file, filename },
       {
         onSuccess: () => {
           toast.success(`Revisão ${String(nextRev).padStart(2, "0")} guardada.`);
