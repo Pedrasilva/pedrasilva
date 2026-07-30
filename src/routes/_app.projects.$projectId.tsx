@@ -1266,13 +1266,17 @@ function StatusBadge({ status }: { status: string }) {
       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
       : status === "paused"
         ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-        : "bg-muted text-muted-foreground";
+        : status === "closing"
+          ? "bg-sky-500/15 text-sky-700 dark:text-sky-400"
+          : "bg-muted text-muted-foreground";
   const label =
     status === "active"
       ? t("projects:detail.status.active")
       : status === "paused"
         ? t("projects:detail.status.paused")
-        : t("projects:detail.status.archived");
+        : status === "closing"
+          ? t("projects:detail.status.closing")
+          : t("projects:detail.status.archived");
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider", tone)}>
       {label}
@@ -1285,8 +1289,9 @@ function StatusToggle({
   onChange,
 }: {
   current: string;
-  onChange: (s: "active" | "paused" | "archived") => void;
+  onChange: (s: "active" | "paused" | "closing" | "archived") => void;
 }) {
+
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
