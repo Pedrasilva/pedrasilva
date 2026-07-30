@@ -4799,6 +4799,7 @@ export type Database = {
           name: string
           notes: string | null
           opportunity_id: string | null
+          origin: string
           quote_id: string | null
           sold_at: string | null
           sold_external_fee: number | null
@@ -4824,6 +4825,7 @@ export type Database = {
           name: string
           notes?: string | null
           opportunity_id?: string | null
+          origin?: string
           quote_id?: string | null
           sold_at?: string | null
           sold_external_fee?: number | null
@@ -4849,6 +4851,7 @@ export type Database = {
           name?: string
           notes?: string | null
           opportunity_id?: string | null
+          origin?: string
           quote_id?: string | null
           sold_at?: string | null
           sold_external_fee?: number | null
@@ -5530,6 +5533,7 @@ export type Database = {
           is_self: boolean
           markup_pct: number
           name: string
+          origin: string | null
           parent_stage_id: string | null
           project_id: string
           retainer_anchor_month: string | null
@@ -5571,6 +5575,7 @@ export type Database = {
           is_self?: boolean
           markup_pct?: number
           name: string
+          origin?: string | null
           parent_stage_id?: string | null
           project_id: string
           retainer_anchor_month?: string | null
@@ -5612,6 +5617,7 @@ export type Database = {
           is_self?: boolean
           markup_pct?: number
           name?: string
+          origin?: string | null
           parent_stage_id?: string | null
           project_id?: string
           retainer_anchor_month?: string | null
