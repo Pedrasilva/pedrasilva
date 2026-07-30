@@ -143,6 +143,17 @@ export interface LiveQuoteSnapshot {
     saleRate: number;
   }>;
   missing: string[];
+  /**
+   * Which document version this payload represents. Live/draft rendering
+   * leaves `number`/`sentAt` null; historical revision rendering fills them
+   * from the stored revision record.
+   */
+  revision: {
+    number: number | null;
+    sentAt: string | null;
+    isDraft: boolean;
+  };
+
 }
 
 /**
