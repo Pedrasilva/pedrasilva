@@ -367,7 +367,6 @@
       "totals": "Totais do ano"
     }
   },
-
   "bank": {
     "title": "Contas bancárias",
     "col": {
@@ -657,7 +656,10 @@
       "savedDraft": "Documento guardado como rascunho.",
       "saved": "Documento actualizado.",
       "issued": "Documento marcado como emitido.",
-      "cancelled": "Documento cancelado."
+      "cancelled": "Documento cancelado.",
+      "notProjectRelated": "Sem projeto associado",
+      "projectRequired": "Escolha um projeto ou marque o documento como sem projeto associado",
+      "projectRequiredHint": "Obrigatório em documentos emitidos — escolha um projeto ou “Sem projeto associado”."
     },
     "payments": {
       "title": "Pagamentos",

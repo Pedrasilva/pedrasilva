@@ -45,6 +45,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { useIncomeDocuments } from "@/lib/finance/use-income-documents";
 
 // ---------------------------------------------------------------------------
 // Shared types & helpers
@@ -180,18 +181,25 @@ export function useFinanceData() {
     },
   });
 
-  const incomeQ = useQuery({
-    queryKey: ["finance", "income", FINANCE_YEAR],
-    queryFn: async (): Promise<IncomeRow[]> => {
-      const { data, error } = await supabase
-        .from("financial_income_items")
-        .select(
-          "id, period_id, amount_ex_vat, vat_amount, amount_inc_vat, invoice_status, expected_payment_date, paid_date",
-        );
-      if (error) throw error;
-      return (data ?? []) as IncomeRow[];
-    },
-  });
+  // Income now reads financial_documents (issued side) — see
+  // src/lib/finance/use-income-documents.ts. financial_income_items is retired.
+  const incomeDocsQ = useIncomeDocuments(FINANCE_YEAR);
+  const incomeQ = {
+    ...incomeDocsQ,
+    data: (incomeDocsQ.data ?? []).map(
+      (r): IncomeRow => ({
+        id: r.id,
+        period_id: r.period_id,
+        amount_ex_vat: r.amount_ex_vat,
+        vat_amount: r.vat_amount,
+        amount_inc_vat: r.amount_inc_vat,
+        invoice_status: r.invoice_status,
+        expected_payment_date: r.expected_payment_date,
+        paid_date: r.paid_date,
+      }),
+    ),
+  };
+
 
   const expensesQ = useQuery({
     queryKey: ["finance", "expenses", FINANCE_YEAR],
@@ -1187,19 +1195,11 @@ type IncomeFull = {
 };
 
 function useIncomeFull() {
-  return useQuery({
-    queryKey: ["finance", "income-full", FINANCE_YEAR],
-    queryFn: async (): Promise<IncomeFull[]> => {
-      const { data, error } = await supabase
-        .from("financial_income_items")
-        .select(
-          "id, period_id, client_id, project_name, project_code, invoice_number, invoice_status, issue_date, expected_payment_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, vat_rate",
-        )
-        .order("expected_payment_date", { ascending: true, nullsFirst: false });
-      if (error) throw error;
-      return (data ?? []) as IncomeFull[];
-    },
-  });
+  const q = useIncomeDocuments(FINANCE_YEAR);
+  return {
+    ...q,
+    data: (q.data ?? []) as unknown as IncomeFull[],
+  };
 }
 
 function useClientsMap() {
@@ -1399,7 +1399,9 @@ export function IncomeSection({ vatMode }: { vatMode: VatMode }) {
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">{period?.month_name ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{client ?? "—"}</TableCell>
+                  <TableCell className="text-sm">
+                    {client ?? (r as any).counterparty_name ?? "—"}
+                  </TableCell>
                   <TableCell className="text-sm">
                     {r.project_code ? (
                       <span className="text-muted-foreground mr-1">{r.project_code}</span>

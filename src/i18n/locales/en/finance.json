@@ -367,7 +367,6 @@
       "totals": "Year totals"
     }
   },
-
   "bank": {
     "title": "Bank accounts",
     "col": {
@@ -657,7 +656,10 @@
       "savedDraft": "Document saved as draft.",
       "saved": "Document updated.",
       "issued": "Document marked as issued.",
-      "cancelled": "Document cancelled."
+      "cancelled": "Document cancelled.",
+      "notProjectRelated": "Not project-related",
+      "projectRequired": "Choose a project, or mark the document as not project-related",
+      "projectRequiredHint": "Required on issued documents — pick a project or “Not project-related”."
     },
     "payments": {
       "title": "Payments",
