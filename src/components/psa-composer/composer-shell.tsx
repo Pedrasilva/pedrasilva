@@ -1,22 +1,29 @@
 /**
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
  * Owns the selected-block state.
+ *
+ * When wrapped in a `RevisionProvider`, the shell switches to a read-only
+ * historical view of a sent revision: all data comes from the frozen
+ * snapshot and no mutation is ever issued.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, FilePlus2 } from "lucide-react";
+import { ArrowLeft, FilePlus2, History } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
 import { BlockLibraryPanel } from "./block-library-panel";
 import { BlockSettingsPanel } from "./block-settings-panel";
+import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
   useProposalBlocks,
   useReorderBlocks,
   useUpdateProposal,
 } from "@/lib/psa-proposal/use-psa-proposal";
+
 
 export function ComposerShell({ proposalId }: { proposalId: string }) {
   const { t } = useTranslation("common");
