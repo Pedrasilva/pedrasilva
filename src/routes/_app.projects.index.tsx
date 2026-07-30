@@ -831,6 +831,7 @@ function DashboardPage() {
                   className="w-64 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none xl:w-72"
                 />
               </div>
+              {isAdmin && <CreateProjectDirectDialog compact />}
             </div>
           </div>
 
