@@ -16,7 +16,9 @@
  *    `expected_invoice_date`, `sort_order`.
  */
 import { useQuery } from "@tanstack/react-query";
+import { useFrozenQuoteSnapshot } from "./revision-context";
 import { supabase } from "@/integrations/supabase/client";
+
 import {
   resolveSupplierMarkupPct,
   type SupplierMarkupRow,
@@ -141,6 +143,17 @@ export interface LiveQuoteSnapshot {
     saleRate: number;
   }>;
   missing: string[];
+  /**
+   * Which document version this payload represents. Live/draft rendering
+   * leaves `number`/`sentAt` null; historical revision rendering fills them
+   * from the stored revision record.
+   */
+  revision: {
+    number: number | null;
+    sentAt: string | null;
+    isDraft: boolean;
+  };
+
 }
 
 /**
@@ -327,19 +340,17 @@ function buildConsultantRows(input: {
 }
 
 
-export function useLiveQuoteSnapshot(
-  quoteId: string | null | undefined,
+/**
+ * Fetches and resolves the full quote payload used by every proposal block.
+ * Exported so revision snapshotting can freeze the exact same object.
+ */
+export async function fetchLiveQuoteSnapshot(
+  quoteId: string,
   lang: ProposalLang = "pt-PT",
-) {
-  return useQuery({
-    enabled: !!quoteId,
-    queryKey: ["psa-live-quote", quoteId, lang],
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    queryFn: async (): Promise<LiveQuoteSnapshot> => {
+): Promise<LiveQuoteSnapshot> {
       const L = getProposalLabels(lang);
       const missing: string[] = [];
+
 
       const { data: quote } = await supabase
         .from("fee_proposals")
@@ -1204,11 +1215,42 @@ export function useLiveQuoteSnapshot(
         })(),
         billableRates,
         missing,
-
+        revision: { number: null, sentAt: null, isDraft: true },
       };
-    },
-  });
 }
+
+/**
+ * React hook wrapper. When a historical revision is being viewed (see
+ * `RevisionProvider`), this returns the frozen snapshot captured at send
+ * time and performs no network access at all.
+ */
+export function useLiveQuoteSnapshot(
+  quoteId: string | null | undefined,
+  lang: ProposalLang = "pt-PT",
+) {
+  const frozen = useFrozenQuoteSnapshot(lang);
+  const query = useQuery({
+    enabled: !!quoteId && !frozen,
+    queryKey: ["psa-live-quote", quoteId, lang],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    queryFn: () => fetchLiveQuoteSnapshot(quoteId!, lang),
+  });
+  if (frozen) {
+    return {
+      ...query,
+      data: frozen,
+      isLoading: false,
+      isPending: false,
+      isFetching: false,
+      isError: false,
+      error: null,
+    } as typeof query;
+  }
+  return query;
+}
+
 
 /** Two-letter locale used for proposal rendering. */
 export type ProposalLang = "pt-PT" | "en";

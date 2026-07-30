@@ -1,16 +1,22 @@
 /**
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
  * Owns the selected-block state.
+ *
+ * When wrapped in a `RevisionProvider`, the shell switches to a read-only
+ * historical view of a sent revision: all data comes from the frozen
+ * snapshot and no mutation is ever issued.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, FilePlus2 } from "lucide-react";
+import { ArrowLeft, FilePlus2, History } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
 import { BlockLibraryPanel } from "./block-library-panel";
 import { BlockSettingsPanel } from "./block-settings-panel";
+import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
   useProposalBlocks,
@@ -18,8 +24,11 @@ import {
   useUpdateProposal,
 } from "@/lib/psa-proposal/use-psa-proposal";
 
+
 export function ComposerShell({ proposalId }: { proposalId: string }) {
   const { t } = useTranslation("common");
+  const historical = useHistoricalRevision();
+
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
   const reorder = useReorderBlocks(proposalId);
@@ -46,7 +55,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
   const isFinalLocked = !!proposal.data.locked_at; // won / lost
   const isSentLocked = !isFinalLocked && proposal.data.status === "sent";
-  const isReadOnly = isFinalLocked || isSentLocked;
+  const isReadOnly = isFinalLocked || isSentLocked || !!historical;
+
 
   const startNewRevision = () => {
     update.mutate(
@@ -100,7 +110,43 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </Button>
         </div>
       )}
-      {isFinalLocked && (
+      {historical && (
+        <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
+          <span className="flex items-center gap-2">
+            <History className="h-3.5 w-3.5" />
+            A ver a Revisão {String(historical.revision.revNumber).padStart(2, "0")} —
+            enviada em{" "}
+            {new Date(historical.revision.sentAt).toLocaleDateString("pt-PT", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+            . Vista histórica só de leitura: não reflete o orçamento atual e
+            nada aqui altera dados em vigor.
+            {!historical.quoteData && (
+              <strong className="ml-1">
+                Esta revisão é anterior ao arquivo de dados — apenas o PDF é
+                fiável.
+              </strong>
+            )}
+          </span>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-amber-400 bg-white text-amber-900 hover:bg-amber-100"
+          >
+            <Link
+              to="/proposals/$proposalId/composer"
+              params={{ proposalId }}
+            >
+              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> Versão atual
+            </Link>
+          </Button>
+        </div>
+      )}
+      {isFinalLocked && !historical && (
+
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           Proposta bloqueada
           {proposal.data.outcome === "won"
@@ -112,7 +158,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           descarregar as revisões enviadas em qualquer altura.
         </div>
       )}
-      {isSentLocked && (
+      {isSentLocked && !historical && (
         <div className="flex items-center justify-between gap-3 border-b border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 print:hidden">
           <span>
             Versão enviada bloqueada. Para alterar qualquer campo, cria uma

@@ -50,17 +50,24 @@ export function ProposalHistoryDialog({ proposalId }: { proposalId: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" title="Histórico de versões">
-          <History className="mr-1 h-3.5 w-3.5" /> Histórico
+        <Button
+          variant="ghost"
+          size="sm"
+          title="Recuperação de autosaves (avançado) — não é o histórico de revisões"
+        >
+          <History className="mr-1 h-3.5 w-3.5" /> Autosaves
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Histórico de versões</DialogTitle>
+          <DialogTitle>Recuperação de autosaves (avançado)</DialogTitle>
           <DialogDescription>
-            Guarde versões nomeadas em momentos-chave ou restaure uma versão
-            anterior. Ao restaurar, a versão atual é guardada automaticamente
-            como "Antes de restaurar".
+            Ferramenta de baixo nível para recuperar conteúdo de blocos a
+            partir de gravações automáticas. <strong>Não é o histórico de
+            revisões</strong> — as revisões enviadas estão no menu
+            &quot;Revisões&quot;. Ao restaurar, apenas o conteúdo dos blocos é
+            afetado; nenhum dado do orçamento é alterado. A versão atual é
+            guardada automaticamente como &quot;Antes de restaurar&quot;.
           </DialogDescription>
         </DialogHeader>
 

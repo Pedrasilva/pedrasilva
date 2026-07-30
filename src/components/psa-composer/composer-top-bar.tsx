@@ -62,6 +62,7 @@ import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import { SendProposalDialog } from "./send-proposal-dialog";
+import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import { VersionsPanel } from "./versions-panel";
 import { ImportTemplateDialog } from "./import-template-dialog";
 import {
@@ -98,10 +99,14 @@ export function ComposerTopBar({
   const [sendOpen, setSendOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
   const { nextRev } = useNextRevNumber(proposal.id);
+  const historical = useHistoricalRevision();
+  const revMeta = historical
+    ? { number: historical.revision.revNumber, sentAt: historical.revision.sentAt }
+    : null;
   const setOutcome = useSetProposalOutcome(proposal.id);
   const isFinalLocked = !!proposal.locked_at;
   const isSentLocked = !isFinalLocked && proposal.status === "sent";
-  const isReadOnly = isFinalLocked || isSentLocked;
+  const isReadOnly = isFinalLocked || isSentLocked || !!historical;
 
   const startNewRevision = () =>
     update.mutate(
@@ -174,7 +179,7 @@ export function ComposerTopBar({
       <div className="ml-auto flex items-center gap-2">
         {!isReadOnly && <ImportTemplateDialog proposalId={proposal.id} />}
         <VersionsPanel proposal={proposal} />
-        <ProposalHistoryDialog proposalId={proposal.id} />
+        {!historical && <ProposalHistoryDialog proposalId={proposal.id} />}
         <Sheet>
           <SheetTrigger asChild>
             <Button
@@ -226,15 +231,20 @@ export function ComposerTopBar({
                    toast.error(t("proposalComposer.pagination.pdfError"));
                    return;
                 }
-                 void printProposalDocument(proposal, printWindow, {
-                   loading: t("proposalComposer.pagination.pdfLoading"),
-                   error: t("proposalComposer.pagination.pdfError"),
-                 });
+                 void printProposalDocument(
+                   proposal,
+                   printWindow,
+                   {
+                     loading: t("proposalComposer.pagination.pdfLoading"),
+                     error: t("proposalComposer.pagination.pdfError"),
+                   },
+                   buildProposalFilename(proposal, revMeta),
+                 );
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => downloadAsWord(buildProposalFilename(proposal))}>
+            <DropdownMenuItem onClick={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}>
               <FileText className="mr-2 h-3.5 w-3.5" /> Word (.doc)
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -353,14 +363,18 @@ export function ComposerTopBar({
  * Revision is read from proposal.project_snapshot.rev (numeric) and
  * defaults to 0.
  */
-function buildProposalFilename(proposal: PsaProposal): string {
-  const now = new Date();
+function buildProposalFilename(
+  proposal: PsaProposal,
+  revision?: { number: number | null; sentAt: string | null } | null,
+): string {
+  const now = revision?.sentAt ? new Date(revision.sentAt) : new Date();
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   const dateStr = `${yy}${mm}${dd}`;
   const snap = (proposal.project_snapshot ?? {}) as Record<string, unknown>;
-  const revRaw = snap.rev ?? snap.revision;
+  const revRaw =
+    revision?.number != null ? revision.number : snap.rev ?? snap.revision;
   const revNum = Number.isFinite(Number(revRaw)) ? Number(revRaw) : 0;
   const rev = String(Math.max(0, Math.trunc(revNum))).padStart(2, "0");
   const name = (proposal.title || "proposta").trim();

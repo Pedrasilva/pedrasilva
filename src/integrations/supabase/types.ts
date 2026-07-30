@@ -9075,6 +9075,7 @@ export type Database = {
         Args: { _proposal_id: string; _template_id: string }
         Returns: number
       }
+      psa_next_rev_number: { Args: { _proposal_id: string }; Returns: number }
       quote_instantiate_template: {
         Args: {
           _base_start_date?: string

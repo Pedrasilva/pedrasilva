@@ -7,6 +7,8 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { captureQuoteData } from "./snapshot-capture";
+import type { FrozenQuoteData, HistoricalRevision } from "./revision-context";
 import type { PsaProposal, PsaProposalBlock } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,10 +23,49 @@ export type ProposalRevision = {
   pdf_storage_path: string | null;
   pdf_filename: string | null;
   pdf_mime: string | null;
-  snapshot: { proposal: PsaProposal; blocks: PsaProposalBlock[] };
+  snapshot: {
+    proposal: PsaProposal;
+    blocks: PsaProposalBlock[];
+    quote_data?: FrozenQuoteData | null;
+  };
   created_by: string | null;
   created_at: string;
 };
+
+/** True when this revision carries a frozen quote payload it can render from. */
+export function revisionIsViewable(r: ProposalRevision): boolean {
+  return !!r.snapshot?.quote_data?.resolved;
+}
+
+/** Loads a single sent revision and shapes it for `RevisionProvider`. */
+export function useRevision(revisionId: string | undefined) {
+  return useQuery({
+    enabled: !!revisionId,
+    queryKey: ["psa-proposal-revision", revisionId],
+    queryFn: async (): Promise<HistoricalRevision> => {
+      const { data, error } = await sb
+        .from("psa_proposal_snapshots")
+        .select("*")
+        .eq("id", revisionId)
+        .single();
+      if (error) throw error;
+      const r = data as ProposalRevision;
+      return {
+        id: r.id,
+        revNumber: r.rev_number,
+        sentAt: r.created_at,
+        pdfStoragePath: r.pdf_storage_path,
+        pdfFilename: r.pdf_filename,
+        payload: {
+          proposal: r.snapshot?.proposal,
+          blocks: r.snapshot?.blocks ?? [],
+          quote_data: r.snapshot?.quote_data ?? null,
+        },
+      };
+    },
+  });
+}
+
 
 export function useProposalRevisions(proposalId: string | undefined) {
   return useQuery({
@@ -44,8 +85,9 @@ export function useProposalRevisions(proposalId: string | undefined) {
 }
 
 /**
- * Number of the NEXT revision that would be produced by "Send Proposal".
- * (0 if none has been sent yet.)
+ * Display-only hint for the *likely* next revision number (used for labels
+ * and the pre-filled filename). The authoritative number is allocated
+ * server-side at send time by `psa_next_rev_number`.
  */
 export function useNextRevNumber(proposalId: string | undefined) {
   const q = useProposalRevisions(proposalId);
@@ -67,9 +109,9 @@ function safePathSegment(s: string): string {
 export function useSendProposal(proposalId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { pdfBlob: Blob; filename: string; revNumber: number }) => {
+    mutationFn: async (args: { pdfBlob: Blob; filename: string }) => {
       if (!proposalId) throw new Error("No proposal id");
-      const { pdfBlob, filename, revNumber } = args;
+      const { pdfBlob, filename } = args;
 
       // Fetch current proposal + blocks for the immutable snapshot payload.
       const [{ data: proposal, error: pErr }, { data: blocks, error: bErr }] =
@@ -86,6 +128,16 @@ export function useSendProposal(proposalId: string | undefined) {
       if (proposal?.locked_at) {
         throw new Error("Proposta bloqueada — não é possível enviar novas revisões.");
       }
+
+      // Atomic, collision-proof revision number (server-side).
+      const { data: revData, error: revErr } = await sb.rpc("psa_next_rev_number", {
+        _proposal_id: proposalId,
+      });
+      if (revErr) throw revErr;
+      const revNumber = Number(revData ?? 0);
+
+      // Freeze the full quote payload at this exact moment.
+      const quoteData = await captureQuoteData(proposal?.quote_id ?? null);
 
       // Upload PDF.
       const revLabel = String(revNumber).padStart(2, "0");
@@ -109,9 +161,10 @@ export function useSendProposal(proposalId: string | undefined) {
         pdf_storage_path: storagePath,
         pdf_filename: `${filename}.pdf`,
         pdf_mime: "application/pdf",
-        snapshot: { proposal, blocks: blocks ?? [] },
+        snapshot: { proposal, blocks: blocks ?? [], quote_data: quoteData },
         created_by: userData?.user?.id ?? null,
       });
+
       if (snapErr) {
         // Roll back the uploaded file if snapshot insert failed.
         await sb.storage.from("proposal-pdfs").remove([storagePath]);

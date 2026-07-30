@@ -1,54 +1,50 @@
-## Confirmed problem
+## Approach
 
-The builder currently uses four different pagination paths:
+### #1 — Snapshot payload (the core decision)
 
-1. fixed 297 mm divider lines over a continuous document;
-2. JavaScript heuristics and injected margins that guess where print will move content;
-3. Paged.js for the in-app paginated preview;
-4. the browser’s separate native print engine for the downloaded PDF.
+Everything the proposal renders already funnels through a single derived object: `LiveQuoteSnapshot` (stages, consultants, payment schedule + invoices, site trips, billable rates, VAT status, project/client header fields). Raw tables are only intermediate inputs.
 
-The attached screenshots are the direct consequence: the editor ruler divides the uninterrupted screen layout mid-paragraph, while print applies heading, widow/orphan, and break-avoidance rules and moves “Project Description” to the following sheet. Further threshold tuning cannot make those independent engines reliably identical.
+So the snapshot stores **both**:
 
-## Implementation
+- `quote_data.resolved` — the full derived `LiveQuoteSnapshot`, for both languages (`pt-PT` and `en`), captured at send time. This is what renderers read back. It guarantees pixel-parity with what was sent, and is immune to future changes in derivation logic.
+- `quote_data.raw` — verbatim rows from `fee_proposals`, `quote_stages`, `quote_stage_dependencies`, `quote_allocations` (with resolved resource role + cost/sale rates), `quote_external_services`, `quote_payment_schedule_items`, `quote_billable_hourly_rates`, `quote_site_trips`, `quote_supplier_markups`. Audit/forensics only — not used for rendering.
+- `quote_data.captured_at` + `schema_version: 1`.
 
-### 1. Establish one authoritative pagination pipeline
-- Use the existing Paged.js page output as the single rendered document for both builder page layout and PDF export.
-- Print/export the already-paginated page boxes instead of repaginating the continuous source with the browser’s separate print path.
-- Ensure the exact same cloned content, proposal variables, fonts, margins, visibility rules, headers, footers, and break rules feed both the editable page view and export.
+Capture happens inside the existing send mutation (`useSendProposal`), alongside the current `{ proposal, blocks }` — no change to the send UX.
 
-### 2. Replace continuous editing with true A4 sheets
-- Keep a hidden React source document only as the content/state source for pagination.
-- Display the generated A4 page stack as the main composer canvas in editing mode—not only after clicking Preview.
-- Preserve block selection and editing by mapping every paginated fragment back to its `data-proposal-block-id`; clicking a fragment selects the original block and opens its editing controls.
-- For inline rich text, activate an editor for the selected block and repaginate after committed/debounced changes so the document remains usable while content is changing.
-- Preserve drag/reorder and block settings through the existing proposal block state rather than attempting to mutate cloned Paged.js DOM.
+### #2 — Dual-mode rendering
 
-### 3. Remove the conflicting simulation
-- Remove fixed page-marker calculations and dashed divider overlays from `canvas.tsx`.
-- Retire `syncExplicitScreenBreaks`, `syncSmartScreenBreaks`, the 65 mm heading heuristic, forced-break spacer variables, and associated screen-only CSS.
-- Retain only explicit user page-break settings and actual CSS fragmentation rules consumed by the authoritative paginator.
-- Continue gap/image analysis only from real generated page geometry; do not let it alter pagination.
+Add `RevisionContext` (React context) in `src/lib/psa-proposal/revision-context.tsx`:
 
-### 4. Make page boundaries visually unambiguous
-- Render each page as an individual white A4 sheet on the neutral workspace background.
-- Increase the vertical gap between sheets substantially and add a restrained page shadow/border.
-- Show page numbers outside the printable content area.
-- Leave unused page area plain white, as requested, so remaining space is visible exactly as it will be in the PDF—without dashed lines or tinted overlays crossing content.
+- `useLiveQuoteSnapshot(quoteId, lang)` gains a first step: if a historical revision is active in context, return `{ data: snapshot.quote_data.resolved[lang], isLoading: false }` and never touch the network. Signature and return shape stay identical, so `canvas.tsx`, `block-renderer.tsx`, `block-library-panel.tsx`, `block-settings-panel.tsx` need no changes.
+- Blocks come from `snapshot.blocks` instead of the live `psa_proposal_blocks` query, via the same context check in `useProposalBlocks`.
+- New route `/proposals/$proposalId/composer/revisions/$revisionId` renders `ComposerShell` wrapped in the provider, forced into preview/read-only: no library panel, no settings panel, no drag reorder, no autosave, all mutations short-circuited.
+- Amber banner at top: "A ver Revisão 01 — enviada 12 mar 2026. Vista histórica, não reflete o orçamento atual." plus a "Download PDF" and "Voltar à versão atual" action.
+- Snapshots that predate this build (no `quote_data`) render a notice: only the archived PDF is available for that revision; the View action is disabled and only Download shows.
 
-### 5. Isolate proposal print styles
-- Replace the proposal’s generic `.print-area` wrapper with a proposal-specific scope so unrelated legacy print rules cannot affect its fragmentation.
-- Consolidate duplicate heading/block break rules into one proposal pagination section.
-- Ensure invisible blocks, cover/index breaks, page-aligned blocks, images, tables, and the rotated Gantt follow the same rules in builder and exported PDF.
+### #3 — Server-side revision numbering
 
-### 6. Loading and failure handling
-- Add a stable pagination/loading state while fonts, images, or content are being laid out, preventing blank or partially generated sheets from flashing.
-- Cancel stale pagination runs during rapid edits and apply only the latest result.
-- Surface a clear localized EN/PT error state if pagination fails instead of silently showing blank pages.
+Migration adds `public.psa_next_rev_number(p_proposal_id uuid) returns int`: `security definer`, locks the proposal row (`SELECT ... FOR UPDATE` on `psa_proposals`), computes `coalesce(max(rev_number), -1) + 1` over `kind='sent'` rows, returns it. Grant `EXECUTE` to `authenticated`. Also add a unique index on `(proposal_id, rev_number) WHERE kind = 'sent'` as a hard guard.
 
-## Verification
+`useSendProposal` calls the RPC to get the number instead of receiving it from the client; `useNextRevNumber` stays but is downgraded to a display-only hint for the top-bar label.
 
-- Reproduce against the current proposal and specifically compare the “2. Project Description” break shown in the supplied screenshots.
-- Verify builder and exported PDF have the same page count and the same first/last visible text on every page.
-- Test default and customized body size, heading scale, margins, header/footer visibility, explicit breaks, index, images, long paragraphs, tables, hidden blocks, and Gantt appendix.
-- Use browser automation to capture every builder sheet and every exported PDF page at desktop size and inspect all pages for blank sheets, clipped content, overlaps, incorrect headers/footers, and divergent break positions.
-- Add a focused regression check that records block fragments per page and compares the builder page map with the exported page map.
+### #4 — Cover page + filename
+
+- `LiveQuoteSnapshot` gains `revision: { number: number | null; sentAt: string | null; isDraft: boolean }`. Live mode: `{ number: null, sentAt: null, isDraft: true }`. Historical mode: filled from the revision row.
+- Cover block renders "Revisão 01 · 12 mar 2026" (or "Rascunho" / "Draft") and prefers `revision.sentAt` over `fee_proposals.data_proposta` when historical.
+- Export filename in historical mode uses the stored revision number and its sent date rather than today's.
+
+### #5 — History UI cleanup
+
+- `VersionsPanel` becomes the primary "Histórico de revisões": each sent row shows `Rev NN`, sent date, filename, and two actions — **Ver** (opens the read-only historical route) and **Descarregar PDF**.
+- `ProposalHistoryDialog` retitled "Recuperação de autosaves (avançado)", moved behind an overflow menu item, with an explanatory line that it is a low-level recovery tool and not the revision history. Its existing restore stays as-is (it only touches proposal blocks, never quote data).
+
+### Explicitly out of scope
+
+No "restore to live" for sent revisions. Historical mode issues zero writes: the provider hard-disables every mutation hook it wraps.
+
+## Technical notes
+
+- Files touched: `src/lib/psa-proposal/live-data.ts` (context check + `revision` field), new `revision-context.tsx`, new `snapshot-capture.ts`, `use-proposal-revisions.ts` (RPC + payload), `use-psa-proposal.ts` (blocks override), `composer-shell.tsx` (banner + read-only), `versions-panel.tsx`, `proposal-history-dialog.tsx`, `block-renderer.tsx` (cover only), new revision route file.
+- One migration: `psa_next_rev_number` function + partial unique index.
+- Snapshot size: a large quote resolves to roughly 100–300 KB of JSON for both languages; well within jsonb limits.

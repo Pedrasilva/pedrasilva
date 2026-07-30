@@ -7,6 +7,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useHistoricalRevision } from "./revision-context";
 import type {
   PsaLibraryEntry,
   PsaProposal,
@@ -23,8 +24,9 @@ const sb = supabase as any;
 // -------------------- queries --------------------
 
 export function useProposal(id: string | undefined) {
-  return useQuery({
-    enabled: !!id,
+  const historical = useHistoricalRevision();
+  const query = useQuery({
+    enabled: !!id && !historical,
     queryKey: ["psa-proposal", id],
     queryFn: async (): Promise<PsaProposal> => {
       const { data, error } = await sb
@@ -36,11 +38,23 @@ export function useProposal(id: string | undefined) {
       return data as PsaProposal;
     },
   });
+  if (historical?.revision.payload.proposal) {
+    return {
+      ...query,
+      data: historical.revision.payload.proposal,
+      isLoading: false,
+      isPending: false,
+      isError: false,
+      error: null,
+    } as typeof query;
+  }
+  return query;
 }
 
 export function useProposalBlocks(proposalId: string | undefined) {
-  return useQuery({
-    enabled: !!proposalId,
+  const historical = useHistoricalRevision();
+  const query = useQuery({
+    enabled: !!proposalId && !historical,
     queryKey: ["psa-proposal-blocks", proposalId],
     queryFn: async (): Promise<PsaProposalBlock[]> => {
       const { data, error } = await sb
@@ -52,7 +66,19 @@ export function useProposalBlocks(proposalId: string | undefined) {
       return (data ?? []) as PsaProposalBlock[];
     },
   });
+  if (historical) {
+    return {
+      ...query,
+      data: historical.revision.payload.blocks ?? [],
+      isLoading: false,
+      isPending: false,
+      isError: false,
+      error: null,
+    } as typeof query;
+  }
+  return query;
 }
+
 
 export function useBlockLibrary() {
   return useQuery({
