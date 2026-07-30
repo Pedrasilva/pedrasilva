@@ -27,6 +27,8 @@ import {
 
 export function ComposerShell({ proposalId }: { proposalId: string }) {
   const { t } = useTranslation("common");
+  const historical = useHistoricalRevision();
+
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
   const reorder = useReorderBlocks(proposalId);
