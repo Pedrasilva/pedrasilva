@@ -54,7 +54,7 @@ export const BACKUP_TABLES: string[] = [
   "pm_internal_categories",
   "pm_suppliers",
   "project_bootstrap_runs",
-  "projects",
+  
   // CRM
   "crm_accounts",
   "crm_opportunities",
