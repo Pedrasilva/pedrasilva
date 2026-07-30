@@ -94,8 +94,7 @@ export function useIncomeDocuments(year: number) {
         .select(
           `id, status, document_number, external_reference, issue_date, due_date,
            counterparty_client_id, counterparty_name_snapshot, project_id,
-           subtotal_ex_vat, vat_amount, total_inc_vat, paid_amount, outstanding_amount,
-           pm_projects:project_id ( name, code )`,
+           subtotal_ex_vat, vat_amount, total_inc_vat, paid_amount, outstanding_amount`,
         )
         .eq("direction", "issued")
         .gte("issue_date", `${year}-01-01`)
@@ -105,6 +104,20 @@ export function useIncomeDocuments(year: number) {
 
       const docs = (data ?? []) as any[];
       const ids = docs.map((d) => d.id);
+
+      // Project names (no FK on financial_documents.project_id, so resolve manually).
+      const projectIds = Array.from(
+        new Set(docs.map((d) => d.project_id).filter(Boolean)),
+      ) as string[];
+      const projectMap = new Map<string, string>();
+      if (projectIds.length > 0) {
+        const { data: projs, error: projErr } = await supabase
+          .from("pm_projects")
+          .select("id, name")
+          .in("id", projectIds);
+        if (projErr) throw projErr;
+        for (const p of projs ?? []) projectMap.set(p.id, p.name);
+      }
 
       // Latest payment date per document (used as "paid on").
       const paidMap = new Map<string, string>();
@@ -134,8 +147,10 @@ export function useIncomeDocuments(year: number) {
           period_id: periodIdFor(periodMap, d.issue_date, year),
           client_id: d.counterparty_client_id ?? null,
           project_id: d.project_id ?? null,
-          project_name: d.pm_projects?.name ?? null,
-          project_code: d.pm_projects?.code ?? null,
+          project_name: d.project_id
+            ? (projectMap.get(d.project_id) ?? null)
+            : null,
+          project_code: null,
           counterparty_name: d.counterparty_name_snapshot ?? null,
           invoice_number: d.document_number ?? d.external_reference ?? null,
           invoice_status: mapDocStatus(d.status, d.due_date ?? null, outstanding),
