@@ -61,12 +61,14 @@ export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
 });
 
-const STATUS_FILTER_KEYS: { key: "active" | "paused" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
+const STATUS_FILTER_KEYS: { key: "active" | "paused" | "closing" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
   { key: "active", value: "active" },
   { key: "paused", value: "paused" },
+  { key: "closing", value: "closing" },
   { key: "archived", value: "archived" },
   { key: "all", value: "all" },
 ];
+
 
 type Period = "week" | "month";
 
