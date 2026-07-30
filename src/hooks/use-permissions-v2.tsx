@@ -64,6 +64,7 @@ export function useMyPermissionsV2() {
 
   return useMemo(() => {
     const effective = effectiveQuery.data ?? [];
+    const roles = roleQuery.data ?? [];
     const can = (key: V2PermissionKey, scope: PermissionScope = "own") => {
       if (isAdmin) return true;
       return hasModuleScope(effective, key, scope);
@@ -74,7 +75,10 @@ export function useMyPermissionsV2() {
     };
     return {
       isAdmin,
-      role: roleQuery.data ?? null,
+      roles,
+      /** @deprecated users can hold multiple roles — prefer `roles`. */
+      role: roles[0] ?? null,
+      hasRole: (r: PmRole) => roles.includes(r),
       effective,
       loading: authLoading || roleQuery.isLoading || effectiveQuery.isLoading,
       can,
