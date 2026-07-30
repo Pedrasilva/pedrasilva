@@ -1204,11 +1204,42 @@ export function useLiveQuoteSnapshot(
         })(),
         billableRates,
         missing,
-
+        revision: { number: null, sentAt: null, isDraft: true },
       };
-    },
-  });
 }
+
+/**
+ * React hook wrapper. When a historical revision is being viewed (see
+ * `RevisionProvider`), this returns the frozen snapshot captured at send
+ * time and performs no network access at all.
+ */
+export function useLiveQuoteSnapshot(
+  quoteId: string | null | undefined,
+  lang: ProposalLang = "pt-PT",
+) {
+  const frozen = useFrozenQuoteSnapshot(lang);
+  const query = useQuery({
+    enabled: !!quoteId && !frozen,
+    queryKey: ["psa-live-quote", quoteId, lang],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    queryFn: () => fetchLiveQuoteSnapshot(quoteId!, lang),
+  });
+  if (frozen) {
+    return {
+      ...query,
+      data: frozen,
+      isLoading: false,
+      isPending: false,
+      isFetching: false,
+      isError: false,
+      error: null,
+    } as typeof query;
+  }
+  return query;
+}
+
 
 /** Two-letter locale used for proposal rendering. */
 export type ProposalLang = "pt-PT" | "en";
