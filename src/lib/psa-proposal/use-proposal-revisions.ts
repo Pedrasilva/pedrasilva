@@ -7,6 +7,8 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { captureQuoteData } from "./snapshot-capture";
+import type { FrozenQuoteData, HistoricalRevision } from "./revision-context";
 import type { PsaProposal, PsaProposalBlock } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,10 +23,49 @@ export type ProposalRevision = {
   pdf_storage_path: string | null;
   pdf_filename: string | null;
   pdf_mime: string | null;
-  snapshot: { proposal: PsaProposal; blocks: PsaProposalBlock[] };
+  snapshot: {
+    proposal: PsaProposal;
+    blocks: PsaProposalBlock[];
+    quote_data?: FrozenQuoteData | null;
+  };
   created_by: string | null;
   created_at: string;
 };
+
+/** True when this revision carries a frozen quote payload it can render from. */
+export function revisionIsViewable(r: ProposalRevision): boolean {
+  return !!r.snapshot?.quote_data?.resolved;
+}
+
+/** Loads a single sent revision and shapes it for `RevisionProvider`. */
+export function useRevision(revisionId: string | undefined) {
+  return useQuery({
+    enabled: !!revisionId,
+    queryKey: ["psa-proposal-revision", revisionId],
+    queryFn: async (): Promise<HistoricalRevision> => {
+      const { data, error } = await sb
+        .from("psa_proposal_snapshots")
+        .select("*")
+        .eq("id", revisionId)
+        .single();
+      if (error) throw error;
+      const r = data as ProposalRevision;
+      return {
+        id: r.id,
+        revNumber: r.rev_number,
+        sentAt: r.created_at,
+        pdfStoragePath: r.pdf_storage_path,
+        pdfFilename: r.pdf_filename,
+        payload: {
+          proposal: r.snapshot?.proposal,
+          blocks: r.snapshot?.blocks ?? [],
+          quote_data: r.snapshot?.quote_data ?? null,
+        },
+      };
+    },
+  });
+}
+
 
 export function useProposalRevisions(proposalId: string | undefined) {
   return useQuery({
