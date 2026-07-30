@@ -174,6 +174,7 @@ function DashboardPage() {
   // "your own utilization" + only your alerts.
   const canSeeTeam = can("scheduling.view_team", "team");
   const { user, profile } = useProjectsAuth();
+  const { isAdmin } = useAuth();
   const myAuthId = user?.id ?? null;
   const myResourceId = profile?.resource_id ?? null;
   const { data: projects, isLoading: pLoading } = useProjects();
