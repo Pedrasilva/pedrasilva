@@ -198,6 +198,8 @@ export type DocumentInput = {
   counterparty_client_id?: string | null;
   counterparty_name_snapshot?: string | null;
   project_id?: string | null;
+  /** Explicit opt-out of project attribution (issued documents). */
+  not_project_related?: boolean;
   classification_id?: string | null;
   currency?: string;
   notes?: string | null;
