@@ -1148,13 +1148,22 @@
   }
   .proposal-print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
     width: 100%;
-    min-height: 0;
+    min-height: 0 !important;
     page-break-inside: avoid;
     break-inside: avoid;
+    /* Rotation viewport derived from the real page box minus the measured
+       appendix header (--psa-gantt-head-h is published by
+       GanttRotatedAppendix). The 4mm gutter absorbs sub-pixel rounding so the
+       transformed subtree can never spill onto a second sheet. */
+    --psa-gantt-rot-w: calc(
+      var(--psa-page-w) - var(--psa-margin-left) - var(--psa-margin-right)
+    );
+    --psa-gantt-rot-h: calc(
+      var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom) -
+        var(--psa-gantt-head-h, 60px) - 7mm
+    );
   }
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
-    /* Sized at runtime from the real page box minus the measured appendix
-       header (see GanttRotatedAppendix). Constants are fallbacks only. */
     width: var(--psa-gantt-rot-w, 182mm) !important;
     height: var(--psa-gantt-rot-h, 205mm) !important;
     margin: 3mm auto 0;
@@ -1170,6 +1179,7 @@
     height: var(--psa-gantt-rot-w, 182mm) !important;
     transform-origin: top left !important;
     transform: rotate(-90deg) translate(-100%, 0) !important;
+
   }
 
   /* Print: hide the on-screen horizontal preview; only the rotated/print
