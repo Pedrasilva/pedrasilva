@@ -45,6 +45,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { useIncomeDocuments } from "@/lib/finance/use-income-documents";
 
 // ---------------------------------------------------------------------------
 // Shared types & helpers
@@ -1194,19 +1195,11 @@ type IncomeFull = {
 };
 
 function useIncomeFull() {
-  return useQuery({
-    queryKey: ["finance", "income-full", FINANCE_YEAR],
-    queryFn: async (): Promise<IncomeFull[]> => {
-      const { data, error } = await supabase
-        .from("financial_income_items")
-        .select(
-          "id, period_id, client_id, project_name, project_code, invoice_number, invoice_status, issue_date, expected_payment_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, vat_rate",
-        )
-        .order("expected_payment_date", { ascending: true, nullsFirst: false });
-      if (error) throw error;
-      return (data ?? []) as IncomeFull[];
-    },
-  });
+  const q = useIncomeDocuments(FINANCE_YEAR);
+  return {
+    ...q,
+    data: (q.data ?? []) as unknown as IncomeFull[],
+  };
 }
 
 function useClientsMap() {
