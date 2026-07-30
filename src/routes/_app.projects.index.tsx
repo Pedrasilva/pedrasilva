@@ -434,15 +434,23 @@ function DashboardPage() {
         materialsSale: 0,
         expensesCost: 0,
         loggedHours: 0,
+        tmRevenue: 0,
+        nonBillableHours: 0,
       };
+      const isTM =
+        actual.tmRevenue > 0 ||
+        ps.some((s) => (s as { billing_model?: string | null }).billing_model === "hourly");
       // Actual Revenue column = invoiced-to-date (sent/paid/overdue invoices).
-      const actualRevenue = actual.invoicedRevenue;
+      // Time-and-materials work that hasn't been invoiced yet still counts as
+      // earned revenue, so it fills in when no invoice exists.
+      const actualRevenue = actual.invoicedRevenue > 0 ? actual.invoicedRevenue : actual.tmRevenue;
       // Actual Cost column = true burn: labour + materials + expenses (purchase).
       const actualCost = actual.laborCost + actual.materialsCost + actual.expensesCost;
-      // Profit = (Budget + materials.sale_price) − (labour cost + expenses cost).
+      // Profit = (Budget + T&M earned + materials.sale_price) − (labour + expenses).
       // Materials sit on the revenue side (charged on top of budget); expenses
-      // and hours are pure cost. Per user-defined formula.
-      const totalRevenueBase = budget + actual.materialsSale;
+      // and hours are pure cost. Hourly stages carry no budget, so their
+      // revenue comes from billable hours × sale rate instead.
+      const totalRevenueBase = budget + actual.tmRevenue + actual.materialsSale;
       const profit = totalRevenueBase - actual.laborCost - actual.expensesCost;
       const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
 
@@ -465,6 +473,8 @@ function DashboardPage() {
       } else if (totalRevenueBase > 0 && marginPct < 15) {
         status = "warn";
         statusReason = `Low margin`;
+      } else if (isTM && totalRevenueBase > 0) {
+        statusReason = "T&M — billed by the hour";
       }
 
       return {
@@ -475,9 +485,13 @@ function DashboardPage() {
         budgetRemaining: budget - actualCost,
         profit,
         marginPct,
+        isTM,
+        tmRevenue: actual.tmRevenue,
+        nonBillableHours: actual.nonBillableHours,
         status,
         statusReason,
       };
+
     });
   }, [filteredProjects, stagesByProject, projectActuals]);
 
