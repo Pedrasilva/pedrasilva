@@ -9005,9 +9005,23 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_assigned_project_ids: {
+        Args: { _user_id: string }
+        Returns: {
+          project_id: string
+        }[]
+      }
       pm_can_approve_hours: { Args: { _user_id: string }; Returns: boolean }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
       pm_get_my_resource_id: { Args: never; Returns: string }
+      pm_has_assigned_access: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
+      pm_has_team_access: {
+        Args: { _target_user_id: string; _user_id: string }
+        Returns: boolean
+      }
       pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
       pm_list_user_resource_map: {
         Args: never
@@ -9030,6 +9044,7 @@ export type Database = {
           stage_id: string
         }[]
       }
+      pm_resource_id_for_user: { Args: { _user_id: string }; Returns: string }
       pm_resource_map_for_users: {
         Args: { _user_ids: string[] }
         Returns: {
@@ -9037,6 +9052,18 @@ export type Database = {
           name: string
           resource_id: string
           sale_rate: number
+          user_id: string
+        }[]
+      }
+      pm_team_resource_ids: {
+        Args: { _user_id: string }
+        Returns: {
+          resource_id: string
+        }[]
+      }
+      pm_team_user_ids: {
+        Args: { _user_id: string }
+        Returns: {
           user_id: string
         }[]
       }
