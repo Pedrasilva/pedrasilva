@@ -1313,6 +1313,15 @@ function StatusToggle({
       </Button>
       <Button
         size="sm"
+        variant={current === "closing" ? "default" : "ghost"}
+        className="h-8 gap-1.5 text-xs"
+        onClick={() => onChange("closing")}
+      >
+        <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.close")}
+      </Button>
+
+      <Button
+        size="sm"
         variant={current === "archived" ? "default" : "ghost"}
         className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("archived")}
