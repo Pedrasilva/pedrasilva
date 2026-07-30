@@ -3000,13 +3000,26 @@ function CostVsBudgetCell({
   cost,
   budget,
   over,
+  isHourly,
+  revenue = 0,
 }: {
   cost: number;
   budget: number;
   over: boolean;
+  /** Time-and-materials stage: no fixed budget, revenue comes from billable hours. */
+  isHourly?: boolean;
+  /** Earned revenue (billable hours × sale rate), used as the T&M reference. */
+  revenue?: number;
 }) {
   const hasBudget = budget > 0;
-  const pct = hasBudget ? Math.min(1, cost / budget) : 0;
+  // T&M stages have no budget by design: compare cost against earned revenue
+  // instead of showing a meaningless "no budget" marker.
+  const tm = !hasBudget && !!isHourly;
+  const pct = hasBudget
+    ? Math.min(1, cost / budget)
+    : tm && revenue > 0
+      ? Math.min(1, cost / revenue)
+      : 0;
   return (
     <div>
       <div className="flex items-baseline justify-between text-xs">
@@ -3016,12 +3029,19 @@ function CostVsBudgetCell({
           </span>
           {hasBudget ? (
             <span className="text-muted-foreground"> / {euros(budget)}</span>
+          ) : tm ? (
+            <span className="text-muted-foreground">
+              {" "}
+              / {euros(revenue)}
+              <span className="ml-1 text-[10px] uppercase tracking-wider">T&amp;M</span>
+            </span>
           ) : (
             <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">
               no budget
             </span>
           )}
         </span>
+
         {hasBudget && (
           <span
             className={cn(
