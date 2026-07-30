@@ -202,7 +202,7 @@ export const mergeCompanies = createServerFn({ method: "POST" })
       { table: "crm_opportunities", column: "company_id" },
       { table: "contacts", column: "company_id" },
       { table: "fee_proposals", column: "company_id" },
-      { table: "projects", column: "company_id" },
+      
       { table: "pm_projects", column: "company_id" },
       { table: "historical_time_entries", column: "company_id" },
     ];
