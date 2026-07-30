@@ -1137,26 +1137,41 @@
     min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
     page-break-after: always;
     break-after: page;
+    /* The rotated chart is an absolutely positioned transformed subtree.
+       Chromium cannot fragment it correctly: the second fragment repaints it
+       from the first fragment's origin, which is what made the WBS/STAGE/
+       DURATION headers slide over the bars. Keep the sheet atomic. */
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-before: always;
+    break-before: page;
   }
   .proposal-print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
     width: 100%;
     min-height: 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
-    width: 145mm !important;
-    height: 205mm !important;
+    /* Sized at runtime from the real page box minus the measured appendix
+       header (see GanttRotatedAppendix). Constants are fallbacks only. */
+    width: var(--psa-gantt-rot-w, 182mm) !important;
+    height: var(--psa-gantt-rot-h, 205mm) !important;
     margin: 3mm auto 0;
     overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-    width: 205mm !important;
-    height: 145mm !important;
+    width: var(--psa-gantt-rot-h, 205mm) !important;
+    height: var(--psa-gantt-rot-w, 182mm) !important;
     transform-origin: top left !important;
     transform: rotate(-90deg) translate(-100%, 0) !important;
   }
+
   /* Print: hide the on-screen horizontal preview; only the rotated/print
      chart should appear on paper. */
   .proposal-print-area .proposal-appendix-landscape .proposal-gantt-screen {

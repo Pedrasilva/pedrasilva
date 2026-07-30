@@ -66,6 +66,18 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
       .proposal-paged-content .proposal-appendix {
         break-before: auto;
       }
+      /* The rotated Gantt sheet must stay atomic: a transformed, absolutely
+         positioned subtree cannot be fragmented without corrupting paint. */
+      .proposal-paged-content .proposal-print-block-gantt-landscape,
+      .proposal-paged-content .proposal-appendix-landscape,
+      .proposal-paged-content .proposal-gantt-rotate-outer {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .proposal-paged-content .proposal-print-block-gantt-landscape {
+        break-before: page;
+      }
+
     `,
   });
 

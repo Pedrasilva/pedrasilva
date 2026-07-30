@@ -2164,14 +2164,8 @@ export function BlockBody({
         </div>
       );
 
-      return (
-        <div
-          className={cn(
-            "proposal-appendix flex flex-col",
-            resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
-          )}
-          style={{ minHeight: pageMinHeight }}
-        >
+      const headerNode = (
+        <>
           <div className="mb-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterB}
           </div>
@@ -2181,37 +2175,42 @@ export function BlockBody({
               <RichContent html={introHtmlB} text={introTextB} tokenMap={tokenMap} />
             </div>
           )}
-          {rows.length === 0 ? (
-            <Empty>{L.scheduleUnavailable}</Empty>
-          ) : rotateForScreen ? (
-            // Screen: keep the chart horizontal so it stays legible in the
-            // composer preview. Print: a rotated copy fills the A3 landscape
-            // sheet (see .proposal-gantt-rotate-* CSS).
-            <>
-              <div className="proposal-gantt-screen w-full">{chartInner}</div>
-              <div
-                className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
-                style={{ height: "240mm" }}
-                aria-hidden
-              >
-                <div
-                  className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
-                  style={{
-                    width: "240mm",
-                    height: "170mm",
-                    transformOrigin: "top left",
-                    transform: "rotate(-90deg) translate(-100%, 0)",
-                  }}
-                >
-                  {chartInner}
-                </div>
-              </div>
-            </>
-          ) : (
-            chartInner
-          )}
-        </div>
+        </>
       );
+
+      if (rows.length === 0 || !rotateForScreen) {
+        return (
+          <div
+            className={cn(
+              "proposal-appendix flex flex-col",
+              resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
+            )}
+            style={{ minHeight: pageMinHeight }}
+          >
+            {headerNode}
+            {rows.length === 0 ? <Empty>{L.scheduleUnavailable}</Empty> : chartInner}
+          </div>
+        );
+      }
+
+      // Screen: keep the chart horizontal so it stays legible in the composer
+      // preview. Print: a rotated copy fills the remaining space of the sheet.
+      // The rotation viewport is measured at runtime (page box minus the
+      // appendix label/title/intro) so longer or shorter headings can never
+      // push the transformed subtree past the page boundary — Chromium cannot
+      // fragment a rotated absolutely-positioned subtree without corrupting it.
+      return (
+        <GanttRotatedAppendix
+          className={cn(
+            "proposal-appendix flex flex-col",
+            resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
+          )}
+          minHeight={pageMinHeight}
+          header={headerNode}
+          chart={chartInner}
+        />
+      );
+
     }
 
     case "appendix_general_terms": {
@@ -2287,4 +2286,119 @@ export function BlockBody({
       );
     }
   }
+}
+
+/**
+ * GanttRotatedAppendix — appendix sheet whose chart is rotated -90deg for
+ * print so the time axis uses the long edge of an A4 portrait page.
+ *
+ * The rotation viewport used to be a hardcoded 145mm x 205mm box. Any change
+ * to the appendix label, title or intro length pushed the total block height
+ * past the printable page height, Chromium fragmented the block, and the
+ * rotated (absolutely positioned, transformed) subtree was painted relative
+ * to the first fragment while clipped by the second — producing the rotated
+ * headers overlapping the bars.
+ *
+ * Here the viewport is measured from the real page geometry:
+ *   height = printable page height - measured header height - safety gutter
+ *   width  = printable page width
+ * and published as CSS variables the print stylesheet consumes, so the chart
+ * always fits on the single sheet regardless of content length.
+ */
+function GanttRotatedAppendix({
+  className,
+  minHeight,
+  header,
+  chart,
+}: {
+  className?: string;
+  minHeight: string;
+  header: React.ReactNode;
+  chart: React.ReactNode;
+}) {
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const headerRef = React.useRef<HTMLDivElement>(null);
+  const [box, setBox] = React.useState<{ w: number; h: number }>({ w: 182, h: 205 });
+
+  React.useLayoutEffect(() => {
+    const root = rootRef.current;
+    const head = headerRef.current;
+    if (!root || !head) return;
+
+    const readMm = (name: string, fallback: number) => {
+      const raw = window.getComputedStyle(root).getPropertyValue(name).trim();
+      const n = Number.parseFloat(raw);
+      if (!Number.isFinite(n)) return fallback;
+      if (raw.endsWith("mm")) return n;
+      if (raw.endsWith("px")) return n / (96 / 25.4);
+      return fallback;
+    };
+
+    const measure = () => {
+      // px-per-mm probe: offsetHeight is unscaled layout px, so this stays
+      // correct even while the composer scales the sheet to fit the viewport.
+      const probe = document.createElement("div");
+      probe.style.cssText =
+        "position:absolute;visibility:hidden;pointer-events:none;height:100mm;width:0";
+      root.appendChild(probe);
+      const pxPerMm = probe.offsetHeight / 100 || 96 / 25.4;
+      probe.remove();
+
+      const pageH = readMm("--psa-page-h", 297);
+      const pageW = readMm("--psa-page-w", 210);
+      const mt = readMm("--psa-margin-top", 34);
+      const mb = readMm("--psa-margin-bottom", 32);
+      const ml = readMm("--psa-margin-left", 14);
+      const mr = readMm("--psa-margin-right", 14);
+
+      const printableH = Math.max(60, pageH - mt - mb);
+      const printableW = Math.max(60, pageW - ml - mr);
+      const headerMm = head.offsetHeight / pxPerMm;
+      // 4mm gutter keeps sub-pixel rounding from spilling onto a second page.
+      const h = Math.max(60, Math.min(printableH, printableH - headerMm - 4));
+
+      setBox((prev) =>
+        Math.abs(prev.h - h) < 0.5 && Math.abs(prev.w - printableW) < 0.5
+          ? prev
+          : { w: printableW, h },
+      );
+    };
+
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(head);
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, [header, chart]);
+
+  const vars = {
+    "--psa-gantt-rot-h": `${box.h}mm`,
+    "--psa-gantt-rot-w": `${box.w}mm`,
+  } as React.CSSProperties;
+
+  return (
+    <div ref={rootRef} className={className} style={{ minHeight, ...vars }}>
+      <div ref={headerRef} className="proposal-gantt-appendix-header">
+        {header}
+      </div>
+      <div className="proposal-gantt-screen w-full">{chart}</div>
+      <div
+        className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
+        style={{ height: "var(--psa-gantt-rot-h)" }}
+        aria-hidden
+      >
+        <div
+          className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
+          style={{
+            width: "var(--psa-gantt-rot-h)",
+            height: "var(--psa-gantt-rot-w)",
+            transformOrigin: "top left",
+            transform: "rotate(-90deg) translate(-100%, 0)",
+          }}
+        >
+          {chart}
+        </div>
+      </div>
+    </div>
+  );
 }
