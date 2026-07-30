@@ -23,15 +23,18 @@ export async function checkFinanceAccess(): Promise<boolean> {
   // session can still be hydrating from localStorage. Retry briefly to avoid
   // a false "unauthenticated" redirect on a logged-in user.
   let userId: string | undefined;
-  for (let i = 0; i < 10; i++) {
-    const { data: { session } } = await supabase.auth.getSession();
-    userId = session?.user?.id;
-    if (userId) break;
-    await new Promise((r) => setTimeout(r, 100));
+  try {
+    for (let i = 0; i < 10; i++) {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) break;
+      userId = data?.session?.user?.id;
+      if (userId) break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  } catch {
+    return false;
   }
   if (!userId) return false;
-
-  let sawError = false;
 
   // 1) Legacy admin role
   try {
@@ -41,10 +44,9 @@ export async function checkFinanceAccess(): Promise<boolean> {
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    if (error) sawError = true;
-    else if (data) return true;
+    if (!error && data) return true;
   } catch {
-    sawError = true;
+    // fail closed: continue to next check, never grant on error
   }
 
   // 2) V2 admin role assignment
@@ -54,10 +56,9 @@ export async function checkFinanceAccess(): Promise<boolean> {
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    if (error) sawError = true;
-    else if (data?.role === "admin") return true;
+    if (!error && data?.role === "admin") return true;
   } catch {
-    sawError = true;
+    // fail closed
   }
 
   // 3) Legacy explicit permission
@@ -68,10 +69,9 @@ export async function checkFinanceAccess(): Promise<boolean> {
       .eq("user_id", userId)
       .eq("permission_key", "finance.dashboard")
       .maybeSingle();
-    if (error) sawError = true;
-    else if (data) return true;
+    if (!error && data) return true;
   } catch {
-    sawError = true;
+    // fail closed
   }
 
   // 4) V2 effective permissions (role baseline ∪ overrides − revokes)
@@ -80,24 +80,20 @@ export async function checkFinanceAccess(): Promise<boolean> {
       "list_user_effective_permissions",
       { _user_id: userId },
     );
-    if (error) sawError = true;
-    else if (
+    if (
+      !error &&
       Array.isArray(data) &&
       data.some((r: { permission_key?: string }) => r.permission_key === "finance.dashboard")
     ) {
       return true;
     }
   } catch {
-    sawError = true;
+    // fail closed
   }
 
-  // Fail OPEN on transient errors — the page's own queries are still RLS-protected,
-  // and a silent bounce home is the worst possible UX.
-  if (sawError) {
-    // eslint-disable-next-line no-console
-    console.warn("[finance/access] permission checks errored; allowing render and deferring to RLS");
-    return true;
-  }
+  // No successful positive check → deny.
+  return false;
+}
 
   return false;
 }
