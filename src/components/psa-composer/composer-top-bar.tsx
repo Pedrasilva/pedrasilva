@@ -353,14 +353,18 @@ export function ComposerTopBar({
  * Revision is read from proposal.project_snapshot.rev (numeric) and
  * defaults to 0.
  */
-function buildProposalFilename(proposal: PsaProposal): string {
-  const now = new Date();
+function buildProposalFilename(
+  proposal: PsaProposal,
+  revision?: { number: number | null; sentAt: string | null } | null,
+): string {
+  const now = revision?.sentAt ? new Date(revision.sentAt) : new Date();
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   const dateStr = `${yy}${mm}${dd}`;
   const snap = (proposal.project_snapshot ?? {}) as Record<string, unknown>;
-  const revRaw = snap.rev ?? snap.revision;
+  const revRaw =
+    revision?.number != null ? revision.number : snap.rev ?? snap.revision;
   const revNum = Number.isFinite(Number(revRaw)) ? Number(revRaw) : 0;
   const rev = String(Math.max(0, Math.trunc(revNum))).padStart(2, "0");
   const name = (proposal.title || "proposta").trim();
