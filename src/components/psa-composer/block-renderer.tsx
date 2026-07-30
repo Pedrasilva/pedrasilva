@@ -2205,7 +2205,7 @@ export function BlockBody({
             "proposal-appendix flex flex-col",
             resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
           )}
-          minHeight={pageMinHeight}
+          
           header={headerNode}
           chart={chartInner}
         />
