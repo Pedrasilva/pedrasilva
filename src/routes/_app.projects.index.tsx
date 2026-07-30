@@ -323,12 +323,25 @@ function DashboardPage() {
       materialsSale: number;
       expensesCost: number;
       loggedHours: number;
+      /** Revenue earned on time-and-materials (hourly) stages: billable hours × sale rate. */
+      tmRevenue: number;
+      /** Hours logged to the project that are not chargeable to the client (cost only). */
+      nonBillableHours: number;
     };
     const m = new Map<string, Row>();
     const ensure = (pid: string): Row => {
       let cur = m.get(pid);
       if (!cur) {
-        cur = { invoicedRevenue: 0, laborCost: 0, materialsCost: 0, materialsSale: 0, expensesCost: 0, loggedHours: 0 };
+        cur = {
+          invoicedRevenue: 0,
+          laborCost: 0,
+          materialsCost: 0,
+          materialsSale: 0,
+          expensesCost: 0,
+          loggedHours: 0,
+          tmRevenue: 0,
+          nonBillableHours: 0,
+        };
         m.set(pid, cur);
       }
       return cur;
@@ -346,13 +359,29 @@ function DashboardPage() {
         const resourceId = repAlloc?.resource_id;
         const cur = ensure(stage.project_id);
         cur.loggedHours += e.hours;
+        if (!e.billable) cur.nonBillableHours += e.hours;
         if (resourceId) {
           const res = resources?.find((r) => r.id === resourceId);
           const costRate = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
           cur.laborCost += e.hours * costRate;
+          // Time-and-materials stages carry no fixed budget: revenue is earned
+          // per billable hour at the resource's sale rate. Non-billable hours
+          // stay on the cost side only (correctly dragging margin down).
+          const isHourly =
+            (stage as { billing_model?: string | null }).billing_model === "hourly";
+          if (isHourly && e.billable) {
+            const saleRate = effectiveSaleRate(
+              res?.hourly_rate,
+              resourceId,
+              defaultRates,
+              !!res?.hourly_rate_is_override,
+            );
+            cur.tmRevenue += e.hours * saleRate;
+          }
         }
       }
     }
+
     if (extraByProject) {
       for (const [pid, x] of extraByProject) {
         const cur = ensure(pid);
