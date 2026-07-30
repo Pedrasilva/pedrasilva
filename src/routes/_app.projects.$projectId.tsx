@@ -1838,7 +1838,16 @@ function MilestonesTable({
                       {canSeeFinancials && (
                         <>
                           <td className="px-4 py-3 min-w-[200px] w-[18%]">
-                            <CostVsBudgetCell cost={cost} budget={budget} over={over} />
+                            <CostVsBudgetCell
+                              cost={cost}
+                              budget={budget}
+                              over={over}
+                              isHourly={
+                                (s as { billing_model?: string | null }).billing_model === "hourly"
+                              }
+                              revenue={revenue}
+                            />
+
                           </td>
                           <td className="px-4 py-3 min-w-[160px] w-[15%]">
                             <RevenueEarnedCell revenue={revenue} />
