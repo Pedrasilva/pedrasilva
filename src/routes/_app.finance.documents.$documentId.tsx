@@ -69,6 +69,7 @@ import {
 } from "@/lib/finance/use-documents";
 
 const NONE = "__none__";
+const NO_PROJECT = "__no_project__";
 const BUCKET = "financial-documents";
 
 const fmtEUR2 = (v: number) =>
@@ -181,6 +182,8 @@ function DocumentEditorPage() {
         counterparty_client_id: d.counterparty_client_id,
         counterparty_name_snapshot: d.counterparty_name_snapshot,
         project_id: d.project_id,
+        not_project_related: (d as { not_project_related?: boolean })
+          .not_project_related ?? false,
         classification_id: d.classification_id,
         currency: d.currency,
         notes: d.notes,
@@ -281,6 +284,10 @@ function DocumentEditorPage() {
             role: t("finance:documents.form.supplier"),
           }) as string,
         );
+        return;
+      }
+      if (!isReceived && !header.project_id && !header.not_project_related) {
+        toast.error(t("finance:documents.form.projectRequired") as string);
         return;
       }
       if (!isReceived && !header.counterparty_client_id) {
@@ -544,9 +551,15 @@ function DocumentEditorPage() {
           <div className="space-y-1">
             <Label>{t("finance:documents.form.project")}</Label>
             <Select
-              value={header.project_id ?? NONE}
+              value={
+                header.project_id ?? (header.not_project_related ? NO_PROJECT : NONE)
+              }
               onValueChange={(v) =>
-                setHeader((h) => ({ ...h, project_id: v === NONE ? null : v }))
+                setHeader((h) => ({
+                  ...h,
+                  project_id: v === NONE || v === NO_PROJECT ? null : v,
+                  not_project_related: v === NO_PROJECT,
+                }))
               }
               disabled={readOnly}
             >
@@ -555,6 +568,9 @@ function DocumentEditorPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={NONE}>—</SelectItem>
+                <SelectItem value={NO_PROJECT}>
+                  {t("finance:documents.form.notProjectRelated")}
+                </SelectItem>
                 {(projectsQ.data ?? []).map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -562,6 +578,11 @@ function DocumentEditorPage() {
                 ))}
               </SelectContent>
             </Select>
+            {!isReceived && (
+              <p className="text-[11px] text-muted-foreground">
+                {t("finance:documents.form.projectRequiredHint")}
+              </p>
+            )}
           </div>
 
           <div className="space-y-1 md:col-span-3">
