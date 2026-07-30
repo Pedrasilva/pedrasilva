@@ -52,6 +52,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { useAuth } from "@/hooks/use-auth";
+import { CreateProjectDirectDialog } from "@/components/projects/create-project-direct-dialog";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
