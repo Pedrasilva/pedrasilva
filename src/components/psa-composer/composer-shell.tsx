@@ -110,7 +110,43 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </Button>
         </div>
       )}
-      {isFinalLocked && (
+      {historical && (
+        <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
+          <span className="flex items-center gap-2">
+            <History className="h-3.5 w-3.5" />
+            A ver a Revisão {String(historical.revision.revNumber).padStart(2, "0")} —
+            enviada em{" "}
+            {new Date(historical.revision.sentAt).toLocaleDateString("pt-PT", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+            . Vista histórica só de leitura: não reflete o orçamento atual e
+            nada aqui altera dados em vigor.
+            {!historical.quoteData && (
+              <strong className="ml-1">
+                Esta revisão é anterior ao arquivo de dados — apenas o PDF é
+                fiável.
+              </strong>
+            )}
+          </span>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-amber-400 bg-white text-amber-900 hover:bg-amber-100"
+          >
+            <Link
+              to="/proposals/$proposalId/composer"
+              params={{ proposalId }}
+            >
+              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> Versão atual
+            </Link>
+          </Button>
+        </div>
+      )}
+      {isFinalLocked && !historical && (
+
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           Proposta bloqueada
           {proposal.data.outcome === "won"
