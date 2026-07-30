@@ -2307,91 +2307,48 @@ export function BlockBody({
  */
 function GanttRotatedAppendix({
   className,
-  minHeight,
   header,
   chart,
 }: {
   className?: string;
-  minHeight: string;
   header: React.ReactNode;
   chart: React.ReactNode;
 }) {
-  const rootRef = React.useRef<HTMLDivElement>(null);
   const headerRef = React.useRef<HTMLDivElement>(null);
-  const [box, setBox] = React.useState<{ w: number; h: number }>({ w: 182, h: 205 });
+  const [headHeight, setHeadHeight] = React.useState<number | null>(null);
 
   React.useLayoutEffect(() => {
-    const root = rootRef.current;
     const head = headerRef.current;
-    if (!root || !head) return;
-
-    const readMm = (name: string, fallback: number) => {
-      const raw = window.getComputedStyle(root).getPropertyValue(name).trim();
-      const n = Number.parseFloat(raw);
-      if (!Number.isFinite(n)) return fallback;
-      if (raw.endsWith("mm")) return n;
-      if (raw.endsWith("px")) return n / (96 / 25.4);
-      return fallback;
-    };
-
+    if (!head) return;
+    // The header is constrained to the printable page width by CSS, so its
+    // on-screen height already equals the height it will occupy on paper.
     const measure = () => {
-      // px-per-mm probe: offsetHeight is unscaled layout px, so this stays
-      // correct even while the composer scales the sheet to fit the viewport.
-      const probe = document.createElement("div");
-      probe.style.cssText =
-        "position:absolute;visibility:hidden;pointer-events:none;height:100mm;width:0";
-      root.appendChild(probe);
-      const pxPerMm = probe.offsetHeight / 100 || 96 / 25.4;
-      probe.remove();
-
-      const pageH = readMm("--psa-page-h", 297);
-      const pageW = readMm("--psa-page-w", 210);
-      const mt = readMm("--psa-margin-top", 34);
-      const mb = readMm("--psa-margin-bottom", 32);
-      const ml = readMm("--psa-margin-left", 14);
-      const mr = readMm("--psa-margin-right", 14);
-
-      const printableH = Math.max(60, pageH - mt - mb);
-      const printableW = Math.max(60, pageW - ml - mr);
-      const headerMm = head.offsetHeight / pxPerMm;
-      // 4mm gutter keeps sub-pixel rounding from spilling onto a second page.
-      const h = Math.max(60, Math.min(printableH, printableH - headerMm - 4));
-
-      setBox((prev) =>
-        Math.abs(prev.h - h) < 0.5 && Math.abs(prev.w - printableW) < 0.5
-          ? prev
-          : { w: printableW, h },
-      );
+      const h = head.offsetHeight;
+      setHeadHeight((prev) => (prev != null && Math.abs(prev - h) < 0.5 ? prev : h));
     };
-
     measure();
-    const ro = new ResizeObserver(() => measure());
+    const ro = new ResizeObserver(measure);
     ro.observe(head);
-    ro.observe(root);
     return () => ro.disconnect();
   }, [header, chart]);
 
-  const vars = {
-    "--psa-gantt-rot-h": `${box.h}mm`,
-    "--psa-gantt-rot-w": `${box.w}mm`,
-  } as React.CSSProperties;
+  // Only the content-driven value is published; the page arithmetic lives in
+  // CSS so it stays exact for whatever page size / margins are configured.
+  const vars =
+    headHeight != null
+      ? ({ "--psa-gantt-head-h": `${headHeight}px` } as React.CSSProperties)
+      : undefined;
 
   return (
-    <div ref={rootRef} className={className} style={{ minHeight, ...vars }}>
+    <div className={className} style={vars}>
       <div ref={headerRef} className="proposal-gantt-appendix-header">
         {header}
       </div>
       <div className="proposal-gantt-screen w-full">{chart}</div>
-      <div
-        className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
-        style={{ height: "var(--psa-gantt-rot-h)" }}
-        aria-hidden
-      >
+      <div className="proposal-gantt-rotate-outer relative overflow-hidden" aria-hidden>
         <div
           className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
           style={{
-            width: "var(--psa-gantt-rot-h)",
-            height: "var(--psa-gantt-rot-w)",
             transformOrigin: "top left",
             transform: "rotate(-90deg) translate(-100%, 0)",
           }}
@@ -2400,5 +2357,8 @@ function GanttRotatedAppendix({
         </div>
       </div>
     </div>
+  );
+}
+
   );
 }
