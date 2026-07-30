@@ -60,6 +60,7 @@ import {
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
 import { PaymentScheduleProposalView } from "./payment-schedule-proposal-view";
+import { PaymentScheduleReconciliation } from "./payment-schedule-reconciliation";
 
 function AutoTextarea({
   value,
@@ -750,6 +751,12 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           {t("workspace.payment.syncFromGantt", { defaultValue: "Sync from Gantt" })}
         </Button>
       </div>
+      <PaymentScheduleReconciliation
+        stages={stages}
+        items={visibleItems}
+        stageFees={stageFees}
+        contractTotal={contractTotal}
+      />
       <PaymentScheduleProposalView
         items={visibleItems}
         stages={stages}
