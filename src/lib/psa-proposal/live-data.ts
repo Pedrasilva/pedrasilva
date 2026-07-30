@@ -327,19 +327,17 @@ function buildConsultantRows(input: {
 }
 
 
-export function useLiveQuoteSnapshot(
-  quoteId: string | null | undefined,
+/**
+ * Fetches and resolves the full quote payload used by every proposal block.
+ * Exported so revision snapshotting can freeze the exact same object.
+ */
+export async function fetchLiveQuoteSnapshot(
+  quoteId: string,
   lang: ProposalLang = "pt-PT",
-) {
-  return useQuery({
-    enabled: !!quoteId,
-    queryKey: ["psa-live-quote", quoteId, lang],
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    queryFn: async (): Promise<LiveQuoteSnapshot> => {
+): Promise<LiveQuoteSnapshot> {
       const L = getProposalLabels(lang);
       const missing: string[] = [];
+
 
       const { data: quote } = await supabase
         .from("fee_proposals")
