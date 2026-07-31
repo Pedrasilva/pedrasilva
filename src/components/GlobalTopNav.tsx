@@ -37,6 +37,7 @@ import {
 } from "@/components/quick-finance-dialogs";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import type { PermissionKey } from "@/lib/permissions";
 
 type Sheet =
