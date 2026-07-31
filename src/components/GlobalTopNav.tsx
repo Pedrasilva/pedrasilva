@@ -54,10 +54,13 @@ export function GlobalTopNav() {
   const [sheet, setSheet] = useState<Sheet>(null);
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const { can: canV2 } = useMyPermissionsV2();
   const loc = useLocation();
   const can = (k: PermissionKey) => isAdmin || permissions.has(k);
 
-  const canTime = can("projects.timesheet");
+  // Timesheet access now follows the v2 role model (everyone who can log
+  // their own hours), not the legacy `projects.timesheet` key.
+  const canTime = canV2("timesheets.log", "own") || can("projects.timesheet");
   const canTasks = can("projects.my-tasks");
   const canSchedule = can("projects.resources") || can("projects.gantt");
   const canCreateTask = canTasks;
