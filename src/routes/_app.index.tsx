@@ -3,6 +3,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+
 import {
   useUpcomingCelebrations,
   useWhoIsOff,
