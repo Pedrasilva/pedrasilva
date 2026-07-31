@@ -1,50 +1,92 @@
-## Approach
+## Legacy permission retirement — staged proposal (nothing executed)
 
-### #1 — Snapshot payload (the core decision)
+### Key mechanism change for all stages
+Retire by **flag, not delete**. `user_permissions` already has a `granted` boolean and `has_permission()` only matches `granted = true`. So retirement = `UPDATE user_permissions SET granted = false` for the targeted rows. The row survives with its key and user, so rollback is a one-line flip back to `true`. Add a `retired_at timestamptz` column (nullable) purely as an audit marker of when/why the row was parked; deletion only after a full stage has been stable.
 
-Everything the proposal renders already funnels through a single derived object: `LiveQuoteSnapshot` (stages, consultants, payment schedule + invoices, site trips, billable rates, VAT status, project/client header fields). Raw tables are only intermediate inputs.
+---
 
-So the snapshot stores **both**:
+## Findings from investigation
 
-- `quote_data.resolved` — the full derived `LiveQuoteSnapshot`, for both languages (`pt-PT` and `en`), captured at send time. This is what renderers read back. It guarantees pixel-parity with what was sent, and is immune to future changes in derivation logic.
-- `quote_data.raw` — verbatim rows from `fee_proposals`, `quote_stages`, `quote_stage_dependencies`, `quote_allocations` (with resolved resource role + cost/sale rates), `quote_external_services`, `quote_payment_schedule_items`, `quote_billable_hourly_rates`, `quote_site_trips`, `quote_supplier_markups`. Audit/forensics only — not used for rendering.
-- `quote_data.captured_at` + `schema_version: 1`.
+**pm_can_approve_hours()** today:
+```
+has_role(admin) OR has_permission(_user_id, 'projects.all')
+```
+`projects.all` is granted to **8 of 9 users** — every real user except Ricardo Cabrita's... actually all except Luis (who is admin anyway). So this function returns true for effectively everyone, which is why all 364 time entries are visible to everyone including Francisco. This is the single broadest legacy grant in the system.
 
-Capture happens inside the existing send mutation (`useSendProposal`), alongside the current `{ proposal, blocks }` — no change to the send UX.
+**Measured v2 team-scope visibility** (`pm_has_team_access`), out of 364 entries:
+| User | Role(s) | Assigned projects | Entries visible under team scope |
+|---|---|---|---|
+| Luis (ab5a48c0) | admin | 4 | all (admin bypass) |
+| Bernardo (08c2a749) | project_lead | 3 | 349 |
+| Patrícia (4d2a2d60) | project_lead | 3 | 349 |
+| Francisco (7479e4b2) | architect | 5 | 349 |
+| João (51e65600) | architect | 4 | 349 |
+| Ricardo Cabrita (0c3f231e) | architect | 2 | 349 |
+| Ricardo Conceição (a8c10bd8) | hr + architect | 3 | 349 (+ hr = all) |
+| Irene (d1c1d349) | hr + partner | 0 | 14 — but hr/partner grant `timesheets.view_team` at scope **all** |
+| Tatiana (a5053861) | hr + finance | 0 | 1 — same, hr/finance grant scope **all** |
 
-### #2 — Dual-mode rendering
+Important consequence: because the studio is small and projects overlap heavily, team scope resolves to ~96% of entries for delivery people. The narrowing is real but modest (15 entries hidden). Irene and Tatiana keep full visibility via their role baseline, not via team scope.
 
-Add `RevisionContext` (React context) in `src/lib/psa-proposal/revision-context.tsx`:
+**`projects.all` holders:** all 8 non-admin users (`08c2a749, 0c3f231e, 4d2a2d60, 51e65600, 7479e4b2, a5053861, a8c10bd8, d1c1d349`). Same 8 also hold `projects.gantt`, `projects.my-tasks`, `projects.resources`, `projects.timesheet`.
 
-- `useLiveQuoteSnapshot(quoteId, lang)` gains a first step: if a historical revision is active in context, return `{ data: snapshot.quote_data.resolved[lang], isLoading: false }` and never touch the network. Signature and return shape stay identical, so `canvas.tsx`, `block-renderer.tsx`, `block-library-panel.tsx`, `block-settings-panel.tsx` need no changes.
-- Blocks come from `snapshot.blocks` instead of the live `psa_proposal_blocks` query, via the same context check in `useProposalBlocks`.
-- New route `/proposals/$proposalId/composer/revisions/$revisionId` renders `ComposerShell` wrapped in the provider, forced into preview/read-only: no library panel, no settings panel, no drag reorder, no autosave, all mutations short-circuited.
-- Amber banner at top: "A ver Revisão 01 — enviada 12 mar 2026. Vista histórica, não reflete o orçamento atual." plus a "Download PDF" and "Voltar à versão atual" action.
-- Snapshots that predate this build (no `quote_data`) render a notice: only the archived PDF is available for that revision; the View action is disabled and only Download shows.
+**Assigned-resolver sanity check for the 5 delivery people** — all resolve non-empty and plausible: Francisco 5, João 4, Bernardo 3, Patrícia 3, Ricardo Cabrita 2. No zeros, no surprises. (Irene and Tatiana resolve to 0 assigned projects, as expected for back-office — their access comes from role scope `all`, not from assignment.)
 
-### #3 — Server-side revision numbering
+**Role baselines that will carry the load after retirement:** `projects.view` is `all` for admin/partner/project_lead/hr/finance and `assigned` for architect. So retiring `projects.all` only actually narrows the three architects (Francisco, João, Ricardo Cabrita) — Bernardo and Patrícia keep firm-wide project visibility through the `project_lead` baseline.
 
-Migration adds `public.psa_next_rev_number(p_proposal_id uuid) returns int`: `security definer`, locks the proposal row (`SELECT ... FOR UPDATE` on `psa_proposals`), computes `coalesce(max(rev_number), -1) + 1` over `kind='sent'` rows, returns it. Grant `EXECUTE` to `authenticated`. Also add a unique index on `(proposal_id, rev_number) WHERE kind = 'sent'` as a hard guard.
+---
 
-`useSendProposal` calls the RPC to get the number instead of receiving it from the client; `useNextRevNumber` stays but is downgraded to a display-only hint for the top-bar label.
+## Stage 1 — timesheet/hours visibility (lowest risk)
 
-### #4 — Cover page + filename
+**Change:** rewrite `pm_can_approve_hours()` to stop keying off `projects.all`:
+```
+has_role(admin)
+OR has_module_permission(_user_id, 'timesheets.approve', 'all')
+OR (has_module_permission(_user_id, 'timesheets.approve', 'team')
+    AND pm_has_team_access(_user_id, _target_user_id))
+```
+This needs the function to take a target user, so introduce `pm_can_approve_hours(_user_id, _target_user_id)` and keep the 1-arg version as a "can approve anything at all" gate for UI menus. Then flip `granted = false` on the `projects.timesheet` legacy rows and drop the `projects.all` branch from the `pm_time_entries` RLS OR-clause.
 
-- `LiveQuoteSnapshot` gains `revision: { number: number | null; sentAt: string | null; isDraft: boolean }`. Live mode: `{ number: null, sentAt: null, isDraft: true }`. Historical mode: filled from the revision row.
-- Cover block renders "Revisão 01 · 12 mar 2026" (or "Rascunho" / "Draft") and prefers `revision.sentAt` over `fee_proposals.data_proposta` when historical.
-- Export filename in historical mode uses the stored revision number and its sent date rather than today's.
+Net effect: architects and project_leads see own + teammates on shared projects; hr/partner/finance/admin keep everything.
 
-### #5 — History UI cleanup
+**Test plan:** for each of the 9 users, run the visible-entry count before and after and diff against the expected set from `pm_has_team_access`; confirm the 3 architects drop from 364 → 349, Bernardo/Patrícia → 349, Irene/Tatiana/Ricardo C./Luis stay at 364. Also confirm approve buttons only appear for project_lead/partner/admin, and that no user loses the ability to see or edit their own entries.
 
-- `VersionsPanel` becomes the primary "Histórico de revisões": each sent row shows `Rev NN`, sent date, filename, and two actions — **Ver** (opens the read-only historical route) and **Descarregar PDF**.
-- `ProposalHistoryDialog` retitled "Recuperação de autosaves (avançado)", moved behind an overflow menu item, with an explanatory line that it is a low-level recovery tool and not the revision history. Its existing restore stays as-is (it only touches proposal blocks, never quote data).
+**Rollback:** restore the previous `pm_can_approve_hours` body and set `granted = true` back on the parked rows. One migration, seconds.
 
-### Explicitly out of scope
+---
 
-No "restore to live" for sent revisions. Historical mode issues zero writes: the provider hard-disables every mutation hook it wraps.
+## Stage 2 — project visibility / `projects.all` retirement (medium risk)
 
-## Technical notes
+**Rows to park:** the 8 `projects.all` rows listed above, plus `projects.gantt`, `projects.resources`, `projects.my-tasks` once their route guards read v2 keys instead.
 
-- Files touched: `src/lib/psa-proposal/live-data.ts` (context check + `revision` field), new `revision-context.tsx`, new `snapshot-capture.ts`, `use-proposal-revisions.ts` (RPC + payload), `use-psa-proposal.ts` (blocks override), `composer-shell.tsx` (banner + read-only), `versions-panel.tsx`, `proposal-history-dialog.tsx`, `block-renderer.tsx` (cover only), new revision route file.
-- One migration: `psa_next_rev_number` function + partial unique index.
-- Snapshot size: a large quote resolves to roughly 100–300 KB of JSON for both languages; well within jsonb limits.
+**Order of work:**
+1. First move the route guards and `pm_can_view_projects()` off `has_permission('projects.view'/'projects.all')` onto `has_module_permission('projects.view', …)` with `pm_has_assigned_access` for the `assigned` scope.
+2. Then park the legacy rows for the **3 architects only** (Francisco, João, Ricardo Cabrita) — the only users whose visibility actually changes. Bernardo and Patrícia's rows get parked in the same trial but are behaviourally inert because `project_lead` grants `all`.
+3. Trial period: 2 weeks with rows parked but restorable. Only after that, consider deleting.
+
+**Expected post-retirement visible projects:** Francisco 5, João 4, Ricardo Cabrita 2, Bernardo/Patrícia unchanged (all).
+
+**Test plan:** per user, compare the project list rendered in the UI against `pm_assigned_project_ids()` output row-for-row; confirm each architect can still open, log time to, and see tasks on every project they have logged hours against historically (this is the main regression risk — someone about to start on a new project has no allocation yet and will not see it until staffed). Before executing, I'll bring you the exact named project list for each of the 3 architects for your explicit sign-off that it matches what they should see.
+
+**Rollback:** `UPDATE user_permissions SET granted = true WHERE permission_key = 'projects.all'`. Instant, no code redeploy needed, because the RLS OR-branch for legacy stays wired throughout the trial.
+
+---
+
+## Stage 3 — financial / HR / CRM keys (highest risk, scope later)
+
+Flagged for retirement, **not scoped now**:
+- `finance.dashboard` (Irene, Tatiana) → v2 `finance.*` family
+- `crm.companies`, `crm.contacts`, `crm.pipeline` (5 users) → v2 `crm.*.view/edit`
+- `hr.admin`, `hr.colaboradores`, `hr.colaborador.view/edit`, `hr.colaborador.compensation.view`, `hr.resumo*`, `hr.beneficios.approve`, `hr.subsidio-alimentacao`, `hr.valor-bo` → v2 `hr.*`
+- Self-service keys (`hr.minha-ficha`, `hr.beneficios.own`, `hr.ferias.own`, `hr.dias-uteis`) are near-universal and low value to retire; they should go last or stay.
+
+This touches salary snapshots, benefit expenses and financial documents — the data where a wrong RLS predicate is a real incident, not an inconvenience. Recommendation: do not scope Stage 3 until Stage 1 and Stage 2 have been live for **at least 4 weeks** with no access complaints, including a full month-end close and one payroll cycle so the finance and HR paths get genuinely exercised.
+
+---
+
+## Cross-cutting notes
+- Keep the legacy OR-branch in every RLS policy until the corresponding stage's trial ends; retirement is driven by flipping `granted`, not by editing policies.
+- Add an admin-visible "parked permissions" view so you can see at a glance what has been retired and restore it from the UI.
+- One caveat worth naming: in a 9-person studio with heavy project overlap, v2 scoping buys less isolation than it looks like on paper (349/364 entries visible either way). The real value is Stage 3 — financial and HR separation — which is exactly the part that must go last.
+
+Nothing has been changed. Approve a stage and I'll execute it.
