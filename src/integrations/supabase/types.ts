@@ -9045,6 +9045,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_project_has_retainer: {
+        Args: { _project_id: string }
+        Returns: boolean
+      }
       pm_project_stage_hours: {
         Args: { p_project_id: string }
         Returns: {
