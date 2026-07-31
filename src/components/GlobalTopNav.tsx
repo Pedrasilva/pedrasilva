@@ -64,7 +64,10 @@ export function GlobalTopNav() {
   const canTasks = can("projects.my-tasks");
   const canSchedule = can("projects.resources") || can("projects.gantt");
   const canCreateTask = canTasks;
-  const canCreateProject = can("projects.all");
+  // Project creation follows v2 planning rights, not the parked legacy key.
+  const canCreateProject =
+    canV2("projects.edit_planning", "all") || can("projects.all");
+
   const canCreateProjectExpense = can("projects.financials");
   const canCreate =
     canCreateTask || canCreateProject || canCreateProjectExpense;

@@ -172,8 +172,16 @@ function HubPage() {
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
-    return MODULES.filter((m) => m.anyOf.some((k) => permissions.has(k)));
-  }, [isAdmin, permissions]);
+    return MODULES.filter(
+      (m) =>
+        m.anyOf.some((k) => permissions.has(k)) ||
+        // Projects module now follows the v2 model: anyone with any
+        // `projects.view` scope keeps the tile, even after the legacy
+        // `projects.all` grant is parked.
+        (m.to === "/projects" && canV2("projects.view", "own")),
+    );
+  }, [canV2, isAdmin, permissions]);
+
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
