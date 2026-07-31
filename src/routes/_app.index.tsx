@@ -146,6 +146,8 @@ function HubPage() {
   const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
+  const { can: canV2 } = useMyPermissionsV2();
+
   const loading = authLoading || permsLoading;
 
   const months = useMemo(
