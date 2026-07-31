@@ -1277,5 +1277,27 @@
         "totalPaid": "Total pago"
       }
     }
+  },
+  "txBrowser": {
+    "title": "Movimentos bancários",
+    "subtitle": "{{count}} movimentos importados em todas as contas.",
+    "allAccounts": "Todas as contas",
+    "col": {
+      "document": "Documento associado"
+    },
+    "page": "Página {{page}} de {{pages}}",
+    "prev": "Anterior",
+    "next": "Seguinte"
+  },
+  "bankAccountsList": {
+    "title": "Contas bancárias",
+    "subtitle": "{{count}} contas configuradas.",
+    "col": {
+      "transactions": "Movimentos",
+      "lastMovement": "Último movimento",
+      "status": "Estado"
+    },
+    "active": "Ativa",
+    "inactive": "Inativa"
   }
 }
