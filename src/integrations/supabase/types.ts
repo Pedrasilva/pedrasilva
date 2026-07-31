@@ -8309,6 +8309,7 @@ export type Database = {
           granted: boolean
           id: string
           permission_key: string
+          retired_at: string | null
           scope: string
           user_id: string
         }
@@ -8317,6 +8318,7 @@ export type Database = {
           granted?: boolean
           id?: string
           permission_key: string
+          retired_at?: string | null
           scope?: string
           user_id: string
         }
@@ -8325,6 +8327,7 @@ export type Database = {
           granted?: boolean
           id?: string
           permission_key?: string
+          retired_at?: string | null
           scope?: string
           user_id?: string
         }
@@ -9014,7 +9017,12 @@ export type Database = {
           project_id: string
         }[]
       }
-      pm_can_approve_hours: { Args: { _user_id: string }; Returns: boolean }
+      pm_can_approve_hours:
+        | { Args: { _user_id: string }; Returns: boolean }
+        | {
+            Args: { _target_user_id: string; _user_id: string }
+            Returns: boolean
+          }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_has_assigned_access: {
