@@ -1277,5 +1277,27 @@
         "totalPaid": "Total paid"
       }
     }
+  },
+  "txBrowser": {
+    "title": "Bank transactions",
+    "subtitle": "{{count}} imported transactions across all accounts.",
+    "allAccounts": "All accounts",
+    "col": {
+      "document": "Linked document"
+    },
+    "page": "Page {{page}} of {{pages}}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "bankAccountsList": {
+    "title": "Bank accounts",
+    "subtitle": "{{count}} accounts configured.",
+    "col": {
+      "transactions": "Transactions",
+      "lastMovement": "Last movement",
+      "status": "Status"
+    },
+    "active": "Active",
+    "inactive": "Inactive"
   }
 }
