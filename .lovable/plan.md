@@ -55,7 +55,7 @@ Net effect: architects and project_leads see own + teammates on shared projects;
 
 ---
 
-## Stage 2 — project visibility / `projects.all` retirement (medium risk)
+## Stage 2 — project visibility / `projects.all` retirement (EXECUTED 2026-07-31, 2-week trial)
 
 **Rows to park:** the 8 `projects.all` rows listed above, plus `projects.gantt`, `projects.resources`, `projects.my-tasks` once their route guards read v2 keys instead.
 
