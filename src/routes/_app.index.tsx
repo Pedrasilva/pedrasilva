@@ -3,6 +3,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+
 import {
   useUpcomingCelebrations,
   useWhoIsOff,
@@ -146,6 +148,8 @@ function HubPage() {
   const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
+  const { can: canV2 } = useMyPermissionsV2();
+
   const loading = authLoading || permsLoading;
 
   const months = useMemo(
@@ -172,8 +176,16 @@ function HubPage() {
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
-    return MODULES.filter((m) => m.anyOf.some((k) => permissions.has(k)));
-  }, [isAdmin, permissions]);
+    return MODULES.filter(
+      (m) =>
+        m.anyOf.some((k) => permissions.has(k)) ||
+        // Projects module now follows the v2 model: anyone with any
+        // `projects.view` scope keeps the tile, even after the legacy
+        // `projects.all` grant is parked.
+        (m.to === "/projects" && canV2("projects.view", "own")),
+    );
+  }, [canV2, isAdmin, permissions]);
+
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
