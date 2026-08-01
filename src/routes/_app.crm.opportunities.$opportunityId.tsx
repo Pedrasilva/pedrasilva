@@ -17,6 +17,8 @@ import { ArrowLeft, Plus, FileText, Send, Trash2, AlertTriangle, Calendar as Cal
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { CompanyPicker } from "@/components/crm/company-picker";
+import { AccountSuggestField } from "@/components/crm/account-suggest-field";
+
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
@@ -679,20 +681,8 @@ function NewQuoteDialog({
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: accounts = [] } = useQuery({
-    queryKey: ["crm_accounts_by_company", companyId],
-    queryFn: async () => {
-      if (!companyId) return [];
-      const { data, error } = await supabase
-        .from("crm_accounts")
-        .select("id, name")
-        .eq("company_id", companyId)
-        .order("name");
-      if (error) throw error;
-      return data as { id: string; name: string }[];
-    },
-    enabled: open && !!companyId,
-  });
+
+
 
   const [step, setStep] = useState<1 | 2>(1);
   const [templateId, setTemplateId] = useState<string | null>(null);
@@ -866,26 +856,13 @@ function NewQuoteDialog({
               )}
             </div>
 
-            <div>
-              <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
-              <Select
-                value={form.account_id || "none"}
-                onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
-              >
-                <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("quotes.newQuoteDialog.noAccountSetBefore")}</SelectItem>
-                  {accounts.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {accounts.length === 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {t("quotes.newQuoteDialog.noAccountsHint")}
-                </p>
-              )}
-            </div>
+            <AccountSuggestField
+              companyId={companyId}
+              value={form.account_id}
+              onChange={(id) => setForm((f) => ({ ...f, account_id: id }))}
+              enabled={open}
+            />
+
 
             <div>
               <Label>{t("common.notes")}</Label>

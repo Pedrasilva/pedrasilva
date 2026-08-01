@@ -275,6 +275,13 @@
       "title": "Eliminar proposta",
       "description": "Esta acção irá remover permanentemente a proposta e todos os dados de planeamento associados. Não pode ser desfeita.",
       "confirm": "Eliminar"
+    },
+    "accountField": {
+      "suggestedBadge": "Sugerida",
+      "suggestedHint": "Seleccionámos a única conta de facturação deste cliente. Altere ou limpe se esta proposta facturar noutra conta.",
+      "pickHint_one": "Este cliente tem 1 conta de facturação.",
+      "pickHint_other": "Este cliente tem {{count}} contas de facturação — escolha a conta a facturar.",
+      "addAccount": "Adicionar conta de facturação"
     }
   },
   "stage": {

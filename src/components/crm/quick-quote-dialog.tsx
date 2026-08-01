@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { AccountSuggestField } from "@/components/crm/account-suggest-field";
 import {
   defaultQuoteTypeForCategory,
   type QuoteCategory,
@@ -48,6 +49,7 @@ export function QuickQuoteDialog({
 
   const [opportunityId, setOpportunityId] = useState<string>("");
   const [category, setCategory] = useState<QuoteCategory>("project");
+  const [accountId, setAccountId] = useState<string>("");
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities_for_quick_quote"],
@@ -78,6 +80,7 @@ export function QuickQuoteDialog({
           titulo: selected.name,
           opportunity_id: selected.id,
           company_id: selected.company_id,
+          account_id: accountId || null,
           valor: Number(selected.estimated_fee) || 0,
           fee_structure_type,
           quote_category: category,
@@ -97,6 +100,7 @@ export function QuickQuoteDialog({
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", selected?.id] });
       setOpportunityId("");
       setCategory("project");
+      setAccountId("");
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
@@ -180,7 +184,18 @@ export function QuickQuoteDialog({
               </p>
             )}
           </div>
+
+          {/* Step 3 — billing account (auto-suggested when the company has one) */}
+          {selected?.company_id && (
+            <AccountSuggestField
+              companyId={selected.company_id}
+              value={accountId}
+              onChange={setAccountId}
+              enabled={open}
+            />
+          )}
         </div>
+
 
 
         <DialogFooter>
