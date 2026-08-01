@@ -49,6 +49,7 @@ export function QuickQuoteDialog({
 
   const [opportunityId, setOpportunityId] = useState<string>("");
   const [category, setCategory] = useState<QuoteCategory>("project");
+  const [accountId, setAccountId] = useState<string>("");
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities_for_quick_quote"],
