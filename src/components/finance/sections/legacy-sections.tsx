@@ -898,7 +898,11 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.expenses)}</TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.materials)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-rose-600/80 italic">
+                    {r.supplierOutflow > 0 ? fmtEUR(r.supplierOutflow) : DASH}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.debts)}</TableCell>
+
                   <TableCell
                     className={cn(
                       "text-right tabular-nums font-medium",
