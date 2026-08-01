@@ -2891,6 +2891,39 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_email_processed_messages: {
+        Row: {
+          attachments_queued: number
+          from_address: string | null
+          id: string
+          message_id: string
+          processed_at: string
+          received_at: string | null
+          subject: string | null
+          thread_id: string | null
+        }
+        Insert: {
+          attachments_queued?: number
+          from_address?: string | null
+          id?: string
+          message_id: string
+          processed_at?: string
+          received_at?: string | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Update: {
+          attachments_queued?: number
+          from_address?: string | null
+          id?: string
+          message_id?: string
+          processed_at?: string
+          received_at?: string | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Relationships: []
+      }
       financial_expense_items: {
         Row: {
           actual_amount_inc_vat: number | null

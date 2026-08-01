@@ -60,6 +60,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
+import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
@@ -359,6 +360,12 @@ const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   path: '/api/public/hooks/run-backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksGmailIntakeRoute =
+  ApiPublicHooksGmailIntakeRouteImport.update({
+    id: '/api/public/hooks/gmail-intake',
+    path: '/api/public/hooks/gmail-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppProposalsProposalIdComposerRoute =
   AppProposalsProposalIdComposerRouteImport.update({
     id: '/proposals/$proposalId/composer',
@@ -662,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -749,6 +757,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -841,6 +850,7 @@ export interface FileRoutesById {
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -933,6 +943,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
+    | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities/'
     | '/finance/documents/'
@@ -1020,6 +1031,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
+    | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities'
     | '/finance/documents'
@@ -1111,6 +1123,7 @@ export interface FileRouteTypes {
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
+    | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
@@ -1126,6 +1139,7 @@ export interface RootRouteChildren {
   ApiNotifyExpenseRoute: typeof ApiNotifyExpenseRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
 }
 
@@ -1486,6 +1500,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/run-backup'
       fullPath: '/api/public/hooks/run-backup'
       preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/gmail-intake': {
+      id: '/api/public/hooks/gmail-intake'
+      path: '/api/public/hooks/gmail-intake'
+      fullPath: '/api/public/hooks/gmail-intake'
+      preLoaderRoute: typeof ApiPublicHooksGmailIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/proposals/$proposalId/composer': {
@@ -2011,6 +2032,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiNotifyExpenseRoute: ApiNotifyExpenseRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
 }
 export const routeTree = rootRouteImport

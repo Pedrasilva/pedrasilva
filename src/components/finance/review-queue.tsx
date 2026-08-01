@@ -242,9 +242,13 @@ export function ReviewQueue() {
           <TabsTrigger value="pending_review">{t("finance:reviewQueue.pending")}</TabsTrigger>
           <TabsTrigger value="approved">{t("finance:reviewQueue.approved")}</TabsTrigger>
           <TabsTrigger value="rejected">{t("finance:reviewQueue.rejected")}</TabsTrigger>
+          <TabsTrigger value="ignored">{t("finance:reviewQueue.ignored")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
+      {statusFilter === "ignored" ? (
+        <IgnoredEmailItems />
+      ) : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardHeader className="py-3">
@@ -326,7 +330,49 @@ export function ReviewQueue() {
           )}
         </div>
       </div>
+      )}
     </div>
+  );
+}
+
+function IgnoredEmailItems() {
+  const { t } = useTranslation(["finance"]);
+  const q = useQuery({
+    queryKey: ["finance", "email-ignored"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_email_ignored_items")
+        .select("id, message_id, from_address, subject, attachment_filename, reason, created_at")
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader className="py-3">
+        <CardTitle className="text-sm">{t("finance:reviewQueue.ignoredTitle")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-1.5">
+        {(q.data ?? []).length === 0 && (
+          <p className="text-sm text-muted-foreground">{t("finance:reviewQueue.empty")}</p>
+        )}
+        {(q.data ?? []).map((r) => (
+          <div key={r.id} className="rounded-md border p-2 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium truncate">{r.subject ?? r.message_id}</span>
+              <Badge variant="outline" className="text-[10px]">{r.reason}</Badge>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {r.from_address ?? "—"}
+              {r.attachment_filename ? ` · ${r.attachment_filename}` : ""}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 

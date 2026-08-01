@@ -266,3 +266,86 @@ export async function resolveDocumentGroup(
 
   return sibling?.linked_document_group_id ?? null;
 }
+
+/**
+ * Shared ingest pipeline (admin context): extract → match → recurring → group
+ * → insert one `financial_document_review_queue` row.
+ *
+ * Used by the manual-upload server function AND by the D4 email poller, so
+ * both intake paths behave identically. Writes ONLY to the review queue.
+ */
+export async function ingestStoredDocument(opts: {
+  bucket: string;
+  storagePath: string;
+  originalFilename?: string | null;
+  source: "manual_upload" | "email_ingestion";
+  createdBy?: string | null;
+}): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
+  const result = await extractDocument(opts.bucket, opts.storagePath);
+
+  const base = {
+    source_file_url: opts.storagePath,
+    source_bucket: opts.bucket,
+    original_filename: opts.originalFilename ?? null,
+    source: opts.source,
+    created_by: opts.createdBy ?? null,
+  };
+
+  if (!result.ok) {
+    const { data: row, error } = await supabaseAdmin
+      .from("financial_document_review_queue")
+      .insert({ ...base, extraction_error: result.error })
+      .select("id, linked_document_group_id")
+      .single();
+    if (error) return { ok: false, error: error.message };
+    return {
+      ok: false,
+      error: result.error,
+      queueItemId: row.id,
+      groupId: row.linked_document_group_id,
+    };
+  }
+
+  const ex = result.extraction;
+  const catalog = await loadClassificationCatalog();
+  const suggested = ex.classification_code
+    ? catalog.find((c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase()) ?? null
+    : null;
+
+  const match = await matchSupplierByVat(ex.supplier_vat);
+  const recurring = await detectRecurring(ex.supplier_vat, ex.total_amount);
+  const groupId = await resolveDocumentGroup(ex.document_number, ex.supplier_vat);
+
+  const payload: Record<string, unknown> = {
+    ...base,
+    raw_extraction: result.raw as object,
+    doc_type: ex.doc_type ?? "unknown",
+    doc_type_confidence: ex.doc_type_confidence ?? null,
+    extracted_amount: ex.total_amount,
+    extracted_vat_amount: ex.vat_amount,
+    extracted_date: ex.issue_date,
+    extracted_due_date: ex.due_date,
+    extracted_currency: ex.currency ?? "EUR",
+    extracted_document_number: ex.document_number,
+    extracted_supplier_name: ex.supplier_name,
+    extracted_supplier_vat: ex.supplier_vat,
+    supplier_match_status: match.status,
+    matched_supplier_id: match.matched_supplier_id,
+    ambiguous_supplier_ids: match.ambiguous_ids,
+    suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
+    suggested_classification_code: suggested?.code ?? ex.classification_code ?? null,
+    classification_confidence: ex.classification_confidence ?? null,
+    is_recurring_candidate: recurring.is_recurring_candidate,
+    recurring_reference_id: recurring.reference_id,
+  };
+  if (groupId) payload.linked_document_group_id = groupId;
+
+  const { data: row, error } = await supabaseAdmin
+    .from("financial_document_review_queue")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(payload as any)
+    .select("id, linked_document_group_id")
+    .single();
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
+}
