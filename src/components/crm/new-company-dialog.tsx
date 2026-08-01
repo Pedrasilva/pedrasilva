@@ -196,18 +196,24 @@ export function NewCompanyDialog({
         if (contactErr) throw contactErr;
       }
 
-      return companyId;
+      return { id: companyId, nome: companyRow.nome as string };
     },
-    onSuccess: (companyId) => {
+    onSuccess: ({ id, nome }) => {
       toast.success("Empresa criada");
       qc.invalidateQueries({ queryKey: ["companies"] });
       qc.invalidateQueries({ queryKey: ["companies-lite"] });
       qc.invalidateQueries({ queryKey: ["contacts"] });
-      qc.invalidateQueries({ queryKey: ["company-contacts", companyId] });
-      onCreated?.(companyId);
+      qc.invalidateQueries({ queryKey: ["company-contacts", id] });
+      qc.invalidateQueries({ queryKey: ["fin-clients"] });
+      qc.invalidateQueries({ queryKey: ["fin-suppliers"] });
+      qc.invalidateQueries({ queryKey: ["finance", "clients"] });
+      qc.invalidateQueries({ queryKey: ["finance", "suppliers"] });
+      qc.invalidateQueries({ queryKey: ["finance", "suppliers-master"] });
+      onCreated?.(id, nome);
       reset();
       onClose();
     },
+
     onError: (e: Error) => toast.error(e.message),
   });
 
