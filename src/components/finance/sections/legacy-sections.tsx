@@ -744,14 +744,6 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const retainerQ = useRetainerForecast();
   const scheduledQ = useScheduledBillingForecast();
   const supplierOutflowQ = useSupplierOutflowForecast();
-  const supplierOutflowByKey = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const r of supplierOutflowQ.data ?? []) {
-      const k = `${r.year}-${r.month}`;
-      m.set(k, (m.get(k) ?? 0) + Number(r.amount || 0));
-    }
-    return m;
-  }, [supplierOutflowQ.data]);
 
   const rows = useMemo(
     () =>
@@ -763,6 +755,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
         vatMode,
         retainerQ.data ?? [],
         scheduledQ.data ?? [],
+        supplierOutflowQ.data ?? [],
       ),
     [
       periodsQ.data,
@@ -771,6 +764,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
       debtPaymentsQ.data,
       retainerQ.data,
       scheduledQ.data,
+      supplierOutflowQ.data,
       vatMode,
     ],
   );
