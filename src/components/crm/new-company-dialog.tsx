@@ -65,6 +65,8 @@ const INITIAL_FORM = {
   notas: "",
   industria: "",
   company_type: "",
+  is_client: false,
+  is_supplier: false,
   contact_titulo: "",
   contact_primeiro_nome: "",
   contact_apelido: "",
@@ -79,29 +81,69 @@ export interface NewCompanyDialogProps {
   open: boolean;
   onClose: () => void;
   defaultName?: string;
-  onCreated?: (companyId: string) => void;
+  /** Pre-tick the "client" role (Finance client flows). */
+  defaultIsClient?: boolean;
+  /** Pre-tick the "supplier" role (Finance supplier flows). */
+  defaultIsSupplier?: boolean;
+  onCreated?: (companyId: string, nome: string) => void;
 }
 
 export function NewCompanyDialog({
-  open, onClose, defaultName, onCreated,
+  open, onClose, defaultName, defaultIsClient, defaultIsSupplier, onCreated,
 }: NewCompanyDialogProps) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ ...INITIAL_FORM, nome: defaultName ?? "" });
+  const [form, setForm] = useState({
+    ...INITIAL_FORM,
+    nome: defaultName ?? "",
+    is_client: !!defaultIsClient,
+    is_supplier: !!defaultIsSupplier,
+  });
+  const [nifWarning, setNifWarning] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setForm((f) => ({ ...f, nome: defaultName ?? f.nome }));
+      setForm((f) => ({
+        ...f,
+        nome: defaultName ?? f.nome,
+        is_client: defaultIsClient ?? f.is_client,
+        is_supplier: defaultIsSupplier ?? f.is_supplier,
+      }));
     }
-  }, [open, defaultName]);
+  }, [open, defaultName, defaultIsClient, defaultIsSupplier]);
 
-  const reset = () => setForm({ ...INITIAL_FORM });
+  const reset = () => {
+    setForm({
+      ...INITIAL_FORM,
+      is_client: !!defaultIsClient,
+      is_supplier: !!defaultIsSupplier,
+    });
+    setNifWarning(null);
+  };
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  // Duplicate detection on NIF blur — warn, never block.
+  const checkNif = async (raw: string) => {
+    const nif = normalizePortugueseNif(raw);
+    if (!nif) return setNifWarning(null);
+    if (!isValidPortugueseNif(nif)) {
+      return setNifWarning(`NIF ${nif} não passa a validação portuguesa (dígito de controlo).`);
+    }
+    try {
+      const existing = await findCompanyByNif(nif);
+      setNifWarning(
+        existing ? `Já existe uma empresa com este NIF: ${existing.nome}.` : null,
+      );
+    } catch {
+      setNifWarning(null);
+    }
+  };
+
   const create = useMutation({
     mutationFn: async () => {
       const parsed = companySchema.parse(form);
+      const normalizedNif = normalizePortugueseNif(parsed.nif ?? "");
 
       // 1) Create company
       const companyPayload = {
@@ -111,18 +153,22 @@ export function NewCompanyDialog({
         email: parsed.email || null,
         telefone: parsed.telefone || null,
         morada: parsed.morada || null,
-        nif: parsed.nif || null,
+        nif: normalizedNif,
         notas: parsed.notas || null,
         industria: parsed.industria || null,
         company_type: parsed.company_type || null,
+        is_client: form.is_client,
+        is_supplier: form.is_supplier,
+        is_active: true,
       };
       const { data: companyRow, error: companyErr } = await supabase
         .from("companies")
         .insert(companyPayload)
-        .select("id")
+        .select("id, nome")
         .single();
       if (companyErr) throw companyErr;
       const companyId = companyRow.id as string;
+
 
       // 2) Create primary contact if any meaningful field provided
       const hasContact =
