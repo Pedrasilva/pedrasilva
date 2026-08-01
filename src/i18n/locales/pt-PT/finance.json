@@ -965,7 +965,8 @@
       "importLogs": "Registos de importação",
       "inconsistencies": "Inconsistências",
       "audit": "Auditoria",
-      "qa": "QA"
+      "qa": "QA",
+      "reviewQueue": "Fila de revisão"
     }
   },
   "purchases": {
@@ -1300,5 +1301,69 @@
     },
     "active": "Ativa",
     "inactive": "Inativa"
+  },
+  "reviewQueue": {
+    "title": "Fila de revisão de documentos",
+    "subtitle": "Carregue documentos financeiros — a IA extrai os dados, associa o fornecedor pelo NIF e sugere uma classificação. Nada é registado sem a sua aprovação.",
+    "upload": "Carregar documentos",
+    "uploadDone": "Documentos colocados em revisão",
+    "loading": "A carregar…",
+    "empty": "Nada nesta fila",
+    "selectItem": "Selecione um item para rever",
+    "pending": "Por rever",
+    "approved": "Aprovados",
+    "rejected": "Rejeitados",
+    "itemsCount": "{{count}} item(s)",
+    "groupedDocs": "{{count}} documentos associados",
+    "recurring": "Recorrente",
+    "extractionFailed": "Extração falhou",
+    "unknownSupplier": "Fornecedor desconhecido",
+    "loadingPreview": "A carregar pré-visualização…",
+    "saveFields": "Guardar alterações",
+    "saved": "Alterações guardadas",
+    "supplierPanel": "Fornecedor",
+    "classificationPanel": "Classificação",
+    "approveSupplier": "Aprovar fornecedor",
+    "approveClassification": "Aprovar classificação",
+    "supplierApproved": "Fornecedor aprovado",
+    "classificationApproved": "Classificação aprovada",
+    "approvedBadge": "Aprovado",
+    "pendingBadge": "Pendente",
+    "createNewSupplier": "Criar novo fornecedor a partir dos dados extraídos",
+    "noMatchHint": "Nenhum fornecedor corresponde a este NIF — será criado um novo na aprovação.",
+    "ambiguousHint": "{{count}} fornecedores partilham este NIF — escolha o correto.",
+    "pickClassification": "Escolha primeiro uma classificação",
+    "confidence": "Confiança {{value}}%",
+    "noProject": "Sem projeto (custo da empresa)",
+    "reject": "Rejeitar",
+    "rejectReason": "Motivo (opcional)",
+    "rejected_toast": "Item rejeitado",
+    "finalize": "Registar despesa",
+    "finalized": "Despesa criada",
+    "createdExpense": "Registado como documento {{id}}",
+    "fields": {
+      "supplierName": "Nome do fornecedor",
+      "supplierVat": "NIF do fornecedor",
+      "documentNumber": "Número do documento",
+      "date": "Data de emissão",
+      "amount": "Total",
+      "vat": "IVA",
+      "currency": "Moeda"
+    },
+    "docType": {
+      "invoice": "Fatura",
+      "receipt": "Recibo",
+      "proof_of_payment": "Comprovativo de pagamento",
+      "unknown": "Desconhecido"
+    },
+    "matchStatus": {
+      "matched": "Associado",
+      "no_match": "Sem correspondência",
+      "ambiguous": "Ambíguo"
+    },
+    "sourceLabel": {
+      "manual_upload": "Carregamento manual",
+      "email_ingestion": "Email"
+    }
   }
 }

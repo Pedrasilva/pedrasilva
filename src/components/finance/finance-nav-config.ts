@@ -23,6 +23,7 @@ import {
   Beaker,
   Users,
   Truck,
+  ScanLine,
 } from "lucide-react";
 
 export type FinanceNavItem = {
@@ -51,6 +52,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
     key: "payments",
     labelKey: "finance:sidebar.groups.payments",
     items: [
+      { to: "/finance/payments/review-queue", labelKey: "finance:sidebar.items.reviewQueue", icon: ScanLine },
       { to: "/finance/payments/suppliers", labelKey: "finance:sidebar.items.suppliers", icon: Truck },
       { to: "/finance/payments/purchases", labelKey: "finance:sidebar.items.purchases", icon: Receipt },
       { to: "/finance/payments/expenses", labelKey: "finance:sidebar.items.expenses", icon: Wallet },

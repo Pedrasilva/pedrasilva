@@ -2548,6 +2548,161 @@ export type Database = {
           },
         ]
       }
+      financial_document_review_queue: {
+        Row: {
+          ambiguous_supplier_ids: string[]
+          classification_approved_at: string | null
+          classification_approved_by: string | null
+          classification_confidence: number | null
+          created_at: string
+          created_by: string | null
+          created_expense_id: string | null
+          created_project_id: string | null
+          doc_type: Database["public"]["Enums"]["fdrq_doc_type"]
+          doc_type_confidence: number | null
+          extracted_amount: number | null
+          extracted_currency: string | null
+          extracted_date: string | null
+          extracted_document_number: string | null
+          extracted_due_date: string | null
+          extracted_supplier_name: string | null
+          extracted_supplier_vat: string | null
+          extracted_vat_amount: number | null
+          extraction_error: string | null
+          id: string
+          is_recurring_candidate: boolean
+          linked_document_group_id: string
+          matched_supplier_id: string | null
+          original_filename: string | null
+          raw_extraction: Json | null
+          recurring_reference_id: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source: Database["public"]["Enums"]["fdrq_source"]
+          source_bucket: string
+          source_file_url: string
+          status: Database["public"]["Enums"]["fdrq_status"]
+          suggested_classification_code: string | null
+          suggested_classification_id: string | null
+          supplier_approved_at: string | null
+          supplier_approved_by: string | null
+          supplier_match_status: Database["public"]["Enums"]["fdrq_supplier_match"]
+          updated_at: string
+        }
+        Insert: {
+          ambiguous_supplier_ids?: string[]
+          classification_approved_at?: string | null
+          classification_approved_by?: string | null
+          classification_confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          created_expense_id?: string | null
+          created_project_id?: string | null
+          doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
+          doc_type_confidence?: number | null
+          extracted_amount?: number | null
+          extracted_currency?: string | null
+          extracted_date?: string | null
+          extracted_document_number?: string | null
+          extracted_due_date?: string | null
+          extracted_supplier_name?: string | null
+          extracted_supplier_vat?: string | null
+          extracted_vat_amount?: number | null
+          extraction_error?: string | null
+          id?: string
+          is_recurring_candidate?: boolean
+          linked_document_group_id?: string
+          matched_supplier_id?: string | null
+          original_filename?: string | null
+          raw_extraction?: Json | null
+          recurring_reference_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: Database["public"]["Enums"]["fdrq_source"]
+          source_bucket?: string
+          source_file_url: string
+          status?: Database["public"]["Enums"]["fdrq_status"]
+          suggested_classification_code?: string | null
+          suggested_classification_id?: string | null
+          supplier_approved_at?: string | null
+          supplier_approved_by?: string | null
+          supplier_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
+          updated_at?: string
+        }
+        Update: {
+          ambiguous_supplier_ids?: string[]
+          classification_approved_at?: string | null
+          classification_approved_by?: string | null
+          classification_confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          created_expense_id?: string | null
+          created_project_id?: string | null
+          doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
+          doc_type_confidence?: number | null
+          extracted_amount?: number | null
+          extracted_currency?: string | null
+          extracted_date?: string | null
+          extracted_document_number?: string | null
+          extracted_due_date?: string | null
+          extracted_supplier_name?: string | null
+          extracted_supplier_vat?: string | null
+          extracted_vat_amount?: number | null
+          extraction_error?: string | null
+          id?: string
+          is_recurring_candidate?: boolean
+          linked_document_group_id?: string
+          matched_supplier_id?: string | null
+          original_filename?: string | null
+          raw_extraction?: Json | null
+          recurring_reference_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: Database["public"]["Enums"]["fdrq_source"]
+          source_bucket?: string
+          source_file_url?: string
+          status?: Database["public"]["Enums"]["fdrq_status"]
+          suggested_classification_code?: string | null
+          suggested_classification_id?: string | null
+          supplier_approved_at?: string | null
+          supplier_approved_by?: string | null
+          supplier_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_document_review_queu_suggested_classification_id_fkey"
+            columns: ["suggested_classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_created_expense_id_fkey"
+            columns: ["created_expense_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_created_project_id_fkey"
+            columns: ["created_project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_matched_supplier_id_fkey"
+            columns: ["matched_supplier_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_documents: {
         Row: {
           atcud: string | null
@@ -2702,6 +2857,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      financial_email_ignored_items: {
+        Row: {
+          attachment_filename: string | null
+          created_at: string
+          from_address: string | null
+          id: string
+          message_id: string | null
+          payload: Json | null
+          reason: string
+          subject: string | null
+        }
+        Insert: {
+          attachment_filename?: string | null
+          created_at?: string
+          from_address?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json | null
+          reason: string
+          subject?: string | null
+        }
+        Update: {
+          attachment_filename?: string | null
+          created_at?: string
+          from_address?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json | null
+          reason?: string
+          subject?: string | null
+        }
+        Relationships: []
       }
       financial_expense_items: {
         Row: {
@@ -9222,6 +9410,10 @@ export type Database = {
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      fdrq_doc_type: "invoice" | "receipt" | "proof_of_payment" | "unknown"
+      fdrq_source: "manual_upload" | "email_ingestion"
+      fdrq_status: "pending_review" | "approved" | "rejected"
+      fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
       financial_class_level: "category" | "group" | "subgroup"
       financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
       financial_debt_status: "open" | "partially_paid" | "paid" | "renegotiated"
@@ -9615,6 +9807,10 @@ export const Constants = {
       ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      fdrq_doc_type: ["invoice", "receipt", "proof_of_payment", "unknown"],
+      fdrq_source: ["manual_upload", "email_ingestion"],
+      fdrq_status: ["pending_review", "approved", "rejected"],
+      fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
       financial_class_level: ["category", "group", "subgroup"],
       financial_debt_payment_status: ["planned", "paid", "overdue", "skipped"],
       financial_debt_status: ["open", "partially_paid", "paid", "renegotiated"],
