@@ -275,6 +275,13 @@
       "title": "Delete quote",
       "description": "This will permanently remove the quote and any associated planning data. This cannot be undone.",
       "confirm": "Delete"
+    },
+    "accountField": {
+      "suggestedBadge": "Suggested",
+      "suggestedHint": "Auto-selected the only billing account for this client. Change or clear it if this quote bills elsewhere.",
+      "pickHint_one": "This client has 1 billing account.",
+      "pickHint_other": "This client has {{count}} billing accounts — pick the one this quote bills to.",
+      "addAccount": "Add a billing account"
     }
   },
   "stage": {
