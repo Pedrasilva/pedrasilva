@@ -111,7 +111,7 @@ export function ReviewQueue() {
       const { data, error } = await supabase
         .from("financial_document_review_queue")
         .select("*")
-        .eq("status", statusFilter)
+        .eq("status", statusFilter as "pending_review" | "approved" | "rejected")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as QueueRow[];
@@ -148,10 +148,10 @@ export function ReviewQueue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_projects")
-        .select("id, name, code")
+        .select("id, name")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Array<{ id: string; name: string; code: string | null }>;
+      return (data ?? []) as Array<{ id: string; name: string }>;
     },
   });
 
@@ -341,7 +341,7 @@ function QueueItemCard({
   isPt: boolean;
   classifications: Array<{ id: string; code: string; name_pt: string; name_en: string }>;
   suppliers: Array<{ id: string; nome: string; nif: string | null; is_supplier: boolean }>;
-  projects: Array<{ id: string; name: string; code: string | null }>;
+  projects: Array<{ id: string; name: string }>;
 }) {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
@@ -676,7 +676,6 @@ function QueueItemCard({
                 <SelectItem value="__none__">{t("finance:reviewQueue.noProject")}</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.code ? `${p.code} · ` : ""}
                     {p.name}
                   </SelectItem>
                 ))}
