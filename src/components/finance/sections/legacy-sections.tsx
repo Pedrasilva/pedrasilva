@@ -372,6 +372,9 @@ export function buildCashFlow(
     const periodScheduledBilling = isClosed
       ? 0
       : (scheduledByKey.get(`${p.year}-${p.month}`) ?? 0);
+    const periodSupplierOutflow = isClosed
+      ? 0
+      : (supplierByKey.get(`${p.year}-${p.month}`) ?? 0);
 
     const net =
       periodIncome +
@@ -379,6 +382,7 @@ export function buildCashFlow(
       periodScheduledBilling -
       periodExpenses -
       periodMaterials -
+      periodSupplierOutflow -
       periodDebts;
     const closing = opening + net;
     runningOpening = closing;
@@ -391,6 +395,7 @@ export function buildCashFlow(
       scheduledBilling: periodScheduledBilling,
       expenses: periodExpenses,
       materials: periodMaterials,
+      supplierOutflow: periodSupplierOutflow,
       debts: periodDebts,
       net,
       closing,
