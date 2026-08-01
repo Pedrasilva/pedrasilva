@@ -304,6 +304,7 @@ export function buildCashFlow(
   vatMode: VatMode,
   retainerForecast: RetainerForecastRow[] = [],
   scheduledBilling: ScheduledBillingRow[] = [],
+  supplierOutflow: ScheduledBillingRow[] = [],
 ): CashFlowRow[] {
   const rows: CashFlowRow[] = [];
   let runningOpening: number | null = null;
@@ -317,6 +318,11 @@ export function buildCashFlow(
   for (const r of scheduledBilling) {
     const k = `${r.year}-${r.month}`;
     scheduledByKey.set(k, (scheduledByKey.get(k) ?? 0) + Number(r.amount || 0));
+  }
+  const supplierByKey = new Map<string, number>();
+  for (const r of supplierOutflow) {
+    const k = `${r.year}-${r.month}`;
+    supplierByKey.set(k, (supplierByKey.get(k) ?? 0) + Number(r.amount || 0));
   }
 
   for (const p of periods) {
