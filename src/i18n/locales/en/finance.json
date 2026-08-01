@@ -347,6 +347,7 @@
       "totalForecast": "Total forecast",
       "expenses": "Expenses",
       "projectCosts": "Project costs",
+      "supplierOutflow": "Supplier payments (forecast)",
       "materials": "Materials",
       "debts": "Debts",
       "net": "Net",
