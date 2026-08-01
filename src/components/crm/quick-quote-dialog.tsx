@@ -180,7 +180,18 @@ export function QuickQuoteDialog({
               </p>
             )}
           </div>
+
+          {/* Step 3 — billing account (auto-suggested when the company has one) */}
+          {selected?.company_id && (
+            <AccountSuggestField
+              companyId={selected.company_id}
+              value={accountId}
+              onChange={setAccountId}
+              enabled={open}
+            />
+          )}
         </div>
+
 
 
         <DialogFooter>
