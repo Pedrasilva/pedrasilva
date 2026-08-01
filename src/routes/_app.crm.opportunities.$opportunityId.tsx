@@ -681,20 +681,8 @@ function NewQuoteDialog({
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: accounts = [] } = useQuery({
-    queryKey: ["crm_accounts_by_company", companyId],
-    queryFn: async () => {
-      if (!companyId) return [];
-      const { data, error } = await supabase
-        .from("crm_accounts")
-        .select("id, name")
-        .eq("company_id", companyId)
-        .order("name");
-      if (error) throw error;
-      return data as { id: string; name: string }[];
-    },
-    enabled: open && !!companyId,
-  });
+
+
 
   const [step, setStep] = useState<1 | 2>(1);
   const [templateId, setTemplateId] = useState<string | null>(null);
