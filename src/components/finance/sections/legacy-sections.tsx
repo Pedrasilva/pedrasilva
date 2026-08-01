@@ -876,7 +876,9 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                 <TableHead className="text-right">{t("finance:cashFlow.col.scheduledBilling")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.expenses")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.projectCosts")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.supplierOutflow")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.debts")}</TableHead>
+
                 <TableHead className="text-right">{t("finance:cashFlow.col.net")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.closing")}</TableHead>
                 <TableHead>{t("finance:cashFlow.col.status")}</TableHead>
