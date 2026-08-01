@@ -15,10 +15,7 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
     { to: "/crm/accounts" as const, label: t("shell.tabs.accounts"), icon: Receipt, match: (p: string) => p.startsWith("/crm/accounts") },
     { to: "/crm/companies" as const, label: t("shell.tabs.companies"), icon: Building2, match: (p: string) => p.startsWith("/crm/companies") },
     { to: "/crm/contacts" as const, label: t("shell.tabs.contacts"), icon: Users, match: (p: string) => p.startsWith("/crm/contacts") },
-    // Legacy pipeline kept hidden behind admin role until fully retired.
-    ...(isAdmin
-      ? [{ to: "/crm/pipeline" as const, label: t("shell.tabs.pipelineLegacy"), icon: GitBranch, match: (p: string) => p.startsWith("/crm/pipeline") }]
-      : []),
+    // Legacy pipeline fully retired — /crm/pipeline now redirects to Opportunities.
   ];
 
   return (

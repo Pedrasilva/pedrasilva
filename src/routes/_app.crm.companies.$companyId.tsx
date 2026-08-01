@@ -298,8 +298,8 @@ function CompanyDetail() {
                     return (
                       <li key={p.id} className="p-3 hover:bg-muted/30">
                         <Link
-                          to="/crm/pipeline/$proposalId"
-                          params={{ proposalId: p.id }}
+                          to="/crm/quotes/$quoteId"
+                          params={{ quoteId: p.id }}
                           className="flex items-center justify-between gap-3"
                         >
                           <div>
