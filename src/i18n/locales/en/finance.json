@@ -965,7 +965,8 @@
       "importLogs": "Import logs",
       "inconsistencies": "Inconsistencies",
       "audit": "Audit",
-      "qa": "QA"
+      "qa": "QA",
+      "reviewQueue": "Review queue"
     }
   },
   "purchases": {
@@ -1300,5 +1301,69 @@
     },
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "reviewQueue": {
+    "title": "Document review queue",
+    "subtitle": "Upload financial documents — AI extracts the data, matches the supplier by VAT and suggests a classification. Nothing is filed until you approve it.",
+    "upload": "Upload documents",
+    "uploadDone": "Documents queued for review",
+    "loading": "Loading…",
+    "empty": "Nothing in this queue",
+    "selectItem": "Select an item to review",
+    "pending": "Pending review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "itemsCount": "{{count}} item(s)",
+    "groupedDocs": "{{count}} linked documents",
+    "recurring": "Recurring",
+    "extractionFailed": "Extraction failed",
+    "unknownSupplier": "Unknown supplier",
+    "loadingPreview": "Loading preview…",
+    "saveFields": "Save changes",
+    "saved": "Changes saved",
+    "supplierPanel": "Supplier",
+    "classificationPanel": "Classification",
+    "approveSupplier": "Approve supplier",
+    "approveClassification": "Approve classification",
+    "supplierApproved": "Supplier approved",
+    "classificationApproved": "Classification approved",
+    "approvedBadge": "Approved",
+    "pendingBadge": "Pending",
+    "createNewSupplier": "Create new supplier from extracted data",
+    "noMatchHint": "No supplier matched this VAT number — a new supplier will be created on approval.",
+    "ambiguousHint": "{{count}} suppliers share this VAT number — pick the correct one.",
+    "pickClassification": "Pick a classification first",
+    "confidence": "Confidence {{value}}%",
+    "noProject": "No project (company cost)",
+    "reject": "Reject",
+    "rejectReason": "Reason (optional)",
+    "rejected_toast": "Item rejected",
+    "finalize": "File expense",
+    "finalized": "Expense created",
+    "createdExpense": "Filed as document {{id}}",
+    "fields": {
+      "supplierName": "Supplier name",
+      "supplierVat": "Supplier VAT / NIF",
+      "documentNumber": "Document number",
+      "date": "Issue date",
+      "amount": "Total",
+      "vat": "VAT",
+      "currency": "Currency"
+    },
+    "docType": {
+      "invoice": "Invoice",
+      "receipt": "Receipt",
+      "proof_of_payment": "Proof of payment",
+      "unknown": "Unknown"
+    },
+    "matchStatus": {
+      "matched": "Matched",
+      "no_match": "No match",
+      "ambiguous": "Ambiguous"
+    },
+    "sourceLabel": {
+      "manual_upload": "Manual upload",
+      "email_ingestion": "Email"
+    }
   }
 }
