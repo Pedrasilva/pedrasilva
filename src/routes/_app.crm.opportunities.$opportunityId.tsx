@@ -866,26 +866,13 @@ function NewQuoteDialog({
               )}
             </div>
 
-            <div>
-              <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
-              <Select
-                value={form.account_id || "none"}
-                onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
-              >
-                <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("quotes.newQuoteDialog.noAccountSetBefore")}</SelectItem>
-                  {accounts.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {accounts.length === 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {t("quotes.newQuoteDialog.noAccountsHint")}
-                </p>
-              )}
-            </div>
+            <AccountSuggestField
+              companyId={companyId}
+              value={form.account_id}
+              onChange={(id) => setForm((f) => ({ ...f, account_id: id }))}
+              enabled={open}
+            />
+
 
             <div>
               <Label>{t("common.notes")}</Label>
