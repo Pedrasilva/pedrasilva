@@ -80,6 +80,7 @@ export function QuickQuoteDialog({
           titulo: selected.name,
           opportunity_id: selected.id,
           company_id: selected.company_id,
+          account_id: accountId || null,
           valor: Number(selected.estimated_fee) || 0,
           fee_structure_type,
           quote_category: category,
@@ -99,6 +100,7 @@ export function QuickQuoteDialog({
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", selected?.id] });
       setOpportunityId("");
       setCategory("project");
+      setAccountId("");
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
