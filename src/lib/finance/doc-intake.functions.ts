@@ -45,81 +45,14 @@ export const ingestFinancialDocument = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const {
-      extractDocument,
-      matchSupplierByVat,
-      detectRecurring,
-      resolveDocumentGroup,
-      loadClassificationCatalog,
-    } = await import("@/lib/finance/doc-intake.server");
-
-    const result = await extractDocument(data.bucket, data.storagePath);
-
-    if (!result.ok) {
-      const { data: row, error } = await supabaseAdmin
-        .from("financial_document_review_queue")
-        .insert({
-          source_file_url: data.storagePath,
-          source_bucket: data.bucket,
-          original_filename: data.originalFilename ?? null,
-          source: data.source,
-          extraction_error: result.error,
-          created_by: userId,
-        })
-        .select("id, linked_document_group_id")
-        .single();
-      if (error) return { ok: false, error: error.message };
-      return { ok: false, error: result.error, queueItemId: row.id, groupId: row.linked_document_group_id };
-    }
-
-    const ex = result.extraction;
-    const catalog = await loadClassificationCatalog();
-    const suggested = ex.classification_code
-      ? catalog.find((c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase()) ?? null
-      : null;
-
-    const match = await matchSupplierByVat(ex.supplier_vat);
-    const recurring = await detectRecurring(ex.supplier_vat, ex.total_amount);
-    const groupId = await resolveDocumentGroup(ex.document_number, ex.supplier_vat);
-
-    const insertPayload: Record<string, unknown> = {
-      source_file_url: data.storagePath,
-      source_bucket: data.bucket,
-      original_filename: data.originalFilename ?? null,
+    const { ingestStoredDocument } = await import("@/lib/finance/doc-intake.server");
+    return ingestStoredDocument({
+      bucket: data.bucket,
+      storagePath: data.storagePath,
+      originalFilename: data.originalFilename ?? null,
       source: data.source,
-      raw_extraction: result.raw as object,
-      doc_type: ex.doc_type ?? "unknown",
-      doc_type_confidence: ex.doc_type_confidence ?? null,
-      extracted_amount: ex.total_amount,
-      extracted_vat_amount: ex.vat_amount,
-      extracted_date: ex.issue_date,
-      extracted_due_date: ex.due_date,
-      extracted_currency: ex.currency ?? "EUR",
-      extracted_document_number: ex.document_number,
-      extracted_supplier_name: ex.supplier_name,
-      extracted_supplier_vat: ex.supplier_vat,
-      supplier_match_status: match.status,
-      matched_supplier_id: match.matched_supplier_id,
-      ambiguous_supplier_ids: match.ambiguous_ids,
-      // Recurring re-uses last approved classification, but still needs review.
-      suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
-      suggested_classification_code: suggested?.code ?? ex.classification_code ?? null,
-      classification_confidence: ex.classification_confidence ?? null,
-      is_recurring_candidate: recurring.is_recurring_candidate,
-      recurring_reference_id: recurring.reference_id,
-      created_by: userId,
-    };
-    if (groupId) insertPayload.linked_document_group_id = groupId;
-
-    const { data: row, error } = await supabaseAdmin
-      .from("financial_document_review_queue")
-      .insert(insertPayload as any)
-      .select("id, linked_document_group_id")
-      .single();
-    if (error) return { ok: false, error: error.message };
-
-    return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
+      createdBy: userId,
+    });
   });
 
 /**
