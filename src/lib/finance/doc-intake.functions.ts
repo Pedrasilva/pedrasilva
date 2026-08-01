@@ -10,10 +10,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertFinanceAccess(
-  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> },
-  userId: string,
-) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+async function assertFinanceAccess(supabase: any, userId: string) {
   const [{ data: isAdmin }, { data: hasFinance }] = await Promise.all([
     supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
     supabase.rpc("has_permission", { _user_id: userId, _key: "finance.dashboard" }),
@@ -116,7 +114,7 @@ export const ingestFinancialDocument = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabaseAdmin
       .from("financial_document_review_queue")
-      .insert(insertPayload)
+      .insert(insertPayload as any)
       .select("id, linked_document_group_id")
       .single();
     if (error) return { ok: false, error: error.message };
