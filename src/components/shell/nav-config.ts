@@ -67,7 +67,7 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/crm/companies", labelKey: "crm.companies" },
           { to: "/crm/contacts", labelKey: "crm.contacts" },
           { to: "/crm/opportunities", labelKey: "crm.opportunities" },
-          { to: "/crm/pipeline", labelKey: "crm.pipeline" },
+          
         ],
       },
       {
