@@ -1364,6 +1364,8 @@
     "sourceLabel": {
       "manual_upload": "Carregamento manual",
       "email_ingestion": "Email"
-    }
+    },
+    "ignored": "Ignorados (email)",
+    "ignoredTitle": "Emails e anexos que não foram processados"
   }
 }
