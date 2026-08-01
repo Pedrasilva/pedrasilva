@@ -69,6 +69,7 @@ import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.fin
 import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
 import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
+import { Route as AppFinancePaymentsReviewQueueRouteImport } from './routes/_app.finance.payments.review-queue'
 import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
 import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.finance.payments.outflows'
 import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
@@ -410,6 +411,12 @@ const AppFinancePaymentsSuppliersRoute =
     path: '/payments/suppliers',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinancePaymentsReviewQueueRoute =
+  AppFinancePaymentsReviewQueueRouteImport.update({
+    id: '/payments/review-queue',
+    path: '/payments/review-queue',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinancePaymentsPurchasesRoute =
   AppFinancePaymentsPurchasesRouteImport.update({
     id: '/payments/purchases',
@@ -645,6 +652,7 @@ export interface FileRoutesByFullPath {
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -731,6 +739,7 @@ export interface FileRoutesByTo {
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -822,6 +831,7 @@ export interface FileRoutesById {
   '/_app/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/_app/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/_app/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/_app/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/_app/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/_app/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -913,6 +923,7 @@ export interface FileRouteTypes {
     | '/finance/payments/expenses'
     | '/finance/payments/outflows'
     | '/finance/payments/purchases'
+    | '/finance/payments/review-queue'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/finance/reports/forecast'
@@ -999,6 +1010,7 @@ export interface FileRouteTypes {
     | '/finance/payments/expenses'
     | '/finance/payments/outflows'
     | '/finance/payments/purchases'
+    | '/finance/payments/review-queue'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/finance/reports/forecast'
@@ -1089,6 +1101,7 @@ export interface FileRouteTypes {
     | '/_app/finance/payments/expenses'
     | '/_app/finance/payments/outflows'
     | '/_app/finance/payments/purchases'
+    | '/_app/finance/payments/review-queue'
     | '/_app/finance/payments/suppliers'
     | '/_app/finance/reports/cashflow'
     | '/_app/finance/reports/forecast'
@@ -1538,6 +1551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinancePaymentsSuppliersRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/payments/review-queue': {
+      id: '/_app/finance/payments/review-queue'
+      path: '/payments/review-queue'
+      fullPath: '/finance/payments/review-queue'
+      preLoaderRoute: typeof AppFinancePaymentsReviewQueueRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/payments/purchases': {
       id: '/_app/finance/payments/purchases'
       path: '/payments/purchases'
@@ -1825,6 +1845,7 @@ interface AppFinanceRouteChildren {
   AppFinancePaymentsExpensesRoute: typeof AppFinancePaymentsExpensesRoute
   AppFinancePaymentsOutflowsRoute: typeof AppFinancePaymentsOutflowsRoute
   AppFinancePaymentsPurchasesRoute: typeof AppFinancePaymentsPurchasesRoute
+  AppFinancePaymentsReviewQueueRoute: typeof AppFinancePaymentsReviewQueueRoute
   AppFinancePaymentsSuppliersRoute: typeof AppFinancePaymentsSuppliersRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
   AppFinanceReportsForecastRoute: typeof AppFinanceReportsForecastRoute
@@ -1856,6 +1877,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinancePaymentsExpensesRoute: AppFinancePaymentsExpensesRoute,
   AppFinancePaymentsOutflowsRoute: AppFinancePaymentsOutflowsRoute,
   AppFinancePaymentsPurchasesRoute: AppFinancePaymentsPurchasesRoute,
+  AppFinancePaymentsReviewQueueRoute: AppFinancePaymentsReviewQueueRoute,
   AppFinancePaymentsSuppliersRoute: AppFinancePaymentsSuppliersRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
   AppFinanceReportsForecastRoute: AppFinanceReportsForecastRoute,
