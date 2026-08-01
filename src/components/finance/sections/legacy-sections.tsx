@@ -277,10 +277,12 @@ export type CashFlowRow = {
   scheduledBilling: number;
   expenses: number;
   materials: number; // kept internally; surfaced as "Project costs" in UI
+  supplierOutflow: number;
   debts: number;
   net: number;
   closing: number;
 };
+
 
 export type RetainerForecastRow = {
   year: number;
@@ -302,6 +304,7 @@ export function buildCashFlow(
   vatMode: VatMode,
   retainerForecast: RetainerForecastRow[] = [],
   scheduledBilling: ScheduledBillingRow[] = [],
+  supplierOutflow: ScheduledBillingRow[] = [],
 ): CashFlowRow[] {
   const rows: CashFlowRow[] = [];
   let runningOpening: number | null = null;
@@ -315,6 +318,11 @@ export function buildCashFlow(
   for (const r of scheduledBilling) {
     const k = `${r.year}-${r.month}`;
     scheduledByKey.set(k, (scheduledByKey.get(k) ?? 0) + Number(r.amount || 0));
+  }
+  const supplierByKey = new Map<string, number>();
+  for (const r of supplierOutflow) {
+    const k = `${r.year}-${r.month}`;
+    supplierByKey.set(k, (supplierByKey.get(k) ?? 0) + Number(r.amount || 0));
   }
 
   for (const p of periods) {
@@ -364,6 +372,9 @@ export function buildCashFlow(
     const periodScheduledBilling = isClosed
       ? 0
       : (scheduledByKey.get(`${p.year}-${p.month}`) ?? 0);
+    const periodSupplierOutflow = isClosed
+      ? 0
+      : (supplierByKey.get(`${p.year}-${p.month}`) ?? 0);
 
     const net =
       periodIncome +
@@ -371,6 +382,7 @@ export function buildCashFlow(
       periodScheduledBilling -
       periodExpenses -
       periodMaterials -
+      periodSupplierOutflow -
       periodDebts;
     const closing = opening + net;
     runningOpening = closing;
@@ -383,6 +395,7 @@ export function buildCashFlow(
       scheduledBilling: periodScheduledBilling,
       expenses: periodExpenses,
       materials: periodMaterials,
+      supplierOutflow: periodSupplierOutflow,
       debts: periodDebts,
       net,
       closing,
@@ -731,14 +744,6 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const retainerQ = useRetainerForecast();
   const scheduledQ = useScheduledBillingForecast();
   const supplierOutflowQ = useSupplierOutflowForecast();
-  const supplierOutflowByKey = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const r of supplierOutflowQ.data ?? []) {
-      const k = `${r.year}-${r.month}`;
-      m.set(k, (m.get(k) ?? 0) + Number(r.amount || 0));
-    }
-    return m;
-  }, [supplierOutflowQ.data]);
 
   const rows = useMemo(
     () =>
@@ -750,6 +755,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
         vatMode,
         retainerQ.data ?? [],
         scheduledQ.data ?? [],
+        supplierOutflowQ.data ?? [],
       ),
     [
       periodsQ.data,
@@ -758,6 +764,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
       debtPaymentsQ.data,
       retainerQ.data,
       scheduledQ.data,
+      supplierOutflowQ.data,
       vatMode,
     ],
   );
@@ -814,6 +821,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
       scheduledBilling: acc.scheduledBilling + r.scheduledBilling,
       expenses: acc.expenses + r.expenses,
       materials: acc.materials + r.materials,
+      supplierOutflow: acc.supplierOutflow + r.supplierOutflow,
       debts: acc.debts + r.debts,
       net: acc.net + r.net,
     }),
@@ -823,6 +831,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
       scheduledBilling: 0,
       expenses: 0,
       materials: 0,
+      supplierOutflow: 0,
       debts: 0,
       net: 0,
     },
@@ -867,7 +876,9 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                 <TableHead className="text-right">{t("finance:cashFlow.col.scheduledBilling")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.expenses")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.projectCosts")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.supplierOutflow")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.debts")}</TableHead>
+
                 <TableHead className="text-right">{t("finance:cashFlow.col.net")}</TableHead>
                 <TableHead className="text-right">{t("finance:cashFlow.col.closing")}</TableHead>
                 <TableHead>{t("finance:cashFlow.col.status")}</TableHead>
@@ -887,7 +898,11 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.expenses)}</TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.materials)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-rose-600/80 italic">
+                    {r.supplierOutflow > 0 ? fmtEUR(r.supplierOutflow) : DASH}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.debts)}</TableCell>
+
                   <TableCell
                     className={cn(
                       "text-right tabular-nums font-medium",
@@ -916,7 +931,11 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.expenses)}</TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.materials)}</TableCell>
+                <TableCell className="text-right tabular-nums text-rose-600/80 italic">
+                  {totals.supplierOutflow > 0 ? fmtEUR(totals.supplierOutflow) : DASH}
+                </TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.debts)}</TableCell>
+
                 <TableCell
                   className={cn(
                     "text-right tabular-nums font-semibold",
