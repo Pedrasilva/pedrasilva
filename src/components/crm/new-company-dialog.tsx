@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle,
@@ -13,8 +14,11 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Building2, User, Tag } from "lucide-react";
+import { Building2, User, Tag, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+import { findCompanyByNif } from "@/lib/finance/supplier-matching";
+
 
 const companySchema = z.object({
   // Company details
