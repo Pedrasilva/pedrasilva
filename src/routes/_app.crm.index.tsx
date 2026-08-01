@@ -75,10 +75,11 @@ function CrmOverview() {
   const totalOpen = openOpps.reduce((s, o) => s + Number(o.estimated_fee), 0);
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
-    ...s,
+    stage: s.value,
+    color: s.color,
     label: t(`stage.${s.value}`),
     count: opportunities.filter((o) => o.stage === s.value).length,
-    value: opportunities.filter((o) => o.stage === s.value).reduce((sum, o) => sum + Number(o.estimated_fee), 0),
+    total: opportunities.filter((o) => o.stage === s.value).reduce((sum, o) => sum + Number(o.estimated_fee), 0),
   }));
 
   const stats = [
