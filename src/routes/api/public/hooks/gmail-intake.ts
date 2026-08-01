@@ -54,13 +54,19 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const anonKey =
-          process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
+        // Shared-secret gate: only the scheduled pg_cron job knows this value.
+        // The Supabase anon key is NOT a secret (it ships in the client bundle),
+        // so it is deliberately not accepted here.
+        const expected = process.env.GMAIL_INTAKE_SECRET ?? "";
+        if (!expected) {
+          return new Response("Intake hook secret not configured", { status: 503 });
+        }
         const provided =
-          request.headers.get("apikey") ??
+          request.headers.get("x-intake-secret") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
           "";
-        if (!anonKey || provided !== anonKey) {
+        if (!provided || !safeEqual(provided, expected)) {
+          // Nothing is processed or logged for unauthenticated calls.
           return new Response("Unauthorized", { status: 401 });
         }
 
