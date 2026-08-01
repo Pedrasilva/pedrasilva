@@ -559,8 +559,10 @@ function OpportunityDetail() {
                   {quotes.map((q) => {
                     const status = QUOTE_STATUSES.find((s) => s.value === q.quote_status);
                     const rev = (q as { revision_number?: number }).revision_number ?? 1;
+                    const sends = sentRevisions[q.id] ?? [];
                     return (
-                      <li key={q.id} className="flex items-center gap-1 rounded hover:bg-muted px-1">
+                      <li key={q.id} className="rounded">
+                        <div className="flex items-center gap-1 rounded hover:bg-muted px-1">
                         <Link
                           to="/crm/quotes/$quoteId"
                           params={{ quoteId: q.id }}
@@ -592,6 +594,27 @@ function OpportunityDetail() {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        </div>
+                        {sends.length > 0 && (
+                          <ul className="ml-4 border-l pl-2 py-0.5">
+                            {sends.map((s) => (
+                              <li key={s.id}>
+                                <Link
+                                  to="/proposals/$proposalId/revisions/$revisionId"
+                                  params={{ proposalId: s.proposalId, revisionId: s.id }}
+                                  className="flex items-center justify-between gap-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground"
+                                >
+                                  <span className="flex items-center gap-1">
+                                    <Send className="h-3 w-3" /> rev {s.revNumber}
+                                  </span>
+                                  <span className="tabular-nums">
+                                    {new Date(s.createdAt).toLocaleDateString("pt-PT")}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </li>
                     );
                   })}
