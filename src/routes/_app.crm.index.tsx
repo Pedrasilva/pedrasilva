@@ -75,10 +75,11 @@ function CrmOverview() {
   const totalOpen = openOpps.reduce((s, o) => s + Number(o.estimated_fee), 0);
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
-    ...s,
+    stage: s.value,
+    color: s.color,
     label: t(`stage.${s.value}`),
     count: opportunities.filter((o) => o.stage === s.value).length,
-    value: opportunities.filter((o) => o.stage === s.value).reduce((sum, o) => sum + Number(o.estimated_fee), 0),
+    total: opportunities.filter((o) => o.stage === s.value).reduce((sum, o) => sum + Number(o.estimated_fee), 0),
   }));
 
   const stats = [
@@ -140,13 +141,13 @@ function CrmOverview() {
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {byStage.map((s) => (
-              <div key={s.value} className="rounded-md border p-3">
+              <div key={s.stage} className="rounded-md border p-3">
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${s.color}`} />
                   <span className="text-xs font-medium text-muted-foreground">{s.label}</span>
                 </div>
                 <div className="mt-1 text-lg font-semibold">{s.count}</div>
-                <div className="text-xs text-muted-foreground">{formatEUR(s.value)}</div>
+                <div className="text-xs text-muted-foreground">{formatEUR(s.total)}</div>
               </div>
             ))}
           </div>

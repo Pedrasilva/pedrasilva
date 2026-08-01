@@ -109,6 +109,7 @@
       "quotesSection": "Quotes",
       "newQuote": "New quote",
       "noQuotesTitle": "No quotes yet",
+      "noContactsForCompany": "No contacts for this company yet",
       "noQuotesHint": "Create the first quote for this opportunity.",
       "quoteTitle": "Title",
       "quoteAccount": "Account",

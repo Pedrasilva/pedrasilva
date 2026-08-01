@@ -13,9 +13,10 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User, Copy, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Send, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User, Copy, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { CompanyPicker } from "@/components/crm/company-picker";
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,13 @@ import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
   component: OpportunityDetail,
 });
+
+type SentRevision = {
+  id: string;
+  proposalId: string;
+  revNumber: number;
+  createdAt: string;
+};
 
 function OpportunityDetail() {
   const { t } = useTranslation("crm");
@@ -112,6 +120,44 @@ function OpportunityDetail() {
     enabled: quoteIds.length > 0,
   });
 
+  // Sent revisions (real sends only — excludes autosave snapshots)
+  const { data: sentRevisions = {} } = useQuery({
+    queryKey: ["quote_sent_revisions", quoteIds.join(",")],
+    queryFn: async () => {
+      if (quoteIds.length === 0) return {} as Record<string, SentRevision[]>;
+      const { data: proposals, error: pErr } = await supabase
+        .from("psa_proposals")
+        .select("id, quote_id")
+        .in("quote_id", quoteIds);
+      if (pErr) throw pErr;
+      const list = (proposals ?? []) as { id: string; quote_id: string }[];
+      if (list.length === 0) return {} as Record<string, SentRevision[]>;
+      const { data: snaps, error: sErr } = await supabase
+        .from("psa_proposal_snapshots")
+        .select("id, proposal_id, rev_number, created_at, kind")
+        .in("proposal_id", list.map((p) => p.id))
+        .eq("kind", "sent")
+        .order("rev_number", { ascending: true });
+      if (sErr) throw sErr;
+      const quoteOf = new Map(list.map((p) => [p.id, p.quote_id]));
+      const out: Record<string, SentRevision[]> = {};
+      for (const s of (snaps ?? []) as {
+        id: string; proposal_id: string; rev_number: number | null; created_at: string;
+      }[]) {
+        const qid = quoteOf.get(s.proposal_id);
+        if (!qid) continue;
+        (out[qid] ??= []).push({
+          id: s.id,
+          proposalId: s.proposal_id,
+          revNumber: s.rev_number ?? 0,
+          createdAt: s.created_at,
+        });
+      }
+      return out;
+    },
+    enabled: quoteIds.length > 0,
+  });
+
 
   const updateStage = useMutation({
     mutationFn: async (stage: OpportunityStage) => {
@@ -150,6 +196,9 @@ function OpportunityDetail() {
       contact_email: string | null;
       contact_phone: string | null;
       estimated_fee: number;
+      probability: number;
+      company_id: string | null;
+      primary_contact_id: string | null;
     }>) => {
       const { error } = await supabase
         .from("crm_opportunities").update(patch).eq("id", opportunityId);
@@ -330,7 +379,21 @@ function OpportunityDetail() {
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
-                  <div className="font-semibold mt-1">{opp.probability}%</div>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="1"
+                    className="h-8 mt-1 text-right tabular-nums"
+                    defaultValue={Number(opp.probability) || 0}
+                    onBlur={(e) => {
+                      const raw = parseFloat(e.target.value);
+                      const next = Math.min(100, Math.max(0, Number.isFinite(raw) ? raw : 0));
+                      if (next !== Number(opp.probability)) {
+                        updateField.mutate({ probability: next });
+                      }
+                    }}
+                  />
                 </div>
               </div>
               {(() => {
@@ -390,54 +453,92 @@ function OpportunityDetail() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">{t("opportunities.detail.contact")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  placeholder={t("opportunities.detail.contactName")}
-                  defaultValue={opp.contact_name ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_name)
-                      updateField.mutate({ contact_name: e.target.value || null });
-                  }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  type="email"
-                  placeholder={t("opportunities.detail.contactEmail")}
-                  defaultValue={opp.contact_email ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_email)
-                      updateField.mutate({ contact_email: e.target.value || null });
-                  }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  placeholder={t("opportunities.detail.contactPhone")}
-                  defaultValue={opp.contact_phone ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_phone)
-                      updateField.mutate({ contact_phone: e.target.value || null });
-                  }}
-                />
-              </div>
-              {opp.company && (
-                <div className="pt-2 border-t">
-                  <Label className="text-xs text-muted-foreground">{t("opportunities.detail.company")}</Label>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("opportunities.detail.company")}</Label>
+                <div className="mt-1">
+                  <CompanyPicker
+                    value={opp.company_id}
+                    onChange={(companyId) => {
+                      if (companyId === opp.company_id) return;
+                      updateField.mutate({ company_id: companyId, primary_contact_id: null });
+                    }}
+                  />
+                </div>
+                {opp.company && (
                   <Link
                     to="/crm/companies/$companyId"
                     params={{ companyId: opp.company.id }}
-                    className="block text-sm font-medium hover:underline"
+                    className="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    {opp.company.nome}
+                    {t("opportunities.detail.company")} →
                   </Link>
+                )}
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("opportunities.detail.contact")}</Label>
+                <Select
+                  value={opp.primary_contact_id ?? "none"}
+                  disabled={!opp.company_id}
+                  onValueChange={(v) => updateContact.mutate(v === "none" ? null : v)}
+                >
+                  <SelectTrigger className="h-8 mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">—</SelectItem>
+                    {contacts.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{contactFullName(c)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {opp.company_id && contacts.length === 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("opportunities.detail.noContactsForCompany", "No contacts for this company yet")}
+                  </p>
+                )}
+              </div>
+
+              {!opp.primary_contact_id && (
+                <div className="space-y-2 border-t pt-2">
+                  <div className="flex items-center gap-2">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      placeholder={t("opportunities.detail.contactName")}
+                      defaultValue={opp.contact_name ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_name)
+                          updateField.mutate({ contact_name: e.target.value || null });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      type="email"
+                      placeholder={t("opportunities.detail.contactEmail")}
+                      defaultValue={opp.contact_email ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_email)
+                          updateField.mutate({ contact_email: e.target.value || null });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      placeholder={t("opportunities.detail.contactPhone")}
+                      defaultValue={opp.contact_phone ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_phone)
+                          updateField.mutate({ contact_phone: e.target.value || null });
+                      }}
+                    />
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -458,8 +559,10 @@ function OpportunityDetail() {
                   {quotes.map((q) => {
                     const status = QUOTE_STATUSES.find((s) => s.value === q.quote_status);
                     const rev = (q as { revision_number?: number }).revision_number ?? 1;
+                    const sends = sentRevisions[q.id] ?? [];
                     return (
-                      <li key={q.id} className="flex items-center gap-1 rounded hover:bg-muted px-1">
+                      <li key={q.id} className="rounded">
+                        <div className="flex items-center gap-1 rounded hover:bg-muted px-1">
                         <Link
                           to="/crm/quotes/$quoteId"
                           params={{ quoteId: q.id }}
@@ -491,6 +594,27 @@ function OpportunityDetail() {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        </div>
+                        {sends.length > 0 && (
+                          <ul className="ml-4 border-l pl-2 py-0.5">
+                            {sends.map((s) => (
+                              <li key={s.id}>
+                                <Link
+                                  to="/proposals/$proposalId/revisions/$revisionId"
+                                  params={{ proposalId: s.proposalId, revisionId: s.id }}
+                                  className="flex items-center justify-between gap-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground"
+                                >
+                                  <span className="flex items-center gap-1">
+                                    <Send className="h-3 w-3" /> rev {s.revNumber}
+                                  </span>
+                                  <span className="tabular-nums">
+                                    {new Date(s.createdAt).toLocaleDateString("pt-PT")}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </li>
                     );
                   })}
