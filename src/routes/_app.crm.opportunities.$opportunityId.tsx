@@ -112,6 +112,44 @@ function OpportunityDetail() {
     enabled: quoteIds.length > 0,
   });
 
+  // Sent revisions (real sends only — excludes autosave snapshots)
+  const { data: sentRevisions = {} } = useQuery({
+    queryKey: ["quote_sent_revisions", quoteIds.join(",")],
+    queryFn: async () => {
+      if (quoteIds.length === 0) return {} as Record<string, SentRevision[]>;
+      const { data: proposals, error: pErr } = await supabase
+        .from("psa_proposals")
+        .select("id, quote_id")
+        .in("quote_id", quoteIds);
+      if (pErr) throw pErr;
+      const list = (proposals ?? []) as { id: string; quote_id: string }[];
+      if (list.length === 0) return {} as Record<string, SentRevision[]>;
+      const { data: snaps, error: sErr } = await supabase
+        .from("psa_proposal_snapshots")
+        .select("id, proposal_id, rev_number, created_at, kind")
+        .in("proposal_id", list.map((p) => p.id))
+        .eq("kind", "sent")
+        .order("rev_number", { ascending: true });
+      if (sErr) throw sErr;
+      const quoteOf = new Map(list.map((p) => [p.id, p.quote_id]));
+      const out: Record<string, SentRevision[]> = {};
+      for (const s of (snaps ?? []) as {
+        id: string; proposal_id: string; rev_number: number | null; created_at: string;
+      }[]) {
+        const qid = quoteOf.get(s.proposal_id);
+        if (!qid) continue;
+        (out[qid] ??= []).push({
+          id: s.id,
+          proposalId: s.proposal_id,
+          revNumber: s.rev_number ?? 0,
+          createdAt: s.created_at,
+        });
+      }
+      return out;
+    },
+    enabled: quoteIds.length > 0,
+  });
+
 
   const updateStage = useMutation({
     mutationFn: async (stage: OpportunityStage) => {
