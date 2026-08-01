@@ -248,9 +248,38 @@ export function NewCompanyDialog({
               </Select>
             </FieldRow>
             <FieldRow label="NIF / Tax ID">
-              <Input className="input-yellow" value={form.nif}
-                onChange={(e) => set("nif", e.target.value)} />
+              <Input
+                className="input-yellow"
+                value={form.nif}
+                onChange={(e) => set("nif", e.target.value)}
+                onBlur={(e) => void checkNif(e.target.value)}
+              />
+              {nifWarning && (
+                <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+                  <span>{nifWarning}</span>
+                </p>
+              )}
             </FieldRow>
+            <FieldRow label="Papel no sistema" full>
+              <div className="flex flex-wrap items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={form.is_client}
+                    onCheckedChange={(v) => set("is_client", v === true)}
+                  />
+                  Cliente (facturação)
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={form.is_supplier}
+                    onCheckedChange={(v) => set("is_supplier", v === true)}
+                  />
+                  Fornecedor (compras)
+                </label>
+              </div>
+            </FieldRow>
+
             <FieldRow label="Website">
               <Input className="input-yellow" placeholder="https://…" value={form.website}
                 onChange={(e) => set("website", e.target.value)} />
