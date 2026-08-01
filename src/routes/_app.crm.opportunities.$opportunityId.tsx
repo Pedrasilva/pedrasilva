@@ -452,54 +452,92 @@ function OpportunityDetail() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">{t("opportunities.detail.contact")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  placeholder={t("opportunities.detail.contactName")}
-                  defaultValue={opp.contact_name ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_name)
-                      updateField.mutate({ contact_name: e.target.value || null });
-                  }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  type="email"
-                  placeholder={t("opportunities.detail.contactEmail")}
-                  defaultValue={opp.contact_email ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_email)
-                      updateField.mutate({ contact_email: e.target.value || null });
-                  }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  className="h-8"
-                  placeholder={t("opportunities.detail.contactPhone")}
-                  defaultValue={opp.contact_phone ?? ""}
-                  onBlur={(e) => {
-                    if ((e.target.value || null) !== opp.contact_phone)
-                      updateField.mutate({ contact_phone: e.target.value || null });
-                  }}
-                />
-              </div>
-              {opp.company && (
-                <div className="pt-2 border-t">
-                  <Label className="text-xs text-muted-foreground">{t("opportunities.detail.company")}</Label>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("opportunities.detail.company")}</Label>
+                <div className="mt-1">
+                  <CompanyPicker
+                    value={opp.company_id}
+                    onChange={(companyId) => {
+                      if (companyId === opp.company_id) return;
+                      updateField.mutate({ company_id: companyId, primary_contact_id: null });
+                    }}
+                  />
+                </div>
+                {opp.company && (
                   <Link
                     to="/crm/companies/$companyId"
                     params={{ companyId: opp.company.id }}
-                    className="block text-sm font-medium hover:underline"
+                    className="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    {opp.company.nome}
+                    {t("opportunities.detail.company")} →
                   </Link>
+                )}
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("opportunities.detail.contact")}</Label>
+                <Select
+                  value={opp.primary_contact_id ?? "none"}
+                  disabled={!opp.company_id}
+                  onValueChange={(v) => updateContact.mutate(v === "none" ? null : v)}
+                >
+                  <SelectTrigger className="h-8 mt-1">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">—</SelectItem>
+                    {contacts.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{contactFullName(c)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {opp.company_id && contacts.length === 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("opportunities.detail.noContactsForCompany", "No contacts for this company yet")}
+                  </p>
+                )}
+              </div>
+
+              {!opp.primary_contact_id && (
+                <div className="space-y-2 border-t pt-2">
+                  <div className="flex items-center gap-2">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      placeholder={t("opportunities.detail.contactName")}
+                      defaultValue={opp.contact_name ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_name)
+                          updateField.mutate({ contact_name: e.target.value || null });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      type="email"
+                      placeholder={t("opportunities.detail.contactEmail")}
+                      defaultValue={opp.contact_email ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_email)
+                          updateField.mutate({ contact_email: e.target.value || null });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      className="h-8"
+                      placeholder={t("opportunities.detail.contactPhone")}
+                      defaultValue={opp.contact_phone ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== opp.contact_phone)
+                          updateField.mutate({ contact_phone: e.target.value || null });
+                      }}
+                    />
+                  </div>
                 </div>
               )}
             </CardContent>
