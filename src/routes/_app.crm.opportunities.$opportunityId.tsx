@@ -150,6 +150,9 @@ function OpportunityDetail() {
       contact_email: string | null;
       contact_phone: string | null;
       estimated_fee: number;
+      probability: number;
+      company_id: string | null;
+      primary_contact_id: string | null;
     }>) => {
       const { error } = await supabase
         .from("crm_opportunities").update(patch).eq("id", opportunityId);
