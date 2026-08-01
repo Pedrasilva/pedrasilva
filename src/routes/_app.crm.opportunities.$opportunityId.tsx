@@ -34,6 +34,13 @@ export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
   component: OpportunityDetail,
 });
 
+type SentRevision = {
+  id: string;
+  proposalId: string;
+  revNumber: number;
+  createdAt: string;
+};
+
 function OpportunityDetail() {
   const { t } = useTranslation("crm");
   const { opportunityId } = Route.useParams();
