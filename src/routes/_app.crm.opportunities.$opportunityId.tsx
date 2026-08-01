@@ -378,7 +378,21 @@ function OpportunityDetail() {
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
-                  <div className="font-semibold mt-1">{opp.probability}%</div>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="1"
+                    className="h-8 mt-1 text-right tabular-nums"
+                    defaultValue={Number(opp.probability) || 0}
+                    onBlur={(e) => {
+                      const raw = parseFloat(e.target.value);
+                      const next = Math.min(100, Math.max(0, Number.isFinite(raw) ? raw : 0));
+                      if (next !== Number(opp.probability)) {
+                        updateField.mutate({ probability: next });
+                      }
+                    }}
+                  />
                 </div>
               </div>
               {(() => {
