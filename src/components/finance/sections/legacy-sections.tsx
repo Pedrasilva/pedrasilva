@@ -277,10 +277,12 @@ export type CashFlowRow = {
   scheduledBilling: number;
   expenses: number;
   materials: number; // kept internally; surfaced as "Project costs" in UI
+  supplierOutflow: number;
   debts: number;
   net: number;
   closing: number;
 };
+
 
 export type RetainerForecastRow = {
   year: number;
