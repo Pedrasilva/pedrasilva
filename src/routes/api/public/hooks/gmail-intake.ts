@@ -16,6 +16,14 @@
  *  - Email BODIES are never parsed for financial data (out of scope).
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { timingSafeEqual } from "node:crypto";
+
+function safeEqual(a: string, b: string) {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const BUCKET = "financial-documents";
