@@ -17,6 +17,8 @@ import { ArrowLeft, Plus, FileText, Send, Trash2, AlertTriangle, Calendar as Cal
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { CompanyPicker } from "@/components/crm/company-picker";
+import { AccountSuggestField } from "@/components/crm/account-suggest-field";
+
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
