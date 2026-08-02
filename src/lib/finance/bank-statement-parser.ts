@@ -305,6 +305,8 @@ export async function parseBankStatementWorkbook(
   }
 
   const rows: ParsedBankRow[] = [];
+  const nextOccurrence = createOccurrenceCounter();
+
   for (let i = headerRowIdx + 1; i < grid.length; i++) {
     const r = grid[i] ?? [];
     const isEmpty = r.every((c) => c == null || String(c).trim() === "");
