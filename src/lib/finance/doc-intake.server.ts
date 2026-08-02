@@ -369,37 +369,56 @@ export async function ingestStoredDocument(opts: {
   }
 
   const ex = result.extraction;
-  const catalog = await loadClassificationCatalog();
-  const suggested = ex.classification_code
-    ? catalog.find((c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase()) ?? null
-    : null;
 
-  const match = await matchSupplierByVat(ex.supplier_vat);
-  const recurring = await detectRecurring(ex.supplier_vat, ex.total_amount);
-  const groupId = await resolveDocumentGroup(ex.document_number, ex.supplier_vat);
+  // Routing step: bank statements never go through supplier matching or
+  // accounting classification — they belong to the Banking import path.
+  const isStatement = ex.doc_type === "bank_statement";
+
+  const catalog = isStatement ? [] : await loadClassificationCatalog();
+  const suggested =
+    !isStatement && ex.classification_code
+      ? catalog.find(
+          (c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase(),
+        ) ?? null
+      : null;
+
+  const match = isStatement
+    ? { status: "no_match" as const, matched_supplier_id: null, ambiguous_ids: [] as string[] }
+    : await matchSupplierByVat(ex.supplier_vat);
+  const recurring = isStatement
+    ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
+    : await detectRecurring(ex.supplier_vat, ex.total_amount);
+  const groupId = isStatement
+    ? null
+    : await resolveDocumentGroup(ex.document_number, ex.supplier_vat, {
+        amount: ex.total_amount,
+        date: ex.issue_date,
+        supplierName: ex.supplier_name,
+      });
 
   const payload: Record<string, unknown> = {
     ...base,
     raw_extraction: result.raw as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
-    extracted_amount: ex.total_amount,
-    extracted_vat_amount: ex.vat_amount,
+    extracted_amount: isStatement ? null : ex.total_amount,
+    extracted_vat_amount: isStatement ? null : ex.vat_amount,
     extracted_date: ex.issue_date,
-    extracted_due_date: ex.due_date,
+    extracted_due_date: isStatement ? null : ex.due_date,
     extracted_currency: ex.currency ?? "EUR",
     extracted_document_number: ex.document_number,
-    extracted_supplier_name: ex.supplier_name,
-    extracted_supplier_vat: ex.supplier_vat,
+    extracted_supplier_name: isStatement ? null : ex.supplier_name,
+    extracted_supplier_vat: isStatement ? null : ex.supplier_vat,
     supplier_match_status: match.status,
     matched_supplier_id: match.matched_supplier_id,
     ambiguous_supplier_ids: match.ambiguous_ids,
     suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
-    suggested_classification_code: suggested?.code ?? ex.classification_code ?? null,
-    classification_confidence: ex.classification_confidence ?? null,
+    suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
+    classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
   };
+
   if (groupId) payload.linked_document_group_id = groupId;
 
   const { data: row, error } = await supabaseAdmin
