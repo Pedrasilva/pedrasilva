@@ -807,6 +807,7 @@ function QueueItemCard({
             </Button>
           </div>
         </div>
+        )}
 
         <Separator />
 
