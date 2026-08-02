@@ -1423,5 +1423,40 @@
       "cta": "Go to Banking"
     },
     "openInNewTab": "Open in new tab"
+  },
+  "vatReport": {
+    "title": "VAT report",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "frequencyNote": "Confirm your actual filing frequency with your accountant — this toggle only changes the reporting window shown here, it doesn't determine your legal filing obligation.",
+    "payable": "VAT payable (output)",
+    "deductible": "VAT deductible (input)",
+    "net": "Net VAT due",
+    "netDue": "Payable to the tax authority",
+    "netCredit": "Credit in your favour",
+    "docCount_one": "{{count}} document",
+    "docCount_other": "{{count}} documents",
+    "breakdown": "Breakdown by document",
+    "empty": "No documents in this period.",
+    "direction": {
+      "issued": "Issued",
+      "received": "Received"
+    },
+    "col": {
+      "date": "Date",
+      "number": "Number",
+      "counterparty": "Counterparty",
+      "direction": "Direction",
+      "base": "Amount (ex. VAT)",
+      "vat": "VAT",
+      "total": "Total",
+      "vatId": "VAT ID"
+    },
+    "reverseCharge": {
+      "title": "Reverse charge — self-assessed VAT",
+      "note": "Zero-rated documents with a foreign VAT ID (e.g. EU B2B services). These are excluded from the totals above: the correct VAT return boxes depend on rules you should confirm with your accountant. No self-assessed VAT is calculated here.",
+      "empty": "No reverse-charge documents in this period.",
+      "manual": "Manual review"
+    }
   }
 }
