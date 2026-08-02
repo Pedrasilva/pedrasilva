@@ -97,7 +97,26 @@ export async function ingestMt940File(args: {
     .select("id, match_type, pattern, case_sensitive, classification_id, needs_review, priority, active")
     .eq("active", true);
 
+  // The same file already imported for this account (identical constraint the manual
+  // upload warns about) — report it instead of hitting the unique index.
+  const { data: fileDup } = await supabaseAdmin
+    .from("bank_statement_imports")
+    .select("id, file_name, imported_at")
+    .eq("bank_account_id", match.id)
+    .eq("file_checksum", fileChecksum)
+    .maybeSingle();
+  if (fileDup) {
+    return {
+      ok: false,
+      status: "duplicate_file",
+      reason: `statement already imported as "${fileDup.file_name}" (${fileDup.imported_at})`,
+      iban,
+      storagePath,
+    };
+  }
+
   // 4. Log the import exactly like a manual upload (same table, same fields).
+
   const { data: importLog, error: logErr } = await supabaseAdmin
     .from("bank_statement_imports")
     .insert({
