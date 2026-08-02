@@ -602,11 +602,19 @@ export async function ingestStoredDocument(opts: {
   const isStatement = ex.doc_type === "bank_statement";
 
   // Direction step: is this a document we RECEIVED (payable) or one we
-  // ISSUED to a client (receivable)? Anchored on the firm's own VAT.
+  // ISSUED to a client (receivable)? Anchored on the firm's own VAT, its
+  // registered name, and the issuer's legal footer block.
   const own = await getOwnCompanyVat();
-  const dir = isStatement
-    ? { direction: "received" as const, counterparty_name: null, counterparty_vat: null }
-    : detectDirection(own.vat, ex);
+  const dir: DirectionResult = isStatement
+    ? {
+        direction: "received",
+        counterparty_name: null,
+        counterparty_vat: null,
+        confidence: 1,
+        anchor: "none",
+      }
+    : detectDirection(own, ex);
+
   const isIssued = dir.direction === "issued";
 
   const catalog = isStatement ? [] : await loadClassificationCatalog();
