@@ -594,7 +594,7 @@ function QueueItemCard({
                     className="w-full h-[420px] object-contain"
                   />
                 )}
-                <
+                <a
                   href={previewUrl}
                   target="_blank"
                   rel="noreferrer"
