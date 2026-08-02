@@ -807,14 +807,32 @@ function QueueItemCard({
                     className="w-full h-[420px] object-contain"
                   />
                 )}
-                <a
-                  href={previewUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-2 py-1.5 text-[11px] underline text-muted-foreground"
+                <button
+                  type="button"
+                  className="px-2 py-1.5 text-left text-[11px] underline text-muted-foreground"
+                  onClick={async () => {
+                    // window.open on a blob/storage URL is often blocked
+                    // (sandboxed iframe / extensions). Download the bytes and
+                    // trigger a local save instead.
+                    const bucket = row.source_bucket || BUCKET;
+                    const { data: blob } = await supabase.storage
+                      .from(bucket)
+                      .download(row.source_file_url);
+                    const url = blob ? URL.createObjectURL(blob) : previewUrl;
+                    if (!url) return;
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download =
+                      row.original_filename ?? row.source_file_url.split("/").pop() ?? "document";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    if (blob) setTimeout(() => URL.revokeObjectURL(url), 60_000);
+                  }}
                 >
                   {t("finance:reviewQueue.openInNewTab")}
-                </a>
+                </button>
+
               </div>
             ) : (
               <div className="flex h-[320px] items-center justify-center text-xs text-muted-foreground">
