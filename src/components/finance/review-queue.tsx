@@ -469,6 +469,8 @@ function QueueItemCard({
   const approveClassification = useServerFn(approveQueueClassification);
   const finalize = useServerFn(finalizeQueueItem);
   const reject = useServerFn(rejectQueueItem);
+  const reprocess = useServerFn(reprocessQueueItemFn);
+
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
 
