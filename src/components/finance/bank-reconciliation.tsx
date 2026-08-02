@@ -829,7 +829,7 @@ type LinkedInfo = { documentId: string; documentNumber: string | null; direction
 
 function TxDetailPanel({
   tx, classifications, isPt, linked,
-  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer,
+  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch,
 }: {
   tx: BankTx;
   classifications: Classification[];
@@ -841,6 +841,7 @@ function TxDetailPanel({
   onMatchReimb: () => void;
   onMarkIgnored: () => void;
   onMarkTransfer: () => void;
+  onUnmatch: () => void;
 }) {
   const { t } = useTranslation(["finance", "common"]);
   const isOutflow = tx.amount < 0;
