@@ -45,6 +45,11 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { BankAccountDetailDialog } from "@/components/finance/bank-account-detail-dialog";
+import {
+  useCalculatedBankBalances,
+  useCalculatedBalanceAt,
+  checkSnapshot,
+} from "@/lib/finance/use-bank-balances";
 
 type AccountKind = "bank" | "credit_card" | "benefits" | "other";
 
@@ -134,17 +139,16 @@ export function BankBalancesSection() {
     return m;
   }, [visible]);
 
-  // Falls back to the account's opening balance when no snapshot exists yet.
-  const effective = (a: Account) => {
-    const snap = latest.get(a.id);
-    if (snap) return Number(snap.balance);
-    return a.opening_balance == null ? null : Number(a.opening_balance);
-  };
+  const balancesQ = useCalculatedBankBalances();
+
+  // Authoritative balance: opening balance + all reconciled transactions.
+  const effective = (a: Account) =>
+    balancesQ.byAccount.get(a.id)?.calculated_balance ?? 0;
 
   const subtotal = (rows: Account[]) =>
     rows
       .filter((a) => !a.archived_at)
-      .reduce((s, a) => s + (effective(a) ?? 0), 0);
+      .reduce((s, a) => s + effective(a), 0);
 
   const bankTotal = subtotal(grouped.get("bank") ?? []);
 
@@ -293,6 +297,11 @@ export function BankBalancesSection() {
                       rows={2}
                     />
                   </div>
+                  <SnapshotComparePreview
+                    accountId={accountId || null}
+                    date={date}
+                    entered={balance}
+                  />
                 </div>
                 <DialogFooter>
                   <Button
@@ -339,10 +348,13 @@ export function BankBalancesSection() {
                         {t("finance:bank.col.currency")}
                       </TableHead>
                       <TableHead className="text-right w-[150px]">
-                        {t("finance:bank.col.latest")}
+                        {t("finance:bank.col.calculated")}
                       </TableHead>
-                      <TableHead className="w-[120px]">
-                        {t("finance:bank.col.asOf")}
+                      <TableHead className="w-[110px] text-right">
+                        {t("finance:bank.col.movements")}
+                      </TableHead>
+                      <TableHead className="w-[210px]">
+                        {t("finance:bank.col.snapshotCheck")}
                       </TableHead>
                       <TableHead className="w-[120px] text-right">
                         {t("finance:bank.col.actions")}
@@ -353,6 +365,7 @@ export function BankBalancesSection() {
                     {rows.map((a) => {
                       const snap = latest.get(a.id);
                       const value = effective(a);
+                      const calc = balancesQ.byAccount.get(a.id);
                       const archived = !!a.archived_at;
                       return (
                         <TableRow
@@ -391,24 +404,27 @@ export function BankBalancesSection() {
                             </Select>
                           </TableCell>
                           <TableCell>{a.currency}</TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {value != null
-                              ? fmtEUR2(value, a.currency)
-                              : t("finance:bank.noSnapshot")}
-                            {value != null && !snap && (
-                              <span className="ml-1.5 text-[10px] text-muted-foreground">
-                                {t("finance:bank.detail.openingTag")}
-                              </span>
-                            )}
+                          <TableCell className="text-right tabular-nums font-medium">
+                            {fmtEUR2(value, a.currency)}
+                            <div className="text-[10px] font-normal text-muted-foreground">
+                              {t("finance:bank.openingTag", {
+                                amount: fmtEUR2(
+                                  calc?.opening_balance ?? 0,
+                                  a.currency,
+                                ),
+                              })}
+                            </div>
                           </TableCell>
-                          <TableCell className="tabular-nums text-sm">
-                            {snap
-                              ? new Date(snap.snapshot_date).toLocaleDateString(dateLocale)
-                              : a.opening_balance_date
-                                ? new Date(a.opening_balance_date).toLocaleDateString(
-                                    dateLocale,
-                                  )
-                                : "—"}
+                          <TableCell className="text-right tabular-nums text-sm">
+                            {calc?.reconciled_count ?? 0}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <SnapshotCheckCell
+                              accountId={a.id}
+                              currency={a.currency}
+                              snapshot={snap ?? null}
+                              dateLocale={dateLocale}
+                            />
                           </TableCell>
                           <TableCell
                             className="text-right"
@@ -451,6 +467,119 @@ export function BankBalancesSection() {
         accountId={detailId}
         onOpenChange={(o) => !o && setDetailId(null)}
       />
+    </div>
+  );
+}
+
+/**
+ * Audit check: a manual snapshot is compared against the calculated balance
+ * as of the same date. It never becomes the balance itself.
+ */
+function SnapshotCheckCell({
+  accountId,
+  currency,
+  snapshot,
+  dateLocale,
+}: {
+  accountId: string;
+  currency: string;
+  snapshot: Snapshot | null;
+  dateLocale: string;
+}) {
+  const { t } = useTranslation(["finance"]);
+  const calcQ = useCalculatedBalanceAt(
+    snapshot ? accountId : null,
+    snapshot?.snapshot_date ?? null,
+  );
+
+  if (!snapshot) {
+    return (
+      <span className="text-xs text-muted-foreground">
+        {t("finance:bank.check.none")}
+      </span>
+    );
+  }
+  if (calcQ.isLoading || calcQ.data == null) {
+    return <span className="text-xs text-muted-foreground">…</span>;
+  }
+
+  const check = checkSnapshot(Number(snapshot.balance), calcQ.data);
+  const when = new Date(snapshot.snapshot_date).toLocaleDateString(dateLocale);
+
+  if (check.status === "match") {
+    return (
+      <div className="text-xs">
+        <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600">
+          {t("finance:bank.check.confirmed")}
+        </Badge>
+        <div className="mt-0.5 text-muted-foreground tabular-nums">{when}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-xs">
+      <Badge variant="destructive" className="text-[10px]">
+        {t("finance:bank.check.mismatch")}
+      </Badge>
+      <div className="mt-0.5 text-muted-foreground tabular-nums">
+        {t("finance:bank.check.detail", {
+          snapshot: fmtEUR2(check.snapshot, currency),
+          calculated: fmtEUR2(check.calculated, currency),
+          difference: fmtEUR2(check.difference, currency),
+        })}
+      </div>
+      <div className="text-muted-foreground tabular-nums">{when}</div>
+    </div>
+  );
+}
+
+/** Live comparison shown while entering a snapshot. */
+function SnapshotComparePreview({
+  accountId,
+  date,
+  entered,
+}: {
+  accountId: string | null;
+  date: string;
+  entered: string;
+}) {
+  const { t } = useTranslation(["finance"]);
+  const calcQ = useCalculatedBalanceAt(accountId, date || null);
+  const amount = Number(entered);
+
+  if (!accountId || !date || calcQ.data == null) return null;
+
+  const check = Number.isFinite(amount) && entered !== ""
+    ? checkSnapshot(amount, calcQ.data)
+    : null;
+
+  return (
+    <div className="rounded-md border p-3 text-xs space-y-1 bg-muted/30">
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">
+          {t("finance:bank.check.calculatedAt")}
+        </span>
+        <span className="tabular-nums font-medium">{fmtEUR2(calcQ.data)}</span>
+      </div>
+      {check && (
+        <div
+          className={
+            check.status === "match"
+              ? "text-emerald-600"
+              : "text-destructive font-medium"
+          }
+        >
+          {check.status === "match"
+            ? t("finance:bank.check.confirmedHint")
+            : t("finance:bank.check.detail", {
+                snapshot: fmtEUR2(check.snapshot),
+                calculated: fmtEUR2(check.calculated),
+                difference: fmtEUR2(check.difference),
+              })}
+        </div>
+      )}
+      <p className="text-muted-foreground">{t("finance:bank.check.auditHint")}</p>
     </div>
   );
 }

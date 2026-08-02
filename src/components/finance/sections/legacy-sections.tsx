@@ -46,6 +46,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { useIncomeDocuments } from "@/lib/finance/use-income-documents";
+import {
+  useCalculatedBankBalances,
+  sumCalculatedBalances,
+} from "@/lib/finance/use-bank-balances";
 
 // ---------------------------------------------------------------------------
 // Shared types & helpers
@@ -496,27 +500,27 @@ export function OverviewKpiBlock({ vatMode }: { vatMode: VatMode }) {
     expensesQ,
     debtPaymentsQ,
     accountsQ,
-    snapshotsQ,
     loading,
   } = useFinanceData();
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
 
+  // Shared calculation: opening balance + reconciled movements.
+  const balancesQ = useCalculatedBankBalances();
+
   const summary = useMemo(() => {
     const periods = periodsQ.data ?? [];
     const income = incomeQ.data ?? [];
     const expenses = expensesQ.data ?? [];
     const debts = debtPaymentsQ.data ?? [];
-    const snapshots = snapshotsQ.data ?? [];
 
     const cashFlow = buildCashFlow(periods, income, expenses, debts, vatMode);
     const currentRow = cashFlow.find((r) => r.period.month === currentMonth);
 
-    const latest = latestSnapshotByAccount(snapshots);
-    const currentBank = Array.from(latest.values()).reduce(
-      (s, r) => s + Number(r.balance || 0),
-      0,
+    const currentBank = sumCalculatedBalances(
+      balancesQ.byAccount,
+      (accountsQ.data ?? []).map((a) => a.id),
     );
 
     const projectedClosing =
@@ -560,7 +564,7 @@ export function OverviewKpiBlock({ vatMode }: { vatMode: VatMode }) {
     incomeQ.data,
     expensesQ.data,
     debtPaymentsQ.data,
-    snapshotsQ.data,
+    balancesQ.byAccount,
     accountsQ.data,
     vatMode,
     currentMonth,

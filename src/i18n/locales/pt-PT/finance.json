@@ -377,7 +377,9 @@
       "latest": "Último saldo",
       "asOf": "Em",
       "actions": "Acções",
-      "type": "Tipo"
+      "type": "Tipo",
+      "calculated": "Saldo calculado",
+      "movements": "Reconciliados"
     },
     "newSnapshot": "Novo snapshot de saldo",
     "newSnapshotTitle": "Adicionar snapshot de saldo bancário",
@@ -441,6 +443,16 @@
       "viewAllTransactions": "Ver todos os movimentos",
       "noTransactions": "Sem movimentos para esta conta.",
       "saved": "Conta actualizada"
+    },
+    "openingTag": "abertura {{amount}}",
+    "check": {
+      "none": "Sem snapshot introduzido",
+      "confirmed": "Confirmado",
+      "mismatch": "Divergência",
+      "confirmedHint": "Coincide com o saldo calculado.",
+      "detail": "Snapshot {{snapshot}} · calculado {{calculated}} · diferença {{difference}}",
+      "calculatedAt": "Saldo calculado nessa data",
+      "auditHint": "Os snapshots são uma verificação — nunca substituem o saldo calculado."
     }
   },
   "tabPlaceholder": {

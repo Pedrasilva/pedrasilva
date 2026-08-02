@@ -377,7 +377,9 @@
       "latest": "Latest balance",
       "asOf": "As of",
       "actions": "Actions",
-      "type": "Type"
+      "type": "Type",
+      "calculated": "Calculated balance",
+      "movements": "Reconciled"
     },
     "newSnapshot": "New balance snapshot",
     "newSnapshotTitle": "Add bank balance snapshot",
@@ -441,6 +443,16 @@
       "viewAllTransactions": "View all transactions",
       "noTransactions": "No transactions for this account.",
       "saved": "Account updated"
+    },
+    "openingTag": "opening {{amount}}",
+    "check": {
+      "none": "No snapshot entered",
+      "confirmed": "Confirmed",
+      "mismatch": "Mismatch",
+      "confirmedHint": "Matches the calculated balance.",
+      "detail": "Snapshot {{snapshot}} · calculated {{calculated}} · difference {{difference}}",
+      "calculatedAt": "Calculated balance at that date",
+      "auditHint": "Snapshots are an audit check — they never overwrite the calculated balance."
     }
   },
   "tabPlaceholder": {
