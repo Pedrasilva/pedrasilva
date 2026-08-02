@@ -335,8 +335,9 @@ export async function parseBankStatementWorkbook(
       raw[String(h)] = r[j] ?? null;
     }
 
-    const checksumInput = `${txDate}|${valueDate ?? ""}|${amount.toFixed(2)}|${desc}|${balance ?? ""}|${i + 1}`;
-    const row_checksum = await sha256Hex(checksumInput);
+    const content = { transaction_date: txDate, value_date: valueDate, amount, description: desc, running_balance: balance };
+    const row_checksum = await buildRowChecksum({ ...content, occurrence: nextOccurrence(content) });
+
 
     rows.push({
       rowIndex: i + 1,
