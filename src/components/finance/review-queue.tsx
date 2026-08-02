@@ -260,10 +260,13 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
     <div className="container mx-auto py-6 space-y-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t("finance:reviewQueue.title")}</h1>
+          <h1 className="text-2xl font-semibold">
+            {t(side === "issued" ? "finance:reviewQueue.titleIssued" : "finance:reviewQueue.titleReceived")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            {t("finance:reviewQueue.subtitle")}
+            {t(side === "issued" ? "finance:reviewQueue.subtitleIssued" : "finance:reviewQueue.subtitleReceived")}
           </p>
+
         </div>
         <div className="flex items-center gap-2">
           <Button
