@@ -2913,6 +2913,59 @@ export type Database = {
           },
         ]
       }
+      financial_drive_processed_files: {
+        Row: {
+          drive_file_id: string
+          error: string | null
+          file_name: string | null
+          id: string
+          mime_type: string | null
+          moved_to: string | null
+          processed_at: string
+          queue_item_id: string | null
+          reason: string | null
+          size_bytes: number | null
+          status: string
+          storage_path: string | null
+        }
+        Insert: {
+          drive_file_id: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          mime_type?: string | null
+          moved_to?: string | null
+          processed_at?: string
+          queue_item_id?: string | null
+          reason?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string | null
+        }
+        Update: {
+          drive_file_id?: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          mime_type?: string | null
+          moved_to?: string | null
+          processed_at?: string
+          queue_item_id?: string | null
+          reason?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_drive_processed_files_queue_item_id_fkey"
+            columns: ["queue_item_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_review_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_email_ignored_items: {
         Row: {
           attachment_filename: string | null
@@ -9530,7 +9583,7 @@ export type Database = {
         | "proof_of_payment"
         | "unknown"
         | "bank_statement"
-      fdrq_source: "manual_upload" | "email_ingestion"
+      fdrq_source: "manual_upload" | "email_ingestion" | "drive_folder"
       fdrq_status: "pending_review" | "approved" | "rejected"
       fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
       financial_class_level: "category" | "group" | "subgroup"
@@ -9941,7 +9994,7 @@ export const Constants = {
         "unknown",
         "bank_statement",
       ],
-      fdrq_source: ["manual_upload", "email_ingestion"],
+      fdrq_source: ["manual_upload", "email_ingestion", "drive_folder"],
       fdrq_status: ["pending_review", "approved", "rejected"],
       fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
       financial_class_level: ["category", "group", "subgroup"],
