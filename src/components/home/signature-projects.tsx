@@ -221,7 +221,11 @@ function GalleryTile({
   onMove: (c: PsaImageCategory) => void;
 }) {
   const { t } = useTranslation(["home"]);
-  const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  // Low-res thumbnail first — the full image is only fetched in the lightbox.
+  const thumb = useSignedProposalImageUrl(entry.storage_path, entry.bucket, {
+    width: 480,
+    quality: 55,
+  });
   const del = useDeleteProposalImage();
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-muted">
@@ -230,12 +234,13 @@ function GalleryTile({
         onClick={onOpen}
         className="block aspect-square w-full overflow-hidden"
       >
-        {signed.data ? (
+        {thumb.data ? (
           <img
-            src={signed.data}
+            src={thumb.data}
             alt={entry.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="h-full w-full animate-pulse bg-muted" />
