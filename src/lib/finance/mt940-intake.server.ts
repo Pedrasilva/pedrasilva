@@ -26,7 +26,7 @@ function normalizeIban(v: string | null | undefined): string {
 
 export type Mt940IngestResult =
   | { ok: true; status: "imported"; importId: string; accountId: string; rowsTotal: number; rowsImported: number; rowsDuplicate: number; storagePath: string }
-  | { ok: false; status: "unmatched_account" | "not_mt940" | "no_rows" | "error"; reason: string; iban?: string | null; storagePath?: string };
+  | { ok: false; status: "unmatched_account" | "not_mt940" | "no_rows" | "duplicate_file" | "error"; reason: string; iban?: string | null; storagePath?: string };
 
 /**
  * Ingest one MT940 file. `bytes` is the raw attachment; nothing is ever silently dropped —
