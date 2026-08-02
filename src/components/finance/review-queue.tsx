@@ -54,7 +54,9 @@ import {
   approveQueueClassification,
   finalizeQueueItem,
   rejectQueueItem,
+  reprocessQueueItemFn,
 } from "@/lib/finance/doc-intake.functions";
+
 
 type QueueRow = {
   id: string;
