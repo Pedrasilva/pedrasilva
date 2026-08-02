@@ -26,11 +26,19 @@ export type IntakeDocType =
   | "bank_statement"
   | "unknown";
 
+export type IntakeDirection = "issued" | "received" | "unclear";
+
 export type IntakeExtraction = {
   doc_type: IntakeDocType;
   doc_type_confidence: number;
   supplier_name: string | null;
   supplier_vat: string | null;
+  /** Seller / issuer of the document (may be the firm itself). */
+  seller_name: string | null;
+  seller_vat: string | null;
+  /** Buyer / bill-to party (may be the firm itself). */
+  buyer_name: string | null;
+  buyer_vat: string | null;
   document_number: string | null;
   issue_date: string | null;
   due_date: string | null;
