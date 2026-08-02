@@ -99,6 +99,7 @@ import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_a
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/public/hooks/doc-reprocess'
+import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
@@ -587,6 +588,12 @@ const ApiPublicHooksDocReprocessRoute =
     path: '/api/public/hooks/doc-reprocess',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDriveIntakeRoute =
+  ApiPublicHooksDriveIntakeRouteImport.update({
+    id: '/api/public/hooks/drive-intake',
+    path: '/api/public/hooks/drive-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksGmailIntakeRoute =
   ApiPublicHooksGmailIntakeRouteImport.update({
     id: '/api/public/hooks/gmail-intake',
@@ -693,6 +700,7 @@ export interface FileRoutesByFullPath {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
@@ -784,6 +792,7 @@ export interface FileRoutesByTo {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
@@ -880,6 +889,7 @@ export interface FileRoutesById {
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
@@ -976,6 +986,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities/'
@@ -1067,6 +1078,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities'
@@ -1162,6 +1174,7 @@ export interface FileRouteTypes {
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
     | '/_app/crm/opportunities/'
@@ -1179,6 +1192,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
+  ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
 }
@@ -1815,6 +1829,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDocReprocessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/drive-intake': {
+      id: '/api/public/hooks/drive-intake'
+      path: '/api/public/hooks/drive-intake'
+      fullPath: '/api/public/hooks/drive-intake'
+      preLoaderRoute: typeof ApiPublicHooksDriveIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/gmail-intake': {
       id: '/api/public/hooks/gmail-intake'
       path: '/api/public/hooks/gmail-intake'
@@ -2098,6 +2119,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,
+  ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
 }
