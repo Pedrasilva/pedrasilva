@@ -564,16 +564,52 @@ function QueueItemCard({
           </div>
         )}
 
+        {isBankStatement && (
+          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs space-y-1">
+            <p className="font-medium">{t("finance:reviewQueue.bankStatement.title")}</p>
+            <p className="text-muted-foreground">{t("finance:reviewQueue.bankStatement.hint")}</p>
+            <Link to="/finance/banking/reconciliation" className="underline font-medium">
+              {t("finance:reviewQueue.bankStatement.cta")}
+            </Link>
+          </div>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border overflow-hidden bg-muted/30 min-h-[320px]">
             {previewUrl ? (
-              <iframe src={previewUrl} title={row.id} className="w-full h-[420px]" />
+              <div className="flex flex-col">
+                <object
+                  data={previewUrl}
+                  type={isPdf ? "application/pdf" : undefined}
+                  className="w-full h-[420px]"
+                  aria-label={row.original_filename ?? row.id}
+                >
+                  {isPdf ? (
+                    <iframe src={previewUrl} title={row.id} className="w-full h-[420px]" />
+                  ) : (
+                    <img
+                      src={previewUrl}
+                      alt={row.original_filename ?? row.id}
+                      className="w-full h-[420px] object-contain"
+                    />
+                  )}
+                </object>
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2 py-1.5 text-[11px] underline text-muted-foreground"
+                >
+                  {t("finance:reviewQueue.openInNewTab")}
+                </a>
+              </div>
             ) : (
               <div className="flex h-[320px] items-center justify-center text-xs text-muted-foreground">
                 {t("finance:reviewQueue.loadingPreview")}
               </div>
             )}
           </div>
+
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
