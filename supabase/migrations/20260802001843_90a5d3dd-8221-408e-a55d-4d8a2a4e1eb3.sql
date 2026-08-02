@@ -1,0 +1,1 @@
+ALTER TYPE fdrq_doc_type ADD VALUE IF NOT EXISTS 'bank_statement';

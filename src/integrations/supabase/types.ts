@@ -9443,7 +9443,12 @@ export type Database = {
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
-      fdrq_doc_type: "invoice" | "receipt" | "proof_of_payment" | "unknown"
+      fdrq_doc_type:
+        | "invoice"
+        | "receipt"
+        | "proof_of_payment"
+        | "unknown"
+        | "bank_statement"
       fdrq_source: "manual_upload" | "email_ingestion"
       fdrq_status: "pending_review" | "approved" | "rejected"
       fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
@@ -9840,7 +9845,13 @@ export const Constants = {
       ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
-      fdrq_doc_type: ["invoice", "receipt", "proof_of_payment", "unknown"],
+      fdrq_doc_type: [
+        "invoice",
+        "receipt",
+        "proof_of_payment",
+        "unknown",
+        "bank_statement",
+      ],
       fdrq_source: ["manual_upload", "email_ingestion"],
       fdrq_status: ["pending_review", "approved", "rejected"],
       fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
