@@ -50,7 +50,10 @@ const JSON_SCHEMA = {
     type: "object",
     additionalProperties: false,
     properties: {
-      doc_type: { type: "string", enum: ["invoice", "receipt", "proof_of_payment", "unknown"] },
+      doc_type: {
+        type: "string",
+        enum: ["invoice", "receipt", "proof_of_payment", "bank_statement", "unknown"],
+      },
       doc_type_confidence: { type: "number" },
       supplier_name: { type: ["string", "null"] },
       supplier_vat: { type: ["string", "null"] },
