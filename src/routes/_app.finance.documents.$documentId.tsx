@@ -256,16 +256,14 @@ function DocumentEditorPage() {
         .download(header.file_path);
       if (error || !blob) throw error ?? new Error("download failed");
       const url = URL.createObjectURL(blob);
-      const win = window.open(url, "_blank");
-      if (!win) {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = header.file_path.split("/").pop() ?? "attachment";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = header.file_path.split("/").pop() ?? "attachment";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
+
     } catch (e) {
       // Last resort: signed URL
       const { data, error } = await supabase.storage
