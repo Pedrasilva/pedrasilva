@@ -19,7 +19,12 @@ import { normalizePortugueseNif } from "@/lib/finance/nif";
 const MODEL = "google/gemini-2.5-flash";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-export type IntakeDocType = "invoice" | "receipt" | "proof_of_payment" | "unknown";
+export type IntakeDocType =
+  | "invoice"
+  | "receipt"
+  | "proof_of_payment"
+  | "bank_statement"
+  | "unknown";
 
 export type IntakeExtraction = {
   doc_type: IntakeDocType;
