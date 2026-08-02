@@ -70,8 +70,10 @@ export type Database = {
       }
       bank_accounts: {
         Row: {
+          account_kind: Database["public"]["Enums"]["bank_account_kind"]
           account_name: string
           account_number: string | null
+          archived_at: string | null
           bank_name: string | null
           bic: string | null
           created_at: string
@@ -85,8 +87,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_kind?: Database["public"]["Enums"]["bank_account_kind"]
           account_name: string
           account_number?: string | null
+          archived_at?: string | null
           bank_name?: string | null
           bic?: string | null
           created_at?: string
@@ -100,8 +104,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_kind?: Database["public"]["Enums"]["bank_account_kind"]
           account_name?: string
           account_number?: string | null
+          archived_at?: string | null
           bank_name?: string | null
           bic?: string | null
           created_at?: string
@@ -9400,6 +9406,7 @@ export type Database = {
       app_role: "admin" | "user"
       backup_status: "running" | "success" | "failed"
       backup_trigger: "daily" | "weekly" | "manual"
+      bank_account_kind: "bank" | "credit_card" | "benefits" | "other"
       bank_import_status: "pending" | "imported" | "rolled_back" | "archived"
       bank_rule_match_type:
         | "contains"
@@ -9802,6 +9809,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       backup_status: ["running", "success", "failed"],
       backup_trigger: ["daily", "weekly", "manual"],
+      bank_account_kind: ["bank", "credit_card", "benefits", "other"],
       bank_import_status: ["pending", "imported", "rolled_back", "archived"],
       bank_rule_match_type: [
         "contains",
