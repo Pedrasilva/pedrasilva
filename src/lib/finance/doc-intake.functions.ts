@@ -138,6 +138,93 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
     return { ok: true, supplierId };
   });
 
+/**
+ * Checkpoint 1 (issued documents) — approve the CLIENT counterparty.
+ *
+ * Mirror of `approveQueueSupplier` for documents the firm itself issued:
+ * matching/creation is identical, but the company is flagged `is_client`
+ * and stored in `matched_client_id`, so an issued invoice can never enter
+ * the suppliers list.
+ */
+export const approveQueueClient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        clientId: z.string().uuid().nullable().optional(),
+        newClient: z
+          .object({
+            nome: z.string().min(1).max(200),
+            nif: z.string().max(40).nullable().optional(),
+            email: z.string().max(200).nullable().optional(),
+          })
+          .nullable()
+          .optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+
+    let clientId = data.clientId ?? null;
+    if (!clientId && data.newClient) {
+      const nif = (data.newClient.nif ?? "").replace(/\D/g, "") || null;
+
+      let existingId: string | null = null;
+      if (nif) {
+        const { data: existing, error: findErr } = await supabase
+          .from("companies")
+          .select("id")
+          .eq("nif", nif)
+          .maybeSingle();
+        if (findErr) throw new Error(findErr.message);
+        existingId = existing?.id ?? null;
+      }
+
+      if (existingId) {
+        const { error: flagErr } = await supabase
+          .from("companies")
+          .update({ is_client: true })
+          .eq("id", existingId);
+        if (flagErr) throw new Error(flagErr.message);
+        clientId = existingId;
+      } else {
+        const { data: created, error } = await supabase
+          .from("companies")
+          .insert({
+            nome: data.newClient.nome,
+            nif,
+            email: data.newClient.email ?? null,
+            is_client: true,
+            created_by: userId,
+          })
+          .select("id")
+          .single();
+        if (error) throw new Error(error.message);
+        clientId = created.id;
+      }
+    }
+
+    if (!clientId) throw new Error("A client must be selected or created before approval");
+
+    const { error: upErr } = await supabase
+      .from("financial_document_review_queue")
+      .update({
+        matched_client_id: clientId,
+        client_match_status: "matched",
+        supplier_approved_at: new Date().toISOString(),
+        supplier_approved_by: userId,
+      })
+      .eq("id", data.id);
+    if (upErr) throw new Error(upErr.message);
+
+    return { ok: true, clientId };
+  });
+
+
+
 /** Checkpoint 2 — approve the accounting classification. */
 export const approveQueueClassification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -201,28 +288,45 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
 
     const existing = (groupRows ?? []).find((r) => r.created_expense_id)?.created_expense_id ?? null;
 
+    const isIssued = (row as { direction?: string }).direction === "issued";
+
     let documentId = existing as string | null;
     if (!documentId) {
       const total = Number(row.extracted_amount ?? 0);
       const vat = Number(row.extracted_vat_amount ?? 0);
-      const { data: supplier } = await supabase
+      const counterpartyId = isIssued
+        ? ((row as { matched_client_id?: string | null }).matched_client_id ?? null)
+        : row.matched_supplier_id;
+      if (!counterpartyId) {
+        throw new Error(
+          isIssued
+            ? "A client must be approved before finalizing an issued document"
+            : "A supplier must be approved before finalizing",
+        );
+      }
+      const { data: counterparty } = await supabase
         .from("companies")
         .select("nome")
-        .eq("id", row.matched_supplier_id!)
+        .eq("id", counterpartyId)
         .maybeSingle();
 
       const { data: doc, error: docErr } = await supabase
         .from("financial_documents")
         .insert({
-          doc_type: "supplier_invoice",
-          direction: "received",
+          doc_type: isIssued ? "client_invoice" : "supplier_invoice",
+          direction: isIssued ? "issued" : "received",
           source: "ocr",
           status: "issued",
           document_number: row.extracted_document_number,
           issue_date: row.extracted_date ?? new Date().toISOString().slice(0, 10),
           due_date: row.extracted_due_date,
-          counterparty_supplier_id: row.matched_supplier_id,
-          counterparty_name_snapshot: supplier?.nome ?? row.extracted_supplier_name,
+          counterparty_supplier_id: isIssued ? null : counterpartyId,
+          counterparty_client_id: isIssued ? counterpartyId : null,
+          counterparty_name_snapshot:
+            counterparty?.nome ??
+            (isIssued
+              ? (row as { extracted_buyer_name?: string | null }).extracted_buyer_name ?? null
+              : row.extracted_supplier_name),
           classification_id: row.suggested_classification_id,
           project_id: row.created_project_id,
           not_project_related: !row.created_project_id,
@@ -239,6 +343,7 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       if (docErr) throw new Error(docErr.message);
       documentId = doc.id;
     }
+
 
     const { error: stampErr } = await supabase
       .from("financial_document_review_queue")

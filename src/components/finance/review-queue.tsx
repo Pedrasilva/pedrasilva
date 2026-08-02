@@ -24,6 +24,9 @@ import {
   Repeat,
   AlertTriangle,
   Loader2,
+  ArrowUpRight,
+  ArrowDownLeft,
+  HelpCircle,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +50,7 @@ import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import {
   ingestFinancialDocument,
   approveQueueSupplier,
+  approveQueueClient,
   approveQueueClassification,
   finalizeQueueItem,
   rejectQueueItem,
@@ -60,6 +64,7 @@ type QueueRow = {
   source: string;
   doc_type: string;
   doc_type_confidence: number | null;
+  direction: "issued" | "received" | "unclear";
   extraction_error: string | null;
   extracted_amount: number | null;
   extracted_vat_amount: number | null;
@@ -69,9 +74,16 @@ type QueueRow = {
   extracted_document_number: string | null;
   extracted_supplier_name: string | null;
   extracted_supplier_vat: string | null;
+  extracted_seller_name: string | null;
+  extracted_seller_vat: string | null;
+  extracted_buyer_name: string | null;
+  extracted_buyer_vat: string | null;
   supplier_match_status: string;
   matched_supplier_id: string | null;
   ambiguous_supplier_ids: string[];
+  client_match_status: string;
+  matched_client_id: string | null;
+  ambiguous_client_ids: string[];
   suggested_classification_id: string | null;
   suggested_classification_code: string | null;
   classification_confidence: number | null;
@@ -95,6 +107,35 @@ function fmtMoney(v: number | null, cur: string | null) {
     currency: cur || "EUR",
   }).format(v);
 }
+
+/**
+ * The other party on the document: the client for documents the firm issued,
+ * the supplier for documents it received.
+ */
+function counterpartyName(row: QueueRow): string | null {
+  if (row.direction === "issued") return row.extracted_buyer_name ?? null;
+  return row.extracted_supplier_name ?? row.extracted_seller_name ?? null;
+}
+
+function counterpartyVat(row: QueueRow): string | null {
+  if (row.direction === "issued") return row.extracted_buyer_vat ?? null;
+  return row.extracted_supplier_vat ?? row.extracted_seller_vat ?? null;
+}
+
+function DirectionBadge({ direction }: { direction: QueueRow["direction"] }) {
+  const { t } = useTranslation(["finance"]);
+  const variant =
+    direction === "issued" ? "default" : direction === "unclear" ? "destructive" : "secondary";
+  const Icon =
+    direction === "issued" ? ArrowUpRight : direction === "unclear" ? HelpCircle : ArrowDownLeft;
+  return (
+    <Badge variant={variant} className="text-[10px]">
+      <Icon className="h-3 w-3 mr-1" />
+      {t(`finance:reviewQueue.direction.${direction}`)}
+    </Badge>
+  );
+}
+
 
 export function ReviewQueue() {
   const { t, i18n } = useTranslation(["finance", "common"]);
@@ -277,13 +318,16 @@ export function ReviewQueue() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium truncate">
-                      {head.extracted_supplier_name ?? head.original_filename ?? t("finance:reviewQueue.unknownSupplier")}
+                      {counterpartyName(head) ?? head.original_filename ?? t("finance:reviewQueue.unknownSupplier")}
                     </span>
                     <span className="text-xs tabular-nums">
                       {fmtMoney(head.extracted_amount, head.extracted_currency)}
                     </span>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-1">
+                    {head.doc_type !== "bank_statement" && (
+                      <DirectionBadge direction={head.direction} />
+                    )}
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
                         {t("finance:reviewQueue.groupedDocs", { count: items.length })}
@@ -394,16 +438,23 @@ function QueueItemCard({
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
 
+  const isIssued = row.direction === "issued";
+  const isUnclear = row.direction === "unclear";
+
   const [fields, setFields] = useState({
-    supplier_name: row.extracted_supplier_name ?? "",
-    supplier_vat: row.extracted_supplier_vat ?? "",
+    supplier_name: counterpartyName(row) ?? "",
+    supplier_vat: counterpartyVat(row) ?? "",
     document_number: row.extracted_document_number ?? "",
     date: row.extracted_date ?? "",
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
     currency: row.extracted_currency ?? "EUR",
   });
-  const [supplierId, setSupplierId] = useState<string | null>(row.matched_supplier_id);
+  const [counterpartyId, setCounterpartyId] = useState<string | null>(
+    isIssued ? row.matched_client_id : row.matched_supplier_id,
+  );
+  const supplierId = counterpartyId;
+  const setSupplierId = setCounterpartyId;
   const [classificationId, setClassificationId] = useState<string | null>(
     row.suggested_classification_id,
   );
@@ -412,6 +463,7 @@ function QueueItemCard({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const approveSupplier = useServerFn(approveQueueSupplier);
+  const approveClient = useServerFn(approveQueueClient);
   const approveClassification = useServerFn(approveQueueClassification);
   const finalize = useServerFn(finalizeQueueItem);
   const reject = useServerFn(rejectQueueItem);
@@ -456,11 +508,23 @@ function QueueItemCard({
 
   const saveFields = useMutation({
     mutationFn: async () => {
+      // Counterparty edits land on the buyer fields for issued documents and
+      // on the supplier fields for received ones — never both.
+      const party = isIssued
+        ? {
+            extracted_buyer_name: fields.supplier_name || null,
+            extracted_buyer_vat: fields.supplier_vat || null,
+          }
+        : {
+            extracted_supplier_name: fields.supplier_name || null,
+            extracted_supplier_vat: fields.supplier_vat || null,
+            extracted_seller_name: fields.supplier_name || null,
+            extracted_seller_vat: fields.supplier_vat || null,
+          };
       const { error } = await supabase
         .from("financial_document_review_queue")
         .update({
-          extracted_supplier_name: fields.supplier_name || null,
-          extracted_supplier_vat: fields.supplier_vat || null,
+          ...party,
           extracted_document_number: fields.document_number || null,
           extracted_date: fields.date || null,
           extracted_amount: fields.amount ? Number(fields.amount) : null,
@@ -477,8 +541,40 @@ function QueueItemCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  /** Reviewer override when the AI could not anchor the firm's own VAT. */
+  const setDirection = useMutation({
+    mutationFn: async (direction: "issued" | "received") => {
+      const { error } = await supabase
+        .from("financial_document_review_queue")
+        .update({ direction })
+        .eq("id", row.id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success(t("finance:reviewQueue.saved"));
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const doApproveSupplier = useMutation({
     mutationFn: async () => {
+      if (isIssued) {
+        if (counterpartyId) {
+          await approveClient({ data: { id: row.id, clientId: counterpartyId } });
+        } else {
+          await approveClient({
+            data: {
+              id: row.id,
+              newClient: {
+                nome: fields.supplier_name || t("finance:reviewQueue.unknownClient"),
+                nif: fields.supplier_vat || null,
+              },
+            },
+          });
+        }
+        return;
+      }
       if (supplierId) {
         await approveSupplier({ data: { id: row.id, supplierId } });
       } else {
@@ -494,7 +590,11 @@ function QueueItemCard({
       }
     },
     onSuccess: () => {
-      toast.success(t("finance:reviewQueue.supplierApproved"));
+      toast.success(
+        isIssued
+          ? t("finance:reviewQueue.clientApproved")
+          : t("finance:reviewQueue.supplierApproved"),
+      );
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -547,6 +647,7 @@ function QueueItemCard({
             {row.original_filename ?? row.source_file_url.split("/").pop()}
           </CardTitle>
           <div className="flex items-center gap-1.5">
+            {!isBankStatement && <DirectionBadge direction={row.direction} />}
             <Badge variant="outline" className="text-[10px] capitalize">
               {t(`finance:reviewQueue.docType.${row.doc_type}`, { defaultValue: row.doc_type })}
             </Badge>
@@ -578,6 +679,62 @@ function QueueItemCard({
             </Link>
           </div>
         )}
+
+        {!isBankStatement && (
+          <div
+            className={`rounded-md border p-3 text-xs space-y-2 ${
+              isUnclear ? "border-destructive/40 bg-destructive/5" : "bg-muted/30"
+            }`}
+          >
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {t("finance:reviewQueue.parties.seller")}
+                </p>
+                <p className="font-medium">{row.extracted_seller_name ?? row.extracted_supplier_name ?? "—"}</p>
+                <p className="text-muted-foreground tabular-nums">
+                  {row.extracted_seller_vat ?? row.extracted_supplier_vat ?? "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {t("finance:reviewQueue.parties.buyer")}
+                </p>
+                <p className="font-medium">{row.extracted_buyer_name ?? "—"}</p>
+                <p className="text-muted-foreground tabular-nums">{row.extracted_buyer_vat ?? "—"}</p>
+              </div>
+            </div>
+            {isUnclear && (
+              <div className="space-y-1.5">
+                <p className="text-muted-foreground">{t("finance:reviewQueue.parties.unclearHint")}</p>
+                {!readOnly && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={setDirection.isPending}
+                      onClick={() => setDirection.mutate("received")}
+                    >
+                      <ArrowDownLeft className="h-3.5 w-3.5 mr-1.5" />
+                      {t("finance:reviewQueue.parties.markReceived")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={setDirection.isPending}
+                      onClick={() => setDirection.mutate("issued")}
+                    >
+                      <ArrowUpRight className="h-3.5 w-3.5 mr-1.5" />
+                      {t("finance:reviewQueue.parties.markIssued")}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border overflow-hidden bg-muted/30 min-h-[320px]">
@@ -614,14 +771,14 @@ function QueueItemCard({
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <Field label={t("finance:reviewQueue.fields.supplierName")}>
+              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientName" : "finance:reviewQueue.fields.supplierName")}>
                 <Input
                   value={fields.supplier_name}
                   disabled={readOnly}
                   onChange={(e) => setFields((f) => ({ ...f, supplier_name: e.target.value }))}
                 />
               </Field>
-              <Field label={t("finance:reviewQueue.fields.supplierVat")}>
+              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientVat" : "finance:reviewQueue.fields.supplierVat")}>
                 <Input
                   value={fields.supplier_vat}
                   disabled={readOnly}
@@ -686,15 +843,15 @@ function QueueItemCard({
         {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{t("finance:reviewQueue.supplierPanel")}</h3>
+            <h3 className="text-sm font-medium">{t(isIssued ? "finance:reviewQueue.clientPanel" : "finance:reviewQueue.supplierPanel")}</h3>
             <Badge
               variant={row.supplier_approved_at ? "default" : "outline"}
               className="text-[10px]"
             >
               {row.supplier_approved_at
                 ? t("finance:reviewQueue.approvedBadge")
-                : t(`finance:reviewQueue.matchStatus.${row.supplier_match_status}`, {
-                    defaultValue: row.supplier_match_status,
+                : t(`finance:reviewQueue.matchStatus.${isIssued ? row.client_match_status : row.supplier_match_status}`, {
+                    defaultValue: isIssued ? row.client_match_status : row.supplier_match_status,
                   })}
             </Badge>
           </div>
@@ -720,7 +877,7 @@ function QueueItemCard({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__new__">{t("finance:reviewQueue.createNewSupplier")}</SelectItem>
+                <SelectItem value="__new__">{t(isIssued ? "finance:reviewQueue.createNewClient" : "finance:reviewQueue.createNewSupplier")}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.nome}
@@ -735,7 +892,7 @@ function QueueItemCard({
               onClick={() => doApproveSupplier.mutate()}
             >
               <Check className="h-4 w-4 mr-1.5" />
-              {t("finance:reviewQueue.approveSupplier")}
+              {t(isIssued ? "finance:reviewQueue.approveClient" : "finance:reviewQueue.approveSupplier")}
             </Button>
           </div>
         </div>

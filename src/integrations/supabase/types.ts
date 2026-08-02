@@ -2568,21 +2568,29 @@ export type Database = {
       }
       financial_document_review_queue: {
         Row: {
+          ambiguous_client_ids: string[]
           ambiguous_supplier_ids: string[]
           classification_approved_at: string | null
           classification_approved_by: string | null
           classification_confidence: number | null
+          client_match_status: Database["public"]["Enums"]["fdrq_supplier_match"]
           created_at: string
           created_by: string | null
           created_expense_id: string | null
           created_project_id: string | null
+          direction: Database["public"]["Enums"]["fdrq_direction"]
+          direction_confidence: number | null
           doc_type: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence: number | null
           extracted_amount: number | null
+          extracted_buyer_name: string | null
+          extracted_buyer_vat: string | null
           extracted_currency: string | null
           extracted_date: string | null
           extracted_document_number: string | null
           extracted_due_date: string | null
+          extracted_seller_name: string | null
+          extracted_seller_vat: string | null
           extracted_supplier_name: string | null
           extracted_supplier_vat: string | null
           extracted_vat_amount: number | null
@@ -2590,6 +2598,7 @@ export type Database = {
           id: string
           is_recurring_candidate: boolean
           linked_document_group_id: string
+          matched_client_id: string | null
           matched_supplier_id: string | null
           original_filename: string | null
           raw_extraction: Json | null
@@ -2609,21 +2618,29 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
+          client_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
           created_at?: string
           created_by?: string | null
           created_expense_id?: string | null
           created_project_id?: string | null
+          direction?: Database["public"]["Enums"]["fdrq_direction"]
+          direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
           extracted_amount?: number | null
+          extracted_buyer_name?: string | null
+          extracted_buyer_vat?: string | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_seller_name?: string | null
+          extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
           extracted_vat_amount?: number | null
@@ -2631,6 +2648,7 @@ export type Database = {
           id?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
+          matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
           raw_extraction?: Json | null
@@ -2650,21 +2668,29 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
+          client_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
           created_at?: string
           created_by?: string | null
           created_expense_id?: string | null
           created_project_id?: string | null
+          direction?: Database["public"]["Enums"]["fdrq_direction"]
+          direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
           extracted_amount?: number | null
+          extracted_buyer_name?: string | null
+          extracted_buyer_vat?: string | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_seller_name?: string | null
+          extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
           extracted_vat_amount?: number | null
@@ -2672,6 +2698,7 @@ export type Database = {
           id?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
+          matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
           raw_extraction?: Json | null
@@ -2710,6 +2737,13 @@ export type Database = {
             columns: ["created_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_matched_client_id_fkey"
+            columns: ["matched_client_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -9481,6 +9515,7 @@ export type Database = {
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      fdrq_direction: "issued" | "received" | "unclear"
       fdrq_doc_type:
         | "invoice"
         | "receipt"
@@ -9884,6 +9919,7 @@ export const Constants = {
       ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      fdrq_direction: ["issued", "received", "unclear"],
       fdrq_doc_type: [
         "invoice",
         "receipt",

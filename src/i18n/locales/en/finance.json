@@ -1417,7 +1417,9 @@
       "date": "Issue date",
       "amount": "Total",
       "vat": "VAT",
-      "currency": "Currency"
+      "currency": "Currency",
+      "clientName": "Client name",
+      "clientVat": "Client VAT"
     },
     "docType": {
       "invoice": "Invoice",
@@ -1441,7 +1443,24 @@
       "hint": "Bank statements are not supplier documents. Import it from the Banking module to reconcile transactions.",
       "cta": "Go to Banking"
     },
-    "openInNewTab": "Open in new tab"
+    "openInNewTab": "Open in new tab",
+    "direction": {
+      "issued": "Issued",
+      "received": "Received",
+      "unclear": "Direction unclear"
+    },
+    "parties": {
+      "seller": "Seller / issuer",
+      "buyer": "Buyer / bill-to",
+      "unclearHint": "Neither party matches the firm's VAT number. Choose how this document should be treated.",
+      "markReceived": "Treat as received",
+      "markIssued": "Treat as issued"
+    },
+    "clientPanel": "Client",
+    "createNewClient": "Create new client",
+    "approveClient": "Approve client",
+    "clientApproved": "Client approved",
+    "unknownClient": "Unknown client"
   },
   "vatReport": {
     "title": "VAT report",

@@ -26,11 +26,19 @@ export type IntakeDocType =
   | "bank_statement"
   | "unknown";
 
+export type IntakeDirection = "issued" | "received" | "unclear";
+
 export type IntakeExtraction = {
   doc_type: IntakeDocType;
   doc_type_confidence: number;
   supplier_name: string | null;
   supplier_vat: string | null;
+  /** Seller / issuer of the document (may be the firm itself). */
+  seller_name: string | null;
+  seller_vat: string | null;
+  /** Buyer / bill-to party (may be the firm itself). */
+  buyer_name: string | null;
+  buyer_vat: string | null;
   document_number: string | null;
   issue_date: string | null;
   due_date: string | null;
@@ -57,6 +65,10 @@ const JSON_SCHEMA = {
       doc_type_confidence: { type: "number" },
       supplier_name: { type: ["string", "null"] },
       supplier_vat: { type: ["string", "null"] },
+      seller_name: { type: ["string", "null"] },
+      seller_vat: { type: ["string", "null"] },
+      buyer_name: { type: ["string", "null"] },
+      buyer_vat: { type: ["string", "null"] },
       document_number: { type: ["string", "null"] },
       issue_date: { type: ["string", "null"] },
       due_date: { type: ["string", "null"] },
@@ -70,6 +82,7 @@ const JSON_SCHEMA = {
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
+      "seller_name", "seller_vat", "buyer_name", "buyer_vat",
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
@@ -121,8 +134,12 @@ export async function extractDocument(
 Rules:
 - FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
 - If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
-- supplier_vat: the SELLER's VAT/NIF exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567). Never the buyer's. null if absent.
-- supplier_name: the seller / issuer legal name.
+- ALWAYS extract BOTH parties of an invoice/receipt separately:
+  - seller_name / seller_vat: the party ISSUING the document (the one being paid), exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567).
+  - buyer_name / buyer_vat: the party the document is BILLED TO (the one paying). Look for "Cliente", "Bill to", "Adquirente", "Exmos. Srs.", "Contribuinte n.º".
+  - Never swap them and never leave a VAT blank when it is printed anywhere on the document.
+- supplier_vat / supplier_name: keep these equal to seller_vat / seller_name (legacy fields).
+- For bank_statement / proof_of_payment where there is no clear seller/buyer pair, set the party fields to null rather than guessing.
 - document_number: the invoice or receipt number as printed.
 - issue_date / due_date: ISO YYYY-MM-DD.
 - Amounts numeric, decimal point, no currency symbol. currency as ISO code (EUR, USD...).
@@ -174,6 +191,76 @@ export function normalizeVat(value: string | null | undefined): string | null {
   if (!value) return null;
   const v = String(value).toUpperCase().replace(/[^A-Z0-9]/g, "");
   return v.length === 0 ? null : v;
+}
+
+/** Every comparable form of a VAT id (with/without country prefix, PT digits). */
+function vatForms(raw: string | null | undefined): Set<string> {
+  const out = new Set<string>();
+  const v = normalizeVat(raw);
+  if (v) {
+    out.add(v);
+    if (/^[A-Z]{2}/.test(v)) out.add(v.slice(2));
+  }
+  const pt = normalizePortugueseNif(raw);
+  if (pt) out.add(pt);
+  return out;
+}
+
+/** True when two VAT ids refer to the same entity, ignoring country prefixes. */
+export function sameVat(a: string | null | undefined, b: string | null | undefined): boolean {
+  const fa = vatForms(a);
+  if (fa.size === 0) return false;
+  for (const f of vatForms(b)) if (fa.has(f)) return true;
+  return false;
+}
+
+/**
+ * The firm's own VAT — canonical source is `pm_invoice_settings.company_nif`
+ * (same row the invoicing module and `own-company.functions.ts` read).
+ * Never hard-code it here.
+ */
+export async function getOwnCompanyVat(): Promise<{ vat: string | null; name: string | null }> {
+  const { data } = await supabaseAdmin
+    .from("pm_invoice_settings")
+    .select("company_nif, company_name, singleton")
+    .order("singleton", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return { vat: data?.company_nif ?? null, name: data?.company_name ?? null };
+}
+
+export type DirectionResult = {
+  direction: "issued" | "received" | "unclear";
+  /** The other party: the client for issued docs, the supplier for received ones. */
+  counterparty_name: string | null;
+  counterparty_vat: string | null;
+};
+
+/**
+ * Direction detection: whose document is this?
+ * - seller VAT == firm VAT  → the firm issued it → counterparty is the CLIENT.
+ * - buyer VAT  == firm VAT  → the firm received it → counterparty is the SUPPLIER.
+ * - neither                 → unclear; the reviewer sees both parties.
+ */
+export function detectDirection(
+  ownVat: string | null,
+  ex: Pick<IntakeExtraction, "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat">,
+): DirectionResult {
+  const sellerVat = ex.seller_vat ?? ex.supplier_vat ?? null;
+  const sellerName = ex.seller_name ?? ex.supplier_name ?? null;
+
+  if (ownVat && sameVat(sellerVat, ownVat)) {
+    return { direction: "issued", counterparty_name: ex.buyer_name, counterparty_vat: ex.buyer_vat };
+  }
+  if (ownVat && sameVat(ex.buyer_vat, ownVat)) {
+    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+  }
+  // No own-VAT anchor on the page. A buyer VAT that is clearly someone else's
+  // while the seller VAT is missing is not enough to guess — flag it.
+  if (!ownVat || (!sellerVat && !ex.buyer_vat)) {
+    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+  }
+  return { direction: "unclear", counterparty_name: sellerName, counterparty_vat: sellerVat };
 }
 
 /**
@@ -374,6 +461,14 @@ export async function ingestStoredDocument(opts: {
   // accounting classification — they belong to the Banking import path.
   const isStatement = ex.doc_type === "bank_statement";
 
+  // Direction step: is this a document we RECEIVED (payable) or one we
+  // ISSUED to a client (receivable)? Anchored on the firm's own VAT.
+  const own = await getOwnCompanyVat();
+  const dir = isStatement
+    ? { direction: "received" as const, counterparty_name: null, counterparty_vat: null }
+    : detectDirection(own.vat, ex);
+  const isIssued = dir.direction === "issued";
+
   const catalog = isStatement ? [] : await loadClassificationCatalog();
   const suggested =
     !isStatement && ex.classification_code
@@ -382,18 +477,22 @@ export async function ingestStoredDocument(opts: {
         ) ?? null
       : null;
 
+  // The counterparty VAT drives matching: supplier for received, client for issued.
+  const counterpartyVat = isStatement ? null : dir.counterparty_vat;
+  const counterpartyName = isStatement ? null : dir.counterparty_name;
+
   const match = isStatement
     ? { status: "no_match" as const, matched_supplier_id: null, ambiguous_ids: [] as string[] }
-    : await matchSupplierByVat(ex.supplier_vat);
-  const recurring = isStatement
+    : await matchSupplierByVat(counterpartyVat);
+  const recurring = isStatement || isIssued
     ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
-    : await detectRecurring(ex.supplier_vat, ex.total_amount);
+    : await detectRecurring(counterpartyVat, ex.total_amount);
   const groupId = isStatement
     ? null
-    : await resolveDocumentGroup(ex.document_number, ex.supplier_vat, {
+    : await resolveDocumentGroup(ex.document_number, counterpartyVat, {
         amount: ex.total_amount,
         date: ex.issue_date,
-        supplierName: ex.supplier_name,
+        supplierName: counterpartyName,
       });
 
   const payload: Record<string, unknown> = {
@@ -401,17 +500,28 @@ export async function ingestStoredDocument(opts: {
     raw_extraction: result.raw as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
+    direction: dir.direction,
+    extracted_seller_name: isStatement ? null : ex.seller_name ?? ex.supplier_name,
+    extracted_seller_vat: isStatement ? null : ex.seller_vat ?? ex.supplier_vat,
+    extracted_buyer_name: isStatement ? null : ex.buyer_name,
+    extracted_buyer_vat: isStatement ? null : ex.buyer_vat,
     extracted_amount: isStatement ? null : ex.total_amount,
     extracted_vat_amount: isStatement ? null : ex.vat_amount,
     extracted_date: ex.issue_date,
     extracted_due_date: isStatement ? null : ex.due_date,
     extracted_currency: ex.currency ?? "EUR",
     extracted_document_number: ex.document_number,
-    extracted_supplier_name: isStatement ? null : ex.supplier_name,
-    extracted_supplier_vat: isStatement ? null : ex.supplier_vat,
-    supplier_match_status: match.status,
-    matched_supplier_id: match.matched_supplier_id,
-    ambiguous_supplier_ids: match.ambiguous_ids,
+    // Legacy supplier columns stay populated ONLY for received documents so
+    // an issued client invoice can never leak into the suppliers workflow.
+    extracted_supplier_name: isStatement || isIssued ? null : counterpartyName,
+    extracted_supplier_vat: isStatement || isIssued ? null : counterpartyVat,
+    supplier_match_status: isIssued ? "no_match" : match.status,
+    matched_supplier_id: isIssued ? null : match.matched_supplier_id,
+    ambiguous_supplier_ids: isIssued ? [] : match.ambiguous_ids,
+    client_match_status: isIssued ? match.status : "no_match",
+    matched_client_id: isIssued ? match.matched_supplier_id : null,
+    ambiguous_client_ids: isIssued ? match.ambiguous_ids : [],
+    
     suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
     suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
