@@ -56,11 +56,15 @@ const statusVariant = (s: string) =>
       ? "secondary"
       : "outline";
 
-export function BankTransactionsBrowser() {
+export function BankTransactionsBrowser({
+  initialAccountId,
+}: {
+  initialAccountId?: string;
+} = {}) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const dateLocale = i18n.language?.startsWith("pt") ? "pt-PT" : "en-GB";
 
-  const [account, setAccount] = useState("all");
+  const [account, setAccount] = useState(initialAccountId ?? "all");
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");

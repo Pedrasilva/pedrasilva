@@ -44,6 +44,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { BankAccountDetailDialog } from "@/components/finance/bank-account-detail-dialog";
 
 type AccountKind = "bank" | "credit_card" | "benefits" | "other";
 
@@ -54,6 +55,8 @@ type Account = {
   currency: string;
   account_kind: AccountKind;
   archived_at: string | null;
+  opening_balance: number | null;
+  opening_balance_date: string | null;
 };
 
 type Snapshot = {
@@ -78,6 +81,7 @@ export function BankBalancesSection() {
   const qc = useQueryClient();
 
   const [showArchived, setShowArchived] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [accountId, setAccountId] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -89,7 +93,9 @@ export function BankBalancesSection() {
     queryFn: async (): Promise<Account[]> => {
       const { data, error } = await supabase
         .from("bank_accounts")
-        .select("id, account_name, bank_name, currency, account_kind, archived_at")
+        .select(
+          "id, account_name, bank_name, currency, account_kind, archived_at, opening_balance, opening_balance_date",
+        )
         .order("account_name");
       if (error) throw error;
       return (data ?? []) as Account[];
@@ -128,10 +134,17 @@ export function BankBalancesSection() {
     return m;
   }, [visible]);
 
+  // Falls back to the account's opening balance when no snapshot exists yet.
+  const effective = (a: Account) => {
+    const snap = latest.get(a.id);
+    if (snap) return Number(snap.balance);
+    return a.opening_balance == null ? null : Number(a.opening_balance);
+  };
+
   const subtotal = (rows: Account[]) =>
     rows
       .filter((a) => !a.archived_at)
-      .reduce((s, a) => s + Number(latest.get(a.id)?.balance ?? 0), 0);
+      .reduce((s, a) => s + (effective(a) ?? 0), 0);
 
   const bankTotal = subtotal(grouped.get("bank") ?? []);
 
@@ -339,9 +352,14 @@ export function BankBalancesSection() {
                   <TableBody>
                     {rows.map((a) => {
                       const snap = latest.get(a.id);
+                      const value = effective(a);
                       const archived = !!a.archived_at;
                       return (
-                        <TableRow key={a.id} className={archived ? "opacity-60" : undefined}>
+                        <TableRow
+                          key={a.id}
+                          onClick={() => setDetailId(a.id)}
+                          className={`cursor-pointer ${archived ? "opacity-60" : ""}`}
+                        >
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               {a.account_name}
@@ -353,7 +371,7 @@ export function BankBalancesSection() {
                             </div>
                           </TableCell>
                           <TableCell>{a.bank_name ?? "—"}</TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <Select
                               value={a.account_kind ?? "other"}
                               onValueChange={(v) =>
@@ -374,16 +392,29 @@ export function BankBalancesSection() {
                           </TableCell>
                           <TableCell>{a.currency}</TableCell>
                           <TableCell className="text-right tabular-nums">
-                            {snap
-                              ? fmtEUR2(Number(snap.balance), a.currency)
+                            {value != null
+                              ? fmtEUR2(value, a.currency)
                               : t("finance:bank.noSnapshot")}
+                            {value != null && !snap && (
+                              <span className="ml-1.5 text-[10px] text-muted-foreground">
+                                {t("finance:bank.detail.openingTag")}
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell className="tabular-nums text-sm">
                             {snap
                               ? new Date(snap.snapshot_date).toLocaleDateString(dateLocale)
-                              : "—"}
+                              : a.opening_balance_date
+                                ? new Date(a.opening_balance_date).toLocaleDateString(
+                                    dateLocale,
+                                  )
+                                : "—"}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell
+                            className="text-right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+
                             <Button
                               variant="ghost"
                               size="sm"
@@ -415,6 +446,11 @@ export function BankBalancesSection() {
           </Card>
         );
       })}
+
+      <BankAccountDetailDialog
+        accountId={detailId}
+        onOpenChange={(o) => !o && setDetailId(null)}
+      />
     </div>
   );
 }
