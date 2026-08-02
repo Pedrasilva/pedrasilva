@@ -50,6 +50,7 @@ import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import {
   ingestFinancialDocument,
   approveQueueSupplier,
+  approveQueueClient,
   approveQueueClassification,
   finalizeQueueItem,
   rejectQueueItem,
