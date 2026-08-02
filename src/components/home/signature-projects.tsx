@@ -222,10 +222,16 @@ function GalleryTile({
 }) {
   const { t } = useTranslation(["home"]);
   // Low-res thumbnail first — the full image is only fetched in the lightbox.
+  const [thumbFailed, setThumbFailed] = useState(false);
   const thumb = useSignedProposalImageUrl(entry.storage_path, entry.bucket, {
     width: 480,
     quality: 55,
   });
+  const full = useSignedProposalImageUrl(
+    thumbFailed ? entry.storage_path : null,
+    entry.bucket,
+  );
+  const src = thumbFailed ? full.data : thumb.data;
   const del = useDeleteProposalImage();
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-muted">
@@ -234,10 +240,11 @@ function GalleryTile({
         onClick={onOpen}
         className="block aspect-square w-full overflow-hidden"
       >
-        {thumb.data ? (
+        {src ? (
           <img
-            src={thumb.data}
+            src={src}
             alt={entry.name}
+            onError={() => setThumbFailed(true)}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"
