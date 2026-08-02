@@ -842,7 +842,8 @@
     "clientRequired": "Client is required",
     "nifPlaceholder": "Tax number (optional)",
     "createAndLink": "Create and link to transaction",
-    "created": "Document created and linked to bank transaction"
+    "created": "Document created and linked to bank transaction",
+    "bankOnly": "Bank-only item (no supplier/client — stamp duty, fees, interest)"
   },
   "clientsMaster": {
     "tab": "Clients",
