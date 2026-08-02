@@ -104,6 +104,35 @@ function fmtMoney(v: number | null, cur: string | null) {
   }).format(v);
 }
 
+/**
+ * The other party on the document: the client for documents the firm issued,
+ * the supplier for documents it received.
+ */
+function counterpartyName(row: QueueRow): string | null {
+  if (row.direction === "issued") return row.extracted_buyer_name ?? null;
+  return row.extracted_supplier_name ?? row.extracted_seller_name ?? null;
+}
+
+function counterpartyVat(row: QueueRow): string | null {
+  if (row.direction === "issued") return row.extracted_buyer_vat ?? null;
+  return row.extracted_supplier_vat ?? row.extracted_seller_vat ?? null;
+}
+
+function DirectionBadge({ direction }: { direction: QueueRow["direction"] }) {
+  const { t } = useTranslation(["finance"]);
+  const variant =
+    direction === "issued" ? "default" : direction === "unclear" ? "destructive" : "secondary";
+  const Icon =
+    direction === "issued" ? ArrowUpRight : direction === "unclear" ? HelpCircle : ArrowDownLeft;
+  return (
+    <Badge variant={variant} className="text-[10px]">
+      <Icon className="h-3 w-3 mr-1" />
+      {t(`finance:reviewQueue.direction.${direction}`)}
+    </Badge>
+  );
+}
+
+
 export function ReviewQueue() {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
