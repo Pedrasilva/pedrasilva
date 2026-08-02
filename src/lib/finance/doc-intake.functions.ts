@@ -288,28 +288,45 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
 
     const existing = (groupRows ?? []).find((r) => r.created_expense_id)?.created_expense_id ?? null;
 
+    const isIssued = (row as { direction?: string }).direction === "issued";
+
     let documentId = existing as string | null;
     if (!documentId) {
       const total = Number(row.extracted_amount ?? 0);
       const vat = Number(row.extracted_vat_amount ?? 0);
-      const { data: supplier } = await supabase
+      const counterpartyId = isIssued
+        ? ((row as { matched_client_id?: string | null }).matched_client_id ?? null)
+        : row.matched_supplier_id;
+      if (!counterpartyId) {
+        throw new Error(
+          isIssued
+            ? "A client must be approved before finalizing an issued document"
+            : "A supplier must be approved before finalizing",
+        );
+      }
+      const { data: counterparty } = await supabase
         .from("companies")
         .select("nome")
-        .eq("id", row.matched_supplier_id!)
+        .eq("id", counterpartyId)
         .maybeSingle();
 
       const { data: doc, error: docErr } = await supabase
         .from("financial_documents")
         .insert({
-          doc_type: "supplier_invoice",
-          direction: "received",
+          doc_type: isIssued ? "client_invoice" : "supplier_invoice",
+          direction: isIssued ? "issued" : "received",
           source: "ocr",
           status: "issued",
           document_number: row.extracted_document_number,
           issue_date: row.extracted_date ?? new Date().toISOString().slice(0, 10),
           due_date: row.extracted_due_date,
-          counterparty_supplier_id: row.matched_supplier_id,
-          counterparty_name_snapshot: supplier?.nome ?? row.extracted_supplier_name,
+          counterparty_supplier_id: isIssued ? null : counterpartyId,
+          counterparty_client_id: isIssued ? counterpartyId : null,
+          counterparty_name_snapshot:
+            counterparty?.nome ??
+            (isIssued
+              ? (row as { extracted_buyer_name?: string | null }).extracted_buyer_name ?? null
+              : row.extracted_supplier_name),
           classification_id: row.suggested_classification_id,
           project_id: row.created_project_id,
           not_project_related: !row.created_project_id,
@@ -326,6 +343,7 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       if (docErr) throw new Error(docErr.message);
       documentId = doc.id;
     }
+
 
     const { error: stampErr } = await supabase
       .from("financial_document_review_queue")
