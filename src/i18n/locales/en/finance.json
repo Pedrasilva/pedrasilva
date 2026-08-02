@@ -871,7 +871,9 @@
     "active": "Active",
     "inactive": "Inactive",
     "alsoSupplier": "Also supplier",
-    "empty": "No clients yet."
+    "empty": "No clients yet.",
+    "openingBalance": "Carried-over opening balance",
+    "openingBalanceHint": "Balance carried over from before go-live (e.g. tracked previously in PHC). Leave 0 if there is none."
   },
   "suppliersMaster": {
     "tab": "Suppliers",
@@ -1032,7 +1034,8 @@
       "inconsistencies": "Inconsistencies",
       "audit": "Audit",
       "qa": "QA",
-      "reviewQueue": "Review queue"
+      "reviewQueue": "Review queue",
+      "statements": "Statements"
     }
   },
   "purchases": {
@@ -1473,6 +1476,43 @@
       "note": "Zero-rated documents with a foreign VAT ID (e.g. EU B2B services). These are excluded from the totals above: the correct VAT return boxes depend on rules you should confirm with your accountant. No self-assessed VAT is calculated here.",
       "empty": "No reverse-charge documents in this period.",
       "manual": "Manual review"
+    }
+  },
+  "statements": {
+    "title": "Statements",
+    "subtitle": "Opening balance, every entry in the period and a running balance — for a bank account, a client or a supplier.",
+    "entityType": "Statement for",
+    "selectEntity": "Select…",
+    "from": "From",
+    "to": "To",
+    "thisMonth": "This month",
+    "thisYear": "This year",
+    "exportCsv": "Export CSV",
+    "openingBalance": "Opening balance",
+    "closingBalance": "Closing balance",
+    "totalIn": "Money in",
+    "totalOut": "Money out",
+    "invoiced": "Invoiced",
+    "purchased": "Purchases",
+    "settled": "Settled",
+    "empty": "No entries in this period.",
+    "document": "Document",
+    "types": {
+      "bank_account": "Bank account",
+      "client": "Client",
+      "supplier": "Supplier"
+    },
+    "kind": {
+      "transaction": "Transaction",
+      "document": "Document",
+      "payment": "Payment"
+    },
+    "columns": {
+      "date": "Date",
+      "reference": "Reference",
+      "description": "Description",
+      "amount": "Amount",
+      "balance": "Balance"
     }
   }
 }

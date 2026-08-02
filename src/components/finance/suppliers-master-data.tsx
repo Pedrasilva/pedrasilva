@@ -27,7 +27,7 @@ import { CounterpartyEditor, type CompanyRow } from "./clients-master-data";
 import { CompaniesImportCard } from "./companies-import-card";
 
 const SELECT_COLS =
-  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, notas, is_client, is_supplier, is_active";
+  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, notas, is_client, is_supplier, is_active";
 
 export function SuppliersMasterData() {
   const { t } = useTranslation(["finance", "common"]);

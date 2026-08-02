@@ -60,6 +60,8 @@ export type CompanyRow = {
   city: string | null;
   currency: string;
   payment_terms: string | null;
+  opening_balance_receivable: number | null;
+  opening_balance_payable: number | null;
   notas: string | null;
   is_client: boolean;
   is_supplier: boolean;
@@ -67,7 +69,7 @@ export type CompanyRow = {
 };
 
 const SELECT_COLS =
-  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, notas, is_client, is_supplier, is_active";
+  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, notas, is_client, is_supplier, is_active";
 
 const CURRENCIES = ["EUR", "USD", "GBP", "BRL", "CHF"];
 
@@ -246,6 +248,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
   const [city, setCity] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [paymentTerms, setPaymentTerms] = useState("");
+  const [openingBalance, setOpeningBalance] = useState("");
   const [notas, setNotas] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [alsoOther, setAlsoOther] = useState(false);
@@ -265,6 +268,13 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
       setCity(record.city ?? "");
       setCurrency(record.currency || "EUR");
       setPaymentTerms(record.payment_terms ?? "");
+      setOpeningBalance(
+        String(
+          (kind === "client"
+            ? record.opening_balance_receivable
+            : record.opening_balance_payable) ?? 0,
+        ),
+      );
       setNotas(record.notas ?? "");
       setIsActive(record.is_active);
       setAlsoOther(kind === "client" ? record.is_supplier : record.is_client);
@@ -281,6 +291,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
       setCity("");
       setCurrency("EUR");
       setPaymentTerms("");
+      setOpeningBalance("0");
       setNotas("");
       setIsActive(true);
       setAlsoOther(false);
@@ -310,6 +321,9 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
           city: city.trim() || null,
           currency: currency.trim().toUpperCase() || "EUR",
           payment_terms: paymentTerms.trim() || null,
+          ...(kind === "client"
+            ? { opening_balance_receivable: Number(openingBalance) || 0 }
+            : { opening_balance_payable: Number(openingBalance) || 0 }),
           notas: notas.trim() || null,
           is_client,
           is_supplier,
@@ -412,6 +426,21 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
               <Label className="text-xs">{t("finance:clientsMaster.city")}</Label>
               <Input value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs">
+              {t("finance:clientsMaster.openingBalance")}
+            </Label>
+            <Input
+              type="number"
+              step="0.01"
+              value={openingBalance}
+              onChange={(e) => setOpeningBalance(e.target.value)}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              {t("finance:clientsMaster.openingBalanceHint")}
+            </p>
           </div>
 
           <div className="space-y-1">

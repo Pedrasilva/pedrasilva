@@ -1235,6 +1235,8 @@ export type Database = {
           nif: string | null
           nome: string
           notas: string | null
+          opening_balance_payable: number
+          opening_balance_receivable: number
           payment_terms: string | null
           postal_code: string | null
           status: Database["public"]["Enums"]["company_status"]
@@ -1263,6 +1265,8 @@ export type Database = {
           nif?: string | null
           nome: string
           notas?: string | null
+          opening_balance_payable?: number
+          opening_balance_receivable?: number
           payment_terms?: string | null
           postal_code?: string | null
           status?: Database["public"]["Enums"]["company_status"]
@@ -1291,6 +1295,8 @@ export type Database = {
           nif?: string | null
           nome?: string
           notas?: string | null
+          opening_balance_payable?: number
+          opening_balance_receivable?: number
           payment_terms?: string | null
           postal_code?: string | null
           status?: Database["public"]["Enums"]["company_status"]

@@ -871,7 +871,9 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "alsoSupplier": "Também fornecedor",
-    "empty": "Sem clientes."
+    "empty": "Sem clientes.",
+    "openingBalance": "Saldo inicial transitado",
+    "openingBalanceHint": "Saldo transitado de antes do arranque (ex.: registado anteriormente no PHC). Deixar a 0 se não existir."
   },
   "suppliersMaster": {
     "tab": "Fornecedores",
@@ -1032,7 +1034,8 @@
       "inconsistencies": "Inconsistências",
       "audit": "Auditoria",
       "qa": "QA",
-      "reviewQueue": "Fila de revisão"
+      "reviewQueue": "Fila de revisão",
+      "statements": "Extratos"
     }
   },
   "purchases": {
@@ -1473,6 +1476,43 @@
       "note": "Documentos a taxa 0% com NIF/VAT estrangeiro (ex.: serviços intracomunitários B2B). Estão excluídos dos totais acima: os campos corretos da declaração dependem de regras a confirmar com o seu contabilista. Não é calculado aqui qualquer IVA autoliquidado.",
       "empty": "Sem documentos de autoliquidação neste período.",
       "manual": "Revisão manual"
+    }
+  },
+  "statements": {
+    "title": "Extratos",
+    "subtitle": "Saldo inicial, todos os movimentos do período e saldo acumulado — para uma conta bancária, um cliente ou um fornecedor.",
+    "entityType": "Extrato de",
+    "selectEntity": "Selecionar…",
+    "from": "De",
+    "to": "Até",
+    "thisMonth": "Este mês",
+    "thisYear": "Este ano",
+    "exportCsv": "Exportar CSV",
+    "openingBalance": "Saldo inicial",
+    "closingBalance": "Saldo final",
+    "totalIn": "Entradas",
+    "totalOut": "Saídas",
+    "invoiced": "Faturado",
+    "purchased": "Compras",
+    "settled": "Liquidado",
+    "empty": "Sem movimentos neste período.",
+    "document": "Documento",
+    "types": {
+      "bank_account": "Conta bancária",
+      "client": "Cliente",
+      "supplier": "Fornecedor"
+    },
+    "kind": {
+      "transaction": "Movimento",
+      "document": "Documento",
+      "payment": "Pagamento"
+    },
+    "columns": {
+      "date": "Data",
+      "reference": "Referência",
+      "description": "Descrição",
+      "amount": "Valor",
+      "balance": "Saldo"
     }
   }
 }

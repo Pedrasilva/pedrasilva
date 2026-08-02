@@ -70,6 +70,7 @@ import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_ap
 import { Route as AppFinanceAdminQaRouteImport } from './routes/_app.finance.admin.qa'
 import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
 import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
+import { Route as AppFinanceBankingStatementsRouteImport } from './routes/_app.finance.banking.statements'
 import { Route as AppFinanceBankingTransactionsRouteImport } from './routes/_app.finance.banking.transactions'
 import { Route as AppFinanceDataBankAccountsRouteImport } from './routes/_app.finance.data.bank-accounts'
 import { Route as AppFinanceDataCardsRouteImport } from './routes/_app.finance.data.cards'
@@ -416,6 +417,12 @@ const AppFinanceBankingReconciliationRoute =
     path: '/banking/reconciliation',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceBankingStatementsRoute =
+  AppFinanceBankingStatementsRouteImport.update({
+    id: '/banking/statements',
+    path: '/banking/statements',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceBankingTransactionsRoute =
   AppFinanceBankingTransactionsRouteImport.update({
     id: '/banking/transactions',
@@ -644,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
   '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/finance/data/cards': typeof AppFinanceDataCardsRoute
@@ -732,6 +740,7 @@ export interface FileRoutesByTo {
   '/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
   '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/finance/data/cards': typeof AppFinanceDataCardsRoute
@@ -825,6 +834,7 @@ export interface FileRoutesById {
   '/_app/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/_app/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/_app/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/_app/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/_app/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
   '/_app/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/_app/finance/data/cards': typeof AppFinanceDataCardsRoute
@@ -918,6 +928,7 @@ export interface FileRouteTypes {
     | '/finance/admin/qa'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
+    | '/finance/banking/statements'
     | '/finance/banking/transactions'
     | '/finance/data/bank-accounts'
     | '/finance/data/cards'
@@ -1006,6 +1017,7 @@ export interface FileRouteTypes {
     | '/finance/admin/qa'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
+    | '/finance/banking/statements'
     | '/finance/banking/transactions'
     | '/finance/data/bank-accounts'
     | '/finance/data/cards'
@@ -1098,6 +1110,7 @@ export interface FileRouteTypes {
     | '/_app/finance/admin/qa'
     | '/_app/finance/banking/balances'
     | '/_app/finance/banking/reconciliation'
+    | '/_app/finance/banking/statements'
     | '/_app/finance/banking/transactions'
     | '/_app/finance/data/bank-accounts'
     | '/_app/finance/data/cards'
@@ -1572,6 +1585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceBankingReconciliationRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/banking/statements': {
+      id: '/_app/finance/banking/statements'
+      path: '/banking/statements'
+      fullPath: '/finance/banking/statements'
+      preLoaderRoute: typeof AppFinanceBankingStatementsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/banking/transactions': {
       id: '/_app/finance/banking/transactions'
       path: '/banking/transactions'
@@ -1851,6 +1871,7 @@ interface AppFinanceRouteChildren {
   AppFinanceAdminQaRoute: typeof AppFinanceAdminQaRoute
   AppFinanceBankingBalancesRoute: typeof AppFinanceBankingBalancesRoute
   AppFinanceBankingReconciliationRoute: typeof AppFinanceBankingReconciliationRoute
+  AppFinanceBankingStatementsRoute: typeof AppFinanceBankingStatementsRoute
   AppFinanceBankingTransactionsRoute: typeof AppFinanceBankingTransactionsRoute
   AppFinanceDataBankAccountsRoute: typeof AppFinanceDataBankAccountsRoute
   AppFinanceDataCardsRoute: typeof AppFinanceDataCardsRoute
@@ -1883,6 +1904,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceAdminQaRoute: AppFinanceAdminQaRoute,
   AppFinanceBankingBalancesRoute: AppFinanceBankingBalancesRoute,
   AppFinanceBankingReconciliationRoute: AppFinanceBankingReconciliationRoute,
+  AppFinanceBankingStatementsRoute: AppFinanceBankingStatementsRoute,
   AppFinanceBankingTransactionsRoute: AppFinanceBankingTransactionsRoute,
   AppFinanceDataBankAccountsRoute: AppFinanceDataBankAccountsRoute,
   AppFinanceDataCardsRoute: AppFinanceDataCardsRoute,
