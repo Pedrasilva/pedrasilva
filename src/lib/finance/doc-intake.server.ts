@@ -19,7 +19,12 @@ import { normalizePortugueseNif } from "@/lib/finance/nif";
 const MODEL = "google/gemini-2.5-flash";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-export type IntakeDocType = "invoice" | "receipt" | "proof_of_payment" | "unknown";
+export type IntakeDocType =
+  | "invoice"
+  | "receipt"
+  | "proof_of_payment"
+  | "bank_statement"
+  | "unknown";
 
 export type IntakeExtraction = {
   doc_type: IntakeDocType;
@@ -45,7 +50,10 @@ const JSON_SCHEMA = {
     type: "object",
     additionalProperties: false,
     properties: {
-      doc_type: { type: "string", enum: ["invoice", "receipt", "proof_of_payment", "unknown"] },
+      doc_type: {
+        type: "string",
+        enum: ["invoice", "receipt", "proof_of_payment", "bank_statement", "unknown"],
+      },
       doc_type_confidence: { type: "number" },
       supplier_name: { type: ["string", "null"] },
       supplier_vat: { type: ["string", "null"] },
@@ -109,9 +117,10 @@ export async function extractDocument(
   const catalog = await loadClassificationCatalog();
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
 
-  const system = `You extract structured data from financial documents (invoices, receipts, proofs of payment) issued to an architecture firm in Portugal. Documents may be Portuguese or English.
+  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) received by an architecture firm in Portugal. Documents may be Portuguese or English.
 Rules:
-- doc_type: "invoice" (amount owed), "receipt" (payment confirmation / paid receipt), "proof_of_payment" (bank transfer confirmation, payment slip), otherwise "unknown".
+- FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
+- If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
 - supplier_vat: the SELLER's VAT/NIF exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567). Never the buyer's. null if absent.
 - supplier_name: the seller / issuer legal name.
 - document_number: the invoice or receipt number as printed.
@@ -242,30 +251,83 @@ export async function detectRecurring(vat: string | null, amount: number | null)
 }
 
 /**
- * Document pairing: an invoice and its receipt / proof of payment that share
- * the same document number (and supplier) are ONE transaction. Reuse the
- * existing group id so the queue shows them as a single reviewable unit.
+ * Document pairing across the WHOLE queue (not just the current upload batch).
+ *
+ * Two passes:
+ *   1. exact document-number match (invoice + its receipt reusing the number),
+ *      restricted to the same supplier VAT when both sides have one;
+ *   2. fallback for issuers that number receipts differently from invoices
+ *      (e.g. Anthropic): same supplier (VAT, else normalized name) + same
+ *      amount (±1 cent or ±0.5%) + issue dates within 45 days.
  */
 export async function resolveDocumentGroup(
   documentNumber: string | null,
   vat: string | null,
+  opts?: { amount?: number | null; date?: string | null; supplierName?: string | null },
 ): Promise<string | null> {
-  const num = documentNumber?.trim();
-  if (!num) return null;
+  const nv = normalizeVat(vat);
+  const num = documentNumber?.trim() || null;
+  const amount = opts?.amount ?? null;
+  const name = opts?.supplierName?.trim().toLowerCase() || null;
+
   const { data } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, linked_document_group_id, extracted_document_number, extracted_supplier_vat")
-    .eq("extracted_document_number", num)
+    .select(
+      "id, linked_document_group_id, extracted_document_number, extracted_supplier_vat, extracted_supplier_name, extracted_amount, extracted_date, doc_type",
+    )
     .neq("status", "rejected")
-    .limit(20);
+    .neq("doc_type", "bank_statement")
+    .order("created_at", { ascending: false })
+    .limit(300);
 
-  const nv = normalizeVat(vat);
-  const sibling = ((data ?? []) as Array<{
-    linked_document_group_id: string; extracted_supplier_vat: string | null;
-  }>).find((r) => !nv || !r.extracted_supplier_vat || normalizeVat(r.extracted_supplier_vat) === nv);
+  const rows = (data ?? []) as Array<{
+    linked_document_group_id: string;
+    extracted_document_number: string | null;
+    extracted_supplier_vat: string | null;
+    extracted_supplier_name: string | null;
+    extracted_amount: number | null;
+    extracted_date: string | null;
+  }>;
 
-  return sibling?.linked_document_group_id ?? null;
+  const sameSupplier = (r: (typeof rows)[number]) => {
+    const rv = normalizeVat(r.extracted_supplier_vat);
+    if (nv && rv) return nv === rv;
+    if (name && r.extracted_supplier_name) {
+      return r.extracted_supplier_name.trim().toLowerCase() === name;
+    }
+    return false;
+  };
+
+  // Pass 1 — same document number.
+  if (num) {
+    const byNumber = rows.find(
+      (r) =>
+        r.extracted_document_number?.trim() === num &&
+        (!nv || !r.extracted_supplier_vat || normalizeVat(r.extracted_supplier_vat) === nv),
+    );
+    if (byNumber) return byNumber.linked_document_group_id;
+  }
+
+  // Pass 2 — same supplier + same amount + nearby dates.
+  if (amount != null && Number.isFinite(amount) && amount !== 0) {
+    const ts = opts?.date ? Date.parse(`${opts.date}T00:00:00Z`) : NaN;
+    const byAmount = rows.find((r) => {
+      if (!sameSupplier(r)) return false;
+      const a = Number(r.extracted_amount ?? NaN);
+      if (!Number.isFinite(a)) return false;
+      const diff = Math.abs(a - amount);
+      if (diff > 0.01 && diff / Math.abs(amount) > 0.005) return false;
+      if (Number.isNaN(ts) || !r.extracted_date) return true;
+      const rt = Date.parse(`${r.extracted_date}T00:00:00Z`);
+      if (Number.isNaN(rt)) return true;
+      return Math.abs(rt - ts) <= 45 * 24 * 3600 * 1000;
+    });
+    if (byAmount) return byAmount.linked_document_group_id;
+  }
+
+  return null;
 }
+
 
 /**
  * Shared ingest pipeline (admin context): extract → match → recurring → group
@@ -307,37 +369,56 @@ export async function ingestStoredDocument(opts: {
   }
 
   const ex = result.extraction;
-  const catalog = await loadClassificationCatalog();
-  const suggested = ex.classification_code
-    ? catalog.find((c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase()) ?? null
-    : null;
 
-  const match = await matchSupplierByVat(ex.supplier_vat);
-  const recurring = await detectRecurring(ex.supplier_vat, ex.total_amount);
-  const groupId = await resolveDocumentGroup(ex.document_number, ex.supplier_vat);
+  // Routing step: bank statements never go through supplier matching or
+  // accounting classification — they belong to the Banking import path.
+  const isStatement = ex.doc_type === "bank_statement";
+
+  const catalog = isStatement ? [] : await loadClassificationCatalog();
+  const suggested =
+    !isStatement && ex.classification_code
+      ? catalog.find(
+          (c) => c.code.toLowerCase() === ex.classification_code!.trim().toLowerCase(),
+        ) ?? null
+      : null;
+
+  const match = isStatement
+    ? { status: "no_match" as const, matched_supplier_id: null, ambiguous_ids: [] as string[] }
+    : await matchSupplierByVat(ex.supplier_vat);
+  const recurring = isStatement
+    ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
+    : await detectRecurring(ex.supplier_vat, ex.total_amount);
+  const groupId = isStatement
+    ? null
+    : await resolveDocumentGroup(ex.document_number, ex.supplier_vat, {
+        amount: ex.total_amount,
+        date: ex.issue_date,
+        supplierName: ex.supplier_name,
+      });
 
   const payload: Record<string, unknown> = {
     ...base,
     raw_extraction: result.raw as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
-    extracted_amount: ex.total_amount,
-    extracted_vat_amount: ex.vat_amount,
+    extracted_amount: isStatement ? null : ex.total_amount,
+    extracted_vat_amount: isStatement ? null : ex.vat_amount,
     extracted_date: ex.issue_date,
-    extracted_due_date: ex.due_date,
+    extracted_due_date: isStatement ? null : ex.due_date,
     extracted_currency: ex.currency ?? "EUR",
     extracted_document_number: ex.document_number,
-    extracted_supplier_name: ex.supplier_name,
-    extracted_supplier_vat: ex.supplier_vat,
+    extracted_supplier_name: isStatement ? null : ex.supplier_name,
+    extracted_supplier_vat: isStatement ? null : ex.supplier_vat,
     supplier_match_status: match.status,
     matched_supplier_id: match.matched_supplier_id,
     ambiguous_supplier_ids: match.ambiguous_ids,
     suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
-    suggested_classification_code: suggested?.code ?? ex.classification_code ?? null,
-    classification_confidence: ex.classification_confidence ?? null,
+    suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
+    classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
   };
+
   if (groupId) payload.linked_document_group_id = groupId;
 
   const { data: row, error } = await supabaseAdmin

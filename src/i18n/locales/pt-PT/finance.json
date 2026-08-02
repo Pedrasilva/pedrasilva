@@ -1366,6 +1366,12 @@
       "email_ingestion": "Email"
     },
     "ignored": "Ignorados (email)",
-    "ignoredTitle": "Emails e anexos que não foram processados"
+    "ignoredTitle": "Emails e anexos que não foram processados",
+    "bankStatement": {
+      "title": "Isto é um extrato bancário",
+      "hint": "Extratos bancários não são documentos de fornecedor. Importe-o no módulo Banca para reconciliar movimentos.",
+      "cta": "Ir para Banca"
+    },
+    "openInNewTab": "Abrir em novo separador"
   }
 }

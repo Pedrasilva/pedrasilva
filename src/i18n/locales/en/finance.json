@@ -1366,6 +1366,12 @@
       "email_ingestion": "Email"
     },
     "ignored": "Ignored (email)",
-    "ignoredTitle": "Emails and attachments that were not processed"
+    "ignoredTitle": "Emails and attachments that were not processed",
+    "bankStatement": {
+      "title": "This is a bank statement",
+      "hint": "Bank statements are not supplier documents. Import it from the Banking module to reconcile transactions.",
+      "cta": "Go to Banking"
+    },
+    "openInNewTab": "Open in new tab"
   }
 }

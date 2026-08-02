@@ -9,10 +9,11 @@
  * Documents that share an invoice number are grouped (invoice + its receipt =
  * one transaction) and reviewed as a single unit.
  */
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
   Upload,
@@ -416,16 +417,41 @@ function QueueItemCard({
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
 
+  // Chrome refuses to render cross-origin PDFs inside the nested preview
+  // iframe, so we download the file and hand the viewer a same-origin blob URL.
   useQuery({
     queryKey: ["finance", "review-queue", "preview", row.id],
     queryFn: async () => {
+      const bucket = row.source_bucket || BUCKET;
+      const { data: blob } = await supabase.storage.from(bucket).download(row.source_file_url);
+      if (blob) {
+        const typed =
+          blob.type && blob.type !== "application/octet-stream"
+            ? blob
+            : new Blob([blob], {
+                type: row.source_file_url.toLowerCase().endsWith(".pdf")
+                  ? "application/pdf"
+                  : "image/jpeg",
+              });
+        const url = URL.createObjectURL(typed);
+        setPreviewUrl(url);
+        return url;
+      }
       const { data } = await supabase.storage
-        .from(row.source_bucket || BUCKET)
+        .from(bucket)
         .createSignedUrl(row.source_file_url, 3600);
       setPreviewUrl(data?.signedUrl ?? null);
       return data?.signedUrl ?? null;
     },
+    staleTime: Infinity,
   });
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
 
   const saveFields = useMutation({
     mutationFn: async () => {
@@ -507,6 +533,9 @@ function QueueItemCard({
 
   const bothApproved = !!row.supplier_approved_at && !!row.classification_approved_at;
   const readOnly = row.status !== "pending_review";
+  const isBankStatement = row.doc_type === "bank_statement";
+  const isPdf =
+    (row.original_filename ?? row.source_file_url).toLowerCase().endsWith(".pdf");
 
   return (
     <Card>
@@ -539,16 +568,52 @@ function QueueItemCard({
           </div>
         )}
 
+        {isBankStatement && (
+          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs space-y-1">
+            <p className="font-medium">{t("finance:reviewQueue.bankStatement.title")}</p>
+            <p className="text-muted-foreground">{t("finance:reviewQueue.bankStatement.hint")}</p>
+            <Link to="/finance/banking/reconciliation" className="underline font-medium">
+              {t("finance:reviewQueue.bankStatement.cta")}
+            </Link>
+          </div>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border overflow-hidden bg-muted/30 min-h-[320px]">
             {previewUrl ? (
-              <iframe src={previewUrl} title={row.id} className="w-full h-[420px]" />
+              <div className="flex flex-col">
+                <object
+                  data={previewUrl}
+                  type={isPdf ? "application/pdf" : undefined}
+                  className="w-full h-[420px]"
+                  aria-label={row.original_filename ?? row.id}
+                >
+                  {isPdf ? (
+                    <iframe src={previewUrl} title={row.id} className="w-full h-[420px]" />
+                  ) : (
+                    <img
+                      src={previewUrl}
+                      alt={row.original_filename ?? row.id}
+                      className="w-full h-[420px] object-contain"
+                    />
+                  )}
+                </object>
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2 py-1.5 text-[11px] underline text-muted-foreground"
+                >
+                  {t("finance:reviewQueue.openInNewTab")}
+                </a>
+              </div>
             ) : (
               <div className="flex h-[320px] items-center justify-center text-xs text-muted-foreground">
                 {t("finance:reviewQueue.loadingPreview")}
               </div>
             )}
           </div>
+
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
@@ -618,9 +683,10 @@ function QueueItemCard({
           </div>
         </div>
 
-        <Separator />
+        {!isBankStatement && <Separator />}
 
         {/* Supplier checkpoint */}
+        {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("finance:reviewQueue.supplierPanel")}</h3>
@@ -676,10 +742,12 @@ function QueueItemCard({
             </Button>
           </div>
         </div>
+        )}
 
-        <Separator />
+        {!isBankStatement && <Separator />}
 
         {/* Classification checkpoint */}
+        {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("finance:reviewQueue.classificationPanel")}</h3>
@@ -739,6 +807,7 @@ function QueueItemCard({
             </Button>
           </div>
         </div>
+        )}
 
         <Separator />
 
@@ -761,13 +830,15 @@ function QueueItemCard({
               {t("finance:reviewQueue.reject")}
             </Button>
           </div>
-          <Button
-            size="sm"
-            disabled={readOnly || !bothApproved || doFinalize.isPending}
-            onClick={() => doFinalize.mutate()}
-          >
-            {t("finance:reviewQueue.finalize")}
-          </Button>
+          {!isBankStatement && (
+            <Button
+              size="sm"
+              disabled={readOnly || !bothApproved || doFinalize.isPending}
+              onClick={() => doFinalize.mutate()}
+            >
+              {t("finance:reviewQueue.finalize")}
+            </Button>
+          )}
         </div>
 
         {row.created_expense_id && (
