@@ -982,16 +982,24 @@ function TxDetailPanel({
 
       {/* Actions */}
       <div className="p-4 flex flex-wrap gap-2">
-        <Button size="sm" onClick={onMatchDoc}>
-          {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
-        </Button>
-        <Button size="sm" variant="outline" onClick={onCreateDoc}>
-          {t("finance:bankRec.actions.createDoc")}
-        </Button>
+        {linked ? (
+          <Button size="sm" variant="destructive" onClick={onUnmatch}>
+            {t("finance:bankRec.actions.unmatch")}
+          </Button>
+        ) : (
+          <>
+            <Button size="sm" onClick={onMatchDoc}>
+              {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={onCreateDoc}>
+              {t("finance:bankRec.actions.createDoc")}
+            </Button>
+          </>
+        )}
         <Button size="sm" variant="outline" onClick={onClassify}>
           {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
         </Button>
-        {isOutflow && (
+        {isOutflow && !linked && (
           <Button size="sm" variant="outline" onClick={onMatchReimb}>
             {t("finance:bankRec.actions.matchReimbursement")}
           </Button>
