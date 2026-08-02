@@ -686,16 +686,43 @@ export async function ingestStoredDocument(opts: {
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
+    extraction_error: null,
   };
 
   if (groupId) payload.linked_document_group_id = groupId;
 
-  const { data: row, error } = await supabaseAdmin
-    .from("financial_document_review_queue")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .insert(payload as any)
-    .select("id, linked_document_group_id")
-    .single();
-  if (error) return { ok: false, error: error.message };
+  const { data: row, error } = await write(payload);
+  if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
   return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
 }
+
+/**
+ * Re-run extraction + direction detection on an existing PENDING queue row,
+ * updating it in place. Approved/rejected rows are never touched — a wrong
+ * direction that already produced a live financial record needs manual review.
+ */
+export async function reprocessQueueItem(
+  queueItemId: string,
+): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
+  const { data: item, error } = await supabaseAdmin
+    .from("financial_document_review_queue")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by")
+    .eq("id", queueItemId)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!item) return { ok: false, error: "queue item not found" };
+  if (item.status !== "pending_review") {
+    return { ok: false, error: `cannot reprocess a ${item.status} item` };
+  }
+  if (!item.source_file_url) return { ok: false, error: "queue item has no stored file" };
+
+  return ingestStoredDocument({
+    bucket: item.source_bucket ?? "financial-documents",
+    storagePath: item.source_file_url,
+    originalFilename: item.original_filename,
+    source: (item.source as "manual_upload" | "email_ingestion") ?? "manual_upload",
+    createdBy: item.created_by,
+    replaceQueueItemId: item.id,
+  });
+}
+
