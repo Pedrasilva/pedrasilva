@@ -647,6 +647,7 @@ function QueueItemCard({
             {row.original_filename ?? row.source_file_url.split("/").pop()}
           </CardTitle>
           <div className="flex items-center gap-1.5">
+            {!isBankStatement && <DirectionBadge direction={row.direction} />}
             <Badge variant="outline" className="text-[10px] capitalize">
               {t(`finance:reviewQueue.docType.${row.doc_type}`, { defaultValue: row.doc_type })}
             </Badge>
