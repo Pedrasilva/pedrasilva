@@ -1385,6 +1385,8 @@
     "itemsCount": "{{count}} item(s)",
     "groupedDocs": "{{count}} linked documents",
     "recurring": "Recurring",
+    "reextract": "Re-extract",
+    "reextracted": "Document re-extracted",
     "extractionFailed": "Extraction failed",
     "unknownSupplier": "Unknown supplier",
     "loadingPreview": "Loading preview…",
