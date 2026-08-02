@@ -352,9 +352,14 @@ export function BankBalancesSection() {
                   <TableBody>
                     {rows.map((a) => {
                       const snap = latest.get(a.id);
+                      const value = effective(a);
                       const archived = !!a.archived_at;
                       return (
-                        <TableRow key={a.id} className={archived ? "opacity-60" : undefined}>
+                        <TableRow
+                          key={a.id}
+                          onClick={() => setDetailId(a.id)}
+                          className={`cursor-pointer ${archived ? "opacity-60" : ""}`}
+                        >
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               {a.account_name}
@@ -366,7 +371,7 @@ export function BankBalancesSection() {
                             </div>
                           </TableCell>
                           <TableCell>{a.bank_name ?? "—"}</TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <Select
                               value={a.account_kind ?? "other"}
                               onValueChange={(v) =>
@@ -387,16 +392,29 @@ export function BankBalancesSection() {
                           </TableCell>
                           <TableCell>{a.currency}</TableCell>
                           <TableCell className="text-right tabular-nums">
-                            {snap
-                              ? fmtEUR2(Number(snap.balance), a.currency)
+                            {value != null
+                              ? fmtEUR2(value, a.currency)
                               : t("finance:bank.noSnapshot")}
+                            {value != null && !snap && (
+                              <span className="ml-1.5 text-[10px] text-muted-foreground">
+                                {t("finance:bank.detail.openingTag")}
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell className="tabular-nums text-sm">
                             {snap
                               ? new Date(snap.snapshot_date).toLocaleDateString(dateLocale)
-                              : "—"}
+                              : a.opening_balance_date
+                                ? new Date(a.opening_balance_date).toLocaleDateString(
+                                    dateLocale,
+                                  )
+                                : "—"}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell
+                            className="text-right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+
                             <Button
                               variant="ghost"
                               size="sm"
