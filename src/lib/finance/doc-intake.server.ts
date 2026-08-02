@@ -117,9 +117,10 @@ export async function extractDocument(
   const catalog = await loadClassificationCatalog();
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
 
-  const system = `You extract structured data from financial documents (invoices, receipts, proofs of payment) issued to an architecture firm in Portugal. Documents may be Portuguese or English.
+  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) received by an architecture firm in Portugal. Documents may be Portuguese or English.
 Rules:
-- doc_type: "invoice" (amount owed), "receipt" (payment confirmation / paid receipt), "proof_of_payment" (bank transfer confirmation, payment slip), otherwise "unknown".
+- FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
+- If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
 - supplier_vat: the SELLER's VAT/NIF exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567). Never the buyer's. null if absent.
 - supplier_name: the seller / issuer legal name.
 - document_number: the invoice or receipt number as printed.
