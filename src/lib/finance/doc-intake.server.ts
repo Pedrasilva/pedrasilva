@@ -193,6 +193,76 @@ export function normalizeVat(value: string | null | undefined): string | null {
   return v.length === 0 ? null : v;
 }
 
+/** Every comparable form of a VAT id (with/without country prefix, PT digits). */
+function vatForms(raw: string | null | undefined): Set<string> {
+  const out = new Set<string>();
+  const v = normalizeVat(raw);
+  if (v) {
+    out.add(v);
+    if (/^[A-Z]{2}/.test(v)) out.add(v.slice(2));
+  }
+  const pt = normalizePortugueseNif(raw);
+  if (pt) out.add(pt);
+  return out;
+}
+
+/** True when two VAT ids refer to the same entity, ignoring country prefixes. */
+export function sameVat(a: string | null | undefined, b: string | null | undefined): boolean {
+  const fa = vatForms(a);
+  if (fa.size === 0) return false;
+  for (const f of vatForms(b)) if (fa.has(f)) return true;
+  return false;
+}
+
+/**
+ * The firm's own VAT — canonical source is `pm_invoice_settings.company_nif`
+ * (same row the invoicing module and `own-company.functions.ts` read).
+ * Never hard-code it here.
+ */
+export async function getOwnCompanyVat(): Promise<{ vat: string | null; name: string | null }> {
+  const { data } = await supabaseAdmin
+    .from("pm_invoice_settings")
+    .select("company_nif, company_name, singleton")
+    .order("singleton", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return { vat: data?.company_nif ?? null, name: data?.company_name ?? null };
+}
+
+export type DirectionResult = {
+  direction: "issued" | "received" | "unclear";
+  /** The other party: the client for issued docs, the supplier for received ones. */
+  counterparty_name: string | null;
+  counterparty_vat: string | null;
+};
+
+/**
+ * Direction detection: whose document is this?
+ * - seller VAT == firm VAT  → the firm issued it → counterparty is the CLIENT.
+ * - buyer VAT  == firm VAT  → the firm received it → counterparty is the SUPPLIER.
+ * - neither                 → unclear; the reviewer sees both parties.
+ */
+export function detectDirection(
+  ownVat: string | null,
+  ex: Pick<IntakeExtraction, "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat">,
+): DirectionResult {
+  const sellerVat = ex.seller_vat ?? ex.supplier_vat ?? null;
+  const sellerName = ex.seller_name ?? ex.supplier_name ?? null;
+
+  if (ownVat && sameVat(sellerVat, ownVat)) {
+    return { direction: "issued", counterparty_name: ex.buyer_name, counterparty_vat: ex.buyer_vat };
+  }
+  if (ownVat && sameVat(ex.buyer_vat, ownVat)) {
+    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+  }
+  // No own-VAT anchor on the page. A buyer VAT that is clearly someone else's
+  // while the seller VAT is missing is not enough to guess — flag it.
+  if (!ownVat || (!sellerVat && !ex.buyer_vat)) {
+    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+  }
+  return { direction: "unclear", counterparty_name: sellerName, counterparty_vat: sellerVat };
+}
+
 /**
  * Supplier matching — VAT/NIF ONLY, never by name.
  * Compares both the raw normalized VAT and the Portuguese-normalized digits.
