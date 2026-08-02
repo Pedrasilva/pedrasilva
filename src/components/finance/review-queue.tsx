@@ -680,6 +680,62 @@ function QueueItemCard({
           </div>
         )}
 
+        {!isBankStatement && (
+          <div
+            className={`rounded-md border p-3 text-xs space-y-2 ${
+              isUnclear ? "border-destructive/40 bg-destructive/5" : "bg-muted/30"
+            }`}
+          >
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {t("finance:reviewQueue.parties.seller")}
+                </p>
+                <p className="font-medium">{row.extracted_seller_name ?? row.extracted_supplier_name ?? "—"}</p>
+                <p className="text-muted-foreground tabular-nums">
+                  {row.extracted_seller_vat ?? row.extracted_supplier_vat ?? "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {t("finance:reviewQueue.parties.buyer")}
+                </p>
+                <p className="font-medium">{row.extracted_buyer_name ?? "—"}</p>
+                <p className="text-muted-foreground tabular-nums">{row.extracted_buyer_vat ?? "—"}</p>
+              </div>
+            </div>
+            {isUnclear && (
+              <div className="space-y-1.5">
+                <p className="text-muted-foreground">{t("finance:reviewQueue.parties.unclearHint")}</p>
+                {!readOnly && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={setDirection.isPending}
+                      onClick={() => setDirection.mutate("received")}
+                    >
+                      <ArrowDownLeft className="h-3.5 w-3.5 mr-1.5" />
+                      {t("finance:reviewQueue.parties.markReceived")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={setDirection.isPending}
+                      onClick={() => setDirection.mutate("issued")}
+                    >
+                      <ArrowUpRight className="h-3.5 w-3.5 mr-1.5" />
+                      {t("finance:reviewQueue.parties.markIssued")}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+
+
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-md border overflow-hidden bg-muted/30 min-h-[320px]">
             {previewUrl ? (
