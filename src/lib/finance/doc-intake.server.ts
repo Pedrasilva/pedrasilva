@@ -569,8 +569,20 @@ export async function ingestStoredDocument(opts: {
   originalFilename?: string | null;
   source: "manual_upload" | "email_ingestion";
   createdBy?: string | null;
+  /** When set, the existing pending queue row is re-extracted in place. */
+  replaceQueueItemId?: string | null;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
   const result = await extractDocument(opts.bucket, opts.storagePath);
+  const replaceId = opts.replaceQueueItemId ?? null;
+
+  const write = async (values: Record<string, unknown>) => {
+    const q = supabaseAdmin.from("financial_document_review_queue");
+    return replaceId
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? q.update(values as any).eq("id", replaceId).select("id, linked_document_group_id").single()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      : q.insert(values as any).select("id, linked_document_group_id").single();
+  };
 
   const base = {
     source_file_url: opts.storagePath,
@@ -581,12 +593,8 @@ export async function ingestStoredDocument(opts: {
   };
 
   if (!result.ok) {
-    const { data: row, error } = await supabaseAdmin
-      .from("financial_document_review_queue")
-      .insert({ ...base, extraction_error: result.error })
-      .select("id, linked_document_group_id")
-      .single();
-    if (error) return { ok: false, error: error.message };
+    const { data: row, error } = await write({ ...base, extraction_error: result.error });
+    if (error || !row) return { ok: false, error: error?.message ?? result.error };
     return {
       ok: false,
       error: result.error,
@@ -594,6 +602,7 @@ export async function ingestStoredDocument(opts: {
       groupId: row.linked_document_group_id,
     };
   }
+
 
   const ex = result.extraction;
 
