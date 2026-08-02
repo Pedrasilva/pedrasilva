@@ -830,13 +830,15 @@ function QueueItemCard({
               {t("finance:reviewQueue.reject")}
             </Button>
           </div>
-          <Button
-            size="sm"
-            disabled={readOnly || !bothApproved || doFinalize.isPending}
-            onClick={() => doFinalize.mutate()}
-          >
-            {t("finance:reviewQueue.finalize")}
-          </Button>
+          {!isBankStatement && (
+            <Button
+              size="sm"
+              disabled={readOnly || !bothApproved || doFinalize.isPending}
+              onClick={() => doFinalize.mutate()}
+            >
+              {t("finance:reviewQueue.finalize")}
+            </Button>
+          )}
         </div>
 
         {row.created_expense_id && (
