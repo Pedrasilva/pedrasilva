@@ -650,6 +650,23 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     counts.refetch();
   }
 
+  /**
+   * Reverses a reconciliation: removes the payment link, unlocks the
+   * transaction for editing/re-matching and drops its contribution from the
+   * calculated balance.
+   */
+  async function unmatchTx(tx: BankTx) {
+    if (!window.confirm(t("finance:bankRec.actions.unmatchConfirm"))) return;
+    const { error } = await supabase.rpc("bank_tx_unreconcile", { _tx_id: tx.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("finance:bankRec.actions.unmatched"));
+    txQ.refetch();
+    linksQ.refetch();
+    counts.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
+  }
+
   const clearFilters = () => {
     setDirFilter("all"); setLinkFilter("all"); setSearch(""); setDateFrom(""); setDateTo(""); setMinAmount(""); setMaxAmount("");
   };
