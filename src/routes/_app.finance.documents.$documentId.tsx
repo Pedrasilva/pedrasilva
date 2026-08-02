@@ -247,15 +247,40 @@ function DocumentEditorPage() {
 
   async function viewAttachment() {
     if (!header.file_path) return;
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(header.file_path, 60);
-    if (error || !data) {
-      toast.error(error?.message ?? "");
-      return;
+    // Opening the storage URL directly is often blocked by browser extensions
+    // (ERR_BLOCKED_BY_CLIENT) and by sandboxed preview iframes. Download the
+    // bytes through the SDK and open a local blob URL instead.
+    try {
+      const { data: blob, error } = await supabase.storage
+        .from(BUCKET)
+        .download(header.file_path);
+      if (error || !blob) throw error ?? new Error("download failed");
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url, "_blank");
+      if (!win) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = header.file_path.split("/").pop() ?? "attachment";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      // Last resort: signed URL
+      const { data, error } = await supabase.storage
+        .from(BUCKET)
+        .createSignedUrl(header.file_path, 60);
+      if (error || !data) {
+        toast.error(
+          error?.message ?? (e instanceof Error ? e.message : "Unable to open attachment"),
+        );
+        return;
+      }
+      window.open(data.signedUrl, "_blank");
     }
-    window.open(data.signedUrl, "_blank");
   }
+
 
   async function removeAttachment() {
     if (!header.file_path) return;
