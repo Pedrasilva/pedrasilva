@@ -109,6 +109,8 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [notProjectRelated, setNotProjectRelated] = useState(false);
+  // Bank-only item (stamp duty, fees, interest) — genuinely has no counterparty.
+  const [bankOnly, setBankOnly] = useState(false);
   const [nif, setNif] = useState("");
 
   // Money: edit gross OR (net + vat rate); we keep gross as the source of truth.
