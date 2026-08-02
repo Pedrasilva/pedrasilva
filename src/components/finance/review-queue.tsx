@@ -340,10 +340,16 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
                       {fmtMoney(head.extracted_amount, head.extracted_currency)}
                     </span>
                   </div>
+                  {head.direction === "unclear" && head.doc_type !== "bank_statement" && (
+                    <p className="mt-1 text-[11px] text-destructive">
+                      {t("finance:reviewQueue.unclearHint")}
+                    </p>
+                  )}
                   <div className="mt-1 flex flex-wrap items-center gap-1">
                     {head.doc_type !== "bank_statement" && (
                       <DirectionBadge direction={head.direction} />
                     )}
+
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
                         {t("finance:reviewQueue.groupedDocs", { count: items.length })}
