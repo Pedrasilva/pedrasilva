@@ -1462,7 +1462,12 @@
     "createNewClient": "Create new client",
     "approveClient": "Approve client",
     "clientApproved": "Client approved",
-    "unknownClient": "Unknown client"
+    "unknownClient": "Unknown client",
+    "titleReceived": "Document review queue — received",
+    "titleIssued": "Document review queue — issued",
+    "subtitleReceived": "Documents we received (payables), plus anything whose direction is still unclear. AI extracts the data and suggests a supplier and classification. Nothing is filed until you approve it.",
+    "subtitleIssued": "Documents we issued to clients (receivables). AI extracts the data and suggests a client and classification. Nothing is filed until you approve it.",
+    "unclearHint": "Direction unclear — confirm manually"
   },
   "vatReport": {
     "title": "VAT report",

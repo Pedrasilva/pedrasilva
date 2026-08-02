@@ -1462,7 +1462,12 @@
     "createNewClient": "Criar novo cliente",
     "approveClient": "Aprovar cliente",
     "clientApproved": "Cliente aprovado",
-    "unknownClient": "Cliente desconhecido"
+    "unknownClient": "Cliente desconhecido",
+    "titleReceived": "Fila de revisão de documentos — recebidos",
+    "titleIssued": "Fila de revisão de documentos — emitidos",
+    "subtitleReceived": "Documentos que recebemos (a pagar), mais aqueles cuja direção ainda não é clara. A IA extrai os dados e sugere fornecedor e classificação. Nada é registado até aprovar.",
+    "subtitleIssued": "Documentos emitidos a clientes (a receber). A IA extrai os dados e sugere cliente e classificação. Nada é registado até aprovar.",
+    "unclearHint": "Direção não confirmada — confirme manualmente"
   },
   "vatReport": {
     "title": "Relatório de IVA",

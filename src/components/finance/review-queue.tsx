@@ -139,7 +139,13 @@ function DirectionBadge({ direction }: { direction: QueueRow["direction"] }) {
 }
 
 
-export function ReviewQueue() {
+/**
+ * One pipeline, two presentations:
+ * - `side="received"` (Payments) shows payables plus every still-`unclear`
+ *   document, since those belong to neither side until confirmed.
+ * - `side="issued"` (Invoicing) shows only receivables.
+ */
+export function ReviewQueue({ side = "received" }: { side?: "received" | "issued" } = {}) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
   const qc = useQueryClient();
@@ -151,17 +157,22 @@ export function ReviewQueue() {
   const ingest = useServerFn(ingestFinancialDocument);
 
   const queueQ = useQuery({
-    queryKey: ["finance", "review-queue", statusFilter],
+    queryKey: ["finance", "review-queue", statusFilter, side],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("financial_document_review_queue")
         .select("*")
-        .eq("status", statusFilter as "pending_review" | "approved" | "rejected")
-        .order("created_at", { ascending: false });
+        .eq("status", statusFilter as "pending_review" | "approved" | "rejected");
+      q =
+        side === "issued"
+          ? q.eq("direction", "issued")
+          : q.in("direction", ["received", "unclear"]);
+      const { data, error } = await q.order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as QueueRow[];
     },
   });
+
 
   const classificationsQ = useQuery({
     queryKey: ["finance", "classifications", "options"],
@@ -249,10 +260,13 @@ export function ReviewQueue() {
     <div className="container mx-auto py-6 space-y-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t("finance:reviewQueue.title")}</h1>
+          <h1 className="text-2xl font-semibold">
+            {t(side === "issued" ? "finance:reviewQueue.titleIssued" : "finance:reviewQueue.titleReceived")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            {t("finance:reviewQueue.subtitle")}
+            {t(side === "issued" ? "finance:reviewQueue.subtitleIssued" : "finance:reviewQueue.subtitleReceived")}
           </p>
+
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -326,10 +340,16 @@ export function ReviewQueue() {
                       {fmtMoney(head.extracted_amount, head.extracted_currency)}
                     </span>
                   </div>
+                  {head.direction === "unclear" && head.doc_type !== "bank_statement" && (
+                    <p className="mt-1 text-[11px] text-destructive">
+                      {t("finance:reviewQueue.unclearHint")}
+                    </p>
+                  )}
                   <div className="mt-1 flex flex-wrap items-center gap-1">
                     {head.doc_type !== "bank_statement" && (
                       <DirectionBadge direction={head.direction} />
                     )}
+
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
                         {t("finance:reviewQueue.groupedDocs", { count: items.length })}
