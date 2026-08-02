@@ -9,100 +9,99 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
-import { Route as AppIndexRouteImport } from './routes/_app.index'
-import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
-import { Route as AppHrRouteImport } from './routes/_app.hr'
-import { Route as AppFinanceRouteImport } from './routes/_app.finance'
-import { Route as AppCrmRouteImport } from './routes/_app.crm'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
-import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
-import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
-import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
-import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
-import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
-import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
-import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
-import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
-import { Route as AppProjectsInsightsRouteImport } from './routes/_app.projects.insights'
-import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
-import { Route as AppProjectsForecastRouteImport } from './routes/_app.projects.forecast'
-import { Route as AppProjectsFinancialsRouteImport } from './routes/_app.projects.financials'
-import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
-import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
-import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
-import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
-import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
-import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-ficha'
-import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
-import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
-import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
-import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
-import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
-import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
-import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
-import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
-import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
-import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
-import { Route as AppAdminQuotesTrashRouteImport } from './routes/_app.admin.quotes-trash'
-import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
-import { Route as AppAdminProposalImagesRouteImport } from './routes/_app.admin.proposal-images'
-import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
-import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
-import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
-import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppCrmRouteImport } from './routes/_app.crm'
+import { Route as AppFinanceRouteImport } from './routes/_app.finance'
+import { Route as AppHrRouteImport } from './routes/_app.hr'
+import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
-import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
-import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
-import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
-import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
-import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
-import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
-import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
-import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
-import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.finance.reports.projects'
-import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
-import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
-import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
-import { Route as AppFinancePaymentsReviewQueueRouteImport } from './routes/_app.finance.payments.review-queue'
-import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
-import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.finance.payments.outflows'
-import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
-import { Route as AppFinancePaymentsCardsRouteImport } from './routes/_app.finance.payments.cards'
-import { Route as AppFinanceInvoicingReceiptsRouteImport } from './routes/_app.finance.invoicing.receipts'
-import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
-import { Route as AppFinanceInvoicingInflowsRouteImport } from './routes/_app.finance.invoicing.inflows'
-import { Route as AppFinanceInvoicingClientsRouteImport } from './routes/_app.finance.invoicing.clients'
-import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
-import { Route as AppFinanceDataVatRatesRouteImport } from './routes/_app.finance.data.vat-rates'
-import { Route as AppFinanceDataRulesRouteImport } from './routes/_app.finance.data.rules'
-import { Route as AppFinanceDataClassificationsRouteImport } from './routes/_app.finance.data.classifications'
-import { Route as AppFinanceDataCardsRouteImport } from './routes/_app.finance.data.cards'
-import { Route as AppFinanceDataBankAccountsRouteImport } from './routes/_app.finance.data.bank-accounts'
-import { Route as AppFinanceBankingTransactionsRouteImport } from './routes/_app.finance.banking.transactions'
-import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
-import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
-import { Route as AppFinanceAdminQaRouteImport } from './routes/_app.finance.admin.qa'
-import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_app.finance.admin.inconsistencies'
-import { Route as AppFinanceAdminImportsRouteImport } from './routes/_app.finance.admin.imports'
-import { Route as AppFinanceAdminAuditRouteImport } from './routes/_app.finance.admin.audit'
-import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
-import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
-import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
-import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
-import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
+import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
+import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
+import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
+import { Route as AppAdminProposalImagesRouteImport } from './routes/_app.admin.proposal-images'
+import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
+import { Route as AppAdminQuotesTrashRouteImport } from './routes/_app.admin.quotes-trash'
+import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
+import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
+import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
+import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
+import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
+import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
+import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
+import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
+import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
+import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
+import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
+import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
+import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
+import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-ficha'
+import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
+import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
+import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
+import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
+import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
+import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
+import { Route as AppProjectsFinancialsRouteImport } from './routes/_app.projects.financials'
+import { Route as AppProjectsForecastRouteImport } from './routes/_app.projects.forecast'
+import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
+import { Route as AppProjectsInsightsRouteImport } from './routes/_app.projects.insights'
+import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
+import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
+import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
+import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
 import { Route as AppCrmAccountsAccountIdRouteImport } from './routes/_app.crm.accounts.$accountId'
+import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
+import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
+import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
+import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
+import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
+import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
+import { Route as AppFinanceAdminAuditRouteImport } from './routes/_app.finance.admin.audit'
+import { Route as AppFinanceAdminImportsRouteImport } from './routes/_app.finance.admin.imports'
+import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_app.finance.admin.inconsistencies'
+import { Route as AppFinanceAdminQaRouteImport } from './routes/_app.finance.admin.qa'
+import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
+import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
+import { Route as AppFinanceBankingTransactionsRouteImport } from './routes/_app.finance.banking.transactions'
+import { Route as AppFinanceDataBankAccountsRouteImport } from './routes/_app.finance.data.bank-accounts'
+import { Route as AppFinanceDataCardsRouteImport } from './routes/_app.finance.data.cards'
+import { Route as AppFinanceDataClassificationsRouteImport } from './routes/_app.finance.data.classifications'
+import { Route as AppFinanceDataRulesRouteImport } from './routes/_app.finance.data.rules'
+import { Route as AppFinanceDataVatRatesRouteImport } from './routes/_app.finance.data.vat-rates'
+import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
+import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
+import { Route as AppFinanceInvoicingClientsRouteImport } from './routes/_app.finance.invoicing.clients'
+import { Route as AppFinanceInvoicingInflowsRouteImport } from './routes/_app.finance.invoicing.inflows'
+import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
+import { Route as AppFinanceInvoicingReceiptsRouteImport } from './routes/_app.finance.invoicing.receipts'
+import { Route as AppFinancePaymentsCardsRouteImport } from './routes/_app.finance.payments.cards'
+import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
+import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.finance.payments.outflows'
+import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
+import { Route as AppFinancePaymentsReviewQueueRouteImport } from './routes/_app.finance.payments.review-queue'
+import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
+import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
+import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
+import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.finance.reports.projects'
+import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
+import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
+import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
+import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
+import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
+import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
 
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -110,28 +109,26 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
-  id: '/api/notify-expense',
-  path: '/api/notify-expense',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppHrRoute = AppHrRouteImport.update({
-  id: '/hr',
-  path: '/hr',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFinanceRoute = AppFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCrmRoute = AppCrmRouteImport.update({
@@ -139,96 +136,145 @@ const AppCrmRoute = AppCrmRouteImport.update({
   path: '/crm',
   getParentRoute: () => AppRoute,
 } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AppProposalsIndexRoute = AppProposalsIndexRouteImport.update({
-  id: '/proposals/',
-  path: '/proposals/',
+const AppFinanceRoute = AppFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
+const AppHrRoute = AppHrRouteImport.update({
+  id: '/hr',
+  path: '/hr',
   getParentRoute: () => AppRoute,
 } as any)
-const AppHrIndexRoute = AppHrIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppHrRoute,
+const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
+  id: '/api/notify-expense',
+  path: '/api/notify-expense',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppFinanceIndexRoute = AppFinanceIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppFinanceRoute,
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
+  id: '/admin/backups',
+  path: '/admin/backups',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
+  id: '/admin/company-settings',
+  path: '/admin/company-settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
+  id: '/admin/imports',
+  path: '/admin/imports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
+  id: '/admin/projects',
+  path: '/admin/projects',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminProposalImagesRoute = AppAdminProposalImagesRouteImport.update({
+  id: '/admin/proposal-images',
+  path: '/admin/proposal-images',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminProposalRolesRoute = AppAdminProposalRolesRouteImport.update({
+  id: '/admin/proposal-roles',
+  path: '/admin/proposal-roles',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminQuotesTrashRoute = AppAdminQuotesTrashRouteImport.update({
+  id: '/admin/quotes-trash',
+  path: '/admin/quotes-trash',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCrmIndexRoute = AppCrmIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppCrmRoute,
 } as any)
-const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => AppRoute,
+const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const AppProjectsTimesheetRoute = AppProjectsTimesheetRouteImport.update({
-  id: '/projects/timesheet',
-  path: '/projects/timesheet',
-  getParentRoute: () => AppRoute,
+const AppCrmCompaniesRoute = AppCrmCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const AppProjectsResourcesRoute = AppProjectsResourcesRouteImport.update({
-  id: '/projects/resources',
-  path: '/projects/resources',
-  getParentRoute: () => AppRoute,
+const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const AppProjectsMyTasksRoute = AppProjectsMyTasksRouteImport.update({
-  id: '/projects/my-tasks',
-  path: '/projects/my-tasks',
-  getParentRoute: () => AppRoute,
+const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const AppProjectsInsightsRoute = AppProjectsInsightsRouteImport.update({
-  id: '/projects/insights',
-  path: '/projects/insights',
-  getParentRoute: () => AppRoute,
+const AppCrmQuoteTemplatesRoute = AppCrmQuoteTemplatesRouteImport.update({
+  id: '/quote-templates',
+  path: '/quote-templates',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const AppProjectsGanttRoute = AppProjectsGanttRouteImport.update({
-  id: '/projects/gantt',
-  path: '/projects/gantt',
-  getParentRoute: () => AppRoute,
+const AppFinanceIndexRoute = AppFinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppFinanceRoute,
 } as any)
-const AppProjectsForecastRoute = AppProjectsForecastRouteImport.update({
-  id: '/projects/forecast',
-  path: '/projects/forecast',
-  getParentRoute: () => AppRoute,
+const AppHrIndexRoute = AppHrIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppHrRoute,
 } as any)
-const AppProjectsFinancialsRoute = AppProjectsFinancialsRouteImport.update({
-  id: '/projects/financials',
-  path: '/projects/financials',
-  getParentRoute: () => AppRoute,
+const AppHrAdminRoute = AppHrAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppHrRoute,
 } as any)
-const AppProjectsApprovalsRoute = AppProjectsApprovalsRouteImport.update({
-  id: '/projects/approvals',
-  path: '/projects/approvals',
-  getParentRoute: () => AppRoute,
+const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
+  id: '/beneficios',
+  path: '/beneficios',
+  getParentRoute: () => AppHrRoute,
 } as any)
-const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
-  id: '/projects/$projectId',
-  path: '/projects/$projectId',
-  getParentRoute: () => AppRoute,
+const AppHrColaboradoresRoute = AppHrColaboradoresRouteImport.update({
+  id: '/colaboradores',
+  path: '/colaboradores',
+  getParentRoute: () => AppHrRoute,
 } as any)
-const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
-  id: '/valor-bo',
-  path: '/valor-bo',
+const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
+  id: '/dias-uteis',
+  path: '/dias-uteis',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrFeriasRoute = AppHrFeriasRouteImport.update({
+  id: '/ferias',
+  path: '/ferias',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrMinhaFichaRoute = AppHrMinhaFichaRouteImport.update({
+  id: '/minha-ficha',
+  path: '/minha-ficha',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrResumoRoute = AppHrResumoRouteImport.update({
+  id: '/resumo',
+  path: '/resumo',
   getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrSubsidioAlimentacaoRoute =
@@ -237,117 +283,82 @@ const AppHrSubsidioAlimentacaoRoute =
     path: '/subsidio-alimentacao',
     getParentRoute: () => AppHrRoute,
   } as any)
-const AppHrResumoRoute = AppHrResumoRouteImport.update({
-  id: '/resumo',
-  path: '/resumo',
+const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
+  id: '/valor-bo',
+  path: '/valor-bo',
   getParentRoute: () => AppHrRoute,
 } as any)
-const AppHrMinhaFichaRoute = AppHrMinhaFichaRouteImport.update({
-  id: '/minha-ficha',
-  path: '/minha-ficha',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppHrFeriasRoute = AppHrFeriasRouteImport.update({
-  id: '/ferias',
-  path: '/ferias',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
-  id: '/dias-uteis',
-  path: '/dias-uteis',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppHrColaboradoresRoute = AppHrColaboradoresRouteImport.update({
-  id: '/colaboradores',
-  path: '/colaboradores',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
-  id: '/beneficios',
-  path: '/beneficios',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppHrAdminRoute = AppHrAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppCrmQuoteTemplatesRoute = AppCrmQuoteTemplatesRouteImport.update({
-  id: '/quote-templates',
-  path: '/quote-templates',
-  getParentRoute: () => AppCrmRoute,
-} as any)
-const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
-  id: '/pipeline',
-  path: '/pipeline',
-  getParentRoute: () => AppCrmRoute,
-} as any)
-const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
-  id: '/contacts',
-  path: '/contacts',
-  getParentRoute: () => AppCrmRoute,
-} as any)
-const AppCrmCompaniesRoute = AppCrmCompaniesRouteImport.update({
-  id: '/companies',
-  path: '/companies',
-  getParentRoute: () => AppCrmRoute,
-} as any)
-const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
-  getParentRoute: () => AppCrmRoute,
-} as any)
-const AppAdminQuotesTrashRoute = AppAdminQuotesTrashRouteImport.update({
-  id: '/admin/quotes-trash',
-  path: '/admin/quotes-trash',
+const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminProposalRolesRoute = AppAdminProposalRolesRouteImport.update({
-  id: '/admin/proposal-roles',
-  path: '/admin/proposal-roles',
+const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminProposalImagesRoute = AppAdminProposalImagesRouteImport.update({
-  id: '/admin/proposal-images',
-  path: '/admin/proposal-images',
+const AppProjectsApprovalsRoute = AppProjectsApprovalsRouteImport.update({
+  id: '/projects/approvals',
+  path: '/projects/approvals',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
-  id: '/admin/projects',
-  path: '/admin/projects',
+const AppProjectsFinancialsRoute = AppProjectsFinancialsRouteImport.update({
+  id: '/projects/financials',
+  path: '/projects/financials',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
-  id: '/admin/imports',
-  path: '/admin/imports',
+const AppProjectsForecastRoute = AppProjectsForecastRouteImport.update({
+  id: '/projects/forecast',
+  path: '/projects/forecast',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
-  id: '/admin/company-settings',
-  path: '/admin/company-settings',
+const AppProjectsGanttRoute = AppProjectsGanttRouteImport.update({
+  id: '/projects/gantt',
+  path: '/projects/gantt',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
-  id: '/admin/backups',
-  path: '/admin/backups',
+const AppProjectsInsightsRoute = AppProjectsInsightsRouteImport.update({
+  id: '/projects/insights',
+  path: '/projects/insights',
   getParentRoute: () => AppRoute,
 } as any)
-const Char91DotmcpChar93InvokeToolToolRoute =
-  Char91DotmcpChar93InvokeToolToolRouteImport.update({
-    id: '/.mcp/invoke-tool/$tool',
-    path: '/.mcp/invoke-tool/$tool',
-    getParentRoute: () => rootRouteImport,
+const AppProjectsMyTasksRoute = AppProjectsMyTasksRouteImport.update({
+  id: '/projects/my-tasks',
+  path: '/projects/my-tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsResourcesRoute = AppProjectsResourcesRouteImport.update({
+  id: '/projects/resources',
+  path: '/projects/resources',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsTimesheetRoute = AppProjectsTimesheetRouteImport.update({
+  id: '/projects/timesheet',
+  path: '/projects/timesheet',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProposalsIndexRoute = AppProposalsIndexRouteImport.update({
+  id: '/proposals/',
+  path: '/proposals/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCrmAccountsAccountIdRoute = AppCrmAccountsAccountIdRouteImport.update({
+  id: '/$accountId',
+  path: '/$accountId',
+  getParentRoute: () => AppCrmAccountsRoute,
+} as any)
+const AppCrmCompaniesCompanyIdRoute =
+  AppCrmCompaniesCompanyIdRouteImport.update({
+    id: '/$companyId',
+    path: '/$companyId',
+    getParentRoute: () => AppCrmCompaniesRoute,
   } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppFinanceDocumentsIndexRoute =
-  AppFinanceDocumentsIndexRouteImport.update({
-    id: '/documents/',
-    path: '/documents/',
-    getParentRoute: () => AppFinanceRoute,
+const AppCrmContractsContractIdRoute =
+  AppCrmContractsContractIdRouteImport.update({
+    id: '/contracts/$contractId',
+    path: '/contracts/$contractId',
+    getParentRoute: () => AppCrmRoute,
   } as any)
 const AppCrmOpportunitiesIndexRoute =
   AppCrmOpportunitiesIndexRouteImport.update({
@@ -355,176 +366,31 @@ const AppCrmOpportunitiesIndexRoute =
     path: '/opportunities/',
     getParentRoute: () => AppCrmRoute,
   } as any)
-const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
-  id: '/api/public/hooks/run-backup',
-  path: '/api/public/hooks/run-backup',
-  getParentRoute: () => rootRouteImport,
+const AppCrmOpportunitiesOpportunityIdRoute =
+  AppCrmOpportunitiesOpportunityIdRouteImport.update({
+    id: '/opportunities/$opportunityId',
+    path: '/opportunities/$opportunityId',
+    getParentRoute: () => AppCrmRoute,
+  } as any)
+const AppCrmPipelineProposalIdRoute =
+  AppCrmPipelineProposalIdRouteImport.update({
+    id: '/$proposalId',
+    path: '/$proposalId',
+    getParentRoute: () => AppCrmPipelineRoute,
+  } as any)
+const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
+  id: '/quotes/$quoteId',
+  path: '/quotes/$quoteId',
+  getParentRoute: () => AppCrmRoute,
 } as any)
-const ApiPublicHooksGmailIntakeRoute =
-  ApiPublicHooksGmailIntakeRouteImport.update({
-    id: '/api/public/hooks/gmail-intake',
-    path: '/api/public/hooks/gmail-intake',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AppProposalsProposalIdComposerRoute =
-  AppProposalsProposalIdComposerRouteImport.update({
-    id: '/proposals/$proposalId/composer',
-    path: '/proposals/$proposalId/composer',
-    getParentRoute: () => AppRoute,
-  } as any)
-const AppProjectsResourcesResourceIdRoute =
-  AppProjectsResourcesResourceIdRouteImport.update({
-    id: '/$resourceId',
-    path: '/$resourceId',
-    getParentRoute: () => AppProjectsResourcesRoute,
-  } as any)
-const AppProjectsProjectIdAllocationsRoute =
-  AppProjectsProjectIdAllocationsRouteImport.update({
-    id: '/allocations',
-    path: '/allocations',
-    getParentRoute: () => AppProjectsProjectIdRoute,
-  } as any)
-const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
-  id: '/colaborador/$id',
-  path: '/colaborador/$id',
-  getParentRoute: () => AppHrRoute,
-} as any)
-const AppFinanceReportsVatRoute = AppFinanceReportsVatRouteImport.update({
-  id: '/reports/vat',
-  path: '/reports/vat',
+const AppFinanceAdminAuditRoute = AppFinanceAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
   getParentRoute: () => AppFinanceRoute,
 } as any)
-const AppFinanceReportsProjectsRoute =
-  AppFinanceReportsProjectsRouteImport.update({
-    id: '/reports/projects',
-    path: '/reports/projects',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceReportsForecastRoute =
-  AppFinanceReportsForecastRouteImport.update({
-    id: '/reports/forecast',
-    path: '/reports/forecast',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceReportsCashflowRoute =
-  AppFinanceReportsCashflowRouteImport.update({
-    id: '/reports/cashflow',
-    path: '/reports/cashflow',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsSuppliersRoute =
-  AppFinancePaymentsSuppliersRouteImport.update({
-    id: '/payments/suppliers',
-    path: '/payments/suppliers',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsReviewQueueRoute =
-  AppFinancePaymentsReviewQueueRouteImport.update({
-    id: '/payments/review-queue',
-    path: '/payments/review-queue',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsPurchasesRoute =
-  AppFinancePaymentsPurchasesRouteImport.update({
-    id: '/payments/purchases',
-    path: '/payments/purchases',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsOutflowsRoute =
-  AppFinancePaymentsOutflowsRouteImport.update({
-    id: '/payments/outflows',
-    path: '/payments/outflows',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsExpensesRoute =
-  AppFinancePaymentsExpensesRouteImport.update({
-    id: '/payments/expenses',
-    path: '/payments/expenses',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinancePaymentsCardsRoute = AppFinancePaymentsCardsRouteImport.update({
-  id: '/payments/cards',
-  path: '/payments/cards',
-  getParentRoute: () => AppFinanceRoute,
-} as any)
-const AppFinanceInvoicingReceiptsRoute =
-  AppFinanceInvoicingReceiptsRouteImport.update({
-    id: '/invoicing/receipts',
-    path: '/invoicing/receipts',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceInvoicingInvoicesRoute =
-  AppFinanceInvoicingInvoicesRouteImport.update({
-    id: '/invoicing/invoices',
-    path: '/invoicing/invoices',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceInvoicingInflowsRoute =
-  AppFinanceInvoicingInflowsRouteImport.update({
-    id: '/invoicing/inflows',
-    path: '/invoicing/inflows',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceInvoicingClientsRoute =
-  AppFinanceInvoicingClientsRouteImport.update({
-    id: '/invoicing/clients',
-    path: '/invoicing/clients',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceDocumentsDocumentIdRoute =
-  AppFinanceDocumentsDocumentIdRouteImport.update({
-    id: '/documents/$documentId',
-    path: '/documents/$documentId',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceDataVatRatesRoute = AppFinanceDataVatRatesRouteImport.update({
-  id: '/data/vat-rates',
-  path: '/data/vat-rates',
-  getParentRoute: () => AppFinanceRoute,
-} as any)
-const AppFinanceDataRulesRoute = AppFinanceDataRulesRouteImport.update({
-  id: '/data/rules',
-  path: '/data/rules',
-  getParentRoute: () => AppFinanceRoute,
-} as any)
-const AppFinanceDataClassificationsRoute =
-  AppFinanceDataClassificationsRouteImport.update({
-    id: '/data/classifications',
-    path: '/data/classifications',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceDataCardsRoute = AppFinanceDataCardsRouteImport.update({
-  id: '/data/cards',
-  path: '/data/cards',
-  getParentRoute: () => AppFinanceRoute,
-} as any)
-const AppFinanceDataBankAccountsRoute =
-  AppFinanceDataBankAccountsRouteImport.update({
-    id: '/data/bank-accounts',
-    path: '/data/bank-accounts',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceBankingTransactionsRoute =
-  AppFinanceBankingTransactionsRouteImport.update({
-    id: '/banking/transactions',
-    path: '/banking/transactions',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceBankingReconciliationRoute =
-  AppFinanceBankingReconciliationRouteImport.update({
-    id: '/banking/reconciliation',
-    path: '/banking/reconciliation',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceBankingBalancesRoute =
-  AppFinanceBankingBalancesRouteImport.update({
-    id: '/banking/balances',
-    path: '/banking/balances',
-    getParentRoute: () => AppFinanceRoute,
-  } as any)
-const AppFinanceAdminQaRoute = AppFinanceAdminQaRouteImport.update({
-  id: '/admin/qa',
-  path: '/admin/qa',
+const AppFinanceAdminImportsRoute = AppFinanceAdminImportsRouteImport.update({
+  id: '/admin/imports',
+  path: '/admin/imports',
   getParentRoute: () => AppFinanceRoute,
 } as any)
 const AppFinanceAdminInconsistenciesRoute =
@@ -533,49 +399,183 @@ const AppFinanceAdminInconsistenciesRoute =
     path: '/admin/inconsistencies',
     getParentRoute: () => AppFinanceRoute,
   } as any)
-const AppFinanceAdminImportsRoute = AppFinanceAdminImportsRouteImport.update({
-  id: '/admin/imports',
-  path: '/admin/imports',
+const AppFinanceAdminQaRoute = AppFinanceAdminQaRouteImport.update({
+  id: '/admin/qa',
+  path: '/admin/qa',
   getParentRoute: () => AppFinanceRoute,
 } as any)
-const AppFinanceAdminAuditRoute = AppFinanceAdminAuditRouteImport.update({
-  id: '/admin/audit',
-  path: '/admin/audit',
+const AppFinanceBankingBalancesRoute =
+  AppFinanceBankingBalancesRouteImport.update({
+    id: '/banking/balances',
+    path: '/banking/balances',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceBankingReconciliationRoute =
+  AppFinanceBankingReconciliationRouteImport.update({
+    id: '/banking/reconciliation',
+    path: '/banking/reconciliation',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceBankingTransactionsRoute =
+  AppFinanceBankingTransactionsRouteImport.update({
+    id: '/banking/transactions',
+    path: '/banking/transactions',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceDataBankAccountsRoute =
+  AppFinanceDataBankAccountsRouteImport.update({
+    id: '/data/bank-accounts',
+    path: '/data/bank-accounts',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceDataCardsRoute = AppFinanceDataCardsRouteImport.update({
+  id: '/data/cards',
+  path: '/data/cards',
   getParentRoute: () => AppFinanceRoute,
 } as any)
-const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
-  id: '/quotes/$quoteId',
-  path: '/quotes/$quoteId',
-  getParentRoute: () => AppCrmRoute,
+const AppFinanceDataClassificationsRoute =
+  AppFinanceDataClassificationsRouteImport.update({
+    id: '/data/classifications',
+    path: '/data/classifications',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceDataRulesRoute = AppFinanceDataRulesRouteImport.update({
+  id: '/data/rules',
+  path: '/data/rules',
+  getParentRoute: () => AppFinanceRoute,
 } as any)
-const AppCrmPipelineProposalIdRoute =
-  AppCrmPipelineProposalIdRouteImport.update({
-    id: '/$proposalId',
-    path: '/$proposalId',
-    getParentRoute: () => AppCrmPipelineRoute,
+const AppFinanceDataVatRatesRoute = AppFinanceDataVatRatesRouteImport.update({
+  id: '/data/vat-rates',
+  path: '/data/vat-rates',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceDocumentsIndexRoute =
+  AppFinanceDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => AppFinanceRoute,
   } as any)
-const AppCrmOpportunitiesOpportunityIdRoute =
-  AppCrmOpportunitiesOpportunityIdRouteImport.update({
-    id: '/opportunities/$opportunityId',
-    path: '/opportunities/$opportunityId',
-    getParentRoute: () => AppCrmRoute,
+const AppFinanceDocumentsDocumentIdRoute =
+  AppFinanceDocumentsDocumentIdRouteImport.update({
+    id: '/documents/$documentId',
+    path: '/documents/$documentId',
+    getParentRoute: () => AppFinanceRoute,
   } as any)
-const AppCrmContractsContractIdRoute =
-  AppCrmContractsContractIdRouteImport.update({
-    id: '/contracts/$contractId',
-    path: '/contracts/$contractId',
-    getParentRoute: () => AppCrmRoute,
+const AppFinanceInvoicingClientsRoute =
+  AppFinanceInvoicingClientsRouteImport.update({
+    id: '/invoicing/clients',
+    path: '/invoicing/clients',
+    getParentRoute: () => AppFinanceRoute,
   } as any)
-const AppCrmCompaniesCompanyIdRoute =
-  AppCrmCompaniesCompanyIdRouteImport.update({
-    id: '/$companyId',
-    path: '/$companyId',
-    getParentRoute: () => AppCrmCompaniesRoute,
+const AppFinanceInvoicingInflowsRoute =
+  AppFinanceInvoicingInflowsRouteImport.update({
+    id: '/invoicing/inflows',
+    path: '/invoicing/inflows',
+    getParentRoute: () => AppFinanceRoute,
   } as any)
-const AppCrmAccountsAccountIdRoute = AppCrmAccountsAccountIdRouteImport.update({
-  id: '/$accountId',
-  path: '/$accountId',
-  getParentRoute: () => AppCrmAccountsRoute,
+const AppFinanceInvoicingInvoicesRoute =
+  AppFinanceInvoicingInvoicesRouteImport.update({
+    id: '/invoicing/invoices',
+    path: '/invoicing/invoices',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceInvoicingReceiptsRoute =
+  AppFinanceInvoicingReceiptsRouteImport.update({
+    id: '/invoicing/receipts',
+    path: '/invoicing/receipts',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsCardsRoute = AppFinancePaymentsCardsRouteImport.update({
+  id: '/payments/cards',
+  path: '/payments/cards',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinancePaymentsExpensesRoute =
+  AppFinancePaymentsExpensesRouteImport.update({
+    id: '/payments/expenses',
+    path: '/payments/expenses',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsOutflowsRoute =
+  AppFinancePaymentsOutflowsRouteImport.update({
+    id: '/payments/outflows',
+    path: '/payments/outflows',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsPurchasesRoute =
+  AppFinancePaymentsPurchasesRouteImport.update({
+    id: '/payments/purchases',
+    path: '/payments/purchases',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsReviewQueueRoute =
+  AppFinancePaymentsReviewQueueRouteImport.update({
+    id: '/payments/review-queue',
+    path: '/payments/review-queue',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsSuppliersRoute =
+  AppFinancePaymentsSuppliersRouteImport.update({
+    id: '/payments/suppliers',
+    path: '/payments/suppliers',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceReportsCashflowRoute =
+  AppFinanceReportsCashflowRouteImport.update({
+    id: '/reports/cashflow',
+    path: '/reports/cashflow',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceReportsForecastRoute =
+  AppFinanceReportsForecastRouteImport.update({
+    id: '/reports/forecast',
+    path: '/reports/forecast',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceReportsProjectsRoute =
+  AppFinanceReportsProjectsRouteImport.update({
+    id: '/reports/projects',
+    path: '/reports/projects',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceReportsVatRoute = AppFinanceReportsVatRouteImport.update({
+  id: '/reports/vat',
+  path: '/reports/vat',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
+  id: '/colaborador/$id',
+  path: '/colaborador/$id',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppProjectsProjectIdAllocationsRoute =
+  AppProjectsProjectIdAllocationsRouteImport.update({
+    id: '/allocations',
+    path: '/allocations',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
+const AppProjectsResourcesResourceIdRoute =
+  AppProjectsResourcesResourceIdRouteImport.update({
+    id: '/$resourceId',
+    path: '/$resourceId',
+    getParentRoute: () => AppProjectsResourcesRoute,
+  } as any)
+const AppProposalsProposalIdComposerRoute =
+  AppProposalsProposalIdComposerRouteImport.update({
+    id: '/proposals/$proposalId/composer',
+    path: '/proposals/$proposalId/composer',
+    getParentRoute: () => AppRoute,
+  } as any)
+const ApiPublicHooksGmailIntakeRoute =
+  ApiPublicHooksGmailIntakeRouteImport.update({
+    id: '/api/public/hooks/gmail-intake',
+    path: '/api/public/hooks/gmail-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
+  id: '/api/public/hooks/run-backup',
+  path: '/api/public/hooks/run-backup',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppProposalsProposalIdRevisionsRevisionIdRoute =
   AppProposalsProposalIdRevisionsRevisionIdRouteImport.update({
@@ -1145,11 +1145,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1159,53 +1159,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app/': {
-      id: '/_app/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/api/notify-expense': {
-      id: '/api/notify-expense'
-      path: '/api/notify-expense'
-      fullPath: '/api/notify-expense'
-      preLoaderRoute: typeof ApiNotifyExpenseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app/hr': {
-      id: '/_app/hr'
-      path: '/hr'
-      fullPath: '/hr'
-      preLoaderRoute: typeof AppHrRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/finance': {
-      id: '/_app/finance'
-      path: '/finance'
-      fullPath: '/finance'
-      preLoaderRoute: typeof AppFinanceRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/crm': {
-      id: '/_app/crm'
-      path: '/crm'
-      fullPath: '/crm'
-      preLoaderRoute: typeof AppCrmRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -1215,263 +1173,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/proposals/': {
-      id: '/_app/proposals/'
-      path: '/proposals'
-      fullPath: '/proposals/'
-      preLoaderRoute: typeof AppProposalsIndexRouteImport
-      parentRoute: typeof AppRoute
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/projects/': {
-      id: '/_app/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof AppProjectsIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/hr/': {
-      id: '/_app/hr/'
+    '/_app/': {
+      id: '/_app/'
       path: '/'
-      fullPath: '/hr/'
-      preLoaderRoute: typeof AppHrIndexRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/finance/': {
-      id: '/_app/finance/'
-      path: '/'
-      fullPath: '/finance/'
-      preLoaderRoute: typeof AppFinanceIndexRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/crm/': {
-      id: '/_app/crm/'
-      path: '/'
-      fullPath: '/crm/'
-      preLoaderRoute: typeof AppCrmIndexRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/admin/': {
-      id: '/_app/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AppAdminIndexRouteImport
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/projects/timesheet': {
-      id: '/_app/projects/timesheet'
-      path: '/projects/timesheet'
-      fullPath: '/projects/timesheet'
-      preLoaderRoute: typeof AppProjectsTimesheetRouteImport
+    '/_app/crm': {
+      id: '/_app/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof AppCrmRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/projects/resources': {
-      id: '/_app/projects/resources'
-      path: '/projects/resources'
-      fullPath: '/projects/resources'
-      preLoaderRoute: typeof AppProjectsResourcesRouteImport
+    '/_app/finance': {
+      id: '/_app/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof AppFinanceRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/projects/my-tasks': {
-      id: '/_app/projects/my-tasks'
-      path: '/projects/my-tasks'
-      fullPath: '/projects/my-tasks'
-      preLoaderRoute: typeof AppProjectsMyTasksRouteImport
+    '/_app/hr': {
+      id: '/_app/hr'
+      path: '/hr'
+      fullPath: '/hr'
+      preLoaderRoute: typeof AppHrRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/projects/insights': {
-      id: '/_app/projects/insights'
-      path: '/projects/insights'
-      fullPath: '/projects/insights'
-      preLoaderRoute: typeof AppProjectsInsightsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/gantt': {
-      id: '/_app/projects/gantt'
-      path: '/projects/gantt'
-      fullPath: '/projects/gantt'
-      preLoaderRoute: typeof AppProjectsGanttRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/forecast': {
-      id: '/_app/projects/forecast'
-      path: '/projects/forecast'
-      fullPath: '/projects/forecast'
-      preLoaderRoute: typeof AppProjectsForecastRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/financials': {
-      id: '/_app/projects/financials'
-      path: '/projects/financials'
-      fullPath: '/projects/financials'
-      preLoaderRoute: typeof AppProjectsFinancialsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/approvals': {
-      id: '/_app/projects/approvals'
-      path: '/projects/approvals'
-      fullPath: '/projects/approvals'
-      preLoaderRoute: typeof AppProjectsApprovalsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/$projectId': {
-      id: '/_app/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/hr/valor-bo': {
-      id: '/_app/hr/valor-bo'
-      path: '/valor-bo'
-      fullPath: '/hr/valor-bo'
-      preLoaderRoute: typeof AppHrValorBoRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/subsidio-alimentacao': {
-      id: '/_app/hr/subsidio-alimentacao'
-      path: '/subsidio-alimentacao'
-      fullPath: '/hr/subsidio-alimentacao'
-      preLoaderRoute: typeof AppHrSubsidioAlimentacaoRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/resumo': {
-      id: '/_app/hr/resumo'
-      path: '/resumo'
-      fullPath: '/hr/resumo'
-      preLoaderRoute: typeof AppHrResumoRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/minha-ficha': {
-      id: '/_app/hr/minha-ficha'
-      path: '/minha-ficha'
-      fullPath: '/hr/minha-ficha'
-      preLoaderRoute: typeof AppHrMinhaFichaRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/ferias': {
-      id: '/_app/hr/ferias'
-      path: '/ferias'
-      fullPath: '/hr/ferias'
-      preLoaderRoute: typeof AppHrFeriasRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/dias-uteis': {
-      id: '/_app/hr/dias-uteis'
-      path: '/dias-uteis'
-      fullPath: '/hr/dias-uteis'
-      preLoaderRoute: typeof AppHrDiasUteisRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/colaboradores': {
-      id: '/_app/hr/colaboradores'
-      path: '/colaboradores'
-      fullPath: '/hr/colaboradores'
-      preLoaderRoute: typeof AppHrColaboradoresRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/beneficios': {
-      id: '/_app/hr/beneficios'
-      path: '/beneficios'
-      fullPath: '/hr/beneficios'
-      preLoaderRoute: typeof AppHrBeneficiosRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/hr/admin': {
-      id: '/_app/hr/admin'
-      path: '/admin'
-      fullPath: '/hr/admin'
-      preLoaderRoute: typeof AppHrAdminRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/crm/quote-templates': {
-      id: '/_app/crm/quote-templates'
-      path: '/quote-templates'
-      fullPath: '/crm/quote-templates'
-      preLoaderRoute: typeof AppCrmQuoteTemplatesRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/crm/pipeline': {
-      id: '/_app/crm/pipeline'
-      path: '/pipeline'
-      fullPath: '/crm/pipeline'
-      preLoaderRoute: typeof AppCrmPipelineRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/crm/contacts': {
-      id: '/_app/crm/contacts'
-      path: '/contacts'
-      fullPath: '/crm/contacts'
-      preLoaderRoute: typeof AppCrmContactsRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/crm/companies': {
-      id: '/_app/crm/companies'
-      path: '/companies'
-      fullPath: '/crm/companies'
-      preLoaderRoute: typeof AppCrmCompaniesRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/crm/accounts': {
-      id: '/_app/crm/accounts'
-      path: '/accounts'
-      fullPath: '/crm/accounts'
-      preLoaderRoute: typeof AppCrmAccountsRouteImport
-      parentRoute: typeof AppCrmRoute
-    }
-    '/_app/admin/quotes-trash': {
-      id: '/_app/admin/quotes-trash'
-      path: '/admin/quotes-trash'
-      fullPath: '/admin/quotes-trash'
-      preLoaderRoute: typeof AppAdminQuotesTrashRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/proposal-roles': {
-      id: '/_app/admin/proposal-roles'
-      path: '/admin/proposal-roles'
-      fullPath: '/admin/proposal-roles'
-      preLoaderRoute: typeof AppAdminProposalRolesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/proposal-images': {
-      id: '/_app/admin/proposal-images'
-      path: '/admin/proposal-images'
-      fullPath: '/admin/proposal-images'
-      preLoaderRoute: typeof AppAdminProposalImagesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/projects': {
-      id: '/_app/admin/projects'
-      path: '/admin/projects'
-      fullPath: '/admin/projects'
-      preLoaderRoute: typeof AppAdminProjectsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/imports': {
-      id: '/_app/admin/imports'
-      path: '/admin/imports'
-      fullPath: '/admin/imports'
-      preLoaderRoute: typeof AppAdminImportsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/company-settings': {
-      id: '/_app/admin/company-settings'
-      path: '/admin/company-settings'
-      fullPath: '/admin/company-settings'
-      preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/backups': {
-      id: '/_app/admin/backups'
-      path: '/admin/backups'
-      fullPath: '/admin/backups'
-      preLoaderRoute: typeof AppAdminBackupsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/.mcp/invoke-tool/$tool': {
-      id: '/.mcp/invoke-tool/$tool'
-      path: '/.mcp/invoke-tool/$tool'
-      fullPath: '/.mcp/invoke-tool/$tool'
-      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+    '/api/notify-expense': {
+      id: '/api/notify-expense'
+      path: '/api/notify-expense'
+      fullPath: '/api/notify-expense'
+      preLoaderRoute: typeof ApiNotifyExpenseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -1481,12 +1222,285 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/finance/documents/': {
-      id: '/_app/finance/documents/'
-      path: '/documents'
-      fullPath: '/finance/documents/'
-      preLoaderRoute: typeof AppFinanceDocumentsIndexRouteImport
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/backups': {
+      id: '/_app/admin/backups'
+      path: '/admin/backups'
+      fullPath: '/admin/backups'
+      preLoaderRoute: typeof AppAdminBackupsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/company-settings': {
+      id: '/_app/admin/company-settings'
+      path: '/admin/company-settings'
+      fullPath: '/admin/company-settings'
+      preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/imports': {
+      id: '/_app/admin/imports'
+      path: '/admin/imports'
+      fullPath: '/admin/imports'
+      preLoaderRoute: typeof AppAdminImportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/projects': {
+      id: '/_app/admin/projects'
+      path: '/admin/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AppAdminProjectsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/proposal-images': {
+      id: '/_app/admin/proposal-images'
+      path: '/admin/proposal-images'
+      fullPath: '/admin/proposal-images'
+      preLoaderRoute: typeof AppAdminProposalImagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/proposal-roles': {
+      id: '/_app/admin/proposal-roles'
+      path: '/admin/proposal-roles'
+      fullPath: '/admin/proposal-roles'
+      preLoaderRoute: typeof AppAdminProposalRolesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/quotes-trash': {
+      id: '/_app/admin/quotes-trash'
+      path: '/admin/quotes-trash'
+      fullPath: '/admin/quotes-trash'
+      preLoaderRoute: typeof AppAdminQuotesTrashRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/crm/': {
+      id: '/_app/crm/'
+      path: '/'
+      fullPath: '/crm/'
+      preLoaderRoute: typeof AppCrmIndexRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/accounts': {
+      id: '/_app/crm/accounts'
+      path: '/accounts'
+      fullPath: '/crm/accounts'
+      preLoaderRoute: typeof AppCrmAccountsRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/companies': {
+      id: '/_app/crm/companies'
+      path: '/companies'
+      fullPath: '/crm/companies'
+      preLoaderRoute: typeof AppCrmCompaniesRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/contacts': {
+      id: '/_app/crm/contacts'
+      path: '/contacts'
+      fullPath: '/crm/contacts'
+      preLoaderRoute: typeof AppCrmContactsRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/pipeline': {
+      id: '/_app/crm/pipeline'
+      path: '/pipeline'
+      fullPath: '/crm/pipeline'
+      preLoaderRoute: typeof AppCrmPipelineRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/quote-templates': {
+      id: '/_app/crm/quote-templates'
+      path: '/quote-templates'
+      fullPath: '/crm/quote-templates'
+      preLoaderRoute: typeof AppCrmQuoteTemplatesRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/finance/': {
+      id: '/_app/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof AppFinanceIndexRouteImport
       parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/hr/': {
+      id: '/_app/hr/'
+      path: '/'
+      fullPath: '/hr/'
+      preLoaderRoute: typeof AppHrIndexRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/admin': {
+      id: '/_app/hr/admin'
+      path: '/admin'
+      fullPath: '/hr/admin'
+      preLoaderRoute: typeof AppHrAdminRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/beneficios': {
+      id: '/_app/hr/beneficios'
+      path: '/beneficios'
+      fullPath: '/hr/beneficios'
+      preLoaderRoute: typeof AppHrBeneficiosRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/colaboradores': {
+      id: '/_app/hr/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/hr/colaboradores'
+      preLoaderRoute: typeof AppHrColaboradoresRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/dias-uteis': {
+      id: '/_app/hr/dias-uteis'
+      path: '/dias-uteis'
+      fullPath: '/hr/dias-uteis'
+      preLoaderRoute: typeof AppHrDiasUteisRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/ferias': {
+      id: '/_app/hr/ferias'
+      path: '/ferias'
+      fullPath: '/hr/ferias'
+      preLoaderRoute: typeof AppHrFeriasRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/minha-ficha': {
+      id: '/_app/hr/minha-ficha'
+      path: '/minha-ficha'
+      fullPath: '/hr/minha-ficha'
+      preLoaderRoute: typeof AppHrMinhaFichaRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/resumo': {
+      id: '/_app/hr/resumo'
+      path: '/resumo'
+      fullPath: '/hr/resumo'
+      preLoaderRoute: typeof AppHrResumoRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/subsidio-alimentacao': {
+      id: '/_app/hr/subsidio-alimentacao'
+      path: '/subsidio-alimentacao'
+      fullPath: '/hr/subsidio-alimentacao'
+      preLoaderRoute: typeof AppHrSubsidioAlimentacaoRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/valor-bo': {
+      id: '/_app/hr/valor-bo'
+      path: '/valor-bo'
+      fullPath: '/hr/valor-bo'
+      preLoaderRoute: typeof AppHrValorBoRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/projects/': {
+      id: '/_app/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof AppProjectsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/$projectId': {
+      id: '/_app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/approvals': {
+      id: '/_app/projects/approvals'
+      path: '/projects/approvals'
+      fullPath: '/projects/approvals'
+      preLoaderRoute: typeof AppProjectsApprovalsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/financials': {
+      id: '/_app/projects/financials'
+      path: '/projects/financials'
+      fullPath: '/projects/financials'
+      preLoaderRoute: typeof AppProjectsFinancialsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/forecast': {
+      id: '/_app/projects/forecast'
+      path: '/projects/forecast'
+      fullPath: '/projects/forecast'
+      preLoaderRoute: typeof AppProjectsForecastRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/gantt': {
+      id: '/_app/projects/gantt'
+      path: '/projects/gantt'
+      fullPath: '/projects/gantt'
+      preLoaderRoute: typeof AppProjectsGanttRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/insights': {
+      id: '/_app/projects/insights'
+      path: '/projects/insights'
+      fullPath: '/projects/insights'
+      preLoaderRoute: typeof AppProjectsInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/my-tasks': {
+      id: '/_app/projects/my-tasks'
+      path: '/projects/my-tasks'
+      fullPath: '/projects/my-tasks'
+      preLoaderRoute: typeof AppProjectsMyTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/resources': {
+      id: '/_app/projects/resources'
+      path: '/projects/resources'
+      fullPath: '/projects/resources'
+      preLoaderRoute: typeof AppProjectsResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/timesheet': {
+      id: '/_app/projects/timesheet'
+      path: '/projects/timesheet'
+      fullPath: '/projects/timesheet'
+      preLoaderRoute: typeof AppProjectsTimesheetRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/proposals/': {
+      id: '/_app/proposals/'
+      path: '/proposals'
+      fullPath: '/proposals/'
+      preLoaderRoute: typeof AppProposalsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/crm/accounts/$accountId': {
+      id: '/_app/crm/accounts/$accountId'
+      path: '/$accountId'
+      fullPath: '/crm/accounts/$accountId'
+      preLoaderRoute: typeof AppCrmAccountsAccountIdRouteImport
+      parentRoute: typeof AppCrmAccountsRoute
+    }
+    '/_app/crm/companies/$companyId': {
+      id: '/_app/crm/companies/$companyId'
+      path: '/$companyId'
+      fullPath: '/crm/companies/$companyId'
+      preLoaderRoute: typeof AppCrmCompaniesCompanyIdRouteImport
+      parentRoute: typeof AppCrmCompaniesRoute
+    }
+    '/_app/crm/contracts/$contractId': {
+      id: '/_app/crm/contracts/$contractId'
+      path: '/contracts/$contractId'
+      fullPath: '/crm/contracts/$contractId'
+      preLoaderRoute: typeof AppCrmContractsContractIdRouteImport
+      parentRoute: typeof AppCrmRoute
     }
     '/_app/crm/opportunities/': {
       id: '/_app/crm/opportunities/'
@@ -1495,242 +1509,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmOpportunitiesIndexRouteImport
       parentRoute: typeof AppCrmRoute
     }
-    '/api/public/hooks/run-backup': {
-      id: '/api/public/hooks/run-backup'
-      path: '/api/public/hooks/run-backup'
-      fullPath: '/api/public/hooks/run-backup'
-      preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/gmail-intake': {
-      id: '/api/public/hooks/gmail-intake'
-      path: '/api/public/hooks/gmail-intake'
-      fullPath: '/api/public/hooks/gmail-intake'
-      preLoaderRoute: typeof ApiPublicHooksGmailIntakeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app/proposals/$proposalId/composer': {
-      id: '/_app/proposals/$proposalId/composer'
-      path: '/proposals/$proposalId/composer'
-      fullPath: '/proposals/$proposalId/composer'
-      preLoaderRoute: typeof AppProposalsProposalIdComposerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/projects/resources/$resourceId': {
-      id: '/_app/projects/resources/$resourceId'
-      path: '/$resourceId'
-      fullPath: '/projects/resources/$resourceId'
-      preLoaderRoute: typeof AppProjectsResourcesResourceIdRouteImport
-      parentRoute: typeof AppProjectsResourcesRoute
-    }
-    '/_app/projects/$projectId/allocations': {
-      id: '/_app/projects/$projectId/allocations'
-      path: '/allocations'
-      fullPath: '/projects/$projectId/allocations'
-      preLoaderRoute: typeof AppProjectsProjectIdAllocationsRouteImport
-      parentRoute: typeof AppProjectsProjectIdRoute
-    }
-    '/_app/hr/colaborador/$id': {
-      id: '/_app/hr/colaborador/$id'
-      path: '/colaborador/$id'
-      fullPath: '/hr/colaborador/$id'
-      preLoaderRoute: typeof AppHrColaboradorIdRouteImport
-      parentRoute: typeof AppHrRoute
-    }
-    '/_app/finance/reports/vat': {
-      id: '/_app/finance/reports/vat'
-      path: '/reports/vat'
-      fullPath: '/finance/reports/vat'
-      preLoaderRoute: typeof AppFinanceReportsVatRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/reports/projects': {
-      id: '/_app/finance/reports/projects'
-      path: '/reports/projects'
-      fullPath: '/finance/reports/projects'
-      preLoaderRoute: typeof AppFinanceReportsProjectsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/reports/forecast': {
-      id: '/_app/finance/reports/forecast'
-      path: '/reports/forecast'
-      fullPath: '/finance/reports/forecast'
-      preLoaderRoute: typeof AppFinanceReportsForecastRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/reports/cashflow': {
-      id: '/_app/finance/reports/cashflow'
-      path: '/reports/cashflow'
-      fullPath: '/finance/reports/cashflow'
-      preLoaderRoute: typeof AppFinanceReportsCashflowRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/suppliers': {
-      id: '/_app/finance/payments/suppliers'
-      path: '/payments/suppliers'
-      fullPath: '/finance/payments/suppliers'
-      preLoaderRoute: typeof AppFinancePaymentsSuppliersRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/review-queue': {
-      id: '/_app/finance/payments/review-queue'
-      path: '/payments/review-queue'
-      fullPath: '/finance/payments/review-queue'
-      preLoaderRoute: typeof AppFinancePaymentsReviewQueueRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/purchases': {
-      id: '/_app/finance/payments/purchases'
-      path: '/payments/purchases'
-      fullPath: '/finance/payments/purchases'
-      preLoaderRoute: typeof AppFinancePaymentsPurchasesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/outflows': {
-      id: '/_app/finance/payments/outflows'
-      path: '/payments/outflows'
-      fullPath: '/finance/payments/outflows'
-      preLoaderRoute: typeof AppFinancePaymentsOutflowsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/expenses': {
-      id: '/_app/finance/payments/expenses'
-      path: '/payments/expenses'
-      fullPath: '/finance/payments/expenses'
-      preLoaderRoute: typeof AppFinancePaymentsExpensesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/payments/cards': {
-      id: '/_app/finance/payments/cards'
-      path: '/payments/cards'
-      fullPath: '/finance/payments/cards'
-      preLoaderRoute: typeof AppFinancePaymentsCardsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/invoicing/receipts': {
-      id: '/_app/finance/invoicing/receipts'
-      path: '/invoicing/receipts'
-      fullPath: '/finance/invoicing/receipts'
-      preLoaderRoute: typeof AppFinanceInvoicingReceiptsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/invoicing/invoices': {
-      id: '/_app/finance/invoicing/invoices'
-      path: '/invoicing/invoices'
-      fullPath: '/finance/invoicing/invoices'
-      preLoaderRoute: typeof AppFinanceInvoicingInvoicesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/invoicing/inflows': {
-      id: '/_app/finance/invoicing/inflows'
-      path: '/invoicing/inflows'
-      fullPath: '/finance/invoicing/inflows'
-      preLoaderRoute: typeof AppFinanceInvoicingInflowsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/invoicing/clients': {
-      id: '/_app/finance/invoicing/clients'
-      path: '/invoicing/clients'
-      fullPath: '/finance/invoicing/clients'
-      preLoaderRoute: typeof AppFinanceInvoicingClientsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/documents/$documentId': {
-      id: '/_app/finance/documents/$documentId'
-      path: '/documents/$documentId'
-      fullPath: '/finance/documents/$documentId'
-      preLoaderRoute: typeof AppFinanceDocumentsDocumentIdRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/data/vat-rates': {
-      id: '/_app/finance/data/vat-rates'
-      path: '/data/vat-rates'
-      fullPath: '/finance/data/vat-rates'
-      preLoaderRoute: typeof AppFinanceDataVatRatesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/data/rules': {
-      id: '/_app/finance/data/rules'
-      path: '/data/rules'
-      fullPath: '/finance/data/rules'
-      preLoaderRoute: typeof AppFinanceDataRulesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/data/classifications': {
-      id: '/_app/finance/data/classifications'
-      path: '/data/classifications'
-      fullPath: '/finance/data/classifications'
-      preLoaderRoute: typeof AppFinanceDataClassificationsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/data/cards': {
-      id: '/_app/finance/data/cards'
-      path: '/data/cards'
-      fullPath: '/finance/data/cards'
-      preLoaderRoute: typeof AppFinanceDataCardsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/data/bank-accounts': {
-      id: '/_app/finance/data/bank-accounts'
-      path: '/data/bank-accounts'
-      fullPath: '/finance/data/bank-accounts'
-      preLoaderRoute: typeof AppFinanceDataBankAccountsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/banking/transactions': {
-      id: '/_app/finance/banking/transactions'
-      path: '/banking/transactions'
-      fullPath: '/finance/banking/transactions'
-      preLoaderRoute: typeof AppFinanceBankingTransactionsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/banking/reconciliation': {
-      id: '/_app/finance/banking/reconciliation'
-      path: '/banking/reconciliation'
-      fullPath: '/finance/banking/reconciliation'
-      preLoaderRoute: typeof AppFinanceBankingReconciliationRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/banking/balances': {
-      id: '/_app/finance/banking/balances'
-      path: '/banking/balances'
-      fullPath: '/finance/banking/balances'
-      preLoaderRoute: typeof AppFinanceBankingBalancesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/admin/qa': {
-      id: '/_app/finance/admin/qa'
-      path: '/admin/qa'
-      fullPath: '/finance/admin/qa'
-      preLoaderRoute: typeof AppFinanceAdminQaRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/admin/inconsistencies': {
-      id: '/_app/finance/admin/inconsistencies'
-      path: '/admin/inconsistencies'
-      fullPath: '/finance/admin/inconsistencies'
-      preLoaderRoute: typeof AppFinanceAdminInconsistenciesRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/admin/imports': {
-      id: '/_app/finance/admin/imports'
-      path: '/admin/imports'
-      fullPath: '/finance/admin/imports'
-      preLoaderRoute: typeof AppFinanceAdminImportsRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/finance/admin/audit': {
-      id: '/_app/finance/admin/audit'
-      path: '/admin/audit'
-      fullPath: '/finance/admin/audit'
-      preLoaderRoute: typeof AppFinanceAdminAuditRouteImport
-      parentRoute: typeof AppFinanceRoute
-    }
-    '/_app/crm/quotes/$quoteId': {
-      id: '/_app/crm/quotes/$quoteId'
-      path: '/quotes/$quoteId'
-      fullPath: '/crm/quotes/$quoteId'
-      preLoaderRoute: typeof AppCrmQuotesQuoteIdRouteImport
+    '/_app/crm/opportunities/$opportunityId': {
+      id: '/_app/crm/opportunities/$opportunityId'
+      path: '/opportunities/$opportunityId'
+      fullPath: '/crm/opportunities/$opportunityId'
+      preLoaderRoute: typeof AppCrmOpportunitiesOpportunityIdRouteImport
       parentRoute: typeof AppCrmRoute
     }
     '/_app/crm/pipeline/$proposalId': {
@@ -1740,33 +1523,250 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmPipelineProposalIdRouteImport
       parentRoute: typeof AppCrmPipelineRoute
     }
-    '/_app/crm/opportunities/$opportunityId': {
-      id: '/_app/crm/opportunities/$opportunityId'
-      path: '/opportunities/$opportunityId'
-      fullPath: '/crm/opportunities/$opportunityId'
-      preLoaderRoute: typeof AppCrmOpportunitiesOpportunityIdRouteImport
+    '/_app/crm/quotes/$quoteId': {
+      id: '/_app/crm/quotes/$quoteId'
+      path: '/quotes/$quoteId'
+      fullPath: '/crm/quotes/$quoteId'
+      preLoaderRoute: typeof AppCrmQuotesQuoteIdRouteImport
       parentRoute: typeof AppCrmRoute
     }
-    '/_app/crm/contracts/$contractId': {
-      id: '/_app/crm/contracts/$contractId'
-      path: '/contracts/$contractId'
-      fullPath: '/crm/contracts/$contractId'
-      preLoaderRoute: typeof AppCrmContractsContractIdRouteImport
-      parentRoute: typeof AppCrmRoute
+    '/_app/finance/admin/audit': {
+      id: '/_app/finance/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/finance/admin/audit'
+      preLoaderRoute: typeof AppFinanceAdminAuditRouteImport
+      parentRoute: typeof AppFinanceRoute
     }
-    '/_app/crm/companies/$companyId': {
-      id: '/_app/crm/companies/$companyId'
-      path: '/$companyId'
-      fullPath: '/crm/companies/$companyId'
-      preLoaderRoute: typeof AppCrmCompaniesCompanyIdRouteImport
-      parentRoute: typeof AppCrmCompaniesRoute
+    '/_app/finance/admin/imports': {
+      id: '/_app/finance/admin/imports'
+      path: '/admin/imports'
+      fullPath: '/finance/admin/imports'
+      preLoaderRoute: typeof AppFinanceAdminImportsRouteImport
+      parentRoute: typeof AppFinanceRoute
     }
-    '/_app/crm/accounts/$accountId': {
-      id: '/_app/crm/accounts/$accountId'
-      path: '/$accountId'
-      fullPath: '/crm/accounts/$accountId'
-      preLoaderRoute: typeof AppCrmAccountsAccountIdRouteImport
-      parentRoute: typeof AppCrmAccountsRoute
+    '/_app/finance/admin/inconsistencies': {
+      id: '/_app/finance/admin/inconsistencies'
+      path: '/admin/inconsistencies'
+      fullPath: '/finance/admin/inconsistencies'
+      preLoaderRoute: typeof AppFinanceAdminInconsistenciesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/admin/qa': {
+      id: '/_app/finance/admin/qa'
+      path: '/admin/qa'
+      fullPath: '/finance/admin/qa'
+      preLoaderRoute: typeof AppFinanceAdminQaRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/banking/balances': {
+      id: '/_app/finance/banking/balances'
+      path: '/banking/balances'
+      fullPath: '/finance/banking/balances'
+      preLoaderRoute: typeof AppFinanceBankingBalancesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/banking/reconciliation': {
+      id: '/_app/finance/banking/reconciliation'
+      path: '/banking/reconciliation'
+      fullPath: '/finance/banking/reconciliation'
+      preLoaderRoute: typeof AppFinanceBankingReconciliationRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/banking/transactions': {
+      id: '/_app/finance/banking/transactions'
+      path: '/banking/transactions'
+      fullPath: '/finance/banking/transactions'
+      preLoaderRoute: typeof AppFinanceBankingTransactionsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/bank-accounts': {
+      id: '/_app/finance/data/bank-accounts'
+      path: '/data/bank-accounts'
+      fullPath: '/finance/data/bank-accounts'
+      preLoaderRoute: typeof AppFinanceDataBankAccountsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/cards': {
+      id: '/_app/finance/data/cards'
+      path: '/data/cards'
+      fullPath: '/finance/data/cards'
+      preLoaderRoute: typeof AppFinanceDataCardsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/classifications': {
+      id: '/_app/finance/data/classifications'
+      path: '/data/classifications'
+      fullPath: '/finance/data/classifications'
+      preLoaderRoute: typeof AppFinanceDataClassificationsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/rules': {
+      id: '/_app/finance/data/rules'
+      path: '/data/rules'
+      fullPath: '/finance/data/rules'
+      preLoaderRoute: typeof AppFinanceDataRulesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/vat-rates': {
+      id: '/_app/finance/data/vat-rates'
+      path: '/data/vat-rates'
+      fullPath: '/finance/data/vat-rates'
+      preLoaderRoute: typeof AppFinanceDataVatRatesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/documents/': {
+      id: '/_app/finance/documents/'
+      path: '/documents'
+      fullPath: '/finance/documents/'
+      preLoaderRoute: typeof AppFinanceDocumentsIndexRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/documents/$documentId': {
+      id: '/_app/finance/documents/$documentId'
+      path: '/documents/$documentId'
+      fullPath: '/finance/documents/$documentId'
+      preLoaderRoute: typeof AppFinanceDocumentsDocumentIdRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/clients': {
+      id: '/_app/finance/invoicing/clients'
+      path: '/invoicing/clients'
+      fullPath: '/finance/invoicing/clients'
+      preLoaderRoute: typeof AppFinanceInvoicingClientsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/inflows': {
+      id: '/_app/finance/invoicing/inflows'
+      path: '/invoicing/inflows'
+      fullPath: '/finance/invoicing/inflows'
+      preLoaderRoute: typeof AppFinanceInvoicingInflowsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/invoices': {
+      id: '/_app/finance/invoicing/invoices'
+      path: '/invoicing/invoices'
+      fullPath: '/finance/invoicing/invoices'
+      preLoaderRoute: typeof AppFinanceInvoicingInvoicesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/receipts': {
+      id: '/_app/finance/invoicing/receipts'
+      path: '/invoicing/receipts'
+      fullPath: '/finance/invoicing/receipts'
+      preLoaderRoute: typeof AppFinanceInvoicingReceiptsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/cards': {
+      id: '/_app/finance/payments/cards'
+      path: '/payments/cards'
+      fullPath: '/finance/payments/cards'
+      preLoaderRoute: typeof AppFinancePaymentsCardsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/expenses': {
+      id: '/_app/finance/payments/expenses'
+      path: '/payments/expenses'
+      fullPath: '/finance/payments/expenses'
+      preLoaderRoute: typeof AppFinancePaymentsExpensesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/outflows': {
+      id: '/_app/finance/payments/outflows'
+      path: '/payments/outflows'
+      fullPath: '/finance/payments/outflows'
+      preLoaderRoute: typeof AppFinancePaymentsOutflowsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/purchases': {
+      id: '/_app/finance/payments/purchases'
+      path: '/payments/purchases'
+      fullPath: '/finance/payments/purchases'
+      preLoaderRoute: typeof AppFinancePaymentsPurchasesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/review-queue': {
+      id: '/_app/finance/payments/review-queue'
+      path: '/payments/review-queue'
+      fullPath: '/finance/payments/review-queue'
+      preLoaderRoute: typeof AppFinancePaymentsReviewQueueRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/suppliers': {
+      id: '/_app/finance/payments/suppliers'
+      path: '/payments/suppliers'
+      fullPath: '/finance/payments/suppliers'
+      preLoaderRoute: typeof AppFinancePaymentsSuppliersRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/cashflow': {
+      id: '/_app/finance/reports/cashflow'
+      path: '/reports/cashflow'
+      fullPath: '/finance/reports/cashflow'
+      preLoaderRoute: typeof AppFinanceReportsCashflowRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/forecast': {
+      id: '/_app/finance/reports/forecast'
+      path: '/reports/forecast'
+      fullPath: '/finance/reports/forecast'
+      preLoaderRoute: typeof AppFinanceReportsForecastRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/projects': {
+      id: '/_app/finance/reports/projects'
+      path: '/reports/projects'
+      fullPath: '/finance/reports/projects'
+      preLoaderRoute: typeof AppFinanceReportsProjectsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/vat': {
+      id: '/_app/finance/reports/vat'
+      path: '/reports/vat'
+      fullPath: '/finance/reports/vat'
+      preLoaderRoute: typeof AppFinanceReportsVatRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/hr/colaborador/$id': {
+      id: '/_app/hr/colaborador/$id'
+      path: '/colaborador/$id'
+      fullPath: '/hr/colaborador/$id'
+      preLoaderRoute: typeof AppHrColaboradorIdRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/projects/$projectId/allocations': {
+      id: '/_app/projects/$projectId/allocations'
+      path: '/allocations'
+      fullPath: '/projects/$projectId/allocations'
+      preLoaderRoute: typeof AppProjectsProjectIdAllocationsRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
+    }
+    '/_app/projects/resources/$resourceId': {
+      id: '/_app/projects/resources/$resourceId'
+      path: '/$resourceId'
+      fullPath: '/projects/resources/$resourceId'
+      preLoaderRoute: typeof AppProjectsResourcesResourceIdRouteImport
+      parentRoute: typeof AppProjectsResourcesRoute
+    }
+    '/_app/proposals/$proposalId/composer': {
+      id: '/_app/proposals/$proposalId/composer'
+      path: '/proposals/$proposalId/composer'
+      fullPath: '/proposals/$proposalId/composer'
+      preLoaderRoute: typeof AppProposalsProposalIdComposerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/api/public/hooks/gmail-intake': {
+      id: '/api/public/hooks/gmail-intake'
+      path: '/api/public/hooks/gmail-intake'
+      fullPath: '/api/public/hooks/gmail-intake'
+      preLoaderRoute: typeof ApiPublicHooksGmailIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/run-backup': {
+      id: '/api/public/hooks/run-backup'
+      path: '/api/public/hooks/run-backup'
+      fullPath: '/api/public/hooks/run-backup'
+      preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/proposals/$proposalId/revisions/$revisionId': {
       id: '/_app/proposals/$proposalId/revisions/$revisionId'

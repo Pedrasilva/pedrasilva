@@ -9105,6 +9105,10 @@ export type Database = {
         Args: { p_source: string }
         Returns: string
       }
+      clone_fee_proposal_as_revision_impl: {
+        Args: { p_source: string }
+        Returns: string
+      }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
         | {
