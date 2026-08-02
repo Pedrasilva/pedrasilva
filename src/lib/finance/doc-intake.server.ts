@@ -39,6 +39,13 @@ export type IntakeExtraction = {
   /** Buyer / bill-to party (may be the firm itself). */
   buyer_name: string | null;
   buyer_vat: string | null;
+  /**
+   * The issuer's mandatory legal footer block (NIF / Capital Social / C.R.C.).
+   * On Portuguese invoices this — not page position — identifies the issuer.
+   */
+  footer_legal_text: string | null;
+  /** Every VAT/NIF printed anywhere on the page, in printed order. */
+  all_vat_numbers: string[] | null;
   document_number: string | null;
   issue_date: string | null;
   due_date: string | null;
@@ -50,6 +57,7 @@ export type IntakeExtraction = {
   classification_confidence: number;
   summary: string | null;
 };
+
 
 const JSON_SCHEMA = {
   name: "financial_document_extraction",
