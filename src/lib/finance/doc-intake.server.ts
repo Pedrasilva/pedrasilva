@@ -259,34 +259,149 @@ export type DirectionResult = {
   /** The other party: the client for issued docs, the supplier for received ones. */
   counterparty_name: string | null;
   counterparty_vat: string | null;
+  /** 0..1 — how strong the anchor was. */
+  confidence: number;
+  /** Which signal decided it (debugging / reviewer transparency). */
+  anchor:
+    | "seller_vat"
+    | "buyer_vat"
+    | "seller_name"
+    | "buyer_name"
+    | "footer_legal"
+    | "no_firm_reference"
+    | "none";
 };
+
+/** Strip accents, punctuation and legal/profession words for fuzzy name matching. */
+const NAME_NOISE =
+  /\b(lda|ltda|unipessoal|sa|s\.a|societe|limited|ltd|inc|llc|arquitecto|arquitectos|arquiteto|arquitetos|architect|architects|architecture|arquitectura|arquitetura|company|co)\b/g;
+
+export function firmNameTokens(name: string | null | undefined): string[] {
+  if (!name) return [];
+  const cleaned = String(name)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(NAME_NOISE, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.split(" ").filter((t) => t.length > 2);
+}
+
+/**
+ * Fuzzy "is this text the firm?" — true when every distinctive token of the
+ * firm's registered name appears in the candidate text. Tolerates the
+ * Architects / Arquitectos / Arquitetos spellings and legal-suffix drift.
+ */
+export function mentionsFirm(text: string | null | undefined, ownName: string | null): boolean {
+  const tokens = firmNameTokens(ownName);
+  if (tokens.length === 0 || !text) return false;
+  const hay = ` ${firmNameTokens(text).join(" ")} `;
+  return tokens.every((t) => hay.includes(` ${t} `));
+}
 
 /**
  * Direction detection: whose document is this?
- * - seller VAT == firm VAT  → the firm issued it → counterparty is the CLIENT.
- * - buyer VAT  == firm VAT  → the firm received it → counterparty is the SUPPLIER.
- * - neither                 → unclear; the reviewer sees both parties.
+ *
+ * Anchors, strongest first:
+ *  1. seller VAT == firm VAT  → issued   (counterparty = CLIENT)
+ *  2. buyer VAT  == firm VAT  → received (counterparty = SUPPLIER)
+ *  3. seller/buyer NAME matches the firm's registered name — VAT extraction
+ *     fails on some templates, so name is a real secondary anchor.
+ *  4. The mandatory legal footer block (NIF / Capital Social / C.R.C.) belongs
+ *     to the firm → the firm ISSUED it. On a Portuguese invoice that footer,
+ *     not page position, identifies the issuer.
+ *  5. The firm is referenced somewhere on the page (any printed VAT / footer)
+ *     but no party role can be resolved → "unclear", never a silent default.
+ *  6. The firm is not referenced at all → an ordinary received supplier
+ *     document (low confidence, reviewer confirms).
  */
 export function detectDirection(
-  ownVat: string | null,
-  ex: Pick<IntakeExtraction, "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat">,
+  own: { vat: string | null; name: string | null } | string | null,
+  ex: Pick<
+    IntakeExtraction,
+    "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat"
+  > &
+    Partial<Pick<IntakeExtraction, "footer_legal_text" | "all_vat_numbers">>,
 ): DirectionResult {
+  const ownVat = typeof own === "string" || own === null ? own : own.vat;
+  const ownName = typeof own === "string" || own === null ? null : own.name;
+
   const sellerVat = ex.seller_vat ?? ex.supplier_vat ?? null;
   const sellerName = ex.seller_name ?? ex.supplier_name ?? null;
+  const issued = (c: DirectionResult["anchor"], confidence: number): DirectionResult => ({
+    direction: "issued",
+    counterparty_name: ex.buyer_name,
+    counterparty_vat: ex.buyer_vat,
+    confidence,
+    anchor: c,
+  });
+  const received = (c: DirectionResult["anchor"], confidence: number): DirectionResult => ({
+    direction: "received",
+    counterparty_name: sellerName,
+    counterparty_vat: sellerVat,
+    confidence,
+    anchor: c,
+  });
 
-  if (ownVat && sameVat(sellerVat, ownVat)) {
-    return { direction: "issued", counterparty_name: ex.buyer_name, counterparty_vat: ex.buyer_vat };
+  // 1–2: VAT anchors.
+  if (ownVat && sameVat(sellerVat, ownVat)) return issued("seller_vat", 0.99);
+  if (ownVat && sameVat(ex.buyer_vat, ownVat)) return received("buyer_vat", 0.99);
+
+  // 3: name anchors (VAT extraction can fail per-template).
+  const sellerIsFirm = mentionsFirm(sellerName, ownName);
+  const buyerIsFirm = mentionsFirm(ex.buyer_name, ownName);
+  if (sellerIsFirm && !buyerIsFirm) return issued("seller_name", 0.85);
+  if (buyerIsFirm && !sellerIsFirm) return received("buyer_name", 0.85);
+
+  // 4: the legal footer block identifies the issuer.
+  const footer = ex.footer_legal_text ?? null;
+  const footerIsFirm =
+    (!!ownVat && !!footer && sameVatInText(footer, ownVat)) || mentionsFirm(footer, ownName);
+  if (footerIsFirm) {
+    // The firm issued it; the other printed party is the client.
+    const counterpartyName = ex.buyer_name ?? (sellerIsFirm ? null : sellerName);
+    const counterpartyVat = ex.buyer_vat ?? (sellerIsFirm ? null : sellerVat);
+    return {
+      direction: "issued",
+      counterparty_name: counterpartyName,
+      counterparty_vat: counterpartyVat,
+      confidence: 0.8,
+      anchor: "footer_legal",
+    };
   }
-  if (ownVat && sameVat(ex.buyer_vat, ownVat)) {
-    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+
+  // 5: the firm is referenced but its role is not resolvable → flag it.
+  const printedVats = ex.all_vat_numbers ?? [];
+  const firmReferenced =
+    (!!ownVat && printedVats.some((v) => sameVat(v, ownVat))) ||
+    (!!ownVat && !!footer && sameVatInText(footer, ownVat)) ||
+    mentionsFirm(footer, ownName) ||
+    sellerIsFirm ||
+    buyerIsFirm;
+  if (firmReferenced || !ownVat) {
+    return {
+      direction: "unclear",
+      counterparty_name: sellerName,
+      counterparty_vat: sellerVat,
+      confidence: 0.3,
+      anchor: "none",
+    };
   }
-  // No own-VAT anchor on the page. A buyer VAT that is clearly someone else's
-  // while the seller VAT is missing is not enough to guess — flag it.
-  if (!ownVat || (!sellerVat && !ex.buyer_vat)) {
-    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
-  }
-  return { direction: "unclear", counterparty_name: sellerName, counterparty_vat: sellerVat };
+
+  // 6: no reference to the firm anywhere — ordinary inbound supplier document.
+  return received("no_firm_reference", 0.6);
 }
+
+/** True when a VAT id appears anywhere inside a free-text block. */
+function sameVatInText(text: string | null, vat: string | null): boolean {
+  if (!text || !vat) return false;
+  const digits = String(text).replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  for (const form of vatForms(vat)) if (form.length >= 8 && digits.includes(form)) return true;
+  return false;
+}
+
 
 /**
  * Supplier matching — VAT/NIF ONLY, never by name.
