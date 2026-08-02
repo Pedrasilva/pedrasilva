@@ -81,6 +81,7 @@ export function BankBalancesSection() {
   const qc = useQueryClient();
 
   const [showArchived, setShowArchived] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [accountId, setAccountId] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -92,7 +93,9 @@ export function BankBalancesSection() {
     queryFn: async (): Promise<Account[]> => {
       const { data, error } = await supabase
         .from("bank_accounts")
-        .select("id, account_name, bank_name, currency, account_kind, archived_at")
+        .select(
+          "id, account_name, bank_name, currency, account_kind, archived_at, opening_balance, opening_balance_date",
+        )
         .order("account_name");
       if (error) throw error;
       return (data ?? []) as Account[];
