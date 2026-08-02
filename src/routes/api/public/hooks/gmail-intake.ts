@@ -89,8 +89,20 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { ingestStoredDocument } = await import("@/lib/finance/doc-intake.server");
+        const { ingestMt940File, looksLikeMt940, decodeMt940 } = await import(
+          "@/lib/finance/mt940-intake.server"
+        );
 
-        const summary = { scanned: 0, queued: 0, ignored: 0, skipped: 0, errors: [] as string[] };
+        const summary = {
+          scanned: 0,
+          queued: 0,
+          ignored: 0,
+          skipped: 0,
+          mt940Imported: 0,
+          mt940Duplicates: 0,
+          errors: [] as string[],
+        };
+
 
         try {
           const list = await gmail(
