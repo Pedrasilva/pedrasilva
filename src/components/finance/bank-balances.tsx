@@ -446,6 +446,11 @@ export function BankBalancesSection() {
           </Card>
         );
       })}
+
+      <BankAccountDetailDialog
+        accountId={detailId}
+        onOpenChange={(o) => !o && setDetailId(null)}
+      />
     </div>
   );
 }
