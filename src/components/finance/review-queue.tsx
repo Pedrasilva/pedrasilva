@@ -60,6 +60,7 @@ type QueueRow = {
   source: string;
   doc_type: string;
   doc_type_confidence: number | null;
+  direction: "issued" | "received" | "unclear";
   extraction_error: string | null;
   extracted_amount: number | null;
   extracted_vat_amount: number | null;
@@ -69,9 +70,16 @@ type QueueRow = {
   extracted_document_number: string | null;
   extracted_supplier_name: string | null;
   extracted_supplier_vat: string | null;
+  extracted_seller_name: string | null;
+  extracted_seller_vat: string | null;
+  extracted_buyer_name: string | null;
+  extracted_buyer_vat: string | null;
   supplier_match_status: string;
   matched_supplier_id: string | null;
   ambiguous_supplier_ids: string[];
+  client_match_status: string;
+  matched_client_id: string | null;
+  ambiguous_client_ids: string[];
   suggested_classification_id: string | null;
   suggested_classification_code: string | null;
   classification_confidence: number | null;
