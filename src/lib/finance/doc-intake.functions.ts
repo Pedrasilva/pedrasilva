@@ -83,20 +83,45 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
 
     let supplierId = data.supplierId ?? null;
     if (!supplierId && data.newSupplier) {
-      const { data: created, error } = await supabase
-        .from("companies")
-        .insert({
-          nome: data.newSupplier.nome,
-          nif: data.newSupplier.nif ?? null,
-          email: data.newSupplier.email ?? null,
-          is_supplier: true,
-          created_by: userId,
-        })
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      supplierId = created.id;
+      const nif = (data.newSupplier.nif ?? "").replace(/\D/g, "") || null;
+
+      // A company with this NIF may already exist (client, supplier, or both).
+      // Reuse it and flag it as a supplier instead of violating the unique NIF index.
+      let existingId: string | null = null;
+      if (nif) {
+        const { data: existing, error: findErr } = await supabase
+          .from("companies")
+          .select("id")
+          .eq("nif", nif)
+          .maybeSingle();
+        if (findErr) throw new Error(findErr.message);
+        existingId = existing?.id ?? null;
+      }
+
+      if (existingId) {
+        const { error: flagErr } = await supabase
+          .from("companies")
+          .update({ is_supplier: true })
+          .eq("id", existingId);
+        if (flagErr) throw new Error(flagErr.message);
+        supplierId = existingId;
+      } else {
+        const { data: created, error } = await supabase
+          .from("companies")
+          .insert({
+            nome: data.newSupplier.nome,
+            nif,
+            email: data.newSupplier.email ?? null,
+            is_supplier: true,
+            created_by: userId,
+          })
+          .select("id")
+          .single();
+        if (error) throw new Error(error.message);
+        supplierId = created.id;
+      }
     }
+
     if (!supplierId) throw new Error("A supplier must be selected or created before approval");
 
     const { error: upErr } = await supabase
