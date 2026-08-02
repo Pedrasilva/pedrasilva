@@ -45,6 +45,15 @@ const EXT_MIME: Record<string, string> = {
   tiff: "image/tiff",
 };
 
+/** Accepts a raw folder id or a full Drive folder URL. */
+function folderId(raw: string | undefined | null): string | null {
+  const v = (raw ?? "").trim();
+  if (!v) return null;
+  const m = v.match(/\/folders\/([a-zA-Z0-9_-]+)/) ?? v.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  return v.replace(/^https?:\/\/\S*$/, "") || null;
+}
+
 function driveHeaders(extra: Record<string, string> = {}): Record<string, string> {
   const lovableKey = process.env.LOVABLE_API_KEY;
   const connKey = process.env.GOOGLE_DRIVE_API_KEY;
@@ -102,8 +111,8 @@ export type IntakeFolders = { inbox: string; processed: string; failed: string }
  *    (or My Drive) and reuse it from then on.
  */
 export async function ensureIntakeFolders(): Promise<IntakeFolders> {
-  const configured = process.env.GOOGLE_DRIVE_FINANCE_INTAKE_FOLDER_ID?.trim();
-  const archiveRoot = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID?.trim() || null;
+  const configured = folderId(process.env.GOOGLE_DRIVE_FINANCE_INTAKE_FOLDER_ID);
+  const archiveRoot = folderId(process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID);
 
   let inbox: string;
   let base: string;
