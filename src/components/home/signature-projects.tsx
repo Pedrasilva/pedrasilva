@@ -295,7 +295,13 @@ function Lightbox({
   entry: PsaImageLibraryEntry;
   onClose: () => void;
 }) {
-  const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  // Show the cached low-res instantly, swap to full-res once it arrives.
+  const thumb = useSignedProposalImageUrl(entry.storage_path, entry.bucket, {
+    width: 480,
+    quality: 55,
+  });
+  const full = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  const [fullLoaded, setFullLoaded] = useState(false);
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
@@ -315,12 +321,29 @@ function Lightbox({
         className="max-h-[90vh] max-w-6xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {signed.data ? (
-          <img
-            src={signed.data}
-            alt={entry.name}
-            className="max-h-[85vh] w-auto rounded-md object-contain shadow-2xl"
-          />
+        {thumb.data || full.data ? (
+          <div className="relative">
+            {thumb.data && !fullLoaded && (
+              <img
+                src={thumb.data}
+                alt={entry.name}
+                className="max-h-[85vh] w-auto rounded-md object-contain shadow-2xl blur-sm"
+              />
+            )}
+            {full.data && (
+              <img
+                src={full.data}
+                alt={entry.name}
+                onLoad={() => setFullLoaded(true)}
+                className={
+                  "max-h-[85vh] w-auto rounded-md object-contain shadow-2xl transition-opacity duration-300 " +
+                  (fullLoaded
+                    ? "opacity-100"
+                    : "absolute inset-0 h-full w-full opacity-0")
+                }
+              />
+            )}
+          </div>
         ) : (
           <div className="h-96 w-96 animate-pulse bg-zinc-800" />
         )}
