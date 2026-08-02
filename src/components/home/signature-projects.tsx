@@ -221,7 +221,17 @@ function GalleryTile({
   onMove: (c: PsaImageCategory) => void;
 }) {
   const { t } = useTranslation(["home"]);
-  const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  // Low-res thumbnail first — the full image is only fetched in the lightbox.
+  const [thumbFailed, setThumbFailed] = useState(false);
+  const thumb = useSignedProposalImageUrl(entry.storage_path, entry.bucket, {
+    width: 480,
+    quality: 55,
+  });
+  const full = useSignedProposalImageUrl(
+    thumbFailed ? entry.storage_path : null,
+    entry.bucket,
+  );
+  const src = thumbFailed ? full.data : thumb.data;
   const del = useDeleteProposalImage();
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-muted">
@@ -230,12 +240,14 @@ function GalleryTile({
         onClick={onOpen}
         className="block aspect-square w-full overflow-hidden"
       >
-        {signed.data ? (
+        {src ? (
           <img
-            src={signed.data}
+            src={src}
             alt={entry.name}
+            onError={() => setThumbFailed(true)}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="h-full w-full animate-pulse bg-muted" />
@@ -290,7 +302,13 @@ function Lightbox({
   entry: PsaImageLibraryEntry;
   onClose: () => void;
 }) {
-  const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  // Show the cached low-res instantly, swap to full-res once it arrives.
+  const thumb = useSignedProposalImageUrl(entry.storage_path, entry.bucket, {
+    width: 480,
+    quality: 55,
+  });
+  const full = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  const [fullLoaded, setFullLoaded] = useState(false);
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
@@ -310,12 +328,29 @@ function Lightbox({
         className="max-h-[90vh] max-w-6xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {signed.data ? (
-          <img
-            src={signed.data}
-            alt={entry.name}
-            className="max-h-[85vh] w-auto rounded-md object-contain shadow-2xl"
-          />
+        {thumb.data || full.data ? (
+          <div className="relative">
+            {thumb.data && !fullLoaded && (
+              <img
+                src={thumb.data}
+                alt={entry.name}
+                className="max-h-[85vh] w-auto rounded-md object-contain shadow-2xl blur-sm"
+              />
+            )}
+            {full.data && (
+              <img
+                src={full.data}
+                alt={entry.name}
+                onLoad={() => setFullLoaded(true)}
+                className={
+                  "max-h-[85vh] w-auto rounded-md object-contain shadow-2xl transition-opacity duration-300 " +
+                  (fullLoaded
+                    ? "opacity-100"
+                    : "absolute inset-0 h-full w-full opacity-0")
+                }
+              />
+            )}
+          </div>
         ) : (
           <div className="h-96 w-96 animate-pulse bg-zinc-800" />
         )}
