@@ -251,30 +251,83 @@ export async function detectRecurring(vat: string | null, amount: number | null)
 }
 
 /**
- * Document pairing: an invoice and its receipt / proof of payment that share
- * the same document number (and supplier) are ONE transaction. Reuse the
- * existing group id so the queue shows them as a single reviewable unit.
+ * Document pairing across the WHOLE queue (not just the current upload batch).
+ *
+ * Two passes:
+ *   1. exact document-number match (invoice + its receipt reusing the number),
+ *      restricted to the same supplier VAT when both sides have one;
+ *   2. fallback for issuers that number receipts differently from invoices
+ *      (e.g. Anthropic): same supplier (VAT, else normalized name) + same
+ *      amount (±1 cent or ±0.5%) + issue dates within 45 days.
  */
 export async function resolveDocumentGroup(
   documentNumber: string | null,
   vat: string | null,
+  opts?: { amount?: number | null; date?: string | null; supplierName?: string | null },
 ): Promise<string | null> {
-  const num = documentNumber?.trim();
-  if (!num) return null;
+  const nv = normalizeVat(vat);
+  const num = documentNumber?.trim() || null;
+  const amount = opts?.amount ?? null;
+  const name = opts?.supplierName?.trim().toLowerCase() || null;
+
   const { data } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, linked_document_group_id, extracted_document_number, extracted_supplier_vat")
-    .eq("extracted_document_number", num)
+    .select(
+      "id, linked_document_group_id, extracted_document_number, extracted_supplier_vat, extracted_supplier_name, extracted_amount, extracted_date, doc_type",
+    )
     .neq("status", "rejected")
-    .limit(20);
+    .neq("doc_type", "bank_statement")
+    .order("created_at", { ascending: false })
+    .limit(300);
 
-  const nv = normalizeVat(vat);
-  const sibling = ((data ?? []) as Array<{
-    linked_document_group_id: string; extracted_supplier_vat: string | null;
-  }>).find((r) => !nv || !r.extracted_supplier_vat || normalizeVat(r.extracted_supplier_vat) === nv);
+  const rows = (data ?? []) as Array<{
+    linked_document_group_id: string;
+    extracted_document_number: string | null;
+    extracted_supplier_vat: string | null;
+    extracted_supplier_name: string | null;
+    extracted_amount: number | null;
+    extracted_date: string | null;
+  }>;
 
-  return sibling?.linked_document_group_id ?? null;
+  const sameSupplier = (r: (typeof rows)[number]) => {
+    const rv = normalizeVat(r.extracted_supplier_vat);
+    if (nv && rv) return nv === rv;
+    if (name && r.extracted_supplier_name) {
+      return r.extracted_supplier_name.trim().toLowerCase() === name;
+    }
+    return false;
+  };
+
+  // Pass 1 — same document number.
+  if (num) {
+    const byNumber = rows.find(
+      (r) =>
+        r.extracted_document_number?.trim() === num &&
+        (!nv || !r.extracted_supplier_vat || normalizeVat(r.extracted_supplier_vat) === nv),
+    );
+    if (byNumber) return byNumber.linked_document_group_id;
+  }
+
+  // Pass 2 — same supplier + same amount + nearby dates.
+  if (amount != null && Number.isFinite(amount) && amount !== 0) {
+    const ts = opts?.date ? Date.parse(`${opts.date}T00:00:00Z`) : NaN;
+    const byAmount = rows.find((r) => {
+      if (!sameSupplier(r)) return false;
+      const a = Number(r.extracted_amount ?? NaN);
+      if (!Number.isFinite(a)) return false;
+      const diff = Math.abs(a - amount);
+      if (diff > 0.01 && diff / Math.abs(amount) > 0.005) return false;
+      if (Number.isNaN(ts) || !r.extracted_date) return true;
+      const rt = Date.parse(`${r.extracted_date}T00:00:00Z`);
+      if (Number.isNaN(rt)) return true;
+      return Math.abs(rt - ts) <= 45 * 24 * 3600 * 1000;
+    });
+    if (byAmount) return byAmount.linked_document_group_id;
+  }
+
+  return null;
 }
+
 
 /**
  * Shared ingest pipeline (admin context): extract → match → recurring → group
