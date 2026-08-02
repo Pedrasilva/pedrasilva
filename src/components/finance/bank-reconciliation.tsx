@@ -528,6 +528,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const { user } = useAuth();
 
   // Filters
+  const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("unclassified");
   const [dirFilter, setDirFilter] = useState<DirFilter>("all");
   const [linkFilter, setLinkFilter] = useState<LinkFilter>("all");
