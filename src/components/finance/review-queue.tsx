@@ -742,10 +742,12 @@ function QueueItemCard({
             </Button>
           </div>
         </div>
+        )}
 
-        <Separator />
+        {!isBankStatement && <Separator />}
 
         {/* Classification checkpoint */}
+        {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("finance:reviewQueue.classificationPanel")}</h3>
