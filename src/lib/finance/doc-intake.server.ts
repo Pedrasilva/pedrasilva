@@ -461,6 +461,14 @@ export async function ingestStoredDocument(opts: {
   // accounting classification — they belong to the Banking import path.
   const isStatement = ex.doc_type === "bank_statement";
 
+  // Direction step: is this a document we RECEIVED (payable) or one we
+  // ISSUED to a client (receivable)? Anchored on the firm's own VAT.
+  const own = await getOwnCompanyVat();
+  const dir = isStatement
+    ? { direction: "received" as const, counterparty_name: null, counterparty_vat: null }
+    : detectDirection(own.vat, ex);
+  const isIssued = dir.direction === "issued";
+
   const catalog = isStatement ? [] : await loadClassificationCatalog();
   const suggested =
     !isStatement && ex.classification_code
@@ -469,18 +477,22 @@ export async function ingestStoredDocument(opts: {
         ) ?? null
       : null;
 
+  // The counterparty VAT drives matching: supplier for received, client for issued.
+  const counterpartyVat = isStatement ? null : dir.counterparty_vat;
+  const counterpartyName = isStatement ? null : dir.counterparty_name;
+
   const match = isStatement
     ? { status: "no_match" as const, matched_supplier_id: null, ambiguous_ids: [] as string[] }
-    : await matchSupplierByVat(ex.supplier_vat);
-  const recurring = isStatement
+    : await matchSupplierByVat(counterpartyVat);
+  const recurring = isStatement || isIssued
     ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
-    : await detectRecurring(ex.supplier_vat, ex.total_amount);
+    : await detectRecurring(counterpartyVat, ex.total_amount);
   const groupId = isStatement
     ? null
-    : await resolveDocumentGroup(ex.document_number, ex.supplier_vat, {
+    : await resolveDocumentGroup(ex.document_number, counterpartyVat, {
         amount: ex.total_amount,
         date: ex.issue_date,
-        supplierName: ex.supplier_name,
+        supplierName: counterpartyName,
       });
 
   const payload: Record<string, unknown> = {
@@ -488,16 +500,27 @@ export async function ingestStoredDocument(opts: {
     raw_extraction: result.raw as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
+    direction: dir.direction,
+    extracted_seller_name: isStatement ? null : ex.seller_name ?? ex.supplier_name,
+    extracted_seller_vat: isStatement ? null : ex.seller_vat ?? ex.supplier_vat,
+    extracted_buyer_name: isStatement ? null : ex.buyer_name,
+    extracted_buyer_vat: isStatement ? null : ex.buyer_vat,
     extracted_amount: isStatement ? null : ex.total_amount,
     extracted_vat_amount: isStatement ? null : ex.vat_amount,
     extracted_date: ex.issue_date,
     extracted_due_date: isStatement ? null : ex.due_date,
     extracted_currency: ex.currency ?? "EUR",
     extracted_document_number: ex.document_number,
-    extracted_supplier_name: isStatement ? null : ex.supplier_name,
-    extracted_supplier_vat: isStatement ? null : ex.supplier_vat,
-    supplier_match_status: match.status,
-    matched_supplier_id: match.matched_supplier_id,
+    // Legacy supplier columns stay populated ONLY for received documents so
+    // an issued client invoice can never leak into the suppliers workflow.
+    extracted_supplier_name: isStatement || isIssued ? null : counterpartyName,
+    extracted_supplier_vat: isStatement || isIssued ? null : counterpartyVat,
+    supplier_match_status: isIssued ? "no_match" : match.status,
+    matched_supplier_id: isIssued ? null : match.matched_supplier_id,
+    ambiguous_supplier_ids: isIssued ? [] : match.ambiguous_ids,
+    client_match_status: isIssued ? match.status : "no_match",
+    matched_client_id: isIssued ? match.matched_supplier_id : null,
+    ambiguous_client_ids: isIssued ? match.ambiguous_ids : [],
     ambiguous_supplier_ids: match.ambiguous_ids,
     suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
     suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
