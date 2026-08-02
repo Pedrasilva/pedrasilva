@@ -65,6 +65,10 @@ const JSON_SCHEMA = {
       doc_type_confidence: { type: "number" },
       supplier_name: { type: ["string", "null"] },
       supplier_vat: { type: ["string", "null"] },
+      seller_name: { type: ["string", "null"] },
+      seller_vat: { type: ["string", "null"] },
+      buyer_name: { type: ["string", "null"] },
+      buyer_vat: { type: ["string", "null"] },
       document_number: { type: ["string", "null"] },
       issue_date: { type: ["string", "null"] },
       due_date: { type: ["string", "null"] },
@@ -78,6 +82,7 @@ const JSON_SCHEMA = {
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
+      "seller_name", "seller_vat", "buyer_name", "buyer_vat",
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
