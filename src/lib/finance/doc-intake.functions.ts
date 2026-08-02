@@ -382,3 +382,18 @@ export const rejectQueueItem = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Re-run extraction on a pending queue item (e.g. after a direction-detection
+ * fix). Never touches approved/rejected rows.
+ */
+export const reprocessQueueItemFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<IngestResult> => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
+    return reprocessQueueItem(data.id);
+  });
+
