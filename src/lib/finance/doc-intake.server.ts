@@ -521,7 +521,7 @@ export async function ingestStoredDocument(opts: {
     client_match_status: isIssued ? match.status : "no_match",
     matched_client_id: isIssued ? match.matched_supplier_id : null,
     ambiguous_client_ids: isIssued ? match.ambiguous_ids : [],
-    ambiguous_supplier_ids: match.ambiguous_ids,
+    
     suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
     suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
