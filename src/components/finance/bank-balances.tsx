@@ -44,6 +44,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { BankAccountDetailDialog } from "@/components/finance/bank-account-detail-dialog";
 
 type AccountKind = "bank" | "credit_card" | "benefits" | "other";
 
@@ -54,6 +55,8 @@ type Account = {
   currency: string;
   account_kind: AccountKind;
   archived_at: string | null;
+  opening_balance: number | null;
+  opening_balance_date: string | null;
 };
 
 type Snapshot = {
