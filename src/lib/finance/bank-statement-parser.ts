@@ -128,6 +128,63 @@ async function sha256Hex(s: string): Promise<string> {
 }
 
 /**
+ * CANONICAL row checksum — the single source of truth for `bank_transactions.row_checksum`.
+ *
+ * Every importer (Excel upload, MT940 email ingestion, any future format) MUST call this
+ * function rather than re-implementing the hash, so the `uniq_bank_tx_account_checksum`
+ * unique index genuinely protects all paths against double-importing the same statement.
+ *
+ * Inputs are normalized BEFORE hashing:
+ *  - dates: ISO `yyyy-mm-dd` (null value date → empty string)
+ *  - amount / running balance: fixed 2 decimals (null balance → empty string)
+ *  - description: trimmed, internal whitespace collapsed (MT940 wraps :86: across lines)
+ *  - occurrence: 1-based ordinal among rows with an identical content key WITHIN the same
+ *    statement. This keeps genuinely repeated transactions (e.g. two identical card
+ *    payments on the same day) distinct while staying identical across file formats —
+ *    unlike a source row index, which differs between Excel and MT940.
+ */
+export type RowChecksumInput = {
+  transaction_date: string;
+  value_date: string | null;
+  amount: number;
+  description: string;
+  running_balance: number | null;
+  occurrence: number;
+};
+
+export function normalizeChecksumDescription(desc: string): string {
+  return desc.replace(/\s+/g, " ").trim();
+}
+
+export function rowContentKey(
+  input: Omit<RowChecksumInput, "occurrence">,
+): string {
+  return [
+    input.transaction_date,
+    input.value_date ?? "",
+    input.amount.toFixed(2),
+    normalizeChecksumDescription(input.description),
+    input.running_balance == null ? "" : input.running_balance.toFixed(2),
+  ].join("|");
+}
+
+export async function buildRowChecksum(input: RowChecksumInput): Promise<string> {
+  return sha256Hex(`${rowContentKey(input)}|#${input.occurrence}`);
+}
+
+/** Tracks how many times an identical content key has been seen within one statement. */
+export function createOccurrenceCounter() {
+  const seen = new Map<string, number>();
+  return (input: Omit<RowChecksumInput, "occurrence">): number => {
+    const key = rowContentKey(input);
+    const next = (seen.get(key) ?? 0) + 1;
+    seen.set(key, next);
+    return next;
+  };
+}
+
+
+/**
  * Detect the header row by scanning for normalized matches against required aliases.
  * Returns the 0-based row index in the AOA grid.
  */
