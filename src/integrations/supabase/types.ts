@@ -1239,6 +1239,7 @@ export type Database = {
           opening_balance_receivable: number
           payment_terms: string | null
           postal_code: string | null
+          relationship_type: Database["public"]["Enums"]["company_relationship_type"]
           status: Database["public"]["Enums"]["company_status"]
           telefone: string | null
           updated_at: string
@@ -1269,6 +1270,7 @@ export type Database = {
           opening_balance_receivable?: number
           payment_terms?: string | null
           postal_code?: string | null
+          relationship_type?: Database["public"]["Enums"]["company_relationship_type"]
           status?: Database["public"]["Enums"]["company_status"]
           telefone?: string | null
           updated_at?: string
@@ -1299,6 +1301,7 @@ export type Database = {
           opening_balance_receivable?: number
           payment_terms?: string | null
           postal_code?: string | null
+          relationship_type?: Database["public"]["Enums"]["company_relationship_type"]
           status?: Database["public"]["Enums"]["company_status"]
           telefone?: string | null
           updated_at?: string
@@ -9491,6 +9494,11 @@ export type Database = {
         | "synced"
         | "failed"
         | "skipped_rejected"
+      company_relationship_type:
+        | "client"
+        | "supplier"
+        | "both"
+        | "uncategorized"
       company_status: "activo" | "prospecto" | "inactivo"
       contract_kind:
         | "standalone"
@@ -9897,6 +9905,12 @@ export const Constants = {
         "synced",
         "failed",
         "skipped_rejected",
+      ],
+      company_relationship_type: [
+        "client",
+        "supplier",
+        "both",
+        "uncategorized",
       ],
       company_status: ["activo", "prospecto", "inactivo"],
       contract_kind: [
