@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BankBalancesSection } from "@/components/finance/sections/legacy-sections";
+import { BankBalancesSection } from "@/components/finance/bank-balances";
 
 export const Route = createFileRoute("/_app/finance/banking/balances")({
   component: BankBalancesSection,
