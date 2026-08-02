@@ -259,7 +259,10 @@
       "ignore": "Ignorar",
       "ignoreHint": "Marcar como não relevante para contabilidade",
       "more": "Mais acções",
-      "matchReimbursement": "Associar reembolso RH"
+      "matchReimbursement": "Associar reembolso RH",
+      "unmatch": "Desassociar / reverter",
+      "unmatchConfirm": "Desassociar esta transação? Ficará desbloqueada e sai do saldo calculado.",
+      "unmatched": "Transação desassociada"
     },
     "linkedTo": "Associada a {{ref}}",
     "alreadyLinked": {

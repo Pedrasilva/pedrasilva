@@ -259,7 +259,10 @@
       "ignore": "Ignore",
       "ignoreHint": "Mark as not relevant for accounting",
       "more": "More actions",
-      "matchReimbursement": "Match HR reimbursement"
+      "matchReimbursement": "Match HR reimbursement",
+      "unmatch": "Unmatch / reverse",
+      "unmatchConfirm": "Unmatch this transaction? It will be unlocked and removed from the calculated balance.",
+      "unmatched": "Transaction unmatched"
     },
     "linkedTo": "Linked to {{ref}}",
     "alreadyLinked": {
