@@ -87,6 +87,7 @@ const GROUPS: Group[] = [
       { to: "/finance/banking/balances", labelKey: "finance:sidebar.items.balances", icon: Banknote },
       { to: "/finance/banking/reconciliation", labelKey: "finance:sidebar.items.reconciliation", icon: RefreshCw },
       { to: "/finance/banking/transactions", labelKey: "finance:sidebar.items.transactions", icon: ListChecks },
+      { to: "/finance/banking/statements", labelKey: "finance:sidebar.items.statements", icon: ScrollText },
     ],
   },
   {
