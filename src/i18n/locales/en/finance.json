@@ -423,6 +423,24 @@
       "showArchived": "Show archived",
       "archived": "Account archived",
       "restored": "Account restored"
+    },
+    "detail": {
+      "title": "Account details",
+      "accountName": "Account holder / label",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "cardNumber": "Card number",
+      "openingBalance": "Opening balance",
+      "openingBalanceCard": "Opening balance (card)",
+      "openingBalanceDate": "Opening balance date",
+      "openingHint": "The opening balance is the starting point used until a first balance snapshot is recorded.",
+      "openingTag": "(opening)",
+      "active": "Account active",
+      "snapshotHistory": "Snapshot history",
+      "recentTransactions": "Recent transactions",
+      "viewAllTransactions": "View all transactions",
+      "noTransactions": "No transactions for this account.",
+      "saved": "Account updated"
     }
   },
   "tabPlaceholder": {

@@ -423,6 +423,24 @@
       "showArchived": "Mostrar arquivadas",
       "archived": "Conta arquivada",
       "restored": "Conta restaurada"
+    },
+    "detail": {
+      "title": "Detalhes da conta",
+      "accountName": "Titular / designação",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "cardNumber": "Número do cartão",
+      "openingBalance": "Saldo inicial",
+      "openingBalanceCard": "Saldo inicial (cartão)",
+      "openingBalanceDate": "Data do saldo inicial",
+      "openingHint": "O saldo inicial é o ponto de partida usado até ser registado o primeiro snapshot de saldo.",
+      "openingTag": "(inicial)",
+      "active": "Conta activa",
+      "snapshotHistory": "Histórico de snapshots",
+      "recentTransactions": "Movimentos recentes",
+      "viewAllTransactions": "Ver todos os movimentos",
+      "noTransactions": "Sem movimentos para esta conta.",
+      "saved": "Conta actualizada"
     }
   },
   "tabPlaceholder": {
