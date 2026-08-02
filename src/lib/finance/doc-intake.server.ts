@@ -39,6 +39,13 @@ export type IntakeExtraction = {
   /** Buyer / bill-to party (may be the firm itself). */
   buyer_name: string | null;
   buyer_vat: string | null;
+  /**
+   * The issuer's mandatory legal footer block (NIF / Capital Social / C.R.C.).
+   * On Portuguese invoices this — not page position — identifies the issuer.
+   */
+  footer_legal_text: string | null;
+  /** Every VAT/NIF printed anywhere on the page, in printed order. */
+  all_vat_numbers: string[] | null;
   document_number: string | null;
   issue_date: string | null;
   due_date: string | null;
@@ -50,6 +57,7 @@ export type IntakeExtraction = {
   classification_confidence: number;
   summary: string | null;
 };
+
 
 const JSON_SCHEMA = {
   name: "financial_document_extraction",
@@ -69,6 +77,8 @@ const JSON_SCHEMA = {
       seller_vat: { type: ["string", "null"] },
       buyer_name: { type: ["string", "null"] },
       buyer_vat: { type: ["string", "null"] },
+      footer_legal_text: { type: ["string", "null"] },
+      all_vat_numbers: { type: ["array", "null"], items: { type: "string" } },
       document_number: { type: ["string", "null"] },
       issue_date: { type: ["string", "null"] },
       due_date: { type: ["string", "null"] },
@@ -83,10 +93,12 @@ const JSON_SCHEMA = {
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
       "seller_name", "seller_vat", "buyer_name", "buyer_vat",
+      "footer_legal_text", "all_vat_numbers",
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
     ],
+
   },
 } as const;
 
@@ -129,8 +141,15 @@ export async function extractDocument(
 
   const catalog = await loadClassificationCatalog();
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
+  const own = await getOwnCompanyVat();
 
-  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) received by an architecture firm in Portugal. Documents may be Portuguese or English.
+  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) handled by an architecture firm in Portugal. Documents may be Portuguese or English.
+
+THE FIRM ITSELF (the entity whose accounting this is):
+- Registered name: ${own.name ?? "Pedra Silva Arquitecto Lda"} (also printed as "Pedra Silva Architects", "Pedra Silva Arquitectos", "Pedra Silva Arquitetos")
+- NIF / VAT: ${own.vat ?? "unknown"}
+The firm can appear as EITHER the seller (an invoice it issued to a client) OR the buyer (a supplier invoice it received). Decide from the document, never assume.
+
 Rules:
 - FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
 - If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
@@ -138,6 +157,11 @@ Rules:
   - seller_name / seller_vat: the party ISSUING the document (the one being paid), exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567).
   - buyer_name / buyer_vat: the party the document is BILLED TO (the one paying). Look for "Cliente", "Bill to", "Adquirente", "Exmos. Srs.", "Contribuinte n.º".
   - Never swap them and never leave a VAT blank when it is printed anywhere on the document.
+- IDENTIFYING THE ISSUER ON A PORTUGUESE INVOICE — do NOT use page position:
+  - The issuer is the entity in the mandatory legal footer block: the line(s) carrying "NIF"/"Contribuinte", "Capital Social" and "C.R.C."/"Matriculada na Conservatória". That footer identifies the SELLER, even when the letterhead is only a logo and even when another company's details sit at the top of the page next to the invoice number/date.
+  - A company name/address printed beside the invoice number, date or "Fatura" metadata block is normally the BUYER (bill-to), not the seller.
+  - Copy that whole footer legal block verbatim into footer_legal_text (null if the document has none).
+- all_vat_numbers: list EVERY VAT/NIF printed anywhere on the page (header, party blocks, footer legal block), exactly as printed, in the order they appear. Never omit one because you were unsure whose it is.
 - supplier_vat / supplier_name: keep these equal to seller_vat / seller_name (legacy fields).
 - For bank_statement / proof_of_payment where there is no clear seller/buyer pair, set the party fields to null rather than guessing.
 - document_number: the invoice or receipt number as printed.
@@ -148,6 +172,7 @@ Rules:
 
 TAXONOMY:
 ${catalogText}`;
+
 
   const res = await fetch(GATEWAY_URL, {
     method: "POST",
@@ -234,34 +259,149 @@ export type DirectionResult = {
   /** The other party: the client for issued docs, the supplier for received ones. */
   counterparty_name: string | null;
   counterparty_vat: string | null;
+  /** 0..1 — how strong the anchor was. */
+  confidence: number;
+  /** Which signal decided it (debugging / reviewer transparency). */
+  anchor:
+    | "seller_vat"
+    | "buyer_vat"
+    | "seller_name"
+    | "buyer_name"
+    | "footer_legal"
+    | "no_firm_reference"
+    | "none";
 };
+
+/** Strip accents, punctuation and legal/profession words for fuzzy name matching. */
+const NAME_NOISE =
+  /\b(lda|ltda|unipessoal|sa|s\.a|societe|limited|ltd|inc|llc|arquitecto|arquitectos|arquiteto|arquitetos|architect|architects|architecture|arquitectura|arquitetura|company|co)\b/g;
+
+export function firmNameTokens(name: string | null | undefined): string[] {
+  if (!name) return [];
+  const cleaned = String(name)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(NAME_NOISE, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.split(" ").filter((t) => t.length > 2);
+}
+
+/**
+ * Fuzzy "is this text the firm?" — true when every distinctive token of the
+ * firm's registered name appears in the candidate text. Tolerates the
+ * Architects / Arquitectos / Arquitetos spellings and legal-suffix drift.
+ */
+export function mentionsFirm(text: string | null | undefined, ownName: string | null): boolean {
+  const tokens = firmNameTokens(ownName);
+  if (tokens.length === 0 || !text) return false;
+  const hay = ` ${firmNameTokens(text).join(" ")} `;
+  return tokens.every((t) => hay.includes(` ${t} `));
+}
 
 /**
  * Direction detection: whose document is this?
- * - seller VAT == firm VAT  → the firm issued it → counterparty is the CLIENT.
- * - buyer VAT  == firm VAT  → the firm received it → counterparty is the SUPPLIER.
- * - neither                 → unclear; the reviewer sees both parties.
+ *
+ * Anchors, strongest first:
+ *  1. seller VAT == firm VAT  → issued   (counterparty = CLIENT)
+ *  2. buyer VAT  == firm VAT  → received (counterparty = SUPPLIER)
+ *  3. seller/buyer NAME matches the firm's registered name — VAT extraction
+ *     fails on some templates, so name is a real secondary anchor.
+ *  4. The mandatory legal footer block (NIF / Capital Social / C.R.C.) belongs
+ *     to the firm → the firm ISSUED it. On a Portuguese invoice that footer,
+ *     not page position, identifies the issuer.
+ *  5. The firm is referenced somewhere on the page (any printed VAT / footer)
+ *     but no party role can be resolved → "unclear", never a silent default.
+ *  6. The firm is not referenced at all → an ordinary received supplier
+ *     document (low confidence, reviewer confirms).
  */
 export function detectDirection(
-  ownVat: string | null,
-  ex: Pick<IntakeExtraction, "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat">,
+  own: { vat: string | null; name: string | null } | string | null,
+  ex: Pick<
+    IntakeExtraction,
+    "seller_name" | "seller_vat" | "buyer_name" | "buyer_vat" | "supplier_name" | "supplier_vat"
+  > &
+    Partial<Pick<IntakeExtraction, "footer_legal_text" | "all_vat_numbers">>,
 ): DirectionResult {
+  const ownVat = typeof own === "string" || own === null ? own : own.vat;
+  const ownName = typeof own === "string" || own === null ? null : own.name;
+
   const sellerVat = ex.seller_vat ?? ex.supplier_vat ?? null;
   const sellerName = ex.seller_name ?? ex.supplier_name ?? null;
+  const issued = (c: DirectionResult["anchor"], confidence: number): DirectionResult => ({
+    direction: "issued",
+    counterparty_name: ex.buyer_name,
+    counterparty_vat: ex.buyer_vat,
+    confidence,
+    anchor: c,
+  });
+  const received = (c: DirectionResult["anchor"], confidence: number): DirectionResult => ({
+    direction: "received",
+    counterparty_name: sellerName,
+    counterparty_vat: sellerVat,
+    confidence,
+    anchor: c,
+  });
 
-  if (ownVat && sameVat(sellerVat, ownVat)) {
-    return { direction: "issued", counterparty_name: ex.buyer_name, counterparty_vat: ex.buyer_vat };
+  // 1–2: VAT anchors.
+  if (ownVat && sameVat(sellerVat, ownVat)) return issued("seller_vat", 0.99);
+  if (ownVat && sameVat(ex.buyer_vat, ownVat)) return received("buyer_vat", 0.99);
+
+  // 3: name anchors (VAT extraction can fail per-template).
+  const sellerIsFirm = mentionsFirm(sellerName, ownName);
+  const buyerIsFirm = mentionsFirm(ex.buyer_name, ownName);
+  if (sellerIsFirm && !buyerIsFirm) return issued("seller_name", 0.85);
+  if (buyerIsFirm && !sellerIsFirm) return received("buyer_name", 0.85);
+
+  // 4: the legal footer block identifies the issuer.
+  const footer = ex.footer_legal_text ?? null;
+  const footerIsFirm =
+    (!!ownVat && !!footer && sameVatInText(footer, ownVat)) || mentionsFirm(footer, ownName);
+  if (footerIsFirm) {
+    // The firm issued it; the other printed party is the client.
+    const counterpartyName = ex.buyer_name ?? (sellerIsFirm ? null : sellerName);
+    const counterpartyVat = ex.buyer_vat ?? (sellerIsFirm ? null : sellerVat);
+    return {
+      direction: "issued",
+      counterparty_name: counterpartyName,
+      counterparty_vat: counterpartyVat,
+      confidence: 0.8,
+      anchor: "footer_legal",
+    };
   }
-  if (ownVat && sameVat(ex.buyer_vat, ownVat)) {
-    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
+
+  // 5: the firm is referenced but its role is not resolvable → flag it.
+  const printedVats = ex.all_vat_numbers ?? [];
+  const firmReferenced =
+    (!!ownVat && printedVats.some((v) => sameVat(v, ownVat))) ||
+    (!!ownVat && !!footer && sameVatInText(footer, ownVat)) ||
+    mentionsFirm(footer, ownName) ||
+    sellerIsFirm ||
+    buyerIsFirm;
+  if (firmReferenced || !ownVat) {
+    return {
+      direction: "unclear",
+      counterparty_name: sellerName,
+      counterparty_vat: sellerVat,
+      confidence: 0.3,
+      anchor: "none",
+    };
   }
-  // No own-VAT anchor on the page. A buyer VAT that is clearly someone else's
-  // while the seller VAT is missing is not enough to guess — flag it.
-  if (!ownVat || (!sellerVat && !ex.buyer_vat)) {
-    return { direction: "received", counterparty_name: sellerName, counterparty_vat: sellerVat };
-  }
-  return { direction: "unclear", counterparty_name: sellerName, counterparty_vat: sellerVat };
+
+  // 6: no reference to the firm anywhere — ordinary inbound supplier document.
+  return received("no_firm_reference", 0.6);
 }
+
+/** True when a VAT id appears anywhere inside a free-text block. */
+function sameVatInText(text: string | null, vat: string | null): boolean {
+  if (!text || !vat) return false;
+  const digits = String(text).replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  for (const form of vatForms(vat)) if (form.length >= 8 && digits.includes(form)) return true;
+  return false;
+}
+
 
 /**
  * Supplier matching — VAT/NIF ONLY, never by name.
@@ -429,8 +569,20 @@ export async function ingestStoredDocument(opts: {
   originalFilename?: string | null;
   source: "manual_upload" | "email_ingestion";
   createdBy?: string | null;
+  /** When set, the existing pending queue row is re-extracted in place. */
+  replaceQueueItemId?: string | null;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
   const result = await extractDocument(opts.bucket, opts.storagePath);
+  const replaceId = opts.replaceQueueItemId ?? null;
+
+  const write = async (values: Record<string, unknown>) => {
+    const q = supabaseAdmin.from("financial_document_review_queue");
+    return replaceId
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? q.update(values as any).eq("id", replaceId).select("id, linked_document_group_id").single()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      : q.insert(values as any).select("id, linked_document_group_id").single();
+  };
 
   const base = {
     source_file_url: opts.storagePath,
@@ -441,12 +593,8 @@ export async function ingestStoredDocument(opts: {
   };
 
   if (!result.ok) {
-    const { data: row, error } = await supabaseAdmin
-      .from("financial_document_review_queue")
-      .insert({ ...base, extraction_error: result.error })
-      .select("id, linked_document_group_id")
-      .single();
-    if (error) return { ok: false, error: error.message };
+    const { data: row, error } = await write({ ...base, extraction_error: result.error });
+    if (error || !row) return { ok: false, error: error?.message ?? result.error };
     return {
       ok: false,
       error: result.error,
@@ -455,6 +603,7 @@ export async function ingestStoredDocument(opts: {
     };
   }
 
+
   const ex = result.extraction;
 
   // Routing step: bank statements never go through supplier matching or
@@ -462,11 +611,19 @@ export async function ingestStoredDocument(opts: {
   const isStatement = ex.doc_type === "bank_statement";
 
   // Direction step: is this a document we RECEIVED (payable) or one we
-  // ISSUED to a client (receivable)? Anchored on the firm's own VAT.
+  // ISSUED to a client (receivable)? Anchored on the firm's own VAT, its
+  // registered name, and the issuer's legal footer block.
   const own = await getOwnCompanyVat();
-  const dir = isStatement
-    ? { direction: "received" as const, counterparty_name: null, counterparty_vat: null }
-    : detectDirection(own.vat, ex);
+  const dir: DirectionResult = isStatement
+    ? {
+        direction: "received",
+        counterparty_name: null,
+        counterparty_vat: null,
+        confidence: 1,
+        anchor: "none",
+      }
+    : detectDirection(own, ex);
+
   const isIssued = dir.direction === "issued";
 
   const catalog = isStatement ? [] : await loadClassificationCatalog();
@@ -501,6 +658,8 @@ export async function ingestStoredDocument(opts: {
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
     direction: dir.direction,
+    direction_confidence: dir.confidence,
+
     extracted_seller_name: isStatement ? null : ex.seller_name ?? ex.supplier_name,
     extracted_seller_vat: isStatement ? null : ex.seller_vat ?? ex.supplier_vat,
     extracted_buyer_name: isStatement ? null : ex.buyer_name,
@@ -527,16 +686,43 @@ export async function ingestStoredDocument(opts: {
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
+    extraction_error: null,
   };
 
   if (groupId) payload.linked_document_group_id = groupId;
 
-  const { data: row, error } = await supabaseAdmin
-    .from("financial_document_review_queue")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .insert(payload as any)
-    .select("id, linked_document_group_id")
-    .single();
-  if (error) return { ok: false, error: error.message };
+  const { data: row, error } = await write(payload);
+  if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
   return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
 }
+
+/**
+ * Re-run extraction + direction detection on an existing PENDING queue row,
+ * updating it in place. Approved/rejected rows are never touched — a wrong
+ * direction that already produced a live financial record needs manual review.
+ */
+export async function reprocessQueueItem(
+  queueItemId: string,
+): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
+  const { data: item, error } = await supabaseAdmin
+    .from("financial_document_review_queue")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by")
+    .eq("id", queueItemId)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!item) return { ok: false, error: "queue item not found" };
+  if (item.status !== "pending_review") {
+    return { ok: false, error: `cannot reprocess a ${item.status} item` };
+  }
+  if (!item.source_file_url) return { ok: false, error: "queue item has no stored file" };
+
+  return ingestStoredDocument({
+    bucket: item.source_bucket ?? "financial-documents",
+    storagePath: item.source_file_url,
+    originalFilename: item.original_filename,
+    source: (item.source as "manual_upload" | "email_ingestion") ?? "manual_upload",
+    createdBy: item.created_by,
+    replaceQueueItemId: item.id,
+  });
+}
+
