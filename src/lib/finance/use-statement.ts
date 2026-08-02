@@ -78,14 +78,16 @@ async function bankStatement(
     supabase
       .from("bank_transactions")
       .select("id, transaction_date, description, amount, currency, status")
+      // "reconciled" is recorded by `reconciled_at`, exactly as
+      // bank_calculated_balances() reads it.
+      .not("reconciled_at", "is", null)
       .eq("bank_account_id", accountId)
-      .eq("status", "reconciled")
       .gte("transaction_date", from)
       .lte("transaction_date", to)
       .order("transaction_date", { ascending: true }),
     supabase
       .from("bank_accounts")
-      .select("currency")
+      .select("currency, opening_balance_date")
       .eq("id", accountId)
       .maybeSingle(),
   ]);
@@ -97,21 +99,27 @@ async function bankStatement(
   let totalIn = 0;
   let totalOut = 0;
 
-  const entries: StatementEntry[] = (txRes.data ?? []).map((tx) => {
-    const amount = Number(tx.amount ?? 0);
-    running += amount;
-    if (amount >= 0) totalIn += amount;
-    else totalOut += -amount;
-    return {
-      id: tx.id,
-      date: tx.transaction_date,
-      kind: "transaction" as const,
-      reference: "",
-      description: tx.description ?? "",
-      amount,
-      running,
-    };
-  });
+  // The balance function ignores movements on/before the opening-balance date.
+  const openingDate = accRes.data?.opening_balance_date ?? null;
+
+  const entries: StatementEntry[] = (txRes.data ?? [])
+    .filter((tx) => !openingDate || tx.transaction_date > openingDate)
+    .map((tx) => {
+      const amount = Number(tx.amount ?? 0);
+      running += amount;
+      if (amount >= 0) totalIn += amount;
+      else totalOut += -amount;
+      return {
+        id: tx.id,
+        date: tx.transaction_date,
+        kind: "transaction" as const,
+        reference: "",
+        description: tx.description ?? "",
+        amount,
+        running,
+      };
+    });
+
 
   return {
     entityType: "bank_account",
