@@ -285,13 +285,16 @@ export function ReviewQueue() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium truncate">
-                      {head.extracted_supplier_name ?? head.original_filename ?? t("finance:reviewQueue.unknownSupplier")}
+                      {counterpartyName(head) ?? head.original_filename ?? t("finance:reviewQueue.unknownSupplier")}
                     </span>
                     <span className="text-xs tabular-nums">
                       {fmtMoney(head.extracted_amount, head.extracted_currency)}
                     </span>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-1">
+                    {head.doc_type !== "bank_statement" && (
+                      <DirectionBadge direction={head.direction} />
+                    )}
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
                         {t("finance:reviewQueue.groupedDocs", { count: items.length })}
