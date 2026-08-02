@@ -437,16 +437,23 @@ function QueueItemCard({
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
 
+  const isIssued = row.direction === "issued";
+  const isUnclear = row.direction === "unclear";
+
   const [fields, setFields] = useState({
-    supplier_name: row.extracted_supplier_name ?? "",
-    supplier_vat: row.extracted_supplier_vat ?? "",
+    supplier_name: counterpartyName(row) ?? "",
+    supplier_vat: counterpartyVat(row) ?? "",
     document_number: row.extracted_document_number ?? "",
     date: row.extracted_date ?? "",
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
     currency: row.extracted_currency ?? "EUR",
   });
-  const [supplierId, setSupplierId] = useState<string | null>(row.matched_supplier_id);
+  const [counterpartyId, setCounterpartyId] = useState<string | null>(
+    isIssued ? row.matched_client_id : row.matched_supplier_id,
+  );
+  const supplierId = counterpartyId;
+  const setSupplierId = setCounterpartyId;
   const [classificationId, setClassificationId] = useState<string | null>(
     row.suggested_classification_id,
   );
@@ -455,6 +462,7 @@ function QueueItemCard({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const approveSupplier = useServerFn(approveQueueSupplier);
+  const approveClient = useServerFn(approveQueueClient);
   const approveClassification = useServerFn(approveQueueClassification);
   const finalize = useServerFn(finalizeQueueItem);
   const reject = useServerFn(rejectQueueItem);
