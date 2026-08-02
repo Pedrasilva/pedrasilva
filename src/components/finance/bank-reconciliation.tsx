@@ -775,6 +775,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                     onMatchReimb={() => setMatchReimbTx(selectedTx)}
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
                     onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                    onUnmatch={() => unmatchTx(selectedTx)}
                   />
                 ) : (
                   <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
