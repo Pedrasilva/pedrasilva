@@ -376,7 +376,8 @@
       "currency": "Currency",
       "latest": "Latest balance",
       "asOf": "As of",
-      "actions": "Actions"
+      "actions": "Actions",
+      "type": "Type"
     },
     "newSnapshot": "New balance snapshot",
     "newSnapshotTitle": "Add bank balance snapshot",
@@ -391,7 +392,38 @@
     },
     "empty": "No bank accounts found.",
     "noSnapshot": "No snapshot",
-    "totalCurrent": "Total current bank balance"
+    "totalCurrent": "Total current bank balance",
+    "totalCurrentHint": "Bank accounts only — credit cards and benefit accounts are subtotalled separately.",
+    "groups": {
+      "bank": {
+        "title": "Bank accounts",
+        "label": "Bank account",
+        "subtotal": "Bank subtotal"
+      },
+      "credit_card": {
+        "title": "Personal credit cards",
+        "label": "Personal credit card",
+        "subtotal": "Credit card subtotal"
+      },
+      "benefits": {
+        "title": "Benefits / other",
+        "label": "Benefits",
+        "subtotal": "Benefits subtotal"
+      },
+      "other": {
+        "title": "Other",
+        "label": "Other",
+        "subtotal": "Other subtotal"
+      }
+    },
+    "archive": {
+      "archive": "Archive",
+      "restore": "Restore",
+      "badge": "Archived",
+      "showArchived": "Show archived",
+      "archived": "Account archived",
+      "restored": "Account restored"
+    }
   },
   "tabPlaceholder": {
     "title": "Coming next",
