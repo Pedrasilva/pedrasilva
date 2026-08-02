@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
+import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import {
   ingestFinancialDocument,
   approveQueueSupplier,
@@ -582,22 +583,18 @@ function QueueItemCard({
           <div className="rounded-md border overflow-hidden bg-muted/30 min-h-[320px]">
             {previewUrl ? (
               <div className="flex flex-col">
-                <object
-                  data={previewUrl}
-                  type={isPdf ? "application/pdf" : undefined}
-                  className="w-full h-[420px]"
-                  aria-label={row.original_filename ?? row.id}
-                >
-                  {isPdf ? (
-                    <iframe src={previewUrl} title={row.id} className="w-full h-[420px]" />
-                  ) : (
-                    <img
-                      src={previewUrl}
-                      alt={row.original_filename ?? row.id}
-                      className="w-full h-[420px] object-contain"
-                    />
-                  )}
-                </object>
+                {isPdf ? (
+                  <PdfCanvasPreview
+                    url={previewUrl}
+                    className="h-[420px] overflow-y-auto p-2"
+                  />
+                ) : (
+                  <img
+                    src={previewUrl}
+                    alt={row.original_filename ?? row.id}
+                    className="w-full h-[420px] object-contain"
+                  />
+                )}
                 <a
                   href={previewUrl}
                   target="_blank"
