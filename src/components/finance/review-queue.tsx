@@ -683,9 +683,10 @@ function QueueItemCard({
           </div>
         </div>
 
-        <Separator />
+        {!isBankStatement && <Separator />}
 
         {/* Supplier checkpoint */}
+        {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("finance:reviewQueue.supplierPanel")}</h3>
