@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
+import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import {
   ingestFinancialDocument,
   approveQueueSupplier,
