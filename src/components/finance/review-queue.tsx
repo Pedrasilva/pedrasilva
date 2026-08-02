@@ -636,6 +636,19 @@ function QueueItemCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const doReprocess = useMutation({
+    mutationFn: async () => {
+      const res = await reprocess({ data: { id: row.id } });
+      if (!res.ok) throw new Error(res.error ?? "reprocess failed");
+      return res;
+    },
+    onSuccess: () => {
+      toast.success(t("finance:reviewQueue.reextracted"));
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const bothApproved = !!row.supplier_approved_at && !!row.classification_approved_at;
   const readOnly = row.status !== "pending_review";
   const isBankStatement = row.doc_type === "bank_statement";
@@ -664,9 +677,27 @@ function QueueItemCard({
                 {t("finance:reviewQueue.recurring")}
               </Badge>
             )}
+            {!readOnly && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-[11px]"
+                disabled={doReprocess.isPending}
+                onClick={() => doReprocess.mutate()}
+              >
+                {doReprocess.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
+                <span className="ml-1">{t("finance:reviewQueue.reextract")}</span>
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
+
       <CardContent className="space-y-4">
         {row.extraction_error && (
           <div className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs">
