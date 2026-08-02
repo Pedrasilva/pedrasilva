@@ -135,18 +135,48 @@ export function useDeleteProposalImage() {
   });
 }
 
-/** Return a long-lived signed URL for a proposal-image path. Cached per path. */
+export interface SignedUrlTransform {
+  /** Target width in px (height auto). */
+  width?: number;
+  height?: number;
+  quality?: number;
+  resize?: "cover" | "contain" | "fill";
+}
+
+/**
+ * Return a long-lived signed URL for a proposal-image path. Cached per path.
+ * Pass `transform` to get a downscaled thumbnail (storage image transformation);
+ * omit it for the full-resolution original.
+ */
 export function useSignedProposalImageUrl(
   path: string | null | undefined,
   bucket: string = PROPOSAL_IMAGE_BUCKET,
+  transform?: SignedUrlTransform,
 ) {
+  const key = transform
+    ? `${transform.width ?? ""}x${transform.height ?? ""}q${transform.quality ?? ""}${transform.resize ?? ""}`
+    : "full";
   return useQuery({
     enabled: !!path,
-    queryKey: ["psa-image-signed-url", bucket, path],
+    queryKey: ["psa-image-signed-url", bucket, path, key],
     // 55 min cache; signed URL valid 1 hour
     staleTime: 55 * 60 * 1000,
     queryFn: async (): Promise<string | null> => {
       if (!path) return null;
+      if (transform) {
+        const { data, error } = await supabase.storage
+          .from(bucket)
+          .createSignedUrl(path, 60 * 60, {
+            transform: {
+              width: transform.width,
+              height: transform.height,
+              quality: transform.quality ?? 60,
+              resize: transform.resize ?? "cover",
+            },
+          });
+        // Image transformation may be unavailable — fall back to the original.
+        if (!error && data?.signedUrl) return data.signedUrl;
+      }
       const { data, error } = await supabase.storage
         .from(bucket)
         .createSignedUrl(path, 60 * 60);
