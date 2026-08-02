@@ -649,6 +649,8 @@ export async function ingestStoredDocument(opts: {
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
     direction: dir.direction,
+    direction_confidence: dir.confidence,
+
     extracted_seller_name: isStatement ? null : ex.seller_name ?? ex.supplier_name,
     extracted_seller_vat: isStatement ? null : ex.seller_vat ?? ex.supplier_vat,
     extracted_buyer_name: isStatement ? null : ex.buyer_name,
