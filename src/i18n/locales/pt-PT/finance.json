@@ -376,7 +376,8 @@
       "currency": "Moeda",
       "latest": "Último saldo",
       "asOf": "Em",
-      "actions": "Acções"
+      "actions": "Acções",
+      "type": "Tipo"
     },
     "newSnapshot": "Novo snapshot de saldo",
     "newSnapshotTitle": "Adicionar snapshot de saldo bancário",
@@ -391,7 +392,38 @@
     },
     "empty": "Não foram encontradas contas bancárias.",
     "noSnapshot": "Sem snapshot",
-    "totalCurrent": "Saldo bancário total actual"
+    "totalCurrent": "Saldo bancário total actual",
+    "totalCurrentHint": "Apenas contas bancárias — cartões de crédito e contas de benefícios têm subtotais próprios.",
+    "groups": {
+      "bank": {
+        "title": "Contas bancárias",
+        "label": "Conta bancária",
+        "subtotal": "Subtotal bancário"
+      },
+      "credit_card": {
+        "title": "Cartões de crédito pessoais",
+        "label": "Cartão de crédito pessoal",
+        "subtotal": "Subtotal cartões de crédito"
+      },
+      "benefits": {
+        "title": "Benefícios / outros",
+        "label": "Benefícios",
+        "subtotal": "Subtotal benefícios"
+      },
+      "other": {
+        "title": "Outros",
+        "label": "Outro",
+        "subtotal": "Subtotal outros"
+      }
+    },
+    "archive": {
+      "archive": "Arquivar",
+      "restore": "Restaurar",
+      "badge": "Arquivada",
+      "showArchived": "Mostrar arquivadas",
+      "archived": "Conta arquivada",
+      "restored": "Conta restaurada"
+    }
   },
   "tabPlaceholder": {
     "title": "Em breve",
