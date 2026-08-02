@@ -416,16 +416,41 @@ function QueueItemCard({
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
 
+  // Chrome refuses to render cross-origin PDFs inside the nested preview
+  // iframe, so we download the file and hand the viewer a same-origin blob URL.
   useQuery({
     queryKey: ["finance", "review-queue", "preview", row.id],
     queryFn: async () => {
+      const bucket = row.source_bucket || BUCKET;
+      const { data: blob } = await supabase.storage.from(bucket).download(row.source_file_url);
+      if (blob) {
+        const typed =
+          blob.type && blob.type !== "application/octet-stream"
+            ? blob
+            : new Blob([blob], {
+                type: row.source_file_url.toLowerCase().endsWith(".pdf")
+                  ? "application/pdf"
+                  : "image/jpeg",
+              });
+        const url = URL.createObjectURL(typed);
+        setPreviewUrl(url);
+        return url;
+      }
       const { data } = await supabase.storage
-        .from(row.source_bucket || BUCKET)
+        .from(bucket)
         .createSignedUrl(row.source_file_url, 3600);
       setPreviewUrl(data?.signedUrl ?? null);
       return data?.signedUrl ?? null;
     },
+    staleTime: Infinity,
   });
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
 
   const saveFields = useMutation({
     mutationFn: async () => {
