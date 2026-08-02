@@ -27,9 +27,11 @@ import { cn } from "@/lib/utils";
 import {
   KpiCard,
   fmtEUR,
-  latestSnapshotByAccount,
-  type BankSnapshot,
 } from "@/components/finance/sections/legacy-sections";
+import {
+  useCalculatedBankBalances,
+  sumCalculatedBalances,
+} from "@/lib/finance/use-bank-balances";
 
 // ---------------------------------------------------------------------------
 // Types — narrow projections of canonical tables
@@ -93,19 +95,10 @@ export function OperationalOverview() {
     refetchOnWindowFocus: true,
   });
 
-  const snapshotsQ = useQuery({
-    queryKey: ["finance", "overview", "bank-snapshots"],
-    queryFn: async (): Promise<BankSnapshot[]> => {
-      const { data, error } = await supabase
-        .from("bank_balance_snapshots")
-        .select("id, bank_account_id, snapshot_date, balance")
-        .order("snapshot_date", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as BankSnapshot[];
-    },
-    staleTime: 0,
-    refetchOnMount: "always",
-  });
+  // Balances come from the shared calculation (opening + reconciled movements),
+  // not from manual snapshots.
+  const balancesQ = useCalculatedBankBalances();
+
 
   const openDocsQ = useQuery({
     queryKey: ["finance", "overview", "open-docs"],
@@ -157,17 +150,13 @@ export function OperationalOverview() {
 
   const loading =
     accountsQ.isLoading ||
-    snapshotsQ.isLoading ||
+    balancesQ.isLoading ||
     openDocsQ.isLoading ||
     monthPaymentsQ.isLoading;
 
   const summary = useMemo(() => {
-    const activeIds = new Set((accountsQ.data ?? []).map((a) => a.id));
-    const latest = latestSnapshotByAccount(snapshotsQ.data ?? []);
-    let bankBalance = 0;
-    for (const [accId, snap] of latest.entries()) {
-      if (activeIds.has(accId)) bankBalance += Number(snap.balance || 0);
-    }
+    const activeIds = (accountsQ.data ?? []).map((a) => a.id);
+    const bankBalance = sumCalculatedBalances(balancesQ.byAccount, activeIds);
 
     const docs = openDocsQ.data ?? [];
     const receivables = docs.filter((d) => d.direction === "issued");
@@ -219,7 +208,7 @@ export function OperationalOverview() {
     };
   }, [
     accountsQ.data,
-    snapshotsQ.data,
+    balancesQ.byAccount,
     openDocsQ.data,
     monthPaymentsQ.data,
     today,

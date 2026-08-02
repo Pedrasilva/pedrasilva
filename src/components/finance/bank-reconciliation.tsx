@@ -528,6 +528,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const { user } = useAuth();
 
   // Filters
+  const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("unclassified");
   const [dirFilter, setDirFilter] = useState<DirFilter>("all");
   const [linkFilter, setLinkFilter] = useState<LinkFilter>("all");
@@ -648,6 +649,23 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     toast.success(status === "ignored" ? t("finance:bankRec.markedIgnored") : t("finance:bankRec.markedTransfer"));
     txQ.refetch();
     counts.refetch();
+  }
+
+  /**
+   * Reverses a reconciliation: removes the payment link, unlocks the
+   * transaction for editing/re-matching and drops its contribution from the
+   * calculated balance.
+   */
+  async function unmatchTx(tx: BankTx) {
+    if (!window.confirm(t("finance:bankRec.actions.unmatchConfirm"))) return;
+    const { error } = await supabase.rpc("bank_tx_unreconcile", { _tx_id: tx.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("finance:bankRec.actions.unmatched"));
+    txQ.refetch();
+    linksQ.refetch();
+    counts.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
   }
 
   const clearFilters = () => {
@@ -775,6 +793,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                     onMatchReimb={() => setMatchReimbTx(selectedTx)}
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
                     onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                    onUnmatch={() => unmatchTx(selectedTx)}
                   />
                 ) : (
                   <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
@@ -829,7 +848,7 @@ type LinkedInfo = { documentId: string; documentNumber: string | null; direction
 
 function TxDetailPanel({
   tx, classifications, isPt, linked,
-  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer,
+  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch,
 }: {
   tx: BankTx;
   classifications: Classification[];
@@ -841,6 +860,7 @@ function TxDetailPanel({
   onMatchReimb: () => void;
   onMarkIgnored: () => void;
   onMarkTransfer: () => void;
+  onUnmatch: () => void;
 }) {
   const { t } = useTranslation(["finance", "common"]);
   const isOutflow = tx.amount < 0;
@@ -981,16 +1001,24 @@ function TxDetailPanel({
 
       {/* Actions */}
       <div className="p-4 flex flex-wrap gap-2">
-        <Button size="sm" onClick={onMatchDoc}>
-          {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
-        </Button>
-        <Button size="sm" variant="outline" onClick={onCreateDoc}>
-          {t("finance:bankRec.actions.createDoc")}
-        </Button>
+        {linked ? (
+          <Button size="sm" variant="destructive" onClick={onUnmatch}>
+            {t("finance:bankRec.actions.unmatch")}
+          </Button>
+        ) : (
+          <>
+            <Button size="sm" onClick={onMatchDoc}>
+              {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={onCreateDoc}>
+              {t("finance:bankRec.actions.createDoc")}
+            </Button>
+          </>
+        )}
         <Button size="sm" variant="outline" onClick={onClassify}>
           {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
         </Button>
-        {isOutflow && (
+        {isOutflow && !linked && (
           <Button size="sm" variant="outline" onClick={onMatchReimb}>
             {t("finance:bankRec.actions.matchReimbursement")}
           </Button>

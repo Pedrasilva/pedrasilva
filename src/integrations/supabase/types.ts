@@ -407,6 +407,8 @@ export type Database = {
           ignored_reason: string | null
           notes: string | null
           raw_row: Json | null
+          reconciled_at: string | null
+          reconciled_by: string | null
           row_checksum: string
           running_balance: number | null
           statement_import_id: string | null
@@ -429,6 +431,8 @@ export type Database = {
           ignored_reason?: string | null
           notes?: string | null
           raw_row?: Json | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
           row_checksum: string
           running_balance?: number | null
           statement_import_id?: string | null
@@ -451,6 +455,8 @@ export type Database = {
           ignored_reason?: string | null
           notes?: string | null
           raw_row?: Json | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
           row_checksum?: string
           running_balance?: number | null
           statement_import_id?: string | null
@@ -9030,6 +9036,20 @@ export type Database = {
         Args: { _project_id: string }
         Returns: string
       }
+      bank_account_calculated_balance: {
+        Args: { _account_id: string; _as_of?: string }
+        Returns: number
+      }
+      bank_calculated_balances: {
+        Args: { _as_of?: string }
+        Returns: {
+          bank_account_id: string
+          calculated_balance: number
+          opening_balance: number
+          reconciled_count: number
+          reconciled_total: number
+        }[]
+      }
       bank_import_move_account: {
         Args: { _import_id: string; _new_account_id: string }
         Returns: Json
@@ -9038,6 +9058,7 @@ export type Database = {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
       }
+      bank_tx_unreconcile: { Args: { _tx_id: string }; Returns: undefined }
       benefit_category_from_legacy: {
         Args: { _legacy: Database["public"]["Enums"]["benefit_category"] }
         Returns: string

@@ -692,24 +692,22 @@ function FinanceSnapshotBlock() {
     },
   });
 
-  const snapshotsQ = useQuery({
-    queryKey: ["home-finance", "snapshots"],
+  // Same shared calculation as Bank balances / Finance overview:
+  // opening balance + every reconciled transaction.
+  const balancesQ = useQuery({
+    queryKey: ["home-finance", "calculated-balances"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bank_balance_snapshots")
-        .select("bank_account_id, snapshot_date, balance")
-        .order("snapshot_date", { ascending: false });
+      const { data, error } = await supabase.rpc("bank_calculated_balances", {});
       if (error) throw error;
-      const seen = new Map<string, number>();
-      for (const r of data ?? []) {
-        if (!seen.has(r.bank_account_id))
-          seen.set(r.bank_account_id, Number(r.balance || 0));
-      }
-      return Array.from(seen.values()).reduce((s, v) => s + v, 0);
+      return (data ?? []).reduce(
+        (s: number, r: { calculated_balance: number | string }) =>
+          s + Number(r.calculated_balance ?? 0),
+        0,
+      );
     },
   });
 
-  const currentBalance = snapshotsQ.data ?? 0;
+  const currentBalance = balancesQ.data ?? 0;
   const income = incomeQ.data ?? 0;
   const expenses = (expensesQ.data ?? 0) + (debtsQ.data ?? 0);
   const net = income - expenses;

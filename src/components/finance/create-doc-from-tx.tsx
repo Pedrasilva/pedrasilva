@@ -109,6 +109,8 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [notProjectRelated, setNotProjectRelated] = useState(false);
+  // Bank-only item (stamp duty, fees, interest) — genuinely has no counterparty.
+  const [bankOnly, setBankOnly] = useState(false);
   const [nif, setNif] = useState("");
 
   // Money: edit gross OR (net + vat rate); we keep gross as the source of truth.
@@ -181,8 +183,12 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
       toast.error(t("finance:documents.form.projectRequired"));
       return;
     }
-    const counterpartyId = direction === "received" ? supplierId : clientId;
-    if (!counterpartyId) {
+    const counterpartyId = bankOnly
+      ? null
+      : direction === "received"
+        ? supplierId
+        : clientId;
+    if (!bankOnly && !counterpartyId) {
       toast.error(
         direction === "received"
           ? t("finance:createDoc.supplierRequired")
@@ -387,8 +393,18 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
             </div>
           </div>
 
+          {/* Bank-only items (stamp duty, fees, interest) have no counterparty */}
+          <label className="flex items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              checked={bankOnly}
+              onChange={(e) => setBankOnly(e.target.checked)}
+            />
+            {t("finance:createDoc.bankOnly")}
+          </label>
+
           {/* Counterparty */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className={`grid grid-cols-2 gap-2 ${bankOnly ? "hidden" : ""}`}>
             <div>
               <Label className="text-xs">
                 {direction === "received"

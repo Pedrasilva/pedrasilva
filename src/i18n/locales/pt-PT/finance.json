@@ -259,7 +259,10 @@
       "ignore": "Ignorar",
       "ignoreHint": "Marcar como não relevante para contabilidade",
       "more": "Mais acções",
-      "matchReimbursement": "Associar reembolso RH"
+      "matchReimbursement": "Associar reembolso RH",
+      "unmatch": "Desassociar / reverter",
+      "unmatchConfirm": "Desassociar esta transação? Ficará desbloqueada e sai do saldo calculado.",
+      "unmatched": "Transação desassociada"
     },
     "linkedTo": "Associada a {{ref}}",
     "alreadyLinked": {
@@ -377,7 +380,9 @@
       "latest": "Último saldo",
       "asOf": "Em",
       "actions": "Acções",
-      "type": "Tipo"
+      "type": "Tipo",
+      "calculated": "Saldo calculado",
+      "movements": "Reconciliados"
     },
     "newSnapshot": "Novo snapshot de saldo",
     "newSnapshotTitle": "Adicionar snapshot de saldo bancário",
@@ -441,6 +446,16 @@
       "viewAllTransactions": "Ver todos os movimentos",
       "noTransactions": "Sem movimentos para esta conta.",
       "saved": "Conta actualizada"
+    },
+    "openingTag": "abertura {{amount}}",
+    "check": {
+      "none": "Sem snapshot introduzido",
+      "confirmed": "Confirmado",
+      "mismatch": "Divergência",
+      "confirmedHint": "Coincide com o saldo calculado.",
+      "detail": "Snapshot {{snapshot}} · calculado {{calculated}} · diferença {{difference}}",
+      "calculatedAt": "Saldo calculado nessa data",
+      "auditHint": "Os snapshots são uma verificação — nunca substituem o saldo calculado."
     }
   },
   "tabPlaceholder": {
@@ -827,7 +842,8 @@
     "clientRequired": "Cliente obrigatório",
     "nifPlaceholder": "NIF (opcional)",
     "createAndLink": "Criar e ligar à transação",
-    "created": "Documento criado e ligado à transação bancária"
+    "created": "Documento criado e ligado à transação bancária",
+    "bankOnly": "Item apenas bancário (sem fornecedor/cliente — imposto de selo, comissões, juros)"
   },
   "clientsMaster": {
     "tab": "Clientes",
