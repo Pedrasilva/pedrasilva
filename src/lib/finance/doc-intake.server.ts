@@ -141,8 +141,15 @@ export async function extractDocument(
 
   const catalog = await loadClassificationCatalog();
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
+  const own = await getOwnCompanyVat();
 
-  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) received by an architecture firm in Portugal. Documents may be Portuguese or English.
+  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) handled by an architecture firm in Portugal. Documents may be Portuguese or English.
+
+THE FIRM ITSELF (the entity whose accounting this is):
+- Registered name: ${own.name ?? "Pedra Silva Arquitecto Lda"} (also printed as "Pedra Silva Architects", "Pedra Silva Arquitectos", "Pedra Silva Arquitetos")
+- NIF / VAT: ${own.vat ?? "unknown"}
+The firm can appear as EITHER the seller (an invoice it issued to a client) OR the buyer (a supplier invoice it received). Decide from the document, never assume.
+
 Rules:
 - FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
 - If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
@@ -150,6 +157,11 @@ Rules:
   - seller_name / seller_vat: the party ISSUING the document (the one being paid), exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567).
   - buyer_name / buyer_vat: the party the document is BILLED TO (the one paying). Look for "Cliente", "Bill to", "Adquirente", "Exmos. Srs.", "Contribuinte n.º".
   - Never swap them and never leave a VAT blank when it is printed anywhere on the document.
+- IDENTIFYING THE ISSUER ON A PORTUGUESE INVOICE — do NOT use page position:
+  - The issuer is the entity in the mandatory legal footer block: the line(s) carrying "NIF"/"Contribuinte", "Capital Social" and "C.R.C."/"Matriculada na Conservatória". That footer identifies the SELLER, even when the letterhead is only a logo and even when another company's details sit at the top of the page next to the invoice number/date.
+  - A company name/address printed beside the invoice number, date or "Fatura" metadata block is normally the BUYER (bill-to), not the seller.
+  - Copy that whole footer legal block verbatim into footer_legal_text (null if the document has none).
+- all_vat_numbers: list EVERY VAT/NIF printed anywhere on the page (header, party blocks, footer legal block), exactly as printed, in the order they appear. Never omit one because you were unsure whose it is.
 - supplier_vat / supplier_name: keep these equal to seller_vat / seller_name (legacy fields).
 - For bank_statement / proof_of_payment where there is no clear seller/buyer pair, set the party fields to null rather than guessing.
 - document_number: the invoice or receipt number as printed.
@@ -160,6 +172,7 @@ Rules:
 
 TAXONOMY:
 ${catalogText}`;
+
 
   const res = await fetch(GATEWAY_URL, {
     method: "POST",
