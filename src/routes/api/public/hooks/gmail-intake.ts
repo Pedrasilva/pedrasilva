@@ -89,8 +89,20 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { ingestStoredDocument } = await import("@/lib/finance/doc-intake.server");
+        const { ingestMt940File, looksLikeMt940, decodeMt940 } = await import(
+          "@/lib/finance/mt940-intake.server"
+        );
 
-        const summary = { scanned: 0, queued: 0, ignored: 0, skipped: 0, errors: [] as string[] };
+        const summary = {
+          scanned: 0,
+          queued: 0,
+          ignored: 0,
+          skipped: 0,
+          mt940Imported: 0,
+          mt940Duplicates: 0,
+          errors: [] as string[],
+        };
+
 
         try {
           const list = await gmail(
@@ -124,10 +136,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
 
               let queued = 0;
               for (const part of parts) {
-                const isPdf =
-                  part.mimeType === "application/pdf" ||
-                  (part.filename ?? "").toLowerCase().endsWith(".pdf");
-                if (!isPdf || !part.body?.attachmentId) {
+                if (!part.body?.attachmentId) {
                   await supabaseAdmin.from("financial_email_ignored_items").insert({
                     message_id: id,
                     from_address: from,
@@ -147,9 +156,57 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 );
                 const b64 = String(att.data ?? "").replace(/-/g, "+").replace(/_/g, "/");
                 const buf = Buffer.from(b64, "base64");
-                const safe = (part.filename ?? "attachment.pdf").replace(/[^a-zA-Z0-9._-]/g, "_");
-                const path = `intake/email/${id}-${safe}`;
+                const safe = (part.filename ?? "attachment.bin").replace(/[^a-zA-Z0-9._-]/g, "_");
+                const isPdf =
+                  part.mimeType === "application/pdf" ||
+                  (part.filename ?? "").toLowerCase().endsWith(".pdf");
 
+                // MT940 bank statements are detected by CONTENT (banks vary on
+                // extension/mime: .sta, .940, .txt, application/octet-stream…).
+                if (!isPdf && looksLikeMt940(decodeMt940(new Uint8Array(buf)))) {
+                  const res = await ingestMt940File({
+                    bytes: new Uint8Array(buf),
+                    fileName: part.filename ?? `mt940-${id}.sta`,
+                    storagePathHint: `intake/email/mt940/${id}-${safe}`,
+                  });
+                  if (res.ok) {
+                    summary.mt940Imported += res.rowsImported;
+                    summary.mt940Duplicates += res.rowsDuplicate;
+                    queued++;
+                  } else {
+                    // Never silently dropped: the raw file is retained and the case is visible.
+                    await supabaseAdmin.from("financial_email_ignored_items").insert({
+                      message_id: id,
+                      from_address: from,
+                      subject,
+                      attachment_filename: part.filename ?? null,
+                      reason: `mt940_${res.status}`,
+                      payload: {
+                        mimeType: part.mimeType ?? null,
+                        iban: "iban" in res ? res.iban ?? null : null,
+                        storage_path: "storagePath" in res ? res.storagePath ?? null : null,
+                        detail: res.reason,
+                      },
+                    });
+                    summary.ignored++;
+                  }
+                  continue;
+                }
+
+                if (!isPdf) {
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                    message_id: id,
+                    from_address: from,
+                    subject,
+                    attachment_filename: part.filename ?? null,
+                    reason: "not_a_pdf_attachment",
+                    payload: { mimeType: part.mimeType ?? null },
+                  });
+                  summary.ignored++;
+                  continue;
+                }
+
+                const path = `intake/email/${id}-${safe}`;
                 const { error: upErr } = await supabaseAdmin.storage
                   .from(BUCKET)
                   .upload(path, buf, { contentType: "application/pdf", upsert: true });
@@ -164,6 +221,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 if (res.queueItemId) queued++;
                 if (!res.ok) summary.errors.push(`${part.filename}: ${res.error}`);
               }
+
 
               if (queued === 0 && parts.length === 0) {
                 await supabaseAdmin.from("financial_email_ignored_items").insert({
