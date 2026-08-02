@@ -771,14 +771,14 @@ function QueueItemCard({
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <Field label={t("finance:reviewQueue.fields.supplierName")}>
+              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientName" : "finance:reviewQueue.fields.supplierName")}>
                 <Input
                   value={fields.supplier_name}
                   disabled={readOnly}
                   onChange={(e) => setFields((f) => ({ ...f, supplier_name: e.target.value }))}
                 />
               </Field>
-              <Field label={t("finance:reviewQueue.fields.supplierVat")}>
+              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientVat" : "finance:reviewQueue.fields.supplierVat")}>
                 <Input
                   value={fields.supplier_vat}
                   disabled={readOnly}
@@ -843,15 +843,15 @@ function QueueItemCard({
         {!isBankStatement && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{t("finance:reviewQueue.supplierPanel")}</h3>
+            <h3 className="text-sm font-medium">{t(isIssued ? "finance:reviewQueue.clientPanel" : "finance:reviewQueue.supplierPanel")}</h3>
             <Badge
               variant={row.supplier_approved_at ? "default" : "outline"}
               className="text-[10px]"
             >
               {row.supplier_approved_at
                 ? t("finance:reviewQueue.approvedBadge")
-                : t(`finance:reviewQueue.matchStatus.${row.supplier_match_status}`, {
-                    defaultValue: row.supplier_match_status,
+                : t(`finance:reviewQueue.matchStatus.${isIssued ? row.client_match_status : row.supplier_match_status}`, {
+                    defaultValue: isIssued ? row.client_match_status : row.supplier_match_status,
                   })}
             </Badge>
           </div>
@@ -877,7 +877,7 @@ function QueueItemCard({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__new__">{t("finance:reviewQueue.createNewSupplier")}</SelectItem>
+                <SelectItem value="__new__">{t(isIssued ? "finance:reviewQueue.createNewClient" : "finance:reviewQueue.createNewSupplier")}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.nome}
@@ -892,7 +892,7 @@ function QueueItemCard({
               onClick={() => doApproveSupplier.mutate()}
             >
               <Check className="h-4 w-4 mr-1.5" />
-              {t("finance:reviewQueue.approveSupplier")}
+              {t(isIssued ? "finance:reviewQueue.approveClient" : "finance:reviewQueue.approveSupplier")}
             </Button>
           </div>
         </div>
