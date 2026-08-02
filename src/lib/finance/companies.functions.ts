@@ -18,6 +18,8 @@ export type CompanyRecord = {
   city: string | null;
   currency: string;
   payment_terms: string | null;
+  opening_balance_receivable: number;
+  opening_balance_payable: number;
   is_client: boolean;
   is_supplier: boolean;
   is_active: boolean;
@@ -45,6 +47,8 @@ const UPSERT = z.object({
   city: z.string().trim().max(128).nullable().optional(),
   currency: z.string().trim().min(3).max(8).default("EUR"),
   payment_terms: z.string().trim().max(128).nullable().optional(),
+  opening_balance_receivable: z.number().finite().optional(),
+  opening_balance_payable: z.number().finite().optional(),
   is_supplier: z.boolean().default(false),
   is_client: z.boolean().default(false),
   is_active: z.boolean().default(true),
@@ -77,7 +81,7 @@ export const listCompanies = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .order("nome");
     if (data.role === "supplier") q = q.eq("is_supplier", true);
@@ -100,7 +104,7 @@ export const getCompany = createServerFn({ method: "POST" })
     const { data: row, error } = await supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .eq("id", data.id)
       .maybeSingle();

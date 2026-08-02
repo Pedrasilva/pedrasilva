@@ -871,7 +871,9 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "alsoSupplier": "Também fornecedor",
-    "empty": "Sem clientes."
+    "empty": "Sem clientes.",
+    "openingBalance": "Saldo inicial transitado",
+    "openingBalanceHint": "Saldo transitado de antes do arranque (ex.: registado anteriormente no PHC). Deixar a 0 se não existir."
   },
   "suppliersMaster": {
     "tab": "Fornecedores",
