@@ -134,8 +134,12 @@ export async function extractDocument(
 Rules:
 - FIRST decide doc_type: "bank_statement" (a bank/credit-card account statement or combined extract listing many transactions over a period — e.g. "extrato", "extrato combinado", "account statement"; it has NO single seller and NO single invoice total), "invoice" (a single amount owed to one seller), "receipt" (payment confirmation / paid receipt for a single purchase), "proof_of_payment" (bank transfer confirmation or payment slip for a single payment), otherwise "unknown".
 - If doc_type is "bank_statement": set supplier_name, supplier_vat and classification_code to null. The bank is NOT a supplier. Statements are handled by the banking import, not by supplier classification.
-- supplier_vat: the SELLER's VAT/NIF exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567). Never the buyer's. null if absent.
-- supplier_name: the seller / issuer legal name.
+- ALWAYS extract BOTH parties of an invoice/receipt separately:
+  - seller_name / seller_vat: the party ISSUING the document (the one being paid), exactly as printed, including any country prefix (e.g. IE4276970QH, PT501234567).
+  - buyer_name / buyer_vat: the party the document is BILLED TO (the one paying). Look for "Cliente", "Bill to", "Adquirente", "Exmos. Srs.", "Contribuinte n.º".
+  - Never swap them and never leave a VAT blank when it is printed anywhere on the document.
+- supplier_vat / supplier_name: keep these equal to seller_vat / seller_name (legacy fields).
+- For bank_statement / proof_of_payment where there is no clear seller/buyer pair, set the party fields to null rather than guessing.
 - document_number: the invoice or receipt number as printed.
 - issue_date / due_date: ISO YYYY-MM-DD.
 - Amounts numeric, decimal point, no currency symbol. currency as ISO code (EUR, USD...).
