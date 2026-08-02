@@ -134,10 +134,17 @@ export function BankBalancesSection() {
     return m;
   }, [visible]);
 
+  // Falls back to the account's opening balance when no snapshot exists yet.
+  const effective = (a: Account) => {
+    const snap = latest.get(a.id);
+    if (snap) return Number(snap.balance);
+    return a.opening_balance == null ? null : Number(a.opening_balance);
+  };
+
   const subtotal = (rows: Account[]) =>
     rows
       .filter((a) => !a.archived_at)
-      .reduce((s, a) => s + Number(latest.get(a.id)?.balance ?? 0), 0);
+      .reduce((s, a) => s + (effective(a) ?? 0), 0);
 
   const bankTotal = subtotal(grouped.get("bank") ?? []);
 
