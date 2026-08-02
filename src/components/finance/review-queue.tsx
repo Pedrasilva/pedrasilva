@@ -508,11 +508,23 @@ function QueueItemCard({
 
   const saveFields = useMutation({
     mutationFn: async () => {
+      // Counterparty edits land on the buyer fields for issued documents and
+      // on the supplier fields for received ones — never both.
+      const party = isIssued
+        ? {
+            extracted_buyer_name: fields.supplier_name || null,
+            extracted_buyer_vat: fields.supplier_vat || null,
+          }
+        : {
+            extracted_supplier_name: fields.supplier_name || null,
+            extracted_supplier_vat: fields.supplier_vat || null,
+            extracted_seller_name: fields.supplier_name || null,
+            extracted_seller_vat: fields.supplier_vat || null,
+          };
       const { error } = await supabase
         .from("financial_document_review_queue")
         .update({
-          extracted_supplier_name: fields.supplier_name || null,
-          extracted_supplier_vat: fields.supplier_vat || null,
+          ...party,
           extracted_document_number: fields.document_number || null,
           extracted_date: fields.date || null,
           extracted_amount: fields.amount ? Number(fields.amount) : null,
@@ -529,8 +541,40 @@ function QueueItemCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  /** Reviewer override when the AI could not anchor the firm's own VAT. */
+  const setDirection = useMutation({
+    mutationFn: async (direction: "issued" | "received") => {
+      const { error } = await supabase
+        .from("financial_document_review_queue")
+        .update({ direction })
+        .eq("id", row.id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success(t("finance:reviewQueue.saved"));
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const doApproveSupplier = useMutation({
     mutationFn: async () => {
+      if (isIssued) {
+        if (counterpartyId) {
+          await approveClient({ data: { id: row.id, clientId: counterpartyId } });
+        } else {
+          await approveClient({
+            data: {
+              id: row.id,
+              newClient: {
+                nome: fields.supplier_name || t("finance:reviewQueue.unknownClient"),
+                nif: fields.supplier_vat || null,
+              },
+            },
+          });
+        }
+        return;
+      }
       if (supplierId) {
         await approveSupplier({ data: { id: row.id, supplierId } });
       } else {
@@ -546,7 +590,11 @@ function QueueItemCard({
       }
     },
     onSuccess: () => {
-      toast.success(t("finance:reviewQueue.supplierApproved"));
+      toast.success(
+        isIssued
+          ? t("finance:reviewQueue.clientApproved")
+          : t("finance:reviewQueue.supplierApproved"),
+      );
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
