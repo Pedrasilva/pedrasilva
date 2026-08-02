@@ -1436,7 +1436,8 @@
     },
     "sourceLabel": {
       "manual_upload": "Manual upload",
-      "email_ingestion": "Email"
+      "email_ingestion": "Email",
+      "drive_folder": "Drive folder"
     },
     "ignored": "Ignored (email)",
     "ignoredTitle": "Emails and attachments that were not processed",

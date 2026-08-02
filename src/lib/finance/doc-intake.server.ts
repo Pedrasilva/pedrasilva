@@ -567,7 +567,7 @@ export async function ingestStoredDocument(opts: {
   bucket: string;
   storagePath: string;
   originalFilename?: string | null;
-  source: "manual_upload" | "email_ingestion";
+  source: "manual_upload" | "email_ingestion" | "drive_folder";
   createdBy?: string | null;
   /** When set, the existing pending queue row is re-extracted in place. */
   replaceQueueItemId?: string | null;
@@ -720,7 +720,7 @@ export async function reprocessQueueItem(
     bucket: item.source_bucket ?? "financial-documents",
     storagePath: item.source_file_url,
     originalFilename: item.original_filename,
-    source: (item.source as "manual_upload" | "email_ingestion") ?? "manual_upload",
+    source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder") ?? "manual_upload",
     createdBy: item.created_by,
     replaceQueueItemId: item.id,
   });
