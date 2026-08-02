@@ -532,6 +532,9 @@ function QueueItemCard({
 
   const bothApproved = !!row.supplier_approved_at && !!row.classification_approved_at;
   const readOnly = row.status !== "pending_review";
+  const isBankStatement = row.doc_type === "bank_statement";
+  const isPdf =
+    (row.original_filename ?? row.source_file_url).toLowerCase().endsWith(".pdf");
 
   return (
     <Card>
