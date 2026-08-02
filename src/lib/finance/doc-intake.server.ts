@@ -77,6 +77,8 @@ const JSON_SCHEMA = {
       seller_vat: { type: ["string", "null"] },
       buyer_name: { type: ["string", "null"] },
       buyer_vat: { type: ["string", "null"] },
+      footer_legal_text: { type: ["string", "null"] },
+      all_vat_numbers: { type: ["array", "null"], items: { type: "string" } },
       document_number: { type: ["string", "null"] },
       issue_date: { type: ["string", "null"] },
       due_date: { type: ["string", "null"] },
@@ -91,10 +93,12 @@ const JSON_SCHEMA = {
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
       "seller_name", "seller_vat", "buyer_name", "buyer_vat",
+      "footer_legal_text", "all_vat_numbers",
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
     ],
+
   },
 } as const;
 
