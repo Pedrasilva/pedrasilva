@@ -183,8 +183,12 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
       toast.error(t("finance:documents.form.projectRequired"));
       return;
     }
-    const counterpartyId = direction === "received" ? supplierId : clientId;
-    if (!counterpartyId) {
+    const counterpartyId = bankOnly
+      ? null
+      : direction === "received"
+        ? supplierId
+        : clientId;
+    if (!bankOnly && !counterpartyId) {
       toast.error(
         direction === "received"
           ? t("finance:createDoc.supplierRequired")
