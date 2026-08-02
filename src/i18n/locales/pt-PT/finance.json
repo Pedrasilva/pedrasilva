@@ -1417,7 +1417,9 @@
       "date": "Data de emissão",
       "amount": "Total",
       "vat": "IVA",
-      "currency": "Moeda"
+      "currency": "Moeda",
+      "clientName": "Nome do cliente",
+      "clientVat": "NIF do cliente"
     },
     "docType": {
       "invoice": "Fatura",
@@ -1441,7 +1443,24 @@
       "hint": "Extratos bancários não são documentos de fornecedor. Importe-o no módulo Banca para reconciliar movimentos.",
       "cta": "Ir para Banca"
     },
-    "openInNewTab": "Abrir em novo separador"
+    "openInNewTab": "Abrir em novo separador",
+    "direction": {
+      "issued": "Emitido",
+      "received": "Recebido",
+      "unclear": "Sentido por confirmar"
+    },
+    "parties": {
+      "seller": "Emitente / vendedor",
+      "buyer": "Adquirente / faturar a",
+      "unclearHint": "Nenhuma das partes corresponde ao NIF da empresa. Escolha como tratar este documento.",
+      "markReceived": "Tratar como recebido",
+      "markIssued": "Tratar como emitido"
+    },
+    "clientPanel": "Cliente",
+    "createNewClient": "Criar novo cliente",
+    "approveClient": "Aprovar cliente",
+    "clientApproved": "Cliente aprovado",
+    "unknownClient": "Cliente desconhecido"
   },
   "vatReport": {
     "title": "Relatório de IVA",
