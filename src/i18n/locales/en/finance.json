@@ -1541,5 +1541,38 @@
       "amount": "Amount",
       "balance": "Balance"
     }
+  },
+  "bankPeriods": {
+    "title": "Statement periods",
+    "subtitle": "Numbered statements as the bank issued them. Enter the opening and closing balance from the real statement — reconciled transactions in the range are checked against it.",
+    "new": "New statement period",
+    "edit": "Edit statement period",
+    "empty": "No statement periods declared for this account yet.",
+    "numberRequired": "Statement number is required.",
+    "datesRequired": "Start and end date are required.",
+    "deleteConfirm": "Delete this statement period? Transactions are not affected.",
+    "startDate": "Period start",
+    "endDate": "Period end",
+    "notes": "Notes",
+    "declaredHint": "Opening and closing balances must be copied from the real bank statement — they are never calculated.",
+    "filterLabel": "Statement period",
+    "allPeriods": "All periods",
+    "assignLabel": "Statement period",
+    "autoByDate": "Automatic (by date)",
+    "overrideSaved": "Statement period updated.",
+    "reconciledOf": "{{reconciled}} of {{total}} reconciled",
+    "col": {
+      "number": "Statement",
+      "range": "Range",
+      "declaredOpening": "Declared opening",
+      "declaredClosing": "Declared closing",
+      "computedClosing": "Computed closing",
+      "difference": "Difference",
+      "status": "Status"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "mismatch": "Mismatch"
+    }
   }
 }

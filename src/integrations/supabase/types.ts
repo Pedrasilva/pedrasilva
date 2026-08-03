@@ -296,6 +296,56 @@ export type Database = {
           },
         ]
       }
+      bank_statement_periods: {
+        Row: {
+          bank_account_id: string
+          closing_balance: number
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          opening_balance: number
+          period_end_date: string
+          period_start_date: string
+          statement_number: string
+          updated_at: string
+        }
+        Insert: {
+          bank_account_id: string
+          closing_balance?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          opening_balance?: number
+          period_end_date: string
+          period_start_date: string
+          statement_number: string
+          updated_at?: string
+        }
+        Update: {
+          bank_account_id?: string
+          closing_balance?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          opening_balance?: number
+          period_end_date?: string
+          period_start_date?: string
+          statement_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_statement_periods_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_transaction_classifications: {
         Row: {
           amount: number
@@ -412,6 +462,7 @@ export type Database = {
           row_checksum: string
           running_balance: number | null
           statement_import_id: string | null
+          statement_period_id: string | null
           status: Database["public"]["Enums"]["bank_tx_status"]
           suggested_by_rule_id: string | null
           suggested_classification_id: string | null
@@ -436,6 +487,7 @@ export type Database = {
           row_checksum: string
           running_balance?: number | null
           statement_import_id?: string | null
+          statement_period_id?: string | null
           status?: Database["public"]["Enums"]["bank_tx_status"]
           suggested_by_rule_id?: string | null
           suggested_classification_id?: string | null
@@ -460,6 +512,7 @@ export type Database = {
           row_checksum?: string
           running_balance?: number | null
           statement_import_id?: string | null
+          statement_period_id?: string | null
           status?: Database["public"]["Enums"]["bank_tx_status"]
           suggested_by_rule_id?: string | null
           suggested_classification_id?: string | null
@@ -480,6 +533,13 @@ export type Database = {
             columns: ["statement_import_id"]
             isOneToOne: false
             referencedRelation: "bank_statement_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_statement_period_id_fkey"
+            columns: ["statement_period_id"]
+            isOneToOne: false
+            referencedRelation: "bank_statement_periods"
             referencedColumns: ["id"]
           },
           {
@@ -9153,6 +9213,23 @@ export type Database = {
       bank_import_undo: {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
+      }
+      bank_statement_period_status: {
+        Args: { _account_id?: string }
+        Returns: {
+          bank_account_id: string
+          computed_closing: number
+          declared_closing: number
+          difference: number
+          opening_balance: number
+          period_end_date: string
+          period_id: string
+          period_start_date: string
+          reconciled_count: number
+          reconciled_total: number
+          statement_number: string
+          tx_count: number
+        }[]
       }
       bank_tx_unreconcile: { Args: { _tx_id: string }; Returns: undefined }
       benefit_category_from_legacy: {

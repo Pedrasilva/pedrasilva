@@ -1541,5 +1541,38 @@
       "amount": "Valor",
       "balance": "Saldo"
     }
+  },
+  "bankPeriods": {
+    "title": "Períodos de extrato",
+    "subtitle": "Extratos numerados tal como o banco os emitiu. Introduza o saldo inicial e final do extrato real — os movimentos reconciliados do período são verificados contra esses valores.",
+    "new": "Novo período de extrato",
+    "edit": "Editar período de extrato",
+    "empty": "Ainda não existem períodos de extrato para esta conta.",
+    "numberRequired": "O número do extrato é obrigatório.",
+    "datesRequired": "As datas de início e fim são obrigatórias.",
+    "deleteConfirm": "Eliminar este período de extrato? Os movimentos não são afetados.",
+    "startDate": "Início do período",
+    "endDate": "Fim do período",
+    "notes": "Notas",
+    "declaredHint": "Os saldos inicial e final devem ser copiados do extrato bancário real — nunca são calculados.",
+    "filterLabel": "Período de extrato",
+    "allPeriods": "Todos os períodos",
+    "assignLabel": "Período de extrato",
+    "autoByDate": "Automático (por data)",
+    "overrideSaved": "Período de extrato atualizado.",
+    "reconciledOf": "{{reconciled}} de {{total}} reconciliados",
+    "col": {
+      "number": "Extrato",
+      "range": "Intervalo",
+      "declaredOpening": "Saldo inicial declarado",
+      "declaredClosing": "Saldo final declarado",
+      "computedClosing": "Saldo final calculado",
+      "difference": "Diferença",
+      "status": "Estado"
+    },
+    "status": {
+      "confirmed": "Confirmado",
+      "mismatch": "Divergência"
+    }
   }
 }
