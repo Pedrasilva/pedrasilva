@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch } from "lucide-react";
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
+import { StatementView } from "@/components/finance/statement-view";
+import { useCounterpartyStatement } from "@/lib/finance/use-documents";
 import {
   contactFullName, formatEUR, PIPELINE_STATUSES,
   type Company, type Contact, type FeeProposal,
