@@ -41,24 +41,54 @@ const ENTITY_TYPES: StatementEntityType[] = [
   "supplier",
 ];
 
-export function StatementView() {
+export type StatementViewProps = {
+  /** Lock the statement to one entity (company detail pages). */
+  lockedEntityType?: StatementEntityType;
+  lockedEntityId?: string;
+  lockedEntityLabel?: string;
+  /** Start with the full ledger instead of the current month. */
+  fullHistoryByDefault?: boolean;
+};
+
+/** Earliest sensible ledger start — covers all imported history. */
+const FULL_HISTORY_START = "2000-01-01";
+
+export function StatementView({
+  lockedEntityType,
+  lockedEntityId,
+  lockedEntityLabel,
+  fullHistoryByDefault,
+}: StatementViewProps = {}) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const dateLocale = i18n.language?.startsWith("pt") ? "pt-PT" : "en-GB";
-  const initialRange = useMemo(() => currentMonthRange(), []);
+  const locked = !!(lockedEntityType && lockedEntityId);
+  const initialRange = useMemo(
+    () =>
+      fullHistoryByDefault
+        ? { from: FULL_HISTORY_START, to: new Date().toISOString().slice(0, 10) }
+        : currentMonthRange(),
+    [fullHistoryByDefault],
+  );
 
-  const [entityType, setEntityType] =
-    useState<StatementEntityType>("bank_account");
-  const [entityId, setEntityId] = useState<string | null>(null);
+  const [entityType, setEntityType] = useState<StatementEntityType>(
+    lockedEntityType ?? "bank_account",
+  );
+  const [entityId, setEntityId] = useState<string | null>(
+    lockedEntityId ?? null,
+  );
   const [from, setFrom] = useState(initialRange.from);
   const [to, setTo] = useState(initialRange.to);
 
   const entitiesQ = useStatementEntities(entityType);
-  const entities = entitiesQ.data ?? [];
-  const selectedId =
-    entityId && entities.some((e) => e.id === entityId)
+  const entities = locked ? [] : (entitiesQ.data ?? []);
+  const selectedId = locked
+    ? lockedEntityId!
+    : entityId && entities.some((e) => e.id === entityId)
       ? entityId
       : (entities[0]?.id ?? null);
-  const selected = entities.find((e) => e.id === selectedId) ?? null;
+  const selected = locked
+    ? { id: lockedEntityId!, label: lockedEntityLabel ?? "" }
+    : (entities.find((e) => e.id === selectedId) ?? null);
 
   const statementQ = useStatement(entityType, selectedId, from, to);
   const st = statementQ.data;
@@ -117,50 +147,59 @@ export function StatementView() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="space-y-1">
-              <Label>{t("finance:statements.entityType")}</Label>
-              <Select
-                value={entityType}
-                onValueChange={(v) => {
-                  setEntityType(v as StatementEntityType);
-                  setEntityId(null);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ENTITY_TYPES.map((k) => (
-                    <SelectItem key={k} value={k}>
-                      {t(`finance:statements.types.${k}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div
+            className={
+              "grid gap-3 " + (locked ? "md:grid-cols-2" : "md:grid-cols-4")
+            }
+          >
+            {!locked && (
+              <>
+                <div className="space-y-1">
+                  <Label>{t("finance:statements.entityType")}</Label>
+                  <Select
+                    value={entityType}
+                    onValueChange={(v) => {
+                      setEntityType(v as StatementEntityType);
+                      setEntityId(null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ENTITY_TYPES.map((k) => (
+                        <SelectItem key={k} value={k}>
+                          {t(`finance:statements.types.${k}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="space-y-1">
-              <Label>{t(`finance:statements.types.${entityType}`)}</Label>
-              <Select
-                value={selectedId ?? ""}
-                onValueChange={(v) => setEntityId(v)}
-                disabled={entities.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={t("finance:statements.selectEntity")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {entities.map((e) => (
-                    <SelectItem key={e.id} value={e.id}>
-                      {e.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <div className="space-y-1">
+                  <Label>{t(`finance:statements.types.${entityType}`)}</Label>
+                  <Select
+                    value={selectedId ?? ""}
+                    onValueChange={(v) => setEntityId(v)}
+                    disabled={entities.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t("finance:statements.selectEntity")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {entities.map((e) => (
+                        <SelectItem key={e.id} value={e.id}>
+                          {e.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
 
             <div className="space-y-1">
               <Label>{t("finance:statements.from")}</Label>
@@ -201,6 +240,16 @@ export function StatementView() {
               }}
             >
               {t("finance:statements.thisYear")}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setFrom(FULL_HISTORY_START);
+                setTo(new Date().toISOString().slice(0, 10));
+              }}
+            >
+              {t("finance:statements.fullHistory")}
             </Button>
             <Button
               variant="outline"

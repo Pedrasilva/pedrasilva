@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch } from "lucide-react";
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
+import { StatementView } from "@/components/finance/statement-view";
+import { useCounterpartyStatement } from "@/lib/finance/use-documents";
 import {
   contactFullName, formatEUR, PIPELINE_STATUSES,
   type Company, type Contact, type FeeProposal,
@@ -145,13 +147,17 @@ function CompanyDetail() {
         </div>
       </div>
 
+      <OutstandingBalanceCard company={current as Company} companyId={companyId} />
+
       <Tabs defaultValue="detalhes">
         <TabsList>
           <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
           <TabsTrigger value="contactos">Contactos ({contacts.length})</TabsTrigger>
           <TabsTrigger value="propostas">Propostas ({proposals.length})</TabsTrigger>
+          <TabsTrigger value="conta-corrente">Conta corrente</TabsTrigger>
           <TabsTrigger value="actividades">Actividades</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="detalhes" className="space-y-4">
           {contacts[0] && (
@@ -320,6 +326,19 @@ function CompanyDetail() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="conta-corrente">
+          <Card>
+            <CardContent className="p-0">
+              <StatementView
+                lockedEntityType={statementSide(current as Company)}
+                lockedEntityId={companyId}
+                lockedEntityLabel={current.nome ?? ""}
+                fullHistoryByDefault
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="actividades">
           <Card>
             <CardContent className="p-4">
@@ -331,3 +350,45 @@ function CompanyDetail() {
     </div>
   );
 }
+
+type CompanyFlags = Company & {
+  is_client?: boolean | null;
+  is_supplier?: boolean | null;
+  relationship_type?: string | null;
+};
+
+/** Which side of the ledger this company sits on. */
+function statementSide(c: Company): "client" | "supplier" {
+  const f = c as CompanyFlags;
+  if (f.is_client) return "client";
+  if (f.is_supplier) return "supplier";
+  return f.relationship_type === "supplier" ? "supplier" : "client";
+}
+
+/** PHC's "Saldo c/c em aberto" — reuses the shared outstanding figure. */
+function OutstandingBalanceCard({
+  company,
+  companyId,
+}: {
+  company: Company;
+  companyId: string;
+}) {
+  const kind = statementSide(company);
+  const { data } = useCounterpartyStatement({ kind, id: companyId });
+  const outstanding = data?.outstanding ?? 0;
+  return (
+    <Card>
+      <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            Saldo c/c em aberto ({kind === "client" ? "a receber" : "a pagar"})
+          </div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums">
+            {formatEUR(outstanding)}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+

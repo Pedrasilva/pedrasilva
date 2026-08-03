@@ -1540,7 +1540,10 @@
       "description": "Description",
       "amount": "Amount",
       "balance": "Balance"
-    }
+    },
+    "fullHistory": "Full history",
+    "accountStatement": "Account statement",
+    "outstandingBalance": "Outstanding balance"
   },
   "bankPeriods": {
     "title": "Statement periods",

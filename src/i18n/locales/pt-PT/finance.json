@@ -1540,7 +1540,10 @@
       "description": "Descrição",
       "amount": "Valor",
       "balance": "Saldo"
-    }
+    },
+    "fullHistory": "Histórico completo",
+    "accountStatement": "Conta corrente",
+    "outstandingBalance": "Saldo c/c em aberto"
   },
   "bankPeriods": {
     "title": "Períodos de extrato",
