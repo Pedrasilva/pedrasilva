@@ -147,50 +147,59 @@ export function StatementView({
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="space-y-1">
-              <Label>{t("finance:statements.entityType")}</Label>
-              <Select
-                value={entityType}
-                onValueChange={(v) => {
-                  setEntityType(v as StatementEntityType);
-                  setEntityId(null);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ENTITY_TYPES.map((k) => (
-                    <SelectItem key={k} value={k}>
-                      {t(`finance:statements.types.${k}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div
+            className={
+              "grid gap-3 " + (locked ? "md:grid-cols-2" : "md:grid-cols-4")
+            }
+          >
+            {!locked && (
+              <>
+                <div className="space-y-1">
+                  <Label>{t("finance:statements.entityType")}</Label>
+                  <Select
+                    value={entityType}
+                    onValueChange={(v) => {
+                      setEntityType(v as StatementEntityType);
+                      setEntityId(null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ENTITY_TYPES.map((k) => (
+                        <SelectItem key={k} value={k}>
+                          {t(`finance:statements.types.${k}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="space-y-1">
-              <Label>{t(`finance:statements.types.${entityType}`)}</Label>
-              <Select
-                value={selectedId ?? ""}
-                onValueChange={(v) => setEntityId(v)}
-                disabled={entities.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={t("finance:statements.selectEntity")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {entities.map((e) => (
-                    <SelectItem key={e.id} value={e.id}>
-                      {e.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <div className="space-y-1">
+                  <Label>{t(`finance:statements.types.${entityType}`)}</Label>
+                  <Select
+                    value={selectedId ?? ""}
+                    onValueChange={(v) => setEntityId(v)}
+                    disabled={entities.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t("finance:statements.selectEntity")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {entities.map((e) => (
+                        <SelectItem key={e.id} value={e.id}>
+                          {e.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
 
             <div className="space-y-1">
               <Label>{t("finance:statements.from")}</Label>
