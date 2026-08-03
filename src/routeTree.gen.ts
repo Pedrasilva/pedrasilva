@@ -58,6 +58,7 @@ import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
 import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
 import { Route as AppCrmAccountsAccountIdRouteImport } from './routes/_app.crm.accounts.$accountId'
+import { Route as AppCrmCompaniesIndexRouteImport } from './routes/_app.crm.companies.index'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
 import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
 import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
@@ -351,6 +352,11 @@ const AppCrmAccountsAccountIdRoute = AppCrmAccountsAccountIdRouteImport.update({
   id: '/$accountId',
   path: '/$accountId',
   getParentRoute: () => AppCrmAccountsRoute,
+} as any)
+const AppCrmCompaniesIndexRoute = AppCrmCompaniesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCrmCompaniesRoute,
 } as any)
 const AppCrmCompaniesCompanyIdRoute =
   AppCrmCompaniesCompanyIdRouteImport.update({
@@ -703,6 +709,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
@@ -724,7 +731,6 @@ export interface FileRoutesByTo {
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
-  '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
@@ -795,6 +801,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/crm/companies': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
@@ -892,6 +899,7 @@ export interface FileRoutesById {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
   '/_app/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
@@ -989,6 +997,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
+    | '/crm/companies/'
     | '/crm/opportunities/'
     | '/finance/documents/'
     | '/proposals/$proposalId/revisions/$revisionId'
@@ -1010,7 +1019,6 @@ export interface FileRouteTypes {
     | '/admin/proposal-roles'
     | '/admin/quotes-trash'
     | '/crm/accounts'
-    | '/crm/companies'
     | '/crm/contacts'
     | '/crm/pipeline'
     | '/crm/quote-templates'
@@ -1081,6 +1089,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
+    | '/crm/companies'
     | '/crm/opportunities'
     | '/finance/documents'
     | '/proposals/$proposalId/revisions/$revisionId'
@@ -1177,6 +1186,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/run-backup'
+    | '/_app/crm/companies/'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
     | '/_app/proposals/$proposalId/revisions/$revisionId'
@@ -1542,6 +1552,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmAccountsAccountIdRouteImport
       parentRoute: typeof AppCrmAccountsRoute
     }
+    '/_app/crm/companies/': {
+      id: '/_app/crm/companies/'
+      path: '/'
+      fullPath: '/crm/companies/'
+      preLoaderRoute: typeof AppCrmCompaniesIndexRouteImport
+      parentRoute: typeof AppCrmCompaniesRoute
+    }
     '/_app/crm/companies/$companyId': {
       id: '/_app/crm/companies/$companyId'
       path: '/$companyId'
@@ -1874,10 +1891,12 @@ const AppCrmAccountsRouteWithChildren = AppCrmAccountsRoute._addFileChildren(
 
 interface AppCrmCompaniesRouteChildren {
   AppCrmCompaniesCompanyIdRoute: typeof AppCrmCompaniesCompanyIdRoute
+  AppCrmCompaniesIndexRoute: typeof AppCrmCompaniesIndexRoute
 }
 
 const AppCrmCompaniesRouteChildren: AppCrmCompaniesRouteChildren = {
   AppCrmCompaniesCompanyIdRoute: AppCrmCompaniesCompanyIdRoute,
+  AppCrmCompaniesIndexRoute: AppCrmCompaniesIndexRoute,
 }
 
 const AppCrmCompaniesRouteWithChildren = AppCrmCompaniesRoute._addFileChildren(
