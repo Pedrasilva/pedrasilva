@@ -145,13 +145,17 @@ function CompanyDetail() {
         </div>
       </div>
 
+      <OutstandingBalanceCard company={current as Company} companyId={companyId} />
+
       <Tabs defaultValue="detalhes">
         <TabsList>
           <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
           <TabsTrigger value="contactos">Contactos ({contacts.length})</TabsTrigger>
           <TabsTrigger value="propostas">Propostas ({proposals.length})</TabsTrigger>
+          <TabsTrigger value="conta-corrente">Conta corrente</TabsTrigger>
           <TabsTrigger value="actividades">Actividades</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="detalhes" className="space-y-4">
           {contacts[0] && (
