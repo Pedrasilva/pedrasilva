@@ -2,8 +2,8 @@
  * Financial Classifications admin screen.
  *
  * Reuses the canonical `public.financial_classifications` table.
- * Admins can create / edit / (de)activate classifications.
- * Non-admins see a read-only table (DB RLS also enforces).
+ * Users with finance document edit access can create / edit / (de)activate
+ * classifications. Other users see a read-only table (DB RLS also enforces).
  */
 
 import { useMemo, useState } from "react";
@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Search, Plus, Pencil } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
+import { useCan } from "@/hooks/use-permissions-v2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -114,7 +114,10 @@ function emptyForm(): FormState {
 export function FinancialClassificationsAdmin() {
   const { t, i18n } = useTranslation("finance");
   const isPt = i18n.language?.startsWith("pt");
-  const { isAdmin } = useAuth();
+  const { loading: editPermissionLoading, allowed: canEdit } = useCan(
+    "finance.documents.edit",
+    "all",
+  );
   const qc = useQueryClient();
 
   const [q, setQ] = useState("");
@@ -250,7 +253,7 @@ export function FinancialClassificationsAdmin() {
             {t("financialClassifications.subtitle")}
           </p>
         </div>
-        {isAdmin && (
+        {canEdit && (
           <Button onClick={openCreate} size="sm">
             <Plus className="h-4 w-4 mr-1" />
             {t("financialClassifications.new")}
@@ -360,7 +363,7 @@ export function FinancialClassificationsAdmin() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {isAdmin && (
+                    {canEdit && (
                       <div className="flex justify-end gap-1">
                         <Button
                           size="sm"
@@ -564,7 +567,10 @@ export function FinancialClassificationsAdmin() {
             <Button variant="outline" onClick={() => setEditorOpen(false)}>
               {t("financialClassifications.cancel")}
             </Button>
-            <Button onClick={submit} disabled={upsert.isPending || !isAdmin}>
+            <Button
+              onClick={submit}
+              disabled={upsert.isPending || editPermissionLoading || !canEdit}
+            >
               {t("financialClassifications.save")}
             </Button>
           </DialogFooter>
