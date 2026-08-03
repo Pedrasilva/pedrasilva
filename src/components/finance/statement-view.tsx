@@ -244,6 +244,16 @@ export function StatementView({
             <Button
               variant="outline"
               size="sm"
+              onClick={() => {
+                setFrom(FULL_HISTORY_START);
+                setTo(new Date().toISOString().slice(0, 10));
+              }}
+            >
+              {t("finance:statements.fullHistory")}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={exportCsv}
               disabled={!st}
             >
