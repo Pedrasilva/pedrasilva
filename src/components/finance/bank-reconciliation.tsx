@@ -32,10 +32,12 @@ import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-cl
 import { BankImportsManager } from "@/components/finance/bank-imports-manager";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import { CreateDocFromTxDialog } from "@/components/finance/create-doc-from-tx";
+import { StatementPeriodsPanel, PeriodStatusBadge } from "@/components/finance/statement-periods-panel";
+import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } from "@/lib/finance/use-statement-periods";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
-type BankTx = { id: string; bank_account_id: string; transaction_date: string; value_date: string | null; description: string; amount: number; running_balance: number | null; currency: string; status: string; suggested_classification_id: string | null; ignored_reason: string | null };
+type BankTx = { id: string; bank_account_id: string; transaction_date: string; value_date: string | null; description: string; amount: number; running_balance: number | null; currency: string; status: string; suggested_classification_id: string | null; ignored_reason: string | null; statement_period_id: string | null };
 type Supplier = { id: string; name: string };
 type Client = { id: string; name: string };
 type Project = { id: string; name: string };
@@ -76,6 +78,8 @@ export function BankReconciliationTab() {
   });
 
   const [selectedAccount, setSelectedAccount] = useState<string>("");
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
+  useEffect(() => { setSelectedPeriodId(null); }, [selectedAccount]);
   useEffect(() => {
     if (!selectedAccount && accountsQ.data && accountsQ.data.length > 0) {
       setSelectedAccount(accountsQ.data[0].id);
@@ -124,10 +128,20 @@ export function BankReconciliationTab() {
       </Card>
 
       {selectedAccount && (
+        <StatementPeriodsPanel
+          accountId={selectedAccount}
+          selectedPeriodId={selectedPeriodId}
+          onSelectPeriod={setSelectedPeriodId}
+        />
+      )}
+
+      {selectedAccount && (
         <ReconciliationQueue
           accountId={selectedAccount}
           classifications={classificationsQ.data ?? []}
           isPt={isPt}
+          selectedPeriodId={selectedPeriodId}
+          onSelectPeriod={setSelectedPeriodId}
         />
       )}
     </div>
@@ -523,7 +537,7 @@ type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transf
 const fmtAmount = (n: number, ccy = "EUR") =>
   new Intl.NumberFormat("pt-PT", { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
 
-function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: string; classifications: Classification[]; isPt: boolean }) {
+function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodId, onSelectPeriod }: { accountId: string; classifications: Classification[]; isPt: boolean; selectedPeriodId: string | null; onSelectPeriod: (id: string | null) => void }) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
 
@@ -537,6 +551,12 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const [dateTo, setDateTo] = useState("");
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
+
+  const periodsQ = useStatementPeriods(accountId);
+  const periodStatusQ = useStatementPeriodStatus(accountId);
+  const periods = periodsQ.data ?? [];
+  const activePeriod = periods.find((p) => p.id === selectedPeriodId) ?? null;
+  const activePeriodStatus = selectedPeriodId ? periodStatusQ.byPeriod.get(selectedPeriodId) ?? null : null;
 
   // Selection + action dialogs
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -553,7 +573,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     queryFn: async (): Promise<BankTx[]> => {
       let q = supabase
         .from("bank_transactions")
-        .select("id, bank_account_id, transaction_date, value_date, description, amount, running_balance, currency, status, suggested_classification_id, ignored_reason")
+        .select("id, bank_account_id, transaction_date, value_date, description, amount, running_balance, currency, status, suggested_classification_id, ignored_reason, statement_period_id")
         .eq("bank_account_id", accountId)
         .order("transaction_date", { ascending: false })
         .limit(1000);
@@ -621,6 +641,12 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
       if (min !== null && !Number.isNaN(min) && abs < min) return false;
       if (max !== null && !Number.isNaN(max) && abs > max) return false;
       if (needle && !r.description.toLowerCase().includes(needle)) return false;
+      if (activePeriod) {
+        const inPeriod = r.statement_period_id
+          ? r.statement_period_id === activePeriod.id
+          : r.transaction_date >= activePeriod.period_start_date && r.transaction_date <= activePeriod.period_end_date;
+        if (!inPeriod) return false;
+      }
       if (linkFilter !== "all" && linksMap) {
         const linked = linksMap.has(r.id);
         if (linkFilter === "linked" && !linked) return false;
@@ -628,7 +654,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
       }
       return true;
     });
-  }, [txQ.data, linksQ.data, dirFilter, dateFrom, dateTo, minAmount, maxAmount, search, linkFilter]);
+  }, [txQ.data, linksQ.data, dirFilter, dateFrom, dateTo, minAmount, maxAmount, search, linkFilter, activePeriod]);
 
   // Auto-select first row when filters change
   useEffect(() => {
@@ -692,6 +718,42 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                 ))}
               </div>
             </div>
+          </div>
+          {/* Statement period selector + declared-balance check */}
+          <div className="pt-3 flex flex-wrap items-center gap-2">
+            <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {t("finance:bankPeriods.filterLabel")}
+            </Label>
+            <Select value={selectedPeriodId ?? "all"} onValueChange={(v) => onSelectPeriod(v === "all" ? null : v)}>
+              <SelectTrigger className="h-8 w-[220px] text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("finance:bankPeriods.allPeriods")}</SelectItem>
+                {periods.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.statement_number} · {p.period_start_date} → {p.period_end_date}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {activePeriodStatus && (
+              <div className="flex items-center gap-3 rounded-md border px-3 py-1.5 text-[11px]">
+                <PeriodStatusBadge status={activePeriodStatus.status} reconciled={activePeriodStatus.reconciled_count} total={activePeriodStatus.tx_count} />
+                <span className="text-muted-foreground">
+                  {t("finance:bankPeriods.col.declaredOpening")}: <span className="tabular-nums text-foreground">{fmtAmount(activePeriodStatus.opening_balance)}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  {t("finance:bankPeriods.col.computedClosing")}: <span className="tabular-nums text-foreground">{fmtAmount(activePeriodStatus.computed_closing)}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  {t("finance:bankPeriods.col.declaredClosing")}: <span className="tabular-nums text-foreground">{fmtAmount(activePeriodStatus.declared_closing)}</span>
+                </span>
+                {activePeriodStatus.status === "mismatch" && (
+                  <span className="text-destructive font-medium tabular-nums">
+                    {t("finance:bankPeriods.col.difference")}: {fmtAmount(activePeriodStatus.difference)}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           {/* Filter bar */}
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 pt-3">
@@ -784,6 +846,14 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                 {selectedTx ? (
                   <TxDetailPanel
                     tx={selectedTx}
+                    periods={periods}
+                    onPeriodOverride={async (periodId) => {
+                      const { error } = await supabase.from("bank_transactions").update({ statement_period_id: periodId }).eq("id", selectedTx.id);
+                      if (error) { toast.error(error.message); return; }
+                      toast.success(t("finance:bankPeriods.overrideSaved"));
+                      txQ.refetch();
+                      periodStatusQ.refetch();
+                    }}
                     classifications={classifications}
                     isPt={isPt}
                     linked={linksQ.data?.get(selectedTx.id) ?? null}
@@ -847,10 +917,12 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
 type LinkedInfo = { documentId: string; documentNumber: string | null; direction: string | null; docType: string | null; amount: number } | null;
 
 function TxDetailPanel({
-  tx, classifications, isPt, linked,
+  tx, periods, onPeriodOverride, classifications, isPt, linked,
   onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch,
 }: {
   tx: BankTx;
+  periods: StatementPeriod[];
+  onPeriodOverride: (periodId: string | null) => void;
   classifications: Classification[];
   isPt: boolean;
   linked: LinkedInfo;
@@ -920,6 +992,23 @@ function TxDetailPanel({
               )}
             </div>
             <div className="text-sm font-medium break-words">{tx.description}</div>
+            {periods.length > 0 && (
+              <div className="mt-2 flex items-center gap-2">
+                <Label className="text-[11px] text-muted-foreground">{t("finance:bankPeriods.assignLabel")}</Label>
+                <Select
+                  value={tx.statement_period_id ?? "auto"}
+                  onValueChange={(v) => onPeriodOverride(v === "auto" ? null : v)}
+                >
+                  <SelectTrigger className="h-7 w-[200px] text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">{t("finance:bankPeriods.autoByDate")}</SelectItem>
+                    {periods.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.statement_number}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <div className={`text-lg tabular-nums font-semibold shrink-0 ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>
             {fmtAmount(Number(tx.amount), tx.currency)}
