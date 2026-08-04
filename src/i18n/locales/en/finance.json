@@ -1527,7 +1527,8 @@
     "types": {
       "bank_account": "Bank account",
       "client": "Client",
-      "supplier": "Supplier"
+      "supplier": "Supplier",
+      "statement_period": "Statement period"
     },
     "kind": {
       "transaction": "Transaction",
@@ -1543,7 +1544,16 @@
     },
     "fullHistory": "Full history",
     "accountStatement": "Account statement",
-    "outstandingBalance": "Outstanding balance"
+    "outstandingBalance": "Outstanding balance",
+    "selectPeriod": "Select statement…",
+    "statementPeriod": "Statement period",
+    "declaredClosing": "Declared closing",
+    "computedClosing": "Computed closing",
+    "difference": "Difference",
+    "confirmed": "Confirmed",
+    "mismatch": "Mismatch",
+    "noPeriods": "No statement periods for this account yet.",
+    "periodTypes": "Statement period"
   },
   "bankPeriods": {
     "title": "Statement periods",
