@@ -172,7 +172,7 @@ export function ClientsMasterData() {
                       </TableCell>
                       <TableCell className="font-medium">
                         <Link
-                          to="/crm/companies/$companyId"
+                          to="/finance/clients/$companyId"
                           params={{ companyId: r.id }}
                           className="hover:underline"
                         >
@@ -488,7 +488,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
         <DialogFooter className="sm:justify-between">
           {record ? (
             <Link
-              to="/crm/companies/$companyId"
+              to="/finance/clients/$companyId"
               params={{ companyId: record.id }}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
               onClick={() => onOpenChange(false)}

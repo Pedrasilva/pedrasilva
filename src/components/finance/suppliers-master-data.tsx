@@ -128,7 +128,7 @@ export function SuppliersMasterData() {
                       </TableCell>
                       <TableCell className="font-medium">
                         <Link
-                          to="/crm/companies/$companyId"
+                          to="/finance/suppliers/$companyId"
                           params={{ companyId: r.id }}
                           className="hover:underline"
                         >
