@@ -160,7 +160,7 @@ export function ClientsMasterData() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                       {t("finance:clientsMaster.empty")}
                     </TableCell>
                   </TableRow>
