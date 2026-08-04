@@ -9,32 +9,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Search, AlertTriangle } from "lucide-react";
 import type { Company } from "@/lib/crm/types";
+import {
+  RELATIONSHIP_LABEL,
+  relationshipVariant,
+  type Relationship,
+} from "@/lib/crm/relationship";
 
 export const Route = createFileRoute("/_app/crm/companies/")({
   component: CompaniesList,
 });
 
-type Relationship = "client" | "supplier" | "both" | "uncategorized";
 type TabKey = "all" | Relationship;
-
-const RELATIONSHIP_LABEL: Record<Relationship, string> = {
-  client: "Cliente",
-  supplier: "Fornecedor",
-  both: "Ambos",
-  uncategorized: "Sem categoria",
-};
 
 function statusVariant(s: Company["status"]): "default" | "secondary" | "outline" {
   if (s === "activo") return "default";
   if (s === "prospecto") return "secondary";
   return "outline";
-}
-
-function relationshipVariant(r: Relationship): "default" | "secondary" | "outline" | "destructive" {
-  if (r === "client") return "default";
-  if (r === "supplier") return "secondary";
-  if (r === "both") return "outline";
-  return "destructive";
 }
 
 function CompaniesList() {

@@ -7,6 +7,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Plus, Search, Loader2, Pencil } from "lucide-react";
@@ -125,7 +126,15 @@ export function SuppliersMasterData() {
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {r.code ?? "—"}
                       </TableCell>
-                      <TableCell className="font-medium">{r.nome}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link
+                          to="/crm/companies/$companyId"
+                          params={{ companyId: r.id }}
+                          className="hover:underline"
+                        >
+                          {r.nome}
+                        </Link>
+                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.nif ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.telefone ?? "—"}</TableCell>
