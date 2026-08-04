@@ -33,8 +33,8 @@ const SELECT_COLS =
 export function SuppliersMasterData() {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<CompanyRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: rows = [], isLoading } = useQuery({
@@ -165,13 +165,6 @@ export function SuppliersMasterData() {
         open={creating}
         onOpenChange={setCreating}
         kind="supplier"
-        onSaved={invalidate}
-      />
-      <CounterpartyEditor
-        open={!!editing}
-        onOpenChange={(v) => !v && setEditing(null)}
-        kind="supplier"
-        record={editing ?? undefined}
         onSaved={invalidate}
       />
     </Card>
