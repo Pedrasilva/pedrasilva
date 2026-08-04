@@ -481,8 +481,29 @@ function QueueItemCard({
     row.suggested_classification_id,
   );
   const [projectId, setProjectId] = useState<string | null>(row.created_project_id);
+  const [assignedCollaboratorId, setAssignedCollaboratorId] = useState<string | null>(
+    (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Staff benefits (BEN.*) must be attributed to a person before approval.
+  const selectedCode = classifications.find((c) => c.id === classificationId)?.code ?? null;
+  const isBenefit = !!selectedCode && (selectedCode === "BEN" || selectedCode.startsWith("BEN."));
+  const collaboratorsQ = useQuery({
+    queryKey: ["collaborators-picker", "benefit-assign"],
+    enabled: isBenefit,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome")
+        .is("archived_at", null)
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; nome: string }>;
+    },
+  });
+
 
   const approveSupplier = useServerFn(approveQueueSupplier);
   const approveClient = useServerFn(approveQueueClient);
