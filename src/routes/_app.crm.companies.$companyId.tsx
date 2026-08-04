@@ -146,7 +146,16 @@ function CompanyDetail() {
             <Building2 className="h-5 w-5 text-primary" />
             {current.nome}
           </h2>
-          <Badge variant="secondary" className="mt-1 capitalize">{current.status}</Badge>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <Badge variant={relationshipVariant(relationshipOf(current as Company))}>
+              {relationshipLabel(current as Company)}
+            </Badge>
+            <Badge variant="secondary" className="capitalize">{current.status}</Badge>
+            {(current as Company).is_active === false ? (
+              <Badge variant="outline">Inactivo</Badge>
+            ) : null}
+          </div>
+
         </div>
         <div className="flex gap-2">
           <Button
