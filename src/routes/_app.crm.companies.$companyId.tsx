@@ -453,7 +453,7 @@ function CompanyDetail() {
           <Card>
             <CardContent className="p-0">
               <StatementView
-                lockedEntityType={statementSide(current as Company)}
+                lockedEntityType={statementSideOf(current as Company)}
                 lockedEntityId={companyId}
                 lockedEntityLabel={current.nome ?? ""}
                 fullHistoryByDefault
@@ -474,20 +474,6 @@ function CompanyDetail() {
   );
 }
 
-type CompanyFlags = Company & {
-  is_client?: boolean | null;
-  is_supplier?: boolean | null;
-  relationship_type?: string | null;
-};
-
-/** Which side of the ledger this company sits on. */
-function statementSide(c: Company): "client" | "supplier" {
-  const f = c as CompanyFlags;
-  if (f.is_client) return "client";
-  if (f.is_supplier) return "supplier";
-  return f.relationship_type === "supplier" ? "supplier" : "client";
-}
-
 /** PHC's "Saldo c/c em aberto" — reuses the shared outstanding figure. */
 function OutstandingBalanceCard({
   company,
@@ -496,7 +482,7 @@ function OutstandingBalanceCard({
   company: Company;
   companyId: string;
 }) {
-  const kind = statementSide(company);
+  const kind = statementSideOf(company);
   const { data } = useCounterpartyStatement({ kind, id: companyId });
   const outstanding = data?.outstanding ?? 0;
   return (
