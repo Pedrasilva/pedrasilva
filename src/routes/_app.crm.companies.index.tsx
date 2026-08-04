@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_app/crm/companies/")({
   component: CompaniesList,
 });
 
+type TabKey = "all" | Relationship;
+
 function statusVariant(s: Company["status"]): "default" | "secondary" | "outline" {
   if (s === "activo") return "default";
   if (s === "prospecto") return "secondary";
