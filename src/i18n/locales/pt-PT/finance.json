@@ -1468,7 +1468,8 @@
     "titleIssued": "Fila de revisão de documentos — emitidos",
     "subtitleReceived": "Documentos que recebemos (a pagar), mais aqueles cuja direção ainda não é clara. A IA extrai os dados e sugere fornecedor e classificação. Nada é registado até aprovar.",
     "subtitleIssued": "Documentos emitidos a clientes (a receber). A IA extrai os dados e sugere cliente e classificação. Nada é registado até aprovar.",
-    "unclearHint": "Direção não confirmada — confirme manualmente"
+    "unclearHint": "Direção não confirmada — confirme manualmente",
+    "pickCollaborator": "Atribuir colaborador"
   },
   "vatReport": {
     "title": "Relatório de IVA",
