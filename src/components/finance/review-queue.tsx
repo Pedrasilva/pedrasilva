@@ -1051,6 +1051,30 @@ function QueueItemCard({
                 ))}
               </SelectContent>
             </Select>
+            {isBenefit && (
+              <Select
+                value={assignedCollaboratorId ?? "__none__"}
+                disabled={readOnly}
+                onValueChange={(v) =>
+                  setAssignedCollaboratorId(v === "__none__" ? null : v)
+                }
+              >
+                <SelectTrigger className="w-[260px]">
+                  <SelectValue placeholder={t("finance:reviewQueue.pickCollaborator")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">
+                    {t("finance:reviewQueue.pickCollaborator")}
+                  </SelectItem>
+                  {(collaboratorsQ.data ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             <Button
               size="sm"
               disabled={
