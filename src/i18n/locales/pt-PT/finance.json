@@ -1527,7 +1527,8 @@
     "types": {
       "bank_account": "Conta bancária",
       "client": "Cliente",
-      "supplier": "Fornecedor"
+      "supplier": "Fornecedor",
+      "statement_period": "Extrato numerado"
     },
     "kind": {
       "transaction": "Movimento",
@@ -1543,7 +1544,16 @@
     },
     "fullHistory": "Histórico completo",
     "accountStatement": "Conta corrente",
-    "outstandingBalance": "Saldo c/c em aberto"
+    "outstandingBalance": "Saldo c/c em aberto",
+    "selectPeriod": "Selecionar extrato…",
+    "statementPeriod": "Nº de extrato",
+    "declaredClosing": "Saldo final declarado",
+    "computedClosing": "Saldo final calculado",
+    "difference": "Diferença",
+    "confirmed": "Confirmado",
+    "mismatch": "Divergência",
+    "noPeriods": "Ainda não há extratos numerados para esta conta.",
+    "periodTypes": "Extrato numerado"
   },
   "bankPeriods": {
     "title": "Períodos de extrato",

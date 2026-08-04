@@ -28,18 +28,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import {
   currentMonthRange,
   useStatement,
   useStatementEntities,
   type StatementEntityType,
 } from "@/lib/finance/use-statement";
+import {
+  useStatementPeriods,
+  useStatementPeriodStatus,
+} from "@/lib/finance/use-statement-periods";
 
-const ENTITY_TYPES: StatementEntityType[] = [
+/** Modes offered in the "Statement for" dropdown. */
+type StatementMode = StatementEntityType | "statement_period";
+
+const ENTITY_TYPES: StatementMode[] = [
   "bank_account",
+  "statement_period",
   "client",
   "supplier",
 ];
+
 
 export type StatementViewProps = {
   /** Lock the statement to one entity (company detail pages). */
@@ -70,12 +80,15 @@ export function StatementView({
     [fullHistoryByDefault],
   );
 
-  const [entityType, setEntityType] = useState<StatementEntityType>(
+  const [mode, setMode] = useState<StatementMode>(
     lockedEntityType ?? "bank_account",
   );
+  const periodMode = mode === "statement_period";
+  const entityType: StatementEntityType = periodMode ? "bank_account" : mode;
   const [entityId, setEntityId] = useState<string | null>(
     lockedEntityId ?? null,
   );
+  const [periodId, setPeriodId] = useState<string | null>(null);
   const [from, setFrom] = useState(initialRange.from);
   const [to, setTo] = useState(initialRange.to);
 
@@ -90,8 +103,28 @@ export function StatementView({
     ? { id: lockedEntityId!, label: lockedEntityLabel ?? "" }
     : (entities.find((e) => e.id === selectedId) ?? null);
 
+  const periodsQ = useStatementPeriods(periodMode ? selectedId : null);
+  const periods = periodsQ.data ?? [];
+  const periodStatusQ = useStatementPeriodStatus(
+    periodMode ? selectedId : null,
+  );
+  const activePeriod = periods.find((p) => p.id === periodId) ?? null;
+  const activeCheck = activePeriod
+    ? (periodStatusQ.byPeriod.get(activePeriod.id) ?? null)
+    : null;
+
+  const selectPeriod = (id: string) => {
+    setPeriodId(id);
+    const p = periods.find((x) => x.id === id);
+    if (p) {
+      setFrom(p.period_start_date);
+      setTo(p.period_end_date);
+    }
+  };
+
   const statementQ = useStatement(entityType, selectedId, from, to);
   const st = statementQ.data;
+
 
   const currency = st?.currency || "EUR";
   const fmt = (n: number) =>
@@ -149,7 +182,12 @@ export function StatementView({
         <CardContent>
           <div
             className={
-              "grid gap-3 " + (locked ? "md:grid-cols-2" : "md:grid-cols-4")
+              "grid gap-3 " +
+              (locked
+                ? "md:grid-cols-2"
+                : periodMode
+                  ? "md:grid-cols-5"
+                  : "md:grid-cols-4")
             }
           >
             {!locked && (
@@ -157,10 +195,13 @@ export function StatementView({
                 <div className="space-y-1">
                   <Label>{t("finance:statements.entityType")}</Label>
                   <Select
-                    value={entityType}
+                    value={mode}
                     onValueChange={(v) => {
-                      setEntityType(v as StatementEntityType);
-                      setEntityId(null);
+                      setMode(v as StatementMode);
+                      setPeriodId(null);
+                      if ((v as StatementMode) !== "statement_period") {
+                        setEntityId(null);
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -180,7 +221,10 @@ export function StatementView({
                   <Label>{t(`finance:statements.types.${entityType}`)}</Label>
                   <Select
                     value={selectedId ?? ""}
-                    onValueChange={(v) => setEntityId(v)}
+                    onValueChange={(v) => {
+                      setEntityId(v);
+                      setPeriodId(null);
+                    }}
                     disabled={entities.length === 0}
                   >
                     <SelectTrigger>
@@ -197,8 +241,39 @@ export function StatementView({
                     </SelectContent>
                   </Select>
                 </div>
+
+                {periodMode && (
+                  <div className="space-y-1">
+                    <Label>{t("finance:statements.statementPeriod")}</Label>
+                    <Select
+                      value={periodId ?? ""}
+                      onValueChange={selectPeriod}
+                      disabled={periods.length === 0}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={t(
+                            periods.length === 0
+                              ? "finance:statements.noPeriods"
+                              : "finance:statements.selectPeriod",
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {periods.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.statement_number} · {fmtDate(p.period_start_date)}
+                            {" – "}
+                            {fmtDate(p.period_end_date)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </>
             )}
+
 
 
             <div className="space-y-1">
@@ -263,6 +338,49 @@ export function StatementView({
           </div>
         </CardContent>
       </Card>
+
+      {periodMode && activePeriod && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              {activePeriod.statement_number}
+              {activeCheck &&
+                (activeCheck.status === "confirmed" ? (
+                  <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-600">
+                    <CheckCircle2 className="h-3 w-3" />
+                    {t("finance:statements.confirmed")}
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive" className="gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    {t("finance:statements.mismatch")}
+                  </Badge>
+                ))}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-4">
+            <SummaryTile
+              label={t("finance:statements.openingBalance")}
+              value={fmt(activePeriod.opening_balance)}
+            />
+            <SummaryTile
+              label={t("finance:statements.declaredClosing")}
+              value={fmt(activePeriod.closing_balance)}
+            />
+            <SummaryTile
+              label={t("finance:statements.computedClosing")}
+              value={fmt(activeCheck?.computed_closing ?? 0)}
+              strong
+            />
+            <SummaryTile
+              label={t("finance:statements.difference")}
+              value={fmt(activeCheck?.difference ?? 0)}
+              strong
+            />
+          </CardContent>
+        </Card>
+      )}
+
 
       {statementQ.isError && (
         <Card>
