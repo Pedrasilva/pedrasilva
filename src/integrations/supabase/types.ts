@@ -609,6 +609,7 @@ export type Database = {
       benefit_categories: {
         Row: {
           active: boolean
+          classification_id: string | null
           code: string
           created_at: string
           icon: string | null
@@ -621,6 +622,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          classification_id?: string | null
           code: string
           created_at?: string
           icon?: string | null
@@ -633,6 +635,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          classification_id?: string | null
           code?: string
           created_at?: string
           icon?: string | null
@@ -643,7 +646,15 @@ export type Database = {
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "benefit_categories_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       benefit_category_legacy_aliases: {
         Row: {
@@ -884,19 +895,23 @@ export type Database = {
           ano_fiscal: number
           aprovado_em: string | null
           aprovado_por: string | null
+          bank_transaction_id: string | null
           categoria: Database["public"]["Enums"]["benefit_category"]
           category_id: string | null
+          classification_id: string | null
           collaborator_id: string
           created_at: string
           data_despesa: string
           descricao: string
           document_number: string | null
           estado: Database["public"]["Enums"]["expense_status"]
+          financial_document_id: string | null
           foto_path: string | null
           id: string
           notas_aprovacao: string | null
           notas_colaborador: string | null
           ocr_extraction_id: string | null
+          origin: string
           pago_em: string | null
           pago_por: string | null
           payment_account_id: string | null
@@ -915,19 +930,23 @@ export type Database = {
           ano_fiscal?: number
           aprovado_em?: string | null
           aprovado_por?: string | null
+          bank_transaction_id?: string | null
           categoria: Database["public"]["Enums"]["benefit_category"]
           category_id?: string | null
+          classification_id?: string | null
           collaborator_id: string
           created_at?: string
           data_despesa: string
           descricao: string
           document_number?: string | null
           estado?: Database["public"]["Enums"]["expense_status"]
+          financial_document_id?: string | null
           foto_path?: string | null
           id?: string
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
           ocr_extraction_id?: string | null
+          origin?: string
           pago_em?: string | null
           pago_por?: string | null
           payment_account_id?: string | null
@@ -946,19 +965,23 @@ export type Database = {
           ano_fiscal?: number
           aprovado_em?: string | null
           aprovado_por?: string | null
+          bank_transaction_id?: string | null
           categoria?: Database["public"]["Enums"]["benefit_category"]
           category_id?: string | null
+          classification_id?: string | null
           collaborator_id?: string
           created_at?: string
           data_despesa?: string
           descricao?: string
           document_number?: string | null
           estado?: Database["public"]["Enums"]["expense_status"]
+          financial_document_id?: string | null
           foto_path?: string | null
           id?: string
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
           ocr_extraction_id?: string | null
+          origin?: string
           pago_em?: string | null
           pago_por?: string | null
           payment_account_id?: string | null
@@ -974,10 +997,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "benefit_expenses_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "benefit_expenses_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
             referencedColumns: ["id"]
           },
           {
@@ -992,6 +1029,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_financial_document_id_fkey"
+            columns: ["financial_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
             referencedColumns: ["id"]
           },
           {
@@ -2636,6 +2680,7 @@ export type Database = {
         Row: {
           ambiguous_client_ids: string[]
           ambiguous_supplier_ids: string[]
+          assigned_collaborator_id: string | null
           classification_approved_at: string | null
           classification_approved_by: string | null
           classification_confidence: number | null
@@ -2686,6 +2731,7 @@ export type Database = {
         Insert: {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
+          assigned_collaborator_id?: string | null
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
@@ -2736,6 +2782,7 @@ export type Database = {
         Update: {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
+          assigned_collaborator_id?: string | null
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
@@ -2789,6 +2836,20 @@ export type Database = {
             columns: ["suggested_classification_id"]
             isOneToOne: false
             referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_assigned_collaborator_id_fkey"
+            columns: ["assigned_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_assigned_collaborator_id_fkey"
+            columns: ["assigned_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
           {
@@ -9260,19 +9321,23 @@ export type Database = {
           ano_fiscal: number
           aprovado_em: string | null
           aprovado_por: string | null
+          bank_transaction_id: string | null
           categoria: Database["public"]["Enums"]["benefit_category"]
           category_id: string | null
+          classification_id: string | null
           collaborator_id: string
           created_at: string
           data_despesa: string
           descricao: string
           document_number: string | null
           estado: Database["public"]["Enums"]["expense_status"]
+          financial_document_id: string | null
           foto_path: string | null
           id: string
           notas_aprovacao: string | null
           notas_colaborador: string | null
           ocr_extraction_id: string | null
+          origin: string
           pago_em: string | null
           pago_por: string | null
           payment_account_id: string | null

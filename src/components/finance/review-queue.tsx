@@ -481,8 +481,29 @@ function QueueItemCard({
     row.suggested_classification_id,
   );
   const [projectId, setProjectId] = useState<string | null>(row.created_project_id);
+  const [assignedCollaboratorId, setAssignedCollaboratorId] = useState<string | null>(
+    (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Staff benefits (BEN.*) must be attributed to a person before approval.
+  const selectedCode = classifications.find((c) => c.id === classificationId)?.code ?? null;
+  const isBenefit = !!selectedCode && (selectedCode === "BEN" || selectedCode.startsWith("BEN."));
+  const collaboratorsQ = useQuery({
+    queryKey: ["collaborators-picker", "benefit-assign"],
+    enabled: isBenefit,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome")
+        .is("archived_at", null)
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; nome: string }>;
+    },
+  });
+
 
   const approveSupplier = useServerFn(approveQueueSupplier);
   const approveClient = useServerFn(approveQueueClient);
@@ -627,10 +648,18 @@ function QueueItemCard({
   const doApproveClassification = useMutation({
     mutationFn: async () => {
       if (!classificationId) throw new Error(t("finance:reviewQueue.pickClassification"));
+      if (isBenefit && !assignedCollaboratorId)
+        throw new Error(t("finance:reviewQueue.pickCollaborator"));
       await approveClassification({
-        data: { id: row.id, classificationId, projectId: projectId ?? null },
+        data: {
+          id: row.id,
+          classificationId,
+          projectId: projectId ?? null,
+          assignedCollaboratorId: isBenefit ? assignedCollaboratorId : null,
+        },
       });
     },
+
     onSuccess: () => {
       toast.success(t("finance:reviewQueue.classificationApproved"));
       invalidate();
@@ -1022,6 +1051,30 @@ function QueueItemCard({
                 ))}
               </SelectContent>
             </Select>
+            {isBenefit && (
+              <Select
+                value={assignedCollaboratorId ?? "__none__"}
+                disabled={readOnly}
+                onValueChange={(v) =>
+                  setAssignedCollaboratorId(v === "__none__" ? null : v)
+                }
+              >
+                <SelectTrigger className="w-[260px]">
+                  <SelectValue placeholder={t("finance:reviewQueue.pickCollaborator")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">
+                    {t("finance:reviewQueue.pickCollaborator")}
+                  </SelectItem>
+                  {(collaboratorsQ.data ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             <Button
               size="sm"
               disabled={
