@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,12 +24,19 @@ import { relationshipLabel, statementSideOf, relationshipOf, relationshipVariant
 import { Switch } from "@/components/ui/switch";
 
 
-export const Route = createFileRoute("/_app/crm/companies/$companyId")({
-  component: CompanyDetail,
-});
+export type CompanyDetailBack = {
+  /** Where the "back" link and post-delete navigation should go. */
+  to: string;
+  label: string;
+};
 
-function CompanyDetail() {
-  const { companyId } = Route.useParams();
+export function CompanyDetail({
+  companyId,
+  back,
+}: {
+  companyId: string;
+  back: CompanyDetailBack;
+}) {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -122,7 +129,7 @@ function CompanyDetail() {
     onSuccess: () => {
       toast.success("Empresa eliminada");
       qc.invalidateQueries({ queryKey: ["companies"] });
-      navigate({ to: "/crm/companies" });
+      navigate({ to: back.to });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -136,8 +143,8 @@ function CompanyDetail() {
 
   return (
     <div className="space-y-4">
-      <Link to="/crm/companies" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-3 w-3" /> Empresas
+      <Link to={back.to} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-3 w-3" /> {back.label}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -190,13 +197,9 @@ function CompanyDetail() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-base">Contacto principal</CardTitle>
-                <Link
-                  to="/crm/companies/$companyId"
-                  params={{ companyId }}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-xs text-muted-foreground">
                   Ver todos ({contacts.length})
-                </Link>
+                </span>
               </CardHeader>
               <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
                 <div>
