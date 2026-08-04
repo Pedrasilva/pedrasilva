@@ -129,7 +129,7 @@ export function CompanyDetail({
     onSuccess: () => {
       toast.success("Empresa eliminada");
       qc.invalidateQueries({ queryKey: ["companies"] });
-      navigate({ to: back.to });
+      navigate({ to: back.to } as never);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -143,7 +143,7 @@ export function CompanyDetail({
 
   return (
     <div className="space-y-4">
-      <Link to={back.to} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+      <Link to={back.to as never} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-3 w-3" /> {back.label}
       </Link>
 

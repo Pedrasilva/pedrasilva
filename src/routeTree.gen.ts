@@ -73,6 +73,7 @@ import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.fin
 import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
 import { Route as AppFinanceBankingStatementsRouteImport } from './routes/_app.finance.banking.statements'
 import { Route as AppFinanceBankingTransactionsRouteImport } from './routes/_app.finance.banking.transactions'
+import { Route as AppFinanceClientsCompanyIdRouteImport } from './routes/_app.finance.clients.$companyId'
 import { Route as AppFinanceDataBankAccountsRouteImport } from './routes/_app.finance.data.bank-accounts'
 import { Route as AppFinanceDataCardsRouteImport } from './routes/_app.finance.data.cards'
 import { Route as AppFinanceDataClassificationsRouteImport } from './routes/_app.finance.data.classifications'
@@ -95,6 +96,7 @@ import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.fin
 import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
 import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.finance.reports.projects'
 import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
+import { Route as AppFinanceSuppliersCompanyIdRouteImport } from './routes/_app.finance.suppliers.$companyId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
@@ -438,6 +440,12 @@ const AppFinanceBankingTransactionsRoute =
     path: '/banking/transactions',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceClientsCompanyIdRoute =
+  AppFinanceClientsCompanyIdRouteImport.update({
+    id: '/clients/$companyId',
+    path: '/clients/$companyId',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceDataBankAccountsRoute =
   AppFinanceDataBankAccountsRouteImport.update({
     id: '/data/bank-accounts',
@@ -565,6 +573,12 @@ const AppFinanceReportsVatRoute = AppFinanceReportsVatRouteImport.update({
   path: '/reports/vat',
   getParentRoute: () => AppFinanceRoute,
 } as any)
+const AppFinanceSuppliersCompanyIdRoute =
+  AppFinanceSuppliersCompanyIdRouteImport.update({
+    id: '/suppliers/$companyId',
+    path: '/suppliers/$companyId',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -680,6 +694,7 @@ export interface FileRoutesByFullPath {
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/finance/clients/$companyId': typeof AppFinanceClientsCompanyIdRoute
   '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -701,6 +716,7 @@ export interface FileRoutesByFullPath {
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
   '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
+  '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -772,6 +788,7 @@ export interface FileRoutesByTo {
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/finance/clients/$companyId': typeof AppFinanceClientsCompanyIdRoute
   '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -793,6 +810,7 @@ export interface FileRoutesByTo {
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
   '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
+  '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -870,6 +888,7 @@ export interface FileRoutesById {
   '/_app/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/_app/finance/banking/statements': typeof AppFinanceBankingStatementsRoute
   '/_app/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/_app/finance/clients/$companyId': typeof AppFinanceClientsCompanyIdRoute
   '/_app/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
   '/_app/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/_app/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -891,6 +910,7 @@ export interface FileRoutesById {
   '/_app/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
   '/_app/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/_app/finance/reports/vat': typeof AppFinanceReportsVatRoute
+  '/_app/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -968,6 +988,7 @@ export interface FileRouteTypes {
     | '/finance/banking/reconciliation'
     | '/finance/banking/statements'
     | '/finance/banking/transactions'
+    | '/finance/clients/$companyId'
     | '/finance/data/bank-accounts'
     | '/finance/data/cards'
     | '/finance/data/classifications'
@@ -989,6 +1010,7 @@ export interface FileRouteTypes {
     | '/finance/reports/forecast'
     | '/finance/reports/projects'
     | '/finance/reports/vat'
+    | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
@@ -1060,6 +1082,7 @@ export interface FileRouteTypes {
     | '/finance/banking/reconciliation'
     | '/finance/banking/statements'
     | '/finance/banking/transactions'
+    | '/finance/clients/$companyId'
     | '/finance/data/bank-accounts'
     | '/finance/data/cards'
     | '/finance/data/classifications'
@@ -1081,6 +1104,7 @@ export interface FileRouteTypes {
     | '/finance/reports/forecast'
     | '/finance/reports/projects'
     | '/finance/reports/vat'
+    | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
@@ -1157,6 +1181,7 @@ export interface FileRouteTypes {
     | '/_app/finance/banking/reconciliation'
     | '/_app/finance/banking/statements'
     | '/_app/finance/banking/transactions'
+    | '/_app/finance/clients/$companyId'
     | '/_app/finance/data/bank-accounts'
     | '/_app/finance/data/cards'
     | '/_app/finance/data/classifications'
@@ -1178,6 +1203,7 @@ export interface FileRouteTypes {
     | '/_app/finance/reports/forecast'
     | '/_app/finance/reports/projects'
     | '/_app/finance/reports/vat'
+    | '/_app/finance/suppliers/$companyId'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
@@ -1657,6 +1683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceBankingTransactionsRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/clients/$companyId': {
+      id: '/_app/finance/clients/$companyId'
+      path: '/clients/$companyId'
+      fullPath: '/finance/clients/$companyId'
+      preLoaderRoute: typeof AppFinanceClientsCompanyIdRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/data/bank-accounts': {
       id: '/_app/finance/data/bank-accounts'
       path: '/data/bank-accounts'
@@ -1811,6 +1844,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceReportsVatRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/suppliers/$companyId': {
+      id: '/_app/finance/suppliers/$companyId'
+      path: '/suppliers/$companyId'
+      fullPath: '/finance/suppliers/$companyId'
+      preLoaderRoute: typeof AppFinanceSuppliersCompanyIdRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/hr/colaborador/$id': {
       id: '/_app/hr/colaborador/$id'
       path: '/colaborador/$id'
@@ -1954,6 +1994,7 @@ interface AppFinanceRouteChildren {
   AppFinanceBankingReconciliationRoute: typeof AppFinanceBankingReconciliationRoute
   AppFinanceBankingStatementsRoute: typeof AppFinanceBankingStatementsRoute
   AppFinanceBankingTransactionsRoute: typeof AppFinanceBankingTransactionsRoute
+  AppFinanceClientsCompanyIdRoute: typeof AppFinanceClientsCompanyIdRoute
   AppFinanceDataBankAccountsRoute: typeof AppFinanceDataBankAccountsRoute
   AppFinanceDataCardsRoute: typeof AppFinanceDataCardsRoute
   AppFinanceDataClassificationsRoute: typeof AppFinanceDataClassificationsRoute
@@ -1975,6 +2016,7 @@ interface AppFinanceRouteChildren {
   AppFinanceReportsForecastRoute: typeof AppFinanceReportsForecastRoute
   AppFinanceReportsProjectsRoute: typeof AppFinanceReportsProjectsRoute
   AppFinanceReportsVatRoute: typeof AppFinanceReportsVatRoute
+  AppFinanceSuppliersCompanyIdRoute: typeof AppFinanceSuppliersCompanyIdRoute
   AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
 }
 
@@ -1988,6 +2030,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceBankingReconciliationRoute: AppFinanceBankingReconciliationRoute,
   AppFinanceBankingStatementsRoute: AppFinanceBankingStatementsRoute,
   AppFinanceBankingTransactionsRoute: AppFinanceBankingTransactionsRoute,
+  AppFinanceClientsCompanyIdRoute: AppFinanceClientsCompanyIdRoute,
   AppFinanceDataBankAccountsRoute: AppFinanceDataBankAccountsRoute,
   AppFinanceDataCardsRoute: AppFinanceDataCardsRoute,
   AppFinanceDataClassificationsRoute: AppFinanceDataClassificationsRoute,
@@ -2009,6 +2052,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceReportsForecastRoute: AppFinanceReportsForecastRoute,
   AppFinanceReportsProjectsRoute: AppFinanceReportsProjectsRoute,
   AppFinanceReportsVatRoute: AppFinanceReportsVatRoute,
+  AppFinanceSuppliersCompanyIdRoute: AppFinanceSuppliersCompanyIdRoute,
   AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
 }
 
