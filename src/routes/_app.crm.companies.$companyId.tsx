@@ -20,6 +20,9 @@ import {
   contactFullName, formatEUR, PIPELINE_STATUSES,
   type Company, type Contact, type FeeProposal,
 } from "@/lib/crm/types";
+import { relationshipLabel, statementSideOf, relationshipOf, relationshipVariant } from "@/lib/crm/relationship";
+import { Switch } from "@/components/ui/switch";
+
 
 export const Route = createFileRoute("/_app/crm/companies/$companyId")({
   component: CompanyDetail,
