@@ -1,0 +1,2 @@
+ALTER TABLE public.contacts ADD COLUMN IF NOT EXISTS is_billing_contact boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS contacts_billing_idx ON public.contacts (company_id) WHERE is_billing_contact;

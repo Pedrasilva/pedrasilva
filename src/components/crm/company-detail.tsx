@@ -11,9 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch } from "lucide-react";
+import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
+import { CompanyProjectsTab } from "@/components/crm/company-projects-tab";
+
 import { StatementView } from "@/components/finance/statement-view";
 import { useCounterpartyStatement } from "@/lib/finance/use-documents";
 import {
@@ -121,7 +123,20 @@ export function CompanyDetail({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const setBilling = useMutation({
+    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
+      const { error } = await supabase
+        .from("contacts")
+        .update({ is_billing_contact: value } as never)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-contacts", companyId] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
+
     mutationFn: async () => {
       const { error } = await supabase.from("companies").delete().eq("id", companyId);
       if (error) throw error;
@@ -187,7 +202,9 @@ export function CompanyDetail({
           <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
           <TabsTrigger value="contactos">Contactos ({contacts.length})</TabsTrigger>
           <TabsTrigger value="propostas">Propostas ({proposals.length})</TabsTrigger>
+          <TabsTrigger value="projectos">Trabalhos</TabsTrigger>
           <TabsTrigger value="conta-corrente">Conta corrente</TabsTrigger>
+
           <TabsTrigger value="actividades">Actividades</TabsTrigger>
         </TabsList>
 
@@ -399,14 +416,34 @@ export function CompanyDetail({
               ) : (
                 <ul className="divide-y">
                   {contacts.map((c) => (
-                    <li key={c.id} className="flex items-center justify-between p-3">
+                    <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
                       <div>
-                        <div className="font-medium">{contactFullName(c)}</div>
+                        <div className="font-medium flex items-center gap-2">
+                          {contactFullName(c)}
+                          {(c as Contact & { is_billing_contact?: boolean }).is_billing_contact ? (
+                            <Badge variant="default" className="gap-1">
+                              <Receipt className="h-3 w-3" /> Contacto de facturação
+                            </Badge>
+                          ) : null}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {c.posicao ?? "—"} {c.email && `· ${c.email}`}
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">{c.telemovel ?? c.telefone ?? ""}</div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id={`billing-${c.id}`}
+                            checked={!!(c as Contact & { is_billing_contact?: boolean }).is_billing_contact}
+                            onCheckedChange={(v) => setBilling.mutate({ id: c.id, value: v })}
+                            disabled={setBilling.isPending}
+                          />
+                          <Label htmlFor={`billing-${c.id}`} className="text-xs text-muted-foreground">
+                            Facturação
+                          </Label>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{c.telemovel ?? c.telefone ?? ""}</div>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -414,6 +451,11 @@ export function CompanyDetail({
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="projectos">
+          <CompanyProjectsTab companyId={companyId} />
+        </TabsContent>
+
 
         <TabsContent value="propostas">
           <Card>
