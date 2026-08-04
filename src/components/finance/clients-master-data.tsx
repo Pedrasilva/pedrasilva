@@ -77,8 +77,8 @@ const CURRENCIES = ["EUR", "USD", "GBP", "BRL", "CHF"];
 export function ClientsMasterData() {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<CompanyRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: rows = [], isLoading } = useQuery({
@@ -154,7 +154,7 @@ export function ClientsMasterData() {
                   <TableHead>{t("finance:clientsMaster.phone")}</TableHead>
                   <TableHead className="w-20">{t("finance:clientsMaster.currency")}</TableHead>
                   <TableHead>{t("finance:clientsMaster.status")}</TableHead>
-                  <TableHead className="w-12"></TableHead>
+                  
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -211,13 +211,6 @@ export function ClientsMasterData() {
         open={creating}
         onOpenChange={setCreating}
         kind="client"
-        onSaved={invalidate}
-      />
-      <CounterpartyEditor
-        open={!!editing}
-        onOpenChange={(v) => !v && setEditing(null)}
-        kind="client"
-        record={editing ?? undefined}
         onSaved={invalidate}
       />
     </Card>
@@ -483,20 +476,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
             </div>
           </div>
         </div>
-        <DialogFooter className="sm:justify-between">
-          {record ? (
-            <Link
-              to="/finance/clients/$companyId"
-              params={{ companyId: record.id }}
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => onOpenChange(false)}
-            >
-              <ExternalLink className="size-3" />
-              {t("finance:clientsMaster.openFullRecord", "Abrir ficha completa (conta corrente)")}
-            </Link>
-          ) : (
-            <span />
-          )}
+        <DialogFooter className="sm:justify-end">
           <div className="flex gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common:cancel")}
