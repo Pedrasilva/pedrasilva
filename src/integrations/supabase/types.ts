@@ -1455,6 +1455,7 @@ export type Database = {
           created_by: string | null
           email: string | null
           id: string
+          is_billing_contact: boolean
           notas: string | null
           posicao: string | null
           primeiro_nome: string
@@ -1470,6 +1471,7 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           id?: string
+          is_billing_contact?: boolean
           notas?: string | null
           posicao?: string | null
           primeiro_nome: string
@@ -1485,6 +1487,7 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           id?: string
+          is_billing_contact?: boolean
           notas?: string | null
           posicao?: string | null
           primeiro_nome?: string
