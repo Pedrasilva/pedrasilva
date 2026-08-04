@@ -122,7 +122,11 @@ export function SuppliersMasterData() {
                   </TableRow>
                 ) : (
                   filtered.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow
+                      key={r.id}
+                      className="cursor-pointer select-none"
+                      onDoubleClick={() => setEditing(r)}
+                    >
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {r.code ?? "—"}
                       </TableCell>
