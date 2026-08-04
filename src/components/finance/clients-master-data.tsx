@@ -8,11 +8,12 @@
  */
 
 import { useState, useMemo, useEffect } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Search, Loader2, Pencil } from "lucide-react";
+import { Plus, Search, Loader2, Pencil, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertCompany } from "@/lib/finance/companies.functions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -170,7 +171,13 @@ export function ClientsMasterData() {
                         {r.code ?? "—"}
                       </TableCell>
                       <TableCell className="font-medium">
-                        {r.nome}
+                        <Link
+                          to="/crm/companies/$companyId"
+                          params={{ companyId: r.id }}
+                          className="hover:underline"
+                        >
+                          {r.nome}
+                        </Link>
                         {r.is_supplier ? (
                           <Badge variant="outline" className="ml-2 text-xs">
                             {t("finance:clientsMaster.alsoSupplier")}
@@ -478,7 +485,21 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
             </div>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="sm:justify-between">
+          {record ? (
+            <Link
+              to="/crm/companies/$companyId"
+              params={{ companyId: record.id }}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => onOpenChange(false)}
+            >
+              <ExternalLink className="size-3" />
+              {t("finance:clientsMaster.openFullRecord", "Abrir ficha completa (conta corrente)")}
+            </Link>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common:cancel")}
           </Button>
@@ -486,6 +507,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
             {save.isPending ? <Loader2 className="size-4 mr-1 animate-spin" /> : null}
             {t("common:save")}
           </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
