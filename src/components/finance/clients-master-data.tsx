@@ -169,19 +169,18 @@ export function ClientsMasterData() {
                     <TableRow
                       key={r.id}
                       className="cursor-pointer select-none"
-                      onDoubleClick={() => setEditing(r)}
+                      onClick={() =>
+                        navigate({
+                          to: "/finance/clients/$companyId",
+                          params: { companyId: r.id },
+                        })
+                      }
                     >
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {r.code ?? "—"}
                       </TableCell>
                       <TableCell className="font-medium">
-                        <Link
-                          to="/finance/clients/$companyId"
-                          params={{ companyId: r.id }}
-                          className="hover:underline"
-                        >
-                          {r.nome}
-                        </Link>
+                        {r.nome}
                         {r.is_supplier ? (
                           <Badge variant="outline" className="ml-2 text-xs">
                             {t("finance:clientsMaster.alsoSupplier")}
@@ -198,11 +197,6 @@ export function ClientsMasterData() {
                         ) : (
                           <Badge variant="outline">{t("finance:clientsMaster.inactive")}</Badge>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => setEditing(r)}>
-                          <Pencil className="size-4" />
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
