@@ -648,10 +648,18 @@ function QueueItemCard({
   const doApproveClassification = useMutation({
     mutationFn: async () => {
       if (!classificationId) throw new Error(t("finance:reviewQueue.pickClassification"));
+      if (isBenefit && !assignedCollaboratorId)
+        throw new Error(t("finance:reviewQueue.pickCollaborator"));
       await approveClassification({
-        data: { id: row.id, classificationId, projectId: projectId ?? null },
+        data: {
+          id: row.id,
+          classificationId,
+          projectId: projectId ?? null,
+          assignedCollaboratorId: isBenefit ? assignedCollaboratorId : null,
+        },
       });
     },
+
     onSuccess: () => {
       toast.success(t("finance:reviewQueue.classificationApproved"));
       invalidate();
