@@ -8,12 +8,12 @@
  */
 
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Search, Loader2, Pencil, ExternalLink } from "lucide-react";
+import { Plus, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertCompany } from "@/lib/finance/companies.functions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -77,8 +77,8 @@ const CURRENCIES = ["EUR", "USD", "GBP", "BRL", "CHF"];
 export function ClientsMasterData() {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<CompanyRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: rows = [], isLoading } = useQuery({
@@ -154,13 +154,13 @@ export function ClientsMasterData() {
                   <TableHead>{t("finance:clientsMaster.phone")}</TableHead>
                   <TableHead className="w-20">{t("finance:clientsMaster.currency")}</TableHead>
                   <TableHead>{t("finance:clientsMaster.status")}</TableHead>
-                  <TableHead className="w-12"></TableHead>
+                  
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                       {t("finance:clientsMaster.empty")}
                     </TableCell>
                   </TableRow>
@@ -169,19 +169,18 @@ export function ClientsMasterData() {
                     <TableRow
                       key={r.id}
                       className="cursor-pointer select-none"
-                      onDoubleClick={() => setEditing(r)}
+                      onClick={() =>
+                        navigate({
+                          to: "/finance/clients/$companyId",
+                          params: { companyId: r.id },
+                        })
+                      }
                     >
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {r.code ?? "—"}
                       </TableCell>
                       <TableCell className="font-medium">
-                        <Link
-                          to="/finance/clients/$companyId"
-                          params={{ companyId: r.id }}
-                          className="hover:underline"
-                        >
-                          {r.nome}
-                        </Link>
+                        {r.nome}
                         {r.is_supplier ? (
                           <Badge variant="outline" className="ml-2 text-xs">
                             {t("finance:clientsMaster.alsoSupplier")}
@@ -199,11 +198,6 @@ export function ClientsMasterData() {
                           <Badge variant="outline">{t("finance:clientsMaster.inactive")}</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => setEditing(r)}>
-                          <Pencil className="size-4" />
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -217,13 +211,6 @@ export function ClientsMasterData() {
         open={creating}
         onOpenChange={setCreating}
         kind="client"
-        onSaved={invalidate}
-      />
-      <CounterpartyEditor
-        open={!!editing}
-        onOpenChange={(v) => !v && setEditing(null)}
-        kind="client"
-        record={editing ?? undefined}
         onSaved={invalidate}
       />
     </Card>
@@ -489,20 +476,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
             </div>
           </div>
         </div>
-        <DialogFooter className="sm:justify-between">
-          {record ? (
-            <Link
-              to="/finance/clients/$companyId"
-              params={{ companyId: record.id }}
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => onOpenChange(false)}
-            >
-              <ExternalLink className="size-3" />
-              {t("finance:clientsMaster.openFullRecord", "Abrir ficha completa (conta corrente)")}
-            </Link>
-          ) : (
-            <span />
-          )}
+        <DialogFooter className="sm:justify-end">
           <div className="flex gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common:cancel")}

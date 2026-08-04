@@ -7,10 +7,10 @@
  */
 
 import { useState, useMemo } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Loader2, Pencil } from "lucide-react";
+import { Plus, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,8 +33,8 @@ const SELECT_COLS =
 export function SuppliersMasterData() {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<CompanyRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: rows = [], isLoading } = useQuery({
@@ -110,13 +110,13 @@ export function SuppliersMasterData() {
                   <TableHead>{t("finance:suppliersMaster.phone")}</TableHead>
                   <TableHead className="w-20">{t("finance:suppliersMaster.currency")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.status")}</TableHead>
-                  <TableHead className="w-12"></TableHead>
+                  
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                       {t("finance:suppliersMaster.empty")}
                     </TableCell>
                   </TableRow>
@@ -125,20 +125,17 @@ export function SuppliersMasterData() {
                     <TableRow
                       key={r.id}
                       className="cursor-pointer select-none"
-                      onDoubleClick={() => setEditing(r)}
+                      onClick={() =>
+                        navigate({
+                          to: "/finance/suppliers/$companyId",
+                          params: { companyId: r.id },
+                        })
+                      }
                     >
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {r.code ?? "—"}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        <Link
-                          to="/finance/suppliers/$companyId"
-                          params={{ companyId: r.id }}
-                          className="hover:underline"
-                        >
-                          {r.nome}
-                        </Link>
-                      </TableCell>
+                      <TableCell className="font-medium">{r.nome}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.nif ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.telefone ?? "—"}</TableCell>
@@ -155,11 +152,6 @@ export function SuppliersMasterData() {
                           ) : null}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => setEditing(r)}>
-                          <Pencil className="size-4" />
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -173,13 +165,6 @@ export function SuppliersMasterData() {
         open={creating}
         onOpenChange={setCreating}
         kind="supplier"
-        onSaved={invalidate}
-      />
-      <CounterpartyEditor
-        open={!!editing}
-        onOpenChange={(v) => !v && setEditing(null)}
-        kind="supplier"
-        record={editing ?? undefined}
         onSaved={invalidate}
       />
     </Card>
