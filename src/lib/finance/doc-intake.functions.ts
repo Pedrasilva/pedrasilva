@@ -21,6 +21,12 @@ async function assertFinanceAccess(supabase: any, userId: string) {
   }
 }
 
+/** BEN, BEN.FOOD, BEN.HEALTH, BEN.OTHER, BEN.PERS … — the staff-benefit group. */
+function isBenefitCode(code: string | null | undefined): boolean {
+  return !!code && (code === "BEN" || code.startsWith("BEN."));
+}
+
+
 export type IngestResult = {
   ok: boolean;
   queueItemId?: string;
@@ -234,6 +240,7 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
         id: z.string().uuid(),
         classificationId: z.string().uuid(),
         projectId: z.string().uuid().nullable().optional(),
+        assignedCollaboratorId: z.string().uuid().nullable().optional(),
       })
       .parse(input),
   )
@@ -241,11 +248,24 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
 
+    // Benefit codes (BEN.*) must name the staff member the benefit is for.
+    const { data: cls } = await supabase
+      .from("financial_classifications")
+      .select("code")
+      .eq("id", data.classificationId)
+      .maybeSingle();
+    const isBenefit = isBenefitCode(cls?.code ?? null);
+    if (isBenefit && !data.assignedCollaboratorId) {
+      throw new Error("A staff member must be assigned for benefit classifications");
+    }
+
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({
         suggested_classification_id: data.classificationId,
+        suggested_classification_code: cls?.code ?? null,
         created_project_id: data.projectId ?? null,
+        assigned_collaborator_id: isBenefit ? data.assignedCollaboratorId! : null,
         classification_approved_at: new Date().toISOString(),
         classification_approved_by: userId,
       })
@@ -254,6 +274,7 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
 
 /**
  * Final write — only allowed when BOTH checkpoints are approved.
@@ -343,6 +364,69 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       if (docErr) throw new Error(docErr.message);
       documentId = doc.id;
     }
+
+    // ---- Benefit documents also land on the employee's HR dashboard -------
+    // Same document, one extra row: an HR benefit expense in `pendente`,
+    // waiting for HR approval, linked back to the finance document.
+    const assignedCollaboratorId =
+      (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null;
+    const benefitAmount = Number(row.extracted_amount ?? 0);
+    if (
+      assignedCollaboratorId &&
+      benefitAmount > 0 &&
+      isBenefitCode(row.suggested_classification_code)
+    ) {
+      // The reviewer is a finance user writing a row that belongs to somebody
+      // else, so RLS ("own expenses") cannot apply — use the admin client,
+      // after assertFinanceAccess above has authorised the caller.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      const { data: already } = await supabaseAdmin
+        .from("benefit_expenses")
+        .select("id")
+        .eq("financial_document_id", documentId!)
+        .maybeSingle();
+
+      if (!already) {
+        const { data: cat } = await supabase
+          .from("benefit_categories")
+          .select("id, legacy_enum, classification_id")
+          .eq("classification_id", row.suggested_classification_id!)
+          .eq("active", true)
+          .order("sort_order")
+          .limit(1)
+          .maybeSingle();
+
+        const expenseDate = row.extracted_date ?? new Date().toISOString().slice(0, 10);
+        const { error: benErr } = await supabaseAdmin.from("benefit_expenses").insert({
+          collaborator_id: assignedCollaboratorId,
+          ano_fiscal: Number(expenseDate.slice(0, 4)),
+          categoria: (cat?.legacy_enum ?? "outros") as "carro" | "ticket" | "premio" | "outros",
+          category_id: cat?.id ?? null,
+          classification_id: row.suggested_classification_id,
+          descricao:
+            row.extracted_supplier_name ??
+            row.original_filename ??
+            row.suggested_classification_code ??
+            "Benefício",
+          valor: benefitAmount,
+          data_despesa: expenseDate,
+          estado: "pendente",
+          origin: "finance",
+          financial_document_id: documentId,
+          supplier_company_id: row.matched_supplier_id,
+          supplier_name_snapshot: row.extracted_supplier_name,
+          supplier_nif: row.extracted_supplier_vat,
+          document_number: row.extracted_document_number,
+          vat_amount: Number(row.extracted_vat_amount ?? 0) || null,
+          foto_path: row.source_file_url,
+        });
+        if (benErr) throw new Error(benErr.message);
+      }
+
+    }
+
+
 
 
     const { error: stampErr } = await supabase
