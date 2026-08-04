@@ -276,14 +276,111 @@ function CompanyDetail() {
                 <Label>Telefone</Label>
                 <Input value={current.telefone ?? ""} onChange={(e) => update("telefone", e.target.value)} />
               </div>
+              <div>
+                <Label>Telemóvel</Label>
+                <Input value={current.mobile ?? ""} onChange={(e) => update("mobile", e.target.value)} />
+              </div>
               <div className="sm:col-span-2">
                 <Label>Morada</Label>
                 <Input value={current.morada ?? ""} onChange={(e) => update("morada", e.target.value)} />
+              </div>
+              <div>
+                <Label>Código postal</Label>
+                <Input value={current.postal_code ?? ""} onChange={(e) => update("postal_code", e.target.value)} />
+              </div>
+              <div>
+                <Label>Localidade</Label>
+                <Input value={current.city ?? ""} onChange={(e) => update("city", e.target.value)} />
+              </div>
+              <div>
+                <Label>Código</Label>
+                <Input
+                  className="font-mono"
+                  value={current.code ?? ""}
+                  onChange={(e) => update("code", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Abreviatura</Label>
+                <Input value={current.abbreviation ?? ""} onChange={(e) => update("abbreviation", e.target.value)} />
+              </div>
+              <div>
+                <Label>Moeda</Label>
+                <Select
+                  value={current.currency || "EUR"}
+                  onValueChange={(v) => update("currency", v)}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["EUR", "USD", "GBP", "BRL", "CHF"].map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Condições de pagamento</Label>
+                <Input
+                  value={current.payment_terms ?? ""}
+                  onChange={(e) => update("payment_terms", e.target.value)}
+                  placeholder="ex.: 30 dias"
+                />
+              </div>
+              <div>
+                <Label>Saldo inicial a receber</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={String(current.opening_balance_receivable ?? 0)}
+                  onChange={(e) => update("opening_balance_receivable", Number(e.target.value) || 0)}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Saldo transitado, usado como abertura da conta corrente.
+                </p>
+              </div>
+              <div>
+                <Label>Saldo inicial a pagar</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={String(current.opening_balance_payable ?? 0)}
+                  onChange={(e) => update("opening_balance_payable", Number(e.target.value) || 0)}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Saldo transitado, usado como abertura da conta corrente.
+                </p>
+              </div>
+              <div className="sm:col-span-2 flex flex-wrap items-center gap-6 pt-1">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="co-is-client"
+                    checked={!!current.is_client}
+                    onCheckedChange={(v) => update("is_client", v)}
+                  />
+                  <Label htmlFor="co-is-client" className="text-sm">Cliente</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="co-is-supplier"
+                    checked={!!current.is_supplier}
+                    onCheckedChange={(v) => update("is_supplier", v)}
+                  />
+                  <Label htmlFor="co-is-supplier" className="text-sm">Fornecedor</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="co-is-active"
+                    checked={current.is_active !== false}
+                    onCheckedChange={(v) => update("is_active", v)}
+                  />
+                  <Label htmlFor="co-is-active" className="text-sm">Activo</Label>
+                </div>
               </div>
               <div className="sm:col-span-2">
                 <Label>Notas</Label>
                 <Textarea rows={3} value={current.notas ?? ""} onChange={(e) => update("notas", e.target.value)} />
               </div>
+
             </CardContent>
           </Card>
         </TabsContent>
