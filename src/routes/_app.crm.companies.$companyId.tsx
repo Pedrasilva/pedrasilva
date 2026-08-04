@@ -77,19 +77,33 @@ function CompanyDetail() {
   const save = useMutation({
     mutationFn: async () => {
       if (!current) return;
+      const c = current as Company;
       const { error } = await supabase.from("companies").update({
-        nome: current.nome,
-        website: current.website,
-        email: current.email,
-        telefone: current.telefone,
-        morada: current.morada,
-        industria: current.industria,
-        status: current.status,
-        notas: current.notas,
-        nif: (current as Company & { nif?: string | null }).nif ?? null,
-        company_type: (current as Company & { company_type?: string | null }).company_type ?? null,
+        nome: c.nome,
+        website: c.website,
+        email: c.email,
+        telefone: c.telefone,
+        mobile: c.mobile,
+        morada: c.morada,
+        postal_code: c.postal_code,
+        city: c.city,
+        industria: c.industria,
+        status: c.status,
+        notas: c.notas,
+        nif: c.nif ?? null,
+        code: c.code ?? null,
+        abbreviation: c.abbreviation ?? null,
+        currency: c.currency || "EUR",
+        payment_terms: c.payment_terms ?? null,
+        opening_balance_receivable: Number(c.opening_balance_receivable ?? 0),
+        opening_balance_payable: Number(c.opening_balance_payable ?? 0),
+        is_client: !!c.is_client,
+        is_supplier: !!c.is_supplier,
+        is_active: c.is_active ?? true,
+        company_type: (c as Company & { company_type?: string | null }).company_type ?? null,
       }).eq("id", companyId);
       if (error) throw error;
+
     },
     onSuccess: () => {
       toast.success("Empresa actualizada");
