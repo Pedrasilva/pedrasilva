@@ -41,7 +41,7 @@ function FinanceLayout() {
       <div className="flex min-h-[calc(100vh-3.5rem)] w-full flex-col">
         <FinanceHeader />
         <FinanceTopNav />
-        <main className="flex-1 px-4 sm:px-6 py-6 lg:py-8">
+        <main className="w-full flex-1 py-6 lg:py-8">
           <Outlet />
         </main>
       </div>
