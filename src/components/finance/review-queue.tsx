@@ -381,6 +381,12 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
                     {head.doc_type !== "bank_statement" && (
                       <DirectionBadge direction={head.direction} />
                     )}
+                    {head.doc_type !== "bank_statement" && (
+                      <PaymentStatusBadge status={head.payment_status} />
+                    )}
+                    {head.buyer_vat_is_own && <OwnVatBadge />}
+
+
 
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
