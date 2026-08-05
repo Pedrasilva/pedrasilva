@@ -183,7 +183,10 @@ Rules:
 - issue_date / due_date: ISO YYYY-MM-DD.
 - Amounts numeric, decimal point, no currency symbol. currency as ISO code (EUR, USD...).
 - classification_code: pick the single best matching code from the taxonomy below. Use the code string EXACTLY. Never invent a code. null if nothing fits.
-- confidences are 0..1, be honest.
+- payment_method: how the document says it was paid — "card" (cartão, Visa, Mastercard, MB Way card, credit/debit card, prepaid card), "cash" (numerário, dinheiro), "bank_transfer" (transferência bancária, wire, IBAN reference), "direct_debit" (débito directo), or "not_stated" when the document says nothing. Never guess from the supplier type.
+- card_last4: the last 4 digits of the card, when printed (e.g. "**** 4821" → "4821"). null otherwise.
+- balance_due: the amount STILL OWED per the document itself — "Saldo", "Balance due", "Valor em dívida", "Total a pagar". If the document shows it already settled ("Balance due: 0,00", "Pago", "Paid", "Recibo"/receipt for the full amount, "Liquidado", "Total pago"), set balance_due to 0. If no such field or wording exists anywhere, set it to null (do NOT infer it from the total).
+
 
 TAXONOMY:
 ${catalogText}`;
