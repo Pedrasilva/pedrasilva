@@ -357,7 +357,18 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
           total_inc_vat: total,
           file_path: row.source_file_url,
           ocr_metadata: row.raw_extraction,
+          // Ingestion-time payment signals carry over to the live document so
+          // Payables can exclude items the document itself says are settled.
+          billed_to_own_vat: !!(row as { buyer_vat_is_own?: boolean }).buyer_vat_is_own,
+          payment_method_extracted:
+            (row as { extracted_payment_method?: string | null }).extracted_payment_method ?? null,
+          card_last4: (row as { extracted_card_last4?: string | null }).extracted_card_last4 ?? null,
+          payment_status:
+            (row as { payment_status?: string | null }).payment_status === "paid_at_source"
+              ? "paid_at_source"
+              : "awaiting_payment",
           created_by: userId,
+
         })
         .select("id")
         .single();
