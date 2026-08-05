@@ -9,6 +9,7 @@
  * documents / expense records, future months from recurring carry-forward
  * plus consultant payment milestones from approved project schedules.
  */
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -613,8 +614,9 @@ export function buildCashFlowReport(
 
 export function useCashFlowReport(vatMode: VatMode, year = CASHFLOW_YEAR) {
   const rawQ = useCashFlowRaw(year);
-  const report = rawQ.data
-    ? buildCashFlowReport(rawQ.data, vatMode, year)
-    : null;
+  const report = useMemo(
+    () => (rawQ.data ? buildCashFlowReport(rawQ.data, vatMode, year) : null),
+    [rawQ.data, vatMode, year],
+  );
   return { report, isLoading: rawQ.isLoading, error: rawQ.error };
 }
