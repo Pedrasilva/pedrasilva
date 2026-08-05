@@ -616,6 +616,9 @@ function QueueItemCard({
           extracted_amount: fields.amount ? Number(fields.amount) : null,
           extracted_vat_amount: fields.vat ? Number(fields.vat) : null,
           extracted_currency: fields.currency || "EUR",
+          extracted_payment_method: fields.payment_method || null,
+          extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
+
         })
         .eq("id", row.id);
       if (error) throw new Error(error.message);
