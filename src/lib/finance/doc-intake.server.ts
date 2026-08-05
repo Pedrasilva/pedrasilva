@@ -60,10 +60,57 @@ export type IntakeExtraction = {
   payment_method: "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated" | null;
   /** Last 4 digits of the card used, when printed. */
   card_last4: string | null;
+  /** The payment line copied verbatim ("Forma de pagamento: MasterCard ****0223"). */
+  payment_method_raw: string | null;
   /** Balance still due per the document itself (0 = already settled). */
   balance_due: number | null;
 };
 
+/**
+ * Pull the trailing 4 digits of a masked card number out of any string,
+ * regardless of brand prefix, mask character or mask length.
+ * "MasterCard ************0223" -> "0223"; "•••• 0223" -> "0223";
+ * "terminado em 223" -> null (fewer than 4 digits is not a valid last-4).
+ */
+export function parseCardLast4(
+  raw: string | null | undefined,
+  opts: { maskedOnly?: boolean } = {},
+): string | null {
+  if (!raw) return null;
+  const s = String(raw);
+  // Prefer a run of 4 digits that follows a mask/separator/keyword.
+  const masked = s.match(
+    /(?:[*x•·#\u2022\u00b7]{2,}|ending\s+in|ending|terminad[oa]\s+(?:em|en)|final(?:izado)?\s+em|últimos?\s+\d?\s*d[íi]gitos?)[\s\-–—:.]*?(\d{4})(?!\d)/i,
+  );
+  if (masked?.[1]) return masked[1];
+  // A free-text line ("Forma de pagamento: débito directo — 2026/01") has no
+  // card in it; only fall back to a bare 4-digit group when explicitly allowed.
+  if (opts.maskedOnly) return null;
+  const groups = s.match(/(?<!\d)\d{4}(?!\d)/g);
+  return groups?.length ? groups[groups.length - 1]! : null;
+}
+
+type PaymentMethod = "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated";
+
+/** Infer the payment method from the verbatim payment line (EN / PT / ES). */
+export function parsePaymentMethod(raw: string | null | undefined): PaymentMethod | null {
+  if (!raw) return null;
+  const s = raw.toLowerCase();
+  if (
+    /(cart[aã]o|tarjeta|\bcard\b|visa|mastercard|master\s?card|maestro|amex|american express|multibanco|mb\s?way|d[ée]bito autom|credit|debit|pre-?paid|pr[eé]-?pago|[*x•·]{2,}\s*\d{4})/i.test(s)
+  ) {
+    // "débito directo"/"domiciliación" is a distinct method, check it first.
+    if (/(d[ée]bito\s+(directo|direto|autom[aá]tico)|direct\s+debit|domiciliaci[oó]n)/i.test(s))
+      return "direct_debit";
+    return "card";
+  }
+  if (/(d[ée]bito\s+(directo|direto|autom[aá]tico)|direct\s+debit|domiciliaci[oó]n)/i.test(s))
+    return "direct_debit";
+  if (/(transfer[eê]ncia|transferencia|wire|bank\s+transfer|iban|swift)/i.test(s))
+    return "bank_transfer";
+  if (/(numer[aá]rio|dinheiro|efectivo|efetivo|\bcash\b|contado)/i.test(s)) return "cash";
+  return null;
+}
 
 
 const JSON_SCHEMA = {
@@ -101,6 +148,7 @@ const JSON_SCHEMA = {
         enum: ["card", "cash", "bank_transfer", "direct_debit", "not_stated", null],
       },
       card_last4: { type: ["string", "null"] },
+      payment_method_raw: { type: ["string", "null"] },
       balance_due: { type: ["number", "null"] },
     },
     required: [
@@ -110,7 +158,7 @@ const JSON_SCHEMA = {
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
-      "payment_method", "card_last4", "balance_due",
+      "payment_method", "card_last4", "payment_method_raw", "balance_due",
 
     ],
 
@@ -183,8 +231,10 @@ Rules:
 - issue_date / due_date: ISO YYYY-MM-DD.
 - Amounts numeric, decimal point, no currency symbol. currency as ISO code (EUR, USD...).
 - classification_code: pick the single best matching code from the taxonomy below. Use the code string EXACTLY. Never invent a code. null if nothing fits.
-- payment_method: how the document says it was paid — "card" (cartão, Visa, Mastercard, MB Way card, credit/debit card, prepaid card), "cash" (numerário, dinheiro), "bank_transfer" (transferência bancária, wire, IBAN reference), "direct_debit" (débito directo), or "not_stated" when the document says nothing. Never guess from the supplier type.
-- card_last4: the last 4 digits of the card, when printed (e.g. "**** 4821" → "4821"). null otherwise.
+- PAYMENT FIELD — the label may be in English, Portuguese or Spanish. Scan the whole document, including the labelled key-value block that also holds the invoice date/currency, for ANY of: "Payment method", "Payment type", "Paid with", "Paid by", "Method of payment", "Forma de pagamento", "Modo de pagamento", "Meio de pagamento", "Pagamento", "Forma de pago", "Método de pago", "Medio de pago", "Pagado con". Also treat a bare brand + masked number line ("MasterCard ************0223", "VISA •••• 1234") as a payment field even without a label.
+- payment_method_raw: copy that payment line VERBATIM, label and value together (e.g. "Forma de pagamento: MasterCard ************0223"). null only when no payment wording exists anywhere.
+- payment_method: how the document says it was paid — "card" (cartão/tarjeta, Visa, Mastercard, Amex, MB Way card, credit/debit/prepaid card, any masked card number), "cash" (numerário, dinheiro, efectivo), "bank_transfer" (transferência bancária, transferencia, wire, IBAN reference), "direct_debit" (débito directo, domiciliación), or "not_stated" when the document says nothing. Never guess from the supplier type.
+- card_last4: the last 4 digits of the card exactly as printed, keeping any leading zero. Take the final 4-digit run of the masked number no matter how it is masked or how long the mask is: "MasterCard ************0223" → "0223"; "**** 4821" → "4821"; "•••• 0223" → "0223"; "ending in 0223" / "terminado em 0223" / "terminada en 0223" → "0223"; "xxxx-xxxx-xxxx-0223" → "0223". Never drop a leading zero and never return fewer than 4 digits. null when no card number is printed.
 - balance_due: the amount STILL OWED per the document itself — "Saldo", "Balance due", "Valor em dívida", "Total a pagar". If the document shows it already settled ("Balance due: 0,00", "Pago", "Paid", "Recibo"/receipt for the full amount, "Liquidado", "Total pago"), set balance_due to 0. If no such field or wording exists anywhere, set it to null (do NOT infer it from the total).
 - confidences are 0..1, be honest.
 
@@ -713,10 +763,20 @@ export async function ingestStoredDocument(opts: {
     buyer_vat_is_own: isStatement ? false : !!own.vat && sameVat(ex.buyer_vat, own.vat),
 
     // Fix 2 — payment detail, used later as an extra reconciliation signal.
-    extracted_payment_method: isStatement ? null : (ex.payment_method ?? null),
+    // The verbatim payment line is the fallback source for both fields, so a
+    // model that skipped the enum/last-4 still yields a usable value.
+    extracted_payment_method: isStatement
+      ? null
+      : (ex.payment_method && ex.payment_method !== "not_stated"
+          ? ex.payment_method
+          : parsePaymentMethod(ex.payment_method_raw)) ??
+        ex.payment_method ??
+        null,
     extracted_card_last4: isStatement
       ? null
-      : (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4) || null,
+      : parseCardLast4(ex.card_last4) ??
+        parseCardLast4(ex.payment_method_raw, { maskedOnly: true }),
+
 
     // Fix 3 — three-state payment status at ingestion. A missing balance-due
     // field is the safe default (awaiting payment), never "paid".
