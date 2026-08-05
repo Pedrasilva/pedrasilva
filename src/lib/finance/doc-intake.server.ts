@@ -103,6 +103,7 @@ const JSON_SCHEMA = {
         enum: ["card", "cash", "bank_transfer", "direct_debit", "not_stated", null],
       },
       card_last4: { type: ["string", "null"] },
+      payment_method_raw: { type: ["string", "null"] },
       balance_due: { type: ["number", "null"] },
     },
     required: [
@@ -112,7 +113,7 @@ const JSON_SCHEMA = {
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
-      "payment_method", "card_last4", "balance_due",
+      "payment_method", "card_last4", "payment_method_raw", "balance_due",
 
     ],
 
