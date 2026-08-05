@@ -144,6 +144,32 @@ function DirectionBadge({ direction }: { direction: QueueRow["direction"] }) {
   );
 }
 
+/**
+ * Payment status is about the MONEY (paid at source / awaiting payment /
+ * reconciled) — distinct from the direction badge, which is about ingestion.
+ */
+function PaymentStatusBadge({ status }: { status: QueueRow["payment_status"] }) {
+  const { t } = useTranslation(["finance"]);
+  const s = status ?? "awaiting_payment";
+  const variant = s === "reconciled" ? "default" : s === "paid_at_source" ? "secondary" : "outline";
+  return (
+    <Badge variant={variant} className="text-[10px]">
+      {t(`finance:reviewQueue.paymentStatus.${s}`, { defaultValue: s })}
+    </Badge>
+  );
+}
+
+/** Informational only — never changes classification or approval. */
+function OwnVatBadge() {
+  const { t } = useTranslation(["finance"]);
+  return (
+    <Badge variant="outline" className="text-[10px]" title={t("finance:reviewQueue.billedToOwnVatHint")}>
+      {t("finance:reviewQueue.billedToOwnVat")}
+    </Badge>
+  );
+}
+
+
 
 /**
  * One pipeline, two presentations:
