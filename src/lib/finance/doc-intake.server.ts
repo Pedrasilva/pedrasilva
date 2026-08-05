@@ -56,7 +56,14 @@ export type IntakeExtraction = {
   classification_code: string | null;
   classification_confidence: number;
   summary: string | null;
+  /** How the document says it was paid, when stated. */
+  payment_method: "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated" | null;
+  /** Last 4 digits of the card used, when printed. */
+  card_last4: string | null;
+  /** Balance still due per the document itself (0 = already settled). */
+  balance_due: number | null;
 };
+
 
 
 const JSON_SCHEMA = {
