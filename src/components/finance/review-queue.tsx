@@ -509,6 +509,9 @@ function QueueItemCard({
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
     currency: row.extracted_currency ?? "EUR",
+    payment_method: row.extracted_payment_method ?? "",
+    card_last4: row.extracted_card_last4 ?? "",
+
   });
   const [counterpartyId, setCounterpartyId] = useState<string | null>(
     isIssued ? row.matched_client_id : row.matched_supplier_id,
