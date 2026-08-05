@@ -758,10 +758,19 @@ export async function ingestStoredDocument(opts: {
     buyer_vat_is_own: isStatement ? false : !!own.vat && sameVat(ex.buyer_vat, own.vat),
 
     // Fix 2 — payment detail, used later as an extra reconciliation signal.
-    extracted_payment_method: isStatement ? null : (ex.payment_method ?? null),
+    // The verbatim payment line is the fallback source for both fields, so a
+    // model that skipped the enum/last-4 still yields a usable value.
+    extracted_payment_method: isStatement
+      ? null
+      : (ex.payment_method && ex.payment_method !== "not_stated"
+          ? ex.payment_method
+          : parsePaymentMethod(ex.payment_method_raw)) ??
+        ex.payment_method ??
+        null,
     extracted_card_last4: isStatement
       ? null
-      : (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4) || null,
+      : parseCardLast4(ex.card_last4) ?? parseCardLast4(ex.payment_method_raw),
+
 
     // Fix 3 — three-state payment status at ingestion. A missing balance-due
     // field is the safe default (awaiting payment), never "paid".
