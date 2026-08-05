@@ -60,6 +60,8 @@ export type IntakeExtraction = {
   payment_method: "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated" | null;
   /** Last 4 digits of the card used, when printed. */
   card_last4: string | null;
+  /** The payment line copied verbatim ("Forma de pagamento: MasterCard ****0223"). */
+  payment_method_raw: string | null;
   /** Balance still due per the document itself (0 = already settled). */
   balance_due: number | null;
 };
