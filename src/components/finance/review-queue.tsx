@@ -80,6 +80,12 @@ type QueueRow = {
   extracted_seller_vat: string | null;
   extracted_buyer_name: string | null;
   extracted_buyer_vat: string | null;
+  buyer_vat_is_own: boolean | null;
+  extracted_payment_method: string | null;
+  extracted_card_last4: string | null;
+  extracted_balance_due: number | null;
+  payment_status: "paid_at_source" | "awaiting_payment" | "reconciled";
+
   supplier_match_status: string;
   matched_supplier_id: string | null;
   ambiguous_supplier_ids: string[];
