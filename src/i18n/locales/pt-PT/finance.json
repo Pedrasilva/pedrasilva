@@ -355,7 +355,9 @@
       "debts": "Dívidas",
       "net": "Líquido",
       "closing": "Saldo final",
-      "status": "Estado"
+      "status": "Estado",
+      "client": "Cliente",
+      "category": "Categoria de custo"
     },
     "retainerForecastNote": "Inclui honorários previstos de retainers ativos para meses ainda não fechados.",
     "forecastNote": "As colunas de previsão somam receitas projetadas de retainers ativos e cronogramas de pagamento de projetos aprovados, para os meses ainda não fechados.",
@@ -369,6 +371,27 @@
     },
     "footer": {
       "totals": "Totais do ano"
+    },
+    "receivablesTitle": "Recebimentos",
+    "receivablesSubtitle": "Por cliente e projeto, {{year}}",
+    "costsTitle": "Custos",
+    "costsSubtitle": "Valores reais por categoria de custo; meses futuros projetam custos recorrentes e pagamentos a consultores agendados.",
+    "netTitle": "Líquido e saldo final",
+    "netNote": "Meses passados usam apenas recebimentos reconciliados. Meses futuros (em itálico) são previsão: faturado mais por faturar menos custos previstos.",
+    "totalCosts": "Total de custos",
+    "addCategory": "Adicionar categoria",
+    "renameCategory": "Renomear categoria",
+    "deleteCategory": "Eliminar categoria",
+    "categoryNamePlaceholder": "Nome da categoria",
+    "noReceivables": "Ainda não há recebimentos para este ano.",
+    "unassignedClient": "Sem cliente",
+    "outstandingBadge": "Em aberto {{amount}}",
+    "outstandingNote": "{{amount}} faturado mas não reconciliado como pago — excluído do Líquido realizado.",
+    "segment": {
+      "all": "Todos",
+      "received": "Recebido",
+      "issued": "Faturado",
+      "future": "Futuro"
     }
   },
   "bank": {

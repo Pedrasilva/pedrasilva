@@ -1,4 +1,4 @@
-import { useMemo, useState, type JSX } from "react";
+import { Fragment, useMemo, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -201,8 +201,8 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
     const isOpen = expanded[row.key];
     const hasChildren = (row.children?.length ?? 0) > 0;
     return (
-      <>
-        <tr key={row.key} className="border-b hover:bg-muted/40">
+      <Fragment key={row.key}>
+        <tr className="border-b hover:bg-muted/40">
           <td
             className="sticky left-0 z-10 bg-background px-2 py-1.5"
             style={{ paddingLeft: 8 + depth * 16 }}
@@ -264,7 +264,7 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
         {isOpen
           ? row.children?.map((c) => renderReceivableRow(c, depth + 1))
           : null}
-      </>
+      </Fragment>
     );
   };
 
