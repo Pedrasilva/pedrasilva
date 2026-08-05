@@ -96,6 +96,12 @@ const JSON_SCHEMA = {
       classification_code: { type: ["string", "null"] },
       classification_confidence: { type: "number" },
       summary: { type: ["string", "null"] },
+      payment_method: {
+        type: ["string", "null"],
+        enum: ["card", "cash", "bank_transfer", "direct_debit", "not_stated", null],
+      },
+      card_last4: { type: ["string", "null"] },
+      balance_due: { type: ["number", "null"] },
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
@@ -104,6 +110,8 @@ const JSON_SCHEMA = {
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
+      "payment_method", "card_last4", "balance_due",
+
     ],
 
   },
