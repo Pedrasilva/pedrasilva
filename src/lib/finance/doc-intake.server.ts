@@ -72,7 +72,10 @@ export type IntakeExtraction = {
  * "MasterCard ************0223" -> "0223"; "•••• 0223" -> "0223";
  * "terminado em 223" -> null (fewer than 4 digits is not a valid last-4).
  */
-export function parseCardLast4(raw: string | null | undefined): string | null {
+export function parseCardLast4(
+  raw: string | null | undefined,
+  opts: { maskedOnly?: boolean } = {},
+): string | null {
   if (!raw) return null;
   const s = String(raw);
   // Prefer a run of 4 digits that follows a mask/separator/keyword.
@@ -80,7 +83,9 @@ export function parseCardLast4(raw: string | null | undefined): string | null {
     /(?:[*x•·#\u2022\u00b7]{2,}|ending\s+in|ending|terminad[oa]\s+(?:em|en)|final(?:izado)?\s+em|últimos?\s+\d?\s*d[íi]gitos?)[\s\-–—:.]*?(\d{4})(?!\d)/i,
   );
   if (masked?.[1]) return masked[1];
-  // Otherwise the last standalone 4-digit group in the string.
+  // A free-text line ("Forma de pagamento: débito directo — 2026/01") has no
+  // card in it; only fall back to a bare 4-digit group when explicitly allowed.
+  if (opts.maskedOnly) return null;
   const groups = s.match(/(?<!\d)\d{4}(?!\d)/g);
   return groups?.length ? groups[groups.length - 1]! : null;
 }
