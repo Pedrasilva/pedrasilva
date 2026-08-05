@@ -1048,7 +1048,7 @@
       "cashflow": "Cash flow",
       "vat": "VAT",
       "forecast": "Forecast",
-      "projectFinancials": "Project financials",
+      "projectFinancials": "Receivables & payables",
       "classifications": "Financial fields",
       "vatRates": "VAT rates",
       "bankAccounts": "Bank accounts",
@@ -1610,6 +1610,72 @@
     "status": {
       "confirmed": "Confirmed",
       "mismatch": "Mismatch"
+    }
+  },
+  "receivablesPayables": {
+    "receivables": {
+      "title": "Receivables"
+    },
+    "payables": {
+      "title": "Payables"
+    },
+    "totalOutstanding": "Total outstanding:",
+    "totalOwed": "Total owed:",
+    "overdue": "Overdue:",
+    "overdueDays_one": "{{count}} day",
+    "overdueDays_other": "{{count}} days",
+    "rowsTotal_one": "{{count}} invoice",
+    "rowsTotal_other": "{{count}} invoices",
+    "searchPlaceholder": "Search client, project or number",
+    "empty": "Nothing to show.",
+    "filter": {
+      "allClients": "All clients",
+      "allStatuses": "All statuses",
+      "overdueOnly": "Overdue only",
+      "notOverdue": "Not overdue"
+    },
+    "col": {
+      "client": "Client",
+      "project": "Project",
+      "invoiceNumber": "Invoice number",
+      "amount": "Amount",
+      "issued": "Date issued",
+      "due": "Date due",
+      "daysOverdue": "Days overdue",
+      "vendor": "Vendor",
+      "category": "Cost category",
+      "overdueAmount": "Overdue",
+      "documents": "Documents",
+      "share": "% of payables"
+    },
+    "outstanding": {
+      "title": "Outstanding invoices"
+    },
+    "aging": {
+      "title": "Accounts receivable aging",
+      "invoiceCount_one": "{{count}} invoice",
+      "invoiceCount_other": "{{count}} invoices",
+      "bucket": {
+        "d0_30": "0–30 days",
+        "d31_60": "31–60 days",
+        "d61_90": "61–90 days",
+        "d90p": "90+ days"
+      }
+    },
+    "timeToPay": {
+      "title": "Time to pay invoices — by client",
+      "subtitle": "Average and median days from issue to full settlement, based on paid invoices only. Slowest payers first.",
+      "avg": "Avg days",
+      "median": "Median days",
+      "invoices": "Paid invoices",
+      "paidTotal": "Total paid"
+    },
+    "purchases": {
+      "title": "Purchases overview"
+    },
+    "byVendor": {
+      "title": "Purchases by vendor",
+      "subtitle": "Concentration of what the firm currently owes."
     }
   }
 }

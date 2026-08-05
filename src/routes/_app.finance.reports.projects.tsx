@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderSection } from "@/components/finance/sections/legacy-sections";
+import { ReceivablesPayablesReport } from "@/components/finance/receivables-payables";
+import { useFinanceShell } from "@/components/finance/finance-shell-context";
 
 export const Route = createFileRoute("/_app/finance/reports/projects")({
-  component: () => <PlaceholderSection titleKey="finance:sidebar.items.projectFinancials" />,
+  component: () => {
+    const { vatMode } = useFinanceShell();
+    return <ReceivablesPayablesReport vatMode={vatMode} />;
+  },
 });
