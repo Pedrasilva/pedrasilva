@@ -752,6 +752,9 @@ function QueueItemCard({
           </CardTitle>
           <div className="flex items-center gap-1.5">
             {!isBankStatement && <DirectionBadge direction={row.direction} />}
+            {!isBankStatement && <PaymentStatusBadge status={row.payment_status} />}
+            {row.buyer_vat_is_own && <OwnVatBadge />}
+
             <Badge variant="outline" className="text-[10px] capitalize">
               {t(`finance:reviewQueue.docType.${row.doc_type}`, { defaultValue: row.doc_type })}
             </Badge>
