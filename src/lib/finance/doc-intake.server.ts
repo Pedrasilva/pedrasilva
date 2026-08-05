@@ -707,6 +707,25 @@ export async function ingestStoredDocument(opts: {
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
     extraction_error: null,
+
+    // Fix 1 — was this billed to the firm's own VAT? Informational only:
+    // it never changes classification, matching or approval.
+    buyer_vat_is_own: isStatement ? false : !!own.vat && sameVat(ex.buyer_vat, own.vat),
+
+    // Fix 2 — payment detail, used later as an extra reconciliation signal.
+    extracted_payment_method: isStatement ? null : (ex.payment_method ?? null),
+    extracted_card_last4: isStatement
+      ? null
+      : (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4) || null,
+
+    // Fix 3 — three-state payment status at ingestion. A missing balance-due
+    // field is the safe default (awaiting payment), never "paid".
+    extracted_balance_due: isStatement ? null : (ex.balance_due ?? null),
+    payment_status:
+      !isStatement && ex.balance_due != null && Number(ex.balance_due) <= 0.005
+        ? "paid_at_source"
+        : "awaiting_payment",
+
   };
 
   if (groupId) payload.linked_document_group_id = groupId;
