@@ -70,7 +70,8 @@ function AppLayout() {
   // width instead of the default 7xl container.
   const isWideArea =
     /^\/crm\/quotes\/[^/]+/.test(loc.pathname) ||
-    loc.pathname.startsWith("/projects");
+    loc.pathname.startsWith("/projects") ||
+    loc.pathname.startsWith("/finance");
 
   // Items for mobile sheet — flatten rail config.
   const mobileItems = RAIL_ITEMS.filter(
