@@ -91,10 +91,29 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
   const [docId, setDocId] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
+  /**
+   * Card number printed on the bank line, when the statement carries one.
+   * Used as an extra (never required) signal: when both sides name a card,
+   * documents paid with the same card are offered first.
+   */
+  const txCardLast4 = useMemo(() => {
+    const m = tx.description.match(/(?:\*{2,}|x{2,}|\bcartao\b|\bcartão\b|\bcard\b)[^0-9]{0,6}(\d{4})\b/i);
+    return m?.[1] ?? null;
+  }, [tx.description]);
+
+  const candidates = useMemo(() => {
+    const docs = docsQ.data ?? [];
+    if (!txCardLast4) return docs;
+    const sameCard = (d: FinDoc) =>
+      ((d as { card_last4?: string | null }).card_last4 ?? null) === txCardLast4;
+    return [...docs].sort((a, b) => Number(sameCard(b)) - Number(sameCard(a)));
+  }, [docsQ.data, txCardLast4]);
+
   const selectedDoc = useMemo(
-    () => (docsQ.data ?? []).find((d) => d.id === docId) ?? null,
-    [docsQ.data, docId],
+    () => candidates.find((d) => d.id === docId) ?? null,
+    [candidates, docId],
   );
+
 
   // Prefill amount when a doc is picked
   useEffect(() => {
