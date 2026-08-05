@@ -972,8 +972,50 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, currency: e.target.value }))}
                 />
               </Field>
+              {/* Extra reconciliation signals — never required. */}
+              <Field label={t("finance:reviewQueue.fields.paymentMethod")}>
+                <Select
+                  value={fields.payment_method || "none"}
+                  disabled={readOnly}
+                  onValueChange={(v) =>
+                    setFields((f) => ({ ...f, payment_method: v === "none" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["none", "card", "cash", "bank_transfer", "direct_debit", "not_stated"].map(
+                      (v) => (
+                        <SelectItem key={v} value={v}>
+                          {t(`finance:reviewQueue.paymentMethodValue.${v}`)}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label={t("finance:reviewQueue.fields.cardLast4")}>
+                <Input
+                  value={fields.card_last4}
+                  inputMode="numeric"
+                  maxLength={4}
+                  disabled={readOnly}
+                  onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))}
+                />
+              </Field>
+              {row.extracted_balance_due != null && (
+                <Field label={t("finance:reviewQueue.fields.balanceDue")}>
+                  <Input
+                    value={fmtMoney(row.extracted_balance_due, row.extracted_currency)}
+                    readOnly
+                    disabled
+                  />
+                </Field>
+              )}
             </div>
             {!readOnly && (
+
               <Button
                 variant="outline"
                 size="sm"
