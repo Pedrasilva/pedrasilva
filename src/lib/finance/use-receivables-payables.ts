@@ -314,7 +314,11 @@ export function buildReceivablesPayables(
       (d.counterparty_client_id ? companyName.get(d.counterparty_client_id) : null) ||
       d.counterparty_name_snapshot ||
       "";
-    const entry = behaviourMap.get(key) ?? { name, days: [], total: 0 };
+    const entry = behaviourMap.get(key) ?? {
+      name,
+      days: [] as number[],
+      total: 0,
+    };
     entry.days.push(days);
     const inc = Number(d.total_inc_vat ?? 0);
     const ex = Number(d.subtotal_ex_vat ?? 0);
@@ -365,7 +369,7 @@ export function buildReceivablesPayables(
 
   const vendorMap = new Map<string, PayableVendor>();
   for (const p of payables) {
-    const key = p.vendorId ?? p.vendorName || UNKNOWN;
+    const key = p.vendorId ?? (p.vendorName || UNKNOWN);
     const v = vendorMap.get(key) ?? {
       vendorId: key,
       vendorName: p.vendorName,
