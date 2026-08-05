@@ -1425,6 +1425,7 @@ export type Database = {
         Row: {
           amount: number
           category: Database["public"]["Enums"]["pm_expense_category"]
+          cost_category_id: string | null
           created_at: string
           description: string
           id: string
@@ -1440,6 +1441,7 @@ export type Database = {
         Insert: {
           amount?: number
           category?: Database["public"]["Enums"]["pm_expense_category"]
+          cost_category_id?: string | null
           created_at?: string
           description: string
           id?: string
@@ -1455,6 +1457,7 @@ export type Database = {
         Update: {
           amount?: number
           category?: Database["public"]["Enums"]["pm_expense_category"]
+          cost_category_id?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -1468,6 +1471,13 @@ export type Database = {
           vendor?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_expenses_cost_category_id_fkey"
+            columns: ["cost_category_id"]
+            isOneToOne: false
+            referencedRelation: "cost_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_expenses_supplier_company_id_fkey"
             columns: ["supplier_company_id"]
@@ -1821,6 +1831,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cost_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          slug: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       crm_accounts: {
         Row: {
@@ -2367,6 +2410,7 @@ export type Database = {
           affects_profit: boolean
           code: string
           collaborator_link_allowed: boolean
+          cost_category_id: string | null
           created_at: string
           financial_nature: Database["public"]["Enums"]["financial_nature"]
           id: string
@@ -2388,6 +2432,7 @@ export type Database = {
           affects_profit?: boolean
           code: string
           collaborator_link_allowed?: boolean
+          cost_category_id?: string | null
           created_at?: string
           financial_nature: Database["public"]["Enums"]["financial_nature"]
           id?: string
@@ -2409,6 +2454,7 @@ export type Database = {
           affects_profit?: boolean
           code?: string
           collaborator_link_allowed?: boolean
+          cost_category_id?: string | null
           created_at?: string
           financial_nature?: Database["public"]["Enums"]["financial_nature"]
           id?: string
@@ -2425,6 +2471,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "financial_classifications_cost_category_id_fkey"
+            columns: ["cost_category_id"]
+            isOneToOne: false
+            referencedRelation: "cost_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "financial_classifications_parent_id_fkey"
             columns: ["parent_id"]
@@ -2886,6 +2939,7 @@ export type Database = {
         Row: {
           atcud: string | null
           classification_id: string | null
+          cost_category_id: string | null
           counterparty_client_id: string | null
           counterparty_name_snapshot: string | null
           counterparty_supplier_id: string | null
@@ -2927,6 +2981,7 @@ export type Database = {
         Insert: {
           atcud?: string | null
           classification_id?: string | null
+          cost_category_id?: string | null
           counterparty_client_id?: string | null
           counterparty_name_snapshot?: string | null
           counterparty_supplier_id?: string | null
@@ -2968,6 +3023,7 @@ export type Database = {
         Update: {
           atcud?: string | null
           classification_id?: string | null
+          cost_category_id?: string | null
           counterparty_client_id?: string | null
           counterparty_name_snapshot?: string | null
           counterparty_supplier_id?: string | null
@@ -3012,6 +3068,13 @@ export type Database = {
             columns: ["classification_id"]
             isOneToOne: false
             referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_cost_category_id_fkey"
+            columns: ["cost_category_id"]
+            isOneToOne: false
+            referencedRelation: "cost_categories"
             referencedColumns: ["id"]
           },
           {
@@ -3162,6 +3225,7 @@ export type Database = {
           amount_ex_vat: number
           amount_inc_vat: number | null
           category_id: string | null
+          cost_category_id: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -3184,6 +3248,7 @@ export type Database = {
           amount_ex_vat?: number
           amount_inc_vat?: number | null
           category_id?: string | null
+          cost_category_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -3206,6 +3271,7 @@ export type Database = {
           amount_ex_vat?: number
           amount_inc_vat?: number | null
           category_id?: string | null
+          cost_category_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -3229,6 +3295,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_cost_category_id_fkey"
+            columns: ["cost_category_id"]
+            isOneToOne: false
+            referencedRelation: "cost_categories"
             referencedColumns: ["id"]
           },
           {
