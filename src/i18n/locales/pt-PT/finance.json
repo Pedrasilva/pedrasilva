@@ -1048,7 +1048,7 @@
       "cashflow": "Fluxo de caixa",
       "vat": "IVA",
       "forecast": "Previsão",
-      "projectFinancials": "Financeiro de projetos",
+      "projectFinancials": "Contas a receber e a pagar",
       "classifications": "Campos financeiros",
       "vatRates": "Taxas de IVA",
       "bankAccounts": "Contas bancárias",
@@ -1610,6 +1610,72 @@
     "status": {
       "confirmed": "Confirmado",
       "mismatch": "Divergência"
+    }
+  },
+  "receivablesPayables": {
+    "receivables": {
+      "title": "Contas a receber"
+    },
+    "payables": {
+      "title": "Contas a pagar"
+    },
+    "totalOutstanding": "Total em aberto:",
+    "totalOwed": "Total em dívida:",
+    "overdue": "Em atraso:",
+    "overdueDays_one": "{{count}} dia",
+    "overdueDays_other": "{{count}} dias",
+    "rowsTotal_one": "{{count}} fatura",
+    "rowsTotal_other": "{{count}} faturas",
+    "searchPlaceholder": "Procurar cliente, projeto ou número",
+    "empty": "Nada a mostrar.",
+    "filter": {
+      "allClients": "Todos os clientes",
+      "allStatuses": "Todos os estados",
+      "overdueOnly": "Apenas em atraso",
+      "notOverdue": "Sem atraso"
+    },
+    "col": {
+      "client": "Cliente",
+      "project": "Projeto",
+      "invoiceNumber": "Nº da fatura",
+      "amount": "Valor",
+      "issued": "Data de emissão",
+      "due": "Data de vencimento",
+      "daysOverdue": "Dias em atraso",
+      "vendor": "Fornecedor",
+      "category": "Categoria de custo",
+      "overdueAmount": "Em atraso",
+      "documents": "Documentos",
+      "share": "% do total a pagar"
+    },
+    "outstanding": {
+      "title": "Faturas em aberto"
+    },
+    "aging": {
+      "title": "Antiguidade de saldos a receber",
+      "invoiceCount_one": "{{count}} fatura",
+      "invoiceCount_other": "{{count}} faturas",
+      "bucket": {
+        "d0_30": "0–30 dias",
+        "d31_60": "31–60 dias",
+        "d61_90": "61–90 dias",
+        "d90p": "90+ dias"
+      }
+    },
+    "timeToPay": {
+      "title": "Tempo de pagamento — por cliente",
+      "subtitle": "Média e mediana de dias entre emissão e liquidação total, apenas com faturas já pagas. Pagadores mais lentos primeiro.",
+      "avg": "Dias (média)",
+      "median": "Dias (mediana)",
+      "invoices": "Faturas pagas",
+      "paidTotal": "Total pago"
+    },
+    "purchases": {
+      "title": "Compras em dívida"
+    },
+    "byVendor": {
+      "title": "Compras por fornecedor",
+      "subtitle": "Concentração do que a empresa deve atualmente."
     }
   }
 }
