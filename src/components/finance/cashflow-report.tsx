@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -194,7 +194,10 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
     cells.reduce((s, m) => s + segmentValue(m, seg), 0);
   const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
 
-  const renderReceivableRow = (row: ReceivableRow, depth: number) => {
+  const renderReceivableRow = (
+    row: ReceivableRow,
+    depth: number,
+  ): JSX.Element => {
     const isOpen = expanded[row.key];
     const hasChildren = (row.children?.length ?? 0) > 0;
     return (
