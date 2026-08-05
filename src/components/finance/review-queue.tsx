@@ -80,6 +80,12 @@ type QueueRow = {
   extracted_seller_vat: string | null;
   extracted_buyer_name: string | null;
   extracted_buyer_vat: string | null;
+  buyer_vat_is_own: boolean | null;
+  extracted_payment_method: string | null;
+  extracted_card_last4: string | null;
+  extracted_balance_due: number | null;
+  payment_status: "paid_at_source" | "awaiting_payment" | "reconciled";
+
   supplier_match_status: string;
   matched_supplier_id: string | null;
   ambiguous_supplier_ids: string[];
@@ -137,6 +143,32 @@ function DirectionBadge({ direction }: { direction: QueueRow["direction"] }) {
     </Badge>
   );
 }
+
+/**
+ * Payment status is about the MONEY (paid at source / awaiting payment /
+ * reconciled) — distinct from the direction badge, which is about ingestion.
+ */
+function PaymentStatusBadge({ status }: { status: QueueRow["payment_status"] }) {
+  const { t } = useTranslation(["finance"]);
+  const s = status ?? "awaiting_payment";
+  const variant = s === "reconciled" ? "default" : s === "paid_at_source" ? "secondary" : "outline";
+  return (
+    <Badge variant={variant} className="text-[10px]">
+      {t(`finance:reviewQueue.paymentStatus.${s}`, { defaultValue: s })}
+    </Badge>
+  );
+}
+
+/** Informational only — never changes classification or approval. */
+function OwnVatBadge() {
+  const { t } = useTranslation(["finance"]);
+  return (
+    <Badge variant="outline" className="text-[10px]" title={t("finance:reviewQueue.billedToOwnVatHint")}>
+      {t("finance:reviewQueue.billedToOwnVat")}
+    </Badge>
+  );
+}
+
 
 
 /**
@@ -349,6 +381,12 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
                     {head.doc_type !== "bank_statement" && (
                       <DirectionBadge direction={head.direction} />
                     )}
+                    {head.doc_type !== "bank_statement" && (
+                      <PaymentStatusBadge status={head.payment_status} />
+                    )}
+                    {head.buyer_vat_is_own && <OwnVatBadge />}
+
+
 
                     {items.length > 1 && (
                       <Badge variant="secondary" className="text-[10px]">
@@ -471,6 +509,9 @@ function QueueItemCard({
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
     currency: row.extracted_currency ?? "EUR",
+    payment_method: row.extracted_payment_method ?? "",
+    card_last4: row.extracted_card_last4 ?? "",
+
   });
   const [counterpartyId, setCounterpartyId] = useState<string | null>(
     isIssued ? row.matched_client_id : row.matched_supplier_id,
@@ -575,6 +616,9 @@ function QueueItemCard({
           extracted_amount: fields.amount ? Number(fields.amount) : null,
           extracted_vat_amount: fields.vat ? Number(fields.vat) : null,
           extracted_currency: fields.currency || "EUR",
+          extracted_payment_method: fields.payment_method || null,
+          extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
+
         })
         .eq("id", row.id);
       if (error) throw new Error(error.message);
@@ -714,6 +758,9 @@ function QueueItemCard({
           </CardTitle>
           <div className="flex items-center gap-1.5">
             {!isBankStatement && <DirectionBadge direction={row.direction} />}
+            {!isBankStatement && <PaymentStatusBadge status={row.payment_status} />}
+            {row.buyer_vat_is_own && <OwnVatBadge />}
+
             <Badge variant="outline" className="text-[10px] capitalize">
               {t(`finance:reviewQueue.docType.${row.doc_type}`, { defaultValue: row.doc_type })}
             </Badge>
@@ -925,8 +972,50 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, currency: e.target.value }))}
                 />
               </Field>
+              {/* Extra reconciliation signals — never required. */}
+              <Field label={t("finance:reviewQueue.fields.paymentMethod")}>
+                <Select
+                  value={fields.payment_method || "none"}
+                  disabled={readOnly}
+                  onValueChange={(v) =>
+                    setFields((f) => ({ ...f, payment_method: v === "none" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["none", "card", "cash", "bank_transfer", "direct_debit", "not_stated"].map(
+                      (v) => (
+                        <SelectItem key={v} value={v}>
+                          {t(`finance:reviewQueue.paymentMethodValue.${v}`)}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label={t("finance:reviewQueue.fields.cardLast4")}>
+                <Input
+                  value={fields.card_last4}
+                  inputMode="numeric"
+                  maxLength={4}
+                  disabled={readOnly}
+                  onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))}
+                />
+              </Field>
+              {row.extracted_balance_due != null && (
+                <Field label={t("finance:reviewQueue.fields.balanceDue")}>
+                  <Input
+                    value={fmtMoney(row.extracted_balance_due, row.extracted_currency)}
+                    readOnly
+                    disabled
+                  />
+                </Field>
+              )}
             </div>
             {!readOnly && (
+
               <Button
                 variant="outline"
                 size="sm"

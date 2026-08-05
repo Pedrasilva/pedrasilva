@@ -56,7 +56,14 @@ export type IntakeExtraction = {
   classification_code: string | null;
   classification_confidence: number;
   summary: string | null;
+  /** How the document says it was paid, when stated. */
+  payment_method: "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated" | null;
+  /** Last 4 digits of the card used, when printed. */
+  card_last4: string | null;
+  /** Balance still due per the document itself (0 = already settled). */
+  balance_due: number | null;
 };
+
 
 
 const JSON_SCHEMA = {
@@ -89,6 +96,12 @@ const JSON_SCHEMA = {
       classification_code: { type: ["string", "null"] },
       classification_confidence: { type: "number" },
       summary: { type: ["string", "null"] },
+      payment_method: {
+        type: ["string", "null"],
+        enum: ["card", "cash", "bank_transfer", "direct_debit", "not_stated", null],
+      },
+      card_last4: { type: ["string", "null"] },
+      balance_due: { type: ["number", "null"] },
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
@@ -97,6 +110,8 @@ const JSON_SCHEMA = {
       "document_number", "issue_date", "due_date", "currency", "total_amount",
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
+      "payment_method", "card_last4", "balance_due",
+
     ],
 
   },
@@ -168,7 +183,12 @@ Rules:
 - issue_date / due_date: ISO YYYY-MM-DD.
 - Amounts numeric, decimal point, no currency symbol. currency as ISO code (EUR, USD...).
 - classification_code: pick the single best matching code from the taxonomy below. Use the code string EXACTLY. Never invent a code. null if nothing fits.
+- payment_method: how the document says it was paid — "card" (cartão, Visa, Mastercard, MB Way card, credit/debit card, prepaid card), "cash" (numerário, dinheiro), "bank_transfer" (transferência bancária, wire, IBAN reference), "direct_debit" (débito directo), or "not_stated" when the document says nothing. Never guess from the supplier type.
+- card_last4: the last 4 digits of the card, when printed (e.g. "**** 4821" → "4821"). null otherwise.
+- balance_due: the amount STILL OWED per the document itself — "Saldo", "Balance due", "Valor em dívida", "Total a pagar". If the document shows it already settled ("Balance due: 0,00", "Pago", "Paid", "Recibo"/receipt for the full amount, "Liquidado", "Total pago"), set balance_due to 0. If no such field or wording exists anywhere, set it to null (do NOT infer it from the total).
 - confidences are 0..1, be honest.
+
+
 
 TAXONOMY:
 ${catalogText}`;
@@ -687,6 +707,25 @@ export async function ingestStoredDocument(opts: {
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
     extraction_error: null,
+
+    // Fix 1 — was this billed to the firm's own VAT? Informational only:
+    // it never changes classification, matching or approval.
+    buyer_vat_is_own: isStatement ? false : !!own.vat && sameVat(ex.buyer_vat, own.vat),
+
+    // Fix 2 — payment detail, used later as an extra reconciliation signal.
+    extracted_payment_method: isStatement ? null : (ex.payment_method ?? null),
+    extracted_card_last4: isStatement
+      ? null
+      : (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4) || null,
+
+    // Fix 3 — three-state payment status at ingestion. A missing balance-due
+    // field is the safe default (awaiting payment), never "paid".
+    extracted_balance_due: isStatement ? null : (ex.balance_due ?? null),
+    payment_status:
+      !isStatement && ex.balance_due != null && Number(ex.balance_due) <= 0.005
+        ? "paid_at_source"
+        : "awaiting_payment",
+
   };
 
   if (groupId) payload.linked_document_group_id = groupId;

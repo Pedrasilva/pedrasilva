@@ -1444,7 +1444,10 @@
       "vat": "IVA",
       "currency": "Moeda",
       "clientName": "Nome do cliente",
-      "clientVat": "NIF do cliente"
+      "clientVat": "NIF do cliente",
+      "paymentMethod": "Método de pagamento",
+      "cardLast4": "Últimos 4 dígitos do cartão",
+      "balanceDue": "Saldo em dívida"
     },
     "docType": {
       "invoice": "Fatura",
@@ -1471,8 +1474,8 @@
     },
     "openInNewTab": "Abrir em novo separador",
     "direction": {
-      "issued": "Emitido",
-      "received": "Recebido",
+      "issued": "Emitido por nós",
+      "received": "Recebido (entrada)",
       "unclear": "Sentido por confirmar"
     },
     "parties": {
@@ -1492,7 +1495,23 @@
     "subtitleReceived": "Documentos que recebemos (a pagar), mais aqueles cuja direção ainda não é clara. A IA extrai os dados e sugere fornecedor e classificação. Nada é registado até aprovar.",
     "subtitleIssued": "Documentos emitidos a clientes (a receber). A IA extrai os dados e sugere cliente e classificação. Nada é registado até aprovar.",
     "unclearHint": "Direção não confirmada — confirme manualmente",
-    "pickCollaborator": "Atribuir colaborador"
+    "pickCollaborator": "Atribuir colaborador",
+    "billedToOwnVat": "Faturado ao NIF da empresa",
+    "billedToOwnVatHint": "O NIF do adquirente coincide com o NIF registado da empresa. Apenas informativo — a classificação continua a seu critério.",
+    "paymentStatus": {
+      "label": "Estado de pagamento",
+      "paid_at_source": "Pago na origem",
+      "awaiting_payment": "A aguardar pagamento",
+      "reconciled": "Reconciliado"
+    },
+    "paymentMethodValue": {
+      "none": "Não extraído",
+      "card": "Cartão",
+      "cash": "Numerário",
+      "bank_transfer": "Transferência bancária",
+      "direct_debit": "Débito directo",
+      "not_stated": "Não indicado"
+    }
   },
   "vatReport": {
     "title": "Relatório de IVA",

@@ -1444,7 +1444,10 @@
       "vat": "VAT",
       "currency": "Currency",
       "clientName": "Client name",
-      "clientVat": "Client VAT"
+      "clientVat": "Client VAT",
+      "paymentMethod": "Payment method",
+      "cardLast4": "Card last 4 digits",
+      "balanceDue": "Balance due"
     },
     "docType": {
       "invoice": "Invoice",
@@ -1471,8 +1474,8 @@
     },
     "openInNewTab": "Open in new tab",
     "direction": {
-      "issued": "Issued",
-      "received": "Received",
+      "issued": "Issued by us",
+      "received": "Received (inbound)",
       "unclear": "Direction unclear"
     },
     "parties": {
@@ -1492,7 +1495,23 @@
     "subtitleReceived": "Documents we received (payables), plus anything whose direction is still unclear. AI extracts the data and suggests a supplier and classification. Nothing is filed until you approve it.",
     "subtitleIssued": "Documents we issued to clients (receivables). AI extracts the data and suggests a client and classification. Nothing is filed until you approve it.",
     "unclearHint": "Direction unclear — confirm manually",
-    "pickCollaborator": "Assign staff member"
+    "pickCollaborator": "Assign staff member",
+    "billedToOwnVat": "Billed to company VAT",
+    "billedToOwnVatHint": "The buyer VAT on this document matches the company's registered VAT. Informational only — classify as you see fit.",
+    "paymentStatus": {
+      "label": "Payment status",
+      "paid_at_source": "Paid at source",
+      "awaiting_payment": "Awaiting payment",
+      "reconciled": "Reconciled"
+    },
+    "paymentMethodValue": {
+      "none": "Not extracted",
+      "card": "Card",
+      "cash": "Cash",
+      "bank_transfer": "Bank transfer",
+      "direct_debit": "Direct debit",
+      "not_stated": "Not stated"
+    }
   },
   "vatReport": {
     "title": "VAT report",
