@@ -135,18 +135,24 @@ function useReceivablesPayablesRaw() {
     queryFn: async (): Promise<RawData> => {
       const [issued, received, settled, projects, categories, cls] =
         await Promise.all([
+          // Only "awaiting payment" is a genuine open item: documents that the
+          // source itself reported as settled, and already-reconciled ones,
+          // never belong in the outstanding/payables pipeline.
           supabase
             .from("financial_documents")
             .select(DOC_COLS)
             .eq("direction", "issued")
+            .eq("payment_status", "awaiting_payment")
             .neq("status", "cancelled")
             .gt("outstanding_amount", 0),
           supabase
             .from("financial_documents")
             .select(DOC_COLS)
             .eq("direction", "received")
+            .eq("payment_status", "awaiting_payment")
             .neq("status", "cancelled")
             .gt("outstanding_amount", 0),
+
           supabase
             .from("financial_documents")
             .select(
