@@ -355,7 +355,9 @@
       "debts": "Debts",
       "net": "Net",
       "closing": "Closing",
-      "status": "Status"
+      "status": "Status",
+      "client": "Client",
+      "category": "Cost category"
     },
     "retainerForecastNote": "Includes forecast fees from active retainers for months not yet closed.",
     "forecastNote": "Forecast columns layer projected income from active retainers and approved project payment schedules onto months that aren't yet closed.",
@@ -369,6 +371,27 @@
     },
     "footer": {
       "totals": "Year totals"
+    },
+    "receivablesTitle": "Receivables",
+    "receivablesSubtitle": "By client and project, {{year}}",
+    "costsTitle": "Costs",
+    "costsSubtitle": "Actuals per cost category; future months carry forward recurring costs plus scheduled consultant payments.",
+    "netTitle": "Net and closing balance",
+    "netNote": "Past months use reconciled receipts only. Future months (in italics) are a forecast: issued plus not-yet-invoiced receivables less forecast costs.",
+    "totalCosts": "Total costs",
+    "addCategory": "Add category",
+    "renameCategory": "Rename category",
+    "deleteCategory": "Delete category",
+    "categoryNamePlaceholder": "Category name",
+    "noReceivables": "No receivables for this year yet.",
+    "unassignedClient": "Unassigned",
+    "outstandingBadge": "Outstanding {{amount}}",
+    "outstandingNote": "{{amount}} invoiced but not reconciled as paid — excluded from realised Net.",
+    "segment": {
+      "all": "All",
+      "received": "Received",
+      "issued": "Issued",
+      "future": "Future"
     }
   },
   "bank": {
