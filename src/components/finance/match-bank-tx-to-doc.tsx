@@ -193,7 +193,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
 
           <div className="space-y-2">
             <Label>{t("finance:documents.bankMatch.documentLabel")}</Label>
-            {(docsQ.data ?? []).length === 0 ? (
+            {candidates.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {t("finance:documents.bankMatch.noCandidates")}
               </p>
@@ -205,13 +205,16 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {(docsQ.data ?? []).map((d) => (
+                  {candidates.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {(d.document_number ?? "—") +
                         " · " +
                         (d.counterparty_name_snapshot ?? "—") +
                         " · " +
-                        fmtEUR(Number(d.outstanding_amount ?? 0))}
+                        fmtEUR(Number(d.outstanding_amount ?? 0)) +
+                        ((d as { card_last4?: string | null }).card_last4
+                          ? ` · •••• ${(d as { card_last4?: string | null }).card_last4}`
+                          : "")}
                     </SelectItem>
                   ))}
                 </SelectContent>
