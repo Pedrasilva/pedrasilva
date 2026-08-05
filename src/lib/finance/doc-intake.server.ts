@@ -66,6 +66,46 @@ export type IntakeExtraction = {
   balance_due: number | null;
 };
 
+/**
+ * Pull the trailing 4 digits of a masked card number out of any string,
+ * regardless of brand prefix, mask character or mask length.
+ * "MasterCard ************0223" -> "0223"; "•••• 0223" -> "0223";
+ * "terminado em 223" -> null (fewer than 4 digits is not a valid last-4).
+ */
+export function parseCardLast4(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = String(raw);
+  // Prefer a run of 4 digits that follows a mask/separator/keyword.
+  const masked = s.match(
+    /(?:[*x•·#\u2022\u00b7]{2,}|ending\s+in|ending|terminad[oa]\s+(?:em|en)|final(?:izado)?\s+em|últimos?\s+\d?\s*d[íi]gitos?)[\s\-–—:.]*?(\d{4})(?!\d)/i,
+  );
+  if (masked?.[1]) return masked[1];
+  // Otherwise the last standalone 4-digit group in the string.
+  const groups = s.match(/(?<!\d)\d{4}(?!\d)/g);
+  return groups?.length ? groups[groups.length - 1]! : null;
+}
+
+type PaymentMethod = "card" | "cash" | "bank_transfer" | "direct_debit" | "not_stated";
+
+/** Infer the payment method from the verbatim payment line (EN / PT / ES). */
+export function parsePaymentMethod(raw: string | null | undefined): PaymentMethod | null {
+  if (!raw) return null;
+  const s = raw.toLowerCase();
+  if (
+    /(cart[aã]o|tarjeta|\bcard\b|visa|mastercard|master\s?card|maestro|amex|american express|multibanco|mb\s?way|d[ée]bito autom|credit|debit|pre-?paid|pr[eé]-?pago|[*x•·]{2,}\s*\d{4})/i.test(s)
+  ) {
+    // "débito directo"/"domiciliación" is a distinct method, check it first.
+    if (/(d[ée]bito\s+(directo|direto|autom[aá]tico)|direct\s+debit|domiciliaci[oó]n)/i.test(s))
+      return "direct_debit";
+    return "card";
+  }
+  if (/(d[ée]bito\s+(directo|direto|autom[aá]tico)|direct\s+debit|domiciliaci[oó]n)/i.test(s))
+    return "direct_debit";
+  if (/(transfer[eê]ncia|transferencia|wire|bank\s+transfer|iban|swift)/i.test(s))
+    return "bank_transfer";
+  if (/(numer[aá]rio|dinheiro|efectivo|efetivo|\bcash\b|contado)/i.test(s)) return "cash";
+  return null;
+}
 
 
 const JSON_SCHEMA = {
