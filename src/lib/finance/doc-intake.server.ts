@@ -774,7 +774,8 @@ export async function ingestStoredDocument(opts: {
         null,
     extracted_card_last4: isStatement
       ? null
-      : parseCardLast4(ex.card_last4) ?? parseCardLast4(ex.payment_method_raw),
+      : parseCardLast4(ex.card_last4) ??
+        parseCardLast4(ex.payment_method_raw, { maskedOnly: true }),
 
 
     // Fix 3 — three-state payment status at ingestion. A missing balance-due
