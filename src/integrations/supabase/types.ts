@@ -2734,6 +2734,7 @@ export type Database = {
           ambiguous_client_ids: string[]
           ambiguous_supplier_ids: string[]
           assigned_collaborator_id: string | null
+          buyer_vat_is_own: boolean
           classification_approved_at: string | null
           classification_approved_by: string | null
           classification_confidence: number | null
@@ -2747,12 +2748,15 @@ export type Database = {
           doc_type: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence: number | null
           extracted_amount: number | null
+          extracted_balance_due: number | null
           extracted_buyer_name: string | null
           extracted_buyer_vat: string | null
+          extracted_card_last4: string | null
           extracted_currency: string | null
           extracted_date: string | null
           extracted_document_number: string | null
           extracted_due_date: string | null
+          extracted_payment_method: string | null
           extracted_seller_name: string | null
           extracted_seller_vat: string | null
           extracted_supplier_name: string | null
@@ -2765,6 +2769,7 @@ export type Database = {
           matched_client_id: string | null
           matched_supplier_id: string | null
           original_filename: string | null
+          payment_status: string
           raw_extraction: Json | null
           recurring_reference_id: string | null
           rejection_reason: string | null
@@ -2785,6 +2790,7 @@ export type Database = {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           assigned_collaborator_id?: string | null
+          buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
@@ -2798,12 +2804,15 @@ export type Database = {
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
           extracted_amount?: number | null
+          extracted_balance_due?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
+          extracted_card_last4?: string | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_payment_method?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
@@ -2816,6 +2825,7 @@ export type Database = {
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
+          payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
@@ -2836,6 +2846,7 @@ export type Database = {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           assigned_collaborator_id?: string | null
+          buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
           classification_confidence?: number | null
@@ -2849,12 +2860,15 @@ export type Database = {
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
           extracted_amount?: number | null
+          extracted_balance_due?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
+          extracted_card_last4?: string | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_payment_method?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
@@ -2867,6 +2881,7 @@ export type Database = {
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
+          payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
@@ -2938,6 +2953,8 @@ export type Database = {
       financial_documents: {
         Row: {
           atcud: string | null
+          billed_to_own_vat: boolean
+          card_last4: string | null
           classification_id: string | null
           cost_category_id: string | null
           counterparty_client_id: string | null
@@ -2965,6 +2982,8 @@ export type Database = {
           ocr_metadata: Json | null
           outstanding_amount: number | null
           paid_amount: number
+          payment_method_extracted: string | null
+          payment_status: string
           permalink_pdf: string | null
           project_id: string | null
           series: string | null
@@ -2980,6 +2999,8 @@ export type Database = {
         }
         Insert: {
           atcud?: string | null
+          billed_to_own_vat?: boolean
+          card_last4?: string | null
           classification_id?: string | null
           cost_category_id?: string | null
           counterparty_client_id?: string | null
@@ -3007,6 +3028,8 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          payment_method_extracted?: string | null
+          payment_status?: string
           permalink_pdf?: string | null
           project_id?: string | null
           series?: string | null
@@ -3022,6 +3045,8 @@ export type Database = {
         }
         Update: {
           atcud?: string | null
+          billed_to_own_vat?: boolean
+          card_last4?: string | null
           classification_id?: string | null
           cost_category_id?: string | null
           counterparty_client_id?: string | null
@@ -3049,6 +3074,8 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          payment_method_extracted?: string | null
+          payment_status?: string
           permalink_pdf?: string | null
           project_id?: string | null
           series?: string | null
