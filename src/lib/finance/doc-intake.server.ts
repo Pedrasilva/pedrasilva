@@ -64,7 +64,15 @@ export type IntakeExtraction = {
   payment_method_raw: string | null;
   /** Balance still due per the document itself (0 = already settled). */
   balance_due: number | null;
+  /**
+   * IRS withheld at source ("Retenção na fonte IRS") on Portuguese
+   * Fatura-Recibo / recibos verdes. NOT VAT — a separate liability owed to AT.
+   */
+  withholding_tax_amount: number | null;
+  /** "Total a pagar" — the amount actually transferred to the supplier. */
+  total_payable: number | null;
 };
+
 
 /**
  * Pull the trailing 4 digits of a masked card number out of any string,
