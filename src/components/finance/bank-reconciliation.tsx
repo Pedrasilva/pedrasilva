@@ -808,7 +808,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
             <CardTitle className="text-base">{t("finance:bankRec.queueTitle")}</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-1">
-                {(["unclassified", "classified", "ignored", "all"] as StatusFilter[]).map((s) => (
+                {(["unclassified", "classified", "ignored", "needs_review", "all"] as StatusFilter[]).map((s) => (
                   <Button key={s} size="sm" variant={statusFilter === s ? "default" : "outline"} onClick={() => setStatusFilter(s)} className="h-7 text-xs">
                     {t(`finance:bankRec.status.${s}`)}
                     {s !== "all" && <span className="ml-1 opacity-60">({counts.data?.[s] ?? 0})</span>}
