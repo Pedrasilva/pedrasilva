@@ -797,13 +797,19 @@ export async function ingestStoredDocument(opts: {
         parseCardLast4(ex.payment_method_raw, { maskedOnly: true }),
 
 
+    // IRS withheld at source ("Retenção na fonte IRS"), only when the document
+    // actually prints it. Kept strictly apart from VAT.
+    extracted_withholding_amount: withholdingAmount,
+
     // Fix 3 — three-state payment status at ingestion. A missing balance-due
     // field is the safe default (awaiting payment), never "paid".
-    extracted_balance_due: isStatement ? null : (ex.balance_due ?? null),
+    // With withholding, the payable is "Total a pagar", not the VAT-inclusive total.
+    extracted_balance_due: isStatement ? null : balanceDue,
     payment_status:
-      !isStatement && ex.balance_due != null && Number(ex.balance_due) <= 0.005
+      !isStatement && balanceDue != null && Number(balanceDue) <= 0.005
         ? "paid_at_source"
         : "awaiting_payment",
+
 
   };
 
