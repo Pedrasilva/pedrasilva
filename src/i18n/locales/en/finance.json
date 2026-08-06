@@ -79,7 +79,10 @@
       "collaborator_link_allowed": "Collaborator link allowed",
       "reimbursable_default": "Reimbursable by default",
       "active": "Active"
-    }
+    },
+    "duplicate": "Duplicate",
+    "codeExists": "This code already exists — choose a unique code.",
+    "ungrouped": "Ungrouped"
   },
   "inlineCounterparty": {
     "newSupplier": "New supplier",
