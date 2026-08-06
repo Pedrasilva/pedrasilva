@@ -952,7 +952,20 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
               </div>
 
               {/* Right: detail panel */}
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 space-y-3">
+                {statusFilter === "needs_review" && selectedTx && (
+                  <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-2">
+                    <p className="text-xs text-muted-foreground">{t("finance:bankRec.needsReview.hint")}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" className="h-7 text-xs" onClick={() => resolveNeedsReview(selectedTx, "real")}>
+                        {t("finance:bankRec.needsReview.real")}
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => resolveNeedsReview(selectedTx, "duplicate")}>
+                        {t("finance:bankRec.needsReview.duplicate")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 {selectedTx ? (
                   <TxDetailPanel
                     tx={selectedTx}
