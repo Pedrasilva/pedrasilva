@@ -539,7 +539,8 @@ const fmtAmount = (n: number, ccy = "EUR") =>
 
 function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodId, onSelectPeriod }: { accountId: string; classifications: Classification[]; isPt: boolean; selectedPeriodId: string | null; onSelectPeriod: (id: string | null) => void }) {
   const { t } = useTranslation(["finance", "common"]);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+
 
   // Filters
   const qc = useQueryClient();
@@ -694,11 +695,47 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
     qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
   }
 
+  /**
+   * Hard-deletes bank movements (e.g. a statement imported for the wrong
+   * period). Reconciled rows are locked by a DB guard, so they must be
+   * unmatched first — we surface that instead of silently skipping.
+   */
+  async function deleteTxs(ids: string[]) {
+    if (ids.length === 0) return;
+    if (!window.confirm(t("finance:bankRec.actions.deleteConfirm", { count: ids.length }))) return;
+    let deleted = 0;
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      const { error, count } = await supabase
+        .from("bank_transactions")
+        .delete({ count: "exact" })
+        .in("id", chunk);
+      if (error) {
+        toast.error(
+          /reconciled/i.test(error.message)
+            ? t("finance:bankRec.actions.deleteLocked")
+            : error.message,
+        );
+        break;
+      }
+      deleted += count ?? 0;
+    }
+    if (deleted > 0) toast.success(t("finance:bankRec.actions.deleted", { count: deleted }));
+    setSelectedId(null);
+    txQ.refetch();
+    linksQ.refetch();
+    counts.refetch();
+    periodStatusQ.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
+  }
+
   const clearFilters = () => {
     setDirFilter("all"); setLinkFilter("all"); setSearch(""); setDateFrom(""); setDateTo(""); setMinAmount(""); setMaxAmount("");
   };
 
   const hasFilters = dirFilter !== "all" || linkFilter !== "all" || search || dateFrom || dateTo || minAmount || maxAmount;
+
 
   return (
     <div className="space-y-4">
@@ -788,6 +825,18 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                   <X className="size-3 mr-1" /> {t("finance:bankRec.operator.clearFilters")}
                 </Button>
               )}
+              {isAdmin && hasFilters && filtered.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="h-7 text-xs"
+                  onClick={() => deleteTxs(filtered.map((r) => r.id))}
+                >
+                  <Trash2 className="size-3 mr-1" />
+                  {t("finance:bankRec.actions.deleteFiltered", { count: filtered.length })}
+                </Button>
+              )}
+
             </div>
           </div>
         </CardHeader>
@@ -864,6 +913,8 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
                     onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
                     onUnmatch={() => unmatchTx(selectedTx)}
+                    onDelete={isAdmin ? () => deleteTxs([selectedTx.id]) : undefined}
+
                   />
                 ) : (
                   <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
@@ -918,7 +969,7 @@ type LinkedInfo = { documentId: string; documentNumber: string | null; direction
 
 function TxDetailPanel({
   tx, periods, onPeriodOverride, classifications, isPt, linked,
-  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch,
+  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch, onDelete,
 }: {
   tx: BankTx;
   periods: StatementPeriod[];
@@ -933,6 +984,8 @@ function TxDetailPanel({
   onMarkIgnored: () => void;
   onMarkTransfer: () => void;
   onUnmatch: () => void;
+  onDelete?: (() => void) | undefined;
+
 }) {
   const { t } = useTranslation(["finance", "common"]);
   const isOutflow = tx.amount < 0;
@@ -1123,6 +1176,13 @@ function TxDetailPanel({
             {t("finance:bankRec.actions.ignore")}
           </Button>
         )}
+        {onDelete && (
+          <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="size-3.5 mr-1" />
+            {t("finance:bankRec.actions.delete")}
+          </Button>
+        )}
+
       </div>
     </div>
   );
