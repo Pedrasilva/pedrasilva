@@ -494,7 +494,15 @@ export function CompanyDetail({
           </Card>
         </TabsContent>
 
-        <TabsContent value="conta-corrente">
+        <TabsContent value="conta-corrente" className="space-y-3">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => setSettleOpen(true)}>
+              <Wallet className="size-4 mr-1" />
+              {statementSideOf(current as Company) === "client"
+                ? "Registar recebimento"
+                : "Registar pagamento"}
+            </Button>
+          </div>
           <Card>
             <CardContent className="p-0">
               <StatementView
@@ -505,6 +513,26 @@ export function CompanyDetail({
               />
             </CardContent>
           </Card>
+
+          <Dialog open={settleOpen} onOpenChange={setSettleOpen}>
+            <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {(statementSideOf(current as Company) === "client"
+                    ? "Registar recebimento — "
+                    : "Registar pagamento — ") + (current.nome ?? "")}
+                </DialogTitle>
+              </DialogHeader>
+              <SettlementWorkspace
+                direction={
+                  statementSideOf(current as Company) === "client"
+                    ? "issued"
+                    : "received"
+                }
+                lockedCounterpartyId={companyId}
+              />
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="actividades">
