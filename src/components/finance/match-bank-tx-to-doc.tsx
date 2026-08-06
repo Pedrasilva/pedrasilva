@@ -115,7 +115,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
           [
             d.document_number ?? "",
             d.counterparty_name_snapshot ?? "",
-            String(d.total_amount ?? ""),
+            String((d as { gross_amount?: number | null }).gross_amount ?? ""),
             String(d.outstanding_amount ?? ""),
           ]
             .join(" ")
