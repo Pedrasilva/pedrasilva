@@ -70,6 +70,9 @@ type QueueRow = {
   extraction_error: string | null;
   extracted_amount: number | null;
   extracted_vat_amount: number | null;
+  /** IRS withheld at source ("Retenção na fonte"), separate from VAT. */
+  extracted_withholding_amount: number | null;
+
   extracted_date: string | null;
   extracted_due_date: string | null;
   extracted_currency: string | null;
@@ -509,6 +512,8 @@ function QueueItemCard({
     date: row.extracted_date ?? "",
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
+    withholding: row.extracted_withholding_amount?.toString() ?? "",
+
     currency: row.extracted_currency ?? "EUR",
     payment_method: row.extracted_payment_method ?? "",
     card_last4: row.extracted_card_last4 ?? "",
@@ -654,6 +659,10 @@ function QueueItemCard({
           extracted_date: fields.date || null,
           extracted_amount: fields.amount ? Number(fields.amount) : null,
           extracted_vat_amount: fields.vat ? Number(fields.vat) : null,
+          extracted_withholding_amount: fields.withholding
+            ? Number(fields.withholding)
+            : null,
+
           extracted_currency: fields.currency || "EUR",
           extracted_payment_method: fields.payment_method || null,
           extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
@@ -1005,6 +1014,17 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, vat: e.target.value }))}
                 />
               </Field>
+              {/* IRS withheld at source — a liability towards AT, not VAT. */}
+              <Field label={t("finance:reviewQueue.fields.withholding")}>
+                <Input
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={fields.withholding}
+                  disabled={readOnly}
+                  onChange={(e) => setFields((f) => ({ ...f, withholding: e.target.value }))}
+                />
+              </Field>
+
               <Field label={t("finance:reviewQueue.fields.currency")}>
                 <Input
                   value={fields.currency}

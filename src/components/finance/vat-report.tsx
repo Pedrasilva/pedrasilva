@@ -168,6 +168,34 @@ export function VatReportSection() {
 
   const rows = useMemo(() => data ?? [], [data]);
 
+  /**
+   * IRS withheld at source. A separate obligation to the tax authority —
+   * deliberately NOT folded into the VAT totals above.
+   */
+  const { data: withholdings } = useQuery({
+    queryKey: ["irs-withholding-report", start, end],
+    queryFn: async () => {
+      const { data: wh, error } = await supabase
+        .from("tax_withholdings")
+        .select(
+          "id, document_number, supplier_name_snapshot, amount, currency, issue_date, status",
+        )
+        .eq("tax_kind", "irs")
+        .gte("issue_date", start)
+        .lte("issue_date", end)
+        .order("issue_date", { ascending: true });
+      if (error) throw error;
+      return wh ?? [];
+    },
+  });
+
+  const withholdingRows = withholdings ?? [];
+  const withholdingTotal = withholdingRows.reduce(
+    (acc, w) => acc + Number(w.amount || 0),
+    0,
+  );
+
+
   const reverseCharge = rows.filter((r) => r.reverseCharge);
   const normal = rows.filter((r) => !r.reverseCharge);
   const output = normal.filter((r) => r.direction === "issued");
@@ -293,6 +321,55 @@ export function VatReportSection() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">
+            {t("finance:vatReport.withholding.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            {t("finance:vatReport.withholding.note")}
+          </p>
+          <div className="text-2xl font-semibold tabular-nums">
+            {fmtEUR(withholdingTotal)}
+          </div>
+          {withholdingRows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("finance:vatReport.withholding.empty")}
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("finance:vatReport.col.date")}</TableHead>
+                  <TableHead>{t("finance:vatReport.col.number")}</TableHead>
+                  <TableHead>{t("finance:vatReport.col.counterparty")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("finance:vatReport.withholding.amount")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withholdingRows.map((w) => (
+                  <TableRow key={w.id}>
+                    <TableCell className="whitespace-nowrap">
+                      {fmtDate(w.issue_date)}
+                    </TableCell>
+                    <TableCell>{w.document_number || "—"}</TableCell>
+                    <TableCell>{w.supplier_name_snapshot || "—"}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {fmtEUR(Number(w.amount))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">
+
             {t("finance:vatReport.reverseCharge.title")}
           </CardTitle>
         </CardHeader>

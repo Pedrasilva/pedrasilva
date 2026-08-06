@@ -2762,6 +2762,7 @@ export type Database = {
           extracted_supplier_name: string | null
           extracted_supplier_vat: string | null
           extracted_vat_amount: number | null
+          extracted_withholding_amount: number | null
           extraction_error: string | null
           id: string
           is_recurring_candidate: boolean
@@ -2819,6 +2820,7 @@ export type Database = {
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
           extracted_vat_amount?: number | null
+          extracted_withholding_amount?: number | null
           extraction_error?: string | null
           id?: string
           is_recurring_candidate?: boolean
@@ -2876,6 +2878,7 @@ export type Database = {
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
           extracted_vat_amount?: number | null
+          extracted_withholding_amount?: number | null
           extraction_error?: string | null
           id?: string
           is_recurring_candidate?: boolean
@@ -3007,6 +3010,7 @@ export type Database = {
           updated_at: string
           vat_amount: number
           vat_period: string | null
+          withholding_tax_amount: number
         }
         Insert: {
           atcud?: string | null
@@ -3054,6 +3058,7 @@ export type Database = {
           updated_at?: string
           vat_amount?: number
           vat_period?: string | null
+          withholding_tax_amount?: number
         }
         Update: {
           atcud?: string | null
@@ -3101,6 +3106,7 @@ export type Database = {
           updated_at?: string
           vat_amount?: number
           vat_period?: string | null
+          withholding_tax_amount?: number
         }
         Relationships: [
           {
@@ -8872,6 +8878,78 @@ export type Database = {
             columns: ["import_log_id"]
             isOneToOne: false
             referencedRelation: "financial_import_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_withholdings: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          document_number: string | null
+          filed_at: string | null
+          filed_by: string | null
+          financial_document_id: string
+          id: string
+          issue_date: string
+          notes: string | null
+          period: string
+          status: string
+          supplier_company_id: string | null
+          supplier_name_snapshot: string | null
+          tax_kind: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          document_number?: string | null
+          filed_at?: string | null
+          filed_by?: string | null
+          financial_document_id: string
+          id?: string
+          issue_date: string
+          notes?: string | null
+          period: string
+          status?: string
+          supplier_company_id?: string | null
+          supplier_name_snapshot?: string | null
+          tax_kind?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          document_number?: string | null
+          filed_at?: string | null
+          filed_by?: string | null
+          financial_document_id?: string
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          period?: string
+          status?: string
+          supplier_company_id?: string | null
+          supplier_name_snapshot?: string | null
+          tax_kind?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_withholdings_financial_document_id_fkey"
+            columns: ["financial_document_id"]
+            isOneToOne: true
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_withholdings_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]

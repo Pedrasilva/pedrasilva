@@ -64,7 +64,15 @@ export type IntakeExtraction = {
   payment_method_raw: string | null;
   /** Balance still due per the document itself (0 = already settled). */
   balance_due: number | null;
+  /**
+   * IRS withheld at source ("Retenção na fonte IRS") on Portuguese
+   * Fatura-Recibo / recibos verdes. NOT VAT — a separate liability owed to AT.
+   */
+  withholding_tax_amount: number | null;
+  /** "Total a pagar" — the amount actually transferred to the supplier. */
+  total_payable: number | null;
 };
+
 
 /**
  * Pull the trailing 4 digits of a masked card number out of any string,
@@ -150,6 +158,8 @@ const JSON_SCHEMA = {
       card_last4: { type: ["string", "null"] },
       payment_method_raw: { type: ["string", "null"] },
       balance_due: { type: ["number", "null"] },
+      withholding_tax_amount: { type: ["number", "null"] },
+      total_payable: { type: ["number", "null"] },
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
@@ -159,6 +169,9 @@ const JSON_SCHEMA = {
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
       "payment_method", "card_last4", "payment_method_raw", "balance_due",
+      "withholding_tax_amount", "total_payable",
+
+
 
     ],
 
@@ -236,6 +249,12 @@ Rules:
 - payment_method: how the document says it was paid — "card" (cartão/tarjeta, Visa, Mastercard, Amex, MB Way card, credit/debit/prepaid card, any masked card number), "cash" (numerário, dinheiro, efectivo), "bank_transfer" (transferência bancária, transferencia, wire, IBAN reference), "direct_debit" (débito directo, domiciliación), or "not_stated" when the document says nothing. Never guess from the supplier type.
 - card_last4: the last 4 digits of the card exactly as printed, keeping any leading zero. Take the final 4-digit run of the masked number no matter how it is masked or how long the mask is: "MasterCard ************0223" → "0223"; "**** 4821" → "4821"; "•••• 0223" → "0223"; "ending in 0223" / "terminado em 0223" / "terminada en 0223" → "0223"; "xxxx-xxxx-xxxx-0223" → "0223". Never drop a leading zero and never return fewer than 4 digits. null when no card number is printed.
 - balance_due: the amount STILL OWED per the document itself — "Saldo", "Balance due", "Valor em dívida", "Total a pagar". If the document shows it already settled ("Balance due: 0,00", "Pago", "Paid", "Recibo"/receipt for the full amount, "Liquidado", "Total pago"), set balance_due to 0. If no such field or wording exists anywhere, set it to null (do NOT infer it from the total).
+- IRS WITHHOLDING (Portuguese "Fatura-Recibo" / recibos verdes from freelancers ONLY):
+  - Some Portuguese documents have an "IRS" section with a "Retenção na fonte IRS" (or "Retenção IRS", "Retenção na fonte") row in the totals block. ONLY when that section/row is actually printed:
+    - withholding_tax_amount: the withheld IRS value as printed, as a POSITIVE number. This is NOT VAT — never copy vat_amount into it, and never derive one from the other even if they happen to be equal.
+    - total_payable: the "Total a pagar" figure (= "Total do documento" minus the withholding), i.e. what is actually transferred to the freelancer.
+  - total_amount stays the "Total do documento" (VAT-inclusive) figure regardless.
+  - If the document has NO "IRS" / "Retenção na fonte" section (normal company invoices — Zoom, EDP, etc.), set withholding_tax_amount to null and total_payable to null. Never invent one.
 - confidences are 0..1, be honest.
 
 
@@ -722,6 +741,26 @@ export async function ingestStoredDocument(opts: {
         supplierName: counterpartyName,
       });
 
+  // IRS withheld at source, only when the document actually shows it.
+  const rawWithholding = Number(ex.withholding_tax_amount ?? 0);
+  const withholdingAmount =
+    !isStatement && Number.isFinite(rawWithholding) && rawWithholding > 0
+      ? Math.abs(rawWithholding)
+      : null;
+  // With withholding present, the supplier is owed "Total a pagar", not the
+  // VAT-inclusive total — unless the document itself says it is already settled.
+  const payableWithWithholding =
+    withholdingAmount != null
+      ? ex.total_payable ??
+        (ex.total_amount != null ? Number(ex.total_amount) - withholdingAmount : null)
+      : null;
+  const balanceDue = isStatement
+    ? null
+    : ex.balance_due != null && Number(ex.balance_due) <= 0.005
+      ? 0
+      : payableWithWithholding ?? ex.balance_due ?? null;
+
+
   const payload: Record<string, unknown> = {
     ...base,
     raw_extraction: result.raw as object,
@@ -778,13 +817,19 @@ export async function ingestStoredDocument(opts: {
         parseCardLast4(ex.payment_method_raw, { maskedOnly: true }),
 
 
+    // IRS withheld at source ("Retenção na fonte IRS"), only when the document
+    // actually prints it. Kept strictly apart from VAT.
+    extracted_withholding_amount: withholdingAmount,
+
     // Fix 3 — three-state payment status at ingestion. A missing balance-due
     // field is the safe default (awaiting payment), never "paid".
-    extracted_balance_due: isStatement ? null : (ex.balance_due ?? null),
+    // With withholding, the payable is "Total a pagar", not the VAT-inclusive total.
+    extracted_balance_due: isStatement ? null : balanceDue,
     payment_status:
-      !isStatement && ex.balance_due != null && Number(ex.balance_due) <= 0.005
+      !isStatement && balanceDue != null && Number(balanceDue) <= 0.005
         ? "paid_at_source"
         : "awaiting_payment",
+
 
   };
 
