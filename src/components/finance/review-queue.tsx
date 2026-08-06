@@ -70,6 +70,9 @@ type QueueRow = {
   extraction_error: string | null;
   extracted_amount: number | null;
   extracted_vat_amount: number | null;
+  /** IRS withheld at source ("Retenção na fonte"), separate from VAT. */
+  extracted_withholding_amount: number | null;
+
   extracted_date: string | null;
   extracted_due_date: string | null;
   extracted_currency: string | null;
