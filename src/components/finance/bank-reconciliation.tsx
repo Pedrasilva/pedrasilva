@@ -583,7 +583,11 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
         .eq("bank_account_id", accountId)
         .order("transaction_date", { ascending: false })
         .limit(1000);
-      if (statusFilter !== "all") q = q.eq("status", statusFilter);
+      if (statusFilter === "needs_review") {
+        q = q.eq("status", "ignored").eq("ignored_reason", "unspecified");
+      } else if (statusFilter !== "all") {
+        q = q.eq("status", statusFilter);
+      }
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as BankTx[];
