@@ -1450,6 +1450,9 @@
       "clientVat": "Client VAT",
       "paymentMethod": "Payment method",
       "cardLast4": "Card last 4 digits",
+      "paidFromAccount": "Paid from account",
+      "paidFromCard": "Paid with card",
+      "paidFromNone": "Not specified",
       "balanceDue": "Balance due"
     },
     "docType": {

@@ -1450,6 +1450,9 @@
       "clientVat": "NIF do cliente",
       "paymentMethod": "Método de pagamento",
       "cardLast4": "Últimos 4 dígitos do cartão",
+      "paidFromAccount": "Pago pela conta",
+      "paidFromCard": "Pago com o cartão",
+      "paidFromNone": "Não especificado",
       "balanceDue": "Saldo em dívida"
     },
     "docType": {
