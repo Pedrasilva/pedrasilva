@@ -221,6 +221,13 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
 
           <div className="space-y-2">
             <Label>{t("finance:documents.bankMatch.documentLabel")}</Label>
+            <Input
+              value={docSearch}
+              onChange={(e) => setDocSearch(e.target.value)}
+              placeholder={
+                t("finance:documents.bankMatch.searchPlaceholder") as string
+              }
+            />
             {candidates.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {t("finance:documents.bankMatch.noCandidates")}
