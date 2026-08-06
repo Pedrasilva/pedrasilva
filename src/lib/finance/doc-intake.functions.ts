@@ -365,6 +365,8 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
           subtotal_ex_vat: Math.max(total - vat, 0),
           vat_amount: vat,
           total_inc_vat: total,
+          withholding_tax_amount: withholding,
+
           file_path: row.source_file_url,
           ocr_metadata: row.raw_extraction,
           // Ingestion-time payment signals carry over to the live document so
