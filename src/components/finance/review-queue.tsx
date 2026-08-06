@@ -83,6 +83,7 @@ type QueueRow = {
   buyer_vat_is_own: boolean | null;
   extracted_payment_method: string | null;
   extracted_card_last4: string | null;
+  paid_from_account_id?: string | null;
   extracted_balance_due: number | null;
   payment_status: "paid_at_source" | "awaiting_payment" | "reconciled";
 
@@ -524,6 +525,11 @@ function QueueItemCard({
   const [projectId, setProjectId] = useState<string | null>(row.created_project_id);
   const [assignedCollaboratorId, setAssignedCollaboratorId] = useState<string | null>(
     (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null,
+  );
+  // Which bank account / card actually settled the document. Only relevant
+  // for card, transfer and direct-debit payments.
+  const [paidFromAccountId, setPaidFromAccountId] = useState<string | null>(
+    row.paid_from_account_id ?? null,
   );
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
