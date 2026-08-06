@@ -176,6 +176,46 @@ export function FinancialClassificationsAdmin() {
     });
   }, [rows, q, natureFilter, policyFilter, activeFilter]);
 
+  /**
+   * Grouped view: subgroup/group rows act as headers for the category rows
+   * that hang beneath them (parent_id). Rows without a header parent fall
+   * into a trailing "ungrouped" section.
+   */
+  const groups = useMemo(() => {
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    const headers = new Map<string, { header: Row | null; children: Row[] }>();
+    const ungrouped: Row[] = [];
+
+    const ensure = (h: Row) => {
+      if (!headers.has(h.id)) headers.set(h.id, { header: h, children: [] });
+      return headers.get(h.id)!;
+    };
+
+    for (const r of filtered) {
+      if (r.level !== "category") {
+        ensure(r);
+        continue;
+      }
+      const parent = r.parent_id ? byId.get(r.parent_id) : undefined;
+      if (parent) ensure(parent).children.push(r);
+      else ungrouped.push(r);
+    }
+
+    const list = Array.from(headers.values()).sort((a, b) =>
+      (a.header?.code ?? "").localeCompare(b.header?.code ?? ""),
+    );
+    for (const g of list) g.children.sort((a, b) => a.code.localeCompare(b.code));
+    if (ungrouped.length) {
+      list.push({ header: null, children: ungrouped.sort((a, b) => a.code.localeCompare(b.code)) });
+    }
+    return list;
+  }, [filtered, rows]);
+
+  const existingCodes = useMemo(
+    () => new Set(rows.map((r) => r.code.trim().toLowerCase())),
+    [rows],
+  );
+
   const upsert = useMutation({
     mutationFn: async ({ id, payload }: { id: string | null; payload: FormState }) => {
       const clean = {
