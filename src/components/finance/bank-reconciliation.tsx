@@ -694,11 +694,47 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
     qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
   }
 
+  /**
+   * Hard-deletes bank movements (e.g. a statement imported for the wrong
+   * period). Reconciled rows are locked by a DB guard, so they must be
+   * unmatched first — we surface that instead of silently skipping.
+   */
+  async function deleteTxs(ids: string[]) {
+    if (ids.length === 0) return;
+    if (!window.confirm(t("finance:bankRec.actions.deleteConfirm", { count: ids.length }))) return;
+    let deleted = 0;
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      const { error, count } = await supabase
+        .from("bank_transactions")
+        .delete({ count: "exact" })
+        .in("id", chunk);
+      if (error) {
+        toast.error(
+          /reconciled/i.test(error.message)
+            ? t("finance:bankRec.actions.deleteLocked")
+            : error.message,
+        );
+        break;
+      }
+      deleted += count ?? 0;
+    }
+    if (deleted > 0) toast.success(t("finance:bankRec.actions.deleted", { count: deleted }));
+    setSelectedId(null);
+    txQ.refetch();
+    linksQ.refetch();
+    counts.refetch();
+    periodStatusQ.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
+  }
+
   const clearFilters = () => {
     setDirFilter("all"); setLinkFilter("all"); setSearch(""); setDateFrom(""); setDateTo(""); setMinAmount(""); setMaxAmount("");
   };
 
   const hasFilters = dirFilter !== "all" || linkFilter !== "all" || search || dateFrom || dateTo || minAmount || maxAmount;
+
 
   return (
     <div className="space-y-4">
