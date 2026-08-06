@@ -1005,6 +1005,17 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, vat: e.target.value }))}
                 />
               </Field>
+              {/* IRS withheld at source — a liability towards AT, not VAT. */}
+              <Field label={t("finance:reviewQueue.fields.withholding")}>
+                <Input
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={fields.withholding}
+                  disabled={readOnly}
+                  onChange={(e) => setFields((f) => ({ ...f, withholding: e.target.value }))}
+                />
+              </Field>
+
               <Field label={t("finance:reviewQueue.fields.currency")}>
                 <Input
                   value={fields.currency}
