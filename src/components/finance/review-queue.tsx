@@ -657,6 +657,7 @@ function QueueItemCard({
           extracted_currency: fields.currency || "EUR",
           extracted_payment_method: fields.payment_method || null,
           extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
+          paid_from_account_id: needsPaidFrom ? paidFromAccountId : null,
 
         })
         .eq("id", row.id);
