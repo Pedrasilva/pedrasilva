@@ -265,6 +265,12 @@
       "matchReimbursement": "Associar reembolso RH",
       "unmatch": "Desassociar / reverter",
       "unmatchConfirm": "Desassociar esta transação? Ficará desbloqueada e sai do saldo calculado.",
+      "delete": "Eliminar movimento",
+      "deleteFiltered": "Eliminar os {{count}} listados",
+      "deleteConfirm": "Eliminar definitivamente {{count}} movimento(s) bancário(s)? Esta ação não pode ser revertida.",
+      "deleteLocked": "Alguns movimentos estão reconciliados e bloqueados. Desassocie-os primeiro e volte a eliminar.",
+      "deleted": "{{count}} movimento(s) eliminado(s)",
+
       "unmatched": "Transação desassociada"
     },
     "linkedTo": "Associada a {{ref}}",
