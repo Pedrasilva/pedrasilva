@@ -610,8 +610,16 @@ export function FinancialClassificationsAdmin() {
                 <Label>{t("financialClassifications.code")}</Label>
                 <Input
                   value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  aria-invalid={!!codeError}
+                  className={cn(codeError && "border-destructive")}
+                  onChange={(e) => {
+                    setCodeError(null);
+                    setForm({ ...form, code: e.target.value });
+                  }}
                 />
+                {codeError && (
+                  <p className="mt-1 text-[11px] text-destructive">{codeError}</p>
+                )}
               </div>
               <div>
                 <Label>{t("financialClassifications.sortOrder")}</Label>
