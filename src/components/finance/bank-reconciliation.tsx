@@ -532,7 +532,12 @@ function Stat({ label, value, tone = "neutral" }: { label: string; value: string
 // =========================================================
 type DirFilter = "all" | "in" | "out";
 type LinkFilter = "all" | "linked" | "unlinked";
-type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "all";
+/**
+ * `needs_review` is not a DB status: it is the subset of `ignored` movements
+ * whose `ignored_reason` is still `unspecified`, i.e. rows imported before the
+ * real-movement vs duplicate distinction existed and that a human must resolve.
+ */
+type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "needs_review" | "all";
 
 const fmtAmount = (n: number, ccy = "EUR") =>
   new Intl.NumberFormat("pt-PT", { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
