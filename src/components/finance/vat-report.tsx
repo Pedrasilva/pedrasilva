@@ -319,7 +319,6 @@ export function VatReportSection() {
       </div>
 
       <Card>
-      <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">
             {t("finance:vatReport.withholding.title")}
