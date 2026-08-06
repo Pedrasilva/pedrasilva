@@ -913,6 +913,8 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
                     onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
                     onUnmatch={() => unmatchTx(selectedTx)}
+                    onDelete={isAdmin ? () => deleteTxs([selectedTx.id]) : undefined}
+
                   />
                 ) : (
                   <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
