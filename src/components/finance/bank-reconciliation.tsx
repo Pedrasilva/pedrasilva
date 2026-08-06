@@ -539,7 +539,8 @@ const fmtAmount = (n: number, ccy = "EUR") =>
 
 function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodId, onSelectPeriod }: { accountId: string; classifications: Classification[]; isPt: boolean; selectedPeriodId: string | null; onSelectPeriod: (id: string | null) => void }) {
   const { t } = useTranslation(["finance", "common"]);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+
 
   // Filters
   const qc = useQueryClient();
