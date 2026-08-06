@@ -62,6 +62,11 @@ export type SettlementDirection = "received" | "issued";
 
 type Props = {
   direction: SettlementDirection;
+  /**
+   * When set, the workspace is pinned to a single counterparty (used when the
+   * flow is opened from a supplier/client record) and the picker is hidden.
+   */
+  lockedCounterpartyId?: string;
 };
 
 const fmt = (n: number) =>
