@@ -239,6 +239,7 @@ export function SettlementWorkspace({ direction }: Props) {
                 className="pl-8"
               />
             </div>
+            {!lockedCounterpartyId && (
             <Select
               value={counterpartyFilter}
               onValueChange={(v) => setCounterpartyFilter(v)}
@@ -262,6 +263,7 @@ export function SettlementWorkspace({ direction }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            )}
             <Button
               variant={overdueOnly ? "default" : "outline"}
               size="sm"
