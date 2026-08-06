@@ -270,7 +270,6 @@
       "deleteConfirm": "Permanently delete {{count}} bank movement(s)? This cannot be undone.",
       "deleteLocked": "Some movements are reconciled and locked. Unmatch them first, then delete.",
       "deleted": "{{count}} movement(s) deleted",
-
       "unmatched": "Transaction unmatched"
     },
     "linkedTo": "Linked to {{ref}}",
@@ -316,7 +315,8 @@
         "payment": "Supplier payment",
         "receipt": "Client receipt"
       }
-    }
+    },
+    "ignoreDuplicatePrompt": "Is this a DUPLICATE import line that should not count toward the balance?\n\nOK = duplicate (excluded from balance)\nCancel = real movement (bank fee, etc.) — counts toward the balance"
   },
   "overview": {
     "currentBankBalance": "Current bank balance",
@@ -479,7 +479,6 @@
       "noTransactions": "No transactions for this account.",
       "saved": "Account updated",
       "saveDenied": "You do not have permission to edit bank accounts."
-
     },
     "openingTag": "opening {{amount}}",
     "check": {
@@ -813,7 +812,8 @@
       "documentLabel": "Document",
       "pickDocument": "Pick a document…",
       "txAmount": "Transaction amount",
-      "matched": "Bank transaction matched to document."
+      "matched": "Bank transaction matched to document.",
+      "searchPlaceholder": "Search by supplier/client, document number or amount…"
     },
     "projectFinancials": {
       "title": "Project financials",
