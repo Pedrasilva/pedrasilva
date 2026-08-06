@@ -741,6 +741,26 @@ export async function ingestStoredDocument(opts: {
         supplierName: counterpartyName,
       });
 
+  // IRS withheld at source, only when the document actually shows it.
+  const rawWithholding = Number(ex.withholding_tax_amount ?? 0);
+  const withholdingAmount =
+    !isStatement && Number.isFinite(rawWithholding) && rawWithholding > 0
+      ? Math.abs(rawWithholding)
+      : null;
+  // With withholding present, the supplier is owed "Total a pagar", not the
+  // VAT-inclusive total — unless the document itself says it is already settled.
+  const payableWithWithholding =
+    withholdingAmount != null
+      ? ex.total_payable ??
+        (ex.total_amount != null ? Number(ex.total_amount) - withholdingAmount : null)
+      : null;
+  const balanceDue = isStatement
+    ? null
+    : ex.balance_due != null && Number(ex.balance_due) <= 0.005
+      ? 0
+      : payableWithWithholding ?? ex.balance_due ?? null;
+
+
   const payload: Record<string, unknown> = {
     ...base,
     raw_extraction: result.raw as object,
