@@ -211,10 +211,7 @@ export function FinancialClassificationsAdmin() {
     return list;
   }, [filtered, rows]);
 
-  const existingCodes = useMemo(
-    () => new Set(rows.map((r) => r.code.trim().toLowerCase())),
-    [rows],
-  );
+
 
   const upsert = useMutation({
     mutationFn: async ({ id, payload }: { id: string | null; payload: FormState }) => {
