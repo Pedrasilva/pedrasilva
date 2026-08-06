@@ -1044,6 +1044,36 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))}
                 />
               </Field>
+              {needsPaidFrom && (
+                <Field
+                  label={t(
+                    fields.payment_method === "card"
+                      ? "finance:reviewQueue.fields.paidFromCard"
+                      : "finance:reviewQueue.fields.paidFromAccount",
+                  )}
+                >
+                  <Select
+                    value={paidFromAccountId ?? "none"}
+                    disabled={readOnly}
+                    onValueChange={(v) => setPaidFromAccountId(v === "none" ? null : v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("finance:reviewQueue.fields.paidFromNone")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">
+                        {t("finance:reviewQueue.fields.paidFromNone")}
+                      </SelectItem>
+                      {paidFromOptions.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.account_name}
+                          {a.bank_name ? ` · ${a.bank_name}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
               {row.extracted_balance_due != null && (
                 <Field label={t("finance:reviewQueue.fields.balanceDue")}>
                   <Input
