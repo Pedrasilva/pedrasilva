@@ -984,6 +984,8 @@ function TxDetailPanel({
   onMarkIgnored: () => void;
   onMarkTransfer: () => void;
   onUnmatch: () => void;
+  onDelete?: (() => void) | undefined;
+
 }) {
   const { t } = useTranslation(["finance", "common"]);
   const isOutflow = tx.amount < 0;
