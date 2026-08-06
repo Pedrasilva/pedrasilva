@@ -625,10 +625,13 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   const counts = useQuery({
     queryKey: ["finance", "bank-tx-counts", accountId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("bank_transactions").select("status").eq("bank_account_id", accountId);
+      const { data, error } = await supabase.from("bank_transactions").select("status, ignored_reason").eq("bank_account_id", accountId);
       if (error) throw error;
-      const out: Record<string, number> = { unclassified: 0, classified: 0, ignored: 0, internal_transfer: 0, archived: 0 };
-      (data ?? []).forEach((r) => { out[r.status] = (out[r.status] ?? 0) + 1; });
+      const out: Record<string, number> = { unclassified: 0, classified: 0, ignored: 0, internal_transfer: 0, archived: 0, needs_review: 0 };
+      (data ?? []).forEach((r) => {
+        out[r.status] = (out[r.status] ?? 0) + 1;
+        if (r.status === "ignored" && r.ignored_reason === "unspecified") out.needs_review += 1;
+      });
       return out;
     },
   });
