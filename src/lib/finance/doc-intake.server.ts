@@ -158,6 +158,8 @@ const JSON_SCHEMA = {
       card_last4: { type: ["string", "null"] },
       payment_method_raw: { type: ["string", "null"] },
       balance_due: { type: ["number", "null"] },
+      withholding_tax_amount: { type: ["number", "null"] },
+      total_payable: { type: ["number", "null"] },
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
@@ -167,6 +169,9 @@ const JSON_SCHEMA = {
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
       "payment_method", "card_last4", "payment_method_raw", "balance_due",
+      "withholding_tax_amount", "total_payable",
+
+
 
     ],
 
