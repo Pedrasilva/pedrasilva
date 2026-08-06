@@ -249,6 +249,12 @@ Rules:
 - payment_method: how the document says it was paid — "card" (cartão/tarjeta, Visa, Mastercard, Amex, MB Way card, credit/debit/prepaid card, any masked card number), "cash" (numerário, dinheiro, efectivo), "bank_transfer" (transferência bancária, transferencia, wire, IBAN reference), "direct_debit" (débito directo, domiciliación), or "not_stated" when the document says nothing. Never guess from the supplier type.
 - card_last4: the last 4 digits of the card exactly as printed, keeping any leading zero. Take the final 4-digit run of the masked number no matter how it is masked or how long the mask is: "MasterCard ************0223" → "0223"; "**** 4821" → "4821"; "•••• 0223" → "0223"; "ending in 0223" / "terminado em 0223" / "terminada en 0223" → "0223"; "xxxx-xxxx-xxxx-0223" → "0223". Never drop a leading zero and never return fewer than 4 digits. null when no card number is printed.
 - balance_due: the amount STILL OWED per the document itself — "Saldo", "Balance due", "Valor em dívida", "Total a pagar". If the document shows it already settled ("Balance due: 0,00", "Pago", "Paid", "Recibo"/receipt for the full amount, "Liquidado", "Total pago"), set balance_due to 0. If no such field or wording exists anywhere, set it to null (do NOT infer it from the total).
+- IRS WITHHOLDING (Portuguese "Fatura-Recibo" / recibos verdes from freelancers ONLY):
+  - Some Portuguese documents have an "IRS" section with a "Retenção na fonte IRS" (or "Retenção IRS", "Retenção na fonte") row in the totals block. ONLY when that section/row is actually printed:
+    - withholding_tax_amount: the withheld IRS value as printed, as a POSITIVE number. This is NOT VAT — never copy vat_amount into it, and never derive one from the other even if they happen to be equal.
+    - total_payable: the "Total a pagar" figure (= "Total do documento" minus the withholding), i.e. what is actually transferred to the freelancer.
+  - total_amount stays the "Total do documento" (VAT-inclusive) figure regardless.
+  - If the document has NO "IRS" / "Retenção na fonte" section (normal company invoices — Zoom, EDP, etc.), set withholding_tax_amount to null and total_payable to null. Never invent one.
 - confidences are 0..1, be honest.
 
 
