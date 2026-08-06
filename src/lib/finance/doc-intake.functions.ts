@@ -315,6 +315,16 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
     if (!documentId) {
       const total = Number(row.extracted_amount ?? 0);
       const vat = Number(row.extracted_vat_amount ?? 0);
+      // IRS withheld at source is never owed to the supplier — it becomes a
+      // separate liability towards the tax authority (see tax_withholdings).
+      const withholdingRaw = Number(
+        (row as { extracted_withholding_amount?: number | null }).extracted_withholding_amount ?? 0,
+      );
+      const withholding =
+        Number.isFinite(withholdingRaw) && withholdingRaw > 0
+          ? Math.min(Math.abs(withholdingRaw), total)
+          : 0;
+
       const counterpartyId = isIssued
         ? ((row as { matched_client_id?: string | null }).matched_client_id ?? null)
         : row.matched_supplier_id;
