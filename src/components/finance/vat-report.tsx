@@ -168,6 +168,34 @@ export function VatReportSection() {
 
   const rows = useMemo(() => data ?? [], [data]);
 
+  /**
+   * IRS withheld at source. A separate obligation to the tax authority —
+   * deliberately NOT folded into the VAT totals above.
+   */
+  const { data: withholdings } = useQuery({
+    queryKey: ["irs-withholding-report", start, end],
+    queryFn: async () => {
+      const { data: wh, error } = await supabase
+        .from("tax_withholdings")
+        .select(
+          "id, document_number, supplier_name_snapshot, amount, currency, issue_date, status",
+        )
+        .eq("tax_kind", "irs")
+        .gte("issue_date", start)
+        .lte("issue_date", end)
+        .order("issue_date", { ascending: true });
+      if (error) throw error;
+      return wh ?? [];
+    },
+  });
+
+  const withholdingRows = withholdings ?? [];
+  const withholdingTotal = withholdingRows.reduce(
+    (acc, w) => acc + Number(w.amount || 0),
+    0,
+  );
+
+
   const reverseCharge = rows.filter((r) => r.reverseCharge);
   const normal = rows.filter((r) => !r.reverseCharge);
   const output = normal.filter((r) => r.direction === "issued");
