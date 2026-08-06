@@ -83,6 +83,7 @@ export function CompanyDetail({
   });
 
   const [form, setForm] = useState<Partial<Company> | null>(null);
+  const [settleOpen, setSettleOpen] = useState(false);
   const current = form ?? company ?? null;
 
   const save = useMutation({
