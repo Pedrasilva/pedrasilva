@@ -239,7 +239,13 @@ export function FinancialClassificationsAdmin() {
       setEditorOpen(false);
       setEditingId(null);
     },
-    onError: (e: any) => toast.error(e?.message ?? "Error"),
+    onError: (e: any) => {
+      if (e?.code === "23505" || /duplicate key|unique/i.test(e?.message ?? "")) {
+        setCodeError(t("financialClassifications.codeExists"));
+        return;
+      }
+      toast.error(e?.message ?? "Error");
+    },
   });
 
   const toggleActive = useMutation({
