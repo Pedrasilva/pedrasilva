@@ -2769,6 +2769,7 @@ export type Database = {
           matched_client_id: string | null
           matched_supplier_id: string | null
           original_filename: string | null
+          paid_from_account_id: string | null
           payment_status: string
           raw_extraction: Json | null
           recurring_reference_id: string | null
@@ -2825,6 +2826,7 @@ export type Database = {
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
+          paid_from_account_id?: string | null
           payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
@@ -2881,6 +2883,7 @@ export type Database = {
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
+          paid_from_account_id?: string | null
           payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
@@ -2948,6 +2951,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "financial_document_review_queue_paid_from_account_id_fkey"
+            columns: ["paid_from_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       financial_documents: {
@@ -2982,6 +2992,7 @@ export type Database = {
           ocr_metadata: Json | null
           outstanding_amount: number | null
           paid_amount: number
+          paid_from_account_id: string | null
           payment_method_extracted: string | null
           payment_status: string
           permalink_pdf: string | null
@@ -3028,6 +3039,7 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          paid_from_account_id?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -3074,6 +3086,7 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          paid_from_account_id?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -3116,6 +3129,13 @@ export type Database = {
             columns: ["counterparty_supplier_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_paid_from_account_id_fkey"
+            columns: ["paid_from_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
             referencedColumns: ["id"]
           },
           {

@@ -83,6 +83,7 @@ type QueueRow = {
   buyer_vat_is_own: boolean | null;
   extracted_payment_method: string | null;
   extracted_card_last4: string | null;
+  paid_from_account_id?: string | null;
   extracted_balance_due: number | null;
   payment_status: "paid_at_source" | "awaiting_payment" | "reconciled";
 
@@ -525,8 +526,46 @@ function QueueItemCard({
   const [assignedCollaboratorId, setAssignedCollaboratorId] = useState<string | null>(
     (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null,
   );
+  // Which bank account / card actually settled the document. Only relevant
+  // for card, transfer and direct-debit payments.
+  const [paidFromAccountId, setPaidFromAccountId] = useState<string | null>(
+    row.paid_from_account_id ?? null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Payment methods that are settled through an account we hold.
+  const needsPaidFrom =
+    fields.payment_method === "card" ||
+    fields.payment_method === "bank_transfer" ||
+    fields.payment_method === "direct_debit";
+  const accountsQ = useQuery({
+    queryKey: ["bank-accounts-picker"],
+    enabled: needsPaidFrom,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_accounts")
+        .select("id, account_name, bank_name, account_kind, archived_at, iban")
+        .is("archived_at", null)
+        .order("account_name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as Array<{
+        id: string;
+        account_name: string;
+        bank_name: string | null;
+        account_kind: string | null;
+        iban: string | null;
+      }>;
+    },
+  });
+  // A card payment can only come from a card; transfers/debits from a bank account.
+  const paidFromOptions = (accountsQ.data ?? []).filter((a) =>
+    fields.payment_method === "card"
+      ? a.account_kind === "credit_card"
+      : a.account_kind !== "credit_card",
+  );
+
+
 
   // Staff benefits (BEN.*) must be attributed to a person before approval.
   const selectedCode = classifications.find((c) => c.id === classificationId)?.code ?? null;
@@ -618,6 +657,7 @@ function QueueItemCard({
           extracted_currency: fields.currency || "EUR",
           extracted_payment_method: fields.payment_method || null,
           extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
+          paid_from_account_id: needsPaidFrom ? paidFromAccountId : null,
 
         })
         .eq("id", row.id);
@@ -1004,6 +1044,36 @@ function QueueItemCard({
                   onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))}
                 />
               </Field>
+              {needsPaidFrom && (
+                <Field
+                  label={t(
+                    fields.payment_method === "card"
+                      ? "finance:reviewQueue.fields.paidFromCard"
+                      : "finance:reviewQueue.fields.paidFromAccount",
+                  )}
+                >
+                  <Select
+                    value={paidFromAccountId ?? "none"}
+                    disabled={readOnly}
+                    onValueChange={(v) => setPaidFromAccountId(v === "none" ? null : v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("finance:reviewQueue.fields.paidFromNone")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">
+                        {t("finance:reviewQueue.fields.paidFromNone")}
+                      </SelectItem>
+                      {paidFromOptions.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.account_name}
+                          {a.bank_name ? ` · ${a.bank_name}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
               {row.extracted_balance_due != null && (
                 <Field label={t("finance:reviewQueue.fields.balanceDue")}>
                   <Input

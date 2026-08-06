@@ -363,6 +363,8 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
           payment_method_extracted:
             (row as { extracted_payment_method?: string | null }).extracted_payment_method ?? null,
           card_last4: (row as { extracted_card_last4?: string | null }).extracted_card_last4 ?? null,
+          paid_from_account_id:
+            (row as { paid_from_account_id?: string | null }).paid_from_account_id ?? null,
           payment_status:
             (row as { payment_status?: string | null }).payment_status === "paid_at_source"
               ? "paid_at_source"
