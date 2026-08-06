@@ -319,8 +319,58 @@ export function VatReportSection() {
       </div>
 
       <Card>
+      <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">
+            {t("finance:vatReport.withholding.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            {t("finance:vatReport.withholding.note")}
+          </p>
+          <div className="text-2xl font-semibold tabular-nums">
+            {fmtEUR(withholdingTotal)}
+          </div>
+          {withholdingRows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("finance:vatReport.withholding.empty")}
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("finance:vatReport.col.date")}</TableHead>
+                  <TableHead>{t("finance:vatReport.col.number")}</TableHead>
+                  <TableHead>{t("finance:vatReport.col.counterparty")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("finance:vatReport.withholding.amount")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withholdingRows.map((w) => (
+                  <TableRow key={w.id}>
+                    <TableCell className="whitespace-nowrap">
+                      {fmtDate(w.issue_date)}
+                    </TableCell>
+                    <TableCell>{w.document_number || "—"}</TableCell>
+                    <TableCell>{w.supplier_name_snapshot || "—"}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {fmtEUR(Number(w.amount))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">
+
             {t("finance:vatReport.reverseCharge.title")}
           </CardTitle>
         </CardHeader>
