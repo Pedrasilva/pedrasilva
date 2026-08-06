@@ -265,6 +265,12 @@
       "matchReimbursement": "Match HR reimbursement",
       "unmatch": "Unmatch / reverse",
       "unmatchConfirm": "Unmatch this transaction? It will be unlocked and removed from the calculated balance.",
+      "delete": "Delete movement",
+      "deleteFiltered": "Delete {{count}} shown",
+      "deleteConfirm": "Permanently delete {{count}} bank movement(s)? This cannot be undone.",
+      "deleteLocked": "Some movements are reconciled and locked. Unmatch them first, then delete.",
+      "deleted": "{{count}} movement(s) deleted",
+
       "unmatched": "Transaction unmatched"
     },
     "linkedTo": "Linked to {{ref}}",
