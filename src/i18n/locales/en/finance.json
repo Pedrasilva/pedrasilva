@@ -477,7 +477,9 @@
       "recentTransactions": "Recent transactions",
       "viewAllTransactions": "View all transactions",
       "noTransactions": "No transactions for this account.",
-      "saved": "Account updated"
+      "saved": "Account updated",
+      "saveDenied": "You do not have permission to edit bank accounts."
+
     },
     "openingTag": "opening {{amount}}",
     "check": {
