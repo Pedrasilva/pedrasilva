@@ -825,6 +825,18 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                   <X className="size-3 mr-1" /> {t("finance:bankRec.operator.clearFilters")}
                 </Button>
               )}
+              {isAdmin && hasFilters && filtered.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="h-7 text-xs"
+                  onClick={() => deleteTxs(filtered.map((r) => r.id))}
+                >
+                  <Trash2 className="size-3 mr-1" />
+                  {t("finance:bankRec.actions.deleteFiltered", { count: filtered.length })}
+                </Button>
+              )}
+
             </div>
           </div>
         </CardHeader>
