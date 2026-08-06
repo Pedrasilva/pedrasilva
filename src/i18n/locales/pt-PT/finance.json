@@ -245,7 +245,8 @@
       "ignored": "Ignorado",
       "internal_transfer": "Transferência interna",
       "archived": "Arquivado",
-      "all": "Todos"
+      "all": "Todos",
+      "needs_review": "Por rever"
     },
     "actions": {
       "match": "Associar documento",
@@ -316,7 +317,13 @@
         "receipt": "Recebimento de cliente"
       }
     },
-    "ignoreDuplicatePrompt": "Este movimento é uma LINHA DUPLICADA da importação que não deve contar para o saldo?\n\nOK = duplicado (excluído do saldo)\nCancelar = movimento real (comissão bancária, etc.) — conta para o saldo"
+    "ignoreDuplicatePrompt": "Este movimento é uma LINHA DUPLICADA da importação que não deve contar para o saldo?\n\nOK = duplicado (excluído do saldo)\nCancelar = movimento real (comissão bancária, etc.) — conta para o saldo",
+    "needsReview": {
+      "hint": "Movimento ignorado antigo — indique se é um movimento real (conta para o saldo) ou uma linha duplicada de importação (excluída).",
+      "real": "Movimento real",
+      "duplicate": "Duplicado",
+      "resolved": "Movimento resolvido."
+    }
   },
   "overview": {
     "currentBankBalance": "Saldo bancário actual",

@@ -532,7 +532,12 @@ function Stat({ label, value, tone = "neutral" }: { label: string; value: string
 // =========================================================
 type DirFilter = "all" | "in" | "out";
 type LinkFilter = "all" | "linked" | "unlinked";
-type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "all";
+/**
+ * `needs_review` is not a DB status: it is the subset of `ignored` movements
+ * whose `ignored_reason` is still `unspecified`, i.e. rows imported before the
+ * real-movement vs duplicate distinction existed and that a human must resolve.
+ */
+type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "needs_review" | "all";
 
 const fmtAmount = (n: number, ccy = "EUR") =>
   new Intl.NumberFormat("pt-PT", { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
@@ -578,7 +583,11 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
         .eq("bank_account_id", accountId)
         .order("transaction_date", { ascending: false })
         .limit(1000);
-      if (statusFilter !== "all") q = q.eq("status", statusFilter);
+      if (statusFilter === "needs_review") {
+        q = q.eq("status", "ignored").eq("ignored_reason", "unspecified");
+      } else if (statusFilter !== "all") {
+        q = q.eq("status", statusFilter);
+      }
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as BankTx[];
@@ -616,10 +625,13 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   const counts = useQuery({
     queryKey: ["finance", "bank-tx-counts", accountId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("bank_transactions").select("status").eq("bank_account_id", accountId);
+      const { data, error } = await supabase.from("bank_transactions").select("status, ignored_reason").eq("bank_account_id", accountId);
       if (error) throw error;
-      const out: Record<string, number> = { unclassified: 0, classified: 0, ignored: 0, internal_transfer: 0, archived: 0 };
-      (data ?? []).forEach((r) => { out[r.status] = (out[r.status] ?? 0) + 1; });
+      const out: Record<string, number> = { unclassified: 0, classified: 0, ignored: 0, internal_transfer: 0, archived: 0, needs_review: 0 };
+      (data ?? []).forEach((r) => {
+        out[r.status] = (out[r.status] ?? 0) + 1;
+        if (r.status === "ignored" && r.ignored_reason === "unspecified") out.needs_review += 1;
+      });
       return out;
     },
   });
@@ -702,6 +714,32 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   }
 
   /**
+   * Resolves a legacy `unspecified` ignored movement (the "Needs review"
+   * queue): either a real movement (counts toward the calculated balance) or a
+   * duplicate import line (stays excluded).
+   */
+  async function resolveNeedsReview(tx: BankTx, kind: "real" | "duplicate") {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("bank_transactions")
+      .update(
+        kind === "real"
+          ? { ignored_reason: "real_other", reconciled_at: now, reconciled_by: user?.id ?? null }
+          : { ignored_reason: "duplicate", reconciled_at: null, reconciled_by: null },
+      )
+      .eq("id", tx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("finance:bankRec.needsReview.resolved"));
+    setSelectedId(null);
+    txQ.refetch();
+    counts.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
+  }
+
+
+
+  /**
    * Reverses a reconciliation: removes the payment link, unlocks the
    * transaction for editing/re-matching and drops its contribution from the
    * calculated balance.
@@ -770,7 +808,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
             <CardTitle className="text-base">{t("finance:bankRec.queueTitle")}</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-1">
-                {(["unclassified", "classified", "ignored", "all"] as StatusFilter[]).map((s) => (
+                {(["unclassified", "classified", "ignored", "needs_review", "all"] as StatusFilter[]).map((s) => (
                   <Button key={s} size="sm" variant={statusFilter === s ? "default" : "outline"} onClick={() => setStatusFilter(s)} className="h-7 text-xs">
                     {t(`finance:bankRec.status.${s}`)}
                     {s !== "all" && <span className="ml-1 opacity-60">({counts.data?.[s] ?? 0})</span>}
@@ -914,7 +952,20 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
               </div>
 
               {/* Right: detail panel */}
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 space-y-3">
+                {statusFilter === "needs_review" && selectedTx && (
+                  <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-2">
+                    <p className="text-xs text-muted-foreground">{t("finance:bankRec.needsReview.hint")}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" className="h-7 text-xs" onClick={() => resolveNeedsReview(selectedTx, "real")}>
+                        {t("finance:bankRec.needsReview.real")}
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => resolveNeedsReview(selectedTx, "duplicate")}>
+                        {t("finance:bankRec.needsReview.duplicate")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 {selectedTx ? (
                   <TxDetailPanel
                     tx={selectedTx}

@@ -245,7 +245,8 @@
       "ignored": "Ignored",
       "internal_transfer": "Internal transfer",
       "archived": "Archived",
-      "all": "All"
+      "all": "All",
+      "needs_review": "Needs review"
     },
     "actions": {
       "match": "Match document",
@@ -316,7 +317,13 @@
         "receipt": "Client receipt"
       }
     },
-    "ignoreDuplicatePrompt": "Is this a DUPLICATE import line that should not count toward the balance?\n\nOK = duplicate (excluded from balance)\nCancel = real movement (bank fee, etc.) — counts toward the balance"
+    "ignoreDuplicatePrompt": "Is this a DUPLICATE import line that should not count toward the balance?\n\nOK = duplicate (excluded from balance)\nCancel = real movement (bank fee, etc.) — counts toward the balance",
+    "needsReview": {
+      "hint": "Legacy ignored movement — decide whether it is a real movement (counts toward the balance) or a duplicate import line (excluded).",
+      "real": "Real movement",
+      "duplicate": "Duplicate",
+      "resolved": "Movement resolved."
+    }
   },
   "overview": {
     "currentBankBalance": "Current bank balance",
