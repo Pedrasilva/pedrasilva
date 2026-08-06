@@ -414,57 +414,178 @@ export function FinancialClassificationsAdmin() {
                   </TableCell>
                 </TableRow>
               )}
-              {filtered.map((r) => (
-                <TableRow key={r.id} className={r.active ? "" : "opacity-60"}>
-                  <TableCell className="font-mono text-xs font-semibold">{r.code}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">{isPt ? r.name_pt : r.name_en}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {isPt ? r.name_en : r.name_pt}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs capitalize">{r.level}</TableCell>
-                  <TableCell className="text-xs">
-                    {t(`financialClassifications.natures.${r.financial_nature}`)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[11px]">
-                      {t(`financialClassifications.policies.${r.spending_policy}`)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={r.active ? "default" : "secondary"} className="text-[10px]">
-                      {r.active
-                        ? t("financialClassifications.active")
-                        : t("financialClassifications.inactive")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {canEdit && (
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEdit(r)}
-                          aria-label={t("financialClassifications.edit")}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => toggleActive.mutate(r)}
-                          disabled={toggleActive.isPending}
-                        >
-                          {r.active
-                            ? t("financialClassifications.deactivate")
-                            : t("financialClassifications.reactivate")}
-                        </Button>
-                      </div>
+              {groups.map((g, gi) => {
+                const key = g.header?.id ?? "__ungrouped";
+                const isCollapsed = collapsed.has(key);
+                return (
+                  <Fragment key={key}>
+                    {g.header ? (
+                      <TableRow
+                        className={cn(
+                          "bg-muted/70 hover:bg-muted",
+                          gi > 0 && "border-t-4 border-t-border",
+                          !g.header.active && "opacity-60",
+                        )}
+                      >
+                        <TableCell className="font-mono text-xs font-bold">
+                          <button
+                            type="button"
+                            onClick={() => toggleCollapsed(key)}
+                            className="flex items-center gap-1"
+                            aria-expanded={!isCollapsed}
+                          >
+                            {isCollapsed ? (
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            ) : (
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            )}
+                            {g.header.code}
+                          </button>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm font-semibold">
+                            {isPt ? g.header.name_pt : g.header.name_en}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {isPt ? g.header.name_en : g.header.name_pt} · {g.children.length}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs capitalize font-medium">
+                          {g.header.level}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {t(`financialClassifications.natures.${g.header.financial_nature}`)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-[11px]">
+                            {t(`financialClassifications.policies.${g.header.spending_policy}`)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={g.header.active ? "default" : "secondary"}
+                            className="text-[10px]"
+                          >
+                            {g.header.active
+                              ? t("financialClassifications.active")
+                              : t("financialClassifications.inactive")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {canEdit && (
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openEdit(g.header!)}
+                                aria-label={t("financialClassifications.edit")}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openDuplicate(g.header!)}
+                                aria-label={t("financialClassifications.duplicate")}
+                                title={t("financialClassifications.duplicate")}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => toggleActive.mutate(g.header!)}
+                                disabled={toggleActive.isPending}
+                              >
+                                {g.header.active
+                                  ? t("financialClassifications.deactivate")
+                                  : t("financialClassifications.reactivate")}
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow className={cn("bg-muted/40", gi > 0 && "border-t-4 border-t-border")}>
+                        <TableCell colSpan={7} className="text-xs font-semibold">
+                          {t("financialClassifications.ungrouped")}
+                        </TableCell>
+                      </TableRow>
                     )}
-                  </TableCell>
-                </TableRow>
-              ))}
+
+                    {!isCollapsed &&
+                      g.children.map((r) => (
+                        <TableRow
+                          key={r.id}
+                          className={cn(
+                            "border-l-2 border-l-primary/40",
+                            !r.active && "opacity-60",
+                          )}
+                        >
+                          <TableCell className="pl-6 font-mono text-xs">{r.code}</TableCell>
+                          <TableCell className="pl-2">
+                            <div className="text-sm">{isPt ? r.name_pt : r.name_en}</div>
+                            <div className="text-[11px] text-muted-foreground">
+                              {isPt ? r.name_en : r.name_pt}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs capitalize">{r.level}</TableCell>
+                          <TableCell className="text-xs">
+                            {t(`financialClassifications.natures.${r.financial_nature}`)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-[11px]">
+                              {t(`financialClassifications.policies.${r.spending_policy}`)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={r.active ? "default" : "secondary"}
+                              className="text-[10px]"
+                            >
+                              {r.active
+                                ? t("financialClassifications.active")
+                                : t("financialClassifications.inactive")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {canEdit && (
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openEdit(r)}
+                                  aria-label={t("financialClassifications.edit")}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openDuplicate(r)}
+                                  aria-label={t("financialClassifications.duplicate")}
+                                  title={t("financialClassifications.duplicate")}
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => toggleActive.mutate(r)}
+                                  disabled={toggleActive.isPending}
+                                >
+                                  {r.active
+                                    ? t("financialClassifications.deactivate")
+                                    : t("financialClassifications.reactivate")}
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
