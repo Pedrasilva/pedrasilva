@@ -969,7 +969,7 @@ type LinkedInfo = { documentId: string; documentNumber: string | null; direction
 
 function TxDetailPanel({
   tx, periods, onPeriodOverride, classifications, isPt, linked,
-  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch,
+  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch, onDelete,
 }: {
   tx: BankTx;
   periods: StatementPeriod[];
