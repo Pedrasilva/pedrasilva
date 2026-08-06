@@ -1,32 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { oauthNs } from "@/lib/oauth-consent-ns";
 
 // Supabase OAuth 2.1 consent screen. Reached at
 // `/.lovable/oauth/consent?authorization_id=...`. TanStack Router escapes
 // literal dots with `[.]`.
-type OAuthNs = {
-  getAuthorizationDetails: (id: string) => Promise<{
-    data: {
-      client?: { name?: string } | null;
-      redirect_url?: string | null;
-      redirect_to?: string | null;
-    } | null;
-    error: { message: string } | null;
-  }>;
-  approveAuthorization: (id: string) => Promise<{
-    data: { redirect_url?: string | null; redirect_to?: string | null } | null;
-    error: { message: string } | null;
-  }>;
-  denyAuthorization: (id: string) => Promise<{
-    data: { redirect_url?: string | null; redirect_to?: string | null } | null;
-    error: { message: string } | null;
-  }>;
-};
 
-function oauthNs(): OAuthNs {
-  return (supabase.auth as unknown as { oauth: OAuthNs }).oauth;
-}
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
