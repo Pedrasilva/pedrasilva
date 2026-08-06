@@ -714,6 +714,32 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   }
 
   /**
+   * Resolves a legacy `unspecified` ignored movement (the "Needs review"
+   * queue): either a real movement (counts toward the calculated balance) or a
+   * duplicate import line (stays excluded).
+   */
+  async function resolveNeedsReview(tx: BankTx, kind: "real" | "duplicate") {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("bank_transactions")
+      .update(
+        kind === "real"
+          ? { ignored_reason: "real_other", reconciled_at: now, reconciled_by: user?.id ?? null }
+          : { ignored_reason: "duplicate", reconciled_at: null, reconciled_by: null },
+      )
+      .eq("id", tx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("finance:bankRec.needsReview.resolved"));
+    setSelectedId(null);
+    txQ.refetch();
+    counts.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
+  }
+
+
+
+  /**
    * Reverses a reconciliation: removes the payment link, unlocks the
    * transaction for editing/re-matching and drops its contribution from the
    * calculated balance.
