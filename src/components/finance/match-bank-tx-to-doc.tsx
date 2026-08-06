@@ -101,13 +101,41 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
     return m?.[1] ?? null;
   }, [tx.description]);
 
+  const [docSearch, setDocSearch] = useState("");
+
+  /**
+   * Ranking: same-card matches first (strongest signal when both sides carry
+   * a card), then closest issue date to the bank movement's date.
+   */
   const candidates = useMemo(() => {
     const docs = docsQ.data ?? [];
-    if (!txCardLast4) return docs;
+    const q = docSearch.trim().toLowerCase();
+    const filtered = q
+      ? docs.filter((d) =>
+          [
+            d.document_number ?? "",
+            d.counterparty_name_snapshot ?? "",
+            String(d.total_amount ?? ""),
+            String(d.outstanding_amount ?? ""),
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(q),
+        )
+      : docs;
+    const txTime = new Date(tx.transaction_date).getTime();
+    const distance = (d: FinDoc) => {
+      const t0 = new Date(d.issue_date ?? "").getTime();
+      return Number.isNaN(t0) ? Number.MAX_SAFE_INTEGER : Math.abs(t0 - txTime);
+    };
     const sameCard = (d: FinDoc) =>
+      txCardLast4 != null &&
       ((d as { card_last4?: string | null }).card_last4 ?? null) === txCardLast4;
-    return [...docs].sort((a, b) => Number(sameCard(b)) - Number(sameCard(a)));
-  }, [docsQ.data, txCardLast4]);
+    return [...filtered].sort(
+      (a, b) =>
+        Number(sameCard(b)) - Number(sameCard(a)) || distance(a) - distance(b),
+    );
+  }, [docsQ.data, txCardLast4, docSearch, tx.transaction_date]);
 
   const selectedDoc = useMemo(
     () => candidates.find((d) => d.id === docId) ?? null,
