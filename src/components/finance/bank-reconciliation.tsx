@@ -1176,6 +1176,13 @@ function TxDetailPanel({
             {t("finance:bankRec.actions.ignore")}
           </Button>
         )}
+        {onDelete && (
+          <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="size-3.5 mr-1" />
+            {t("finance:bankRec.actions.delete")}
+          </Button>
+        )}
+
       </div>
     </div>
   );
