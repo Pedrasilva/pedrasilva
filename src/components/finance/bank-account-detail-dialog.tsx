@@ -147,7 +147,7 @@ export function BankAccountDetailDialog({
   const save = useMutation({
     mutationFn: async () => {
       if (!form) return;
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("bank_accounts")
         .update({
           account_name: form.account_name.trim(),
@@ -165,8 +165,15 @@ export function BankAccountDetailDialog({
           notes: form.notes || null,
           is_active: form.is_active ?? true,
         })
-        .eq("id", form.id);
+        .eq("id", form.id)
+        .select("id");
       if (error) throw error;
+      // An update blocked by row-level security returns no error and no rows —
+      // surface it instead of showing a false "saved".
+      if (!data || data.length === 0) {
+        throw new Error(t("finance:bank.detail.saveDenied"));
+      }
+
     },
     onSuccess: () => {
       toast.success(t("finance:bank.detail.saved"));
