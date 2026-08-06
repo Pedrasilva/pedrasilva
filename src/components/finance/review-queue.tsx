@@ -509,6 +509,8 @@ function QueueItemCard({
     date: row.extracted_date ?? "",
     amount: row.extracted_amount?.toString() ?? "",
     vat: row.extracted_vat_amount?.toString() ?? "",
+    withholding: row.extracted_withholding_amount?.toString() ?? "",
+
     currency: row.extracted_currency ?? "EUR",
     payment_method: row.extracted_payment_method ?? "",
     card_last4: row.extracted_card_last4 ?? "",
