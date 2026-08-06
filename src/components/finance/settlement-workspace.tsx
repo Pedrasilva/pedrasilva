@@ -62,6 +62,11 @@ export type SettlementDirection = "received" | "issued";
 
 type Props = {
   direction: SettlementDirection;
+  /**
+   * When set, the workspace is pinned to a single counterparty (used when the
+   * flow is opened from a supplier/client record) and the picker is hidden.
+   */
+  lockedCounterpartyId?: string;
 };
 
 const fmt = (n: number) =>
@@ -72,12 +77,14 @@ const fmt = (n: number) =>
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
-export function SettlementWorkspace({ direction }: Props) {
+export function SettlementWorkspace({ direction, lockedCounterpartyId }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const ns = direction === "received" ? "outflows" : "receipts";
 
   const [search, setSearch] = useState("");
-  const [counterpartyFilter, setCounterpartyFilter] = useState<string>("all");
+  const [counterpartyFilter, setCounterpartyFilter] = useState<string>(
+    lockedCounterpartyId ?? "all",
+  );
   const [overdueOnly, setOverdueOnly] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -234,6 +241,7 @@ export function SettlementWorkspace({ direction }: Props) {
                 className="pl-8"
               />
             </div>
+            {!lockedCounterpartyId && (
             <Select
               value={counterpartyFilter}
               onValueChange={(v) => setCounterpartyFilter(v)}
@@ -257,6 +265,7 @@ export function SettlementWorkspace({ direction }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            )}
             <Button
               variant={overdueOnly ? "default" : "outline"}
               size="sm"

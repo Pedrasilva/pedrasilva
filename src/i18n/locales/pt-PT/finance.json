@@ -270,7 +270,6 @@
       "deleteConfirm": "Eliminar definitivamente {{count}} movimento(s) bancário(s)? Esta ação não pode ser revertida.",
       "deleteLocked": "Alguns movimentos estão reconciliados e bloqueados. Desassocie-os primeiro e volte a eliminar.",
       "deleted": "{{count}} movimento(s) eliminado(s)",
-
       "unmatched": "Transação desassociada"
     },
     "linkedTo": "Associada a {{ref}}",
@@ -316,7 +315,8 @@
         "payment": "Pagamento a fornecedor",
         "receipt": "Recebimento de cliente"
       }
-    }
+    },
+    "ignoreDuplicatePrompt": "Este movimento é uma LINHA DUPLICADA da importação que não deve contar para o saldo?\n\nOK = duplicado (excluído do saldo)\nCancelar = movimento real (comissão bancária, etc.) — conta para o saldo"
   },
   "overview": {
     "currentBankBalance": "Saldo bancário actual",
@@ -479,7 +479,6 @@
       "noTransactions": "Sem movimentos para esta conta.",
       "saved": "Conta actualizada",
       "saveDenied": "Não tem permissão para editar contas bancárias."
-
     },
     "openingTag": "abertura {{amount}}",
     "check": {
@@ -813,7 +812,8 @@
       "documentLabel": "Documento",
       "pickDocument": "Escolher documento…",
       "txAmount": "Valor do movimento",
-      "matched": "Movimento bancário associado ao documento."
+      "matched": "Movimento bancário associado ao documento.",
+      "searchPlaceholder": "Pesquisar por fornecedor/cliente, número do documento ou valor…"
     },
     "projectFinancials": {
       "title": "Financeiro por projecto",

@@ -667,15 +667,38 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
   const selectedTx = useMemo(() => filtered.find((r) => r.id === selectedId) ?? null, [filtered, selectedId]);
 
+  /**
+   * Marks a movement as resolved without a document match.
+   *
+   * "Reconciled" means reviewed-and-resolved, so both `ignored` (real
+   * movement, e.g. a bank fee) and `internal_transfer` count toward the
+   * calculated balance. The one exception is a duplicate import line, which
+   * is flagged via `ignored_reason = 'duplicate'` and left unreconciled so it
+   * never contributes to the balance.
+   */
   async function quickMarkStatus(tx: BankTx, status: "ignored" | "internal_transfer") {
+    const isDuplicate =
+      status === "ignored" &&
+      window.confirm(t("finance:bankRec.ignoreDuplicatePrompt"));
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("bank_transactions")
-      .update({ status, classified_at: new Date().toISOString(), classified_by: user?.id ?? null })
+      .update({
+        status,
+        classified_at: now,
+        classified_by: user?.id ?? null,
+        ignored_reason:
+          status === "ignored" ? (isDuplicate ? "duplicate" : "resolved") : null,
+        reconciled_at: isDuplicate ? null : now,
+        reconciled_by: isDuplicate ? null : (user?.id ?? null),
+      })
       .eq("id", tx.id);
     if (error) { toast.error(error.message); return; }
     toast.success(status === "ignored" ? t("finance:bankRec.markedIgnored") : t("finance:bankRec.markedTransfer"));
     txQ.refetch();
     counts.refetch();
+    qc.invalidateQueries({ queryKey: ["finance", "bank-calculated-balances"] });
+    qc.invalidateQueries({ queryKey: ["home-finance", "calculated-balances"] });
   }
 
   /**

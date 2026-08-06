@@ -11,7 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch, Receipt } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SettlementWorkspace } from "@/components/finance/settlement-workspace";
+import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch, Receipt, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { CompanyProjectsTab } from "@/components/crm/company-projects-tab";
@@ -81,6 +83,7 @@ export function CompanyDetail({
   });
 
   const [form, setForm] = useState<Partial<Company> | null>(null);
+  const [settleOpen, setSettleOpen] = useState(false);
   const current = form ?? company ?? null;
 
   const save = useMutation({
@@ -494,7 +497,15 @@ export function CompanyDetail({
           </Card>
         </TabsContent>
 
-        <TabsContent value="conta-corrente">
+        <TabsContent value="conta-corrente" className="space-y-3">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => setSettleOpen(true)}>
+              <Wallet className="size-4 mr-1" />
+              {statementSideOf(current as Company) === "client"
+                ? "Registar recebimento"
+                : "Registar pagamento"}
+            </Button>
+          </div>
           <Card>
             <CardContent className="p-0">
               <StatementView
@@ -505,6 +516,26 @@ export function CompanyDetail({
               />
             </CardContent>
           </Card>
+
+          <Dialog open={settleOpen} onOpenChange={setSettleOpen}>
+            <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {(statementSideOf(current as Company) === "client"
+                    ? "Registar recebimento — "
+                    : "Registar pagamento — ") + (current.nome ?? "")}
+                </DialogTitle>
+              </DialogHeader>
+              <SettlementWorkspace
+                direction={
+                  statementSideOf(current as Company) === "client"
+                    ? "issued"
+                    : "received"
+                }
+                lockedCounterpartyId={companyId}
+              />
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="actividades">
