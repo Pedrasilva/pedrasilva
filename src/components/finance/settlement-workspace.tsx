@@ -77,12 +77,14 @@ const fmt = (n: number) =>
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
-export function SettlementWorkspace({ direction }: Props) {
+export function SettlementWorkspace({ direction, lockedCounterpartyId }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const ns = direction === "received" ? "outflows" : "receipts";
 
   const [search, setSearch] = useState("");
-  const [counterpartyFilter, setCounterpartyFilter] = useState<string>("all");
+  const [counterpartyFilter, setCounterpartyFilter] = useState<string>(
+    lockedCounterpartyId ?? "all",
+  );
   const [overdueOnly, setOverdueOnly] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
