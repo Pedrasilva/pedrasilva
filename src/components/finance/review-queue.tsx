@@ -534,6 +534,39 @@ function QueueItemCard({
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // Payment methods that are settled through an account we hold.
+  const needsPaidFrom =
+    fields.payment_method === "card" ||
+    fields.payment_method === "bank_transfer" ||
+    fields.payment_method === "direct_debit";
+  const accountsQ = useQuery({
+    queryKey: ["bank-accounts-picker"],
+    enabled: needsPaidFrom,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_accounts")
+        .select("id, account_name, bank_name, account_kind, archived_at, iban")
+        .is("archived_at", null)
+        .order("account_name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as Array<{
+        id: string;
+        account_name: string;
+        bank_name: string | null;
+        account_kind: string | null;
+        iban: string | null;
+      }>;
+    },
+  });
+  // A card payment can only come from a card; transfers/debits from a bank account.
+  const paidFromOptions = (accountsQ.data ?? []).filter((a) =>
+    fields.payment_method === "card"
+      ? a.account_kind === "credit_card"
+      : a.account_kind !== "credit_card",
+  );
+
+
+
   // Staff benefits (BEN.*) must be attributed to a person before approval.
   const selectedCode = classifications.find((c) => c.id === classificationId)?.code ?? null;
   const isBenefit = !!selectedCode && (selectedCode === "BEN" || selectedCode.startsWith("BEN."));
