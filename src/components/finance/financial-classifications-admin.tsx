@@ -258,15 +258,8 @@ export function FinancialClassificationsAdmin() {
     onError: (e: any) => toast.error(e?.message ?? "Error"),
   });
 
-  function openCreate() {
-    setEditingId(null);
-    setForm(emptyForm());
-    setEditorOpen(true);
-  }
-
-  function openEdit(r: Row) {
-    setEditingId(r.id);
-    setForm({
+  function formFrom(r: Row): FormState {
+    return {
       code: r.code,
       name_pt: r.name_pt,
       name_en: r.name_en,
@@ -283,7 +276,28 @@ export function FinancialClassificationsAdmin() {
       active: r.active,
       sort_order: r.sort_order,
       notes: r.notes ?? "",
-    });
+    };
+  }
+
+  function openCreate() {
+    setEditingId(null);
+    setCodeError(null);
+    setForm(emptyForm());
+    setEditorOpen(true);
+  }
+
+  function openEdit(r: Row) {
+    setEditingId(r.id);
+    setCodeError(null);
+    setForm(formFrom(r));
+    setEditorOpen(true);
+  }
+
+  /** Duplicate: same parent (sibling) and every attribute, code left blank. */
+  function openDuplicate(r: Row) {
+    setEditingId(null);
+    setCodeError(null);
+    setForm({ ...formFrom(r), code: "" });
     setEditorOpen(true);
   }
 
@@ -292,6 +306,15 @@ export function FinancialClassificationsAdmin() {
       toast.error(t("financialClassifications.requiredFields"));
       return;
     }
+    const code = form.code.trim().toLowerCase();
+    const collidesWithOther = rows.some(
+      (r) => r.code.trim().toLowerCase() === code && r.id !== editingId,
+    );
+    if (collidesWithOther) {
+      setCodeError(t("financialClassifications.codeExists"));
+      return;
+    }
+    setCodeError(null);
     upsert.mutate({ id: editingId, payload: form });
   }
 
