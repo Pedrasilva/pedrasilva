@@ -1468,6 +1468,7 @@
       "paidFromAccount": "Pago pela conta",
       "paidFromCard": "Pago com o cartão",
       "paidFromNone": "Não especificado",
+      "withholding": "Retenção na fonte IRS",
       "balanceDue": "Saldo em dívida"
     },
     "docType": {

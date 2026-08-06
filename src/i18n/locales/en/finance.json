@@ -1468,6 +1468,7 @@
       "paidFromAccount": "Paid from account",
       "paidFromCard": "Paid with card",
       "paidFromNone": "Not specified",
+      "withholding": "IRS withheld (retention)",
       "balanceDue": "Balance due"
     },
     "docType": {
