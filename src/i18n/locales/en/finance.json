@@ -1568,6 +1568,12 @@
       "note": "Zero-rated documents with a foreign VAT ID (e.g. EU B2B services). These are excluded from the totals above: the correct VAT return boxes depend on rules you should confirm with your accountant. No self-assessed VAT is calculated here.",
       "empty": "No reverse-charge documents in this period.",
       "manual": "Manual review"
+    },
+    "withholding": {
+      "title": "IRS withheld at source (retenção na fonte)",
+      "note": "Amounts withheld from Portuguese freelancer invoices (Fatura-Recibo). This is a separate obligation to the tax authority — it is not VAT and is never merged with the VAT totals above.",
+      "empty": "No IRS withholding in this period.",
+      "amount": "Withheld"
     }
   },
   "statements": {
