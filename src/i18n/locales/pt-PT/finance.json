@@ -477,7 +477,9 @@
       "recentTransactions": "Movimentos recentes",
       "viewAllTransactions": "Ver todos os movimentos",
       "noTransactions": "Sem movimentos para esta conta.",
-      "saved": "Conta actualizada"
+      "saved": "Conta actualizada",
+      "saveDenied": "Não tem permissão para editar contas bancárias."
+
     },
     "openingTag": "abertura {{amount}}",
     "check": {
