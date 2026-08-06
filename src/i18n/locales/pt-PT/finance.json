@@ -79,7 +79,10 @@
       "collaborator_link_allowed": "Permite ligação a colaborador",
       "reimbursable_default": "Reembolsável por defeito",
       "active": "Ativa"
-    }
+    },
+    "duplicate": "Duplicar",
+    "codeExists": "Este código já existe — escolha um código único.",
+    "ungrouped": "Sem grupo"
   },
   "inlineCounterparty": {
     "newSupplier": "Novo fornecedor",

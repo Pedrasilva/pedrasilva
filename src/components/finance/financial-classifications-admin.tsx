@@ -6,11 +6,12 @@
  * classifications. Other users see a read-only table (DB RLS also enforces).
  */
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Plus, Pencil } from "lucide-react";
+import { Search, Plus, Pencil, Copy, ChevronDown, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCan } from "@/hooks/use-permissions-v2";
@@ -128,6 +129,16 @@ export function FinancialClassificationsAdmin() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm());
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const toggleCollapsed = (key: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   const dataQ = useQuery({
     queryKey: ["finance", "classifications", "admin"],
@@ -165,6 +176,43 @@ export function FinancialClassificationsAdmin() {
     });
   }, [rows, q, natureFilter, policyFilter, activeFilter]);
 
+  /**
+   * Grouped view: subgroup/group rows act as headers for the category rows
+   * that hang beneath them (parent_id). Rows without a header parent fall
+   * into a trailing "ungrouped" section.
+   */
+  const groups = useMemo(() => {
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    const headers = new Map<string, { header: Row | null; children: Row[] }>();
+    const ungrouped: Row[] = [];
+
+    const ensure = (h: Row) => {
+      if (!headers.has(h.id)) headers.set(h.id, { header: h, children: [] });
+      return headers.get(h.id)!;
+    };
+
+    for (const r of filtered) {
+      if (r.level !== "category") {
+        ensure(r);
+        continue;
+      }
+      const parent = r.parent_id ? byId.get(r.parent_id) : undefined;
+      if (parent) ensure(parent).children.push(r);
+      else ungrouped.push(r);
+    }
+
+    const list = Array.from(headers.values()).sort((a, b) =>
+      (a.header?.code ?? "").localeCompare(b.header?.code ?? ""),
+    );
+    for (const g of list) g.children.sort((a, b) => a.code.localeCompare(b.code));
+    if (ungrouped.length) {
+      list.push({ header: null, children: ungrouped.sort((a, b) => a.code.localeCompare(b.code)) });
+    }
+    return list;
+  }, [filtered, rows]);
+
+
+
   const upsert = useMutation({
     mutationFn: async ({ id, payload }: { id: string | null; payload: FormState }) => {
       const clean = {
@@ -191,7 +239,13 @@ export function FinancialClassificationsAdmin() {
       setEditorOpen(false);
       setEditingId(null);
     },
-    onError: (e: any) => toast.error(e?.message ?? "Error"),
+    onError: (e: any) => {
+      if (e?.code === "23505" || /duplicate key|unique/i.test(e?.message ?? "")) {
+        setCodeError(t("financialClassifications.codeExists"));
+        return;
+      }
+      toast.error(e?.message ?? "Error");
+    },
   });
 
   const toggleActive = useMutation({
@@ -207,15 +261,8 @@ export function FinancialClassificationsAdmin() {
     onError: (e: any) => toast.error(e?.message ?? "Error"),
   });
 
-  function openCreate() {
-    setEditingId(null);
-    setForm(emptyForm());
-    setEditorOpen(true);
-  }
-
-  function openEdit(r: Row) {
-    setEditingId(r.id);
-    setForm({
+  function formFrom(r: Row): FormState {
+    return {
       code: r.code,
       name_pt: r.name_pt,
       name_en: r.name_en,
@@ -232,7 +279,28 @@ export function FinancialClassificationsAdmin() {
       active: r.active,
       sort_order: r.sort_order,
       notes: r.notes ?? "",
-    });
+    };
+  }
+
+  function openCreate() {
+    setEditingId(null);
+    setCodeError(null);
+    setForm(emptyForm());
+    setEditorOpen(true);
+  }
+
+  function openEdit(r: Row) {
+    setEditingId(r.id);
+    setCodeError(null);
+    setForm(formFrom(r));
+    setEditorOpen(true);
+  }
+
+  /** Duplicate: same parent (sibling) and every attribute, code left blank. */
+  function openDuplicate(r: Row) {
+    setEditingId(null);
+    setCodeError(null);
+    setForm({ ...formFrom(r), code: "" });
     setEditorOpen(true);
   }
 
@@ -241,6 +309,15 @@ export function FinancialClassificationsAdmin() {
       toast.error(t("financialClassifications.requiredFields"));
       return;
     }
+    const code = form.code.trim().toLowerCase();
+    const collidesWithOther = rows.some(
+      (r) => r.code.trim().toLowerCase() === code && r.id !== editingId,
+    );
+    if (collidesWithOther) {
+      setCodeError(t("financialClassifications.codeExists"));
+      return;
+    }
+    setCodeError(null);
     upsert.mutate({ id: editingId, payload: form });
   }
 
@@ -337,57 +414,178 @@ export function FinancialClassificationsAdmin() {
                   </TableCell>
                 </TableRow>
               )}
-              {filtered.map((r) => (
-                <TableRow key={r.id} className={r.active ? "" : "opacity-60"}>
-                  <TableCell className="font-mono text-xs font-semibold">{r.code}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">{isPt ? r.name_pt : r.name_en}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {isPt ? r.name_en : r.name_pt}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs capitalize">{r.level}</TableCell>
-                  <TableCell className="text-xs">
-                    {t(`financialClassifications.natures.${r.financial_nature}`)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[11px]">
-                      {t(`financialClassifications.policies.${r.spending_policy}`)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={r.active ? "default" : "secondary"} className="text-[10px]">
-                      {r.active
-                        ? t("financialClassifications.active")
-                        : t("financialClassifications.inactive")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {canEdit && (
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEdit(r)}
-                          aria-label={t("financialClassifications.edit")}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => toggleActive.mutate(r)}
-                          disabled={toggleActive.isPending}
-                        >
-                          {r.active
-                            ? t("financialClassifications.deactivate")
-                            : t("financialClassifications.reactivate")}
-                        </Button>
-                      </div>
+              {groups.map((g, gi) => {
+                const key = g.header?.id ?? "__ungrouped";
+                const isCollapsed = collapsed.has(key);
+                return (
+                  <Fragment key={key}>
+                    {g.header ? (
+                      <TableRow
+                        className={cn(
+                          "bg-muted/70 hover:bg-muted",
+                          gi > 0 && "border-t-4 border-t-border",
+                          !g.header.active && "opacity-60",
+                        )}
+                      >
+                        <TableCell className="font-mono text-xs font-bold">
+                          <button
+                            type="button"
+                            onClick={() => toggleCollapsed(key)}
+                            className="flex items-center gap-1"
+                            aria-expanded={!isCollapsed}
+                          >
+                            {isCollapsed ? (
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            ) : (
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            )}
+                            {g.header.code}
+                          </button>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm font-semibold">
+                            {isPt ? g.header.name_pt : g.header.name_en}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {isPt ? g.header.name_en : g.header.name_pt} · {g.children.length}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs capitalize font-medium">
+                          {g.header.level}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {t(`financialClassifications.natures.${g.header.financial_nature}`)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-[11px]">
+                            {t(`financialClassifications.policies.${g.header.spending_policy}`)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={g.header.active ? "default" : "secondary"}
+                            className="text-[10px]"
+                          >
+                            {g.header.active
+                              ? t("financialClassifications.active")
+                              : t("financialClassifications.inactive")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {canEdit && (
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openEdit(g.header!)}
+                                aria-label={t("financialClassifications.edit")}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openDuplicate(g.header!)}
+                                aria-label={t("financialClassifications.duplicate")}
+                                title={t("financialClassifications.duplicate")}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => toggleActive.mutate(g.header!)}
+                                disabled={toggleActive.isPending}
+                              >
+                                {g.header.active
+                                  ? t("financialClassifications.deactivate")
+                                  : t("financialClassifications.reactivate")}
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow className={cn("bg-muted/40", gi > 0 && "border-t-4 border-t-border")}>
+                        <TableCell colSpan={7} className="text-xs font-semibold">
+                          {t("financialClassifications.ungrouped")}
+                        </TableCell>
+                      </TableRow>
                     )}
-                  </TableCell>
-                </TableRow>
-              ))}
+
+                    {!isCollapsed &&
+                      g.children.map((r) => (
+                        <TableRow
+                          key={r.id}
+                          className={cn(
+                            "border-l-2 border-l-primary/40",
+                            !r.active && "opacity-60",
+                          )}
+                        >
+                          <TableCell className="pl-6 font-mono text-xs">{r.code}</TableCell>
+                          <TableCell className="pl-2">
+                            <div className="text-sm">{isPt ? r.name_pt : r.name_en}</div>
+                            <div className="text-[11px] text-muted-foreground">
+                              {isPt ? r.name_en : r.name_pt}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs capitalize">{r.level}</TableCell>
+                          <TableCell className="text-xs">
+                            {t(`financialClassifications.natures.${r.financial_nature}`)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-[11px]">
+                              {t(`financialClassifications.policies.${r.spending_policy}`)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={r.active ? "default" : "secondary"}
+                              className="text-[10px]"
+                            >
+                              {r.active
+                                ? t("financialClassifications.active")
+                                : t("financialClassifications.inactive")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {canEdit && (
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openEdit(r)}
+                                  aria-label={t("financialClassifications.edit")}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openDuplicate(r)}
+                                  aria-label={t("financialClassifications.duplicate")}
+                                  title={t("financialClassifications.duplicate")}
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => toggleActive.mutate(r)}
+                                  disabled={toggleActive.isPending}
+                                >
+                                  {r.active
+                                    ? t("financialClassifications.deactivate")
+                                    : t("financialClassifications.reactivate")}
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
@@ -412,8 +610,16 @@ export function FinancialClassificationsAdmin() {
                 <Label>{t("financialClassifications.code")}</Label>
                 <Input
                   value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  aria-invalid={!!codeError}
+                  className={cn(codeError && "border-destructive")}
+                  onChange={(e) => {
+                    setCodeError(null);
+                    setForm({ ...form, code: e.target.value });
+                  }}
                 />
+                {codeError && (
+                  <p className="mt-1 text-[11px] text-destructive">{codeError}</p>
+                )}
               </div>
               <div>
                 <Label>{t("financialClassifications.sortOrder")}</Label>
