@@ -25,6 +25,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
+import { Route as AppAdminPermissionsRouteImport } from './routes/_app.admin.permissions'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminProposalImagesRouteImport } from './routes/_app.admin.proposal-images'
 import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
@@ -187,6 +188,11 @@ const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
 const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
   id: '/admin/imports',
   path: '/admin/imports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminPermissionsRoute = AppAdminPermissionsRouteImport.update({
+  id: '/admin/permissions',
+  path: '/admin/permissions',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
@@ -647,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
+  '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
@@ -742,6 +749,7 @@ export interface FileRoutesByTo {
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
+  '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
@@ -841,6 +849,7 @@ export interface FileRoutesById {
   '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
+  '/_app/admin/permissions': typeof AppAdminPermissionsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
   '/_app/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/_app/admin/proposal-roles': typeof AppAdminProposalRolesRoute
@@ -941,6 +950,7 @@ export interface FileRouteTypes {
     | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
+    | '/admin/permissions'
     | '/admin/projects'
     | '/admin/proposal-images'
     | '/admin/proposal-roles'
@@ -1036,6 +1046,7 @@ export interface FileRouteTypes {
     | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
+    | '/admin/permissions'
     | '/admin/projects'
     | '/admin/proposal-images'
     | '/admin/proposal-roles'
@@ -1134,6 +1145,7 @@ export interface FileRouteTypes {
     | '/_app/admin/backups'
     | '/_app/admin/company-settings'
     | '/_app/admin/imports'
+    | '/_app/admin/permissions'
     | '/_app/admin/projects'
     | '/_app/admin/proposal-images'
     | '/_app/admin/proposal-roles'
@@ -1345,6 +1357,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/imports'
       fullPath: '/admin/imports'
       preLoaderRoute: typeof AppAdminImportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/permissions': {
+      id: '/_app/admin/permissions'
+      path: '/admin/permissions'
+      fullPath: '/admin/permissions'
+      preLoaderRoute: typeof AppAdminPermissionsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/projects': {
@@ -2120,6 +2139,7 @@ interface AppRouteChildren {
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
+  AppAdminPermissionsRoute: typeof AppAdminPermissionsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
   AppAdminProposalImagesRoute: typeof AppAdminProposalImagesRoute
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
@@ -2148,6 +2168,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
+  AppAdminPermissionsRoute: AppAdminPermissionsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
   AppAdminProposalImagesRoute: AppAdminProposalImagesRoute,
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
