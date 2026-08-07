@@ -154,7 +154,8 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
               <Download className="h-3.5 w-3.5" />
             </Button>
           </div>
-        ))}
+          );
+        })}
 
       </DropdownMenuContent>
     </DropdownMenu>
