@@ -58,6 +58,13 @@ const GROUPS: AdminGroup[] = [
     title: "Utilizadores e permissões",
     links: [
       {
+        to: "/admin/permissions",
+        label: "Permissões (v2)",
+        description:
+          "Perfis base por função e autorizações/revogações individuais por utilizador.",
+        icon: Shield,
+      },
+      {
         to: "/hr/admin",
         label: "Permissões e administração HR",
         description:
