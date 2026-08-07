@@ -27,6 +27,8 @@ export type ContractBaselineStage = {
   baseline_id: string;
   name: string;
   parent_name: string | null;
+  /** Stable link to the live pm_stages row (null for pre-existing baselines). */
+  live_stage_id?: string | null;
   start_date: string | null;
   end_date: string | null;
   budget: number | null;

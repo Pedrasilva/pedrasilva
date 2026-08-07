@@ -551,8 +551,11 @@ function QuoteDetail() {
         const stageNameById = new Map<string, string>(
           qStages.map((s: { id: string; name: string }) => [s.id, s.name]),
         );
-        const baselineStageRows = (qStages as Array<{ name: string; parent_stage_id: string | null; start_date: string; end_date: string; budget: number | null; billing_model: string | null; stage_kind: string | null; sort_order: number | null }>).map((s, i) => ({
-          project_id: project.id,
+        const baselineStageRows = (qStages as Array<{ id: string; name: string; parent_stage_id: string | null; start_date: string; end_date: string; budget: number | null; billing_model: string | null; stage_kind: string | null; sort_order: number | null }>).map((s, i) => ({
+          baseline_id: baselineRow.id,
+          // Stable link to the live plan row this baseline stage came from.
+          // Nullable: older baselines predate this and fall back to name matching.
+          live_stage_id: stageIdMap.get(s.id) ?? null,
           name: s.name,
           parent_name: s.parent_stage_id ? (stageNameById.get(s.parent_stage_id) ?? null) : null,
           start_date: s.start_date,

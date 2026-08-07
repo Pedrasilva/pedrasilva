@@ -5133,6 +5133,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           id: string
+          live_stage_id: string | null
           name: string
           parent_name: string | null
           sort_order: number
@@ -5146,6 +5147,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          live_stage_id?: string | null
           name: string
           parent_name?: string | null
           sort_order?: number
@@ -5159,6 +5161,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          live_stage_id?: string | null
           name?: string
           parent_name?: string | null
           sort_order?: number
@@ -5171,6 +5174,13 @@ export type Database = {
             columns: ["baseline_id"]
             isOneToOne: false
             referencedRelation: "pm_project_contract_baseline"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_contract_baseline_stages_live_stage_id_fkey"
+            columns: ["live_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
             referencedColumns: ["id"]
           },
         ]

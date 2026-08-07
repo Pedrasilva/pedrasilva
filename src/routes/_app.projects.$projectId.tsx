@@ -67,6 +67,7 @@ import { ApprovalsPanel } from "@/components/projects/approvals-panel";
 import { useProjectPendingHours } from "@/lib/projects/use-hour-approvals";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
+import { ContractDiffCard } from "@/components/projects/contract-diff-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { ProjectSyncStatusBadge } from "@/components/projects/project-sync-status-badge";
 import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
@@ -870,6 +871,7 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
+                <ContractDiffCard projectId={projectId} />
                 {/* Budget control moved to A&P tab */}
 
 
