@@ -206,7 +206,12 @@ export function useSendProposal(proposalId: string | undefined) {
           : proposal.status;
       await sb
         .from("psa_proposals")
-        .update({ status: nextStatus, sent_at: new Date().toISOString() })
+        .update({
+          status: nextStatus,
+          sent_at: new Date().toISOString(),
+          // lineage is now carried by the sent revision itself
+          restored_from_snapshot_id: null,
+        })
         .eq("id", proposalId);
     },
     onSuccess: () => {
