@@ -98,7 +98,11 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
             Ainda não foi enviada nenhuma revisão.
           </div>
         )}
-        {revisions.map((r) => (
+        {revisions.map((r) => {
+          const basedOn = r.restored_from_snapshot_id
+            ? revisions.find((x) => x.id === r.restored_from_snapshot_id)
+            : null;
+          return (
           <div
             key={r.id}
             className="flex items-center gap-2 rounded-sm px-2 py-1.5 hover:bg-accent"
@@ -111,6 +115,11 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
               <div className="truncate text-[11px] text-muted-foreground">
                 {formatDate(r.created_at)} · {r.pdf_filename ?? "sem ficheiro"}
               </div>
+              {basedOn && (
+                <div className="text-[11px] text-indigo-600">
+                  baseada na Rev {String(basedOn.rev_number).padStart(2, "0")}
+                </div>
+              )}
               {!revisionIsViewable(r) && (
                 <div className="text-[11px] text-amber-700">
                   Sem dados arquivados — só PDF
@@ -145,7 +154,8 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
               <Download className="h-3.5 w-3.5" />
             </Button>
           </div>
-        ))}
+          );
+        })}
 
       </DropdownMenuContent>
     </DropdownMenu>

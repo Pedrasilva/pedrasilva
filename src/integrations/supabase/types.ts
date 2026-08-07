@@ -7270,6 +7270,7 @@ export type Database = {
           pdf_storage_path: string | null
           proposal_id: string
           reason: string | null
+          restored_from_snapshot_id: string | null
           rev_number: number | null
           snapshot: Json
         }
@@ -7284,6 +7285,7 @@ export type Database = {
           pdf_storage_path?: string | null
           proposal_id: string
           reason?: string | null
+          restored_from_snapshot_id?: string | null
           rev_number?: number | null
           snapshot: Json
         }
@@ -7298,6 +7300,7 @@ export type Database = {
           pdf_storage_path?: string | null
           proposal_id?: string
           reason?: string | null
+          restored_from_snapshot_id?: string | null
           rev_number?: number | null
           snapshot?: Json
         }
@@ -7307,6 +7310,13 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "psa_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "psa_proposal_snapshots_restored_from_snapshot_id_fkey"
+            columns: ["restored_from_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposal_snapshots"
             referencedColumns: ["id"]
           },
         ]
@@ -7322,6 +7332,7 @@ export type Database = {
           outcome: string | null
           project_snapshot: Json
           quote_id: string | null
+          restored_from_snapshot_id: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["psa_proposal_status"]
           style_settings: Json
@@ -7339,6 +7350,7 @@ export type Database = {
           outcome?: string | null
           project_snapshot?: Json
           quote_id?: string | null
+          restored_from_snapshot_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["psa_proposal_status"]
           style_settings?: Json
@@ -7356,6 +7368,7 @@ export type Database = {
           outcome?: string | null
           project_snapshot?: Json
           quote_id?: string | null
+          restored_from_snapshot_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["psa_proposal_status"]
           style_settings?: Json
@@ -7369,6 +7382,13 @@ export type Database = {
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "psa_proposals_restored_from_snapshot_id_fkey"
+            columns: ["restored_from_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposal_snapshots"
             referencedColumns: ["id"]
           },
         ]
@@ -9782,6 +9802,7 @@ export type Database = {
         Returns: number
       }
       psa_next_rev_number: { Args: { _proposal_id: string }; Returns: number }
+      psa_restore_revision: { Args: { _snapshot_id: string }; Returns: string }
       quote_instantiate_template: {
         Args: {
           _base_start_date?: string

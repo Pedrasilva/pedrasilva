@@ -28,9 +28,36 @@ export type ProposalRevision = {
     blocks: PsaProposalBlock[];
     quote_data?: FrozenQuoteData | null;
   };
+  /** Set when this revision was sent after restoring an earlier revision. */
+  restored_from_snapshot_id: string | null;
   created_by: string | null;
   created_at: string;
 };
+
+/**
+ * Restores a past sent revision into the single live editable draft.
+ *
+ * DESTRUCTIVE for the current unsent draft; already-sent revisions stay
+ * frozen and untouched. Lineage is stamped on the proposal and carried onto
+ * the next revision that gets sent.
+ */
+export function useRestoreRevision(proposalId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (snapshotId: string) => {
+      const { error } = await sb.rpc("psa_restore_revision", {
+        _snapshot_id: snapshotId,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["psa-proposal", proposalId] });
+      qc.invalidateQueries({ queryKey: ["psa-proposal-blocks", proposalId] });
+      qc.invalidateQueries({ queryKey: ["psa-proposal-revisions", proposalId] });
+      qc.invalidateQueries();
+    },
+  });
+}
 
 /** True when this revision carries a frozen quote payload it can render from. */
 export function revisionIsViewable(r: ProposalRevision): boolean {
@@ -162,6 +189,7 @@ export function useSendProposal(proposalId: string | undefined) {
         pdf_filename: `${filename}.pdf`,
         pdf_mime: "application/pdf",
         snapshot: { proposal, blocks: blocks ?? [], quote_data: quoteData },
+        restored_from_snapshot_id: proposal?.restored_from_snapshot_id ?? null,
         created_by: userData?.user?.id ?? null,
       });
 
@@ -178,7 +206,12 @@ export function useSendProposal(proposalId: string | undefined) {
           : proposal.status;
       await sb
         .from("psa_proposals")
-        .update({ status: nextStatus, sent_at: new Date().toISOString() })
+        .update({
+          status: nextStatus,
+          sent_at: new Date().toISOString(),
+          // lineage is now carried by the sent revision itself
+          restored_from_snapshot_id: null,
+        })
         .eq("id", proposalId);
     },
     onSuccess: () => {
