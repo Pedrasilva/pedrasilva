@@ -189,6 +189,7 @@ export function useSendProposal(proposalId: string | undefined) {
         pdf_filename: `${filename}.pdf`,
         pdf_mime: "application/pdf",
         snapshot: { proposal, blocks: blocks ?? [], quote_data: quoteData },
+        restored_from_snapshot_id: proposal?.restored_from_snapshot_id ?? null,
         created_by: userData?.user?.id ?? null,
       });
 
