@@ -2137,30 +2137,36 @@ export type Database = {
       }
       email_sync_state: {
         Row: {
+          connector_secret_name: string
           created_at: string
           id: string
           inbox_address: string
+          is_active: boolean
+          label: string | null
           last_checked_at: string | null
           last_history_id: string | null
-          oauth_refresh_token: string | null
           updated_at: string
         }
         Insert: {
+          connector_secret_name?: string
           created_at?: string
           id?: string
           inbox_address: string
+          is_active?: boolean
+          label?: string | null
           last_checked_at?: string | null
           last_history_id?: string | null
-          oauth_refresh_token?: string | null
           updated_at?: string
         }
         Update: {
+          connector_secret_name?: string
           created_at?: string
           id?: string
           inbox_address?: string
+          is_active?: boolean
+          label?: string | null
           last_checked_at?: string | null
           last_history_id?: string | null
-          oauth_refresh_token?: string | null
           updated_at?: string
         }
         Relationships: []
