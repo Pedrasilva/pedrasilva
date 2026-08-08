@@ -48,7 +48,9 @@ import {
 } from "@/components/quotes/quote-workflow-stepper";
 import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
 import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
-import { QuoteLockBanner } from "@/components/quotes/quote-lock-banner";
+import { QuoteLockGuard } from "@/components/quotes/quote-lock-guard";
+import { QuoteRevisionsButton } from "@/components/quotes/quote-revisions-button";
+
 import { useAuth } from "@/hooks/use-auth";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
@@ -890,7 +892,9 @@ function QuoteDetail() {
               {t("workspace.payment.headerUpdate")}
             </Button>
           )}
+          <QuoteRevisionsButton quoteId={quoteId} />
           <QuoteBuildSettingsDialog quoteId={quoteId} disabled={isLocked && !isAdmin} />
+
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -910,13 +914,8 @@ function QuoteDetail() {
         </div>
       </div>
 
-      {isLocked && (
-        <QuoteLockBanner
-          projectId={quote.pm_project_id ?? lockedProjectId}
-          projectName={null}
-          isAdmin={isAdmin}
-        />
-      )}
+      <QuoteLockGuard quoteId={quoteId} />
+
 
       <fieldset disabled={isLocked && !isAdmin} className="contents">
 

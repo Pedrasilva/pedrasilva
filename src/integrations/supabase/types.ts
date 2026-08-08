@@ -9831,6 +9831,10 @@ export type Database = {
         }
         Returns: string
       }
+      quote_unlock_for_revision: {
+        Args: { _quote_id: string }
+        Returns: undefined
+      }
       remove_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["pm_role"]
