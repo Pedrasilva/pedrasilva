@@ -237,7 +237,7 @@ function EmailRow({
 
           <Separator />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {canSend && (
               <Button
                 size="sm"
