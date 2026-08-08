@@ -910,13 +910,8 @@ function QuoteDetail() {
         </div>
       </div>
 
-      {isLocked && (
-        <QuoteLockBanner
-          projectId={quote.pm_project_id ?? lockedProjectId}
-          projectName={null}
-          isAdmin={isAdmin}
-        />
-      )}
+      <QuoteLockGuard quoteId={quoteId} />
+
 
       <fieldset disabled={isLocked && !isAdmin} className="contents">
 
