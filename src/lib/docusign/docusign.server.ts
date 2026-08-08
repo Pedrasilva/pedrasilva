@@ -9,7 +9,9 @@
  *   DOCUSIGN_INTEGRATION_KEY   — the app's Integration Key (client id)
  *   DOCUSIGN_USER_ID           — API Username (GUID) of the impersonated user
  *   DOCUSIGN_ACCOUNT_ID        — API Account ID (GUID)
- *   DOCUSIGN_PRIVATE_KEY       — RSA private key (PKCS#8 PEM) for that app
+ *   DOCUSIGN_PRIVATE_KEY       — RSA private key PEM for that app; either
+ *                                PKCS#1 (`BEGIN RSA PRIVATE KEY`, DocuSign's
+ *                                default download) or PKCS#8 (`BEGIN PRIVATE KEY`)
  *   DOCUSIGN_BASE_URI          — e.g. https://demo.docusign.net/restapi
  *                                or   https://eu.docusign.net/restapi
  *   DOCUSIGN_AUTH_BASE         — account-d.docusign.com (demo) or account.docusign.com
@@ -76,7 +78,51 @@ function b64url(bytes: Uint8Array | string): string {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+function encodeDerLength(len: number): Uint8Array {
+  if (len < 0x80) return new Uint8Array([len]);
+  const bytes: number[] = [];
+  let l = len;
+  while (l > 0) {
+    bytes.unshift(l & 0xff);
+    l = l >>> 8;
+  }
+  return new Uint8Array([0x80 | bytes.length, ...bytes]);
+}
+
+function concatBytes(...arrs: Uint8Array[]): Uint8Array {
+  const total = arrs.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const a of arrs) {
+    out.set(a, offset);
+    offset += a.length;
+  }
+  return out;
+}
+
+/**
+ * Wraps a raw PKCS#1 RSAPrivateKey DER in the PKCS#8 PrivateKeyInfo
+ * structure WebCrypto requires. DocuSign's "Generate RSA" download is
+ * PKCS#1 (`-----BEGIN RSA PRIVATE KEY-----`), not PKCS#8, so this keeps
+ * either format working without a manual openssl conversion step.
+ */
+function pkcs1ToPkcs8(pkcs1Der: Uint8Array): Uint8Array {
+  // rsaEncryption AlgorithmIdentifier (OID 1.2.840.113549.1.1.1) + NULL params.
+  const algId = new Uint8Array([
+    0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00,
+  ]);
+  const version = new Uint8Array([0x02, 0x01, 0x00]); // INTEGER 0
+  const octetString = concatBytes(
+    new Uint8Array([0x04]),
+    encodeDerLength(pkcs1Der.length),
+    pkcs1Der,
+  );
+  const bodyLen = version.length + algId.length + octetString.length;
+  return concatBytes(new Uint8Array([0x30]), encodeDerLength(bodyLen), version, algId, octetString);
+}
+
 function pemToPkcs8(pem: string): ArrayBuffer {
+  const isPkcs1 = /-----BEGIN RSA PRIVATE KEY-----/.test(pem);
   const body = pem
     .replace(/-----BEGIN [^-]+-----/g, "")
     .replace(/-----END [^-]+-----/g, "")
@@ -84,7 +130,8 @@ function pemToPkcs8(pem: string): ArrayBuffer {
   const raw = atob(body);
   const buf = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
-  return buf.buffer;
+  const der = isPkcs1 ? pkcs1ToPkcs8(buf) : buf;
+  return der.buffer as ArrayBuffer;
 }
 
 async function signJwt(cfg: DocusignConfig): Promise<string> {
