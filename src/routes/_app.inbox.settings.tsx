@@ -129,18 +129,20 @@ function InboxSettingsPage() {
           {rows.map((r) => (
             <div
               key={r.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-3"
+              className="grid gap-3 rounded-md border px-4 py-3 md:flex md:flex-wrap md:items-center md:justify-between"
             >
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{r.inbox_address}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="break-all font-medium">
+                    {r.inbox_address}
+                  </span>
                   <Badge variant={r.is_active ? "secondary" : "outline"}>
                     {r.is_active
                       ? t("inbox:settings.active")
                       : t("inbox:settings.inactive")}
                   </Badge>
                 </div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
+                <div className="mt-0.5 break-words text-xs text-muted-foreground">
                   {r.label ? `${r.label} · ` : ""}
                   {r.connector_secret_name} · {t("inbox:settings.lastChecked")}:{" "}
                   {r.last_checked_at
@@ -148,7 +150,7 @@ function InboxSettingsPage() {
                     : t("inbox:settings.never")}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-3 md:justify-end">
                 <Switch
                   checked={!!r.is_active}
                   onCheckedChange={(v) =>
@@ -166,6 +168,7 @@ function InboxSettingsPage() {
               </div>
             </div>
           ))}
+
         </div>
       </Card>
 
@@ -178,7 +181,7 @@ function InboxSettingsPage() {
           {t("inbox:settings.connectorSteps")}
         </p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-1.5">
             <Label htmlFor="inbox-address">{t("inbox:settings.address")}</Label>
             <Input

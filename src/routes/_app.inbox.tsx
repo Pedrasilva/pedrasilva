@@ -49,7 +49,7 @@ function InboxLayout() {
         </h1>
       </div>
 
-      <nav className="flex gap-1 border-b">
+      <nav className="-mx-4 flex gap-1 overflow-x-auto border-b px-4 sm:mx-0 sm:px-0">
         {tabs.map((tab) => {
           const active = tab.exact
             ? loc.pathname === tab.to || loc.pathname === `${tab.to}/`
