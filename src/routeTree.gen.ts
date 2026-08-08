@@ -48,6 +48,7 @@ import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-fich
 import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
+import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -306,6 +307,11 @@ const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
   id: '/valor-bo',
   path: '/valor-bo',
   getParentRoute: () => AppHrRoute,
+} as any)
+const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppInboxRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
   id: '/projects/',
@@ -653,7 +659,7 @@ export interface FileRoutesByFullPath {
   '/crm': typeof AppCrmRouteWithChildren
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
-  '/inbox': typeof AppInboxRoute
+  '/inbox': typeof AppInboxRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -692,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/crm/': typeof AppCrmIndexRoute
   '/finance/': typeof AppFinanceIndexRoute
   '/hr/': typeof AppHrIndexRoute
+  '/inbox/': typeof AppInboxIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/proposals/': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -749,7 +756,6 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/inbox': typeof AppInboxRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -788,6 +794,7 @@ export interface FileRoutesByTo {
   '/crm': typeof AppCrmIndexRoute
   '/finance': typeof AppFinanceIndexRoute
   '/hr': typeof AppHrIndexRoute
+  '/inbox': typeof AppInboxIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/proposals': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -850,7 +857,7 @@ export interface FileRoutesById {
   '/_app/crm': typeof AppCrmRouteWithChildren
   '/_app/finance': typeof AppFinanceRouteWithChildren
   '/_app/hr': typeof AppHrRouteWithChildren
-  '/_app/inbox': typeof AppInboxRoute
+  '/_app/inbox': typeof AppInboxRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -890,6 +897,7 @@ export interface FileRoutesById {
   '/_app/crm/': typeof AppCrmIndexRoute
   '/_app/finance/': typeof AppFinanceIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
+  '/_app/inbox/': typeof AppInboxIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/proposals/': typeof AppProposalsIndexRoute
   '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -992,6 +1000,7 @@ export interface FileRouteTypes {
     | '/crm/'
     | '/finance/'
     | '/hr/'
+    | '/inbox/'
     | '/projects/'
     | '/proposals/'
     | '/crm/accounts/$accountId'
@@ -1049,7 +1058,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/inbox'
     | '/api/notify-expense'
     | '/'
     | '/.lovable/oauth/consent'
@@ -1088,6 +1096,7 @@ export interface FileRouteTypes {
     | '/crm'
     | '/finance'
     | '/hr'
+    | '/inbox'
     | '/projects'
     | '/proposals'
     | '/crm/accounts/$accountId'
@@ -1189,6 +1198,7 @@ export interface FileRouteTypes {
     | '/_app/crm/'
     | '/_app/finance/'
     | '/_app/hr/'
+    | '/_app/inbox/'
     | '/_app/projects/'
     | '/_app/proposals/'
     | '/_app/crm/accounts/$accountId'
@@ -1531,6 +1541,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/valor-bo'
       preLoaderRoute: typeof AppHrValorBoRouteImport
       parentRoute: typeof AppHrRoute
+    }
+    '/_app/inbox/': {
+      id: '/_app/inbox/'
+      path: '/'
+      fullPath: '/inbox/'
+      preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppInboxRoute
     }
     '/_app/projects/': {
       id: '/_app/projects/'
@@ -2128,6 +2145,18 @@ const AppHrRouteChildren: AppHrRouteChildren = {
 
 const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
 
+interface AppInboxRouteChildren {
+  AppInboxIndexRoute: typeof AppInboxIndexRoute
+}
+
+const AppInboxRouteChildren: AppInboxRouteChildren = {
+  AppInboxIndexRoute: AppInboxIndexRoute,
+}
+
+const AppInboxRouteWithChildren = AppInboxRoute._addFileChildren(
+  AppInboxRouteChildren,
+)
+
 interface AppProjectsProjectIdRouteChildren {
   AppProjectsProjectIdAllocationsRoute: typeof AppProjectsProjectIdAllocationsRoute
 }
@@ -2154,7 +2183,7 @@ interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRouteWithChildren
   AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
-  AppInboxRoute: typeof AppInboxRoute
+  AppInboxRoute: typeof AppInboxRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
@@ -2184,7 +2213,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRouteWithChildren,
   AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
-  AppInboxRoute: AppInboxRoute,
+  AppInboxRoute: AppInboxRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
