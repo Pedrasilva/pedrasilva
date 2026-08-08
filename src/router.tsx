@@ -54,6 +54,16 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
 export const getRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
+    // Any write rejected by the unified quote lock is turned into a
+    // prompt-to-revise dialog instead of a raw database error.
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        if (isQuoteLockError(error)) {
+          emitQuoteLockBlocked(isConvertedLockError(error));
+        }
+      },
+    }),
+
   });
   const router = createRouter({
     routeTree,
