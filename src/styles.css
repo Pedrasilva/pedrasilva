@@ -881,6 +881,14 @@
 .proposal-print-document .proposal-signature-line {
   height: 14mm;
   border-bottom: 0.5pt solid #111;
+  display: flex;
+  align-items: flex-end;
+}
+.proposal-print-document .proposal-signature-date-line {
+  height: 10mm;
+  border-bottom: 0.5pt solid #111;
+  display: flex;
+  align-items: flex-end;
 }
 .proposal-print-document .proposal-signature-label {
   font-family: var(--psa-heading-font);
@@ -889,6 +897,15 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #555;
+}
+/* DocuSign anchor text. Kept as real text (not display:none) so browser
+   print-to-PDF preserves it; rendered near-white so it is invisible in
+   practice on screen and on paper. */
+.docusign-anchor {
+  font-size: 6px;
+  line-height: 1;
+  color: #f2f2f2;
+  user-select: none;
 }
 
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
@@ -1228,8 +1245,16 @@
     margin-top: 0;
   }
   /* Keep the signature lines crisp and dark on paper. */
-  .proposal-print-area .proposal-signature-line {
+  .proposal-print-area .proposal-signature-line,
+  .proposal-print-area .proposal-signature-date-line {
     border-bottom-color: #111 !important;
+  }
+  /* Anchor text must survive print-to-PDF: visible to the PDF text layer,
+     invisible to the eye. */
+  .proposal-print-area .docusign-anchor {
+    color: #f2f2f2 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 

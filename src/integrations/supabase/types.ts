@@ -7385,6 +7385,84 @@ export type Database = {
           },
         ]
       }
+      psa_proposal_signatures: {
+        Row: {
+          client_signed_at: string | null
+          client_signer_email: string | null
+          client_signer_name: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          docusign_envelope_id: string | null
+          id: string
+          proposal_id: string
+          psa_signed_at: string | null
+          psa_signer_email: string | null
+          psa_signer_name: string | null
+          sent_at: string
+          signed_pdf_storage_path: string | null
+          snapshot_id: string | null
+          status: string
+          status_note: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_signed_at?: string | null
+          client_signer_email?: string | null
+          client_signer_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          docusign_envelope_id?: string | null
+          id?: string
+          proposal_id: string
+          psa_signed_at?: string | null
+          psa_signer_email?: string | null
+          psa_signer_name?: string | null
+          sent_at?: string
+          signed_pdf_storage_path?: string | null
+          snapshot_id?: string | null
+          status?: string
+          status_note?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_signed_at?: string | null
+          client_signer_email?: string | null
+          client_signer_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          docusign_envelope_id?: string | null
+          id?: string
+          proposal_id?: string
+          psa_signed_at?: string | null
+          psa_signer_email?: string | null
+          psa_signer_name?: string | null
+          sent_at?: string
+          signed_pdf_storage_path?: string | null
+          snapshot_id?: string | null
+          status?: string
+          status_note?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psa_proposal_signatures_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "psa_proposal_signatures_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposal_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       psa_proposal_snapshots: {
         Row: {
           created_at: string

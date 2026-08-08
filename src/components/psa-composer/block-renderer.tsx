@@ -1484,13 +1484,26 @@ export function BlockBody({
             <p className="proposal-signature-hint">{L.proposalValidity}</p>
           )}
           <div className="proposal-signature-grid">
+            {/* The `docusign-anchor` spans are DocuSign anchor-text markers.
+                They must stay as real (near-invisible) text — `display:none`
+                gets stripped by browser print-to-PDF and breaks anchoring. */}
             <div className="proposal-signature-cell">
-              <div className="proposal-signature-line" />
+              <div className="proposal-signature-line">
+                <span className="docusign-anchor">/csig/</span>
+              </div>
               <div className="proposal-signature-label">{L.clientSignatory}</div>
+              <div className="proposal-signature-date-line">
+                <span className="docusign-anchor">/cdate/</span>
+              </div>
             </div>
             <div className="proposal-signature-cell">
-              <div className="proposal-signature-line" />
+              <div className="proposal-signature-line">
+                <span className="docusign-anchor">/psig/</span>
+              </div>
               <div className="proposal-signature-label">{L.psaSignatory}</div>
+              <div className="proposal-signature-date-line">
+                <span className="docusign-anchor">/pdate/</span>
+              </div>
             </div>
           </div>
         </div>

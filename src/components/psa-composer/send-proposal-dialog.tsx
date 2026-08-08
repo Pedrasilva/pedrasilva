@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useSendProposal } from "@/lib/psa-proposal/use-proposal-revisions";
+import {
+  useSendForSignature,
+  useSignatureDefaults,
+} from "@/lib/psa-proposal/use-proposal-signatures";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { printProposalDocument } from "./composer-top-bar";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
 
@@ -38,17 +45,28 @@ export function SendProposalDialog({
   onOpenChange,
   proposal,
   nextRev,
+  mode = "plain",
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   proposal: PsaProposal;
   nextRev: number;
+  /** "signature" additionally dispatches a DocuSign envelope after sending. */
+  mode?: "plain" | "signature";
 }) {
   const filename = buildProposalBaseFilename(proposal, nextRev);
   const [file, setFile] = useState<File | null>(null);
   const [printed, setPrinted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const send = useSendProposal(proposal.id);
+  const forSignature = mode === "signature";
+  const signatureDefaults = useSignatureDefaults(proposal.id, open && forSignature);
+  const sendForSignature = useSendForSignature(proposal.id);
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const defaults = signatureDefaults.data;
+  const nameValue = clientName || defaults?.name || "";
+  const emailValue = clientEmail || defaults?.email || "";
 
   const openPrint = useCallback(() => {
     // Use the same isolated print window as "Descarregar › PDF": printing the
@@ -97,14 +115,45 @@ export function SendProposalDialog({
       toast.error("Adiciona o PDF gerado antes de enviar.");
       return;
     }
+    if (forSignature && (!nameValue.trim() || !emailValue.trim())) {
+      toast.error("Indica o nome e email do signatário do cliente.");
+      return;
+    }
     send.mutate(
       { pdfBlob: file, filename },
       {
-        onSuccess: () => {
-          toast.success(`Revisão ${String(nextRev).padStart(2, "0")} guardada.`);
-          setFile(null);
-          setPrinted(false);
-          onOpenChange(false);
+        onSuccess: (result) => {
+          const revLabel = String(nextRev).padStart(2, "0");
+          if (!forSignature) {
+            toast.success(`Revisão ${revLabel} guardada.`);
+            setFile(null);
+            setPrinted(false);
+            onOpenChange(false);
+            return;
+          }
+          sendForSignature.mutate(
+            {
+              snapshotId: result.snapshotId,
+              clientName: nameValue.trim(),
+              clientEmail: emailValue.trim(),
+            },
+            {
+              onSuccess: () => {
+                toast.success(
+                  `Revisão ${revLabel} enviada para assinatura — o cliente assina primeiro.`,
+                );
+                setFile(null);
+                setPrinted(false);
+                onOpenChange(false);
+              },
+              onError: (err: unknown) => {
+                const msg = err instanceof Error ? err.message : "Erro a criar envelope DocuSign";
+                toast.error(
+                  `Revisão ${revLabel} guardada, mas o envio para assinatura falhou: ${msg}`,
+                );
+              },
+            },
+          );
         },
         onError: (err: unknown) => {
           const msg = err instanceof Error ? err.message : "Erro a enviar proposta";
@@ -119,7 +168,9 @@ export function SendProposalDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Send className="h-4 w-4" /> Enviar Proposta — Rev {String(nextRev).padStart(2, "0")}
+            <Send className="h-4 w-4" />{" "}
+            {forSignature ? "Enviar para assinatura" : "Enviar Proposta"} — Rev{" "}
+            {String(nextRev).padStart(2, "0")}
           </DialogTitle>
           <DialogDescription>
             Esta ação bloqueia a revisão atual como imutável e guarda o PDF no
@@ -174,15 +225,65 @@ export function SendProposalDialog({
               />
             </div>
           </div>
+
+          {forSignature && (
+            <div className="space-y-2 rounded-md border border-sky-200 bg-sky-50/60 p-3">
+              <div className="text-sm font-medium">3. Signatários</div>
+              {defaults?.configError && (
+                <Alert variant="destructive">
+                  <AlertDescription className="text-xs">
+                    {defaults.configError}
+                  </AlertDescription>
+                </Alert>
+              )}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Nome do cliente</Label>
+                  <Input
+                    value={nameValue}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Nome do signatário"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Email do cliente</Label>
+                  <Input
+                    type="email"
+                    value={emailValue}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="email@cliente.pt"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                O cliente assina primeiro. Depois segue automaticamente para
+                contra-assinatura de{" "}
+                <strong>{defaults?.psaSignerName ?? "signatário PSA (por configurar)"}</strong>.
+                A proposta só fica <em>aceite</em> quando ambas as assinaturas estiverem concluídas.
+              </p>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSend} disabled={!file || send.isPending}>
+          <Button
+            onClick={handleSend}
+            disabled={
+              !file ||
+              send.isPending ||
+              sendForSignature.isPending ||
+              (forSignature && defaults?.configured === false)
+            }
+          >
             <FileDown className="mr-2 h-4 w-4" />
-            {send.isPending ? "A guardar…" : `Enviar Rev ${String(nextRev).padStart(2, "0")}`}
+            {send.isPending || sendForSignature.isPending
+              ? "A enviar…"
+              : forSignature
+                ? `Enviar Rev ${String(nextRev).padStart(2, "0")} para assinatura`
+                : `Enviar Rev ${String(nextRev).padStart(2, "0")}`}
           </Button>
         </DialogFooter>
       </DialogContent>
