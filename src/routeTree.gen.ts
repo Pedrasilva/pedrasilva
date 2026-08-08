@@ -109,6 +109,7 @@ import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/public/hooks/docusign-connect'
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
+import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
 
@@ -651,6 +652,11 @@ const ApiPublicHooksGmailIntakeRoute =
     path: '/api/public/hooks/gmail-intake',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksInboxPollRoute = ApiPublicHooksInboxPollRouteImport.update({
+  id: '/api/public/hooks/inbox-poll',
+  path: '/api/public/hooks/inbox-poll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   id: '/api/public/hooks/run-backup',
   path: '/api/public/hooks/run-backup',
@@ -760,6 +766,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
+  '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
@@ -858,6 +865,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
+  '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/companies': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
@@ -963,6 +971,7 @@ export interface FileRoutesById {
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
+  '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
@@ -1068,6 +1077,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
+    | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/crm/companies/'
     | '/crm/opportunities/'
@@ -1166,6 +1176,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
+    | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/crm/companies'
     | '/crm/opportunities'
@@ -1270,6 +1281,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
+    | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/_app/crm/companies/'
     | '/_app/crm/opportunities/'
@@ -1290,6 +1302,7 @@ export interface RootRouteChildren {
   ApiPublicHooksDocusignConnectRoute: typeof ApiPublicHooksDocusignConnectRoute
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
+  ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
 }
 
@@ -1995,6 +2008,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksGmailIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/inbox-poll': {
+      id: '/api/public/hooks/inbox-poll'
+      path: '/api/public/hooks/inbox-poll'
+      fullPath: '/api/public/hooks/inbox-poll'
+      preLoaderRoute: typeof ApiPublicHooksInboxPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/run-backup': {
       id: '/api/public/hooks/run-backup'
       path: '/api/public/hooks/run-backup'
@@ -2298,6 +2318,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksDocusignConnectRoute: ApiPublicHooksDocusignConnectRoute,
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
+  ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
 }
 export const routeTree = rootRouteImport
