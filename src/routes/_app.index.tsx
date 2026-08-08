@@ -26,6 +26,7 @@ import {
   Palmtree,
   CalendarHeart,
   Quote,
+  Inbox,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/_app/")({
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects" | "/finance";
+  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox";
   number: string;
   titleKey: string;
   subtitleKey: string;
@@ -96,6 +97,15 @@ const MODULES: ModuleDef[] = [
     icon: Wallet,
     anyOf: ["finance.dashboard"],
   },
+  {
+    to: "/inbox",
+    number: "05",
+    titleKey: "inbox:module.title",
+    subtitleKey: "inbox:module.subtitle",
+    descriptionKey: "inbox:module.description",
+    icon: Inbox,
+    anyOf: ["inbox.triage"],
+  },
 ];
 
 const QUOTES = [
@@ -145,7 +155,7 @@ function quoteOfTheDay() {
 
 
 function HubPage() {
-  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance"]);
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
