@@ -62,6 +62,7 @@ import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import { SendProposalDialog } from "./send-proposal-dialog";
+import { ProposalSignatureStatus } from "./signature-status";
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import { VersionsPanel } from "./versions-panel";
 import { ImportTemplateDialog } from "./import-template-dialog";
@@ -97,6 +98,7 @@ export function ComposerTopBar({
   const update = useUpdateProposal(proposal.id);
   const [convertOpen, setConvertOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
+  const [signOpen, setSignOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
   const { nextRev } = useNextRevNumber(proposal.id);
   const historical = useHistoricalRevision();
@@ -263,9 +265,20 @@ export function ComposerTopBar({
         {!isFinalLocked && (
           <>
             {!isSentLocked && (
-              <Button size="sm" onClick={() => setSendOpen(true)}>
-                <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
-              </Button>
+              <>
+                <Button size="sm" onClick={() => setSendOpen(true)}>
+                  <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-indigo-300 text-indigo-800 hover:bg-indigo-50"
+                  onClick={() => setSignOpen(true)}
+                  title="Enviar a revisão para assinatura DocuSign (cliente assina primeiro)"
+                >
+                  <FileSignature className="mr-1 h-3.5 w-3.5" /> Enviar para assinatura
+                </Button>
+              </>
             )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -344,6 +357,13 @@ export function ComposerTopBar({
         open={convertOpen}
         onOpenChange={setConvertOpen}
         blocks={blocks}
+      />
+      <SendProposalDialog
+        open={signOpen}
+        onOpenChange={setSignOpen}
+        proposal={proposal}
+        nextRev={nextRev}
+        mode="signature"
       />
       <SendProposalDialog
         open={sendOpen}
