@@ -27,7 +27,11 @@
   "status": {
     "pending": "Por rever",
     "approved": "Aprovado",
-    "dismissed": "Descartado"
+    "dismissed": "Descartado",
+    "sent": "Enviado",
+    "archived": "Arquivado",
+    "labeled": "Etiquetado",
+    "rejected": "Rejeitado"
   },
   "settings": {
     "title": "Caixas ligadas",
@@ -54,5 +58,36 @@
     "connectorTitle": "Como ligar uma segunda caixa",
     "connectorSteps": "Peça à Lovable para ligar um segundo conector Gmail para esta caixa. Depois de ligado, a chave fica disponível como novo segredo de ambiente — introduza aqui o nome desse segredo.",
     "adminOnly": "Apenas administradores podem gerir as caixas ligadas."
+  },
+  "queue": {
+    "count_one": "{{count}} mensagem a aguardar revisão",
+    "count_other": "{{count}} mensagens a aguardar revisão",
+    "emptyTitle": "Nada para rever",
+    "emptySub": "Todas as mensagens captadas já foram triadas.",
+    "loadError": "Não foi possível carregar a fila de revisão.",
+    "noSubject": "(sem assunto)",
+    "draftReply": "Rascunho de resposta",
+    "draftHint": "Edite o texto antes de enviar — a versão enviada fica guardada na mensagem.",
+    "noDraft": "Não foi preparado nenhum rascunho para esta mensagem.",
+    "approveSend": "Aprovar e enviar",
+    "archive": "Arquivar",
+    "labelOnly": "Apenas etiquetar",
+    "reject": "Rejeitar / escalar",
+    "actionFailed": "A acção falhou — a mensagem permanece na fila",
+    "actionsNote": "Aprovar e enviar e Arquivar escrevem no Gmail. Apenas etiquetar e Rejeitar não tocam na caixa de correio."
+  },
+  "category": {
+    "new_enquiry": "Novo pedido",
+    "project_correspondence": "Correspondência de projecto",
+    "supplier_invoice": "Factura de fornecedor",
+    "admin_finance": "Administrativo / financeiro",
+    "recruitment": "Recrutamento",
+    "newsletter_marketing": "Newsletter / marketing"
+  },
+  "action": {
+    "reply": "Responder",
+    "archive": "Arquivar",
+    "label_only": "Apenas etiquetar",
+    "escalate": "Escalar"
   }
 }

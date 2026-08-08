@@ -1,9 +1,35 @@
+/**
+ * Inbox review queue — every Gmail-visible action here is one explicit click
+ * on one row. No batch actions, no automatic sends or archives.
+ */
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
+import {
+  AlertTriangle,
+  Archive,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Send,
+  Tag,
+  X,
+} from "lucide-react";
+
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import {
+  approveAndSendReply,
+  archiveEmailEvent,
+  listPendingEmailEvents,
+  resolveEmailEventWithoutGmail,
+  type PendingEmailEvent,
+} from "@/lib/inbox/inbox.functions";
 
 export const Route = createFileRoute("/_app/inbox/")({
   component: InboxTriagePage,
@@ -11,88 +37,265 @@ export const Route = createFileRoute("/_app/inbox/")({
 
 function InboxTriagePage() {
   const { t } = useTranslation(["inbox", "common"]);
+  const qc = useQueryClient();
+  const listFn = useServerFn(listPendingEmailEvents);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const eventsQ = useQuery({
-    queryKey: ["email-events"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("email_events")
-        .select(
-          "id, from_address, subject, snippet, category, confidence, suggested_action, status, received_at",
-        )
-        .order("received_at", { ascending: false, nullsFirst: false })
-        .limit(200);
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryKey: ["email-events", "pending"],
+    queryFn: () => listFn(),
   });
 
   if (eventsQ.isLoading) {
-    return <p className="text-sm text-muted-foreground">{t("inbox:list.loading")}</p>;
+    return (
+      <p className="text-sm text-muted-foreground">{t("inbox:list.loading")}</p>
+    );
+  }
+
+  if (eventsQ.isError) {
+    return (
+      <Card className="p-10 text-center text-sm text-destructive">
+        {eventsQ.error instanceof Error
+          ? eventsQ.error.message
+          : t("inbox:queue.loadError")}
+      </Card>
+    );
   }
 
   const rows = eventsQ.data ?? [];
 
   if (rows.length === 0) {
     return (
-      <Card className="p-10 text-center text-sm text-muted-foreground">
-        {t("inbox:list.empty")}
+      <Card className="p-10 text-center">
+        <p className="text-sm font-medium">{t("inbox:queue.emptyTitle")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("inbox:queue.emptySub")}
+        </p>
       </Card>
     );
   }
 
   return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {t("inbox:queue.count", { count: rows.length })}
+      </p>
+      {rows.map((row) => (
+        <EmailRow
+          key={row.id}
+          row={row}
+          open={openId === row.id}
+          onToggle={() => setOpenId(openId === row.id ? null : row.id)}
+          onDone={() =>
+            void qc.invalidateQueries({ queryKey: ["email-events"] })
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+function EmailRow({
+  row,
+  open,
+  onToggle,
+  onDone,
+}: {
+  row: PendingEmailEvent;
+  open: boolean;
+  onToggle: () => void;
+  onDone: () => void;
+}) {
+  const { t } = useTranslation(["inbox", "common"]);
+  const [draft, setDraft] = useState(row.draft_reply ?? "");
+  const [error, setError] = useState<string | null>(null);
+
+  const sendFn = useServerFn(approveAndSendReply);
+  const archiveFn = useServerFn(archiveEmailEvent);
+  const resolveFn = useServerFn(resolveEmailEventWithoutGmail);
+
+  const fail = (e: unknown) =>
+    setError(e instanceof Error ? e.message : String(e));
+
+  const sendM = useMutation({
+    mutationFn: () => sendFn({ data: { id: row.id, body: draft } }),
+    onMutate: () => setError(null),
+    onSuccess: onDone,
+    onError: fail,
+  });
+  const archiveM = useMutation({
+    mutationFn: () => archiveFn({ data: { id: row.id } }),
+    onMutate: () => setError(null),
+    onSuccess: onDone,
+    onError: fail,
+  });
+  const labelM = useMutation({
+    mutationFn: () => resolveFn({ data: { id: row.id, status: "labeled" } }),
+    onMutate: () => setError(null),
+    onSuccess: onDone,
+    onError: fail,
+  });
+  const rejectM = useMutation({
+    mutationFn: () => resolveFn({ data: { id: row.id, status: "rejected" } }),
+    onMutate: () => setError(null),
+    onSuccess: onDone,
+    onError: fail,
+  });
+
+  const busy =
+    sendM.isPending ||
+    archiveM.isPending ||
+    labelM.isPending ||
+    rejectM.isPending;
+
+  const canSend = row.suggested_action === "reply" && !!row.draft_reply;
+
+  return (
     <Card className="overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-          <tr>
-            <th className="px-4 py-2">{t("inbox:list.receivedAt")}</th>
-            <th className="px-4 py-2">{t("inbox:list.from")}</th>
-            <th className="px-4 py-2">{t("inbox:list.subject")}</th>
-            <th className="px-4 py-2">{t("inbox:list.category")}</th>
-            <th className="px-4 py-2">{t("inbox:list.suggestedAction")}</th>
-            <th className="px-4 py-2">{t("inbox:list.status")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id} className="border-t align-top">
-              <td className="whitespace-nowrap px-4 py-2 text-muted-foreground">
-                {r.received_at ? new Date(r.received_at).toLocaleString() : "—"}
-              </td>
-              <td className="px-4 py-2">{r.from_address ?? "—"}</td>
-              <td className="px-4 py-2">
-                <div className="font-medium">{r.subject ?? "—"}</div>
-                {r.snippet && (
-                  <div className="line-clamp-1 text-xs text-muted-foreground">
-                    {r.snippet}
-                  </div>
-                )}
-              </td>
-              <td className="px-4 py-2">
-                {r.category ? (
-                  <Badge variant="secondary">
-                    {r.category}
-                    {r.confidence != null
-                      ? ` · ${Math.round(Number(r.confidence) * 100)}%`
-                      : ""}
-                  </Badge>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-muted/40"
+      >
+        {open ? (
+          <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="truncate font-medium">
+              {row.subject || t("inbox:queue.noSubject")}
+            </span>
+            {row.category && (
+              <Badge variant="secondary">
+                {t(`inbox:category.${row.category}`, {
+                  defaultValue: row.category,
+                })}
+              </Badge>
+            )}
+            {row.suggested_action && (
+              <Badge variant="outline">
+                {t(`inbox:action.${row.suggested_action}`, {
+                  defaultValue: row.suggested_action,
+                })}
+              </Badge>
+            )}
+            {typeof row.confidence === "number" && (
+              <span className="text-xs text-muted-foreground">
+                {t("inbox:list.confidence")}: {Math.round(row.confidence * 100)}%
+              </span>
+            )}
+          </div>
+          <div className="mt-0.5 truncate text-xs text-muted-foreground">
+            {row.from_address ?? "—"}
+            {row.received_at
+              ? ` · ${new Date(row.received_at).toLocaleString()}`
+              : ""}
+          </div>
+          {row.snippet && (
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+              {row.snippet}
+            </p>
+          )}
+        </div>
+      </button>
+
+      {open && (
+        <CardContent className="space-y-4 border-t pt-4">
+          {row.draft_reply !== null ? (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium" htmlFor={`draft-${row.id}`}>
+                {t("inbox:queue.draftReply")}
+              </label>
+              <Textarea
+                id={`draft-${row.id}`}
+                rows={8}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("inbox:queue.draftHint")}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("inbox:queue.noDraft")}
+            </p>
+          )}
+
+          {error && (
+            <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-medium">{t("inbox:queue.actionFailed")}</p>
+                <p className="text-xs">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <Separator />
+
+          <div className="flex flex-wrap gap-2">
+            {canSend && (
+              <Button
+                size="sm"
+                disabled={busy || !draft.trim()}
+                onClick={() => sendM.mutate()}
+              >
+                {sendM.isPending ? (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                 ) : (
-                  "—"
+                  <Send className="mr-1.5 h-4 w-4" />
                 )}
-              </td>
-              <td className="px-4 py-2">{r.suggested_action ?? "—"}</td>
-              <td className="px-4 py-2">
-                <Badge variant={r.status === "pending" ? "outline" : "secondary"}>
-                  {t(`inbox:status.${r.status ?? "pending"}`, {
-                    defaultValue: r.status ?? "—",
-                  })}
-                </Badge>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                {t("inbox:queue.approveSend")}
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy}
+              onClick={() => archiveM.mutate()}
+            >
+              {archiveM.isPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Archive className="mr-1.5 h-4 w-4" />
+              )}
+              {t("inbox:queue.archive")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy}
+              onClick={() => labelM.mutate()}
+            >
+              {labelM.isPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Tag className="mr-1.5 h-4 w-4" />
+              )}
+              {t("inbox:queue.labelOnly")}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={busy}
+              onClick={() => rejectM.mutate()}
+            >
+              {rejectM.isPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <X className="mr-1.5 h-4 w-4" />
+              )}
+              {t("inbox:queue.reject")}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("inbox:queue.actionsNote")}
+          </p>
+        </CardContent>
+      )}
     </Card>
   );
 }
