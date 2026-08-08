@@ -20,7 +20,7 @@ import {
   useSetQuoteSaleMargin,
 } from "@/lib/quotes/use-quote-sale-margin";
 
-export function QuoteSaleMarginSettings({ quoteId }: { quoteId: string }) {
+export function QuoteSaleMarginSettings({ quoteId, disabled = false }: { quoteId: string; disabled?: boolean }) {
   const { t } = useTranslation("crm");
   const marginQ = useQuoteSaleMargin(quoteId);
   const setMargin = useSetQuoteSaleMargin(quoteId);
@@ -61,6 +61,7 @@ export function QuoteSaleMarginSettings({ quoteId }: { quoteId: string }) {
           size="sm"
           variant="outline"
           className="h-7 px-2 text-xs"
+          disabled={disabled}
           title={t("workspace.planning.saleMargin.tooltip", {
             defaultValue: "Sale margin applied to resource cost on this quote.",
           })}
