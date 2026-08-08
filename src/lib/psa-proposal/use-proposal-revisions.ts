@@ -179,19 +179,23 @@ export function useSendProposal(proposalId: string | undefined) {
 
       // Insert the sent snapshot.
       const { data: userData } = await sb.auth.getUser();
-      const { error: snapErr } = await sb.from("psa_proposal_snapshots").insert({
-        proposal_id: proposalId,
-        label: `Rev ${revLabel}`,
-        reason: "sent",
-        kind: "sent",
-        rev_number: revNumber,
-        pdf_storage_path: storagePath,
-        pdf_filename: `${filename}.pdf`,
-        pdf_mime: "application/pdf",
-        snapshot: { proposal, blocks: blocks ?? [], quote_data: quoteData },
-        restored_from_snapshot_id: proposal?.restored_from_snapshot_id ?? null,
-        created_by: userData?.user?.id ?? null,
-      });
+      const { data: snapRow, error: snapErr } = await sb
+        .from("psa_proposal_snapshots")
+        .insert({
+          proposal_id: proposalId,
+          label: `Rev ${revLabel}`,
+          reason: "sent",
+          kind: "sent",
+          rev_number: revNumber,
+          pdf_storage_path: storagePath,
+          pdf_filename: `${filename}.pdf`,
+          pdf_mime: "application/pdf",
+          snapshot: { proposal, blocks: blocks ?? [], quote_data: quoteData },
+          restored_from_snapshot_id: proposal?.restored_from_snapshot_id ?? null,
+          created_by: userData?.user?.id ?? null,
+        })
+        .select("id")
+        .single();
 
       if (snapErr) {
         // Roll back the uploaded file if snapshot insert failed.
@@ -213,6 +217,12 @@ export function useSendProposal(proposalId: string | undefined) {
           restored_from_snapshot_id: null,
         })
         .eq("id", proposalId);
+
+      return {
+        snapshotId: snapRow?.id as string,
+        revNumber,
+        storagePath,
+      };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["psa-proposal-revisions", proposalId] });

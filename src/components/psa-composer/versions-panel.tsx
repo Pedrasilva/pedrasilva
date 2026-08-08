@@ -25,6 +25,10 @@ import {
   type ProposalRevision,
 } from "@/lib/psa-proposal/use-proposal-revisions";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
+import {
+  describeSignature,
+  useProposalSignatures,
+} from "@/lib/psa-proposal/use-proposal-signatures";
 
 
 function formatDate(iso: string): string {
@@ -63,6 +67,7 @@ async function downloadRevision(rev: ProposalRevision) {
 export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
   const { data: revisions = [], nextRev } = useNextRevNumber(proposal.id);
   useProposalRevisions(proposal.id); // ensure prefetched
+  const { data: signatures = [] } = useProposalSignatures(proposal.id);
   const isLocked = !!proposal.locked_at;
   const workingLabel = isLocked
     ? `Rev ${String(nextRev - 1).padStart(2, "0")} · bloqueada`
@@ -120,6 +125,24 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
                   baseada na Rev {String(basedOn.rev_number).padStart(2, "0")}
                 </div>
               )}
+              {(() => {
+                const sig = signatures.find((s) => s.snapshot_id === r.id);
+                if (!sig) return null;
+                const { tone, label } = describeSignature(sig);
+                return (
+                  <div
+                    className={
+                      tone === "success"
+                        ? "text-[11px] text-emerald-700"
+                        : tone === "warning"
+                          ? "text-[11px] text-rose-700"
+                          : "text-[11px] text-sky-700"
+                    }
+                  >
+                    ✎ {label}
+                  </div>
+                );
+              })()}
               {!revisionIsViewable(r) && (
                 <div className="text-[11px] text-amber-700">
                   Sem dados arquivados — só PDF
