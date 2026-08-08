@@ -292,3 +292,62 @@ export async function fetchCompletedDocument(
   }
   return new Uint8Array(await res.arrayBuffer());
 }
+
+/* ── Envelope status (authoritative read) ──────────────────────── */
+
+export type EnvelopeRecipient = {
+  routingOrder: string;
+  status: string;
+  signedDateTime?: string;
+  name?: string;
+  declinedReason?: string;
+};
+
+export type EnvelopeWithRecipients = {
+  status: string;
+  completedDateTime?: string;
+  voidedReason?: string;
+  signers: EnvelopeRecipient[];
+};
+
+/**
+ * Reads the authoritative envelope + recipient status from DocuSign.
+ * Connect payloads only carry { event, data: { envelopeId } }, so callers
+ * must fetch detail rather than trusting the webhook body.
+ */
+export async function getEnvelopeWithRecipients(
+  cfg: DocusignConfig,
+  envelopeId: string,
+): Promise<EnvelopeWithRecipients> {
+  const res = await api(cfg, `/envelopes/${envelopeId}?include=recipients`);
+  const text = await res.text();
+  if (!res.ok) throw new Error(`DocuSign envelope read ${res.status}: ${text.slice(0, 400)}`);
+  const json = JSON.parse(text) as {
+    status?: string;
+    completedDateTime?: string;
+    voidedReason?: string;
+    recipients?: { signers?: Array<Record<string, unknown>> };
+  };
+
+  let signers = (json.recipients?.signers ?? []) as Array<Record<string, unknown>>;
+  if (!signers.length) {
+    const rRes = await api(cfg, `/envelopes/${envelopeId}/recipients`);
+    if (rRes.ok) {
+      const rJson = JSON.parse(await rRes.text()) as { signers?: Array<Record<string, unknown>> };
+      signers = rJson.signers ?? [];
+    }
+  }
+
+  return {
+    status: String(json.status ?? "").toLowerCase(),
+    completedDateTime: json.completedDateTime as string | undefined,
+    voidedReason: json.voidedReason as string | undefined,
+    signers: signers.map((s) => ({
+      routingOrder: String(s['routingOrder'] ?? ""),
+      status: String(s['status'] ?? "").toLowerCase(),
+      signedDateTime: s['signedDateTime'] as string | undefined,
+      name: s['name'] as string | undefined,
+      declinedReason: s['declinedReason'] as string | undefined,
+    })),
+  };
+}
