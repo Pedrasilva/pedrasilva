@@ -1,7 +1,13 @@
-import { QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
 import { createRouter, useRouter } from "@tanstack/react-router";
 import i18n from "./i18n";
 import { routeTree } from "./routeTree.gen";
+import {
+  emitQuoteLockBlocked,
+  isConvertedLockError,
+  isQuoteLockError,
+} from "./lib/quotes/use-quote-lock";
+
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
