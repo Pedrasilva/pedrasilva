@@ -1,0 +1,58 @@
+{
+  "module": {
+    "title": "Inbox",
+    "subtitle": "Email triage",
+    "description": "Triage incoming studio email: classify, suggest an action and prepare replies before anyone answers."
+  },
+  "nav": {
+    "triage": "Triage",
+    "settings": "Settings"
+  },
+  "page": {
+    "title": "Email triage",
+    "kicker": "Inbox",
+    "subtitle": "Messages captured from the connected inboxes, classified and waiting for review."
+  },
+  "list": {
+    "empty": "No messages captured yet.",
+    "from": "From",
+    "subject": "Subject",
+    "category": "Category",
+    "confidence": "Confidence",
+    "suggestedAction": "Suggested action",
+    "status": "Status",
+    "receivedAt": "Received",
+    "loading": "Loading…"
+  },
+  "status": {
+    "pending": "Pending review",
+    "approved": "Approved",
+    "dismissed": "Dismissed"
+  },
+  "settings": {
+    "title": "Connected inboxes",
+    "subtitle": "Each inbox is read through a Lovable-managed Gmail connector. Tokens are never stored in the database — only the name of the connector secret.",
+    "securityNote": "Credentials live as environment secrets managed by Lovable. This screen stores only the inbox address and which connector secret to use.",
+    "addTitle": "Connect another Gmail inbox",
+    "address": "Inbox address",
+    "addressPlaceholder": "team@pedrasilva.com",
+    "label": "Label",
+    "labelPlaceholder": "Studio inbox",
+    "secretName": "Connector secret",
+    "secretHint": "Name of the environment variable holding the connector key (e.g. GOOGLE_MAIL_API_KEY_2).",
+    "add": "Connect inbox",
+    "remove": "Remove",
+    "active": "Active",
+    "inactive": "Paused",
+    "lastChecked": "Last checked",
+    "never": "Never",
+    "empty": "No inbox connected yet.",
+    "added": "Inbox connected.",
+    "removed": "Inbox removed.",
+    "updated": "Inbox updated.",
+    "error": "Could not save the inbox.",
+    "connectorTitle": "How to connect a second inbox",
+    "connectorSteps": "Ask Lovable to link a second Gmail connector for this inbox. Once linked, its key is available as a new environment secret — enter that secret's name below.",
+    "adminOnly": "Only administrators can manage connected inboxes."
+  }
+}
