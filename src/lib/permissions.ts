@@ -31,10 +31,12 @@ export type PermissionKey =
   | "projects.timesheet"
   | "projects.financials"
   // Finance (backoffice)
-  | "finance.dashboard";
+  | "finance.dashboard"
+  // Inbox
+  | "inbox.triage";
 
 export type PermissionGroup = {
-  module: "HR" | "CRM" | "Projects" | "Finance";
+  module: "HR" | "CRM" | "Projects" | "Finance" | "Inbox";
   items: { key: PermissionKey; label: string; description?: string }[];
 };
 
@@ -89,6 +91,17 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         key: "finance.dashboard",
         label: "Painel financeiro",
         description: "Aceder ao dashboard financeiro do escritório (cash flow, receitas, despesas, bancos).",
+      },
+    ],
+  },
+  {
+    module: "Inbox",
+    items: [
+      {
+        key: "inbox.triage",
+        label: "Triagem de email",
+        description:
+          "Aceder à triagem de email do atelier (mensagens captadas, classificação e acções sugeridas).",
       },
     ],
   },
