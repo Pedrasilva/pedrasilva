@@ -29,6 +29,12 @@ import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspect
 import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
+import {
+  useQuoteLock,
+  emitQuoteLockBlocked,
+  isQuoteLockError,
+  isConvertedLockError,
+} from "@/lib/quotes/use-quote-lock";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
@@ -112,9 +118,29 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const impliedCostRate = teamAvg?.avgCostPerHour ?? 0;
   const upsertStage = useUpsertQuoteStage(quoteId);
   const qc = useQueryClient();
+
+  // ---- Quote lock (quote mode only; ProjectGantt below stays always-editable)
+  const lockQ = useQuoteLock(quoteId);
+  const isLocked = !!lockQ.data?.isLocked;
+  const isConverted = !!lockQ.data?.isConverted;
+  /** Returns true when the write must not proceed (raises the revise dialog). */
+  const blockIfLocked = useCallback(() => {
+    if (!isLocked) return false;
+    emitQuoteLockBlocked(isConverted);
+    return true;
+  }, [isLocked, isConverted]);
+  /** Fallback: turn a DB guard error into the same dialog instead of a toast. */
+  const reportError = useCallback((err: unknown) => {
+    if (isQuoteLockError(err)) {
+      emitQuoteLockBlocked(isConvertedLockError(err));
+      return;
+    }
+    toast.error(err instanceof Error ? err.message : String(err));
+  }, []);
   const [reflowing, setReflowing] = useState(false);
 
   const handleReflow = useCallback(async () => {
+    if (blockIfLocked()) return;
     setReflowing(true);
     try {
       const res = await reflowQuoteSchedule(quoteId);
@@ -139,11 +165,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         );
       }
     } catch (err) {
-      toast.error((err as Error).message);
+      reportError(err);
     } finally {
       setReflowing(false);
     }
-  }, [quoteId, qc, t]);
+  }, [quoteId, qc, t, blockIfLocked, reportError]);
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
@@ -164,6 +190,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const handleShiftProjectStart = useCallback(
     async (newStartIso: string) => {
       if (!newStartIso || !projectStartIso || newStartIso === projectStartIso) return;
+      if (blockIfLocked()) return;
       const delta = differenceInCalendarDays(parseISO(newStartIso), parseISO(projectStartIso));
       if (delta === 0) return;
       setShifting(true);
@@ -203,12 +230,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
           }),
         );
       } catch (err) {
-        toast.error((err as Error).message);
+        reportError(err);
       } finally {
         setShifting(false);
       }
     },
-    [projectStartIso, stages, allocations, qc, quoteId, t],
+    [projectStartIso, stages, allocations, qc, quoteId, t, blockIfLocked, reportError],
   );
 
 
@@ -224,6 +251,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
    */
   const handleRename = useCallback(
     async (id: string, name: string) => {
+      if (blockIfLocked()) return;
       const target = stages.find((s) => s.id === id);
       if (!target) return;
       const oldName = target.name;
@@ -252,7 +280,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         mirrors.map((m) => upsertStage.mutateAsync({ id: m.id, name })),
       );
     },
-    [stages, upsertStage],
+    [stages, upsertStage, blockIfLocked],
   );
 
   /**
@@ -263,6 +291,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
    */
   const handleReorder = useCallback(
     async (id: string, newPosition: number) => {
+      if (blockIfLocked()) return;
       const target = stages.find((s) => s.id === id) as
         | (typeof stages)[number] & { parent_stage_id?: string | null }
         | undefined;
@@ -288,7 +317,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         }),
       );
     },
-    [stages, upsertStage],
+    [stages, upsertStage, blockIfLocked],
   );
 
   // Index resources for fast lookup when building per-allocation snapshots.
@@ -701,9 +730,21 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   }, []);
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
+      if (blockIfLocked()) return;
       await upsertStage.mutateAsync({ id, budget } as Parameters<typeof upsertStage.mutateAsync>[0]);
     },
-    [upsertStage],
+    [upsertStage, blockIfLocked],
+  );
+  const handleUpdateBounds = useCallback(
+    async (args: { id: string; projectId: string; start_date: string; end_date: string }) => {
+      if (blockIfLocked()) return;
+      try {
+        return await adapter.updateStage(args);
+      } catch (e) {
+        reportError(e);
+      }
+    },
+    [adapter, blockIfLocked, reportError],
   );
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
   const createQuoteDep = useCreateQuoteDependency(quoteId);
@@ -720,6 +761,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       anchorId: string | null,
       where: "above" | "below" | "child" | "milestone",
     ) => {
+      if (blockIfLocked()) return;
       type S = (typeof stages)[number] & {
         stage_role?: string | null;
         parent_stage_id?: string | null;
@@ -856,20 +898,21 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         }
       }
     },
-    [stages, upsertStage, quoteId, t, createQuoteDep],
+    [stages, upsertStage, quoteId, t, createQuoteDep, blockIfLocked],
   );
 
   const handleDelete = useCallback(
     async (id: string) => {
+      if (blockIfLocked()) return;
       try {
         await deleteQuoteStage.mutateAsync(id);
         if (selectedStageId === id) setSelectedStageId(null);
         toast.success(t("workspace.planning.inspector.deleteStage", { defaultValue: "Stage deleted" }));
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+        reportError(e);
       }
     },
-    [deleteQuoteStage, selectedStageId, t],
+    [deleteQuoteStage, selectedStageId, t, blockIfLocked, reportError],
   );
 
   /**
@@ -879,6 +922,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
    */
   const handleIndent = useCallback(
     async (id: string) => {
+      if (blockIfLocked()) return;
       type S = (typeof stages)[number] & {
         parent_stage_id?: string | null;
       };
@@ -906,7 +950,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
       toast.success(t("workspace.planning.indented", { defaultValue: "Row indented." }));
     },
-    [stages, upsertStage, t],
+    [stages, upsertStage, t, blockIfLocked],
   );
 
   /**
@@ -916,6 +960,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
    */
   const handleOutdent = useCallback(
     async (id: string) => {
+      if (blockIfLocked()) return;
       type S = (typeof stages)[number] & {
         parent_stage_id?: string | null;
       };
@@ -943,7 +988,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
       toast.success(t("workspace.planning.outdented", { defaultValue: "Row outdented." }));
     },
-    [stages, upsertStage, t],
+    [stages, upsertStage, t, blockIfLocked],
   );
 
 
@@ -1034,7 +1079,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             variant="outline"
             className="h-7 px-2 text-xs"
             onClick={() => handleInsert(null, "below")}
-            disabled={upsertStage.isPending}
+            disabled={upsertStage.isPending || isLocked}
           >
             <Plus className="mr-1 h-3.5 w-3.5" />
             {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
@@ -1045,7 +1090,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             variant="outline"
             className="h-7 w-7 p-0"
             onClick={() => selectedStageId && handleIndent(selectedStageId)}
-            disabled={!selectedStageId || upsertStage.isPending}
+            disabled={!selectedStageId || upsertStage.isPending || isLocked}
             title={t("workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
             aria-label="Indent"
           >
@@ -1057,7 +1102,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             variant="outline"
             className="h-7 w-7 p-0"
             onClick={() => selectedStageId && handleOutdent(selectedStageId)}
-            disabled={!selectedStageId || upsertStage.isPending}
+            disabled={!selectedStageId || upsertStage.isPending || isLocked}
             title={t("workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
             aria-label="Outdent"
           >
@@ -1069,7 +1114,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             variant="outline"
             className="h-7 px-2 text-xs"
             onClick={handleReflow}
-            disabled={reflowing}
+            disabled={reflowing || isLocked}
             title={t("workspace.planning.reflow.tooltip", {
               defaultValue:
                 "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
@@ -1080,7 +1125,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
               : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
           </Button>
-          <QuoteSaleMarginSettings quoteId={quoteId} />
+          <QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked} />
           {onAddRetainerPhase && (
             <Button
               type="button"
@@ -1088,6 +1133,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               variant="outline"
               className="h-7 px-2 text-xs"
               onClick={onAddRetainerPhase}
+              disabled={isLocked}
             >
               <Plus className="mr-1 h-3.5 w-3.5" />
               {t("workspace.planning.retainerMonthly.addStage", {
@@ -1104,7 +1150,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
                 type="date"
                 value={projectStartIso}
                 onChange={(e) => handleShiftProjectStart(e.target.value)}
-                disabled={shifting}
+                disabled={shifting || isLocked}
                 className="h-6 w-[140px] border-0 bg-transparent p-0 text-xs focus-visible:ring-0"
                 title={t("workspace.planning.projectStartHint", {
                   defaultValue: "Changing this shifts every stage and allocation by the same number of days.",
@@ -1218,7 +1264,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
                 type="button"
                 size="sm"
                 onClick={() => handleInsert(null, "below")}
-                disabled={upsertStage.isPending}
+                disabled={upsertStage.isPending || isLocked}
               >
                 <Plus className="mr-1.5 h-3.5 w-3.5" />
                 {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
@@ -1249,7 +1295,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}
             onDeleteStage={handleDelete}
-            onUpdateStageBounds={adapter.updateStage}
+            onUpdateStageBounds={handleUpdateBounds}
             onUpdateStageBudget={handleUpdateBudget}
             onAppendRoot={() => handleInsert(null, "below")}
             impliedHourRate={impliedHourRate}
