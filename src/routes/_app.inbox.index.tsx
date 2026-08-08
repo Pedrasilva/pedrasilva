@@ -211,6 +211,7 @@ function EmailRow({
               <Textarea
                 id={`draft-${row.id}`}
                 rows={8}
+                className="w-full max-w-none"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
               />
