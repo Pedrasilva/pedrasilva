@@ -27,7 +27,11 @@
   "status": {
     "pending": "Pending review",
     "approved": "Approved",
-    "dismissed": "Dismissed"
+    "dismissed": "Dismissed",
+    "sent": "Sent",
+    "archived": "Archived",
+    "labeled": "Labelled",
+    "rejected": "Rejected"
   },
   "settings": {
     "title": "Connected inboxes",
@@ -54,5 +58,36 @@
     "connectorTitle": "How to connect a second inbox",
     "connectorSteps": "Ask Lovable to link a second Gmail connector for this inbox. Once linked, its key is available as a new environment secret — enter that secret's name below.",
     "adminOnly": "Only administrators can manage connected inboxes."
+  },
+  "queue": {
+    "count_one": "{{count}} message awaiting review",
+    "count_other": "{{count}} messages awaiting review",
+    "emptyTitle": "Nothing to review",
+    "emptySub": "Every captured message has been triaged.",
+    "loadError": "Could not load the review queue.",
+    "noSubject": "(no subject)",
+    "draftReply": "Draft reply",
+    "draftHint": "Edit the text before sending — the sent version is stored back on the message.",
+    "noDraft": "No draft reply was prepared for this message.",
+    "approveSend": "Approve & send",
+    "archive": "Archive",
+    "labelOnly": "Label only",
+    "reject": "Reject / escalate",
+    "actionFailed": "Action failed — the message stays in the queue",
+    "actionsNote": "Approve & send and Archive write to Gmail. Label only and Reject leave the mailbox untouched."
+  },
+  "category": {
+    "new_enquiry": "New enquiry",
+    "project_correspondence": "Project correspondence",
+    "supplier_invoice": "Supplier invoice",
+    "admin_finance": "Admin / finance",
+    "recruitment": "Recruitment",
+    "newsletter_marketing": "Newsletter / marketing"
+  },
+  "action": {
+    "reply": "Reply",
+    "archive": "Archive",
+    "label_only": "Label only",
+    "escalate": "Escalate"
   }
 }
