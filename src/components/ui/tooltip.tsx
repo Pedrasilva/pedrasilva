@@ -7,7 +7,18 @@ import { cn } from "@/lib/utils";
 
 const TooltipProvider = TooltipPrimitive.Provider;
 
-const Tooltip = TooltipPrimitive.Root;
+/**
+ * Self-providing Tooltip: wraps itself in a Provider so it never throws
+ * "`Tooltip` must be used within `TooltipProvider`". Nested providers are safe.
+ */
+const Tooltip = ({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) => (
+  <TooltipPrimitive.Provider delayDuration={200}>
+    <TooltipPrimitive.Root {...props}>{children}</TooltipPrimitive.Root>
+  </TooltipPrimitive.Provider>
+);
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
