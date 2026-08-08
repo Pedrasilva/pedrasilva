@@ -2054,6 +2054,117 @@ export type Database = {
           },
         ]
       }
+      email_events: {
+        Row: {
+          category: string | null
+          confidence: number | null
+          created_at: string
+          draft_reply: string | null
+          from_address: string | null
+          gmail_message_id: string
+          id: string
+          received_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          snippet: string | null
+          status: string
+          subject: string | null
+          suggested_action: string | null
+          thread_id: string
+        }
+        Insert: {
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          draft_reply?: string | null
+          from_address?: string | null
+          gmail_message_id: string
+          id?: string
+          received_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          snippet?: string | null
+          status?: string
+          subject?: string | null
+          suggested_action?: string | null
+          thread_id: string
+        }
+        Update: {
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          draft_reply?: string | null
+          from_address?: string | null
+          gmail_message_id?: string
+          id?: string
+          received_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          snippet?: string | null
+          status?: string
+          subject?: string | null
+          suggested_action?: string | null
+          thread_id?: string
+        }
+        Relationships: []
+      }
+      email_rules: {
+        Row: {
+          auto_action: string | null
+          category: string
+          created_at: string
+          id: string
+          requires_review: boolean
+          updated_at: string
+        }
+        Insert: {
+          auto_action?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          requires_review?: boolean
+          updated_at?: string
+        }
+        Update: {
+          auto_action?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          requires_review?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_sync_state: {
+        Row: {
+          created_at: string
+          id: string
+          inbox_address: string
+          last_checked_at: string | null
+          last_history_id: string | null
+          oauth_refresh_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inbox_address: string
+          last_checked_at?: string | null
+          last_history_id?: string | null
+          oauth_refresh_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inbox_address?: string
+          last_checked_at?: string | null
+          last_history_id?: string | null
+          oauth_refresh_token?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expense_categories: {
         Row: {
           created_at: string
