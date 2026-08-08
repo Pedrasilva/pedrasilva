@@ -49,6 +49,7 @@ import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
+import { Route as AppInboxSettingsRouteImport } from './routes/_app.inbox.settings'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -311,6 +312,11 @@ const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
 const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppInboxRoute,
+} as any)
+const AppInboxSettingsRoute = AppInboxSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppInboxRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
@@ -685,6 +691,7 @@ export interface FileRoutesByFullPath {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/inbox/settings': typeof AppInboxSettingsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -781,6 +788,7 @@ export interface FileRoutesByTo {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/inbox/settings': typeof AppInboxSettingsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -884,6 +892,7 @@ export interface FileRoutesById {
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
+  '/_app/inbox/settings': typeof AppInboxSettingsRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
@@ -987,6 +996,7 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/inbox/settings'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1083,6 +1093,7 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/inbox/settings'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1185,6 +1196,7 @@ export interface FileRouteTypes {
     | '/_app/hr/resumo'
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
+    | '/_app/inbox/settings'
     | '/_app/projects/$projectId'
     | '/_app/projects/approvals'
     | '/_app/projects/financials'
@@ -1547,6 +1559,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/inbox/'
       preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppInboxRoute
+    }
+    '/_app/inbox/settings': {
+      id: '/_app/inbox/settings'
+      path: '/settings'
+      fullPath: '/inbox/settings'
+      preLoaderRoute: typeof AppInboxSettingsRouteImport
       parentRoute: typeof AppInboxRoute
     }
     '/_app/projects/': {
@@ -2146,10 +2165,12 @@ const AppHrRouteChildren: AppHrRouteChildren = {
 const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
 
 interface AppInboxRouteChildren {
+  AppInboxSettingsRoute: typeof AppInboxSettingsRoute
   AppInboxIndexRoute: typeof AppInboxIndexRoute
 }
 
 const AppInboxRouteChildren: AppInboxRouteChildren = {
+  AppInboxSettingsRoute: AppInboxSettingsRoute,
   AppInboxIndexRoute: AppInboxIndexRoute,
 }
 
