@@ -163,10 +163,10 @@ function EmailRow({
           <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="truncate font-medium">
-              {row.subject || t("inbox:queue.noSubject")}
-            </span>
+          <span className="block truncate font-medium">
+            {row.subject || t("inbox:queue.noSubject")}
+          </span>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             {row.category && (
               <Badge variant="secondary">
                 {t(`inbox:category.${row.category}`, {
@@ -187,12 +187,13 @@ function EmailRow({
               </span>
             )}
           </div>
-          <div className="mt-0.5 truncate text-xs text-muted-foreground">
+          <div className="mt-0.5 break-words text-xs text-muted-foreground">
             {row.from_address ?? "—"}
             {row.received_at
               ? ` · ${new Date(row.received_at).toLocaleString()}`
               : ""}
           </div>
+
           {row.snippet && (
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
               {row.snippet}
