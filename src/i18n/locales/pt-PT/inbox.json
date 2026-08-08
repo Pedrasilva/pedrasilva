@@ -1,0 +1,58 @@
+{
+  "module": {
+    "title": "Inbox",
+    "subtitle": "Triagem de email",
+    "description": "Triagem do email do atelier: classificar, sugerir acção e preparar respostas antes de alguém responder."
+  },
+  "nav": {
+    "triage": "Triagem",
+    "settings": "Definições"
+  },
+  "page": {
+    "title": "Triagem de email",
+    "kicker": "Inbox",
+    "subtitle": "Mensagens captadas das caixas ligadas, classificadas e a aguardar revisão."
+  },
+  "list": {
+    "empty": "Ainda não há mensagens captadas.",
+    "from": "De",
+    "subject": "Assunto",
+    "category": "Categoria",
+    "confidence": "Confiança",
+    "suggestedAction": "Acção sugerida",
+    "status": "Estado",
+    "receivedAt": "Recebido",
+    "loading": "A carregar…"
+  },
+  "status": {
+    "pending": "Por rever",
+    "approved": "Aprovado",
+    "dismissed": "Descartado"
+  },
+  "settings": {
+    "title": "Caixas ligadas",
+    "subtitle": "Cada caixa é lida através de um conector Gmail gerido pela Lovable. Os tokens nunca são guardados na base de dados — apenas o nome do segredo do conector.",
+    "securityNote": "As credenciais vivem como segredos de ambiente geridos pela Lovable. Este ecrã guarda apenas o endereço da caixa e qual o segredo do conector a usar.",
+    "addTitle": "Ligar outra caixa Gmail",
+    "address": "Endereço da caixa",
+    "addressPlaceholder": "team@pedrasilva.com",
+    "label": "Etiqueta",
+    "labelPlaceholder": "Caixa do atelier",
+    "secretName": "Segredo do conector",
+    "secretHint": "Nome da variável de ambiente com a chave do conector (ex.: GOOGLE_MAIL_API_KEY_2).",
+    "add": "Ligar caixa",
+    "remove": "Remover",
+    "active": "Activa",
+    "inactive": "Em pausa",
+    "lastChecked": "Última verificação",
+    "never": "Nunca",
+    "empty": "Ainda não há caixas ligadas.",
+    "added": "Caixa ligada.",
+    "removed": "Caixa removida.",
+    "updated": "Caixa actualizada.",
+    "error": "Não foi possível guardar a caixa.",
+    "connectorTitle": "Como ligar uma segunda caixa",
+    "connectorSteps": "Peça à Lovable para ligar um segundo conector Gmail para esta caixa. Depois de ligado, a chave fica disponível como novo segredo de ambiente — introduza aqui o nome desse segredo.",
+    "adminOnly": "Apenas administradores podem gerir as caixas ligadas."
+  }
+}
