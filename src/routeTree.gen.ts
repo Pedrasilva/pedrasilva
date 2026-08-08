@@ -18,6 +18,7 @@ import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppFinanceRouteImport } from './routes/_app.finance'
 import { Route as AppHrRouteImport } from './routes/_app.hr'
+import { Route as AppInboxRouteImport } from './routes/_app.inbox'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -47,6 +48,8 @@ import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-fich
 import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
+import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
+import { Route as AppInboxSettingsRouteImport } from './routes/_app.inbox.settings'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -152,6 +155,11 @@ const AppFinanceRoute = AppFinanceRouteImport.update({
 const AppHrRoute = AppHrRouteImport.update({
   id: '/hr',
   path: '/hr',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInboxRoute = AppInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
@@ -300,6 +308,16 @@ const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
   id: '/valor-bo',
   path: '/valor-bo',
   getParentRoute: () => AppHrRoute,
+} as any)
+const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppInboxRoute,
+} as any)
+const AppInboxSettingsRoute = AppInboxSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppInboxRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
   id: '/projects/',
@@ -647,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/crm': typeof AppCrmRouteWithChildren
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
+  '/inbox': typeof AppInboxRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -672,6 +691,7 @@ export interface FileRoutesByFullPath {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/inbox/settings': typeof AppInboxSettingsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -685,6 +705,7 @@ export interface FileRoutesByFullPath {
   '/crm/': typeof AppCrmIndexRoute
   '/finance/': typeof AppFinanceIndexRoute
   '/hr/': typeof AppHrIndexRoute
+  '/inbox/': typeof AppInboxIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/proposals/': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -767,6 +788,7 @@ export interface FileRoutesByTo {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/inbox/settings': typeof AppInboxSettingsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -780,6 +802,7 @@ export interface FileRoutesByTo {
   '/crm': typeof AppCrmIndexRoute
   '/finance': typeof AppFinanceIndexRoute
   '/hr': typeof AppHrIndexRoute
+  '/inbox': typeof AppInboxIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/proposals': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -842,6 +865,7 @@ export interface FileRoutesById {
   '/_app/crm': typeof AppCrmRouteWithChildren
   '/_app/finance': typeof AppFinanceRouteWithChildren
   '/_app/hr': typeof AppHrRouteWithChildren
+  '/_app/inbox': typeof AppInboxRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -868,6 +892,7 @@ export interface FileRoutesById {
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
+  '/_app/inbox/settings': typeof AppInboxSettingsRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
@@ -881,6 +906,7 @@ export interface FileRoutesById {
   '/_app/crm/': typeof AppCrmIndexRoute
   '/_app/finance/': typeof AppFinanceIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
+  '/_app/inbox/': typeof AppInboxIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/proposals/': typeof AppProposalsIndexRoute
   '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -944,6 +970,7 @@ export interface FileRouteTypes {
     | '/crm'
     | '/finance'
     | '/hr'
+    | '/inbox'
     | '/api/notify-expense'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -969,6 +996,7 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/inbox/settings'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -982,6 +1010,7 @@ export interface FileRouteTypes {
     | '/crm/'
     | '/finance/'
     | '/hr/'
+    | '/inbox/'
     | '/projects/'
     | '/proposals/'
     | '/crm/accounts/$accountId'
@@ -1064,6 +1093,7 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/inbox/settings'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1077,6 +1107,7 @@ export interface FileRouteTypes {
     | '/crm'
     | '/finance'
     | '/hr'
+    | '/inbox'
     | '/projects'
     | '/proposals'
     | '/crm/accounts/$accountId'
@@ -1138,6 +1169,7 @@ export interface FileRouteTypes {
     | '/_app/crm'
     | '/_app/finance'
     | '/_app/hr'
+    | '/_app/inbox'
     | '/api/notify-expense'
     | '/_app/'
     | '/.lovable/oauth/consent'
@@ -1164,6 +1196,7 @@ export interface FileRouteTypes {
     | '/_app/hr/resumo'
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
+    | '/_app/inbox/settings'
     | '/_app/projects/$projectId'
     | '/_app/projects/approvals'
     | '/_app/projects/financials'
@@ -1177,6 +1210,7 @@ export interface FileRouteTypes {
     | '/_app/crm/'
     | '/_app/finance/'
     | '/_app/hr/'
+    | '/_app/inbox/'
     | '/_app/projects/'
     | '/_app/proposals/'
     | '/_app/crm/accounts/$accountId'
@@ -1308,6 +1342,13 @@ declare module '@tanstack/react-router' {
       path: '/hr'
       fullPath: '/hr'
       preLoaderRoute: typeof AppHrRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inbox': {
+      id: '/_app/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AppInboxRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/notify-expense': {
@@ -1512,6 +1553,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/valor-bo'
       preLoaderRoute: typeof AppHrValorBoRouteImport
       parentRoute: typeof AppHrRoute
+    }
+    '/_app/inbox/': {
+      id: '/_app/inbox/'
+      path: '/'
+      fullPath: '/inbox/'
+      preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppInboxRoute
+    }
+    '/_app/inbox/settings': {
+      id: '/_app/inbox/settings'
+      path: '/settings'
+      fullPath: '/inbox/settings'
+      preLoaderRoute: typeof AppInboxSettingsRouteImport
+      parentRoute: typeof AppInboxRoute
     }
     '/_app/projects/': {
       id: '/_app/projects/'
@@ -2109,6 +2164,20 @@ const AppHrRouteChildren: AppHrRouteChildren = {
 
 const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
 
+interface AppInboxRouteChildren {
+  AppInboxSettingsRoute: typeof AppInboxSettingsRoute
+  AppInboxIndexRoute: typeof AppInboxIndexRoute
+}
+
+const AppInboxRouteChildren: AppInboxRouteChildren = {
+  AppInboxSettingsRoute: AppInboxSettingsRoute,
+  AppInboxIndexRoute: AppInboxIndexRoute,
+}
+
+const AppInboxRouteWithChildren = AppInboxRoute._addFileChildren(
+  AppInboxRouteChildren,
+)
+
 interface AppProjectsProjectIdRouteChildren {
   AppProjectsProjectIdAllocationsRoute: typeof AppProjectsProjectIdAllocationsRoute
 }
@@ -2135,6 +2204,7 @@ interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRouteWithChildren
   AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
+  AppInboxRoute: typeof AppInboxRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
@@ -2164,6 +2234,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRouteWithChildren,
   AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
+  AppInboxRoute: AppInboxRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
