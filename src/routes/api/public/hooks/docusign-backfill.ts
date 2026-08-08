@@ -38,24 +38,32 @@ export const Route = createFileRoute("/api/public/hooks/docusign-backfill")({
             const clientSigned = byOrder("1");
             const psaSigned = byOrder("2");
 
-            const patch: Record<string, string> = {};
+            type SignaturePatch = {
+              status?: string;
+              status_note?: string;
+              completed_at?: string;
+              client_signed_at?: string;
+              psa_signed_at?: string;
+              signed_pdf_storage_path?: string;
+            };
+            const patch: SignaturePatch = {};
             if (clientSigned?.status === "completed" && clientSigned.signedDateTime) {
-              patch['client_signed_at'] = clientSigned.signedDateTime;
+              patch.client_signed_at = clientSigned.signedDateTime;
             }
             if (psaSigned?.status === "completed" && psaSigned.signedDateTime) {
-              patch['psa_signed_at'] = psaSigned.signedDateTime;
+              patch.psa_signed_at = psaSigned.signedDateTime;
             }
 
             if (envelope.status === "completed") {
-              patch['status'] = "completed";
-              patch['completed_at'] = envelope.completedDateTime ?? new Date().toISOString();
+              patch.status = "completed";
+              patch.completed_at = envelope.completedDateTime ?? new Date().toISOString();
               try {
                 const pdf = await fetchCompletedDocument(cfg, envelopeId);
                 const path = `${row.proposal_id}/signed-${envelopeId}.pdf`;
                 const { error: upErr } = await supabaseAdmin.storage
                   .from("proposal-pdfs")
                   .upload(path, pdf, { contentType: "application/pdf", upsert: true });
-                if (!upErr) patch['signed_pdf_storage_path'] = path;
+                if (!upErr) patch.signed_pdf_storage_path = path;
               } catch (err) {
                 console.error("docusign-backfill: signed PDF fetch failed", err);
               }
@@ -64,14 +72,14 @@ export const Route = createFileRoute("/api/public/hooks/docusign-backfill")({
                 .update({ status: "accepted" })
                 .eq("id", row.proposal_id);
             } else if (envelope.status === "declined") {
-              patch['status'] = "declined";
-              patch['status_note'] =
+              patch.status = "declined";
+              patch.status_note =
                 envelope.signers.find((s) => s.status === "declined")?.declinedReason ?? "Recusado";
             } else if (envelope.status === "voided") {
-              patch['status'] = "voided";
-              patch['status_note'] = envelope.voidedReason ?? "Anulado";
+              patch.status = "voided";
+              patch.status_note = envelope.voidedReason ?? "Anulado";
             } else if (envelope.status === "delivered" && row.status === "sent") {
-              patch['status'] = "delivered";
+              patch.status = "delivered";
             }
 
             const applied = Object.keys(patch).length > 0;
