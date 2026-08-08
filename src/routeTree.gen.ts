@@ -106,6 +106,7 @@ import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_a
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/public/hooks/doc-reprocess'
+import { Route as ApiPublicHooksDocusignBackfillRouteImport } from './routes/api/public/hooks/docusign-backfill'
 import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/public/hooks/docusign-connect'
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
@@ -634,6 +635,12 @@ const ApiPublicHooksDocReprocessRoute =
     path: '/api/public/hooks/doc-reprocess',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDocusignBackfillRoute =
+  ApiPublicHooksDocusignBackfillRouteImport.update({
+    id: '/api/public/hooks/docusign-backfill',
+    path: '/api/public/hooks/docusign-backfill',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDocusignConnectRoute =
   ApiPublicHooksDocusignConnectRouteImport.update({
     id: '/api/public/hooks/docusign-connect',
@@ -763,6 +770,7 @@ export interface FileRoutesByFullPath {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/docusign-backfill': typeof ApiPublicHooksDocusignBackfillRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
@@ -862,6 +870,7 @@ export interface FileRoutesByTo {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/docusign-backfill': typeof ApiPublicHooksDocusignBackfillRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
@@ -968,6 +977,7 @@ export interface FileRoutesById {
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
+  '/api/public/hooks/docusign-backfill': typeof ApiPublicHooksDocusignBackfillRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
@@ -1074,6 +1084,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/docusign-backfill'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
@@ -1173,6 +1184,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/docusign-backfill'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
@@ -1278,6 +1290,7 @@ export interface FileRouteTypes {
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
     | '/api/public/hooks/doc-reprocess'
+    | '/api/public/hooks/docusign-backfill'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
@@ -1299,6 +1312,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
+  ApiPublicHooksDocusignBackfillRoute: typeof ApiPublicHooksDocusignBackfillRoute
   ApiPublicHooksDocusignConnectRoute: typeof ApiPublicHooksDocusignConnectRoute
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
@@ -1987,6 +2001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDocReprocessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/docusign-backfill': {
+      id: '/api/public/hooks/docusign-backfill'
+      path: '/api/public/hooks/docusign-backfill'
+      fullPath: '/api/public/hooks/docusign-backfill'
+      preLoaderRoute: typeof ApiPublicHooksDocusignBackfillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/docusign-connect': {
       id: '/api/public/hooks/docusign-connect'
       path: '/api/public/hooks/docusign-connect'
@@ -2315,6 +2336,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,
+  ApiPublicHooksDocusignBackfillRoute: ApiPublicHooksDocusignBackfillRoute,
   ApiPublicHooksDocusignConnectRoute: ApiPublicHooksDocusignConnectRoute,
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
