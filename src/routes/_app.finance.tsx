@@ -54,10 +54,8 @@ function FinanceHeader() {
   const { vatMode, setVatMode } = useFinanceShell();
   return (
     <header className="sticky top-14 z-30 flex h-12 items-center gap-3 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="text-sm font-semibold tracking-tight">
-        {t("finance:page.title")}
-      </div>
       <div className="ml-auto flex items-center gap-2">
+
         <Label className="hidden text-xs text-muted-foreground sm:inline">
           {t("finance:page.vatToggle")}
         </Label>
