@@ -12,7 +12,17 @@ import { useQuoteLock } from "@/lib/quotes/use-quote-lock";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
 
-export function QuoteRevisionsButton({ quoteId }: { quoteId: string }) {
+export function QuoteRevisionsButton({
+  quoteId,
+  open,
+  onOpenChange,
+  hideTrigger = false,
+}: {
+  quoteId: string;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
+}) {
   const lock = useQuoteLock(quoteId);
   const proposal = useQuery({
     queryKey: ["psa-proposal-for-quote", quoteId],
@@ -34,5 +44,12 @@ export function QuoteRevisionsButton({ quoteId }: { quoteId: string }) {
     ...proposal.data,
     locked_at: lock.data?.isLocked ? (lock.data.lockedAt ?? proposal.data.locked_at) : null,
   } as PsaProposal;
-  return <VersionsPanel proposal={view} />;
+  return (
+    <VersionsPanel
+      proposal={view}
+      open={open}
+      onOpenChange={onOpenChange}
+      hideTrigger={hideTrigger}
+    />
+  );
 }
