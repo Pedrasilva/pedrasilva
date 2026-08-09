@@ -99,6 +99,11 @@ export function ComposerTopBar({
   const [convertOpen, setConvertOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const [signOpen, setSignOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [wonOpen, setWonOpen] = useState(false);
+  const [lostOpen, setLostOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
   const { nextRev } = useNextRevNumber(proposal.id);
   const historical = useHistoricalRevision();
