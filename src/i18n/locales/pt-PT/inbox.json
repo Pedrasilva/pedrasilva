@@ -178,5 +178,34 @@
     "forwardDocs": "Reencaminhar para receção de documentos ({{address}})",
     "forwarded": "Email reencaminhado.",
     "forwardFailed": "Não foi possível reencaminhar o email."
+  },
+  "tabs": {
+    "pending": "Fila de revisão",
+    "auto": "Tratados automaticamente"
+  },
+  "teach": {
+    "title": "Ensinar o assistente",
+    "subtitle": "Descreva uma regra em linguagem natural — por ex. \"apagar todos os emails do facebook\". Vê exactamente o que corresponde antes de guardar.",
+    "placeholder": "apagar todos os emails do facebook",
+    "parse": "Pré-visualizar regra",
+    "previewTitle": "O que isto vai fazer",
+    "noRules": "Não foi possível construir uma regra utilizável a partir dessa instrução. As regras só podem arquivar, etiquetar ou enviar para o lixo — nunca responder.",
+    "pendingMatches_one": "{{count}} email pendente",
+    "pendingMatches_other": "{{count}} emails pendentes",
+    "impact_one": "{{count}} email actualmente na fila será tratado de imediato.",
+    "impact_other": "{{count}} emails actualmente na fila serão tratados de imediato.",
+    "confirm": "Guardar regra e aplicar agora",
+    "cancel": "Descartar",
+    "saved": "{{created}} regra(s) guardada(s) · {{applied}} email(s) existente(s) tratado(s).",
+    "savedFailed_one": "{{count}} email não pôde ser tratado.",
+    "savedFailed_other": "{{count}} emails não puderam ser tratados."
+  },
+  "auto": {
+    "badge": "Tratado por regra",
+    "count_one": "{{count}} mensagem tratada automaticamente",
+    "count_other": "{{count}} mensagens tratadas automaticamente",
+    "emptyTitle": "Ainda nada tratado automaticamente",
+    "emptySub": "Quando uma regra de remetente corresponde a uma mensagem recebida, a acção é executada durante a sincronização e a mensagem aparece aqui em vez da fila.",
+    "undo": "Anular"
   }
 }

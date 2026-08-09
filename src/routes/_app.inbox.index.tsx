@@ -1,7 +1,8 @@
 /**
- * Inbox review queue — every Gmail-visible action here is one explicit click
- * on one row, confirmed in a dialog, and reversible for 8 seconds afterwards.
- * No batch actions, no automatic sends, archives or trashes.
+ * Inbox review queue — every Gmail-visible action taken here is one explicit
+ * click on one row, confirmed in a dialog, and reversible for 8 seconds.
+ * Messages resolved automatically by an admin sender rule never reach this
+ * queue; they are audited (and undoable) in the "Auto-handled" tab.
  */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -26,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,6 +48,9 @@ import {
   type PendingEmailEvent,
 } from "@/lib/inbox/inbox.functions";
 import { EmailContentPanel } from "@/components/inbox/email-content-panel";
+import { TeachAssistantCard } from "@/components/inbox/teach-assistant-card";
+import { AutoHandledList } from "@/components/inbox/auto-handled-list";
+import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/inbox/")({
   component: InboxTriagePage,
@@ -54,6 +59,29 @@ export const Route = createFileRoute("/_app/inbox/")({
 type ActionKind = "send" | "archive" | "trash" | "label" | "reject";
 
 function InboxTriagePage() {
+  const { t } = useTranslation(["inbox", "common"]);
+  const { isAdmin } = useMyPermissions();
+
+  return (
+    <div className="space-y-4">
+      {isAdmin && <TeachAssistantCard />}
+      <Tabs defaultValue="pending">
+        <TabsList>
+          <TabsTrigger value="pending">{t("inbox:tabs.pending")}</TabsTrigger>
+          <TabsTrigger value="auto">{t("inbox:tabs.auto")}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="pending" className="mt-4">
+          <PendingQueue />
+        </TabsContent>
+        <TabsContent value="auto" className="mt-4">
+          <AutoHandledList />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function PendingQueue() {
   const { t } = useTranslation(["inbox", "common"]);
   const qc = useQueryClient();
   const listFn = useServerFn(listPendingEmailEvents);

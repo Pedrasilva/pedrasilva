@@ -1,19 +1,26 @@
 /**
  * Inbox poller — reads every active mailbox in `email_sync_state`, classifies
- * new messages with Lovable AI, and writes them to `email_events` as
- * `pending`.
+ * new messages and writes them to `email_events`.
  *
  * Guarantees:
- *  - READ-ONLY against Gmail. Nothing is sent, archived, labelled or modified,
- *    regardless of category or confidence.
- *  - Every classified message lands as `status = 'pending'` for human review
- *    (all `email_rules` rows currently have `requires_review = true`).
+ *  - Nothing is ever SENT. The only Gmail writes are archive / trash, and only
+ *    when an admin-created sender rule matches the sender.
+ *  - A rule match is executed immediately and the row is inserted already
+ *    resolved (`archived` / `trashed` / `labeled`) — it never queues.
+ *  - Every AI-classified message (no rule match) lands as `status = 'pending'`
+ *    for human review.
  *  - Idempotent: `email_events.gmail_message_id` is UNIQUE; conflicts are
  *    swallowed instead of pre-queried.
  *  - Per-inbox isolation: a failing mailbox is logged and the run continues.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "node:crypto";
+import {
+  matchRule,
+  statusForAction,
+  type RuleAction,
+  type SenderRule,
+} from "@/lib/inbox/rule-match";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -169,41 +176,45 @@ async function classify(
   }
 }
 
-type SenderRule = {
-  match_type: "exact_address" | "domain";
-  sender_pattern: string;
-  category: string;
-  action: "archive" | "label_only" | "trash";
-};
-
-/** Bare address out of a `Name <a@b.com>` From header. */
-function addressOf(from: string | null): string | null {
-  if (!from) return null;
-  const m = from.match(/<([^>]+)>/);
-  return (m ? m[1] : from).trim().toLowerCase() || null;
+/**
+ * Rule auto-execution. A rule action is only ever archive | label_only |
+ * trash — `reply` is not representable, so nothing can ever be sent here.
+ */
+async function gmailPost(
+  path: string,
+  connKey: string,
+  lovableKey: string,
+  body: unknown,
+) {
+  const res = await fetch(`${GATEWAY}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": connKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Gmail gateway ${res.status}: ${text.slice(0, 300)}`);
+  }
 }
 
-/** Exact address first, then domain. Rules short-circuit the AI call. */
-function matchRule(
-  rules: SenderRule[],
-  from: string | null,
-): SenderRule | null {
-  const address = addressOf(from);
-  if (!address) return null;
-  const domain = address.split("@")[1] ?? "";
-  const exact = rules.find(
-    (r) =>
-      r.match_type === "exact_address" &&
-      r.sender_pattern.trim().toLowerCase() === address,
-  );
-  if (exact) return exact;
-  return (
-    rules.find(
-      (r) =>
-        r.match_type === "domain" &&
-        r.sender_pattern.trim().toLowerCase().replace(/^@/, "") === domain,
-    ) ?? null
-  );
+async function executeRuleAction(
+  action: RuleAction,
+  messageId: string,
+  connKey: string,
+  lovableKey: string,
+) {
+  if (action === "label_only") return;
+  if (action === "archive") {
+    await gmailPost(`/users/me/messages/${messageId}/modify`, connKey, lovableKey, {
+      removeLabelIds: ["INBOX"],
+    });
+    return;
+  }
+  await gmailPost(`/users/me/messages/${messageId}/trash`, connKey, lovableKey, {});
 }
 
 export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
@@ -260,6 +271,7 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
           duplicates: 0,
           errors: [] as string[],
           ruleMatched: 0,
+          autoHandled: 0,
         };
 
         for (const inbox of inboxes ?? []) {
@@ -375,8 +387,16 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                   ? result!.suggested_action
                   : null;
 
-                // `requires_review` is true for every seeded rule, so the row
-                // is always inserted as pending — no Gmail side effects here.
+                // Rule match: execute the Gmail action now and insert the row
+                // already resolved — it never appears in the review queue.
+                // AI-classified messages always land as `pending`.
+                let finalStatus = "pending";
+                if (rule) {
+                  await executeRuleAction(rule.action, id, connKey, lovableKey);
+                  finalStatus = statusForAction(rule.action);
+                  summary.autoHandled++;
+                }
+
                 const { error: insErr } = await supabaseAdmin
                   .from("email_events")
                   .insert({
@@ -400,7 +420,8 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                         ? (result?.draft_reply ?? null)
                         : null,
                     classification_source: rule ? "rule" : "ai",
-                    status: "pending",
+                    status: finalStatus,
+                    ...(rule ? { reviewed_at: new Date().toISOString() } : {}),
                   });
 
                 if (insErr) {

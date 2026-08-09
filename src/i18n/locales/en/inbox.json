@@ -178,5 +178,34 @@
     "forwardDocs": "Forward to document intake ({{address}})",
     "forwarded": "Email forwarded.",
     "forwardFailed": "Could not forward the email."
+  },
+  "tabs": {
+    "pending": "Review queue",
+    "auto": "Auto-handled"
+  },
+  "teach": {
+    "title": "Teach the assistant",
+    "subtitle": "Describe a rule in plain language — e.g. \"delete all emails from facebook\". You'll see exactly what it matches before anything is saved.",
+    "placeholder": "delete all emails from facebook",
+    "parse": "Preview rule",
+    "previewTitle": "What this will do",
+    "noRules": "No usable rule could be built from that instruction. Rules can only archive, label or trash — never reply.",
+    "pendingMatches_one": "{{count}} pending email",
+    "pendingMatches_other": "{{count}} pending emails",
+    "impact_one": "{{count}} email currently in the queue will be handled immediately.",
+    "impact_other": "{{count}} emails currently in the queue will be handled immediately.",
+    "confirm": "Save rule & apply now",
+    "cancel": "Discard",
+    "saved": "{{created}} rule(s) saved · {{applied}} existing email(s) handled.",
+    "savedFailed_one": "{{count}} email could not be handled.",
+    "savedFailed_other": "{{count}} emails could not be handled."
+  },
+  "auto": {
+    "badge": "Auto-handled by rule",
+    "count_one": "{{count}} message handled automatically",
+    "count_other": "{{count}} messages handled automatically",
+    "emptyTitle": "Nothing handled automatically yet",
+    "emptySub": "When a sender rule matches an incoming message, it is actioned during the poll and listed here instead of the queue.",
+    "undo": "Undo"
   }
 }
