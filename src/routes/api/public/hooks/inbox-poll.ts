@@ -169,41 +169,45 @@ async function classify(
   }
 }
 
-type SenderRule = {
-  match_type: "exact_address" | "domain";
-  sender_pattern: string;
-  category: string;
-  action: "archive" | "label_only" | "trash";
-};
-
-/** Bare address out of a `Name <a@b.com>` From header. */
-function addressOf(from: string | null): string | null {
-  if (!from) return null;
-  const m = from.match(/<([^>]+)>/);
-  return (m ? m[1] : from).trim().toLowerCase() || null;
+/**
+ * Rule auto-execution. A rule action is only ever archive | label_only |
+ * trash — `reply` is not representable, so nothing can ever be sent here.
+ */
+async function gmailPost(
+  path: string,
+  connKey: string,
+  lovableKey: string,
+  body: unknown,
+) {
+  const res = await fetch(`${GATEWAY}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": connKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Gmail gateway ${res.status}: ${text.slice(0, 300)}`);
+  }
 }
 
-/** Exact address first, then domain. Rules short-circuit the AI call. */
-function matchRule(
-  rules: SenderRule[],
-  from: string | null,
-): SenderRule | null {
-  const address = addressOf(from);
-  if (!address) return null;
-  const domain = address.split("@")[1] ?? "";
-  const exact = rules.find(
-    (r) =>
-      r.match_type === "exact_address" &&
-      r.sender_pattern.trim().toLowerCase() === address,
-  );
-  if (exact) return exact;
-  return (
-    rules.find(
-      (r) =>
-        r.match_type === "domain" &&
-        r.sender_pattern.trim().toLowerCase().replace(/^@/, "") === domain,
-    ) ?? null
-  );
+async function executeRuleAction(
+  action: RuleAction,
+  messageId: string,
+  connKey: string,
+  lovableKey: string,
+) {
+  if (action === "label_only") return;
+  if (action === "archive") {
+    await gmailPost(`/users/me/messages/${messageId}/modify`, connKey, lovableKey, {
+      removeLabelIds: ["INBOX"],
+    });
+    return;
+  }
+  await gmailPost(`/users/me/messages/${messageId}/trash`, connKey, lovableKey, {});
 }
 
 export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
