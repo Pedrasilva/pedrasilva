@@ -1,7 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Building2, Users, LayoutDashboard, Target } from "lucide-react";
+import { Building2, Users, LayoutDashboard, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 export function CrmShell({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
