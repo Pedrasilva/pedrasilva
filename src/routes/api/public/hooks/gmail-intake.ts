@@ -27,7 +27,12 @@ function safeEqual(a: string, b: string) {
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const BUCKET = "financial-documents";
-const MAX_MESSAGES = 25;
+// Each attachment is buffered in memory before upload, so a large batch blows
+// the worker memory limit and 502s the whole run (nothing gets recorded and the
+// same mails are retried forever). Keep batches small — the job runs every 5min.
+const MAX_MESSAGES = 4;
+/** Attachments above this size are skipped rather than buffered (worker OOM). */
+const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 
 type GmailPart = {
   filename?: string;
@@ -144,6 +149,19 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                     attachment_filename: part.filename ?? null,
                     reason: "not_a_pdf_attachment",
                     payload: { mimeType: part.mimeType ?? null },
+                  });
+                  summary.ignored++;
+                  continue;
+                }
+
+                if ((part.body.size ?? 0) > MAX_ATTACHMENT_BYTES) {
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                    message_id: id,
+                    from_address: from,
+                    subject,
+                    attachment_filename: part.filename ?? null,
+                    reason: "attachment_too_large",
+                    payload: { mimeType: part.mimeType ?? null, size: part.body.size ?? null },
                   });
                   summary.ignored++;
                   continue;

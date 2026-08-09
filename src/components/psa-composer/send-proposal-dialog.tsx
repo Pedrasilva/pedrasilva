@@ -57,6 +57,8 @@ export function SendProposalDialog({
   const filename = buildProposalBaseFilename(proposal, nextRev);
   const [file, setFile] = useState<File | null>(null);
   const [printed, setPrinted] = useState(false);
+  /** Set once a revision snapshot exists so a DocuSign retry does not fork a new revision. */
+  const [pendingSnapshotId, setPendingSnapshotId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const send = useSendProposal(proposal.id);
   const forSignature = mode === "signature";
@@ -119,11 +121,46 @@ export function SendProposalDialog({
       toast.error("Indica o nome e email do signatário do cliente.");
       return;
     }
+    const revLabel = String(nextRev).padStart(2, "0");
+
+    const dispatchSignature = (snapshotId: string) => {
+      sendForSignature.mutate(
+        {
+          snapshotId,
+          clientName: nameValue.trim(),
+          clientEmail: emailValue.trim(),
+        },
+        {
+          onSuccess: () => {
+            toast.success(
+              `Revisão ${revLabel} enviada para assinatura — o cliente assina primeiro.`,
+            );
+            setPendingSnapshotId(null);
+            setFile(null);
+            setPrinted(false);
+            onOpenChange(false);
+          },
+          onError: (err: unknown) => {
+            const msg = err instanceof Error ? err.message : "Erro a criar envelope DocuSign";
+            toast.error(
+              `Revisão ${revLabel} guardada, mas o envio para assinatura falhou: ${msg}. Tenta novamente — não será criada nova revisão.`,
+            );
+          },
+        },
+      );
+    };
+
+    // The revision is already frozen: a retry must only re-attempt DocuSign,
+    // never allocate another rev number / snapshot.
+    if (forSignature && pendingSnapshotId) {
+      dispatchSignature(pendingSnapshotId);
+      return;
+    }
+
     send.mutate(
       { pdfBlob: file, filename },
       {
         onSuccess: (result) => {
-          const revLabel = String(nextRev).padStart(2, "0");
           if (!forSignature) {
             toast.success(`Revisão ${revLabel} guardada.`);
             setFile(null);
@@ -131,29 +168,8 @@ export function SendProposalDialog({
             onOpenChange(false);
             return;
           }
-          sendForSignature.mutate(
-            {
-              snapshotId: result.snapshotId,
-              clientName: nameValue.trim(),
-              clientEmail: emailValue.trim(),
-            },
-            {
-              onSuccess: () => {
-                toast.success(
-                  `Revisão ${revLabel} enviada para assinatura — o cliente assina primeiro.`,
-                );
-                setFile(null);
-                setPrinted(false);
-                onOpenChange(false);
-              },
-              onError: (err: unknown) => {
-                const msg = err instanceof Error ? err.message : "Erro a criar envelope DocuSign";
-                toast.error(
-                  `Revisão ${revLabel} guardada, mas o envio para assinatura falhou: ${msg}`,
-                );
-              },
-            },
-          );
+          setPendingSnapshotId(result.snapshotId);
+          dispatchSignature(result.snapshotId);
         },
         onError: (err: unknown) => {
           const msg = err instanceof Error ? err.message : "Erro a enviar proposta";
