@@ -11,6 +11,9 @@ import { createFileRoute } from "@tanstack/react-router";
 /** Refuse anything implausibly large for an inline email image. */
 const MAX_BYTES = 8 * 1024 * 1024;
 
+/** Redirect hops we are willing to re-validate and follow. */
+const MAX_REDIRECTS = 3;
+
 export const Route = createFileRoute("/api/public/inbox/image")({
   server: {
     handlers: {
