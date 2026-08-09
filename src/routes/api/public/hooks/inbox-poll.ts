@@ -169,6 +169,43 @@ async function classify(
   }
 }
 
+type SenderRule = {
+  match_type: "exact_address" | "domain";
+  sender_pattern: string;
+  category: string;
+  action: "archive" | "label_only" | "trash";
+};
+
+/** Bare address out of a `Name <a@b.com>` From header. */
+function addressOf(from: string | null): string | null {
+  if (!from) return null;
+  const m = from.match(/<([^>]+)>/);
+  return (m ? m[1] : from).trim().toLowerCase() || null;
+}
+
+/** Exact address first, then domain. Rules short-circuit the AI call. */
+function matchRule(
+  rules: SenderRule[],
+  from: string | null,
+): SenderRule | null {
+  const address = addressOf(from);
+  if (!address) return null;
+  const domain = address.split("@")[1] ?? "";
+  const exact = rules.find(
+    (r) =>
+      r.match_type === "exact_address" &&
+      r.sender_pattern.trim().toLowerCase() === address,
+  );
+  if (exact) return exact;
+  return (
+    rules.find(
+      (r) =>
+        r.match_type === "domain" &&
+        r.sender_pattern.trim().toLowerCase().replace(/^@/, "") === domain,
+    ) ?? null
+  );
+}
+
 export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
   server: {
     handlers: {
@@ -210,12 +247,19 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
           );
         }
 
+        const { data: senderRules } = await supabaseAdmin
+          .from("email_sender_rules")
+          .select("match_type, sender_pattern, category, action")
+          .eq("is_active", true);
+        const rules = (senderRules ?? []) as SenderRule[];
+
         const summary = {
           inboxes: 0,
           scanned: 0,
           inserted: 0,
           duplicates: 0,
           errors: [] as string[],
+          ruleMatched: 0,
         };
 
         for (const inbox of inboxes ?? []) {
@@ -313,10 +357,12 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                 const snippet: string = msg.snippet ?? "";
                 const body = plainBody(msg.payload as GmailPart) || snippet;
 
-                const result = await classify(
-                  { from, subject, body },
-                  lovableKey,
-                );
+                const rule = matchRule(rules, from);
+                if (rule) summary.ruleMatched++;
+
+                const result = rule
+                  ? null
+                  : await classify({ from, subject, body }, lovableKey);
 
                 const category = CATEGORIES.includes(
                   result?.category as (typeof CATEGORIES)[number],
@@ -342,14 +388,18 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                     received_at: msg.internalDate
                       ? new Date(Number(msg.internalDate)).toISOString()
                       : null,
-                    category,
-                    confidence:
-                      typeof result?.confidence === "number"
+                    category: rule ? rule.category : category,
+                    confidence: rule
+                      ? 1.0
+                      : typeof result?.confidence === "number"
                         ? result.confidence
                         : null,
-                    suggested_action: action,
+                    suggested_action: rule ? rule.action : action,
                     draft_reply:
-                      action === "reply" ? (result?.draft_reply ?? null) : null,
+                      !rule && action === "reply"
+                        ? (result?.draft_reply ?? null)
+                        : null,
+                    classification_source: rule ? "rule" : "ai",
                     status: "pending",
                   });
 
