@@ -72,8 +72,10 @@ import { VersionsPanel } from "./versions-panel";
 import { ImportTemplateDialog } from "./import-template-dialog";
 import {
   useNextRevNumber,
+  useProposalRevisions,
   useSetProposalOutcome,
 } from "@/lib/psa-proposal/use-proposal-revisions";
+import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signatures";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
 
@@ -103,6 +105,7 @@ export function ComposerTopBar({
   const [convertOpen, setConvertOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const [signOpen, setSignOpen] = useState(false);
+  const [signExistingOpen, setSignExistingOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -118,6 +121,13 @@ export function ComposerTopBar({
   const isFinalLocked = !!proposal.locked_at;
   const isSentLocked = !isFinalLocked && proposal.status === "sent";
   const isReadOnly = isFinalLocked || isSentLocked || !!historical;
+  const { data: revisions } = useProposalRevisions(proposal.id);
+  const { data: signatures } = useProposalSignatures(proposal.id);
+  // Newest sent revision with a stored PDF — the document DocuSign would sign.
+  const latestSnapshot = (revisions ?? []).find((r) => !!r.pdf_storage_path);
+  const hasSignatureForLatest = (signatures ?? []).some(
+    (s) => s.snapshot_id === latestSnapshot?.id,
+  );
 
   const startNewRevision = () =>
     update.mutate(
@@ -235,6 +245,17 @@ export function ComposerTopBar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {isSentLocked && latestSnapshot && !hasSignatureForLatest && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-indigo-300 text-indigo-800 hover:bg-indigo-50"
+            onClick={() => setSignExistingOpen(true)}
+            title="Enviar a revisão já enviada para assinatura DocuSign, sem criar nova revisão"
+          >
+            <FileSignature className="mr-1 h-3.5 w-3.5" /> Enviar para assinatura
+          </Button>
+        )}
         {isSentLocked && (
           <Button
             size="sm"
@@ -387,6 +408,22 @@ export function ComposerTopBar({
         proposal={proposal}
         nextRev={nextRev}
         mode="signature"
+      />
+      <SendProposalDialog
+        open={signExistingOpen}
+        onOpenChange={setSignExistingOpen}
+        proposal={proposal}
+        nextRev={nextRev}
+        mode="signature-existing"
+        existingSnapshot={
+          latestSnapshot
+            ? {
+                id: latestSnapshot.id,
+                revNumber: latestSnapshot.rev_number,
+                filename: latestSnapshot.pdf_filename,
+              }
+            : undefined
+        }
       />
       <SendProposalDialog
         open={sendOpen}
