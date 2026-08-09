@@ -270,6 +270,7 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
           duplicates: 0,
           errors: [] as string[],
           ruleMatched: 0,
+          autoHandled: 0,
         };
 
         for (const inbox of inboxes ?? []) {
