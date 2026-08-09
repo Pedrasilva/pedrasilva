@@ -272,7 +272,7 @@ export const getEmailMessageContent = createServerFn({ method: "POST" })
             allowedAttributes: {
               ...sanitizeHtml.defaults.allowedAttributes,
               "*": ["style", "align", "width", "height", "colspan", "rowspan"],
-              img: ["src", "alt", "width", "height", "style"],
+              img: ["src", "alt", "width", "height", "style", "loading"],
               a: ["href", "name", "target", "rel"],
             },
             allowedSchemes: ["http", "https", "mailto", "cid", "data"],
