@@ -734,6 +734,8 @@ function QuoteDetail() {
   const [convertOpen, setConvertOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [revisionsOpen, setRevisionsOpen] = useState(false);
+  const [buildSettingsOpen, setBuildSettingsOpen] = useState(false);
 
   const handleConvert = () => {
     if (!quote) return;
