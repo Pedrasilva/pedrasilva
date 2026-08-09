@@ -217,3 +217,118 @@ export const undoEmailEventAction = createServerFn({ method: "POST" })
     if (updErr) throw new Error(updErr.message);
     return { ok: true };
   });
+
+/* ------------------------------------------------------------------ *
+ * Content view, attachment proxy and forwarding.
+ * ------------------------------------------------------------------ */
+
+export type EmailMessageContent = {
+  html: string | null;
+  text: string | null;
+  attachments: Array<{
+    attachmentId: string;
+    filename: string;
+    mimeType: string;
+    size: number;
+  }>;
+  docsIntakeAddress: string | null;
+};
+
+async function ctxForEvent(id: string) {
+  const { data, error } = await supabaseAdmin
+    .from("email_events")
+    .select("id, gmail_message_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Message not found");
+  const ctx = await resolveInboxForMessage(
+    await activeInboxes(),
+    data.gmail_message_id,
+  );
+  return { ctx, gmailMessageId: data.gmail_message_id };
+}
+
+/** Full body + attachment manifest. HTML is sanitised server-side. */
+export const getEmailMessageContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<EmailMessageContent> => {
+    await assertCanTriage(context.userId);
+    const { ctx, gmailMessageId } = await ctxForEvent(data.id);
+    const { getMessageContent } = await import("./gmail.server");
+    const content = await getMessageContent(ctx, gmailMessageId);
+    const sanitizeHtml = (await import("sanitize-html")).default;
+    return {
+      html: content.html
+        ? sanitizeHtml(content.html, {
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+              "img",
+              "style",
+            ]),
+            allowedAttributes: {
+              ...sanitizeHtml.defaults.allowedAttributes,
+              "*": ["style", "align", "width", "height", "colspan", "rowspan"],
+              img: ["src", "alt", "width", "height", "style"],
+              a: ["href", "name", "target", "rel"],
+            },
+            allowedSchemes: ["http", "https", "mailto", "cid", "data"],
+            transformTags: {
+              a: sanitizeHtml.simpleTransform("a", {
+                target: "_blank",
+                rel: "noopener noreferrer nofollow",
+              }),
+            },
+          })
+        : null,
+      text: content.text,
+      attachments: content.attachments,
+      docsIntakeAddress: process.env["FINANCE_DOCS_INTAKE_ADDRESS"] ?? null,
+    };
+  });
+
+/** Attachment bytes proxied through the gateway — the client never sees auth. */
+export const downloadEmailAttachment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        attachmentId: z.string().min(1).max(2000),
+      })
+      .parse(input),
+  )
+  .handler(
+    async ({ data, context }): Promise<{ base64: string }> => {
+      await assertCanTriage(context.userId);
+      const { ctx, gmailMessageId } = await ctxForEvent(data.id);
+      const { getAttachment } = await import("./gmail.server");
+      return getAttachment(ctx, gmailMessageId, data.attachmentId);
+    },
+  );
+
+/** Forward the message with its attachments. Does not resolve the queue row. */
+export const forwardEmailEvent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        to: z.string().trim().email().max(320),
+        note: z.string().trim().max(5000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertCanTriage(context.userId);
+    const { ctx, gmailMessageId } = await ctxForEvent(data.id);
+    const { forwardMessage } = await import("./gmail.server");
+    await forwardMessage(ctx, {
+      gmailMessageId,
+      to: data.to,
+      ...(data.note ? { note: data.note } : {}),
+    });
+    return { ok: true };
+  });

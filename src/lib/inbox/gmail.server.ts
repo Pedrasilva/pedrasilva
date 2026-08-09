@@ -179,3 +179,151 @@ export async function untrashMessage(
     body: JSON.stringify({}),
   });
 }
+
+/* ------------------------------------------------------------------ *
+ * Content view: full body + attachments, and forwarding.
+ * ------------------------------------------------------------------ */
+
+type GmailPart = {
+  partId?: string;
+  filename?: string;
+  mimeType?: string;
+  body?: { attachmentId?: string; size?: number; data?: string };
+  parts?: GmailPart[];
+  headers?: Array<{ name: string; value: string }>;
+};
+
+function flattenParts(part: GmailPart | undefined): GmailPart[] {
+  if (!part) return [];
+  return [part, ...(part.parts ?? []).flatMap(flattenParts)];
+}
+
+function decodeB64Url(data: string): string {
+  return Buffer.from(data.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString(
+    "utf8",
+  );
+}
+
+export type GmailAttachment = {
+  attachmentId: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+};
+
+export type GmailMessageContent = {
+  html: string | null;
+  text: string | null;
+  attachments: GmailAttachment[];
+};
+
+/** Full message body (HTML preferred) plus the attachment manifest. */
+export async function getMessageContent(
+  ctx: GmailContext,
+  gmailMessageId: string,
+): Promise<GmailMessageContent> {
+  const msg = (await gmailFetch(
+    `/users/me/messages/${gmailMessageId}?format=full`,
+    ctx,
+  )) as { payload?: GmailPart };
+
+  const parts = flattenParts(msg.payload);
+  let html: string | null = null;
+  let text: string | null = null;
+  const attachments: GmailAttachment[] = [];
+
+  for (const p of parts) {
+    const isAttachment = !!p.filename && !!p.body?.attachmentId;
+    if (isAttachment) {
+      attachments.push({
+        attachmentId: p.body!.attachmentId!,
+        filename: p.filename!,
+        mimeType: p.mimeType ?? "application/octet-stream",
+        size: p.body?.size ?? 0,
+      });
+      continue;
+    }
+    if (!p.body?.data) continue;
+    if (p.mimeType === "text/html" && html === null) html = decodeB64Url(p.body.data);
+    else if (p.mimeType === "text/plain" && text === null)
+      text = decodeB64Url(p.body.data);
+  }
+
+  return { html, text, attachments };
+}
+
+/** Raw attachment bytes (base64url from Gmail, returned as base64). */
+export async function getAttachment(
+  ctx: GmailContext,
+  gmailMessageId: string,
+  attachmentId: string,
+): Promise<{ base64: string }> {
+  const att = (await gmailFetch(
+    `/users/me/messages/${gmailMessageId}/attachments/${attachmentId}`,
+    ctx,
+  )) as { data?: string };
+  if (!att.data) throw new Error("Attachment has no content");
+  return { base64: att.data.replace(/-/g, "+").replace(/_/g, "/") };
+}
+
+/**
+ * Forward the message, attachments included, by re-uploading the original
+ * parts into a fresh multipart/mixed MIME message. Requires `gmail.send`.
+ */
+export async function forwardMessage(
+  ctx: GmailContext,
+  args: { gmailMessageId: string; to: string; note?: string },
+): Promise<{ id: string }> {
+  const msg = (await gmailFetch(
+    `/users/me/messages/${args.gmailMessageId}?format=full`,
+    ctx,
+  )) as { payload?: GmailPart };
+
+  const headers = msg.payload?.headers;
+  const subject = header(headers, "Subject") ?? "";
+  const from = header(headers, "From") ?? "";
+  const date = header(headers, "Date") ?? "";
+  const content = await getMessageContent(ctx, args.gmailMessageId);
+
+  const intro = [
+    args.note?.trim() ? `${args.note.trim()}\r\n` : "",
+    "---------- Forwarded message ----------",
+    `From: ${from}`,
+    `Date: ${date}`,
+    `Subject: ${subject}`,
+    "",
+    content.text ?? (content.html ? content.html.replace(/<[^>]+>/g, " ") : ""),
+  ].join("\r\n");
+
+  const boundary = `psa_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  const chunks: string[] = [
+    `To: ${args.to}`,
+    `Subject: ${/^fwd:/i.test(subject) ? subject : `Fwd: ${subject}`}`,
+    "MIME-Version: 1.0",
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    "",
+    `--${boundary}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    "",
+    intro,
+  ];
+
+  for (const att of content.attachments) {
+    const { base64 } = await getAttachment(ctx, args.gmailMessageId, att.attachmentId);
+    chunks.push(
+      `--${boundary}`,
+      `Content-Type: ${att.mimeType}; name="${att.filename}"`,
+      `Content-Disposition: attachment; filename="${att.filename}"`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      base64.replace(/(.{76})/g, "$1\r\n"),
+    );
+  }
+  chunks.push(`--${boundary}--`, "");
+
+  const sent = (await gmailFetch("/users/me/messages/send", ctx, {
+    method: "POST",
+    body: JSON.stringify({ raw: base64url(chunks.join("\r\n")) }),
+  })) as { id: string };
+  return { id: sent.id };
+}
