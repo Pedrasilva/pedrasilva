@@ -882,22 +882,6 @@ function QuoteDetail() {
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
-          {(isProject || isRetainer) && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={scheduleSync.syncFromGantt}
-              disabled={scheduleSync.disabled || isLocked}
-              title={t("workspace.payment.headerUpdateHint")}
-            >
-              <RefreshCw className={cn("h-4 w-4", scheduleSync.isPending && "animate-spin")} />
-              {t("workspace.payment.headerUpdate")}
-            </Button>
-          )}
-          <QuoteRevisionsButton quoteId={quoteId} />
-          <QuoteBuildSettingsDialog quoteId={quoteId} disabled={isLocked && !isAdmin} />
-
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -908,12 +892,61 @@ function QuoteDetail() {
             onConvert={handleConvert}
             isConverting={convert.isPending}
           />
-          <Button variant="outline" size="sm" onClick={() => setSaveTemplateOpen(true)}>
-            {t("templates.actions.saveAs")}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" title="Mais ações">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {(isProject || isRetainer) && (
+                <DropdownMenuItem
+                  onSelect={scheduleSync.syncFromGantt}
+                  disabled={scheduleSync.disabled || isLocked}
+                >
+                  <RefreshCw
+                    className={cn("mr-2 h-3.5 w-3.5", scheduleSync.isPending && "animate-spin")}
+                  />
+                  {t("workspace.payment.headerUpdate")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onSelect={() => setRevisionsOpen(true)}>
+                Histórico de revisões
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={isLocked && !isAdmin}
+                onSelect={() => setBuildSettingsOpen(true)}
+              >
+                <Settings className="mr-2 h-3.5 w-3.5" /> Definições de construção
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setSaveTemplateOpen(true)}>
+                {t("templates.actions.saveAs")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => setDeleteOpen(true)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-3.5 w-3.5" /> {t("common.delete")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <QuoteRevisionsButton
+            quoteId={quoteId}
+            open={revisionsOpen}
+            onOpenChange={setRevisionsOpen}
+            hideTrigger
+          />
+          <QuoteBuildSettingsDialog
+            quoteId={quoteId}
+            disabled={isLocked && !isAdmin}
+            open={buildSettingsOpen}
+            onOpenChange={setBuildSettingsOpen}
+            hideTrigger
+          />
+
         </div>
       </div>
 
