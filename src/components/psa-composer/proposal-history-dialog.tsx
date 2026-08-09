@@ -39,8 +39,20 @@ function relTime(iso: string) {
   return d.toLocaleString("pt-PT");
 }
 
-export function ProposalHistoryDialog({ proposalId }: { proposalId: string }) {
-  const [open, setOpen] = useState(false);
+export function ProposalHistoryDialog({
+  proposalId,
+  open: openProp,
+  onOpenChange,
+  hideTrigger = false,
+}: {
+  proposalId: string;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
+}) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChange ?? setOpenState;
   const [label, setLabel] = useState("");
   const list = useProposalSnapshots(open ? proposalId : undefined);
   const create = useCreateSnapshot(proposalId);
@@ -49,15 +61,17 @@ export function ProposalHistoryDialog({ proposalId }: { proposalId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          title="Recuperação de autosaves (avançado) — não é o histórico de revisões"
-        >
-          <History className="mr-1 h-3.5 w-3.5" /> Autosaves
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            title="Recuperação de autosaves (avançado) — não é o histórico de revisões"
+          >
+            <History className="mr-1 h-3.5 w-3.5" /> Autosaves
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Recuperação de autosaves (avançado)</DialogTitle>
