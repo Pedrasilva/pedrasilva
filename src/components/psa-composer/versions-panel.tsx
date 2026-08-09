@@ -5,6 +5,7 @@
  * what was sent) or downloaded as the archived PDF. Nothing here writes to
  * the live quote.
  */
+import { useState } from "react";
 import { toast } from "sonner";
 import { Download, Eye, History, Lock, Pencil } from "lucide-react";
 import { Link } from "@tanstack/react-router";
