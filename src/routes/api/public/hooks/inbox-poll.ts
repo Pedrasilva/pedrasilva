@@ -1,13 +1,14 @@
 /**
  * Inbox poller — reads every active mailbox in `email_sync_state`, classifies
- * new messages with Lovable AI, and writes them to `email_events` as
- * `pending`.
+ * new messages and writes them to `email_events`.
  *
  * Guarantees:
- *  - READ-ONLY against Gmail. Nothing is sent, archived, labelled or modified,
- *    regardless of category or confidence.
- *  - Every classified message lands as `status = 'pending'` for human review
- *    (all `email_rules` rows currently have `requires_review = true`).
+ *  - Nothing is ever SENT. The only Gmail writes are archive / trash, and only
+ *    when an admin-created sender rule matches the sender.
+ *  - A rule match is executed immediately and the row is inserted already
+ *    resolved (`archived` / `trashed` / `labeled`) — it never queues.
+ *  - Every AI-classified message (no rule match) lands as `status = 'pending'`
+ *    for human review.
  *  - Idempotent: `email_events.gmail_message_id` is UNIQUE; conflicts are
  *    swallowed instead of pre-queried.
  *  - Per-inbox isolation: a failing mailbox is logged and the run continues.
