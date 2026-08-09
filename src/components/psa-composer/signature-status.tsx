@@ -20,15 +20,24 @@ import {
 
 async function openSignedPdf(sig: ProposalSignature) {
   if (!sig.signed_pdf_storage_path) return;
+  // Blob download instead of a signed URL — storage URLs get blocked by ad-blockers.
   const { data, error } = await supabase.storage
     .from("proposal-pdfs")
-    .createSignedUrl(sig.signed_pdf_storage_path, 300);
+    .download(sig.signed_pdf_storage_path);
   if (error || !data) {
     toast.error("Não foi possível obter o PDF assinado.");
     return;
   }
-  window.open(data.signedUrl, "_blank", "noopener");
+  const url = URL.createObjectURL(data.slice(0, data.size, "application/pdf"));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = sig.signed_pdf_storage_path.split("/").pop() ?? "proposal-signed.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
+
 
 export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) {
   const { data: signatures = [] } = useProposalSignatures(proposalId);

@@ -46,20 +46,23 @@ type DocumentRow = {
 };
 
 async function openStoredPdf(path: string, filename?: string | null) {
-  const { data, error } = await supabase.storage.from(PDF_BUCKET).createSignedUrl(path, 300);
+  // Fetch the bytes through the SDK and hand the browser a local blob URL —
+  // direct storage URLs are frequently blocked by ad-blockers (ERR_BLOCKED_BY_CLIENT).
+  const { data, error } = await supabase.storage.from(PDF_BUCKET).download(path);
   if (error || !data) {
-    toast.error(error?.message ?? "PDF");
+    toast.error(error?.message ?? "Não foi possível obter o PDF.");
     return;
   }
+  const url = URL.createObjectURL(data.slice(0, data.size, "application/pdf"));
   const a = document.createElement("a");
-  a.href = data.signedUrl;
+  a.href = url;
   a.download = filename ?? path.split("/").pop() ?? "proposal.pdf";
-  a.target = "_blank";
-  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
   a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
+
 
 function useOpportunityDocuments(opportunityId: string) {
   return useQuery({
