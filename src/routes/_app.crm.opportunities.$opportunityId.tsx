@@ -18,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { AccountSuggestField } from "@/components/crm/account-suggest-field";
+import { OpportunityDocumentsCard } from "@/components/crm/opportunity-documents-card";
 
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
@@ -632,6 +633,8 @@ function OpportunityDetail() {
               </Button>
             </CardContent>
           </Card>
+
+          <OpportunityDocumentsCard opportunityId={opp.id} />
         </div>
 
         {/* RIGHT: activity timeline */}
