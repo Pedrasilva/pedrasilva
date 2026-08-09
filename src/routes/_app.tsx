@@ -94,7 +94,10 @@ function AppLayout() {
               />
             </Link>
 
+            <ModuleTabs />
+
             <div className="flex-1" />
+
 
             {/* Top-right global action hubs */}
             <div className="flex items-center gap-1.5">
