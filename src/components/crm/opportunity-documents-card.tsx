@@ -64,14 +64,18 @@ async function openStoredPdf(path: string, filename?: string | null) {
 }
 
 
-function useOpportunityDocuments(opportunityId: string) {
+function useProposalDocuments(scope: { opportunityId?: string; quoteId?: string }) {
   return useQuery({
-    queryKey: ["crm-opportunity-documents", opportunityId],
+    queryKey: ["crm-opportunity-documents", scope.opportunityId ?? null, scope.quoteId ?? null],
     queryFn: async (): Promise<DocumentRow[]> => {
-      const { data: quotes, error: qErr } = await sb
+
+      const quoteQuery = sb
         .from("fee_proposals")
-        .select("id, titulo, archived_at, deleted_at")
-        .eq("opportunity_id", opportunityId);
+        .select("id, titulo, archived_at, deleted_at");
+      const { data: quotes, error: qErr } = await (scope.quoteId
+        ? quoteQuery.eq("id", scope.quoteId)
+        : quoteQuery.eq("opportunity_id", scope.opportunityId!));
+
       if (qErr) throw new Error(qErr.message);
       const activeQuotes = ((quotes ?? []) as {
         id: string; titulo: string | null; archived_at: string | null; deleted_at: string | null;
@@ -136,9 +140,19 @@ function useOpportunityDocuments(opportunityId: string) {
   });
 }
 
+/** Same documents surface scoped to a single quote (proposal workspace). */
+export function QuoteDocumentsCard({ quoteId }: { quoteId: string }) {
+  return <DocumentsCard scope={{ quoteId }} />;
+}
+
 export function OpportunityDocumentsCard({ opportunityId }: { opportunityId: string }) {
+  return <DocumentsCard scope={{ opportunityId }} />;
+}
+
+function DocumentsCard({ scope }: { scope: { opportunityId?: string; quoteId?: string } }) {
   const { t } = useTranslation("crm");
-  const { data: docs = [], isLoading } = useOpportunityDocuments(opportunityId);
+  const { data: docs = [], isLoading } = useProposalDocuments(scope);
+
 
   return (
     <Card>

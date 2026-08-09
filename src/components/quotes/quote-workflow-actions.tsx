@@ -123,6 +123,10 @@ export function QuoteWorkflowActions({
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
+      // Status transitions stamp/clear fee_proposals.locked_at in the DB —
+      // refresh the lock so every lock-aware control updates immediately.
+      qc.invalidateQueries({ queryKey: ["quote-lock"] });
+
       if (next === "approved") onApproved?.();
     },
     onError: (e: Error) => toast.error(e.message),
