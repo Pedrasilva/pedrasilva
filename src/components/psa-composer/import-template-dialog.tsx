@@ -20,8 +20,20 @@ import { cn } from "@/lib/utils";
 import { useQuoteTemplates } from "@/lib/quotes/quote-templates";
 import { useImportTemplateBlocks } from "@/lib/psa-proposal/use-psa-proposal";
 
-export function ImportTemplateDialog({ proposalId }: { proposalId: string }) {
-  const [open, setOpen] = useState(false);
+export function ImportTemplateDialog({
+  proposalId,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
+}: {
+  proposalId: string;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
+}) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChangeProp ?? setOpenState;
   const [step, setStep] = useState<"pick" | "confirm">("pick");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const { data: templates = [], isLoading } = useQuoteTemplates();
@@ -53,14 +65,16 @@ export function ImportTemplateDialog({ proposalId }: { proposalId: string }) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setOpen(true)}
-        title="Substituir todos os blocos pela biblioteca de um template"
-      >
-        <LayoutTemplate className="mr-1 h-3.5 w-3.5" /> Importar template
-      </Button>
+      {!hideTrigger && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setOpen(true)}
+          title="Substituir todos os blocos pela biblioteca de um template"
+        >
+          <LayoutTemplate className="mr-1 h-3.5 w-3.5" /> Importar template
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
