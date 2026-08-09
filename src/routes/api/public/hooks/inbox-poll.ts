@@ -385,8 +385,16 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                   ? result!.suggested_action
                   : null;
 
-                // `requires_review` is true for every seeded rule, so the row
-                // is always inserted as pending — no Gmail side effects here.
+                // Rule match: execute the Gmail action now and insert the row
+                // already resolved — it never appears in the review queue.
+                // AI-classified messages always land as `pending`.
+                let finalStatus = "pending";
+                if (rule) {
+                  await executeRuleAction(rule.action, id, connKey, lovableKey);
+                  finalStatus = statusForAction(rule.action);
+                  summary.autoHandled++;
+                }
+
                 const { error: insErr } = await supabaseAdmin
                   .from("email_events")
                   .insert({
@@ -410,7 +418,8 @@ export const Route = createFileRoute("/api/public/hooks/inbox-poll")({
                         ? (result?.draft_reply ?? null)
                         : null,
                     classification_source: rule ? "rule" : "ai",
-                    status: "pending",
+                    status: finalStatus,
+                    ...(rule ? { reviewed_at: new Date().toISOString() } : {}),
                   });
 
                 if (insErr) {
