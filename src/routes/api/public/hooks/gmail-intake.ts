@@ -27,7 +27,12 @@ function safeEqual(a: string, b: string) {
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const BUCKET = "financial-documents";
-const MAX_MESSAGES = 25;
+// Each attachment is buffered in memory before upload, so a large batch blows
+// the worker memory limit and 502s the whole run (nothing gets recorded and the
+// same mails are retried forever). Keep batches small — the job runs every 5min.
+const MAX_MESSAGES = 4;
+/** Attachments above this size are skipped rather than buffered (worker OOM). */
+const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 
 type GmailPart = {
   filename?: string;
