@@ -1,12 +1,14 @@
 /**
  * Inbox review queue — every Gmail-visible action here is one explicit click
- * on one row. No batch actions, no automatic sends or archives.
+ * on one row, confirmed in a dialog, and reversible for 8 seconds afterwards.
+ * No batch actions, no automatic sends, archives or trashes.
  */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   AlertTriangle,
   Archive,
@@ -15,6 +17,7 @@ import {
   Loader2,
   Send,
   Tag,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -24,16 +27,30 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   approveAndSendReply,
   archiveEmailEvent,
   listPendingEmailEvents,
   resolveEmailEventWithoutGmail,
+  trashEmailEvent,
+  undoEmailEventAction,
   type PendingEmailEvent,
 } from "@/lib/inbox/inbox.functions";
 
 export const Route = createFileRoute("/_app/inbox/")({
   component: InboxTriagePage,
 });
+
+type ActionKind = "send" | "archive" | "trash" | "label" | "reject";
 
 function InboxTriagePage() {
   const { t } = useTranslation(["inbox", "common"]);
@@ -109,46 +126,93 @@ function EmailRow({
   const { t } = useTranslation(["inbox", "common"]);
   const [draft, setDraft] = useState(row.draft_reply ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<ActionKind | null>(null);
 
   const sendFn = useServerFn(approveAndSendReply);
   const archiveFn = useServerFn(archiveEmailEvent);
+  const trashFn = useServerFn(trashEmailEvent);
   const resolveFn = useServerFn(resolveEmailEventWithoutGmail);
+  const undoFn = useServerFn(undoEmailEventAction);
 
   const fail = (e: unknown) =>
     setError(e instanceof Error ? e.message : String(e));
 
+  /** Success toast — undoable for 8s except for a reply, which is already out. */
+  const succeeded = (kind: ActionKind) => {
+    onDone();
+    if (kind === "send") {
+      toast.success(t("inbox:queue.doneSend"));
+      return;
+    }
+    toast.success(t(`inbox:queue.done.${kind}`), {
+      duration: 8000,
+      action: {
+        label: t("inbox:queue.undo"),
+        onClick: () => {
+          void undoFn({ data: { id: row.id } })
+            .then(() => {
+              toast.success(t("inbox:queue.undone"));
+              onDone();
+            })
+            .catch((e: unknown) =>
+              toast.error(t("inbox:queue.undoFailed"), {
+                description: e instanceof Error ? e.message : undefined,
+              }),
+            );
+        },
+      },
+    });
+  };
+
   const sendM = useMutation({
     mutationFn: () => sendFn({ data: { id: row.id, body: draft } }),
     onMutate: () => setError(null),
-    onSuccess: onDone,
+    onSuccess: () => succeeded("send"),
     onError: fail,
   });
   const archiveM = useMutation({
     mutationFn: () => archiveFn({ data: { id: row.id } }),
     onMutate: () => setError(null),
-    onSuccess: onDone,
+    onSuccess: () => succeeded("archive"),
+    onError: fail,
+  });
+  const trashM = useMutation({
+    mutationFn: () => trashFn({ data: { id: row.id } }),
+    onMutate: () => setError(null),
+    onSuccess: () => succeeded("trash"),
     onError: fail,
   });
   const labelM = useMutation({
     mutationFn: () => resolveFn({ data: { id: row.id, status: "labeled" } }),
     onMutate: () => setError(null),
-    onSuccess: onDone,
+    onSuccess: () => succeeded("label"),
     onError: fail,
   });
   const rejectM = useMutation({
     mutationFn: () => resolveFn({ data: { id: row.id, status: "rejected" } }),
     onMutate: () => setError(null),
-    onSuccess: onDone,
+    onSuccess: () => succeeded("reject"),
     onError: fail,
   });
 
   const busy =
     sendM.isPending ||
     archiveM.isPending ||
+    trashM.isPending ||
     labelM.isPending ||
     rejectM.isPending;
 
   const canSend = row.suggested_action === "reply" && !!row.draft_reply;
+
+  function runConfirmed() {
+    const kind = confirm;
+    setConfirm(null);
+    if (kind === "send") sendM.mutate();
+    else if (kind === "archive") archiveM.mutate();
+    else if (kind === "trash") trashM.mutate();
+    else if (kind === "label") labelM.mutate();
+    else if (kind === "reject") rejectM.mutate();
+  }
 
   return (
     <Card className="overflow-hidden">
@@ -178,6 +242,13 @@ function EmailRow({
               <Badge variant="outline">
                 {t(`inbox:action.${row.suggested_action}`, {
                   defaultValue: row.suggested_action,
+                })}
+              </Badge>
+            )}
+            {row.classification_source && (
+              <Badge variant="outline">
+                {t(`inbox:source.${row.classification_source}`, {
+                  defaultValue: row.classification_source,
                 })}
               </Badge>
             )}
@@ -243,7 +314,7 @@ function EmailRow({
               <Button
                 size="sm"
                 disabled={busy || !draft.trim()}
-                onClick={() => sendM.mutate()}
+                onClick={() => setConfirm("send")}
               >
                 {sendM.isPending ? (
                   <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
@@ -257,7 +328,7 @@ function EmailRow({
               size="sm"
               variant="outline"
               disabled={busy}
-              onClick={() => archiveM.mutate()}
+              onClick={() => setConfirm("archive")}
             >
               {archiveM.isPending ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
@@ -268,9 +339,22 @@ function EmailRow({
             </Button>
             <Button
               size="sm"
+              variant="destructive"
+              disabled={busy}
+              onClick={() => setConfirm("trash")}
+            >
+              {trashM.isPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-1.5 h-4 w-4" />
+              )}
+              {t("inbox:queue.trash")}
+            </Button>
+            <Button
+              size="sm"
               variant="outline"
               disabled={busy}
-              onClick={() => labelM.mutate()}
+              onClick={() => setConfirm("label")}
             >
               {labelM.isPending ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
@@ -283,7 +367,7 @@ function EmailRow({
               size="sm"
               variant="ghost"
               disabled={busy}
-              onClick={() => rejectM.mutate()}
+              onClick={() => setConfirm("reject")}
             >
               {rejectM.isPending ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
@@ -298,6 +382,28 @@ function EmailRow({
           </p>
         </CardContent>
       )}
+
+      <AlertDialog
+        open={confirm !== null}
+        onOpenChange={(v) => (!v ? setConfirm(null) : null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirm ? t(`inbox:confirm.${confirm}.title`) : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm ? t(`inbox:confirm.${confirm}.body`) : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("inbox:confirm.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={runConfirmed}>
+              {confirm ? t(`inbox:confirm.${confirm}.confirm`) : ""}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
