@@ -154,6 +154,19 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                   continue;
                 }
 
+                if ((part.body.size ?? 0) > MAX_ATTACHMENT_BYTES) {
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                    message_id: id,
+                    from_address: from,
+                    subject,
+                    attachment_filename: part.filename ?? null,
+                    reason: "attachment_too_large",
+                    payload: { mimeType: part.mimeType ?? null, size: part.body.size ?? null },
+                  });
+                  summary.ignored++;
+                  continue;
+                }
+
                 const att = await gmail(
                   `/users/me/messages/${id}/attachments/${part.body.attachmentId}`,
                   connKey,
