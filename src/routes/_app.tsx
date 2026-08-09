@@ -22,7 +22,8 @@ import {
 import { LogOut, Menu } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
-import { GlobalTopNav } from "@/components/GlobalTopNav";
+import { ModuleTopNav } from "@/components/ModuleTopNav";
+import { ModuleTabs } from "@/components/shell/ModuleTabs";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { AppRail } from "@/components/shell/AppRail";
 import { RAIL_ITEMS } from "@/components/shell/nav-config";
