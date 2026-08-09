@@ -57,6 +57,8 @@ export function SendProposalDialog({
   const filename = buildProposalBaseFilename(proposal, nextRev);
   const [file, setFile] = useState<File | null>(null);
   const [printed, setPrinted] = useState(false);
+  /** Set once a revision snapshot exists so a DocuSign retry does not fork a new revision. */
+  const [pendingSnapshotId, setPendingSnapshotId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const send = useSendProposal(proposal.id);
   const forSignature = mode === "signature";
