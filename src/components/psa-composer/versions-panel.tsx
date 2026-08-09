@@ -64,7 +64,20 @@ async function downloadRevision(rev: ProposalRevision) {
   }
 }
 
-export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
+export function VersionsPanel({
+  proposal,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
+}: {
+  proposal: PsaProposal;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
+}) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChangeProp ?? setOpenState;
   const { data: revisions = [], nextRev } = useNextRevNumber(proposal.id);
   useProposalRevisions(proposal.id); // ensure prefetched
   const { data: signatures = [] } = useProposalSignatures(proposal.id);
@@ -74,12 +87,15 @@ export function VersionsPanel({ proposal }: { proposal: PsaProposal }) {
     : `Rev ${String(nextRev).padStart(2, "0")} · edição`;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" title="Histórico de revisões">
-          <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
-        </Button>
-      </DropdownMenuTrigger>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      {!hideTrigger && (
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" title="Histórico de revisões">
+            <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
+          </Button>
+        </DropdownMenuTrigger>
+      )}
+
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wide">
           Histórico de revisões
