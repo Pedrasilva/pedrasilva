@@ -185,7 +185,7 @@ function CrmOverview() {
                         </div>
                       </Link>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-medium">{formatEUR(Number(o.estimated_fee))}</div>
+                        <div className="text-sm font-medium">{formatEUR(resolveOpportunityValue(o))}</div>
                         <div className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
                           <span className={`h-1.5 w-1.5 rounded-full ${stage?.color}`} />
                           {stage ? t(`stage.${stage.value}`) : ""}
