@@ -11,7 +11,6 @@
     "tabs": {
       "overview": "Resumo",
       "opportunities": "Oportunidades",
-      "accounts": "Contas",
       "companies": "Empresas",
       "contacts": "Contactos",
       "pipelineLegacy": "Pipeline legado"
@@ -32,10 +31,7 @@
     "draftQuotesEmpty": "Sem propostas em rascunho. Abra uma oportunidade para começar.",
     "openOpportunity": "Abrir oportunidade",
     "openQuote": "Abrir proposta",
-    "viewAllOpportunities": "Ver todas as oportunidades",
-    "newOpportunity": "Nova oportunidade",
-    "quickStartTitle": "Começar aqui",
-    "quickStartHint": "Empresas → Oportunidade → Proposta → Projecto. Crie primeiro uma oportunidade e depois construa a proposta dentro dela."
+    "viewAllOpportunities": "Ver todas as oportunidades"
   },
   "common": {
     "loading": "A carregar…",
@@ -153,6 +149,25 @@
         "email": "Email",
         "meeting": "Reunião",
         "note": "Nota"
+      }
+    },
+    "documents": {
+      "title": "Documentos",
+      "empty": "Ainda sem documentos enviados",
+      "revision": "Rev {{n}}",
+      "downloadSent": "PDF enviado",
+      "downloadSigned": "PDF assinado",
+      "clientSigner": "Cliente",
+      "psaSigner": "PSA",
+      "awaiting": "a aguardar assinatura",
+      "status": {
+        "sent": "Enviado",
+        "delivered": "Entregue",
+        "completed": "Assinado",
+        "accepted": "Aceite",
+        "declined": "Recusado",
+        "voided": "Anulado",
+        "draft": "Rascunho"
       }
     }
   },

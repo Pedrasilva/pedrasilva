@@ -11,7 +11,6 @@
     "tabs": {
       "overview": "Overview",
       "opportunities": "Opportunities",
-      "accounts": "Accounts",
       "companies": "Companies",
       "contacts": "Contacts",
       "pipelineLegacy": "Legacy pipeline"
@@ -32,10 +31,7 @@
     "draftQuotesEmpty": "No draft quotes. Open an opportunity to start one.",
     "openOpportunity": "Open opportunity",
     "openQuote": "Open quote",
-    "viewAllOpportunities": "View all opportunities",
-    "newOpportunity": "New opportunity",
-    "quickStartTitle": "Start here",
-    "quickStartHint": "Companies → Opportunity → Quote → Project. Create an opportunity first, then build a quote inside it."
+    "viewAllOpportunities": "View all opportunities"
   },
   "common": {
     "loading": "Loading…",
@@ -153,6 +149,25 @@
         "email": "Email",
         "meeting": "Meeting",
         "note": "Note"
+      }
+    },
+    "documents": {
+      "title": "Documents",
+      "empty": "No sent documents yet",
+      "revision": "Rev {{n}}",
+      "downloadSent": "Sent PDF",
+      "downloadSigned": "Signed PDF",
+      "clientSigner": "Client",
+      "psaSigner": "PSA",
+      "awaiting": "awaiting signature",
+      "status": {
+        "sent": "Sent",
+        "delivered": "Delivered",
+        "completed": "Signed",
+        "accepted": "Accepted",
+        "declined": "Declined",
+        "voided": "Voided",
+        "draft": "Draft"
       }
     }
   },
