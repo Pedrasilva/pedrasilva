@@ -31,7 +31,8 @@
     "sent": "Enviado",
     "archived": "Arquivado",
     "labeled": "Etiquetado",
-    "rejected": "Rejeitado"
+    "rejected": "Rejeitado",
+    "trashed": "No lixo"
   },
   "settings": {
     "title": "Caixas ligadas",
@@ -74,7 +75,18 @@
     "labelOnly": "Apenas etiquetar",
     "reject": "Rejeitar / escalar",
     "actionFailed": "A acção falhou — a mensagem permanece na fila",
-    "actionsNote": "Aprovar e enviar e Arquivar escrevem no Gmail. Apenas etiquetar e Rejeitar não tocam na caixa de correio."
+    "actionsNote": "Aprovar e enviar, Arquivar e Mover para o lixo escrevem no Gmail. Apenas etiquetar e Rejeitar não tocam na caixa de correio. Qualquer acção pode ser anulada durante 8 segundos (uma resposta enviada não).",
+    "trash": "Mover para o lixo",
+    "undo": "Anular",
+    "undone": "Acção anulada — a mensagem voltou à fila.",
+    "undoFailed": "Não foi possível anular a acção.",
+    "doneSend": "Resposta enviada.",
+    "done": {
+      "archive": "Email arquivado no Gmail.",
+      "trash": "Email movido para o lixo do Gmail.",
+      "label": "Marcado como etiquetado.",
+      "reject": "Marcado como rejeitado."
+    }
   },
   "category": {
     "new_enquiry": "Novo pedido",
@@ -89,5 +101,64 @@
     "archive": "Arquivar",
     "label_only": "Apenas etiquetar",
     "escalate": "Escalar"
+  },
+  "source": {
+    "rule": "Regra",
+    "ai": "IA"
+  },
+  "confirm": {
+    "cancel": "Cancelar",
+    "send": {
+      "title": "Enviar esta resposta?",
+      "body": "Envia o email pelo Gmail na conversa original. Não pode ser anulado.",
+      "confirm": "Enviar resposta"
+    },
+    "archive": {
+      "title": "Arquivar este email?",
+      "body": "Remove-o da caixa de entrada do Gmail. Pode anular durante 8 segundos.",
+      "confirm": "Arquivar"
+    },
+    "trash": {
+      "title": "Mover este email para o lixo?",
+      "body": "Move-o para o lixo do Gmail, onde fica recuperável durante 30 dias. Pode anular durante 8 segundos.",
+      "confirm": "Mover para o lixo"
+    },
+    "label": {
+      "title": "Marcar como etiquetado?",
+      "body": "Nada é escrito no Gmail — a mensagem é apenas marcada como tratada aqui.",
+      "confirm": "Apenas etiquetar"
+    },
+    "reject": {
+      "title": "Rejeitar / escalar este email?",
+      "body": "Nada é escrito no Gmail — a mensagem fica na caixa de correio para tratamento manual.",
+      "confirm": "Rejeitar"
+    }
+  },
+  "rules": {
+    "title": "Regras de remetente",
+    "subtitle": "Classificação determinística por remetente. Havendo correspondência, o poller não chama a IA, define a confiança a 100% e marca a mensagem como classificada por regra. O endereço exacto prevalece sobre o domínio.",
+    "empty": "Ainda não há regras de remetente.",
+    "matchType": "Correspondência",
+    "match": {
+      "exact_address": "Endereço exacto",
+      "domain": "Domínio"
+    },
+    "pattern": "Remetente",
+    "patternAddressPlaceholder": "noreply@exemplo.com",
+    "patternDomainPlaceholder": "exemplo.com",
+    "category": "Categoria",
+    "actionLabel": "Acção sugerida",
+    "action": {
+      "archive": "Arquivar",
+      "label_only": "Apenas etiquetar",
+      "trash": "Mover para o lixo"
+    },
+    "add": "Adicionar regra",
+    "remove": "Remover",
+    "added": "Regra adicionada.",
+    "removed": "Regra removida.",
+    "updated": "Regra actualizada.",
+    "error": "Não foi possível guardar a regra.",
+    "note": "As regras nunca enviam respostas nem actuam no Gmail por si — a acção sugerida continua a exigir um clique na fila de revisão."
   }
 }

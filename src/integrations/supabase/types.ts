@@ -2057,6 +2057,7 @@ export type Database = {
       email_events: {
         Row: {
           category: string | null
+          classification_source: string
           confidence: number | null
           created_at: string
           draft_reply: string | null
@@ -2074,6 +2075,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          classification_source?: string
           confidence?: number | null
           created_at?: string
           draft_reply?: string | null
@@ -2091,6 +2093,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          classification_source?: string
           confidence?: number | null
           created_at?: string
           draft_reply?: string | null
@@ -2131,6 +2134,45 @@ export type Database = {
           created_at?: string
           id?: string
           requires_review?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_sender_rules: {
+        Row: {
+          action: Database["public"]["Enums"]["email_rule_action"]
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          match_type: Database["public"]["Enums"]["email_rule_match"]
+          note: string | null
+          sender_pattern: string
+          updated_at: string
+        }
+        Insert: {
+          action?: Database["public"]["Enums"]["email_rule_action"]
+          category: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          match_type?: Database["public"]["Enums"]["email_rule_match"]
+          note?: string | null
+          sender_pattern: string
+          updated_at?: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["email_rule_action"]
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          match_type?: Database["public"]["Enums"]["email_rule_match"]
+          note?: string | null
+          sender_pattern?: string
           updated_at?: string
         }
         Relationships: []
@@ -10148,6 +10190,8 @@ export type Database = {
         | "construction_retainer"
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
+      email_rule_action: "archive" | "label_only" | "trash"
+      email_rule_match: "exact_address" | "domain"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
       fdrq_direction: "issued" | "received" | "unclear"
       fdrq_doc_type:
@@ -10558,6 +10602,8 @@ export const Constants = {
         "consultancy_hours_package",
       ],
       department: ["Projecto", "Backoffice"],
+      email_rule_action: ["archive", "label_only", "trash"],
+      email_rule_match: ["exact_address", "domain"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
       fdrq_direction: ["issued", "received", "unclear"],
       fdrq_doc_type: [

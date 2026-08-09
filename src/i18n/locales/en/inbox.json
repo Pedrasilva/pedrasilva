@@ -31,7 +31,8 @@
     "sent": "Sent",
     "archived": "Archived",
     "labeled": "Labelled",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "trashed": "Moved to trash"
   },
   "settings": {
     "title": "Connected inboxes",
@@ -74,7 +75,18 @@
     "labelOnly": "Label only",
     "reject": "Reject / escalate",
     "actionFailed": "Action failed — the message stays in the queue",
-    "actionsNote": "Approve & send and Archive write to Gmail. Label only and Reject leave the mailbox untouched."
+    "actionsNote": "Approve & send, Archive and Move to trash write to Gmail. Label only and Reject leave the mailbox untouched. Every action can be undone for 8 seconds (a sent reply cannot).",
+    "trash": "Move to trash",
+    "undo": "Undo",
+    "undone": "Action undone — the message is back in the queue.",
+    "undoFailed": "Could not undo the action.",
+    "doneSend": "Reply sent.",
+    "done": {
+      "archive": "Email archived in Gmail.",
+      "trash": "Email moved to Gmail trash.",
+      "label": "Marked as labelled.",
+      "reject": "Marked as rejected."
+    }
   },
   "category": {
     "new_enquiry": "New enquiry",
@@ -89,5 +101,64 @@
     "archive": "Archive",
     "label_only": "Label only",
     "escalate": "Escalate"
+  },
+  "source": {
+    "rule": "Rule",
+    "ai": "AI"
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "send": {
+      "title": "Send this reply?",
+      "body": "This sends the email through Gmail on the original thread. It cannot be undone.",
+      "confirm": "Send reply"
+    },
+    "archive": {
+      "title": "Archive this email?",
+      "body": "This removes it from your Gmail inbox. You can undo for 8 seconds.",
+      "confirm": "Archive"
+    },
+    "trash": {
+      "title": "Move this email to trash?",
+      "body": "This moves it to Gmail's trash, where it stays recoverable for 30 days. You can undo for 8 seconds.",
+      "confirm": "Move to trash"
+    },
+    "label": {
+      "title": "Mark as labelled?",
+      "body": "Nothing is written to Gmail — the message is only marked as handled here.",
+      "confirm": "Label only"
+    },
+    "reject": {
+      "title": "Reject / escalate this email?",
+      "body": "Nothing is written to Gmail — the message stays in your mailbox for you to handle manually.",
+      "confirm": "Reject"
+    }
+  },
+  "rules": {
+    "title": "Sender rules",
+    "subtitle": "Deterministic classification by sender. On a match the poller skips the AI entirely, sets confidence to 100% and marks the message as rule-classified. Exact address wins over domain.",
+    "empty": "No sender rules yet.",
+    "matchType": "Match",
+    "match": {
+      "exact_address": "Exact address",
+      "domain": "Domain"
+    },
+    "pattern": "Sender",
+    "patternAddressPlaceholder": "noreply@example.com",
+    "patternDomainPlaceholder": "example.com",
+    "category": "Category",
+    "actionLabel": "Suggested action",
+    "action": {
+      "archive": "Archive",
+      "label_only": "Label only",
+      "trash": "Move to trash"
+    },
+    "add": "Add rule",
+    "remove": "Remove",
+    "added": "Rule added.",
+    "removed": "Rule removed.",
+    "updated": "Rule updated.",
+    "error": "Could not save the rule.",
+    "note": "Rules never send replies and never act on Gmail by themselves — the suggested action still needs a click in the review queue."
   }
 }

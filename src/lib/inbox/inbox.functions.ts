@@ -6,6 +6,9 @@ import {
   archiveMessage,
   resolveInboxForMessage,
   sendReply,
+  trashMessage,
+  unarchiveMessage,
+  untrashMessage,
 } from "./gmail.server";
 
 export type PendingEmailEvent = {
@@ -20,6 +23,7 @@ export type PendingEmailEvent = {
   suggested_action: string | null;
   draft_reply: string | null;
   received_at: string | null;
+  classification_source: string | null;
 };
 
 /** Admin, super-admin or explicit `inbox.triage` holders may act on the queue. */
@@ -84,7 +88,7 @@ export const listPendingEmailEvents = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("email_events")
       .select(
-        "id, gmail_message_id, thread_id, from_address, subject, snippet, category, confidence, suggested_action, draft_reply, received_at",
+        "id, gmail_message_id, thread_id, from_address, subject, snippet, category, confidence, suggested_action, draft_reply, received_at, classification_source",
       )
       .eq("status", "pending")
       .order("received_at", { ascending: false, nullsFirst: false })
@@ -151,5 +155,65 @@ export const resolveEmailEventWithoutGmail = createServerFn({ method: "POST" })
     await assertCanTriage(context.userId);
     await loadEvent(data.id);
     await markReviewed(data.id, context.userId, data.status);
+    return { ok: true };
+  });
+
+/** Move the message to Gmail's recoverable trash, then mark `trashed`. */
+export const trashEmailEvent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertCanTriage(context.userId);
+    const event = await loadEvent(data.id);
+    const ctx = await resolveInboxForMessage(
+      await activeInboxes(),
+      event.gmail_message_id,
+    );
+    await trashMessage(ctx, event.gmail_message_id);
+    await markReviewed(data.id, context.userId, "trashed");
+    return { ok: true };
+  });
+
+/**
+ * Undo window action: put the row back in the queue and reverse the Gmail
+ * side effect where one is reversible. A sent reply can never be un-sent.
+ */
+export const undoEmailEventAction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertCanTriage(context.userId);
+    const { data: event, error } = await supabaseAdmin
+      .from("email_events")
+      .select("id, gmail_message_id, status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!event) throw new Error("Message not found");
+    if (event.status === "pending") return { ok: true };
+    if (event.status === "sent") {
+      throw new Error("A sent reply cannot be undone");
+    }
+
+    if (event.status === "archived" || event.status === "trashed") {
+      const ctx = await resolveInboxForMessage(
+        await activeInboxes(),
+        event.gmail_message_id,
+      );
+      if (event.status === "trashed") {
+        await untrashMessage(ctx, event.gmail_message_id);
+      }
+      await unarchiveMessage(ctx, event.gmail_message_id);
+    }
+
+    const { error: updErr } = await supabaseAdmin
+      .from("email_events")
+      .update({ status: "pending", reviewed_by: null, reviewed_at: null })
+      .eq("id", data.id);
+    if (updErr) throw new Error(updErr.message);
     return { ok: true };
   });

@@ -143,3 +143,39 @@ export async function archiveMessage(
     body: JSON.stringify({ removeLabelIds: ["INBOX"] }),
   });
 }
+
+/** Re-add the INBOX label (undo an archive). Requires `gmail.modify`. */
+export async function unarchiveMessage(
+  ctx: GmailContext,
+  gmailMessageId: string,
+): Promise<void> {
+  await gmailFetch(`/users/me/messages/${gmailMessageId}/modify`, ctx, {
+    method: "POST",
+    body: JSON.stringify({ addLabelIds: ["INBOX"] }),
+  });
+}
+
+/**
+ * Move to Gmail's recoverable trash (auto-purged by Gmail after 30 days).
+ * Never `batchDelete` / permanent delete. Requires `gmail.modify`.
+ */
+export async function trashMessage(
+  ctx: GmailContext,
+  gmailMessageId: string,
+): Promise<void> {
+  await gmailFetch(`/users/me/messages/${gmailMessageId}/trash`, ctx, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
+/** Restore a trashed message (undo a trash). Requires `gmail.modify`. */
+export async function untrashMessage(
+  ctx: GmailContext,
+  gmailMessageId: string,
+): Promise<void> {
+  await gmailFetch(`/users/me/messages/${gmailMessageId}/untrash`, ctx, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
