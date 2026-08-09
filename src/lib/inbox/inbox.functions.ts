@@ -10,6 +10,13 @@ import {
   unarchiveMessage,
   untrashMessage,
 } from "./gmail.server";
+import {
+  RULE_ACTIONS,
+  RULE_MATCH_TYPES,
+  matchRule,
+  normalizePattern,
+  statusForAction,
+} from "./rule-match";
 
 export type PendingEmailEvent = {
   id: string;
