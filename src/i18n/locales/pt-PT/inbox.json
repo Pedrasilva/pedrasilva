@@ -160,5 +160,23 @@
     "updated": "Regra actualizada.",
     "error": "Não foi possível guardar a regra.",
     "note": "As regras nunca enviam respostas nem actuam no Gmail por si — a acção sugerida continua a exigir um clique na fila de revisão."
+  },
+  "content": {
+    "title": "Mensagem",
+    "loading": "A carregar mensagem…",
+    "loadError": "Não foi possível carregar o corpo da mensagem.",
+    "empty": "Esta mensagem não tem corpo legível.",
+    "attachments_one": "{{count}} anexo",
+    "attachments_other": "{{count}} anexos",
+    "download": "Descarregar",
+    "attachmentFailed": "Não foi possível descarregar o anexo.",
+    "forward": "Reencaminhar",
+    "forwardTitle": "Reencaminhar este email",
+    "forwardBody": "Os anexos originais são reencaminhados com a mensagem. Isto não resolve o item na fila.",
+    "forwardTo": "Reencaminhar para",
+    "forwardNote": "Nota (opcional)",
+    "forwardDocs": "Reencaminhar para receção de documentos ({{address}})",
+    "forwarded": "Email reencaminhado.",
+    "forwardFailed": "Não foi possível reencaminhar o email."
   }
 }

@@ -160,5 +160,23 @@
     "updated": "Rule updated.",
     "error": "Could not save the rule.",
     "note": "Rules never send replies and never act on Gmail by themselves — the suggested action still needs a click in the review queue."
+  },
+  "content": {
+    "title": "Message",
+    "loading": "Loading message…",
+    "loadError": "Could not load the message body.",
+    "empty": "This message has no readable body.",
+    "attachments_one": "{{count}} attachment",
+    "attachments_other": "{{count}} attachments",
+    "download": "Download",
+    "attachmentFailed": "Could not download the attachment.",
+    "forward": "Forward",
+    "forwardTitle": "Forward this email",
+    "forwardBody": "The original attachments are forwarded with the message. This does not resolve the item in the queue.",
+    "forwardTo": "Forward to",
+    "forwardNote": "Note (optional)",
+    "forwardDocs": "Forward to document intake ({{address}})",
+    "forwarded": "Email forwarded.",
+    "forwardFailed": "Could not forward the email."
   }
 }

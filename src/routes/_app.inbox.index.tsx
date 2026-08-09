@@ -45,6 +45,7 @@ import {
   undoEmailEventAction,
   type PendingEmailEvent,
 } from "@/lib/inbox/inbox.functions";
+import { EmailContentPanel } from "@/components/inbox/email-content-panel";
 
 export const Route = createFileRoute("/_app/inbox/")({
   component: InboxTriagePage,
@@ -275,6 +276,8 @@ function EmailRow({
 
       {open && (
         <CardContent className="space-y-4 border-t pt-4">
+          <EmailContentPanel eventId={row.id} category={row.category} />
+
           {row.draft_reply !== null ? (
             <div className="space-y-1.5">
               <label className="text-sm font-medium" htmlFor={`draft-${row.id}`}>
