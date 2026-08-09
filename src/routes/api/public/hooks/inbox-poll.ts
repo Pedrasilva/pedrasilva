@@ -14,6 +14,12 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "node:crypto";
+import {
+  matchRule,
+  statusForAction,
+  type RuleAction,
+  type SenderRule,
+} from "@/lib/inbox/rule-match";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
