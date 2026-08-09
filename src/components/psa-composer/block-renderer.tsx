@@ -400,15 +400,13 @@ export function BlockBody({
               lang,
             )}
           </div>
-          <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-zinc-400">
-            {live?.revision && !live.revision.isDraft
-              ? `${lang === "en" ? "Revision" : "Revisão"} ${String(
-                  live.revision.number ?? 0,
-                ).padStart(2, "0")}`
-              : lang === "en"
-                ? "Draft"
-                : "Rascunho"}
-          </div>
+          {live?.revision && !live.revision.isDraft && (
+            <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-zinc-400">
+              {`${lang === "en" ? "Revision" : "Revisão"} ${String(
+                live.revision.number ?? 0,
+              ).padStart(2, "0")}`}
+            </div>
+          )}
         </div>
       );
 
