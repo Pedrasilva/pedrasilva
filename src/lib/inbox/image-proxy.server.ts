@@ -52,6 +52,71 @@ export function isProxyableImageUrl(raw: string): boolean {
   return !BLOCKED_HOST.some((re) => re.test(url.hostname));
 }
 
+/** True when a resolved IP literal sits in a private / link-local / loopback range. */
+export function isBlockedIp(ip: string): boolean {
+  const v4 = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    if (a === 10 || a === 127 || a === 0) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
+    if (a >= 224) return true; // multicast / reserved
+    return false;
+  }
+  const v6 = ip.toLowerCase().replace(/^\[|\]$/g, "");
+  if (v6 === "::1" || v6 === "::") return true;
+  if (/^f[cd][0-9a-f]{2}:/.test(v6)) return true; // unique-local
+  if (/^fe[89ab][0-9a-f]:/.test(v6)) return true; // link-local
+  if (v6.startsWith("::ffff:")) return isBlockedIp(v6.slice(7)); // v4-mapped
+  return false;
+}
+
+/**
+ * DNS-level SSRF guard: a public-looking hostname can still resolve to an
+ * internal address, so we resolve it over DoH and check every answer.
+ * There is no DNS API in the worker runtime, hence the HTTP resolver.
+ * Residual limitation: resolution here and the later connect are separate
+ * lookups, so a DNS-rebinding attacker with a ~1s TTL could still slip past;
+ * closing that needs connect-time IP pinning, which the runtime does not expose.
+ * We fail open when the resolver itself is unreachable so ordinary images keep
+ * rendering; the hostname blocklist above still applies in that case.
+ */
+export async function resolvesToPublicAddress(raw: string): Promise<boolean> {
+  let host: string;
+  try {
+    host = new URL(raw).hostname;
+  } catch {
+    return false;
+  }
+  // Bare IP literals never need a lookup.
+  if (/^\[?[0-9a-f:.]+\]?$/i.test(host) && /[:.]/.test(host)) {
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(":")) {
+      return !isBlockedIp(host);
+    }
+  }
+  const query = async (type: "A" | "AAAA") => {
+    const res = await fetch(
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(host)}&type=${type}`,
+      { headers: { Accept: "application/dns-json" }, signal: AbortSignal.timeout(3000) },
+    );
+    if (!res.ok) throw new Error("DoH lookup failed");
+    const json = (await res.json()) as { Answer?: Array<{ type: number; data: string }> };
+    return (json.Answer ?? [])
+      .filter((a) => a.type === 1 || a.type === 28)
+      .map((a) => a.data);
+  };
+  try {
+    const answers = (await Promise.all([query("A"), query("AAAA")])).flat();
+    if (answers.length === 0) return true; // nothing to judge; connect will fail anyway
+    return !answers.some(isBlockedIp);
+  } catch {
+    return true; // resolver unavailable — fall back to the hostname blocklist
+  }
+}
+
+
 /** Same-origin proxy URL for a remote image, or null when not proxyable. */
 export function buildProxyUrl(raw: string): string | null {
   if (!isProxyableImageUrl(raw)) return null;
