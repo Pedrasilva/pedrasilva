@@ -89,13 +89,16 @@ export function VersionsPanel({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      {!hideTrigger && (
-        <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
+        {hideTrigger ? (
+          <span className="sr-only" aria-hidden tabIndex={-1} />
+        ) : (
           <Button variant="outline" size="sm" title="Histórico de revisões">
             <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
           </Button>
-        </DropdownMenuTrigger>
-      )}
+        )}
+      </DropdownMenuTrigger>
+
 
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wide">
