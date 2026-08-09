@@ -64,12 +64,21 @@ function fromRaw(raw: Record<string, unknown> | null | undefined): QuoteBuildSet
 export function QuoteBuildSettingsDialog({
   quoteId,
   disabled,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
 }: {
   quoteId: string;
   disabled?: boolean;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
 }) {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChangeProp ?? setOpenState;
+
 
   const q = useQuery({
     queryKey: ["quote-build-settings", quoteId],
@@ -111,18 +120,21 @@ export function QuoteBuildSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          disabled={disabled}
-          title="Quote build settings"
-        >
-          <Settings className="h-4 w-4" />
-          Settings
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={disabled}
+            title="Quote build settings"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Button>
+        </DialogTrigger>
+      )}
+
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Quote build settings</DialogTitle>
