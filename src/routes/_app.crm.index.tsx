@@ -5,22 +5,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Building2, Users, TrendingUp, Target, ArrowRight, FileText, Plus, Lightbulb,
+  Building2, Users, TrendingUp, Target, ArrowRight, FileText,
 } from "lucide-react";
 import {
   formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES,
   type CrmOpportunity, type FeeProposal,
 } from "@/lib/crm/types";
+import { resolveOpportunityValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
 
 export const Route = createFileRoute("/_app/crm/")({
   component: CrmOverview,
 });
 
-type OppRow = CrmOpportunity & { company: { id: string; nome: string } | null };
+type OppRow = CrmOpportunity & {
+  company: { id: string; nome: string } | null;
+  quotes: OpportunityQuoteValue[];
+};
 type QuoteRow = FeeProposal & {
   company: { id: string; nome: string } | null;
   opportunity: { id: string; name: string } | null;
 };
+
 
 function CrmOverview() {
   const { t } = useTranslation("crm");
