@@ -261,6 +261,7 @@ export const getEmailMessageContent = createServerFn({ method: "POST" })
     const { getMessageContent } = await import("./gmail.server");
     const content = await getMessageContent(ctx, gmailMessageId);
     const sanitizeHtml = (await import("sanitize-html")).default;
+    const { buildProxyUrl } = await import("./image-proxy.server");
     return {
       html: content.html
         ? sanitizeHtml(content.html, {
@@ -271,7 +272,7 @@ export const getEmailMessageContent = createServerFn({ method: "POST" })
             allowedAttributes: {
               ...sanitizeHtml.defaults.allowedAttributes,
               "*": ["style", "align", "width", "height", "colspan", "rowspan"],
-              img: ["src", "alt", "width", "height", "style"],
+              img: ["src", "alt", "width", "height", "style", "loading"],
               a: ["href", "name", "target", "rel"],
             },
             allowedSchemes: ["http", "https", "mailto", "cid", "data"],
@@ -280,9 +281,27 @@ export const getEmailMessageContent = createServerFn({ method: "POST" })
                 target: "_blank",
                 rel: "noopener noreferrer nofollow",
               }),
+              // Remote images are tracking pixels until proven otherwise: route
+              // every one through our proxy so the sender never sees the reader.
+              img: (tagName, attribs) => {
+                const src = attribs["src"] ?? "";
+                if (/^(cid:|data:)/i.test(src)) return { tagName, attribs };
+                const proxied = buildProxyUrl(src);
+                if (!proxied) {
+                  const { src: _dropped, ...rest } = attribs;
+                  return { tagName, attribs: rest };
+                }
+                return {
+                  tagName,
+                  attribs: { ...attribs, src: proxied, loading: "lazy" },
+                };
+              },
             },
           })
+            // style="background:url(...)" is the same leak by another door.
+            .replace(/url\((?:&#x27;|['"])?\s*https?:[^)]*\)/gi, "none")
         : null,
+
       text: content.text,
       attachments: content.attachments,
       docsIntakeAddress: process.env["FINANCE_DOCS_INTAKE_ADDRESS"] ?? null,
