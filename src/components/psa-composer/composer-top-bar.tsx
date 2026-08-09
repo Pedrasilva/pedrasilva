@@ -16,6 +16,9 @@ import {
   Trophy,
   XCircle,
   Lock,
+  MoreHorizontal,
+  LayoutTemplate,
+  History,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -32,6 +35,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
