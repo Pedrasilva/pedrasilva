@@ -64,12 +64,21 @@ function fromRaw(raw: Record<string, unknown> | null | undefined): QuoteBuildSet
 export function QuoteBuildSettingsDialog({
   quoteId,
   disabled,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
 }: {
   quoteId: string;
   disabled?: boolean;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  hideTrigger?: boolean;
 }) {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChangeProp ?? setOpenState;
+
 
   const q = useQuery({
     queryKey: ["quote-build-settings", quoteId],
