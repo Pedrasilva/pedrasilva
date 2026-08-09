@@ -22,7 +22,8 @@ import {
 import { LogOut, Menu } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
-import { GlobalTopNav } from "@/components/GlobalTopNav";
+import { ModuleTopNav } from "@/components/ModuleTopNav";
+import { ModuleTabs } from "@/components/shell/ModuleTabs";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { AppRail } from "@/components/shell/AppRail";
 import { RAIL_ITEMS } from "@/components/shell/nav-config";
@@ -93,7 +94,10 @@ function AppLayout() {
               />
             </Link>
 
+            <ModuleTabs />
+
             <div className="flex-1" />
+
 
             {/* Top-right global action hubs */}
             <div className="flex items-center gap-1.5">
@@ -112,7 +116,7 @@ function AppLayout() {
               )}
 
               <div className="hidden md:flex items-center gap-0.5">
-                <GlobalTopNav />
+                <ModuleTopNav />
               </div>
 
               {/* User menu */}
@@ -226,8 +230,9 @@ function AppLayout() {
             isHrArea
               ? ""
               : isWideArea
-                ? "w-full px-4 py-6 sm:px-6"
-                : "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6",
+                ? "w-full px-4 py-4 sm:px-6"
+                : "mx-auto w-full max-w-7xl px-4 py-4 sm:px-6",
+
           )}
         >
           <Outlet />

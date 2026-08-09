@@ -1,7 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Building2, Users, LayoutDashboard, Target } from "lucide-react";
+import { Building2, Users, LayoutDashboard, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 export function CrmShell({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
@@ -20,19 +21,8 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3 w-3" /> {t("shell.backToHub")}
-        </Link>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-              <Building2 className="h-6 w-6 text-primary" /> {t("shell.title")}
-            </h1>
-            <p className="text-sm text-muted-foreground">{t("shell.subtitle")}</p>
-          </div>
-        </div>
+        <nav className="flex flex-wrap items-center gap-1 border-b">
 
-        <nav className="flex flex-wrap items-center gap-1 border-b pt-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = tab.match(loc.pathname);
