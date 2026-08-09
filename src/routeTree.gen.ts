@@ -109,6 +109,7 @@ import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
+import { Route as ApiPublicInboxImageRouteImport } from './routes/api/public/inbox/image'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
 
 const AppRoute = AppRouteImport.update({
@@ -650,6 +651,11 @@ const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   path: '/api/public/hooks/run-backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicInboxImageRoute = ApiPublicInboxImageRouteImport.update({
+  id: '/api/public/inbox/image',
+  path: '/api/public/inbox/image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppProposalsProposalIdRevisionsRevisionIdRoute =
   AppProposalsProposalIdRevisionsRevisionIdRouteImport.update({
     id: '/proposals/$proposalId/revisions/$revisionId',
@@ -754,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -851,6 +858,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/crm/companies': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -955,6 +963,7 @@ export interface FileRoutesById {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -1059,6 +1068,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/inbox/image'
     | '/crm/companies/'
     | '/crm/opportunities/'
     | '/finance/documents/'
@@ -1156,6 +1166,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/inbox/image'
     | '/crm/companies'
     | '/crm/opportunities'
     | '/finance/documents'
@@ -1259,6 +1270,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/inbox/image'
     | '/_app/crm/companies/'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
@@ -1280,6 +1292,7 @@ export interface RootRouteChildren {
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
+  ApiPublicInboxImageRoute: typeof ApiPublicInboxImageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1984,6 +1997,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/inbox/image': {
+      id: '/api/public/inbox/image'
+      path: '/api/public/inbox/image'
+      fullPath: '/api/public/inbox/image'
+      preLoaderRoute: typeof ApiPublicInboxImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/proposals/$proposalId/revisions/$revisionId': {
       id: '/_app/proposals/$proposalId/revisions/$revisionId'
       path: '/proposals/$proposalId/revisions/$revisionId'
@@ -2268,6 +2288,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
+  ApiPublicInboxImageRoute: ApiPublicInboxImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
