@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_app/crm/opportunities/")({
   component: OpportunitiesPage,
 });
 
-type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
+type QuoteRef = { id: string; valor: number | null; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
@@ -69,7 +69,7 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at, deleted_at)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, valor, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at, deleted_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
