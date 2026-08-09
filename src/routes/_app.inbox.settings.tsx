@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { SenderRulesCard } from "@/components/inbox/sender-rules-card";
 
 export const Route = createFileRoute("/_app/inbox/settings")({
   component: InboxSettingsPage,
@@ -224,6 +225,8 @@ function InboxSettingsPage() {
           </Button>
         </div>
       </Card>
+
+      <SenderRulesCard />
     </div>
   );
 }
