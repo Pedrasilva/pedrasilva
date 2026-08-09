@@ -120,18 +120,21 @@ export function QuoteBuildSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          disabled={disabled}
-          title="Quote build settings"
-        >
-          <Settings className="h-4 w-4" />
-          Settings
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={disabled}
+            title="Quote build settings"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Button>
+        </DialogTrigger>
+      )}
+
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Quote build settings</DialogTitle>
