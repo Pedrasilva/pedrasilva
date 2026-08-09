@@ -73,7 +73,7 @@ export const RAIL_ITEMS: RailItem[] = [
       {
         titleKey: "shortcuts",
         links: [
-          { to: "/crm/accounts", labelKey: "crm.accounts" },
+          
           { to: "/crm/quote-templates", labelKey: "crm.quoteTemplates" },
         ],
       },

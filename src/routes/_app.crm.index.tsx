@@ -5,22 +5,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Building2, Users, TrendingUp, Target, ArrowRight, FileText, Plus, Lightbulb,
+  Building2, Users, TrendingUp, Target, ArrowRight, FileText,
 } from "lucide-react";
 import {
   formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES,
   type CrmOpportunity, type FeeProposal,
 } from "@/lib/crm/types";
+import { resolveOpportunityValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
 
 export const Route = createFileRoute("/_app/crm/")({
   component: CrmOverview,
 });
 
-type OppRow = CrmOpportunity & { company: { id: string; nome: string } | null };
+type OppRow = CrmOpportunity & {
+  company: { id: string; nome: string } | null;
+  quotes: OpportunityQuoteValue[];
+};
 type QuoteRow = FeeProposal & {
   company: { id: string; nome: string } | null;
   opportunity: { id: string; name: string } | null;
 };
+
 
 function CrmOverview() {
   const { t } = useTranslation("crm");
@@ -46,10 +51,12 @@ function CrmOverview() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("crm_opportunities")
-        .select("*, company:companies(id, nome)")
+        .select(
+          "*, company:companies(id, nome), quotes:fee_proposals(valor, archived_at, deleted_at)",
+        )
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as OppRow[];
+      return (data ?? []) as unknown as OppRow[];
     },
   });
 
@@ -67,19 +74,23 @@ function CrmOverview() {
     },
   });
 
+  // Value comes from the shared resolver so this rollup can never disagree
+  // with the Opportunities kanban/list.
   const openOpps = opportunities.filter((o) => o.stage !== "won" && o.stage !== "lost");
   const weightedPipeline = openOpps.reduce(
-    (s, o) => s + Number(o.estimated_fee) * (Number(o.probability) / 100),
+    (s, o) => s + resolveOpportunityValue(o) * (Number(o.probability) / 100),
     0,
   );
-  const totalOpen = openOpps.reduce((s, o) => s + Number(o.estimated_fee), 0);
+  const totalOpen = openOpps.reduce((s, o) => s + resolveOpportunityValue(o), 0);
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     stage: s.value,
     color: s.color,
     label: t(`stage.${s.value}`),
     count: opportunities.filter((o) => o.stage === s.value).length,
-    total: opportunities.filter((o) => o.stage === s.value).reduce((sum, o) => sum + Number(o.estimated_fee), 0),
+    total: opportunities
+      .filter((o) => o.stage === s.value)
+      .reduce((sum, o) => sum + resolveOpportunityValue(o), 0),
   }));
 
   const stats = [
@@ -93,25 +104,7 @@ function CrmOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Quick start callout */}
-      <Card className="border-primary/30 bg-primary/5">
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
-          <div className="flex items-start gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
-              <Lightbulb className="h-4 w-4" />
-            </span>
-            <div>
-              <div className="text-sm font-medium">{t("overview.quickStartTitle")}</div>
-              <div className="text-xs text-muted-foreground">{t("overview.quickStartHint")}</div>
-            </div>
-          </div>
-          <Button asChild size="sm">
-            <Link to="/crm/opportunities">
-              <Plus className="h-4 w-4 mr-1" /> {t("overview.newOpportunity")}
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {
@@ -192,7 +185,7 @@ function CrmOverview() {
                         </div>
                       </Link>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-medium">{formatEUR(Number(o.estimated_fee))}</div>
+                        <div className="text-sm font-medium">{formatEUR(resolveOpportunityValue(o))}</div>
                         <div className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
                           <span className={`h-1.5 w-1.5 rounded-full ${stage?.color}`} />
                           {stage ? t(`stage.${stage.value}`) : ""}

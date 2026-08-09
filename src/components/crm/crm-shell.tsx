@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Building2, Users, LayoutDashboard, Target, Receipt } from "lucide-react";
+import { ArrowLeft, Building2, Users, LayoutDashboard, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function CrmShell({ children }: { children: React.ReactNode }) {
@@ -10,7 +10,8 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
   const tabs = [
     { to: "/crm" as const, label: t("shell.tabs.overview"), icon: LayoutDashboard, match: (p: string) => p === "/crm" },
     { to: "/crm/opportunities" as const, label: t("shell.tabs.opportunities"), icon: Target, match: (p: string) => p.startsWith("/crm/opportunities") || p.startsWith("/crm/quotes") },
-    { to: "/crm/accounts" as const, label: t("shell.tabs.accounts"), icon: Receipt, match: (p: string) => p.startsWith("/crm/accounts") },
+    // Accounts tab retired — the billing-entity concept was never wired up in
+    // finance; account_id links on quotes/projects stay untouched.
     { to: "/crm/companies" as const, label: t("shell.tabs.companies"), icon: Building2, match: (p: string) => p.startsWith("/crm/companies") },
     { to: "/crm/contacts" as const, label: t("shell.tabs.contacts"), icon: Users, match: (p: string) => p.startsWith("/crm/contacts") },
     // Legacy pipeline fully retired — /crm/pipeline now redirects to Opportunities.

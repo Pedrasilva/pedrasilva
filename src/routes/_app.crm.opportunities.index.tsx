@@ -40,12 +40,13 @@ import {
   contactFullName, type Contact,
   defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
+import { resolveOpportunityValue } from "@/lib/crm/opportunity-value";
 
 export const Route = createFileRoute("/_app/crm/opportunities/")({
   component: OpportunitiesPage,
 });
 
-type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
+type QuoteRef = { id: string; valor: number | null; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
@@ -68,7 +69,7 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at, deleted_at)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, valor, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at, deleted_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
@@ -238,7 +239,7 @@ function OpportunitiesPage() {
         <div className="text-xs text-muted-foreground">
           {t("opportunities.countAndFee", {
             count: opps.length,
-            fee: formatEUR(opps.reduce((s, o) => s + Number(o.estimated_fee), 0)),
+            fee: formatEUR(opps.reduce((s, o) => s + resolveOpportunityValue(o), 0)),
           })}
         </div>
         <div className="flex items-center gap-2">
@@ -279,7 +280,7 @@ function OpportunitiesPage() {
       ) : view === "pipeline" ? (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
           {byStage.map((col) => {
-            const totalCol = col.items.reduce((s, p) => s + Number(p.estimated_fee), 0);
+            const totalCol = col.items.reduce((s, p) => s + resolveOpportunityValue(p), 0);
             return (
               <div key={col.value} className="rounded-md border bg-muted/20 p-2 min-h-[200px]">
                 <div className="flex items-center justify-between px-1 pb-2">
@@ -314,7 +315,7 @@ function OpportunitiesPage() {
                         </div>
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">{o.probability}%</span>
-                          <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
+                          <span className="font-semibold">{formatEUR(resolveOpportunityValue(o))}</span>
                         </div>
                         {(() => {
                           const nad = (o as unknown as { next_action_date: string | null }).next_action_date;
@@ -472,7 +473,7 @@ function OpportunitiesPage() {
                           {stage ? t(`stage.${stage.value}`) : ""}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-right font-medium">{formatEUR(Number(o.estimated_fee))}</td>
+                      <td className="px-3 py-2 text-right font-medium">{formatEUR(resolveOpportunityValue(o))}</td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{o.probability}%</td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{quoteCount}</td>
                     </tr>
