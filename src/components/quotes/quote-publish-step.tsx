@@ -8,7 +8,9 @@ import {
   FileSignature,
 } from "lucide-react";
 import { useContractsByQuote } from "@/lib/contracts";
+import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
 import type { QuoteStatus } from "@/lib/crm/types";
+
 
 /**
  * Step 3 — Convert to project.
@@ -128,7 +130,6 @@ export function QuotePublishStep({
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>{t("workspace.publish.description")}</p>
-            <p>{t("workspace.publish.placeholderNote")}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               <Button size="sm" variant="outline" onClick={onEditContent}>
                 {t("workspace.publish.editContent")}
@@ -140,9 +141,12 @@ export function QuotePublishStep({
           </CardContent>
         </Card>
       )}
-      <span className="sr-only">{quoteId}</span>
+      {/* Sent + countersigned documents for this quote — the checkpoint the
+          step's name promises, reusing the CRM documents surface. */}
+      <QuoteDocumentsCard quoteId={quoteId} />
     </div>
   );
 }
+
 
 

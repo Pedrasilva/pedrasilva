@@ -774,11 +774,14 @@ function QuoteDetail() {
   const stepIsProject = projectCategory === "project";
   useEffect(() => {
     if (step === "estimate") {
-      setActiveTab(stepIsProject ? "overview" : "overview");
+      // Planning first: the Gantt is the real starting point; the calculator
+      // stays available as the second tab.
+      setActiveTab(stepIsProject ? "planning" : "overview");
     } else if (step === "content") {
       setActiveTab("proposal");
     }
   }, [step, stepIsProject]);
+
 
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
@@ -955,6 +958,12 @@ function QuoteDetail() {
         className={cn("w-full", step === "publish" && "hidden")}
       >
         <TabsList className={cn("no-print", step === "content" && "hidden")}>
+          {/* Planning (Gantt + stages) leads — the estimate is built here and
+              the calculator sits right after it. External services and Payment
+              schedule are project-only. */}
+          {(isProject || isRetainer) && visibleTabs.includes("planning") && (
+            <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
+          )}
           {visibleTabs.includes("overview") && (
             <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
           )}
@@ -964,12 +973,7 @@ function QuoteDetail() {
           {visibleTabs.includes("time-based") && (
             <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
           )}
-          {/* Planning (Gantt + stages), External services and Payment schedule
-              are project-only — consultancy proposals do not have stages,
-              dependencies or stage-driven payment milestones. */}
-          {(isProject || isRetainer) && visibleTabs.includes("planning") && (
-            <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
-          )}
+
           {step === "estimate" && (isProject || isRetainer) && (
             <>
               <TabsTrigger value="architecture">Architecture</TabsTrigger>

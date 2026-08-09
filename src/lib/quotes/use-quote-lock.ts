@@ -28,7 +28,15 @@ export function useQuoteLock(quoteId: string | undefined) {
   return useQuery({
     queryKey: ["quote-lock", quoteId],
     enabled: !!quoteId,
+    // The lock is stamped by DB triggers from several different flows
+    // (send, sign, outcome, conversion). Never serve a stale "unlocked"
+    // answer — an editable-looking toolbar on a locked revision is worse
+    // than a refetch.
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<QuoteLockState> => {
+
       const { data, error } = await db
         .from("fee_proposals")
         .select("id, is_locked, locked_at, pm_project_id, quote_status")

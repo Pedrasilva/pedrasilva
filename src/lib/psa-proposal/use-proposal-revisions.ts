@@ -228,7 +228,12 @@ export function useSendProposal(proposalId: string | undefined) {
       qc.invalidateQueries({ queryKey: ["psa-proposal-revisions", proposalId] });
       qc.invalidateQueries({ queryKey: ["psa-proposal", proposalId] });
       qc.invalidateQueries({ queryKey: ["psa-proposals"] });
+      // Sending stamps fee_proposals.locked_at via DB trigger — keep every
+      // lock-aware surface (Gantt toolbar, guards) in lockstep.
+      qc.invalidateQueries({ queryKey: ["quote-lock"] });
+      qc.invalidateQueries({ queryKey: ["fee_proposal"] });
     },
+
   });
 }
 
@@ -256,6 +261,9 @@ export function useSetProposalOutcome(proposalId: string | undefined) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["psa-proposal", proposalId] });
       qc.invalidateQueries({ queryKey: ["psa-proposals"] });
+      qc.invalidateQueries({ queryKey: ["quote-lock"] });
+      qc.invalidateQueries({ queryKey: ["fee_proposal"] });
     },
+
   });
 }
