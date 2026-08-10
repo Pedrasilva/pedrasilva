@@ -163,8 +163,30 @@ function ProjectDetail() {
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const { data, isLoading, error } = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const { data: resources } = useResources();
-  const { isAdmin } = useAuth();
-  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
+  const { isAdmin, user } = useAuth();
+  // Planning edit rights: admin, or v2 permission (all scope), or assigned
+  // scope on a project this user is actually assigned to. Mirrors the RLS
+  // write policies on pm_stages / pm_allocations / pm_stage_dependencies.
+  const { can: canV2 } = useMyPermissionsV2();
+  const { data: isAssignedToProject } = useQuery({
+    queryKey: ["pm-assigned-access", user?.id, projectId],
+    enabled: !!user?.id && !!projectId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("pm_has_assigned_access", {
+        _user_id: user!.id,
+        _project_id: projectId,
+      });
+      if (error) throw error;
+      return !!data;
+    },
+  });
+  const canEditPlanning =
+    isAdmin ||
+    canV2("projects.edit_planning", "all") ||
+    (canV2("projects.edit_planning", "assigned") && !!isAssignedToProject);
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning });
+
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
