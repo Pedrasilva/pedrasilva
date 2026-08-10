@@ -27,6 +27,10 @@ import {
   type EffortRow,
 } from "@/components/projects/dashboard/project-effort-table";
 import {
+  stageHoursStatus,
+  type StageHoursRow,
+} from "@/components/projects/dashboard/stage-hours-breakdown";
+import {
   AlertsPanel,
   overBudgetDetail,
   overrunDetail,
@@ -411,6 +415,37 @@ function DashboardPage() {
     return m;
   }, [allStages]);
 
+  // Per-stage hours: attributed (allocations) vs used (logged entries).
+  const stageHoursByProject = useMemo(() => {
+    const loggedByStage = new Map<string, number>();
+    if (allEntries && taskToStage) {
+      for (const e of allEntries) {
+        if (!e.task_id) continue;
+        const stageId = taskToStage.get(e.task_id);
+        if (!stageId) continue;
+        loggedByStage.set(stageId, (loggedByStage.get(stageId) ?? 0) + e.hours);
+      }
+    }
+    const m = new Map<string, StageHoursRow[]>();
+    for (const s of allStages ?? []) {
+      let planned = 0;
+      for (const a of s.allocations) planned += allocationHours(a);
+      const logged = loggedByStage.get(s.id) ?? 0;
+      const gantt = (s as { gantt_number?: string | null }).gantt_number;
+      const arr = m.get(s.project_id) ?? [];
+      arr.push({
+        stageId: s.id,
+        name: gantt ? `${gantt} ${s.name}` : s.name,
+        plannedHours: planned,
+        loggedHours: logged,
+        remainingHours: planned - logged,
+        status: stageHoursStatus(planned, logged),
+      });
+      m.set(s.project_id, arr);
+    }
+    return m;
+  }, [allStages, allEntries, taskToStage]);
+
   // ---------- filtered project list ----------
   const filteredProjects = useMemo(() => {
     return (projects ?? []).filter((p) => {
@@ -490,12 +525,15 @@ function DashboardPage() {
         isTM,
         tmRevenue: actual.tmRevenue,
         nonBillableHours: actual.nonBillableHours,
+        plannedHours: projectPlannedHours.get(p.id) ?? 0,
+        loggedHours: actual.loggedHours,
+        stageHours: stageHoursByProject.get(p.id) ?? [],
         status,
         statusReason,
       };
 
     });
-  }, [filteredProjects, stagesByProject, projectActuals]);
+  }, [filteredProjects, stagesByProject, projectActuals, projectPlannedHours, stageHoursByProject]);
 
   // ---------- Project effort rows (time-based view) ----------
   const effortRows: EffortRow[] = useMemo(() => {
@@ -528,11 +566,12 @@ function DashboardPage() {
         loggedHours: logged,
         remainingHours: remaining,
         efficiencyPct,
+        stageHours: stageHoursByProject.get(p.id) ?? [],
         status,
         statusReason,
       };
     });
-  }, [filteredProjects, projectPlannedHours, projectActuals, stagesByProject]);
+  }, [filteredProjects, projectPlannedHours, projectActuals, stagesByProject, stageHoursByProject]);
 
   // ---------- KPIs (period-scoped) ----------
   const kpi: FinancialKpiData = useMemo(() => {

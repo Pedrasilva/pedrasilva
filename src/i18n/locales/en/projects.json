@@ -611,7 +611,8 @@
       "budgetRemaining": "Budget remaining",
       "profit": "Profit",
       "margin": "Margin",
-      "status": "Status"
+      "status": "Status",
+      "hours": "Hours (used / planned)"
     },
     "loadingProjects": "Loading projects…",
     "emptyFilter": "No projects in this filter.",
@@ -644,6 +645,12 @@
       "overrun": "Overrun ({{pct}}% of plan)",
       "approachingPlan": "Approaching plan ({{pct}}%)",
       "loggedWithoutPlan": "Logged time without plan"
+    },
+    "stages": {
+      "title": "Stage hours",
+      "stage": "Stage",
+      "usage": "Usage",
+      "empty": "No stages with hours yet"
     }
   },
   "alerts": {

@@ -1,9 +1,13 @@
-import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import type { Project } from "@/lib/projects/types";
 import { cn } from "@/lib/utils";
+import {
+  StageHoursBreakdown,
+  type StageHoursRow,
+} from "@/components/projects/dashboard/stage-hours-breakdown";
 
 
 export type EffortStatus = "ok" | "warn" | "bad" | "none";
@@ -17,6 +21,8 @@ export interface EffortRow {
   status: EffortStatus;
   /** Pre-translated reason. */
   statusReason: string;
+  /** Per-stage hours attributed vs used. */
+  stageHours?: StageHoursRow[];
 }
 
 const PAGE_SIZE = 10;
@@ -33,6 +39,7 @@ export function ProjectEffortTable({
   const { t } = useTranslation("projects");
   const [page, setPage] = useState(0);
   const [filter, setFilter] = useState<"all" | EffortStatus>("all");
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => (filter === "all" ? rows : rows.filter((r) => r.status === filter)),
@@ -86,6 +93,7 @@ export function ProjectEffortTable({
           <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="w-8 px-3 py-2"></th>
+              <th className="w-8 px-1 py-2"></th>
               <th className="px-3 py-2 text-left font-medium">{t("health.columns.project")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("effort.columns.planned")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("effort.columns.logged")}</th>
@@ -97,26 +105,45 @@ export function ProjectEffortTable({
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.loadingProjects")}
                 </td>
               </tr>
             )}
             {!loading && paged.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.emptyFilter")}
                 </td>
               </tr>
             )}
             {paged.map((r) => (
+              <Fragment key={r.project.id}>
               <tr
-                key={r.project.id}
                 className="cursor-pointer hover:bg-accent/30"
                 onClick={() => onOpenProject?.(r.project.id)}
               >
                 <td className="px-3 py-2.5 text-center">
                   <StatusDot status={r.status} />
+                </td>
+                <td className="px-1 py-2.5 text-center">
+                  <button
+                    type="button"
+                    aria-label={t("effort.stages.title")}
+                    aria-expanded={expanded === r.project.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpanded((cur) => (cur === r.project.id ? null : r.project.id));
+                    }}
+                    className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    <ChevronDown
+                      className={cn(
+                        "h-3.5 w-3.5 transition-transform",
+                        expanded === r.project.id && "rotate-180",
+                      )}
+                    />
+                  </button>
                 </td>
                 <td className="px-3 py-2.5">
                   <Link
@@ -160,6 +187,14 @@ export function ProjectEffortTable({
                   <span className="text-[11px] text-muted-foreground">{r.statusReason}</span>
                 </td>
               </tr>
+              {expanded === r.project.id && (
+                <tr>
+                  <td colSpan={8} className="p-0">
+                    <StageHoursBreakdown stages={r.stageHours ?? []} />
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>
