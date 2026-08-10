@@ -19,6 +19,8 @@ import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-ada
 import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import { ProjectNotesTab } from "@/components/projects/notes/project-notes-tab";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
