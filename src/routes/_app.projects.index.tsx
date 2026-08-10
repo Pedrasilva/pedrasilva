@@ -27,6 +27,10 @@ import {
   type EffortRow,
 } from "@/components/projects/dashboard/project-effort-table";
 import {
+  stageHoursStatus,
+  type StageHoursRow,
+} from "@/components/projects/dashboard/stage-hours-breakdown";
+import {
   AlertsPanel,
   overBudgetDetail,
   overrunDetail,

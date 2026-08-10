@@ -611,7 +611,8 @@
       "budgetRemaining": "Orçamento restante",
       "profit": "Lucro",
       "margin": "Margem",
-      "status": "Estado"
+      "status": "Estado",
+      "hours": "Horas (usadas / planeadas)"
     },
     "loadingProjects": "A carregar projectos…",
     "emptyFilter": "Nenhum projecto neste filtro.",
@@ -644,6 +645,12 @@
       "overrun": "Excedido ({{pct}}% do plano)",
       "approachingPlan": "A aproximar-se do plano ({{pct}}%)",
       "loggedWithoutPlan": "Tempo registado sem plano"
+    },
+    "stages": {
+      "title": "Horas por fase",
+      "stage": "Fase",
+      "usage": "Utilização",
+      "empty": "Ainda sem fases com horas"
     }
   },
   "alerts": {
