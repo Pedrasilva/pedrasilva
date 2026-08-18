@@ -945,13 +945,28 @@ function CollaboratorPage() {
                         <SelectTrigger>
                           <SelectValue placeholder={t("hr:collaborator.newDialog.copyFromBlank")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[320px]">
                           <SelectItem value="none">{t("hr:collaborator.newDialog.copyFromBlank")}</SelectItem>
-                          {snapshots.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.label} · {fmtSnapshotDate(s.reference_date)}
-                            </SelectItem>
-                          ))}
+                          {snapshots.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>{t("hr:collaborator.newDialog.copyFromThis")}</SelectLabel>
+                              {snapshots.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                  {s.label} · {fmtSnapshotDate(s.reference_date)}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
+                          {otherSnapshots.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>{t("hr:collaborator.newDialog.copyFromOthers")}</SelectLabel>
+                              {otherSnapshots.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                  {s.collaborators?.nome ?? "—"} · {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                     </Field>
