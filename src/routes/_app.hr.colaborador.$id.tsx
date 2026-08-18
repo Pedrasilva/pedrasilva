@@ -160,6 +160,31 @@ function CollaboratorPage() {
     },
   });
 
+  // Snapshots from other collaborators, usable as a template for a new hire.
+  const { data: otherSnapshots = [] } = useQuery({
+    queryKey: ["snapshots-others", id],
+    enabled: newOpen && canViewCompensation,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salary_snapshots")
+        .select("*, collaborators!inner(nome)")
+        .neq("collaborator_id", id)
+        .is("archived_at", null)
+        .order("reference_date", { ascending: false });
+      if (error) throw error;
+      const rows = (data ?? []) as (Snapshot & { collaborators: { nome: string } | null })[];
+      // Keep only the most relevant snapshot per collaborator (in-force first).
+      const byCollab = new Map<string, Snapshot & { collaborators: { nome: string } | null }>();
+      for (const r of rows) {
+        const prev = byCollab.get(r.collaborator_id);
+        if (!prev || (r.is_effective && !prev.is_effective)) byCollab.set(r.collaborator_id, r);
+      }
+      return [...byCollab.values()].sort((a, b) =>
+        (a.collaborators?.nome ?? "").localeCompare(b.collaborators?.nome ?? ""),
+      );
+    },
+  });
+
   const [showArchived, setShowArchived] = useState(false);
   const snapshots = useMemo(
     () => {
