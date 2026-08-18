@@ -314,11 +314,17 @@ function CollaboratorPage() {
   const createSnap = useMutation({
     mutationFn: async () => {
       const base = newForm.copyFrom
-        ? snapshots.find((s) => s.id === newForm.copyFrom)
+        ? snapshots.find((s) => s.id === newForm.copyFrom) ??
+          otherSnapshots.find((s) => s.id === newForm.copyFrom)
         : null;
-      const seed = base
+      const seed: Record<string, unknown> = base
         ? { ...base }
-        : defaultSnapshot(id, newForm.label, newForm.is_effective);
+        : (defaultSnapshot(id, newForm.label, newForm.is_effective) as unknown as Record<string, unknown>);
+      // Strip join/audit fields that must not be copied across records.
+      delete seed.collaborators;
+      delete seed.created_at;
+      delete seed.updated_at;
+      delete seed.archived_at;
       const payload = {
         ...seed,
         id: undefined as unknown as string,
