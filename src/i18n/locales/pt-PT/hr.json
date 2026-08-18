@@ -667,7 +667,6 @@
       "costSplitDisclaimer": "Atribuição de gestão apenas. O P&L real de projecto continua a usar horas registadas × custo/hora — a divisão de planeamento nunca reduz o custo/hora quando há tempo real de projecto registado.",
       "readOnlyHint": "Apenas administradores de RH podem editar este valor."
     },
-
     "placeholders": {
       "selectOption": "Seleccionar…",
       "emailExample": "nome@empresa.com",
@@ -706,7 +705,9 @@
       "copyFromBlank": "Em branco",
       "effective": "Em vigor",
       "cancel": "Cancelar",
-      "create": "Criar ficha"
+      "create": "Criar ficha",
+      "copyFromThis": "Este colaborador",
+      "copyFromOthers": "Outros colaboradores"
     },
     "toasts": {
       "saved": "Alterações guardadas",

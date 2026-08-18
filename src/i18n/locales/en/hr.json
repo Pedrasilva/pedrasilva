@@ -667,7 +667,6 @@
       "costSplitDisclaimer": "Management attribution only. Actual project P&L still uses logged hours × cost rate — the planning split never discounts the cost rate when real project time is logged.",
       "readOnlyHint": "Only HR admins can edit this value."
     },
-
     "placeholders": {
       "selectOption": "Select…",
       "emailExample": "name@company.com",
@@ -706,7 +705,9 @@
       "copyFromBlank": "Blank",
       "effective": "In force",
       "cancel": "Cancel",
-      "create": "Create snapshot"
+      "create": "Create snapshot",
+      "copyFromThis": "This collaborator",
+      "copyFromOthers": "Other collaborators"
     },
     "toasts": {
       "saved": "Changes saved",

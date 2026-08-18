@@ -31,7 +31,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -155,6 +157,31 @@ function CollaboratorPage() {
         .order("reference_date", { ascending: true });
       if (error) throw error;
       return data as Snapshot[];
+    },
+  });
+
+  // Snapshots from other collaborators, usable as a template for a new hire.
+  const { data: otherSnapshots = [] } = useQuery({
+    queryKey: ["snapshots-others", id],
+    enabled: newOpen && canViewCompensation,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salary_snapshots")
+        .select("*, collaborators!inner(nome)")
+        .neq("collaborator_id", id)
+        .is("archived_at", null)
+        .order("reference_date", { ascending: false });
+      if (error) throw error;
+      const rows = (data ?? []) as (Snapshot & { collaborators: { nome: string } | null })[];
+      // Keep only the most relevant snapshot per collaborator (in-force first).
+      const byCollab = new Map<string, Snapshot & { collaborators: { nome: string } | null }>();
+      for (const r of rows) {
+        const prev = byCollab.get(r.collaborator_id);
+        if (!prev || (r.is_effective && !prev.is_effective)) byCollab.set(r.collaborator_id, r);
+      }
+      return [...byCollab.values()].sort((a, b) =>
+        (a.collaborators?.nome ?? "").localeCompare(b.collaborators?.nome ?? ""),
+      );
     },
   });
 
@@ -287,11 +314,17 @@ function CollaboratorPage() {
   const createSnap = useMutation({
     mutationFn: async () => {
       const base = newForm.copyFrom
-        ? snapshots.find((s) => s.id === newForm.copyFrom)
+        ? snapshots.find((s) => s.id === newForm.copyFrom) ??
+          otherSnapshots.find((s) => s.id === newForm.copyFrom)
         : null;
-      const seed = base
+      const seed: Record<string, unknown> = base
         ? { ...base }
-        : defaultSnapshot(id, newForm.label, newForm.is_effective);
+        : (defaultSnapshot(id, newForm.label, newForm.is_effective) as unknown as Record<string, unknown>);
+      // Strip join/audit fields that must not be copied across records.
+      delete seed.collaborators;
+      delete seed.created_at;
+      delete seed.updated_at;
+      delete seed.archived_at;
       const payload = {
         ...seed,
         id: undefined as unknown as string,
@@ -912,13 +945,28 @@ function CollaboratorPage() {
                         <SelectTrigger>
                           <SelectValue placeholder={t("hr:collaborator.newDialog.copyFromBlank")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[320px]">
                           <SelectItem value="none">{t("hr:collaborator.newDialog.copyFromBlank")}</SelectItem>
-                          {snapshots.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.label} · {fmtSnapshotDate(s.reference_date)}
-                            </SelectItem>
-                          ))}
+                          {snapshots.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>{t("hr:collaborator.newDialog.copyFromThis")}</SelectLabel>
+                              {snapshots.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                  {s.label} · {fmtSnapshotDate(s.reference_date)}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
+                          {otherSnapshots.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>{t("hr:collaborator.newDialog.copyFromOthers")}</SelectLabel>
+                              {otherSnapshots.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                  {s.collaborators?.nome ?? "—"} · {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                     </Field>
