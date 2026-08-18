@@ -771,20 +771,28 @@ function RhTable({
     "maritalStatus","titulares","dependents","dependentsDisability","fiscalYear","tgv",
   ];
   const defaultVisible = () => Object.fromEntries(ALL_COLS.map((k) => [k, true])) as Record<ColKey, boolean>;
-  const [visible, setVisible] = useState<Record<ColKey, boolean>>(() => {
-    if (typeof window === "undefined") return defaultVisible();
+  const [visible, setVisible] = useState<Record<ColKey, boolean>>(defaultVisible);
+  // Load persisted selection after mount (avoids SSR/hydration mismatch which
+  // would otherwise reset the stored preferences back to "all visible").
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
     try {
       const raw = window.localStorage.getItem(storageKey);
-      if (!raw) return defaultVisible();
-      const parsed = JSON.parse(raw) as Partial<Record<ColKey, boolean>>;
-      return { ...defaultVisible(), ...parsed };
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<Record<ColKey, boolean>>;
+        setVisible({ ...defaultVisible(), ...parsed });
+      }
     } catch {
-      return defaultVisible();
+      /* ignore */
     }
-  });
+    setLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
   useEffect(() => {
+    if (!loaded) return;
     try { window.localStorage.setItem(storageKey, JSON.stringify(visible)); } catch {}
-  }, [storageKey, visible]);
+  }, [storageKey, visible, loaded]);
+
   const isV = (k: ColKey) => visible[k];
   const toggleCol = (k: ColKey) => setVisible((v) => ({ ...v, [k]: !v[k] }));
   const showAll = () => setVisible(defaultVisible());
