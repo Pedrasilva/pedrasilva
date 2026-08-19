@@ -1033,9 +1033,14 @@ function CollaboratorPage() {
           </Tabs>
         </div>
       )}
-    </div>
+      </div>
+      {offerSnapshot && (
+        <OfferSummarySheet collaborator={collab} snapshot={offerSnapshot} />
+      )}
+    </>
   );
 }
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
