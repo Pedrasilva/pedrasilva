@@ -513,7 +513,13 @@ function CollaboratorPage() {
               {t("hr:collaborator.activeToggle.inactive")}
             </span>
           </div>
+          {offerSnapshot && canViewCompensation && (
+            <Button variant="default" size="sm" onClick={handlePrintOffer}>
+              <Printer className="h-4 w-4" /> {t("hr:offerSheet.buttonLabel")}
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => window.print()}>
+
             <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
           </Button>
         </div>
