@@ -1396,5 +1396,40 @@
     "seniorityRange": "Seniority must be between 0 and 100.",
     "none": "— Not set —",
     "unassigned": "Unassigned"
+  },
+  "offerSheet": {
+    "documentTitle": "Compensation summary",
+    "buttonLabel": "Candidate summary (PDF)",
+    "referenceDate": "Effective from {{date}}",
+    "highlight": {
+      "monthly": "Monthly take-home",
+      "annual": "Yearly take-home",
+      "months": "Salary months / year"
+    },
+    "sections": {
+      "salary": "Salary",
+      "allowances": "Allowances",
+      "benefits": "Benefits",
+      "annual": "Yearly view"
+    },
+    "rows": {
+      "baseMonthly": "Gross base salary (monthly)",
+      "netMonthly": "Average net salary (monthly)",
+      "mealAllowance": "Meal allowance (monthly average)",
+      "mealAllowanceHint": "{{daily}} per working day",
+      "transitPass": "Transit pass (monthly)",
+      "perDiem": "Per diem allowances (monthly)",
+      "car": "Car allowance (monthly)",
+      "voucher": "Voucher (monthly)",
+      "associateBonus": "Associate bonus (monthly)",
+      "retirementPlan": "Retirement plan (monthly)",
+      "otherBenefits": "Other benefits (monthly)",
+      "totalMonthly": "Total monthly take-home",
+      "annualNet": "Net salary (yearly)",
+      "annualAllowances": "Allowances (yearly)",
+      "annualBenefits": "Benefits (yearly)"
+    },
+    "variableNote": "Plus a potential variable bonus of up to {{value}} per year, subject to studio and individual performance.",
+    "disclaimer": "Indicative summary based on current tax tables and the working schedule agreed. Net values are estimates and may vary with personal tax circumstances. This document is not a contract."
   }
 }
