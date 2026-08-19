@@ -1618,3 +1618,130 @@
   .proposal-image-twothirds { height: 165mm; }
   .proposal-image-full      { height: 245mm; }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Candidate offer summary — clean, single-purpose print document.
+   Hidden on screen; printed only when <body class="printing-offer">.
+   ────────────────────────────────────────────────────────────────── */
+.offer-sheet { display: none; }
+
+@media print {
+  body.printing-offer .print-area,
+  body.printing-offer .proposal-print-area {
+    display: none !important;
+  }
+  body.printing-offer .offer-sheet,
+  body.printing-offer .offer-sheet * {
+    visibility: visible !important;
+  }
+  body.printing-offer .offer-sheet {
+    display: block !important;
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2mm;
+    color: #111;
+    background: #fff;
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .offer-sheet__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12mm;
+    border-bottom: 1.2pt solid #111;
+    padding-bottom: 4mm;
+    margin-bottom: 7mm;
+  }
+  .offer-sheet__eyebrow {
+    margin: 0 0 1.5mm;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .offer-sheet__name { margin: 0; font-size: 19pt; font-weight: 600; }
+  .offer-sheet__meta { margin: 1.5mm 0 0; font-size: 9.5pt; color: #555; }
+  .offer-sheet__date { margin: 0; font-size: 9pt; color: #555; white-space: nowrap; }
+
+  .offer-sheet__highlight {
+    display: flex;
+    gap: 8mm;
+    margin-bottom: 8mm;
+    page-break-inside: avoid;
+  }
+  .offer-sheet__highlight > div {
+    flex: 1;
+    border: 0.7pt solid #ddd;
+    border-radius: 2mm;
+    padding: 3.5mm 4mm;
+  }
+  .offer-sheet__highlight-label {
+    display: block;
+    font-size: 7.5pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 1.5mm;
+  }
+  .offer-sheet__highlight-value { font-size: 14pt; font-weight: 600; }
+
+  .offer-sheet__block { margin-bottom: 6mm; page-break-inside: avoid; }
+  .offer-sheet__block h2 {
+    margin: 0 0 2mm;
+    font-size: 9pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #444;
+  }
+  .offer-sheet__block table { width: 100%; border-collapse: collapse; }
+  .offer-sheet__block tr { page-break-inside: avoid; }
+  .offer-sheet__block th {
+    text-align: left;
+    font-weight: 400;
+    padding: 1.8mm 0;
+    border-bottom: 0.4pt solid #e5e5e5;
+  }
+  .offer-sheet__block td {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding: 1.8mm 0;
+    border-bottom: 0.4pt solid #e5e5e5;
+  }
+  .offer-sheet__hint {
+    display: block;
+    font-size: 8pt;
+    color: #777;
+  }
+
+  .offer-sheet__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-top: 1pt solid #111;
+    border-bottom: 1pt solid #111;
+    padding: 3mm 0;
+    margin-bottom: 7mm;
+    font-size: 12pt;
+    font-weight: 600;
+    page-break-inside: avoid;
+  }
+
+  .offer-sheet__note {
+    margin: 0 0 3mm;
+    font-size: 9pt;
+    color: #444;
+  }
+  .offer-sheet__footer {
+    margin-top: 8mm;
+    padding-top: 3mm;
+    border-top: 0.4pt solid #ddd;
+    font-size: 8pt;
+    color: #777;
+  }
+}
