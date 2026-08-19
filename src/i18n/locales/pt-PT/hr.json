@@ -1430,6 +1430,20 @@
       "annualBenefits": "Benefícios (anual)"
     },
     "variableNote": "Acresce um prémio variável potencial até {{value}} por ano, dependente do desempenho do atelier e individual.",
-    "disclaimer": "Resumo indicativo, calculado com as tabelas fiscais em vigor e o horário acordado. Os valores líquidos são estimativas e podem variar com a situação fiscal pessoal. Este documento não constitui contrato."
+    "disclaimer": "Resumo indicativo, calculado com as tabelas fiscais em vigor e o horário acordado. Os valores líquidos são estimativas e podem variar com a situação fiscal pessoal. Este documento não constitui contrato.",
+    "banner": {
+      "label": "O que irá receber mensalmente"
+    },
+    "kpis": {
+      "grossAnnual": "O salário bruto anual terá um valor de:",
+      "irsRate": "A retenção na fonte do salário será de:",
+      "annualTakeHome": "O valor líquido anual será de:",
+      "perMonth": "{{value}} por mês",
+      "months": "{{count}} meses de salário por ano"
+    },
+    "donut": {
+      "center": "Recebido por mês",
+      "travel": "Ajudas de custo + passe"
+    }
   }
 }

@@ -1430,6 +1430,20 @@
       "annualBenefits": "Benefits (yearly)"
     },
     "variableNote": "Plus a potential variable bonus of up to {{value}} per year, subject to studio and individual performance.",
-    "disclaimer": "Indicative summary based on current tax tables and the working schedule agreed. Net values are estimates and may vary with personal tax circumstances. This document is not a contract."
+    "disclaimer": "Indicative summary based on current tax tables and the working schedule agreed. Net values are estimates and may vary with personal tax circumstances. This document is not a contract.",
+    "banner": {
+      "label": "What you will receive each month"
+    },
+    "kpis": {
+      "grossAnnual": "Your annual gross salary will be:",
+      "irsRate": "Income tax withheld will be:",
+      "annualTakeHome": "Your annual take-home will be:",
+      "perMonth": "{{value}} per month",
+      "months": "{{count}} salary months per year"
+    },
+    "donut": {
+      "center": "Received per month",
+      "travel": "Per diem + transit pass"
+    }
   }
 }
