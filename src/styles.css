@@ -1739,12 +1739,16 @@
     text-align: center;
   }
   .offer-sheet__donut-center span {
-    font-size: 6.5pt;
-    letter-spacing: 0.12em;
+    display: block;
+    max-width: 22mm;
+    font-size: 5.5pt;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #777;
   }
-  .offer-sheet__donut-center strong { font-size: 10.5pt; font-weight: 600; }
+  .offer-sheet__donut-center strong { font-size: 9.5pt; font-weight: 600; }
+
 
   .offer-sheet__legend { flex: 1; margin: 0; padding: 0; list-style: none; }
   .offer-sheet__legend li {
