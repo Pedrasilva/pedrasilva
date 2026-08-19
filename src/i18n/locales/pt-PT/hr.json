@@ -1435,7 +1435,7 @@
       "label": "O que irá receber mensalmente"
     },
     "kpis": {
-      "grossAnnual": "O salário bruto anual terá um valor de:",
+      "grossAnnual": "O custo anual bruto para o atelier será de:",
       "irsRate": "A retenção na fonte do salário será de:",
       "annualTakeHome": "O valor líquido anual será de:",
       "perMonth": "{{value}} por mês",
