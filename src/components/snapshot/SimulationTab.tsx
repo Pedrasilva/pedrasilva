@@ -17,6 +17,7 @@ import {
 } from "@/lib/salary";
 import { CalcRow, FieldRow, NumIn } from "./inputs";
 import { PayrollSimulationCard } from "./PayrollSimulationCard";
+import { SalarySimulatorHero } from "./SalarySimulatorHero";
 
 type Setter = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) => void;
 
