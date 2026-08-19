@@ -98,6 +98,8 @@ import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { OfferSummarySheet } from "@/components/hr/offer-summary-sheet";
+
 
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
   component: () => (
@@ -400,8 +402,30 @@ function CollaboratorPage() {
 
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
+  // Snapshot used for the candidate-facing summary: the one being viewed,
+  // falling back to the in-force/most relevant one.
+  const offerSnapshot =
+    snapshots.find((s) => s.id === tabValue) ?? snapshots[0] ?? null;
+
+  const handlePrintOffer = () => {
+    if (!offerSnapshot) return;
+    const cleanup = () => {
+      document.body.classList.remove("printing-offer");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    document.body.classList.add("printing-offer");
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    // Safari/Firefox fallback if afterprint never fires.
+    window.setTimeout(cleanup, 3000);
+  };
+
+
+
   return (
+    <>
     <div className="space-y-6 print-area">
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-end gap-4">
           <div className="no-print">
@@ -489,7 +513,13 @@ function CollaboratorPage() {
               {t("hr:collaborator.activeToggle.inactive")}
             </span>
           </div>
+          {offerSnapshot && canViewCompensation && (
+            <Button variant="default" size="sm" onClick={handlePrintOffer}>
+              <Printer className="h-4 w-4" /> {t("hr:offerSheet.buttonLabel")}
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => window.print()}>
+
             <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
           </Button>
         </div>
@@ -1033,9 +1063,14 @@ function CollaboratorPage() {
           </Tabs>
         </div>
       )}
-    </div>
+      </div>
+      {offerSnapshot && (
+        <OfferSummarySheet collaborator={collab} snapshot={offerSnapshot} />
+      )}
+    </>
   );
 }
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

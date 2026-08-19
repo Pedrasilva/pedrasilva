@@ -1396,5 +1396,40 @@
     "seniorityRange": "A senioridade deve estar entre 0 e 100.",
     "none": "— Não definido —",
     "unassigned": "Não atribuído"
+  },
+  "offerSheet": {
+    "documentTitle": "Resumo de remuneração",
+    "buttonLabel": "Resumo para candidato (PDF)",
+    "referenceDate": "Em vigor a partir de {{date}}",
+    "highlight": {
+      "monthly": "Líquido mensal",
+      "annual": "Líquido anual",
+      "months": "Meses de salário / ano"
+    },
+    "sections": {
+      "salary": "Salário",
+      "allowances": "Subsídios e ajudas",
+      "benefits": "Benefícios",
+      "annual": "Vista anual"
+    },
+    "rows": {
+      "baseMonthly": "Vencimento base ilíquido (mensal)",
+      "netMonthly": "Salário líquido médio (mensal)",
+      "mealAllowance": "Subsídio de alimentação (média mensal)",
+      "mealAllowanceHint": "{{daily}} por dia útil",
+      "transitPass": "Passe (mensal)",
+      "perDiem": "Ajudas de custo (mensal)",
+      "car": "Viatura (mensal)",
+      "voucher": "Ticket (mensal)",
+      "associateBonus": "Prémio de associado (mensal)",
+      "retirementPlan": "Plano de reforma (mensal)",
+      "otherBenefits": "Outros benefícios (mensal)",
+      "totalMonthly": "Total líquido mensal",
+      "annualNet": "Salário líquido (anual)",
+      "annualAllowances": "Subsídios e ajudas (anual)",
+      "annualBenefits": "Benefícios (anual)"
+    },
+    "variableNote": "Acresce um prémio variável potencial até {{value}} por ano, dependente do desempenho do atelier e individual.",
+    "disclaimer": "Resumo indicativo, calculado com as tabelas fiscais em vigor e o horário acordado. Os valores líquidos são estimativas e podem variar com a situação fiscal pessoal. Este documento não constitui contrato."
   }
 }
