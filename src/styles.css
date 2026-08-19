@@ -1654,8 +1654,8 @@
     justify-content: space-between;
     gap: 12mm;
     border-bottom: 1.2pt solid #111;
-    padding-bottom: 4mm;
-    margin-bottom: 7mm;
+    padding-bottom: 3mm;
+    margin-bottom: 5mm;
   }
   .offer-sheet__eyebrow {
     margin: 0 0 1.5mm;
@@ -1675,9 +1675,9 @@
     gap: 8mm;
     background: #b4795d;
     color: #fff;
-    padding: 4mm 5mm;
+    padding: 3.4mm 5mm;
     border-radius: 2mm;
-    margin-bottom: 5mm;
+    margin-bottom: 4mm;
     page-break-inside: avoid;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -1688,7 +1688,7 @@
   .offer-sheet__kpis {
     display: flex;
     gap: 4mm;
-    margin-bottom: 7mm;
+    margin-bottom: 5mm;
     page-break-inside: avoid;
   }
   .offer-sheet__kpi {
@@ -1777,7 +1777,7 @@
   }
 
 
-  .offer-sheet__block { margin-bottom: 4.5mm; page-break-inside: avoid; }
+  .offer-sheet__block { margin-bottom: 3.8mm; page-break-inside: avoid; }
   .offer-sheet__block h2 {
     margin: 0 0 2mm;
     font-size: 9pt;
