@@ -10,14 +10,26 @@ import {
 } from "@/lib/salary";
 
 type Row = { label: string; value: number; hint?: string };
+type Slice = { name: string; value: number; color: string };
+
+/** Print-safe palette (no oklch / CSS vars — printers flatten those). */
+const COLORS = {
+  net: "#6f8f6a",
+  meal: "#7fb8a0",
+  travel: "#6ea3c8",
+  benefits: "#b4795d",
+};
 
 /**
  * Candidate-facing compensation summary.
  *
- * Deliberately narrow: it shows only what a future team member needs to know
- * (what they receive, monthly and yearly). Internal management data — FTE,
- * back-office split, employer cost, chargeability, value chain — is excluded,
- * and any line with a zero/blank value is omitted entirely.
+ * Mirrors the on-screen "Doutor Finanças"-style simulator: a headline banner
+ * with the monthly take-home, three KPIs, and a donut composition of what the
+ * candidate receives — followed by the detailed line items.
+ *
+ * Deliberately narrow: internal management data (FTE, back-office split,
+ * employer cost, chargeability, value chain) is excluded, and any line with a
+ * zero/blank value is omitted entirely.
  *
  * Rendered hidden on screen; only printed when <body> carries `printing-offer`.
  */
@@ -71,6 +83,27 @@ export function OfferSummarySheet({
   ]);
 
   const variableAnnual = c.bonusVariavelAnual;
+
+  // Headline figures — same maths as the on-screen simulator hero.
+  const recebeMensal = c.liquidoTotalMensal;
+  const brutoAnualColaborador =
+    c.baseAnual + c.alimentacaoAnual + snapshot.ajudas_custo_anual + c.passeAnual;
+
+  const slices: Slice[] = [
+    { name: t("hr:offerSheet.rows.netMonthly"), value: c.liquido12m, color: COLORS.net },
+    { name: t("hr:offerSheet.rows.mealAllowance"), value: c.alimentacaoMensal, color: COLORS.meal },
+    {
+      name: t("hr:offerSheet.donut.travel"),
+      value: c.ajudasMensal + c.passeMensal,
+      color: COLORS.travel,
+    },
+    {
+      name: t("hr:offerSheet.sections.benefits"),
+      value: c.beneficiosMensalGarantido,
+      color: COLORS.benefits,
+    },
+  ].filter((s) => Math.round(s.value * 100) > 0);
+
   const humanizeRole = (v?: string | null) =>
     v
       ? v
@@ -104,29 +137,45 @@ export function OfferSummarySheet({
         </p>
       </header>
 
-      <section className="offer-sheet__highlight">
-        <div>
-          <span className="offer-sheet__highlight-label">
-            {t("hr:offerSheet.highlight.monthly")}
-          </span>
-          <strong className="offer-sheet__highlight-value">
-            {fmtEUR(c.liquidoTotalMensal)}
-          </strong>
-        </div>
-        <div>
-          <span className="offer-sheet__highlight-label">
-            {t("hr:offerSheet.highlight.annual")}
-          </span>
-          <strong className="offer-sheet__highlight-value">
-            {fmtEUR(c.liquidoTotalMensal * 12)}
-          </strong>
-        </div>
-        <div>
-          <span className="offer-sheet__highlight-label">
-            {t("hr:offerSheet.highlight.months")}
-          </span>
-          <strong className="offer-sheet__highlight-value">{meses}</strong>
-        </div>
+      <section className="offer-sheet__banner">
+        <span>{t("hr:offerSheet.banner.label")}</span>
+        <strong>{fmtEUR(recebeMensal)}</strong>
+      </section>
+
+      <section className="offer-sheet__kpis">
+        <Kpi
+          label={t("hr:offerSheet.kpis.grossAnnual")}
+          value={fmtEUR(brutoAnualColaborador)}
+          hint={t("hr:offerSheet.kpis.perMonth", { value: fmtEUR(brutoAnualColaborador / 12) })}
+        />
+        <Kpi
+          label={t("hr:offerSheet.kpis.irsRate")}
+          value={`${(snapshot.irs_pct * 100).toFixed(2)}%`}
+          hint={t("hr:offerSheet.kpis.perMonth", { value: fmtEUR(c.irsMensal) })}
+        />
+        <Kpi
+          label={t("hr:offerSheet.kpis.annualTakeHome")}
+          value={fmtEUR(recebeMensal * 12)}
+          hint={t("hr:offerSheet.kpis.months", { count: meses })}
+        />
+      </section>
+
+      <section className="offer-sheet__composition">
+        <Donut slices={slices} centerLabel={t("hr:offerSheet.donut.center")} centerValue={recebeMensal} />
+        <ul className="offer-sheet__legend">
+          {slices.map((s) => {
+            const total = slices.reduce((a, b) => a + b.value, 0);
+            const pct = total > 0 ? (s.value / total) * 100 : 0;
+            return (
+              <li key={s.name}>
+                <span className="offer-sheet__swatch" style={{ background: s.color }} />
+                <span className="offer-sheet__legend-label">{s.name}</span>
+                <span className="offer-sheet__legend-value">{fmtEUR(s.value)}</span>
+                <span className="offer-sheet__legend-pct">{pct.toFixed(1)}%</span>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <Block title={t("hr:offerSheet.sections.salary")} rows={salaryRows} />
@@ -139,7 +188,7 @@ export function OfferSummarySheet({
 
       <section className="offer-sheet__total">
         <span>{t("hr:offerSheet.rows.totalMonthly")}</span>
-        <strong>{fmtEUR(c.liquidoTotalMensal)}</strong>
+        <strong>{fmtEUR(recebeMensal)}</strong>
       </section>
 
       {annualRows.length > 0 && (
@@ -157,6 +206,70 @@ export function OfferSummarySheet({
       <footer className="offer-sheet__footer">
         <p>{t("hr:offerSheet.disclaimer")}</p>
       </footer>
+    </div>
+  );
+}
+
+function Kpi({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <div className="offer-sheet__kpi">
+      <span className="offer-sheet__kpi-label">{label}</span>
+      <strong className="offer-sheet__kpi-value">{value}</strong>
+      <span className="offer-sheet__kpi-hint">{hint}</span>
+    </div>
+  );
+}
+
+/**
+ * Static SVG donut. Recharts renders through a responsive container that has no
+ * measurable size in a print-only subtree, so the chart is drawn by hand with
+ * stroke-dasharray arcs instead.
+ */
+function Donut({
+  slices,
+  centerLabel,
+  centerValue,
+}: {
+  slices: Slice[];
+  centerLabel: string;
+  centerValue: number;
+}) {
+  const size = 150;
+  const stroke = 26;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const total = slices.reduce((a, b) => a + b.value, 0) || 1;
+  let offset = 0;
+
+  return (
+    <div className="offer-sheet__donut">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="presentation">
+        <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
+          {slices.map((s) => {
+            const len = (s.value / total) * circ;
+            const dash = `${Math.max(len - 2, 0)} ${circ - Math.max(len - 2, 0)}`;
+            const el = (
+              <circle
+                key={s.name}
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={stroke}
+                strokeDasharray={dash}
+                strokeDashoffset={-offset}
+              />
+            );
+            offset += len;
+            return el;
+          })}
+        </g>
+      </svg>
+      <div className="offer-sheet__donut-center">
+        <span>{centerLabel}</span>
+        <strong>{fmtEUR(centerValue)}</strong>
+      </div>
     </div>
   );
 }
