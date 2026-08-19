@@ -71,8 +71,14 @@ export function OfferSummarySheet({
   ]);
 
   const variableAnnual = c.bonusVariavelAnual;
+  const humanizeRole = (v?: string | null) =>
+    v
+      ? v
+          .replace(/[_-]+/g, " ")
+          .replace(/\b\w/g, (m) => m.toUpperCase())
+      : null;
   const subtitleParts = [
-    collaborator.proposal_role || collaborator.billing_role || null,
+    humanizeRole(collaborator.proposal_role || collaborator.billing_role),
     t(`hr:enums.department.${collaborator.departamento}`, {
       defaultValue: collaborator.departamento,
     }),
