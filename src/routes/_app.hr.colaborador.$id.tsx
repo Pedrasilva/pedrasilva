@@ -402,6 +402,26 @@ function CollaboratorPage() {
 
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
+  // Snapshot used for the candidate-facing summary: the one being viewed,
+  // falling back to the in-force/most relevant one.
+  const offerSnapshot =
+    snapshots.find((s) => s.id === tabValue) ?? snapshots[0] ?? null;
+
+  const handlePrintOffer = () => {
+    if (!offerSnapshot) return;
+    const cleanup = () => {
+      document.body.classList.remove("printing-offer");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    document.body.classList.add("printing-offer");
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    // Safari/Firefox fallback if afterprint never fires.
+    window.setTimeout(cleanup, 3000);
+  };
+
+
+
   return (
     <>
     <div className="space-y-6 print-area">
