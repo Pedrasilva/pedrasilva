@@ -24,6 +24,7 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
   const c = computeSnapshot(draft);
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <PayrollSimulationCard draft={draft} />
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Base contractual</CardTitle>
