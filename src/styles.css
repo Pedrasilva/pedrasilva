@@ -1721,7 +1721,7 @@
     display: flex;
     align-items: center;
     gap: 8mm;
-    margin-bottom: 8mm;
+    margin-bottom: 6mm;
     page-break-inside: avoid;
   }
   .offer-sheet__donut { position: relative; flex: 0 0 auto; }
@@ -1777,7 +1777,7 @@
   }
 
 
-  .offer-sheet__block { margin-bottom: 6mm; page-break-inside: avoid; }
+  .offer-sheet__block { margin-bottom: 4.5mm; page-break-inside: avoid; }
   .offer-sheet__block h2 {
     margin: 0 0 2mm;
     font-size: 9pt;
@@ -1790,14 +1790,14 @@
   .offer-sheet__block th {
     text-align: left;
     font-weight: 400;
-    padding: 1.8mm 0;
+    padding: 1.4mm 0;
     border-bottom: 0.4pt solid #e5e5e5;
   }
   .offer-sheet__block td {
     text-align: right;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    padding: 1.8mm 0;
+    padding: 1.4mm 0;
     border-bottom: 0.4pt solid #e5e5e5;
   }
   .offer-sheet__hint {
