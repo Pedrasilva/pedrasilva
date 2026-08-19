@@ -16,6 +16,7 @@ import {
   type SubsidiosModo,
 } from "@/lib/salary";
 import { CalcRow, FieldRow, NumIn } from "./inputs";
+import { PayrollSimulationCard } from "./PayrollSimulationCard";
 
 type Setter = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) => void;
 
