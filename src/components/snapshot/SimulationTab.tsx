@@ -17,6 +17,7 @@ import {
 } from "@/lib/salary";
 import { CalcRow, FieldRow, NumIn } from "./inputs";
 import { PayrollSimulationCard } from "./PayrollSimulationCard";
+import { SalarySimulatorHero } from "./SalarySimulatorHero";
 
 type Setter = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) => void;
 
@@ -24,6 +25,7 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
   const c = computeSnapshot(draft);
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <SalarySimulatorHero draft={draft} />
       <PayrollSimulationCard draft={draft} />
       <Card>
         <CardHeader>
