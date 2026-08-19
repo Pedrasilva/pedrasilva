@@ -1435,7 +1435,7 @@
       "label": "What you will receive each month"
     },
     "kpis": {
-      "grossAnnual": "Your annual gross salary will be:",
+      "grossAnnual": "Gross annual cost to the atelier:",
       "irsRate": "Income tax withheld will be:",
       "annualTakeHome": "Your annual take-home will be:",
       "perMonth": "{{value}} per month",
