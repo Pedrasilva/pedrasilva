@@ -401,7 +401,9 @@ function CollaboratorPage() {
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
   return (
+    <>
     <div className="space-y-6 print-area">
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-end gap-4">
           <div className="no-print">
