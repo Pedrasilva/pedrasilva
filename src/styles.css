@@ -1668,27 +1668,110 @@
   .offer-sheet__meta { margin: 1.5mm 0 0; font-size: 9.5pt; color: #555; }
   .offer-sheet__date { margin: 0; font-size: 9pt; color: #555; white-space: nowrap; }
 
-  .offer-sheet__highlight {
+  .offer-sheet__banner {
     display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 8mm;
-    margin-bottom: 8mm;
+    background: #b4795d;
+    color: #fff;
+    padding: 4mm 5mm;
+    border-radius: 2mm;
+    margin-bottom: 5mm;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .offer-sheet__banner span { font-size: 11pt; font-weight: 600; }
+  .offer-sheet__banner strong { font-size: 16pt; font-weight: 700; }
+
+  .offer-sheet__kpis {
+    display: flex;
+    gap: 4mm;
+    margin-bottom: 7mm;
     page-break-inside: avoid;
   }
-  .offer-sheet__highlight > div {
+  .offer-sheet__kpi {
     flex: 1;
     border: 0.7pt solid #ddd;
     border-radius: 2mm;
     padding: 3.5mm 4mm;
   }
-  .offer-sheet__highlight-label {
+  .offer-sheet__kpi-label {
     display: block;
+    font-size: 8.5pt;
+    line-height: 1.3;
+    color: #444;
+  }
+  .offer-sheet__kpi-value {
+    display: block;
+    margin-top: 1.5mm;
+    font-size: 13pt;
+    font-weight: 600;
+    color: #b4795d;
+  }
+  .offer-sheet__kpi-hint {
+    display: block;
+    margin-top: 0.8mm;
     font-size: 7.5pt;
+    color: #777;
+  }
+
+  .offer-sheet__composition {
+    display: flex;
+    align-items: center;
+    gap: 8mm;
+    margin-bottom: 8mm;
+    page-break-inside: avoid;
+  }
+  .offer-sheet__donut { position: relative; flex: 0 0 auto; }
+  .offer-sheet__donut svg {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .offer-sheet__donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .offer-sheet__donut-center span {
+    font-size: 6.5pt;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #666;
-    margin-bottom: 1.5mm;
+    color: #777;
   }
-  .offer-sheet__highlight-value { font-size: 14pt; font-weight: 600; }
+  .offer-sheet__donut-center strong { font-size: 10.5pt; font-weight: 600; }
+
+  .offer-sheet__legend { flex: 1; margin: 0; padding: 0; list-style: none; }
+  .offer-sheet__legend li {
+    display: flex;
+    align-items: center;
+    gap: 2.5mm;
+    padding: 1.4mm 0;
+    border-bottom: 0.4pt solid #eee;
+    font-size: 9.5pt;
+  }
+  .offer-sheet__swatch {
+    width: 2.6mm;
+    height: 2.6mm;
+    border-radius: 0.6mm;
+    flex: 0 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .offer-sheet__legend-label { flex: 1; }
+  .offer-sheet__legend-value { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .offer-sheet__legend-pct {
+    width: 13mm;
+    text-align: right;
+    color: #777;
+    font-variant-numeric: tabular-nums;
+  }
+
 
   .offer-sheet__block { margin-bottom: 6mm; page-break-inside: avoid; }
   .offer-sheet__block h2 {
