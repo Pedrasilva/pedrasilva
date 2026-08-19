@@ -86,8 +86,8 @@ export function OfferSummarySheet({
 
   // Headline figures — same maths as the on-screen simulator hero.
   const recebeMensal = c.liquidoTotalMensal;
-  const brutoAnualColaborador =
-    c.baseAnual + c.alimentacaoAnual + snapshot.ajudas_custo_anual + c.passeAnual;
+  // Gross annual cost to the atelier (base ×14 + employer SS + allowances).
+  const brutoAnualColaborador = c.custoVBG;
 
   const slices: Slice[] = [
     { name: t("hr:offerSheet.rows.netMonthly"), value: c.liquido12m, color: COLORS.net },
