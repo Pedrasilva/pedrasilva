@@ -1812,8 +1812,8 @@
     justify-content: space-between;
     border-top: 1pt solid #111;
     border-bottom: 1pt solid #111;
-    padding: 3mm 0;
-    margin-bottom: 7mm;
+    padding: 2.4mm 0;
+    margin-bottom: 5mm;
     font-size: 12pt;
     font-weight: 600;
     page-break-inside: avoid;
@@ -1825,8 +1825,9 @@
     color: #444;
   }
   .offer-sheet__footer {
-    margin-top: 8mm;
-    padding-top: 3mm;
+    margin-top: 4mm;
+    padding-top: 2.5mm;
+    page-break-inside: avoid;
     border-top: 0.4pt solid #ddd;
     font-size: 8pt;
     color: #777;
