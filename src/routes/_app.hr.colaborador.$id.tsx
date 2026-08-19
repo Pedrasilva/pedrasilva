@@ -98,6 +98,8 @@ import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { OfferSummarySheet } from "@/components/hr/offer-summary-sheet";
+
 
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
   component: () => (
