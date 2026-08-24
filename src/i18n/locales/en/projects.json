@@ -64,7 +64,10 @@
       "noTeam": "No team yet",
       "budgetUsage": "Budget usage",
       "profit": "Profit",
-      "loggedHours": "{{logged}}h logged / {{planned}}h planned"
+      "loggedHours": "{{logged}}h logged / {{planned}}h planned",
+      "editClient": "Change client",
+      "manageTeam": "Manage team",
+      "pickPerson": "Pick a person"
     },
     "budgetControl": {
       "title": "Budget control",
@@ -156,6 +159,13 @@
       "paused": "Paused",
       "archived": "Archived",
       "closing": "Closing"
+    },
+    "teamRoles": {
+      "manager": "Manager",
+      "coordinator": "Coordinator",
+      "co_author": "Co-author",
+      "support": "Support",
+      "allocated": "Allocated"
     }
   },
   "quickCreate": {

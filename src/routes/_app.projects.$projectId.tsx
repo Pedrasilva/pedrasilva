@@ -49,6 +49,8 @@ import {
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
+import { ProjectClientField } from "@/components/projects/project-client-field";
+import { ProjectTeamCard } from "@/components/projects/project-team-card";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
@@ -731,9 +733,11 @@ function ProjectDetail() {
                     <PanelLeftClose className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="text-sm font-medium text-foreground">
-                  {project.client ?? t("projects:detail.header.noClient")}
-                </div>
+                <ProjectClientField
+                  projectId={project.id}
+                  companyId={project.company_id}
+                  client={project.client}
+                />
 
                 <SidebarSection title={t("projects:detail.sidebar.details", { defaultValue: "Project details" })}>
                   <div className="space-y-1">
@@ -759,28 +763,21 @@ function ProjectDetail() {
                 </SidebarSection>
 
                 <SidebarSection title={t("projects:detail.sidebar.team")}>
-                  {team.length === 0 ? (
-                    <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
-                  ) : (
-                    <div className="flex flex-wrap gap-1">
-                      {team.map((r) => (
-                        <Link
-                          key={r.id}
-                          to="/projects/resources/$resourceId"
-                          params={{ resourceId: r.id }}
-                          title={r.name}
-                          className="rounded-full hover:opacity-80"
-                        >
-                          <CollaboratorAvatar
-                            collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
-                            name={r.name}
-                            color={r.color}
-                            size={22}
-                          />
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  <ProjectTeamCard
+                    projectId={project.id}
+                    resources={(resources ?? []).map((r) => ({
+                      id: r.id,
+                      name: r.name,
+                      color: r.color,
+                      collaborator_id: r.collaborator_id,
+                    }))}
+                    allocatedTeam={team.map((r) => ({
+                      id: r.id,
+                      name: r.name,
+                      color: r.color,
+                      collaborator_id: (r as { collaborator_id?: string | null }).collaborator_id ?? null,
+                    }))}
+                  />
                 </SidebarSection>
 
                 {canSeeFinancials && (
