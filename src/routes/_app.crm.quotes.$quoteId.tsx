@@ -111,6 +111,7 @@ function QuoteDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { isAdmin } = useAuth();
+  const signatureQ = useQuoteSignature(quoteId);
 
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
