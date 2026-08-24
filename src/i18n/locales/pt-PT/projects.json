@@ -64,7 +64,10 @@
       "noTeam": "Sem equipa ainda",
       "budgetUsage": "Uso do orçamento",
       "profit": "Lucro",
-      "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas"
+      "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas",
+      "editClient": "Alterar cliente",
+      "manageTeam": "Gerir equipa",
+      "pickPerson": "Escolher pessoa"
     },
     "budgetControl": {
       "title": "Controlo de orçamento",
@@ -156,6 +159,13 @@
       "paused": "Em pausa",
       "archived": "Arquivado",
       "closing": "Em encerramento"
+    },
+    "teamRoles": {
+      "manager": "Gestor",
+      "coordinator": "Coordenador",
+      "co_author": "Co-autor",
+      "support": "Apoio",
+      "allocated": "Alocados"
     }
   },
   "quickCreate": {
