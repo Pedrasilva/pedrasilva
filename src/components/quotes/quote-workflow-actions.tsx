@@ -193,6 +193,8 @@ export function QuoteWorkflowActions({
     );
   }
 
+  // Exactly ONE primary button = the next step in the lifecycle.
+  // Edge actions (mark as lost, admin override) live in the caller's overflow.
   let primary: React.ReactNode = null;
 
   if (status === "draft") {
@@ -211,7 +213,7 @@ export function QuoteWorkflowActions({
         </Button>
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={askLost}
           disabled={setStatus.isPending}
         >
@@ -220,8 +222,31 @@ export function QuoteWorkflowActions({
         </Button>
       </div>
     );
+  } else if (status === "approved" && !isSigned) {
+    // Approved but not signed → the next step is the signature, not the project.
+    primary = (
+      <div className="flex items-center gap-2">
+        <Button size="sm" onClick={() => onGoToSignature?.()}>
+          <FileSignature className="h-4 w-4 mr-1" />
+          {t("quotes.workflow.goToSignature")}
+        </Button>
+        {canOverrideSignature && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onConvert}
+            disabled={isConverting}
+            title={t("quotes.workflow.convertWithoutSignatureHint")}
+          >
+            {isConverting
+              ? t("quotes.workflow.converting")
+              : t("quotes.workflow.convertWithoutSignature")}
+          </Button>
+        )}
+      </div>
+    );
   } else if (status === "approved") {
-    // Approved + no project yet → primary action is "Convert to project".
+    // Approved + signed + no project yet → convert.
     primary = (
       <Button size="sm" onClick={onConvert} disabled={isConverting}>
         <ExternalLink className="h-4 w-4 mr-1" />
