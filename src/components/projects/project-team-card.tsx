@@ -182,7 +182,7 @@ export function ProjectTeamCard({
               </div>
               <Button onClick={handleAdd} disabled={!resourceId || add.isPending}>
                 <Plus className="mr-1 h-4 w-4" />
-                {t("common:actions.add", { defaultValue: "Add" })}
+                {t("common:add", { defaultValue: "Add" })}
               </Button>
             </div>
 

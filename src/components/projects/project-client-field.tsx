@@ -70,10 +70,10 @@ export function ProjectClientField({
           <CompanyPicker value={picked} onChange={setPicked} />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
-              {t("common:actions.cancel", { defaultValue: "Cancel" })}
+              {t("common:cancel")}
             </Button>
             <Button onClick={save} disabled={!picked || update.isPending}>
-              {t("common:actions.save", { defaultValue: "Save" })}
+              {t("common:save")}
             </Button>
           </DialogFooter>
         </DialogContent>
