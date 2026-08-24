@@ -13,8 +13,6 @@ import {
   FileText,
   ChevronDown,
   Send,
-  Trophy,
-  XCircle,
   Lock,
   MoreHorizontal,
   LayoutTemplate,
@@ -73,7 +71,6 @@ import { ImportTemplateDialog } from "./import-template-dialog";
 import {
   useNextRevNumber,
   useProposalRevisions,
-  useSetProposalOutcome,
 } from "@/lib/psa-proposal/use-proposal-revisions";
 import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signatures";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
@@ -109,15 +106,12 @@ export function ComposerTopBar({
   const [importOpen, setImportOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [wonOpen, setWonOpen] = useState(false);
-  const [lostOpen, setLostOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
   const { nextRev } = useNextRevNumber(proposal.id);
   const historical = useHistoricalRevision();
   const revMeta = historical
     ? { number: historical.revision.revNumber, sentAt: historical.revision.sentAt }
     : null;
-  const setOutcome = useSetProposalOutcome(proposal.id);
   const isFinalLocked = !!proposal.locked_at;
   const isSentLocked = !isFinalLocked && proposal.status === "sent";
   const isReadOnly = isFinalLocked || isSentLocked || !!historical;
@@ -306,17 +300,6 @@ export function ComposerTopBar({
                 <History className="mr-2 h-3.5 w-3.5" /> Autosaves
               </DropdownMenuItem>
             )}
-            {!isFinalLocked && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setWonOpen(true)}>
-                  <Trophy className="mr-2 h-3.5 w-3.5" /> Marcar como Ganha
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setLostOpen(true)}>
-                  <XCircle className="mr-2 h-3.5 w-3.5" /> Marcar como Perdida
-                </DropdownMenuItem>
-              </>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -347,56 +330,6 @@ export function ComposerTopBar({
           </div>
         </SheetContent>
       </Sheet>
-      <AlertDialog open={wonOpen} onOpenChange={setWonOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar proposta como Ganha?</AlertDialogTitle>
-            <AlertDialogDescription>
-              A proposta fica bloqueada — não será possível editar
-              conteúdo, mas as revisões enviadas continuam acessíveis.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                setOutcome.mutate("won", {
-                  onSuccess: () => toast.success("Proposta marcada como Ganha."),
-                  onError: (e) =>
-                    toast.error(e instanceof Error ? e.message : "Erro"),
-                })
-              }
-            >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <AlertDialog open={lostOpen} onOpenChange={setLostOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar proposta como Perdida?</AlertDialogTitle>
-            <AlertDialogDescription>
-              A proposta fica bloqueada — não será possível editar
-              conteúdo, mas as revisões enviadas continuam acessíveis.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                setOutcome.mutate("lost", {
-                  onSuccess: () => toast.success("Proposta marcada como Perdida."),
-                  onError: (e) =>
-                    toast.error(e instanceof Error ? e.message : "Erro"),
-                })
-              }
-            >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       <ConvertToContractDialog
         open={convertOpen}
         onOpenChange={setConvertOpen}
