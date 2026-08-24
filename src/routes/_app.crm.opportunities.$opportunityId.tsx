@@ -19,6 +19,7 @@ import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activi
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { AccountSuggestField } from "@/components/crm/account-suggest-field";
 import { OpportunityDocumentsCard } from "@/components/crm/opportunity-documents-card";
+import { MarkLostDialog, type MarkLostPayload } from "@/components/crm/mark-lost-dialog";
 
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
