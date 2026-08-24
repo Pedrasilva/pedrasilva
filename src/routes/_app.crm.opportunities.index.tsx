@@ -662,6 +662,9 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
         estimated_fee: form.estimated_fee ? Number(form.estimated_fee) : 0,
         probability: Number(form.probability) || 0,
         expected_start_date: form.expected_start_date || null,
+        contact_name: form.contact_name.trim() || null,
+        contact_email: form.contact_email.trim() || null,
+        contact_phone: form.contact_phone.trim() || null,
         notas: form.notas || null,
       }).select("id").single();
       if (error) throw error;
