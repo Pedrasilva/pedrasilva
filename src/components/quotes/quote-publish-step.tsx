@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useContractsByQuote } from "@/lib/contracts";
 import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
+import { QuoteSignatureCard } from "@/components/quotes/quote-signature-card";
 import type { QuoteStatus } from "@/lib/crm/types";
 
 
@@ -22,6 +23,8 @@ export function QuotePublishStep({
   hasProject,
   projectId,
   quoteStatus,
+  isSigned = false,
+  canOverrideSignature = false,
   onConvert,
   isConverting,
   onEditEstimate,
@@ -43,6 +46,10 @@ export function QuotePublishStep({
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
   ontologyFamilyCode?: string | null;
   quoteStatus: QuoteStatus;
+  /** fee_proposals.signed_at is set (DocuSign or manual). */
+  isSigned?: boolean;
+  /** Admins may convert without a recorded signature. */
+  canOverrideSignature?: boolean;
   onConvert: () => void;
   isConverting?: boolean;
   onEditEstimate?: () => void;
@@ -55,10 +62,20 @@ export function QuotePublishStep({
 
   const isApproved = quoteStatus === "approved";
   const showConvertCard = isApproved || hasProject;
+  // Signature is the gate: an approved quote becomes a project only once it
+  // has been signed (DocuSign or manually recorded). Admins can override.
+  const convertBlocked = !hasProject && !isSigned && !canOverrideSignature;
 
 
   return (
     <div className="space-y-4">
+      {!hasProject && (
+        <QuoteSignatureCard
+          quoteId={quoteId}
+          quoteStatus={quoteStatus}
+          onEditContent={onEditContent}
+        />
+      )}
       {showConvertCard && (
         <Card>
           <CardHeader>
@@ -98,7 +115,12 @@ export function QuotePublishStep({
                 <p className="text-xs text-muted-foreground">
                   {t("workspace.publish.convert.directFallbackHint")}
                 </p>
-                <Button size="sm" variant="outline" onClick={onConvert} disabled={isConverting}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onConvert}
+                  disabled={isConverting || convertBlocked}
+                >
                   <FolderPlus className="mr-1 h-4 w-4" />
                   {isConverting
                     ? t("workspace.publish.convert.converting")
@@ -108,9 +130,11 @@ export function QuotePublishStep({
             ) : (
               <>
                 <p className="text-muted-foreground">
-                  {t("workspace.publish.convert.directHint")}
+                  {convertBlocked
+                    ? t("workspace.publish.convert.needsSignatureHint")
+                    : t("workspace.publish.convert.directHint")}
                 </p>
-                <Button size="sm" onClick={onConvert} disabled={isConverting}>
+                <Button size="sm" onClick={onConvert} disabled={isConverting || convertBlocked}>
                   <FolderPlus className="mr-1 h-4 w-4" />
                   {isConverting
                     ? t("workspace.publish.convert.converting")
