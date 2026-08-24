@@ -63,12 +63,8 @@ export function QuoteSignatureCard({
             <p className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
               {t("workspace.signature.signedOn", {
-                date: sig.data?.signedAt
-                  ? new Date(sig.data.signedAt).toLocaleDateString()
-                  : "—",
-                method: t(
-                  `workspace.signature.method.${sig.data?.signedMethod ?? "manual"}`,
-                ),
+                date: sig.data?.signedAt ? new Date(sig.data.signedAt).toLocaleDateString() : "—",
+                method: t(`workspace.signature.method.${sig.data?.signedMethod ?? "manual"}`),
               })}
             </p>
             {sig.data?.signedNotes && (
@@ -96,11 +92,7 @@ export function QuoteSignatureCard({
                 : t("workspace.signature.onlyApproved")}
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                disabled={!isApproved}
-                onClick={() => setOpen(true)}
-              >
+              <Button size="sm" disabled={!isApproved} onClick={() => setOpen(true)}>
                 <PenLine className="mr-1 h-4 w-4" />
                 {t("workspace.signature.markSigned")}
               </Button>
@@ -109,9 +101,7 @@ export function QuoteSignatureCard({
                 {t("workspace.signature.sendForSignature")}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("workspace.signature.docusignHint")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("workspace.signature.docusignHint")}</p>
           </>
         )}
       </CardContent>
@@ -120,18 +110,12 @@ export function QuoteSignatureCard({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("workspace.signature.dialog.title")}</DialogTitle>
-            <DialogDescription>
-              {t("workspace.signature.dialog.description")}
-            </DialogDescription>
+            <DialogDescription>{t("workspace.signature.dialog.description")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
               <Label>{t("workspace.signature.dialog.dateLabel")}</Label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>{t("workspace.signature.dialog.notesLabel")}</Label>

@@ -36,13 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,11 +49,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
-import type {
-  PsaProposal,
-  PsaProposalBlock,
-  PsaProposalStatus,
-} from "@/lib/psa-proposal/types";
+import type { PsaProposal, PsaProposalBlock, PsaProposalStatus } from "@/lib/psa-proposal/types";
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
@@ -68,14 +58,10 @@ import { ProposalSignatureStatus } from "./signature-status";
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import { VersionsPanel } from "./versions-panel";
 import { ImportTemplateDialog } from "./import-template-dialog";
-import {
-  useNextRevNumber,
-  useProposalRevisions,
-} from "@/lib/psa-proposal/use-proposal-revisions";
+import { useNextRevNumber, useProposalRevisions } from "@/lib/psa-proposal/use-proposal-revisions";
 import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signatures";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
-
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
@@ -127,10 +113,8 @@ export function ComposerTopBar({
     update.mutate(
       { status: "draft" },
       {
-        onSuccess: () =>
-          toast.success("Nova revisão editável iniciada."),
-        onError: (e) =>
-          toast.error(e instanceof Error ? e.message : "Erro"),
+        onSuccess: () => toast.success("Nova revisão editável iniciada."),
+        onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
       },
     );
 
@@ -186,10 +170,7 @@ export function ComposerTopBar({
           </Badge>
         )}
         {isSentLocked && (
-          <Badge
-            variant="outline"
-            className="border-sky-300 bg-sky-50 text-sky-800"
-          >
+          <Badge variant="outline" className="border-sky-300 bg-sky-50 text-sky-800">
             <Lock className="mr-1 h-3 w-3" /> Enviada
           </Badge>
         )}
@@ -217,24 +198,26 @@ export function ComposerTopBar({
             <DropdownMenuItem
               onClick={() => {
                 const printWindow = window.open("", "_blank");
-                 if (!printWindow) {
-                   toast.error(t("proposalComposer.pagination.pdfError"));
-                   return;
+                if (!printWindow) {
+                  toast.error(t("proposalComposer.pagination.pdfError"));
+                  return;
                 }
-                 void printProposalDocument(
-                   proposal,
-                   printWindow,
-                   {
-                     loading: t("proposalComposer.pagination.pdfLoading"),
-                     error: t("proposalComposer.pagination.pdfError"),
-                   },
-                   buildProposalFilename(proposal, revMeta),
-                 );
+                void printProposalDocument(
+                  proposal,
+                  printWindow,
+                  {
+                    loading: t("proposalComposer.pagination.pdfLoading"),
+                    error: t("proposalComposer.pagination.pdfError"),
+                  },
+                  buildProposalFilename(proposal, revMeta),
+                );
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}>
+            <DropdownMenuItem
+              onClick={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}
+            >
               <FileText className="mr-2 h-3.5 w-3.5" /> Word (.doc)
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -330,11 +313,7 @@ export function ComposerTopBar({
           </div>
         </SheetContent>
       </Sheet>
-      <ConvertToContractDialog
-        open={convertOpen}
-        onOpenChange={setConvertOpen}
-        blocks={blocks}
-      />
+      <ConvertToContractDialog open={convertOpen} onOpenChange={setConvertOpen} blocks={blocks} />
       <SendProposalDialog
         open={signOpen}
         onOpenChange={setSignOpen}
@@ -365,7 +344,6 @@ export function ComposerTopBar({
         nextRev={nextRev}
       />
     </div>
-
   );
 }
 
@@ -386,8 +364,7 @@ function buildProposalFilename(
   const dd = String(now.getDate()).padStart(2, "0");
   const dateStr = `${yy}${mm}${dd}`;
   const snap = (proposal.project_snapshot ?? {}) as Record<string, unknown>;
-  const revRaw =
-    revision?.number != null ? revision.number : snap.rev ?? snap.revision;
+  const revRaw = revision?.number != null ? revision.number : (snap.rev ?? snap.revision);
   const revNum = Number.isFinite(Number(revRaw)) ? Number(revRaw) : 0;
   const rev = String(Math.max(0, Math.trunc(revNum))).padStart(2, "0");
   const name = (proposal.title || "proposta").trim();
@@ -420,9 +397,7 @@ export async function printProposalDocument(
       node.removeAttribute("contenteditable");
     });
 
-    const styles = Array.from(
-      document.querySelectorAll('style, link[rel="stylesheet"]'),
-    )
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
       .map((node) => {
         if (node instanceof HTMLLinkElement) {
           const absoluteHref = new URL(node.href, document.baseURI).href;
@@ -459,7 +434,9 @@ export async function printProposalDocument(
       else printWindow.addEventListener("load", () => resolve(), { once: true });
     });
     await Promise.all(
-      Array.from(printWindow.document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')).map(
+      Array.from(
+        printWindow.document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+      ).map(
         (link) =>
           new Promise<void>((resolve) => {
             if (link.sheet) {
@@ -496,9 +473,8 @@ function escapeHtml(value: string): string {
   return value.replace(
     /[&<>'"]/g,
     (character) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
-        character
-      ] ?? character,
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ??
+      character,
   );
 }
 
@@ -508,9 +484,7 @@ function downloadAsWord(title: string) {
     toast.error("Não foi possível encontrar a proposta para exportar.");
     return;
   }
-  const styles = Array.from(
-    document.querySelectorAll('style, link[rel="stylesheet"]'),
-  )
+  const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
     .map((n) => n.outerHTML)
     .join("\n");
   const clone = container.cloneNode(true) as HTMLElement;
@@ -519,7 +493,7 @@ function downloadAsWord(title: string) {
       '[data-editor-toolbar="true"], .ProseMirror-menubar, button, [contenteditable="true"] .ProseMirror-menu, .print\\:hidden',
     )
     .forEach((n) => n.remove());
-  clone.querySelectorAll('[contenteditable]').forEach((n) => n.removeAttribute('contenteditable'));
+  clone.querySelectorAll("[contenteditable]").forEach((n) => n.removeAttribute("contenteditable"));
   const safeTitle = (title || "proposta").replace(/[^a-z0-9\-_\s]/gi, "").trim() || "proposta";
   const source = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${safeTitle}</title>${styles}<style>@page{size:A4;margin:20mm}body{font-family:'Inter',Arial,sans-serif}</style></head><body>${clone.outerHTML}</body></html>`;
 
@@ -536,4 +510,3 @@ function downloadAsWord(title: string) {
   URL.revokeObjectURL(url);
   toast.success("Documento Word transferido.");
 }
-

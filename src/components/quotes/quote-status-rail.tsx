@@ -11,13 +11,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { QuoteStatus } from "@/lib/crm/types";
 
-export type QuoteLifecycleState =
-  | "draft"
-  | "sent"
-  | "approved"
-  | "signed"
-  | "converted"
-  | "lost";
+export type QuoteLifecycleState = "draft" | "sent" | "approved" | "signed" | "converted" | "lost";
 
 const ORDER: Exclude<QuoteLifecycleState, "lost">[] = [
   "draft",

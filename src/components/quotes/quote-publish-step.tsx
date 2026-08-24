@@ -2,16 +2,11 @@ import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ExternalLink,
-  FolderPlus,
-  FileSignature,
-} from "lucide-react";
+import { ExternalLink, FolderPlus, FileSignature } from "lucide-react";
 import { useContractsByQuote } from "@/lib/contracts";
 import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
 import { QuoteSignatureCard } from "@/components/quotes/quote-signature-card";
 import type { QuoteStatus } from "@/lib/crm/types";
-
 
 /**
  * Step 3 — Convert to project.
@@ -30,7 +25,6 @@ export function QuotePublishStep({
   onEditEstimate,
   onEditContent,
 }: {
-
   quoteId: string;
   estimateReady?: boolean;
   contentReady?: boolean;
@@ -65,7 +59,6 @@ export function QuotePublishStep({
   // Signature is the gate: an approved quote becomes a project only once it
   // has been signed (DocuSign or manually recorded). Admins can override.
   const convertBlocked = !hasProject && !isSigned && !canOverrideSignature;
-
 
   return (
     <div className="space-y-4">
@@ -148,9 +141,7 @@ export function QuotePublishStep({
       {!showConvertCard && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              {t("workspace.publish.title")}
-            </CardTitle>
+            <CardTitle className="text-base">{t("workspace.publish.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>{t("workspace.publish.description")}</p>
@@ -171,6 +162,3 @@ export function QuotePublishStep({
     </div>
   );
 }
-
-
-
