@@ -632,6 +632,9 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
     estimated_fee: "",
     probability: "50",
     expected_start_date: "",
+    contact_name: "",
+    contact_email: "",
+    contact_phone: "",
     notas: "",
   });
 
@@ -643,6 +646,9 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
       estimated_fee: "",
       probability: "50",
       expected_start_date: "",
+      contact_name: "",
+      contact_email: "",
+      contact_phone: "",
       notas: "",
     });
 
