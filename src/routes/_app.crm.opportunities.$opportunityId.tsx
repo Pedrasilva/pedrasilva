@@ -395,7 +395,16 @@ function OpportunityDetail() {
                 <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
                 <Select
                   value={opp.stage}
-                  onValueChange={(v) => updateStage.mutate(v as OpportunityStage)}
+                  onValueChange={(v) => {
+                    const next = v as OpportunityStage;
+                    if (next === "lost") {
+                      // Never lose a deal without recording why.
+                      setLostDialogIsStageChange(true);
+                      setLostDialogOpen(true);
+                      return;
+                    }
+                    updateStage.mutate(next);
+                  }}
                 >
                   <SelectTrigger className="h-8 mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -405,6 +414,58 @@ function OpportunityDetail() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {opp.stage === "lost" && (
+                <div className="rounded-md border border-rose-500/30 bg-rose-500/5 p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <Label className="text-xs text-muted-foreground">
+                        {t("opportunities.lost.reasonLabel")}
+                      </Label>
+                      <div className="text-sm font-medium">
+                        {opp.lost_reason_code
+                          ? t(`opportunities.lost.reason.${opp.lost_reason_code}`)
+                          : t("opportunities.lost.noReason")}
+                      </div>
+                      {opp.lost_reason_notes && (
+                        <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
+                          {opp.lost_reason_notes}
+                        </p>
+                      )}
+                      {opp.lost_at && (
+                        <p className="mt-1 text-[11px] text-muted-foreground">
+                          {new Date(opp.lost_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setLostDialogIsStageChange(false);
+                        setLostDialogOpen(true);
+                      }}
+                    >
+                      {t("common.edit")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <MarkLostDialog
+                open={lostDialogOpen}
+                onOpenChange={setLostDialogOpen}
+                initialCode={opp.lost_reason_code ?? null}
+                initialNotes={opp.lost_reason_notes ?? null}
+                saving={updateStage.isPending || updateLostReason.isPending}
+                onConfirm={(payload) => {
+                  if (lostDialogIsStageChange) {
+                    updateStage.mutate({ stage: "lost", ...payload });
+                  } else {
+                    updateLostReason.mutate(payload);
+                  }
+                }}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground">Estimated fee</Label>
