@@ -49,6 +49,8 @@ import {
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
+import { ProjectClientField } from "@/components/projects/project-client-field";
+import { ProjectTeamCard } from "@/components/projects/project-team-card";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
