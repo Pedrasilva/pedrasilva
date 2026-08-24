@@ -64,7 +64,9 @@ export function useUpdateProject() {
       patch,
     }: {
       id: string;
-      patch: Partial<Pick<Project, "name" | "client" | "color" | "start_date" | "notes" | "status">>;
+      patch: Partial<
+        Pick<Project, "name" | "client" | "color" | "start_date" | "notes" | "status" | "company_id">
+      >;
     }): Promise<Project> => {
       const { data, error } = await supabase
         .from("pm_projects")
