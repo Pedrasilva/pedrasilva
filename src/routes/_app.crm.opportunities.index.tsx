@@ -74,12 +74,17 @@ function OpportunitiesPage() {
         .order("updated_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as Row[];
+      const resolved = await fetchResolvedQuoteValues();
       // hide archived AND soft-deleted quotes from card listings
-      return rows.map((r) => ({
-        ...r,
-        quotes: (r.quotes ?? []).filter((q) => !q.archived_at && !q.deleted_at),
-      }));
+      return attachResolvedQuoteValues(
+        rows.map((r) => ({
+          ...r,
+          quotes: (r.quotes ?? []).filter((q) => !q.archived_at && !q.deleted_at),
+        })),
+        resolved,
+      );
     },
+
 
   });
 
