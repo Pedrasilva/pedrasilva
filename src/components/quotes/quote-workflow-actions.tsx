@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Send, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { Send, CheckCircle2, XCircle, ExternalLink, FileSignature } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { QuoteStatus } from "@/lib/crm/types";
@@ -54,6 +54,12 @@ type Props = {
   onConvert: () => void;
   onApproved?: () => void;
   isConverting?: boolean;
+  /** True once fee_proposals.signed_at is set (DocuSign or manual). */
+  isSigned?: boolean;
+  /** Focus the Sign & Convert step of the workspace. */
+  onGoToSignature?: () => void;
+  /** Admins may convert an approved-but-unsigned quote. */
+  canOverrideSignature?: boolean;
 };
 
 type PendingTransition = {
@@ -73,6 +79,9 @@ export function QuoteWorkflowActions({
   onConvert,
   onApproved,
   isConverting,
+  isSigned = false,
+  onGoToSignature,
+  canOverrideSignature = false,
 }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
