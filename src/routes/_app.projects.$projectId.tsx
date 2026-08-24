@@ -731,9 +731,11 @@ function ProjectDetail() {
                     <PanelLeftClose className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="text-sm font-medium text-foreground">
-                  {project.client ?? t("projects:detail.header.noClient")}
-                </div>
+                <ProjectClientField
+                  projectId={project.id}
+                  companyId={project.company_id}
+                  client={project.client}
+                />
 
                 <SidebarSection title={t("projects:detail.sidebar.details", { defaultValue: "Project details" })}>
                   <div className="space-y-1">
