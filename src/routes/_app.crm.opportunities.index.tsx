@@ -703,6 +703,29 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
               placeholder={t("opportunities.dialog.companyPlaceholder")}
             />
           </div>
+          <div className="sm:col-span-2">
+            <Label>{t("opportunities.detail.contactName")}</Label>
+            <Input
+              value={form.contact_name}
+              onChange={(e) => setForm((f) => ({ ...f, contact_name: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>{t("opportunities.detail.contactEmail")}</Label>
+            <Input
+              type="email"
+              value={form.contact_email}
+              onChange={(e) => setForm((f) => ({ ...f, contact_email: e.target.value }))}
+            />
+          </div>
+          <div>
+            <Label>{t("opportunities.detail.contactPhone")}</Label>
+            <Input
+              type="tel"
+              value={form.contact_phone}
+              onChange={(e) => setForm((f) => ({ ...f, contact_phone: e.target.value }))}
+            />
+          </div>
           <div>
             <Label>{t("common.estimatedFee")}</Label>
             <Input
