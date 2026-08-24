@@ -163,13 +163,50 @@ function OpportunityDetail() {
 
 
   const updateStage = useMutation({
-    mutationFn: async (stage: OpportunityStage) => {
+    mutationFn: async (input: OpportunityStage | ({ stage: OpportunityStage } & Partial<MarkLostPayload>)) => {
+      const next = typeof input === "string" ? { stage: input } : input;
+      // Moving to "lost" always carries a reason; moving away clears it.
+      const patch =
+        next.stage === "lost"
+          ? {
+              stage: next.stage,
+              lost_reason_code: next.lost_reason_code ?? null,
+              lost_reason_notes: next.lost_reason_notes ?? null,
+              lost_at: new Date().toISOString(),
+            }
+          : {
+              stage: next.stage,
+              lost_reason_code: null,
+              lost_reason_notes: null,
+              lost_at: null,
+            };
       const { error } = await supabase
-        .from("crm_opportunities").update({ stage }).eq("id", opportunityId);
+        .from("crm_opportunities").update(patch).eq("id", opportunityId);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("opportunities.detail.stageUpdatedToast"));
+      setLostDialogOpen(false);
+      qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateLostReason = useMutation({
+    mutationFn: async (payload: MarkLostPayload) => {
+      const { error } = await supabase
+        .from("crm_opportunities")
+        .update({
+          lost_reason_code: payload.lost_reason_code,
+          lost_reason_notes: payload.lost_reason_notes,
+        })
+        .eq("id", opportunityId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.lost.savedToast"));
+      setLostDialogOpen(false);
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
