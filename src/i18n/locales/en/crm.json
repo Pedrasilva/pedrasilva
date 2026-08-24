@@ -169,6 +169,26 @@
         "voided": "Voided",
         "draft": "Draft"
       }
+    },
+    "lost": {
+      "title": "Mark opportunity as lost",
+      "description": "Record why this work was lost so it can be reported on later.",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Choose a reason",
+      "notesLabel": "Details (optional)",
+      "notesPlaceholder": "What happened? Any useful context.",
+      "confirm": "Save as lost",
+      "savedToast": "Loss reason saved",
+      "noReason": "No reason recorded",
+      "reason": {
+        "price": "Price too high",
+        "competitor": "Lost to competitor",
+        "postponed": "Client postponed",
+        "no_budget": "No budget",
+        "no_response": "No response",
+        "not_a_fit": "Not a fit",
+        "other": "Other"
+      }
     }
   },
   "accounts": {

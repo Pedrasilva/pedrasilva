@@ -169,6 +169,26 @@
         "voided": "Anulado",
         "draft": "Rascunho"
       }
+    },
+    "lost": {
+      "title": "Marcar oportunidade como perdida",
+      "description": "Registe o motivo da perda deste trabalho para permitir análise posterior.",
+      "reasonLabel": "Motivo",
+      "reasonPlaceholder": "Escolher um motivo",
+      "notesLabel": "Detalhes (opcional)",
+      "notesPlaceholder": "O que aconteceu? Contexto útil.",
+      "confirm": "Guardar como perdida",
+      "savedToast": "Motivo da perda guardado",
+      "noReason": "Sem motivo registado",
+      "reason": {
+        "price": "Preço demasiado elevado",
+        "competitor": "Perdida para concorrência",
+        "postponed": "Cliente adiou",
+        "no_budget": "Sem orçamento",
+        "no_response": "Sem resposta",
+        "not_a_fit": "Não adequado",
+        "other": "Outro"
+      }
     }
   },
   "accounts": {
