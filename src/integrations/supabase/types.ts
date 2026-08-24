@@ -1820,6 +1820,13 @@ export type Database = {
             foreignKeyName: "contracts_source_quote_id_fkey"
             columns: ["source_quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "contracts_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -1960,6 +1967,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "contacts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "crm_activities_proposal_id_fkey"
@@ -2545,6 +2559,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "crm_opportunities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_parent_quote_id_fkey"
+            columns: ["parent_quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "fee_proposals_parent_quote_id_fkey"
@@ -5232,6 +5253,13 @@ export type Database = {
             foreignKeyName: "pm_project_contract_baseline_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "pm_project_contract_baseline_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -5640,6 +5668,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "crm_opportunities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "pm_projects_quote_id_fkey"
@@ -6661,6 +6696,13 @@ export type Database = {
             foreignKeyName: "project_bootstrap_runs_source_quote_id_fkey"
             columns: ["source_quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "project_bootstrap_runs_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -7628,6 +7670,13 @@ export type Database = {
             foreignKeyName: "psa_proposals_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "psa_proposals_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -7687,6 +7736,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_allocations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_allocations_quote_id_fkey"
             columns: ["quote_id"]
@@ -7806,6 +7862,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_external_services_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_external_services_quote_id_fkey"
             columns: ["quote_id"]
@@ -7935,6 +7998,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_payment_schedule_items"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_payment_schedule_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "quote_payment_schedule_items_quote_id_fkey"
@@ -8090,6 +8160,13 @@ export type Database = {
             foreignKeyName: "quote_proposal_documents_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_proposal_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -8160,6 +8237,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_site_trips_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_site_trips_quote_id_fkey"
             columns: ["quote_id"]
@@ -8242,6 +8326,13 @@ export type Database = {
             foreignKeyName: "quote_stage_dependencies_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_stage_dependencies_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -8307,6 +8398,13 @@ export type Database = {
           vat_rate?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_stage_supplier_costs_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_stage_supplier_costs_quote_id_fkey"
             columns: ["quote_id"]
@@ -8506,6 +8604,13 @@ export type Database = {
             foreignKeyName: "quote_stages_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_stages_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -8564,6 +8669,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_supplier_markups_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_supplier_markups_quote_id_fkey"
             columns: ["quote_id"]
@@ -8629,6 +8741,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_stages"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_phase_splits_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "quote_supplier_phase_splits_quote_id_fkey"
@@ -9502,6 +9621,38 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_proposal_values: {
+        Row: {
+          archived_at: string | null
+          deleted_at: string | null
+          opportunity_id: string | null
+          quote_id: string | null
+          resolved_value: number | null
+        }
+        Insert: {
+          archived_at?: string | null
+          deleted_at?: string | null
+          opportunity_id?: string | null
+          quote_id?: string | null
+          resolved_value?: never
+        }
+        Update: {
+          archived_at?: string | null
+          deleted_at?: string | null
+          opportunity_id?: string | null
+          quote_id?: string | null
+          resolved_value?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_proposals_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_period_totals: {
         Row: {
           closing_balance: number | null
@@ -9688,6 +9839,13 @@ export type Database = {
             foreignKeyName: "quote_allocations_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
@@ -9845,6 +10003,10 @@ export type Database = {
       ensure_project_has_quote: {
         Args: { _project_id: string }
         Returns: string
+      }
+      fee_proposal_resolved_value: {
+        Args: { _quote_id: string }
+        Returns: number
       }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }

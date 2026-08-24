@@ -11,7 +11,8 @@ import {
   formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES,
   type CrmOpportunity, type FeeProposal,
 } from "@/lib/crm/types";
-import { resolveOpportunityValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
+import { resolveOpportunityValue, quoteValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
+import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 
 export const Route = createFileRoute("/_app/crm/")({
   component: CrmOverview,
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_app/crm/")({
 
 type OppRow = CrmOpportunity & {
   company: { id: string; nome: string } | null;
-  quotes: OpportunityQuoteValue[];
+  quotes: (OpportunityQuoteValue & { id: string })[];
 };
 type QuoteRow = FeeProposal & {
   company: { id: string; nome: string } | null;
@@ -52,12 +53,21 @@ function CrmOverview() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), quotes:fee_proposals(valor, archived_at, deleted_at)",
+          "*, company:companies(id, nome), quotes:fee_proposals(id, valor, archived_at, deleted_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as OppRow[];
+      const resolved = await fetchResolvedQuoteValues();
+      return attachResolvedQuoteValues(
+        (data ?? []) as unknown as OppRow[],
+        resolved,
+      ) as OppRow[];
     },
+  });
+
+  const { data: quoteValues } = useQuery({
+    queryKey: ["crm-quote-resolved-values"],
+    queryFn: fetchResolvedQuoteValues,
   });
 
   const { data: draftQuotes = [] } = useQuery({
@@ -226,7 +236,7 @@ function CrmOverview() {
                         </div>
                       </Link>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-medium">{formatEUR(Number(q.valor))}</div>
+                        <div className="text-sm font-medium">{formatEUR(quoteValue({ valor: q.valor, resolved_value: quoteValues?.get(q.id) ?? null }))}</div>
                         <div className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
                           <span className={`h-1.5 w-1.5 rounded-full ${status?.color}`} />
                           {status ? t(`quoteStatus.${status.value}`) : ""}

@@ -9,16 +9,26 @@
 
 export type OpportunityQuoteValue = {
   valor: number | string | null;
+  /** Value derived from the quote's planning data (stage budgets, allocated
+   *  resources, external services) when no headline `valor` was typed in.
+   *  Comes from the `fee_proposal_values` view. */
+  resolved_value?: number | string | null;
   archived_at?: string | null;
   deleted_at?: string | null;
 };
+
+/** Best-known value for a single quote: derived planning value, else `valor`. */
+export function quoteValue(q: OpportunityQuoteValue): number {
+  return Number(q.resolved_value) || Number(q.valor) || 0;
+}
 
 /** Sum of the active (non-archived, non-deleted) quotes attached to an opportunity. */
 export function activeQuotesTotal(quotes: OpportunityQuoteValue[] | null | undefined): number {
   return (quotes ?? [])
     .filter((q) => !q.archived_at && !q.deleted_at)
-    .reduce((sum, q) => sum + (Number(q.valor) || 0), 0);
+    .reduce((sum, q) => sum + quoteValue(q), 0);
 }
+
 
 /**
  * Resolved opportunity value: the declared estimate when it exists, otherwise
