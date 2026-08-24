@@ -210,6 +210,9 @@ export type CrmOpportunity = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  lost_reason_code?: LostReasonCode | null;
+  lost_reason_notes?: string | null;
+  lost_at?: string | null;
 };
 
 /**
