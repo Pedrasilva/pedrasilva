@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Send, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { Send, CheckCircle2, XCircle, ExternalLink, FileSignature } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { QuoteStatus } from "@/lib/crm/types";
@@ -54,6 +54,12 @@ type Props = {
   onConvert: () => void;
   onApproved?: () => void;
   isConverting?: boolean;
+  /** True once fee_proposals.signed_at is set (DocuSign or manual). */
+  isSigned?: boolean;
+  /** Focus the Sign & Convert step of the workspace. */
+  onGoToSignature?: () => void;
+  /** Admins may convert an approved-but-unsigned quote. */
+  canOverrideSignature?: boolean;
 };
 
 type PendingTransition = {
@@ -73,6 +79,9 @@ export function QuoteWorkflowActions({
   onConvert,
   onApproved,
   isConverting,
+  isSigned = false,
+  onGoToSignature,
+  canOverrideSignature = false,
 }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
@@ -110,10 +119,7 @@ export function QuoteWorkflowActions({
         updates.approved_by_collaborator_id = payload.approverId ?? null;
         updates.approved_at = new Date().toISOString();
       }
-      const { error } = await supabase
-        .from("fee_proposals")
-        .update(updates)
-        .eq("id", quoteId);
+      const { error } = await supabase.from("fee_proposals").update(updates).eq("id", quoteId);
       if (error) throw new Error(error.message);
       return payload.next;
     },
@@ -165,7 +171,7 @@ export function QuoteWorkflowActions({
     if (!pending) return;
     const next = pending.next;
     setPending(null);
-    setStatus.mutate({ next, approverId: next === "approved" ? (approverId || null) : null });
+    setStatus.mutate({ next, approverId: next === "approved" ? approverId || null : null });
     // Move focus to a neutral element AFTER Radix returns focus to the
     // trigger. Without this, focus can bleed onto the next enabled button
     // in tab order (e.g. the Convert to Project button which becomes
@@ -193,6 +199,8 @@ export function QuoteWorkflowActions({
     );
   }
 
+  // Exactly ONE primary button = the next step in the lifecycle.
+  // Edge actions (mark as lost, admin override) live in the caller's overflow.
   let primary: React.ReactNode = null;
 
   if (status === "draft") {
@@ -209,25 +217,41 @@ export function QuoteWorkflowActions({
           <CheckCircle2 className="h-4 w-4 mr-1" />
           {t("quotes.workflow.approve")}
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={askLost}
-          disabled={setStatus.isPending}
-        >
+        <Button size="sm" variant="ghost" onClick={askLost} disabled={setStatus.isPending}>
           <XCircle className="h-4 w-4 mr-1" />
           {t("quotes.workflow.markLost")}
         </Button>
       </div>
     );
+  } else if (status === "approved" && !isSigned) {
+    // Approved but not signed → the next step is the signature, not the project.
+    primary = (
+      <div className="flex items-center gap-2">
+        <Button size="sm" onClick={() => onGoToSignature?.()}>
+          <FileSignature className="h-4 w-4 mr-1" />
+          {t("quotes.workflow.goToSignature")}
+        </Button>
+        {canOverrideSignature && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onConvert}
+            disabled={isConverting}
+            title={t("quotes.workflow.convertWithoutSignatureHint")}
+          >
+            {isConverting
+              ? t("quotes.workflow.converting")
+              : t("quotes.workflow.convertWithoutSignature")}
+          </Button>
+        )}
+      </div>
+    );
   } else if (status === "approved") {
-    // Approved + no project yet → primary action is "Convert to project".
+    // Approved + signed + no project yet → convert.
     primary = (
       <Button size="sm" onClick={onConvert} disabled={isConverting}>
         <ExternalLink className="h-4 w-4 mr-1" />
-        {isConverting
-          ? t("quotes.workflow.converting")
-          : t("quotes.workflow.convertCta")}
+        {isConverting ? t("quotes.workflow.converting") : t("quotes.workflow.convertCta")}
       </Button>
     );
   } else {
@@ -252,9 +276,7 @@ export function QuoteWorkflowActions({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{pending ? t(pending.titleKey) : ""}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pending ? t(pending.descKey) : ""}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{pending ? t(pending.descKey) : ""}</AlertDialogDescription>
           </AlertDialogHeader>
           {pending?.next === "approved" && (
             <div className="space-y-2">
@@ -275,9 +297,7 @@ export function QuoteWorkflowActions({
           )}
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onConfirm}
-            >
+            <AlertDialogAction onClick={onConfirm}>
               {pending ? t(pending.confirmKey) : ""}
             </AlertDialogAction>
           </AlertDialogFooter>

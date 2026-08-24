@@ -2375,6 +2375,10 @@ export type Database = {
           quote_type: Database["public"]["Enums"]["crm_quote_type"]
           revision_number: number
           sale_margin_pct: number | null
+          signed_at: string | null
+          signed_by_collaborator_id: string | null
+          signed_method: string | null
+          signed_notes: string | null
           time_based_settings: Json
           titulo: string
           trip_billing_mode: string
@@ -2430,6 +2434,10 @@ export type Database = {
           quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
           sale_margin_pct?: number | null
+          signed_at?: string | null
+          signed_by_collaborator_id?: string | null
+          signed_method?: string | null
+          signed_notes?: string | null
           time_based_settings?: Json
           titulo: string
           trip_billing_mode?: string
@@ -2485,6 +2493,10 @@ export type Database = {
           quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
           sale_margin_pct?: number | null
+          signed_at?: string | null
+          signed_by_collaborator_id?: string | null
+          signed_method?: string | null
+          signed_notes?: string | null
           time_based_settings?: Json
           titulo?: string
           trip_billing_mode?: string
@@ -2588,6 +2600,20 @@ export type Database = {
             columns: ["pm_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_signed_by_collaborator_id_fkey"
+            columns: ["signed_by_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_signed_by_collaborator_id_fkey"
+            columns: ["signed_by_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
         ]

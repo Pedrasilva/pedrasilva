@@ -299,7 +299,10 @@
         "lostConfirmCta": "Marcar como perdida",
         "approverLabel": "Contacto que tomou a decisão",
         "approverPlaceholder": "Seleccionar contacto"
-      }
+      },
+      "goToSignature": "Assinar e converter",
+      "convertWithoutSignature": "Converter sem assinatura",
+      "convertWithoutSignatureHint": "Excepção de administrador — cria o projecto mesmo sem assinatura registada."
     },
     "convertDialog": {
       "title": "Converter em projecto",
@@ -317,6 +320,14 @@
       "pickHint_one": "Este cliente tem 1 conta de facturação.",
       "pickHint_other": "Este cliente tem {{count}} contas de facturação — escolha a conta a facturar.",
       "addAccount": "Adicionar conta de facturação"
+    },
+    "lifecycle": {
+      "draft": "Rascunho",
+      "sent": "Enviada",
+      "approved": "Aprovada",
+      "signed": "Assinada",
+      "converted": "Projecto",
+      "lost": "Perdida"
     }
   },
   "stage": {
@@ -401,8 +412,8 @@
         "hint": "Editar o documento da proposta"
       },
       "publish": {
-        "title": "3 · Pré-visualizar e Publicar",
-        "hint": "Rever prontidão e publicar"
+        "title": "3 · Assinar e Converter",
+        "hint": "Registar a assinatura e criar o projecto"
       }
     },
     "publish": {
@@ -439,7 +450,8 @@
         "alreadyConverted": "Esta proposta já foi convertida num projecto.",
         "viaContractHint": "Existe um contrato assinado para esta proposta. A criação do projecto deve ser feita a partir do contrato para manter a rastreabilidade.",
         "openContractCta": "Abrir contrato assinado",
-        "directFallbackHint": "Em alternativa, pode criar o projecto directamente a partir desta proposta."
+        "directFallbackHint": "Em alternativa, pode criar o projecto directamente a partir desta proposta.",
+        "needsSignatureHint": "Registe a assinatura acima antes de converter esta proposta em projecto."
       }
     },
     "tabs": {
@@ -964,6 +976,30 @@
       "errorPickCompany": "Escolha um fornecedor",
       "errorPickPhases": "Escolha pelo menos uma fase",
       "hint": "Cada fase recebe uma dependência SS=0 da fase de arquitetura — mover a arquitetura move a fase do consultor automaticamente."
+    },
+    "signature": {
+      "title": "Assinatura",
+      "awaitingHint": "Esta proposta está aprovada. Envie para assinatura via DocuSign ou registe uma assinatura recebida em papel ou por email.",
+      "onlyApproved": "A assinatura é registada depois de a proposta ser aprovada.",
+      "markSigned": "Marcar como assinada",
+      "sendForSignature": "Enviar para assinatura (construtor da proposta)",
+      "docusignHint": "As assinaturas concluídas no DocuSign são registadas aqui automaticamente.",
+      "signedOn": "Assinada em {{date}} ({{method}})",
+      "method": {
+        "docusign": "DocuSign",
+        "manual": "registo manual"
+      },
+      "clear": "Limpar assinatura",
+      "clearedToast": "Assinatura removida",
+      "markedToast": "Proposta marcada como assinada",
+      "dialog": {
+        "title": "Marcar proposta como assinada",
+        "description": "Registe uma assinatura recebida fora do DocuSign (papel, digitalização ou confirmação por email).",
+        "dateLabel": "Data da assinatura",
+        "notesLabel": "Notas",
+        "notesPlaceholder": "Quem assinou e como foi recebida",
+        "confirm": "Marcar como assinada"
+      }
     }
   },
   "templates": {

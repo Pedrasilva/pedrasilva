@@ -54,6 +54,11 @@ import {
   type QuoteStep,
 } from "@/components/quotes/quote-workflow-stepper";
 import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
+import {
+  QuoteStatusRail,
+  resolveQuoteLifecycle,
+} from "@/components/quotes/quote-status-rail";
+import { useQuoteSignature } from "@/lib/quotes/use-quote-signature";
 import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
 import { QuoteLockGuard } from "@/components/quotes/quote-lock-guard";
 import { QuoteRevisionsButton } from "@/components/quotes/quote-revisions-button";
@@ -106,6 +111,7 @@ function QuoteDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { isAdmin } = useAuth();
+  const signatureQ = useQuoteSignature(quoteId);
 
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
@@ -797,7 +803,15 @@ function QuoteDetail() {
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
+  void status;
   // canConvert lives on QuoteWorkflowActions in the header now.
+  // Signature is the checkpoint between "approved" and "project".
+  const isSigned = !!signatureQ.data?.isSigned;
+  const lifecycle = resolveQuoteLifecycle({
+    status: quote.quote_status,
+    signedAt: signatureQ.data?.signedAt ?? null,
+    hasProject: !!quote.pm_project_id,
+  });
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
@@ -816,7 +830,7 @@ function QuoteDetail() {
   const completion = {
     estimate: isProject ? stagesCount > 0 : allocationsCount > 0,
     content: hasProposalContent,
-    publish: !!quote.pm_project_id,
+    publish: !!quote.pm_project_id || !!signatureQ.data?.isSigned,
   } as const;
 
   // Per-step visible secondary tabs. All TabsContent below remain mounted
@@ -887,10 +901,7 @@ function QuoteDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
-            <span className={`h-2 w-2 rounded-full ${status?.color}`} />
-            {status ? t(`quoteStatus.${status.value}`) : ""}
-          </span>
+          <QuoteStatusRail state={lifecycle} />
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -900,6 +911,9 @@ function QuoteDetail() {
             defaultContactId={quote.contact_id ?? null}
             onConvert={handleConvert}
             isConverting={convert.isPending}
+            isSigned={isSigned}
+            onGoToSignature={() => setStep("publish")}
+            canOverrideSignature={isAdmin}
           />
 
           <DropdownMenu>
@@ -987,6 +1001,8 @@ function QuoteDetail() {
           quoteCategory={quote.quote_category}
           ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
           quoteStatus={quote.quote_status}
+          isSigned={isSigned}
+          canOverrideSignature={isAdmin}
           onConvert={handleConvert}
           isConverting={convert.isPending}
           onEditEstimate={() => setStep("estimate")}

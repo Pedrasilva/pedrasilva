@@ -299,7 +299,10 @@
         "lostConfirmCta": "Mark as lost",
         "approverLabel": "Contact who made the decision",
         "approverPlaceholder": "Select a contact"
-      }
+      },
+      "goToSignature": "Sign & convert",
+      "convertWithoutSignature": "Convert without signature",
+      "convertWithoutSignatureHint": "Admin override — creates the project even though no signature is recorded."
     },
     "convertDialog": {
       "title": "Convert to project",
@@ -317,6 +320,14 @@
       "pickHint_one": "This client has 1 billing account.",
       "pickHint_other": "This client has {{count}} billing accounts — pick the one this quote bills to.",
       "addAccount": "Add a billing account"
+    },
+    "lifecycle": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "approved": "Approved",
+      "signed": "Signed",
+      "converted": "Project",
+      "lost": "Lost"
     }
   },
   "stage": {
@@ -401,8 +412,8 @@
         "hint": "Edit the proposal document"
       },
       "publish": {
-        "title": "3 · Preview & Publish",
-        "hint": "Review readiness and publish"
+        "title": "3 · Sign & Convert",
+        "hint": "Record the signature and create the project"
       }
     },
     "publish": {
@@ -439,7 +450,8 @@
         "alreadyConverted": "This quote has already been converted into a project.",
         "viaContractHint": "A signed contract exists for this quote. Bootstrap the project from the contract to preserve traceability.",
         "openContractCta": "Open signed contract",
-        "directFallbackHint": "Alternatively, you can create the project directly from this quote."
+        "directFallbackHint": "Alternatively, you can create the project directly from this quote.",
+        "needsSignatureHint": "Record the signature above before converting this quote into a project."
       }
     },
     "tabs": {
@@ -964,6 +976,30 @@
       "errorPickCompany": "Pick a supplier",
       "errorPickPhases": "Pick at least one phase",
       "hint": "Each phase gets an SS=0 dependency on its architecture stage — moving the architecture stage moves the consultant phase automatically."
+    },
+    "signature": {
+      "title": "Signature",
+      "awaitingHint": "This quote is approved. Send it for signature via DocuSign, or record a signature received on paper or by email.",
+      "onlyApproved": "The signature is recorded after the quote is approved.",
+      "markSigned": "Mark as signed",
+      "sendForSignature": "Send for signature (proposal builder)",
+      "docusignHint": "DocuSign completions are recorded here automatically.",
+      "signedOn": "Signed on {{date}} ({{method}})",
+      "method": {
+        "docusign": "DocuSign",
+        "manual": "recorded manually"
+      },
+      "clear": "Clear signature",
+      "clearedToast": "Signature cleared",
+      "markedToast": "Quote marked as signed",
+      "dialog": {
+        "title": "Mark quote as signed",
+        "description": "Record a signature received outside DocuSign (paper, scan or email confirmation).",
+        "dateLabel": "Signature date",
+        "notesLabel": "Notes",
+        "notesPlaceholder": "Who signed, and how it was received",
+        "confirm": "Mark as signed"
+      }
     }
   },
   "templates": {

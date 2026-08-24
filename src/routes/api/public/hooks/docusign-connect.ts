@@ -103,6 +103,25 @@ export const Route = createFileRoute("/api/public/hooks/docusign-connect")({
             .from("psa_proposals")
             .update({ status: "accepted" })
             .eq("id", sigRow.proposal_id);
+
+          // Stamp the signature milestone on the parent quote so the quote
+          // workspace can move Approved → Signed → Project without manual
+          // bookkeeping.
+          const { data: prop } = await supabaseAdmin
+            .from("psa_proposals")
+            .select("quote_id")
+            .eq("id", sigRow.proposal_id)
+            .maybeSingle();
+          if (prop?.quote_id) {
+            await supabaseAdmin
+              .from("fee_proposals")
+              .update({
+                signed_at: patch.completed_at,
+                signed_method: "docusign",
+              })
+              .eq("id", prop.quote_id)
+              .is("signed_at", null);
+          }
         } else if (envelope.status === "declined") {
           patch.status = "declined";
           patch.status_note =
