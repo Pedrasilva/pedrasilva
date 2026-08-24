@@ -1,0 +1,2 @@
+UPDATE public.role_permissions SET scope = 'all' WHERE role::text = 'architect' AND permission_key IN ('projects.edit_planning','projects.edit_stages');
+UPDATE public.user_permissions SET scope = 'all' WHERE permission_key IN ('projects.edit_planning','projects.edit_stages') AND scope = 'assigned';
