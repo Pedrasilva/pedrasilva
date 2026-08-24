@@ -5596,6 +5596,58 @@ export type Database = {
           },
         ]
       }
+      pm_project_team: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          project_id: string
+          resource_id: string
+          role: Database["public"]["Enums"]["pm_project_team_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          project_id: string
+          resource_id: string
+          role: Database["public"]["Enums"]["pm_project_team_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          project_id?: string
+          resource_id?: string
+          role?: Database["public"]["Enums"]["pm_project_team_role"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_team_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_team_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_team_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_projects: {
         Row: {
           account_id: string | null
@@ -10506,6 +10558,7 @@ export type Database = {
         | "other"
       pm_project_note_source: "voice" | "typed"
       pm_project_status: "active" | "paused" | "closing" | "archived"
+      pm_project_team_role: "manager" | "coordinator" | "co_author" | "support"
       pm_role:
         | "admin"
         | "partner"
@@ -10932,6 +10985,7 @@ export const Constants = {
       ],
       pm_project_note_source: ["voice", "typed"],
       pm_project_status: ["active", "paused", "closing", "archived"],
+      pm_project_team_role: ["manager", "coordinator", "co_author", "support"],
       pm_role: [
         "admin",
         "partner",
