@@ -210,7 +210,25 @@ export type CrmOpportunity = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  lost_reason_code?: LostReasonCode | null;
+  lost_reason_notes?: string | null;
+  lost_at?: string | null;
 };
+
+/**
+ * Why a deal was lost. Fixed list (mirrored by a CHECK constraint on
+ * crm_opportunities.lost_reason_code) so lost work can be reported on.
+ */
+export const LOST_REASON_CODES = [
+  "price",
+  "competitor",
+  "postponed",
+  "no_budget",
+  "no_response",
+  "not_a_fit",
+  "other",
+] as const;
+export type LostReasonCode = (typeof LOST_REASON_CODES)[number];
 
 export const OPPORTUNITY_STAGES: { value: OpportunityStage; label: string; color: string }[] = [
   { value: "lead", label: "Lead", color: "bg-slate-500" },

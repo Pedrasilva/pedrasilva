@@ -1996,6 +1996,9 @@ export type Database = {
           expected_start_date: string | null
           id: string
           last_activity_at: string | null
+          lost_at: string | null
+          lost_reason_code: string | null
+          lost_reason_notes: string | null
           name: string
           next_action: string | null
           next_action_date: string | null
@@ -2018,6 +2021,9 @@ export type Database = {
           expected_start_date?: string | null
           id?: string
           last_activity_at?: string | null
+          lost_at?: string | null
+          lost_reason_code?: string | null
+          lost_reason_notes?: string | null
           name: string
           next_action?: string | null
           next_action_date?: string | null
@@ -2040,6 +2046,9 @@ export type Database = {
           expected_start_date?: string | null
           id?: string
           last_activity_at?: string | null
+          lost_at?: string | null
+          lost_reason_code?: string | null
+          lost_reason_notes?: string | null
           name?: string
           next_action?: string | null
           next_action_date?: string | null

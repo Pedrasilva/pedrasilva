@@ -19,6 +19,7 @@ import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activi
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { AccountSuggestField } from "@/components/crm/account-suggest-field";
 import { OpportunityDocumentsCard } from "@/components/crm/opportunity-documents-card";
+import { MarkLostDialog, type MarkLostPayload } from "@/components/crm/mark-lost-dialog";
 
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
@@ -50,6 +51,9 @@ function OpportunityDetail() {
   const { opportunityId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [lostDialogOpen, setLostDialogOpen] = useState(false);
+  // true → confirming the stage change into "lost"; false → editing the reason
+  const [lostDialogIsStageChange, setLostDialogIsStageChange] = useState(false);
 
   const { data: opp, isLoading } = useQuery({
     queryKey: ["crm_opportunity", opportunityId],
@@ -163,13 +167,50 @@ function OpportunityDetail() {
 
 
   const updateStage = useMutation({
-    mutationFn: async (stage: OpportunityStage) => {
+    mutationFn: async (input: OpportunityStage | ({ stage: OpportunityStage } & Partial<MarkLostPayload>)) => {
+      const next = typeof input === "string" ? { stage: input } : input;
+      // Moving to "lost" always carries a reason; moving away clears it.
+      const patch =
+        next.stage === "lost"
+          ? {
+              stage: next.stage,
+              lost_reason_code: next.lost_reason_code ?? null,
+              lost_reason_notes: next.lost_reason_notes ?? null,
+              lost_at: new Date().toISOString(),
+            }
+          : {
+              stage: next.stage,
+              lost_reason_code: null,
+              lost_reason_notes: null,
+              lost_at: null,
+            };
       const { error } = await supabase
-        .from("crm_opportunities").update({ stage }).eq("id", opportunityId);
+        .from("crm_opportunities").update(patch).eq("id", opportunityId);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("opportunities.detail.stageUpdatedToast"));
+      setLostDialogOpen(false);
+      qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateLostReason = useMutation({
+    mutationFn: async (payload: MarkLostPayload) => {
+      const { error } = await supabase
+        .from("crm_opportunities")
+        .update({
+          lost_reason_code: payload.lost_reason_code,
+          lost_reason_notes: payload.lost_reason_notes,
+        })
+        .eq("id", opportunityId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.lost.savedToast"));
+      setLostDialogOpen(false);
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
@@ -354,7 +395,16 @@ function OpportunityDetail() {
                 <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
                 <Select
                   value={opp.stage}
-                  onValueChange={(v) => updateStage.mutate(v as OpportunityStage)}
+                  onValueChange={(v) => {
+                    const next = v as OpportunityStage;
+                    if (next === "lost") {
+                      // Never lose a deal without recording why.
+                      setLostDialogIsStageChange(true);
+                      setLostDialogOpen(true);
+                      return;
+                    }
+                    updateStage.mutate(next);
+                  }}
                 >
                   <SelectTrigger className="h-8 mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -364,6 +414,58 @@ function OpportunityDetail() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {opp.stage === "lost" && (
+                <div className="rounded-md border border-rose-500/30 bg-rose-500/5 p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <Label className="text-xs text-muted-foreground">
+                        {t("opportunities.lost.reasonLabel")}
+                      </Label>
+                      <div className="text-sm font-medium">
+                        {opp.lost_reason_code
+                          ? t(`opportunities.lost.reason.${opp.lost_reason_code}`)
+                          : t("opportunities.lost.noReason")}
+                      </div>
+                      {opp.lost_reason_notes && (
+                        <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
+                          {opp.lost_reason_notes}
+                        </p>
+                      )}
+                      {opp.lost_at && (
+                        <p className="mt-1 text-[11px] text-muted-foreground">
+                          {new Date(opp.lost_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setLostDialogIsStageChange(false);
+                        setLostDialogOpen(true);
+                      }}
+                    >
+                      {t("common.edit")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <MarkLostDialog
+                open={lostDialogOpen}
+                onOpenChange={setLostDialogOpen}
+                initialCode={opp.lost_reason_code ?? null}
+                initialNotes={opp.lost_reason_notes ?? null}
+                saving={updateStage.isPending || updateLostReason.isPending}
+                onConfirm={(payload) => {
+                  if (lostDialogIsStageChange) {
+                    updateStage.mutate({ stage: "lost", ...payload });
+                  } else {
+                    updateLostReason.mutate(payload);
+                  }
+                }}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground">Estimated fee</Label>
