@@ -761,28 +761,21 @@ function ProjectDetail() {
                 </SidebarSection>
 
                 <SidebarSection title={t("projects:detail.sidebar.team")}>
-                  {team.length === 0 ? (
-                    <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
-                  ) : (
-                    <div className="flex flex-wrap gap-1">
-                      {team.map((r) => (
-                        <Link
-                          key={r.id}
-                          to="/projects/resources/$resourceId"
-                          params={{ resourceId: r.id }}
-                          title={r.name}
-                          className="rounded-full hover:opacity-80"
-                        >
-                          <CollaboratorAvatar
-                            collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
-                            name={r.name}
-                            color={r.color}
-                            size={22}
-                          />
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  <ProjectTeamCard
+                    projectId={project.id}
+                    resources={(resources ?? []).map((r) => ({
+                      id: r.id,
+                      name: r.name,
+                      color: r.color,
+                      collaborator_id: r.collaborator_id,
+                    }))}
+                    allocatedTeam={team.map((r) => ({
+                      id: r.id,
+                      name: r.name,
+                      color: r.color,
+                      collaborator_id: (r as { collaborator_id?: string | null }).collaborator_id ?? null,
+                    }))}
+                  />
                 </SidebarSection>
 
                 {canSeeFinancials && (
