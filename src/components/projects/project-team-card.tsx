@@ -25,7 +25,7 @@ type ResourceLite = {
   collaborator_id?: string | null;
 };
 
-export function roleLabel(t: (k: string, o?: object) => string, role: ProjectTeamRole) {
+export function roleLabel(t: (k: string, o?: never) => string, role: ProjectTeamRole) {
   const fallback: Record<ProjectTeamRole, string> = {
     manager: "Manager",
     coordinator: "Coordinator",
