@@ -51,6 +51,9 @@ function OpportunityDetail() {
   const { opportunityId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [lostDialogOpen, setLostDialogOpen] = useState(false);
+  // true → confirming the stage change into "lost"; false → editing the reason
+  const [lostDialogIsStageChange, setLostDialogIsStageChange] = useState(false);
 
   const { data: opp, isLoading } = useQuery({
     queryKey: ["crm_opportunity", opportunityId],
