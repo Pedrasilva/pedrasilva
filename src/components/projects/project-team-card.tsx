@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,7 @@ type ResourceLite = {
   collaborator_id?: string | null;
 };
 
-export function roleLabel(t: (k: string, o?: never) => string, role: ProjectTeamRole) {
+export function roleLabel(t: TFunction, role: ProjectTeamRole) {
   const fallback: Record<ProjectTeamRole, string> = {
     manager: "Manager",
     coordinator: "Coordinator",
