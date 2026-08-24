@@ -30,7 +30,7 @@ export async function fetchResolvedQuoteValues(): Promise<Map<string, number>> {
 
 /** Attach `resolved_value` onto the nested `quotes` array of each row. */
 export function attachResolvedQuoteValues<
-  T extends { quotes?: Array<{ id?: string; resolved_value?: number | null }> | null },
+  T extends { quotes?: Array<{ id?: string; resolved_value?: number | string | null }> | null },
 >(rows: T[], values: Map<string, number>): T[] {
   return rows.map((row) => ({
     ...row,
