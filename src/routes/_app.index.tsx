@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { SignatureProjectsSection } from "@/components/home/signature-projects";
+import { MyActionsCard } from "@/components/home/my-actions-card";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app/")({
