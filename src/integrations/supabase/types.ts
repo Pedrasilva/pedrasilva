@@ -2002,6 +2002,7 @@ export type Database = {
           name: string
           next_action: string | null
           next_action_date: string | null
+          next_action_owner_id: string | null
           notas: string | null
           primary_contact_id: string | null
           probability: number
@@ -2027,6 +2028,7 @@ export type Database = {
           name: string
           next_action?: string | null
           next_action_date?: string | null
+          next_action_owner_id?: string | null
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
@@ -2052,6 +2054,7 @@ export type Database = {
           name?: string
           next_action?: string | null
           next_action_date?: string | null
+          next_action_owner_id?: string | null
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
@@ -4284,6 +4287,86 @@ export type Database = {
           valor_dinheiro?: number
         }
         Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          digest_hour: number
+          email_digest_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          digest_hour?: number
+          email_digest_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          digest_hour?: number
+          email_digest_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          dedupe_key: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          kind: string
+          link_path: string | null
+          module: string | null
+          read_at: string | null
+          reminder_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          kind: string
+          link_path?: string | null
+          module?: string | null
+          read_at?: string | null
+          reminder_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          kind?: string
+          link_path?: string | null
+          module?: string | null
+          read_at?: string | null
+          reminder_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       opportunity_activities: {
         Row: {
@@ -9189,6 +9272,54 @@ export type Database = {
         }
         Relationships: []
       }
+      reminders: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          module: string | null
+          notes: string | null
+          owner_user_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          module?: string | null
+          notes?: string | null
+          owner_user_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          module?: string | null
+          notes?: string | null
+          owner_user_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           permission_key: string
@@ -10218,6 +10349,21 @@ export type Database = {
           user_id: string
         }[]
       }
+      notify_user: {
+        Args: {
+          _body?: string
+          _dedupe_key?: string
+          _entity_id?: string
+          _entity_type?: string
+          _kind: string
+          _link_path?: string
+          _module?: string
+          _reminder_id?: string
+          _title: string
+          _user_id: string
+        }
+        Returns: string
+      }
       pm_assigned_project_ids: {
         Args: { _user_id: string }
         Returns: {
@@ -10321,6 +10467,7 @@ export type Database = {
         Args: { _quote_id: string }
         Returns: undefined
       }
+      reminders_promote_due: { Args: never; Returns: number }
       remove_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["pm_role"]
