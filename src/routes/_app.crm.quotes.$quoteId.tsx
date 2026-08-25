@@ -113,6 +113,26 @@ function QuoteDetail() {
   const { isAdmin } = useAuth();
   const signatureQ = useQuoteSignature(quoteId);
 
+  // Fork this quote into a new editable revision (base quote stays untouched).
+  const reviseQuote = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("clone_fee_proposal_as_revision", {
+        p_source: quoteId,
+      });
+      if (error) throw new Error(error.message);
+      return data as unknown as string;
+    },
+    onSuccess: (newId) => {
+      toast.success("Revisão criada — a abrir a cópia editável");
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
     queryFn: async () => {
