@@ -314,6 +314,12 @@ function HubPage() {
         </div>
       </section>
 
+      {/* MY ACTIONS ======================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+        <MyActionsCard />
+      </section>
+
+
       {/* MODULES ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 lg:pt-16">
         <div className="flex items-end justify-between mb-6">
