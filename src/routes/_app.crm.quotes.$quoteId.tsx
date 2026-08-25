@@ -954,9 +954,16 @@ function QuoteDetail() {
                   {t("workspace.payment.headerUpdate")}
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem
+                onSelect={() => reviseQuote.mutate()}
+                disabled={reviseQuote.isPending}
+              >
+                <Copy className="mr-2 h-3.5 w-3.5" /> Criar revisão (cópia editável)
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setRevisionsOpen(true)}>
                 Histórico de revisões
               </DropdownMenuItem>
+
               <DropdownMenuItem
                 disabled={isLocked && !isAdmin}
                 onSelect={() => setBuildSettingsOpen(true)}
