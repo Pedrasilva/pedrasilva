@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { SignatureProjectsSection } from "@/components/home/signature-projects";
+import { MyActionsCard } from "@/components/home/my-actions-card";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app/")({
@@ -313,6 +314,12 @@ function HubPage() {
           )}
         </div>
       </section>
+
+      {/* MY ACTIONS ======================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+        <MyActionsCard />
+      </section>
+
 
       {/* MODULES ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 lg:pt-16">

@@ -400,6 +400,26 @@
       "inbox": "Inbox",
       "account": "Account"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{{count}} unread",
+    "empty": "Nothing new",
+    "markAllRead": "Mark all as read",
+    "overdue": "Overdue"
+  },
+  "myActions": {
+    "title": "My actions",
+    "count": "{{count}} open",
+    "empty": "No open actions. Nice.",
+    "markDone": "Mark as done",
+    "ownerPlaceholder": "Assign owner",
+    "ownerNone": "Unassigned",
+    "bucket": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "undated": "No date"
+    }
   }
 }
-

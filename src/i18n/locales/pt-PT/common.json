@@ -400,6 +400,26 @@
       "inbox": "Caixa",
       "account": "Conta"
     }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "unread": "{{count}} não lidas",
+    "empty": "Nada de novo",
+    "markAllRead": "Marcar todas como lidas",
+    "overdue": "Em atraso"
+  },
+  "myActions": {
+    "title": "As minhas ações",
+    "count": "{{count}} abertas",
+    "empty": "Sem ações abertas.",
+    "markDone": "Marcar como concluída",
+    "ownerPlaceholder": "Atribuir responsável",
+    "ownerNone": "Sem responsável",
+    "bucket": {
+      "overdue": "Em atraso",
+      "today": "Hoje",
+      "upcoming": "Próximas",
+      "undated": "Sem data"
+    }
   }
 }
-

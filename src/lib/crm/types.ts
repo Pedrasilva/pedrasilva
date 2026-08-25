@@ -202,6 +202,7 @@ export type CrmOpportunity = {
   notas: string | null;
   next_action: string | null;
   next_action_date: string | null;
+  next_action_owner_id: string | null;
   source: OpportunitySource | null;
   contact_name: string | null;
   contact_email: string | null;

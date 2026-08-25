@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_user(uuid, text, text, text, text, text, text, uuid, uuid, text) FROM authenticated;

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { ActionOwnerPicker } from "@/components/ActionOwnerPicker";
 import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -235,6 +236,7 @@ function OpportunityDetail() {
       name: string;
       next_action: string | null;
       next_action_date: string | null;
+      next_action_owner_id: string | null;
       source: string | null;
       contact_name: string | null;
       contact_email: string | null;
@@ -373,6 +375,10 @@ function OpportunityDetail() {
                   }
                 />
               </div>
+              <ActionOwnerPicker
+                value={opp.next_action_owner_id ?? null}
+                onChange={(userId) => updateField.mutate({ next_action_owner_id: userId })}
+              />
               {nextActionStatus === "overdue" && (
                 <p className="flex items-center gap-1 text-xs text-destructive">
                   <AlertTriangle className="h-3 w-3" /> {t("opportunities.detail.overdue")}
