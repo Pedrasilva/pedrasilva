@@ -16,16 +16,14 @@ import {
   useNotifications,
   type AppNotification,
 } from "@/hooks/use-notifications";
-import { useDateLocale } from "@/i18n/use-date-locale";
 
 function isOverdue(n: AppNotification) {
   return n.kind === "reminder_overdue";
 }
 
 export function NotificationBell() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const navigate = useNavigate();
-  const dateLocale = useDateLocale();
   const { items, unreadCount, isLoading } = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
@@ -95,7 +93,7 @@ export function NotificationBell() {
                   )}
                 >
                   {isOverdue(n) ? `${t("notifications.overdue")} · ` : ""}
-                  {new Date(n.created_at).toLocaleDateString(dateLocale, {
+                  {new Date(n.created_at).toLocaleDateString(i18n.language?.startsWith("en") ? "en-GB" : "pt-PT", {
                     day: "2-digit",
                     month: "short",
                   })}
