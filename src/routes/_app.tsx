@@ -25,6 +25,7 @@ import { ViewAsPicker } from "@/components/ViewAsPicker";
 import { ModuleTopNav } from "@/components/ModuleTopNav";
 import { ModuleTabs } from "@/components/shell/ModuleTabs";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { NotificationBell } from "@/components/NotificationBell";
 import { AppRail } from "@/components/shell/AppRail";
 import { RAIL_ITEMS } from "@/components/shell/nav-config";
 import { useMyPermissions } from "@/hooks/use-permissions";
@@ -138,6 +139,7 @@ function AppLayout() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <div className="px-2 py-1">
+                    <NotificationBell />
                     <LanguageSwitcher />
                   </div>
                   {isRealAdmin && (
