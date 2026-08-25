@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MoreHorizontal, RefreshCw, Settings, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, MoreHorizontal, RefreshCw, Settings, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -112,6 +112,26 @@ function QuoteDetail() {
   const qc = useQueryClient();
   const { isAdmin } = useAuth();
   const signatureQ = useQuoteSignature(quoteId);
+
+  // Fork this quote into a new editable revision (base quote stays untouched).
+  const reviseQuote = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("clone_fee_proposal_as_revision", {
+        p_source: quoteId,
+      });
+      if (error) throw new Error(error.message);
+      return data as unknown as string;
+    },
+    onSuccess: (newId) => {
+      toast.success("Revisão criada — a abrir a cópia editável");
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
 
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
@@ -934,9 +954,16 @@ function QuoteDetail() {
                   {t("workspace.payment.headerUpdate")}
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem
+                onSelect={() => reviseQuote.mutate()}
+                disabled={reviseQuote.isPending}
+              >
+                <Copy className="mr-2 h-3.5 w-3.5" /> Criar revisão (cópia editável)
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setRevisionsOpen(true)}>
                 Histórico de revisões
               </DropdownMenuItem>
+
               <DropdownMenuItem
                 disabled={isLocked && !isAdmin}
                 onSelect={() => setBuildSettingsOpen(true)}
