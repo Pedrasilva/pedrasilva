@@ -163,7 +163,30 @@ export function InvoiceInventoryDialog({
 
         {isLoading && <p className="text-sm text-muted-foreground">{t("common:loading")}</p>}
         {!isLoading && invoice && invoice.lines.length === 0 && (
-          <p className="text-sm text-muted-foreground">{t("inventory:invoice.noLines")}</p>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">{t("inventory:invoice.noLines")}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={extractLines.isPending}
+              onClick={async () => {
+                try {
+                  const res = await extractLines.mutateAsync(invoice.id);
+                  if (res.created === 0) {
+                    toast.error(res.error ?? t("inventory:invoice.noLines"));
+                  } else {
+                    toast.success(t("inventory:invoice.linesExtracted", { count: res.created }));
+                  }
+                } catch (err) {
+                  toast.error((err as Error).message);
+                }
+              }}
+            >
+              {extractLines.isPending
+                ? t("inventory:invoice.extractingLines")
+                : t("inventory:invoice.extractLines")}
+            </Button>
+          </div>
         )}
 
         {invoice && invoice.lines.length > 0 && (
