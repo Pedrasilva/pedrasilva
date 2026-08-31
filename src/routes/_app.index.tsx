@@ -39,7 +39,15 @@ export const Route = createFileRoute("/_app/")({
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox" | "/inventory";
+  to:
+    | "/hr"
+    | "/crm"
+    | "/projects"
+    | "/finance"
+    | "/inbox"
+    | "/inventory"
+    | "/portfolio";
+
   number: string;
   titleKey: string;
   subtitleKey: string;
