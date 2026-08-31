@@ -13,9 +13,13 @@ export function countWeekdays(
   if (end < start) return 0;
   let days = 0;
   const cur = new Date(start);
+  const toLocalISO = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate(),
+    ).padStart(2, "0")}`;
   while (cur <= end) {
     const d = cur.getDay();
-    const iso = cur.toISOString().slice(0, 10);
+    const iso = toLocalISO(cur);
     if (d !== 0 && d !== 6 && !holidays.has(iso)) days++;
     cur.setDate(cur.getDate() + 1);
   }
