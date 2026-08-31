@@ -1,0 +1,152 @@
+{
+  "module": {
+    "title": "Inventory",
+    "subtitle": "Asset register for studio equipment"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Asset register",
+    "assignments": "Assignments",
+    "reports": "Reports"
+  },
+  "dashboard": {
+    "totalAssets": "Active assets",
+    "purchaseValue": "Total purchase value",
+    "currentValue": "Indicative current value",
+    "inUse": "In use",
+    "availableSpare": "Available / spare",
+    "assignedToPeople": "Assigned to collaborators",
+    "shared": "Shared assets",
+    "inRepair": "In repair",
+    "dueReplacement": "Due for replacement",
+    "warrantyExpiring": "Warranty expiring (90 days)",
+    "byCategory": "Assets by category",
+    "pendingInvoices": "Invoices waiting for inventory review",
+    "noPendingInvoices": "No invoices flagged for inventory.",
+    "review": "Review"
+  },
+  "asset": {
+    "code": "Asset code",
+    "name": "Asset name",
+    "category": "Category",
+    "trackingLevel": "Tracking level",
+    "brand": "Brand",
+    "model": "Model",
+    "serialNumber": "Serial number",
+    "description": "Description",
+    "status": "Status",
+    "custodyMode": "Assignment type",
+    "assignedTo": "Assigned to",
+    "location": "Location",
+    "department": "Department",
+    "purchaseDate": "Purchase date",
+    "purchasePriceEx": "Purchase price (excl. VAT)",
+    "vat": "VAT",
+    "purchasePriceInc": "Gross purchase price",
+    "invoiceNumber": "Invoice number",
+    "sourceDocument": "Linked financial document",
+    "sourceLine": "Linked invoice line",
+    "warrantyExpiry": "Warranty expiry",
+    "depreciationYears": "Depreciation period (years)",
+    "replacementYears": "Planned replacement cycle (years)",
+    "annualDepreciation": "Annual depreciation",
+    "depreciatedValue": "Indicative depreciated value",
+    "insuranceValue": "Insurance / replacement value",
+    "includeInsurance": "Include in insurance register",
+    "kit": "Asset group / kit",
+    "notes": "Notes",
+    "history": "Asset history",
+    "noHistory": "No history yet.",
+    "assignments": "Custody history",
+    "openAssignment": "Current",
+    "financeNote": "Finance owns the invoice. This record owns the physical asset.",
+    "viewInvoice": "Open invoice"
+  },
+  "tracking": {
+    "major": "Major asset",
+    "standard": "Standard asset",
+    "accessory": "Accessory / low value"
+  },
+  "status": {
+    "available": "Available",
+    "in_use": "In use",
+    "spare": "Spare",
+    "repair": "Repair",
+    "retired": "Retired",
+    "lost": "Lost",
+    "disposed": "Disposed"
+  },
+  "custody": {
+    "person": "Person",
+    "shared": "Shared",
+    "location": "Location"
+  },
+  "register": {
+    "search": "Search code, name, serial…",
+    "allCategories": "All categories",
+    "allStatuses": "All statuses",
+    "newAsset": "New asset",
+    "empty": "No assets yet.",
+    "count_one": "{{count}} asset",
+    "count_other": "{{count}} assets"
+  },
+  "form": {
+    "createTitle": "New asset",
+    "editTitle": "Edit asset",
+    "codeHint": "The asset code is generated automatically and never changes.",
+    "save": "Save",
+    "created": "Asset created",
+    "updated": "Asset updated"
+  },
+  "assign": {
+    "title": "Assign asset",
+    "assign": "Assign",
+    "reassign": "Reassign",
+    "return": "Return",
+    "assignedOn": "Assignment date",
+    "returnedOn": "Return date",
+    "returned": "Asset returned",
+    "done": "Custody updated",
+    "open": "Open assignments",
+    "none": "No open assignments."
+  },
+  "invoice": {
+    "sendToInventory": "Send to inventory",
+    "contains": "Contains inventory assets",
+    "reviewTitle": "Create inventory assets from invoice",
+    "reviewIntro": "Choose which invoice lines should become assets. No expense is created — the invoice stays the financial record.",
+    "line": "Line",
+    "description": "Description",
+    "qty": "Qty",
+    "unitPrice": "Unit price",
+    "createAsset": "Create asset?",
+    "toCreate": "Assets to create",
+    "processed": "{{done}} of {{total}} assets already created",
+    "allProcessed": "Fully processed",
+    "confirm": "Create assets",
+    "created_one": "{{count}} asset created",
+    "created_other": "{{count}} assets created",
+    "noLines": "This document has no invoice lines to review.",
+    "statusPending": "Pending inventory review",
+    "statusPartial": "Partially processed",
+    "statusComplete": "Inventory complete"
+  },
+  "reports": {
+    "title": "Reports & exports",
+    "full": "Full asset register",
+    "insurance": "Insurance asset register",
+    "byCollaborator": "Assets by collaborator",
+    "byLocation": "Assets by location",
+    "replacement": "Replacement planning",
+    "retired": "Retired / disposed assets",
+    "rows_one": "{{count}} row",
+    "rows_other": "{{count}} rows",
+    "downloadXlsx": "XLSX",
+    "downloadCsv": "CSV"
+  },
+  "hr": {
+    "cardTitle": "Assets assigned",
+    "empty": "No assets assigned to this collaborator.",
+    "manage": "Open inventory"
+  }
+}

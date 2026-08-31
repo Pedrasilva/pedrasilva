@@ -1,0 +1,152 @@
+{
+  "module": {
+    "title": "Inventário",
+    "subtitle": "Registo de ativos do atelier"
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "assets": "Registo de ativos",
+    "assignments": "Atribuições",
+    "reports": "Relatórios"
+  },
+  "dashboard": {
+    "totalAssets": "Ativos ativos",
+    "purchaseValue": "Valor total de compra",
+    "currentValue": "Valor atual indicativo",
+    "inUse": "Em utilização",
+    "availableSpare": "Disponíveis / reserva",
+    "assignedToPeople": "Atribuídos a colaboradores",
+    "shared": "Ativos partilhados",
+    "inRepair": "Em reparação",
+    "dueReplacement": "A substituir",
+    "warrantyExpiring": "Garantias a expirar (90 dias)",
+    "byCategory": "Ativos por categoria",
+    "pendingInvoices": "Faturas por rever no inventário",
+    "noPendingInvoices": "Nenhuma fatura marcada para inventário.",
+    "review": "Rever"
+  },
+  "asset": {
+    "code": "Código do ativo",
+    "name": "Designação",
+    "category": "Categoria",
+    "trackingLevel": "Nível de controlo",
+    "brand": "Marca",
+    "model": "Modelo",
+    "serialNumber": "Número de série",
+    "description": "Descrição",
+    "status": "Estado",
+    "custodyMode": "Tipo de atribuição",
+    "assignedTo": "Atribuído a",
+    "location": "Localização",
+    "department": "Departamento",
+    "purchaseDate": "Data de compra",
+    "purchasePriceEx": "Preço de compra (s/ IVA)",
+    "vat": "IVA",
+    "purchasePriceInc": "Preço de compra c/ IVA",
+    "invoiceNumber": "Número da fatura",
+    "sourceDocument": "Documento financeiro associado",
+    "sourceLine": "Linha da fatura associada",
+    "warrantyExpiry": "Fim da garantia",
+    "depreciationYears": "Período de depreciação (anos)",
+    "replacementYears": "Ciclo de substituição previsto (anos)",
+    "annualDepreciation": "Depreciação anual",
+    "depreciatedValue": "Valor depreciado indicativo",
+    "insuranceValue": "Valor de seguro / substituição",
+    "includeInsurance": "Incluir no registo de seguro",
+    "kit": "Grupo / kit de ativos",
+    "notes": "Notas",
+    "history": "Histórico do ativo",
+    "noHistory": "Ainda sem histórico.",
+    "assignments": "Histórico de custódia",
+    "openAssignment": "Atual",
+    "financeNote": "A fatura pertence ao módulo financeiro. Este registo pertence ao ativo físico.",
+    "viewInvoice": "Abrir fatura"
+  },
+  "tracking": {
+    "major": "Ativo principal",
+    "standard": "Ativo corrente",
+    "accessory": "Acessório / baixo valor"
+  },
+  "status": {
+    "available": "Disponível",
+    "in_use": "Em utilização",
+    "spare": "Reserva",
+    "repair": "Reparação",
+    "retired": "Abatido",
+    "lost": "Perdido",
+    "disposed": "Eliminado"
+  },
+  "custody": {
+    "person": "Pessoa",
+    "shared": "Partilhado",
+    "location": "Localização"
+  },
+  "register": {
+    "search": "Procurar código, nome, série…",
+    "allCategories": "Todas as categorias",
+    "allStatuses": "Todos os estados",
+    "newAsset": "Novo ativo",
+    "empty": "Ainda sem ativos.",
+    "count_one": "{{count}} ativo",
+    "count_other": "{{count}} ativos"
+  },
+  "form": {
+    "createTitle": "Novo ativo",
+    "editTitle": "Editar ativo",
+    "codeHint": "O código do ativo é gerado automaticamente e nunca muda.",
+    "save": "Guardar",
+    "created": "Ativo criado",
+    "updated": "Ativo atualizado"
+  },
+  "assign": {
+    "title": "Atribuir ativo",
+    "assign": "Atribuir",
+    "reassign": "Reatribuir",
+    "return": "Devolver",
+    "assignedOn": "Data de atribuição",
+    "returnedOn": "Data de devolução",
+    "returned": "Ativo devolvido",
+    "done": "Custódia atualizada",
+    "open": "Atribuições ativas",
+    "none": "Sem atribuições ativas."
+  },
+  "invoice": {
+    "sendToInventory": "Enviar para inventário",
+    "contains": "Contém ativos de inventário",
+    "reviewTitle": "Criar ativos de inventário a partir da fatura",
+    "reviewIntro": "Escolha que linhas da fatura devem originar ativos. Não é criada nenhuma despesa — a fatura continua a ser o registo financeiro.",
+    "line": "Linha",
+    "description": "Descrição",
+    "qty": "Qtd",
+    "unitPrice": "Preço unitário",
+    "createAsset": "Criar ativo?",
+    "toCreate": "Ativos a criar",
+    "processed": "{{done}} de {{total}} ativos já criados",
+    "allProcessed": "Totalmente processada",
+    "confirm": "Criar ativos",
+    "created_one": "{{count}} ativo criado",
+    "created_other": "{{count}} ativos criados",
+    "noLines": "Este documento não tem linhas de fatura para rever.",
+    "statusPending": "Por rever no inventário",
+    "statusPartial": "Parcialmente processada",
+    "statusComplete": "Inventário concluído"
+  },
+  "reports": {
+    "title": "Relatórios e exportações",
+    "full": "Registo completo de ativos",
+    "insurance": "Registo de ativos para seguro",
+    "byCollaborator": "Ativos por colaborador",
+    "byLocation": "Ativos por localização",
+    "replacement": "Planeamento de substituição",
+    "retired": "Ativos abatidos / eliminados",
+    "rows_one": "{{count}} linha",
+    "rows_other": "{{count}} linhas",
+    "downloadXlsx": "XLSX",
+    "downloadCsv": "CSV"
+  },
+  "hr": {
+    "cardTitle": "Ativos atribuídos",
+    "empty": "Sem ativos atribuídos a este colaborador.",
+    "manage": "Abrir inventário"
+  }
+}
