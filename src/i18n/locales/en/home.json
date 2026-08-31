@@ -20,10 +20,15 @@
     "kicker": "Modules",
     "title": "Where do you want to go today?"
   },
-  "studio": {
-    "kicker": "Studio diary",
-    "title": "What's happening at the studio"
+  "signature": {
+    "moduleTitle": "Signature Projects",
+    "moduleSubtitle": "Studio portfolio",
+    "moduleDescription": "Curated studio imagery — the same library the Quote Builder pulls from.",
+    "kicker": "Studio Portfolio",
+    "title": "Signature Projects",
+    "subtitle": "Curated imagery used across the studio — the same library the Quote Builder pulls from when filling proposal pages."
   },
+
   "celebrations": {
     "title": "Upcoming celebrations",
     "window": "Next 45 days",
