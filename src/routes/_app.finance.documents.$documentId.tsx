@@ -382,8 +382,10 @@ function DocumentEditorPage() {
             <Badge variant="secondary">
               {t(`finance:documents.source.${docQ.data.document.source}`)}
             </Badge>
+            <InvoiceInventoryAction documentId={documentId} />
           </div>
         )}
+
       </div>
 
       <Card>
