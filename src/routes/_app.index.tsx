@@ -109,7 +109,17 @@ const MODULES: ModuleDef[] = [
     icon: Inbox,
     anyOf: ["inbox.triage"],
   },
+  {
+    to: "/inventory",
+    number: "06",
+    titleKey: "inventory:module.title",
+    subtitleKey: "inventory:module.subtitle",
+    descriptionKey: "inventory:module.description",
+    icon: Boxes,
+    anyOf: [],
+  },
 ];
+
 
 const QUOTES = [
   {
