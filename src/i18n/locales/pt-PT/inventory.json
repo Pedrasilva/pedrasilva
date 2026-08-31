@@ -1,7 +1,8 @@
 {
   "module": {
     "title": "Inventário",
-    "subtitle": "Registo de ativos do atelier"
+    "subtitle": "Registo de ativos do atelier",
+    "description": "Acompanhe equipamento do atelier, responsáveis, garantias, depreciação e o registo de seguro."
   },
   "nav": {
     "dashboard": "Painel",

@@ -27,6 +27,7 @@ import {
   CalendarHeart,
   Quote,
   Inbox,
+  Boxes,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
@@ -39,14 +40,16 @@ export const Route = createFileRoute("/_app/")({
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox";
+  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox" | "/inventory";
   number: string;
   titleKey: string;
   subtitleKey: string;
   descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Empty array = visible to every authenticated user. */
   anyOf: PermissionKey[];
 };
+
 
 const MODULES: ModuleDef[] = [
   {
@@ -107,7 +110,17 @@ const MODULES: ModuleDef[] = [
     icon: Inbox,
     anyOf: ["inbox.triage"],
   },
+  {
+    to: "/inventory",
+    number: "06",
+    titleKey: "inventory:module.title",
+    subtitleKey: "inventory:module.subtitle",
+    descriptionKey: "inventory:module.description",
+    icon: Boxes,
+    anyOf: [],
+  },
 ];
+
 
 const QUOTES = [
   {
@@ -156,7 +169,7 @@ function quoteOfTheDay() {
 
 
 function HubPage() {
-  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox"]);
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
