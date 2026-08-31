@@ -380,7 +380,9 @@ function HubPage() {
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
                         {t(m.descriptionKey)}
                       </p>
+                      {m.to === "/portfolio" && <PortfolioPreviewStrip />}
                     </div>
+
                   </div>
                 </Card>
               </Link>
