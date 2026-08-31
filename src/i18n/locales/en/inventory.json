@@ -1,7 +1,8 @@
 {
   "module": {
     "title": "Inventory",
-    "subtitle": "Asset register for studio equipment"
+    "subtitle": "Asset register for studio equipment",
+    "description": "Track studio equipment, custody, warranties, depreciation and the insurance register."
   },
   "nav": {
     "dashboard": "Dashboard",

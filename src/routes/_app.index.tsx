@@ -27,6 +27,7 @@ import {
   CalendarHeart,
   Quote,
   Inbox,
+  Boxes,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
@@ -168,7 +169,7 @@ function quoteOfTheDay() {
 
 
 function HubPage() {
-  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox"]);
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
