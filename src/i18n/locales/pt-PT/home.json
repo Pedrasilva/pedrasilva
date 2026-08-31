@@ -20,10 +20,15 @@
     "kicker": "Módulos",
     "title": "Onde queres ir hoje?"
   },
-  "studio": {
-    "kicker": "Studio diary",
-    "title": "O que se passa no atelier"
+  "signature": {
+    "moduleTitle": "Projectos de Referência",
+    "moduleSubtitle": "Portfólio do atelier",
+    "moduleDescription": "Imagens seleccionadas do atelier — a mesma biblioteca usada no construtor de propostas.",
+    "kicker": "Portfólio do atelier",
+    "title": "Projectos de Referência",
+    "subtitle": "Imagens seleccionadas usadas em todo o atelier — a mesma biblioteca que o construtor de propostas utiliza nas páginas da proposta."
   },
+
   "celebrations": {
     "title": "Celebrações próximas",
     "window": "Próximos 45 dias",
