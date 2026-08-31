@@ -5,11 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
-import {
-  useUpcomingCelebrations,
-  useWhoIsOff,
-  useUpcomingHolidays,
-} from "@/hooks/use-home-feed";
+import { useUpcomingCelebrations } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -21,19 +17,22 @@ import {
   Briefcase,
   Wallet,
   ArrowUpRight,
-  Cake,
   Sparkles,
-  Palmtree,
-  CalendarHeart,
   Quote,
   Inbox,
   Boxes,
+  Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
-import { SignatureProjectsSection } from "@/components/home/signature-projects";
+import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
+import {
+  useProposalImages,
+  useSignedProposalImageUrl,
+} from "@/lib/psa-proposal/use-proposal-images";
 import type { PermissionKey } from "@/lib/permissions";
+
 
 export const Route = createFileRoute("/_app/")({
   component: HubPage,
