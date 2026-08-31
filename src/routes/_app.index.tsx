@@ -5,11 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
-import {
-  useUpcomingCelebrations,
-  useWhoIsOff,
-  useUpcomingHolidays,
-} from "@/hooks/use-home-feed";
+import { useUpcomingCelebrations } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -21,26 +17,37 @@ import {
   Briefcase,
   Wallet,
   ArrowUpRight,
-  Cake,
   Sparkles,
-  Palmtree,
-  CalendarHeart,
   Quote,
   Inbox,
   Boxes,
+  Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
-import { SignatureProjectsSection } from "@/components/home/signature-projects";
+import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
+import {
+  useProposalImages,
+  useSignedProposalImageUrl,
+} from "@/lib/psa-proposal/use-proposal-images";
 import type { PermissionKey } from "@/lib/permissions";
+
 
 export const Route = createFileRoute("/_app/")({
   component: HubPage,
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox" | "/inventory";
+  to:
+    | "/hr"
+    | "/crm"
+    | "/projects"
+    | "/finance"
+    | "/inbox"
+    | "/inventory"
+    | "/portfolio";
+
   number: string;
   titleKey: string;
   subtitleKey: string;
@@ -119,7 +126,17 @@ const MODULES: ModuleDef[] = [
     icon: Boxes,
     anyOf: [],
   },
+  {
+    to: "/portfolio",
+    number: "07",
+    titleKey: "home:signature.moduleTitle",
+    subtitleKey: "home:signature.moduleSubtitle",
+    descriptionKey: "home:signature.moduleDescription",
+    icon: Images,
+    anyOf: [],
+  },
 ];
+
 
 
 const QUOTES = [
@@ -185,18 +202,8 @@ function HubPage() {
     [t],
   );
 
-  const fmtDate = (iso: string) => {
-    const [, m, d] = iso.split("-").map(Number);
-    return `${d} ${months[(m ?? 1) - 1]}`;
-  };
 
-  const relativeDays = (days: number) => {
-    if (days === 0) return t("home:relative.today");
-    if (days === 1) return t("home:relative.tomorrow");
-    if (days < 7) return t("home:relative.inDays", { days });
-    if (days < 14) return t("home:relative.nextWeek");
-    return t("home:relative.inDays", { days });
-  };
+
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
@@ -236,13 +243,10 @@ function HubPage() {
   const quote = useMemo(quoteOfTheDay, []);
 
   const celebrationsQ = useUpcomingCelebrations(45);
-  const offTodayQ = useWhoIsOff();
-  const holidaysQ = useUpcomingHolidays(60);
 
   const todayCelebrations =
     celebrationsQ.data?.filter((c) => c.daysAway === 0) ?? [];
-  const upcomingCelebrations =
-    celebrationsQ.data?.filter((c) => c.daysAway > 0).slice(0, 6) ?? [];
+
 
   if (loading) {
     return (
@@ -328,10 +332,24 @@ function HubPage() {
         </div>
       </section>
 
+      {/* TODAY ============================================================ */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <TodayStrip />
+      </section>
+
       {/* MY ACTIONS ======================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <MyActionsCard />
       </section>
+
+      {/* FINANCE SNAPSHOT ================================================= */}
+      {(isAdmin || permissions.has("finance.dashboard")) && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
+          <FinanceSnapshotBlock />
+        </section>
+      )}
+
+
 
 
       {/* MODULES ========================================================== */}
@@ -380,7 +398,9 @@ function HubPage() {
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
                         {t(m.descriptionKey)}
                       </p>
+                      {m.to === "/portfolio" && <PortfolioPreviewStrip />}
                     </div>
+
                   </div>
                 </Card>
               </Link>
@@ -394,199 +414,11 @@ function HubPage() {
         )}
       </section>
 
-      {/* FINANCE SNAPSHOT ================================================= */}
-      {(isAdmin || permissions.has("finance.dashboard")) && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-2">
-          <FinanceSnapshotBlock />
-        </section>
-      )}
 
-      {/* SIGNATURE PROJECTS =============================================== */}
-      <SignatureProjectsSection isAdmin={isAdmin} />
-
-
-      {/* WIDGETS ========================================================== */}
+      {/* QUOTE ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
-        <div className="mb-6">
-          <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            {t("home:studio.kicker")}
-          </div>
-          <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-            {t("home:studio.title")}
-          </h2>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-3">
-          {/* Celebrations ------------------------------------------------ */}
-          <Card className="lg:col-span-2 overflow-hidden">
-            <div className="flex items-center justify-between border-b px-6 py-4">
-              <div className="flex items-center gap-2">
-                <CalendarHeart
-                  className="h-4 w-4"
-                  style={{ color: "var(--clay)" }}
-                />
-                <h3 className="font-display text-lg font-semibold tracking-tight">
-                  {t("home:celebrations.title")}
-                </h3>
-              </div>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                {t("home:celebrations.window")}
-              </span>
-            </div>
-            <ul className="divide-y">
-              {celebrationsQ.isLoading && (
-                <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                  {t("common:loading")}
-                </li>
-              )}
-              {!celebrationsQ.isLoading &&
-                upcomingCelebrations.length === 0 && (
-                  <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    {t("home:celebrations.empty")}
-                  </li>
-                )}
-              {upcomingCelebrations.map((c) => {
-                const isBirthday = c.kind === "birthday";
-                const Icon = isBirthday ? Cake : Sparkles;
-                const accent = isBirthday ? "var(--clay)" : "var(--sage)";
-                const label = isBirthday
-                  ? t("home:celebrate.turnsAge", { age: c.age })
-                  : t("home:celebrate.yearsAtPsa", { count: c.years });
-                return (
-                  <li
-                    key={c.id}
-                    className="flex items-center justify-between gap-4 px-6 py-3.5"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                        style={{
-                          background: `color-mix(in oklab, ${accent} 15%, transparent)`,
-                          color: accent,
-                        }}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{c.nome}</div>
-                        <div className="text-[11px] text-muted-foreground">{label}</div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-sm font-medium tabular-nums">
-                        {fmtDate(c.date)}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {relativeDays(c.daysAway)}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </Card>
-
-          {/* Side column: who is off + holidays + quote ------------------ */}
-          <div className="space-y-4">
-            {/* Who is off */}
-            <Card className="overflow-hidden">
-              <div className="flex items-center justify-between border-b px-5 py-3.5">
-                <div className="flex items-center gap-2">
-                  <Palmtree
-                    className="h-4 w-4"
-                    style={{ color: "var(--sage)" }}
-                  />
-                  <h3 className="font-display text-base font-semibold tracking-tight">
-                    {t("home:off.title")}
-                  </h3>
-                </div>
-                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  {t("home:off.team")}
-                </span>
-              </div>
-              <ul className="divide-y">
-                {offTodayQ.isLoading && (
-                  <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    {t("common:loading")}
-                  </li>
-                )}
-                {!offTodayQ.isLoading && (offTodayQ.data?.length ?? 0) === 0 && (
-                  <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    {t("home:off.empty")}
-                  </li>
-                )}
-                {offTodayQ.data?.slice(0, 5).map((v) => (
-                  <li
-                    key={v.id}
-                    className="flex items-center justify-between px-5 py-3"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Avatar nome={v.nome} />
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">
-                          {v.nome}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {t(`home:absence.${v.tipo}`, { defaultValue: v.tipo })} ·{" "}
-                          {t("home:off.until", { date: fmtDate(v.data_fim) })}
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-
-            {/* Holidays */}
-            <Card className="overflow-hidden">
-              <div className="flex items-center justify-between border-b px-5 py-3.5">
-                <div className="flex items-center gap-2">
-                  <Sparkles
-                    className="h-4 w-4"
-                    style={{ color: "var(--clay-complement)" }}
-                  />
-                  <h3 className="font-display text-base font-semibold tracking-tight">
-                    {t("home:holidays.title")}
-                  </h3>
-                </div>
-              </div>
-              <ul className="divide-y">
-                {holidaysQ.isLoading && (
-                  <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    {t("common:loading")}
-                  </li>
-                )}
-                {!holidaysQ.isLoading && (holidaysQ.data?.length ?? 0) === 0 && (
-                  <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    {t("home:holidays.empty")}
-                  </li>
-                )}
-                {holidaysQ.data?.slice(0, 4).map((h) => (
-                  <li
-                    key={h.id}
-                    className="flex items-center justify-between px-5 py-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {h.nome}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {fmtDate(h.data)}
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
-                      {relativeDays(h.daysAway)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
-        </div>
-
-        {/* Quote ------------------------------------------------------- */}
         <Card
-          className="mt-4 overflow-hidden border-0"
+          className="overflow-hidden border-0"
           style={{ background: "var(--ink)", color: "var(--cream)" }}
         >
           <div className="px-8 py-10 sm:px-12 sm:py-14">
@@ -600,29 +432,55 @@ function HubPage() {
           </div>
         </Card>
       </section>
+
     </div>
   );
 }
 
-function Avatar({ nome }: { nome: string }) {
-  const initials = nome
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
+/** Three most recent library images, shown inside the Portfolio module tile. */
+function PortfolioPreviewStrip() {
+  const images = useProposalImages();
+  const latest = (images.data ?? []).slice(0, 3);
+  if (latest.length === 0) return null;
   return (
-    <span
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-      style={{
-        background: "color-mix(in oklab, var(--clay) 18%, transparent)",
-        color: "var(--clay)",
-      }}
-    >
-      {initials || "?"}
-    </span>
+    <div className="mt-5 grid grid-cols-3 gap-2">
+      {latest.map((e) => (
+        <PortfolioThumb key={e.id} path={e.storage_path} bucket={e.bucket} alt={e.name} />
+      ))}
+    </div>
   );
 }
+
+function PortfolioThumb({
+  path,
+  bucket,
+  alt,
+}: {
+  path: string;
+  bucket: string;
+  alt: string;
+}) {
+  const thumb = useSignedProposalImageUrl(path, bucket, {
+    width: 240,
+    quality: 50,
+  });
+  return (
+    <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
+      {thumb.data ? (
+        <img
+          src={thumb.data}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="h-full w-full animate-pulse bg-muted" />
+      )}
+    </div>
+  );
+}
+
 
 // ---------------------------------------------------------------------------
 // Finance snapshot block (home page)
