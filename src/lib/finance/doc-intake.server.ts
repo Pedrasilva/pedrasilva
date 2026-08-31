@@ -71,6 +71,18 @@ export type IntakeExtraction = {
   withholding_tax_amount: number | null;
   /** "Total a pagar" — the amount actually transferred to the supplier. */
   total_payable: number | null;
+  /**
+   * Itemised invoice lines, when the document prints a line table. Used by the
+   * Finance → Inventory intake so each physical item can become an asset.
+   */
+  line_items: Array<{
+    description: string;
+    quantity: number | null;
+    unit_price_ex_vat: number | null;
+    amount_ex_vat: number | null;
+    vat_rate: number | null;
+    is_physical_item: boolean;
+  }> | null;
 };
 
 
@@ -160,6 +172,25 @@ const JSON_SCHEMA = {
       balance_due: { type: ["number", "null"] },
       withholding_tax_amount: { type: ["number", "null"] },
       total_payable: { type: ["number", "null"] },
+      line_items: {
+        type: ["array", "null"],
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            description: { type: "string" },
+            quantity: { type: ["number", "null"] },
+            unit_price_ex_vat: { type: ["number", "null"] },
+            amount_ex_vat: { type: ["number", "null"] },
+            vat_rate: { type: ["number", "null"] },
+            is_physical_item: { type: "boolean" },
+          },
+          required: [
+            "description", "quantity", "unit_price_ex_vat",
+            "amount_ex_vat", "vat_rate", "is_physical_item",
+          ],
+        },
+      },
     },
     required: [
       "doc_type", "doc_type_confidence", "supplier_name", "supplier_vat",
@@ -169,7 +200,7 @@ const JSON_SCHEMA = {
       "vat_amount", "amount_ex_vat", "classification_code",
       "classification_confidence", "summary",
       "payment_method", "card_last4", "payment_method_raw", "balance_due",
-      "withholding_tax_amount", "total_payable",
+      "withholding_tax_amount", "total_payable", "line_items",
 
 
 
@@ -255,6 +286,7 @@ Rules:
     - total_payable: the "Total a pagar" figure (= "Total do documento" minus the withholding), i.e. what is actually transferred to the freelancer.
   - total_amount stays the "Total do documento" (VAT-inclusive) figure regardless.
   - If the document has NO "IRS" / "Retenção na fonte" section (normal company invoices — Zoom, EDP, etc.), set withholding_tax_amount to null and total_payable to null. Never invent one.
+- line_items: when the document prints a table of items/services, return ONE entry per printed line, in printed order. description verbatim (trimmed), quantity as printed (default 1 when a line has no quantity), unit_price_ex_vat and amount_ex_vat excluding VAT, vat_rate as a percentage number (23 for 23%). is_physical_item = true only for tangible goods that would physically arrive at the studio (computers, monitors, cameras, lenses, furniture, phones, accessories, cables); false for services, subscriptions, licences, shipping, discounts, rounding and fees. Set line_items to null when the document has no line table at all.
 - confidences are 0..1, be honest.
 
 
