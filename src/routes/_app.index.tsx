@@ -314,10 +314,24 @@ function HubPage() {
         </div>
       </section>
 
+      {/* TODAY ============================================================ */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <TodayStrip />
+      </section>
+
       {/* MY ACTIONS ======================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <MyActionsCard />
       </section>
+
+      {/* FINANCE SNAPSHOT ================================================= */}
+      {(isAdmin || permissions.has("finance.dashboard")) && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
+          <FinanceSnapshotBlock />
+        </section>
+      )}
+
+
 
 
       {/* MODULES ========================================================== */}
