@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import {
   useCreateAssetsFromInvoice,
+  useExtractInvoiceLines,
   useInventoryCategories,
   useInvoiceForInventory,
   useSetLineSkipped,
@@ -72,6 +73,7 @@ export function InvoiceInventoryDialog({
   const { data: categories = [] } = useInventoryCategories();
   const createAssets = useCreateAssetsFromInvoice();
   const setSkipped = useSetLineSkipped();
+  const extractLines = useExtractInvoiceLines();
   const [drafts, setDrafts] = useState<Record<string, LineDraft>>({});
 
   const catByCode = useMemo(() => new Map(categories.map((c) => [c.code, c])), [categories]);

@@ -134,7 +134,10 @@
     "statusComplete": "Inventário concluído",
     "skipColumn": "Decisão",
     "skipAction": "Não inventariar",
-    "skippedBadge": "Revisto — não inventariado"
+    "skippedBadge": "Revisto — não inventariado",
+    "extractLines": "Extrair linhas da fatura",
+    "extractingLines": "A extrair…",
+    "linesExtracted": "{{count}} linhas extraídas"
   },
   "reports": {
     "title": "Relatórios e exportações",
