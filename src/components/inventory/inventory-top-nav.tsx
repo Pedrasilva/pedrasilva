@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 const ITEMS: Array<{ to: string; labelKey: string; end?: boolean }> = [
   { to: "/inventory", labelKey: "inventory:nav.dashboard", end: true },
+  { to: "/inventory/intake", labelKey: "inventory:nav.intake" },
   { to: "/inventory/assets", labelKey: "inventory:nav.assets" },
   { to: "/inventory/assignments", labelKey: "inventory:nav.assignments" },
   { to: "/inventory/reports", labelKey: "inventory:nav.reports" },
