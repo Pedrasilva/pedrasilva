@@ -336,7 +336,8 @@
       "time": "Tempo / Trabalho",
       "finance": "Finanças",
       "insights": "Análises",
-      "settings": "Definições"
+      "settings": "Definições",
+      "inventory": "Inventário"
     },
     "section": {
       "sharedLists": "Listas partilhadas",
@@ -390,7 +391,10 @@
       "settings.boValue": "Valor BO/hora",
       "settings.workingDays": "Dias úteis",
       "settings.mealAllowance": "Subsídio de alimentação",
-      "settings.billableRates": "Valor/hora facturável"
+      "settings.billableRates": "Valor/hora facturável",
+      "inventory.assets": "Registo de ativos",
+      "inventory.assignments": "Atribuições",
+      "inventory.reports": "Relatórios de inventário"
     },
     "top": {
       "create": "Criar",
