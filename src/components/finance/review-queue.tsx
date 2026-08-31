@@ -112,13 +112,29 @@ type QueueRow = {
 
 const BUCKET = "financial-documents";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  "€": "EUR",
+  "$": "USD",
+  "£": "GBP",
+};
+
+/** Normalizes symbols / malformed values to a valid ISO 4217 code. */
+function normalizeCurrency(cur: string | null): string {
+  const raw = (cur ?? "").trim();
+  if (!raw) return "EUR";
+  if (CURRENCY_SYMBOLS[raw]) return CURRENCY_SYMBOLS[raw];
+  const upper = raw.toUpperCase();
+  return /^[A-Z]{3}$/.test(upper) ? upper : "EUR";
+}
+
 function fmtMoney(v: number | null, cur: string | null) {
   if (v == null) return "—";
   return new Intl.NumberFormat("pt-PT", {
     style: "currency",
-    currency: cur || "EUR",
+    currency: normalizeCurrency(cur),
   }).format(v);
 }
+
 
 /**
  * The other party on the document: the client for documents the firm issued,
