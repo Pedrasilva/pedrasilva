@@ -19,6 +19,7 @@
 // script all flow through here, so a label change or schema tweak only needs
 // to be edited once.
 
+import { toLocalISODate } from "@/lib/dates";
 import { supabase } from "@/integrations/supabase/client";
 
 // --- Approved status labels (i18n / enum safety guard) -----------------
