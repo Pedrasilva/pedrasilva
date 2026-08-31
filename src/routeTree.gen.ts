@@ -51,6 +51,8 @@ import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
 import { Route as AppInboxSettingsRouteImport } from './routes/_app.inbox.settings'
 import { Route as AppInventoryIndexRouteImport } from './routes/_app.inventory.index'
+import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inventory.assignments'
+import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -103,6 +105,7 @@ import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.
 import { Route as AppFinanceSuppliersCompanyIdRouteImport } from './routes/_app.finance.suppliers.$companyId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppInventoryAssetsIndexRouteImport } from './routes/_app.inventory.assets.index'
+import { Route as AppInventoryAssetsAssetIdRouteImport } from './routes/_app.inventory.assets.$assetId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
@@ -326,6 +329,16 @@ const AppInboxSettingsRoute = AppInboxSettingsRouteImport.update({
 const AppInventoryIndexRoute = AppInventoryIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppInventoryAssignmentsRoute = AppInventoryAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AppInventoryRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
@@ -617,6 +630,12 @@ const AppInventoryAssetsIndexRoute = AppInventoryAssetsIndexRouteImport.update({
   path: '/assets/',
   getParentRoute: () => AppInventoryRoute,
 } as any)
+const AppInventoryAssetsAssetIdRoute =
+  AppInventoryAssetsAssetIdRouteImport.update({
+    id: '/assets/$assetId',
+    path: '/assets/$assetId',
+    getParentRoute: () => AppInventoryRoute,
+  } as any)
 const AppProjectsProjectIdAllocationsRoute =
   AppProjectsProjectIdAllocationsRouteImport.update({
     id: '/allocations',
@@ -717,6 +736,8 @@ export interface FileRoutesByFullPath {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
+  '/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/inventory/reports': typeof AppInventoryReportsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -771,6 +792,7 @@ export interface FileRoutesByFullPath {
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -817,6 +839,8 @@ export interface FileRoutesByTo {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
+  '/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/inventory/reports': typeof AppInventoryReportsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -871,6 +895,7 @@ export interface FileRoutesByTo {
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -925,6 +950,8 @@ export interface FileRoutesById {
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/inbox/settings': typeof AppInboxSettingsRoute
+  '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/_app/inventory/reports': typeof AppInventoryReportsRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
@@ -979,6 +1006,7 @@ export interface FileRoutesById {
   '/_app/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/_app/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/_app/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -1033,6 +1061,8 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/inbox/settings'
+    | '/inventory/assignments'
+    | '/inventory/reports'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1087,6 +1117,7 @@ export interface FileRouteTypes {
     | '/finance/reports/vat'
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
+    | '/inventory/assets/$assetId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
@@ -1133,6 +1164,8 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/inbox/settings'
+    | '/inventory/assignments'
+    | '/inventory/reports'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1187,6 +1220,7 @@ export interface FileRouteTypes {
     | '/finance/reports/vat'
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
+    | '/inventory/assets/$assetId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
@@ -1240,6 +1274,8 @@ export interface FileRouteTypes {
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
     | '/_app/inbox/settings'
+    | '/_app/inventory/assignments'
+    | '/_app/inventory/reports'
     | '/_app/projects/$projectId'
     | '/_app/projects/approvals'
     | '/_app/projects/financials'
@@ -1294,6 +1330,7 @@ export interface FileRouteTypes {
     | '/_app/finance/reports/vat'
     | '/_app/finance/suppliers/$companyId'
     | '/_app/hr/colaborador/$id'
+    | '/_app/inventory/assets/$assetId'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
@@ -1623,6 +1660,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/inventory/'
       preLoaderRoute: typeof AppInventoryIndexRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/assignments': {
+      id: '/_app/inventory/assignments'
+      path: '/assignments'
+      fullPath: '/inventory/assignments'
+      preLoaderRoute: typeof AppInventoryAssignmentsRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/reports': {
+      id: '/_app/inventory/reports'
+      path: '/reports'
+      fullPath: '/inventory/reports'
+      preLoaderRoute: typeof AppInventoryReportsRouteImport
       parentRoute: typeof AppInventoryRoute
     }
     '/_app/projects/': {
@@ -1989,6 +2040,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryAssetsIndexRouteImport
       parentRoute: typeof AppInventoryRoute
     }
+    '/_app/inventory/assets/$assetId': {
+      id: '/_app/inventory/assets/$assetId'
+      path: '/assets/$assetId'
+      fullPath: '/inventory/assets/$assetId'
+      preLoaderRoute: typeof AppInventoryAssetsAssetIdRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
     '/_app/projects/$projectId/allocations': {
       id: '/_app/projects/$projectId/allocations'
       path: '/allocations'
@@ -2243,12 +2301,18 @@ const AppInboxRouteWithChildren = AppInboxRoute._addFileChildren(
 )
 
 interface AppInventoryRouteChildren {
+  AppInventoryAssignmentsRoute: typeof AppInventoryAssignmentsRoute
+  AppInventoryReportsRoute: typeof AppInventoryReportsRoute
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
+  AppInventoryAssetsAssetIdRoute: typeof AppInventoryAssetsAssetIdRoute
   AppInventoryAssetsIndexRoute: typeof AppInventoryAssetsIndexRoute
 }
 
 const AppInventoryRouteChildren: AppInventoryRouteChildren = {
+  AppInventoryAssignmentsRoute: AppInventoryAssignmentsRoute,
+  AppInventoryReportsRoute: AppInventoryReportsRoute,
   AppInventoryIndexRoute: AppInventoryIndexRoute,
+  AppInventoryAssetsAssetIdRoute: AppInventoryAssetsAssetIdRoute,
   AppInventoryAssetsIndexRoute: AppInventoryAssetsIndexRoute,
 }
 
