@@ -1,3 +1,12 @@
+// Converte uma Date para ISO yyyy-mm-dd usando o calendário LOCAL.
+// Nunca usar toISOString() para isto: em fusos a leste de UTC (ex.: Lisboa
+// no horário de verão) a meia-noite local recua um dia em UTC.
+export function toLocalISODate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
 // Conta dias úteis (seg-sex) entre duas datas inclusive (ISO yyyy-mm-dd),
 // excluindo opcionalmente um conjunto de feriados (ISO yyyy-mm-dd).
 export function countWeekdays(

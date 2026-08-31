@@ -19,6 +19,7 @@
 // script all flow through here, so a label change or schema tweak only needs
 // to be edited once.
 
+import { toLocalISODate } from "@/lib/dates";
 import { supabase } from "@/integrations/supabase/client";
 
 // --- Approved status labels (i18n / enum safety guard) -----------------
@@ -89,7 +90,7 @@ function eachWeekday(startISO: string, endISO: string): string[] {
   for (const d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const dow = d.getDay();
     if (dow === 0 || dow === 6) continue;
-    out.push(d.toISOString().slice(0, 10));
+    out.push(toLocalISODate(d));
   }
   return out;
 }

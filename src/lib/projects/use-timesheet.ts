@@ -1,3 +1,4 @@
+import { toLocalISODate } from "@/lib/dates";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { APPROVED_LEAVE_STATES, leaveLabelFor } from "@/lib/projects/non-working-sync";
@@ -231,7 +232,7 @@ export function useNonWorkingPrefill(opts: {
       const start = new Date(opts.weekStart + "T00:00:00");
       const end = new Date(opts.weekEnd + "T00:00:00");
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dayList.push(d.toISOString().slice(0, 10));
+        dayList.push(toLocalISODate(d));
       }
 
       // Vacations: each approved request fills its weekday range with the
