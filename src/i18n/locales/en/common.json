@@ -336,7 +336,8 @@
       "time": "Time / Work",
       "finance": "Finance",
       "insights": "Insights",
-      "settings": "Settings"
+      "settings": "Settings",
+      "inventory": "Inventory"
     },
     "section": {
       "sharedLists": "Shared lists",
@@ -390,7 +391,10 @@
       "settings.boValue": "BO value / hour",
       "settings.workingDays": "Working days",
       "settings.mealAllowance": "Meal allowance",
-      "settings.billableRates": "Billable hourly rate"
+      "settings.billableRates": "Billable hourly rate",
+      "inventory.assets": "Asset register",
+      "inventory.assignments": "Assignments",
+      "inventory.reports": "Inventory reports"
     },
     "top": {
       "create": "Create",

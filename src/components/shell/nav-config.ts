@@ -12,6 +12,7 @@
  * are visible to everyone authenticated.
  */
 import {
+  Boxes,
   Briefcase,
   Building2,
   Users,
@@ -186,6 +187,29 @@ export const RAIL_ITEMS: RailItem[] = [
       },
     ],
   },
+
+  // ─── Inventory (asset register) ───
+  {
+    id: "inventory",
+    labelKey: "inventory",
+    icon: Boxes,
+    to: "/inventory",
+    matches: ["/inventory"],
+    flyout: [
+      {
+        titleKey: "sharedLists",
+        links: [
+          { to: "/inventory/assets", labelKey: "inventory.assets" },
+          { to: "/inventory/assignments", labelKey: "inventory.assignments" },
+        ],
+      },
+      {
+        titleKey: "reports",
+        links: [{ to: "/inventory/reports", labelKey: "inventory.reports" }],
+      },
+    ],
+  },
+
 
   // ─── Insights / Reports ───
   {

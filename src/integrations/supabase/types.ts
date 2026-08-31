@@ -3201,6 +3201,9 @@ export type Database = {
           external_reference: string | null
           file_path: string | null
           id: string
+          inventory_status:
+            | Database["public"]["Enums"]["inventory_workflow_status"]
+            | null
           invoicexpress_id: number | null
           invoicexpress_status: string | null
           invoicexpress_type: string | null
@@ -3249,6 +3252,9 @@ export type Database = {
           external_reference?: string | null
           file_path?: string | null
           id?: string
+          inventory_status?:
+            | Database["public"]["Enums"]["inventory_workflow_status"]
+            | null
           invoicexpress_id?: number | null
           invoicexpress_status?: string | null
           invoicexpress_type?: string | null
@@ -3297,6 +3303,9 @@ export type Database = {
           external_reference?: string | null
           file_path?: string | null
           id?: string
+          inventory_status?:
+            | Database["public"]["Enums"]["inventory_workflow_status"]
+            | null
           invoicexpress_id?: number | null
           invoicexpress_status?: string | null
           invoicexpress_type?: string | null
@@ -4201,6 +4210,417 @@ export type Database = {
           status?: Database["public"]["Enums"]["import_job_status"]
           storage_path?: string | null
           warning_count?: number
+        }
+        Relationships: []
+      }
+      inventory_asset_documents: {
+        Row: {
+          asset_id: string
+          created_at: string
+          created_by: string | null
+          doc_kind: string
+          financial_document_id: string | null
+          id: string
+          storage_bucket: string | null
+          storage_path: string | null
+          title: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          created_by?: string | null
+          doc_kind?: string
+          financial_document_id?: string | null
+          id?: string
+          storage_bucket?: string | null
+          storage_path?: string | null
+          title?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          created_by?: string | null
+          doc_kind?: string
+          financial_document_id?: string | null
+          id?: string
+          storage_bucket?: string | null
+          storage_path?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_asset_documents_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_asset_documents_financial_document_id_fkey"
+            columns: ["financial_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_asset_events: {
+        Row: {
+          actor_user_id: string | null
+          asset_id: string
+          created_at: string
+          event_date: string
+          event_type: Database["public"]["Enums"]["inventory_event_type"]
+          field: string | null
+          id: string
+          new_value: string | null
+          notes: string | null
+          previous_value: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          asset_id: string
+          created_at?: string
+          event_date?: string
+          event_type: Database["public"]["Enums"]["inventory_event_type"]
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          previous_value?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          asset_id?: string
+          created_at?: string
+          event_date?: string
+          event_type?: Database["public"]["Enums"]["inventory_event_type"]
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          previous_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_asset_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_assets: {
+        Row: {
+          asset_code: string
+          assigned_collaborator_id: string | null
+          brand: string | null
+          category_id: string
+          created_at: string
+          created_by: string | null
+          custody_mode: Database["public"]["Enums"]["inventory_custody_mode"]
+          department: string | null
+          depreciation_years: number
+          description: string | null
+          id: string
+          include_in_insurance_register: boolean
+          insurance_value: number | null
+          invoice_number_snapshot: string | null
+          kit_id: string | null
+          location: string | null
+          model: string | null
+          name: string
+          notes: string | null
+          photo_path: string | null
+          purchase_date: string | null
+          purchase_price_ex_vat: number | null
+          purchase_price_inc_vat: number | null
+          replacement_years: number
+          serial_number: string | null
+          source_document_id: string | null
+          source_document_line_id: string | null
+          source_unit_index: number | null
+          status: Database["public"]["Enums"]["inventory_asset_status"]
+          supplier_company_id: string | null
+          tracking_level: Database["public"]["Enums"]["inventory_tracking_level"]
+          updated_at: string
+          vat_amount: number | null
+          warranty_expiry: string | null
+        }
+        Insert: {
+          asset_code: string
+          assigned_collaborator_id?: string | null
+          brand?: string | null
+          category_id: string
+          created_at?: string
+          created_by?: string | null
+          custody_mode?: Database["public"]["Enums"]["inventory_custody_mode"]
+          department?: string | null
+          depreciation_years?: number
+          description?: string | null
+          id?: string
+          include_in_insurance_register?: boolean
+          insurance_value?: number | null
+          invoice_number_snapshot?: string | null
+          kit_id?: string | null
+          location?: string | null
+          model?: string | null
+          name: string
+          notes?: string | null
+          photo_path?: string | null
+          purchase_date?: string | null
+          purchase_price_ex_vat?: number | null
+          purchase_price_inc_vat?: number | null
+          replacement_years?: number
+          serial_number?: string | null
+          source_document_id?: string | null
+          source_document_line_id?: string | null
+          source_unit_index?: number | null
+          status?: Database["public"]["Enums"]["inventory_asset_status"]
+          supplier_company_id?: string | null
+          tracking_level?: Database["public"]["Enums"]["inventory_tracking_level"]
+          updated_at?: string
+          vat_amount?: number | null
+          warranty_expiry?: string | null
+        }
+        Update: {
+          asset_code?: string
+          assigned_collaborator_id?: string | null
+          brand?: string | null
+          category_id?: string
+          created_at?: string
+          created_by?: string | null
+          custody_mode?: Database["public"]["Enums"]["inventory_custody_mode"]
+          department?: string | null
+          depreciation_years?: number
+          description?: string | null
+          id?: string
+          include_in_insurance_register?: boolean
+          insurance_value?: number | null
+          invoice_number_snapshot?: string | null
+          kit_id?: string | null
+          location?: string | null
+          model?: string | null
+          name?: string
+          notes?: string | null
+          photo_path?: string | null
+          purchase_date?: string | null
+          purchase_price_ex_vat?: number | null
+          purchase_price_inc_vat?: number | null
+          replacement_years?: number
+          serial_number?: string | null
+          source_document_id?: string | null
+          source_document_line_id?: string | null
+          source_unit_index?: number | null
+          status?: Database["public"]["Enums"]["inventory_asset_status"]
+          supplier_company_id?: string | null
+          tracking_level?: Database["public"]["Enums"]["inventory_tracking_level"]
+          updated_at?: string
+          vat_amount?: number | null
+          warranty_expiry?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_assets_assigned_collaborator_id_fkey"
+            columns: ["assigned_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_assigned_collaborator_id_fkey"
+            columns: ["assigned_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_kit_id_fkey"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_source_document_line_id_fkey"
+            columns: ["source_document_line_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_source_document_line_id_fkey"
+            columns: ["source_document_line_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_line_processing"
+            referencedColumns: ["line_id"]
+          },
+          {
+            foreignKeyName: "inventory_assets_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_assignments: {
+        Row: {
+          asset_id: string
+          assigned_on: string
+          collaborator_id: string | null
+          created_at: string
+          created_by: string | null
+          custody_mode: Database["public"]["Enums"]["inventory_custody_mode"]
+          department: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          returned_on: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          assigned_on?: string
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custody_mode: Database["public"]["Enums"]["inventory_custody_mode"]
+          department?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          returned_on?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          assigned_on?: string
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custody_mode?: Database["public"]["Enums"]["inventory_custody_mode"]
+          department?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          returned_on?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_assignments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assignments_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_assignments_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_categories: {
+        Row: {
+          code: string
+          created_at: string
+          default_depreciation_years: number
+          default_replacement_years: number
+          default_tracking_level: Database["public"]["Enums"]["inventory_tracking_level"]
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_depreciation_years?: number
+          default_replacement_years?: number
+          default_tracking_level?: Database["public"]["Enums"]["inventory_tracking_level"]
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_depreciation_years?: number
+          default_replacement_years?: number
+          default_tracking_level?: Database["public"]["Enums"]["inventory_tracking_level"]
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_code_counters: {
+        Row: {
+          category_code: string
+          last_number: number
+        }
+        Insert: {
+          category_code: string
+          last_number?: number
+        }
+        Update: {
+          category_code?: string
+          last_number?: number
+        }
+        Relationships: []
+      }
+      inventory_kits: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -9925,6 +10345,25 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_line_processing: {
+        Row: {
+          document_id: string | null
+          line_id: string | null
+          max_unit_index: number | null
+          quantity_processed: number | null
+          quantity_remaining: number | null
+          quantity_total: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_document_lines_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_resources_public: {
         Row: {
           active: boolean | null
@@ -10092,6 +10531,10 @@ export type Database = {
       }
     }
     Functions: {
+      allocate_inventory_code: {
+        Args: { _category_code: string }
+        Returns: string
+      }
       allocate_proposal_number: { Args: { p_date?: string }; Returns: string }
       backfill_quote_from_project: {
         Args: { _project_id: string }
@@ -10667,6 +11110,29 @@ export type Database = {
         | "imported"
         | "skipped"
       import_type: "accelo_activity_timesheet" | "companies_clients_suppliers"
+      inventory_asset_status:
+        | "available"
+        | "in_use"
+        | "spare"
+        | "repair"
+        | "retired"
+        | "lost"
+        | "disposed"
+      inventory_custody_mode: "person" | "shared" | "location"
+      inventory_event_type:
+        | "purchased"
+        | "created"
+        | "assigned"
+        | "returned"
+        | "reassigned"
+        | "status_change"
+        | "repair"
+        | "retired"
+        | "disposed"
+        | "updated"
+        | "note"
+      inventory_tracking_level: "major" | "standard" | "accessory"
+      inventory_workflow_status: "pending" | "partially_processed" | "complete"
       opportunity_activity_type: "call" | "email" | "meeting" | "note"
       pm_allocation_placeholder_source:
         | "ontology_default"
@@ -11090,6 +11556,31 @@ export const Constants = {
         "skipped",
       ],
       import_type: ["accelo_activity_timesheet", "companies_clients_suppliers"],
+      inventory_asset_status: [
+        "available",
+        "in_use",
+        "spare",
+        "repair",
+        "retired",
+        "lost",
+        "disposed",
+      ],
+      inventory_custody_mode: ["person", "shared", "location"],
+      inventory_event_type: [
+        "purchased",
+        "created",
+        "assigned",
+        "returned",
+        "reassigned",
+        "status_change",
+        "repair",
+        "retired",
+        "disposed",
+        "updated",
+        "note",
+      ],
+      inventory_tracking_level: ["major", "standard", "accessory"],
+      inventory_workflow_status: ["pending", "partially_processed", "complete"],
       opportunity_activity_type: ["call", "email", "meeting", "note"],
       pm_allocation_placeholder_source: [
         "ontology_default",
