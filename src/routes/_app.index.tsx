@@ -225,13 +225,10 @@ function HubPage() {
   const quote = useMemo(quoteOfTheDay, []);
 
   const celebrationsQ = useUpcomingCelebrations(45);
-  const offTodayQ = useWhoIsOff();
-  const holidaysQ = useUpcomingHolidays(60);
 
   const todayCelebrations =
     celebrationsQ.data?.filter((c) => c.daysAway === 0) ?? [];
-  const upcomingCelebrations =
-    celebrationsQ.data?.filter((c) => c.daysAway > 0).slice(0, 6) ?? [];
+
 
   if (loading) {
     return (
