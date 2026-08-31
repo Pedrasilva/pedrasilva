@@ -53,6 +53,7 @@ import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
 import { Route as AppInboxSettingsRouteImport } from './routes/_app.inbox.settings'
 import { Route as AppInventoryIndexRouteImport } from './routes/_app.inventory.index'
 import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inventory.assignments'
+import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.intake'
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
@@ -340,6 +341,11 @@ const AppInventoryIndexRoute = AppInventoryIndexRouteImport.update({
 const AppInventoryAssignmentsRoute = AppInventoryAssignmentsRouteImport.update({
   id: '/assignments',
   path: '/assignments',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppInventoryIntakeRoute = AppInventoryIntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
   getParentRoute: () => AppInventoryRoute,
 } as any)
 const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
@@ -744,6 +750,7 @@ export interface FileRoutesByFullPath {
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
@@ -848,6 +855,7 @@ export interface FileRoutesByTo {
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
@@ -960,6 +968,7 @@ export interface FileRoutesById {
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/inbox/settings': typeof AppInboxSettingsRoute
   '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
+  '/_app/inventory/intake': typeof AppInventoryIntakeRoute
   '/_app/inventory/reports': typeof AppInventoryReportsRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
@@ -1072,6 +1081,7 @@ export interface FileRouteTypes {
     | '/hr/valor-bo'
     | '/inbox/settings'
     | '/inventory/assignments'
+    | '/inventory/intake'
     | '/inventory/reports'
     | '/projects/$projectId'
     | '/projects/approvals'
@@ -1176,6 +1186,7 @@ export interface FileRouteTypes {
     | '/hr/valor-bo'
     | '/inbox/settings'
     | '/inventory/assignments'
+    | '/inventory/intake'
     | '/inventory/reports'
     | '/projects/$projectId'
     | '/projects/approvals'
@@ -1287,6 +1298,7 @@ export interface FileRouteTypes {
     | '/_app/hr/valor-bo'
     | '/_app/inbox/settings'
     | '/_app/inventory/assignments'
+    | '/_app/inventory/intake'
     | '/_app/inventory/reports'
     | '/_app/projects/$projectId'
     | '/_app/projects/approvals'
@@ -1686,6 +1698,13 @@ declare module '@tanstack/react-router' {
       path: '/assignments'
       fullPath: '/inventory/assignments'
       preLoaderRoute: typeof AppInventoryAssignmentsRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/intake': {
+      id: '/_app/inventory/intake'
+      path: '/intake'
+      fullPath: '/inventory/intake'
+      preLoaderRoute: typeof AppInventoryIntakeRouteImport
       parentRoute: typeof AppInventoryRoute
     }
     '/_app/inventory/reports': {
@@ -2321,6 +2340,7 @@ const AppInboxRouteWithChildren = AppInboxRoute._addFileChildren(
 
 interface AppInventoryRouteChildren {
   AppInventoryAssignmentsRoute: typeof AppInventoryAssignmentsRoute
+  AppInventoryIntakeRoute: typeof AppInventoryIntakeRoute
   AppInventoryReportsRoute: typeof AppInventoryReportsRoute
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
   AppInventoryAssetsAssetIdRoute: typeof AppInventoryAssetsAssetIdRoute
@@ -2329,6 +2349,7 @@ interface AppInventoryRouteChildren {
 
 const AppInventoryRouteChildren: AppInventoryRouteChildren = {
   AppInventoryAssignmentsRoute: AppInventoryAssignmentsRoute,
+  AppInventoryIntakeRoute: AppInventoryIntakeRoute,
   AppInventoryReportsRoute: AppInventoryReportsRoute,
   AppInventoryIndexRoute: AppInventoryIndexRoute,
   AppInventoryAssetsAssetIdRoute: AppInventoryAssetsAssetIdRoute,
