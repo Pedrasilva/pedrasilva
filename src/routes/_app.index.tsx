@@ -39,14 +39,16 @@ export const Route = createFileRoute("/_app/")({
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox";
+  to: "/hr" | "/crm" | "/projects" | "/finance" | "/inbox" | "/inventory";
   number: string;
   titleKey: string;
   subtitleKey: string;
   descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Empty array = visible to every authenticated user. */
   anyOf: PermissionKey[];
 };
+
 
 const MODULES: ModuleDef[] = [
   {
