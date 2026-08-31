@@ -559,21 +559,8 @@ export function useCreateAssetsFromInvoice() {
         }
       }
 
-      // Recompute the invoice's single workflow status from real asset counts.
-      const { data: proc } = await supabase
-        .from("inventory_line_processing")
-        .select("*")
-        .eq("document_id", invoice.id);
-      const rows = (proc ?? []) as unknown as LineProcessing[];
-      const anyProcessed = rows.some((r) => r.quantity_processed > 0);
-      const allDone =
-        anyProcessed && rows.every((r) => r.quantity_processed >= Number(r.quantity_total));
-      await supabase
-        .from("financial_documents")
-        .update({
-          inventory_status: allDone ? "complete" : anyProcessed ? "partially_processed" : "pending",
-        } as never)
-        .eq("id", invoice.id);
+      // Recompute the invoice's single workflow status from real data.
+      await recomputeInventoryStatus(invoice.id);
 
       return created;
     },
