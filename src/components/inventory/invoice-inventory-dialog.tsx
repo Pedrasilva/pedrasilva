@@ -71,6 +71,7 @@ export function InvoiceInventoryDialog({
   const { data: invoice, isLoading } = useInvoiceForInventory(open ? documentId : undefined);
   const { data: categories = [] } = useInventoryCategories();
   const createAssets = useCreateAssetsFromInvoice();
+  const setSkipped = useSetLineSkipped();
   const [drafts, setDrafts] = useState<Record<string, LineDraft>>({});
 
   const catByCode = useMemo(() => new Map(categories.map((c) => [c.code, c])), [categories]);
@@ -178,6 +179,7 @@ export function InvoiceInventoryDialog({
                 <TableHead className="w-56">{t("inventory:asset.category")}</TableHead>
                 <TableHead className="w-44">{t("inventory:asset.trackingLevel")}</TableHead>
                 <TableHead className="w-24 text-right">{t("inventory:invoice.toCreate")}</TableHead>
+                <TableHead className="w-36">{t("inventory:invoice.skipColumn")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,8 +191,8 @@ export function InvoiceInventoryDialog({
                   <TableRow key={line.id}>
                     <TableCell>
                       <Checkbox
-                        checked={d.create}
-                        disabled={remaining <= 0}
+                        checked={d.create && !invoice.skipped[line.id]}
+                        disabled={remaining <= 0 || !!invoice.skipped[line.id]}
                         onCheckedChange={(v) => patch(line.id, { create: !!v })}
                       />
                     </TableCell>
@@ -264,6 +266,26 @@ export function InvoiceInventoryDialog({
                         }
                         className="h-8 text-right"
                       />
+                    </TableCell>
+                    <TableCell>
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Checkbox
+                          checked={!!invoice.skipped[line.id]}
+                          disabled={setSkipped.isPending}
+                          onCheckedChange={(v) => {
+                            const skip = !!v;
+                            if (skip) patch(line.id, { create: false });
+                            setSkipped.mutate({
+                              documentId: invoice.id,
+                              lineId: line.id,
+                              skipped: skip,
+                            });
+                          }}
+                        />
+                        {invoice.skipped[line.id]
+                          ? t("inventory:invoice.skippedBadge")
+                          : t("inventory:invoice.skipAction")}
+                      </label>
                     </TableCell>
                   </TableRow>
                 );
