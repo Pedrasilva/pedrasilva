@@ -38,8 +38,11 @@
     "title": "Off today",
     "team": "Team",
     "empty": "The whole team is in today.",
-    "until": "until {{date}}"
+    "until": "until {{date}}",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more"
   },
+
   "holidays": {
     "title": "Upcoming holidays",
     "empty": "No upcoming holidays."
