@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { ReviewQueueInventorySection } from "@/components/inventory/review-queue-inventory-section";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -105,6 +106,7 @@ type QueueRow = {
   supplier_approved_at: string | null;
   classification_approved_at: string | null;
   created_expense_id: string | null;
+  mark_for_inventory: boolean | null;
   created_project_id: string | null;
   rejection_reason: string | null;
   created_at: string;
@@ -1282,6 +1284,17 @@ function QueueItemCard({
             </Button>
           </div>
         </div>
+        )}
+
+        {!isBankStatement && (
+          <>
+            <Separator />
+            <ReviewQueueInventorySection
+              queueId={row.id}
+              markForInventory={!!row.mark_for_inventory}
+              documentId={row.created_expense_id}
+            />
+          </>
         )}
 
         <Separator />
