@@ -126,7 +126,17 @@ const MODULES: ModuleDef[] = [
     icon: Boxes,
     anyOf: [],
   },
+  {
+    to: "/portfolio",
+    number: "07",
+    titleKey: "home:signature.moduleTitle",
+    subtitleKey: "home:signature.moduleSubtitle",
+    descriptionKey: "home:signature.moduleDescription",
+    icon: Images,
+    anyOf: [],
+  },
 ];
+
 
 
 const QUOTES = [
