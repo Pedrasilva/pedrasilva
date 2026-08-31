@@ -2,12 +2,12 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
+const ITEMS: Array<{ to: string; labelKey: string; end?: boolean }> = [
   { to: "/inventory", labelKey: "inventory:nav.dashboard", end: true },
   { to: "/inventory/assets", labelKey: "inventory:nav.assets" },
   { to: "/inventory/assignments", labelKey: "inventory:nav.assignments" },
   { to: "/inventory/reports", labelKey: "inventory:nav.reports" },
-] as const;
+];
 
 export function InventoryTopNav() {
   const { t } = useTranslation(["inventory"]);
