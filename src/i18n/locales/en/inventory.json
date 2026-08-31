@@ -8,7 +8,8 @@
     "dashboard": "Dashboard",
     "assets": "Asset register",
     "assignments": "Assignments",
-    "reports": "Reports"
+    "reports": "Reports",
+    "intake": "Intake"
   },
   "dashboard": {
     "totalAssets": "Active assets",
@@ -130,7 +131,10 @@
     "noLines": "This document has no invoice lines to review.",
     "statusPending": "Pending inventory review",
     "statusPartial": "Partially processed",
-    "statusComplete": "Inventory complete"
+    "statusComplete": "Inventory complete",
+    "skipColumn": "Decision",
+    "skipAction": "Do not inventory",
+    "skippedBadge": "Reviewed — not inventoried"
   },
   "reports": {
     "title": "Reports & exports",
@@ -149,5 +153,19 @@
     "cardTitle": "Assets assigned",
     "empty": "No assets assigned to this collaborator.",
     "manage": "Open inventory"
+  },
+  "queue": {
+    "markLabel": "This invoice contains physical items",
+    "markHint": "Flags the invoice for Inventory. After filing, each line can become a tracked asset. No extra expense is created.",
+    "openIntake": "Inventory items"
+  },
+  "intake": {
+    "title": "Inventory intake",
+    "subtitle": "Invoices Finance flagged as containing physical items, waiting to become assets.",
+    "empty": "No invoices waiting for inventory intake.",
+    "supplier": "Supplier",
+    "total": "Invoice total",
+    "linesToReview": "Lines to review",
+    "status": "Status"
   }
 }

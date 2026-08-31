@@ -390,6 +390,70 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       documentId = doc.id;
     }
 
+    // ---- Inventory intake marker -----------------------------------------
+    // Finance stays the single financial record. When the reviewer flagged the
+    // invoice as containing physical items we only (a) set the workflow marker
+    // and (b) materialise the extracted lines so Inventory can turn the
+    // physical ones into assets. No expense is duplicated.
+    if ((row as { mark_for_inventory?: boolean | null }).mark_for_inventory) {
+      const { data: existingLines } = await supabase
+        .from("financial_document_lines")
+        .select("id")
+        .eq("document_id", documentId!)
+        .limit(1);
+
+      if (!existingLines || existingLines.length === 0) {
+        const raw = (row.raw_extraction ?? {}) as {
+          line_items?: Array<{
+            description?: string | null;
+            quantity?: number | null;
+            unit_price_ex_vat?: number | null;
+            amount_ex_vat?: number | null;
+            vat_rate?: number | null;
+          }> | null;
+        };
+        const items = Array.isArray(raw.line_items) ? raw.line_items : [];
+        if (items.length > 0) {
+          const rows = items.map((it, i) => {
+            const qty = Number(it.quantity ?? 1) || 1;
+            const amount =
+              it.amount_ex_vat != null
+                ? Number(it.amount_ex_vat)
+                : it.unit_price_ex_vat != null
+                  ? Number(it.unit_price_ex_vat) * qty
+                  : null;
+            return {
+              document_id: documentId!,
+              description: (it.description ?? "").trim() || `Item ${i + 1}`,
+              quantity: qty,
+              unit_price_ex_vat:
+                it.unit_price_ex_vat != null
+                  ? Number(it.unit_price_ex_vat)
+                  : amount != null
+                    ? amount / qty
+                    : null,
+              amount_ex_vat: amount,
+              vat_rate: it.vat_rate != null ? Number(it.vat_rate) : null,
+              sort_order: i,
+              project_id: row.created_project_id,
+              classification_id: row.suggested_classification_id,
+            };
+          });
+          const { error: lineErr } = await supabase
+            .from("financial_document_lines")
+            .insert(rows as never);
+          if (lineErr) throw new Error(lineErr.message);
+        }
+      }
+
+      const { error: invErr } = await supabase
+        .from("financial_documents")
+        .update({ inventory_status: "pending" } as never)
+        .eq("id", documentId!)
+        .is("inventory_status", null);
+      if (invErr) throw new Error(invErr.message);
+    }
+
     // ---- Benefit documents also land on the employee's HR dashboard -------
     // Same document, one extra row: an HR benefit expense in `pendente`,
     // waiting for HR approval, linked back to the finance document.

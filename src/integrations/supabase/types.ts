@@ -2985,6 +2985,7 @@ export type Database = {
           id: string
           is_recurring_candidate: boolean
           linked_document_group_id: string
+          mark_for_inventory: boolean
           matched_client_id: string | null
           matched_supplier_id: string | null
           original_filename: string | null
@@ -3043,6 +3044,7 @@ export type Database = {
           id?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
+          mark_for_inventory?: boolean
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
@@ -3101,6 +3103,7 @@ export type Database = {
           id?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
+          mark_for_inventory?: boolean
           matched_client_id?: string | null
           matched_supplier_id?: string | null
           original_filename?: string | null
@@ -4623,6 +4626,52 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      inventory_line_skips: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string
+          line_id: string
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          line_id: string
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          line_id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_line_skips_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_line_skips_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: true
+            referencedRelation: "financial_document_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_line_skips_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_line_processing"
+            referencedColumns: ["line_id"]
+          },
+        ]
       }
       irs_tax_brackets: {
         Row: {

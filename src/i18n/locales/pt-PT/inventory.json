@@ -8,7 +8,8 @@
     "dashboard": "Painel",
     "assets": "Registo de ativos",
     "assignments": "Atribuições",
-    "reports": "Relatórios"
+    "reports": "Relatórios",
+    "intake": "Receção"
   },
   "dashboard": {
     "totalAssets": "Ativos ativos",
@@ -130,7 +131,10 @@
     "noLines": "Este documento não tem linhas de fatura para rever.",
     "statusPending": "Por rever no inventário",
     "statusPartial": "Parcialmente processada",
-    "statusComplete": "Inventário concluído"
+    "statusComplete": "Inventário concluído",
+    "skipColumn": "Decisão",
+    "skipAction": "Não inventariar",
+    "skippedBadge": "Revisto — não inventariado"
   },
   "reports": {
     "title": "Relatórios e exportações",
@@ -149,5 +153,19 @@
     "cardTitle": "Ativos atribuídos",
     "empty": "Sem ativos atribuídos a este colaborador.",
     "manage": "Abrir inventário"
+  },
+  "queue": {
+    "markLabel": "Esta fatura contém bens físicos",
+    "markHint": "Marca a fatura para Inventário. Após o arquivo, cada linha pode tornar-se um ativo. Não é criada nenhuma despesa adicional.",
+    "openIntake": "Itens de inventário"
+  },
+  "intake": {
+    "title": "Receção de inventário",
+    "subtitle": "Faturas marcadas na área Financeira como contendo bens físicos, à espera de se tornarem ativos.",
+    "empty": "Não há faturas à espera de receção de inventário.",
+    "supplier": "Fornecedor",
+    "total": "Total da fatura",
+    "linesToReview": "Linhas por rever",
+    "status": "Estado"
   }
 }

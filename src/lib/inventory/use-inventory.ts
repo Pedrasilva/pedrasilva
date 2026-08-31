@@ -274,6 +274,8 @@ export type InvoiceForInventory = {
   inventory_status: InventoryWorkflowStatus | null;
   lines: InvoiceLine[];
   processing: Record<string, LineProcessing>;
+  /** Lines the reviewer explicitly decided NOT to inventory. */
+  skipped: Record<string, boolean>;
 };
 
 /** Invoice + its lines + per-line processed counts derived from real assets. */
@@ -310,10 +312,22 @@ export function useInvoiceForInventory(documentId: string | undefined) {
       const processing: Record<string, LineProcessing> = {};
       for (const p of (proc ?? []) as unknown as LineProcessing[]) processing[p.line_id] = p;
 
+      const { data: skips, error: skipErr } = await supabase
+        .from("inventory_line_skips")
+        .select("line_id")
+        .eq("document_id", documentId!);
+      if (skipErr) throw skipErr;
+      const skipped: Record<string, boolean> = {};
+      for (const s of (skips ?? []) as Array<{ line_id: string }>) skipped[s.line_id] = true;
+
       return {
-        ...(doc as unknown as Omit<InvoiceForInventory, "lines" | "processing">),
+        ...(doc as unknown as Omit<
+          InvoiceForInventory,
+          "lines" | "processing" | "skipped"
+        >),
         lines: (lines ?? []) as InvoiceLine[],
         processing,
+        skipped,
       };
     },
   });
@@ -335,6 +349,130 @@ export function usePendingInventoryInvoices() {
       if (error) throw error;
       return data ?? [];
     },
+  });
+}
+
+export type IntakeQueueItem = {
+  id: string;
+  document_number: string | null;
+  issue_date: string | null;
+  counterparty_name_snapshot: string | null;
+  total_inc_vat: number | null;
+  inventory_status: InventoryWorkflowStatus;
+  /** Lines still awaiting an inventory decision (no asset, not skipped). */
+  linesToReview: number;
+};
+
+/**
+ * Inventory intake queue: every invoice Finance marked as containing physical
+ * items, with the number of extracted lines that still need a decision.
+ * Nothing here creates or duplicates a financial record.
+ */
+export function useInventoryIntakeQueue() {
+  return useQuery({
+    queryKey: [...KEY, "intake-queue"],
+    queryFn: async (): Promise<IntakeQueueItem[]> => {
+      const { data: docs, error } = await supabase
+        .from("financial_documents")
+        .select(
+          "id, document_number, issue_date, counterparty_name_snapshot, inventory_status, total_inc_vat",
+        )
+        .in("inventory_status", ["pending", "partially_processed"])
+        .order("issue_date", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      const ids = (docs ?? []).map((d) => d.id as string);
+      if (ids.length === 0) return [];
+
+      const [{ data: proc }, { data: skips }] = await Promise.all([
+        supabase.from("inventory_line_processing").select("*").in("document_id", ids),
+        supabase.from("inventory_line_skips").select("line_id, document_id").in("document_id", ids),
+      ]);
+
+      const skipped = new Set(
+        ((skips ?? []) as Array<{ line_id: string }>).map((s) => s.line_id),
+      );
+      const byDoc = new Map<string, LineProcessing[]>();
+      for (const p of (proc ?? []) as unknown as LineProcessing[]) {
+        const arr = byDoc.get(p.document_id) ?? [];
+        arr.push(p);
+        byDoc.set(p.document_id, arr);
+      }
+
+      return (docs ?? []).map((d) => {
+        const rows = byDoc.get(d.id as string) ?? [];
+        const linesToReview = rows.filter(
+          (r) => !skipped.has(r.line_id) && Number(r.quantity_remaining) > 0,
+        ).length;
+        return {
+          id: d.id as string,
+          document_number: (d.document_number as string) ?? null,
+          issue_date: (d.issue_date as string) ?? null,
+          counterparty_name_snapshot: (d.counterparty_name_snapshot as string) ?? null,
+          total_inc_vat: (d.total_inc_vat as number) ?? null,
+          inventory_status: d.inventory_status as InventoryWorkflowStatus,
+          linesToReview,
+        };
+      });
+    },
+  });
+}
+
+/**
+ * Recompute the single `inventory_status` marker from real data:
+ * a line is settled when its units are all converted OR it was explicitly
+ * marked "do not inventory".
+ */
+async function recomputeInventoryStatus(documentId: string) {
+  const [{ data: proc }, { data: skips }] = await Promise.all([
+    supabase.from("inventory_line_processing").select("*").eq("document_id", documentId),
+    supabase.from("inventory_line_skips").select("line_id").eq("document_id", documentId),
+  ]);
+  const rows = (proc ?? []) as unknown as LineProcessing[];
+  if (rows.length === 0) return;
+  const skipped = new Set(((skips ?? []) as Array<{ line_id: string }>).map((s) => s.line_id));
+  const settled = (r: LineProcessing) =>
+    skipped.has(r.line_id) || r.quantity_processed >= Number(r.quantity_total);
+  const anyDecided = rows.some((r) => r.quantity_processed > 0 || skipped.has(r.line_id));
+  const allDone = rows.every(settled);
+  await supabase
+    .from("financial_documents")
+    .update({
+      inventory_status: allDone ? "complete" : anyDecided ? "partially_processed" : "pending",
+    } as never)
+    .eq("id", documentId);
+}
+
+/** Explicitly record "reviewed — not inventoried" for an invoice line. */
+export function useSetLineSkipped() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      documentId,
+      lineId,
+      skipped,
+    }: {
+      documentId: string;
+      lineId: string;
+      skipped: boolean;
+    }) => {
+      if (skipped) {
+        const { error } = await supabase
+          .from("inventory_line_skips")
+          .upsert({ document_id: documentId, line_id: lineId } as never, {
+            onConflict: "line_id",
+          });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("inventory_line_skips")
+          .delete()
+          .eq("line_id", lineId);
+        if (error) throw error;
+      }
+      await recomputeInventoryStatus(documentId);
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: KEY }),
   });
 }
 
@@ -421,21 +559,8 @@ export function useCreateAssetsFromInvoice() {
         }
       }
 
-      // Recompute the invoice's single workflow status from real asset counts.
-      const { data: proc } = await supabase
-        .from("inventory_line_processing")
-        .select("*")
-        .eq("document_id", invoice.id);
-      const rows = (proc ?? []) as unknown as LineProcessing[];
-      const anyProcessed = rows.some((r) => r.quantity_processed > 0);
-      const allDone =
-        anyProcessed && rows.every((r) => r.quantity_processed >= Number(r.quantity_total));
-      await supabase
-        .from("financial_documents")
-        .update({
-          inventory_status: allDone ? "complete" : anyProcessed ? "partially_processed" : "pending",
-        } as never)
-        .eq("id", invoice.id);
+      // Recompute the invoice's single workflow status from real data.
+      await recomputeInventoryStatus(invoice.id);
 
       return created;
     },
