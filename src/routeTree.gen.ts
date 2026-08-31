@@ -19,6 +19,7 @@ import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppFinanceRouteImport } from './routes/_app.finance'
 import { Route as AppHrRouteImport } from './routes/_app.hr'
 import { Route as AppInboxRouteImport } from './routes/_app.inbox'
+import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -161,6 +162,11 @@ const AppHrRoute = AppHrRouteImport.update({
 const AppInboxRoute = AppInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryRoute = AppInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
@@ -673,6 +679,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/inbox': typeof AppInboxRouteWithChildren
+  '/inventory': typeof AppInventoryRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -771,6 +778,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/inventory': typeof AppInventoryRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -875,6 +883,7 @@ export interface FileRoutesById {
   '/_app/finance': typeof AppFinanceRouteWithChildren
   '/_app/hr': typeof AppHrRouteWithChildren
   '/_app/inbox': typeof AppInboxRouteWithChildren
+  '/_app/inventory': typeof AppInventoryRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -981,6 +990,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/hr'
     | '/inbox'
+    | '/inventory'
     | '/api/notify-expense'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1079,6 +1089,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/inventory'
     | '/api/notify-expense'
     | '/'
     | '/.lovable/oauth/consent'
@@ -1182,6 +1193,7 @@ export interface FileRouteTypes {
     | '/_app/finance'
     | '/_app/hr'
     | '/_app/inbox'
+    | '/_app/inventory'
     | '/api/notify-expense'
     | '/_app/'
     | '/.lovable/oauth/consent'
@@ -1365,6 +1377,13 @@ declare module '@tanstack/react-router' {
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof AppInboxRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory': {
+      id: '/_app/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/notify-expense': {
@@ -2214,6 +2233,7 @@ interface AppRouteChildren {
   AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
   AppInboxRoute: typeof AppInboxRouteWithChildren
+  AppInventoryRoute: typeof AppInventoryRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
@@ -2244,6 +2264,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
   AppInboxRoute: AppInboxRouteWithChildren,
+  AppInventoryRoute: AppInventoryRoute,
   AppIndexRoute: AppIndexRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
