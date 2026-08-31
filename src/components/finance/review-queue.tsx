@@ -112,13 +112,29 @@ type QueueRow = {
 
 const BUCKET = "financial-documents";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  "€": "EUR",
+  "$": "USD",
+  "£": "GBP",
+};
+
+/** Normalizes symbols / malformed values to a valid ISO 4217 code. */
+function normalizeCurrency(cur: string | null): string {
+  const raw = (cur ?? "").trim();
+  if (!raw) return "EUR";
+  if (CURRENCY_SYMBOLS[raw]) return CURRENCY_SYMBOLS[raw];
+  const upper = raw.toUpperCase();
+  return /^[A-Z]{3}$/.test(upper) ? upper : "EUR";
+}
+
 function fmtMoney(v: number | null, cur: string | null) {
   if (v == null) return "—";
   return new Intl.NumberFormat("pt-PT", {
     style: "currency",
-    currency: cur || "EUR",
+    currency: normalizeCurrency(cur),
   }).format(v);
 }
+
 
 /**
  * The other party on the document: the client for documents the firm issued,
@@ -514,7 +530,7 @@ function QueueItemCard({
     vat: row.extracted_vat_amount?.toString() ?? "",
     withholding: row.extracted_withholding_amount?.toString() ?? "",
 
-    currency: row.extracted_currency ?? "EUR",
+    currency: normalizeCurrency(row.extracted_currency),
     payment_method: row.extracted_payment_method ?? "",
     card_last4: row.extracted_card_last4 ?? "",
 
@@ -663,7 +679,7 @@ function QueueItemCard({
             ? Number(fields.withholding)
             : null,
 
-          extracted_currency: fields.currency || "EUR",
+          extracted_currency: normalizeCurrency(fields.currency),
           extracted_payment_method: fields.payment_method || null,
           extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
           paid_from_account_id: needsPaidFrom ? paidFromAccountId : null,
