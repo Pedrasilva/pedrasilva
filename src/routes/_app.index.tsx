@@ -184,18 +184,8 @@ function HubPage() {
     [t],
   );
 
-  const fmtDate = (iso: string) => {
-    const [, m, d] = iso.split("-").map(Number);
-    return `${d} ${months[(m ?? 1) - 1]}`;
-  };
 
-  const relativeDays = (days: number) => {
-    if (days === 0) return t("home:relative.today");
-    if (days === 1) return t("home:relative.tomorrow");
-    if (days < 7) return t("home:relative.inDays", { days });
-    if (days < 14) return t("home:relative.nextWeek");
-    return t("home:relative.inDays", { days });
-  };
+
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
