@@ -274,6 +274,8 @@ export type InvoiceForInventory = {
   inventory_status: InventoryWorkflowStatus | null;
   lines: InvoiceLine[];
   processing: Record<string, LineProcessing>;
+  /** Lines the reviewer explicitly decided NOT to inventory. */
+  skipped: Record<string, boolean>;
 };
 
 /** Invoice + its lines + per-line processed counts derived from real assets. */
