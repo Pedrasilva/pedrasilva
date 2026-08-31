@@ -38,8 +38,11 @@
     "title": "Fora hoje",
     "team": "Equipa",
     "empty": "Toda a equipa está cá hoje.",
-    "until": "até {{date}}"
+    "until": "até {{date}}",
+    "more_one": "+{{count}} outro",
+    "more_other": "+{{count}} outros"
   },
+
   "holidays": {
     "title": "Próximos feriados",
     "empty": "Sem feriados próximos."
