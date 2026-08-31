@@ -437,25 +437,50 @@ function HubPage() {
   );
 }
 
-function Avatar({ nome }: { nome: string }) {
-  const initials = nome
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
+/** Three most recent library images, shown inside the Portfolio module tile. */
+function PortfolioPreviewStrip() {
+  const images = useProposalImages();
+  const latest = (images.data ?? []).slice(0, 3);
+  if (latest.length === 0) return null;
   return (
-    <span
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-      style={{
-        background: "color-mix(in oklab, var(--clay) 18%, transparent)",
-        color: "var(--clay)",
-      }}
-    >
-      {initials || "?"}
-    </span>
+    <div className="mt-5 grid grid-cols-3 gap-2">
+      {latest.map((e) => (
+        <PortfolioThumb key={e.id} path={e.storage_path} bucket={e.bucket} alt={e.name} />
+      ))}
+    </div>
   );
 }
+
+function PortfolioThumb({
+  path,
+  bucket,
+  alt,
+}: {
+  path: string;
+  bucket: string;
+  alt: string;
+}) {
+  const thumb = useSignedProposalImageUrl(path, bucket, {
+    width: 240,
+    quality: 50,
+  });
+  return (
+    <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
+      {thumb.data ? (
+        <img
+          src={thumb.data}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="h-full w-full animate-pulse bg-muted" />
+      )}
+    </div>
+  );
+}
+
 
 // ---------------------------------------------------------------------------
 // Finance snapshot block (home page)
