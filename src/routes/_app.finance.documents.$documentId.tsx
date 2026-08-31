@@ -19,6 +19,7 @@ import { DateInputWithPreview } from "@/components/finance/date-input-with-previ
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InvoiceInventoryAction } from "@/components/inventory/invoice-inventory-action";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
