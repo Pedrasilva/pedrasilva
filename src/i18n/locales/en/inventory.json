@@ -134,7 +134,10 @@
     "statusComplete": "Inventory complete",
     "skipColumn": "Decision",
     "skipAction": "Do not inventory",
-    "skippedBadge": "Reviewed — not inventoried"
+    "skippedBadge": "Reviewed — not inventoried",
+    "extractLines": "Extract line items from the invoice",
+    "extractingLines": "Extracting…",
+    "linesExtracted": "{{count}} line items extracted"
   },
   "reports": {
     "title": "Reports & exports",

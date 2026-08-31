@@ -570,3 +570,94 @@ export const reprocessQueueItemFn = createServerFn({ method: "POST" })
     return reprocessQueueItem(data.id);
   });
 
+
+/**
+ * Materialise invoice lines for an existing financial document.
+ *
+ * Documents filed before line extraction existed (or whose original OCR ran
+ * without a line table) have no rows in `financial_document_lines`, which
+ * leaves the Finance → Inventory intake with nothing to turn into assets.
+ * This re-reads the stored file, extracts the printed line table and inserts
+ * the lines. It never touches the document's financial totals, and it is a
+ * no-op when lines already exist.
+ */
+export const extractDocumentLines = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ documentId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: boolean; created: number; error?: string }> => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+
+    const { data: doc, error: docErr } = await supabase
+      .from("financial_documents")
+      .select("id, file_path, ocr_metadata, project_id, classification_id")
+      .eq("id", data.documentId)
+      .maybeSingle();
+    if (docErr) throw new Error(docErr.message);
+    if (!doc) return { ok: false, created: 0, error: "document not found" };
+
+    const { data: existing } = await supabase
+      .from("financial_document_lines")
+      .select("id")
+      .eq("document_id", data.documentId)
+      .limit(1);
+    if (existing && existing.length > 0) return { ok: true, created: 0 };
+
+    type RawLine = {
+      description?: string | null;
+      quantity?: number | null;
+      unit_price_ex_vat?: number | null;
+      amount_ex_vat?: number | null;
+      vat_rate?: number | null;
+    };
+    const fromMeta = (doc as { ocr_metadata?: { line_items?: RawLine[] | null } | null })
+      .ocr_metadata?.line_items;
+    let items: RawLine[] = Array.isArray(fromMeta) ? fromMeta : [];
+
+    if (items.length === 0) {
+      const path = (doc as { file_path?: string | null }).file_path;
+      if (!path) return { ok: false, created: 0, error: "document has no stored file" };
+      const { extractDocument } = await import("@/lib/finance/doc-intake.server");
+      const res = await extractDocument("financial-documents", path);
+      if (!res.ok) return { ok: false, created: 0, error: res.error };
+      items = Array.isArray(res.extraction.line_items) ? res.extraction.line_items : [];
+      // Keep the freshest extraction on the document for future reads.
+      await supabase
+        .from("financial_documents")
+        .update({ ocr_metadata: res.raw as never })
+        .eq("id", data.documentId);
+    }
+
+    if (items.length === 0) return { ok: true, created: 0, error: "no line table on document" };
+
+    const rows = items.map((it, i) => {
+      const qty = Number(it.quantity ?? 1) || 1;
+      const amount =
+        it.amount_ex_vat != null
+          ? Number(it.amount_ex_vat)
+          : it.unit_price_ex_vat != null
+            ? Number(it.unit_price_ex_vat) * qty
+            : null;
+      return {
+        document_id: data.documentId,
+        description: (it.description ?? "").trim() || `Item ${i + 1}`,
+        quantity: qty,
+        unit_price_ex_vat:
+          it.unit_price_ex_vat != null
+            ? Number(it.unit_price_ex_vat)
+            : amount != null
+              ? amount / qty
+              : null,
+        amount_ex_vat: amount,
+        vat_rate: it.vat_rate != null ? Number(it.vat_rate) : null,
+        sort_order: i,
+        project_id: (doc as { project_id?: string | null }).project_id ?? null,
+        classification_id: (doc as { classification_id?: string | null }).classification_id ?? null,
+      };
+    });
+    const { error: insErr } = await supabase
+      .from("financial_document_lines")
+      .insert(rows as never);
+    if (insErr) throw new Error(insErr.message);
+    return { ok: true, created: rows.length };
+  });

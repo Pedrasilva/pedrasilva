@@ -476,6 +476,23 @@ export function useSetLineSkipped() {
   });
 }
 
+/**
+ * Pull the printed line table off the stored invoice file for documents that
+ * were filed before line extraction existed. Finance amounts are untouched.
+ */
+export function useExtractInvoiceLines() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (documentId: string) => {
+      const { extractDocumentLines } = await import("@/lib/finance/doc-intake.functions");
+      const res = await extractDocumentLines({ data: { documentId } });
+      if (!res.ok) throw new Error(res.error ?? "extraction failed");
+      return res;
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
+
 export function useMarkInvoiceForInventory() {
   const qc = useQueryClient();
   return useMutation({
