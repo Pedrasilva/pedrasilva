@@ -867,7 +867,7 @@ function CollaboratorPage() {
         }}
       />
 
-
+      <CollaboratorAssetsCard collaboratorId={draft.id} />
 
 
       {!canViewCompensation ? (
