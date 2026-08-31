@@ -12,6 +12,7 @@
  * are visible to everyone authenticated.
  */
 import {
+  Boxes,
   Briefcase,
   Building2,
   Users,
