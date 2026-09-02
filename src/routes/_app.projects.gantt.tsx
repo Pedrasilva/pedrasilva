@@ -63,7 +63,15 @@ function GlobalGanttPage() {
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
   const { isAdmin } = useAuth();
-  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
+  const { can: canV2 } = useMyPermissionsV2();
+  // Same model as the project detail page: admins, all-scope planners, and
+  // assigned-scope planners may edit. Assigned users are additionally gated
+  // per project by RLS on pm_stages / pm_allocations.
+  const canEditPlanning =
+    isAdmin ||
+    canV2("projects.edit_planning", "all") ||
+    canV2("projects.edit_planning", "assigned");
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning });
   const { data: defaultRates } = useDefaultResourceRates();
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
