@@ -189,8 +189,15 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const downPaymentDisabled =
     quoteBuildSettings.downPaymentEnabled === false ||
     Number(quoteBuildSettings.downPaymentPercent ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent) === 0;
+  // Only the generated down payment ("Adjudicação") is hidden when the down
+  // payment is switched off. Project-level billing rows also fire at
+  // project_start (e.g. "50% — Início de Projeto") and must stay visible.
   const visibleItems = downPaymentDisabled
-    ? items.filter((item) => item.trigger_type !== "project_start")
+    ? items.filter(
+        (item) =>
+          item.trigger_type !== "project_start" ||
+          !(item.label ?? "").toLowerCase().startsWith("adjudicação"),
+      )
     : items;
   const stages = stagesQ.data ?? [];
   const allocations = allocationsQ.data ?? [];
