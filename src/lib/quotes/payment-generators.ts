@@ -449,6 +449,24 @@ export function generateMonthly(stages: QuoteStage[]): GeneratorItem[] {
  *   - 'monthly'  → stage fee split evenly across its calendar months
  *   - 'retainer' → retainer_monthly_amount × each month of the stage span
  */
+export interface ProjectBillingOption {
+  /** Bill the whole project (all stages + subconsultants) as one line. */
+  enabled: boolean;
+  /** 'stage' → single payment (see timing); 'monthly' → even monthly split. */
+  model: "stage" | "monthly";
+  /** For model 'stage': end (default) | start | split (50/50). */
+  timing: "end" | "start" | "split";
+  /** Optional label used on the generated rows. */
+  label?: string | null;
+}
+
+export const DEFAULT_PROJECT_BILLING: ProjectBillingOption = {
+  enabled: false,
+  model: "stage",
+  timing: "end",
+  label: null,
+};
+
 export interface ByStageBillingOptions {
   /** When > 0, prepend an "Adjudicação" inflow row at project_start. */
   downPaymentPercent?: number;
@@ -458,7 +476,15 @@ export interface ByStageBillingOptions {
   externalServices?: QuoteExternalServiceWithSupplier[];
   /** Days after each stage_end to date the supplier outflow ("pay when paid"). */
   paymentOffsetDays?: number;
+  /**
+   * Project-level (first Gantt row) billing. When enabled, every non-retainer
+   * stage is rolled into ONE client billing line covering the whole project
+   * span, using the same parameters available per stage (start / end / split /
+   * monthly). Retainer stages keep their own monthly series.
+   */
+  projectBilling?: ProjectBillingOption;
 }
+
 
 export function generateByStageBilling(
   stages: QuoteStage[],
