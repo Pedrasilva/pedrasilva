@@ -34,8 +34,11 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
       supabase.rpc("has_permission", { _user_id: userId, _key: "finance.dashboard" }),
       supabase.rpc("has_permission", { _user_id: userId, _key: "projects.financials" }),
     ]);
+    // No financials access: return an empty set instead of throwing. Throwing a
+    // raw Response across the RPC boundary surfaces as `Error: [object Response]`
+    // and blanks the page for every non-financial user.
     if (!isAdmin && !hasFinance && !hasProjFin) {
-      throw new Response("Forbidden: project financials access required", { status: 403 });
+      return [];
     }
 
     const [collabs, snaps, bo, resources] = await Promise.all([
