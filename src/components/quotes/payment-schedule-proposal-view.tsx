@@ -263,21 +263,16 @@ export function PaymentScheduleProposalView({
       children.push(stage);
       childrenByParent.set(parentId, children);
     }
+    // Parent rows always follow the Gantt — their span is the union of their
+    // descendants, never a manually stored date on the parent row.
     const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
       const children = childrenByParent.get(stage.id) ?? [];
       if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
-      const dateMode = ((stage as { date_mode?: string | null }).date_mode ?? "calculated") as string;
-      if (dateMode === "fixed") return { start: stage.start_date, end: stage.end_date };
-      return children.reduce(
-        (span, child) => {
-          const childSpan = effectiveSpan(child);
-          return {
-            start: childSpan.start && (!span.start || childSpan.start < span.start) ? childSpan.start : span.start,
-            end: childSpan.end && (!span.end || childSpan.end > span.end) ? childSpan.end : span.end,
-          };
-        },
-        { start: stage.start_date, end: stage.end_date },
-      );
+      const spans = children.map(effectiveSpan);
+      return {
+        start: spans.reduce((m, s) => (s.start && (!m || s.start < m) ? s.start : m), spans[0].start),
+        end: spans.reduce((m, s) => (s.end && (!m || s.end > m) ? s.end : m), spans[0].end),
+      };
     };
     const m = new Map<string, { start: string; end: string; sortOrder: number }>();
     nodes.forEach((stage) => m.set(stage.id, { ...effectiveSpan(stage), sortOrder: stage.sort_order ?? 0 }));

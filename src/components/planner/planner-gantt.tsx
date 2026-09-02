@@ -467,11 +467,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       const effectiveBudget = mode === "fixed"
         ? (isSupplierRole(node) ? ownBudget : ownBudget + supplierChildrenBudget)
         : (!isSupplierRole(node) && kids.some(isSupplierRole) ? ownBudget + sumBudget : sumBudget);
-      // date_mode='fixed' keeps the parent's own start/end even when it has
-      // children; 'calculated' (default) rolls up the descendant span.
-      const dateMode = ((node as { date_mode?: string | null }).date_mode ?? "calculated") as string;
-      const start = dateMode === "fixed" ? node.start_date : (minStart || node.start_date);
-      const end = dateMode === "fixed" ? node.end_date : (maxEnd || node.end_date);
+      // Parent bars always roll up the descendant span — a manually stored
+      // start/end on a parent row is never used once it has children.
+      const start = minStart || node.start_date;
+      const end = maxEnd || node.end_date;
       const out = { start, end, budget: effectiveBudget };
       rollup.set(node.id, out);
       return out;
