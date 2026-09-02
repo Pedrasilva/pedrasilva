@@ -39,6 +39,7 @@ import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggl
 import { QuoteSupplierMarkupEditor } from "@/components/quotes/quote-supplier-markup-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { parseProjectBilling } from "@/components/quotes/quote-project-billing-inspector";
 import {
   generateStageMilestones,
   generateThirds,
