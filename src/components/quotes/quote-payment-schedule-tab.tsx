@@ -532,6 +532,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         externalServices: effectiveExternals,
 
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+        projectBilling: parseProjectBilling(quoteBuildSettingsRaw),
       }),
       paymentDefaults,
     );
@@ -627,6 +628,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
         externalServices: effectiveExternals,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+        projectBilling: parseProjectBilling(quoteBuildSettingsRaw),
       });
     } else if (kind === "architecture_with_consultants") {
       generated = generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
