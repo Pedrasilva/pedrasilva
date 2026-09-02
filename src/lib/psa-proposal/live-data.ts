@@ -693,7 +693,11 @@ export async function fetchLiveQuoteSnapshot(
         const stageName = s?.name ?? "";
         const ds = fmtDate(dateFor(p));
         switch (p.trigger_type) {
-          case "project_start": return `${L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
+          case "project_start":
+            return String(p.label ?? "").toLowerCase().startsWith("adjudicação")
+              ? `${L.downpaymentReceived}${ds ? ` (${ds})` : ""}`
+              : `${p.label || L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
+
           case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
           case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
           case "manual_date": return `${L.onDate} ${ds || L.dateTBD}`;
@@ -740,13 +744,21 @@ export async function fetchLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stageArr.filter((s: any) => s.stage_role === "client").map((s: any) => s.id as string),
       );
+      // Only the generated down payment ("Adjudicação") is hidden when the down
+      // payment is switched off. Project-level billing rows also fire at
+      // project_start (e.g. "50% — Início de Projeto") and must stay visible.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isAdjudicacaoRow = (p: any) =>
+        p.trigger_type === "project_start" &&
+        String(p.label ?? "").toLowerCase().startsWith("adjudicação");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
         (p) =>
           (p.direction ?? "inflow") === "inflow" &&
-          !(dpDisabled && p.trigger_type === "project_start") &&
+          !(dpDisabled && isAdjudicacaoRow(p)) &&
           !(p.stage_id && clientStageIds.has(p.stage_id)),
       );
+
 
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
@@ -757,7 +769,7 @@ export async function fetchLiveQuoteSnapshot(
         // stage-start, stage-end, split, monthly slices etc. Grouping by month
         // previously merged e.g. "end of Stage 1" with "start of Stage 2" when
         // both fell in the same month, hiding the child-level billing choices.
-        const isDownpayment = it.trigger_type === "project_start";
+        const isDownpayment = isAdjudicacaoRow(it);
         const key = isDownpayment
           ? `dp:${d}`
           : `t:${it.trigger_type ?? "x"}:${d}`;
