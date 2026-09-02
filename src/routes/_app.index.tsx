@@ -209,6 +209,8 @@ function HubPage() {
     if (isAdmin) return MODULES;
     return MODULES.filter(
       (m) =>
+        // Empty `anyOf` = open to every authenticated user.
+        m.anyOf.length === 0 ||
         m.anyOf.some((k) => permissions.has(k)) ||
         // Projects module now follows the v2 model: anyone with any
         // `projects.view` scope keeps the tile, even after the legacy
@@ -216,6 +218,7 @@ function HubPage() {
         (m.to === "/projects" && canV2("projects.view", "own")),
     );
   }, [canV2, isAdmin, permissions]);
+
 
 
   const greeting = useMemo(() => {
