@@ -740,13 +740,21 @@ export async function fetchLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stageArr.filter((s: any) => s.stage_role === "client").map((s: any) => s.id as string),
       );
+      // Only the generated down payment ("Adjudicação") is hidden when the down
+      // payment is switched off. Project-level billing rows also fire at
+      // project_start (e.g. "50% — Início de Projeto") and must stay visible.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isAdjudicacaoRow = (p: any) =>
+        p.trigger_type === "project_start" &&
+        String(p.label ?? "").toLowerCase().startsWith("adjudicação");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
         (p) =>
           (p.direction ?? "inflow") === "inflow" &&
-          !(dpDisabled && p.trigger_type === "project_start") &&
+          !(dpDisabled && isAdjudicacaoRow(p)) &&
           !(p.stage_id && clientStageIds.has(p.stage_id)),
       );
+
 
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
