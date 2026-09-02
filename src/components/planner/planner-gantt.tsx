@@ -52,7 +52,6 @@ import {
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { buildProjectGanttTree, PROJECT_SUMMARY_ID as PROJECT_MODE_SUMMARY_ID } from "@/lib/projects/build-project-gantt-tree";
-import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource, StageWithAllocations } from "@/lib/projects/types";
 import { toast } from "sonner";
@@ -1332,26 +1331,31 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 //  - Reads pm_stages via useProjectDetail (stages already include allocations).
 //  - Milestones come from issued invoices, not the quote payment schedule.
 //  - No reflow / project-start shifter / retainer phase button.
-//  - Edits are admin-only; non-admins see no insert/delete/indent/outdent buttons
-//    and the underlying PlannerAdapter blocks mutations with a toast.
+//  - Editability is supplied by the project route after resolving the user's
+//    effective v2 planning permission for this project.
 // ============================================================================
 
 interface ProjectGanttProps {
   projectId: string;
   showCancelled?: boolean;
   dayWidth?: number;
+  canEdit?: boolean;
 }
 
-export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWidthProp }: ProjectGanttProps) {
+export function ProjectGantt({
+  projectId,
+  showCancelled = false,
+  dayWidth: dayWidthProp,
+  canEdit = false,
+}: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
-  const { isAdmin } = useAuth();
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const { data: allResourcesData } = useProjectResources();
   const allResources = useMemo(
     () => (allResourcesData ?? []).filter((r) => r.active !== false),
     [allResourcesData],
   );
-  const adapter = useProjectPlannerAdapter(allResources, { readOnly: !isAdmin });
+  const adapter = useProjectPlannerAdapter(allResources, { readOnly: !canEdit });
   const { data: teamAvg } = useTeamPricingAverages();
   const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
   const projectImpliedCostRate = teamAvg?.avgCostPerHour ?? 0;
@@ -1482,10 +1486,10 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   }, []);
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
-      if (!isAdmin) return;
+      if (!canEdit) return;
       await updateStage.mutateAsync({ id, patch: { budget }, projectId });
     },
-    [isAdmin, updateStage, projectId],
+    [canEdit, updateStage, projectId],
   );
   useEffect(() => {
     try {
@@ -1549,18 +1553,18 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     return ZOOM_DAY_WIDTHS[zoom];
   }, [zoom, totalDays, dayWidthProp, chartWidth, outlineWidth]);
 
-  // ---- Handlers (admin-gated) -----------------------------------------
+  // ---- Handlers (permission-gated) ------------------------------------
   const handleRename = useCallback(
     async (id: string, name: string) => {
-      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
       await updateStage.mutateAsync({ id, patch: { name }, projectId });
     },
-    [isAdmin, updateStage, projectId],
+    [canEdit, updateStage, projectId],
   );
 
   const handleReorder = useCallback(
     async (id: string, newPosition: number) => {
-      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
       const target = stages.find((s) => s.id === id) as
         | (StageWithAllocations & { parent_stage_id?: string | null })
         | undefined;
@@ -1580,12 +1584,12 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
         }),
       );
     },
-    [isAdmin, stages, updateStage, projectId],
+    [canEdit, stages, updateStage, projectId],
   );
 
   const handleInsert = useCallback(
     async (anchorId: string | null, where: "above" | "below" | "child" | "milestone") => {
-      if (!isAdmin) return;
+      if (!canEdit) return;
       const fmtDate = (d: Date) => format(d, "yyyy-MM-dd");
       const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
       let parent_stage_id: string | null = null;
@@ -1677,12 +1681,12 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
         toast.error(e instanceof Error ? e.message : "Failed to insert stage");
       }
     },
-    [isAdmin, stages, createStage, projectId, t, createProjectDep],
+    [canEdit, stages, createStage, projectId, t, createProjectDep],
   );
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
       try {
         await deleteStageMut.mutateAsync({ id, projectId });
         if (selectedStageId === id) setSelectedStageId(null);
@@ -1691,12 +1695,12 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
         toast.error(e instanceof Error ? e.message : "Failed to delete stage");
       }
     },
-    [isAdmin, deleteStageMut, projectId, selectedStageId, t],
+    [canEdit, deleteStageMut, projectId, selectedStageId, t],
   );
 
   const handleIndent = useCallback(
     async (id: string) => {
-      if (!isAdmin) return;
+      if (!canEdit) return;
       const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
       const target = all.find((s) => s.id === id);
       if (!target) return;
@@ -1721,12 +1725,12 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
       });
       toast.success(t("crm:workspace.planning.indented", { defaultValue: "Row indented." }));
     },
-    [isAdmin, stages, updateStage, projectId, t],
+    [canEdit, stages, updateStage, projectId, t],
   );
 
   const handleOutdent = useCallback(
     async (id: string) => {
-      if (!isAdmin) return;
+      if (!canEdit) return;
       const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
       const target = all.find((s) => s.id === id);
       if (!target) return;
@@ -1751,7 +1755,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
       });
       toast.success(t("crm:workspace.planning.outdented", { defaultValue: "Row outdented." }));
     },
-    [isAdmin, stages, updateStage, projectId, t],
+    [canEdit, stages, updateStage, projectId, t],
   );
 
   if (detailQ.isLoading) {
@@ -1774,7 +1778,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     return (
       <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
         <span>{t("crm:workspace.planning.noStages", { defaultValue: "No stages yet." })}</span>
-        {isAdmin && (
+        {canEdit && (
           <Button type="button" size="sm" onClick={() => handleInsert(null, "below")} disabled={createStage.isPending}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             {t("crm:workspace.planning.addStage", { defaultValue: "Add stage" })}
@@ -1788,7 +1792,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          {isAdmin && (
+          {canEdit && (
             <>
               <Button
                 type="button"
@@ -1827,7 +1831,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
               </Button>
             </>
           )}
-          {!isAdmin && (
+          {!canEdit && (
             <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
               {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
             </span>
@@ -1917,13 +1921,13 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_MODE_SUMMARY_ID ? null : (id === selectedStageId ? null : id))}
-            onRenameStage={isAdmin ? handleRename : undefined}
-            onReorderStage={isAdmin ? handleReorder : undefined}
-            onInsertStage={isAdmin ? handleInsert : undefined}
-            onDeleteStage={isAdmin ? handleDelete : undefined}
-            onUpdateStageBounds={isAdmin ? adapter.updateStage : undefined}
-            onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
-            onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
+            onRenameStage={canEdit ? handleRename : undefined}
+            onReorderStage={canEdit ? handleReorder : undefined}
+            onInsertStage={canEdit ? handleInsert : undefined}
+            onDeleteStage={canEdit ? handleDelete : undefined}
+            onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
+            onUpdateStageBudget={canEdit ? handleUpdateBudget : undefined}
+            onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
             impliedHourRate={projectImpliedHourRate}
             impliedCostRate={projectImpliedCostRate}
           />
@@ -1934,7 +1938,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             stages={stages}
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
-            readOnly={!isAdmin}
+            readOnly={!canEdit}
           />
         )}
         {!poolCollapsed && !selectedStageId && (
