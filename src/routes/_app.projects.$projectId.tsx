@@ -1106,7 +1106,11 @@ function ProjectDetail() {
                         {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
                       </label>
                     </div>
-                    <ProjectGantt projectId={project.id} showCancelled={showCancelled} />
+                    <ProjectGantt
+                      projectId={project.id}
+                      showCancelled={showCancelled}
+                      canEdit={canEditPlanning}
+                    />
                   </>
                 )}
               </div>
