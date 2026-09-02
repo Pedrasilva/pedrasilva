@@ -769,7 +769,7 @@ export async function fetchLiveQuoteSnapshot(
         // stage-start, stage-end, split, monthly slices etc. Grouping by month
         // previously merged e.g. "end of Stage 1" with "start of Stage 2" when
         // both fell in the same month, hiding the child-level billing choices.
-        const isDownpayment = it.trigger_type === "project_start";
+        const isDownpayment = isAdjudicacaoRow(it);
         const key = isDownpayment
           ? `dp:${d}`
           : `t:${it.trigger_type ?? "x"}:${d}`;
