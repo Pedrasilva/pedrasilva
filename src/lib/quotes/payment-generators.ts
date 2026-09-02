@@ -449,6 +449,24 @@ export function generateMonthly(stages: QuoteStage[]): GeneratorItem[] {
  *   - 'monthly'  → stage fee split evenly across its calendar months
  *   - 'retainer' → retainer_monthly_amount × each month of the stage span
  */
+export interface ProjectBillingOption {
+  /** Bill the whole project (all stages + subconsultants) as one line. */
+  enabled: boolean;
+  /** 'stage' → single payment (see timing); 'monthly' → even monthly split. */
+  model: "stage" | "monthly";
+  /** For model 'stage': end (default) | start | split (50/50). */
+  timing: "end" | "start" | "split";
+  /** Optional label used on the generated rows. */
+  label?: string | null;
+}
+
+export const DEFAULT_PROJECT_BILLING: ProjectBillingOption = {
+  enabled: false,
+  model: "stage",
+  timing: "end",
+  label: null,
+};
+
 export interface ByStageBillingOptions {
   /** When > 0, prepend an "Adjudicação" inflow row at project_start. */
   downPaymentPercent?: number;
@@ -458,7 +476,15 @@ export interface ByStageBillingOptions {
   externalServices?: QuoteExternalServiceWithSupplier[];
   /** Days after each stage_end to date the supplier outflow ("pay when paid"). */
   paymentOffsetDays?: number;
+  /**
+   * Project-level (first Gantt row) billing. When enabled, every non-retainer
+   * stage is rolled into ONE client billing line covering the whole project
+   * span, using the same parameters available per stage (start / end / split /
+   * monthly). Retainer stages keep their own monthly series.
+   */
+  projectBilling?: ProjectBillingOption;
 }
+
 
 export function generateByStageBilling(
   stages: QuoteStage[],
@@ -534,7 +560,91 @@ export function generateByStageBilling(
     });
   }
 
+  // ── Project-level billing (first Gantt row) ─────────────────────
+  // When enabled, all non-retainer stages roll into a single client billing
+  // line spanning the whole project, using the same parameters as a stage.
+  const projectBilling = options.projectBilling;
+  const projectLevel = !!projectBilling?.enabled;
+  if (projectLevel) {
+    const regular = sorted.filter(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (s) => ((s as any).stage_kind ?? "regular") !== "retainer_monthly",
+    );
+    if (regular.length > 0) {
+      const spans = regular.map((s) => effectiveSpan(s as StageNode));
+      const start = spans.reduce((m, sp) => (sp.start && sp.start < m ? sp.start : m), spans[0].start);
+      const end = spans.reduce((m, sp) => (sp.end && sp.end > m ? sp.end : m), spans[0].end);
+      const total = scaleFee(regular.reduce((acc, s) => acc + billableFee(s), 0));
+      const label = (projectBilling?.label ?? "").trim() || "Projeto";
+      if (total > 0) {
+        if (projectBilling?.model === "monthly") {
+          const months = monthsBetween(start, end);
+          const per = months.length > 0 ? round2(total / months.length) : 0;
+          months.forEach((m, i) => {
+            items.push({
+              label: `${label} — ${formatYearMonth(m)}`,
+              trigger_type: "monthly",
+              amount_type: "fixed",
+              amount_value:
+                i === months.length - 1 ? round2(total - per * (months.length - 1)) : per,
+              stage_id: null,
+              expected_invoice_date: m,
+              expected_payment_date: null,
+              sort_order: order++,
+              generator_source: "by_stage_billing",
+              direction: "inflow",
+            });
+          });
+        } else if (projectBilling?.timing === "split") {
+          const half = round2(total / 2);
+          items.push({
+            label: `50% — Início de ${label}`,
+            trigger_type: "project_start",
+            amount_type: "fixed",
+            amount_value: half,
+            stage_id: null,
+            expected_invoice_date: start,
+            expected_payment_date: null,
+            sort_order: order++,
+            generator_source: "by_stage_billing",
+            direction: "inflow",
+          });
+          items.push({
+            label: `50% — Conclusão de ${label}`,
+            trigger_type: "manual_date",
+            amount_type: "fixed",
+            amount_value: round2(total - half),
+            stage_id: null,
+            expected_invoice_date: end,
+            expected_payment_date: null,
+            sort_order: order++,
+            generator_source: "by_stage_billing",
+            direction: "inflow",
+          });
+        } else {
+          const atStart = projectBilling?.timing === "start";
+          items.push({
+            label: atStart ? `Início de ${label}` : `Conclusão de ${label}`,
+            trigger_type: atStart ? "project_start" : "manual_date",
+            amount_type: "fixed",
+            amount_value: total,
+            stage_id: null,
+            expected_invoice_date: atStart ? start : end,
+            expected_payment_date: null,
+            sort_order: order++,
+            generator_source: "by_stage_billing",
+            direction: "inflow",
+          });
+        }
+      }
+    }
+  }
+
   for (const s of sorted) {
+    // Project-level billing already covered every non-retainer stage.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (projectLevel && (((s as any).stage_kind ?? "regular") !== "retainer_monthly")) continue;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sa = s as any;
     const span = effectiveSpan(s as StageNode);

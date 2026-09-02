@@ -57,6 +57,7 @@ import type { Resource, AllocationWithResource, StageWithAllocations } from "@/l
 import { toast } from "sonner";
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
+import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
@@ -1288,7 +1289,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onResizeOutline={handleResizeOutline}
             embedded
             selectedStageId={selectedStageId}
-            onSelectStage={(id) => setSelectedStageId(id === PROJECT_SUMMARY_ID ? null : id)}
+            onSelectStage={(id) => setSelectedStageId(id)}
             onRenameStage={handleRename}
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}
@@ -1302,7 +1303,14 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
           )}
         </div>
 
-        {selectedStageId && (
+        {selectedStageId === PROJECT_SUMMARY_ID && (
+          <QuoteProjectBillingInspector
+            quoteId={quoteId}
+            disabled={isLocked}
+            onClose={() => setSelectedStageId(null)}
+          />
+        )}
+        {selectedStageId && selectedStageId !== PROJECT_SUMMARY_ID && (
           <QuotePlannerInspector
             quoteId={quoteId}
             stageId={selectedStageId}

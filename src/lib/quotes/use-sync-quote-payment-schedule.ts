@@ -11,6 +11,7 @@ import {
   type PaymentDefaults,
 } from "./payment-generators";
 import { rolledUpBillableFees } from "./stage-billing";
+import { parseProjectBilling } from "@/components/quotes/quote-project-billing-inspector";
 import { useQuoteAllocations } from "./use-quote-allocations";
 import {
   useQuoteExternalServices,
@@ -192,6 +193,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
         downPaymentPercent?: number;
         deductDownPaymentFromStages?: boolean;
       };
+      const projectBilling = parseProjectBilling(quoteQ.data?.quote_build_settings ?? null);
       const dpEnabled = buildSettings.downPaymentEnabled ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled;
       const dpPercent = Number(
         buildSettings.downPaymentPercent ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent,
@@ -206,6 +208,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
           deductDownPaymentFromStages: dpDeduct,
           externalServices: effectiveExternals,
           paymentOffsetDays: 30,
+          projectBilling,
         }),
         paymentDefaults,
       );

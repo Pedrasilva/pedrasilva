@@ -39,6 +39,7 @@ import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggl
 import { QuoteSupplierMarkupEditor } from "@/components/quotes/quote-supplier-markup-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { parseProjectBilling } from "@/components/quotes/quote-project-billing-inspector";
 import {
   generateStageMilestones,
   generateThirds,
@@ -532,6 +533,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         externalServices: effectiveExternals,
 
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+        projectBilling: parseProjectBilling(quoteQ.data?.quote_build_settings ?? null),
       }),
       paymentDefaults,
     );
@@ -627,6 +629,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
         externalServices: effectiveExternals,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+        projectBilling: parseProjectBilling(quoteQ.data?.quote_build_settings ?? null),
       });
     } else if (kind === "architecture_with_consultants") {
       generated = generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
