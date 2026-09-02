@@ -485,21 +485,17 @@ export function generateByStageBilling(
     const children = childrenByParent.get(ancestorId) ?? [];
     return children.some((child) => child.id === maybeChildId || hasDescendant(child.id, maybeChildId));
   };
+  // Parent bars ALWAYS follow the Gantt: their span is the union of their
+  // descendants' spans. Any manually stored start/end on a parent row is
+  // ignored so the payment schedule never references stale dates.
   const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
     const children = childrenByParent.get(stage.id) ?? [];
     if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
-    const dateMode = ((stage as { date_mode?: string | null }).date_mode ?? "calculated") as string;
-    if (dateMode === "fixed") return { start: stage.start_date, end: stage.end_date };
-    return children.reduce(
-      (span, child) => {
-        const childSpan = effectiveSpan(child);
-        return {
-          start: childSpan.start < span.start ? childSpan.start : span.start,
-          end: childSpan.end > span.end ? childSpan.end : span.end,
-        };
-      },
-      { start: stage.start_date, end: stage.end_date },
-    );
+    const spans = children.map(effectiveSpan);
+    return {
+      start: spans.reduce((m, s) => (s.start && s.start < m ? s.start : m), spans[0].start),
+      end: spans.reduce((m, s) => (s.end && s.end > m ? s.end : m), spans[0].end),
+    };
   };
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
