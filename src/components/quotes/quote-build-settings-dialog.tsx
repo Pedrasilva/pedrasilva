@@ -4,7 +4,7 @@
  * preferences (down payment, etc.). Persists to
  * `fee_proposals.quote_build_settings` (JSONB) via an explicit Save button.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -80,6 +80,9 @@ export function QuoteBuildSettingsDialog({
   const setOpen = onOpenChangeProp ?? setOpenState;
 
 
+  // Preserve keys we don't manage here (e.g. projectBilling).
+  const rawRef = useRef<Record<string, unknown>>({});
+
   const q = useQuery({
     queryKey: ["quote-build-settings", quoteId],
     enabled: !!quoteId,
@@ -90,6 +93,7 @@ export function QuoteBuildSettingsDialog({
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
+      rawRef.current = ((data as { quote_build_settings: Record<string, unknown> | null } | null)?.quote_build_settings ?? {}) as Record<string, unknown>;
       return fromRaw((data as { quote_build_settings: Record<string, unknown> | null } | null)?.quote_build_settings);
     },
   });
@@ -104,7 +108,7 @@ export function QuoteBuildSettingsDialog({
     mutationFn: async (next: QuoteBuildSettings) => {
       const { error } = await db
         .from("fee_proposals")
-        .update({ quote_build_settings: next })
+        .update({ quote_build_settings: { ...rawRef.current, ...next } })
         .eq("id", quoteId);
       if (error) throw new Error(error.message);
     },
