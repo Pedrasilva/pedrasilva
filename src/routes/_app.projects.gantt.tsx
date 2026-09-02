@@ -6,6 +6,7 @@ import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import {
   ResizableHandle,
