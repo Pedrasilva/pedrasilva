@@ -57,6 +57,7 @@ import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inven
 import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.intake'
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
 import { Route as AppProductsIndexRouteImport } from './routes/_app.products.index'
+import { Route as AppProductsLibraryRouteImport } from './routes/_app.products.library'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -363,6 +364,11 @@ const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
 const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppProductsRoute,
+} as any)
+const AppProductsLibraryRoute = AppProductsLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => AppProductsRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
@@ -765,6 +771,7 @@ export interface FileRoutesByFullPath {
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
+  '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -871,6 +878,7 @@ export interface FileRoutesByTo {
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
+  '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
@@ -986,6 +994,7 @@ export interface FileRoutesById {
   '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/_app/inventory/intake': typeof AppInventoryIntakeRoute
   '/_app/inventory/reports': typeof AppInventoryReportsRoute
+  '/_app/products/library': typeof AppProductsLibraryRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
@@ -1101,6 +1110,7 @@ export interface FileRouteTypes {
     | '/inventory/assignments'
     | '/inventory/intake'
     | '/inventory/reports'
+    | '/products/library'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1207,6 +1217,7 @@ export interface FileRouteTypes {
     | '/inventory/assignments'
     | '/inventory/intake'
     | '/inventory/reports'
+    | '/products/library'
     | '/projects/$projectId'
     | '/projects/approvals'
     | '/projects/financials'
@@ -1321,6 +1332,7 @@ export interface FileRouteTypes {
     | '/_app/inventory/assignments'
     | '/_app/inventory/intake'
     | '/_app/inventory/reports'
+    | '/_app/products/library'
     | '/_app/projects/$projectId'
     | '/_app/projects/approvals'
     | '/_app/projects/financials'
@@ -1748,6 +1760,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/products/'
       preLoaderRoute: typeof AppProductsIndexRouteImport
+      parentRoute: typeof AppProductsRoute
+    }
+    '/_app/products/library': {
+      id: '/_app/products/library'
+      path: '/library'
+      fullPath: '/products/library'
+      preLoaderRoute: typeof AppProductsLibraryRouteImport
       parentRoute: typeof AppProductsRoute
     }
     '/_app/projects/': {
@@ -2397,10 +2416,12 @@ const AppInventoryRouteWithChildren = AppInventoryRoute._addFileChildren(
 )
 
 interface AppProductsRouteChildren {
+  AppProductsLibraryRoute: typeof AppProductsLibraryRoute
   AppProductsIndexRoute: typeof AppProductsIndexRoute
 }
 
 const AppProductsRouteChildren: AppProductsRouteChildren = {
+  AppProductsLibraryRoute: AppProductsLibraryRoute,
   AppProductsIndexRoute: AppProductsIndexRoute,
 }
 
