@@ -207,8 +207,8 @@ function ProjectWorkspace() {
         }}
       />
 
-      {printing && (
-        <div className="fixed inset-0 z-[100] overflow-auto bg-neutral-200 p-6">
+      {printing && typeof document !== "undefined" && createPortal(
+        <div className="psa-print-portal fixed inset-0 z-[100] overflow-auto bg-neutral-200 p-6">
           {printing === "datasheets" ? (
             <DatasheetPrintView
               items={items}
