@@ -62,6 +62,8 @@ export interface LibraryProduct {
   product_url: string | null;
   primary_image_path: string | null;
   finish_image_path: string | null;
+  /** Optional multi-sample PDF (finish/sample board) — storage path in the bucket. */
+  sample_pdf_path: string | null;
   notes: string | null;
   status: ProductStatus;
   created_at: string;
@@ -88,6 +90,8 @@ export interface ProjectItem {
   product_url: string | null;
   primary_image_path: string | null;
   finish_image_path: string | null;
+  sample_pdf_path: string | null;
+  ref_code: string | null;
   notes: string | null;
   approval_status: ProductApprovalStatus;
   sort_order: number;
@@ -96,6 +100,11 @@ export interface ProjectItem {
 }
 
 /** Project item total = quantity × unit price (never stored). */
+/** True when a stored file path points at a PDF rather than an image. */
+export function isPdfPath(path: string | null | undefined): boolean {
+  return !!path && path.toLowerCase().endsWith(".pdf");
+}
+
 export function itemTotal(item: Pick<ProjectItem, "quantity" | "unit_price">): number {
   return (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
 }

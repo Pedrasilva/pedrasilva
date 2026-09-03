@@ -36,6 +36,7 @@ type Draft = Record<string, string | null>;
 
 const TEXT_FIELDS = [
   "reference",
+  "ref_code",
   "location",
   "name",
   "manufacturer",
@@ -65,10 +66,11 @@ export function ProjectItemSheet({
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [approval, setApproval] = useState<ProductApprovalStatus>("proposed");
-  const [images, setImages] = useState<{ primary: string | null; finish: string | null }>({
-    primary: null,
-    finish: null,
-  });
+  const [images, setImages] = useState<{
+    primary: string | null;
+    finish: string | null;
+    sample: string | null;
+  }>({ primary: null, finish: null, sample: null });
 
   useEffect(() => {
     if (!item) return;
@@ -79,7 +81,11 @@ export function ProjectItemSheet({
     setPrice(item.unit_price == null ? "" : String(item.unit_price));
     setCategoryId(item.category_id);
     setApproval((item.approval_status as ProductApprovalStatus) ?? "proposed");
-    setImages({ primary: item.primary_image_path, finish: item.finish_image_path });
+    setImages({
+      primary: item.primary_image_path,
+      finish: item.finish_image_path,
+      sample: item.sample_pdf_path ?? null,
+    });
   }, [item]);
 
   if (!item) return null;
@@ -94,6 +100,7 @@ export function ProjectItemSheet({
       unit_price: price === "" ? null : Number(price),
       primary_image_path: images.primary,
       finish_image_path: images.finish,
+      sample_pdf_path: images.sample,
     };
     for (const f of TEXT_FIELDS) {
       (patch as Record<string, unknown>)[f] = (draft[f] ?? "").toString().trim() || null;
@@ -124,6 +131,9 @@ export function ProjectItemSheet({
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <F label="Reference / Plan ID">
             <Input value={draft.reference ?? ""} onChange={(e) => set("reference", e.target.value)} />
+          </F>
+          <F label="Ref. code">
+            <Input value={draft.ref_code ?? ""} onChange={(e) => set("ref_code", e.target.value)} />
           </F>
           <F label="Location">
             <Input value={draft.location ?? ""} onChange={(e) => set("location", e.target.value)} />
@@ -220,6 +230,13 @@ export function ProjectItemSheet({
             value={images.finish}
             onChange={(v) => setImages((s) => ({ ...s, finish: v }))}
           />
+          <ImageField
+            label="Samples (image or PDF)"
+            value={images.sample}
+            onChange={(v) => setImages((s) => ({ ...s, sample: v }))}
+            allowPdf
+          />
+
           <div className="sm:col-span-2">
             <F label="Notes">
               <Textarea

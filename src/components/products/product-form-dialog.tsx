@@ -32,6 +32,7 @@ export type ProductDraft = {
   product_url: string;
   primary_image_path: string | null;
   finish_image_path: string | null;
+  sample_pdf_path: string | null;
   notes: string;
 };
 
@@ -49,6 +50,7 @@ const EMPTY: ProductDraft = {
   product_url: "",
   primary_image_path: null,
   finish_image_path: null,
+  sample_pdf_path: null,
   notes: "",
 };
 
@@ -97,6 +99,7 @@ export function ProductFormDialog({
             product_url: product.product_url ?? "",
             primary_image_path: product.primary_image_path,
             finish_image_path: product.finish_image_path,
+            sample_pdf_path: product.sample_pdf_path ?? null,
             notes: product.notes ?? "",
           }
         : EMPTY,
@@ -124,6 +127,7 @@ export function ProductFormDialog({
       product_url: draft.product_url || null,
       primary_image_path: draft.primary_image_path,
       finish_image_path: draft.finish_image_path,
+      sample_pdf_path: draft.sample_pdf_path,
       notes: draft.notes || null,
     };
 
@@ -246,6 +250,13 @@ export function ProductFormDialog({
               value={draft.finish_image_path}
               onChange={(v) => set("finish_image_path", v)}
               size="medium"
+            />
+            <ImageField
+              label="Samples (image or PDF)"
+              value={draft.sample_pdf_path}
+              onChange={(v) => set("sample_pdf_path", v)}
+              size="medium"
+              allowPdf
             />
           </div>
         </div>

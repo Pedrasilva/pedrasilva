@@ -4747,6 +4747,7 @@ export type Database = {
           primary_image_path: string | null
           product_url: string | null
           ref_code: string | null
+          sample_pdf_path: string | null
           status: string
           updated_at: string
           weight: string | null
@@ -4770,6 +4771,7 @@ export type Database = {
           primary_image_path?: string | null
           product_url?: string | null
           ref_code?: string | null
+          sample_pdf_path?: string | null
           status?: string
           updated_at?: string
           weight?: string | null
@@ -4793,6 +4795,7 @@ export type Database = {
           primary_image_path?: string | null
           product_url?: string | null
           ref_code?: string | null
+          sample_pdf_path?: string | null
           status?: string
           updated_at?: string
           weight?: string | null
@@ -7535,7 +7538,9 @@ export type Database = {
           product_url: string | null
           project_id: string
           quantity: number
+          ref_code: string | null
           reference: string | null
+          sample_pdf_path: string | null
           selected_finish: string | null
           sort_order: number
           source_library_product_id: string | null
@@ -7563,7 +7568,9 @@ export type Database = {
           product_url?: string | null
           project_id: string
           quantity?: number
+          ref_code?: string | null
           reference?: string | null
+          sample_pdf_path?: string | null
           selected_finish?: string | null
           sort_order?: number
           source_library_product_id?: string | null
@@ -7591,7 +7598,9 @@ export type Database = {
           product_url?: string | null
           project_id?: string
           quantity?: number
+          ref_code?: string | null
           reference?: string | null
+          sample_pdf_path?: string | null
           selected_finish?: string | null
           sort_order?: number
           source_library_product_id?: string | null

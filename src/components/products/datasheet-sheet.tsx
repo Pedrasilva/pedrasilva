@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useProductCategories, useProductImageUrl } from "@/lib/products/use-products";
-import { categoryPath, formatMoney, itemTotal, type ProjectItem } from "@/lib/products/types";
+import { categoryPath, formatMoney, isPdfPath, itemTotal, type ProjectItem } from "@/lib/products/types";
 
 /**
  * A4 LANDSCAPE product datasheets, generated live from Project Items.
@@ -80,7 +80,7 @@ export function DatasheetPrintView({
               <Row label="Plan ID" value={i.reference} />
               <Row label="Designer" value={i.designer} />
               <Row label="Item Name" value={i.name} />
-              <Row label="Ref: Code" value={i.reference} />
+              <Row label="Ref: Code" value={i.ref_code} />
               <Row label="Material" value={i.material_spec} minHeight={60} />
               <Row label="Dimensions" value={i.dimensions} />
               <Row label="Weight" value={i.weight} />
@@ -98,14 +98,19 @@ export function DatasheetPrintView({
               <SheetImage path={i.primary_image_path} alt={i.name} />
               <div className="grid grid-cols-[70px_1fr] items-start gap-3">
                 <p className="pt-1 text-right text-[9.5pt] font-bold text-neutral-600">Finish</p>
-                <FinishPanel path={i.finish_image_path} label={i.selected_finish} />
+                <FinishPanel
+                  path={i.finish_image_path}
+                  samplePath={i.sample_pdf_path}
+                  label={i.selected_finish}
+                />
               </div>
             </div>
           </div>
 
           <footer className="mt-2 flex items-end justify-between">
             <span className="text-[8pt] text-neutral-400">
-              {String(idx + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
+              {projectName || "—"} · {String(idx + 1).padStart(2, "0")} /{" "}
+              {String(items.length).padStart(2, "0")}
             </span>
             <span className="text-[12pt] font-bold text-neutral-600">www.pedrasilva.com</span>
           </footer>
@@ -154,14 +159,38 @@ function SheetImage({ path, alt }: { path: string | null; alt: string }) {
   );
 }
 
-function FinishPanel({ path, label }: { path: string | null; label?: string | null }) {
-  const { data: url } = useProductImageUrl(path, 700);
+function FinishPanel({
+  path,
+  samplePath,
+  label,
+}: {
+  path: string | null;
+  samplePath?: string | null;
+  label?: string | null;
+}) {
+  const isPdf = isPdfPath(samplePath);
+  // A sample PDF cannot be rasterised here; a sample IMAGE can replace the panel.
+  const shown = path ?? (samplePath && !isPdf ? samplePath : null);
+  const { data: url } = useProductImageUrl(shown, 700);
+  const { data: sampleUrl } = useProductImageUrl(isPdf ? samplePath : null);
   return (
-    <div className="flex h-[38mm] w-full items-center justify-center border border-neutral-300 bg-white p-1">
-      {url ? (
-        <img src={url} alt="Finish sample" className="max-h-full max-w-full object-contain" />
-      ) : (
-        <span className="text-[9pt] text-neutral-500">{label || ""}</span>
+    <div className="w-full space-y-1">
+      <div className="flex h-[38mm] w-full items-center justify-center border border-neutral-300 bg-white p-1">
+        {url ? (
+          <img src={url} alt="Finish sample" className="max-h-full max-w-full object-contain" />
+        ) : (
+          <span className="text-[9pt] text-neutral-500">{label || ""}</span>
+        )}
+      </div>
+      {isPdf && (
+        <a
+          href={sampleUrl ?? undefined}
+          target="_blank"
+          rel="noreferrer"
+          className="block text-[8pt] text-neutral-600 underline"
+        >
+          Sample board (PDF) attached
+        </a>
       )}
     </div>
   );
