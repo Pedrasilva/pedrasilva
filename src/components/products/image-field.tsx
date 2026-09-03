@@ -93,3 +93,22 @@ export function ImageField({
       />
     </div>
   );
+}
+
+/** Sample PDFs cannot be thumbnailed by storage — show a chip that opens them. */
+function PdfPreview({ path, size }: { path: string | null; size: "small" | "medium" | "large" }) {
+  const { data: url } = useProductImageUrl(path);
+  return (
+    <a
+      href={url ?? undefined}
+      target="_blank"
+      rel="noreferrer"
+      className={`flex items-center justify-center gap-2 rounded-md border border-dashed bg-background text-sm text-muted-foreground hover:text-foreground ${
+        size === "large" ? "h-64 w-full" : size === "medium" ? "h-36 w-full" : "h-16 w-16"
+      }`}
+    >
+      <FileText className="h-5 w-5" />
+      {size !== "small" && <span>Open sample PDF</span>}
+    </a>
+  );
+}
