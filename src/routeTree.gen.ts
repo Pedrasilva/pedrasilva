@@ -56,6 +56,7 @@ import { Route as AppInventoryIndexRouteImport } from './routes/_app.inventory.i
 import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inventory.assignments'
 import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.intake'
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
+import { Route as AppProductsIndexRouteImport } from './routes/_app.products.index'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
@@ -358,6 +359,11 @@ const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
   getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppProductsRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
   id: '/projects/',
@@ -730,7 +736,7 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof AppInboxRouteWithChildren
   '/inventory': typeof AppInventoryRouteWithChildren
   '/portfolio': typeof AppPortfolioRoute
-  '/products': typeof AppProductsRoute
+  '/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -774,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/hr/': typeof AppHrIndexRoute
   '/inbox/': typeof AppInboxIndexRoute
   '/inventory/': typeof AppInventoryIndexRoute
+  '/products/': typeof AppProductsIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/proposals/': typeof AppProposalsIndexRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
@@ -836,7 +843,6 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/portfolio': typeof AppPortfolioRoute
-  '/products': typeof AppProductsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -880,6 +886,7 @@ export interface FileRoutesByTo {
   '/hr': typeof AppHrIndexRoute
   '/inbox': typeof AppInboxIndexRoute
   '/inventory': typeof AppInventoryIndexRoute
+  '/products': typeof AppProductsIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/proposals': typeof AppProposalsIndexRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
@@ -949,7 +956,7 @@ export interface FileRoutesById {
   '/_app/inbox': typeof AppInboxRouteWithChildren
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/portfolio': typeof AppPortfolioRoute
-  '/_app/products': typeof AppProductsRoute
+  '/_app/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -994,6 +1001,7 @@ export interface FileRoutesById {
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/inbox/': typeof AppInboxIndexRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
+  '/_app/products/': typeof AppProductsIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/proposals/': typeof AppProposalsIndexRoute
   '/_app/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
@@ -1108,6 +1116,7 @@ export interface FileRouteTypes {
     | '/hr/'
     | '/inbox/'
     | '/inventory/'
+    | '/products/'
     | '/projects/'
     | '/proposals/'
     | '/crm/companies/$companyId'
@@ -1170,7 +1179,6 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/portfolio'
-    | '/products'
     | '/api/notify-expense'
     | '/'
     | '/.lovable/oauth/consent'
@@ -1214,6 +1222,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/inbox'
     | '/inventory'
+    | '/products'
     | '/projects'
     | '/proposals'
     | '/crm/companies/$companyId'
@@ -1327,6 +1336,7 @@ export interface FileRouteTypes {
     | '/_app/hr/'
     | '/_app/inbox/'
     | '/_app/inventory/'
+    | '/_app/products/'
     | '/_app/projects/'
     | '/_app/proposals/'
     | '/_app/crm/companies/$companyId'
@@ -1732,6 +1742,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/inventory/reports'
       preLoaderRoute: typeof AppInventoryReportsRouteImport
       parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/products/': {
+      id: '/_app/products/'
+      path: '/'
+      fullPath: '/products/'
+      preLoaderRoute: typeof AppProductsIndexRouteImport
+      parentRoute: typeof AppProductsRoute
     }
     '/_app/projects/': {
       id: '/_app/projects/'
@@ -2379,6 +2396,18 @@ const AppInventoryRouteWithChildren = AppInventoryRoute._addFileChildren(
   AppInventoryRouteChildren,
 )
 
+interface AppProductsRouteChildren {
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
+}
+
+const AppProductsRouteChildren: AppProductsRouteChildren = {
+  AppProductsIndexRoute: AppProductsIndexRoute,
+}
+
+const AppProductsRouteWithChildren = AppProductsRoute._addFileChildren(
+  AppProductsRouteChildren,
+)
+
 interface AppProjectsProjectIdRouteChildren {
   AppProjectsProjectIdAllocationsRoute: typeof AppProjectsProjectIdAllocationsRoute
 }
@@ -2408,7 +2437,7 @@ interface AppRouteChildren {
   AppInboxRoute: typeof AppInboxRouteWithChildren
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppPortfolioRoute: typeof AppPortfolioRoute
-  AppProductsRoute: typeof AppProductsRoute
+  AppProductsRoute: typeof AppProductsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
@@ -2441,7 +2470,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInboxRoute: AppInboxRouteWithChildren,
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppPortfolioRoute: AppPortfolioRoute,
-  AppProductsRoute: AppProductsRoute,
+  AppProductsRoute: AppProductsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
