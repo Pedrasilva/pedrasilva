@@ -69,15 +69,13 @@ function ProductProjectsPage() {
               <Card className="h-full p-4 transition-colors hover:border-primary/50">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium leading-tight">{p.name}</p>
-                  {p.itemCount > 0 && (
-                    <Badge variant="secondary" className="shrink-0">
-                      {p.itemCount}
-                    </Badge>
-                  )}
+                  <Badge variant={p.itemCount > 0 ? "secondary" : "outline"} className="shrink-0">
+                    {p.itemCount} {p.itemCount === 1 ? "item" : "items"}
+                  </Badge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">{p.client ?? "—"}</p>
                 <p className="mt-3 text-sm tabular-nums">
-                  {p.itemCount > 0 ? formatMoney(p.itemsValue) : "No items yet"}
+                  {p.itemCount > 0 ? formatMoney(p.itemsValue) : "Ready to specify"}
                 </p>
               </Card>
             </Link>
