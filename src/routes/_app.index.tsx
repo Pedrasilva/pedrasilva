@@ -47,6 +47,7 @@ type ModuleDef = {
     | "/finance"
     | "/inbox"
     | "/inventory"
+    | "/products"
     | "/portfolio";
 
   number: string;
