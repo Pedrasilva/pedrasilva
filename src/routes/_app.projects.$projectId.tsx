@@ -1608,6 +1608,9 @@ function MilestonesTable({
   );
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "empty">("all");
   const [search, setSearch] = useState("");
+  const allocationIds = (stages ?? []).flatMap((s) => s.allocations.map((a) => a.id));
+  const { data: taskNames = {} } = useAllocationTaskNames(allocationIds);
+
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
