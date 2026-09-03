@@ -12,6 +12,7 @@
  * are visible to everyone authenticated.
  */
 import {
+  Armchair,
   Boxes,
   Briefcase,
   Building2,
@@ -210,6 +211,28 @@ export const RAIL_ITEMS: RailItem[] = [
     ],
   },
 
+
+  // ─── Product Library (specifications) ───
+  {
+    id: "products",
+    labelKey: "products",
+    icon: Armchair,
+    to: "/products",
+    matches: ["/products"],
+    flyout: [
+      {
+        titleKey: "sharedLists",
+        links: [
+          { to: "/products", labelKey: "products.projects" },
+          { to: "/products/library", labelKey: "products.library" },
+        ],
+      },
+      {
+        titleKey: "shortcuts",
+        links: [{ to: "/products/categories", labelKey: "products.categories" }],
+      },
+    ],
+  },
 
   // ─── Insights / Reports ───
   {
