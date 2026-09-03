@@ -234,14 +234,28 @@ export function StageRowActions({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setTaskOpen(true)} className="text-xs">
+            <ListPlus className="mr-2 h-3.5 w-3.5" /> Add task
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onEdit?.()} className="text-xs">
             <Pencil className="mr-2 h-3.5 w-3.5" /> Edit plan
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CreateStageTaskDialog
+        open={taskOpen}
+        onOpenChange={setTaskOpen}
+        stageId={stageId}
+        projectId={projectId}
+        stageName={stageName}
+        stageStart={startDate}
+        stageEnd={endDate}
+      />
     </div>
   );
 }
+
 
 /** Kebab controls on an allocation (resource) row. */
 export function AllocationRowActions({
