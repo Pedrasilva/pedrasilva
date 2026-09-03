@@ -10067,6 +10067,57 @@ export type Database = {
         }
         Relationships: []
       }
+      remote_work_requests: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          collaborator_id: string
+          created_at: string
+          data: string
+          estado: string
+          id: string
+          notas: string | null
+          updated_at: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          collaborator_id: string
+          created_at?: string
+          data: string
+          estado?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          collaborator_id?: string
+          created_at?: string
+          data?: string
+          estado?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_work_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remote_work_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           permission_key: string
