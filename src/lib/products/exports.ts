@@ -17,6 +17,7 @@ export function scheduleRows(items: ProjectItem[], categories: Map<string, Produ
     Category: categoryPath(i.category_id, categories),
     "Material / Specification": i.material_spec ?? "",
     Dimensions: i.dimensions ?? "",
+    Weight: i.weight ?? "",
     Finish: i.selected_finish ?? "",
     Quantity: Number(i.quantity) || 0,
     "Unit price": i.unit_price == null ? "" : Number(i.unit_price),

@@ -25,6 +25,8 @@ export type ProductDraft = {
   designer: string;
   material_spec: string;
   dimensions: string;
+  weight: string;
+  ref_code: string;
   indicative_unit_price: string;
   price_last_updated: string;
   product_url: string;
@@ -40,6 +42,8 @@ const EMPTY: ProductDraft = {
   designer: "",
   material_spec: "",
   dimensions: "",
+  weight: "",
+  ref_code: "",
   indicative_unit_price: "",
   price_last_updated: "",
   product_url: "",
@@ -85,6 +89,8 @@ export function ProductFormDialog({
             designer: product.designer ?? "",
             material_spec: product.material_spec ?? "",
             dimensions: product.dimensions ?? "",
+            weight: product.weight ?? "",
+            ref_code: product.ref_code ?? "",
             indicative_unit_price:
               product.indicative_unit_price == null ? "" : String(product.indicative_unit_price),
             price_last_updated: product.price_last_updated ?? "",
@@ -109,6 +115,8 @@ export function ProductFormDialog({
       designer: draft.designer || null,
       material_spec: draft.material_spec || null,
       dimensions: draft.dimensions || null,
+      weight: draft.weight || null,
+      ref_code: draft.ref_code || null,
       indicative_unit_price: draft.indicative_unit_price
         ? Number(draft.indicative_unit_price)
         : null,
@@ -135,7 +143,7 @@ export function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+      <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === "library"
@@ -150,74 +158,95 @@ export function ProductFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Product name *">
-            <Input value={draft.name} onChange={(e) => set("name", e.target.value)} autoFocus />
-          </Field>
-          <Field label="Category">
-            <CategorySelect value={draft.category_id} onChange={(v) => set("category_id", v)} />
-          </Field>
-          <Field label="Manufacturer">
-            <Input
-              value={draft.manufacturer}
-              onChange={(e) => set("manufacturer", e.target.value)}
-            />
-          </Field>
-          <Field label="Designer">
-            <Input value={draft.designer} onChange={(e) => set("designer", e.target.value)} />
-          </Field>
-          <Field label="Dimensions">
-            <Input
-              value={draft.dimensions}
-              placeholder="W × D × H"
-              onChange={(e) => set("dimensions", e.target.value)}
-            />
-          </Field>
-          <Field label="Indicative unit price">
-            <Input
-              type="number"
-              step="0.01"
-              value={draft.indicative_unit_price}
-              onChange={(e) => set("indicative_unit_price", e.target.value)}
-            />
-          </Field>
-          <Field label="Price last updated">
-            <Input
-              type="date"
-              value={draft.price_last_updated}
-              onChange={(e) => set("price_last_updated", e.target.value)}
-            />
-          </Field>
-          <Field label="Product URL">
-            <Input
-              value={draft.product_url}
-              placeholder="https://"
-              onChange={(e) => set("product_url", e.target.value)}
-            />
-          </Field>
-          <div className="sm:col-span-2">
-            <Field label="Material / specification">
-              <Textarea
-                rows={2}
-                value={draft.material_spec}
-                onChange={(e) => set("material_spec", e.target.value)}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Product name *">
+              <Input value={draft.name} onChange={(e) => set("name", e.target.value)} autoFocus />
+            </Field>
+            <Field label="Category">
+              <CategorySelect value={draft.category_id} onChange={(v) => set("category_id", v)} />
+            </Field>
+            <Field label="Manufacturer">
+              <Input
+                value={draft.manufacturer}
+                onChange={(e) => set("manufacturer", e.target.value)}
               />
             </Field>
-          </div>
-          <ImageField
-            label="Primary image"
-            value={draft.primary_image_path}
-            onChange={(v) => set("primary_image_path", v)}
-          />
-          <ImageField
-            label="Finish / sample image"
-            value={draft.finish_image_path}
-            onChange={(v) => set("finish_image_path", v)}
-          />
-          <div className="sm:col-span-2">
-            <Field label="Notes">
-              <Textarea rows={2} value={draft.notes} onChange={(e) => set("notes", e.target.value)} />
+            <Field label="Designer">
+              <Input value={draft.designer} onChange={(e) => set("designer", e.target.value)} />
             </Field>
+            <Field label="Ref. code">
+              <Input value={draft.ref_code} onChange={(e) => set("ref_code", e.target.value)} />
+            </Field>
+            <Field label="Dimensions">
+              <Input
+                value={draft.dimensions}
+                placeholder="W × D × H"
+                onChange={(e) => set("dimensions", e.target.value)}
+              />
+            </Field>
+            <Field label="Weight">
+              <Input
+                value={draft.weight}
+                placeholder="e.g. 12 kg"
+                onChange={(e) => set("weight", e.target.value)}
+              />
+            </Field>
+            <Field label="Indicative unit price">
+              <Input
+                type="number"
+                step="0.01"
+                value={draft.indicative_unit_price}
+                onChange={(e) => set("indicative_unit_price", e.target.value)}
+              />
+            </Field>
+            <Field label="Price last updated">
+              <Input
+                type="date"
+                value={draft.price_last_updated}
+                onChange={(e) => set("price_last_updated", e.target.value)}
+              />
+            </Field>
+            <Field label="Product URL">
+              <Input
+                value={draft.product_url}
+                placeholder="https://"
+                onChange={(e) => set("product_url", e.target.value)}
+              />
+            </Field>
+            <div className="sm:col-span-2">
+              <Field label="Material / specification">
+                <Textarea
+                  rows={4}
+                  value={draft.material_spec}
+                  onChange={(e) => set("material_spec", e.target.value)}
+                />
+              </Field>
+            </div>
+            <div className="sm:col-span-2">
+              <Field label="Notes">
+                <Textarea
+                  rows={3}
+                  value={draft.notes}
+                  onChange={(e) => set("notes", e.target.value)}
+                />
+              </Field>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <ImageField
+              label="Primary image"
+              value={draft.primary_image_path}
+              onChange={(v) => set("primary_image_path", v)}
+              size="large"
+            />
+            <ImageField
+              label="Finish / sample image"
+              value={draft.finish_image_path}
+              onChange={(v) => set("finish_image_path", v)}
+              size="medium"
+            />
           </div>
         </div>
 

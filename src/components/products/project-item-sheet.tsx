@@ -42,6 +42,7 @@ const TEXT_FIELDS = [
   "designer",
   "material_spec",
   "dimensions",
+  "weight",
   "selected_finish",
   "product_url",
   "notes",
@@ -147,6 +148,9 @@ export function ProjectItemSheet({
               value={draft.dimensions ?? ""}
               onChange={(e) => set("dimensions", e.target.value)}
             />
+          </F>
+          <F label="Weight">
+            <Input value={draft.weight ?? ""} onChange={(e) => set("weight", e.target.value)} />
           </F>
           <F label="Selected finish / colour">
             <Input

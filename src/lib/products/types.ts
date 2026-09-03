@@ -54,6 +54,8 @@ export interface LibraryProduct {
   designer: string | null;
   material_spec: string | null;
   dimensions: string | null;
+  weight: string | null;
+  ref_code: string | null;
   indicative_unit_price: number | null;
   currency: string;
   price_last_updated: string | null;
@@ -78,6 +80,7 @@ export interface ProjectItem {
   designer: string | null;
   material_spec: string | null;
   dimensions: string | null;
+  weight: string | null;
   selected_finish: string | null;
   quantity: number;
   unit_price: number | null;

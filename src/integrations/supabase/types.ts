@@ -4746,8 +4746,10 @@ export type Database = {
           price_last_updated: string | null
           primary_image_path: string | null
           product_url: string | null
+          ref_code: string | null
           status: string
           updated_at: string
+          weight: string | null
         }
         Insert: {
           attributes?: Json
@@ -4767,8 +4769,10 @@ export type Database = {
           price_last_updated?: string | null
           primary_image_path?: string | null
           product_url?: string | null
+          ref_code?: string | null
           status?: string
           updated_at?: string
+          weight?: string | null
         }
         Update: {
           attributes?: Json
@@ -4788,8 +4792,10 @@ export type Database = {
           price_last_updated?: string | null
           primary_image_path?: string | null
           product_url?: string | null
+          ref_code?: string | null
           status?: string
           updated_at?: string
+          weight?: string | null
         }
         Relationships: [
           {
@@ -7535,6 +7541,7 @@ export type Database = {
           source_library_product_id: string | null
           unit_price: number | null
           updated_at: string
+          weight: string | null
         }
         Insert: {
           approval_status?: string
@@ -7562,6 +7569,7 @@ export type Database = {
           source_library_product_id?: string | null
           unit_price?: number | null
           updated_at?: string
+          weight?: string | null
         }
         Update: {
           approval_status?: string
@@ -7589,6 +7597,7 @@ export type Database = {
           source_library_product_id?: string | null
           unit_price?: number | null
           updated_at?: string
+          weight?: string | null
         }
         Relationships: [
           {
