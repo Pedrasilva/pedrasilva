@@ -100,6 +100,8 @@ import {
   StageStatusCell,
   normalizeStageStatus,
 } from "@/components/projects/stage-row-actions";
+import { useAllocationTaskNames } from "@/lib/projects/use-stage-tasks";
+
 import {
   ArrowLeft,
   ZoomIn,
@@ -1608,6 +1610,9 @@ function MilestonesTable({
   );
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "empty">("all");
   const [search, setSearch] = useState("");
+  const allocationIds = (stages ?? []).flatMap((s) => s.allocations.map((a) => a.id));
+  const { data: taskNames = {} } = useAllocationTaskNames(allocationIds);
+
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -1914,7 +1919,9 @@ function MilestonesTable({
                           status={normalizeStageStatus((s as { status?: string }).status)}
                           startDate={s.start_date}
                           endDate={s.end_date}
+                          stageName={s.name}
                           assignedResourceIds={s.allocations.map((a) => a.resource.id)}
+
                           onEdit={onEditPlan}
                         />
                       </td>
@@ -1944,10 +1951,15 @@ function MilestonesTable({
                                   color={a.resource.color}
                                   size={20}
                                 />
-                                <span className="truncate text-foreground">{a.resource.name}</span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {Number(a.hours_per_day)}h/d
-                                </span>
+                                <div className="min-w-0">
+                                  <div className="truncate text-foreground">
+                                    {taskNames[a.id] ?? a.resource.name}
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground truncate">
+                                    {a.resource.name} · {Number(a.hours_per_day)}h/d
+                                  </div>
+                                </div>
+
                               </div>
                             </td>
                             <td className="px-4 py-2.5">

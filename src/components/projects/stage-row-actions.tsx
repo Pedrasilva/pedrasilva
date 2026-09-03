@@ -3,7 +3,8 @@
  * table: stage status switching (planned / active / done / cancelled),
  * assigning a responsible resource to a stage, and removing allocations.
  */
-import { MoreVertical, Pencil, UserPlus, Trash2, Check } from "lucide-react";
+import { useState } from "react";
+import { MoreVertical, Pencil, UserPlus, Trash2, Check, ListPlus } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreateStageTaskDialog } from "@/components/projects/create-stage-task-dialog";
 import {
   useCreateAllocation,
   useDeleteAllocation,
@@ -20,6 +22,7 @@ import {
   useUpdateStage,
 } from "@/lib/projects/use-planner";
 import { cn } from "@/lib/utils";
+
 
 export type StageStatus = "planned" | "active" | "done" | "cancelled";
 
@@ -115,6 +118,7 @@ export function StageRowActions({
   status,
   startDate,
   endDate,
+  stageName,
   assignedResourceIds,
   onEdit,
 }: {
@@ -123,12 +127,15 @@ export function StageRowActions({
   status: StageStatus;
   startDate: string;
   endDate: string;
+  stageName?: string;
   assignedResourceIds: string[];
   onEdit?: () => void;
 }) {
   const { data: resources } = useResources();
   const createAllocation = useCreateAllocation();
   const updateStage = useUpdateStage();
+  const [taskOpen, setTaskOpen] = useState(false);
+
 
   const assigned = new Set(assignedResourceIds);
   const active = (resources ?? []).filter((r) => r.active !== false);
@@ -227,14 +234,28 @@ export function StageRowActions({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setTaskOpen(true)} className="text-xs">
+            <ListPlus className="mr-2 h-3.5 w-3.5" /> Add task
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onEdit?.()} className="text-xs">
             <Pencil className="mr-2 h-3.5 w-3.5" /> Edit plan
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CreateStageTaskDialog
+        open={taskOpen}
+        onOpenChange={setTaskOpen}
+        stageId={stageId}
+        projectId={projectId}
+        stageName={stageName}
+        stageStart={startDate}
+        stageEnd={endDate}
+      />
     </div>
   );
 }
+
 
 /** Kebab controls on an allocation (resource) row. */
 export function AllocationRowActions({
