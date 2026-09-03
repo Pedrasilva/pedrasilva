@@ -11,10 +11,13 @@ export function ImageField({
   label,
   value,
   onChange,
+  size = "small",
 }: {
   label: string;
   value: string | null;
   onChange: (path: string | null) => void;
+  /** "small" = inline thumb (default), "medium"/"large" = generous preview panel. */
+  size?: "small" | "medium" | "large";
 }) {
   const input = useRef<HTMLInputElement>(null);
   const upload = useUploadProductImage();
@@ -23,8 +26,25 @@ export function ImageField({
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
-      <div className="flex items-center gap-3">
-        <ProductImage path={value} alt={label} className="h-16 w-16" width={160} />
+      <div
+        className={
+          size === "small"
+            ? "flex items-center gap-3"
+            : "space-y-2 rounded-lg border bg-muted/20 p-3"
+        }
+      >
+        <ProductImage
+          path={value}
+          alt={label}
+          className={
+            size === "large"
+              ? "h-64 w-full object-contain"
+              : size === "medium"
+                ? "h-36 w-full object-contain"
+                : "h-16 w-16"
+          }
+          width={size === "small" ? 160 : 900}
+        />
         <div className="flex gap-2">
           <Button
             type="button"
