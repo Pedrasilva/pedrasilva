@@ -22,6 +22,7 @@ import {
   Inbox,
   Boxes,
   Images,
+  Armchair,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
