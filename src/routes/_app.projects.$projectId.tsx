@@ -1914,7 +1914,9 @@ function MilestonesTable({
                           status={normalizeStageStatus((s as { status?: string }).status)}
                           startDate={s.start_date}
                           endDate={s.end_date}
+                          stageName={s.name}
                           assignedResourceIds={s.allocations.map((a) => a.resource.id)}
+
                           onEdit={onEditPlan}
                         />
                       </td>
