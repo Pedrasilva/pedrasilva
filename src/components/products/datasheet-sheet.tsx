@@ -4,8 +4,9 @@ import { categoryPath, formatMoney, itemTotal, type ProjectItem } from "@/lib/pr
 
 /**
  * A4 LANDSCAPE product datasheets, generated live from Project Items.
- * There is no datasheet table — the schedule and these sheets read the same
- * records. Printing uses the browser (same approach as the offer summary).
+ * Layout mirrors the historic PSA "Interior design proposal" sheet:
+ * labelled data column on the left, large product image on the right,
+ * finish/sample panel bottom-right.
  */
 export function DatasheetPrintView({
   items,
@@ -28,14 +29,27 @@ export function DatasheetPrintView({
           min-height: var(--sheet-h);
           margin: 0 auto 16px;
           background: #fff;
-          color: #111;
-          padding: 14mm 16mm;
+          color: #333;
+          padding: 8mm 10mm 6mm;
           box-shadow: 0 1px 8px rgba(0,0,0,.12);
           display: flex;
           flex-direction: column;
           break-inside: avoid;
+          font-family: Helvetica, Arial, sans-serif;
         }
         .datasheet-page + .datasheet-page { break-before: page; }
+        .ds-row { display: grid; grid-template-columns: 33% 1fr; align-items: start; gap: 6px; }
+        .ds-label { text-align: right; font-weight: 700; font-size: 9.5pt; color: #444; padding-top: 3px; }
+        .ds-value {
+          border: 1px solid #b9b9b9;
+          background: #fff;
+          min-height: 20px;
+          padding: 3px 6px;
+          font-size: 9.5pt;
+          line-height: 1.3;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
         @media print {
           @page { size: A4 landscape; margin: 0; }
           body * { visibility: hidden; }
@@ -47,113 +61,108 @@ export function DatasheetPrintView({
 
       {items.map((i, idx) => (
         <article key={i.id} className="datasheet-page">
-          <header className="flex items-baseline justify-between border-b border-neutral-300 pb-3">
-            <div>
-              <p className="text-[10pt] uppercase tracking-[0.18em] text-neutral-500">
-                Pedra Silva Architects — Product datasheet
-              </p>
-              <h1 className="mt-1 text-[19pt] font-semibold leading-tight">{i.name}</h1>
-            </div>
-            <div className="text-right text-[9.5pt] leading-snug text-neutral-600">
-              <p className="font-medium text-neutral-900">{projectName}</p>
-              {clientName && <p>{clientName}</p>}
-              <p>
-                {[i.location, i.reference].filter(Boolean).join(" · ") || "—"}
-              </p>
-              <p className="text-neutral-400">
-                {String(idx + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
-              </p>
-            </div>
+          <header className="border-b border-neutral-300 pb-2 text-center">
+            <h1 className="text-[17pt] font-bold uppercase tracking-tight text-neutral-800">
+              Interior design proposal
+            </h1>
+            <p className="text-[9.5pt] text-neutral-600">
+              {[projectName, clientName].filter(Boolean).join(" — ") || "—"}
+            </p>
           </header>
 
-          <div className="mt-5 grid flex-1 grid-cols-[1.35fr_1fr] gap-8">
-            <SheetImage path={i.primary_image_path} alt={i.name} />
+          <div className="mt-3 grid flex-1 grid-cols-[42%_1fr] gap-6">
+            {/* left: labelled data column */}
+            <div className="space-y-1.5">
+              <p className="mb-2 text-[12pt] font-bold text-neutral-800">{projectName || "—"}</p>
+              <Row label="Category" value={categoryPath(i.category_id, catMap)} />
+              <Row label="Manufacturer" value={i.manufacturer} />
+              <Row label="Location" value={i.location} />
+              <Row label="Plan ID" value={i.reference} />
+              <Row label="Designer" value={i.designer} />
+              <Row label="Item Name" value={i.name} />
+              <Row label="Ref: Code" value={i.reference} />
+              <Row label="Material" value={i.material_spec} minHeight={60} />
+              <Row label="Dimensions" value={i.dimensions} />
+              <Row label="Weight" value={i.weight} />
+              <Row label="Unit Price" value={formatMoney(i.unit_price, i.currency)} half />
+              <Row label="Quantity" value={String(Number(i.quantity) || 0)} half />
+              <Row label="Total" value={formatMoney(itemTotal(i), i.currency) || "€0.00"} half />
+              <Row label="Notes:" value={i.notes} minHeight={70} />
+              <Row label="Product Link" value={i.product_url} minHeight={40} />
+              <Row label="Client approval signature" value="" minHeight={60} />
+            </div>
 
-            <div className="flex flex-col gap-4 text-[10pt]">
-              <Grid
-                rows={[
-                  ["Manufacturer", i.manufacturer],
-                  ["Designer", i.designer],
-                  ["Category", categoryPath(i.category_id, catMap)],
-                  ["Dimensions", i.dimensions],
-                  ["Material / specification", i.material_spec],
-                  ["Selected finish / colour", i.selected_finish],
-                ]}
-              />
-
-              {i.finish_image_path && (
-                <div>
-                  <p className="mb-1 text-[8.5pt] uppercase tracking-widest text-neutral-500">
-                    Finish / sample
-                  </p>
-                  <SheetImage path={i.finish_image_path} alt="Finish sample" small />
-                </div>
-              )}
-
-              <div className="mt-auto border-t border-neutral-300 pt-3">
-                <div className="grid grid-cols-3 gap-3 text-[10pt]">
-                  <Kpi label="Quantity" value={String(Number(i.quantity) || 0)} />
-                  <Kpi label="Unit price" value={formatMoney(i.unit_price, i.currency) || "—"} />
-                  <Kpi label="Total" value={formatMoney(itemTotal(i), i.currency) || "—"} strong />
-                </div>
-                {i.notes && (
-                  <p className="mt-3 whitespace-pre-wrap text-[9pt] leading-snug text-neutral-700">
-                    {i.notes}
-                  </p>
-                )}
-                {i.product_url && (
-                  <p className="mt-2 break-all text-[8.5pt] text-neutral-500">{i.product_url}</p>
-                )}
+            {/* right: large image + finish panel */}
+            <div className="flex flex-col gap-3">
+              <p className="text-[12pt] font-bold text-neutral-800">{i.name}</p>
+              <SheetImage path={i.primary_image_path} alt={i.name} />
+              <div className="grid grid-cols-[70px_1fr] items-start gap-3">
+                <p className="pt-1 text-right text-[9.5pt] font-bold text-neutral-600">Finish</p>
+                <FinishPanel path={i.finish_image_path} label={i.selected_finish} />
               </div>
             </div>
           </div>
+
+          <footer className="mt-2 flex items-end justify-between">
+            <span className="text-[8pt] text-neutral-400">
+              {String(idx + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
+            </span>
+            <span className="text-[12pt] font-bold text-neutral-600">www.pedrasilva.com</span>
+          </footer>
         </article>
       ))}
     </div>
   );
 }
 
-function SheetImage({
-  path,
-  alt,
-  small,
+function Row({
+  label,
+  value,
+  minHeight,
+  half,
 }: {
-  path: string | null;
-  alt: string;
-  small?: boolean;
+  label: string;
+  value?: string | null;
+  minHeight?: number;
+  half?: boolean;
 }) {
-  const { data: url } = useProductImageUrl(path, small ? 480 : 1400);
-  const h = small ? "h-[28mm]" : "h-full min-h-[110mm]";
+  return (
+    <div className="ds-row">
+      <span className="ds-label">{label}</span>
+      <span
+        className="ds-value"
+        style={{
+          minHeight: minHeight ? `${minHeight}px` : undefined,
+          width: half ? "55%" : undefined,
+        }}
+      >
+        {value || ""}
+      </span>
+    </div>
+  );
+}
+
+function SheetImage({ path, alt }: { path: string | null; alt: string }) {
+  const { data: url } = useProductImageUrl(path, 1600);
   if (!url) {
-    return <div className={`${h} w-full rounded border border-dashed border-neutral-300`} />;
+    return <div className="min-h-[105mm] flex-1 border border-neutral-300 bg-white" />;
   }
   return (
-    <img
-      src={url}
-      alt={alt}
-      className={`${h} w-full rounded border border-neutral-200 object-contain bg-neutral-50`}
-    />
+    <div className="flex min-h-[105mm] flex-1 items-center justify-center border border-neutral-300 bg-white p-2">
+      <img src={url} alt={alt} className="max-h-[103mm] w-full object-contain" />
+    </div>
   );
 }
 
-function Grid({ rows }: { rows: Array<[string, string | null | undefined]> }) {
+function FinishPanel({ path, label }: { path: string | null; label?: string | null }) {
+  const { data: url } = useProductImageUrl(path, 700);
   return (
-    <dl className="grid grid-cols-[42%_1fr] gap-y-1.5">
-      {rows.map(([k, v]) => (
-        <div key={k} className="contents">
-          <dt className="text-[8.5pt] uppercase tracking-widest text-neutral-500">{k}</dt>
-          <dd className="text-[10pt] leading-snug">{v || "—"}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function Kpi({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div>
-      <p className="text-[8pt] uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className={strong ? "text-[12pt] font-semibold" : "text-[11pt]"}>{value}</p>
+    <div className="flex h-[38mm] w-full items-center justify-center border border-neutral-300 bg-white p-1">
+      {url ? (
+        <img src={url} alt="Finish sample" className="max-h-full max-w-full object-contain" />
+      ) : (
+        <span className="text-[9pt] text-neutral-500">{label || ""}</span>
+      )}
     </div>
   );
 }
