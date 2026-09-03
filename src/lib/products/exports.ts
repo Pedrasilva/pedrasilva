@@ -10,8 +10,8 @@ import { categoryPath, itemTotal, type ProductCategory, type ProjectItem } from 
 export function scheduleRows(items: ProjectItem[], categories: Map<string, ProductCategory>) {
   return items.map((i) => ({
     Location: i.location ?? "",
-    Reference: i.reference ?? "",
-    Item: i.name,
+    "Plan ID": i.reference ?? "",
+    "Item name": i.name,
     Designer: i.designer ?? "",
     Manufacturer: i.manufacturer ?? "",
     Category: categoryPath(i.category_id, categories),
