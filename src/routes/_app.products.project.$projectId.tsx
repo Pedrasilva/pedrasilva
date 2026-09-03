@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { ArrowLeft, FileDown, FileText, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -222,7 +223,8 @@ function ProjectWorkspace() {
               clientName={project?.client}
             />
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
