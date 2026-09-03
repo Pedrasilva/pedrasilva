@@ -112,6 +112,7 @@ import { Route as AppFinanceSuppliersCompanyIdRouteImport } from './routes/_app.
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppInventoryAssetsIndexRouteImport } from './routes/_app.inventory.assets.index'
 import { Route as AppInventoryAssetsAssetIdRouteImport } from './routes/_app.inventory.assets.$assetId'
+import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.products.project.$projectId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
@@ -672,6 +673,12 @@ const AppInventoryAssetsAssetIdRoute =
     path: '/assets/$assetId',
     getParentRoute: () => AppInventoryRoute,
   } as any)
+const AppProductsProjectProjectIdRoute =
+  AppProductsProjectProjectIdRouteImport.update({
+    id: '/project/$projectId',
+    path: '/project/$projectId',
+    getParentRoute: () => AppProductsRoute,
+  } as any)
 const AppProjectsProjectIdAllocationsRoute =
   AppProjectsProjectIdAllocationsRouteImport.update({
     id: '/allocations',
@@ -835,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
+  '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -943,6 +951,7 @@ export interface FileRoutesByTo {
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
+  '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -1060,6 +1069,7 @@ export interface FileRoutesById {
   '/_app/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
+  '/_app/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
@@ -1177,6 +1187,7 @@ export interface FileRouteTypes {
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
     | '/inventory/assets/$assetId'
+    | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
@@ -1285,6 +1296,7 @@ export interface FileRouteTypes {
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
     | '/inventory/assets/$assetId'
+    | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
@@ -1401,6 +1413,7 @@ export interface FileRouteTypes {
     | '/_app/finance/suppliers/$companyId'
     | '/_app/hr/colaborador/$id'
     | '/_app/inventory/assets/$assetId'
+    | '/_app/products/project/$projectId'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
@@ -2159,6 +2172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryAssetsAssetIdRouteImport
       parentRoute: typeof AppInventoryRoute
     }
+    '/_app/products/project/$projectId': {
+      id: '/_app/products/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/products/project/$projectId'
+      preLoaderRoute: typeof AppProductsProjectProjectIdRouteImport
+      parentRoute: typeof AppProductsRoute
+    }
     '/_app/projects/$projectId/allocations': {
       id: '/_app/projects/$projectId/allocations'
       path: '/allocations'
@@ -2438,12 +2458,14 @@ interface AppProductsRouteChildren {
   AppProductsCategoriesRoute: typeof AppProductsCategoriesRoute
   AppProductsLibraryRoute: typeof AppProductsLibraryRoute
   AppProductsIndexRoute: typeof AppProductsIndexRoute
+  AppProductsProjectProjectIdRoute: typeof AppProductsProjectProjectIdRoute
 }
 
 const AppProductsRouteChildren: AppProductsRouteChildren = {
   AppProductsCategoriesRoute: AppProductsCategoriesRoute,
   AppProductsLibraryRoute: AppProductsLibraryRoute,
   AppProductsIndexRoute: AppProductsIndexRoute,
+  AppProductsProjectProjectIdRoute: AppProductsProjectProjectIdRoute,
 }
 
 const AppProductsRouteWithChildren = AppProductsRoute._addFileChildren(
