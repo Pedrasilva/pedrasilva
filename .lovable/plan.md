@@ -7,6 +7,7 @@ In the homepage hero:
 - Reduce vertical padding (roughly half of today's) and shrink the heading type scale so the greeting reads as a secondary line rather than the main event.
 - Keep the same content — date line, "Good evening, Luis." + tagline, intro paragraph, celebration pill — just at a smaller scale with tighter spacing.
 - The today cards move up accordingly and become the first thing visible below the fold-free area.
+- Remove the Inbox tile from the homepage modules grid (the module itself and its routes stay untouched, still reachable directly).
 
 ## 2. "Team availability" card replaces "Off today"
 
