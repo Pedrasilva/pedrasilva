@@ -230,6 +230,13 @@ export function ProjectItemSheet({
             value={images.finish}
             onChange={(v) => setImages((s) => ({ ...s, finish: v }))}
           />
+          <ImageField
+            label="Samples (image or PDF)"
+            value={images.sample}
+            onChange={(v) => setImages((s) => ({ ...s, sample: v }))}
+            allowPdf
+          />
+
           <div className="sm:col-span-2">
             <F label="Notes">
               <Textarea
