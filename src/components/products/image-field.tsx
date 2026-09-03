@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Loader2, Upload, X } from "lucide-react";
+import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ProductImage } from "./product-image";
-import { useUploadProductImage } from "@/lib/products/use-products";
+import { useProductImageUrl, useUploadProductImage } from "@/lib/products/use-products";
+import { isPdfPath } from "@/lib/products/types";
 import { toast } from "sonner";
 
 /** Small upload-or-clear image control used by the product/item forms. */
@@ -12,12 +13,15 @@ export function ImageField({
   value,
   onChange,
   size = "small",
+  allowPdf = false,
 }: {
   label: string;
   value: string | null;
   onChange: (path: string | null) => void;
   /** "small" = inline thumb (default), "medium"/"large" = generous preview panel. */
   size?: "small" | "medium" | "large";
+  /** Accept a PDF sample board in addition to a single image. */
+  allowPdf?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const upload = useUploadProductImage();
@@ -33,6 +37,9 @@ export function ImageField({
             : "space-y-2 rounded-lg border bg-muted/20 p-3"
         }
       >
+        {isPdfPath(value) ? (
+          <PdfPreview path={value} size={size} />
+        ) : (
         <ProductImage
           path={value}
           alt={label}
@@ -45,6 +52,7 @@ export function ImageField({
           }
           width={size === "small" ? 160 : 900}
         />
+        )}
         <div className="flex gap-2">
           <Button
             type="button"
@@ -66,7 +74,7 @@ export function ImageField({
       <input
         ref={input}
         type="file"
-        accept="image/*"
+        accept={allowPdf ? "image/*,application/pdf" : "image/*"}
         className="hidden"
         onChange={async (e) => {
           const file = e.target.files?.[0];
@@ -85,4 +93,3 @@ export function ImageField({
       />
     </div>
   );
-}
