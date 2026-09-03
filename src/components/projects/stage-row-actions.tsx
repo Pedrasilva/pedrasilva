@@ -3,7 +3,8 @@
  * table: stage status switching (planned / active / done / cancelled),
  * assigning a responsible resource to a stage, and removing allocations.
  */
-import { MoreVertical, Pencil, UserPlus, Trash2, Check } from "lucide-react";
+import { useState } from "react";
+import { MoreVertical, Pencil, UserPlus, Trash2, Check, ListPlus } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreateStageTaskDialog } from "@/components/projects/create-stage-task-dialog";
 import {
   useCreateAllocation,
   useDeleteAllocation,
@@ -20,6 +22,7 @@ import {
   useUpdateStage,
 } from "@/lib/projects/use-planner";
 import { cn } from "@/lib/utils";
+
 
 export type StageStatus = "planned" | "active" | "done" | "cancelled";
 
