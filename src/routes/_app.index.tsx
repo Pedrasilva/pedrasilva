@@ -110,7 +110,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     to: "/inventory",
-    number: "06",
+    number: "05",
     titleKey: "inventory:module.title",
     subtitleKey: "inventory:module.subtitle",
     descriptionKey: "inventory:module.description",
@@ -119,7 +119,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     to: "/products",
-    number: "07",
+    number: "06",
     titleKey: "home:products.moduleTitle",
     subtitleKey: "home:products.moduleSubtitle",
     descriptionKey: "home:products.moduleDescription",
@@ -128,7 +128,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     to: "/portfolio",
-    number: "08",
+    number: "07",
     titleKey: "home:signature.moduleTitle",
     subtitleKey: "home:signature.moduleSubtitle",
     descriptionKey: "home:signature.moduleDescription",
