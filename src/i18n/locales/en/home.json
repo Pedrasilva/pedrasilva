@@ -33,7 +33,6 @@
     "title": "Signature Projects",
     "subtitle": "Curated imagery used across the studio — the same library the Quote Builder pulls from when filling proposal pages."
   },
-
   "celebrations": {
     "title": "Upcoming celebrations",
     "window": "Next 45 days",
@@ -47,7 +46,6 @@
     "more_one": "+{{count}} more",
     "more_other": "+{{count}} more"
   },
-
   "holidays": {
     "title": "Upcoming holidays",
     "empty": "No upcoming holidays."
@@ -98,5 +96,12 @@
     "doacao_sangue": "Blood donation",
     "autorizada_paga": "Authorised",
     "autorizada_nao_paga": "Authorised"
+  },
+  "availability": {
+    "title": "Team availability",
+    "outToday": "Out today",
+    "wfhToday": "Working from home",
+    "comingUp": "Coming up (14 days)",
+    "remote": "Home office"
   }
 }
