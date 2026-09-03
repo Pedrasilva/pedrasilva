@@ -1944,10 +1944,15 @@ function MilestonesTable({
                                   color={a.resource.color}
                                   size={20}
                                 />
-                                <span className="truncate text-foreground">{a.resource.name}</span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {Number(a.hours_per_day)}h/d
-                                </span>
+                                <div className="min-w-0">
+                                  <div className="truncate text-foreground">
+                                    {taskNames[a.id] ?? a.resource.name}
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground truncate">
+                                    {a.resource.name} · {Number(a.hours_per_day)}h/d
+                                  </div>
+                                </div>
+
                               </div>
                             </td>
                             <td className="px-4 py-2.5">
