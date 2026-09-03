@@ -20,6 +20,11 @@
     "kicker": "Modules",
     "title": "Where do you want to go today?"
   },
+  "products": {
+    "moduleTitle": "Product Library",
+    "moduleSubtitle": "Specifications",
+    "moduleDescription": "Specify furniture and interior products on projects, reuse the studio library, issue datasheets and schedules."
+  },
   "signature": {
     "moduleTitle": "Signature Projects",
     "moduleSubtitle": "Studio portfolio",

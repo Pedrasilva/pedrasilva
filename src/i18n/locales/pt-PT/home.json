@@ -20,6 +20,11 @@
     "kicker": "Módulos",
     "title": "Onde queres ir hoje?"
   },
+  "products": {
+    "moduleTitle": "Biblioteca de Produtos",
+    "moduleSubtitle": "Especificações",
+    "moduleDescription": "Especifica mobiliário e produtos de interiores nos projectos, reutiliza a biblioteca do atelier, emite fichas técnicas e mapas."
+  },
   "signature": {
     "moduleTitle": "Projectos de Referência",
     "moduleSubtitle": "Portfólio do atelier",
