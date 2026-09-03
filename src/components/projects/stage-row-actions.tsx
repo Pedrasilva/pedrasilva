@@ -118,6 +118,7 @@ export function StageRowActions({
   status,
   startDate,
   endDate,
+  stageName,
   assignedResourceIds,
   onEdit,
 }: {
@@ -126,12 +127,15 @@ export function StageRowActions({
   status: StageStatus;
   startDate: string;
   endDate: string;
+  stageName?: string;
   assignedResourceIds: string[];
   onEdit?: () => void;
 }) {
   const { data: resources } = useResources();
   const createAllocation = useCreateAllocation();
   const updateStage = useUpdateStage();
+  const [taskOpen, setTaskOpen] = useState(false);
+
 
   const assigned = new Set(assignedResourceIds);
   const active = (resources ?? []).filter((r) => r.active !== false);
