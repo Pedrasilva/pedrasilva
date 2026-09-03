@@ -19,6 +19,7 @@ import { LibraryBrowser } from "@/components/products/library-browser";
 import { ProductFormDialog } from "@/components/products/product-form-dialog";
 import { ProjectItemsTable } from "@/components/products/project-items-table";
 import { DatasheetPrintView } from "@/components/products/datasheet-sheet";
+import { SchedulePrintView } from "@/components/products/schedule-print-view";
 import {
   useAddLibraryProductToProject,
   useCreateProjectItem,
@@ -63,7 +64,15 @@ function ProjectWorkspace() {
 
   const [browseOpen, setBrowseOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
-  const [printing, setPrinting] = useState(false);
+  const [printing, setPrinting] = useState<null | "datasheets" | "schedule">(null);
+
+  const printNow = (what: "datasheets" | "schedule") => {
+    setPrinting(what);
+    setTimeout(() => {
+      window.print();
+      setPrinting(null);
+    }, 700);
+  };
 
   const total = items.reduce((s, i) => s + itemTotal(i), 0);
 
@@ -111,33 +120,38 @@ function ProjectWorkspace() {
             size="sm"
             variant="outline"
             disabled={items.length === 0}
-            onClick={() => {
-              setPrinting(true);
-              setTimeout(() => {
-                window.print();
-                setPrinting(false);
-              }, 600);
-            }}
+            onClick={() => printNow("datasheets")}
           >
             <FileText className="mr-1.5 h-4 w-4" />
             Export datasheets
           </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={items.length === 0}
-            onClick={() => {
-              try {
-                exportSchedule(items, catMap, project?.name ?? "project");
-              } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Export failed");
-              }
-            }}
-          >
-            <FileDown className="mr-1.5 h-4 w-4" />
-            Export schedule
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" disabled={items.length === 0}>
+                <FileDown className="mr-1.5 h-4 w-4" />
+                Export schedule
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => printNow("schedule")}>
+                <FileText className="mr-2 h-4 w-4" />
+                PDF (A4 landscape)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => {
+                  try {
+                    exportSchedule(items, catMap, project?.name ?? "project");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Export failed");
+                  }
+                }}
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Excel (.xlsx)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -195,11 +209,19 @@ function ProjectWorkspace() {
 
       {printing && (
         <div className="fixed inset-0 z-[100] overflow-auto bg-neutral-200 p-6">
-          <DatasheetPrintView
-            items={items}
-            projectName={project?.name ?? ""}
-            clientName={project?.client}
-          />
+          {printing === "datasheets" ? (
+            <DatasheetPrintView
+              items={items}
+              projectName={project?.name ?? ""}
+              clientName={project?.client}
+            />
+          ) : (
+            <SchedulePrintView
+              items={items}
+              projectName={project?.name ?? ""}
+              clientName={project?.client}
+            />
+          )}
         </div>
       )}
     </div>
