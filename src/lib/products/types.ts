@@ -6,6 +6,27 @@
  * materials) drop in without a schema rebuild.
  */
 
+/**
+ * FILE SOURCE OF TRUTH (locked for V1)
+ *
+ * `primary_image_path` / `finish_image_path` on library products and project
+ * items are CANONICAL for the two images the datasheet and schedule render.
+ * They are plain storage paths in the bucket below — never references into
+ * `product_files`.
+ *
+ * `product_files` is SUPPLEMENTARY ONLY: manufacturer PDFs, technical sheets,
+ * price lists, and future DWG/SKP/IFC. It may point at a Drive file
+ * (`drive_file_id` / `url`) or at bucket storage. Nothing in the UI reads a
+ * datasheet image out of `product_files`, so the two mechanisms cannot drift.
+ *
+ * Why images are not on Google Drive: Drive serves file bytes only through
+ * authenticated API calls with short-lived, non-transformable links — there is
+ * no thumbnail/resize endpoint usable directly in an <img> tag, and a 100-row
+ * schedule would need 100 proxied downloads per render. The minimal hybrid we
+ * adopted: images (small, render-hot) in this private bucket with signed,
+ * width-transformed URLs; documents (large, render-cold) linked in Drive via
+ * `product_files`. Structured data stays in the database either way.
+ */
 export const PRODUCT_IMAGE_BUCKET = "product-library";
 
 export type ProductStatus = "current" | "archived";
