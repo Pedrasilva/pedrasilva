@@ -49,6 +49,7 @@ import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
 import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-ficha'
 import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
+import { Route as AppHrTrabalhoRemotoRouteImport } from './routes/_app.hr.trabalho-remoto'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppInboxIndexRouteImport } from './routes/_app.inbox.index'
 import { Route as AppInboxSettingsRouteImport } from './routes/_app.inbox.settings'
@@ -328,6 +329,11 @@ const AppHrSubsidioAlimentacaoRoute =
     path: '/subsidio-alimentacao',
     getParentRoute: () => AppHrRoute,
   } as any)
+const AppHrTrabalhoRemotoRoute = AppHrTrabalhoRemotoRouteImport.update({
+  id: '/trabalho-remoto',
+  path: '/trabalho-remoto',
+  getParentRoute: () => AppHrRoute,
+} as any)
 const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
   id: '/valor-bo',
   path: '/valor-bo',
@@ -779,6 +785,7 @@ export interface FileRoutesByFullPath {
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -888,6 +895,7 @@ export interface FileRoutesByTo {
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -1006,6 +1014,7 @@ export interface FileRoutesById {
   '/_app/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/_app/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/inbox/settings': typeof AppInboxSettingsRoute
   '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -1124,6 +1133,7 @@ export interface FileRouteTypes {
     | '/hr/minha-ficha'
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
+    | '/hr/trabalho-remoto'
     | '/hr/valor-bo'
     | '/inbox/settings'
     | '/inventory/assignments'
@@ -1233,6 +1243,7 @@ export interface FileRouteTypes {
     | '/hr/minha-ficha'
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
+    | '/hr/trabalho-remoto'
     | '/hr/valor-bo'
     | '/inbox/settings'
     | '/inventory/assignments'
@@ -1350,6 +1361,7 @@ export interface FileRouteTypes {
     | '/_app/hr/minha-ficha'
     | '/_app/hr/resumo'
     | '/_app/hr/subsidio-alimentacao'
+    | '/_app/hr/trabalho-remoto'
     | '/_app/hr/valor-bo'
     | '/_app/inbox/settings'
     | '/_app/inventory/assignments'
@@ -1729,6 +1741,13 @@ declare module '@tanstack/react-router' {
       path: '/subsidio-alimentacao'
       fullPath: '/hr/subsidio-alimentacao'
       preLoaderRoute: typeof AppHrSubsidioAlimentacaoRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/trabalho-remoto': {
+      id: '/_app/hr/trabalho-remoto'
+      path: '/trabalho-remoto'
+      fullPath: '/hr/trabalho-remoto'
+      preLoaderRoute: typeof AppHrTrabalhoRemotoRouteImport
       parentRoute: typeof AppHrRoute
     }
     '/_app/hr/valor-bo': {
@@ -2397,6 +2416,7 @@ interface AppHrRouteChildren {
   AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
   AppHrResumoRoute: typeof AppHrResumoRoute
   AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
+  AppHrTrabalhoRemotoRoute: typeof AppHrTrabalhoRemotoRoute
   AppHrValorBoRoute: typeof AppHrValorBoRoute
   AppHrIndexRoute: typeof AppHrIndexRoute
   AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
@@ -2411,6 +2431,7 @@ const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
   AppHrResumoRoute: AppHrResumoRoute,
   AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
+  AppHrTrabalhoRemotoRoute: AppHrTrabalhoRemotoRoute,
   AppHrValorBoRoute: AppHrValorBoRoute,
   AppHrIndexRoute: AppHrIndexRoute,
   AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
