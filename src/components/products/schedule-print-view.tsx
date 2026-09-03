@@ -40,11 +40,18 @@ export function SchedulePrintView({
         .schedule-table thead { display: table-header-group; }
         .schedule-num { text-align: right; white-space: nowrap; }
         @media print {
-          @page { size: A4 landscape; margin: 6mm; }
-          body * { visibility: hidden; }
-          .schedule-root, .schedule-root * { visibility: visible; }
-          .schedule-root { position: absolute; inset: 0; }
-          .schedule-sheet { width: auto; padding: 0; }
+          @page { size: A4 landscape; margin: 0; }
+          body > *:not(.psa-print-portal) { display: none !important; }
+          .psa-print-portal {
+            position: static !important;
+            inset: auto !important;
+            overflow: visible !important;
+            background: #fff !important;
+            padding: 0 !important;
+            z-index: auto !important;
+          }
+          .schedule-root { position: static; }
+          .schedule-sheet { width: auto; padding: 12mm 12mm 10mm; }
         }
       `}</style>
 

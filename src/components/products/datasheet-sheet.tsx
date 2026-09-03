@@ -52,9 +52,16 @@ export function DatasheetPrintView({
         }
         @media print {
           @page { size: A4 landscape; margin: 0; }
-          body * { visibility: hidden; }
-          .datasheet-root, .datasheet-root * { visibility: visible; }
-          .datasheet-root { position: absolute; inset: 0; }
+          body > *:not(.psa-print-portal) { display: none !important; }
+          .psa-print-portal {
+            position: static !important;
+            inset: auto !important;
+            overflow: visible !important;
+            background: #fff !important;
+            padding: 0 !important;
+            z-index: auto !important;
+          }
+          .datasheet-root { position: static; }
           .datasheet-page { box-shadow: none; margin: 0; }
         }
       `}</style>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { ArrowLeft, FileDown, FileText, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -207,8 +208,8 @@ function ProjectWorkspace() {
         }}
       />
 
-      {printing && (
-        <div className="fixed inset-0 z-[100] overflow-auto bg-neutral-200 p-6">
+      {printing && typeof document !== "undefined" && createPortal(
+        <div className="psa-print-portal fixed inset-0 z-[100] overflow-auto bg-neutral-200 p-6">
           {printing === "datasheets" ? (
             <DatasheetPrintView
               items={items}
@@ -222,7 +223,8 @@ function ProjectWorkspace() {
               clientName={project?.client}
             />
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
