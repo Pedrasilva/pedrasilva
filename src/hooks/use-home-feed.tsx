@@ -185,3 +185,105 @@ export function useUpcomingHolidays(windowDays = 60) {
     },
   });
 }
+
+export type AvailabilityItem = {
+  id: string;
+  nome: string;
+  kind: "absence" | "remote";
+  /** Absence type key (for absences only). */
+  tipo?: string;
+  start: string;
+  end: string;
+};
+
+export type TeamAvailability = {
+  outToday: AvailabilityItem[];
+  remoteToday: AvailabilityItem[];
+  upcoming: AvailabilityItem[];
+};
+
+/**
+ * Who is out today, who is working from home today, and what is coming up in
+ * the next `windowDays` days (approved absences + approved remote-work days).
+ */
+export function useTeamAvailability(windowDays = 14) {
+  return useQuery<TeamAvailability>({
+    queryKey: ["home", "availability", windowDays],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const today = new Date();
+      const todayIso = toIsoDate(today);
+      const limitIso = toIsoDate(new Date(today.getTime() + windowDays * DAY_MS));
+
+      const [dirRes, absRes, remoteRes] = await Promise.all([
+        supabase.from("collaborators_directory").select("id, nome"),
+        supabase
+          .from("vacation_requests")
+          .select("id, data_inicio, data_fim, tipo, collaborator_id")
+          .eq("estado", "aprovada")
+          .lte("data_inicio", limitIso)
+          .gte("data_fim", todayIso)
+          .order("data_inicio"),
+        supabase
+          .from("remote_work_requests")
+          .select("id, data, collaborator_id")
+          .eq("estado", "aprovada")
+          .gte("data", todayIso)
+          .lte("data", limitIso)
+          .order("data"),
+      ]);
+      if (dirRes.error) throw dirRes.error;
+      if (absRes.error) throw absRes.error;
+      if (remoteRes.error) throw remoteRes.error;
+
+      const names = new Map<string, string>();
+      for (const c of (dirRes.data ?? []) as Array<{ id: string; nome: string }>) {
+        names.set(c.id, c.nome);
+      }
+      const nameOf = (id: string) => names.get(id) ?? "—";
+
+      const outToday: AvailabilityItem[] = [];
+      const remoteToday: AvailabilityItem[] = [];
+      const upcoming: AvailabilityItem[] = [];
+
+      for (const r of (absRes.data ?? []) as Array<{
+        id: string;
+        data_inicio: string;
+        data_fim: string;
+        tipo: string;
+        collaborator_id: string;
+      }>) {
+        const item: AvailabilityItem = {
+          id: `v-${r.id}`,
+          nome: nameOf(r.collaborator_id),
+          kind: "absence",
+          tipo: r.tipo,
+          start: r.data_inicio,
+          end: r.data_fim,
+        };
+        if (r.data_inicio <= todayIso) outToday.push(item);
+        else upcoming.push(item);
+      }
+
+      for (const r of (remoteRes.data ?? []) as Array<{
+        id: string;
+        data: string;
+        collaborator_id: string;
+      }>) {
+        const item: AvailabilityItem = {
+          id: `r-${r.id}`,
+          nome: nameOf(r.collaborator_id),
+          kind: "remote",
+          start: r.data,
+          end: r.data,
+        };
+        if (r.data === todayIso) remoteToday.push(item);
+        else upcoming.push(item);
+      }
+
+      upcoming.sort((a, b) => a.start.localeCompare(b.start));
+      return { outToday, remoteToday, upcoming };
+    },
+  });
+}
+
