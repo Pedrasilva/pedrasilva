@@ -296,3 +296,11 @@ function Avatar({ nome }: { nome: string }) {
     </span>
   );
 }
+
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="bg-muted/40 px-5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+      {children}
+    </li>
+  );
+}
