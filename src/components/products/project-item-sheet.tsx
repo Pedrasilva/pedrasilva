@@ -17,7 +17,20 @@ import {
   useUpdateLibraryFromItem,
   useUpdateProjectItem,
 } from "@/lib/products/use-products";
-import { formatMoney, itemTotal, type ProjectItem } from "@/lib/products/types";
+import {
+  APPROVAL_STATUSES,
+  formatMoney,
+  itemTotal,
+  type ProductApprovalStatus,
+  type ProjectItem,
+} from "@/lib/products/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Draft = Record<string, string | null>;
 
@@ -50,6 +63,7 @@ export function ProjectItemSheet({
   const [qty, setQty] = useState("1");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [approval, setApproval] = useState<ProductApprovalStatus>("proposed");
   const [images, setImages] = useState<{ primary: string | null; finish: string | null }>({
     primary: null,
     finish: null,
@@ -63,6 +77,7 @@ export function ProjectItemSheet({
     setQty(String(item.quantity ?? 1));
     setPrice(item.unit_price == null ? "" : String(item.unit_price));
     setCategoryId(item.category_id);
+    setApproval((item.approval_status as ProductApprovalStatus) ?? "proposed");
     setImages({ primary: item.primary_image_path, finish: item.finish_image_path });
   }, [item]);
 
@@ -73,6 +88,7 @@ export function ProjectItemSheet({
   const save = async () => {
     const patch: Partial<ProjectItem> = {
       category_id: categoryId,
+      approval_status: approval,
       quantity: Number(qty) || 0,
       unit_price: price === "" ? null : Number(price),
       primary_image_path: images.primary,
@@ -147,6 +163,20 @@ export function ProjectItemSheet({
               />
             </F>
           </div>
+          <F label="Client approval">
+            <Select value={approval} onValueChange={(v) => setApproval(v as ProductApprovalStatus)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {APPROVAL_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s} className="capitalize">
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </F>
           <F label="Quantity">
             <Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} />
           </F>
