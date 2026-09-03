@@ -337,7 +337,8 @@
       "finance": "Finanças",
       "insights": "Análises",
       "settings": "Definições",
-      "inventory": "Inventário"
+      "inventory": "Inventário",
+      "products": "Biblioteca de Produtos"
     },
     "section": {
       "sharedLists": "Listas partilhadas",
@@ -392,6 +393,9 @@
       "settings.workingDays": "Dias úteis",
       "settings.mealAllowance": "Subsídio de alimentação",
       "settings.billableRates": "Valor/hora facturável",
+      "products.projects": "Projetos",
+      "products.library": "Biblioteca",
+      "products.categories": "Categorias",
       "inventory.assets": "Registo de ativos",
       "inventory.assignments": "Atribuições",
       "inventory.reports": "Relatórios de inventário"

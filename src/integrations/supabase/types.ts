@@ -4727,6 +4727,80 @@ export type Database = {
         }
         Relationships: []
       }
+      library_products: {
+        Row: {
+          attributes: Json
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          designer: string | null
+          dimensions: string | null
+          finish_image_path: string | null
+          id: string
+          indicative_unit_price: number | null
+          manufacturer: string | null
+          material_spec: string | null
+          name: string
+          notes: string | null
+          price_last_updated: string | null
+          primary_image_path: string | null
+          product_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attributes?: Json
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designer?: string | null
+          dimensions?: string | null
+          finish_image_path?: string | null
+          id?: string
+          indicative_unit_price?: number | null
+          manufacturer?: string | null
+          material_spec?: string | null
+          name: string
+          notes?: string | null
+          price_last_updated?: string | null
+          primary_image_path?: string | null
+          product_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attributes?: Json
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designer?: string | null
+          dimensions?: string | null
+          finish_image_path?: string | null
+          id?: string
+          indicative_unit_price?: number | null
+          manufacturer?: string | null
+          material_spec?: string | null
+          name?: string
+          notes?: string | null
+          price_last_updated?: string | null
+          primary_image_path?: string | null
+          product_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_allowance_rates: {
         Row: {
           ano: number
@@ -7277,6 +7351,86 @@ export type Database = {
           },
         ]
       }
+      product_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_files: {
+        Row: {
+          bucket: string | null
+          created_at: string
+          created_by: string | null
+          drive_file_id: string | null
+          id: string
+          kind: string
+          label: string | null
+          owner_id: string
+          owner_type: string
+          storage_path: string | null
+          url: string | null
+        }
+        Insert: {
+          bucket?: string | null
+          created_at?: string
+          created_by?: string | null
+          drive_file_id?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          owner_id: string
+          owner_type: string
+          storage_path?: string | null
+          url?: string | null
+        }
+        Update: {
+          bucket?: string | null
+          created_at?: string
+          created_by?: string | null
+          drive_file_id?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          owner_id?: string
+          owner_type?: string
+          storage_path?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       project_bootstrap_runs: {
         Row: {
           applied_at: string | null
@@ -7350,6 +7504,112 @@ export type Database = {
             columns: ["target_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_items: {
+        Row: {
+          approval_status: string
+          attributes: Json
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          designer: string | null
+          dimensions: string | null
+          finish_image_path: string | null
+          id: string
+          location: string | null
+          manufacturer: string | null
+          material_spec: string | null
+          name: string
+          notes: string | null
+          primary_image_path: string | null
+          product_url: string | null
+          project_id: string
+          quantity: number
+          reference: string | null
+          selected_finish: string | null
+          sort_order: number
+          source_library_product_id: string | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          approval_status?: string
+          attributes?: Json
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designer?: string | null
+          dimensions?: string | null
+          finish_image_path?: string | null
+          id?: string
+          location?: string | null
+          manufacturer?: string | null
+          material_spec?: string | null
+          name: string
+          notes?: string | null
+          primary_image_path?: string | null
+          product_url?: string | null
+          project_id: string
+          quantity?: number
+          reference?: string | null
+          selected_finish?: string | null
+          sort_order?: number
+          source_library_product_id?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          approval_status?: string
+          attributes?: Json
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designer?: string | null
+          dimensions?: string | null
+          finish_image_path?: string | null
+          id?: string
+          location?: string | null
+          manufacturer?: string | null
+          material_spec?: string | null
+          name?: string
+          notes?: string | null
+          primary_image_path?: string | null
+          product_url?: string | null
+          project_id?: string
+          quantity?: number
+          reference?: string | null
+          selected_finish?: string | null
+          sort_order?: number
+          source_library_product_id?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_items_source_library_product_id_fkey"
+            columns: ["source_library_product_id"]
+            isOneToOne: false
+            referencedRelation: "library_products"
             referencedColumns: ["id"]
           },
         ]
