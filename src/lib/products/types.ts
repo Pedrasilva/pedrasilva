@@ -9,7 +9,13 @@
 export const PRODUCT_IMAGE_BUCKET = "product-library";
 
 export type ProductStatus = "current" | "archived";
-export type ProductApprovalStatus = "pending" | "approved" | "rejected" | "n_a";
+
+/**
+ * Lightweight project-item attribute — NOT a workflow. No notifications,
+ * no permissions, no state machine in V1.
+ */
+export type ProductApprovalStatus = "proposed" | "approved" | "rejected";
+export const APPROVAL_STATUSES: ProductApprovalStatus[] = ["proposed", "approved", "rejected"];
 
 export interface ProductCategory {
   id: string;
