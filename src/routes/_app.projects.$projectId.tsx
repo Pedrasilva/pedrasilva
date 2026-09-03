@@ -100,6 +100,8 @@ import {
   StageStatusCell,
   normalizeStageStatus,
 } from "@/components/projects/stage-row-actions";
+import { useAllocationTaskNames } from "@/lib/projects/use-stage-tasks";
+
 import {
   ArrowLeft,
   ZoomIn,
