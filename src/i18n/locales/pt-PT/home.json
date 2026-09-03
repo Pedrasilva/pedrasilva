@@ -33,7 +33,6 @@
     "title": "Projectos de Referência",
     "subtitle": "Imagens seleccionadas usadas em todo o atelier — a mesma biblioteca que o construtor de propostas utiliza nas páginas da proposta."
   },
-
   "celebrations": {
     "title": "Celebrações próximas",
     "window": "Próximos 45 dias",
@@ -47,7 +46,6 @@
     "more_one": "+{{count}} outro",
     "more_other": "+{{count}} outros"
   },
-
   "holidays": {
     "title": "Próximos feriados",
     "empty": "Sem feriados próximos."
@@ -98,5 +96,12 @@
     "doacao_sangue": "Dádiva de sangue",
     "autorizada_paga": "Autorizada",
     "autorizada_nao_paga": "Autorizada"
+  },
+  "availability": {
+    "title": "Disponibilidade da equipa",
+    "outToday": "Ausentes hoje",
+    "wfhToday": "A trabalhar de casa",
+    "comingUp": "Próximos (14 dias)",
+    "remote": "Trabalho remoto"
   }
 }

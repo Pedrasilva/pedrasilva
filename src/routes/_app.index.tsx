@@ -19,7 +19,6 @@ import {
   ArrowUpRight,
   Sparkles,
   Quote,
-  Inbox,
   Boxes,
   Images,
   Armchair,
@@ -45,7 +44,6 @@ type ModuleDef = {
     | "/crm"
     | "/projects"
     | "/finance"
-    | "/inbox"
     | "/inventory"
     | "/products"
     | "/portfolio";
@@ -111,17 +109,8 @@ const MODULES: ModuleDef[] = [
     anyOf: ["finance.dashboard"],
   },
   {
-    to: "/inbox",
-    number: "05",
-    titleKey: "inbox:module.title",
-    subtitleKey: "inbox:module.subtitle",
-    descriptionKey: "inbox:module.description",
-    icon: Inbox,
-    anyOf: ["inbox.triage"],
-  },
-  {
     to: "/inventory",
-    number: "06",
+    number: "05",
     titleKey: "inventory:module.title",
     subtitleKey: "inventory:module.subtitle",
     descriptionKey: "inventory:module.description",
@@ -130,7 +119,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     to: "/products",
-    number: "07",
+    number: "06",
     titleKey: "home:products.moduleTitle",
     subtitleKey: "home:products.moduleSubtitle",
     descriptionKey: "home:products.moduleDescription",
@@ -139,7 +128,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     to: "/portfolio",
-    number: "08",
+    number: "07",
     titleKey: "home:signature.moduleTitle",
     subtitleKey: "home:signature.moduleSubtitle",
     descriptionKey: "home:signature.moduleDescription",
@@ -296,7 +285,7 @@ function HubPage() {
         {todayCelebrations.some((c) => c.kind === "birthday") && (
           <BirthdayFireworks />
         )}
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-6 lg:py-8">
           <div className="flex items-baseline justify-between gap-6">
             <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               {today}
@@ -306,7 +295,7 @@ function HubPage() {
             </div>
           </div>
 
-          <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight max-w-4xl">
+          <h1 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.1] tracking-tight max-w-4xl">
             {greeting}
             {firstName ? `, ${firstName}` : ""}.
             <span className="block text-muted-foreground">
@@ -314,13 +303,13 @@ function HubPage() {
             </span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base sm:text-lg text-foreground/70 leading-relaxed">
+          <p className="mt-3 max-w-2xl text-sm text-foreground/70 leading-relaxed">
             {t("home:intro")}
           </p>
 
           {/* Today's celebration banner */}
           {todayCelebrations.length > 0 && (
-            <div className="mt-8 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
+            <div className="mt-4 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
               <span
                 className="flex h-7 w-7 items-center justify-center rounded-full text-background"
                 style={{ background: "var(--clay)" }}

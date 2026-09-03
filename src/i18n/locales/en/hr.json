@@ -129,7 +129,8 @@
     "mealAllowance": "Meal allowance",
     "workingDays": "Working days",
     "boRate": "BO rate",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "remoteWork": "Work from home"
   },
   "compensationGate": {
     "title": "Compensation hidden",
@@ -1444,6 +1445,38 @@
     "donut": {
       "center": "Received per month",
       "travel": "Per diem + transit pass"
+    }
+  },
+  "remoteWork": {
+    "title": "Work from home",
+    "subtitle": "Request home-office days and see who is remote.",
+    "newRequest": "New request",
+    "from": "From",
+    "to": "To",
+    "notes": "Note (optional)",
+    "notesPlaceholder": "Reason or context",
+    "hint": "Weekdays only. Requests should ideally be made the day before.",
+    "submit": "Submit request",
+    "submitted": "Request submitted.",
+    "pendingQueue": "Pending approval",
+    "noPending": "Nothing waiting for approval.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "myRequests": "My requests",
+    "noneYet": "No requests yet.",
+    "cancel": "Cancel request",
+    "usageTitle": "Work-from-home usage",
+    "noUsage": "No approved days yet.",
+    "collaborator": "Team member",
+    "daysThisMonth": "This month",
+    "daysThisYear": "This year",
+    "noCollaborator": "Your account is not linked to a team member.",
+    "invalidRange": "The end date is before the start date.",
+    "noWeekdays": "That range has no weekdays.",
+    "status": {
+      "pendente": "Pending",
+      "aprovada": "Approved",
+      "rejeitada": "Rejected"
     }
   }
 }

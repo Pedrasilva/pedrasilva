@@ -129,7 +129,8 @@
     "mealAllowance": "Subsídio alimentação",
     "workingDays": "Dias úteis",
     "boRate": "Valor BO/hora",
-    "permissions": "Permissões"
+    "permissions": "Permissões",
+    "remoteWork": "Trabalho remoto"
   },
   "compensationGate": {
     "title": "Compensação oculta",
@@ -1444,6 +1445,38 @@
     "donut": {
       "center": "Recebido por mês",
       "travel": "Ajudas de custo + passe"
+    }
+  },
+  "remoteWork": {
+    "title": "Trabalho remoto",
+    "subtitle": "Pedir dias de trabalho a partir de casa e ver quem está remoto.",
+    "newRequest": "Novo pedido",
+    "from": "De",
+    "to": "Até",
+    "notes": "Nota (opcional)",
+    "notesPlaceholder": "Motivo ou contexto",
+    "hint": "Apenas dias úteis. Os pedidos devem, idealmente, ser feitos no dia anterior.",
+    "submit": "Enviar pedido",
+    "submitted": "Pedido enviado.",
+    "pendingQueue": "Pendentes de aprovação",
+    "noPending": "Nada à espera de aprovação.",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "myRequests": "Os meus pedidos",
+    "noneYet": "Ainda sem pedidos.",
+    "cancel": "Cancelar pedido",
+    "usageTitle": "Utilização de trabalho remoto",
+    "noUsage": "Ainda sem dias aprovados.",
+    "collaborator": "Colaborador",
+    "daysThisMonth": "Este mês",
+    "daysThisYear": "Este ano",
+    "noCollaborator": "A sua conta não está associada a um colaborador.",
+    "invalidRange": "A data final é anterior à inicial.",
+    "noWeekdays": "Esse intervalo não tem dias úteis.",
+    "status": {
+      "pendente": "Pendente",
+      "aprovada": "Aprovado",
+      "rejeitada": "Rejeitado"
     }
   }
 }
