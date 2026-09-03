@@ -129,8 +129,17 @@ const MODULES: ModuleDef[] = [
     anyOf: [],
   },
   {
-    to: "/portfolio",
+    to: "/products",
     number: "07",
+    titleKey: "home:products.moduleTitle",
+    subtitleKey: "home:products.moduleSubtitle",
+    descriptionKey: "home:products.moduleDescription",
+    icon: Armchair,
+    anyOf: [],
+  },
+  {
+    to: "/portfolio",
+    number: "08",
     titleKey: "home:signature.moduleTitle",
     subtitleKey: "home:signature.moduleSubtitle",
     descriptionKey: "home:signature.moduleDescription",
