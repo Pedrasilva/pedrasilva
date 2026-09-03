@@ -22,6 +22,7 @@ import { DatasheetPrintView } from "@/components/products/datasheet-sheet";
 import {
   useAddLibraryProductToProject,
   useCreateProjectItem,
+  useProductCategories,
   useProductProjects,
   useProjectItems,
 } from "@/lib/products/use-products";
@@ -55,6 +56,8 @@ function ProjectWorkspace() {
   const { data: items = [], isLoading } = useProjectItems(projectId);
   const { data: projects = [] } = useProductProjects();
   const project = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId]);
+  const { data: categories = [] } = useProductCategories();
+  const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const addFromLibrary = useAddLibraryProductToProject();
   const createItem = useCreateProjectItem();
 
@@ -124,11 +127,13 @@ function ProjectWorkspace() {
             size="sm"
             variant="outline"
             disabled={items.length === 0}
-            onClick={() =>
-              exportSchedule(items, project?.name ?? "project").catch((e) =>
-                toast.error(e instanceof Error ? e.message : "Export failed"),
-              )
-            }
+            onClick={() => {
+              try {
+                exportSchedule(items, catMap, project?.name ?? "project");
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Export failed");
+              }
+            }}
           >
             <FileDown className="mr-1.5 h-4 w-4" />
             Export schedule
