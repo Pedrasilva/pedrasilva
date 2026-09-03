@@ -12,6 +12,7 @@ import {
   PRODUCT_IMAGE_BUCKET,
   type LibraryProduct,
   type ProductCategory,
+  isPdfPath,
   type ProjectItem,
 } from "./types";
 
@@ -219,6 +220,8 @@ export function useAddLibraryProductToProject() {
         product_url: p.product_url,
         primary_image_path: p.primary_image_path,
         finish_image_path: p.finish_image_path,
+        sample_pdf_path: p.sample_pdf_path,
+        ref_code: p.ref_code,
         notes: p.notes,
         quantity: 1,
         ...args.overrides,
@@ -294,6 +297,8 @@ export function useUpdateLibraryFromItem() {
           product_url: item.product_url,
           primary_image_path: item.primary_image_path,
           finish_image_path: item.finish_image_path,
+          sample_pdf_path: item.sample_pdf_path,
+          ref_code: item.ref_code,
         })
         .eq("id", item.source_library_product_id);
       if (error) throw error;
@@ -327,7 +332,7 @@ export function useProductImageUrl(path: string | null | undefined, width?: numb
     queryFn: async (): Promise<string | null> => {
       const { data, error } = await supabase.storage
         .from(PRODUCT_IMAGE_BUCKET)
-        .createSignedUrl(path!, 60 * 60, width ? { transform: { width, resize: "contain" } } : undefined);
+        .createSignedUrl(path!, 60 * 60, width && !isPdfPath(path) ? { transform: { width, resize: "contain" } } : undefined);
       if (error) return null;
       return data?.signedUrl ?? null;
     },
