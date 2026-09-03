@@ -337,7 +337,8 @@
       "finance": "Finance",
       "insights": "Insights",
       "settings": "Settings",
-      "inventory": "Inventory"
+      "inventory": "Inventory",
+      "products": "Product Library"
     },
     "section": {
       "sharedLists": "Shared lists",
@@ -392,6 +393,9 @@
       "settings.workingDays": "Working days",
       "settings.mealAllowance": "Meal allowance",
       "settings.billableRates": "Billable hourly rate",
+      "products.projects": "Projects",
+      "products.library": "Library",
+      "products.categories": "Categories",
       "inventory.assets": "Asset register",
       "inventory.assignments": "Assignments",
       "inventory.reports": "Inventory reports"
