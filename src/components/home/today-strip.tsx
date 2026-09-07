@@ -35,6 +35,28 @@ export function TodayStrip() {
     return t("home:relative.inDays", { days });
   };
 
+  /** "Tomorrow" / "Wednesday, 9 Sep" / "next Wednesday, 9 Sep". */
+  const dayLabel = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = Math.round((date.getTime() - today.getTime()) / 86_400_000);
+    if (diff <= 0) return t("home:relative.today");
+    if (diff === 1) return t("home:relative.tomorrow");
+    const weekday = t(`home:weekday.${date.getDay()}`);
+    const long = `${weekday}, ${fmtDate(iso)}`;
+    return diff >= 7 ? t("home:availability.nextDay", { day: long }) : long;
+  };
+
+  const daysAway = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((date.getTime() - today.getTime()) / 86_400_000));
+  };
+
   const celebrationsQ = useUpcomingCelebrations(45);
   const availabilityQ = useTeamAvailability(14);
   const holidaysQ = useUpcomingHolidays(60);
@@ -50,17 +72,19 @@ export function TodayStrip() {
     outToday.length === 0 && remoteToday.length === 0 && upcoming.length === 0;
 
   const itemMeta = (item: AvailabilityItem) => {
-    if (item.kind === "remote") return t("home:availability.remote");
+    if (item.kind === "remote") return t("home:availability.remoteToday");
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return `${type} · ${t("home:off.until", { date: fmtDate(item.end) })}`;
   };
 
+
   const upcomingMeta = (item: AvailabilityItem) => {
-    if (item.kind === "remote") return t("home:availability.remote");
+    const day = dayLabel(item.start);
+    if (item.kind === "remote") return `${t("home:availability.remote")} · ${day}`;
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return item.start === item.end
-      ? type
-      : `${type} · ${fmtDate(item.start)}–${fmtDate(item.end)}`;
+      ? `${type} · ${day}`
+      : `${type} · ${day} – ${fmtDate(item.end)}`;
   };
 
   return (
@@ -109,12 +133,22 @@ export function TodayStrip() {
                     >
                       <Laptop className="h-3.5 w-3.5" />
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{v.nome}</div>
                       <div className="truncate text-[11px] text-muted-foreground">
-                        {t("home:availability.remote")}
+                        {t("home:availability.remoteToday")}
                       </div>
                     </div>
+                    <span
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em]"
+                      style={{
+                        background:
+                          "color-mix(in oklab, var(--sage) 15%, transparent)",
+                        color: "var(--sage)",
+                      }}
+                    >
+                      {t("home:relative.today")}
+                    </span>
                   </li>
                 ))}
               </>
@@ -134,8 +168,8 @@ export function TodayStrip() {
                         {upcomingMeta(v)}
                       </div>
                     </div>
-                    <span className="shrink-0 text-[11px] font-medium tabular-nums text-muted-foreground">
-                      {fmtDate(v.start)}
+                    <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
+                      {relativeDays(daysAway(v.start))}
                     </span>
                   </li>
                 ))}

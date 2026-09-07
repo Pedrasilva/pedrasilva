@@ -100,8 +100,10 @@
   "availability": {
     "title": "Team availability",
     "outToday": "Out today",
-    "wfhToday": "Working from home",
+    "wfhToday": "Working from home today",
     "comingUp": "Coming up (14 days)",
-    "remote": "Home office"
+    "remote": "Home office",
+    "remoteToday": "Working from home today",
+    "nextDay": "next {{day}}"
   }
 }
