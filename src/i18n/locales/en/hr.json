@@ -1476,7 +1476,69 @@
     "status": {
       "pendente": "Pending",
       "aprovada": "Approved",
-      "rejeitada": "Rejected"
-    }
+      "rejeitada": "Rejected",
+      "cancelada": "Cancelled"
+    },
+    "location": {
+      "home": "Home",
+      "remote": "Other remote location"
+    },
+    "tabs": {
+      "requests": "Requests",
+      "history": "History",
+      "analytics": "Analytics"
+    },
+    "settings": "Settings",
+    "locationType": "Work location",
+    "statusLabel": "Status",
+    "all": "All",
+    "date": "Date",
+    "requestedOn": "Requested on",
+    "rejectReason": "Reason for rejection",
+    "confirmReject": "Confirm rejection",
+    "decisionSaved": "Decision saved.",
+    "calendarTitle": "Approved days",
+    "recordsTitle": "All records",
+    "noRecords": "No records for these filters.",
+    "period": "Period",
+    "periods": {
+      "month": "This month",
+      "quarter": "This quarter",
+      "year": "This year",
+      "custom": "Custom range"
+    },
+    "kpi": {
+      "totalDays": "Remote days",
+      "people": "People",
+      "avgDays": "Average per person",
+      "avgPct": "Team average"
+    },
+    "comparisonTitle": "By team member",
+    "trendTitle": "Monthly trend",
+    "wfhDays": "Remote days",
+    "eligibleDays": "Eligible working days",
+    "wfhPct": "Share of working days",
+    "teamAverage": "Team average",
+    "policyTitle": "Policy",
+    "requiresApproval": "Requires approval",
+    "requiresApprovalHint": "When off, requests are approved automatically.",
+    "noticeDays": "Minimum notice (days)",
+    "noticeDaysHint": "How far ahead a request must be made.",
+    "allowSameDay": "Allow same-day requests",
+    "allowSameDayHint": "Let people request today, for example when they are unwell.",
+    "allowAdminOverride": "Allow HR override",
+    "allowAdminOverrideHint": "HR and admins can record a day directly, without approval.",
+    "settingsSaved": "Settings saved.",
+    "approversTitle": "Approvers",
+    "approversHint": "A person-specific approver takes precedence over a general one; the lowest priority number wins.",
+    "approver": "Approver",
+    "selectPerson": "Select a person",
+    "scope": "Applies to",
+    "scopeGlobal": "Everyone",
+    "scopeFor": "Only for",
+    "priority": "Priority",
+    "addApprover": "Add approver",
+    "approverAdded": "Approver added.",
+    "noApprovers": "No approvers configured — HR and admins approve by default."
   }
 }

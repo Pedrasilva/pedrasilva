@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CollaboratorAssetsCard } from "@/components/inventory/collaborator-assets-card";
+import { WfhProfileCard } from "@/components/hr/wfh/wfh-profile-card";
+
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -869,6 +871,10 @@ function CollaboratorPage() {
       />
 
       <CollaboratorAssetsCard collaboratorId={draft.id} />
+
+      <WfhProfileCard collaboratorId={draft.id} />
+
+
 
 
       {!canViewCompensation ? (
