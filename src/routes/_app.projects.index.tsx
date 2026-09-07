@@ -251,10 +251,13 @@ function DashboardPage() {
   // ---------- per-project actuals (using all entries, not just period) ----------
   const { data: allEntries } = useQuery({
     queryKey: ["pm-time-entries-all-project"],
+    // Heavy roll-up read: keep it cached across navigations within the module.
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("task_id, hours, billable, entry_type")
+        .select("task_id, hours, billable")
         .eq("entry_type", "project");
       if (error) throw error;
       return (data ?? []).map((r) => ({
@@ -264,6 +267,7 @@ function DashboardPage() {
       }));
     },
   });
+
 
   // Per-project material/expense aggregates, split between revenue-side
   // (materials sale price — what the client will be billed) and cost-side
