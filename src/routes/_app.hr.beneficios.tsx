@@ -977,7 +977,13 @@ function AdminView() {
         <TabsList>
           <TabsTrigger value="overview">{t("hr:beneficios.tabs.overview")}</TabsTrigger>
           <TabsTrigger value="expenses">{t("hr:beneficios.tabs.expenses")}</TabsTrigger>
+          <TabsTrigger value="mine">{t("hr:beneficios.tabs.mine")}</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="mine" className="space-y-6">
+          <CollaboratorView />
+        </TabsContent>
+
 
         <TabsContent value="overview" className="space-y-6">
           <BenefitsOverviewTab
