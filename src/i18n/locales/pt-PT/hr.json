@@ -1476,7 +1476,69 @@
     "status": {
       "pendente": "Pendente",
       "aprovada": "Aprovado",
-      "rejeitada": "Rejeitado"
-    }
+      "rejeitada": "Rejeitado",
+      "cancelada": "Cancelado"
+    },
+    "location": {
+      "home": "Casa",
+      "remote": "Outro local remoto"
+    },
+    "tabs": {
+      "requests": "Pedidos",
+      "history": "Histórico",
+      "analytics": "Análise"
+    },
+    "settings": "Definições",
+    "locationType": "Local de trabalho",
+    "statusLabel": "Estado",
+    "all": "Todos",
+    "date": "Data",
+    "requestedOn": "Pedido em",
+    "rejectReason": "Motivo da rejeição",
+    "confirmReject": "Confirmar rejeição",
+    "decisionSaved": "Decisão guardada.",
+    "calendarTitle": "Dias aprovados",
+    "recordsTitle": "Todos os registos",
+    "noRecords": "Sem registos para estes filtros.",
+    "period": "Período",
+    "periods": {
+      "month": "Este mês",
+      "quarter": "Este trimestre",
+      "year": "Este ano",
+      "custom": "Intervalo personalizado"
+    },
+    "kpi": {
+      "totalDays": "Dias remotos",
+      "people": "Pessoas",
+      "avgDays": "Média por pessoa",
+      "avgPct": "Média da equipa"
+    },
+    "comparisonTitle": "Por colaborador",
+    "trendTitle": "Evolução mensal",
+    "wfhDays": "Dias remotos",
+    "eligibleDays": "Dias úteis elegíveis",
+    "wfhPct": "Percentagem de dias úteis",
+    "teamAverage": "Média da equipa",
+    "policyTitle": "Política",
+    "requiresApproval": "Requer aprovação",
+    "requiresApprovalHint": "Quando desligado, os pedidos são aprovados automaticamente.",
+    "noticeDays": "Antecedência mínima (dias)",
+    "noticeDaysHint": "Com quanta antecedência o pedido tem de ser feito.",
+    "allowSameDay": "Permitir pedidos no próprio dia",
+    "allowSameDayHint": "Permite pedir para hoje, por exemplo em caso de doença.",
+    "allowAdminOverride": "Permitir exceção de RH",
+    "allowAdminOverrideHint": "RH e administradores podem registar um dia diretamente, sem aprovação.",
+    "settingsSaved": "Definições guardadas.",
+    "approversTitle": "Aprovadores",
+    "approversHint": "Um aprovador específico de uma pessoa tem prioridade sobre um aprovador geral; ganha o número de prioridade mais baixo.",
+    "approver": "Aprovador",
+    "selectPerson": "Selecionar pessoa",
+    "scope": "Aplica-se a",
+    "scopeGlobal": "Todos",
+    "scopeFor": "Apenas para",
+    "priority": "Prioridade",
+    "addApprover": "Adicionar aprovador",
+    "approverAdded": "Aprovador adicionado.",
+    "noApprovers": "Sem aprovadores configurados — por omissão aprovam RH e administradores."
   }
 }

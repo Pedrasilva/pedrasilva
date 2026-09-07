@@ -10067,38 +10067,104 @@ export type Database = {
         }
         Relationships: []
       }
+      remote_work_approvers: {
+        Row: {
+          active: boolean
+          approver_user_id: string
+          collaborator_id: string | null
+          created_at: string
+          id: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          approver_user_id: string
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          approver_user_id?: string
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remote_work_approvers_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remote_work_approvers_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       remote_work_requests: {
         Row: {
           aprovado_em: string | null
           aprovado_por: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           collaborator_id: string
           created_at: string
+          created_by: string | null
           data: string
           estado: string
           id: string
+          location_type: string
+          motivo_rejeicao: string | null
           notas: string | null
+          override_by: string | null
+          request_group_id: string | null
           updated_at: string
         }
         Insert: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           collaborator_id: string
           created_at?: string
+          created_by?: string | null
           data: string
           estado?: string
           id?: string
+          location_type?: string
+          motivo_rejeicao?: string | null
           notas?: string | null
+          override_by?: string | null
+          request_group_id?: string | null
           updated_at?: string
         }
         Update: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           collaborator_id?: string
           created_at?: string
+          created_by?: string | null
           data?: string
           estado?: string
           id?: string
+          location_type?: string
+          motivo_rejeicao?: string | null
           notas?: string | null
+          override_by?: string | null
+          request_group_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -10117,6 +10183,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      remote_work_settings: {
+        Row: {
+          allow_admin_override: boolean
+          allow_same_day_requests: boolean
+          approval_required: boolean
+          created_at: string
+          id: boolean
+          minimum_notice_days: number
+          updated_at: string
+        }
+        Insert: {
+          allow_admin_override?: boolean
+          allow_same_day_requests?: boolean
+          approval_required?: boolean
+          created_at?: string
+          id?: boolean
+          minimum_notice_days?: number
+          updated_at?: string
+        }
+        Update: {
+          allow_admin_override?: boolean
+          allow_same_day_requests?: boolean
+          approval_required?: boolean
+          created_at?: string
+          id?: boolean
+          minimum_notice_days?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
@@ -11289,6 +11385,10 @@ export type Database = {
         Returns: undefined
       }
       reminders_promote_due: { Args: never; Returns: number }
+      remote_work_can_approve: {
+        Args: { _collaborator: string; _user: string }
+        Returns: boolean
+      }
       remove_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["pm_role"]

@@ -111,6 +111,10 @@ import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.fin
 import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
 import { Route as AppFinanceSuppliersCompanyIdRouteImport } from './routes/_app.finance.suppliers.$companyId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppHrTrabalhoRemotoIndexRouteImport } from './routes/_app.hr.trabalho-remoto.index'
+import { Route as AppHrTrabalhoRemotoAnalyticsRouteImport } from './routes/_app.hr.trabalho-remoto.analytics'
+import { Route as AppHrTrabalhoRemotoDefinicoesRouteImport } from './routes/_app.hr.trabalho-remoto.definicoes'
+import { Route as AppHrTrabalhoRemotoHistoricoRouteImport } from './routes/_app.hr.trabalho-remoto.historico'
 import { Route as AppInventoryAssetsIndexRouteImport } from './routes/_app.inventory.assets.index'
 import { Route as AppInventoryAssetsAssetIdRouteImport } from './routes/_app.inventory.assets.$assetId'
 import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.products.project.$projectId'
@@ -668,6 +672,30 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   path: '/colaborador/$id',
   getParentRoute: () => AppHrRoute,
 } as any)
+const AppHrTrabalhoRemotoIndexRoute =
+  AppHrTrabalhoRemotoIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppHrTrabalhoRemotoRoute,
+  } as any)
+const AppHrTrabalhoRemotoAnalyticsRoute =
+  AppHrTrabalhoRemotoAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AppHrTrabalhoRemotoRoute,
+  } as any)
+const AppHrTrabalhoRemotoDefinicoesRoute =
+  AppHrTrabalhoRemotoDefinicoesRouteImport.update({
+    id: '/definicoes',
+    path: '/definicoes',
+    getParentRoute: () => AppHrTrabalhoRemotoRoute,
+  } as any)
+const AppHrTrabalhoRemotoHistoricoRoute =
+  AppHrTrabalhoRemotoHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AppHrTrabalhoRemotoRoute,
+  } as any)
 const AppInventoryAssetsIndexRoute = AppInventoryAssetsIndexRouteImport.update({
   id: '/assets/',
   path: '/assets/',
@@ -785,7 +813,7 @@ export interface FileRoutesByFullPath {
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
-  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
+  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRouteWithChildren
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -848,6 +876,9 @@ export interface FileRoutesByFullPath {
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/hr/trabalho-remoto/analytics': typeof AppHrTrabalhoRemotoAnalyticsRoute
+  '/hr/trabalho-remoto/definicoes': typeof AppHrTrabalhoRemotoDefinicoesRoute
+  '/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -863,6 +894,7 @@ export interface FileRoutesByFullPath {
   '/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
+  '/hr/trabalho-remoto/': typeof AppHrTrabalhoRemotoIndexRoute
   '/inventory/assets/': typeof AppInventoryAssetsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
@@ -895,7 +927,6 @@ export interface FileRoutesByTo {
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
-  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/inbox/settings': typeof AppInboxSettingsRoute
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -958,6 +989,9 @@ export interface FileRoutesByTo {
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/hr/trabalho-remoto/analytics': typeof AppHrTrabalhoRemotoAnalyticsRoute
+  '/hr/trabalho-remoto/definicoes': typeof AppHrTrabalhoRemotoDefinicoesRoute
+  '/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -973,6 +1007,7 @@ export interface FileRoutesByTo {
   '/crm/companies': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
+  '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoIndexRoute
   '/inventory/assets': typeof AppInventoryAssetsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
@@ -1014,7 +1049,7 @@ export interface FileRoutesById {
   '/_app/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
-  '/_app/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRoute
+  '/_app/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoRouteWithChildren
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/inbox/settings': typeof AppInboxSettingsRoute
   '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
@@ -1077,6 +1112,9 @@ export interface FileRoutesById {
   '/_app/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/_app/finance/suppliers/$companyId': typeof AppFinanceSuppliersCompanyIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/_app/hr/trabalho-remoto/analytics': typeof AppHrTrabalhoRemotoAnalyticsRoute
+  '/_app/hr/trabalho-remoto/definicoes': typeof AppHrTrabalhoRemotoDefinicoesRoute
+  '/_app/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/_app/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/_app/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -1092,6 +1130,7 @@ export interface FileRoutesById {
   '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
+  '/_app/hr/trabalho-remoto/': typeof AppHrTrabalhoRemotoIndexRoute
   '/_app/inventory/assets/': typeof AppInventoryAssetsIndexRoute
   '/_app/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
@@ -1196,6 +1235,9 @@ export interface FileRouteTypes {
     | '/finance/reports/vat'
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
+    | '/hr/trabalho-remoto/analytics'
+    | '/hr/trabalho-remoto/definicoes'
+    | '/hr/trabalho-remoto/historico'
     | '/inventory/assets/$assetId'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
@@ -1211,6 +1253,7 @@ export interface FileRouteTypes {
     | '/crm/companies/'
     | '/crm/opportunities/'
     | '/finance/documents/'
+    | '/hr/trabalho-remoto/'
     | '/inventory/assets/'
     | '/proposals/$proposalId/revisions/$revisionId'
   fileRoutesByTo: FileRoutesByTo
@@ -1243,7 +1286,6 @@ export interface FileRouteTypes {
     | '/hr/minha-ficha'
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
-    | '/hr/trabalho-remoto'
     | '/hr/valor-bo'
     | '/inbox/settings'
     | '/inventory/assignments'
@@ -1306,6 +1348,9 @@ export interface FileRouteTypes {
     | '/finance/reports/vat'
     | '/finance/suppliers/$companyId'
     | '/hr/colaborador/$id'
+    | '/hr/trabalho-remoto/analytics'
+    | '/hr/trabalho-remoto/definicoes'
+    | '/hr/trabalho-remoto/historico'
     | '/inventory/assets/$assetId'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
@@ -1321,6 +1366,7 @@ export interface FileRouteTypes {
     | '/crm/companies'
     | '/crm/opportunities'
     | '/finance/documents'
+    | '/hr/trabalho-remoto'
     | '/inventory/assets'
     | '/proposals/$proposalId/revisions/$revisionId'
   id:
@@ -1424,6 +1470,9 @@ export interface FileRouteTypes {
     | '/_app/finance/reports/vat'
     | '/_app/finance/suppliers/$companyId'
     | '/_app/hr/colaborador/$id'
+    | '/_app/hr/trabalho-remoto/analytics'
+    | '/_app/hr/trabalho-remoto/definicoes'
+    | '/_app/hr/trabalho-remoto/historico'
     | '/_app/inventory/assets/$assetId'
     | '/_app/products/project/$projectId'
     | '/_app/projects/$projectId/allocations'
@@ -1439,6 +1488,7 @@ export interface FileRouteTypes {
     | '/_app/crm/companies/'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
+    | '/_app/hr/trabalho-remoto/'
     | '/_app/inventory/assets/'
     | '/_app/proposals/$proposalId/revisions/$revisionId'
   fileRoutesById: FileRoutesById
@@ -2177,6 +2227,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppHrRoute
     }
+    '/_app/hr/trabalho-remoto/': {
+      id: '/_app/hr/trabalho-remoto/'
+      path: '/'
+      fullPath: '/hr/trabalho-remoto/'
+      preLoaderRoute: typeof AppHrTrabalhoRemotoIndexRouteImport
+      parentRoute: typeof AppHrTrabalhoRemotoRoute
+    }
+    '/_app/hr/trabalho-remoto/analytics': {
+      id: '/_app/hr/trabalho-remoto/analytics'
+      path: '/analytics'
+      fullPath: '/hr/trabalho-remoto/analytics'
+      preLoaderRoute: typeof AppHrTrabalhoRemotoAnalyticsRouteImport
+      parentRoute: typeof AppHrTrabalhoRemotoRoute
+    }
+    '/_app/hr/trabalho-remoto/definicoes': {
+      id: '/_app/hr/trabalho-remoto/definicoes'
+      path: '/definicoes'
+      fullPath: '/hr/trabalho-remoto/definicoes'
+      preLoaderRoute: typeof AppHrTrabalhoRemotoDefinicoesRouteImport
+      parentRoute: typeof AppHrTrabalhoRemotoRoute
+    }
+    '/_app/hr/trabalho-remoto/historico': {
+      id: '/_app/hr/trabalho-remoto/historico'
+      path: '/historico'
+      fullPath: '/hr/trabalho-remoto/historico'
+      preLoaderRoute: typeof AppHrTrabalhoRemotoHistoricoRouteImport
+      parentRoute: typeof AppHrTrabalhoRemotoRoute
+    }
     '/_app/inventory/assets/': {
       id: '/_app/inventory/assets/'
       path: '/assets'
@@ -2407,6 +2485,23 @@ const AppFinanceRouteWithChildren = AppFinanceRoute._addFileChildren(
   AppFinanceRouteChildren,
 )
 
+interface AppHrTrabalhoRemotoRouteChildren {
+  AppHrTrabalhoRemotoAnalyticsRoute: typeof AppHrTrabalhoRemotoAnalyticsRoute
+  AppHrTrabalhoRemotoDefinicoesRoute: typeof AppHrTrabalhoRemotoDefinicoesRoute
+  AppHrTrabalhoRemotoHistoricoRoute: typeof AppHrTrabalhoRemotoHistoricoRoute
+  AppHrTrabalhoRemotoIndexRoute: typeof AppHrTrabalhoRemotoIndexRoute
+}
+
+const AppHrTrabalhoRemotoRouteChildren: AppHrTrabalhoRemotoRouteChildren = {
+  AppHrTrabalhoRemotoAnalyticsRoute: AppHrTrabalhoRemotoAnalyticsRoute,
+  AppHrTrabalhoRemotoDefinicoesRoute: AppHrTrabalhoRemotoDefinicoesRoute,
+  AppHrTrabalhoRemotoHistoricoRoute: AppHrTrabalhoRemotoHistoricoRoute,
+  AppHrTrabalhoRemotoIndexRoute: AppHrTrabalhoRemotoIndexRoute,
+}
+
+const AppHrTrabalhoRemotoRouteWithChildren =
+  AppHrTrabalhoRemotoRoute._addFileChildren(AppHrTrabalhoRemotoRouteChildren)
+
 interface AppHrRouteChildren {
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
@@ -2416,7 +2511,7 @@ interface AppHrRouteChildren {
   AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
   AppHrResumoRoute: typeof AppHrResumoRoute
   AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
-  AppHrTrabalhoRemotoRoute: typeof AppHrTrabalhoRemotoRoute
+  AppHrTrabalhoRemotoRoute: typeof AppHrTrabalhoRemotoRouteWithChildren
   AppHrValorBoRoute: typeof AppHrValorBoRoute
   AppHrIndexRoute: typeof AppHrIndexRoute
   AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
@@ -2431,7 +2526,7 @@ const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
   AppHrResumoRoute: AppHrResumoRoute,
   AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
-  AppHrTrabalhoRemotoRoute: AppHrTrabalhoRemotoRoute,
+  AppHrTrabalhoRemotoRoute: AppHrTrabalhoRemotoRouteWithChildren,
   AppHrValorBoRoute: AppHrValorBoRoute,
   AppHrIndexRoute: AppHrIndexRoute,
   AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
