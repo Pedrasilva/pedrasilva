@@ -6,7 +6,7 @@
  * uses (`benefit_balances`, `benefit_yearly_credits`, `benefit_expenses_v`)
  * and aggregates client-side — the team is small, so no new SQL is needed.
  */
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,8 +87,7 @@ export function BenefitsOverviewTab({
   onManageBalances?: (collaboratorId: string) => void;
   onViewExpenses?: (collaboratorId: string) => void;
 }) {
-  const { t, i18n } = useTranslation(["hr", "common"]);
-  const isEn = i18n.language?.startsWith("en");
+  const { t } = useTranslation(["hr", "common"]);
   const currentYear = new Date().getFullYear();
 
   const [year, setYear] = useState<number | "all">(currentYear);
@@ -354,9 +353,8 @@ export function BenefitsOverviewTab({
                   const open = expanded === r.id;
                   const over = r.disponivel < 0;
                   return (
-                    <>
+                    <Fragment key={r.id}>
                       <TableRow
-                        key={r.id}
                         className="cursor-pointer"
                         onClick={() => setExpanded(open ? null : r.id)}
                       >
@@ -430,7 +428,7 @@ export function BenefitsOverviewTab({
                         </TableCell>
                       </TableRow>
                       {open && (
-                        <TableRow key={`${r.id}-detail`} className="bg-muted/30 hover:bg-muted/30">
+                        <TableRow className="bg-muted/30 hover:bg-muted/30">
                           <TableCell />
                           <TableCell colSpan={7} className="py-3">
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -457,7 +455,7 @@ export function BenefitsOverviewTab({
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })
               )}
@@ -465,7 +463,6 @@ export function BenefitsOverviewTab({
           </Table>
         </CardContent>
       </Card>
-      {isEn ? null : null}
     </div>
   );
 }
