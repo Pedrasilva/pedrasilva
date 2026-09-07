@@ -58,8 +58,9 @@ export function QuoteProjectBillingInspector({
   const qc = useQueryClient();
 
   const q = useQuery({
-    queryKey: ["quote-build-settings", quoteId],
+    queryKey: ["quote-build-settings-raw", quoteId],
     enabled: !!quoteId,
+
     queryFn: async () => {
       const { data, error } = await db
         .from("fee_proposals")
