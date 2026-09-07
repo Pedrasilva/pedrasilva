@@ -45,6 +45,7 @@ import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
 import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
+import { Route as AppHrDisponibilidadeRouteImport } from './routes/_app.hr.disponibilidade'
 import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
 import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-ficha'
 import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
@@ -310,6 +311,11 @@ const AppHrColaboradoresRoute = AppHrColaboradoresRouteImport.update({
 const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
   id: '/dias-uteis',
   path: '/dias-uteis',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrDisponibilidadeRoute = AppHrDisponibilidadeRouteImport.update({
+  id: '/disponibilidade',
+  path: '/disponibilidade',
   getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrFeriasRoute = AppHrFeriasRouteImport.update({
@@ -809,6 +815,7 @@ export interface FileRoutesByFullPath {
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/hr/disponibilidade': typeof AppHrDisponibilidadeRoute
   '/hr/ferias': typeof AppHrFeriasRoute
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
@@ -923,6 +930,7 @@ export interface FileRoutesByTo {
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/hr/disponibilidade': typeof AppHrDisponibilidadeRoute
   '/hr/ferias': typeof AppHrFeriasRoute
   '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/hr/resumo': typeof AppHrResumoRoute
@@ -1045,6 +1053,7 @@ export interface FileRoutesById {
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
   '/_app/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/_app/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/_app/hr/disponibilidade': typeof AppHrDisponibilidadeRoute
   '/_app/hr/ferias': typeof AppHrFeriasRoute
   '/_app/hr/minha-ficha': typeof AppHrMinhaFichaRoute
   '/_app/hr/resumo': typeof AppHrResumoRoute
@@ -1168,6 +1177,7 @@ export interface FileRouteTypes {
     | '/hr/beneficios'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
+    | '/hr/disponibilidade'
     | '/hr/ferias'
     | '/hr/minha-ficha'
     | '/hr/resumo'
@@ -1282,6 +1292,7 @@ export interface FileRouteTypes {
     | '/hr/beneficios'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
+    | '/hr/disponibilidade'
     | '/hr/ferias'
     | '/hr/minha-ficha'
     | '/hr/resumo'
@@ -1403,6 +1414,7 @@ export interface FileRouteTypes {
     | '/_app/hr/beneficios'
     | '/_app/hr/colaboradores'
     | '/_app/hr/dias-uteis'
+    | '/_app/hr/disponibilidade'
     | '/_app/hr/ferias'
     | '/_app/hr/minha-ficha'
     | '/_app/hr/resumo'
@@ -1763,6 +1775,13 @@ declare module '@tanstack/react-router' {
       path: '/dias-uteis'
       fullPath: '/hr/dias-uteis'
       preLoaderRoute: typeof AppHrDiasUteisRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/disponibilidade': {
+      id: '/_app/hr/disponibilidade'
+      path: '/disponibilidade'
+      fullPath: '/hr/disponibilidade'
+      preLoaderRoute: typeof AppHrDisponibilidadeRouteImport
       parentRoute: typeof AppHrRoute
     }
     '/_app/hr/ferias': {
@@ -2507,6 +2526,7 @@ interface AppHrRouteChildren {
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
   AppHrColaboradoresRoute: typeof AppHrColaboradoresRoute
   AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
+  AppHrDisponibilidadeRoute: typeof AppHrDisponibilidadeRoute
   AppHrFeriasRoute: typeof AppHrFeriasRoute
   AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
   AppHrResumoRoute: typeof AppHrResumoRoute
@@ -2522,6 +2542,7 @@ const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
   AppHrColaboradoresRoute: AppHrColaboradoresRoute,
   AppHrDiasUteisRoute: AppHrDiasUteisRoute,
+  AppHrDisponibilidadeRoute: AppHrDisponibilidadeRoute,
   AppHrFeriasRoute: AppHrFeriasRoute,
   AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
   AppHrResumoRoute: AppHrResumoRoute,
