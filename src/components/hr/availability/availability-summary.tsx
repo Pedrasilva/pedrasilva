@@ -8,6 +8,7 @@ import type {
   DayColumn,
 } from "@/lib/hr/use-team-availability";
 import { coverageTone } from "./absence-visuals";
+import { formatDayLabel } from "./format-day";
 
 function StatCard({
   label,
