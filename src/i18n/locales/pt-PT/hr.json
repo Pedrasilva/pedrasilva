@@ -1070,7 +1070,9 @@
     "approverSubtitle": "Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite.",
     "tabs": {
       "mine": "Os meus benefícios",
-      "approvals": "Aprovações"
+      "approvals": "Aprovações",
+      "overview": "Resumo",
+      "expenses": "Despesas"
     },
     "empty": {
       "noProfile": "Não conseguimos identificar o seu perfil de colaborador. Contacte o administrador.",
@@ -1367,6 +1369,20 @@
       "confirmNote": "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase nem do Drive.",
       "confirmRun": "Sim, sincronizar",
       "toastDone": "Concluído: {{created}} carregados · {{skipped}} ignorados · {{failed}} falhados"
+    },
+    "overview": {
+      "remaining": "Disponível",
+      "usage": "Utilizado",
+      "searchPlaceholder": "Procurar colaborador…",
+      "sortName": "Ordenar: nome",
+      "sortSpent": "Ordenar: mais gasto",
+      "sortRemaining": "Ordenar: menos disponível",
+      "includeArchived": "Incluir arquivados",
+      "archived": "Arquivado",
+      "empty": "Ainda não há colaboradores com saldos de benefícios.",
+      "viewExpenses": "Ver despesas",
+      "manageBalances": "Gerir saldos",
+      "clearFilter": "Limpar"
     }
   },
   "companySettings": {

@@ -1070,7 +1070,9 @@
     "approverSubtitle": "Review receipts submitted by collaborators and approve or reject.",
     "tabs": {
       "mine": "My benefits",
-      "approvals": "Approvals"
+      "approvals": "Approvals",
+      "overview": "Overview",
+      "expenses": "Expenses"
     },
     "empty": {
       "noProfile": "We could not identify your collaborator profile. Contact the administrator.",
@@ -1367,6 +1369,20 @@
       "confirmNote": "Files are copied to the Google account linked to the connector. Nothing is deleted from Supabase or Drive.",
       "confirmRun": "Yes, sync now",
       "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed"
+    },
+    "overview": {
+      "remaining": "Remaining",
+      "usage": "Used",
+      "searchPlaceholder": "Search collaborator…",
+      "sortName": "Sort: name",
+      "sortSpent": "Sort: most used",
+      "sortRemaining": "Sort: least remaining",
+      "includeArchived": "Include archived",
+      "archived": "Archived",
+      "empty": "No collaborator has benefit balances yet.",
+      "viewExpenses": "View expenses",
+      "manageBalances": "Manage balances",
+      "clearFilter": "Clear"
     }
   },
   "companySettings": {
