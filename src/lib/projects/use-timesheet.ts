@@ -63,6 +63,8 @@ export function useTimesheetRows(opts: {
       [...opts.extraTaskIds].sort().join(","),
     ],
     enabled: !!opts.resourceId && !!opts.userId,
+    staleTime: 2 * 60_000,
+
     queryFn: async (): Promise<TimesheetTaskRow[]> => {
       if (!opts.resourceId) return [];
 
