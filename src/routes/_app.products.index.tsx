@@ -51,14 +51,8 @@ function ProductProjectsPage() {
   const board = useProjectBoard();
   const [dragId, setDragId] = useState<string | null>(null);
 
-  const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    const list = needle
-      ? projects.filter((p) =>
-          [p.name, p.client].filter(Boolean).some((v) => v!.toLowerCase().includes(needle)),
-        )
-      : projects;
-    const sorted = [...list].sort(
+  const ordered = useMemo(() => {
+    const sorted = [...projects].sort(
       (a, b) => b.itemCount - a.itemCount || a.name.localeCompare(b.name),
     );
     if (!board.hasCustomOrder) return sorted;
@@ -69,7 +63,16 @@ function ProductProjectsPage() {
     )
       .map((id) => byId.get(id)!)
       .filter(Boolean);
-  }, [projects, q, board.order, board.hasCustomOrder]);
+  }, [projects, board.order, board.hasCustomOrder]);
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return ordered;
+    return ordered.filter((p) =>
+      [p.name, p.client].filter(Boolean).some((v) => v!.toLowerCase().includes(needle)),
+    );
+  }, [ordered, q]);
+
 
   return (
     <div className="space-y-5">
