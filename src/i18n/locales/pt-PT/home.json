@@ -100,8 +100,10 @@
   "availability": {
     "title": "Disponibilidade da equipa",
     "outToday": "Ausentes hoje",
-    "wfhToday": "A trabalhar de casa",
+    "wfhToday": "A trabalhar de casa hoje",
     "comingUp": "Próximos (14 dias)",
-    "remote": "Trabalho remoto"
+    "remote": "Trabalho remoto",
+    "remoteToday": "A trabalhar de casa hoje",
+    "nextDay": "próxima {{day}}"
   }
 }

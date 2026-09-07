@@ -133,12 +133,22 @@ export function TodayStrip() {
                     >
                       <Laptop className="h-3.5 w-3.5" />
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{v.nome}</div>
                       <div className="truncate text-[11px] text-muted-foreground">
-                        {t("home:availability.remote")}
+                        {t("home:availability.remoteToday")}
                       </div>
                     </div>
+                    <span
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em]"
+                      style={{
+                        background:
+                          "color-mix(in oklab, var(--sage) 15%, transparent)",
+                        color: "var(--sage)",
+                      }}
+                    >
+                      {t("home:relative.today")}
+                    </span>
                   </li>
                 ))}
               </>
@@ -158,8 +168,8 @@ export function TodayStrip() {
                         {upcomingMeta(v)}
                       </div>
                     </div>
-                    <span className="shrink-0 text-[11px] font-medium tabular-nums text-muted-foreground">
-                      {fmtDate(v.start)}
+                    <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
+                      {relativeDays(daysAway(v.start))}
                     </span>
                   </li>
                 ))}
