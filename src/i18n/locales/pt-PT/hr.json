@@ -130,7 +130,8 @@
     "workingDays": "Dias úteis",
     "boRate": "Valor BO/hora",
     "permissions": "Permissões",
-    "remoteWork": "Trabalho remoto"
+    "remoteWork": "Trabalho remoto",
+    "availability": "Disponibilidade"
   },
   "compensationGate": {
     "title": "Compensação oculta",
@@ -1561,5 +1562,113 @@
     "addApprover": "Adicionar aprovador",
     "approverAdded": "Aprovador adicionado.",
     "noApprovers": "Sem aprovadores configurados — por omissão aprovam RH e administradores."
+  },
+  "availability": {
+    "title": "Disponibilidade da equipa",
+    "subtitle": "Vista apenas de leitura de ausências, feriados, trabalho remoto e cobertura diária.",
+    "manageLeave": "Gerir ausências",
+    "today": "Hoje",
+    "prevMonth": "Mês anterior",
+    "nextMonth": "Mês seguinte",
+    "partTimeNote": "Alguns colaboradores trabalham menos de cinco dias por semana. Os dias concretos não estão registados, pelo que a cobertura assume uma semana padrão e pondera a capacidade por FTE.",
+    "tabs": {
+      "month": "Mês",
+      "year": "Ano"
+    },
+    "grid": {
+      "person": "Colaborador",
+      "coverage": "Cobertura",
+      "coverageTip": "{{available}} de {{total}} disponíveis ({{pct}}% pessoas, {{capacity}}% capacidade)",
+      "nonWorkingDay": "Dia não útil"
+    },
+    "state": {
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "holiday": "Férias",
+      "remote": "A trabalhar remotamente",
+      "pending": "Pendente de aprovação"
+    },
+    "period": {
+      "morning": "Manhã",
+      "afternoon": "Tarde"
+    },
+    "legend": {
+      "holiday": "Férias",
+      "otherAbsence": "Outra ausência",
+      "unavailable": "Indisponível",
+      "halfDay": "Meio-dia",
+      "pending": "Pendente",
+      "remote": "A trabalhar remotamente",
+      "publicHoliday": "Feriado",
+      "weekend": "Fim-de-semana"
+    },
+    "cards": {
+      "availableToday": "Pessoas disponíveis hoje",
+      "awayToday": "Pessoas ausentes hoje",
+      "nextAbsence": "Próxima ausência planeada",
+      "lowestCoverage": "Cobertura mais baixa prevista",
+      "includesRemote": "Inclui {{count}} em trabalho remoto",
+      "noneThisMonth": "Sem ausências até ao fim do mês"
+    },
+    "warnings": {
+      "overlap": "Dois ou mais colaboradores do mesmo departamento ou projecto estão ausentes em {{count}} dia(s) próximos, a partir de {{first}}."
+    },
+    "filters": {
+      "department": "Departamento",
+      "project": "Projecto",
+      "collaborator": "Colaborador",
+      "state": "Estado",
+      "allDepartments": "Todos os departamentos",
+      "allProjects": "Todos os projectos",
+      "allCollaborators": "Todos os colaboradores",
+      "allStates": "Todos os estados"
+    },
+    "balance": {
+      "allowance": "Dias anuais",
+      "extra": "Extra",
+      "carryOver": "Saldo anterior",
+      "taken": "Aprovados",
+      "booked": "Pendentes",
+      "remaining": "Saldo"
+    },
+    "year": {
+      "title": "Dias de ausência {{year}}",
+      "total": "Total",
+      "cellTip": "{{name}} — {{month}}: {{days}} dia(s)"
+    },
+    "weekday": {
+      "sun": "D",
+      "mon": "S",
+      "tue": "T",
+      "wed": "Q",
+      "thu": "Q",
+      "fri": "S",
+      "sat": "S"
+    },
+    "month": {
+      "jan": "Jan",
+      "feb": "Fev",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Set",
+      "oct": "Out",
+      "nov": "Nov",
+      "dec": "Dez"
+    },
+    "types": {
+      "ferias": "Férias",
+      "casamento": "Casamento",
+      "falecimento_familiar": "Falecimento de familiar",
+      "assistencia_filho": "Assistência a filho",
+      "nascimento_filho": "Nascimento de filho / licença parental",
+      "trabalhador_estudante": "Trabalhador-estudante",
+      "doacao_sangue": "Dádiva de sangue",
+      "autorizada_paga": "Ausência autorizada — paga",
+      "autorizada_nao_paga": "Ausência autorizada — não paga"
+    }
   }
 }

@@ -130,7 +130,8 @@
     "workingDays": "Working days",
     "boRate": "BO rate",
     "permissions": "Permissions",
-    "remoteWork": "Work from home"
+    "remoteWork": "Work from home",
+    "availability": "Team availability"
   },
   "compensationGate": {
     "title": "Compensation hidden",
@@ -1561,5 +1562,113 @@
     "addApprover": "Add approver",
     "approverAdded": "Approver added.",
     "noApprovers": "No approvers configured — HR and admins approve by default."
+  },
+  "availability": {
+    "title": "Team availability",
+    "subtitle": "Read-only overview of leave, public holidays, remote work and daily coverage.",
+    "manageLeave": "Manage leave",
+    "today": "Today",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "partTimeNote": "Some collaborators work fewer than five days a week. The specific weekdays are not recorded, so coverage assumes a standard week and weights capacity by FTE.",
+    "tabs": {
+      "month": "Month",
+      "year": "Year"
+    },
+    "grid": {
+      "person": "Collaborator",
+      "coverage": "Coverage",
+      "coverageTip": "{{available}} of {{total}} available ({{pct}}% headcount, {{capacity}}% capacity)",
+      "nonWorkingDay": "Non-working day"
+    },
+    "state": {
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "holiday": "Holiday",
+      "remote": "Working remotely",
+      "pending": "Pending approval"
+    },
+    "period": {
+      "morning": "Morning",
+      "afternoon": "Afternoon"
+    },
+    "legend": {
+      "holiday": "Holiday",
+      "otherAbsence": "Other absence",
+      "unavailable": "Unavailable",
+      "halfDay": "Half day",
+      "pending": "Pending",
+      "remote": "Working remotely",
+      "publicHoliday": "Public holiday",
+      "weekend": "Weekend"
+    },
+    "cards": {
+      "availableToday": "People available today",
+      "awayToday": "People away today",
+      "nextAbsence": "Next planned absence",
+      "lowestCoverage": "Lowest upcoming coverage",
+      "includesRemote": "Includes {{count}} working remotely",
+      "noneThisMonth": "None left this month"
+    },
+    "warnings": {
+      "overlap": "Two or more people from the same department or project are away on {{count}} upcoming day(s), starting {{first}}."
+    },
+    "filters": {
+      "department": "Department",
+      "project": "Project",
+      "collaborator": "Collaborator",
+      "state": "State",
+      "allDepartments": "All departments",
+      "allProjects": "All projects",
+      "allCollaborators": "All collaborators",
+      "allStates": "All states"
+    },
+    "balance": {
+      "allowance": "Allowance",
+      "extra": "Extra",
+      "carryOver": "Carry-over",
+      "taken": "Approved",
+      "booked": "Pending",
+      "remaining": "Remaining"
+    },
+    "year": {
+      "title": "Leave days {{year}}",
+      "total": "Total",
+      "cellTip": "{{name}} — {{month}}: {{days}} day(s)"
+    },
+    "weekday": {
+      "sun": "S",
+      "mon": "M",
+      "tue": "T",
+      "wed": "W",
+      "thu": "T",
+      "fri": "F",
+      "sat": "S"
+    },
+    "month": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    },
+    "types": {
+      "ferias": "Holiday",
+      "casamento": "Marriage leave",
+      "falecimento_familiar": "Bereavement leave",
+      "assistencia_filho": "Child care leave",
+      "nascimento_filho": "Parental leave",
+      "trabalhador_estudante": "Student worker leave",
+      "doacao_sangue": "Blood donation",
+      "autorizada_paga": "Authorised absence (paid)",
+      "autorizada_nao_paga": "Authorised absence (unpaid)"
+    }
   }
 }
