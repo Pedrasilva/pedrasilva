@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS,
   balanceByCategory,
+  expenseCategoryLabel,
   type BenefitBalance,
   type BenefitCategory,
   type BenefitExpenseRow,
