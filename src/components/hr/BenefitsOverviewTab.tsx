@@ -642,6 +642,23 @@ function StatementDialog({
             </TableBody>
           </Table>
         </div>
+
+        {(onManageBalances || onViewExpenses) && (
+          <div className="flex justify-end gap-2">
+            {onViewExpenses && (
+              <Button variant="outline" onClick={() => onViewExpenses(row.id)}>
+                <Receipt className="mr-2 h-4 w-4" />
+                {t("hr:beneficios.overview.viewExpenses")}
+              </Button>
+            )}
+            {onManageBalances && (
+              <Button onClick={() => onManageBalances(row.id)}>
+                <Settings2 className="mr-2 h-4 w-4" />
+                {t("hr:beneficios.overview.manageBalances")}
+              </Button>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
