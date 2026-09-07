@@ -192,6 +192,19 @@ export function BenefitsOverviewTab({
     });
   }, [collaboratorsQ.data, balancesQ.data, creditsQ.data, expensesQ.data, year]);
 
+  /** Expenses of the selected period, per collaborator, oldest first. */
+  const expensesByCollab = useMemo(() => {
+    const m: Record<string, BenefitExpenseRow[]> = {};
+    for (const e of expensesQ.data ?? []) {
+      if (year !== "all" && e.ano_fiscal !== year) continue;
+      (m[e.collaborator_id] ||= []).push(e);
+    }
+    for (const k of Object.keys(m))
+      m[k].sort((a, b) => (a.data_despesa < b.data_despesa ? -1 : 1));
+    return m;
+  }, [expensesQ.data, year]);
+
+
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = rows.filter((r) => {
