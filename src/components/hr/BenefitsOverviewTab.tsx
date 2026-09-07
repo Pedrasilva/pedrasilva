@@ -500,7 +500,24 @@ export function BenefitsOverviewTab({
         expenses={statementFor ? (expensesByCollab[statementFor.id] ?? []) : []}
         year={year}
         onClose={() => setStatementFor(null)}
+        onManageBalances={
+          onManageBalances
+            ? (id) => {
+                setStatementFor(null);
+                onManageBalances(id);
+              }
+            : undefined
+        }
+        onViewExpenses={
+          onViewExpenses
+            ? (id) => {
+                setStatementFor(null);
+                onViewExpenses(id);
+              }
+            : undefined
+        }
       />
+
     </div>
   );
 }
