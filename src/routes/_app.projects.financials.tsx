@@ -1982,7 +1982,8 @@ function useBusinessDevReport(
         .select("user_id, task_id")
         .eq("entry_type", "project")
         .not("task_id", "is", null)
-        .limit(2000);
+        .limit(500);
+
       const projRows = (anyProj ?? []) as { user_id: string; task_id: string | null }[];
       const taskIds = Array.from(new Set(projRows.map((r) => r.task_id!).filter(Boolean)));
       const taskToRes = new Map<string, string>();
