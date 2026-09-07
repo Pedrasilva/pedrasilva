@@ -35,6 +35,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { ChevronDown, ChevronRight, Download, FileText, Settings2, Receipt } from "lucide-react";
