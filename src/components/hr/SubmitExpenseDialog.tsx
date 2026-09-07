@@ -34,6 +34,7 @@ import {
 } from "@/lib/benefits";
 import { fmtEUR } from "@/lib/salary";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
+import { routeBenefitReceiptToQueue } from "@/lib/hr/benefit-queue.functions";
 import { getOwnCompanyNif } from "@/lib/finance/own-company.functions";
 import { findCompanyByNif } from "@/lib/finance/supplier-matching";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
