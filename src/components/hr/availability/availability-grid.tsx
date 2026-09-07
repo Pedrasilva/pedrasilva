@@ -9,6 +9,7 @@ import type {
   DayColumn,
 } from "@/lib/hr/use-team-availability";
 import { cellStyle, coverageTone, mix } from "./absence-visuals";
+import { formatDayLabel } from "./format-day";
 
 const WD = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
