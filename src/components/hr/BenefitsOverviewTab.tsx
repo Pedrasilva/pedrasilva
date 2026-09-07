@@ -500,7 +500,24 @@ export function BenefitsOverviewTab({
         expenses={statementFor ? (expensesByCollab[statementFor.id] ?? []) : []}
         year={year}
         onClose={() => setStatementFor(null)}
+        onManageBalances={
+          onManageBalances
+            ? (id) => {
+                setStatementFor(null);
+                onManageBalances(id);
+              }
+            : undefined
+        }
+        onViewExpenses={
+          onViewExpenses
+            ? (id) => {
+                setStatementFor(null);
+                onViewExpenses(id);
+              }
+            : undefined
+        }
       />
+
     </div>
   );
 }
@@ -514,11 +531,15 @@ function StatementDialog({
   expenses,
   year,
   onClose,
+  onManageBalances,
+  onViewExpenses,
 }: {
   row: Row | null;
   expenses: BenefitExpenseRow[];
   year: number | "all";
   onClose: () => void;
+  onManageBalances?: (collaboratorId: string) => void;
+  onViewExpenses?: (collaboratorId: string) => void;
 }) {
   const { t, i18n } = useTranslation(["hr", "common"]);
   const locale = i18n.language?.startsWith("en") ? "en" : "pt";
@@ -621,6 +642,23 @@ function StatementDialog({
             </TableBody>
           </Table>
         </div>
+
+        {(onManageBalances || onViewExpenses) && (
+          <div className="flex justify-end gap-2">
+            {onViewExpenses && (
+              <Button variant="outline" onClick={() => onViewExpenses(row.id)}>
+                <Receipt className="mr-2 h-4 w-4" />
+                {t("hr:beneficios.overview.viewExpenses")}
+              </Button>
+            )}
+            {onManageBalances && (
+              <Button onClick={() => onManageBalances(row.id)}>
+                <Settings2 className="mr-2 h-4 w-4" />
+                {t("hr:beneficios.overview.manageBalances")}
+              </Button>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
