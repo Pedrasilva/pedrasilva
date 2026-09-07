@@ -33,9 +33,9 @@ export function cellStyle(cell: Cell | undefined): React.CSSProperties {
     case "remote":
       return { background: mix("var(--hr-accent)", 16) };
     case "holiday":
-      return { background: mix("var(--ink)", 10) };
+      return { background: mix("var(--ink)", 14) };
     case "weekend":
-      return { background: mix("var(--ink)", 6) };
+      return { background: mix("var(--ink)", 9) };
     default:
       return {};
   }

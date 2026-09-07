@@ -1611,7 +1611,8 @@
       "noneThisMonth": "None left this month"
     },
     "warnings": {
-      "overlap": "Two or more people from the same department or project are away on {{count}} upcoming day(s), starting {{first}}."
+      "overlap_one": "Two or more people from the same department or project are away on {{count}} upcoming day, {{first}}.",
+      "overlap_other": "Two or more people from the same department or project are away on {{count}} upcoming days, starting {{first}}."
     },
     "filters": {
       "department": "Department",

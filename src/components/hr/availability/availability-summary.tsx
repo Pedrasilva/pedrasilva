@@ -8,6 +8,7 @@ import type {
   DayColumn,
 } from "@/lib/hr/use-team-availability";
 import { coverageTone } from "./absence-visuals";
+import { formatDayLabel } from "./format-day";
 
 function StatCard({
   label,
@@ -109,12 +110,12 @@ export function AvailabilitySummary({
         <StatCard
           label={t("availability.cards.nextAbsence")}
           value={next ? next.name : "—"}
-          hint={next ? `${next.iso} · ${next.label}` : t("availability.cards.noneThisMonth")}
+          hint={next ? `${formatDayLabel(next.iso)} · ${next.label}` : t("availability.cards.noneThisMonth")}
         />
         <StatCard
           label={t("availability.cards.lowestCoverage")}
           value={lowest ? `${Math.round(lowest.pct)}%` : "—"}
-          hint={lowest ? lowest.iso : undefined}
+          hint={lowest ? formatDayLabel(lowest.iso) : undefined}
           tone={lowest ? coverageTone(lowest.pct) : undefined}
         />
       </div>
@@ -128,7 +129,7 @@ export function AvailabilitySummary({
           <span className="text-muted-foreground">
             {t("availability.warnings.overlap", {
               count: clashDays.length,
-              first: clashDays[0]!.iso,
+              first: formatDayLabel(clashDays[0]!.iso),
             })}
           </span>
         </div>
