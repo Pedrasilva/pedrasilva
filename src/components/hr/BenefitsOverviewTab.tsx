@@ -419,6 +419,14 @@ export function BenefitsOverviewTab({
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title={t("hr:beneficios.overview.statement")}
+                              onClick={() => setStatementFor(r)}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
                             {onViewExpenses && (
                               <Button
                                 variant="ghost"
