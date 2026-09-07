@@ -145,17 +145,33 @@ export function AvailabilityGrid({
               return (
                 <Tooltip key={d.iso}>
                   <TooltipTrigger asChild>
-                    <td className="border-l p-0 align-bottom">
-                      <div className="flex h-10 items-end justify-center px-[3px] pb-1">
+                    <td
+                      className="border-l p-0 align-bottom"
+                      style={{ background: d.isWorkingDay ? undefined : mix("var(--ink)", 6) }}
+                    >
+                      <div className="flex h-12 flex-col items-center justify-end gap-[2px] px-[3px] pb-1">
                         {show ? (
-                          <div
-                            className="w-full rounded-sm"
-                            style={{
-                              height: `${Math.max(8, (c.pct / 100) * 32)}px`,
-                              background: coverageTone(c.pct),
-                              opacity: 0.75,
-                            }}
-                          />
+                          <>
+                            <div
+                              className="flex w-full items-end rounded-sm"
+                              style={{ height: "28px", background: mix("var(--ink)", 7) }}
+                            >
+                              <div
+                                className="w-full rounded-sm"
+                                style={{
+                                  height: `${Math.max(3, (c.pct / 100) * 28)}px`,
+                                  background: coverageTone(c.pct),
+                                  opacity: 0.8,
+                                }}
+                              />
+                            </div>
+                            <span
+                              className="text-[8px] tabular-nums leading-none"
+                              style={{ color: c.pct >= 100 ? "var(--muted-foreground)" : coverageTone(c.pct) }}
+                            >
+                              {Math.round(c.pct)}
+                            </span>
+                          </>
                         ) : null}
                       </div>
                     </td>
