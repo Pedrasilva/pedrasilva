@@ -34,6 +34,7 @@ import {
 } from "@/lib/benefits";
 import { fmtEUR } from "@/lib/salary";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
+import { routeBenefitReceiptToQueue } from "@/lib/hr/benefit-queue.functions";
 import { getOwnCompanyNif } from "@/lib/finance/own-company.functions";
 import { findCompanyByNif } from "@/lib/finance/supplier-matching";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
@@ -137,6 +138,7 @@ export function SubmitExpenseDialog({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const extractFn = useServerFn(extractBenefitReceipt);
+  const routeToQueueFn = useServerFn(routeBenefitReceiptToQueue);
   const getOwnNif = useServerFn(getOwnCompanyNif);
 
   // Load bank accounts lazily (best-effort; RLS may hide)
@@ -473,7 +475,14 @@ export function SubmitExpenseDialog({
           .then(() => undefined, () => undefined);
       }
 
+      // Send the receipt into the shared Finance review queue (same file, no
+      // copy) so accounting only has to add the classification code.
+      if (inserted?.id && uploadedPath) {
+        void routeToQueueFn({ data: { expenseId: inserted.id } }).catch(() => undefined);
+      }
+
       toast.success(t("hr:beneficios.toasts.submitted"));
+
       setUploadedPath(null); // prevent cleanup
       reset();
       setOpen(false);

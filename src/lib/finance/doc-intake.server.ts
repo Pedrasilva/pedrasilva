@@ -688,8 +688,10 @@ export async function ingestStoredDocument(opts: {
   bucket: string;
   storagePath: string;
   originalFilename?: string | null;
-  source: "manual_upload" | "email_ingestion" | "drive_folder";
+  source: "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit";
   createdBy?: string | null;
+  /** Extra queue columns written verbatim (e.g. HR benefit linkage). */
+  extraFields?: Record<string, unknown>;
   /** When set, the existing pending queue row is re-extracted in place. */
   replaceQueueItemId?: string | null;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
@@ -711,7 +713,9 @@ export async function ingestStoredDocument(opts: {
     original_filename: opts.originalFilename ?? null,
     source: opts.source,
     created_by: opts.createdBy ?? null,
+    ...(opts.extraFields ?? {}),
   };
+
 
   if (!result.ok) {
     const { data: row, error } = await write({ ...base, extraction_error: result.error });

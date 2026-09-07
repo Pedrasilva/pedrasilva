@@ -2997,6 +2997,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           source: Database["public"]["Enums"]["fdrq_source"]
+          source_benefit_expense_id: string | null
           source_bucket: string
           source_file_url: string
           status: Database["public"]["Enums"]["fdrq_status"]
@@ -3056,6 +3057,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           source?: Database["public"]["Enums"]["fdrq_source"]
+          source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url: string
           status?: Database["public"]["Enums"]["fdrq_status"]
@@ -3115,6 +3117,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           source?: Database["public"]["Enums"]["fdrq_source"]
+          source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url?: string
           status?: Database["public"]["Enums"]["fdrq_status"]
@@ -3180,6 +3183,20 @@ export type Database = {
             columns: ["paid_from_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_source_benefit_expense_id_fkey"
+            columns: ["source_benefit_expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_source_benefit_expense_id_fkey"
+            columns: ["source_benefit_expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses_v"
             referencedColumns: ["id"]
           },
         ]
@@ -11517,7 +11534,11 @@ export type Database = {
         | "proof_of_payment"
         | "unknown"
         | "bank_statement"
-      fdrq_source: "manual_upload" | "email_ingestion" | "drive_folder"
+      fdrq_source:
+        | "manual_upload"
+        | "email_ingestion"
+        | "drive_folder"
+        | "hr_benefit"
       fdrq_status: "pending_review" | "approved" | "rejected"
       fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
       financial_class_level: "category" | "group" | "subgroup"
@@ -11954,7 +11975,12 @@ export const Constants = {
         "unknown",
         "bank_statement",
       ],
-      fdrq_source: ["manual_upload", "email_ingestion", "drive_folder"],
+      fdrq_source: [
+        "manual_upload",
+        "email_ingestion",
+        "drive_folder",
+        "hr_benefit",
+      ],
       fdrq_status: ["pending_review", "approved", "rejected"],
       fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
       financial_class_level: ["category", "group", "subgroup"],
