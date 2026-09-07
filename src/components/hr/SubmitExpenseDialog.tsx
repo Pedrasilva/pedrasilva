@@ -138,6 +138,7 @@ export function SubmitExpenseDialog({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const extractFn = useServerFn(extractBenefitReceipt);
+  const routeToQueueFn = useServerFn(routeBenefitReceiptToQueue);
   const getOwnNif = useServerFn(getOwnCompanyNif);
 
   // Load bank accounts lazily (best-effort; RLS may hide)
