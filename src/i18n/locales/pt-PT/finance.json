@@ -1485,7 +1485,8 @@
     "sourceLabel": {
       "manual_upload": "Carregamento manual",
       "email_ingestion": "Email",
-      "drive_folder": "Pasta do Drive"
+      "drive_folder": "Pasta do Drive",
+      "hr_benefit": "Benefício RH"
     },
     "ignored": "Ignorados (email)",
     "ignoredTitle": "Emails e anexos que não foram processados",
