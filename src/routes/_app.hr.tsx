@@ -13,6 +13,7 @@ import {
   User as UserIcon,
   Utensils,
   Laptop,
+  CalendarRange,
   PanelLeftClose,
   PanelLeftOpen,
   type LucideIcon,
