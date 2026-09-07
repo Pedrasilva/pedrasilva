@@ -78,6 +78,7 @@ import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/Expen
 import { FinanceBackfillCard } from "@/components/hr/FinanceBackfillCard";
 import { PaymentLedgerBackfillCard } from "@/components/hr/PaymentLedgerBackfillCard";
 import { BenefitDriveSyncCard } from "@/components/hr/BenefitDriveSyncCard";
+import { BenefitsOverviewTab } from "@/components/hr/BenefitsOverviewTab";
 import { useServerFn } from "@tanstack/react-start";
 import { isValidPortugueseNif } from "@/lib/finance/nif";
 import { linkOrCreateSupplierForBenefitExpense } from "@/lib/hr/benefit-supplier.functions";
@@ -1074,10 +1075,12 @@ function ManagementView({
     return Array.from(s).sort((a, b) => b - a);
   }, [expenses, currentYear]);
 
-  const filtered = useMemo(
-    () => filterExpenses(expenses, filters),
-    [expenses, filters],
-  );
+  const filtered = useMemo(() => {
+    const base = collaboratorFilter
+      ? expenses.filter((e) => e.collaborator_id === collaboratorFilter)
+      : expenses;
+    return filterExpenses(base, filters);
+  }, [expenses, filters, collaboratorFilter]);
 
   const totals = useMemo(() => {
     const t = { pendente: 0, aprovada: 0, paga: 0 };
