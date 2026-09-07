@@ -1017,13 +1017,19 @@ function ManagementView({
   queryKey,
   onInvalidate,
   hideHeader,
+  collaboratorFilter,
+  onClearCollaboratorFilter,
 }: {
   title: string;
   subtitle: string;
   queryKey: string;
   onInvalidate: () => void;
   hideHeader?: boolean;
+  /** When set, only this collaborator's expenses are listed. */
+  collaboratorFilter?: string | null;
+  onClearCollaboratorFilter?: () => void;
 }) {
+
   const { t, i18n } = useTranslation(["hr"]);
   const isEn = i18n.language?.startsWith("en");
   const { data: collaborators = [] } = useQuery({
