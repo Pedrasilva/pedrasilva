@@ -672,17 +672,36 @@ function ExpenseActions({
     if (!expense.foto_path) return;
     setLoadingUrl(true);
     try {
+      // Fetch bytes through the SDK and open a local blob URL — opening a
+      // remote signed URL after an await is blocked inside sandboxed frames.
       const { data, error } = await supabase.storage
         .from("benefit-receipts")
-        .createSignedUrl(expense.foto_path, 60 * 5);
+        .download(expense.foto_path);
       if (error) throw error;
-      window.open(data.signedUrl, "_blank");
+      const blob =
+        data.type && data.type !== "application/octet-stream"
+          ? data
+          : new Blob([await data.arrayBuffer()], {
+              type: expense.foto_path.toLowerCase().endsWith(".pdf")
+                ? "application/pdf"
+                : "image/jpeg",
+            });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.openPhoto"));
     } finally {
       setLoadingUrl(false);
     }
   }
+
 
   async function setStatus(to: ExpenseStatus, notes?: string | null) {
     const { error } = await sb.rpc("benefit_expense_set_status", {
