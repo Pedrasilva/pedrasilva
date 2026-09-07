@@ -35,14 +35,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
-import { ChevronDown, ChevronRight, Download, Settings2, Receipt } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FileText, Settings2, Receipt } from "lucide-react";
 import { fmtEUR } from "@/lib/salary";
 import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS,
   balanceByCategory,
+  expenseCategoryLabel,
   type BenefitBalance,
   type BenefitCategory,
   type BenefitExpenseRow,
@@ -90,11 +98,13 @@ export function BenefitsOverviewTab({
   const { t } = useTranslation(["hr", "common"]);
   const currentYear = new Date().getFullYear();
 
-  const [year, setYear] = useState<number | "all">(currentYear);
+  // Balances are cumulative across years, so "all years" is the honest default.
+  const [year, setYear] = useState<number | "all">("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"name" | "spent" | "remaining">("name");
   const [includeArchived, setIncludeArchived] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [statementFor, setStatementFor] = useState<Row | null>(null);
 
   const collaboratorsQ = useQuery({
     queryKey: ["collaborators", "basic-benefits-overview"],
@@ -189,6 +199,19 @@ export function BenefitsOverviewTab({
       };
     });
   }, [collaboratorsQ.data, balancesQ.data, creditsQ.data, expensesQ.data, year]);
+
+  /** Expenses of the selected period, per collaborator, oldest first. */
+  const expensesByCollab = useMemo(() => {
+    const m: Record<string, BenefitExpenseRow[]> = {};
+    for (const e of expensesQ.data ?? []) {
+      if (year !== "all" && e.ano_fiscal !== year) continue;
+      (m[e.collaborator_id] ||= []).push(e);
+    }
+    for (const k of Object.keys(m))
+      m[k].sort((a, b) => (a.data_despesa < b.data_despesa ? -1 : 1));
+    return m;
+  }, [expensesQ.data, year]);
+
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -404,6 +427,14 @@ export function BenefitsOverviewTab({
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title={t("hr:beneficios.overview.statement")}
+                              onClick={() => setStatementFor(r)}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
                             {onViewExpenses && (
                               <Button
                                 variant="ghost"
@@ -463,7 +494,135 @@ export function BenefitsOverviewTab({
           </Table>
         </CardContent>
       </Card>
+
+      <StatementDialog
+        row={statementFor}
+        expenses={statementFor ? (expensesByCollab[statementFor.id] ?? []) : []}
+        year={year}
+        onClose={() => setStatementFor(null)}
+      />
     </div>
+  );
+}
+
+/**
+ * Per-person statement: opening entitlement, every expense in date order and
+ * the balance remaining after each one.
+ */
+function StatementDialog({
+  row,
+  expenses,
+  year,
+  onClose,
+}: {
+  row: Row | null;
+  expenses: BenefitExpenseRow[];
+  year: number | "all";
+  onClose: () => void;
+}) {
+  const { t, i18n } = useTranslation(["hr", "common"]);
+  const locale = i18n.language?.startsWith("en") ? "en" : "pt";
+  if (!row) return null;
+
+  const opening = row.inicial + row.creditado;
+  let running = opening;
+  const lines = expenses.map((e) => {
+    const v = e.estado === "rejeitada" ? 0 : Number(e.valor) || 0;
+    running -= v;
+    return { e, v, running };
+  });
+
+  return (
+    <Dialog open={!!row} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>{row.nome}</DialogTitle>
+          <DialogDescription>
+            {t("hr:beneficios.overview.statementDesc")} ·{" "}
+            {year === "all" ? t("hr:beneficios.filters.allYears") : year}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-md border p-3">
+            <div className="text-xs text-muted-foreground">
+              {t("hr:beneficios.overview.openingBalance")}
+            </div>
+            <div className="text-lg font-semibold tabular-nums">{fmtEUR(opening)}</div>
+          </div>
+          <div className="rounded-md border p-3">
+            <div className="text-xs text-muted-foreground">
+              {t("hr:beneficios.balance.spent")}
+            </div>
+            <div className="text-lg font-semibold tabular-nums">{fmtEUR(row.gasto)}</div>
+          </div>
+          <div className="rounded-md border p-3">
+            <div className="text-xs text-muted-foreground">
+              {t("hr:beneficios.overview.closingBalance")}
+            </div>
+            <div
+              className={cn(
+                "text-lg font-semibold tabular-nums",
+                row.disponivel < 0 ? "text-rose-600" : "text-emerald-700",
+              )}
+            >
+              {fmtEUR(row.disponivel)}
+            </div>
+          </div>
+        </div>
+
+        <div className="max-h-[50vh] overflow-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("hr:beneficios.table.date")}</TableHead>
+                <TableHead>{t("hr:beneficios.table.description")}</TableHead>
+                <TableHead>{t("hr:beneficios.table.category")}</TableHead>
+                <TableHead>{t("hr:beneficios.table.status")}</TableHead>
+                <TableHead className="text-right">{t("hr:beneficios.table.amount")}</TableHead>
+                <TableHead className="text-right">
+                  {t("hr:beneficios.overview.remaining")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow className="bg-muted/40">
+                <TableCell colSpan={5} className="text-sm font-medium">
+                  {t("hr:beneficios.overview.openingBalance")}
+                </TableCell>
+                <TableCell className="text-right font-semibold tabular-nums">
+                  {fmtEUR(opening)}
+                </TableCell>
+              </TableRow>
+              {lines.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                    {t("hr:beneficios.overview.noExpenses")}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                lines.map(({ e, v, running: bal }) => (
+                  <TableRow key={e.id}>
+                    <TableCell className="whitespace-nowrap">{e.data_despesa}</TableCell>
+                    <TableCell>{e.descricao}</TableCell>
+                    <TableCell>{expenseCategoryLabel(e, locale)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px]">
+                        {t(`hr:beneficios.status.${e.estado}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {v ? `−${fmtEUR(v)}` : fmtEUR(0)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{fmtEUR(bal)}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
