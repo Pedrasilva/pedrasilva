@@ -90,11 +90,13 @@ export function BenefitsOverviewTab({
   const { t } = useTranslation(["hr", "common"]);
   const currentYear = new Date().getFullYear();
 
-  const [year, setYear] = useState<number | "all">(currentYear);
+  // Balances are cumulative across years, so "all years" is the honest default.
+  const [year, setYear] = useState<number | "all">("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"name" | "spent" | "remaining">("name");
   const [includeArchived, setIncludeArchived] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [statementFor, setStatementFor] = useState<Row | null>(null);
 
   const collaboratorsQ = useQuery({
     queryKey: ["collaborators", "basic-benefits-overview"],
