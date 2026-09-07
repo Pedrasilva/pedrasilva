@@ -153,7 +153,7 @@ function ProductProjectsPage() {
                       {p.itemCount > 0 ? formatMoney(p.itemsValue) : "Ready to specify"}
                     </span>
 
-                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                    <div className="pointer-events-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button size="icon" variant="ghost" aria-label="Colour">
