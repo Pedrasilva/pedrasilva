@@ -35,14 +35,17 @@ export function exportSchedule(
   const rows = scheduleRows(items, categories);
   const total = rows.reduce((s, r) => s + (Number(r.Total) || 0), 0);
   const sheet = XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.sheet_add_aoa(sheet, [["", "", "", "", "", "", "", "", "", "", "TOTAL", Math.round(total * 100) / 100]], {
-    origin: -1,
-  });
+  XLSX.utils.sheet_add_aoa(
+    sheet,
+    [["", "", "", "", "", "", "", "", "", "", "", "TOTAL", Math.round(total * 100) / 100]],
+    { origin: -1 },
+  );
   sheet["!cols"] = [
     { wch: 18 }, { wch: 12 }, { wch: 30 }, { wch: 18 }, { wch: 20 }, { wch: 22 },
-    { wch: 36 }, { wch: 20 }, { wch: 18 }, { wch: 9 }, { wch: 12 }, { wch: 12 },
-    { wch: 40 }, { wch: 40 },
+    { wch: 36 }, { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 9 }, { wch: 12 },
+    { wch: 12 }, { wch: 40 }, { wch: 40 },
   ];
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheet, "Schedule");
   const stamp = new Date().toISOString().slice(0, 10);

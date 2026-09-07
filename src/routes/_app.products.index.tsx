@@ -51,14 +51,8 @@ function ProductProjectsPage() {
   const board = useProjectBoard();
   const [dragId, setDragId] = useState<string | null>(null);
 
-  const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    const list = needle
-      ? projects.filter((p) =>
-          [p.name, p.client].filter(Boolean).some((v) => v!.toLowerCase().includes(needle)),
-        )
-      : projects;
-    const sorted = [...list].sort(
+  const ordered = useMemo(() => {
+    const sorted = [...projects].sort(
       (a, b) => b.itemCount - a.itemCount || a.name.localeCompare(b.name),
     );
     if (!board.hasCustomOrder) return sorted;
@@ -69,7 +63,16 @@ function ProductProjectsPage() {
     )
       .map((id) => byId.get(id)!)
       .filter(Boolean);
-  }, [projects, q, board.order, board.hasCustomOrder]);
+  }, [projects, board.order, board.hasCustomOrder]);
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return ordered;
+    return ordered.filter((p) =>
+      [p.name, p.client].filter(Boolean).some((v) => v!.toLowerCase().includes(needle)),
+    );
+  }, [ordered, q]);
+
 
   return (
     <div className="space-y-5">
@@ -114,7 +117,7 @@ function ProductProjectsPage() {
                   e.preventDefault();
                   if (dragId) {
                     board.moveBefore(
-                      rows.map((r) => r.id),
+                      ordered.map((r) => r.id),
                       dragId,
                       p.id,
                     );
@@ -129,26 +132,28 @@ function ProductProjectsPage() {
                     PROJECT_COLOR_BORDER[color],
                   )}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <Link
-                      to={"/products/project/" + p.id}
-                      className="min-w-0 flex-1 text-sm font-medium leading-tight hover:underline"
-                    >
+                  <Link
+                    to={"/products/project/" + p.id}
+                    aria-label={p.name}
+                    className="absolute inset-0 z-0 rounded-lg"
+                  />
+                  <div className="pointer-events-none relative z-10 flex items-start justify-between gap-2">
+                    <span className="min-w-0 flex-1 text-sm font-medium leading-tight">
                       {p.name}
-                    </Link>
+                    </span>
                     <Badge variant={p.itemCount > 0 ? "secondary" : "outline"} className="shrink-0">
                       {p.itemCount} {p.itemCount === 1 ? "item" : "items"}
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{p.client ?? "—"}</p>
-                  <div className="mt-3 flex items-end justify-between gap-2">
-                    <Link
-                      to={"/products/project/" + p.id}
-                      className="text-sm tabular-nums hover:underline"
-                    >
+                  <p className="pointer-events-none relative z-10 mt-1 text-xs text-muted-foreground">
+                    {p.client ?? "—"}
+                  </p>
+                  <div className="pointer-events-none relative z-10 mt-3 flex items-end justify-between gap-2">
+                    <span className="text-sm tabular-nums">
                       {p.itemCount > 0 ? formatMoney(p.itemsValue) : "Ready to specify"}
-                    </Link>
-                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                    </span>
+
+                    <div className="pointer-events-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button size="icon" variant="ghost" aria-label="Colour">
