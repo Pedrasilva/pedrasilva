@@ -106,16 +106,27 @@ export function QuoteBuildSettingsDialog({
 
   const save = useMutation({
     mutationFn: async (next: QuoteBuildSettings) => {
+      // Re-read so keys managed elsewhere (projectBilling) are never dropped.
+      const { data: fresh, error: readError } = await db
+        .from("fee_proposals")
+        .select("quote_build_settings")
+        .eq("id", quoteId)
+        .single();
+      if (readError) throw new Error(readError.message);
+      const current = ((fresh as { quote_build_settings: Record<string, unknown> | null } | null)
+        ?.quote_build_settings ?? rawRef.current) as Record<string, unknown>;
       const { error } = await db
         .from("fee_proposals")
-        .update({ quote_build_settings: { ...rawRef.current, ...next } })
+        .update({ quote_build_settings: { ...current, ...next } })
         .eq("id", quoteId);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-build-settings", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-build-settings-raw", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+
       toast.success("Settings saved");
       setOpen(false);
     },
