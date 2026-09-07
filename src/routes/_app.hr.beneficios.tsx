@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1082,6 +1082,12 @@ function ManagementView({
     return filterExpenses(base, filters);
   }, [expenses, filters, collaboratorFilter]);
 
+  // Jumping in from the overview should show that person's full history,
+  // not just the pending ones the management list defaults to.
+  useEffect(() => {
+    if (collaboratorFilter) setFilters((f) => ({ ...f, estado: "todos" }));
+  }, [collaboratorFilter]);
+
   const totals = useMemo(() => {
     const t = { pendente: 0, aprovada: 0, paga: 0 };
     for (const e of expenses) {
@@ -1107,6 +1113,17 @@ function ManagementView({
         <SummaryCard label="Aprovadas" value={totals.aprovada} className="border-emerald-200" />
         <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
       </div>
+
+      {collaboratorFilter && (
+        <div className="flex items-center gap-2 text-sm">
+          <Badge variant="secondary">
+            {collaboratorsById[collaboratorFilter]?.nome ?? collaboratorFilter}
+          </Badge>
+          <Button variant="ghost" size="sm" onClick={onClearCollaboratorFilter}>
+            <X className="h-3.5 w-3.5" /> {t("hr:beneficios.overview.clearFilter")}
+          </Button>
+        </div>
+      )}
 
       <ExpenseFilterBar
         value={filters}
