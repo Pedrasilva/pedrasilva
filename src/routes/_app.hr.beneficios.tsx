@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -78,6 +78,7 @@ import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/Expen
 import { FinanceBackfillCard } from "@/components/hr/FinanceBackfillCard";
 import { PaymentLedgerBackfillCard } from "@/components/hr/PaymentLedgerBackfillCard";
 import { BenefitDriveSyncCard } from "@/components/hr/BenefitDriveSyncCard";
+import { BenefitsOverviewTab } from "@/components/hr/BenefitsOverviewTab";
 import { useServerFn } from "@tanstack/react-start";
 import { isValidPortugueseNif } from "@/lib/finance/nif";
 import { linkOrCreateSupplierForBenefitExpense } from "@/lib/hr/benefit-supplier.functions";
@@ -940,6 +941,10 @@ function ApproverView() {
 // =============================================================
 function AdminView() {
   const qc = useQueryClient();
+  const { t } = useTranslation(["hr"]);
+  const [tab, setTab] = useState("overview");
+  const [balancesFor, setBalancesFor] = useState<string | null>(null);
+  const [expensesFor, setExpensesFor] = useState<string | null>(null);
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators", "basic-active"],
     queryFn: async () => {
@@ -961,21 +966,48 @@ function AdminView() {
             Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.
           </p>
         </div>
-        <ManageBalancesDialog collaborators={collaborators} />
+        <ManageBalancesDialog
+          collaborators={collaborators}
+          openForId={balancesFor}
+          onOpenForIdChange={setBalancesFor}
+        />
       </div>
-      <FinanceBackfillCard />
-      <PaymentLedgerBackfillCard />
-      <BenefitDriveSyncCard />
-      <ManagementView
-        title=""
-        subtitle=""
-        queryKey="all-expenses"
-        onInvalidate={() => qc.invalidateQueries()}
-        hideHeader
-      />
+
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">{t("hr:beneficios.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="expenses">{t("hr:beneficios.tabs.expenses")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <BenefitsOverviewTab
+            onManageBalances={(id) => setBalancesFor(id)}
+            onViewExpenses={(id) => {
+              setExpensesFor(id);
+              setTab("expenses");
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="expenses" className="space-y-6">
+          <FinanceBackfillCard />
+          <PaymentLedgerBackfillCard />
+          <BenefitDriveSyncCard />
+          <ManagementView
+            title=""
+            subtitle=""
+            queryKey="all-expenses"
+            onInvalidate={() => qc.invalidateQueries()}
+            hideHeader
+            collaboratorFilter={expensesFor}
+            onClearCollaboratorFilter={() => setExpensesFor(null)}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
 
 // Shared filter+table component for approver/admin views.
 // Reuses the same `ExpenseFilterBar` + `filterExpenses` helpers as
@@ -986,13 +1018,19 @@ function ManagementView({
   queryKey,
   onInvalidate,
   hideHeader,
+  collaboratorFilter,
+  onClearCollaboratorFilter,
 }: {
   title: string;
   subtitle: string;
   queryKey: string;
   onInvalidate: () => void;
   hideHeader?: boolean;
+  /** When set, only this collaborator's expenses are listed. */
+  collaboratorFilter?: string | null;
+  onClearCollaboratorFilter?: () => void;
 }) {
+
   const { t, i18n } = useTranslation(["hr"]);
   const isEn = i18n.language?.startsWith("en");
   const { data: collaborators = [] } = useQuery({
@@ -1037,10 +1075,18 @@ function ManagementView({
     return Array.from(s).sort((a, b) => b - a);
   }, [expenses, currentYear]);
 
-  const filtered = useMemo(
-    () => filterExpenses(expenses, filters),
-    [expenses, filters],
-  );
+  const filtered = useMemo(() => {
+    const base = collaboratorFilter
+      ? expenses.filter((e) => e.collaborator_id === collaboratorFilter)
+      : expenses;
+    return filterExpenses(base, filters);
+  }, [expenses, filters, collaboratorFilter]);
+
+  // Jumping in from the overview should show that person's full history,
+  // not just the pending ones the management list defaults to.
+  useEffect(() => {
+    if (collaboratorFilter) setFilters((f) => ({ ...f, estado: "todos" }));
+  }, [collaboratorFilter]);
 
   const totals = useMemo(() => {
     const t = { pendente: 0, aprovada: 0, paga: 0 };
@@ -1067,6 +1113,17 @@ function ManagementView({
         <SummaryCard label="Aprovadas" value={totals.aprovada} className="border-emerald-200" />
         <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
       </div>
+
+      {collaboratorFilter && (
+        <div className="flex items-center gap-2 text-sm">
+          <Badge variant="secondary">
+            {collaboratorsById[collaboratorFilter]?.nome ?? collaboratorFilter}
+          </Badge>
+          <Button variant="ghost" size="sm" onClick={onClearCollaboratorFilter}>
+            <X className="h-3.5 w-3.5" /> {t("hr:beneficios.overview.clearFilter")}
+          </Button>
+        </div>
+      )}
 
       <ExpenseFilterBar
         value={filters}
@@ -1129,12 +1186,34 @@ function SummaryCard({
 // =============================================================
 // Admin: gestão de saldos iniciais e créditos anuais
 // =============================================================
-function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[] }) {
+function ManageBalancesDialog({
+  collaborators,
+  openForId,
+  onOpenForIdChange,
+}: {
+  collaborators: Collaborator[];
+  /** When set, the dialog opens focused on this collaborator. */
+  openForId?: string | null;
+  onOpenForIdChange?: (id: string | null) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
+  const controlled = openForId != null;
+  const dialogOpen = controlled ? true : open;
+  const activeId = controlled ? openForId! : selectedId;
+  const active = collaborators.find((c) => c.id === activeId);
+
+  const handleOpenChange = (v: boolean) => {
+    if (!v && controlled) onOpenForIdChange?.(null);
+    setOpen(v);
+  };
+  const handleSelect = (id: string) => {
+    if (controlled) onOpenForIdChange?.(id);
+    else setSelectedId(id);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <Settings2 className="h-4 w-4" /> Gerir saldos
@@ -1151,7 +1230,7 @@ function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[]
 
         <div className="space-y-1.5">
           <Label>Colaborador</Label>
-          <Select value={selectedId} onValueChange={setSelectedId}>
+          <Select value={activeId} onValueChange={handleSelect}>
             <SelectTrigger>
               <SelectValue placeholder="Escolha um colaborador…" />
             </SelectTrigger>
@@ -1165,15 +1244,12 @@ function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[]
           </Select>
         </div>
 
-        {selectedId && (
-          <CollaboratorBalanceEditor
-            collaborator={collaborators.find((c) => c.id === selectedId)!}
-          />
-        )}
+        {active && <CollaboratorBalanceEditor collaborator={active} />}
       </DialogContent>
     </Dialog>
   );
 }
+
 
 function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborator }) {
   const qc = useQueryClient();
