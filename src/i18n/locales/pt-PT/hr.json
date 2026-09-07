@@ -1611,7 +1611,8 @@
       "noneThisMonth": "Sem ausências até ao fim do mês"
     },
     "warnings": {
-      "overlap": "Dois ou mais colaboradores do mesmo departamento ou projecto estão ausentes em {{count}} dia(s) próximos, a partir de {{first}}."
+      "overlap_one": "Duas ou mais pessoas do mesmo departamento ou projeto estão ausentes em {{count}} dia próximo, {{first}}.",
+      "overlap_other": "Duas ou mais pessoas do mesmo departamento ou projeto estão ausentes em {{count}} dias próximos, a começar em {{first}}."
     },
     "filters": {
       "department": "Departamento",
