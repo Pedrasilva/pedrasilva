@@ -57,6 +57,27 @@ export function TodayStrip() {
     return Math.max(0, Math.round((date.getTime() - today.getTime()) / 86_400_000));
   };
 
+  const celebrationsQ = useUpcomingCelebrations(45);
+  const availabilityQ = useTeamAvailability(14);
+  const holidaysQ = useUpcomingHolidays(60);
+
+  const availability = availabilityQ.data;
+  const holidays = holidaysQ.data ?? [];
+  const celebrations = (celebrationsQ.data ?? []).filter((c) => c.daysAway > 0);
+
+  const outToday = availability?.outToday ?? [];
+  const remoteToday = availability?.remoteToday ?? [];
+  const upcoming = availability?.upcoming ?? [];
+  const nothing =
+    outToday.length === 0 && remoteToday.length === 0 && upcoming.length === 0;
+
+  const itemMeta = (item: AvailabilityItem) => {
+    if (item.kind === "remote") return t("home:availability.remoteToday");
+    const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
+    return `${type} · ${t("home:off.until", { date: fmtDate(item.end) })}`;
+  };
+
+
   const upcomingMeta = (item: AvailabilityItem) => {
     const day = dayLabel(item.start);
     if (item.kind === "remote") return `${t("home:availability.remote")} · ${day}`;
