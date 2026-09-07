@@ -124,7 +124,7 @@ export function AvailabilityGrid({
                     </TooltipTrigger>
                     <TooltipContent side="top">
                       <span className="text-xs">
-                        {p.nome} · {d.iso} — {cellLabel(cell, d)}
+                        {p.nome} · {formatDayLabel(d.iso)} — {cellLabel(cell, d)}
                       </span>
                     </TooltipContent>
                   </Tooltip>
