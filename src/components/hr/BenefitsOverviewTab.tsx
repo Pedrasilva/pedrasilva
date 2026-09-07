@@ -531,11 +531,15 @@ function StatementDialog({
   expenses,
   year,
   onClose,
+  onManageBalances,
+  onViewExpenses,
 }: {
   row: Row | null;
   expenses: BenefitExpenseRow[];
   year: number | "all";
   onClose: () => void;
+  onManageBalances?: (collaboratorId: string) => void;
+  onViewExpenses?: (collaboratorId: string) => void;
 }) {
   const { t, i18n } = useTranslation(["hr", "common"]);
   const locale = i18n.language?.startsWith("en") ? "en" : "pt";
