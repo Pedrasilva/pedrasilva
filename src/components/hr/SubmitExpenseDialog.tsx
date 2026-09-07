@@ -473,7 +473,14 @@ export function SubmitExpenseDialog({
           .then(() => undefined, () => undefined);
       }
 
+      // Send the receipt into the shared Finance review queue (same file, no
+      // copy) so accounting only has to add the classification code.
+      if (inserted?.id && uploadedPath) {
+        void routeToQueueFn({ data: { expenseId: inserted.id } }).catch(() => undefined);
+      }
+
       toast.success(t("hr:beneficios.toasts.submitted"));
+
       setUploadedPath(null); // prevent cleanup
       reset();
       setOpen(false);
