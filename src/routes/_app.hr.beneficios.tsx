@@ -1129,12 +1129,34 @@ function SummaryCard({
 // =============================================================
 // Admin: gestão de saldos iniciais e créditos anuais
 // =============================================================
-function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[] }) {
+function ManageBalancesDialog({
+  collaborators,
+  openForId,
+  onOpenForIdChange,
+}: {
+  collaborators: Collaborator[];
+  /** When set, the dialog opens focused on this collaborator. */
+  openForId?: string | null;
+  onOpenForIdChange?: (id: string | null) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
+  const controlled = openForId != null;
+  const dialogOpen = controlled ? true : open;
+  const activeId = controlled ? openForId! : selectedId;
+  const active = collaborators.find((c) => c.id === activeId);
+
+  const handleOpenChange = (v: boolean) => {
+    if (!v && controlled) onOpenForIdChange?.(null);
+    setOpen(v);
+  };
+  const handleSelect = (id: string) => {
+    if (controlled) onOpenForIdChange?.(id);
+    else setSelectedId(id);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <Settings2 className="h-4 w-4" /> Gerir saldos
@@ -1151,7 +1173,7 @@ function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[]
 
         <div className="space-y-1.5">
           <Label>Colaborador</Label>
-          <Select value={selectedId} onValueChange={setSelectedId}>
+          <Select value={activeId} onValueChange={handleSelect}>
             <SelectTrigger>
               <SelectValue placeholder="Escolha um colaborador…" />
             </SelectTrigger>
@@ -1165,15 +1187,12 @@ function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[]
           </Select>
         </div>
 
-        {selectedId && (
-          <CollaboratorBalanceEditor
-            collaborator={collaborators.find((c) => c.id === selectedId)!}
-          />
-        )}
+        {active && <CollaboratorBalanceEditor collaborator={active} />}
       </DialogContent>
     </Dialog>
   );
 }
+
 
 function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborator }) {
   const qc = useQueryClient();
