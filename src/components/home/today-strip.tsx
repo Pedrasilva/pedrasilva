@@ -35,32 +35,35 @@ export function TodayStrip() {
     return t("home:relative.inDays", { days });
   };
 
-  const celebrationsQ = useUpcomingCelebrations(45);
-  const availabilityQ = useTeamAvailability(14);
-  const holidaysQ = useUpcomingHolidays(60);
+  /** "Tomorrow" / "Wednesday, 9 Sep" / "next Wednesday, 9 Sep". */
+  const dayLabel = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = Math.round((date.getTime() - today.getTime()) / 86_400_000);
+    if (diff <= 0) return t("home:relative.today");
+    if (diff === 1) return t("home:relative.tomorrow");
+    const weekday = t(`home:weekday.${date.getDay()}`);
+    const long = `${weekday}, ${fmtDate(iso)}`;
+    return diff >= 7 ? t("home:availability.nextDay", { day: long }) : long;
+  };
 
-  const availability = availabilityQ.data;
-  const holidays = holidaysQ.data ?? [];
-  const celebrations = (celebrationsQ.data ?? []).filter((c) => c.daysAway > 0);
-
-  const outToday = availability?.outToday ?? [];
-  const remoteToday = availability?.remoteToday ?? [];
-  const upcoming = availability?.upcoming ?? [];
-  const nothing =
-    outToday.length === 0 && remoteToday.length === 0 && upcoming.length === 0;
-
-  const itemMeta = (item: AvailabilityItem) => {
-    if (item.kind === "remote") return t("home:availability.remote");
-    const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
-    return `${type} · ${t("home:off.until", { date: fmtDate(item.end) })}`;
+  const daysAway = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((date.getTime() - today.getTime()) / 86_400_000));
   };
 
   const upcomingMeta = (item: AvailabilityItem) => {
-    if (item.kind === "remote") return t("home:availability.remote");
+    const day = dayLabel(item.start);
+    if (item.kind === "remote") return `${t("home:availability.remote")} · ${day}`;
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return item.start === item.end
-      ? type
-      : `${type} · ${fmtDate(item.start)}–${fmtDate(item.end)}`;
+      ? `${type} · ${day}`
+      : `${type} · ${day} – ${fmtDate(item.end)}`;
   };
 
   return (
