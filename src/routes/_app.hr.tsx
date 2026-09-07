@@ -85,6 +85,13 @@ function HrLayout() {
             match: (p) => p.startsWith("/hr/trabalho-remoto"),
             show: canOwn("hr.ferias.own"),
           },
+          {
+            to: "/hr/disponibilidade",
+            label: t("nav.availability"),
+            icon: CalendarRange,
+            match: (p) => p.startsWith("/hr/disponibilidade"),
+            show: canOwn("hr.ferias.own"),
+          },
         ],
       },
       {
