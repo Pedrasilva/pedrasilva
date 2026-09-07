@@ -37,7 +37,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
-import { ChevronDown, ChevronRight, Download, Settings2, Receipt } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FileText, Settings2, Receipt } from "lucide-react";
 import { fmtEUR } from "@/lib/salary";
 import { cn } from "@/lib/utils";
 import {
