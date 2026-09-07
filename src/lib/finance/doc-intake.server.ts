@@ -713,7 +713,9 @@ export async function ingestStoredDocument(opts: {
     original_filename: opts.originalFilename ?? null,
     source: opts.source,
     created_by: opts.createdBy ?? null,
+    ...(opts.extraFields ?? {}),
   };
+
 
   if (!result.ok) {
     const { data: row, error } = await write({ ...base, extraction_error: result.error });
