@@ -80,7 +80,16 @@ export function QuoteProjectBillingInspector({
 
   const save = useMutation({
     mutationFn: async (next: ProjectBillingOption) => {
-      const current = (q.data ?? {}) as Record<string, unknown>;
+      // Re-read the latest raw settings so we never overwrite keys saved
+      // elsewhere (e.g. the quote Settings dialog) with a stale snapshot.
+      const { data: fresh, error: readError } = await db
+        .from("fee_proposals")
+        .select("quote_build_settings")
+        .eq("id", quoteId)
+        .single();
+      if (readError) throw new Error(readError.message);
+      const current = ((fresh as { quote_build_settings: Record<string, unknown> | null } | null)
+        ?.quote_build_settings ?? {}) as Record<string, unknown>;
       const { error } = await db
         .from("fee_proposals")
         .update({ quote_build_settings: { ...current, projectBilling: next } })
@@ -88,8 +97,10 @@ export function QuoteProjectBillingInspector({
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["quote-build-settings-raw", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-build-settings", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
+
       toast.success("Project billing saved");
     },
     onError: (e: Error) => toast.error(e.message),
