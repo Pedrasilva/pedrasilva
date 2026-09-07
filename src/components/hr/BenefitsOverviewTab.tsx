@@ -579,7 +579,7 @@ function StatementDialog({
                 <TableHead>{t("hr:beneficios.table.description")}</TableHead>
                 <TableHead>{t("hr:beneficios.table.category")}</TableHead>
                 <TableHead>{t("hr:beneficios.table.status")}</TableHead>
-                <TableHead className="text-right">{t("hr:beneficios.table.value")}</TableHead>
+                <TableHead className="text-right">{t("hr:beneficios.table.amount")}</TableHead>
                 <TableHead className="text-right">
                   {t("hr:beneficios.overview.remaining")}
                 </TableHead>

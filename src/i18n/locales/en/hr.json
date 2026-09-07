@@ -1382,7 +1382,12 @@
       "empty": "No collaborator has benefit balances yet.",
       "viewExpenses": "View expenses",
       "manageBalances": "Manage balances",
-      "clearFilter": "Clear"
+      "clearFilter": "Clear",
+      "statement": "Statement",
+      "statementDesc": "Opening balance, submitted expenses and remaining balance",
+      "openingBalance": "Opening balance",
+      "closingBalance": "Remaining balance",
+      "noExpenses": "No expenses submitted in this period."
     }
   },
   "companySettings": {

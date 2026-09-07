@@ -1382,7 +1382,12 @@
       "empty": "Ainda não há colaboradores com saldos de benefícios.",
       "viewExpenses": "Ver despesas",
       "manageBalances": "Gerir saldos",
-      "clearFilter": "Limpar"
+      "clearFilter": "Limpar",
+      "statement": "Extrato",
+      "statementDesc": "Saldo inicial, despesas submetidas e saldo restante",
+      "openingBalance": "Saldo inicial",
+      "closingBalance": "Saldo restante",
+      "noExpenses": "Sem despesas submetidas neste período."
     }
   },
   "companySettings": {
