@@ -1,11 +1,29 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { GripVertical, Palette, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useProductProjects } from "@/lib/products/use-products";
 import { formatMoney } from "@/lib/products/types";
+import { cn } from "@/lib/utils";
+import {
+  PROJECT_COLORS,
+  PROJECT_COLOR_BORDER,
+  PROJECT_COLOR_LABEL,
+  PROJECT_COLOR_SWATCH,
+  orderIds,
+  useProjectBoard,
+  type ProjectColor,
+} from "@/lib/products/use-project-board";
+
 
 export const Route = createFileRoute("/_app/products/")({
   component: ProductProjectsPage,
