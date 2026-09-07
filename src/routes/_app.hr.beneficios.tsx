@@ -940,6 +940,10 @@ function ApproverView() {
 // =============================================================
 function AdminView() {
   const qc = useQueryClient();
+  const { t } = useTranslation(["hr"]);
+  const [tab, setTab] = useState("overview");
+  const [balancesFor, setBalancesFor] = useState<string | null>(null);
+  const [expensesFor, setExpensesFor] = useState<string | null>(null);
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators", "basic-active"],
     queryFn: async () => {
@@ -961,21 +965,48 @@ function AdminView() {
             Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.
           </p>
         </div>
-        <ManageBalancesDialog collaborators={collaborators} />
+        <ManageBalancesDialog
+          collaborators={collaborators}
+          openForId={balancesFor}
+          onOpenForIdChange={setBalancesFor}
+        />
       </div>
-      <FinanceBackfillCard />
-      <PaymentLedgerBackfillCard />
-      <BenefitDriveSyncCard />
-      <ManagementView
-        title=""
-        subtitle=""
-        queryKey="all-expenses"
-        onInvalidate={() => qc.invalidateQueries()}
-        hideHeader
-      />
+
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">{t("hr:beneficios.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="expenses">{t("hr:beneficios.tabs.expenses")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <BenefitsOverviewTab
+            onManageBalances={(id) => setBalancesFor(id)}
+            onViewExpenses={(id) => {
+              setExpensesFor(id);
+              setTab("expenses");
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="expenses" className="space-y-6">
+          <FinanceBackfillCard />
+          <PaymentLedgerBackfillCard />
+          <BenefitDriveSyncCard />
+          <ManagementView
+            title=""
+            subtitle=""
+            queryKey="all-expenses"
+            onInvalidate={() => qc.invalidateQueries()}
+            hideHeader
+            collaboratorFilter={expensesFor}
+            onClearCollaboratorFilter={() => setExpensesFor(null)}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
 
 // Shared filter+table component for approver/admin views.
 // Reuses the same `ExpenseFilterBar` + `filterExpenses` helpers as
