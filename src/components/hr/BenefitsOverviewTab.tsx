@@ -486,6 +486,13 @@ export function BenefitsOverviewTab({
           </Table>
         </CardContent>
       </Card>
+
+      <StatementDialog
+        row={statementFor}
+        expenses={statementFor ? (expensesByCollab[statementFor.id] ?? []) : []}
+        year={year}
+        onClose={() => setStatementFor(null)}
+      />
     </div>
   );
 }
