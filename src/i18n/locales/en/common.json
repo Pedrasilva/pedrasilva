@@ -398,7 +398,9 @@
       "products.categories": "Categories",
       "inventory.assets": "Asset register",
       "inventory.assignments": "Assignments",
-      "inventory.reports": "Inventory reports"
+      "inventory.reports": "Inventory reports",
+      "projects.weeklyApproval": "Weekly approval",
+      "time.weeklyApproval": "Weekly approval"
     },
     "top": {
       "create": "Create",

@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight, Printer } from "lucide-react";
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
+import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
@@ -139,6 +141,10 @@ function MinhaFichaPage() {
 
       {/* Atalhos: Férias + Benefícios */}
       <QuickLinks collaborator={collaborator} />
+
+      {/* Banco de horas (leitura) */}
+      <HoursBankPanel collaboratorId={collaborator.id} canManage={false} />
+
 
       {loadingSnaps ? (
         <div className="text-sm text-muted-foreground">

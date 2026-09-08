@@ -5285,6 +5285,80 @@ export type Database = {
           },
         ]
       }
+      pm_hours_bank_entries: {
+        Row: {
+          collaborator_id: string
+          created_at: string
+          created_by: string | null
+          entry_date: string
+          hours: number
+          id: string
+          reason: string | null
+          transaction_type: string
+          updated_at: string
+          user_id: string | null
+          vacation_request_id: string | null
+          week_id: string | null
+        }
+        Insert: {
+          collaborator_id: string
+          created_at?: string
+          created_by?: string | null
+          entry_date?: string
+          hours: number
+          id?: string
+          reason?: string | null
+          transaction_type: string
+          updated_at?: string
+          user_id?: string | null
+          vacation_request_id?: string | null
+          week_id?: string | null
+        }
+        Update: {
+          collaborator_id?: string
+          created_at?: string
+          created_by?: string | null
+          entry_date?: string
+          hours?: number
+          id?: string
+          reason?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string | null
+          vacation_request_id?: string | null
+          week_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_hours_bank_entries_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_hours_bank_entries_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_hours_bank_entries_vacation_request_id_fkey"
+            columns: ["vacation_request_id"]
+            isOneToOne: false
+            referencedRelation: "vacation_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_hours_bank_entries_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "pm_timesheet_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_internal_categories: {
         Row: {
           archived_at: string | null
@@ -7373,6 +7447,114 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "pm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_timesheet_weeks: {
+        Row: {
+          additional_hours_approved: number
+          additional_hours_note: string | null
+          approved_at: string | null
+          approved_by: string | null
+          calculated_excess_hours: number
+          collaborator_id: string | null
+          created_at: string
+          id: string
+          reopen_reason: string | null
+          reopened_at: string | null
+          reopened_by: string | null
+          returned_at: string | null
+          returned_by: string | null
+          reviewer_comment: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          total_accounted_hours: number
+          total_internal_hours: number
+          total_leave_hours: number
+          total_project_hours: number
+          total_working_hours: number
+          updated_at: string
+          user_id: string
+          was_approved_before: boolean
+          week_end: string
+          week_start: string
+          weekly_capacity_hours: number
+        }
+        Insert: {
+          additional_hours_approved?: number
+          additional_hours_note?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_excess_hours?: number
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          reopen_reason?: string | null
+          reopened_at?: string | null
+          reopened_by?: string | null
+          returned_at?: string | null
+          returned_by?: string | null
+          reviewer_comment?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_accounted_hours?: number
+          total_internal_hours?: number
+          total_leave_hours?: number
+          total_project_hours?: number
+          total_working_hours?: number
+          updated_at?: string
+          user_id: string
+          was_approved_before?: boolean
+          week_end: string
+          week_start: string
+          weekly_capacity_hours?: number
+        }
+        Update: {
+          additional_hours_approved?: number
+          additional_hours_note?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_excess_hours?: number
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          reopen_reason?: string | null
+          reopened_at?: string | null
+          reopened_by?: string | null
+          returned_at?: string | null
+          returned_by?: string | null
+          reviewer_comment?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_accounted_hours?: number
+          total_internal_hours?: number
+          total_leave_hours?: number
+          total_project_hours?: number
+          total_working_hours?: number
+          updated_at?: string
+          user_id?: string
+          was_approved_before?: boolean
+          week_end?: string
+          week_start?: string
+          weekly_capacity_hours?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_timesheet_weeks_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_timesheet_weeks_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
         ]

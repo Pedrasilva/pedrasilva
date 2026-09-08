@@ -1376,5 +1376,125 @@
       "status": "Status",
       "other": "Other"
     }
+  },
+  "timesheetWeek": {
+    "myWeek": "My week",
+    "projectHours": "Project",
+    "internalHours": "Internal",
+    "leaveHours": "Leave",
+    "workingHours": "Worked",
+    "accountedHours": "Accounted",
+    "capacityLine": "{{worked}} worked · normal weekly capacity {{capacity}}",
+    "overCapacityNotice": "{{excess}} above your normal weekly capacity of {{capacity}}. Your approver will review these additional hours.",
+    "returnedNotice": "Your week was returned for review",
+    "approvedNotice": "This week is approved and closed",
+    "additionalBanked": "{{hours}} added to your hours bank",
+    "submittedNotice": "Submitted — waiting for review. Entries are locked until it is returned or reopened.",
+    "submitWeek": "Submit week",
+    "confirmTitle": "Submit this week?",
+    "confirmBody": "You are submitting {{week}} for review. Your entries will be locked until an approver returns or reopens the week.",
+    "confirmOverCapacity": "This week includes {{excess}} above your normal weekly capacity.",
+    "confirmSubmit": "Submit",
+    "cancel": "Cancel",
+    "submittedToast": "Week submitted for review",
+    "submitFailed": "Could not submit the week",
+    "status": {
+      "open": "Not submitted",
+      "submitted": "Submitted",
+      "returned": "Returned",
+      "approved": "Approved"
+    }
+  },
+  "weeklyApproval": {
+    "title": "Weekly approval",
+    "subtitle": "Review, close and lock each collaborator's week.",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "empty": "Nothing to show for this filter.",
+    "stats": {
+      "completion": "Weeks submitted",
+      "completionHint": "Collaborators who handed in this week",
+      "approval": "Weeks approved",
+      "approvalHint": "Approved out of submitted",
+      "exceptions": "Above capacity",
+      "exceptionsHint": "Weeks worked above normal capacity",
+      "additional": "Additional hours",
+      "additionalHint": "Approved into the hours bank"
+    },
+    "filters": {
+      "all": "All",
+      "awaiting": "Awaiting review",
+      "notSubmitted": "Not submitted",
+      "approved": "Approved",
+      "returned": "Returned",
+      "overCapacity": "Above capacity"
+    },
+    "columns": {
+      "collaborator": "Collaborator",
+      "project": "Project",
+      "internal": "Internal",
+      "leave": "Leave",
+      "working": "Worked",
+      "capacity": "Capacity",
+      "status": "Status"
+    },
+    "status": {
+      "notSubmitted": "Not submitted",
+      "submitted": "Submitted",
+      "returned": "Returned",
+      "approved": "Approved"
+    },
+    "review": {
+      "accounted": "Accounted",
+      "breakdown": "Where the time went",
+      "noEntries": "No hours recorded this week.",
+      "showDaily": "Show day by day",
+      "hideDaily": "Hide day by day",
+      "notSubmittedYet": "This week has not been submitted yet, so there is nothing to approve.",
+      "excessNotice": "{{working}} worked against a normal weekly capacity of {{capacity}} — {{excess}} additional.",
+      "additionalTitle": "Additional hours",
+      "acknowledge": "Acknowledge {{hours}} of additional hours for the hours bank",
+      "hoursToBank": "Hours to bank",
+      "maxHours": "max {{hours}}h",
+      "reasonRequired": "You are banking fewer hours than calculated — please explain why in the comment.",
+      "comment": "Comment",
+      "approve": "Approve and close week",
+      "return": "Return to collaborator",
+      "returnHint": "Returning reopens editing for the collaborator. A comment is required.",
+      "approvedToast": "Week approved and closed",
+      "returnedToast": "Week returned to the collaborator",
+      "reopenedToast": "Week reopened",
+      "closed": "Week approved and closed",
+      "bankedHours": "{{hours}} banked",
+      "reopenReason": "Reason for reopening",
+      "reopen": "Reopen week"
+    }
+  },
+  "hoursBank": {
+    "title": "Hours bank",
+    "balance": "Balance",
+    "balanceInDays": "{{days}} days + {{rest}}h",
+    "empty": "No movements yet.",
+    "date": "Date",
+    "movement": "Movement",
+    "hours": "Hours",
+    "reason": "Reason",
+    "runningBalance": "Balance",
+    "type": {
+      "additional_hours": "Additional hours",
+      "converted_to_leave": "Converted to leave",
+      "paid_compensation": "Paid compensation",
+      "manual_adjustment": "Manual adjustment"
+    },
+    "addMovement": "Add movement",
+    "addTitle": "Add hours bank movement",
+    "kind": "Type",
+    "hoursLabel": "Hours",
+    "reasonLabel": "Reason",
+    "reasonRequired": "A reason is required.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "savedToast": "Hours bank updated",
+    "weekOf": "Week of {{date}}"
   }
 }

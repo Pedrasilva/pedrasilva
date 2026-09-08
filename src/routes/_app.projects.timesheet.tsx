@@ -48,6 +48,13 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { formatHM, parseHM } from "@/lib/projects/time-format";
+import { MyWeekCard } from "@/components/projects/my-week-card";
+import {
+  isWeekLocked,
+  totalsFromEntries,
+  useTimesheetWeek,
+} from "@/lib/projects/use-timesheet-weeks";
+
 
 export const Route = createFileRoute("/_app/projects/timesheet")({
   component: TimesheetPage,
@@ -111,7 +118,7 @@ function TimesheetPage() {
   const effectiveCollaboratorId = isViewingOther
     ? (viewedTarget?.collaborator_id ?? null)
     : (selfProfile?.collaborator_id ?? null);
-  const readOnly = isViewingOther;
+  const viewingOther = isViewingOther;
 
   const weekStartDate = useMemo(
     () => startOfWeek(weekAnchor, { weekStartsOn: 1 }),
@@ -148,6 +155,16 @@ function TimesheetPage() {
   const ensureRow = useEnsureStageRow();
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+
+  // Weekly approval layer: once the week has been submitted or approved the
+  // grid becomes read-only until an approver returns or reopens it.
+  const { data: currentWeek } = useTimesheetWeek({
+    userId: effectiveUserId,
+    weekStart,
+  });
+  const weekLocked = isWeekLocked(currentWeek);
+  const readOnly = viewingOther || weekLocked;
+
 
   // Profile shape kept for downstream noResource guard below.
   const profile = isViewingOther
@@ -315,11 +332,12 @@ function TimesheetPage() {
                 }}
               />
             )}
-            {readOnly && (
+            {viewingOther && (
               <span className="rounded-full border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                 Read-only · viewing another collaborator
               </span>
             )}
+
             <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
               <Button
                 size="icon"
@@ -363,6 +381,17 @@ function TimesheetPage() {
           <SummaryChip label="Non-working" value={buckets.nonWorking} tone="muted" />
           <SummaryChip label="Total" value={grandTotal} tone="bold" />
         </div>
+
+        <MyWeekCard
+          userId={effectiveUserId}
+          collaboratorId={effectiveCollaboratorId}
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+          weekLabel={`${format(weekStartDate, "MMM d")} – ${format(addDays(weekStartDate, 6), "MMM d, yyyy")}`}
+          totals={totalsFromEntries(entries)}
+          viewingOther={viewingOther}
+        />
+
 
         {noResource ? (
           <div className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
