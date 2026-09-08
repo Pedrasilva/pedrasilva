@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CollaboratorAssetsCard } from "@/components/inventory/collaborator-assets-card";
+import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
+
 import { WfhProfileCard } from "@/components/hr/wfh/wfh-profile-card";
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -873,6 +875,9 @@ function CollaboratorPage() {
       <CollaboratorAssetsCard collaboratorId={draft.id} />
 
       <WfhProfileCard collaboratorId={draft.id} />
+
+      <HoursBankPanel collaboratorId={draft.id} canManage />
+
 
 
 
