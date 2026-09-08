@@ -1563,7 +1563,7 @@
     "approverAdded": "Approver added.",
     "noApprovers": "No approvers configured — HR and admins approve by default.",
     "dialogSubtitle": "Choose the days you will work from home. Your approver will be notified.",
-    "approverResolved": "{{name}}",
+    "approverResolved": "Assigned",
     "approverMissing": "No approver configured yet",
     "approverMissingBlocked": "No approver is configured for you, so the request cannot be submitted.",
     "overrideLabel": "Record directly, without approval",
