@@ -26,6 +26,8 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
+import { TodayFaces } from "@/components/home/today-faces";
+import { RecentlyVisited } from "@/components/home/recently-visited";
 import { MyActionsCard } from "@/components/home/my-actions-card";
 import {
   useProposalImages,
