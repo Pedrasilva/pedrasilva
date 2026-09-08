@@ -39,6 +39,7 @@ import financeTexture from "@/assets/modules/finance.jpg.asset.json";
 import inventoryTexture from "@/assets/modules/inventory.jpg.asset.json";
 import productsTexture from "@/assets/modules/products.jpg.asset.json";
 import portfolioTexture from "@/assets/modules/portfolio.jpg.asset.json";
+import homeBanner from "@/assets/home-banner.png.asset.json";
 
 /** Quiet material textures behind each module card (decorative only). */
 const MODULE_TEXTURE: Record<string, string> = {
