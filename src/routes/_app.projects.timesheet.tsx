@@ -763,6 +763,7 @@ function ProjectRow({
   isExtra,
   onRemove,
   pending,
+  readOnly,
   rowTotal,
   onCommit,
 }: {
@@ -772,6 +773,7 @@ function ProjectRow({
   isExtra: boolean;
   onRemove: () => void;
   pending: boolean;
+  readOnly?: boolean;
   rowTotal: number;
   onCommit: (
     dateStr: string,
@@ -836,6 +838,7 @@ function ProjectRow({
               billable={cell?.billable ?? true}
               suggested={suggested}
               disabled={pending}
+              readOnly={readOnly}
               onCommit={(hours, notes, billable) =>
                 onCommit(dateStr, hours, notes, billable, cell?.id ?? null)
               }
@@ -856,6 +859,7 @@ function FixedRow({
   entryMap,
   keyFn,
   pending,
+  readOnly,
   rowTotal,
   onCommit,
 }: {
@@ -866,6 +870,7 @@ function FixedRow({
   entryMap: Map<CellKey, Map<string, CellInfo>>;
   keyFn: () => CellKey;
   pending: boolean;
+  readOnly?: boolean;
   rowTotal: number;
   onCommit: (
     dateStr: string,
@@ -906,6 +911,7 @@ function FixedRow({
               billable={false}
               suggested={isWeekend ? 0 : tone === "nonworking" ? 8 : 0}
               disabled={pending}
+              readOnly={readOnly}
               onCommit={(hours, notes) =>
                 onCommit(dateStr, hours, notes, false, cell?.id ?? null)
               }
@@ -928,6 +934,7 @@ function HourCell({
   billable,
   suggested,
   disabled,
+  readOnly,
   onCommit,
 }: {
   date: Date;
@@ -939,6 +946,7 @@ function HourCell({
   billable: boolean;
   suggested: number;
   disabled: boolean;
+  readOnly?: boolean;
   onCommit: (hours: number, notes: string | null, billable: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
