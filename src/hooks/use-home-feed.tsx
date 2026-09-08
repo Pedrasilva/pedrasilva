@@ -204,6 +204,8 @@ export function useUpcomingHolidays(windowDays = 60) {
 
 export type AvailabilityItem = {
   id: string;
+  /** Collaborator id — used to show the person's photo. */
+  collaboratorId: string;
   nome: string;
   kind: "absence" | "remote";
   /** Absence type key (for absences only). */
