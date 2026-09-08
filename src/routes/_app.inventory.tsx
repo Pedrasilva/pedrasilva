@@ -6,13 +6,13 @@ export const Route = createFileRoute("/_app/inventory")({
   component: InventoryLayout,
   head: () => ({
     meta: [
-      { title: "Inventory — PSA Hub asset register" },
+      { title: "Inventory — Portal Pedra Silva asset register" },
       {
         name: "description",
         content:
           "Track studio equipment: asset codes, custody, depreciation, warranties and insurance register.",
       },
-      { property: "og:title", content: "Inventory — PSA Hub asset register" },
+      { property: "og:title", content: "Inventory — Portal Pedra Silva asset register" },
       {
         property: "og:description",
         content:

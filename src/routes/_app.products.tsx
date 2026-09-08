@@ -5,13 +5,13 @@ export const Route = createFileRoute("/_app/products")({
   component: ProductsLayout,
   head: () => ({
     meta: [
-      { title: "Product Library — PSA Hub specifications" },
+      { title: "Product Library — Portal Pedra Silva specifications" },
       {
         name: "description",
         content:
           "Specify furniture and interior products on PSA projects, reuse the studio library and issue datasheets and schedules.",
       },
-      { property: "og:title", content: "Product Library — PSA Hub specifications" },
+      { property: "og:title", content: "Product Library — Portal Pedra Silva specifications" },
       {
         property: "og:description",
         content:

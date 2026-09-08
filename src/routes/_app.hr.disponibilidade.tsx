@@ -28,13 +28,13 @@ import { AbsenceLegend } from "@/components/hr/availability/absence-legend";
 export const Route = createFileRoute("/_app/hr/disponibilidade")({
   head: () => ({
     meta: [
-      { title: "Team availability — PSA Hub" },
+      { title: "Team availability — Portal Pedra Silva" },
       {
         name: "description",
         content:
           "Read-only monthly overview of team leave, public holidays, remote work and daily coverage.",
       },
-      { property: "og:title", content: "Team availability — PSA Hub" },
+      { property: "og:title", content: "Team availability — Portal Pedra Silva" },
       {
         property: "og:description",
         content:

@@ -68,9 +68,9 @@ function Consent() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 p-8">
-      <h1 className="text-2xl font-semibold">Connect {clientName} to PSA Hub?</h1>
+      <h1 className="text-2xl font-semibold">Connect {clientName} to Portal Pedra Silva?</h1>
       <p className="text-sm text-muted-foreground">
-        This will let {clientName} use PSA Hub tools as you, respecting your
+        This will let {clientName} use Portal Pedra Silva tools as you, respecting your
         permissions. You can revoke access later.
       </p>
       {error && (

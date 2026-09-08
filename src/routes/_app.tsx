@@ -170,7 +170,7 @@ function AppLayout() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[280px] p-0">
                   <SheetHeader className="border-b px-5 py-4 text-left">
-                    <SheetTitle className="text-base">PSA Hub</SheetTitle>
+                    <SheetTitle className="text-base">Portal Pedra Silva</SheetTitle>
                     <div className="flex items-center gap-2 pt-1">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">
                         {userInitial}

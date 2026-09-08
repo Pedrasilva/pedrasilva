@@ -109,30 +109,31 @@
   --color-budget: var(--budget);
   --color-budget-spent: var(--budget-spent);
   --color-budget-over: var(--budget-over);
-  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-display: "Signifier", "Fraunces", "Times New Roman", serif;
+  --font-sans: "The Future", "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.985 0.005 85);
+  --foreground: oklch(0.24 0.012 70);
+  --card: oklch(0.995 0.003 85);
+  --card-foreground: oklch(0.24 0.012 70);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.26 0.014 70);
+  --primary-foreground: oklch(0.98 0.005 85);
+  --secondary: oklch(0.955 0.008 85);
+  --secondary-foreground: oklch(0.26 0.014 70);
+  --muted: oklch(0.955 0.008 85);
+  --muted-foreground: oklch(0.53 0.014 70);
+  --accent: oklch(0.948 0.012 80);
+  --accent-foreground: oklch(0.26 0.014 70);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.905 0.009 80);
+  --input: oklch(0.905 0.009 80);
+  --ring: oklch(0.68 0.02 70);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -239,22 +240,31 @@
 .bg-budget { background-color: var(--color-budget); }
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.015em;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-/* Homepage editorial — fontes inspiradas em pedrasilva.com
-   (Signifier → Fraunces, The Future → Manrope) */
+/* Portal Pedra Silva — brand typography (The Future + Signifier,
+   with Manrope/Fraunces as web fallbacks). */
 .psa-editorial {
-  font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-feature-settings: "ss01", "cv11";
-  letter-spacing: -0.005em;
+  font-family: var(--font-sans);
+  letter-spacing: 0;
 }
 .psa-editorial .font-display,
 .psa-editorial h1,
 .psa-editorial h2 {
   font-family: var(--font-display);
-  font-optical-sizing: auto;
-  font-variation-settings: "opsz" 96, "SOFT" 30;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.12;
+}
+/* Small capitalised labels — the wide-tracking look of pedrasilva.com */
+.psa-kicker {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
 }
 
 @layer base {
@@ -265,6 +275,13 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 }
 

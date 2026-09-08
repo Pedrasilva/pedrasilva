@@ -32,6 +32,25 @@ import {
   useSignedProposalImageUrl,
 } from "@/lib/psa-proposal/use-proposal-images";
 import type { PermissionKey } from "@/lib/permissions";
+import hrTexture from "@/assets/modules/hr.jpg.asset.json";
+import crmTexture from "@/assets/modules/crm.jpg.asset.json";
+import projectsTexture from "@/assets/modules/projects.jpg.asset.json";
+import financeTexture from "@/assets/modules/finance.jpg.asset.json";
+import inventoryTexture from "@/assets/modules/inventory.jpg.asset.json";
+import productsTexture from "@/assets/modules/products.jpg.asset.json";
+import portfolioTexture from "@/assets/modules/portfolio.jpg.asset.json";
+
+/** Quiet material textures behind each module card (decorative only). */
+const MODULE_TEXTURE: Record<string, string> = {
+  "/hr": hrTexture.url,
+  "/crm": crmTexture.url,
+  "/projects": projectsTexture.url,
+  "/finance": financeTexture.url,
+  "/inventory": inventoryTexture.url,
+  "/products": productsTexture.url,
+  "/portfolio": portfolioTexture.url,
+};
+
 
 
 export const Route = createFileRoute("/_app/")({
@@ -295,7 +314,7 @@ function HubPage() {
             </div>
           </div>
 
-          <h1 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-[1.1] tracking-tight max-w-4xl">
+          <h1 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl leading-[1.1] tracking-tight max-w-4xl">
             {greeting}
             {firstName ? `, ${firstName}` : ""}.
             <span className="block text-muted-foreground">
@@ -356,7 +375,7 @@ function HubPage() {
             <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               {t("home:modules.kicker")}
             </div>
-            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+            <h2 className="mt-1 font-display text-2xl sm:text-3xl tracking-tight">
               {t("home:modules.title")}
             </h2>
           </div>
@@ -373,10 +392,21 @@ function HubPage() {
                     "hover:-translate-y-1 hover:shadow-xl hover:border-foreground/20",
                   )}
                 >
-                  <div className="p-6 sm:p-7">
+                  {MODULE_TEXTURE[m.to] && (
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.16] transition-opacity duration-500 group-hover:opacity-[0.26]"
+                      style={{ backgroundImage: `url(${MODULE_TEXTURE[m.to]})` }}
+                    />
+                  )}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card via-card/85 to-card/45"
+                  />
+                  <div className="relative p-6 sm:p-7">
                     <div className="flex items-start justify-between">
                       <span
-                        className="font-display text-5xl font-semibold leading-none text-foreground/10 transition-colors group-hover:text-foreground/30"
+                        className="font-display text-5xl leading-none text-foreground/10 transition-colors group-hover:text-foreground/30"
                       >
                         {m.number}
                       </span>
@@ -389,7 +419,7 @@ function HubPage() {
                         <Icon className="h-3.5 w-3.5" />
                         {t(m.subtitleKey)}
                       </div>
-                      <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+                      <h3 className="mt-2 font-display text-3xl tracking-tight">
                         {t(m.titleKey)}
                       </h3>
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
@@ -670,7 +700,7 @@ function KpiMini({
       </div>
       <div
         className={cn(
-          "mt-1 font-display text-lg font-semibold tabular-nums",
+          "mt-1 font-display text-lg tabular-nums",
           tone ?? "text-foreground",
         )}
       >
