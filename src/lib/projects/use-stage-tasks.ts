@@ -59,7 +59,7 @@ export function useCreateStageTask() {
 
       const { error: taskError } = await supabase
         .from("pm_tasks")
-        .update({ name: input.name })
+        .update({ name: input.name, ...(input.status ? { status: input.status } : {}) })
         .eq("allocation_id", (alloc as { id: string }).id);
       if (taskError) throw taskError;
       return alloc as { id: string };
