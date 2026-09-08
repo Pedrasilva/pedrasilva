@@ -204,6 +204,8 @@ export function useUpcomingHolidays(windowDays = 60) {
 
 export type AvailabilityItem = {
   id: string;
+  /** Collaborator id — used to show the person's photo. */
+  collaboratorId: string;
   nome: string;
   kind: "absence" | "remote";
   /** Absence type key (for absences only). */
@@ -271,6 +273,7 @@ export function useTeamAvailability(windowDays = 14) {
       }>) {
         const item: AvailabilityItem = {
           id: `v-${r.id}`,
+          collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "absence",
           tipo: r.tipo,
@@ -288,6 +291,7 @@ export function useTeamAvailability(windowDays = 14) {
       }>) {
         const item: AvailabilityItem = {
           id: `r-${r.id}`,
+          collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "remote",
           start: r.data,

@@ -105,5 +105,12 @@
     "remote": "Home office",
     "remoteToday": "Working from home today",
     "nextDay": "next {{day}}"
+  },
+  "todayFaces": {
+    "title": "Today at the studio",
+    "empty": "Everyone is in today — nothing to flag."
+  },
+  "recent": {
+    "title": "Recently visited"
   }
 }
