@@ -45,13 +45,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PSA Hub" },
+      { title: "Portal Pedra Silva" },
       {
         name: "description",
         content: "Ficha salarial por colaborador, fichas por data e resumo por departamento.",
       },
-      { property: "og:title", content: "PSA Hub" },
-      { name: "twitter:title", content: "PSA Hub" },
+      { property: "og:title", content: "Portal Pedra Silva" },
+      { name: "twitter:title", content: "Portal Pedra Silva" },
       { name: "description", content: "App for managing employee salary proposals, benefits, and tax calculations." },
       { property: "og:description", content: "App for managing employee salary proposals, benefits, and tax calculations." },
       { name: "twitter:description", content: "App for managing employee salary proposals, benefits, and tax calculations." },

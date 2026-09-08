@@ -39,19 +39,20 @@ function HrDashboard() {
     permissions.has("hr.admin") ||
     permissions.has("hr.resumo");
 
-  if (permsLoading) {
-    return <div className="text-sm text-muted-foreground">…</div>;
-  }
-  if (!canSeeCockpit) {
-    return <Navigate to="/hr/minha-ficha" replace />;
-  }
-
+  // Hooks must run on every render — keep them above any early return.
   const metricsQ = useHrDashboardMetrics();
   const alertsQ = useHrOperationalAlerts();
   const capacityQ = useHrCapacityOverview();
   const activityQ = useHrRecentActivity();
 
   const m = metricsQ.data;
+
+  if (permsLoading) {
+    return <div className="text-sm text-muted-foreground">…</div>;
+  }
+  if (!canSeeCockpit) {
+    return <Navigate to="/hr/minha-ficha" replace />;
+  }
 
   return (
     <TooltipProvider delayDuration={200}>

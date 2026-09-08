@@ -13,12 +13,12 @@ export const Route = createFileRoute("/_app/products/categories")({
   component: CategoriesPage,
   head: () => ({
     meta: [
-      { title: "Product categories — PSA Hub taxonomy" },
+      { title: "Product categories — Portal Pedra Silva taxonomy" },
       {
         name: "description",
         content: "Administer the product taxonomy used by the PSA product library and schedules.",
       },
-      { property: "og:title", content: "Product categories — PSA Hub taxonomy" },
+      { property: "og:title", content: "Product categories — Portal Pedra Silva taxonomy" },
       {
         property: "og:description",
         content: "Administer the product taxonomy used by the PSA product library and schedules.",

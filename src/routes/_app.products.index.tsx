@@ -29,12 +29,12 @@ export const Route = createFileRoute("/_app/products/")({
   component: ProductProjectsPage,
   head: () => ({
     meta: [
-      { title: "Product Library projects — PSA Hub" },
+      { title: "Product Library projects — Portal Pedra Silva" },
       {
         name: "description",
         content: "Choose a PSA project to specify furniture and interior products.",
       },
-      { property: "og:title", content: "Product Library projects — PSA Hub" },
+      { property: "og:title", content: "Product Library projects — Portal Pedra Silva" },
       {
         property: "og:description",
         content: "Choose a PSA project to specify furniture and interior products.",

@@ -6,13 +6,13 @@ import { SignatureProjectsSection } from "@/components/home/signature-projects";
 export const Route = createFileRoute("/_app/portfolio")({
   head: () => ({
     meta: [
-      { title: "Signature Projects — PSA Hub" },
+      { title: "Signature Projects — Portal Pedra Silva" },
       {
         name: "description",
         content:
           "Curated Pedra Silva Architects imagery, shared with the proposal builder image library.",
       },
-      { property: "og:title", content: "Signature Projects — PSA Hub" },
+      { property: "og:title", content: "Signature Projects — Portal Pedra Silva" },
       {
         property: "og:description",
         content:
