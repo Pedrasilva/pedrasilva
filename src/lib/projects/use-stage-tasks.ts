@@ -42,6 +42,7 @@ export function useCreateStageTask() {
       start_date: string;
       end_date: string;
       hours_per_day: number;
+      status?: "pending" | "active" | "paused" | "done";
     }) => {
       const { data: alloc, error } = await supabase
         .from("pm_allocations")
