@@ -26,7 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
-import { RecentlyVisited } from "@/components/home/recently-visited";
+
 import {
   useProposalImages,
   useSignedProposalImageUrl,
@@ -360,10 +360,6 @@ function HubPage() {
       </section>
 
 
-      {/* RECENTLY VISITED ================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
-        <RecentlyVisited />
-      </section>
 
 
 
