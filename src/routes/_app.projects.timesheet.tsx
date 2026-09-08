@@ -557,7 +557,8 @@ function TimesheetPage() {
                       onRemove={() =>
                         setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
                       }
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
@@ -599,7 +600,8 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => internalKey(cat.name)}
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
@@ -643,7 +645,8 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => nonWorkingKey(row.leave_type)}
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(nonWorkingKey(row.leave_type))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
