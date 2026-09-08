@@ -1376,5 +1376,125 @@
       "status": "Estado",
       "other": "Outro"
     }
+  },
+  "timesheetWeek": {
+    "myWeek": "A minha semana",
+    "projectHours": "Projeto",
+    "internalHours": "Interno",
+    "leaveHours": "Ausências",
+    "workingHours": "Trabalhado",
+    "accountedHours": "Contabilizado",
+    "capacityLine": "{{worked}} trabalhadas · capacidade semanal normal {{capacity}}",
+    "overCapacityNotice": "{{excess}} acima da sua capacidade semanal normal de {{capacity}}. O seu aprovador irá rever estas horas adicionais.",
+    "returnedNotice": "A sua semana foi devolvida para revisão",
+    "approvedNotice": "Esta semana está aprovada e fechada",
+    "additionalBanked": "{{hours}} adicionadas ao seu banco de horas",
+    "submittedNotice": "Submetida — a aguardar revisão. Os registos ficam bloqueados até ser devolvida ou reaberta.",
+    "submitWeek": "Submeter semana",
+    "confirmTitle": "Submeter esta semana?",
+    "confirmBody": "Está a submeter {{week}} para revisão. Os seus registos ficarão bloqueados até um aprovador devolver ou reabrir a semana.",
+    "confirmOverCapacity": "Esta semana inclui {{excess}} acima da sua capacidade semanal normal.",
+    "confirmSubmit": "Submeter",
+    "cancel": "Cancelar",
+    "submittedToast": "Semana submetida para revisão",
+    "submitFailed": "Não foi possível submeter a semana",
+    "status": {
+      "open": "Não submetida",
+      "submitted": "Submetida",
+      "returned": "Devolvida",
+      "approved": "Aprovada"
+    }
+  },
+  "weeklyApproval": {
+    "title": "Aprovação semanal",
+    "subtitle": "Rever, fechar e bloquear a semana de cada colaborador.",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Semana seguinte",
+    "empty": "Nada a mostrar para este filtro.",
+    "stats": {
+      "completion": "Semanas submetidas",
+      "completionHint": "Colaboradores que entregaram esta semana",
+      "approval": "Semanas aprovadas",
+      "approvalHint": "Aprovadas face às submetidas",
+      "exceptions": "Acima da capacidade",
+      "exceptionsHint": "Semanas trabalhadas acima da capacidade normal",
+      "additional": "Horas adicionais",
+      "additionalHint": "Aprovadas para o banco de horas"
+    },
+    "filters": {
+      "all": "Todas",
+      "awaiting": "A aguardar revisão",
+      "notSubmitted": "Não submetidas",
+      "approved": "Aprovadas",
+      "returned": "Devolvidas",
+      "overCapacity": "Acima da capacidade"
+    },
+    "columns": {
+      "collaborator": "Colaborador",
+      "project": "Projeto",
+      "internal": "Interno",
+      "leave": "Ausências",
+      "working": "Trabalhado",
+      "capacity": "Capacidade",
+      "status": "Estado"
+    },
+    "status": {
+      "notSubmitted": "Não submetida",
+      "submitted": "Submetida",
+      "returned": "Devolvida",
+      "approved": "Aprovada"
+    },
+    "review": {
+      "accounted": "Contabilizado",
+      "breakdown": "Distribuição do tempo",
+      "noEntries": "Sem horas registadas nesta semana.",
+      "showDaily": "Ver dia a dia",
+      "hideDaily": "Ocultar dia a dia",
+      "notSubmittedYet": "Esta semana ainda não foi submetida, pelo que não há nada para aprovar.",
+      "excessNotice": "{{working}} trabalhadas face a uma capacidade semanal normal de {{capacity}} — {{excess}} adicionais.",
+      "additionalTitle": "Horas adicionais",
+      "acknowledge": "Reconhecer {{hours}} de horas adicionais para o banco de horas",
+      "hoursToBank": "Horas a creditar",
+      "maxHours": "máx. {{hours}}h",
+      "reasonRequired": "Está a creditar menos horas do que as calculadas — indique o motivo no comentário.",
+      "comment": "Comentário",
+      "approve": "Aprovar e fechar semana",
+      "return": "Devolver ao colaborador",
+      "returnHint": "Devolver reabre a edição para o colaborador. É obrigatório um comentário.",
+      "approvedToast": "Semana aprovada e fechada",
+      "returnedToast": "Semana devolvida ao colaborador",
+      "reopenedToast": "Semana reaberta",
+      "closed": "Semana aprovada e fechada",
+      "bankedHours": "{{hours}} creditadas",
+      "reopenReason": "Motivo da reabertura",
+      "reopen": "Reabrir semana"
+    }
+  },
+  "hoursBank": {
+    "title": "Banco de horas",
+    "balance": "Saldo",
+    "balanceInDays": "{{days}} dias + {{rest}}h",
+    "empty": "Ainda sem movimentos.",
+    "date": "Data",
+    "movement": "Movimento",
+    "hours": "Horas",
+    "reason": "Motivo",
+    "runningBalance": "Saldo",
+    "type": {
+      "additional_hours": "Horas adicionais",
+      "converted_to_leave": "Convertidas em ausência",
+      "paid_compensation": "Compensação paga",
+      "manual_adjustment": "Ajuste manual"
+    },
+    "addMovement": "Adicionar movimento",
+    "addTitle": "Adicionar movimento ao banco de horas",
+    "kind": "Tipo",
+    "hoursLabel": "Horas",
+    "reasonLabel": "Motivo",
+    "reasonRequired": "O motivo é obrigatório.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "savedToast": "Banco de horas atualizado",
+    "weekOf": "Semana de {{date}}"
   }
 }

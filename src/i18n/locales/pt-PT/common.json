@@ -398,7 +398,9 @@
       "products.categories": "Categorias",
       "inventory.assets": "Registo de ativos",
       "inventory.assignments": "Atribuições",
-      "inventory.reports": "Relatórios de inventário"
+      "inventory.reports": "Relatórios de inventário",
+      "projects.weeklyApproval": "Aprovação semanal",
+      "time.weeklyApproval": "Aprovação semanal"
     },
     "top": {
       "create": "Criar",
