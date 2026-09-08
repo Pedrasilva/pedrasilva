@@ -1561,7 +1561,14 @@
     "priority": "Prioridade",
     "addApprover": "Adicionar aprovador",
     "approverAdded": "Aprovador adicionado.",
-    "noApprovers": "Sem aprovadores configurados — por omissão aprovam RH e administradores."
+    "noApprovers": "Sem aprovadores configurados — por omissão aprovam RH e administradores.",
+    "dialogSubtitle": "Escolha os dias em que vai trabalhar a partir de casa. O seu aprovador será notificado.",
+    "approverResolved": "{{name}}",
+    "approverMissing": "Ainda não existe aprovador definido",
+    "approverMissingBlocked": "Não existe aprovador definido para si, por isso o pedido não pode ser submetido.",
+    "overrideLabel": "Registar diretamente, sem aprovação",
+    "sameDayBlocked": "Não são permitidos pedidos para o próprio dia.",
+    "noticeBlocked": "Os pedidos devem ser feitos com pelo menos {{days}} dia(s) de antecedência."
   },
   "availability": {
     "title": "Disponibilidade da equipa",
