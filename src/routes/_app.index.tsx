@@ -295,66 +295,75 @@ function HubPage() {
   return (
     <div className="psa-editorial -mx-4 -my-6 sm:-mx-6">
       {/* HERO ============================================================= */}
-      <section
-        className="relative overflow-hidden border-b"
-        style={{
-          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--cream) 82%, transparent) 0%, color-mix(in srgb, var(--background) 92%, transparent) 100%), url(${homeBanner.url})`,
-          backgroundSize: "cover, cover",
-          backgroundPosition: "center, center",
-        }}
-      >
+      <section className="relative border-b bg-[color-mix(in_srgb,var(--cream)_60%,var(--background))]">
         {todayCelebrations.some((c) => c.kind === "birthday") && (
           <BirthdayFireworks />
         )}
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-6 lg:py-8">
-          <div className="flex items-baseline justify-between gap-6">
-            <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <div className="relative grid lg:grid-cols-[1.05fr_1fr]">
+          <div className="px-4 sm:px-6 lg:pl-10 xl:pl-16 py-10 lg:py-16 max-w-3xl">
+            <div className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
               {today}
             </div>
-            <div className="hidden md:block text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+
+            <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+              {greeting}
+              {firstName ? `, ${firstName}` : ""}.
+              <span className="mt-1 block text-muted-foreground">
+                {t("home:tagline")}
+              </span>
+            </h1>
+
+            <div className="mt-8 h-px w-14 bg-foreground/25" />
+
+            <p className="mt-5 max-w-md text-sm text-foreground/70 leading-relaxed">
+              {t("home:intro")}
+            </p>
+
+            {/* Today's celebration banner */}
+            {todayCelebrations.length > 0 && (
+              <div className="mt-7 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-background"
+                  style={{ background: "var(--clay)" }}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </span>
+                <span className="text-sm font-medium">
+                  {t("home:todayCelebrate", {
+                    names: todayCelebrations
+                      .map((c) =>
+                        c.kind === "birthday"
+                          ? t("home:celebrate.birthday", { name: c.nome })
+                          : t("home:celebrate.anniversary", {
+                              name: c.nome,
+                              years: c.years,
+                            }),
+                      )
+                      .join(", "),
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="relative min-h-[220px] lg:min-h-[420px]">
+            <img
+              src={homeBanner.url}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-r from-[color-mix(in_srgb,var(--cream)_92%,transparent)] via-[color-mix(in_srgb,var(--cream)_25%,transparent)] to-transparent"
+            />
+            <div className="absolute right-6 bottom-6 hidden md:block text-right text-[10px] uppercase tracking-[0.3em] text-foreground/70">
               {t("home:studioHub")}
             </div>
           </div>
-
-          <h1 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl leading-[1.1] tracking-tight max-w-4xl">
-            {greeting}
-            {firstName ? `, ${firstName}` : ""}.
-            <span className="block text-muted-foreground">
-              {t("home:tagline")}
-            </span>
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-sm text-foreground/70 leading-relaxed">
-            {t("home:intro")}
-          </p>
-
-          {/* Today's celebration banner */}
-          {todayCelebrations.length > 0 && (
-            <div className="mt-4 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
-              <span
-                className="flex h-7 w-7 items-center justify-center rounded-full text-background"
-                style={{ background: "var(--clay)" }}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-              </span>
-              <span className="text-sm font-medium">
-                {t("home:todayCelebrate", {
-                  names: todayCelebrations
-                    .map((c) =>
-                      c.kind === "birthday"
-                        ? t("home:celebrate.birthday", { name: c.nome })
-                        : t("home:celebrate.anniversary", {
-                            name: c.nome,
-                            years: c.years,
-                          }),
-                    )
-                    .join(", "),
-                })}
-              </span>
-            </div>
-          )}
         </div>
       </section>
+
 
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
