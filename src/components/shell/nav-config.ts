@@ -103,8 +103,10 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/gantt", labelKey: "projects.gantt" },
           { to: "/projects/timesheet", labelKey: "projects.timesheet" },
+          { to: "/projects/weekly-approval", labelKey: "projects.weeklyApproval" },
         ],
       },
+
       {
         titleKey: "reports",
         links: [
@@ -155,9 +157,11 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/timesheet", labelKey: "time.timesheet" },
           { to: "/projects/my-tasks", labelKey: "time.myTasks" },
+          { to: "/projects/weekly-approval", labelKey: "time.weeklyApproval" },
         ],
       },
     ],
+
   },
 
   // ─── Finance ───
