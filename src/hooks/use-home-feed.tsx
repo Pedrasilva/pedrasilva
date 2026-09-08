@@ -273,6 +273,7 @@ export function useTeamAvailability(windowDays = 14) {
       }>) {
         const item: AvailabilityItem = {
           id: `v-${r.id}`,
+          collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "absence",
           tipo: r.tipo,
