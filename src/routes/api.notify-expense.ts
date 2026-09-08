@@ -134,9 +134,13 @@ export const Route = createFileRoute("/api/notify-expense")({
           `;
 
           // Tenta enviar via Lovable Email
+          let emailSent = false;
+          let emailError: string | null = null;
           try {
             const apiKey = process.env.LOVABLE_API_KEY;
-            if (apiKey) {
+            if (!apiKey) {
+              emailError = "email_not_configured";
+            } else {
               const resp = await fetch("https://ai.gateway.lovable.dev/v1/email/send", {
                 method: "POST",
                 headers: {
@@ -152,17 +156,22 @@ export const Route = createFileRoute("/api/notify-expense")({
               });
               if (!resp.ok) {
                 const txt = await resp.text();
+                emailError = `gateway_${resp.status}`;
                 console.error("Email gateway error:", resp.status, txt);
+              } else {
+                emailSent = true;
               }
             }
           } catch (err) {
+            emailError = "send_failed";
             console.error("Email send failed:", err);
           }
 
-          return new Response(JSON.stringify({ ok: true }), {
+          return new Response(JSON.stringify({ ok: true, emailSent, emailError }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });
+
         } catch (err) {
           console.error("[notify-expense] unhandled error:", err);
           return new Response(
