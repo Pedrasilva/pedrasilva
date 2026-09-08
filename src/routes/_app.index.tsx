@@ -39,6 +39,7 @@ import financeTexture from "@/assets/modules/finance.jpg.asset.json";
 import inventoryTexture from "@/assets/modules/inventory.jpg.asset.json";
 import productsTexture from "@/assets/modules/products.jpg.asset.json";
 import portfolioTexture from "@/assets/modules/portfolio.jpg.asset.json";
+import homeBanner from "@/assets/home-banner.png.asset.json";
 
 /** Quiet material textures behind each module card (decorative only). */
 const MODULE_TEXTURE: Record<string, string> = {
@@ -297,8 +298,9 @@ function HubPage() {
       <section
         className="relative overflow-hidden border-b"
         style={{
-          background:
-            "linear-gradient(180deg, var(--cream) 0%, var(--background) 100%)",
+          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--cream) 82%, transparent) 0%, color-mix(in srgb, var(--background) 92%, transparent) 100%), url(${homeBanner.url})`,
+          backgroundSize: "cover, cover",
+          backgroundPosition: "center, center",
         }}
       >
         {todayCelebrations.some((c) => c.kind === "birthday") && (
