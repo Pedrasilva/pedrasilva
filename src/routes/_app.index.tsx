@@ -26,9 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
-import { TodayFaces } from "@/components/home/today-faces";
 import { RecentlyVisited } from "@/components/home/recently-visited";
-import { MyActionsCard } from "@/components/home/my-actions-card";
 import {
   useProposalImages,
   useSignedProposalImageUrl,
@@ -358,17 +356,9 @@ function HubPage() {
 
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
-        <TodayFaces />
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <TodayStrip />
       </section>
 
-      {/* MY ACTIONS ======================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
-        <MyActionsCard />
-      </section>
 
       {/* RECENTLY VISITED ================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
