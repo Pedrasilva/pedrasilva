@@ -42,6 +42,7 @@ export function useCreateStageTask() {
       start_date: string;
       end_date: string;
       hours_per_day: number;
+      status?: "pending" | "active" | "paused" | "done";
     }) => {
       const { data: alloc, error } = await supabase
         .from("pm_allocations")
@@ -58,7 +59,7 @@ export function useCreateStageTask() {
 
       const { error: taskError } = await supabase
         .from("pm_tasks")
-        .update({ name: input.name })
+        .update({ name: input.name, ...(input.status ? { status: input.status } : {}) })
         .eq("allocation_id", (alloc as { id: string }).id);
       if (taskError) throw taskError;
       return alloc as { id: string };
