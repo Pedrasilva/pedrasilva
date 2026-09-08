@@ -295,66 +295,75 @@ function HubPage() {
   return (
     <div className="psa-editorial -mx-4 -my-6 sm:-mx-6">
       {/* HERO ============================================================= */}
-      <section
-        className="relative overflow-hidden border-b"
-        style={{
-          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--cream) 82%, transparent) 0%, color-mix(in srgb, var(--background) 92%, transparent) 100%), url(${homeBanner.url})`,
-          backgroundSize: "cover, cover",
-          backgroundPosition: "center, center",
-        }}
-      >
+      <section className="relative border-b bg-[color-mix(in_srgb,var(--cream)_60%,var(--background))]">
         {todayCelebrations.some((c) => c.kind === "birthday") && (
           <BirthdayFireworks />
         )}
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-6 lg:py-8">
-          <div className="flex items-baseline justify-between gap-6">
-            <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <div className="relative grid lg:grid-cols-[1.05fr_1fr]">
+          <div className="px-4 sm:px-6 lg:pl-10 xl:pl-16 py-10 lg:py-16 max-w-3xl">
+            <div className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
               {today}
             </div>
-            <div className="hidden md:block text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+
+            <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+              {greeting}
+              {firstName ? `, ${firstName}` : ""}.
+              <span className="mt-1 block text-muted-foreground">
+                {t("home:tagline")}
+              </span>
+            </h1>
+
+            <div className="mt-8 h-px w-14 bg-foreground/25" />
+
+            <p className="mt-5 max-w-md text-sm text-foreground/70 leading-relaxed">
+              {t("home:intro")}
+            </p>
+
+            {/* Today's celebration banner */}
+            {todayCelebrations.length > 0 && (
+              <div className="mt-7 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-background"
+                  style={{ background: "var(--clay)" }}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </span>
+                <span className="text-sm font-medium">
+                  {t("home:todayCelebrate", {
+                    names: todayCelebrations
+                      .map((c) =>
+                        c.kind === "birthday"
+                          ? t("home:celebrate.birthday", { name: c.nome })
+                          : t("home:celebrate.anniversary", {
+                              name: c.nome,
+                              years: c.years,
+                            }),
+                      )
+                      .join(", "),
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="relative min-h-[220px] lg:min-h-[420px]">
+            <img
+              src={homeBanner.url}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-r from-[color-mix(in_srgb,var(--cream)_92%,transparent)] via-[color-mix(in_srgb,var(--cream)_25%,transparent)] to-transparent"
+            />
+            <div className="absolute right-6 bottom-6 hidden md:block text-right text-[10px] uppercase tracking-[0.3em] text-foreground/70">
               {t("home:studioHub")}
             </div>
           </div>
-
-          <h1 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl leading-[1.1] tracking-tight max-w-4xl">
-            {greeting}
-            {firstName ? `, ${firstName}` : ""}.
-            <span className="block text-muted-foreground">
-              {t("home:tagline")}
-            </span>
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-sm text-foreground/70 leading-relaxed">
-            {t("home:intro")}
-          </p>
-
-          {/* Today's celebration banner */}
-          {todayCelebrations.length > 0 && (
-            <div className="mt-4 inline-flex flex-wrap items-center gap-3 rounded-full border bg-background/80 px-5 py-2.5 backdrop-blur shadow-sm">
-              <span
-                className="flex h-7 w-7 items-center justify-center rounded-full text-background"
-                style={{ background: "var(--clay)" }}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-              </span>
-              <span className="text-sm font-medium">
-                {t("home:todayCelebrate", {
-                  names: todayCelebrations
-                    .map((c) =>
-                      c.kind === "birthday"
-                        ? t("home:celebrate.birthday", { name: c.nome })
-                        : t("home:celebrate.anniversary", {
-                            name: c.nome,
-                            years: c.years,
-                          }),
-                    )
-                    .join(", "),
-                })}
-              </span>
-            </div>
-          )}
         </div>
       </section>
+
 
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
@@ -380,59 +389,56 @@ function HubPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {visible.map((m) => {
             const Icon = m.icon;
             return (
               <Link key={m.to} to={m.to} className="group block">
                 <Card
                   className={cn(
-                    "relative h-full overflow-hidden border-border/70 transition-all duration-300",
-                    "hover:-translate-y-1 hover:shadow-xl hover:border-foreground/20",
+                    "relative h-full overflow-hidden rounded-none border-border/70 p-0 transition-all duration-300",
+                    "hover:-translate-y-1 hover:shadow-lg hover:border-foreground/25",
                   )}
                 >
                   {MODULE_TEXTURE[m.to] && (
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.38] transition-opacity duration-500 group-hover:opacity-[0.55]"
-                      style={{ backgroundImage: `url(${MODULE_TEXTURE[m.to]})` }}
-                    />
-                  )}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40"
-                  />
-                  <div className="relative p-5 sm:p-6">
-                    <div className="flex items-start justify-between">
-                      <span
-                        className="font-display text-4xl leading-none text-foreground/10 transition-colors group-hover:text-foreground/30"
-                      >
+                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                      <img
+                        src={MODULE_TEXTURE[m.to]}
+                        alt=""
+                        aria-hidden
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                      <span className="absolute left-3 top-3 font-display text-xs tracking-[0.2em] text-background/80 mix-blend-difference">
                         {m.number}
                       </span>
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground transition-colors group-hover:border-foreground/40 group-hover:bg-foreground group-hover:text-background">
-                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:rotate-12" />
-                      </span>
                     </div>
-                    <div className="mt-6">
-                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                        <Icon className="h-3.5 w-3.5" />
-                        {t(m.subtitleKey)}
-                      </div>
-                      <h3 className="mt-2 font-display text-2xl tracking-tight">
+                  )}
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-display text-xl tracking-tight">
                         {t(m.titleKey)}
                       </h3>
-                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground leading-relaxed">
-                        {t(m.descriptionKey)}
-                      </p>
-                      {m.to === "/portfolio" && <PortfolioPreviewStrip />}
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border/70 text-foreground transition-colors group-hover:border-foreground/40 group-hover:bg-foreground group-hover:text-background">
+                        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:rotate-12" />
+                      </span>
                     </div>
-
+                    <div className="mt-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      <Icon className="h-3 w-3" />
+                      {t(m.subtitleKey)}
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-xs text-muted-foreground leading-relaxed">
+                      {t(m.descriptionKey)}
+                    </p>
+                    {m.to === "/portfolio" && <PortfolioPreviewStrip />}
                   </div>
                 </Card>
               </Link>
             );
           })}
         </div>
+
         {!isAdmin && visible.length > 0 && visible.length < MODULES.length && (
           <p className="mt-4 text-xs text-muted-foreground">
             {t("home:hiddenModules.note")}
