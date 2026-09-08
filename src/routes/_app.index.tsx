@@ -395,13 +395,13 @@ function HubPage() {
                   {MODULE_TEXTURE[m.to] && (
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.16] transition-opacity duration-500 group-hover:opacity-[0.26]"
+                      className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.38] transition-opacity duration-500 group-hover:opacity-[0.55]"
                       style={{ backgroundImage: `url(${MODULE_TEXTURE[m.to]})` }}
                     />
                   )}
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card via-card/85 to-card/45"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40"
                   />
                   <div className="relative p-6 sm:p-7">
                     <div className="flex items-start justify-between">
