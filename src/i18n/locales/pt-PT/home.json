@@ -105,5 +105,12 @@
     "remote": "Trabalho remoto",
     "remoteToday": "A trabalhar de casa hoje",
     "nextDay": "próxima {{day}}"
+  },
+  "todayFaces": {
+    "title": "Hoje no atelier",
+    "empty": "Está toda a gente cá hoje — nada a assinalar."
+  },
+  "recent": {
+    "title": "Visto recentemente"
   }
 }
