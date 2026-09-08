@@ -58,6 +58,21 @@ function toIsoDate(d: Date): string {
   return `${y}-${m}-${dd}`;
 }
 
+/** Employee numbers are recorded as YYYYMMDD of the day the person joined PSA. */
+function parsePsaStart(numero: string | null): Date | null {
+  if (!numero) return null;
+  const m = /^(\d{4})(\d{2})(\d{2})$/.exec(numero.trim());
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const date = new Date(y, mo - 1, d);
+  if (date.getMonth() !== mo - 1 || date.getDate() !== d) return null;
+  return date;
+}
+
+
+
 /**
  * Returns upcoming birthdays + PSA work anniversaries within `windowDays` days.
  */
