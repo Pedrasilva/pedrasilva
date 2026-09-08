@@ -195,7 +195,7 @@ export function useNonWorkingPrefill(opts: {
       const [vacRes, holRes, collabRes] = await Promise.all([
         supabase
           .from("vacation_requests")
-          .select("data_inicio, data_fim, tipo, estado")
+          .select("data_inicio, data_fim, tipo, estado, periodo, horas")
           .eq("collaborator_id", opts.collaboratorId!)
           .in("estado", APPROVED_LEAVE_STATES as unknown as string[])
           .lte("data_inicio", opts.weekEnd)
