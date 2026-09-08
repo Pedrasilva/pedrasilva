@@ -68,12 +68,12 @@ export function useUpcomingCelebrations(windowDays = 45) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("collaborators_directory")
-        .select("id, nome, data_nascimento, inicio_carreira");
+        .select("id, nome, data_nascimento, numero_colaborador");
       if (error) throw error;
       const today = new Date();
       const items: BirthdayItem[] = [];
 
-      for (const c of (data ?? []) as Array<{ id: string; nome: string; data_nascimento: string | null; inicio_carreira: string | null }>) {
+      for (const c of (data ?? []) as Array<{ id: string; nome: string; data_nascimento: string | null; numero_colaborador: string | null }>) {
         if (c.data_nascimento) {
           const birth = parseDate(c.data_nascimento);
           const next = nextOccurrence(
@@ -92,14 +92,15 @@ export function useUpcomingCelebrations(windowDays = 45) {
             });
           }
         }
-        if (c.inicio_carreira) {
-          const start = parseDate(c.inicio_carreira);
+        // The employee number encodes the day they joined PSA (YYYYMMDD).
+        const joined = parsePsaStart(c.numero_colaborador);
+        if (joined) {
           const next = nextOccurrence(
-            { m: start.getMonth(), d: start.getDate() },
+            { m: joined.getMonth(), d: joined.getDate() },
             today,
           );
           const days = diffDays(next, today);
-          const years = next.getFullYear() - start.getFullYear();
+          const years = next.getFullYear() - joined.getFullYear();
           // Only celebrate from year 1 onwards
           if (days <= windowDays && years >= 1) {
             items.push({
