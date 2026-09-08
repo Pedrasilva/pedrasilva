@@ -414,26 +414,26 @@ function HubPage() {
                     aria-hidden
                     className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card via-card/80 to-card/40"
                   />
-                  <div className="relative p-6 sm:p-7">
+                  <div className="relative p-5 sm:p-6">
                     <div className="flex items-start justify-between">
                       <span
-                        className="font-display text-5xl leading-none text-foreground/10 transition-colors group-hover:text-foreground/30"
+                        className="font-display text-4xl leading-none text-foreground/10 transition-colors group-hover:text-foreground/30"
                       >
                         {m.number}
                       </span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 text-foreground transition-colors group-hover:border-foreground/40 group-hover:bg-foreground group-hover:text-background">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 text-foreground transition-colors group-hover:border-foreground/40 group-hover:bg-foreground group-hover:text-background">
                         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:rotate-12" />
                       </span>
                     </div>
-                    <div className="mt-10">
+                    <div className="mt-6">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                         <Icon className="h-3.5 w-3.5" />
                         {t(m.subtitleKey)}
                       </div>
-                      <h3 className="mt-2 font-display text-3xl tracking-tight">
+                      <h3 className="mt-2 font-display text-2xl tracking-tight">
                         {t(m.titleKey)}
                       </h3>
-                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground leading-relaxed">
                         {t(m.descriptionKey)}
                       </p>
                       {m.to === "/portfolio" && <PortfolioPreviewStrip />}
