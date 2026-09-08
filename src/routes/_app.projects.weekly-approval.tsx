@@ -129,7 +129,7 @@ function WeeklyApprovalPage() {
 
   if (permsLoading) {
     return (
-      <AppShell active="timesheet">
+      <AppShell>
         <div className="p-8 text-sm text-muted-foreground">
           {t("common:loading", { defaultValue: "Loading…" })}
         </div>
@@ -139,7 +139,7 @@ function WeeklyApprovalPage() {
 
   if (!canApprove) {
     return (
-      <AppShell active="timesheet">
+      <AppShell>
         <div className="p-8 text-sm text-muted-foreground">
           {t("common:accessDenied", { defaultValue: "Access denied." })}
         </div>
@@ -165,7 +165,7 @@ function WeeklyApprovalPage() {
   ];
 
   return (
-    <AppShell active="timesheet">
+    <AppShell>
       <div className="w-full px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
