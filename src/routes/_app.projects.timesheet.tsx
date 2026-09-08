@@ -557,7 +557,8 @@ function TimesheetPage() {
                       onRemove={() =>
                         setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
                       }
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
@@ -599,7 +600,8 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => internalKey(cat.name)}
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
@@ -643,7 +645,8 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => nonWorkingKey(row.leave_type)}
-                      pending={upsert.isPending || readOnly}
+                      pending={upsert.isPending}
+                      readOnly={readOnly}
                       rowTotal={rowTotalFor(nonWorkingKey(row.leave_type))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
@@ -760,6 +763,7 @@ function ProjectRow({
   isExtra,
   onRemove,
   pending,
+  readOnly,
   rowTotal,
   onCommit,
 }: {
@@ -769,6 +773,7 @@ function ProjectRow({
   isExtra: boolean;
   onRemove: () => void;
   pending: boolean;
+  readOnly?: boolean;
   rowTotal: number;
   onCommit: (
     dateStr: string,
@@ -833,6 +838,7 @@ function ProjectRow({
               billable={cell?.billable ?? true}
               suggested={suggested}
               disabled={pending}
+              readOnly={readOnly}
               onCommit={(hours, notes, billable) =>
                 onCommit(dateStr, hours, notes, billable, cell?.id ?? null)
               }
@@ -853,6 +859,7 @@ function FixedRow({
   entryMap,
   keyFn,
   pending,
+  readOnly,
   rowTotal,
   onCommit,
 }: {
@@ -863,6 +870,7 @@ function FixedRow({
   entryMap: Map<CellKey, Map<string, CellInfo>>;
   keyFn: () => CellKey;
   pending: boolean;
+  readOnly?: boolean;
   rowTotal: number;
   onCommit: (
     dateStr: string,
@@ -903,6 +911,7 @@ function FixedRow({
               billable={false}
               suggested={isWeekend ? 0 : tone === "nonworking" ? 8 : 0}
               disabled={pending}
+              readOnly={readOnly}
               onCommit={(hours, notes) =>
                 onCommit(dateStr, hours, notes, false, cell?.id ?? null)
               }
@@ -925,6 +934,7 @@ function HourCell({
   billable,
   suggested,
   disabled,
+  readOnly,
   onCommit,
 }: {
   date: Date;
@@ -936,6 +946,7 @@ function HourCell({
   billable: boolean;
   suggested: number;
   disabled: boolean;
+  readOnly?: boolean;
   onCommit: (hours: number, notes: string | null, billable: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -1009,6 +1020,7 @@ function HourCell({
         <button
           type="button"
           disabled={disabled}
+          title={notes && value > 0 ? notes : undefined}
           className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${cellCls}`}
         >
           {display || <span className="text-muted-foreground/60">{placeholder}</span>}
@@ -1025,6 +1037,26 @@ function HourCell({
           <div className="mt-0.5 truncate text-sm font-medium">{title}</div>
           <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
         </div>
+        {readOnly ? (
+          <div className="space-y-3 px-4 py-3">
+            <div>
+              <div className="mb-1 text-xs font-medium text-muted-foreground">Time</div>
+              <div className="font-mono text-sm">{display || "0h00"}</div>
+            </div>
+            <div>
+              <div className="mb-1 text-xs font-medium text-muted-foreground">Description</div>
+              <p className="whitespace-pre-wrap text-sm">
+                {notes || <span className="text-muted-foreground">No description</span>}
+              </p>
+            </div>
+            {entryType === "project" && (
+              <div className="rounded border border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+                {billable ? "Billable" : "Non-billable"}
+              </div>
+            )}
+          </div>
+        ) : (
+        <>
         <div className="space-y-3 px-4 py-3">
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
@@ -1104,6 +1136,8 @@ function HourCell({
             </Button>
           </div>
         </div>
+        </>
+        )}
       </PopoverContent>
     </Popover>
   );
