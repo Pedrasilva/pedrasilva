@@ -237,22 +237,32 @@ export function useNonWorkingPrefill(opts: {
         dayList.push(toLocalISODate(d));
       }
 
-      // Vacations: each approved request fills its weekday range with the
-      // user's contractual daily hours. Labels come from the centralized
-      // helper so the timesheet, financials persistence and the backfill
-      // script all produce identical leave_type strings.
+      // Vacations: each approved request fills its weekday range. Full-day
+      // requests use the contractual daily hours; half-day requests (manhã /
+      // tarde) use half of it; hour-based requests use exactly the approved
+      // hours, so a 1h authorised absence never blocks a whole day.
       for (const v of (vacRes.data ?? []) as Array<{
         data_inicio: string;
         data_fim: string;
         tipo: string;
+        periodo: string | null;
+        horas: number | null;
       }>) {
         const label = leaveLabelFor(v.tipo);
         const m = ensure(label);
+        const periodo = v.periodo ?? "dia_inteiro";
+        const hoursForDay =
+          periodo === "horas"
+            ? Math.min(Number(v.horas ?? 0), dailyHours)
+            : periodo === "manha" || periodo === "tarde" || periodo === "meio_dia"
+              ? dailyHours / 2
+              : dailyHours;
+        if (hoursForDay <= 0) continue;
         for (const iso of dayList) {
           if (iso >= v.data_inicio && iso <= v.data_fim) {
             const dow = new Date(iso + "T00:00:00").getDay();
             if (dow === 0 || dow === 6) continue; // skip weekends
-            m.set(iso, dailyHours);
+            m.set(iso, hoursForDay);
           }
         }
       }
