@@ -297,8 +297,9 @@ function HubPage() {
       <section
         className="relative overflow-hidden border-b"
         style={{
-          background:
-            "linear-gradient(180deg, var(--cream) 0%, var(--background) 100%)",
+          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--cream) 82%, transparent) 0%, color-mix(in srgb, var(--background) 92%, transparent) 100%), url(${homeBanner.url})`,
+          backgroundSize: "cover, cover",
+          backgroundPosition: "center, center",
         }}
       >
         {todayCelebrations.some((c) => c.kind === "birthday") && (
