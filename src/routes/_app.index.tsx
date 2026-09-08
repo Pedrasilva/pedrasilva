@@ -356,12 +356,21 @@ function HubPage() {
 
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <TodayFaces />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <TodayStrip />
       </section>
 
       {/* MY ACTIONS ======================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
         <MyActionsCard />
+      </section>
+
+      {/* RECENTLY VISITED ================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
+        <RecentlyVisited />
       </section>
 
 
