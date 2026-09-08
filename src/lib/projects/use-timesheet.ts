@@ -237,6 +237,13 @@ export function useNonWorkingPrefill(opts: {
         dayList.push(toLocalISODate(d));
       }
 
+      // Public holiday dates in this week. A holiday always wins over leave:
+      // the day is already non-working, so it must not also be counted
+      // against the collaborator's leave (and must not double the day total).
+      const holidayDates = new Set(
+        ((holRes.data ?? []) as Array<{ data: string }>).map((h) => h.data),
+      );
+
       // Vacations: each approved request fills its weekday range. Full-day
       // requests use the contractual daily hours; half-day requests (manhã /
       // tarde) use half of it; hour-based requests use exactly the approved
@@ -262,6 +269,7 @@ export function useNonWorkingPrefill(opts: {
           if (iso >= v.data_inicio && iso <= v.data_fim) {
             const dow = new Date(iso + "T00:00:00").getDay();
             if (dow === 0 || dow === 6) continue; // skip weekends
+            if (holidayDates.has(iso)) continue; // public holiday takes over
             m.set(iso, hoursForDay);
           }
         }
