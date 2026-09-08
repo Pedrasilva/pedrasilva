@@ -291,6 +291,7 @@ export function useTeamAvailability(windowDays = 14) {
       }>) {
         const item: AvailabilityItem = {
           id: `r-${r.id}`,
+          collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "remote",
           start: r.data,
