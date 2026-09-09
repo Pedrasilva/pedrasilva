@@ -61,6 +61,11 @@ export function GlobalTopNav() {
   // Timesheet access now follows the v2 role model (everyone who can log
   // their own hours), not the legacy `projects.timesheet` key.
   const canTime = canV2("timesheets.log", "own") || can("projects.timesheet");
+  const canApproveWeeks =
+    isAdmin ||
+    canV2("timesheets.approve", "all") ||
+    canV2("timesheets.approve", "team") ||
+    canV2("timesheets.approve", "own");
   const canTasks = can("projects.my-tasks");
   const canSchedule = can("projects.resources") || can("projects.gantt");
   const canCreateTask = canTasks;
@@ -124,6 +129,17 @@ export function GlobalTopNav() {
               <ListChecks className="h-4 w-4 text-muted-foreground" /> {t("topNav.myTimesheet")}
             </Link>
           </DropdownMenuItem>
+          {canApproveWeeks && (
+            <DropdownMenuItem asChild>
+              <Link
+                to="/projects/weekly-approval"
+                className="flex w-full cursor-pointer items-center gap-2"
+              >
+                <CheckSquare className="h-4 w-4 text-muted-foreground" />{" "}
+                {t("topNav.weeklyApproval")}
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       )}
