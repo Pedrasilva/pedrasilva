@@ -790,6 +790,7 @@ function InternalCategoriesAdmin() {
                 <TableRow>
                   <TableHead className="w-[60px]">Ordem</TableHead>
                   <TableHead>Nome</TableHead>
+                  <TableHead className="w-[280px]">Visível para</TableHead>
                   <TableHead className="text-right">Acções</TableHead>
                 </TableRow>
               </TableHeader>
