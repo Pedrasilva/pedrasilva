@@ -130,6 +130,7 @@ import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as ApiPublicInboxImageRouteImport } from './routes/api/public/inbox/image'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
 
 const AppRoute = AppRouteImport.update({
@@ -783,6 +784,12 @@ const ApiPublicInboxImageRoute = ApiPublicInboxImageRouteImport.update({
   path: '/api/public/inbox/image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppProposalsProposalIdRevisionsRevisionIdRoute =
   AppProposalsProposalIdRevisionsRevisionIdRouteImport.update({
     id: '/proposals/$proposalId/revisions/$revisionId',
@@ -906,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -1021,6 +1029,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/crm/companies': typeof AppCrmCompaniesIndexRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -1146,6 +1155,7 @@ export interface FileRoutesById {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -1271,6 +1281,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/api/public/inbox/image'
+    | '/lovable/email/transactional/preview'
     | '/crm/companies/'
     | '/crm/opportunities/'
     | '/finance/documents/'
@@ -1386,6 +1397,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/api/public/inbox/image'
+    | '/lovable/email/transactional/preview'
     | '/crm/companies'
     | '/crm/opportunities'
     | '/finance/documents'
@@ -1510,6 +1522,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
     | '/api/public/inbox/image'
+    | '/lovable/email/transactional/preview'
     | '/_app/crm/companies/'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
@@ -1534,6 +1547,7 @@ export interface RootRouteChildren {
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
   ApiPublicInboxImageRoute: typeof ApiPublicInboxImageRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2385,6 +2399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicInboxImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/proposals/$proposalId/revisions/$revisionId': {
       id: '/_app/proposals/$proposalId/revisions/$revisionId'
       path: '/proposals/$proposalId/revisions/$revisionId'
@@ -2739,6 +2760,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
   ApiPublicInboxImageRoute: ApiPublicInboxImageRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
