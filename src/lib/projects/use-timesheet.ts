@@ -368,35 +368,47 @@ export function useProjectSearch(opts: { query: string }) {
       const { data, error } = await supabase
         .from("pm_projects")
         .select(
-          "id, name, client, color, stages:pm_stages(id, name, color, start_date, end_date, sort_order)",
+          "id, name, client, color, stages:pm_stages(id, name, color, start_date, end_date, sort_order, parent_stage_id, is_self)",
         )
         .or(`name.ilike.%${q}%,client.ilike.%${q}%`)
         .eq("status", "active")
         .order("name", { ascending: true })
         .limit(15);
       if (error) throw error;
-      return (data ?? []).map((p) => ({
-        id: p.id,
-        name: p.name,
-        client: p.client,
-        color: p.color,
-        stages: ((p.stages ?? []) as Array<{
+      return (data ?? []).map((p) => {
+        const raw = (p.stages ?? []) as Array<{
           id: string;
           name: string;
           color: string;
           start_date: string;
           end_date: string;
           sort_order: number;
-        }>)
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map(({ id, name, color, start_date, end_date }) => ({
-            id,
-            name,
-            color,
-            start_date,
-            end_date,
-          })),
-      }));
+          parent_stage_id: string | null;
+          is_self: boolean | null;
+        }>;
+        // Only leaf, in-house rows are loggable: summary parents (any stage
+        // that has children) and supplier stages are not time-tracked.
+        const parentIds = new Set(
+          raw.map((s) => s.parent_stage_id).filter(Boolean) as string[],
+        );
+        return {
+          id: p.id,
+          name: p.name,
+          client: p.client,
+          color: p.color,
+          stages: raw
+            .filter((s) => !parentIds.has(s.id) && s.is_self !== false)
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .map(({ id, name, color, start_date, end_date }) => ({
+              id,
+              name,
+              color,
+              start_date,
+              end_date,
+            })),
+        };
+      });
+
     },
   });
 }
