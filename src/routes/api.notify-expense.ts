@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
+
 
 const CATEGORY_LABELS: Record<string, string> = {
   carro: "Carro",
@@ -112,65 +114,45 @@ export const Route = createFileRoute("/api/notify-expense")({
             photoUrl = signed?.signedUrl ?? null;
           }
 
-          const subject = `[Benefícios] Despesa aprovada — ${collab?.nome ?? ""} — ${fmtEUR(Number(expense.valor))}`;
-          const html = `
-            <div style="font-family:Arial,sans-serif;max-width:560px;color:#1a1a1a">
-              <h2 style="margin:0 0 12px">Despesa aprovada para pagamento</h2>
-              <p style="margin:0 0 16px;color:#555">A despesa abaixo foi aprovada e está pronta para processamento.</p>
-              <table style="width:100%;border-collapse:collapse;font-size:14px">
-                <tbody>
-                  <tr><td style="padding:6px 0;color:#666">Colaborador</td><td><strong>${escapeHtml(collab?.nome ?? "—")}</strong>${collab?.numero_colaborador ? ` (#${escapeHtml(String(collab.numero_colaborador))})` : ""}</td></tr>
-                  <tr><td style="padding:6px 0;color:#666">Categoria</td><td>${escapeHtml(CATEGORY_LABELS[expense.categoria] ?? expense.categoria)}</td></tr>
-
-                  <tr><td style="padding:6px 0;color:#666">Descrição</td><td>${escapeHtml(expense.descricao)}</td></tr>
-                  <tr><td style="padding:6px 0;color:#666">Data</td><td>${new Date(expense.data_despesa).toLocaleDateString("pt-PT")}</td></tr>
-                  <tr><td style="padding:6px 0;color:#666">Valor</td><td><strong>${fmtEUR(Number(expense.valor))}</strong></td></tr>
-                  ${expense.notas_colaborador ? `<tr><td style="padding:6px 0;color:#666">Notas</td><td>${escapeHtml(expense.notas_colaborador)}</td></tr>` : ""}
-                  ${expense.notas_aprovacao ? `<tr><td style="padding:6px 0;color:#666">Aprovação</td><td>${escapeHtml(expense.notas_aprovacao)}</td></tr>` : ""}
-                </tbody>
-              </table>
-              ${photoUrl ? `<p style="margin:20px 0"><a href="${photoUrl}" style="background:#111;color:#fff;text-decoration:none;padding:10px 16px;border-radius:6px;display:inline-block">Ver factura</a></p><p style="font-size:11px;color:#999">Link válido por 7 dias.</p>` : ""}
-            </div>
-          `;
-
-          // Tenta enviar via Lovable Email
+          // Envio via serviço de email gerido da Lovable
           let emailSent = false;
           let emailError: string | null = null;
           try {
-            const apiKey = process.env.LOVABLE_API_KEY;
-            if (!apiKey) {
-              emailError = "email_not_configured";
+            const result = await sendTemplateEmail("expense-approved", TO, {
+              idempotencyKey: `expense-approved-${expense.id}`,
+              replyTo: collab?.email || undefined,
+              templateData: {
+                collaboratorName: collab?.nome ?? "—",
+                collaboratorNumber: collab?.numero_colaborador
+                  ? String(collab.numero_colaborador)
+                  : null,
+                category: CATEGORY_LABELS[expense.categoria] ?? expense.categoria,
+                description: expense.descricao,
+                date: new Date(expense.data_despesa).toLocaleDateString("pt-PT"),
+                amount: fmtEUR(Number(expense.valor)),
+                collaboratorNotes: expense.notas_colaborador ?? null,
+                approvalNotes: expense.notas_aprovacao ?? null,
+                photoUrl,
+              },
+            });
+            if (result.sent) {
+              emailSent = true;
             } else {
-              const resp = await fetch("https://ai.gateway.lovable.dev/v1/email/send", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                  to: TO,
-                  subject,
-                  html,
-                  reply_to: collab?.email || undefined,
-                }),
-              });
-              if (!resp.ok) {
-                const txt = await resp.text();
-                emailError = `gateway_${resp.status}`;
-                console.error("Email gateway error:", resp.status, txt);
-              } else {
-                emailSent = true;
-              }
+              emailError = result.reason;
             }
           } catch (err) {
-            emailError = "send_failed";
-            console.error("Email send failed:", err);
+            emailError =
+              err && typeof err === "object" && "code" in err
+                ? String((err as { code?: unknown }).code)
+                : "send_failed";
+            console.error("[notify-expense] email send failed:", err);
           }
 
           return new Response(JSON.stringify({ ok: true, emailSent, emailError }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });
+
 
         } catch (err) {
           console.error("[notify-expense] unhandled error:", err);
@@ -183,11 +165,3 @@ export const Route = createFileRoute("/api/notify-expense")({
     },
   },
 });
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
