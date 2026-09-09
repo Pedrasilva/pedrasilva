@@ -75,9 +75,42 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
   const [paidAt, setPaidAt] = useState("");
   const [rebillable, setRebillable] = useState(false);
   const [notes, setNotes] = useState("");
+  // Receipt + tax + payment detail — same submission logic as a personal
+  // (reimbursable) expense, so a project cost can be both charged to the
+  // client and paid back to the person who advanced the money.
+  const [receiptPath, setReceiptPath] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [supplierNif, setSupplierNif] = useState("");
+  const [documentNumber, setDocumentNumber] = useState("");
+  const [amountExVat, setAmountExVat] = useState("");
+  const [vatAmount, setVatAmount] = useState("");
+  const [vatRate, setVatRate] = useState("");
+  const [paymentSourceType, setPaymentSourceType] =
+    useState<PaymentSourceType>("company_account");
+  const [paymentSourceLabel, setPaymentSourceLabel] = useState("");
+  const [reimbursable, setReimbursable] = useState(false);
+  const [reimburseCollaboratorId, setReimburseCollaboratorId] = useState<string | null>(null);
+
+  const { profile } = useProjectsAuth();
+  const collaboratorsQ = useCollaboratorsList({ status: "active" });
+  const collaborators = collaboratorsQ.data ?? [];
+
+  type ExtraFields = {
+    receipt_path?: string | null;
+    supplier_nif?: string | null;
+    document_number?: string | null;
+    amount_ex_vat?: number | null;
+    vat_amount?: number | null;
+    vat_rate?: number | null;
+    payment_source_type?: string | null;
+    payment_source_label?: string | null;
+    reimbursable?: boolean | null;
+    reimburse_collaborator_id?: string | null;
+  };
 
   useEffect(() => {
     if (open) {
+      const ex = (initial ?? {}) as ExtraFields;
       setDescription(initial?.description ?? "");
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
       setSupplierId(initial?.supplier_id ?? null);
@@ -88,8 +121,47 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setPaidAt(initial?.paid_at ?? "");
       setRebillable(initial?.rebillable ?? false);
       setNotes(initial?.notes ?? "");
+      setReceiptPath(ex.receipt_path ?? null);
+      setSupplierNif(ex.supplier_nif ?? "");
+      setDocumentNumber(ex.document_number ?? "");
+      setAmountExVat(ex.amount_ex_vat != null ? String(ex.amount_ex_vat) : "");
+      setVatAmount(ex.vat_amount != null ? String(ex.vat_amount) : "");
+      setVatRate(ex.vat_rate != null ? String(ex.vat_rate) : "");
+      setPaymentSourceType(
+        (ex.payment_source_type as PaymentSourceType | undefined) ?? "company_account",
+      );
+      setPaymentSourceLabel(ex.payment_source_label ?? "");
+      setReimbursable(ex.reimbursable ?? false);
+      setReimburseCollaboratorId(
+        ex.reimburse_collaborator_id ?? profile?.collaborator_id ?? null,
+      );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial]);
+
+  async function handleReceiptUpload(file: File | null) {
+    if (!file) return;
+    const folder = profile?.collaborator_id;
+    if (!folder) {
+      toast.error(t("expenses.fields.receiptNoProfile"));
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "bin";
+      const path = `${folder}/project-expenses/${projectId}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage
+        .from("benefit-receipts")
+        .upload(path, file, { upsert: false });
+      if (error) throw error;
+      setReceiptPath(path);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
 
   function handleSupplierChange(id: string | null, supplier: Supplier | null) {
     setSupplierId(id);
