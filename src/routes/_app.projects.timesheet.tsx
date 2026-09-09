@@ -32,6 +32,7 @@ import {
   type TimesheetTaskRow,
 } from "@/lib/projects/use-timesheet";
 import { useInternalCategories } from "@/lib/projects/use-internal-categories";
+import { useWorkProfile, workProfileLayout } from "@/lib/hr/use-work-profile";
 import {
   ChevronLeft,
   ChevronRight,
@@ -164,6 +165,16 @@ function TimesheetPage() {
   });
   const weekLocked = isWeekLocked(currentWeek);
   const readOnly = viewingOther || weekLocked;
+
+  // Work profile — UX only. Decides section order and whether the project
+  // section is shown by default. The data model is identical for everyone.
+  const { data: workProfile = "project" } = useWorkProfile(effectiveCollaboratorId);
+  const layout = workProfileLayout(workProfile);
+  const [showProjectsOverride, setShowProjectsOverride] = useState(false);
+  useEffect(() => {
+    setShowProjectsOverride(false);
+  }, [effectiveCollaboratorId]);
+  const projectsVisible = !layout.projectsHiddenByDefault || showProjectsOverride;
 
 
   // Profile shape kept for downstream noResource guard below.
@@ -406,6 +417,7 @@ function TimesheetPage() {
           <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
 
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
+              {projectsVisible && (
               <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5" disabled={readOnly}>
@@ -527,9 +539,21 @@ function TimesheetPage() {
                   </div>
                 </PopoverContent>
               </Popover>
+              )}
+              {layout.projectsHiddenByDefault && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-xs"
+                  onClick={() => setShowProjectsOverride((v) => !v)}
+                >
+                  {projectsVisible ? "Hide project time" : "Show project time"}
+                </Button>
+              )}
               <span className="ml-auto text-xs text-muted-foreground">
-                {projectRows.length}{" "}
-                {projectRows.length === 1 ? "project row" : "project rows"} ·{" "}
+                {projectsVisible
+                  ? `${projectRows.length} ${projectRows.length === 1 ? "project row" : "project rows"} · `
+                  : ""}
                 {displayedInternalCategories.length} internal · {nonWorkingPrefill.length}{" "}
                 non-working
               </span>
@@ -555,6 +579,9 @@ function TimesheetPage() {
                   </tr>
                 </thead>
                 <tbody>
+                  {(() => {
+                  const projectSection = !projectsVisible ? null : (
+                  <>
                   {/* ====== PROJECTS ====== */}
                   <SectionHeaderRow
                     icon={<Briefcase className="h-3.5 w-3.5" />}
@@ -609,7 +636,10 @@ function TimesheetPage() {
                       }
                     />
                   ))}
-
+                  </>
+                  );
+                  const internalSection = (
+                  <>
                   {/* ====== INTERNAL ====== */}
                   <SectionHeaderRow
                     icon={<Coffee className="h-3.5 w-3.5" />}
@@ -651,7 +681,14 @@ function TimesheetPage() {
                       }
                     />
                   ))}
-
+                  </>
+                  );
+                  return layout.internalFirst ? (
+                    <>{internalSection}{projectSection}</>
+                  ) : (
+                    <>{projectSection}{internalSection}</>
+                  );
+                  })()}
                   {/* ====== NON-WORKING ====== */}
                   <SectionHeaderRow
                     icon={<Plane className="h-3.5 w-3.5" />}

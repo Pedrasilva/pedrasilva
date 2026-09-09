@@ -137,6 +137,9 @@ export type Collaborator = {
   // "hybrid" it is editable (default 80).
   resource_classification?: "project" | "backoffice" | "hybrid";
   backoffice_pct?: number;
+  // Timesheet UX default only (see src/lib/hr/use-work-profile.ts).
+  // Never used by costing/pricing.
+  work_profile?: "project" | "mixed" | "support";
 };
 
 

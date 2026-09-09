@@ -630,7 +630,14 @@
       "vacationExtraDays": "Dias férias extra (atribuídos)",
       "dailyHours": "Horas / dia (contrato)",
       "daysPerWeek": "Dias / semana (contrato)",
+      "workProfile": "Perfil de trabalho",
       "profitMarginOverride": "Margem lucro override (%)"
+    },
+    "workProfile": {
+      "project": "Produção de projeto",
+      "mixed": "Misto",
+      "support": "Apoio / Backoffice",
+      "help": "Afeta apenas a experiência da folha de horas (que secções aparecem primeiro e se o tempo de projeto é mostrado por omissão). Não altera custos-hora, overhead nem rentabilidade."
     },
     "capacityRecovery": {
       "title": "Capacidade e recuperação",

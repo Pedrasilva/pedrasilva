@@ -1242,6 +1242,7 @@ export type Database = {
           situacao_contractual: string | null
           target_chargeability_pct: number | null
           updated_at: string
+          work_profile: string
         }
         Insert: {
           ano_fiscal?: number
@@ -1278,6 +1279,7 @@ export type Database = {
           situacao_contractual?: string | null
           target_chargeability_pct?: number | null
           updated_at?: string
+          work_profile?: string
         }
         Update: {
           ano_fiscal?: number
@@ -1314,6 +1316,7 @@ export type Database = {
           situacao_contractual?: string | null
           target_chargeability_pct?: number | null
           updated_at?: string
+          work_profile?: string
         }
         Relationships: []
       }
