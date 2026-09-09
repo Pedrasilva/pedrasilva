@@ -1283,7 +1283,21 @@
       "paidAt": "Paid on",
       "rebillable": "Rebillable expense",
       "rebillableHint": "Mark to flag for future client reimbursement. Does not affect margin.",
-      "notes": "Notes"
+      "notes": "Notes",
+      "receipt": "Receipt / invoice",
+      "receiptUploading": "Uploading…",
+      "receiptAttached": "Receipt attached.",
+      "receiptNoProfile": "Your account is not linked to a team member yet.",
+      "supplierNif": "Supplier tax number (NIF)",
+      "documentNumber": "Document number",
+      "amountExVat": "Amount excl. VAT",
+      "vatAmount": "VAT amount",
+      "vatRate": "VAT rate",
+      "paymentSource": "Paid with",
+      "paymentSourceLabel": "Payment description (optional)",
+      "reimbursable": "Reimburse the person",
+      "reimbursableHint": "Paid personally: the amount is registered as owed back to the collaborator once approved.",
+      "reimburseCollaborator": "Who gets paid back"
     },
     "dialog": {
       "createTitle": "Add expense",
@@ -1312,6 +1326,13 @@
     },
     "toast": {
       "deleted": "Expense deleted."
+    },
+    "paymentSource": {
+      "personal": "Personal card/account",
+      "company_card": "Company card",
+      "company_account": "Company account",
+      "cash": "Cash",
+      "unknown": "Not sure"
     }
   },
   "approvals": {
