@@ -674,6 +674,60 @@ function PermissionsMatrix({
 // historical reports keep working because `pm_time_entries.internal_category`
 // stores the category name as plain text.
 
+const PROFILE_LABELS: Record<string, string> = {
+  project: "Projecto",
+  mixed: "Misto",
+  support: "Suporte",
+};
+
+/**
+ * Work-profile visibility toggles for one internal cost center.
+ * Timesheet UX only — controls which profiles may pick this category for NEW
+ * entries. Historical time entries are never affected.
+ */
+function ProfileVisibilityCell({
+  row,
+  disabled,
+  onChange,
+}: {
+  row: InternalCategoryRow;
+  disabled?: boolean;
+  onChange: (profiles: string[]) => void;
+}) {
+  const current = row.visible_to_profiles ?? [...ALL_WORK_PROFILES];
+  const toggle = (p: string, checked: boolean) => {
+    const next = checked ? [...current, p] : current.filter((x) => x !== p);
+    if (!next.length) {
+      toast.error("Escolha pelo menos um perfil");
+      return;
+    }
+    onChange(ALL_WORK_PROFILES.filter((x) => next.includes(x)));
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {ALL_WORK_PROFILES.map((p) => {
+        const checked = current.includes(p);
+        return (
+          <label
+            key={p}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <Checkbox
+              checked={checked}
+              disabled={disabled}
+              onCheckedChange={(v) => toggle(p, !!v)}
+              aria-label={`Visível para ${PROFILE_LABELS[p]}`}
+            />
+            <Badge variant={checked ? "secondary" : "outline"} className="text-[10px]">
+              {PROFILE_LABELS[p]}
+            </Badge>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 function InternalCategoriesAdmin() {
   const [includeArchived, setIncludeArchived] = useState(true);
   const { data: rows = [], isLoading } = useInternalCategories({ includeArchived });
