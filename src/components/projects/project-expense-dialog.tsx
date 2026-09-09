@@ -207,6 +207,18 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         paid_at: paidAt || null,
         rebillable,
         notes: notes.trim() || null,
+        receipt_path: receiptPath,
+        supplier_nif: supplierNif.trim() || null,
+        document_number: documentNumber.trim() || null,
+        amount_ex_vat: amountExVat === "" ? null : Number(amountExVat),
+        vat_amount: vatAmount === "" ? null : Number(vatAmount),
+        vat_rate: vatRate === "" ? null : Number(vatRate),
+        payment_source_type: paymentSourceType,
+        payment_source_label: paymentSourceLabel.trim() || null,
+        // Only a personally paid expense can be reimbursed.
+        reimbursable: paymentSourceType === "personal" ? reimbursable : false,
+        reimburse_collaborator_id:
+          paymentSourceType === "personal" && reimbursable ? reimburseCollaboratorId : null,
         ...(initial?.id ? { id: initial.id } : {}),
       };
       await upsert.mutateAsync(payload as never);
