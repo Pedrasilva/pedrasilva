@@ -62,6 +62,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
   const delStage = useDeleteQuoteStage(quoteId);
   const createDep = useCreateQuoteDependency(quoteId);
   const updateDep = useUpdateQuoteDependency(quoteId);
+  const updateStageCascade = useUpdateQuoteStageWithCascade(quoteId);
   const delDep = useDeleteQuoteDependency(quoteId);
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
