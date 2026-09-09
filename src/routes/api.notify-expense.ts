@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Database } from "@/integrations/supabase/types";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
+
 
 const CATEGORY_LABELS: Record<string, string> = {
   carro: "Carro",
