@@ -1283,7 +1283,21 @@
       "paidAt": "Pago em",
       "rebillable": "Despesa refacturável",
       "rebillableHint": "Marque para sinalizar reembolso futuro pelo cliente. Não afecta a margem.",
-      "notes": "Notas"
+      "notes": "Notas",
+      "receipt": "Recibo / factura",
+      "receiptUploading": "A carregar…",
+      "receiptAttached": "Recibo anexado.",
+      "receiptNoProfile": "A tua conta ainda não está ligada a um membro da equipa.",
+      "supplierNif": "NIF do fornecedor",
+      "documentNumber": "Nº do documento",
+      "amountExVat": "Valor sem IVA",
+      "vatAmount": "Valor do IVA",
+      "vatRate": "Taxa de IVA",
+      "paymentSource": "Origem de pagamento",
+      "paymentSourceLabel": "Descrição do pagamento (opcional)",
+      "reimbursable": "Reembolsar o colaborador",
+      "reimbursableHint": "Pago pelo próprio: o valor fica registado como devido ao colaborador após aprovação.",
+      "reimburseCollaborator": "Quem recebe o reembolso"
     },
     "dialog": {
       "createTitle": "Adicionar despesa",
@@ -1312,6 +1326,13 @@
     },
     "toast": {
       "deleted": "Despesa eliminada."
+    },
+    "paymentSource": {
+      "personal": "Cartão/conta pessoal",
+      "company_card": "Cartão da empresa",
+      "company_account": "Conta da empresa",
+      "cash": "Numerário",
+      "unknown": "Não sei"
     }
   },
   "approvals": {

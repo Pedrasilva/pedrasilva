@@ -5198,60 +5198,90 @@ export type Database = {
       }
       pm_expenses: {
         Row: {
+          amount_ex_vat: number | null
           category: Database["public"]["Enums"]["pm_expense_category"]
           created_at: string
           description: string
+          document_number: string | null
           expense_date: string | null
           id: string
           incurred_at: string | null
           notes: string | null
           paid_at: string | null
+          payment_source_label: string | null
+          payment_source_type: string
           project_id: string
           purchase_price: number
           rebillable: boolean
+          receipt_path: string | null
+          reimbursable: boolean
+          reimburse_collaborator_id: string | null
           sale_price: number
           status: Database["public"]["Enums"]["pm_expense_status"]
           supplier_company_id: string | null
           supplier_id: string | null
+          supplier_nif: string | null
           updated_at: string
+          vat_amount: number | null
+          vat_rate: number | null
           vendor: string | null
         }
         Insert: {
+          amount_ex_vat?: number | null
           category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description: string
+          document_number?: string | null
           expense_date?: string | null
           id?: string
           incurred_at?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_source_label?: string | null
+          payment_source_type?: string
           project_id: string
           purchase_price?: number
           rebillable?: boolean
+          receipt_path?: string | null
+          reimbursable?: boolean
+          reimburse_collaborator_id?: string | null
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
           supplier_company_id?: string | null
           supplier_id?: string | null
+          supplier_nif?: string | null
           updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number | null
           vendor?: string | null
         }
         Update: {
+          amount_ex_vat?: number | null
           category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description?: string
+          document_number?: string | null
           expense_date?: string | null
           id?: string
           incurred_at?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_source_label?: string | null
+          payment_source_type?: string
           project_id?: string
           purchase_price?: number
           rebillable?: boolean
+          receipt_path?: string | null
+          reimbursable?: boolean
+          reimburse_collaborator_id?: string | null
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
           supplier_company_id?: string | null
           supplier_id?: string | null
+          supplier_nif?: string | null
           updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number | null
           vendor?: string | null
         }
         Relationships: [
@@ -5260,6 +5290,20 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_reimburse_collaborator_id_fkey"
+            columns: ["reimburse_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_reimburse_collaborator_id_fkey"
+            columns: ["reimburse_collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
           {
@@ -11493,6 +11537,10 @@ export type Database = {
             Returns: boolean
           }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_expense_link_reimbursement: {
+        Args: { p_expense_id: string }
+        Returns: string
+      }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_has_assigned_access: {
         Args: { _project_id: string; _user_id: string }
