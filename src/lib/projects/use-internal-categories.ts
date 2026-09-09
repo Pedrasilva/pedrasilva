@@ -107,11 +107,15 @@ export function useCreateInternalCategory() {
         .limit(1)
         .maybeSingle();
       const nextSort = (Number(maxRow?.sort_order) || 0) + 10;
+      const profiles = input.visible_to_profiles?.length
+        ? input.visible_to_profiles
+        : [...ALL_WORK_PROFILES];
       const { error } = await supabase.from("pm_internal_categories").insert({
         name: trimmed,
         notes: input.notes ?? null,
         sort_order: nextSort,
-      });
+        visible_to_profiles: profiles,
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => invalidateAll(qc),
