@@ -359,7 +359,19 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 stageId={stage.id}
                 startDate={stage.start_date}
                 endDate={stage.end_date}
-                onChange={(end_date) => patch({ end_date })}
+                onChange={(end_date) => {
+                  if (end_date === stage.end_date) return;
+                  // Resize: keep the start, push dependent stages forward.
+                  updateStageCascade
+                    .mutateAsync({
+                      id: stage.id,
+                      start_date: stage.start_date,
+                      end_date,
+                      projectId,
+                      shiftAllocations: false,
+                    })
+                    .catch((err) => toast.error((err as Error).message));
+                }}
               />
             </>
           )}
