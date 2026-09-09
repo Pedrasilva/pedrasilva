@@ -125,17 +125,31 @@ export function useCreateInternalCategory() {
 export function useUpdateInternalCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { id: string; name?: string; notes?: string | null }) => {
-      const patch: { name?: string; notes?: string | null } = {};
+    mutationFn: async (input: {
+      id: string;
+      name?: string;
+      notes?: string | null;
+      visible_to_profiles?: string[];
+    }) => {
+      const patch: {
+        name?: string;
+        notes?: string | null;
+        visible_to_profiles?: string[];
+      } = {};
       if (input.name !== undefined) {
         const trimmed = input.name.trim();
         if (!trimmed) throw new Error("Name cannot be empty");
         patch.name = trimmed;
       }
       if (input.notes !== undefined) patch.notes = input.notes;
+      if (input.visible_to_profiles !== undefined) {
+        if (!input.visible_to_profiles.length)
+          throw new Error("Select at least one work profile");
+        patch.visible_to_profiles = input.visible_to_profiles;
+      }
       const { error } = await supabase
         .from("pm_internal_categories")
-        .update(patch)
+        .update(patch as never)
         .eq("id", input.id);
       if (error) throw error;
     },
