@@ -92,7 +92,11 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
 export function useCreateInternalCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; notes?: string | null }) => {
+    mutationFn: async (input: {
+      name: string;
+      notes?: string | null;
+      visible_to_profiles?: string[];
+    }) => {
       const trimmed = input.name.trim();
       if (!trimmed) throw new Error("Name is required");
       // Place new categories at the bottom by default.
