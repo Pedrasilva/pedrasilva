@@ -268,6 +268,7 @@ function CollaboratorPage() {
       Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5) ||
       (draft.target_chargeability_pct ?? null) !== (collab.target_chargeability_pct ?? null) ||
       (draft.resource_classification ?? "project") !== (collab.resource_classification ?? "project") ||
+      normalizeWorkProfile(draft.work_profile) !== normalizeWorkProfile(collab.work_profile) ||
       Number(draft.backoffice_pct ?? 0) !== Number(collab.backoffice_pct ?? 0)
     );
   }, [collab, draft]);
@@ -313,6 +314,7 @@ function CollaboratorPage() {
       days_per_week: Number(draft.days_per_week ?? 5),
       target_chargeability_pct: draft.target_chargeability_pct ?? null,
       resource_classification: draft.resource_classification ?? "project",
+      work_profile: normalizeWorkProfile(draft.work_profile),
       backoffice_pct: Number(draft.backoffice_pct ?? 0),
     });
   };
@@ -714,6 +716,30 @@ function CollaboratorPage() {
                     value={draft.days_per_week ?? 5}
                     onChange={(e) => setField("days_per_week", Number(e.target.value) || 5)}
                   />
+                </Field>
+                <Field label={t("hr:collaborator.fields.workProfile")}>
+                  <Select
+                    value={normalizeWorkProfile(draft.work_profile)}
+                    onValueChange={(v) => setField("work_profile", v as WorkProfile)}
+                  >
+                    <SelectTrigger className="input-yellow">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="project">
+                        {t("hr:collaborator.workProfile.project")}
+                      </SelectItem>
+                      <SelectItem value="mixed">
+                        {t("hr:collaborator.workProfile.mixed")}
+                      </SelectItem>
+                      <SelectItem value="support">
+                        {t("hr:collaborator.workProfile.support")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {t("hr:collaborator.workProfile.help")}
+                  </p>
                 </Field>
                 {draft.departamento === "Projecto" && (
                   <Field label={t("hr:collaborator.fields.profitMarginOverride")}>
