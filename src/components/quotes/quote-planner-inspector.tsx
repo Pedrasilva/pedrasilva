@@ -29,7 +29,10 @@ import {
 import {
   useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
 } from "@/lib/quotes/use-quote-dependencies";
-import { useUpdateQuoteDependency } from "@/lib/quotes/use-quote-planner";
+import {
+  useUpdateQuoteDependency,
+  useUpdateQuoteStageWithCascade,
+} from "@/lib/quotes/use-quote-planner";
 import {
   useQuoteAllocations, useUpsertQuoteAllocation, useDeleteQuoteAllocation,
 } from "@/lib/quotes/use-quote-allocations";
