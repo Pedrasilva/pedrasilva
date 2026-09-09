@@ -43,6 +43,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  normalizeWorkProfile,
+  type WorkProfile,
+} from "@/lib/hr/use-work-profile";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
