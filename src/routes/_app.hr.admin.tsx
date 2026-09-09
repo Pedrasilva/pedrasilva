@@ -854,6 +854,19 @@ function InternalCategoriesAdmin() {
                         <span className="font-medium">{row.name}</span>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <ProfileVisibilityCell
+                        row={row}
+                        disabled={update.isPending}
+                        onChange={(profiles) =>
+                          update
+                            .mutateAsync({ id: row.id, visible_to_profiles: profiles })
+                            .catch((e) =>
+                              toast.error((e as Error).message || "Falhou"),
+                            )
+                        }
+                      />
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex items-center gap-1">
                         {editingId !== row.id && (
