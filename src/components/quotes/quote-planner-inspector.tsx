@@ -531,9 +531,21 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     defaultValue={startValue}
                     disabled={datesDisabled}
                     onBlur={(e) => {
-                      if (e.target.value !== stage.start_date) {
-                        upsertStage.mutate({ id: stage.id, start_date: e.target.value });
-                      }
+                      const v = e.target.value;
+                      if (!v || v === stage.start_date) return;
+                      // Move the stage (keep its duration) and push dependents.
+                      const durMs =
+                        parseISO(stage.end_date).getTime() - parseISO(stage.start_date).getTime();
+                      const newStart = parseISO(v);
+                      const newEnd = new Date(newStart.getTime() + durMs);
+                      updateStageCascade
+                        .mutateAsync({
+                          id: stage.id,
+                          start_date: format(newStart, "yyyy-MM-dd"),
+                          end_date: format(newEnd, "yyyy-MM-dd"),
+                          shiftAllocations: true,
+                        })
+                        .catch((err) => toast.error((err as Error).message));
                     }}
                   />
                 </div>
@@ -547,9 +559,21 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     defaultValue={endValue}
                     disabled={datesDisabled}
                     onBlur={(e) => {
-                      if (e.target.value !== stage.end_date) {
-                        upsertStage.mutate({ id: stage.id, end_date: e.target.value });
-                      }
+                      const v = e.target.value;
+                      if (!v || v === stage.end_date) return;
+                      // Move the stage (keep its duration) and push dependents.
+                      const durMs =
+                        parseISO(stage.end_date).getTime() - parseISO(stage.start_date).getTime();
+                      const newEnd = parseISO(v);
+                      const newStart = new Date(newEnd.getTime() - durMs);
+                      updateStageCascade
+                        .mutateAsync({
+                          id: stage.id,
+                          start_date: format(newStart, "yyyy-MM-dd"),
+                          end_date: format(newEnd, "yyyy-MM-dd"),
+                          shiftAllocations: true,
+                        })
+                        .catch((err) => toast.error((err as Error).message));
                     }}
                   />
                 </div>
@@ -562,11 +586,29 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                 </p>
               )}
               {!isParentStage && (
+                <p className="text-[10px] text-muted-foreground -mt-1">
+                  {t("workspace.planning.moveHint", {
+                    defaultValue:
+                      "Changing a date moves the stage (duration kept). Use duration to resize.",
+                  })}
+                </p>
+              )}
+              {!isParentStage && (
                 <DurationField
                   stageId={stage.id}
                   startDate={stage.start_date}
                   endDate={stage.end_date}
-                  onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
+                  onChange={(end_date: string) => {
+                    if (end_date === stage.end_date) return;
+                    updateStageCascade
+                      .mutateAsync({
+                        id: stage.id,
+                        start_date: stage.start_date,
+                        end_date,
+                        shiftAllocations: false,
+                      })
+                      .catch((err) => toast.error((err as Error).message));
+                  }}
                 />
               )}
             </>
