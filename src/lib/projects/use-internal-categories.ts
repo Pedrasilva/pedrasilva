@@ -30,9 +30,17 @@ export type InternalCategoryRow = {
   sort_order: number;
   archived_at: string | null;
   notes: string | null;
+  /**
+   * Timesheet UX only: which `collaborators.work_profile` values may pick this
+   * category for NEW entries. Never read by costing/pricing. Historical
+   * entries keep rendering regardless of this list.
+   */
+  visible_to_profiles: string[];
   created_at: string;
   updated_at: string;
 };
+
+export const ALL_WORK_PROFILES = ["project", "mixed", "support"] as const;
 
 const QK_BASE = ["pm-internal-categories"] as const;
 
