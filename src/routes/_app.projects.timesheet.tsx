@@ -195,7 +195,11 @@ function TimesheetPage() {
   // selectable rows for new entries. However, if the user already has hours
   // logged this week against an archived/renamed category, we still surface
   // that row so they can review or zero it out (history stays intact).
-  const { data: activeInternalCategories = [] } = useInternalCategories();
+  // Categories are further filtered by the collaborator's work profile:
+  // `visible_to_profiles` only gates NEW entries, never history.
+  const { data: activeInternalCategories = [] } = useInternalCategories({
+    workProfile,
+  });
 
   // The rows we actually render under "Internal cost centers": every active
   // category PLUS any archived category that has logged hours this week (so

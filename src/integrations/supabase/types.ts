@@ -5415,6 +5415,7 @@ export type Database = {
           notes: string | null
           sort_order: number
           updated_at: string
+          visible_to_profiles: string[]
         }
         Insert: {
           archived_at?: string | null
@@ -5424,6 +5425,7 @@ export type Database = {
           notes?: string | null
           sort_order?: number
           updated_at?: string
+          visible_to_profiles?: string[]
         }
         Update: {
           archived_at?: string | null
@@ -5433,6 +5435,7 @@ export type Database = {
           notes?: string | null
           sort_order?: number
           updated_at?: string
+          visible_to_profiles?: string[]
         }
         Relationships: []
       }

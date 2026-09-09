@@ -30,9 +30,17 @@ export type InternalCategoryRow = {
   sort_order: number;
   archived_at: string | null;
   notes: string | null;
+  /**
+   * Timesheet UX only: which `collaborators.work_profile` values may pick this
+   * category for NEW entries. Never read by costing/pricing. Historical
+   * entries keep rendering regardless of this list.
+   */
+  visible_to_profiles: string[];
   created_at: string;
   updated_at: string;
 };
+
+export const ALL_WORK_PROFILES = ["project", "mixed", "support"] as const;
 
 const QK_BASE = ["pm-internal-categories"] as const;
 
@@ -41,21 +49,38 @@ const QK_BASE = ["pm-internal-categories"] as const;
  *
  * @param opts.includeArchived  Set to true in admin panels. Defaults to false
  *                              so the timesheet picker only sees active rows.
+ * @param opts.workProfile      When set, only categories visible to that
+ *                              `collaborators.work_profile` are returned. UX
+ *                              filter for NEW entries only — historical rows
+ *                              are rendered by the timesheet regardless.
  */
-export function useInternalCategories(opts?: { includeArchived?: boolean }) {
+export function useInternalCategories(opts?: {
+  includeArchived?: boolean;
+  workProfile?: string | null;
+}) {
   const includeArchived = !!opts?.includeArchived;
+  const workProfile = opts?.workProfile ?? null;
   return useQuery({
-    queryKey: [...QK_BASE, { includeArchived }],
+    queryKey: [...QK_BASE, { includeArchived, workProfile }],
     queryFn: async (): Promise<InternalCategoryRow[]> => {
       let q = supabase
         .from("pm_internal_categories")
-        .select("id, name, sort_order, archived_at, notes, created_at, updated_at")
+        .select(
+          "id, name, sort_order, archived_at, notes, visible_to_profiles, created_at, updated_at",
+        )
         .order("sort_order", { ascending: true })
         .order("name", { ascending: true });
       if (!includeArchived) q = q.is("archived_at", null);
+      if (workProfile) q = q.contains("visible_to_profiles", [workProfile]);
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as InternalCategoryRow[];
+      return ((data ?? []) as InternalCategoryRow[]).map((r) => ({
+        ...r,
+        visible_to_profiles:
+          Array.isArray(r.visible_to_profiles) && r.visible_to_profiles.length
+            ? r.visible_to_profiles
+            : [...ALL_WORK_PROFILES],
+      }));
     },
   });
 }
@@ -67,7 +92,11 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
 export function useCreateInternalCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; notes?: string | null }) => {
+    mutationFn: async (input: {
+      name: string;
+      notes?: string | null;
+      visible_to_profiles?: string[];
+    }) => {
       const trimmed = input.name.trim();
       if (!trimmed) throw new Error("Name is required");
       // Place new categories at the bottom by default.
@@ -78,11 +107,15 @@ export function useCreateInternalCategory() {
         .limit(1)
         .maybeSingle();
       const nextSort = (Number(maxRow?.sort_order) || 0) + 10;
+      const profiles = input.visible_to_profiles?.length
+        ? input.visible_to_profiles
+        : [...ALL_WORK_PROFILES];
       const { error } = await supabase.from("pm_internal_categories").insert({
         name: trimmed,
         notes: input.notes ?? null,
         sort_order: nextSort,
-      });
+        visible_to_profiles: profiles,
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => invalidateAll(qc),
@@ -92,17 +125,31 @@ export function useCreateInternalCategory() {
 export function useUpdateInternalCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { id: string; name?: string; notes?: string | null }) => {
-      const patch: { name?: string; notes?: string | null } = {};
+    mutationFn: async (input: {
+      id: string;
+      name?: string;
+      notes?: string | null;
+      visible_to_profiles?: string[];
+    }) => {
+      const patch: {
+        name?: string;
+        notes?: string | null;
+        visible_to_profiles?: string[];
+      } = {};
       if (input.name !== undefined) {
         const trimmed = input.name.trim();
         if (!trimmed) throw new Error("Name cannot be empty");
         patch.name = trimmed;
       }
       if (input.notes !== undefined) patch.notes = input.notes;
+      if (input.visible_to_profiles !== undefined) {
+        if (!input.visible_to_profiles.length)
+          throw new Error("Select at least one work profile");
+        patch.visible_to_profiles = input.visible_to_profiles;
+      }
       const { error } = await supabase
         .from("pm_internal_categories")
-        .update(patch)
+        .update(patch as never)
         .eq("id", input.id);
       if (error) throw error;
     },
