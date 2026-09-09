@@ -34,6 +34,24 @@ import {
 } from "@/lib/projects/financial-validation";
 import { SupplierPicker } from "./supplier-picker";
 import type { Supplier } from "@/lib/projects/use-suppliers";
+import { supabase } from "@/integrations/supabase/client";
+import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
+
+type PaymentSourceType =
+  | "personal"
+  | "company_card"
+  | "company_account"
+  | "cash"
+  | "unknown";
+
+const PAYMENT_SOURCES: PaymentSourceType[] = [
+  "personal",
+  "company_card",
+  "company_account",
+  "cash",
+  "unknown",
+];
 
 interface Props {
   open: boolean;
