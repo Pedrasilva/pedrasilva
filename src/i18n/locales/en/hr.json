@@ -630,7 +630,14 @@
       "vacationExtraDays": "Extra vacation days (granted)",
       "dailyHours": "Hours / day (contract)",
       "daysPerWeek": "Days / week (contract)",
+      "workProfile": "Work profile",
       "profitMarginOverride": "Profit Margin Override (%)"
+    },
+    "workProfile": {
+      "project": "Project production",
+      "mixed": "Mixed",
+      "support": "Support / Backoffice",
+      "help": "Affects the timesheet experience only (which sections appear first, and whether project time is shown by default). It does not change cost rates, overhead or profitability."
     },
     "capacityRecovery": {
       "title": "Capacity and recovery",
