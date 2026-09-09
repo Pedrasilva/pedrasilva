@@ -349,6 +349,153 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               </div>
               <Switch id="ex-rebill" checked={rebillable} onCheckedChange={setRebillable} />
             </div>
+
+            {/* Receipt */}
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="ex-receipt">{t("expenses.fields.receipt")}</Label>
+              <Input
+                id="ex-receipt"
+                type="file"
+                accept="image/*,application/pdf"
+                disabled={uploading}
+                onChange={(e) => handleReceiptUpload(e.target.files?.[0] ?? null)}
+              />
+              {uploading && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("expenses.fields.receiptUploading")}
+                </p>
+              )}
+              {receiptPath && !uploading && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("expenses.fields.receiptAttached")}
+                </p>
+              )}
+            </div>
+
+            {/* Invoice detail */}
+            <div className="space-y-1.5">
+              <Label htmlFor="ex-nif">{t("expenses.fields.supplierNif")}</Label>
+              <Input
+                id="ex-nif"
+                value={supplierNif}
+                onChange={(e) => setSupplierNif(e.target.value)}
+                placeholder="9"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ex-docnum">{t("expenses.fields.documentNumber")}</Label>
+              <Input
+                id="ex-docnum"
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+                placeholder="FT 2026/12345"
+              />
+            </div>
+
+            {/* VAT detail */}
+            <div className="grid gap-3 rounded-md border border-border bg-muted/20 p-3 sm:col-span-2 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ex-exvat">{t("expenses.fields.amountExVat")} (€)</Label>
+                <Input
+                  id="ex-exvat"
+                  type="number"
+                  step="0.01"
+                  value={amountExVat}
+                  onChange={(e) => setAmountExVat(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ex-vatamt">{t("expenses.fields.vatAmount")} (€)</Label>
+                <Input
+                  id="ex-vatamt"
+                  type="number"
+                  step="0.01"
+                  value={vatAmount}
+                  onChange={(e) => setVatAmount(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ex-vatrate">{t("expenses.fields.vatRate")} (%)</Label>
+                <Input
+                  id="ex-vatrate"
+                  type="number"
+                  step="0.01"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Payment origin */}
+            <div className="space-y-1.5">
+              <Label htmlFor="ex-paysrc">{t("expenses.fields.paymentSource")}</Label>
+              <Select
+                value={paymentSourceType}
+                onValueChange={(v) => setPaymentSourceType(v as PaymentSourceType)}
+              >
+                <SelectTrigger id="ex-paysrc">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {t(`expenses.paymentSource.${s}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ex-paylabel">{t("expenses.fields.paymentSourceLabel")}</Label>
+              <Input
+                id="ex-paylabel"
+                value={paymentSourceLabel}
+                onChange={(e) => setPaymentSourceLabel(e.target.value)}
+              />
+            </div>
+
+            {paymentSourceType === "personal" && (
+              <>
+                <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 sm:col-span-2">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="ex-reimb" className="cursor-pointer">
+                      {t("expenses.fields.reimbursable")}
+                    </Label>
+                    <p className="text-[11px] text-muted-foreground">
+                      {t("expenses.fields.reimbursableHint")}
+                    </p>
+                  </div>
+                  <Switch
+                    id="ex-reimb"
+                    checked={reimbursable}
+                    onCheckedChange={setReimbursable}
+                  />
+                </div>
+                {reimbursable && (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="ex-reimb-who">
+                      {t("expenses.fields.reimburseCollaborator")}
+                    </Label>
+                    <Select
+                      value={reimburseCollaboratorId ?? ""}
+                      onValueChange={(v) => setReimburseCollaboratorId(v)}
+                    >
+                      <SelectTrigger id="ex-reimb-who">
+                        <SelectValue placeholder={t("expenses.fields.reimburseCollaborator")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collaborators.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="ex-notes">{t("expenses.fields.notes")}</Label>
               <Textarea
