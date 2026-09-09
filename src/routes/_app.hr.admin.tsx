@@ -55,6 +55,7 @@ import {
   useReorderInternalCategories,
   useRestoreInternalCategory,
   useUpdateInternalCategory,
+  ALL_WORK_PROFILES,
   type InternalCategoryRow,
 } from "@/lib/projects/use-internal-categories";
 import { toast } from "sonner";
