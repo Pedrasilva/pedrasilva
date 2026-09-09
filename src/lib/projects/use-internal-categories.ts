@@ -49,21 +49,38 @@ const QK_BASE = ["pm-internal-categories"] as const;
  *
  * @param opts.includeArchived  Set to true in admin panels. Defaults to false
  *                              so the timesheet picker only sees active rows.
+ * @param opts.workProfile      When set, only categories visible to that
+ *                              `collaborators.work_profile` are returned. UX
+ *                              filter for NEW entries only — historical rows
+ *                              are rendered by the timesheet regardless.
  */
-export function useInternalCategories(opts?: { includeArchived?: boolean }) {
+export function useInternalCategories(opts?: {
+  includeArchived?: boolean;
+  workProfile?: string | null;
+}) {
   const includeArchived = !!opts?.includeArchived;
+  const workProfile = opts?.workProfile ?? null;
   return useQuery({
-    queryKey: [...QK_BASE, { includeArchived }],
+    queryKey: [...QK_BASE, { includeArchived, workProfile }],
     queryFn: async (): Promise<InternalCategoryRow[]> => {
       let q = supabase
         .from("pm_internal_categories")
-        .select("id, name, sort_order, archived_at, notes, created_at, updated_at")
+        .select(
+          "id, name, sort_order, archived_at, notes, visible_to_profiles, created_at, updated_at",
+        )
         .order("sort_order", { ascending: true })
         .order("name", { ascending: true });
       if (!includeArchived) q = q.is("archived_at", null);
+      if (workProfile) q = q.contains("visible_to_profiles", [workProfile]);
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as InternalCategoryRow[];
+      return ((data ?? []) as InternalCategoryRow[]).map((r) => ({
+        ...r,
+        visible_to_profiles:
+          Array.isArray(r.visible_to_profiles) && r.visible_to_profiles.length
+            ? r.visible_to_profiles
+            : [...ALL_WORK_PROFILES],
+      }));
     },
   });
 }
