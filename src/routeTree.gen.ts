@@ -129,6 +129,7 @@ import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
+import { Route as ApiPublicHooksTimesheetReminderRouteImport } from './routes/api/public/hooks/timesheet-reminder'
 import { Route as ApiPublicInboxImageRouteImport } from './routes/api/public/inbox/image'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as AppProposalsProposalIdRevisionsRevisionIdRouteImport } from './routes/_app.proposals.$proposalId.revisions.$revisionId'
@@ -779,6 +780,12 @@ const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   path: '/api/public/hooks/run-backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksTimesheetReminderRoute =
+  ApiPublicHooksTimesheetReminderRouteImport.update({
+    id: '/api/public/hooks/timesheet-reminder',
+    path: '/api/public/hooks/timesheet-reminder',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicInboxImageRoute = ApiPublicInboxImageRouteImport.update({
   id: '/api/public/inbox/image',
   path: '/api/public/inbox/image',
@@ -912,6 +919,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/crm/companies/': typeof AppCrmCompaniesIndexRoute
@@ -1028,6 +1036,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/crm/companies': typeof AppCrmCompaniesIndexRoute
@@ -1154,6 +1163,7 @@ export interface FileRoutesById {
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
+  '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_app/crm/companies/': typeof AppCrmCompaniesIndexRoute
@@ -1280,6 +1290,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
     | '/lovable/email/transactional/preview'
     | '/crm/companies/'
@@ -1396,6 +1407,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
     | '/lovable/email/transactional/preview'
     | '/crm/companies'
@@ -1521,6 +1533,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/run-backup'
+    | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
     | '/lovable/email/transactional/preview'
     | '/_app/crm/companies/'
@@ -1546,6 +1559,7 @@ export interface RootRouteChildren {
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
+  ApiPublicHooksTimesheetReminderRoute: typeof ApiPublicHooksTimesheetReminderRoute
   ApiPublicInboxImageRoute: typeof ApiPublicInboxImageRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -2392,6 +2406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/timesheet-reminder': {
+      id: '/api/public/hooks/timesheet-reminder'
+      path: '/api/public/hooks/timesheet-reminder'
+      fullPath: '/api/public/hooks/timesheet-reminder'
+      preLoaderRoute: typeof ApiPublicHooksTimesheetReminderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/inbox/image': {
       id: '/api/public/inbox/image'
       path: '/api/public/inbox/image'
@@ -2759,6 +2780,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
+  ApiPublicHooksTimesheetReminderRoute: ApiPublicHooksTimesheetReminderRoute,
   ApiPublicInboxImageRoute: ApiPublicInboxImageRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
