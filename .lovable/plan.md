@@ -1,82 +1,67 @@
-# Weekly timesheet approval, week closure and hours bank
+# Stage as envelope, tasks as allocations inside it
 
-## What exists today (audit)
+## Audit of what exists today
 
-- `pm_time_entries` is the single source of truth for hours: it already stores
-  date, hours, notes, billable, `entry_type` (project / internal / non_working),
-  `internal_category`, `leave_type`, plus a per-entry approval status used by the
-  project-level approvals queue at `/projects/approvals`.
-- `/projects/timesheet` already has Monday-based week navigation, a collaborator
-  "view as" picker, project/internal/absence rows and prefill from approved
-  vacation requests and public holidays.
-- Leave lives in `vacation_requests` (type, period, hours, working days, approval).
-- Collaborators already store `daily_hours` and `days_per_week`; resources store
-  `weekly_capacity` — no need to hardcode 8h/40h anywhere.
-- Permissions already include `timesheets.log`, `timesheets.view_team`,
-  `timesheets.approve`, plus `hr.admin`. No new permission keys are needed.
+**Stages** — `pm_stages`: `budget` (the money envelope, already used as "original budget" in the budget-control panel), `baseline_target_hours`, `start_date`/`end_date`, `status`, parent/child nesting, retainer fields. No stored allocated/remaining totals.
 
-## Smallest safe schema extension
+**Tasks** — `pm_tasks`: `name`, `status`, `allocation_id`, timestamps. Strictly 1:1 with an allocation. No notes field.
 
-Two new tables. No changes to existing tables, enums or leave logic.
+**Allocations** — `pm_allocations`: `stage_id`, `resource_id`, `start_date`, `end_date`, `hours_per_day`. Hours are always derived: `workingDays(start,end) × hours_per_day` (`src/lib/projects/gantt-utils.ts`).
 
-1. `pm_timesheet_weeks` — one row per collaborator per week: week start/end,
-   status (`open` / `submitted` / `returned` / `approved`), submitted/approved/
-   reopened actor + timestamp, reviewer comment, snapshot totals (recorded,
-   project, internal, leave hours), approved additional hours. It references
-   time entries by person + date range rather than copying them.
-2. `pm_hours_bank_entries` — the auditable ledger: collaborator, date, optional
-   originating week, type (`additional_hours`, `converted_to_leave`,
-   `paid_compensation`, `manual_adjustment`), signed hours, reason, created by,
-   timestamp. Balance is always the sum of the ledger, never a stored number.
+**Rates** — `effectiveCostRate` / `effectiveSaleRate` in `src/lib/projects/use-default-rates.ts` (HR-derived defaults, with per-resource override). Nothing stored per task.
 
-A database trigger blocks inserting, editing or deleting time entries that fall
-inside a submitted or approved week, unless the acting user may approve
-timesheets. Reopening a week restores editability.
+**Stage hours envelope** — already derived in the dashboard: allocation hours if any, otherwise `budget ÷ average sale rate`. `baseline_target_hours` exists when a baseline was locked.
 
-## What gets built
+**Financial permission** — `useHasPermission("projects.financials")` → `canSeeFinancials`, already gating every money column in the Milestones table and the sidebar.
 
-**My week** (added to the existing `/projects/timesheet` screen)
-A summary strip above the current grid: project / internal / leave / total hours,
-current status, and a Submit week button with confirmation. Above 40h shows a
-neutral workload notice, never a block. Submitted weeks turn the grid read-only.
+**Add Task path** — stage kebab (`stage-row-actions.tsx`) → `CreateStageTaskDialog` → `useCreateStageTask` (inserts the allocation, renames the auto-created task).
 
-**Weekly approval** (new screen under Projects → Timesheets)
-Week selector, dashboard counters (submitted / approved / awaiting / not
-submitted / above 40h / additional hours approved), filterable list of
-collaborators with hours split and status.
+**Double-click on a task** — does not exist. The pencil / kebab "Edit plan" only switches to the Schedule tab.
 
-**Individual week review** (side panel from that list)
-Weekly totals, breakdown per project and activity, drill-down to daily entries,
-Approve & close, Return for correction, optional comment. When the week exceeds
-40h, approval requires ticking an explicit acknowledgement of how many additional
-hours to bank; only those hours create a ledger entry.
+**Rollups** — all derived at render time; no cached totals anywhere. Good: nothing to keep in sync.
 
-**Hours bank** (on the collaborator HR profile, plus own balance for everyone)
-Balance in hours converted to days using the person's own `daily_hours`, and the
-full transaction history with running balance, linking back to the source week.
-A Use / compensate action for HR lets them split hours between additional leave
-and paid compensation, writing the matching negative ledger entries. Converting
-to leave creates a normal request in the existing Vacations system — no parallel
-leave store.
+## What changes (smallest additive path)
 
-## Tone and structure
+Everything stays derived — no new tables, no stored totals, no second planning engine.
 
-Under 40h is presented neutrally — never as hours owed. Weekly hours, project
-hours and compensable additional hours stay separate fields on the week record so
-a later phase can add capacity and utilisation analytics without reworking any of
-this.
+### 1. One shared envelope calculator
+New `src/lib/projects/use-stage-envelope.ts` with a pure function that, given a stage + its allocations + the rate map, returns:
+- total hours (`baseline_target_hours` if set, else the existing budget ÷ avg sale rate fallback)
+- allocated hours, remaining hours
+- cost envelope (`stage.budget`), allocated cost, remaining cost
+- projected sale value of allocations
+- an optional `excludeAllocationId` so edit mode never double-counts the task being edited
 
-## Permissions
+It reuses `allocationHours` and the existing rate helpers — no new formulas.
 
-Collaborators edit and submit their own open weeks and see their own bank.
-`timesheets.approve` holders review, approve, return and reopen weeks and
-acknowledge additional hours. `hr.admin` sees every bank, records compensation and
-manual adjustments (reason required). All enforced with row-level rules in the
-database as well as in the interface.
+### 2. Task dialog becomes Add **and** Edit
+`create-stage-task-dialog.tsx` gains an `edit` mode (same form, same fields) and a stage-context panel:
+- Header: "Add task / Edit task — Stage: <name>"
+- Stage hours: total / allocated / remaining
+- Admin only: cost envelope, allocated cost, remaining cost, projected sale value
+- Live Before → this task → After strip that recalculates as dates/hours/resource change
+- Warning when the task pushes the stage over its hours (and, for admins, over its cost). Save is not blocked.
+- Notes field, saved on the task
 
-## Verification
+Edit mode saves through the existing `useUpdateAllocation` plus a task-name/status update — it updates the same row, never creating a duplicate.
 
-Typecheck, EN/PT translation parity, then in the running app: submit a week as a
-collaborator, confirm entries lock, approve it as an approver, check a >40h week
-banks only the acknowledged hours, reopen and confirm editing returns, and confirm
-the existing timesheet, approvals queue and vacation flows are unchanged.
+### 3. Double-click to edit
+Task rows in the Milestones table and task bars in the Gantt open that dialog in edit mode.
+
+### 4. Stage row feedback
+Stage rows show `60 / 100 h · 40 h remaining` with a slim progress bar. Admins additionally see allocated vs. envelope money. Staff see hours only — reusing `canSeeFinancials`, no new permission.
+
+### 5. Task row detail
+Task rows show the person and their allocated hours; the cost only appears for admins.
+
+Delete already works through `useDeleteAllocation`; because every total is derived, deleting immediately returns the hours and money to the stage.
+
+## Technical notes
+
+- One additive migration: nullable `pm_tasks.notes`. Nothing else in the database changes.
+- Untouched: `computePricing`, `cotaBoPorColabProjecto`, hybrid resource cost, `cost_rate`/`sale_rate`, quote snapshots, project profitability, BO overhead.
+- Planned allocation stays separate from logged timesheet hours; the existing actuals columns are left as they are.
+
+## Validation
+
+Walk the acceptance scenario in the preview: create a 40 h task in a stage, check allocated/remaining, edit it to 80 h and confirm only the delta moves, delete it and confirm full restore. Plus a TypeScript check and an i18n parity check.
