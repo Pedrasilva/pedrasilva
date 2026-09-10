@@ -14,7 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CreateStageTaskDialog } from "@/components/projects/create-stage-task-dialog";
+import {
+  CreateStageTaskDialog,
+  type StageTaskDialogStage,
+} from "@/components/projects/create-stage-task-dialog";
 import {
   useCreateAllocation,
   useDeleteAllocation,
@@ -119,6 +122,7 @@ export function StageRowActions({
   startDate,
   endDate,
   stageName,
+  stage,
   assignedResourceIds,
   onEdit,
 }: {
@@ -128,6 +132,8 @@ export function StageRowActions({
   startDate: string;
   endDate: string;
   stageName?: string;
+  /** Parent stage envelope context for the task dialog. */
+  stage?: StageTaskDialogStage;
   assignedResourceIds: string[];
   onEdit?: () => void;
 }) {
@@ -251,6 +257,7 @@ export function StageRowActions({
         stageName={stageName}
         stageStart={startDate}
         stageEnd={endDate}
+        stage={stage}
       />
     </div>
   );
@@ -262,10 +269,13 @@ export function AllocationRowActions({
   allocationId,
   projectId,
   onEdit,
+  onEditTask,
 }: {
   allocationId: string;
   projectId: string;
   onEdit?: () => void;
+  /** Opens the task dialog in edit mode (same form as Add task). */
+  onEditTask?: () => void;
 }) {
   const deleteAllocation = useDeleteAllocation();
 
@@ -273,10 +283,10 @@ export function AllocationRowActions({
     <div className="inline-flex items-center gap-1 text-muted-foreground">
       <button
         type="button"
-        onClick={onEdit}
+        onClick={onEditTask ?? onEdit}
         className="rounded p-1 hover:bg-accent hover:text-foreground"
         aria-label="Editar"
-        title="Edit plan"
+        title={onEditTask ? "Edit task" : "Edit plan"}
       >
         <Pencil className="h-3.5 w-3.5" />
       </button>
@@ -291,6 +301,11 @@ export function AllocationRowActions({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
+          {onEditTask && (
+            <DropdownMenuItem onSelect={() => onEditTask()} className="text-xs">
+              <Pencil className="mr-2 h-3.5 w-3.5" /> Edit task
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={() => onEdit?.()} className="text-xs">
             <Pencil className="mr-2 h-3.5 w-3.5" /> Edit plan
           </DropdownMenuItem>

@@ -101,6 +101,13 @@ import {
   normalizeStageStatus,
 } from "@/components/projects/stage-row-actions";
 import { useAllocationTaskNames } from "@/lib/projects/use-stage-tasks";
+import {
+  computeStageEnvelope,
+  resolveTargetMargin,
+  useStageTargetMargins,
+  type EnvelopeAllocation,
+} from "@/lib/projects/use-stage-envelope";
+import { CreateStageTaskDialog } from "@/components/projects/create-stage-task-dialog";
 
 import {
   ArrowLeft,
@@ -910,6 +917,7 @@ function ProjectDetail() {
                     stageActualCost={stageActualCost}
                     stageLoggedHours={stageLoggedHours}
                    stagePlannedHours={stagePlannedHours}
+                    avgSaleRate={avgSaleRate}
                     defaultRates={defaultRates}
                     canSeeFinancials={canSeeFinancials}
                     onEditPlan={() => setTab("schedule")}
@@ -1582,6 +1590,7 @@ function MilestonesTable({
   stageActualCost,
   stageLoggedHours,
   stagePlannedHours,
+  avgSaleRate,
   defaultRates,
   canSeeFinancials,
   onEditPlan,
@@ -1600,6 +1609,7 @@ function MilestonesTable({
   stageActualCost: (id: string) => number;
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
+  avgSaleRate: number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   canSeeFinancials: boolean;
   onEditPlan?: () => void;
@@ -1612,6 +1622,44 @@ function MilestonesTable({
   const [search, setSearch] = useState("");
   const allocationIds = (stages ?? []).flatMap((s) => s.allocations.map((a) => a.id));
   const { data: taskNames = {} } = useAllocationTaskNames(allocationIds);
+  const { data: targetMargins } = useStageTargetMargins(projectId);
+  // Task being edited (double-click / kebab) — same dialog as Add task.
+  const [editingTask, setEditingTask] = useState<{
+    allocationId: string;
+    stageId: string;
+  } | null>(null);
+
+  /**
+   * Derived stage envelope: capacity hours, allocated planned hours/cost and
+   * the projected margin against the stage sale value. Nothing stored.
+   */
+  const envelopeFor = (s: { id: string; budget: number | string; baseline_target_hours?: number | null; allocations: unknown[] }) =>
+    computeStageEnvelope({
+      saleValue: Number(s.budget ?? 0),
+      baselineTargetHours: (s as { baseline_target_hours?: number | null }).baseline_target_hours ?? null,
+      avgSaleRate,
+      allocations: s.allocations as EnvelopeAllocation[],
+      defaultRates,
+      targetMargin: resolveTargetMargin(targetMargins, s.id),
+    });
+
+  const dialogStage = (s: {
+    id: string;
+    name: string;
+    budget: number | string;
+    start_date: string;
+    end_date: string;
+    allocations: unknown[];
+  }) => ({
+    id: s.id,
+    name: s.name,
+    budget: s.budget,
+    baseline_target_hours:
+      (s as { baseline_target_hours?: number | null }).baseline_target_hours ?? null,
+    start_date: s.start_date,
+    end_date: s.end_date,
+    allocations: s.allocations as EnvelopeAllocation[],
+  });
 
 
   const toggle = (id: string) =>
@@ -1871,6 +1919,7 @@ function MilestonesTable({
                                   ? "Sem responsável"
                                   : `${s.allocations.length} alocaç${s.allocations.length === 1 ? "ão" : "ões"}`}
                             </div>
+                            {!hasChildren && <StageEnvelopeChip env={envelopeFor(s)} showFinancials={canSeeFinancials} />}
                           </div>
                         </div>
                       </td>
@@ -1921,6 +1970,7 @@ function MilestonesTable({
                           endDate={s.end_date}
                           stageName={s.name}
                           assignedResourceIds={s.allocations.map((a) => a.resource.id)}
+                          stage={dialogStage(s)}
 
                           onEdit={onEditPlan}
                         />
@@ -1939,7 +1989,14 @@ function MilestonesTable({
                           aHours *
                           effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
                         return (
-                          <tr key={a.id} className="border-b border-border last:border-b-0">
+                          <tr
+                            key={a.id}
+                            className="border-b border-border last:border-b-0"
+                            onDoubleClick={() =>
+                              setEditingTask({ allocationId: a.id, stageId: s.id })
+                            }
+                            title="Double-click to edit this task"
+                          >
                             <td className="px-4 py-2.5">
                               <div
                                 className="flex items-center gap-2"
@@ -1956,7 +2013,9 @@ function MilestonesTable({
                                     {taskNames[a.id] ?? a.resource.name}
                                   </div>
                                   <div className="text-[10px] text-muted-foreground truncate">
-                                    {a.resource.name} · {Number(a.hours_per_day)}h/d
+                                    {a.resource.name} · {Number(a.hours_per_day)}h/d ·{" "}
+                                    {aHours.toFixed(1)}h
+                                    {canSeeFinancials ? ` · ${euros(aPlannedCost)} cost` : ""}
                                   </div>
                                 </div>
 
@@ -1992,6 +2051,9 @@ function MilestonesTable({
                                 allocationId={a.id}
                                 projectId={projectId}
                                 onEdit={onEditPlan}
+                                onEditTask={() =>
+                                  setEditingTask({ allocationId: a.id, stageId: s.id })
+                                }
                               />
                             </td>
                           </tr>
@@ -2014,6 +2076,74 @@ function MilestonesTable({
           </tbody>
         </table>
       </div>
+
+      {editingTask && (() => {
+        const st = stages.find((x) => x.id === editingTask.stageId);
+        if (!st) return null;
+        return (
+          <CreateStageTaskDialog
+            open
+            onOpenChange={(v) => {
+              if (!v) setEditingTask(null);
+            }}
+            stageId={st.id}
+            projectId={projectId}
+            stageName={st.name}
+            stageStart={st.start_date}
+            stageEnd={st.end_date}
+            stage={dialogStage(st)}
+            allocationId={editingTask.allocationId}
+          />
+        );
+      })()}
+    </div>
+  );
+}
+
+/**
+ * Derived capacity chip on a stage row: allocated vs. capacity hours for
+ * everyone, planned cost against target cost and projected margin for
+ * management. Planned allocation only — not logged time.
+ */
+function StageEnvelopeChip({
+  env,
+  showFinancials,
+}: {
+  env: ReturnType<typeof computeStageEnvelope>;
+  showFinancials: boolean;
+}) {
+  if (env.capacityHours <= 0 && env.before.allocatedHours <= 0) return null;
+  const usedPct =
+    env.capacityHours > 0
+      ? Math.min(1, env.before.allocatedHours / env.capacityHours)
+      : 1;
+  const overHours = env.capacityHours > 0 && env.before.allocatedHours > env.capacityHours;
+  const marginBelow =
+    env.before.projectedMargin != null && env.before.projectedMargin < env.targetMargin;
+  return (
+    <div className="mt-1 max-w-[260px] space-y-1">
+      <div className="text-[10px] text-muted-foreground">
+        {env.before.allocatedHours.toFixed(1)} / {env.capacityHours.toFixed(1)} h allocated ·{" "}
+        <span className={overHours ? "text-destructive" : ""}>
+          {env.before.remainingHours.toFixed(1)} h remaining
+        </span>
+      </div>
+      <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={overHours ? "h-full bg-destructive" : "h-full bg-foreground/50"}
+          style={{ width: `${usedPct * 100}%` }}
+        />
+      </div>
+      {showFinancials && env.saleValue > 0 && (
+        <div className="text-[10px] text-muted-foreground">
+          {euros(env.before.plannedCost)} / {euros(env.targetCost)} planned cost ·{" "}
+          <span className={marginBelow ? "text-destructive" : ""}>
+            {env.before.projectedMargin == null
+              ? "—"
+              : `${Math.round(env.before.projectedMargin * 100)}% margin`}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

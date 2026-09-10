@@ -18,3 +18,25 @@
   verify with a real week before wide rollout.
 - Approve writes the week row and the ledger row as two calls; if a follow-up ever fails the week is closed
   without its ledger row. Candidate for a single database function later.
+
+# Stage envelope & task allocations (Project Dashboard)
+
+## Done
+- `src/lib/projects/use-stage-envelope.ts`: derived stage envelope — capacity hours
+  (baseline target hours, else sale value / avg sale rate), allocated hours, planned cost
+  (per-resource effective cost rate), target planned cost from target margin
+  (stage baseline -> project baseline -> 50%), projected margin, variance.
+  `excludeAllocationId` so edits only move the delta. Nothing stored.
+- `pm_tasks.notes` (nullable) — the only schema change.
+- Task dialog does add + edit: parent stage context, live before/this task/after,
+  capacity and margin warnings (non-blocking), notes.
+- Double-click or kebab on a task row opens edit mode; delete already releases capacity
+  because every rollup is derived.
+- Stage rows show allocated/capacity hours + progress bar; planned cost vs target cost and
+  projected margin only with `projects.financials`.
+- Validated: acceptance maths (100h / 40h -> 80h -> delete -> 110h over) exact; preview
+  renders chips and edit dialog with real data, no console errors.
+
+## Open
+- Gantt task bars still use the existing allocation popover editor rather than the new dialog.
+- Planned vs Actual comparison view intentionally not built yet.
