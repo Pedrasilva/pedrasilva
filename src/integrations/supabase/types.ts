@@ -7360,6 +7360,7 @@ export type Database = {
           external_id: string | null
           id: string
           name: string
+          notes: string | null
           status: Database["public"]["Enums"]["pm_task_status"]
           updated_at: string
         }
@@ -7371,6 +7372,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           name: string
+          notes?: string | null
           status?: Database["public"]["Enums"]["pm_task_status"]
           updated_at?: string
         }
@@ -7382,6 +7384,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           name?: string
+          notes?: string | null
           status?: Database["public"]["Enums"]["pm_task_status"]
           updated_at?: string
         }
