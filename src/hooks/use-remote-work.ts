@@ -389,6 +389,7 @@ export type CollaboratorLite = {
   nome: string;
   email: string | null;
   days_per_week: number | null;
+  daily_hours: number | null;
 };
 
 export function useCollaboratorDirectory() {
@@ -398,7 +399,7 @@ export function useCollaboratorDirectory() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("collaborators_directory")
-        .select("id, nome, email, days_per_week")
+        .select("id, nome, email, days_per_week, daily_hours")
         .order("nome");
       if (error) throw error;
       return (data ?? []) as CollaboratorLite[];
