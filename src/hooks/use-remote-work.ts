@@ -8,9 +8,48 @@ export type RemoteWorkStatus =
   | "pendente"
   | "aprovada"
   | "rejeitada"
-  | "cancelada";
+  | "cancelada"
+  | "declarada";
 
 export type RemoteWorkLocation = "home" | "remote";
+
+/** Remote work is a LOCATION, never an absence — half days keep full capacity. */
+export type RemoteWorkDayPart = "full_day" | "morning" | "afternoon";
+
+export type RemoteWorkMode = "approval_required" | "notification_only";
+
+export type RemoteWorkKind =
+  | "home_office"
+  | "remote_elsewhere"
+  | "client_site"
+  | "external_meeting"
+  | "other";
+
+/** States that mean "this remote day counts": approved or simply declared. */
+export const ACTIVE_REMOTE_STATES: RemoteWorkStatus[] = [
+  "aprovada",
+  "declarada",
+];
+
+export const isActiveRemoteState = (estado: RemoteWorkStatus) =>
+  ACTIVE_REMOTE_STATES.includes(estado);
+
+/** Full day = 1.0, half day = 0.5 equivalent remote day. */
+export const dayPartWeight = (dayPart: RemoteWorkDayPart) =>
+  dayPart === "full_day" ? 1 : 0.5;
+
+/**
+ * Remote hours for one day, derived from the collaborator's contractual daily
+ * hours — never a hardcoded 4h. Capacity itself is unchanged: the remaining
+ * half day is simply worked from the office.
+ */
+export function remoteHoursForDay(
+  dailyHours: number | null | undefined,
+  dayPart: RemoteWorkDayPart,
+): number | null {
+  if (!dailyHours || dailyHours <= 0) return null;
+  return dailyHours * dayPartWeight(dayPart);
+}
 
 export type RemoteWorkRequest = {
   id: string;
@@ -18,6 +57,10 @@ export type RemoteWorkRequest = {
   data: string;
   estado: RemoteWorkStatus;
   location_type: RemoteWorkLocation;
+  day_part: RemoteWorkDayPart;
+  workflow_mode: RemoteWorkMode;
+  work_kind: RemoteWorkKind;
+  location_detail: string | null;
   notas: string | null;
   motivo_rejeicao: string | null;
   aprovado_por: string | null;
@@ -32,10 +75,20 @@ export type RemoteWorkRequest = {
 
 export type RemoteWorkSettings = {
   approval_required: boolean;
+  approval_mode: RemoteWorkMode;
   minimum_notice_days: number;
   allow_same_day_requests: boolean;
   allow_admin_override: boolean;
 };
+
+/** The effective workflow mode for a new entry. */
+export function effectiveMode(
+  settings: RemoteWorkSettings | undefined,
+): RemoteWorkMode {
+  if (!settings) return "approval_required";
+  if (settings.approval_mode === "notification_only") return "notification_only";
+  return settings.approval_required ? "approval_required" : "notification_only";
+}
 
 export type RemoteWorkApprover = {
   id: string;
@@ -52,7 +105,7 @@ export const remoteWorkKeys = {
 };
 
 const SELECT_COLS =
-  "id, collaborator_id, data, estado, location_type, notas, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
+  "id, collaborator_id, data, estado, location_type, day_part, workflow_mode, work_kind, location_detail, notas, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
 
 /** Every request the current user is allowed to see (own + approved + approver scope). */
 export function useRemoteWorkRequests() {
