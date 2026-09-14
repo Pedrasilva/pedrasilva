@@ -92,7 +92,7 @@ function isActiveLink(pathname: string, to: string) {
 function RailButton({
   item,
   pathname,
-  can,
+  canLink,
 }: {
   item: RailItem;
   pathname: string;
