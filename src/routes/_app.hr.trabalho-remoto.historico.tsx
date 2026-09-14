@@ -188,6 +188,7 @@ function HistoryTab() {
                   [
                     "pendente",
                     "aprovada",
+                    "declarada",
                     "rejeitada",
                     "cancelada",
                   ] as RemoteWorkStatus[]
