@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  ACTIVE_REMOTE_STATES,
+  type RemoteWorkDayPart,
+} from "@/hooks/use-remote-work";
 
 export type BirthdayItem = {
   id: string;
@@ -210,6 +214,8 @@ export type AvailabilityItem = {
   kind: "absence" | "remote";
   /** Absence type key (for absences only). */
   tipo?: string;
+  /** Remote items only: full day, morning or afternoon. */
+  dayPart?: RemoteWorkDayPart;
   start: string;
   end: string;
 };
@@ -244,8 +250,9 @@ export function useTeamAvailability(windowDays = 14) {
           .order("data_inicio"),
         supabase
           .from("remote_work_requests")
-          .select("id, data, collaborator_id")
-          .eq("estado", "aprovada")
+          .select("id, data, collaborator_id, day_part")
+          // Approved days and simple declarations both count as remote.
+          .in("estado", ACTIVE_REMOTE_STATES)
           .gte("data", todayIso)
           .lte("data", limitIso)
           .order("data"),
@@ -288,12 +295,14 @@ export function useTeamAvailability(windowDays = 14) {
         id: string;
         data: string;
         collaborator_id: string;
+        day_part?: RemoteWorkDayPart | null;
       }>) {
         const item: AvailabilityItem = {
           id: `r-${r.id}`,
           collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "remote",
+          dayPart: r.day_part ?? "full_day",
           start: r.data,
           end: r.data,
         };

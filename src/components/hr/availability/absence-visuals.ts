@@ -30,8 +30,16 @@ export function cellStyle(cell: Cell | undefined): React.CSSProperties {
       return {
         background: `repeating-linear-gradient(135deg, ${mix(token, 45)} 0 4px, transparent 4px 8px)`,
       };
-    case "remote":
-      return { background: mix("var(--hr-accent)", 16) };
+    case "remote": {
+      const remote = mix("var(--hr-accent)", 16);
+      // Half-day remote: the other half is worked from the office. Capacity is
+      // unchanged — only the shading tells where the person is.
+      if (cell.dayPart === "morning")
+        return { background: `linear-gradient(to right, ${remote} 50%, transparent 50%)` };
+      if (cell.dayPart === "afternoon")
+        return { background: `linear-gradient(to right, transparent 50%, ${remote} 50%)` };
+      return { background: remote };
+    }
     case "holiday":
       return { background: mix("var(--ink)", 14) };
     case "weekend":

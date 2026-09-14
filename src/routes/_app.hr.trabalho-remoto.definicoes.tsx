@@ -24,6 +24,7 @@ import {
   useSaveRemoteWorkApprover,
   useUserCollaboratorLinks,
   useUpdateRemoteWorkSettings,
+  type RemoteWorkMode,
 } from "@/hooks/use-remote-work";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto/definicoes")({
@@ -42,6 +43,8 @@ function SettingsTab() {
   const deleteApprover = useDeleteRemoteWorkApprover();
 
   const [requiresApproval, setRequiresApproval] = useState(true);
+  const [approvalMode, setApprovalMode] =
+    useState<RemoteWorkMode>("approval_required");
   const [noticeDays, setNoticeDays] = useState(1);
   const [allowSameDay, setAllowSameDay] = useState(false);
   const [allowAdminOverride, setAllowAdminOverride] = useState(true);
@@ -50,6 +53,7 @@ function SettingsTab() {
     const s = settingsQ.data;
     if (!s) return;
     setRequiresApproval(s.approval_required);
+    setApprovalMode(s.approval_mode);
     setNoticeDays(s.minimum_notice_days);
     setAllowSameDay(s.allow_same_day_requests);
     setAllowAdminOverride(s.allow_admin_override);
@@ -73,6 +77,7 @@ function SettingsTab() {
     try {
       await updateSettings.mutateAsync({
         approval_required: requiresApproval,
+        approval_mode: approvalMode,
         minimum_notice_days: noticeDays,
         allow_same_day_requests: allowSameDay,
         allow_admin_override: allowAdminOverride,
@@ -109,13 +114,29 @@ function SettingsTab() {
         </h2>
         <div className="space-y-4">
           <SettingRow
-            label={t("hr:remoteWork.requiresApproval")}
-            hint={t("hr:remoteWork.requiresApprovalHint")}
+            label={t("hr:remoteWork.approvalMode")}
+            hint={t("hr:remoteWork.approvalModeHint")}
           >
-            <Switch
-              checked={requiresApproval}
-              onCheckedChange={setRequiresApproval}
-            />
+            <Select
+              value={approvalMode}
+              onValueChange={(v) => {
+                const mode = v as RemoteWorkMode;
+                setApprovalMode(mode);
+                setRequiresApproval(mode === "approval_required");
+              }}
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approval_required">
+                  {t("hr:remoteWork.modes.approval_required")}
+                </SelectItem>
+                <SelectItem value="notification_only">
+                  {t("hr:remoteWork.modes.notification_only")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </SettingRow>
           <SettingRow
             label={t("hr:remoteWork.noticeDays")}

@@ -10374,14 +10374,18 @@ export type Database = {
           created_at: string
           created_by: string | null
           data: string
+          day_part: string
           estado: string
           id: string
+          location_detail: string | null
           location_type: string
           motivo_rejeicao: string | null
           notas: string | null
           override_by: string | null
           request_group_id: string | null
           updated_at: string
+          work_kind: string
+          workflow_mode: string
         }
         Insert: {
           aprovado_em?: string | null
@@ -10392,14 +10396,18 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data: string
+          day_part?: string
           estado?: string
           id?: string
+          location_detail?: string | null
           location_type?: string
           motivo_rejeicao?: string | null
           notas?: string | null
           override_by?: string | null
           request_group_id?: string | null
           updated_at?: string
+          work_kind?: string
+          workflow_mode?: string
         }
         Update: {
           aprovado_em?: string | null
@@ -10410,14 +10418,18 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data?: string
+          day_part?: string
           estado?: string
           id?: string
+          location_detail?: string | null
           location_type?: string
           motivo_rejeicao?: string | null
           notas?: string | null
           override_by?: string | null
           request_group_id?: string | null
           updated_at?: string
+          work_kind?: string
+          workflow_mode?: string
         }
         Relationships: [
           {
@@ -10440,6 +10452,7 @@ export type Database = {
         Row: {
           allow_admin_override: boolean
           allow_same_day_requests: boolean
+          approval_mode: string
           approval_required: boolean
           created_at: string
           id: boolean
@@ -10449,6 +10462,7 @@ export type Database = {
         Insert: {
           allow_admin_override?: boolean
           allow_same_day_requests?: boolean
+          approval_mode?: string
           approval_required?: boolean
           created_at?: string
           id?: boolean
@@ -10458,6 +10472,7 @@ export type Database = {
         Update: {
           allow_admin_override?: boolean
           allow_same_day_requests?: boolean
+          approval_mode?: string
           approval_required?: boolean
           created_at?: string
           id?: boolean

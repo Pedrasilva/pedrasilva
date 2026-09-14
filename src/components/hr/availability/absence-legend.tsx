@@ -45,6 +45,12 @@ export function AbsenceLegend({ canSeeDetail }: { canSeeDetail: boolean }) {
         style={{ background: mix("var(--hr-accent)", 16) }}
         label={t("availability.legend.remote")}
       />
+      <Swatch
+        style={{
+          background: `linear-gradient(to right, ${mix("var(--hr-accent)", 16)} 50%, transparent 50%)`,
+        }}
+        label={t("availability.legend.remoteHalf")}
+      />
       <Swatch style={{ background: mix("var(--ink)", 10) }} label={t("availability.legend.publicHoliday")} />
       <Swatch style={{ background: mix("var(--ink)", 6) }} label={t("availability.legend.weekend")} />
     </div>

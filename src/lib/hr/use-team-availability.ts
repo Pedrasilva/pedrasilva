@@ -15,6 +15,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toLocalISODate } from "@/lib/dates";
 import { computeCollaboratorFte } from "@/lib/hr/fte";
+import {
+  ACTIVE_REMOTE_STATES,
+  type RemoteWorkDayPart,
+} from "@/hooks/use-remote-work";
 
 export type AbsenceType =
   | "ferias"
@@ -73,6 +77,11 @@ export type Cell = {
   /** "manha" | "tarde" for half-days. */
   periodo?: string | null;
   holidayName?: string;
+  /**
+   * For remote cells: full day, morning or afternoon. Remote work is a
+   * location, so this never reduces the person's availability.
+   */
+  dayPart?: RemoteWorkDayPart;
 };
 
 export type DayColumn = {
@@ -165,8 +174,9 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
     queryFn: async () => {
       const { data, error } = await supabase
         .from("remote_work_requests")
-        .select("collaborator_id, data, estado, location_type")
-        .eq("estado", "aprovada")
+        .select("collaborator_id, data, estado, location_type, day_part")
+        // Approved days and simple declarations both count as remote.
+        .in("estado", ACTIVE_REMOTE_STATES)
         .gte("data", `${year}-01-01`)
         .lte("data", `${year}-12-31`);
       if (error) throw error;
@@ -306,7 +316,11 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       const iso = r.data as string;
       const current = row[iso];
       if (!current || current.kind !== "available") continue; // leave wins
-      row[iso] = { kind: "remote" };
+      row[iso] = {
+        kind: "remote",
+        dayPart: ((r as { day_part?: string }).day_part ??
+          "full_day") as RemoteWorkDayPart,
+      };
     }
 
     // Coverage — active people flagged for planning.

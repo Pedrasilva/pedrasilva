@@ -51,8 +51,14 @@ function RequestsTab() {
     [requests],
   );
 
-  const locationLabel = (r: RemoteWorkRequest) =>
-    t(`hr:remoteWork.location.${r.location_type}`);
+  const locationLabel = (r: RemoteWorkRequest) => {
+    const loc = t(`hr:remoteWork.location.${r.location_type}`);
+    const part =
+      r.day_part === "full_day"
+        ? ""
+        : ` · ${t(`hr:remoteWork.dayPart.${r.day_part}`)}`;
+    return `${loc}${part}`;
+  };
 
   const decide = async (
     id: string,
@@ -162,8 +168,9 @@ function RequestsTab() {
           <ul className="divide-y">
             {mine.map((r) => {
               const cancellable =
-                (r.estado === "pendente" ||
-                  (r.estado === "aprovada" && r.data >= todayISO()));
+                r.estado === "pendente" ||
+                ((r.estado === "aprovada" || r.estado === "declarada") &&
+                  r.data >= todayISO());
               return (
                 <li
                   key={r.id}

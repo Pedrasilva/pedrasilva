@@ -71,8 +71,16 @@ export function TodayStrip() {
   const nothing =
     outToday.length === 0 && remoteToday.length === 0 && upcoming.length === 0;
 
+  /** "Remote", "Remote AM" or "Remote PM" — the office half stays implicit. */
+  const remoteLabel = (item: AvailabilityItem) =>
+    item.dayPart === "morning"
+      ? t("home:availability.remoteAm")
+      : item.dayPart === "afternoon"
+        ? t("home:availability.remotePm")
+        : t("home:availability.remote");
+
   const itemMeta = (item: AvailabilityItem) => {
-    if (item.kind === "remote") return t("home:availability.remoteToday");
+    if (item.kind === "remote") return remoteLabel(item);
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return `${type} · ${t("home:off.until", { date: fmtDate(item.end) })}`;
   };
@@ -80,7 +88,7 @@ export function TodayStrip() {
 
   const upcomingMeta = (item: AvailabilityItem) => {
     const day = dayLabel(item.start);
-    if (item.kind === "remote") return `${t("home:availability.remote")} · ${day}`;
+    if (item.kind === "remote") return `${remoteLabel(item)} · ${day}`;
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return item.start === item.end
       ? `${type} · ${day}`
@@ -136,7 +144,7 @@ export function TodayStrip() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{v.nome}</div>
                       <div className="truncate text-[11px] text-muted-foreground">
-                        {t("home:availability.remoteToday")}
+                        {remoteLabel(v)}
                       </div>
                     </div>
                     <span

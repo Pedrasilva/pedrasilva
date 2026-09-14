@@ -104,7 +104,9 @@
     "comingUp": "Próximos (14 dias)",
     "remote": "Trabalho remoto",
     "remoteToday": "A trabalhar de casa hoje",
-    "nextDay": "próxima {{day}}"
+    "nextDay": "próxima {{day}}",
+    "remoteAm": "Remoto manhã",
+    "remotePm": "Remoto tarde"
   },
   "todayFaces": {
     "title": "Hoje no atelier",

@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/select";
 import { WfhStatusChip } from "@/components/hr/wfh/wfh-status-chip";
 import {
+  isActiveRemoteState,
   useMyCollaborator,
   useRemoteWorkRequests,
+  type RemoteWorkDayPart,
   type RemoteWorkStatus,
 } from "@/hooks/use-remote-work";
 import { toLocalISODate } from "@/lib/dates";
@@ -52,12 +54,20 @@ function HistoryTab() {
     { month: "long", year: "numeric" },
   );
 
+  const dayPartSuffix = (dp: RemoteWorkDayPart) =>
+    dp === "morning"
+      ? ` · ${t("hr:remoteWork.dayPartShort.morning")}`
+      : dp === "afternoon"
+        ? ` · ${t("hr:remoteWork.dayPartShort.afternoon")}`
+        : "";
+
   const approvedByDay = useMemo(() => {
     const map = new Map<string, string[]>();
     for (const r of requests) {
-      if (r.estado !== "aprovada") continue;
+      // Approved days and simple declarations are both active remote days.
+      if (!isActiveRemoteState(r.estado)) continue;
       const list = map.get(r.data) ?? [];
-      list.push(nameOf(r.collaborator_id));
+      list.push(`${nameOf(r.collaborator_id)}${dayPartSuffix(r.day_part)}`);
       map.set(r.data, list);
     }
     return map;
@@ -120,9 +130,9 @@ function HistoryTab() {
                 className="min-h-[64px] rounded-md border border-border/50 p-1.5"
               >
                 <div className="mb-1 text-muted-foreground">{cell.day}</div>
-                {(approvedByDay.get(cell.iso) ?? []).slice(0, 3).map((n) => (
+                {(approvedByDay.get(cell.iso) ?? []).slice(0, 3).map((n, ni) => (
                   <div
-                    key={n}
+                    key={`${cell.iso}-${ni}`}
                     className="truncate rounded px-1 py-0.5"
                     style={{
                       background:
@@ -178,6 +188,7 @@ function HistoryTab() {
                   [
                     "pendente",
                     "aprovada",
+                    "declarada",
                     "rejeitada",
                     "cancelada",
                   ] as RemoteWorkStatus[]
@@ -239,7 +250,10 @@ function HistoryTab() {
                 <tr className="text-left text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <th className="py-2">{t("hr:remoteWork.date")}</th>
                   <th className="py-2">{t("hr:remoteWork.collaborator")}</th>
+                  <th className="py-2">{t("hr:remoteWork.dayPartLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.locationType")}</th>
+                  <th className="py-2">{t("hr:remoteWork.workKindLabel")}</th>
+                  <th className="py-2">{t("hr:remoteWork.workflowModeLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.statusLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.requestedOn")}</th>
                 </tr>
@@ -250,7 +264,17 @@ function HistoryTab() {
                     <td className="py-2 tabular-nums">{r.data}</td>
                     <td className="py-2">{nameOf(r.collaborator_id)}</td>
                     <td className="py-2">
+                      {t(`hr:remoteWork.dayPart.${r.day_part}`)}
+                    </td>
+                    <td className="py-2">
                       {t(`hr:remoteWork.location.${r.location_type}`)}
+                      {r.location_detail ? ` · ${r.location_detail}` : ""}
+                    </td>
+                    <td className="py-2">
+                      {t(`hr:remoteWork.workKind.${r.work_kind}`)}
+                    </td>
+                    <td className="py-2 text-muted-foreground">
+                      {t(`hr:remoteWork.modes.${r.workflow_mode}`)}
                     </td>
                     <td className="py-2">
                       <WfhStatusChip estado={r.estado} />

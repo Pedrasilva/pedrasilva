@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { toLocalISODate } from "@/lib/dates";
 import {
   addDaysISO,
+  effectiveMode,
+  remoteHoursForDay,
   resolveApprover,
   todayISO,
   useCreateRemoteWorkRequests,
@@ -33,8 +36,19 @@ import {
   useRemoteWorkApprovers,
   useRemoteWorkSettings,
   validateNotice,
+  type RemoteWorkDayPart,
+  type RemoteWorkKind,
   type RemoteWorkLocation,
 } from "@/hooks/use-remote-work";
+
+const DAY_PARTS: RemoteWorkDayPart[] = ["full_day", "morning", "afternoon"];
+const WORK_KINDS: RemoteWorkKind[] = [
+  "home_office",
+  "remote_elsewhere",
+  "client_site",
+  "external_meeting",
+  "other",
+];
 
 export function RequestWfhDialog({
   open,
@@ -53,21 +67,37 @@ export function RequestWfhDialog({
   const defaultDate = useMemo(() => addDaysISO(todayISO(), 1), []);
   const [from, setFrom] = useState(defaultDate);
   const [to, setTo] = useState(defaultDate);
+  const [dayPart, setDayPart] = useState<RemoteWorkDayPart>("full_day");
   const [locationType, setLocationType] = useState<RemoteWorkLocation>("home");
+  const [locationDetail, setLocationDetail] = useState("");
+  const [workKind, setWorkKind] = useState<RemoteWorkKind>("home_office");
   const [notas, setNotas] = useState("");
   const [override, setOverride] = useState(false);
+
+  const mode = effectiveMode(settings);
+  const needsApproval = mode === "approval_required";
+  const singleDay = from === to;
+  const effectiveDayPart: RemoteWorkDayPart = singleDay ? dayPart : "full_day";
 
   const approver = resolveApprover(approvers, collaborator?.id ?? null);
   const approverLabel = approver
     ? t("hr:remoteWork.approverResolved")
     : t("hr:remoteWork.approverMissing");
 
-  const canOverride =
-    isAdmin && (settings?.allow_admin_override ?? true);
+  const canOverride = isAdmin && (settings?.allow_admin_override ?? true);
 
   const noticeError =
     settings && from
       ? validateNotice(from, settings, { override: override && canOverride })
+      : null;
+
+  const remoteHours = remoteHoursForDay(
+    collaborator?.daily_hours ?? null,
+    effectiveDayPart,
+  );
+  const officeHours =
+    remoteHours !== null && collaborator?.daily_hours
+      ? collaborator.daily_hours - remoteHours
       : null;
 
   const submit = async () => {
@@ -89,11 +119,7 @@ export function RequestWfhDialog({
       );
       return;
     }
-    if (
-      settings?.approval_required &&
-      !approver &&
-      !(override && canOverride)
-    ) {
+    if (needsApproval && !approver && !(override && canOverride)) {
       toast.error(t("hr:remoteWork.approverMissingBlocked"));
       return;
     }
@@ -117,13 +143,21 @@ export function RequestWfhDialog({
         dates,
         notas,
         locationType,
-        override:
-          (override && canOverride) || settings?.approval_required === false,
+        locationDetail: locationType === "remote" ? locationDetail : null,
+        workKind,
+        dayPart: effectiveDayPart,
+        mode,
+        override: override && canOverride,
       });
       setNotas("");
+      setLocationDetail("");
       setOverride(false);
       onOpenChange(false);
-      toast.success(t("hr:remoteWork.submitted"));
+      toast.success(
+        needsApproval
+          ? t("hr:remoteWork.submitted")
+          : t("hr:remoteWork.declared"),
+      );
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -131,11 +165,17 @@ export function RequestWfhDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("hr:remoteWork.newRequest")}</DialogTitle>
+          <DialogTitle>
+            {needsApproval
+              ? t("hr:remoteWork.newRequest")
+              : t("hr:remoteWork.newDeclaration")}
+          </DialogTitle>
           <DialogDescription>
-            {t("hr:remoteWork.dialogSubtitle")}
+            {needsApproval
+              ? t("hr:remoteWork.dialogSubtitle")
+              : t("hr:remoteWork.dialogSubtitleDeclaration")}
           </DialogDescription>
         </DialogHeader>
 
@@ -166,6 +206,40 @@ export function RequestWfhDialog({
           </div>
 
           <div className="space-y-1.5">
+            <Label>{t("hr:remoteWork.dayPartLabel")}</Label>
+            <RadioGroup
+              value={effectiveDayPart}
+              onValueChange={(v) => setDayPart(v as RemoteWorkDayPart)}
+              className="flex flex-wrap gap-4"
+              disabled={!singleDay}
+            >
+              {DAY_PARTS.map((dp) => (
+                <label
+                  key={dp}
+                  className="flex items-center gap-2 text-sm"
+                  htmlFor={`dp-${dp}`}
+                >
+                  <RadioGroupItem id={`dp-${dp}`} value={dp} />
+                  {t(`hr:remoteWork.dayPart.${dp}`)}
+                </label>
+              ))}
+            </RadioGroup>
+            <p className="text-xs text-muted-foreground">
+              {singleDay
+                ? t("hr:remoteWork.dayPartHint")
+                : t("hr:remoteWork.dayPartRangeHint")}
+            </p>
+            {effectiveDayPart !== "full_day" && remoteHours !== null && (
+              <p className="text-xs text-muted-foreground">
+                {t("hr:remoteWork.halfDayHours", {
+                  remote: remoteHours,
+                  office: officeHours,
+                })}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
             <Label>{t("hr:remoteWork.locationType")}</Label>
             <Select
               value={locationType}
@@ -185,6 +259,39 @@ export function RequestWfhDialog({
             </Select>
           </div>
 
+          {locationType === "remote" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="wfh-detail">
+                {t("hr:remoteWork.locationDetail")}
+              </Label>
+              <Input
+                id="wfh-detail"
+                value={locationDetail}
+                onChange={(e) => setLocationDetail(e.target.value)}
+                placeholder={t("hr:remoteWork.locationDetailPlaceholder")}
+              />
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <Label>{t("hr:remoteWork.workKindLabel")}</Label>
+            <Select
+              value={workKind}
+              onValueChange={(v) => setWorkKind(v as RemoteWorkKind)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {WORK_KINDS.map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {t(`hr:remoteWork.workKind.${k}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="wfh-notes">{t("hr:remoteWork.notes")}</Label>
             <Textarea
@@ -197,7 +304,16 @@ export function RequestWfhDialog({
           </div>
 
           <div className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-            {t("hr:remoteWork.approver")}: {approverLabel}
+            {needsApproval ? (
+              <>
+                <div>{t("hr:remoteWork.workflowApproval")}</div>
+                <div className="mt-1">
+                  {t("hr:remoteWork.approver")}: {approverLabel}
+                </div>
+              </>
+            ) : (
+              t("hr:remoteWork.workflowNotification")
+            )}
           </div>
 
           {noticeError && (
@@ -210,7 +326,7 @@ export function RequestWfhDialog({
             </p>
           )}
 
-          {canOverride && (
+          {canOverride && needsApproval && (
             <label className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 {t("hr:remoteWork.overrideLabel")}
@@ -225,7 +341,9 @@ export function RequestWfhDialog({
             {t("common:cancel")}
           </Button>
           <Button onClick={submit} disabled={create.isPending}>
-            {t("hr:remoteWork.submit")}
+            {needsApproval
+              ? t("hr:remoteWork.submit")
+              : t("hr:remoteWork.submitDeclaration")}
           </Button>
         </DialogFooter>
       </DialogContent>
