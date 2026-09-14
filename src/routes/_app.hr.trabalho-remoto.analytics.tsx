@@ -294,6 +294,12 @@ function AnalyticsTab() {
                 <tr className="text-left text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <th className="py-2">{t("hr:remoteWork.collaborator")}</th>
                   <th className="py-2 text-right">
+                    {t("hr:remoteWork.fullDaysCol")}
+                  </th>
+                  <th className="py-2 text-right">
+                    {t("hr:remoteWork.halfDaysCol")}
+                  </th>
+                  <th className="py-2 text-right">
                     {t("hr:remoteWork.wfhDays")}
                   </th>
                   <th className="py-2 text-right">
@@ -309,7 +315,11 @@ function AnalyticsTab() {
                 {rows.map((r) => (
                   <tr key={r.id}>
                     <td className="py-2">{r.nome}</td>
-                    <td className="py-2 text-right tabular-nums">{r.days}</td>
+                    <td className="py-2 text-right tabular-nums">{r.full}</td>
+                    <td className="py-2 text-right tabular-nums">{r.half}</td>
+                    <td className="py-2 text-right tabular-nums">
+                      {r.days.toFixed(1)}
+                    </td>
                     <td className="py-2 text-right tabular-nums">
                       {r.eligible ?? "—"}
                     </td>
