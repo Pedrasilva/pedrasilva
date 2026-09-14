@@ -1506,7 +1506,8 @@
       "pendente": "Pendente",
       "aprovada": "Aprovado",
       "rejeitada": "Rejeitado",
-      "cancelada": "Cancelado"
+      "cancelada": "Cancelado",
+      "declarada": "Declarado"
     },
     "location": {
       "home": "Casa",
@@ -1540,7 +1541,10 @@
       "totalDays": "Dias remotos",
       "people": "Pessoas",
       "avgDays": "Média por pessoa",
-      "avgPct": "Média da equipa"
+      "avgPct": "Média da equipa",
+      "equivalentDays": "Dias equivalentes",
+      "fullDays": "Dias completos",
+      "halfDays": "Meios dias"
     },
     "comparisonTitle": "Por colaborador",
     "trendTitle": "Evolução mensal",
@@ -1575,7 +1579,45 @@
     "approverMissingBlocked": "Não existe aprovador definido para si, por isso o pedido não pode ser submetido.",
     "overrideLabel": "Registar diretamente, sem aprovação",
     "sameDayBlocked": "Não são permitidos pedidos para o próprio dia.",
-    "noticeBlocked": "Os pedidos devem ser feitos com pelo menos {{days}} dia(s) de antecedência."
+    "noticeBlocked": "Os pedidos devem ser feitos com pelo menos {{days}} dia(s) de antecedência.",
+    "dayPartLabel": "Período",
+    "dayPart": {
+      "full_day": "Dia completo",
+      "morning": "Apenas manhã",
+      "afternoon": "Apenas tarde"
+    },
+    "dayPartShort": {
+      "morning": "manhã",
+      "afternoon": "tarde"
+    },
+    "dayPartHint": "Meio dia continua a ser um dia de trabalho completo — muda apenas o local.",
+    "dayPartRangeHint": "Pedidos de vários dias são registados como dias completos.",
+    "halfDayHours": "{{remote}}h remoto · {{office}}h no escritório",
+    "locationDetail": "Onde",
+    "locationDetailPlaceholder": "ex.: escritório do cliente, co-working",
+    "workKindLabel": "Tipo de trabalho remoto",
+    "workKind": {
+      "home_office": "Casa",
+      "remote_elsewhere": "Trabalho remoto noutro local",
+      "client_site": "Instalações do cliente",
+      "external_meeting": "Reunião externa",
+      "other": "Outro"
+    },
+    "workflowModeLabel": "Modo",
+    "modes": {
+      "approval_required": "Sujeito a aprovação",
+      "notification_only": "Apenas informativo"
+    },
+    "approvalMode": "Fluxo",
+    "approvalModeHint": "Sujeito a aprovação envia cada registo a um aprovador. Apenas informativo regista de imediato.",
+    "workflowApproval": "Este pedido será enviado para aprovação.",
+    "workflowNotification": "Não é necessária aprovação. Esta informação ficará registada no calendário da equipa.",
+    "newDeclaration": "Registar trabalho remoto",
+    "dialogSubtitleDeclaration": "Informe a equipa de onde vai trabalhar. Não é necessária aprovação.",
+    "submitDeclaration": "Registar",
+    "declared": "Trabalho remoto registado",
+    "fullDaysCol": "Dias completos",
+    "halfDaysCol": "Meios dias"
   },
   "availability": {
     "title": "Disponibilidade da equipa",
@@ -1614,7 +1656,8 @@
       "pending": "Pendente",
       "remote": "A trabalhar remotamente",
       "publicHoliday": "Feriado",
-      "weekend": "Fim-de-semana"
+      "weekend": "Fim-de-semana",
+      "remoteHalf": "Remoto meio dia"
     },
     "cards": {
       "availableToday": "Pessoas disponíveis hoje",

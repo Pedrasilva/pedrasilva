@@ -1506,7 +1506,8 @@
       "pendente": "Pending",
       "aprovada": "Approved",
       "rejeitada": "Rejected",
-      "cancelada": "Cancelled"
+      "cancelada": "Cancelled",
+      "declarada": "Declared"
     },
     "location": {
       "home": "Home",
@@ -1540,7 +1541,10 @@
       "totalDays": "Remote days",
       "people": "People",
       "avgDays": "Average per person",
-      "avgPct": "Team average"
+      "avgPct": "Team average",
+      "equivalentDays": "Equivalent days",
+      "fullDays": "Full days",
+      "halfDays": "Half days"
     },
     "comparisonTitle": "By team member",
     "trendTitle": "Monthly trend",
@@ -1575,7 +1579,45 @@
     "approverMissingBlocked": "No approver is configured for you, so the request cannot be submitted.",
     "overrideLabel": "Record directly, without approval",
     "sameDayBlocked": "Same-day requests are not allowed.",
-    "noticeBlocked": "Requests must be made at least {{days}} day(s) in advance."
+    "noticeBlocked": "Requests must be made at least {{days}} day(s) in advance.",
+    "dayPartLabel": "Period",
+    "dayPart": {
+      "full_day": "Full day",
+      "morning": "Morning only",
+      "afternoon": "Afternoon only"
+    },
+    "dayPartShort": {
+      "morning": "AM",
+      "afternoon": "PM"
+    },
+    "dayPartHint": "A half day is still a full working day — only the location changes.",
+    "dayPartRangeHint": "Multi-day requests are recorded as full days.",
+    "halfDayHours": "{{remote}}h remote · {{office}}h in the office",
+    "locationDetail": "Where",
+    "locationDetailPlaceholder": "e.g. client office, co-working",
+    "workKindLabel": "Type of remote work",
+    "workKind": {
+      "home_office": "Home office",
+      "remote_elsewhere": "Working remotely elsewhere",
+      "client_site": "Client site",
+      "external_meeting": "External meeting",
+      "other": "Other"
+    },
+    "workflowModeLabel": "Mode",
+    "modes": {
+      "approval_required": "Approval required",
+      "notification_only": "Notification only"
+    },
+    "approvalMode": "Workflow",
+    "approvalModeHint": "Approval required sends every entry to an approver. Notification only records it straight away.",
+    "workflowApproval": "This request will be sent for approval.",
+    "workflowNotification": "No approval needed. This will be recorded in the team calendar.",
+    "newDeclaration": "Record remote work",
+    "dialogSubtitleDeclaration": "Let the team know where you are working from. No approval needed.",
+    "submitDeclaration": "Record",
+    "declared": "Remote work recorded",
+    "fullDaysCol": "Full days",
+    "halfDaysCol": "Half days"
   },
   "availability": {
     "title": "Team availability",
@@ -1614,7 +1656,8 @@
       "pending": "Pending",
       "remote": "Working remotely",
       "publicHoliday": "Public holiday",
-      "weekend": "Weekend"
+      "weekend": "Weekend",
+      "remoteHalf": "Remote half day"
     },
     "cards": {
       "availableToday": "People available today",

@@ -104,7 +104,9 @@
     "comingUp": "Coming up (14 days)",
     "remote": "Home office",
     "remoteToday": "Working from home today",
-    "nextDay": "next {{day}}"
+    "nextDay": "next {{day}}",
+    "remoteAm": "Remote AM",
+    "remotePm": "Remote PM"
   },
   "todayFaces": {
     "title": "Today at the studio",
