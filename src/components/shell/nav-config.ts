@@ -108,7 +108,12 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/gantt", labelKey: "projects.gantt" },
           { to: "/projects/timesheet", labelKey: "projects.timesheet" },
-          { to: "/projects/weekly-approval", labelKey: "projects.weeklyApproval" },
+          {
+            to: "/projects/weekly-approval",
+            labelKey: "projects.weeklyApproval",
+            permV2: "timesheets.approve",
+            permV2Scope: "team",
+          },
         ],
       },
 
@@ -162,7 +167,12 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/timesheet", labelKey: "time.timesheet" },
           { to: "/projects/my-tasks", labelKey: "time.myTasks" },
-          { to: "/projects/weekly-approval", labelKey: "time.weeklyApproval" },
+          {
+            to: "/projects/weekly-approval",
+            labelKey: "time.weeklyApproval",
+            permV2: "timesheets.approve",
+            permV2Scope: "team",
+          },
         ],
       },
     ],
