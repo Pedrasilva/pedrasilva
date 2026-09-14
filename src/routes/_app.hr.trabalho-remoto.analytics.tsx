@@ -113,7 +113,9 @@ function AnalyticsTab() {
     const holidays = new Set(holidaysQ.data ?? []);
     const requests = (requestsQ.data ?? []).filter(
       (r) =>
-        r.estado === "aprovada" && r.data >= range.from && r.data <= range.to,
+        isActiveRemoteState(r.estado) &&
+        r.data >= range.from &&
+        r.data <= range.to,
     );
 
     const workdays = eachDay(range.from, range.to).filter((iso) => {
@@ -130,34 +132,49 @@ function AnalyticsTab() {
       vacationDays.set(v.collaborator_id, set);
     }
 
-    const wfhByCollab = new Map<string, number>();
+    // Raw entry counts stay separate from equivalent days (half day = 0.5).
+    const byCollab = new Map<
+      string,
+      { entries: number; full: number; half: number; equivalent: number }
+    >();
     for (const r of requests) {
-      wfhByCollab.set(
-        r.collaborator_id,
-        (wfhByCollab.get(r.collaborator_id) ?? 0) + 1,
-      );
+      const acc =
+        byCollab.get(r.collaborator_id) ??
+        { entries: 0, full: 0, half: 0, equivalent: 0 };
+      const weight = dayPartWeight(r.day_part);
+      acc.entries += 1;
+      if (weight === 1) acc.full += 1;
+      else acc.half += 1;
+      acc.equivalent += weight;
+      byCollab.set(r.collaborator_id, acc);
     }
 
-    return [...wfhByCollab.entries()].map(([id, days]) => {
-      const collab = collaborators.find((c) => c.id === id);
-      const dpw = collab?.days_per_week ?? null;
-      // Eligible working days are only reliable when the contracted week is
-      // known; otherwise we leave the percentage blank rather than guess.
-      const eligible =
-        dpw && dpw > 0
-          ? Math.round(
-              (workdays.length - (vacationDays.get(id)?.size ?? 0)) *
-                (Math.min(dpw, 5) / 5),
-            )
-          : null;
-      return {
-        id,
-        nome: collab?.nome ?? "—",
-        days,
-        eligible,
-        pct: eligible && eligible > 0 ? (days / eligible) * 100 : null,
-      };
-    }).sort((a, b) => b.days - a.days);
+    return [...byCollab.entries()]
+      .map(([id, acc]) => {
+        const collab = collaborators.find((c) => c.id === id);
+        const dpw = collab?.days_per_week ?? null;
+        // Eligible working days are only reliable when the contracted week is
+        // known; otherwise we leave the percentage blank rather than guess.
+        const eligible =
+          dpw && dpw > 0
+            ? Math.round(
+                (workdays.length - (vacationDays.get(id)?.size ?? 0)) *
+                  (Math.min(dpw, 5) / 5),
+              )
+            : null;
+        return {
+          id,
+          nome: collab?.nome ?? "—",
+          entries: acc.entries,
+          full: acc.full,
+          half: acc.half,
+          days: acc.equivalent,
+          eligible,
+          pct:
+            eligible && eligible > 0 ? (acc.equivalent / eligible) * 100 : null,
+        };
+      })
+      .sort((a, b) => b.days - a.days);
   }, [
     holidaysQ.data,
     requestsQ.data,
@@ -168,6 +185,8 @@ function AnalyticsTab() {
   ]);
 
   const totalDays = rows.reduce((s, r) => s + r.days, 0);
+  const totalFull = rows.reduce((s, r) => s + r.full, 0);
+  const totalHalf = rows.reduce((s, r) => s + r.half, 0);
   const people = rows.length;
   const avgDays = people > 0 ? totalDays / people : 0;
   const pcts = rows.map((r) => r.pct).filter((p): p is number => p !== null);
