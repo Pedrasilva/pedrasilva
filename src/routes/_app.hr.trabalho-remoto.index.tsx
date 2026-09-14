@@ -51,8 +51,14 @@ function RequestsTab() {
     [requests],
   );
 
-  const locationLabel = (r: RemoteWorkRequest) =>
-    t(`hr:remoteWork.location.${r.location_type}`);
+  const locationLabel = (r: RemoteWorkRequest) => {
+    const loc = t(`hr:remoteWork.location.${r.location_type}`);
+    const part =
+      r.day_part === "full_day"
+        ? ""
+        : ` · ${t(`hr:remoteWork.dayPart.${r.day_part}`)}`;
+    return `${loc}${part}`;
+  };
 
   const decide = async (
     id: string,
