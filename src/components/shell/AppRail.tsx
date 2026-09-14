@@ -45,7 +45,13 @@ export function AppRail() {
   const loc = useLocation();
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const { can: canV2 } = useMyPermissionsV2();
   const can = (key?: PermissionKey) => !key || isAdmin || permissions.has(key);
+  // Flyout links may additionally require a v2 (module + scope) permission,
+  // so we never surface a page that would answer with "access denied".
+  const canLink = (l: FlyoutLink) =>
+    can(l.perm) &&
+    (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
   const visible = RAIL_ITEMS.filter(
     (i) => can(i.perm) && (!i.adminOnly || isAdmin),
