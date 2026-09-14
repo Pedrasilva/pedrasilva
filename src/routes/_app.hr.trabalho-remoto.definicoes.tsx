@@ -42,6 +42,8 @@ function SettingsTab() {
   const deleteApprover = useDeleteRemoteWorkApprover();
 
   const [requiresApproval, setRequiresApproval] = useState(true);
+  const [approvalMode, setApprovalMode] =
+    useState<RemoteWorkMode>("approval_required");
   const [noticeDays, setNoticeDays] = useState(1);
   const [allowSameDay, setAllowSameDay] = useState(false);
   const [allowAdminOverride, setAllowAdminOverride] = useState(true);
@@ -50,6 +52,7 @@ function SettingsTab() {
     const s = settingsQ.data;
     if (!s) return;
     setRequiresApproval(s.approval_required);
+    setApprovalMode(s.approval_mode);
     setNoticeDays(s.minimum_notice_days);
     setAllowSameDay(s.allow_same_day_requests);
     setAllowAdminOverride(s.allow_admin_override);
