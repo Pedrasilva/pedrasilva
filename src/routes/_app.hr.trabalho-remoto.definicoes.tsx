@@ -77,6 +77,7 @@ function SettingsTab() {
     try {
       await updateSettings.mutateAsync({
         approval_required: requiresApproval,
+        approval_mode: approvalMode,
         minimum_notice_days: noticeDays,
         allow_same_day_requests: allowSameDay,
         allow_admin_override: allowAdminOverride,
@@ -113,13 +114,29 @@ function SettingsTab() {
         </h2>
         <div className="space-y-4">
           <SettingRow
-            label={t("hr:remoteWork.requiresApproval")}
-            hint={t("hr:remoteWork.requiresApprovalHint")}
+            label={t("hr:remoteWork.approvalMode")}
+            hint={t("hr:remoteWork.approvalModeHint")}
           >
-            <Switch
-              checked={requiresApproval}
-              onCheckedChange={setRequiresApproval}
-            />
+            <Select
+              value={approvalMode}
+              onValueChange={(v) => {
+                const mode = v as RemoteWorkMode;
+                setApprovalMode(mode);
+                setRequiresApproval(mode === "approval_required");
+              }}
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approval_required">
+                  {t("hr:remoteWork.modes.approval_required")}
+                </SelectItem>
+                <SelectItem value="notification_only">
+                  {t("hr:remoteWork.modes.notification_only")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </SettingRow>
           <SettingRow
             label={t("hr:remoteWork.noticeDays")}

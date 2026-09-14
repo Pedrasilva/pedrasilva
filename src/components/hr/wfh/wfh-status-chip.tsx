@@ -7,11 +7,13 @@ export function WfhStatusChip({ estado }: { estado: RemoteWorkStatus }) {
   const tone =
     estado === "aprovada"
       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-      : estado === "rejeitada"
-        ? "bg-destructive/15 text-destructive"
-        : estado === "cancelada"
-          ? "bg-muted text-muted-foreground"
-          : "bg-amber-500/15 text-amber-700 dark:text-amber-400";
+      : estado === "declarada"
+        ? "bg-sky-500/15 text-sky-700 dark:text-sky-400"
+        : estado === "rejeitada"
+          ? "bg-destructive/15 text-destructive"
+          : estado === "cancelada"
+            ? "bg-muted text-muted-foreground"
+            : "bg-amber-500/15 text-amber-700 dark:text-amber-400";
   return (
     <Badge className={`border-0 ${tone}`} variant="secondary">
       {t(`remoteWork.status.${estado}`)}
