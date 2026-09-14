@@ -244,8 +244,9 @@ export function useTeamAvailability(windowDays = 14) {
           .order("data_inicio"),
         supabase
           .from("remote_work_requests")
-          .select("id, data, collaborator_id")
-          .eq("estado", "aprovada")
+          .select("id, data, collaborator_id, day_part")
+          // Approved days and simple declarations both count as remote.
+          .in("estado", ACTIVE_REMOTE_STATES)
           .gte("data", todayIso)
           .lte("data", limitIso)
           .order("data"),

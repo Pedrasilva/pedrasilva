@@ -198,10 +198,11 @@ function AnalyticsTab() {
   const trend = useMemo(() => {
     const map = new Map<string, number>();
     for (const r of requestsQ.data ?? []) {
-      if (r.estado !== "aprovada") continue;
+      if (!isActiveRemoteState(r.estado)) continue;
       if (r.data < range.from || r.data > range.to) continue;
       const key = r.data.slice(0, 7);
-      map.set(key, (map.get(key) ?? 0) + 1);
+      // Equivalent days: a half day counts 0.5.
+      map.set(key, (map.get(key) ?? 0) + dayPartWeight(r.day_part));
     }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [requestsQ.data, range.from, range.to]);

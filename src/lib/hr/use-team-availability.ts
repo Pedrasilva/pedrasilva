@@ -165,8 +165,9 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
     queryFn: async () => {
       const { data, error } = await supabase
         .from("remote_work_requests")
-        .select("collaborator_id, data, estado, location_type")
-        .eq("estado", "aprovada")
+        .select("collaborator_id, data, estado, location_type, day_part")
+        // Approved days and simple declarations both count as remote.
+        .in("estado", ACTIVE_REMOTE_STATES)
         .gte("data", `${year}-01-01`)
         .lte("data", `${year}-12-31`);
       if (error) throw error;
