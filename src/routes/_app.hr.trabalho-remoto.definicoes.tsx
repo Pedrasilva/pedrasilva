@@ -24,6 +24,7 @@ import {
   useSaveRemoteWorkApprover,
   useUserCollaboratorLinks,
   useUpdateRemoteWorkSettings,
+  type RemoteWorkMode,
 } from "@/hooks/use-remote-work";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto/definicoes")({
