@@ -130,13 +130,14 @@ export function useRemoteWorkSettings() {
       const { data, error } = await supabase
         .from("remote_work_settings")
         .select(
-          "approval_required, minimum_notice_days, allow_same_day_requests, allow_admin_override",
+          "approval_required, approval_mode, minimum_notice_days, allow_same_day_requests, allow_admin_override",
         )
         .maybeSingle();
       if (error) throw error;
       return (
         (data as RemoteWorkSettings | null) ?? {
           approval_required: true,
+          approval_mode: "approval_required" as RemoteWorkMode,
           minimum_notice_days: 1,
           allow_same_day_requests: false,
           allow_admin_override: true,
