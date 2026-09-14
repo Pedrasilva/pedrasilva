@@ -24,11 +24,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
+import type { PermissionScope, V2PermissionKey } from "@/lib/permissions-v2";
 
 export type FlyoutLink = {
   to: string;
   labelKey: string;
   perm?: PermissionKey;
+  /** Optional v2 permission (module + scope) required for the link to show. */
+  permV2?: V2PermissionKey;
+  /** Minimum scope for `permV2`; defaults to "team". */
+  permV2Scope?: PermissionScope;
 };
 
 export type FlyoutSection = {
@@ -103,7 +108,12 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/gantt", labelKey: "projects.gantt" },
           { to: "/projects/timesheet", labelKey: "projects.timesheet" },
-          { to: "/projects/weekly-approval", labelKey: "projects.weeklyApproval" },
+          {
+            to: "/projects/weekly-approval",
+            labelKey: "projects.weeklyApproval",
+            permV2: "timesheets.approve",
+            permV2Scope: "team",
+          },
         ],
       },
 
@@ -157,7 +167,12 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/projects/timesheet", labelKey: "time.timesheet" },
           { to: "/projects/my-tasks", labelKey: "time.myTasks" },
-          { to: "/projects/weekly-approval", labelKey: "time.weeklyApproval" },
+          {
+            to: "/projects/weekly-approval",
+            labelKey: "time.weeklyApproval",
+            permV2: "timesheets.approve",
+            permV2Scope: "team",
+          },
         ],
       },
     ],

@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import {
@@ -45,7 +46,13 @@ export function AppRail() {
   const loc = useLocation();
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const { can: canV2 } = useMyPermissionsV2();
   const can = (key?: PermissionKey) => !key || isAdmin || permissions.has(key);
+  // Flyout links may additionally require a v2 (module + scope) permission,
+  // so we never surface a page that would answer with "access denied".
+  const canLink = (l: FlyoutLink) =>
+    can(l.perm) &&
+    (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
   const visible = RAIL_ITEMS.filter(
     (i) => can(i.perm) && (!i.adminOnly || isAdmin),
@@ -61,7 +68,7 @@ export function AppRail() {
       <TooltipProvider delayDuration={200}>
         <div className="flex flex-col items-center gap-1 pt-3">
           {top.map((item) => (
-            <RailButton key={item.id} item={item} pathname={loc.pathname} can={can} />
+            <RailButton key={item.id} item={item} pathname={loc.pathname} canLink={canLink} />
           ))}
         </div>
 
@@ -69,7 +76,7 @@ export function AppRail() {
           <UtilityButton labelKey="help" icon={HelpCircle} href="https://lovable.dev" />
           <UtilityButton labelKey="feedback" icon={MessageSquare} href="mailto:feedback@pedrasilva.pt" />
           {bottom.map((item) => (
-            <RailButton key={item.id} item={item} pathname={loc.pathname} can={can} />
+            <RailButton key={item.id} item={item} pathname={loc.pathname} canLink={canLink} />
           ))}
         </div>
       </TooltipProvider>
@@ -85,11 +92,11 @@ function isActiveLink(pathname: string, to: string) {
 function RailButton({
   item,
   pathname,
-  can,
+  canLink,
 }: {
   item: RailItem;
   pathname: string;
-  can: (k?: PermissionKey) => boolean;
+  canLink: (l: FlyoutLink) => boolean;
 }) {
   const { t } = useTranslation("common");
   const Icon = item.icon;
@@ -157,7 +164,7 @@ function RailButton({
             <RecentlyViewedSection module={recentModule} pathname={pathname} />
           ) : null}
           {item.flyout.map((section) => {
-            const links = section.links.filter((l) => can(l.perm));
+            const links = section.links.filter((l) => canLink(l));
             if (links.length === 0) return null;
             const sectionActive = links.some((l) => isActiveLink(pathname, l.to));
             return (
