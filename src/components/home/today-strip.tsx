@@ -144,7 +144,7 @@ export function TodayStrip() {
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{v.nome}</div>
                       <div className="truncate text-[11px] text-muted-foreground">
-                        {t("home:availability.remoteToday")}
+                        {remoteLabel(v)}
                       </div>
                     </div>
                     <span
