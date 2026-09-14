@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  ACTIVE_REMOTE_STATES,
+  type RemoteWorkDayPart,
+} from "@/hooks/use-remote-work";
 
 export type BirthdayItem = {
   id: string;
