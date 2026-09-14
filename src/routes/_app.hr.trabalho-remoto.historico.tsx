@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/select";
 import { WfhStatusChip } from "@/components/hr/wfh/wfh-status-chip";
 import {
+  isActiveRemoteState,
   useMyCollaborator,
   useRemoteWorkRequests,
+  type RemoteWorkDayPart,
   type RemoteWorkStatus,
 } from "@/hooks/use-remote-work";
 import { toLocalISODate } from "@/lib/dates";
@@ -52,12 +54,20 @@ function HistoryTab() {
     { month: "long", year: "numeric" },
   );
 
+  const dayPartSuffix = (dp: RemoteWorkDayPart) =>
+    dp === "morning"
+      ? ` · ${t("hr:remoteWork.dayPartShort.morning")}`
+      : dp === "afternoon"
+        ? ` · ${t("hr:remoteWork.dayPartShort.afternoon")}`
+        : "";
+
   const approvedByDay = useMemo(() => {
     const map = new Map<string, string[]>();
     for (const r of requests) {
-      if (r.estado !== "aprovada") continue;
+      // Approved days and simple declarations are both active remote days.
+      if (!isActiveRemoteState(r.estado)) continue;
       const list = map.get(r.data) ?? [];
-      list.push(nameOf(r.collaborator_id));
+      list.push(`${nameOf(r.collaborator_id)}${dayPartSuffix(r.day_part)}`);
       map.set(r.data, list);
     }
     return map;

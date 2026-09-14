@@ -25,9 +25,14 @@ export function WfhProfileCard({ collaboratorId }: { collaboratorId: string }) {
 
   const year = String(new Date().getFullYear());
   const month = new Date().toISOString().slice(0, 7);
-  const approved = rows.filter((r) => r.estado === "aprovada");
-  const thisYear = approved.filter((r) => r.data.startsWith(year)).length;
-  const thisMonth = approved.filter((r) => r.data.startsWith(month)).length;
+  // Active = approved or declared; half days count as 0.5 equivalent days.
+  const active = rows.filter((r) => isActiveRemoteState(r.estado));
+  const equivalent = (prefix: string) =>
+    active
+      .filter((r) => r.data.startsWith(prefix))
+      .reduce((s, r) => s + dayPartWeight(r.day_part), 0);
+  const thisYear = equivalent(year);
+  const thisMonth = equivalent(month);
 
   return (
     <Card>
