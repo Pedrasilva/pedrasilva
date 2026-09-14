@@ -24,11 +24,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
+import type { PermissionScope, V2PermissionKey } from "@/lib/permissions-v2";
 
 export type FlyoutLink = {
   to: string;
   labelKey: string;
   perm?: PermissionKey;
+  /** Optional v2 permission (module + scope) required for the link to show. */
+  permV2?: V2PermissionKey;
+  /** Minimum scope for `permV2`; defaults to "team". */
+  permV2Scope?: PermissionScope;
 };
 
 export type FlyoutSection = {
