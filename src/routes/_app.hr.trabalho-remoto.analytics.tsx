@@ -261,8 +261,13 @@ function AnalyticsTab() {
         </div>
       </Card>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label={t("hr:remoteWork.kpi.totalDays")} value={String(totalDays)} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Kpi
+          label={t("hr:remoteWork.kpi.equivalentDays")}
+          value={totalDays.toFixed(1)}
+        />
+        <Kpi label={t("hr:remoteWork.kpi.fullDays")} value={String(totalFull)} />
+        <Kpi label={t("hr:remoteWork.kpi.halfDays")} value={String(totalHalf)} />
         <Kpi label={t("hr:remoteWork.kpi.people")} value={String(people)} />
         <Kpi
           label={t("hr:remoteWork.kpi.avgDays")}
