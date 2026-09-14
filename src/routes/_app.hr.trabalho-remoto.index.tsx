@@ -168,8 +168,9 @@ function RequestsTab() {
           <ul className="divide-y">
             {mine.map((r) => {
               const cancellable =
-                (r.estado === "pendente" ||
-                  (r.estado === "aprovada" && r.data >= todayISO()));
+                r.estado === "pendente" ||
+                ((r.estado === "aprovada" || r.estado === "declarada") &&
+                  r.data >= todayISO());
               return (
                 <li
                   key={r.id}
