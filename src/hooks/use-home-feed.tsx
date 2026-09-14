@@ -214,6 +214,8 @@ export type AvailabilityItem = {
   kind: "absence" | "remote";
   /** Absence type key (for absences only). */
   tipo?: string;
+  /** Remote items only: full day, morning or afternoon. */
+  dayPart?: RemoteWorkDayPart;
   start: string;
   end: string;
 };
@@ -293,12 +295,14 @@ export function useTeamAvailability(windowDays = 14) {
         id: string;
         data: string;
         collaborator_id: string;
+        day_part?: RemoteWorkDayPart | null;
       }>) {
         const item: AvailabilityItem = {
           id: `r-${r.id}`,
           collaboratorId: r.collaborator_id,
           nome: nameOf(r.collaborator_id),
           kind: "remote",
+          dayPart: r.day_part ?? "full_day",
           start: r.data,
           end: r.data,
         };
