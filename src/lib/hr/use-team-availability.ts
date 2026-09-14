@@ -15,6 +15,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toLocalISODate } from "@/lib/dates";
 import { computeCollaboratorFte } from "@/lib/hr/fte";
+import {
+  ACTIVE_REMOTE_STATES,
+  type RemoteWorkDayPart,
+} from "@/hooks/use-remote-work";
 
 export type AbsenceType =
   | "ferias"
