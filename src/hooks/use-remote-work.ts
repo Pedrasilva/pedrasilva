@@ -277,6 +277,12 @@ export function useCreateRemoteWorkRequests() {
       dates: string[];
       notas?: string | null;
       locationType?: RemoteWorkLocation;
+      locationDetail?: string | null;
+      workKind?: RemoteWorkKind;
+      /** Full day, or a half day — the other half is worked from the office. */
+      dayPart?: RemoteWorkDayPart;
+      /** approval_required → pending queue; notification_only → declared. */
+      mode?: RemoteWorkMode;
       /** Skip approval (HR/Admin override). */
       override?: boolean;
     }) => {
@@ -284,21 +290,32 @@ export function useCreateRemoteWorkRequests() {
         typeof crypto !== "undefined" && "randomUUID" in crypto
           ? crypto.randomUUID()
           : undefined;
+      const mode: RemoteWorkMode = input.mode ?? "approval_required";
+      const multiDay = input.dates.length > 1;
       const rows = input.dates.map((d) => ({
         collaborator_id: input.collaboratorId,
         data: d,
         notas: input.notas?.trim() ? input.notas.trim() : null,
         location_type: input.locationType ?? "home",
+        location_detail: input.locationDetail?.trim()
+          ? input.locationDetail.trim()
+          : null,
+        work_kind: input.workKind ?? "home_office",
+        // Multi-day requests default every day to full day (V1).
+        day_part: multiDay ? "full_day" : (input.dayPart ?? "full_day"),
+        workflow_mode: mode,
         request_group_id: groupId,
         created_by: user?.id ?? null,
-        ...(input.override
-          ? {
-              estado: "aprovada",
-              aprovado_por: user?.id ?? null,
-              aprovado_em: new Date().toISOString(),
-              override_by: user?.id ?? null,
-            }
-          : {}),
+        ...(mode === "notification_only"
+          ? { estado: "declarada" }
+          : input.override
+            ? {
+                estado: "aprovada",
+                aprovado_por: user?.id ?? null,
+                aprovado_em: new Date().toISOString(),
+                override_by: user?.id ?? null,
+              }
+            : {}),
       }));
       const { error } = await supabase
         .from("remote_work_requests")
