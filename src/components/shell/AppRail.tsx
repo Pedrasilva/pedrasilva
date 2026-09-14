@@ -68,7 +68,7 @@ export function AppRail() {
       <TooltipProvider delayDuration={200}>
         <div className="flex flex-col items-center gap-1 pt-3">
           {top.map((item) => (
-            <RailButton key={item.id} item={item} pathname={loc.pathname} can={can} />
+            <RailButton key={item.id} item={item} pathname={loc.pathname} canLink={canLink} />
           ))}
         </div>
 
@@ -76,7 +76,7 @@ export function AppRail() {
           <UtilityButton labelKey="help" icon={HelpCircle} href="https://lovable.dev" />
           <UtilityButton labelKey="feedback" icon={MessageSquare} href="mailto:feedback@pedrasilva.pt" />
           {bottom.map((item) => (
-            <RailButton key={item.id} item={item} pathname={loc.pathname} can={can} />
+            <RailButton key={item.id} item={item} pathname={loc.pathname} canLink={canLink} />
           ))}
         </div>
       </TooltipProvider>
@@ -96,7 +96,7 @@ function RailButton({
 }: {
   item: RailItem;
   pathname: string;
-  can: (k?: PermissionKey) => boolean;
+  canLink: (l: FlyoutLink) => boolean;
 }) {
   const { t } = useTranslation("common");
   const Icon = item.icon;
@@ -164,7 +164,7 @@ function RailButton({
             <RecentlyViewedSection module={recentModule} pathname={pathname} />
           ) : null}
           {item.flyout.map((section) => {
-            const links = section.links.filter((l) => can(l.perm));
+            const links = section.links.filter((l) => canLink(l));
             if (links.length === 0) return null;
             const sectionActive = links.some((l) => isActiveLink(pathname, l.to));
             return (
