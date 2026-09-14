@@ -250,7 +250,10 @@ function HistoryTab() {
                 <tr className="text-left text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <th className="py-2">{t("hr:remoteWork.date")}</th>
                   <th className="py-2">{t("hr:remoteWork.collaborator")}</th>
+                  <th className="py-2">{t("hr:remoteWork.dayPartLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.locationType")}</th>
+                  <th className="py-2">{t("hr:remoteWork.workKindLabel")}</th>
+                  <th className="py-2">{t("hr:remoteWork.workflowModeLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.statusLabel")}</th>
                   <th className="py-2">{t("hr:remoteWork.requestedOn")}</th>
                 </tr>
@@ -261,7 +264,17 @@ function HistoryTab() {
                     <td className="py-2 tabular-nums">{r.data}</td>
                     <td className="py-2">{nameOf(r.collaborator_id)}</td>
                     <td className="py-2">
+                      {t(`hr:remoteWork.dayPart.${r.day_part}`)}
+                    </td>
+                    <td className="py-2">
                       {t(`hr:remoteWork.location.${r.location_type}`)}
+                      {r.location_detail ? ` · ${r.location_detail}` : ""}
+                    </td>
+                    <td className="py-2">
+                      {t(`hr:remoteWork.workKind.${r.work_kind}`)}
+                    </td>
+                    <td className="py-2 text-muted-foreground">
+                      {t(`hr:remoteWork.modes.${r.workflow_mode}`)}
                     </td>
                     <td className="py-2">
                       <WfhStatusChip estado={r.estado} />
