@@ -130,9 +130,9 @@ function HistoryTab() {
                 className="min-h-[64px] rounded-md border border-border/50 p-1.5"
               >
                 <div className="mb-1 text-muted-foreground">{cell.day}</div>
-                {(approvedByDay.get(cell.iso) ?? []).slice(0, 3).map((n) => (
+                {(approvedByDay.get(cell.iso) ?? []).slice(0, 3).map((n, ni) => (
                   <div
-                    key={n}
+                    key={`${cell.iso}-${ni}`}
                     className="truncate rounded px-1 py-0.5"
                     style={{
                       background:
