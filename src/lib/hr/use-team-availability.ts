@@ -73,6 +73,11 @@ export type Cell = {
   /** "manha" | "tarde" for half-days. */
   periodo?: string | null;
   holidayName?: string;
+  /**
+   * For remote cells: full day, morning or afternoon. Remote work is a
+   * location, so this never reduces the person's availability.
+   */
+  dayPart?: RemoteWorkDayPart;
 };
 
 export type DayColumn = {
@@ -307,7 +312,11 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       const iso = r.data as string;
       const current = row[iso];
       if (!current || current.kind !== "available") continue; // leave wins
-      row[iso] = { kind: "remote" };
+      row[iso] = {
+        kind: "remote",
+        dayPart: ((r as { day_part?: string }).day_part ??
+          "full_day") as RemoteWorkDayPart,
+      };
     }
 
     // Coverage — active people flagged for planning.
