@@ -9,7 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { WfhStatusChip } from "@/components/hr/wfh/wfh-status-chip";
-import { useRemoteWorkRequests } from "@/hooks/use-remote-work";
+import {
+  dayPartWeight,
+  isActiveRemoteState,
+  useRemoteWorkRequests,
+} from "@/hooks/use-remote-work";
 
 export function WfhProfileCard({ collaboratorId }: { collaboratorId: string }) {
   const { t } = useTranslation(["hr", "common"]);
