@@ -504,20 +504,38 @@ export function addDaysISO(iso: string, days: number): string {
   return toLocalISODate(d);
 }
 
+/** The first date that respects the notice policy (usually tomorrow). */
+export function earliestInPolicyDate(settings: RemoteWorkSettings): string {
+  return addDaysISO(
+    todayISO(),
+    Math.max(1, settings.minimum_notice_days || 1),
+  );
+}
+
 /**
- * Notice-rule check. Returns an error key when the date is not allowed.
+ * Whether the date breaks the notice policy (e.g. same-day). Late entries are
+ * ALLOWED — they are simply flagged and always sent to an approver.
  */
-export function validateNotice(
+export function isLateDate(
   date: string,
   settings: RemoteWorkSettings,
   opts: { override?: boolean } = {},
-): "sameDay" | "notice" | null {
+): boolean {
+  if (opts.override) return false;
+  if (!date) return false;
+  return date < earliestInPolicyDate(settings);
+}
+
+/**
+ * Notice-rule check. Only dates in the past are rejected; same-day and other
+ * short-notice dates are accepted and flagged as late requests instead.
+ */
+export function validateNotice(
+  date: string,
+  _settings: RemoteWorkSettings,
+  opts: { override?: boolean } = {},
+): "past" | null {
   if (opts.override) return null;
-  const today = todayISO();
-  const earliest = settings.allow_same_day_requests
-    ? today
-    : addDaysISO(today, Math.max(1, settings.minimum_notice_days || 1));
-  if (date < today) return "notice";
-  if (date < earliest) return date === today ? "sameDay" : "notice";
+  if (date && date < todayISO()) return "past";
   return null;
 }
