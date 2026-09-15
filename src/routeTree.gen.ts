@@ -23,6 +23,7 @@ import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 import { Route as AppPortfolioRouteImport } from './routes/_app.portfolio'
 import { Route as AppProductsRouteImport } from './routes/_app.products'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
+import { Route as ApiNotifyRemoteWorkLateRouteImport } from './routes/api.notify-remote-work-late'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
@@ -203,6 +204,11 @@ const AppProductsRoute = AppProductsRouteImport.update({
 const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
   id: '/api/notify-expense',
   path: '/api/notify-expense',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotifyRemoteWorkLateRoute = ApiNotifyRemoteWorkLateRouteImport.update({
+  id: '/api/notify-remote-work-late',
+  path: '/api/notify-remote-work-late',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -818,6 +824,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof AppPortfolioRoute
   '/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/backups': typeof AppAdminBackupsRoute
@@ -936,6 +943,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/portfolio': typeof AppPortfolioRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
   '/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1061,6 +1069,7 @@ export interface FileRoutesById {
   '/_app/portfolio': typeof AppPortfolioRoute
   '/_app/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1189,6 +1198,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/products'
     | '/api/notify-expense'
+    | '/api/notify-remote-work-late'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/backups'
@@ -1307,6 +1317,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/portfolio'
     | '/api/notify-expense'
+    | '/api/notify-remote-work-late'
     | '/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1431,6 +1442,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio'
     | '/_app/products'
     | '/api/notify-expense'
+    | '/api/notify-remote-work-late'
     | '/_app/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1551,6 +1563,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiNotifyExpenseRoute: typeof ApiNotifyExpenseRoute
+  ApiNotifyRemoteWorkLateRoute: typeof ApiNotifyRemoteWorkLateRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
@@ -1662,6 +1675,13 @@ declare module '@tanstack/react-router' {
       path: '/api/notify-expense'
       fullPath: '/api/notify-expense'
       preLoaderRoute: typeof ApiNotifyExpenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notify-remote-work-late': {
+      id: '/api/notify-remote-work-late'
+      path: '/api/notify-remote-work-late'
+      fullPath: '/api/notify-remote-work-late'
+      preLoaderRoute: typeof ApiNotifyRemoteWorkLateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -2772,6 +2792,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiNotifyExpenseRoute: ApiNotifyExpenseRoute,
+  ApiNotifyRemoteWorkLateRoute: ApiNotifyRemoteWorkLateRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,

@@ -137,17 +137,25 @@ function AnalyticsTab() {
     // Raw entry counts stay separate from equivalent days (half day = 0.5).
     const byCollab = new Map<
       string,
-      { entries: number; full: number; half: number; equivalent: number }
+      {
+        entries: number;
+        full: number;
+        half: number;
+        equivalent: number;
+        late: number;
+      }
     >();
     for (const r of requests) {
       const acc =
         byCollab.get(r.collaborator_id) ??
-        { entries: 0, full: 0, half: 0, equivalent: 0 };
+        { entries: 0, full: 0, half: 0, equivalent: 0, late: 0 };
       const weight = dayPartWeight(r.day_part);
       acc.entries += 1;
       if (weight === 1) acc.full += 1;
       else acc.half += 1;
       acc.equivalent += weight;
+      // Out-of-policy (e.g. same-day) entries, tracked for monitoring.
+      if (r.is_late_request) acc.late += 1;
       byCollab.set(r.collaborator_id, acc);
     }
 
@@ -171,6 +179,8 @@ function AnalyticsTab() {
           full: acc.full,
           half: acc.half,
           days: acc.equivalent,
+          late: acc.late,
+          latePct: acc.entries > 0 ? (acc.late / acc.entries) * 100 : null,
           eligible,
           pct:
             eligible && eligible > 0 ? (acc.equivalent / eligible) * 100 : null,
@@ -189,6 +199,9 @@ function AnalyticsTab() {
   const totalDays = rows.reduce((s, r) => s + r.days, 0);
   const totalFull = rows.reduce((s, r) => s + r.full, 0);
   const totalHalf = rows.reduce((s, r) => s + r.half, 0);
+  const totalLate = rows.reduce((s, r) => s + r.late, 0);
+  const totalEntries = rows.reduce((s, r) => s + r.entries, 0);
+  const latePct = totalEntries > 0 ? (totalLate / totalEntries) * 100 : null;
   const people = rows.length;
   const avgDays = people > 0 ? totalDays / people : 0;
   const pcts = rows.map((r) => r.pct).filter((p): p is number => p !== null);
@@ -278,6 +291,14 @@ function AnalyticsTab() {
           label={t("hr:remoteWork.kpi.avgPct")}
           value={teamAvgPct === null ? "—" : `${teamAvgPct.toFixed(1)}%`}
         />
+        <Kpi
+          label={t("hr:remoteWork.kpi.lateRequests")}
+          value={
+            latePct === null
+              ? String(totalLate)
+              : `${totalLate} · ${latePct.toFixed(0)}%`
+          }
+        />
       </div>
 
       <Card className="p-5">
@@ -308,6 +329,9 @@ function AnalyticsTab() {
                   </th>
                   <th className="py-2 text-right">{t("hr:remoteWork.wfhPct")}</th>
                   <th className="py-2 text-right">
+                    {t("hr:remoteWork.lateCol")}
+                  </th>
+                  <th className="py-2 text-right">
                     {t("hr:remoteWork.teamAverage")}
                   </th>
                 </tr>
@@ -326,6 +350,11 @@ function AnalyticsTab() {
                     </td>
                     <td className="py-2 text-right tabular-nums">
                       {r.pct === null ? "—" : `${r.pct.toFixed(1)}%`}
+                    </td>
+                    <td className="py-2 text-right tabular-nums">
+                      {r.late === 0
+                        ? "—"
+                        : `${r.late}${r.latePct === null ? "" : ` · ${r.latePct.toFixed(0)}%`}`}
                     </td>
                     <td className="py-2 text-right tabular-nums text-muted-foreground">
                       {teamAvgPct === null ? "—" : `${teamAvgPct.toFixed(1)}%`}

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WfhStatusChip } from "@/components/hr/wfh/wfh-status-chip";
+import { LateRequestChip } from "@/components/hr/wfh/late-request-chip";
 import {
   todayISO,
   useCanApproveRemoteWork,
@@ -97,13 +98,21 @@ function RequestsTab() {
                 <li key={r.id} className="space-y-2 py-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-sm font-medium">
+                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
                         {nameOf(r.collaborator_id)}
+                        {r.is_late_request && (
+                          <LateRequestChip reason={r.late_reason} />
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {r.data} · {locationLabel(r)}
                         {r.notas ? ` · ${r.notas}` : ""}
                       </div>
+                      {r.is_late_request && r.late_reason && (
+                        <div className="text-xs text-muted-foreground">
+                          {t("hr:remoteWork.lateReason")}: {r.late_reason}
+                        </div>
+                      )}
                       <div className="text-[11px] text-muted-foreground/70">
                         {t("hr:remoteWork.requestedOn")}:{" "}
                         {r.created_at.slice(0, 10)}
@@ -177,8 +186,13 @@ function RequestsTab() {
                   className="flex items-center justify-between gap-3 py-2.5"
                 >
                   <div className="min-w-0">
-                    <div className="text-sm font-medium">
-                      {r.data} · {locationLabel(r)}
+                    <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                      <span>
+                        {r.data} · {locationLabel(r)}
+                      </span>
+                      {r.is_late_request && (
+                        <LateRequestChip reason={r.late_reason} />
+                      )}
                     </div>
                     {(r.notas || r.motivo_rejeicao) && (
                       <div className="truncate text-xs text-muted-foreground">

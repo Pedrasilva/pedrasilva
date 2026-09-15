@@ -27,7 +27,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { toLocalISODate } from "@/lib/dates";
 import {
   addDaysISO,
+  earliestInPolicyDate,
   effectiveMode,
+  isLateDate,
   remoteHoursForDay,
   resolveApprover,
   todayISO,
@@ -73,6 +75,7 @@ export function RequestWfhDialog({
   const [workKind, setWorkKind] = useState<RemoteWorkKind>("home_office");
   const [notas, setNotas] = useState("");
   const [override, setOverride] = useState(false);
+  const [lateReason, setLateReason] = useState("");
 
   const mode = effectiveMode(settings);
   const needsApproval = mode === "approval_required";
@@ -90,6 +93,13 @@ export function RequestWfhDialog({
     settings && from
       ? validateNotice(from, settings, { override: override && canOverride })
       : null;
+
+  // Short-notice entries are allowed, but flagged as late and always approved.
+  const isLate =
+    settings && from
+      ? isLateDate(from, settings, { override: override && canOverride })
+      : false;
+  const policyDate = settings ? earliestInPolicyDate(settings) : null;
 
   const remoteHours = remoteHoursForDay(
     collaborator?.daily_hours ?? null,
@@ -110,16 +120,11 @@ export function RequestWfhDialog({
       return;
     }
     if (noticeError) {
-      toast.error(
-        noticeError === "sameDay"
-          ? t("hr:remoteWork.sameDayBlocked")
-          : t("hr:remoteWork.noticeBlocked", {
-              days: settings?.minimum_notice_days ?? 1,
-            }),
-      );
+      toast.error(t("hr:remoteWork.pastDateBlocked"));
       return;
     }
-    if (needsApproval && !approver && !(override && canOverride)) {
+    // A late entry always needs an approver, whatever the current mode is.
+    if ((needsApproval || isLate) && !approver && !(override && canOverride)) {
       toast.error(t("hr:remoteWork.approverMissingBlocked"));
       return;
     }
@@ -137,6 +142,12 @@ export function RequestWfhDialog({
       return;
     }
 
+    const lateDates = settings
+      ? dates.filter((d) =>
+          isLateDate(d, settings, { override: override && canOverride }),
+        )
+      : [];
+
     try {
       await create.mutateAsync({
         collaboratorId: collaborator.id,
@@ -148,15 +159,20 @@ export function RequestWfhDialog({
         dayPart: effectiveDayPart,
         mode,
         override: override && canOverride,
+        lateDates,
+        lateReason,
       });
       setNotas("");
       setLocationDetail("");
+      setLateReason("");
       setOverride(false);
       onOpenChange(false);
       toast.success(
-        needsApproval
-          ? t("hr:remoteWork.submitted")
-          : t("hr:remoteWork.declared"),
+        lateDates.length > 0
+          ? t("hr:remoteWork.submittedLate")
+          : needsApproval
+            ? t("hr:remoteWork.submitted")
+            : t("hr:remoteWork.declared"),
       );
     } catch (e) {
       toast.error((e as Error).message);
@@ -304,7 +320,7 @@ export function RequestWfhDialog({
           </div>
 
           <div className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-            {needsApproval ? (
+            {needsApproval || isLate ? (
               <>
                 <div>{t("hr:remoteWork.workflowApproval")}</div>
                 <div className="mt-1">
@@ -316,17 +332,45 @@ export function RequestWfhDialog({
             )}
           </div>
 
+          {isLate && (
+            <div
+              className="space-y-2 rounded-md px-3 py-2"
+              style={{
+                background: "color-mix(in oklab, var(--clay) 12%, transparent)",
+                border: "1px solid color-mix(in oklab, var(--clay) 35%, transparent)",
+              }}
+            >
+              <p className="text-xs font-medium">
+                {t("hr:remoteWork.lateWarning", {
+                  days: settings?.minimum_notice_days ?? 1,
+                  date: policyDate ?? "",
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("hr:remoteWork.lateWarningSub")}
+              </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="wfh-late-reason" className="text-xs">
+                  {t("hr:remoteWork.lateReason")}
+                </Label>
+                <Textarea
+                  id="wfh-late-reason"
+                  rows={2}
+                  value={lateReason}
+                  onChange={(e) => setLateReason(e.target.value)}
+                  placeholder={t("hr:remoteWork.lateReasonPlaceholder")}
+                />
+              </div>
+            </div>
+          )}
+
           {noticeError && (
             <p className="text-xs text-destructive">
-              {noticeError === "sameDay"
-                ? t("hr:remoteWork.sameDayBlocked")
-                : t("hr:remoteWork.noticeBlocked", {
-                    days: settings?.minimum_notice_days ?? 1,
-                  })}
+              {t("hr:remoteWork.pastDateBlocked")}
             </p>
           )}
 
-          {canOverride && needsApproval && (
+          {canOverride && (needsApproval || isLate) && (
             <label className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 {t("hr:remoteWork.overrideLabel")}
@@ -341,7 +385,7 @@ export function RequestWfhDialog({
             {t("common:cancel")}
           </Button>
           <Button onClick={submit} disabled={create.isPending}>
-            {needsApproval
+            {needsApproval || isLate
               ? t("hr:remoteWork.submit")
               : t("hr:remoteWork.submitDeclaration")}
           </Button>

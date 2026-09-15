@@ -62,6 +62,9 @@ export type RemoteWorkRequest = {
   work_kind: RemoteWorkKind;
   location_detail: string | null;
   notas: string | null;
+  /** Created inside the notice window (e.g. same day) — allowed, but flagged. */
+  is_late_request: boolean;
+  late_reason: string | null;
   motivo_rejeicao: string | null;
   aprovado_por: string | null;
   aprovado_em: string | null;
@@ -105,7 +108,7 @@ export const remoteWorkKeys = {
 };
 
 const SELECT_COLS =
-  "id, collaborator_id, data, estado, location_type, day_part, workflow_mode, work_kind, location_detail, notas, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
+  "id, collaborator_id, data, estado, location_type, day_part, workflow_mode, work_kind, location_detail, notas, is_late_request, late_reason, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
 
 /** Every request the current user is allowed to see (own + approved + approver scope). */
 export function useRemoteWorkRequests() {
@@ -285,6 +288,10 @@ export function useCreateRemoteWorkRequests() {
       mode?: RemoteWorkMode;
       /** Skip approval (HR/Admin override). */
       override?: boolean;
+      /** Dates that break the notice policy — allowed, but flagged as late. */
+      lateDates?: string[];
+      /** Optional justification the collaborator gives for a late entry. */
+      lateReason?: string | null;
     }) => {
       const groupId =
         typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -292,35 +299,72 @@ export function useCreateRemoteWorkRequests() {
           : undefined;
       const mode: RemoteWorkMode = input.mode ?? "approval_required";
       const multiDay = input.dates.length > 1;
-      const rows = input.dates.map((d) => ({
-        collaborator_id: input.collaboratorId,
-        data: d,
-        notas: input.notas?.trim() ? input.notas.trim() : null,
-        location_type: input.locationType ?? "home",
-        location_detail: input.locationDetail?.trim()
-          ? input.locationDetail.trim()
-          : null,
-        work_kind: input.workKind ?? "home_office",
-        // Multi-day requests default every day to full day (V1).
-        day_part: multiDay ? "full_day" : (input.dayPart ?? "full_day"),
-        workflow_mode: mode,
-        request_group_id: groupId,
-        created_by: user?.id ?? null,
-        ...(mode === "notification_only"
-          ? { estado: "declarada" }
-          : input.override
-            ? {
-                estado: "aprovada",
-                aprovado_por: user?.id ?? null,
-                aprovado_em: new Date().toISOString(),
-                override_by: user?.id ?? null,
-              }
-            : {}),
-      }));
-      const { error } = await supabase
+      const lateSet = new Set(input.lateDates ?? []);
+      const lateReason = input.lateReason?.trim()
+        ? input.lateReason.trim()
+        : null;
+      const rows = input.dates.map((d) => {
+        const late = lateSet.has(d);
+        // A late entry always goes to an approver, even in notification mode:
+        // it is out of policy and must be seen by someone.
+        const rowMode: RemoteWorkMode = late ? "approval_required" : mode;
+        return {
+          collaborator_id: input.collaboratorId,
+          data: d,
+          notas: input.notas?.trim() ? input.notas.trim() : null,
+          location_type: input.locationType ?? "home",
+          location_detail: input.locationDetail?.trim()
+            ? input.locationDetail.trim()
+            : null,
+          work_kind: input.workKind ?? "home_office",
+          // Multi-day requests default every day to full day (V1).
+          day_part: multiDay ? "full_day" : (input.dayPart ?? "full_day"),
+          workflow_mode: rowMode,
+          is_late_request: late,
+          late_reason: late ? lateReason : null,
+          request_group_id: groupId,
+          created_by: user?.id ?? null,
+          ...(rowMode === "notification_only"
+            ? { estado: "declarada" }
+            : input.override
+              ? {
+                  estado: "aprovada",
+                  aprovado_por: user?.id ?? null,
+                  aprovado_em: new Date().toISOString(),
+                  override_by: user?.id ?? null,
+                }
+              : {}),
+        };
+      });
+      const { data, error } = await supabase
         .from("remote_work_requests")
-        .insert(rows);
+        .insert(rows)
+        .select("id, is_late_request, estado");
       if (error) throw error;
+
+      // Late entries are emailed to the approver so the exception is visible.
+      const lateIds = (data ?? [])
+        .filter((r) => r.is_late_request && r.estado === "pendente")
+        .map((r) => r.id);
+      if (lateIds.length > 0) {
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          const token = sess.session?.access_token;
+          if (token) {
+            await fetch("/api/notify-remote-work-late", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ requestIds: lateIds }),
+            });
+          }
+        } catch (err) {
+          // The record is saved either way — the email is a notification.
+          console.error("[remote-work] late request email failed", err);
+        }
+      }
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: remoteWorkKeys.all });
@@ -460,20 +504,38 @@ export function addDaysISO(iso: string, days: number): string {
   return toLocalISODate(d);
 }
 
+/** The first date that respects the notice policy (usually tomorrow). */
+export function earliestInPolicyDate(settings: RemoteWorkSettings): string {
+  return addDaysISO(
+    todayISO(),
+    Math.max(1, settings.minimum_notice_days || 1),
+  );
+}
+
 /**
- * Notice-rule check. Returns an error key when the date is not allowed.
+ * Whether the date breaks the notice policy (e.g. same-day). Late entries are
+ * ALLOWED — they are simply flagged and always sent to an approver.
  */
-export function validateNotice(
+export function isLateDate(
   date: string,
   settings: RemoteWorkSettings,
   opts: { override?: boolean } = {},
-): "sameDay" | "notice" | null {
+): boolean {
+  if (opts.override) return false;
+  if (!date) return false;
+  return date < earliestInPolicyDate(settings);
+}
+
+/**
+ * Notice-rule check. Only dates in the past are rejected; same-day and other
+ * short-notice dates are accepted and flagged as late requests instead.
+ */
+export function validateNotice(
+  date: string,
+  _settings: RemoteWorkSettings,
+  opts: { override?: boolean } = {},
+): "past" | null {
   if (opts.override) return null;
-  const today = todayISO();
-  const earliest = settings.allow_same_day_requests
-    ? today
-    : addDaysISO(today, Math.max(1, settings.minimum_notice_days || 1));
-  if (date < today) return "notice";
-  if (date < earliest) return date === today ? "sameDay" : "notice";
+  if (date && date < todayISO()) return "past";
   return null;
 }
