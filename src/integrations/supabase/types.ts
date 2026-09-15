@@ -10380,6 +10380,8 @@ export type Database = {
           day_part: string
           estado: string
           id: string
+          is_late_request: boolean
+          late_reason: string | null
           location_detail: string | null
           location_type: string
           motivo_rejeicao: string | null
@@ -10402,6 +10404,8 @@ export type Database = {
           day_part?: string
           estado?: string
           id?: string
+          is_late_request?: boolean
+          late_reason?: string | null
           location_detail?: string | null
           location_type?: string
           motivo_rejeicao?: string | null
@@ -10424,6 +10428,8 @@ export type Database = {
           day_part?: string
           estado?: string
           id?: string
+          is_late_request?: boolean
+          late_reason?: string | null
           location_detail?: string | null
           location_type?: string
           motivo_rejeicao?: string | null
