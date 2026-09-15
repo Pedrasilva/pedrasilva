@@ -94,6 +94,13 @@ export function RequestWfhDialog({
       ? validateNotice(from, settings, { override: override && canOverride })
       : null;
 
+  // Short-notice entries are allowed, but flagged as late and always approved.
+  const isLate =
+    settings && from
+      ? isLateDate(from, settings, { override: override && canOverride })
+      : false;
+  const policyDate = settings ? earliestInPolicyDate(settings) : null;
+
   const remoteHours = remoteHoursForDay(
     collaborator?.daily_hours ?? null,
     effectiveDayPart,
