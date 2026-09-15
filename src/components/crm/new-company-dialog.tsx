@@ -254,10 +254,27 @@ export function NewCompanyDialog({
                 </SelectContent>
               </Select>
             </FieldRow>
-            <FieldRow label="NIF / Tax ID">
+            <FieldRow label="País fiscal">
+              <Select
+                value={form.tax_country}
+                onValueChange={(v) => {
+                  set("tax_country", v);
+                  void checkNif(form.nif, v);
+                }}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {TAX_COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldRow>
+            <FieldRow label={form.tax_country === "PT" ? "NIF" : "NIF / Tax ID"}>
               <Input
                 className="input-yellow"
                 value={form.nif}
+                placeholder={findTaxCountry(form.tax_country).example}
                 onChange={(e) => set("nif", e.target.value)}
                 onBlur={(e) => void checkNif(e.target.value)}
               />
