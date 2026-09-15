@@ -320,7 +320,7 @@ export function RequestWfhDialog({
           </div>
 
           <div className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-            {needsApproval ? (
+            {needsApproval || isLate ? (
               <>
                 <div>{t("hr:remoteWork.workflowApproval")}</div>
                 <div className="mt-1">
@@ -332,17 +332,45 @@ export function RequestWfhDialog({
             )}
           </div>
 
+          {isLate && (
+            <div
+              className="space-y-2 rounded-md px-3 py-2"
+              style={{
+                background: "color-mix(in oklab, var(--clay) 12%, transparent)",
+                border: "1px solid color-mix(in oklab, var(--clay) 35%, transparent)",
+              }}
+            >
+              <p className="text-xs font-medium">
+                {t("hr:remoteWork.lateWarning", {
+                  days: settings?.minimum_notice_days ?? 1,
+                  date: policyDate ?? "",
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("hr:remoteWork.lateWarningSub")}
+              </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="wfh-late-reason" className="text-xs">
+                  {t("hr:remoteWork.lateReason")}
+                </Label>
+                <Textarea
+                  id="wfh-late-reason"
+                  rows={2}
+                  value={lateReason}
+                  onChange={(e) => setLateReason(e.target.value)}
+                  placeholder={t("hr:remoteWork.lateReasonPlaceholder")}
+                />
+              </div>
+            </div>
+          )}
+
           {noticeError && (
             <p className="text-xs text-destructive">
-              {noticeError === "sameDay"
-                ? t("hr:remoteWork.sameDayBlocked")
-                : t("hr:remoteWork.noticeBlocked", {
-                    days: settings?.minimum_notice_days ?? 1,
-                  })}
+              {t("hr:remoteWork.pastDateBlocked")}
             </p>
           )}
 
-          {canOverride && needsApproval && (
+          {canOverride && (needsApproval || isLate) && (
             <label className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 {t("hr:remoteWork.overrideLabel")}
