@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Building2, User, Tag, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
-import { findCompanyByNif } from "@/lib/finance/supplier-matching";
+import {
+  TAX_COUNTRIES, DEFAULT_TAX_COUNTRY, findTaxCountry, checkTaxId, normalizeTaxId,
+} from "@/lib/finance/tax-id";
+import { supabase as sb } from "@/integrations/supabase/client";
 
 
 const companySchema = z.object({
