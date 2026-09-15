@@ -288,6 +288,10 @@ export function useCreateRemoteWorkRequests() {
       mode?: RemoteWorkMode;
       /** Skip approval (HR/Admin override). */
       override?: boolean;
+      /** Dates that break the notice policy — allowed, but flagged as late. */
+      lateDates?: string[];
+      /** Optional justification the collaborator gives for a late entry. */
+      lateReason?: string | null;
     }) => {
       const groupId =
         typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -295,35 +299,72 @@ export function useCreateRemoteWorkRequests() {
           : undefined;
       const mode: RemoteWorkMode = input.mode ?? "approval_required";
       const multiDay = input.dates.length > 1;
-      const rows = input.dates.map((d) => ({
-        collaborator_id: input.collaboratorId,
-        data: d,
-        notas: input.notas?.trim() ? input.notas.trim() : null,
-        location_type: input.locationType ?? "home",
-        location_detail: input.locationDetail?.trim()
-          ? input.locationDetail.trim()
-          : null,
-        work_kind: input.workKind ?? "home_office",
-        // Multi-day requests default every day to full day (V1).
-        day_part: multiDay ? "full_day" : (input.dayPart ?? "full_day"),
-        workflow_mode: mode,
-        request_group_id: groupId,
-        created_by: user?.id ?? null,
-        ...(mode === "notification_only"
-          ? { estado: "declarada" }
-          : input.override
-            ? {
-                estado: "aprovada",
-                aprovado_por: user?.id ?? null,
-                aprovado_em: new Date().toISOString(),
-                override_by: user?.id ?? null,
-              }
-            : {}),
-      }));
-      const { error } = await supabase
+      const lateSet = new Set(input.lateDates ?? []);
+      const lateReason = input.lateReason?.trim()
+        ? input.lateReason.trim()
+        : null;
+      const rows = input.dates.map((d) => {
+        const late = lateSet.has(d);
+        // A late entry always goes to an approver, even in notification mode:
+        // it is out of policy and must be seen by someone.
+        const rowMode: RemoteWorkMode = late ? "approval_required" : mode;
+        return {
+          collaborator_id: input.collaboratorId,
+          data: d,
+          notas: input.notas?.trim() ? input.notas.trim() : null,
+          location_type: input.locationType ?? "home",
+          location_detail: input.locationDetail?.trim()
+            ? input.locationDetail.trim()
+            : null,
+          work_kind: input.workKind ?? "home_office",
+          // Multi-day requests default every day to full day (V1).
+          day_part: multiDay ? "full_day" : (input.dayPart ?? "full_day"),
+          workflow_mode: rowMode,
+          is_late_request: late,
+          late_reason: late ? lateReason : null,
+          request_group_id: groupId,
+          created_by: user?.id ?? null,
+          ...(rowMode === "notification_only"
+            ? { estado: "declarada" }
+            : input.override
+              ? {
+                  estado: "aprovada",
+                  aprovado_por: user?.id ?? null,
+                  aprovado_em: new Date().toISOString(),
+                  override_by: user?.id ?? null,
+                }
+              : {}),
+        };
+      });
+      const { data, error } = await supabase
         .from("remote_work_requests")
-        .insert(rows);
+        .insert(rows)
+        .select("id, is_late_request, estado");
       if (error) throw error;
+
+      // Late entries are emailed to the approver so the exception is visible.
+      const lateIds = (data ?? [])
+        .filter((r) => r.is_late_request && r.estado === "pendente")
+        .map((r) => r.id);
+      if (lateIds.length > 0) {
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          const token = sess.session?.access_token;
+          if (token) {
+            await fetch("/api/notify-remote-work-late", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ requestIds: lateIds }),
+            });
+          }
+        } catch (err) {
+          // The record is saved either way — the email is a notification.
+          console.error("[remote-work] late request email failed", err);
+        }
+      }
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: remoteWorkKeys.all });
