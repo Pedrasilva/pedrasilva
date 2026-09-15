@@ -119,11 +119,17 @@ export const upsertCompany = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ id: string; created: boolean }> => {
     await requireAdmin(context.userId);
 
+    const taxCountry = (data.tax_country ?? DEFAULT_TAX_COUNTRY).toUpperCase();
     let normalizedNif: string | null = null;
     if (data.nif) {
-      normalizedNif = normalizePortugueseNif(data.nif);
-      if (!normalizedNif || !isValidPortugueseNif(normalizedNif)) {
+      const check = checkTaxId(data.nif, taxCountry);
+      normalizedNif = check.normalized;
+      // Portugal keeps the strict mod-11 rule; other countries are lenient.
+      if (taxCountry === "PT" && !check.ok) {
         throw new Response("Invalid Portuguese NIF", { status: 400 });
+      }
+      if (!normalizedNif) {
+        throw new Response("Invalid tax number", { status: 400 });
       }
       const ownNif = await getOwnCompanyNif();
       if (ownNif && ownNif === normalizedNif && data.is_supplier) {
