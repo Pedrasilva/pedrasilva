@@ -160,6 +160,7 @@ export function NewCompanyDialog({
         telefone: parsed.telefone || null,
         morada: parsed.morada || null,
         nif: normalizedNif,
+        tax_country: form.tax_country || DEFAULT_TAX_COUNTRY,
         notas: parsed.notas || null,
         industria: parsed.industria || null,
         company_type: parsed.company_type || null,
