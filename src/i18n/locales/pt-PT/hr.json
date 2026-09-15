@@ -1544,7 +1544,8 @@
       "avgPct": "Média da equipa",
       "equivalentDays": "Dias equivalentes",
       "fullDays": "Dias completos",
-      "halfDays": "Meios dias"
+      "halfDays": "Meios dias",
+      "lateRequests": "Pedidos fora de prazo"
     },
     "comparisonTitle": "Por colaborador",
     "trendTitle": "Evolução mensal",
@@ -1580,6 +1581,16 @@
     "overrideLabel": "Registar diretamente, sem aprovação",
     "sameDayBlocked": "Não são permitidos pedidos para o próprio dia.",
     "noticeBlocked": "Os pedidos devem ser feitos com pelo menos {{days}} dia(s) de antecedência.",
+    "pastDateBlocked": "Não é possível registar trabalho remoto numa data passada.",
+    "lateWarning": "Pedido fora de prazo — a política pede pelo menos {{days}} dia(s) de antecedência (a partir de {{date}}).",
+    "lateWarningSub": "Pode enviar: o pedido segue por email para o aprovador e fica registado como pedido fora de prazo.",
+    "lateReason": "Justificação do pedido fora de prazo",
+    "lateReasonPlaceholder": "Opcional — porque não foi possível pedir antes?",
+    "lateBadge": "Fora de prazo",
+    "lateBadgeHint": "Pedido com menos antecedência do que a política define.",
+    "lateOnly": "Apenas pedidos fora de prazo",
+    "lateCol": "Fora de prazo",
+    "submittedLate": "Pedido enviado e marcado como fora de prazo — o aprovador foi notificado.",
     "dayPartLabel": "Período",
     "dayPart": {
       "full_day": "Dia completo",
