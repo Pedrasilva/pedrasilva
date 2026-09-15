@@ -27,7 +27,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { toLocalISODate } from "@/lib/dates";
 import {
   addDaysISO,
+  earliestInPolicyDate,
   effectiveMode,
+  isLateDate,
   remoteHoursForDay,
   resolveApprover,
   todayISO,
