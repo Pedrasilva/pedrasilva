@@ -142,6 +142,12 @@ export function RequestWfhDialog({
       return;
     }
 
+    const lateDates = settings
+      ? dates.filter((d) =>
+          isLateDate(d, settings, { override: override && canOverride }),
+        )
+      : [];
+
     try {
       await create.mutateAsync({
         collaboratorId: collaborator.id,
@@ -153,15 +159,20 @@ export function RequestWfhDialog({
         dayPart: effectiveDayPart,
         mode,
         override: override && canOverride,
+        lateDates,
+        lateReason,
       });
       setNotas("");
       setLocationDetail("");
+      setLateReason("");
       setOverride(false);
       onOpenChange(false);
       toast.success(
-        needsApproval
-          ? t("hr:remoteWork.submitted")
-          : t("hr:remoteWork.declared"),
+        lateDates.length > 0
+          ? t("hr:remoteWork.submittedLate")
+          : needsApproval
+            ? t("hr:remoteWork.submitted")
+            : t("hr:remoteWork.declared"),
       );
     } catch (e) {
       toast.error((e as Error).message);
