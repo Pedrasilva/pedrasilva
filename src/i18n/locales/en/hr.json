@@ -1544,7 +1544,8 @@
       "avgPct": "Team average",
       "equivalentDays": "Equivalent days",
       "fullDays": "Full days",
-      "halfDays": "Half days"
+      "halfDays": "Half days",
+      "lateRequests": "Late requests"
     },
     "comparisonTitle": "By team member",
     "trendTitle": "Monthly trend",
@@ -1580,6 +1581,16 @@
     "overrideLabel": "Record directly, without approval",
     "sameDayBlocked": "Same-day requests are not allowed.",
     "noticeBlocked": "Requests must be made at least {{days}} day(s) in advance.",
+    "pastDateBlocked": "You cannot record remote work for a past date.",
+    "lateWarning": "Late request — policy asks for at least {{days}} day(s) notice (from {{date}}).",
+    "lateWarningSub": "You can still send it: it goes to your approver by email and stays marked as a late request.",
+    "lateReason": "Reason for the late request",
+    "lateReasonPlaceholder": "Optional — why could this not be requested earlier?",
+    "lateBadge": "Late",
+    "lateBadgeHint": "Requested with less notice than the policy asks for.",
+    "lateOnly": "Late requests only",
+    "lateCol": "Late",
+    "submittedLate": "Request sent and marked as late — your approver was notified.",
     "dayPartLabel": "Period",
     "dayPart": {
       "full_day": "Full day",
