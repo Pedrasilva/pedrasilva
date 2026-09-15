@@ -385,7 +385,7 @@ export function RequestWfhDialog({
             {t("common:cancel")}
           </Button>
           <Button onClick={submit} disabled={create.isPending}>
-            {needsApproval
+            {needsApproval || isLate
               ? t("hr:remoteWork.submit")
               : t("hr:remoteWork.submitDeclaration")}
           </Button>
