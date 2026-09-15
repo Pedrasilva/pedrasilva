@@ -75,6 +75,7 @@ export function RequestWfhDialog({
   const [workKind, setWorkKind] = useState<RemoteWorkKind>("home_office");
   const [notas, setNotas] = useState("");
   const [override, setOverride] = useState(false);
+  const [lateReason, setLateReason] = useState("");
 
   const mode = effectiveMode(settings);
   const needsApproval = mode === "approval_required";
