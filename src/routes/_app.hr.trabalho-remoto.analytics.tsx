@@ -137,17 +137,25 @@ function AnalyticsTab() {
     // Raw entry counts stay separate from equivalent days (half day = 0.5).
     const byCollab = new Map<
       string,
-      { entries: number; full: number; half: number; equivalent: number }
+      {
+        entries: number;
+        full: number;
+        half: number;
+        equivalent: number;
+        late: number;
+      }
     >();
     for (const r of requests) {
       const acc =
         byCollab.get(r.collaborator_id) ??
-        { entries: 0, full: 0, half: 0, equivalent: 0 };
+        { entries: 0, full: 0, half: 0, equivalent: 0, late: 0 };
       const weight = dayPartWeight(r.day_part);
       acc.entries += 1;
       if (weight === 1) acc.full += 1;
       else acc.half += 1;
       acc.equivalent += weight;
+      // Out-of-policy (e.g. same-day) entries, tracked for monitoring.
+      if (r.is_late_request) acc.late += 1;
       byCollab.set(r.collaborator_id, acc);
     }
 
@@ -171,6 +179,8 @@ function AnalyticsTab() {
           full: acc.full,
           half: acc.half,
           days: acc.equivalent,
+          late: acc.late,
+          latePct: acc.entries > 0 ? (acc.late / acc.entries) * 100 : null,
           eligible,
           pct:
             eligible && eligible > 0 ? (acc.equivalent / eligible) * 100 : null,
