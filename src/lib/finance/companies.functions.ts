@@ -84,7 +84,7 @@ export const listCompanies = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, tax_country, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .order("nome");
     if (data.role === "supplier") q = q.eq("is_supplier", true);
@@ -107,7 +107,7 @@ export const getCompany = createServerFn({ method: "POST" })
     const { data: row, error } = await supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, tax_country, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -142,6 +142,7 @@ export const upsertCompany = createServerFn({ method: "POST" })
     const payload = {
       nome: data.nome.trim(),
       nif: normalizedNif,
+      tax_country: taxCountry,
       code: data.code?.trim() || null,
       abbreviation: data.abbreviation?.trim() || null,
       email: data.email?.trim() || null,
