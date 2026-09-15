@@ -199,6 +199,9 @@ function AnalyticsTab() {
   const totalDays = rows.reduce((s, r) => s + r.days, 0);
   const totalFull = rows.reduce((s, r) => s + r.full, 0);
   const totalHalf = rows.reduce((s, r) => s + r.half, 0);
+  const totalLate = rows.reduce((s, r) => s + r.late, 0);
+  const totalEntries = rows.reduce((s, r) => s + r.entries, 0);
+  const latePct = totalEntries > 0 ? (totalLate / totalEntries) * 100 : null;
   const people = rows.length;
   const avgDays = people > 0 ? totalDays / people : 0;
   const pcts = rows.map((r) => r.pct).filter((p): p is number => p !== null);
