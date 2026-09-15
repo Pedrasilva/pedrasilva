@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WfhStatusChip } from "@/components/hr/wfh/wfh-status-chip";
+import { LateRequestChip } from "@/components/hr/wfh/late-request-chip";
 import {
   isActiveRemoteState,
   useMyCollaborator,
@@ -43,6 +44,7 @@ function HistoryTab() {
   const [who, setWho] = useState<string>(ALL);
   const [status, setStatus] = useState<string>(ALL);
   const [location, setLocation] = useState<string>(ALL);
+  const [lateOnly, setLateOnly] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
@@ -91,10 +93,11 @@ function HistoryTab() {
       .filter((r) => (who === ALL ? true : r.collaborator_id === who))
       .filter((r) => (status === ALL ? true : r.estado === status))
       .filter((r) => (location === ALL ? true : r.location_type === location))
+      .filter((r) => (lateOnly ? r.is_late_request : true))
       .filter((r) => (from ? r.data >= from : true))
       .filter((r) => (to ? r.data <= to : true))
       .sort((a, b) => b.data.localeCompare(a.data));
-  }, [requests, who, status, location, from, to]);
+  }, [requests, who, status, location, lateOnly, from, to]);
 
   const shift = (delta: number) => {
     const d = new Date(month.y, month.m + delta, 1);
@@ -235,6 +238,15 @@ function HistoryTab() {
               onChange={(e) => setTo(e.target.value)}
             />
           </div>
+          <div className="flex items-end">
+            <label className="flex items-center gap-2 pb-2 text-sm">
+              <Checkbox
+                checked={lateOnly}
+                onCheckedChange={(v) => setLateOnly(v === true)}
+              />
+              {t("hr:remoteWork.lateOnly")}
+            </label>
+          </div>
         </div>
 
         {requestsQ.isLoading ? (
@@ -261,7 +273,14 @@ function HistoryTab() {
               <tbody className="divide-y">
                 {filtered.map((r) => (
                   <tr key={r.id}>
-                    <td className="py-2 tabular-nums">{r.data}</td>
+                    <td className="py-2 tabular-nums">
+                      <span className="inline-flex flex-wrap items-center gap-2">
+                        {r.data}
+                        {r.is_late_request && (
+                          <LateRequestChip reason={r.late_reason} />
+                        )}
+                      </span>
+                    </td>
                     <td className="py-2">{nameOf(r.collaborator_id)}</td>
                     <td className="py-2">
                       {t(`hr:remoteWork.dayPart.${r.day_part}`)}
