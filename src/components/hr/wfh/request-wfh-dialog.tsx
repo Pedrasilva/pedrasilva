@@ -120,16 +120,11 @@ export function RequestWfhDialog({
       return;
     }
     if (noticeError) {
-      toast.error(
-        noticeError === "sameDay"
-          ? t("hr:remoteWork.sameDayBlocked")
-          : t("hr:remoteWork.noticeBlocked", {
-              days: settings?.minimum_notice_days ?? 1,
-            }),
-      );
+      toast.error(t("hr:remoteWork.pastDateBlocked"));
       return;
     }
-    if (needsApproval && !approver && !(override && canOverride)) {
+    // A late entry always needs an approver, whatever the current mode is.
+    if ((needsApproval || isLate) && !approver && !(override && canOverride)) {
       toast.error(t("hr:remoteWork.approverMissingBlocked"));
       return;
     }
