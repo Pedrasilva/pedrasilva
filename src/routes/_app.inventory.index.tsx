@@ -15,6 +15,7 @@ import {
   isDueForReplacement,
   warrantyExpiringWithin,
 } from "@/lib/inventory/types";
+import { InventoryAccessCard } from "@/components/inventory/inventory-access-card";
 
 export const Route = createFileRoute("/_app/inventory/")({
   component: InventoryDashboard,
@@ -137,6 +138,8 @@ function InventoryDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <InventoryAccessCard />
     </div>
   );
 }

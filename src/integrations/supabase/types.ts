@@ -4696,6 +4696,30 @@ export type Database = {
           },
         ]
       }
+      inventory_managers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       irs_tax_brackets: {
         Row: {
           ano_fiscal: number
@@ -11397,6 +11421,7 @@ export type Database = {
         Returns: Json
       }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
+      can_manage_inventory: { Args: { _user_id: string }; Returns: boolean }
       clone_fee_proposal_as_revision: {
         Args: { p_source: string }
         Returns: string
