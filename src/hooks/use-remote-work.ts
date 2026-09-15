@@ -62,6 +62,9 @@ export type RemoteWorkRequest = {
   work_kind: RemoteWorkKind;
   location_detail: string | null;
   notas: string | null;
+  /** Created inside the notice window (e.g. same day) — allowed, but flagged. */
+  is_late_request: boolean;
+  late_reason: string | null;
   motivo_rejeicao: string | null;
   aprovado_por: string | null;
   aprovado_em: string | null;
@@ -105,7 +108,7 @@ export const remoteWorkKeys = {
 };
 
 const SELECT_COLS =
-  "id, collaborator_id, data, estado, location_type, day_part, workflow_mode, work_kind, location_detail, notas, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
+  "id, collaborator_id, data, estado, location_type, day_part, workflow_mode, work_kind, location_detail, notas, is_late_request, late_reason, motivo_rejeicao, aprovado_por, aprovado_em, cancelled_at, cancelled_by, override_by, request_group_id, created_by, created_at";
 
 /** Every request the current user is allowed to see (own + approved + approver scope). */
 export function useRemoteWorkRequests() {
