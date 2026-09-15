@@ -46,11 +46,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CompaniesImportCard } from "./companies-import-card";
+import {
+  TAX_COUNTRIES,
+  DEFAULT_TAX_COUNTRY,
+  findTaxCountry,
+  checkTaxId,
+} from "@/lib/finance/tax-id";
 
 export type CompanyRow = {
   id: string;
   nome: string;
   nif: string | null;
+  tax_country: string | null;
   code: string | null;
   abbreviation: string | null;
   email: string | null;
@@ -70,7 +77,7 @@ export type CompanyRow = {
 };
 
 const SELECT_COLS =
-  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, notas, is_client, is_supplier, is_active";
+  "id, nome, nif, tax_country, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, notas, is_client, is_supplier, is_active";
 
 const CURRENCIES = ["EUR", "USD", "GBP", "BRL", "CHF"];
 
@@ -238,6 +245,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
   const [code, setCode] = useState("");
   const [abbreviation, setAbbreviation] = useState("");
   const [nif, setNif] = useState("");
+  const [taxCountry, setTaxCountry] = useState(DEFAULT_TAX_COUNTRY);
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [mobile, setMobile] = useState("");
@@ -258,6 +266,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
       setCode(record.code ?? "");
       setAbbreviation(record.abbreviation ?? "");
       setNif(record.nif ?? "");
+      setTaxCountry(record.tax_country || DEFAULT_TAX_COUNTRY);
       setEmail(record.email ?? "");
       setTelefone(record.telefone ?? "");
       setMobile(record.mobile ?? "");
@@ -281,6 +290,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
       setCode("");
       setAbbreviation("");
       setNif("");
+      setTaxCountry(DEFAULT_TAX_COUNTRY);
       setEmail("");
       setTelefone("");
       setMobile("");
@@ -311,6 +321,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
           code: code.trim() || null,
           abbreviation: abbreviation.trim() || null,
           nif: nif.trim() || null,
+          tax_country: taxCountry || DEFAULT_TAX_COUNTRY,
           email: email.trim() || null,
           telefone: telefone.trim() || null,
           mobile: mobile.trim() || null,
@@ -372,10 +383,38 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="space-y-1">
-              <Label className="text-xs">{t("finance:clientsMaster.nif")}</Label>
-              <Input value={nif} onChange={(e) => setNif(e.target.value)} />
+              <Label className="text-xs">{t("finance:clientsMaster.taxCountry")}</Label>
+              <Select value={taxCountry} onValueChange={setTaxCountry}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-64">
+                  {TAX_COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">
+                {taxCountry === "PT"
+                  ? t("finance:clientsMaster.nif")
+                  : t("finance:clientsMaster.taxId")}
+              </Label>
+              <Input
+                value={nif}
+                onChange={(e) => setNif(e.target.value)}
+                placeholder={findTaxCountry(taxCountry).example}
+              />
+              {nif.trim() && !checkTaxId(nif, taxCountry).ok ? (
+                <p className="text-[11px] text-amber-600">
+                  {checkTaxId(nif, taxCountry).message}
+                </p>
+              ) : null}
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{t("finance:clientsMaster.currency")}</Label>

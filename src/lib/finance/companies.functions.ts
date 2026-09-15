@@ -2,12 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+import { normalizePortugueseNif } from "@/lib/finance/nif";
+import { normalizeTaxId, checkTaxId, DEFAULT_TAX_COUNTRY } from "@/lib/finance/tax-id";
 
 export type CompanyRecord = {
   id: string;
   nome: string;
   nif: string | null;
+  tax_country: string;
   code: string | null;
   abbreviation: string | null;
   email: string | null;
@@ -37,6 +39,7 @@ const UPSERT = z.object({
   id: z.string().uuid().optional(),
   nome: z.string().trim().min(1).max(255),
   nif: z.string().trim().max(32).nullable().optional(),
+  tax_country: z.string().trim().min(2).max(8).optional(),
   code: z.string().trim().max(32).nullable().optional(),
   abbreviation: z.string().trim().max(64).nullable().optional(),
   email: z.string().trim().max(255).nullable().optional(),
@@ -81,7 +84,7 @@ export const listCompanies = createServerFn({ method: "POST" })
     let q = supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, tax_country, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .order("nome");
     if (data.role === "supplier") q = q.eq("is_supplier", true);
@@ -104,7 +107,7 @@ export const getCompany = createServerFn({ method: "POST" })
     const { data: row, error } = await supabaseAdmin
       .from("companies")
       .select(
-        "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
+        "id, nome, nif, tax_country, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, opening_balance_receivable, opening_balance_payable, is_client, is_supplier, is_active, is_reimbursement_supplier, notas",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -118,11 +121,17 @@ export const upsertCompany = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ id: string; created: boolean }> => {
     await requireAdmin(context.userId);
 
+    const taxCountry = (data.tax_country ?? DEFAULT_TAX_COUNTRY).toUpperCase();
     let normalizedNif: string | null = null;
     if (data.nif) {
-      normalizedNif = normalizePortugueseNif(data.nif);
-      if (!normalizedNif || !isValidPortugueseNif(normalizedNif)) {
+      const check = checkTaxId(data.nif, taxCountry);
+      normalizedNif = check.normalized;
+      // Portugal keeps the strict mod-11 rule; other countries are lenient.
+      if (taxCountry === "PT" && !check.ok) {
         throw new Response("Invalid Portuguese NIF", { status: 400 });
+      }
+      if (!normalizedNif) {
+        throw new Response("Invalid tax number", { status: 400 });
       }
       const ownNif = await getOwnCompanyNif();
       if (ownNif && ownNif === normalizedNif && data.is_supplier) {
@@ -133,6 +142,7 @@ export const upsertCompany = createServerFn({ method: "POST" })
     const payload = {
       nome: data.nome.trim(),
       nif: normalizedNif,
+      tax_country: taxCountry,
       code: data.code?.trim() || null,
       abbreviation: data.abbreviation?.trim() || null,
       email: data.email?.trim() || null,
