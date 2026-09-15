@@ -1,0 +1,2 @@
+ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS tax_country text NOT NULL DEFAULT 'PT';
+COMMENT ON COLUMN public.companies.tax_country IS 'ISO 3166-1 alpha-2 country of the tax number stored in nif. Defaults to PT.';

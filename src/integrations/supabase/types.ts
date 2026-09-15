@@ -1348,6 +1348,7 @@ export type Database = {
           postal_code: string | null
           relationship_type: Database["public"]["Enums"]["company_relationship_type"]
           status: Database["public"]["Enums"]["company_status"]
+          tax_country: string
           telefone: string | null
           updated_at: string
           website: string | null
@@ -1379,6 +1380,7 @@ export type Database = {
           postal_code?: string | null
           relationship_type?: Database["public"]["Enums"]["company_relationship_type"]
           status?: Database["public"]["Enums"]["company_status"]
+          tax_country?: string
           telefone?: string | null
           updated_at?: string
           website?: string | null
@@ -1410,6 +1412,7 @@ export type Database = {
           postal_code?: string | null
           relationship_type?: Database["public"]["Enums"]["company_relationship_type"]
           status?: Database["public"]["Enums"]["company_status"]
+          tax_country?: string
           telefone?: string | null
           updated_at?: string
           website?: string | null
