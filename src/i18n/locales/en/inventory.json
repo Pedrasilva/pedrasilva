@@ -170,5 +170,13 @@
     "total": "Invoice total",
     "linesToReview": "Lines to review",
     "status": "Status"
+  },
+  "access": {
+    "title": "Inventory editing access",
+    "help": "Everyone can view the inventory. Only admins and the people listed here can add, edit or reassign items.",
+    "empty": "No one added yet — only admins can edit inventory.",
+    "selectPerson": "Choose a person",
+    "add": "Add",
+    "remove": "Remove"
   }
 }

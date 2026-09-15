@@ -170,5 +170,13 @@
     "total": "Total da fatura",
     "linesToReview": "Linhas por rever",
     "status": "Estado"
+  },
+  "access": {
+    "title": "Acesso à edição do inventário",
+    "help": "Todos podem consultar o inventário. Apenas administradores e as pessoas listadas aqui podem adicionar, editar ou reatribuir ativos.",
+    "empty": "Ainda não há ninguém na lista — apenas administradores podem editar o inventário.",
+    "selectPerson": "Escolher pessoa",
+    "add": "Adicionar",
+    "remove": "Remover"
   }
 }
