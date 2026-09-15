@@ -291,6 +291,14 @@ function AnalyticsTab() {
           label={t("hr:remoteWork.kpi.avgPct")}
           value={teamAvgPct === null ? "—" : `${teamAvgPct.toFixed(1)}%`}
         />
+        <Kpi
+          label={t("hr:remoteWork.kpi.lateRequests")}
+          value={
+            latePct === null
+              ? String(totalLate)
+              : `${totalLate} · ${latePct.toFixed(0)}%`
+          }
+        />
       </div>
 
       <Card className="p-5">
@@ -321,6 +329,9 @@ function AnalyticsTab() {
                   </th>
                   <th className="py-2 text-right">{t("hr:remoteWork.wfhPct")}</th>
                   <th className="py-2 text-right">
+                    {t("hr:remoteWork.lateCol")}
+                  </th>
+                  <th className="py-2 text-right">
                     {t("hr:remoteWork.teamAverage")}
                   </th>
                 </tr>
@@ -339,6 +350,11 @@ function AnalyticsTab() {
                     </td>
                     <td className="py-2 text-right tabular-nums">
                       {r.pct === null ? "—" : `${r.pct.toFixed(1)}%`}
+                    </td>
+                    <td className="py-2 text-right tabular-nums">
+                      {r.late === 0
+                        ? "—"
+                        : `${r.late}${r.latePct === null ? "" : ` · ${r.latePct.toFixed(0)}%`}`}
                     </td>
                     <td className="py-2 text-right tabular-nums text-muted-foreground">
                       {teamAvgPct === null ? "—" : `${teamAvgPct.toFixed(1)}%`}
