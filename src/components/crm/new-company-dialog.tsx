@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Building2, User, Tag, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
-import { findCompanyByNif } from "@/lib/finance/supplier-matching";
+import {
+  TAX_COUNTRIES, DEFAULT_TAX_COUNTRY, findTaxCountry, checkTaxId, normalizeTaxId,
+} from "@/lib/finance/tax-id";
+
 
 
 const companySchema = z.object({
@@ -62,6 +64,7 @@ const INITIAL_FORM = {
   telefone: "",
   morada: "",
   nif: "",
+  tax_country: DEFAULT_TAX_COUNTRY,
   notas: "",
   industria: "",
   company_type: "",
@@ -123,17 +126,20 @@ export function NewCompanyDialog({
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  // Duplicate detection on NIF blur — warn, never block.
-  const checkNif = async (raw: string) => {
-    const nif = normalizePortugueseNif(raw);
-    if (!nif) return setNifWarning(null);
-    if (!isValidPortugueseNif(nif)) {
-      return setNifWarning(`NIF ${nif} não passa a validação portuguesa (dígito de controlo).`);
-    }
+  // Format check + duplicate detection on blur — warn, never block.
+  const checkNif = async (raw: string, country = form.tax_country) => {
+    const res = checkTaxId(raw, country);
+    if (!res.normalized) return setNifWarning(null);
+    if (!res.ok) return setNifWarning(res.message ?? null);
     try {
-      const existing = await findCompanyByNif(nif);
+      const { data: existing } = await supabase
+        .from("companies")
+        .select("nome")
+        .eq("nif", res.normalized)
+        .limit(1)
+        .maybeSingle();
       setNifWarning(
-        existing ? `Já existe uma empresa com este NIF: ${existing.nome}.` : null,
+        existing ? `Já existe uma empresa com este número: ${existing.nome}.` : null,
       );
     } catch {
       setNifWarning(null);
@@ -143,7 +149,7 @@ export function NewCompanyDialog({
   const create = useMutation({
     mutationFn: async () => {
       const parsed = companySchema.parse(form);
-      const normalizedNif = normalizePortugueseNif(parsed.nif ?? "");
+      const normalizedNif = normalizeTaxId(parsed.nif ?? "", form.tax_country);
 
       // 1) Create company
       const companyPayload = {
@@ -154,6 +160,7 @@ export function NewCompanyDialog({
         telefone: parsed.telefone || null,
         morada: parsed.morada || null,
         nif: normalizedNif,
+        tax_country: form.tax_country || DEFAULT_TAX_COUNTRY,
         notas: parsed.notas || null,
         industria: parsed.industria || null,
         company_type: parsed.company_type || null,
@@ -247,10 +254,27 @@ export function NewCompanyDialog({
                 </SelectContent>
               </Select>
             </FieldRow>
-            <FieldRow label="NIF / Tax ID">
+            <FieldRow label="País fiscal">
+              <Select
+                value={form.tax_country}
+                onValueChange={(v) => {
+                  set("tax_country", v);
+                  void checkNif(form.nif, v);
+                }}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {TAX_COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldRow>
+            <FieldRow label={form.tax_country === "PT" ? "NIF" : "NIF / Tax ID"}>
               <Input
                 className="input-yellow"
                 value={form.nif}
+                placeholder={findTaxCountry(form.tax_country).example}
                 onChange={(e) => set("nif", e.target.value)}
                 onBlur={(e) => void checkNif(e.target.value)}
               />
