@@ -9,6 +9,7 @@ export type CompanyRecord = {
   id: string;
   nome: string;
   nif: string | null;
+  tax_country: string;
   code: string | null;
   abbreviation: string | null;
   email: string | null;
@@ -38,6 +39,7 @@ const UPSERT = z.object({
   id: z.string().uuid().optional(),
   nome: z.string().trim().min(1).max(255),
   nif: z.string().trim().max(32).nullable().optional(),
+  tax_country: z.string().trim().min(2).max(8).optional(),
   code: z.string().trim().max(32).nullable().optional(),
   abbreviation: z.string().trim().max(64).nullable().optional(),
   email: z.string().trim().max(255).nullable().optional(),
