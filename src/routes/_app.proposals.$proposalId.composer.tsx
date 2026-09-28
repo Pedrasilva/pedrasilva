@@ -21,7 +21,7 @@ function ComposerPage() {
 
 function GuardedComposerPage() {
   return (
-    <V2PermissionGate permission="crm.pipeline.view" scope="own">
+    <V2PermissionGate permission="crm.pipeline.edit" scope="assigned">
       <ComposerPage />
     </V2PermissionGate>
   );

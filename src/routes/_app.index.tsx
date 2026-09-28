@@ -31,7 +31,7 @@ import {
   useProposalImages,
   useSignedProposalImageUrl,
 } from "@/lib/psa-proposal/use-proposal-images";
-import type { PermissionKey } from "@/lib/permissions";
+import { useModuleAccess, type ModuleId } from "@/lib/module-access";
 import hrTexture from "@/assets/modules/hr.jpg.asset.json";
 import crmTexture from "@/assets/modules/crm.jpg.asset.json";
 import projectsTexture from "@/assets/modules/projects.jpg.asset.json";
@@ -73,8 +73,8 @@ type ModuleDef = {
   subtitleKey: string;
   descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
-  /** Empty array = visible to every authenticated user. */
-  anyOf: PermissionKey[];
+  /** Module access rule (src/lib/module-access.ts). */
+  moduleId: ModuleId;
 };
 
 
@@ -86,14 +86,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "hr:module.subtitle",
     descriptionKey: "hr:module.description",
     icon: Users,
-    anyOf: [
-      "hr.minha-ficha",
-      "hr.ferias.own",
-      "hr.beneficios.own",
-      "hr.colaboradores",
-      "hr.resumo",
-      "hr.dias-uteis",
-    ],
+    moduleId: "hr",
   },
   {
     to: "/crm",
@@ -102,7 +95,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "crm:module.subtitle",
     descriptionKey: "crm:module.description",
     icon: Building2,
-    anyOf: ["crm.companies", "crm.contacts", "crm.pipeline"],
+    moduleId: "crm",
   },
   {
     to: "/projects",
@@ -111,13 +104,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "projects:module.subtitle",
     descriptionKey: "projects:module.description",
     icon: Briefcase,
-    anyOf: [
-      "projects.all",
-      "projects.gantt",
-      "projects.resources",
-      "projects.my-tasks",
-      "projects.timesheet",
-    ],
+    moduleId: "projects",
   },
   {
     to: "/finance",
@@ -126,7 +113,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "finance:module.subtitle",
     descriptionKey: "finance:module.description",
     icon: Wallet,
-    anyOf: ["finance.dashboard"],
+    moduleId: "finance",
   },
   {
     to: "/inventory",
@@ -135,7 +122,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "inventory:module.subtitle",
     descriptionKey: "inventory:module.description",
     icon: Boxes,
-    anyOf: [],
+    moduleId: "inventory",
   },
   {
     to: "/products",
@@ -144,7 +131,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "home:products.moduleSubtitle",
     descriptionKey: "home:products.moduleDescription",
     icon: Armchair,
-    anyOf: [],
+    moduleId: "products",
   },
   {
     to: "/portfolio",
@@ -153,7 +140,7 @@ const MODULES: ModuleDef[] = [
     subtitleKey: "home:signature.moduleSubtitle",
     descriptionKey: "home:signature.moduleDescription",
     icon: Images,
-    anyOf: [],
+    moduleId: "portfolio",
   },
 ];
 
@@ -208,10 +195,9 @@ function quoteOfTheDay() {
 function HubPage() {
   const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
-  const { permissions, loading: permsLoading } = useMyPermissions();
-  const { can: canV2 } = useMyPermissionsV2();
+  const { canAccess, loading: accessLoading } = useModuleAccess();
 
-  const loading = authLoading || permsLoading;
+  const loading = authLoading || accessLoading;
 
   const months = useMemo(
     () => Array.from({ length: 12 }, (_, i) => t(`home:month.${i}`)),
@@ -225,19 +211,10 @@ function HubPage() {
 
 
 
-  const visible = useMemo(() => {
-    if (isAdmin) return MODULES;
-    return MODULES.filter(
-      (m) =>
-        // Empty `anyOf` = open to every authenticated user.
-        m.anyOf.length === 0 ||
-        m.anyOf.some((k) => permissions.has(k)) ||
-        // Projects module now follows the v2 model: anyone with any
-        // `projects.view` scope keeps the tile, even after the legacy
-        // `projects.all` grant is parked.
-        (m.to === "/projects" && canV2("projects.view", "own")),
-    );
-  }, [canV2, isAdmin, permissions]);
+  const visible = useMemo(
+    () => MODULES.filter((m) => canAccess(m.moduleId)),
+    [canAccess],
+  );
 
 
 
