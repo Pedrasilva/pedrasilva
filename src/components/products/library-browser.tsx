@@ -12,6 +12,7 @@ import {
   useProductCategories,
   useSetLibraryProductStatus,
 } from "@/lib/products/use-products";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { categoryPath, formatMoney, type LibraryProduct } from "@/lib/products/types";
 
 /**
@@ -30,6 +31,7 @@ export function LibraryBrowser({
   const { data: products = [], isLoading } = useLibraryProducts();
   const { data: categories = [] } = useProductCategories();
   const setStatus = useSetLibraryProductStatus();
+  const canEdit = useMyPermissionsV2().can("products.edit", "all");
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -91,7 +93,7 @@ export function LibraryBrowser({
         >
           {showArchived ? "Showing archived" : "Current only"}
         </Button>
-        {!compact && (
+        {!compact && canEdit && (
           <Button
             size="sm"
             onClick={() => {
@@ -150,34 +152,38 @@ export function LibraryBrowser({
                       {selectLabel}
                     </Button>
                   )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label="Edit"
-                    onClick={() => {
-                      setEditing(p);
-                      setFormOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={p.status === "archived" ? "Restore" : "Archive"}
-                    onClick={() =>
-                      setStatus.mutate({
-                        id: p.id,
-                        status: p.status === "archived" ? "current" : "archived",
-                      })
-                    }
-                  >
-                    {p.status === "archived" ? (
-                      <ArchiveRestore className="h-3.5 w-3.5" />
-                    ) : (
-                      <Archive className="h-3.5 w-3.5" />
-                    )}
-                  </Button>
+                  {canEdit && (
+                    <>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label="Edit"
+                        onClick={() => {
+                          setEditing(p);
+                          setFormOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label={p.status === "archived" ? "Restore" : "Archive"}
+                        onClick={() =>
+                          setStatus.mutate({
+                            id: p.id,
+                            status: p.status === "archived" ? "current" : "archived",
+                          })
+                        }
+                      >
+                        {p.status === "archived" ? (
+                          <ArchiveRestore className="h-3.5 w-3.5" />
+                        ) : (
+                          <Archive className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </Card>

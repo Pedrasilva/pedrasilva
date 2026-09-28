@@ -17,6 +17,7 @@ import { CategorySelect } from "./category-select";
 import { ImageField } from "./image-field";
 import type { LibraryProduct } from "@/lib/products/types";
 import { useSaveLibraryProduct } from "@/lib/products/use-products";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
 export type ProductDraft = {
   name: string;
@@ -77,6 +78,7 @@ export function ProductFormDialog({
   const [draft, setDraft] = useState<ProductDraft>(EMPTY);
   const [saveToLibrary, setSaveToLibrary] = useState(true);
   const save = useSaveLibraryProduct();
+  const canEditLibrary = useMyPermissionsV2().can("products.edit", "all");
   const set = <K extends keyof ProductDraft>(k: K, v: ProductDraft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
 
@@ -136,7 +138,7 @@ export function ProductFormDialog({
         await save.mutateAsync({ ...payload, id: product?.id });
         toast.success(product ? "Product updated" : "Product added to the library");
       } else {
-        const saved = saveToLibrary ? await save.mutateAsync(payload) : null;
+        const saved = saveToLibrary && canEditLibrary ? await save.mutateAsync(payload) : null;
         await onCreated?.(draft, saved);
       }
       onOpenChange(false);
@@ -261,7 +263,7 @@ export function ProductFormDialog({
           </div>
         </div>
 
-        {mode === "project" && (
+        {mode === "project" && canEditLibrary && (
           <label className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm">
             <Checkbox
               checked={saveToLibrary}
