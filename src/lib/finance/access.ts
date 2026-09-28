@@ -35,6 +35,15 @@ export async function checkFinanceAccess(): Promise<boolean> {
     return false;
   }
   if (!userId) return false;
+  return checkFinanceAccessFor(userId);
+}
+
+/**
+ * Runs the four finance-access checks for an arbitrary user id (e.g. the
+ * person being previewed via View As). Fail closed on any error.
+ */
+export async function checkFinanceAccessFor(userId: string | null | undefined): Promise<boolean> {
+  if (!userId) return false;
 
   // 1) Legacy admin role
   try {
