@@ -338,7 +338,8 @@
       "insights": "Insights",
       "settings": "Settings",
       "inventory": "Inventory",
-      "products": "Product Library"
+      "products": "Product Library",
+      "inbox": "Inbox"
     },
     "section": {
       "sharedLists": "Shared lists",
@@ -400,7 +401,10 @@
       "inventory.assignments": "Assignments",
       "inventory.reports": "Inventory reports",
       "projects.weeklyApproval": "Weekly approval",
-      "time.weeklyApproval": "Weekly approval"
+      "time.weeklyApproval": "Weekly approval",
+      "crm.proposals": "Proposals",
+      "inbox.triage": "Inbox",
+      "inbox.settings": "Settings"
     },
     "top": {
       "create": "Create",

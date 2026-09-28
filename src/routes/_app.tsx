@@ -27,7 +27,7 @@ import { ModuleTabs } from "@/components/shell/ModuleTabs";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AppRail } from "@/components/shell/AppRail";
-import { RAIL_ITEMS } from "@/components/shell/nav-config";
+import { RAIL_ITEMS, isRailItemActive } from "@/components/shell/nav-config";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
@@ -187,9 +187,7 @@ function AppLayout() {
                     </div>
                     {mobileItems.map((it) => {
                       const Icon = it.icon;
-                      const active = it.matches.some(
-                        (m) => loc.pathname === m || loc.pathname.startsWith(m + "/"),
-                      );
+                      const active = isRailItemActive(it, loc.pathname);
                       return (
                         <Link
                           key={it.id}

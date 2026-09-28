@@ -20,10 +20,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute(
   "/_app/proposals/$proposalId/revisions/$revisionId",
 )({
-  component: RevisionViewerPage,
+  component: GuardedRevisionViewerPage,
 });
 
 /**
@@ -139,5 +140,13 @@ function RevisionViewerPage() {
 
       <ComposerShell proposalId={proposalId} />
     </RevisionProvider>
+  );
+}
+
+function GuardedRevisionViewerPage() {
+  return (
+    <V2PermissionGate permission="crm.pipeline.view" scope="own">
+      <RevisionViewerPage />
+    </V2PermissionGate>
   );
 }
