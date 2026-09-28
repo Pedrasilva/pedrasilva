@@ -8,6 +8,7 @@ import { Briefcase, Building2, Users, Wallet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { useRecentlyViewed, type RecentModule } from "@/hooks/use-recently-viewed";
+import { useModuleAccess } from "@/lib/module-access";
 
 const ICONS: Record<RecentModule, React.ComponentType<{ className?: string }>> = {
   projects: Briefcase,
@@ -22,8 +23,14 @@ export function RecentlyVisited() {
   const crm = useRecentlyViewed("crm");
   const hr = useRecentlyViewed("hr");
   const finance = useRecentlyViewed("finance");
+  const { canAccess, moduleForPath, loading } = useModuleAccess();
 
   const items = [...projects, ...crm, ...hr, ...finance]
+    .filter((i) => {
+      if (loading) return false;
+      const mod = moduleForPath(i.href.split(/[?#]/)[0] ?? i.href);
+      return mod !== null && canAccess(mod);
+    })
     .sort((a, b) => b.ts - a.ts)
     .slice(0, 8);
 

@@ -582,6 +582,7 @@
     "empty": "No materials match the selected filters."
   },
   "home": {
+    "noPeriod": "No finance period is set up for this month yet.",
     "kicker": "Office finance",
     "title": "Finance",
     "currentBalance": "Current balance",

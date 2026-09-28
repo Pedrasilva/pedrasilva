@@ -582,6 +582,7 @@
     "empty": "Sem materiais para os filtros seleccionados."
   },
   "home": {
+    "noPeriod": "Ainda não existe um período financeiro para este mês.",
     "kicker": "Finanças do atelier",
     "title": "Finanças",
     "currentBalance": "Saldo actual",
