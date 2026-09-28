@@ -431,5 +431,8 @@
       "upcoming": "Próximas",
       "undated": "Sem data"
     }
+  },
+  "access": {
+    "financeDenied": "Não tem acesso ao módulo Financeiro."
   }
 }

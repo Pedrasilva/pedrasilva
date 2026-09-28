@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import {
@@ -47,15 +48,18 @@ export function AppRail() {
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
+  const { hasAccess: hasFinance } = useFinanceAccess();
   const can = (key?: PermissionKey) => !key || isAdmin || permissions.has(key);
   // Flyout links may additionally require a v2 (module + scope) permission,
   // so we never surface a page that would answer with "access denied".
   const canLink = (l: FlyoutLink) =>
+    (!l.requiresFinance || hasFinance) &&
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
   const visible = RAIL_ITEMS.filter(
-    (i) => can(i.perm) && (!i.adminOnly || isAdmin),
+    (i) =>
+      can(i.perm) && (!i.adminOnly || isAdmin) && (!i.requiresFinance || hasFinance),
   );
   const top = visible.filter((i) => !i.pinBottom);
   const bottom = visible.filter((i) => i.pinBottom);

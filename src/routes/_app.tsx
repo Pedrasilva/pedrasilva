@@ -29,6 +29,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { AppRail } from "@/components/shell/AppRail";
 import { RAIL_ITEMS } from "@/components/shell/nav-config";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app")({
@@ -41,6 +42,7 @@ function AppLayout() {
   const { t } = useTranslation("common");
   const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
   const { permissions } = useMyPermissions();
+  const { hasAccess: hasFinance } = useFinanceAccess();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -77,7 +79,8 @@ function AppLayout() {
 
   // Items for mobile sheet — flatten rail config.
   const mobileItems = RAIL_ITEMS.filter(
-    (i) => can(i.perm) && (!i.adminOnly || isAdmin),
+    (i) =>
+      can(i.perm) && (!i.adminOnly || isAdmin) && (!i.requiresFinance || hasFinance),
   );
 
   return (
