@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { HelpCircle, MessageSquare, Clock as ClockIcon } from "lucide-react";
-import { RAIL_ITEMS, type RailItem, type FlyoutLink } from "./nav-config";
+import { RAIL_ITEMS, isRailItemActive, type RailItem, type FlyoutLink } from "./nav-config";
 import {
   useRecentlyViewed,
   type RecentModule,
@@ -104,9 +104,7 @@ function RailButton({
 }) {
   const { t } = useTranslation("common");
   const Icon = item.icon;
-  const active = item.matches.some(
-    (m) => pathname === m || pathname.startsWith(m + "/"),
-  );
+  const active = isRailItemActive(item, pathname);
   const label = t(`shell.rail.${item.labelKey}`);
 
   // Only certain modules carry a Recently Viewed list. The rail item id

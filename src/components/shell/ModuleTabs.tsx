@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
-import { RAIL_ITEMS } from "./nav-config";
+import { RAIL_ITEMS, isRailItemActive } from "./nav-config";
 
 /** Modules surfaced as tabs in the global header, in display order. */
 const TAB_IDS = ["crm", "projects", "finance", "hr"] as const;
@@ -37,9 +37,7 @@ export function ModuleTabs() {
   return (
     <nav className="hidden items-center gap-0.5 md:flex" aria-label="Modules">
       {items.map((it) => {
-        const active = it.matches.some(
-          (m) => loc.pathname === m || loc.pathname.startsWith(m + "/"),
-        );
+        const active = isRailItemActive(it, loc.pathname);
         return (
           <Link
             key={it.id}

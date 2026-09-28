@@ -338,7 +338,8 @@
       "insights": "Análises",
       "settings": "Definições",
       "inventory": "Inventário",
-      "products": "Biblioteca de Produtos"
+      "products": "Biblioteca de Produtos",
+      "inbox": "Caixa de entrada"
     },
     "section": {
       "sharedLists": "Listas partilhadas",
@@ -400,7 +401,10 @@
       "inventory.assignments": "Atribuições",
       "inventory.reports": "Relatórios de inventário",
       "projects.weeklyApproval": "Aprovação semanal",
-      "time.weeklyApproval": "Aprovação semanal"
+      "time.weeklyApproval": "Aprovação semanal",
+      "crm.proposals": "Propostas",
+      "inbox.triage": "Caixa de entrada",
+      "inbox.settings": "Definições"
     },
     "top": {
       "create": "Criar",

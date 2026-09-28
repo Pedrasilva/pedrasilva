@@ -19,8 +19,8 @@ import {
   Users,
   Clock,
   Receipt,
-  LineChart,
   Settings,
+  Inbox,
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
@@ -52,6 +52,8 @@ export type RailItem = {
   to: string;
   /** Path prefixes that mark this item as active. */
   matches: string[];
+  /** Path prefixes that must NOT mark this item active (owned by another item). */
+  excludes?: string[];
   /** Permission required for the rail entry to be shown at all. */
   perm?: PermissionKey;
   /** Admin-only? */
@@ -78,7 +80,12 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/crm/companies", labelKey: "crm.companies" },
           { to: "/crm/contacts", labelKey: "crm.contacts" },
           { to: "/crm/opportunities", labelKey: "crm.opportunities" },
-          
+          {
+            to: "/proposals",
+            labelKey: "crm.proposals",
+            permV2: "crm.pipeline.view",
+            permV2Scope: "own",
+          },
         ],
       },
       {
@@ -98,27 +105,18 @@ export const RAIL_ITEMS: RailItem[] = [
     icon: Briefcase,
     to: "/projects",
     matches: ["/projects"],
+    excludes: ["/projects/timesheet", "/projects/my-tasks", "/projects/weekly-approval"],
     flyout: [
       {
         titleKey: "sharedLists",
         links: [
           { to: "/projects", labelKey: "projects.all" },
-          { to: "/projects/my-tasks", labelKey: "projects.myTasks" },
           { to: "/projects/resources", labelKey: "projects.team" },
         ],
       },
       {
         titleKey: "shortcuts",
-        links: [
-          { to: "/projects/gantt", labelKey: "projects.gantt" },
-          { to: "/projects/timesheet", labelKey: "projects.timesheet" },
-          {
-            to: "/projects/weekly-approval",
-            labelKey: "projects.weeklyApproval",
-            permV2: "timesheets.approve",
-            permV2Scope: "team",
-          },
-        ],
+        links: [{ to: "/projects/gantt", labelKey: "projects.gantt" }],
       },
 
       {
@@ -164,7 +162,7 @@ export const RAIL_ITEMS: RailItem[] = [
     labelKey: "time",
     icon: Clock,
     to: "/projects/timesheet",
-    matches: ["/projects/timesheet", "/projects/my-tasks"],
+    matches: ["/projects/timesheet", "/projects/my-tasks", "/projects/weekly-approval"],
     flyout: [
       {
         titleKey: "shortcuts",
@@ -208,6 +206,25 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/finance/reports/forecast", labelKey: "finance.forecast" },
           { to: "/finance/reports/vat", labelKey: "finance.vat" },
           { to: "/finance/reports/projects", labelKey: "finance.projects" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Inbox (email triage) ───
+  {
+    id: "inbox",
+    labelKey: "inbox",
+    icon: Inbox,
+    to: "/inbox",
+    matches: ["/inbox"],
+    perm: "inbox.triage",
+    flyout: [
+      {
+        titleKey: "shortcuts",
+        links: [
+          { to: "/inbox", labelKey: "inbox.triage" },
+          { to: "/inbox/settings", labelKey: "inbox.settings" },
         ],
       },
     ],
@@ -258,27 +275,6 @@ export const RAIL_ITEMS: RailItem[] = [
     ],
   },
 
-  // ─── Insights / Reports ───
-  {
-    id: "insights",
-    labelKey: "insights",
-    icon: LineChart,
-    to: "/projects/insights",
-    matches: ["/projects/insights", "/projects/forecast", "/projects/financials"],
-    perm: "projects.financials",
-    flyout: [
-      {
-        titleKey: "reports",
-        links: [
-          { to: "/projects/insights", labelKey: "insights.projects" },
-          { to: "/projects/forecast", labelKey: "insights.forecast" },
-          { to: "/projects/financials", labelKey: "insights.financials" },
-          { to: "/finance/reports/cashflow", labelKey: "insights.cashflow", requiresFinance: true },
-        ],
-      },
-    ],
-  },
-
   // ─── Settings (pinned bottom) ───
   {
     id: "settings",
@@ -310,3 +306,12 @@ export const RAIL_ITEMS: RailItem[] = [
     ],
   },
 ];
+
+const underPrefix = (pathname: string, prefix: string) =>
+  pathname === prefix || pathname.startsWith(prefix + "/");
+
+/** Single active-state rule for rail, module tabs and the mobile sheet. */
+export function isRailItemActive(item: RailItem, pathname: string): boolean {
+  if (item.excludes?.some((e) => underPrefix(pathname, e))) return false;
+  return item.matches.some((m) => underPrefix(pathname, m));
+}
