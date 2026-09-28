@@ -1,0 +1,1 @@
+DELETE FROM public.user_permissions WHERE user_id = 'd1c1d349-2d32-42f6-b01b-89e51144a426' AND permission_key = 'finance.dashboard';
