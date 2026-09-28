@@ -1,0 +1,1 @@
+DELETE FROM public.role_permissions WHERE role = 'partner' AND permission_key IN ('finance.dashboard.view','finance.documents.view','finance.banking.view','finance.reports.view');
