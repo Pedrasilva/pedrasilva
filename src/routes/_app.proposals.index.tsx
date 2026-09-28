@@ -9,8 +9,9 @@ import {
   useCreateProposal,
 } from "@/lib/psa-proposal/use-psa-proposal";
 
+import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute("/_app/proposals/")({
-  component: ProposalsIndex,
+  component: GuardedProposalsIndex,
 });
 
 function ProposalsIndex() {
@@ -71,5 +72,13 @@ function ProposalsIndex() {
         )}
       </div>
     </div>
+  );
+}
+
+function GuardedProposalsIndex() {
+  return (
+    <V2PermissionGate permission="crm.pipeline.view" scope="own">
+      <ProposalsIndex />
+    </V2PermissionGate>
   );
 }

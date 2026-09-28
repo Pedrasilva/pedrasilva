@@ -3,8 +3,9 @@ import { ComposerShell } from "@/components/psa-composer/composer-shell";
 import { QuoteLockGuard } from "@/components/quotes/quote-lock-guard";
 import { useProposalQuoteId } from "@/lib/quotes/use-quote-lock";
 
+import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute("/_app/proposals/$proposalId/composer")({
-  component: ComposerPage,
+  component: GuardedComposerPage,
 });
 
 function ComposerPage() {
@@ -15,5 +16,13 @@ function ComposerPage() {
       <QuoteLockGuard quoteId={quoteId.data ?? undefined} />
       <ComposerShell proposalId={proposalId} />
     </div>
+  );
+}
+
+function GuardedComposerPage() {
+  return (
+    <V2PermissionGate permission="crm.pipeline.view" scope="own">
+      <ComposerPage />
+    </V2PermissionGate>
   );
 }

@@ -4,6 +4,8 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Lock } from "lucide-react";
 import { useHasPermission } from "@/hooks/use-permissions";
 import type { PermissionKey } from "@/lib/permissions";
+import { useCan } from "@/hooks/use-permissions-v2";
+import type { PermissionScope, V2PermissionKey } from "@/lib/permissions-v2";
 
 /**
  * Renderiza `children` só se o utilizador tiver a permissão indicada.
@@ -21,8 +23,12 @@ export function PermissionGate({
   if (loading) {
     return <div className="text-sm text-muted-foreground">A carregar…</div>;
   }
-  if (!allowed) {
-    return (
+  if (!allowed) return <RestrictedCard />;
+  return <>{children}</>;
+}
+
+function RestrictedCard() {
+  return (
       <Card className="border-clay/40">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -39,6 +45,25 @@ export function PermissionGate({
         </CardHeader>
       </Card>
     );
+}
+
+/**
+ * Same as PermissionGate but for v2 (module + scope) permissions.
+ * Passes when the user holds `permission` at `scope` or broader; admins always pass.
+ */
+export function V2PermissionGate({
+  permission,
+  scope = "own",
+  children,
+}: {
+  permission: V2PermissionKey;
+  scope?: PermissionScope;
+  children: ReactNode;
+}) {
+  const { loading, allowed } = useCan(permission, scope);
+  if (loading) {
+    return <div className="text-sm text-muted-foreground">A carregar…</div>;
   }
+  if (!allowed) return <RestrictedCard />;
   return <>{children}</>;
 }
