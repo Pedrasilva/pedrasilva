@@ -13,7 +13,7 @@ export const financeAccessQueryOptions = (userId: string | null | undefined) =>
   queryOptions({
     queryKey: [FINANCE_ACCESS_KEY, userId ?? null],
     queryFn: () => checkFinanceAccess(),
-    staleTime: 5 * 60 * 1000,
+    staleTime: (q) => (q.state.data === true ? 5 * 60 * 1000 : 0),
   });
 
 /**
