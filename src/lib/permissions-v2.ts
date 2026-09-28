@@ -85,6 +85,7 @@ export type V2PermissionKey =
   // Module visibility (view only)
   | "inventory.view"
   | "products.view"
+  | "products.edit"
   | "portfolio.view";
 
 
@@ -406,6 +407,13 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
     module: "Products",
     label: "View product library",
     description: "Open the Product Library and project schedules.",
+    scopes: ["all"],
+  },
+  {
+    key: "products.edit",
+    module: "Products",
+    label: "Edit product library",
+    description: "Create, edit, archive and categorise Product Library items.",
     scopes: ["all"],
   },
   {

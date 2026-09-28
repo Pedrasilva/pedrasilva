@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { CategorySelect } from "@/components/products/category-select";
 import { useProductCategories, useSaveCategory } from "@/lib/products/use-products";
 import type { ProductCategory } from "@/lib/products/types";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
 export const Route = createFileRoute("/_app/products/categories")({
   component: CategoriesPage,
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/_app/products/categories")({
 function CategoriesPage() {
   const { data: categories = [] } = useProductCategories();
   const save = useSaveCategory();
+  const canEdit = useMyPermissionsV2().can("products.edit", "all");
   const [name, setName] = useState("");
   const [parent, setParent] = useState<string | null>(null);
 
@@ -64,13 +66,19 @@ function CategoriesPage() {
           style={{ paddingLeft: depth * 18 }}
         >
           <span>{c.name}</span>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => save.mutate({ id: c.id, name: c.name, active: !c.active })}
-          >
-            {c.active ? "Active" : "Inactive"}
-          </Button>
+          {canEdit ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => save.mutate({ id: c.id, name: c.name, active: !c.active })}
+            >
+              {c.active ? "Active" : "Inactive"}
+            </Button>
+          ) : (
+            <span className="px-3 text-xs text-muted-foreground">
+              {c.active ? "Active" : "Inactive"}
+            </span>
+          )}
         </div>
         {render(c.id, depth + 1)}
       </div>
@@ -85,20 +93,22 @@ function CategoriesPage() {
         </p>
       </header>
 
-      <Card className="flex flex-wrap items-end gap-2 p-4">
-        <div className="min-w-[220px] flex-1 space-y-1.5">
-          <label className="text-xs text-muted-foreground">Category name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Stool" />
-        </div>
-        <div className="w-[220px] space-y-1.5">
-          <label className="text-xs text-muted-foreground">Parent</label>
-          <CategorySelect value={parent} onChange={setParent} includeAll placeholder="Top level" />
-        </div>
-        <Button onClick={add} disabled={save.isPending}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add
-        </Button>
-      </Card>
+      {canEdit && (
+        <Card className="flex flex-wrap items-end gap-2 p-4">
+          <div className="min-w-[220px] flex-1 space-y-1.5">
+            <label className="text-xs text-muted-foreground">Category name</label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Stool" />
+          </div>
+          <div className="w-[220px] space-y-1.5">
+            <label className="text-xs text-muted-foreground">Parent</label>
+            <CategorySelect value={parent} onChange={setParent} includeAll placeholder="Top level" />
+          </div>
+          <Button onClick={add} disabled={save.isPending}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add
+          </Button>
+        </Card>
+      )}
 
       <Card className="p-4">{render(null)}</Card>
     </div>

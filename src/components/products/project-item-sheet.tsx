@@ -17,6 +17,7 @@ import {
   useUpdateLibraryFromItem,
   useUpdateProjectItem,
 } from "@/lib/products/use-products";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import {
   APPROVAL_STATUSES,
   formatMoney,
@@ -61,6 +62,7 @@ export function ProjectItemSheet({
 }) {
   const update = useUpdateProjectItem();
   const pushToLibrary = useUpdateLibraryFromItem();
+  const canEditLibrary = useMyPermissionsV2().can("products.edit", "all");
   const [draft, setDraft] = useState<Draft>({});
   const [qty, setQty] = useState("1");
   const [price, setPrice] = useState("");
@@ -255,7 +257,7 @@ export function ProjectItemSheet({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          {item.source_library_product_id && (
+          {item.source_library_product_id && canEditLibrary && (
             <Button
               variant="outline"
               className="ml-auto"
