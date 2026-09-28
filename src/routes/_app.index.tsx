@@ -24,6 +24,8 @@ import {
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
+import { MyActionsCard } from "@/components/home/my-actions-card";
+import { RecentlyVisited } from "@/components/home/recently-visited";
 
 import {
   useProposalImages,
@@ -345,6 +347,23 @@ function HubPage() {
         <TodayStrip />
       </section>
 
+      {/* MY WORK ========================================================== */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-6">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <MyActionsCard />
+          </div>
+          <RecentlyVisited />
+        </div>
+      </section>
+
+      {/* FINANCE ========================================================== */}
+      {canAccess("finance") && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-6">
+          <FinanceSnapshotBlock />
+        </section>
+      )}
+
 
 
 
@@ -493,7 +512,6 @@ function PortfolioThumb({
 // Finance snapshot block (home page)
 // ---------------------------------------------------------------------------
 
-const FINANCE_HOME_YEAR = 2026;
 const fmtEURHome = (v: number) =>
   new Intl.NumberFormat("pt-PT", {
     style: "currency",
@@ -505,14 +523,15 @@ function FinanceSnapshotBlock() {
   const { t } = useTranslation(["finance", "common"]);
   const now = new Date();
   const month = now.getMonth() + 1;
+  const year = now.getFullYear();
 
   const periodQ = useQuery({
-    queryKey: ["home-finance", "period", FINANCE_HOME_YEAR, month],
+    queryKey: ["home-finance", "period", year, month],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("financial_periods")
         .select("id, opening_balance")
-        .eq("year", FINANCE_HOME_YEAR)
+        .eq("year", year)
         .eq("month", month)
         .maybeSingle();
       if (error) throw error;
@@ -527,8 +546,8 @@ function FinanceSnapshotBlock() {
     enabled: !!periodId,
     queryFn: async () => {
       // Income source of truth: financial_documents (issued side).
-      const from = `${FINANCE_HOME_YEAR}-${String(month).padStart(2, "0")}-01`;
-      const end = new Date(Date.UTC(FINANCE_HOME_YEAR, month, 0))
+      const from = `${year}-${String(month).padStart(2, "0")}-01`;
+      const end = new Date(Date.UTC(year, month, 0))
         .toISOString()
         .slice(0, 10);
       const { data, error } = await supabase
@@ -601,6 +620,31 @@ function FinanceSnapshotBlock() {
       );
     },
   });
+
+  if (periodQ.isLoading) return null;
+  if (!periodId) {
+    return (
+      <Card className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Wallet className="h-4 w-4" style={{ color: "var(--clay)" }} />
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+              {t("finance:home.kicker")}
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("finance:home.noPeriod")}
+            </p>
+          </div>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/finance">
+            {t("finance:home.open")}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </Card>
+    );
+  }
 
   const currentBalance = balancesQ.data ?? 0;
   const income = incomeQ.data ?? 0;
