@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
+import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { RAIL_ITEMS } from "./nav-config";
 
@@ -19,12 +20,16 @@ export function ModuleTabs() {
   const { t } = useTranslation("common");
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const { hasAccess: hasFinance } = useFinanceAccess();
 
   const can = (k?: PermissionKey) => !k || isAdmin || permissions.has(k);
 
   const items = TAB_IDS.map((id) => RAIL_ITEMS.find((r) => r.id === id)).filter(
     (i): i is (typeof RAIL_ITEMS)[number] =>
-      !!i && can(i.perm) && (!i.adminOnly || isAdmin),
+      !!i &&
+      can(i.perm) &&
+      (!i.adminOnly || isAdmin) &&
+      (!i.requiresFinance || hasFinance),
   );
 
   if (items.length === 0) return null;

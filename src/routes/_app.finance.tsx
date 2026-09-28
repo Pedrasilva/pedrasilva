@@ -13,13 +13,19 @@ import {
   FinanceShellProvider,
   useFinanceShell,
 } from "@/components/finance/finance-shell-context";
-import { checkFinanceAccess } from "@/lib/finance/access";
+import { toast } from "sonner";
+import i18n from "@/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { financeAccessQueryOptions } from "@/hooks/use-finance-access";
 
 export const Route = createFileRoute("/_app/finance")({
-  beforeLoad: async () => {
+  beforeLoad: async ({ context }) => {
     let allowed = false;
     try {
-      allowed = await checkFinanceAccess();
+      const { data } = await supabase.auth.getSession();
+      const userId = data?.session?.user?.id ?? null;
+      allowed =
+        (await context.queryClient.ensureQueryData(financeAccessQueryOptions(userId))) === true;
     } catch (err) {
       // Fail closed: any unexpected error denies access.
       // eslint-disable-next-line no-console
@@ -29,6 +35,9 @@ export const Route = createFileRoute("/_app/finance")({
     if (!allowed) {
       // eslint-disable-next-line no-console
       console.warn("[finance] access denied — redirecting to /");
+      if (typeof window !== "undefined") {
+        toast.error(i18n.t("common:access.financeDenied"));
+      }
       throw redirect({ to: "/" });
     }
   },

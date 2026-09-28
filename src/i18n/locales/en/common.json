@@ -431,5 +431,8 @@
       "upcoming": "Upcoming",
       "undated": "No date"
     }
+  },
+  "access": {
+    "financeDenied": "You don't have access to Finance."
   }
 }

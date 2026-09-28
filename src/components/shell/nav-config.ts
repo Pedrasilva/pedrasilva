@@ -34,6 +34,8 @@ export type FlyoutLink = {
   permV2?: V2PermissionKey;
   /** Minimum scope for `permV2`; defaults to "team". */
   permV2Scope?: PermissionScope;
+  /** Requires finance access (useFinanceAccess — same check as the /finance guard). */
+  requiresFinance?: boolean;
 };
 
 export type FlyoutSection = {
@@ -54,6 +56,8 @@ export type RailItem = {
   perm?: PermissionKey;
   /** Admin-only? */
   adminOnly?: boolean;
+  /** Requires finance access (useFinanceAccess — same check as the /finance guard). */
+  requiresFinance?: boolean;
   /** Pin to the bottom of the rail. */
   pinBottom?: boolean;
   flyout: FlyoutSection[];
@@ -186,6 +190,7 @@ export const RAIL_ITEMS: RailItem[] = [
     icon: Receipt,
     to: "/finance",
     matches: ["/finance"],
+    requiresFinance: true,
     flyout: [
       {
         titleKey: "sharedLists",
@@ -268,7 +273,7 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/projects/insights", labelKey: "insights.projects" },
           { to: "/projects/forecast", labelKey: "insights.forecast" },
           { to: "/projects/financials", labelKey: "insights.financials" },
-          { to: "/finance/reports/cashflow", labelKey: "insights.cashflow" },
+          { to: "/finance/reports/cashflow", labelKey: "insights.cashflow", requiresFinance: true },
         ],
       },
     ],
