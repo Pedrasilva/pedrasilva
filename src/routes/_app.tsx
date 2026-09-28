@@ -28,9 +28,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AppRail } from "@/components/shell/AppRail";
 import { RAIL_ITEMS, isRailItemActive } from "@/components/shell/nav-config";
-import { useMyPermissions } from "@/hooks/use-permissions";
-import { useFinanceAccess } from "@/hooks/use-finance-access";
-import type { PermissionKey } from "@/lib/permissions";
+import { useModuleAccess, moduleForPath } from "@/lib/module-access";
+import { RestrictedCard } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -41,8 +40,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { t } = useTranslation("common");
   const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
-  const { permissions } = useMyPermissions();
-  const { hasAccess: hasFinance } = useFinanceAccess();
+  const { canAccess, loading: accessLoading } = useModuleAccess();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -67,7 +65,6 @@ function AppLayout() {
     );
   }
 
-  const can = (k?: PermissionKey) => !k || isAdmin || permissions.has(k);
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
   const isHrArea = loc.pathname.startsWith("/hr");
   // Quote detail pages contain a large Gantt — give them the full viewport
@@ -78,10 +75,10 @@ function AppLayout() {
     loc.pathname.startsWith("/finance");
 
   // Items for mobile sheet — flatten rail config.
-  const mobileItems = RAIL_ITEMS.filter(
-    (i) =>
-      can(i.perm) && (!i.adminOnly || isAdmin) && (!i.requiresFinance || hasFinance),
-  );
+  const mobileItems = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId));
+
+  // Route protection in one place: the module owning the current path.
+  const currentModule = moduleForPath(loc.pathname);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -238,7 +235,15 @@ function AppLayout() {
 
           )}
         >
-          <Outlet />
+          {!currentModule ? (
+            <Outlet />
+          ) : accessLoading ? (
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
+          ) : canAccess(currentModule) ? (
+            <Outlet />
+          ) : (
+            <RestrictedCard />
+          )}
         </main>
       </div>
     </div>

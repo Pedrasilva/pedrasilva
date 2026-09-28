@@ -31,7 +31,10 @@ export type PermissionModule =
   | "Financials"
   | "CRM"
   | "HR"
-  | "Finance";
+  | "Finance"
+  | "Inventory"
+  | "Products"
+  | "Portfolio";
 
 export type V2PermissionKey =
   // Projects (operational)
@@ -78,7 +81,11 @@ export type V2PermissionKey =
   | "finance.banking.view"
   | "finance.banking.edit"
   | "finance.reports.view"
-  | "finance.settings.manage";
+  | "finance.settings.manage"
+  // Module visibility (view only)
+  | "inventory.view"
+  | "products.view"
+  | "portfolio.view";
 
 
 export interface PermissionDefinition {
@@ -386,6 +393,28 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
     scopes: ["all"],
     financial: true,
   },
+  // Module visibility
+  {
+    key: "inventory.view",
+    module: "Inventory",
+    label: "View asset register",
+    description: "Open the Inventory module (assets, assignments, reports).",
+    scopes: ["all"],
+  },
+  {
+    key: "products.view",
+    module: "Products",
+    label: "View product library",
+    description: "Open the Product Library and project schedules.",
+    scopes: ["all"],
+  },
+  {
+    key: "portfolio.view",
+    module: "Portfolio",
+    label: "View portfolio",
+    description: "Open the studio portfolio.",
+    scopes: ["all"],
+  },
 ];
 
 
@@ -429,7 +458,9 @@ export const MODULES: PermissionModule[] = [
   "CRM",
   "HR",
   "Finance",
-
+  "Inventory",
+  "Products",
+  "Portfolio",
 ];
 
 export interface EffectivePermissionRow {

@@ -27,7 +27,7 @@ export function PermissionGate({
   return <>{children}</>;
 }
 
-function RestrictedCard() {
+export function RestrictedCard() {
   return (
       <Card className="border-clay/40">
         <CardHeader>

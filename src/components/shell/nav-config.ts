@@ -24,6 +24,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
+import type { ModuleId } from "@/lib/module-access";
 import type { PermissionScope, V2PermissionKey } from "@/lib/permissions-v2";
 
 export type FlyoutLink = {
@@ -54,12 +55,8 @@ export type RailItem = {
   matches: string[];
   /** Path prefixes that must NOT mark this item active (owned by another item). */
   excludes?: string[];
-  /** Permission required for the rail entry to be shown at all. */
-  perm?: PermissionKey;
-  /** Admin-only? */
-  adminOnly?: boolean;
-  /** Requires finance access (useFinanceAccess — same check as the /finance guard). */
-  requiresFinance?: boolean;
+  /** Module whose access rule (src/lib/module-access.ts) gates this entry. */
+  moduleId: ModuleId;
   /** Pin to the bottom of the rail. */
   pinBottom?: boolean;
   flyout: FlyoutSection[];
@@ -69,10 +66,11 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── CRM / Sales ───
   {
     id: "crm",
+    moduleId: "crm",
     labelKey: "crm",
     icon: Building2,
     to: "/crm",
-    matches: ["/crm"],
+    matches: ["/crm", "/proposals"],
     flyout: [
       {
         titleKey: "sharedLists",
@@ -101,6 +99,7 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Projects ───
   {
     id: "projects",
+    moduleId: "projects",
     labelKey: "projects",
     icon: Briefcase,
     to: "/projects",
@@ -133,6 +132,7 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Team / HR ───
   {
     id: "hr",
+    moduleId: "hr",
     labelKey: "hr",
     icon: Users,
     to: "/hr/minha-ficha",
@@ -159,6 +159,7 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Time / Work ───
   {
     id: "time",
+    moduleId: "time",
     labelKey: "time",
     icon: Clock,
     to: "/projects/timesheet",
@@ -184,11 +185,11 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Finance ───
   {
     id: "finance",
+    moduleId: "finance",
     labelKey: "finance",
     icon: Receipt,
     to: "/finance",
     matches: ["/finance"],
-    requiresFinance: true,
     flyout: [
       {
         titleKey: "sharedLists",
@@ -214,11 +215,11 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Inbox (email triage) ───
   {
     id: "inbox",
+    moduleId: "inbox",
     labelKey: "inbox",
     icon: Inbox,
     to: "/inbox",
     matches: ["/inbox"],
-    perm: "inbox.triage",
     flyout: [
       {
         titleKey: "shortcuts",
@@ -233,6 +234,7 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Inventory (asset register) ───
   {
     id: "inventory",
+    moduleId: "inventory",
     labelKey: "inventory",
     icon: Boxes,
     to: "/inventory",
@@ -256,6 +258,7 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Product Library (specifications) ───
   {
     id: "products",
+    moduleId: "products",
     labelKey: "products",
     icon: Armchair,
     to: "/products",
@@ -278,11 +281,11 @@ export const RAIL_ITEMS: RailItem[] = [
   // ─── Settings (pinned bottom) ───
   {
     id: "settings",
+    moduleId: "settings",
     labelKey: "settings",
     icon: Settings,
     to: "/admin",
     matches: ["/admin", "/hr/admin", "/hr/valor-bo", "/hr/dias-uteis", "/hr/subsidio-alimentacao"],
-    adminOnly: true,
     pinBottom: true,
     flyout: [
       {

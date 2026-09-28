@@ -1,10 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
-import { useMyPermissions } from "@/hooks/use-permissions";
-import { useFinanceAccess } from "@/hooks/use-finance-access";
-import type { PermissionKey } from "@/lib/permissions";
+import { useModuleAccess } from "@/lib/module-access";
 import { RAIL_ITEMS, isRailItemActive } from "./nav-config";
 
 /** Modules surfaced as tabs in the global header, in display order. */
@@ -18,19 +15,13 @@ const TAB_IDS = ["crm", "projects", "finance", "hr"] as const;
 export function ModuleTabs() {
   const loc = useLocation();
   const { t } = useTranslation("common");
-  const { isAdmin } = useAuth();
-  const { permissions } = useMyPermissions();
-  const { hasAccess: hasFinance } = useFinanceAccess();
+  const { canAccess, loading } = useModuleAccess();
 
-  const can = (k?: PermissionKey) => !k || isAdmin || permissions.has(k);
-
-  const items = TAB_IDS.map((id) => RAIL_ITEMS.find((r) => r.id === id)).filter(
-    (i): i is (typeof RAIL_ITEMS)[number] =>
-      !!i &&
-      can(i.perm) &&
-      (!i.adminOnly || isAdmin) &&
-      (!i.requiresFinance || hasFinance),
-  );
+  const items = loading
+    ? []
+    : TAB_IDS.map((id) => RAIL_ITEMS.find((r) => r.id === id)).filter(
+        (i): i is (typeof RAIL_ITEMS)[number] => !!i && canAccess(i.moduleId),
+      );
 
   if (items.length === 0) return null;
 

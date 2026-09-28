@@ -6,6 +6,7 @@ import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+import { useModuleAccess } from "@/lib/module-access";
 import {
   Popover,
   PopoverContent,
@@ -57,10 +58,9 @@ export function AppRail() {
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
-  const visible = RAIL_ITEMS.filter(
-    (i) =>
-      can(i.perm) && (!i.adminOnly || isAdmin) && (!i.requiresFinance || hasFinance),
-  );
+  const { canAccess, loading: accessLoading } = useModuleAccess();
+  // While loading, show no module entries rather than all of them.
+  const visible = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId));
   const top = visible.filter((i) => !i.pinBottom);
   const bottom = visible.filter((i) => i.pinBottom);
 
