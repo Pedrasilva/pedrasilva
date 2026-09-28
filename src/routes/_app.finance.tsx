@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_app/finance")({
       const { data } = await supabase.auth.getSession();
       const userId = data?.session?.user?.id ?? null;
       allowed =
-        (await context.queryClient.ensureQueryData(financeAccessQueryOptions(userId))) === true;
+        (await context.queryClient.fetchQuery(financeAccessQueryOptions(userId))) === true;
     } catch (err) {
       // Fail closed: any unexpected error denies access.
       // eslint-disable-next-line no-console
