@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useViewAsUserId } from "@/hooks/use-view-as-user-id";
 import {
   type EffectivePermissionRow,
   type PermissionScope,
@@ -28,30 +29,34 @@ interface EffectiveRpcRow {
  */
 export function useMyPermissionsV2() {
   const { user, isAdmin, loading: authLoading } = useAuth();
+  // View As → evaluate the viewed person (isAdmin is already false then).
+  const { active: viewAsActive, userId: targetId, loading: targetLoading } = useViewAsUserId();
+  const mode = viewAsActive ? "view-as" : "self";
+  const enabled = !!user && !authLoading && !targetLoading && !!targetId;
 
   const roleQuery = useQuery({
-    queryKey: ["my-pm-roles", user?.id],
-    enabled: !!user && !authLoading,
+    queryKey: ["my-pm-roles", user?.id, mode, targetId],
+    enabled,
     staleTime: 60_000,
     queryFn: async (): Promise<PmRole[]> => {
       // A user can hold several roles (e.g. hr + partner).
       const { data, error } = await supabase
         .from("user_role_assignments")
         .select("role")
-        .eq("user_id", user!.id);
+        .eq("user_id", targetId!);
       if (error) throw error;
       return ((data ?? []) as { role: string }[]).map((r) => r.role as PmRole);
     },
   });
 
   const effectiveQuery = useQuery({
-    queryKey: ["my-effective-permissions", user?.id],
-    enabled: !!user && !authLoading,
+    queryKey: ["my-effective-permissions", user?.id, mode, targetId],
+    enabled,
     staleTime: 60_000,
     queryFn: async (): Promise<EffectivePermissionRow[]> => {
       const { data, error } = await supabase.rpc(
         "list_user_effective_permissions",
-        { _user_id: user!.id },
+        { _user_id: targetId! },
       );
       if (error) throw error;
       return ((data ?? []) as EffectiveRpcRow[]).map((r) => ({
@@ -63,8 +68,9 @@ export function useMyPermissionsV2() {
   });
 
   return useMemo(() => {
-    const effective = effectiveQuery.data ?? [];
-    const roles = roleQuery.data ?? [];
+    // Errors / unresolved viewed id → nothing (fail closed).
+    const effective = effectiveQuery.isError ? [] : (effectiveQuery.data ?? []);
+    const roles = roleQuery.isError ? [] : (roleQuery.data ?? []);
     const can = (key: V2PermissionKey, scope: PermissionScope = "own") => {
       if (isAdmin) return true;
       return hasModuleScope(effective, key, scope);
@@ -80,11 +86,11 @@ export function useMyPermissionsV2() {
       role: roles[0] ?? null,
       hasRole: (r: PmRole) => roles.includes(r),
       effective,
-      loading: authLoading || roleQuery.isLoading || effectiveQuery.isLoading,
+      loading: authLoading || targetLoading || roleQuery.isLoading || effectiveQuery.isLoading,
       can,
       bestScope,
     };
-  }, [authLoading, effectiveQuery.data, effectiveQuery.isLoading, isAdmin, roleQuery.data, roleQuery.isLoading]);
+  }, [authLoading, targetLoading, effectiveQuery.data, effectiveQuery.isError, effectiveQuery.isLoading, isAdmin, roleQuery.data, roleQuery.isError, roleQuery.isLoading]);
 }
 
 /** Convenience: single-permission check. */

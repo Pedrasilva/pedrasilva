@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { checkFinanceAccess, checkFinanceAccessFor } from "@/lib/finance/access";
-import { supabase } from "@/integrations/supabase/client";
+import { useViewAsUserId } from "@/hooks/use-view-as-user-id";
 import { useAuth } from "@/hooks/use-auth";
 
 export const FINANCE_ACCESS_KEY = "finance-access" as const;
@@ -17,26 +17,15 @@ export const financeAccessQueryOptions = (userId: string | null | undefined) =>
     staleTime: (q) => (q.state.data === true ? 5 * 60 * 1000 : 0),
   });
 
-/** Query options for a View As preview: evaluates the viewed collaborator's user. */
+/** Query options for a View As preview: evaluates the viewed person's user id. */
 const financeAccessViewAsQueryOptions = (
   realUserId: string | null,
-  viewAsCollaboratorId: string | null,
+  targetUserId: string | null,
 ) =>
   queryOptions({
-    queryKey: [FINANCE_ACCESS_KEY, realUserId, "view-as", viewAsCollaboratorId],
-    queryFn: async () => {
-      // No collaborator picked, or collaborator without a login → fail closed.
-      if (!viewAsCollaboratorId) return false;
-      try {
-        const { data, error } = await supabase.rpc("get_user_id_for_collaborator", {
-          p_collaborator_id: viewAsCollaboratorId,
-        });
-        if (error || !data) return false;
-        return await checkFinanceAccessFor(data as string);
-      } catch {
-        return false;
-      }
-    },
+    queryKey: [FINANCE_ACCESS_KEY, realUserId, "view-as", targetUserId],
+    // Unresolved viewed id → fail closed.
+    queryFn: () => (targetUserId ? checkFinanceAccessFor(targetUserId) : Promise.resolve(false)),
     staleTime: (q) => (q.state.data === true ? 5 * 60 * 1000 : 0),
   });
 
@@ -66,9 +55,10 @@ export function useFinanceAccess(): { hasAccess: boolean; isLoading: boolean } {
     prev.current = { userId, viewAsUser, viewAsCollaboratorId };
   }, [userId, viewAsUser, viewAsCollaboratorId, qc]);
 
-  const opts = viewAsUser
-    ? financeAccessViewAsQueryOptions(userId, viewAsCollaboratorId ?? null)
+  const { active: viewAsActive, userId: targetId, loading: targetLoading } = useViewAsUserId();
+  const opts = viewAsActive
+    ? financeAccessViewAsQueryOptions(userId, targetId)
     : financeAccessQueryOptions(userId);
-  const q = useQuery({ ...opts, enabled: !!userId });
-  return { hasAccess: q.data === true, isLoading: q.isLoading };
+  const q = useQuery({ ...opts, enabled: !!userId && !targetLoading });
+  return { hasAccess: q.data === true, isLoading: targetLoading || q.isLoading };
 }

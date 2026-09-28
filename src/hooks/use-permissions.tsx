@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import type { PermissionKey } from "@/lib/permissions";
+import { useViewAsUserId } from "@/hooks/use-view-as-user-id";
 
 /**
  * Carrega todas as permissões do utilizador autenticado.
@@ -33,20 +34,24 @@ const COLLABORATOR_BASELINE: PermissionKey[] = [
 export function useMyPermissions() {
   const { user, isAdmin, isRealAdmin, viewAsUser, loading: authLoading } = useAuth();
 
+  // View As → load the viewed person's permissions (fail closed if unresolved).
+  const { active: viewAsActive, userId: targetId, loading: targetLoading } = useViewAsUserId();
+
   const query = useQuery({
-    queryKey: ["my-permissions", user?.id],
-    enabled: !!user && !authLoading,
+    queryKey: ["my-permissions", user?.id, viewAsActive ? "view-as" : "self", targetId],
+    enabled: !!user && !authLoading && !targetLoading && !!targetId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_permissions")
         .select("permission_key")
-        .eq("user_id", user!.id);
+        .eq("user_id", targetId!);
       if (error) throw error;
       return (data ?? []).map((r) => r.permission_key as PermissionKey);
     },
   });
 
-  const permissions = new Set<PermissionKey>(query.data ?? []);
+  // Errors / unresolved viewed id → empty set (fail closed).
+  const permissions = new Set<PermissionKey>(query.isError ? [] : (query.data ?? []));
   // When an admin is impersonating a collaborator, grant the baseline
   // collaborator permissions so "own"-scoped pages (férias, benefícios,
   // minha-ficha, etc.) render instead of showing "Acesso restrito".
@@ -56,7 +61,7 @@ export function useMyPermissions() {
 
   return {
     isAdmin,
-    loading: authLoading || query.isLoading,
+    loading: authLoading || targetLoading || query.isLoading,
     permissions,
   };
 }
