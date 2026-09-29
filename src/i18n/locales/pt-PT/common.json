@@ -339,7 +339,8 @@
       "settings": "Definições",
       "inventory": "Inventário",
       "products": "Biblioteca de Produtos",
-      "inbox": "Caixa de entrada"
+      "inbox": "Caixa de entrada",
+      "marketing": "Marketing"
     },
     "section": {
       "sharedLists": "Listas partilhadas",
@@ -404,7 +405,8 @@
       "time.weeklyApproval": "Aprovação semanal",
       "crm.proposals": "Propostas",
       "inbox.triage": "Caixa de entrada",
-      "inbox.settings": "Definições"
+      "inbox.settings": "Definições",
+      "marketing.inbox": "Caixa de Marketing"
     },
     "top": {
       "create": "Criar",

@@ -28,6 +28,7 @@ export type ModuleId =
   | "inventory"
   | "products"
   | "portfolio"
+  | "marketing"
   | "settings";
 
 type ModuleRule = {
@@ -56,6 +57,7 @@ export const MODULE_RULES: Record<ModuleId, ModuleRule> = {
   inventory: { v2: [{ key: "inventory.view", scope: "all" }] },
   products: { v2: [{ key: "products.view", scope: "all" }] },
   portfolio: { v2: [{ key: "portfolio.view", scope: "all" }] },
+  marketing: { v2: [{ key: "marketing.view", scope: "own" }] },
   settings: { adminOnly: true },
 };
 
