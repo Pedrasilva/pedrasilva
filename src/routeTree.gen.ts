@@ -60,6 +60,7 @@ import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inven
 import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.intake'
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
 import { Route as AppMarketingIndexRouteImport } from './routes/_app.marketing.index'
+import { Route as AppMarketingBibleRouteImport } from './routes/_app.marketing.bible'
 import { Route as AppProductsIndexRouteImport } from './routes/_app.products.index'
 import { Route as AppProductsCategoriesRouteImport } from './routes/_app.products.categories'
 import { Route as AppProductsLibraryRouteImport } from './routes/_app.products.library'
@@ -392,6 +393,11 @@ const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
 const AppMarketingIndexRoute = AppMarketingIndexRouteImport.update({
   id: '/marketing/',
   path: '/marketing/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketingBibleRoute = AppMarketingBibleRouteImport.update({
+  id: '/marketing/bible',
+  path: '/marketing/bible',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
@@ -860,6 +866,7 @@ export interface FileRoutesByFullPath {
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
+  '/marketing/bible': typeof AppMarketingBibleRoute
   '/products/categories': typeof AppProductsCategoriesRoute
   '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -979,6 +986,7 @@ export interface FileRoutesByTo {
   '/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
+  '/marketing/bible': typeof AppMarketingBibleRoute
   '/products/categories': typeof AppProductsCategoriesRoute
   '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -1108,6 +1116,7 @@ export interface FileRoutesById {
   '/_app/inventory/assignments': typeof AppInventoryAssignmentsRoute
   '/_app/inventory/intake': typeof AppInventoryIntakeRoute
   '/_app/inventory/reports': typeof AppInventoryReportsRoute
+  '/_app/marketing/bible': typeof AppMarketingBibleRoute
   '/_app/products/categories': typeof AppProductsCategoriesRoute
   '/_app/products/library': typeof AppProductsLibraryRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -1237,6 +1246,7 @@ export interface FileRouteTypes {
     | '/inventory/assignments'
     | '/inventory/intake'
     | '/inventory/reports'
+    | '/marketing/bible'
     | '/products/categories'
     | '/products/library'
     | '/projects/$projectId'
@@ -1356,6 +1366,7 @@ export interface FileRouteTypes {
     | '/inventory/assignments'
     | '/inventory/intake'
     | '/inventory/reports'
+    | '/marketing/bible'
     | '/products/categories'
     | '/products/library'
     | '/projects/$projectId'
@@ -1484,6 +1495,7 @@ export interface FileRouteTypes {
     | '/_app/inventory/assignments'
     | '/_app/inventory/intake'
     | '/_app/inventory/reports'
+    | '/_app/marketing/bible'
     | '/_app/products/categories'
     | '/_app/products/library'
     | '/_app/projects/$projectId'
@@ -1946,6 +1958,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing'
       fullPath: '/marketing/'
       preLoaderRoute: typeof AppMarketingIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketing/bible': {
+      id: '/_app/marketing/bible'
+      path: '/marketing/bible'
+      fullPath: '/marketing/bible'
+      preLoaderRoute: typeof AppMarketingBibleRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/products/': {
@@ -2749,6 +2768,7 @@ interface AppRouteChildren {
   AppAdminProposalImagesRoute: typeof AppAdminProposalImagesRoute
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
   AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
+  AppMarketingBibleRoute: typeof AppMarketingBibleRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
   AppProjectsApprovalsRoute: typeof AppProjectsApprovalsRoute
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
@@ -2784,6 +2804,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminProposalImagesRoute: AppAdminProposalImagesRoute,
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
   AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
+  AppMarketingBibleRoute: AppMarketingBibleRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
   AppProjectsApprovalsRoute: AppProjectsApprovalsRoute,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
