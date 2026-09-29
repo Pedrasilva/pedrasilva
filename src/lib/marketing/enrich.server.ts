@@ -20,7 +20,13 @@ const SHELF = ["urgent", "seasonal", "evergreen"];
 
 export class AiStopError extends Error {}
 
-type Profiles = Awaited<ReturnType<typeof getProjectProfilesForMatching>>;
+type MatchProfile = {
+  id: string; project_id: string; project_name: string | null; client: string | null; aliases: string[];
+  sector: string | null; location: string | null; client_ambition: string | null; central_idea: string | null;
+  challenges: string | null; proud_of: string | null; key_facts: string | null; name_rule: string;
+  public_description: string | null;
+};
+type Profiles = MatchProfile[];
 export type EnrichContext = { bible: ActiveMarketingBible; profiles: Profiles };
 
 type Result = {
@@ -59,7 +65,7 @@ const SCHEMA = {
 export async function loadEnrichContext(): Promise<EnrichContext | null> {
   const bible = await getActiveMarketingBible();
   if (!bible) return null;
-  return { bible, profiles: await getProjectProfilesForMatching() };
+  return { bible, profiles: (await getProjectProfilesForMatching()) as unknown as Profiles };
 }
 
 function systemPrompt({ bible, profiles }: EnrichContext) {
