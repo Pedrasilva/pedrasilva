@@ -394,6 +394,32 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
   );
 }
 
+function IgnoredAttachmentsNote({ captureId }: { captureId: string }) {
+  const { t } = useTranslation("marketing");
+  const { data = [] } = useQuery({
+    queryKey: ["marketing-email-ignored", captureId],
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from("marketing_email_ignored")
+        .select("id, attachment_filename, reason")
+        .eq("capture_id", captureId)
+        .not("attachment_filename", "is", null);
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; attachment_filename: string; reason: string }>;
+    },
+  });
+  if (data.length === 0) return null;
+  const list = data
+    .map((r) => `${r.attachment_filename} (${t(`ignored.reason.${r.reason}`, { defaultValue: r.reason })})`)
+    .join(", ");
+  return (
+    <p className="rounded-md border border-border bg-muted/50 p-2 text-xs text-muted-foreground">
+      {t("ignored.note", { count: data.length, list })}
+    </p>
+  );
+}
+
 function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[] }) {
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
@@ -452,6 +478,7 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
               );
             })}
           </div>
+          {canCurate && <IgnoredAttachmentsNote captureId={capture.id} />}
         </div>
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>

@@ -147,5 +147,16 @@
     "saved": "New version saved",
     "saveError": "Could not save the version",
     "unsavedConfirm": "You have unsaved changes. Leave anyway?"
+  },
+  "ignored": {
+    "note_one": "{{count}} attachment wasn't imported: {{list}}",
+    "note_other": "{{count}} attachments weren't imported: {{list}}",
+    "reason": {
+      "attachment_too_large": "too large",
+      "inline_image": "signature image",
+      "unsupported_type": "unsupported file type",
+      "external_sender": "external sender",
+      "empty": "empty email"
+    }
   }
 }
