@@ -158,5 +158,61 @@
       "external_sender": "external sender",
       "empty": "empty email"
     }
+  },
+  "profiles": {
+    "title": "Project marketing profiles",
+    "subtitle": "Story, context and publication rules per project.",
+    "add": "Add project profile",
+    "create": "Create profile",
+    "pickProject": "Choose a project",
+    "empty": "No project profiles yet.",
+    "story": "Story",
+    "storyIncomplete": "Story incomplete",
+    "completeness": "{{n}} of {{total}}",
+    "error": "Could not save the profile",
+    "notFound": "Profile not found or not visible to you."
+  },
+  "nameRule": {
+    "name": "Can be named",
+    "describe_only": "Describe only",
+    "never_mention": "Never mention"
+  },
+  "profile": {
+    "client": "Client",
+    "team": "Team",
+    "facts": "Facts",
+    "location": "Location",
+    "yearCompleted": "Year completed",
+    "storyTitle": "Story",
+    "aliases": "Aliases",
+    "aliasesHint": "Nicknames people use in email: house nickname, street, client surname.",
+    "addAlias": "New alias",
+    "addAliasButton": "Add",
+    "removeAlias": "Remove alias",
+    "rules": "Public rules",
+    "rulesReadOnly": "Only curators can change these rules.",
+    "nameRule": "Name rule",
+    "publicDescription": "Public description",
+    "publicDescriptionHint": "e.g. an 800-person office for a global technology company",
+    "descriptionRequired": "A public description is required when the client can't be named.",
+    "rulesNotes": "Rules notes",
+    "delete": "Delete profile",
+    "deleteConfirm": "Delete this project profile?",
+    "captures": "Captures",
+    "openProfile": "Open project profile",
+    "effectiveClearance": "Effective clearance",
+    "projectStricter": "Project is {{clearance}}",
+    "fields": {
+      "client_ambition": "Client ambition",
+      "client_ambitionHint": "What did the client want, and why us?",
+      "central_idea": "Central idea",
+      "central_ideaHint": "What's the one idea behind the design?",
+      "challenges": "Challenges",
+      "challengesHint": "What was hard, and how did we solve it?",
+      "proud_of": "Proud of",
+      "proud_ofHint": "What would you show a future client first?",
+      "key_facts": "Key facts",
+      "key_factsHint": "Size, materials, awards, numbers worth quoting."
+    }
   }
 }

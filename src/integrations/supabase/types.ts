@@ -5071,6 +5071,83 @@ export type Database = {
           },
         ]
       }
+      marketing_project_profiles: {
+        Row: {
+          aliases: string[]
+          central_idea: string | null
+          challenges: string | null
+          clearance: Database["public"]["Enums"]["marketing_clearance"]
+          client_ambition: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          key_facts: string | null
+          location: string | null
+          name_rule: Database["public"]["Enums"]["marketing_name_rule"]
+          project_id: string
+          proud_of: string | null
+          public_description: string | null
+          rules_notes: string | null
+          sector: Database["public"]["Enums"]["marketing_sector"] | null
+          stage: Database["public"]["Enums"]["marketing_stage"] | null
+          updated_at: string
+          updated_by: string | null
+          year_completed: number | null
+        }
+        Insert: {
+          aliases?: string[]
+          central_idea?: string | null
+          challenges?: string | null
+          clearance?: Database["public"]["Enums"]["marketing_clearance"]
+          client_ambition?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_facts?: string | null
+          location?: string | null
+          name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
+          project_id: string
+          proud_of?: string | null
+          public_description?: string | null
+          rules_notes?: string | null
+          sector?: Database["public"]["Enums"]["marketing_sector"] | null
+          stage?: Database["public"]["Enums"]["marketing_stage"] | null
+          updated_at?: string
+          updated_by?: string | null
+          year_completed?: number | null
+        }
+        Update: {
+          aliases?: string[]
+          central_idea?: string | null
+          challenges?: string | null
+          clearance?: Database["public"]["Enums"]["marketing_clearance"]
+          client_ambition?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_facts?: string | null
+          location?: string | null
+          name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
+          project_id?: string
+          proud_of?: string | null
+          public_description?: string | null
+          rules_notes?: string | null
+          sector?: Database["public"]["Enums"]["marketing_sector"] | null
+          stage?: Database["public"]["Enums"]["marketing_stage"] | null
+          updated_at?: string
+          updated_by?: string | null
+          year_completed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_project_profiles_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_allowance_rates: {
         Row: {
           ano: number
@@ -11804,8 +11881,16 @@ export type Database = {
         Args: { _arr: Json; _label: string }
         Returns: undefined
       }
+      marketing_effective_clearance: {
+        Args: { _capture_id: string }
+        Returns: Database["public"]["Enums"]["marketing_clearance"]
+      }
       marketing_intake_secret_matches: {
         Args: { p_secret: string }
+        Returns: boolean
+      }
+      marketing_is_project_team_member: {
+        Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
       notify_user: {
@@ -12180,6 +12265,7 @@ export type Database = {
         | "story"
         | "quote"
         | "link"
+      marketing_name_rule: "name" | "describe_only" | "never_mention"
       marketing_sector:
         | "workspace"
         | "healthcare"
@@ -12663,6 +12749,7 @@ export const Constants = {
         "quote",
         "link",
       ],
+      marketing_name_rule: ["name", "describe_only", "never_mention"],
       marketing_sector: [
         "workspace",
         "healthcare",

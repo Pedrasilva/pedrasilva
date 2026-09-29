@@ -407,7 +407,8 @@
       "inbox.triage": "Inbox",
       "inbox.settings": "Settings",
       "marketing.inbox": "Marketing Inbox",
-      "marketing.bible": "Marketing Bible"
+      "marketing.bible": "Marketing Bible",
+      "marketing.projects": "Project profiles"
     },
     "top": {
       "create": "Create",
