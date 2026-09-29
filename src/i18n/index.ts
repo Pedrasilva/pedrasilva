@@ -87,7 +87,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory"],
+      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory", "marketing"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {
