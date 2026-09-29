@@ -214,5 +214,26 @@
       "key_facts": "Key facts",
       "key_factsHint": "Size, materials, awards, numbers worth quoting."
     }
+  },
+  "ai": {
+    "title": "AI analysis",
+    "disclaimer": "Suggestions from the AI. A person decides; the AI never changes clearance or your choices.",
+    "pending": "Not analysed yet. It runs automatically within a few minutes.",
+    "rerun": "Re-run analysis",
+    "running": "Analysing…",
+    "rerunDone": "Analysis updated",
+    "projectGuess": "Project guess",
+    "flags": "Publication concerns",
+    "analysedWith": "Analysed against Bible v{{version}} on {{date}} ({{model}})",
+    "sort": "Sort",
+    "sortNewest": "Newest first",
+    "sortFit": "Best fit first",
+    "suggestionsTitle": "Suggested additions",
+    "suggestionsHint": "The AI found these facts in captures. Accepting adds the text to the end of the field; nothing is deleted.",
+    "sourceCapture": "Open source capture",
+    "accept": "Accept",
+    "reject": "Reject",
+    "suggestionAccepted": "Added to the story",
+    "suggestionRejected": "Suggestion rejected"
   }
 }

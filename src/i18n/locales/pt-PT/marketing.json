@@ -214,5 +214,26 @@
       "key_facts": "Factos-chave",
       "key_factsHint": "Área, materiais, prémios, números a citar."
     }
+  },
+  "ai": {
+    "title": "Análise da IA",
+    "disclaimer": "Sugestões da IA. Quem decide é uma pessoa; a IA nunca altera a autorização nem as vossas escolhas.",
+    "pending": "Ainda não analisado. Corre automaticamente dentro de alguns minutos.",
+    "rerun": "Repetir análise",
+    "running": "A analisar…",
+    "rerunDone": "Análise atualizada",
+    "projectGuess": "Projeto provável",
+    "flags": "Cuidados de publicação",
+    "analysedWith": "Analisado com a Bíblia v{{version}} em {{date}} ({{model}})",
+    "sort": "Ordenar",
+    "sortNewest": "Mais recentes",
+    "sortFit": "Maior adequação",
+    "suggestionsTitle": "Acrescentos sugeridos",
+    "suggestionsHint": "A IA encontrou estes factos nas capturas. Aceitar acrescenta o texto ao fim do campo; nada é apagado.",
+    "sourceCapture": "Abrir captura de origem",
+    "accept": "Aceitar",
+    "reject": "Rejeitar",
+    "suggestionAccepted": "Acrescentado à história",
+    "suggestionRejected": "Sugestão rejeitada"
   }
 }

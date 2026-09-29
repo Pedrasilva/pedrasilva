@@ -209,6 +209,8 @@ function ProfilePage() {
         </div>
       </Card>
 
+      {canEditStory && <StorySuggestions profileId={profile.id} thumbs={thumbs} onAccepted={() => { setDraft({}); qc.invalidateQueries({ queryKey: ["marketing-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />}
+
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.storyTitle")}</h2>
         {!canEditStory && <p className="text-xs text-muted-foreground">{t("detail.readOnly")}</p>}
