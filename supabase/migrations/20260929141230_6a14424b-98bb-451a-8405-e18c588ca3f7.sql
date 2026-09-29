@@ -1,0 +1,1 @@
+DELETE FROM public.marketing_captures WHERE id = 'e30a090a-71e3-45cf-bc16-a509442b7e57' AND raw_text = 'zip policy test';
