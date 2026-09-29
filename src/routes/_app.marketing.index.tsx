@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,8 +19,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
+import { strictestClearance, useProjectProfiles, type ProjectProfile } from "@/lib/marketing/projects";
 
 export const Route = createFileRoute("/_app/marketing/")({
+  validateSearch: (s: Record<string, unknown>): { capture?: string } =>
+    typeof s.capture === "string" ? { capture: s.capture } : {},
   component: MarketingInboxPage,
   head: () => ({
     meta: [
@@ -166,7 +169,11 @@ function MarketingInboxPage() {
   const [channel, setChannel] = useState<string>(ALL);
   const [project, setProject] = useState<string>(ALL);
   const [addOpen, setAddOpen] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const [openId, setOpenId] = useState<string | null>(search.capture ?? null);
+  const { data: profiles = [] } = useProjectProfiles();
+  const profileByProject = useMemo(() => new Map(profiles.map((p) => [p.project_id, p])), [profiles]);
+  const effective = (c: Capture) => strictestClearance(c.clearance, c.project_id ? profileByProject.get(c.project_id)?.clearance : null);
 
   const filtered = captures.filter(
     (c) =>
@@ -238,7 +245,7 @@ function MarketingInboxPage() {
                   <div className="flex flex-wrap gap-1">
                     <Badge variant="outline">{t(`channel.${c.channel}`)}</Badge>
                     <Badge variant="secondary">{t(`status.${c.status}`)}</Badge>
-                    <Badge variant="outline" className={CLEARANCE_CLASS[c.clearance]}>{t(`clearance.${c.clearance}`)}</Badge>
+                    <Badge variant="outline" className={CLEARANCE_CLASS[effective(c)]}>{t(`clearance.${effective(c)}`)}</Badge>
                   </div>
                 </div>
               </Card>
@@ -248,7 +255,8 @@ function MarketingInboxPage() {
       )}
 
       <AddCaptureDialog open={addOpen} onOpenChange={setAddOpen} projects={projects} />
-      <CaptureDrawer capture={selected} onClose={() => setOpenId(null)} projects={projects} />
+      <CaptureDrawer capture={selected} onClose={() => setOpenId(null)} projects={projects}
+        profile={selected?.project_id ? profileByProject.get(selected.project_id) ?? null : null} />
     </div>
   );
 }
@@ -420,7 +428,7 @@ function IgnoredAttachmentsNote({ captureId }: { captureId: string }) {
   );
 }
 
-function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[] }) {
+function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[]; profile: ProjectProfile | null }) {
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
   const canCurate = can("marketing.curate", "all");
@@ -432,6 +440,16 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [lastId, setLastId] = useState<string | null>(null);
+  const { data: effClearance } = useQuery({
+    queryKey: ["marketing-effective-clearance", capture?.id, capture?.clearance, profile?.clearance],
+    enabled: !!capture && !!profile,
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).rpc("marketing_effective_clearance", { _capture_id: capture!.id });
+      if (error) throw error;
+      return data as Capture["clearance"];
+    },
+  });
   if (capture && capture.id !== lastId) { setLastId(capture.id); setDraft({}); }
 
   if (!capture) return null;
@@ -479,6 +497,23 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
             })}
           </div>
           {canCurate && <IgnoredAttachmentsNote captureId={capture.id} />}
+          {profile && (
+            <div className="space-y-1 rounded-md border border-border p-2">
+              {effClearance && (
+                <Row label={t("profile.effectiveClearance")}>
+                  <Badge variant="outline" className={CLEARANCE_CLASS[effClearance]}>{t(`clearance.${effClearance}`)}</Badge>
+                  {effClearance !== capture.clearance && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {t("profile.projectStricter", { clearance: t(`clearance.${effClearance}`).toLowerCase() })}
+                    </span>
+                  )}
+                </Row>
+              )}
+              <Link to="/marketing/projects/$profileId" params={{ profileId: profile.id }} className="text-xs text-primary underline">
+                {t("profile.openProfile")}
+              </Link>
+            </div>
+          )}
         </div>
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>
