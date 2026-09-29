@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,7 +41,34 @@ const CHANNELS = ["hub", "email", "whatsapp"] as const;
 const CONTENT_TYPES = ["photo", "video", "idea", "story", "quote", "link"] as const;
 const SHELF = ["urgent", "seasonal", "evergreen"] as const;
 const BUCKET = "marketing-assets";
-const MAX_BYTES = 50 * 1024 * 1024;
+const MAX_BYTES = 500 * 1024 * 1024;
+const TUS_THRESHOLD = 6 * 1024 * 1024;
+
+/** Resumable (TUS) upload to the private bucket, reporting 0–100 progress. */
+async function uploadResumable(path: string, file: File, onProgress: (pct: number) => void) {
+  const { Upload } = await import("tus-js-client");
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("No session");
+  await new Promise<void>((resolve, reject) => {
+    const up = new Upload(file, {
+      endpoint: `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/upload/resumable`,
+      retryDelays: [0, 3000, 5000, 10000, 20000],
+      headers: { authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, "x-upsert": "false" },
+      uploadDataDuringCreation: true,
+      removeFingerprintOnSuccess: true,
+      metadata: { bucketName: BUCKET, objectName: path, contentType: file.type, cacheControl: "3600" },
+      chunkSize: 6 * 1024 * 1024,
+      onError: reject,
+      onProgress: (sent, total) => onProgress(Math.round((sent / total) * 100)),
+      onSuccess: () => resolve(),
+    });
+    up.findPreviousUploads().then((prev) => {
+      if (prev.length) up.resumeFromPreviousUpload(prev[0]);
+      up.start();
+    });
+  });
+}
 const NONE = "__none";
 const ALL = "__all";
 const ACTIVE = "__active";
@@ -266,6 +294,7 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
   const [stage, setStage] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  const [progress, setProgress] = useState<Record<number, number>>({});
 
   const reset = () => { setText(""); setProjectId(null); setSector(null); setStage(null); setFiles([]); };
 
@@ -282,19 +311,16 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    const meta = user.user_metadata as { full_name?: string; name?: string } | undefined;
+    // Sender, creator and received time are set server-side for hub captures.
     const { data: cap, error } = await supabase
       .from("marketing_captures")
       .insert({
         channel: "hub",
-        created_by: user.id,
-        sender_name: meta?.full_name ?? meta?.name ?? user.email ?? null,
-        sender_email: user.email ?? null,
         raw_text: text.trim() || null,
         project_id: projectId,
         sector: sector as Capture["sector"],
         stage: stage as Capture["stage"],
-      })
+      } as never)
       .select("id")
       .single();
     if (error || !cap) {
@@ -303,16 +329,24 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
       return;
     }
     const failed: string[] = [];
-    for (const f of files) {
+    for (const [i, f] of files.entries()) {
       const path = `${cap.id}/${crypto.randomUUID()}-${f.name.replace(/[^\w.\-]+/g, "_")}`;
-      const up = await supabase.storage.from(BUCKET).upload(path, f, { contentType: f.type });
-      if (up.error) { failed.push(f.name); continue; }
+      const onProgress = (pct: number) => setProgress((p) => ({ ...p, [i]: pct }));
+      try {
+        if (f.size > TUS_THRESHOLD) await uploadResumable(path, f, onProgress);
+        else {
+          const up = await supabase.storage.from(BUCKET).upload(path, f, { contentType: f.type });
+          if (up.error) throw up.error;
+          onProgress(100);
+        }
+      } catch { failed.push(f.name); continue; }
       const ins = await supabase.from("marketing_capture_assets").insert({
         capture_id: cap.id, storage_path: path, file_name: f.name, mime_type: f.type, size_bytes: f.size,
       });
       if (ins.error) failed.push(f.name);
     }
     setSaving(false);
+    setProgress({});
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     if (failed.length) toast.warning(t("add.failedFiles", { files: failed.join(", ") }));
     else toast.success(t("add.saved"));
@@ -340,7 +374,12 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
           <div className="space-y-1">
             <Label>{t("add.files")}</Label>
             <Input type="file" multiple accept="image/*,video/*,application/pdf" onChange={(e) => pickFiles(e.target.files)} />
-            {files.length > 0 && <p className="text-xs text-muted-foreground">{files.map((f) => f.name).join(", ")}</p>}
+            {files.map((f, i) => (
+              <div key={i} className="space-y-1">
+                <p className="truncate text-xs text-muted-foreground">{f.name}</p>
+                {saving && <Progress value={progress[i] ?? 0} className="h-1.5" />}
+              </div>
+            ))}
           </div>
         </div>
         <DialogFooter>
