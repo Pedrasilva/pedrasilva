@@ -1,0 +1,107 @@
+{
+  "inbox": {
+    "title": "Marketing Inbox",
+    "subtitle": "Material from the whole team, ready to be curated into posts.",
+    "add": "Add capture",
+    "empty": "No captures yet.",
+    "loading": "Loading…"
+  },
+  "filters": {
+    "status": "Status",
+    "sector": "Sector",
+    "clearance": "Clearance",
+    "channel": "Channel",
+    "project": "Project",
+    "all": "All",
+    "activeOnly": "All except archived"
+  },
+  "channel": {
+    "hub": "Hub",
+    "email": "Email",
+    "whatsapp": "WhatsApp"
+  },
+  "status": {
+    "new": "New",
+    "enriched": "Enriched",
+    "ready": "Ready",
+    "used": "Used",
+    "archived": "Archived"
+  },
+  "clearance": {
+    "unknown": "Unknown",
+    "cleared": "Cleared",
+    "needs_client_approval": "Needs client approval",
+    "internal_only": "Internal only"
+  },
+  "sector": {
+    "workspace": "Workspace",
+    "healthcare": "Healthcare",
+    "residential": "Residential",
+    "hospitality": "Hospitality",
+    "other": "Other"
+  },
+  "stage": {
+    "design": "Design",
+    "construction": "Construction",
+    "completed": "Completed",
+    "other": "Other"
+  },
+  "contentType": {
+    "photo": "Photo",
+    "video": "Video",
+    "idea": "Idea",
+    "story": "Story",
+    "quote": "Quote",
+    "link": "Link"
+  },
+  "shelfLife": {
+    "urgent": "Urgent",
+    "seasonal": "Seasonal",
+    "evergreen": "Evergreen"
+  },
+  "add": {
+    "title": "Add capture",
+    "textLabel": "What did you see? Why is it interesting?",
+    "project": "Project (optional)",
+    "sector": "Sector (optional)",
+    "stage": "Stage (optional)",
+    "files": "Files (images, video, PDF)",
+    "save": "Save capture",
+    "saving": "Saving…",
+    "none": "None",
+    "saved": "Capture saved",
+    "failedFiles": "Capture saved, but these files failed: {{files}}",
+    "invalidType": "Unsupported file type: {{file}}",
+    "tooLarge": "File larger than 50 MB: {{file}}",
+    "error": "Could not save the capture"
+  },
+  "detail": {
+    "original": "Original",
+    "curation": "Curation",
+    "sender": "Sender",
+    "channel": "Channel",
+    "received": "Received",
+    "text": "Text",
+    "assets": "Files",
+    "noAssets": "No files",
+    "openPdf": "Open PDF",
+    "project": "Project",
+    "sector": "Sector",
+    "stage": "Stage",
+    "contentType": "Content type",
+    "pillar": "Pillar",
+    "shelfLife": "Shelf life",
+    "expiresAt": "Expires",
+    "clearance": "Clearance",
+    "status": "Status",
+    "curatorNotes": "Curator notes",
+    "fitScore": "Fit score",
+    "aiSummary": "AI summary",
+    "missingNotes": "Missing",
+    "save": "Save curation",
+    "saved": "Curation saved",
+    "error": "Could not save curation",
+    "readOnly": "Only curators can edit these fields.",
+    "unknownSender": "Unknown sender"
+  }
+}

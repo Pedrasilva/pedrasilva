@@ -1,0 +1,107 @@
+{
+  "inbox": {
+    "title": "Caixa de Marketing",
+    "subtitle": "Material de toda a equipa, pronto a ser curado em publicações.",
+    "add": "Adicionar captura",
+    "empty": "Ainda não há capturas.",
+    "loading": "A carregar…"
+  },
+  "filters": {
+    "status": "Estado",
+    "sector": "Setor",
+    "clearance": "Autorização",
+    "channel": "Canal",
+    "project": "Projeto",
+    "all": "Todos",
+    "activeOnly": "Todos exceto arquivados"
+  },
+  "channel": {
+    "hub": "Hub",
+    "email": "Email",
+    "whatsapp": "WhatsApp"
+  },
+  "status": {
+    "new": "Nova",
+    "enriched": "Enriquecida",
+    "ready": "Pronta",
+    "used": "Usada",
+    "archived": "Arquivada"
+  },
+  "clearance": {
+    "unknown": "Desconhecida",
+    "cleared": "Autorizada",
+    "needs_client_approval": "Requer aprovação do cliente",
+    "internal_only": "Apenas interno"
+  },
+  "sector": {
+    "workspace": "Escritórios",
+    "healthcare": "Saúde",
+    "residential": "Residencial",
+    "hospitality": "Hotelaria",
+    "other": "Outro"
+  },
+  "stage": {
+    "design": "Projeto",
+    "construction": "Obra",
+    "completed": "Concluído",
+    "other": "Outro"
+  },
+  "contentType": {
+    "photo": "Fotografia",
+    "video": "Vídeo",
+    "idea": "Ideia",
+    "story": "História",
+    "quote": "Citação",
+    "link": "Link"
+  },
+  "shelfLife": {
+    "urgent": "Urgente",
+    "seasonal": "Sazonal",
+    "evergreen": "Intemporal"
+  },
+  "add": {
+    "title": "Adicionar captura",
+    "textLabel": "O que viste? Porque é interessante?",
+    "project": "Projeto (opcional)",
+    "sector": "Setor (opcional)",
+    "stage": "Fase (opcional)",
+    "files": "Ficheiros (imagens, vídeo, PDF)",
+    "save": "Guardar captura",
+    "saving": "A guardar…",
+    "none": "Nenhum",
+    "saved": "Captura guardada",
+    "failedFiles": "Captura guardada, mas estes ficheiros falharam: {{files}}",
+    "invalidType": "Tipo de ficheiro não suportado: {{file}}",
+    "tooLarge": "Ficheiro maior que 50 MB: {{file}}",
+    "error": "Não foi possível guardar a captura"
+  },
+  "detail": {
+    "original": "Original",
+    "curation": "Curadoria",
+    "sender": "Remetente",
+    "channel": "Canal",
+    "received": "Recebida",
+    "text": "Texto",
+    "assets": "Ficheiros",
+    "noAssets": "Sem ficheiros",
+    "openPdf": "Abrir PDF",
+    "project": "Projeto",
+    "sector": "Setor",
+    "stage": "Fase",
+    "contentType": "Tipo de conteúdo",
+    "pillar": "Pilar",
+    "shelfLife": "Validade",
+    "expiresAt": "Expira",
+    "clearance": "Autorização",
+    "status": "Estado",
+    "curatorNotes": "Notas de curadoria",
+    "fitScore": "Pontuação de adequação",
+    "aiSummary": "Resumo IA",
+    "missingNotes": "Em falta",
+    "save": "Guardar curadoria",
+    "saved": "Curadoria guardada",
+    "error": "Não foi possível guardar a curadoria",
+    "readOnly": "Apenas curadores podem editar estes campos.",
+    "unknownSender": "Remetente desconhecido"
+  }
+}
