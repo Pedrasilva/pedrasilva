@@ -72,7 +72,7 @@
     "saved": "Captura guardada",
     "failedFiles": "Captura guardada, mas estes ficheiros falharam: {{files}}",
     "invalidType": "Tipo de ficheiro não suportado: {{file}}",
-    "tooLarge": "Ficheiro maior que 50 MB: {{file}}",
+    "tooLarge": "Ficheiro maior que 500 MB: {{file}}",
     "error": "Não foi possível guardar a captura"
   },
   "detail": {
