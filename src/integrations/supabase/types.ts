@@ -5030,6 +5030,47 @@ export type Database = {
           },
         ]
       }
+      marketing_email_ignored: {
+        Row: {
+          attachment_filename: string | null
+          capture_id: string | null
+          created_at: string
+          from_address: string | null
+          id: string
+          message_id: string
+          reason: string
+          subject: string | null
+        }
+        Insert: {
+          attachment_filename?: string | null
+          capture_id?: string | null
+          created_at?: string
+          from_address?: string | null
+          id?: string
+          message_id: string
+          reason: string
+          subject?: string | null
+        }
+        Update: {
+          attachment_filename?: string | null
+          capture_id?: string | null
+          created_at?: string
+          from_address?: string | null
+          id?: string
+          message_id?: string
+          reason?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_email_ignored_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_allowance_rates: {
         Row: {
           ano: number
@@ -11762,6 +11803,10 @@ export type Database = {
       marketing_bible_validate_items: {
         Args: { _arr: Json; _label: string }
         Returns: undefined
+      }
+      marketing_intake_secret_matches: {
+        Args: { p_secret: string }
+        Returns: boolean
       }
       notify_user: {
         Args: {

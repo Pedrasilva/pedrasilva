@@ -147,5 +147,16 @@
     "saved": "Nova versão guardada",
     "saveError": "Não foi possível guardar a versão",
     "unsavedConfirm": "Tem alterações por guardar. Sair mesmo assim?"
+  },
+  "ignored": {
+    "note_one": "{{count}} anexo não foi importado: {{list}}",
+    "note_other": "{{count}} anexos não foram importados: {{list}}",
+    "reason": {
+      "attachment_too_large": "demasiado grande",
+      "inline_image": "imagem de assinatura",
+      "unsupported_type": "tipo de ficheiro não suportado",
+      "external_sender": "remetente externo",
+      "empty": "email vazio"
+    }
   }
 }

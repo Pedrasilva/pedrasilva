@@ -131,6 +131,7 @@ import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
+import { Route as ApiPublicHooksMarketingIntakeRouteImport } from './routes/api/public/hooks/marketing-intake'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as ApiPublicHooksTimesheetReminderRouteImport } from './routes/api/public/hooks/timesheet-reminder'
 import { Route as ApiPublicInboxImageRouteImport } from './routes/api/public/inbox/image'
@@ -793,6 +794,12 @@ const ApiPublicHooksInboxPollRoute = ApiPublicHooksInboxPollRouteImport.update({
   path: '/api/public/hooks/inbox-poll',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksMarketingIntakeRoute =
+  ApiPublicHooksMarketingIntakeRouteImport.update({
+    id: '/api/public/hooks/marketing-intake',
+    path: '/api/public/hooks/marketing-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   id: '/api/public/hooks/run-backup',
   path: '/api/public/hooks/run-backup',
@@ -939,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1059,6 +1067,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1189,6 +1198,7 @@ export interface FileRoutesById {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1319,6 +1329,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1439,6 +1450,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1568,6 +1580,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1595,6 +1608,7 @@ export interface RootRouteChildren {
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
+  ApiPublicHooksMarketingIntakeRoute: typeof ApiPublicHooksMarketingIntakeRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
   ApiPublicHooksTimesheetReminderRoute: typeof ApiPublicHooksTimesheetReminderRoute
   ApiPublicInboxImageRoute: typeof ApiPublicInboxImageRoute
@@ -2457,6 +2471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksInboxPollRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/marketing-intake': {
+      id: '/api/public/hooks/marketing-intake'
+      path: '/api/public/hooks/marketing-intake'
+      fullPath: '/api/public/hooks/marketing-intake'
+      preLoaderRoute: typeof ApiPublicHooksMarketingIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/run-backup': {
       id: '/api/public/hooks/run-backup'
       path: '/api/public/hooks/run-backup'
@@ -2842,6 +2863,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
+  ApiPublicHooksMarketingIntakeRoute: ApiPublicHooksMarketingIntakeRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
   ApiPublicHooksTimesheetReminderRoute: ApiPublicHooksTimesheetReminderRoute,
   ApiPublicInboxImageRoute: ApiPublicInboxImageRoute,
