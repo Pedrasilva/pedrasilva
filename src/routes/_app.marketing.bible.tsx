@@ -53,9 +53,14 @@ function useAuthorNames(ids: string[]) {
     enabled: key.length > 0,
     staleTime: 10 * 60_000,
     queryFn: async () => {
-      const { data } = await supabase.from("collaborators").select("user_id, nome").in("user_id", key);
+      const { data } = await supabase.rpc("list_collaborators_basic");
       const map: Record<string, string> = {};
-      for (const r of (data ?? []) as { user_id: string | null; nome: string }[]) if (r.user_id) map[r.user_id] = r.nome;
+      await Promise.all(
+        (data ?? []).map(async (c) => {
+          const { data: uid } = await supabase.rpc("get_user_id_for_collaborator", { p_collaborator_id: c.id });
+          if (uid && key.includes(uid)) map[uid] = c.nome;
+        }),
+      );
       return map;
     },
   });
