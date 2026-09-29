@@ -158,5 +158,61 @@
       "external_sender": "remetente externo",
       "empty": "email vazio"
     }
+  },
+  "profiles": {
+    "title": "Perfis de marketing dos projetos",
+    "subtitle": "História, contexto e regras de publicação por projeto.",
+    "add": "Adicionar perfil de projeto",
+    "create": "Criar perfil",
+    "pickProject": "Escolha um projeto",
+    "empty": "Ainda não há perfis de projeto.",
+    "story": "História",
+    "storyIncomplete": "História incompleta",
+    "completeness": "{{n}} de {{total}}",
+    "error": "Não foi possível guardar o perfil",
+    "notFound": "Perfil não encontrado ou sem acesso."
+  },
+  "nameRule": {
+    "name": "Pode ser nomeado",
+    "describe_only": "Apenas descrever",
+    "never_mention": "Nunca mencionar"
+  },
+  "profile": {
+    "client": "Cliente",
+    "team": "Equipa",
+    "facts": "Factos",
+    "location": "Localização",
+    "yearCompleted": "Ano de conclusão",
+    "storyTitle": "História",
+    "aliases": "Alcunhas",
+    "aliasesHint": "Nomes usados nos emails: alcunha da casa, rua, apelido do cliente.",
+    "addAlias": "Nova alcunha",
+    "addAliasButton": "Adicionar",
+    "removeAlias": "Remover alcunha",
+    "rules": "Regras públicas",
+    "rulesReadOnly": "Só os curadores podem alterar estas regras.",
+    "nameRule": "Regra de nome",
+    "publicDescription": "Descrição pública",
+    "publicDescriptionHint": "ex.: um escritório para 800 pessoas de uma tecnológica global",
+    "descriptionRequired": "É obrigatória uma descrição pública quando o cliente não pode ser nomeado.",
+    "rulesNotes": "Notas das regras",
+    "delete": "Eliminar perfil",
+    "deleteConfirm": "Eliminar este perfil de projeto?",
+    "captures": "Capturas",
+    "openProfile": "Abrir perfil do projeto",
+    "effectiveClearance": "Autorização efetiva",
+    "projectStricter": "O projeto está como {{clearance}}",
+    "fields": {
+      "client_ambition": "Ambição do cliente",
+      "client_ambitionHint": "O que queria o cliente, e porquê nós?",
+      "central_idea": "Ideia central",
+      "central_ideaHint": "Qual é a ideia por trás do projeto?",
+      "challenges": "Desafios",
+      "challengesHint": "O que foi difícil, e como o resolvemos?",
+      "proud_of": "Orgulho",
+      "proud_ofHint": "O que mostraria primeiro a um futuro cliente?",
+      "key_facts": "Factos-chave",
+      "key_factsHint": "Área, materiais, prémios, números a citar."
+    }
   }
 }

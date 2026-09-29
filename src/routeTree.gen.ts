@@ -122,6 +122,7 @@ import { Route as AppHrTrabalhoRemotoDefinicoesRouteImport } from './routes/_app
 import { Route as AppHrTrabalhoRemotoHistoricoRouteImport } from './routes/_app.hr.trabalho-remoto.historico'
 import { Route as AppInventoryAssetsIndexRouteImport } from './routes/_app.inventory.assets.index'
 import { Route as AppInventoryAssetsAssetIdRouteImport } from './routes/_app.inventory.assets.$assetId'
+import { Route as AppMarketingProjectsIndexRouteImport } from './routes/_app.marketing.projects.index'
 import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.products.project.$projectId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
@@ -741,6 +742,12 @@ const AppInventoryAssetsAssetIdRoute =
     path: '/assets/$assetId',
     getParentRoute: () => AppInventoryRoute,
   } as any)
+const AppMarketingProjectsIndexRoute =
+  AppMarketingProjectsIndexRouteImport.update({
+    id: '/marketing/projects/',
+    path: '/marketing/projects/',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppProductsProjectProjectIdRoute =
   AppProductsProjectProjectIdRouteImport.update({
     id: '/project/$projectId',
@@ -956,6 +963,7 @@ export interface FileRoutesByFullPath {
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
   '/hr/trabalho-remoto/': typeof AppHrTrabalhoRemotoIndexRoute
   '/inventory/assets/': typeof AppInventoryAssetsIndexRoute
+  '/marketing/projects/': typeof AppMarketingProjectsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRoutesByTo {
@@ -1077,6 +1085,7 @@ export interface FileRoutesByTo {
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
   '/hr/trabalho-remoto': typeof AppHrTrabalhoRemotoIndexRoute
   '/inventory/assets': typeof AppInventoryAssetsIndexRoute
+  '/marketing/projects': typeof AppMarketingProjectsIndexRoute
   '/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRoutesById {
@@ -1208,6 +1217,7 @@ export interface FileRoutesById {
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
   '/_app/hr/trabalho-remoto/': typeof AppHrTrabalhoRemotoIndexRoute
   '/_app/inventory/assets/': typeof AppInventoryAssetsIndexRoute
+  '/_app/marketing/projects/': typeof AppMarketingProjectsIndexRoute
   '/_app/proposals/$proposalId/revisions/$revisionId': typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 export interface FileRouteTypes {
@@ -1339,6 +1349,7 @@ export interface FileRouteTypes {
     | '/finance/documents/'
     | '/hr/trabalho-remoto/'
     | '/inventory/assets/'
+    | '/marketing/projects/'
     | '/proposals/$proposalId/revisions/$revisionId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1460,6 +1471,7 @@ export interface FileRouteTypes {
     | '/finance/documents'
     | '/hr/trabalho-remoto'
     | '/inventory/assets'
+    | '/marketing/projects'
     | '/proposals/$proposalId/revisions/$revisionId'
   id:
     | '__root__'
@@ -1590,6 +1602,7 @@ export interface FileRouteTypes {
     | '/_app/finance/documents/'
     | '/_app/hr/trabalho-remoto/'
     | '/_app/inventory/assets/'
+    | '/_app/marketing/projects/'
     | '/_app/proposals/$proposalId/revisions/$revisionId'
   fileRoutesById: FileRoutesById
 }
@@ -2408,6 +2421,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryAssetsAssetIdRouteImport
       parentRoute: typeof AppInventoryRoute
     }
+    '/_app/marketing/projects/': {
+      id: '/_app/marketing/projects/'
+      path: '/marketing/projects'
+      fullPath: '/marketing/projects/'
+      preLoaderRoute: typeof AppMarketingProjectsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/products/project/$projectId': {
       id: '/_app/products/project/$projectId'
       path: '/project/$projectId'
@@ -2805,6 +2825,7 @@ interface AppRouteChildren {
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
   AppProposalsIndexRoute: typeof AppProposalsIndexRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
+  AppMarketingProjectsIndexRoute: typeof AppMarketingProjectsIndexRoute
   AppProposalsProposalIdRevisionsRevisionIdRoute: typeof AppProposalsProposalIdRevisionsRevisionIdRoute
 }
 
@@ -2841,6 +2862,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsIndexRoute: AppProjectsIndexRoute,
   AppProposalsIndexRoute: AppProposalsIndexRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
+  AppMarketingProjectsIndexRoute: AppMarketingProjectsIndexRoute,
   AppProposalsProposalIdRevisionsRevisionIdRoute:
     AppProposalsProposalIdRevisionsRevisionIdRoute,
 }
