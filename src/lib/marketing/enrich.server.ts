@@ -45,9 +45,7 @@ const SCHEMA = {
     "persona", "fit_score", "ai_summary", "missing_notes", "ai_flags", "shelf_life", "story_suggestions"],
   properties: {
     project_id: nstr, project_confidence: { type: "number" }, project_guess: nstr,
-    sector: { type: ["string", "null"], enum: [...SECTORS, null] },
-    stage: { type: ["string", "null"], enum: [...STAGES, null] },
-    content_type: { type: ["string", "null"], enum: [...CONTENT_TYPES, null] },
+    sector: nstr, stage: nstr, content_type: nstr,
     pillar: nstr, persona: nstr, fit_score: { type: "number" },
     ai_summary: { type: "string" }, missing_notes: { type: "string" },
     ai_flags: { type: "array", items: { type: "string" } },
@@ -97,6 +95,7 @@ ${JSON.stringify(projects)}
 - ai_summary: 1–2 sentences on what the material is and why it matters for the strategy.
 - missing_notes: what's missing to turn it into a post (more photos, a finished shot, client permission, the story behind it).
 - ai_flags: publication concerns, e.g. "people's faces visible", "street address visible", "confidential client identifiable", or anything the Bible's publishing rules forbid. Empty array if none.
+- sector: one of ${SECTORS.join(', ')} or null. stage: one of ${STAGES.join(', ')} or null. content_type: one of ${CONTENT_TYPES.join(', ')} or null.
 - shelf_life: urgent, seasonal or evergreen.
 - story_suggestions: only facts actually stated or clearly visible in the capture, never invented, each tied to one story field. Empty array if none.
 - Write summary, missing notes, flags and suggestions in European Portuguese.`;
