@@ -290,7 +290,10 @@ export const RAIL_ITEMS: RailItem[] = [
     flyout: [
       {
         titleKey: "sharedLists",
-        links: [{ to: "/marketing", labelKey: "marketing.inbox" }],
+        links: [
+          { to: "/marketing", labelKey: "marketing.inbox" },
+          { to: "/marketing/bible", labelKey: "marketing.bible" },
+        ],
       },
     ],
   },

@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useActiveBible } from "@/lib/marketing/bible";
 
 export const Route = createFileRoute("/_app/marketing/")({
   component: MarketingInboxPage,
@@ -87,6 +88,7 @@ type Capture = {
   stage: (typeof STAGES)[number] | null;
   content_type: (typeof CONTENT_TYPES)[number] | null;
   pillar: string | null;
+  persona: string | null;
   fit_score: number | null;
   ai_summary: string | null;
   missing_notes: string | null;
@@ -396,6 +398,7 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
   const canCurate = can("marketing.curate", "all");
+  const { data: bible } = useActiveBible();
   const qc = useQueryClient();
   const assets = capture?.marketing_capture_assets ?? [];
   const { data: urls = {} } = useSignedUrls(assets.map((a) => a.storage_path));
@@ -413,7 +416,7 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
     setSaving(true);
     const { error } = await supabase.from("marketing_captures").update({
       project_id: v.project_id, sector: v.sector, stage: v.stage, content_type: v.content_type,
-      pillar: v.pillar, shelf_life: v.shelf_life, expires_at: v.expires_at, clearance: v.clearance,
+      pillar: v.pillar, persona: v.persona, shelf_life: v.shelf_life, expires_at: v.expires_at, clearance: v.clearance,
       status: v.status, curator_notes: v.curator_notes,
     }).eq("id", capture.id);
     setSaving(false);
@@ -467,10 +470,10 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
             options={STAGES.map((s) => ({ v: s, l: t(`stage.${s}`) }))} />
           <OptSelect label={t("detail.contentType")} value={v.content_type} onChange={(x) => set({ content_type: x as Capture["content_type"] })} disabled={!canCurate} noneLabel={none}
             options={CONTENT_TYPES.map((s) => ({ v: s, l: t(`contentType.${s}`) }))} />
-          <div className="space-y-1">
-            <Label className="text-xs">{t("detail.pillar")}</Label>
-            <Input value={v.pillar ?? ""} disabled={!canCurate} onChange={(e) => set({ pillar: e.target.value || null })} />
-          </div>
+          <BibleKeySelect label={t("detail.pillar")} value={v.pillar} disabled={!canCurate || !bible} noneLabel={none}
+            items={bible?.pillars ?? []} unknownKey="detail.unknownPillar" onChange={(x) => set({ pillar: x })} hint={!bible ? t("detail.noBible") : undefined} />
+          <BibleKeySelect label={t("detail.persona")} value={v.persona} disabled={!canCurate || !bible} noneLabel={none}
+            items={bible?.personas ?? []} unknownKey="detail.unknownPersona" onChange={(x) => set({ persona: x })} hint={!bible ? t("detail.noBible") : undefined} />
           <OptSelect label={t("detail.shelfLife")} value={v.shelf_life} onChange={(x) => set({ shelf_life: x as Capture["shelf_life"] })} disabled={!canCurate} noneLabel={none}
             options={SHELF.map((s) => ({ v: s, l: t(`shelfLife.${s}`) }))} />
           <div className="space-y-1">
@@ -509,6 +512,28 @@ function CaptureDrawer({ capture, onClose, projects }: { capture: Capture | null
         </Dialog>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function BibleKeySelect({ label, value, items, disabled, noneLabel, unknownKey, hint, onChange }: {
+  label: string; value: string | null; items: { key: string; name: string }[]; disabled: boolean;
+  noneLabel: string; unknownKey: string; hint?: string; onChange: (v: string | null) => void;
+}) {
+  const { t } = useTranslation("marketing");
+  const known = !value || items.some((i) => i.key === value);
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <Select value={value ?? NONE} onValueChange={(x) => onChange(x === NONE ? null : x)} disabled={disabled}>
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value={NONE}>{noneLabel}</SelectItem>
+          {!known && value && <SelectItem value={value}>{t(unknownKey, { key: value })}</SelectItem>}
+          {items.map((i) => <SelectItem key={i.key} value={i.key}>{i.name}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    </div>
   );
 }
 

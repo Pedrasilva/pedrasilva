@@ -4857,6 +4857,39 @@ export type Database = {
           },
         ]
       }
+      marketing_bible_versions: {
+        Row: {
+          change_summary: string
+          content_md: string
+          created_at: string
+          created_by: string
+          id: string
+          personas: Json
+          pillars: Json
+          version: number
+        }
+        Insert: {
+          change_summary: string
+          content_md: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          personas?: Json
+          pillars?: Json
+          version: number
+        }
+        Update: {
+          change_summary?: string
+          content_md?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          personas?: Json
+          pillars?: Json
+          version?: number
+        }
+        Relationships: []
+      }
       marketing_capture_assets: {
         Row: {
           capture_id: string
@@ -4910,6 +4943,7 @@ export type Database = {
           fit_score: number | null
           id: string
           missing_notes: string | null
+          persona: string | null
           pillar: string | null
           project_id: string | null
           raw_text: string | null
@@ -4938,6 +4972,7 @@ export type Database = {
           fit_score?: number | null
           id?: string
           missing_notes?: string | null
+          persona?: string | null
           pillar?: string | null
           project_id?: string | null
           raw_text?: string | null
@@ -4968,6 +5003,7 @@ export type Database = {
           fit_score?: number | null
           id?: string
           missing_notes?: string | null
+          persona?: string | null
           pillar?: string | null
           project_id?: string | null
           raw_text?: string | null
@@ -11703,6 +11739,29 @@ export type Database = {
           is_admin: boolean
           user_id: string
         }[]
+      }
+      marketing_active_bible: {
+        Args: never
+        Returns: {
+          change_summary: string
+          content_md: string
+          created_at: string
+          created_by: string
+          id: string
+          personas: Json
+          pillars: Json
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "marketing_bible_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      marketing_bible_validate_items: {
+        Args: { _arr: Json; _label: string }
+        Returns: undefined
       }
       notify_user: {
         Args: {
