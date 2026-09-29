@@ -59,6 +59,7 @@ import { Route as AppInventoryIndexRouteImport } from './routes/_app.inventory.i
 import { Route as AppInventoryAssignmentsRouteImport } from './routes/_app.inventory.assignments'
 import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.intake'
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
+import { Route as AppMarketingIndexRouteImport } from './routes/_app.marketing.index'
 import { Route as AppProductsIndexRouteImport } from './routes/_app.products.index'
 import { Route as AppProductsCategoriesRouteImport } from './routes/_app.products.categories'
 import { Route as AppProductsLibraryRouteImport } from './routes/_app.products.library'
@@ -387,6 +388,11 @@ const AppInventoryReportsRoute = AppInventoryReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
   getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppMarketingIndexRoute = AppMarketingIndexRouteImport.update({
+  id: '/marketing/',
+  path: '/marketing/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
   id: '/',
@@ -872,6 +878,7 @@ export interface FileRoutesByFullPath {
   '/hr/': typeof AppHrIndexRoute
   '/inbox/': typeof AppInboxIndexRoute
   '/inventory/': typeof AppInventoryIndexRoute
+  '/marketing/': typeof AppMarketingIndexRoute
   '/products/': typeof AppProductsIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/proposals/': typeof AppProposalsIndexRoute
@@ -990,6 +997,7 @@ export interface FileRoutesByTo {
   '/hr': typeof AppHrIndexRoute
   '/inbox': typeof AppInboxIndexRoute
   '/inventory': typeof AppInventoryIndexRoute
+  '/marketing': typeof AppMarketingIndexRoute
   '/products': typeof AppProductsIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/proposals': typeof AppProposalsIndexRoute
@@ -1118,6 +1126,7 @@ export interface FileRoutesById {
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/inbox/': typeof AppInboxIndexRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
+  '/_app/marketing/': typeof AppMarketingIndexRoute
   '/_app/products/': typeof AppProductsIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/proposals/': typeof AppProposalsIndexRoute
@@ -1246,6 +1255,7 @@ export interface FileRouteTypes {
     | '/hr/'
     | '/inbox/'
     | '/inventory/'
+    | '/marketing/'
     | '/products/'
     | '/projects/'
     | '/proposals/'
@@ -1364,6 +1374,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/inbox'
     | '/inventory'
+    | '/marketing'
     | '/products'
     | '/projects'
     | '/proposals'
@@ -1491,6 +1502,7 @@ export interface FileRouteTypes {
     | '/_app/hr/'
     | '/_app/inbox/'
     | '/_app/inventory/'
+    | '/_app/marketing/'
     | '/_app/products/'
     | '/_app/projects/'
     | '/_app/proposals/'
@@ -1928,6 +1940,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/inventory/reports'
       preLoaderRoute: typeof AppInventoryReportsRouteImport
       parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/marketing/': {
+      id: '/_app/marketing/'
+      path: '/marketing'
+      fullPath: '/marketing/'
+      preLoaderRoute: typeof AppMarketingIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/products/': {
       id: '/_app/products/'
@@ -2741,6 +2760,7 @@ interface AppRouteChildren {
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
   AppProjectsWeeklyApprovalRoute: typeof AppProjectsWeeklyApprovalRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
+  AppMarketingIndexRoute: typeof AppMarketingIndexRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
   AppProposalsIndexRoute: typeof AppProposalsIndexRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
@@ -2775,6 +2795,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
   AppProjectsWeeklyApprovalRoute: AppProjectsWeeklyApprovalRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
+  AppMarketingIndexRoute: AppMarketingIndexRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
   AppProposalsIndexRoute: AppProposalsIndexRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,

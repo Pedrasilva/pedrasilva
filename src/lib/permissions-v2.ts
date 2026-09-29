@@ -34,7 +34,8 @@ export type PermissionModule =
   | "Finance"
   | "Inventory"
   | "Products"
-  | "Portfolio";
+  | "Portfolio"
+  | "Marketing";
 
 export type V2PermissionKey =
   // Projects (operational)
@@ -86,7 +87,12 @@ export type V2PermissionKey =
   | "inventory.view"
   | "products.view"
   | "products.edit"
-  | "portfolio.view";
+  | "portfolio.view"
+  // Marketing
+  | "marketing.contribute"
+  | "marketing.view"
+  | "marketing.curate"
+  | "marketing.edit_bible";
 
 
 export interface PermissionDefinition {
@@ -423,6 +429,34 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
     description: "Open the studio portfolio.",
     scopes: ["all"],
   },
+  {
+    key: "marketing.contribute",
+    module: "Marketing",
+    label: "Contribute to marketing",
+    description: "Create marketing captures from inside the Hub.",
+    scopes: ["own"],
+  },
+  {
+    key: "marketing.view",
+    module: "Marketing",
+    label: "View marketing captures",
+    description: "own = only captures I created; all = every capture.",
+    scopes: ["own", "all"],
+  },
+  {
+    key: "marketing.curate",
+    module: "Marketing",
+    label: "Curate marketing captures",
+    description: "Edit curation fields, status and clearance of any capture.",
+    scopes: ["all"],
+  },
+  {
+    key: "marketing.edit_bible",
+    module: "Marketing",
+    label: "Edit marketing strategy",
+    description: "Reserved for a later pass (Marketing Bible).",
+    scopes: ["all"],
+  },
 ];
 
 
@@ -469,6 +503,7 @@ export const MODULES: PermissionModule[] = [
   "Inventory",
   "Products",
   "Portfolio",
+  "Marketing",
 ];
 
 export interface EffectivePermissionRow {

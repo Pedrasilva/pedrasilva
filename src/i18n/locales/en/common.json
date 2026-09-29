@@ -339,7 +339,8 @@
       "settings": "Settings",
       "inventory": "Inventory",
       "products": "Product Library",
-      "inbox": "Inbox"
+      "inbox": "Inbox",
+      "marketing": "Marketing"
     },
     "section": {
       "sharedLists": "Shared lists",
@@ -404,7 +405,8 @@
       "time.weeklyApproval": "Weekly approval",
       "crm.proposals": "Proposals",
       "inbox.triage": "Inbox",
-      "inbox.settings": "Settings"
+      "inbox.settings": "Settings",
+      "marketing.inbox": "Marketing Inbox"
     },
     "top": {
       "create": "Create",

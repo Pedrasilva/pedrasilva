@@ -4857,6 +4857,143 @@ export type Database = {
           },
         ]
       }
+      marketing_capture_assets: {
+        Row: {
+          capture_id: string
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          capture_id: string
+          created_at?: string
+          file_name: string
+          id?: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          capture_id?: string
+          created_at?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_capture_assets_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_captures: {
+        Row: {
+          ai_summary: string | null
+          channel: Database["public"]["Enums"]["marketing_channel"]
+          clearance: Database["public"]["Enums"]["marketing_clearance"]
+          content_type:
+            | Database["public"]["Enums"]["marketing_content_type"]
+            | null
+          created_at: string
+          created_by: string | null
+          curator_notes: string | null
+          expires_at: string | null
+          fit_score: number | null
+          id: string
+          missing_notes: string | null
+          pillar: string | null
+          project_id: string | null
+          raw_text: string | null
+          received_at: string
+          sector: Database["public"]["Enums"]["marketing_sector"] | null
+          sender_email: string | null
+          sender_name: string | null
+          shelf_life: Database["public"]["Enums"]["marketing_shelf_life"] | null
+          source_message_id: string | null
+          stage: Database["public"]["Enums"]["marketing_stage"] | null
+          status: Database["public"]["Enums"]["marketing_capture_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          channel: Database["public"]["Enums"]["marketing_channel"]
+          clearance?: Database["public"]["Enums"]["marketing_clearance"]
+          content_type?:
+            | Database["public"]["Enums"]["marketing_content_type"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          curator_notes?: string | null
+          expires_at?: string | null
+          fit_score?: number | null
+          id?: string
+          missing_notes?: string | null
+          pillar?: string | null
+          project_id?: string | null
+          raw_text?: string | null
+          received_at?: string
+          sector?: Database["public"]["Enums"]["marketing_sector"] | null
+          sender_email?: string | null
+          sender_name?: string | null
+          shelf_life?:
+            | Database["public"]["Enums"]["marketing_shelf_life"]
+            | null
+          source_message_id?: string | null
+          stage?: Database["public"]["Enums"]["marketing_stage"] | null
+          status?: Database["public"]["Enums"]["marketing_capture_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          channel?: Database["public"]["Enums"]["marketing_channel"]
+          clearance?: Database["public"]["Enums"]["marketing_clearance"]
+          content_type?:
+            | Database["public"]["Enums"]["marketing_content_type"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          curator_notes?: string | null
+          expires_at?: string | null
+          fit_score?: number | null
+          id?: string
+          missing_notes?: string | null
+          pillar?: string | null
+          project_id?: string | null
+          raw_text?: string | null
+          received_at?: string
+          sector?: Database["public"]["Enums"]["marketing_sector"] | null
+          sender_email?: string | null
+          sender_name?: string | null
+          shelf_life?:
+            | Database["public"]["Enums"]["marketing_shelf_life"]
+            | null
+          source_message_id?: string | null
+          stage?: Database["public"]["Enums"]["marketing_stage"] | null
+          status?: Database["public"]["Enums"]["marketing_capture_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_captures_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_allowance_rates: {
         Row: {
           ano: number
@@ -11920,6 +12057,33 @@ export type Database = {
         | "note"
       inventory_tracking_level: "major" | "standard" | "accessory"
       inventory_workflow_status: "pending" | "partially_processed" | "complete"
+      marketing_capture_status:
+        | "new"
+        | "enriched"
+        | "ready"
+        | "used"
+        | "archived"
+      marketing_channel: "hub" | "email" | "whatsapp"
+      marketing_clearance:
+        | "unknown"
+        | "cleared"
+        | "needs_client_approval"
+        | "internal_only"
+      marketing_content_type:
+        | "photo"
+        | "video"
+        | "idea"
+        | "story"
+        | "quote"
+        | "link"
+      marketing_sector:
+        | "workspace"
+        | "healthcare"
+        | "residential"
+        | "hospitality"
+        | "other"
+      marketing_shelf_life: "urgent" | "seasonal" | "evergreen"
+      marketing_stage: "design" | "construction" | "completed" | "other"
       opportunity_activity_type: "call" | "email" | "meeting" | "note"
       pm_allocation_placeholder_source:
         | "ontology_default"
@@ -12373,6 +12537,37 @@ export const Constants = {
       ],
       inventory_tracking_level: ["major", "standard", "accessory"],
       inventory_workflow_status: ["pending", "partially_processed", "complete"],
+      marketing_capture_status: [
+        "new",
+        "enriched",
+        "ready",
+        "used",
+        "archived",
+      ],
+      marketing_channel: ["hub", "email", "whatsapp"],
+      marketing_clearance: [
+        "unknown",
+        "cleared",
+        "needs_client_approval",
+        "internal_only",
+      ],
+      marketing_content_type: [
+        "photo",
+        "video",
+        "idea",
+        "story",
+        "quote",
+        "link",
+      ],
+      marketing_sector: [
+        "workspace",
+        "healthcare",
+        "residential",
+        "hospitality",
+        "other",
+      ],
+      marketing_shelf_life: ["urgent", "seasonal", "evergreen"],
+      marketing_stage: ["design", "construction", "completed", "other"],
       opportunity_activity_type: ["call", "email", "meeting", "note"],
       pm_allocation_placeholder_source: [
         "ontology_default",

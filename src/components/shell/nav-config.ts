@@ -21,6 +21,7 @@ import {
   Receipt,
   Settings,
   Inbox,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
@@ -274,6 +275,22 @@ export const RAIL_ITEMS: RailItem[] = [
       {
         titleKey: "shortcuts",
         links: [{ to: "/products/categories", labelKey: "products.categories" }],
+      },
+    ],
+  },
+
+  // ─── Marketing (content pool) ───
+  {
+    id: "marketing",
+    moduleId: "marketing",
+    labelKey: "marketing",
+    icon: Megaphone,
+    to: "/marketing",
+    matches: ["/marketing"],
+    flyout: [
+      {
+        titleKey: "sharedLists",
+        links: [{ to: "/marketing", labelKey: "marketing.inbox" }],
       },
     ],
   },

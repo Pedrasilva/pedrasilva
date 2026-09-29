@@ -26,6 +26,7 @@ import enHome from "./locales/en/home.json";
 import enHr from "./locales/en/hr.json";
 import enInbox from "./locales/en/inbox.json";
 import enInventory from "./locales/en/inventory.json";
+import enMarketing from "./locales/en/marketing.json";
 import enProjects from "./locales/en/projects.json";
 import ptCommon from "./locales/pt-PT/common.json";
 import ptCrm from "./locales/pt-PT/crm.json";
@@ -35,6 +36,7 @@ import ptHome from "./locales/pt-PT/home.json";
 import ptHr from "./locales/pt-PT/hr.json";
 import ptInbox from "./locales/pt-PT/inbox.json";
 import ptInventory from "./locales/pt-PT/inventory.json";
+import ptMarketing from "./locales/pt-PT/marketing.json";
 import ptProjects from "./locales/pt-PT/projects.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "pt-PT"] as const;
@@ -54,6 +56,7 @@ export const resources = {
     finance: enFinance,
     inbox: enInbox,
     inventory: enInventory,
+    marketing: enMarketing,
   },
   "pt-PT": {
     common: ptCommon,
@@ -65,6 +68,7 @@ export const resources = {
     finance: ptFinance,
     inbox: ptInbox,
     inventory: ptInventory,
+    marketing: ptMarketing,
   },
 } as const;
 
@@ -83,7 +87,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory"],
+      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory", "marketing"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {
