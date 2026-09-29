@@ -41,3 +41,4 @@
 - Gantt task bars still use the existing allocation popover editor rather than the new dialog.
 - Planned vs Actual comparison view intentionally not built yet.
 - [x] Work from home: half days (full/morning/afternoon) + approval vs notification-only mode — verified in preview (declared entries bypass the queue, half day = 0.5 in analytics, hours derived from daily_hours)
+- [x] Marketing: 500MB bucket, TUS uploads >6MB with progress, server-side sender
