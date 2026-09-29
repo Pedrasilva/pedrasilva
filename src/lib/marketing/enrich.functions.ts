@@ -8,7 +8,7 @@ export const reenrichCapture = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ captureId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: allowed, error } = await context.supabase.rpc("has_module_permission", {
-      _user_id: context.userId, _module_key: "marketing.curate", _scope: "all",
+      _user_id: context.userId, _key: "marketing.curate", _required_scope: "all",
     } as never);
     if (error || allowed !== true) throw new Error("Not allowed");
 

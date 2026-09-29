@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, ImageIcon, Lightbulb, Link2, Plus, Video } from "lucide-react";
+import { AlertTriangle, FileText, ImageIcon, Lightbulb, Link2, Plus, RefreshCw, Sparkles, Video } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { reenrichCapture } from "@/lib/marketing/enrich.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -95,6 +97,12 @@ type Capture = {
   fit_score: number | null;
   ai_summary: string | null;
   missing_notes: string | null;
+  ai_flags: string[];
+  ai_project_guess: string | null;
+  enriched_at: string | null;
+  enriched_bible_version: number | null;
+  enrichment_model: string | null;
+  enrichment_error: string | null;
   curator_notes: string | null;
   status: (typeof STATUSES)[number];
   clearance: (typeof CLEARANCES)[number];
@@ -428,6 +436,59 @@ function IgnoredAttachmentsNote({ captureId }: { captureId: string }) {
   );
 }
 
+function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boolean }) {
+  const { t } = useTranslation("marketing");
+  const qc = useQueryClient();
+  const rerun = useServerFn(reenrichCapture);
+  const [busy, setBusy] = useState(false);
+  const analysed = !!capture.enriched_at;
+  if (!analysed && !canCurate && !capture.enrichment_error) return null;
+  const run = async () => {
+    setBusy(true);
+    try {
+      const r = await rerun({ data: { captureId: capture.id } });
+      if (r.ok) toast.success(t("ai.rerunDone"));
+      else toast.error(r.error ?? t("detail.error"));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("detail.error"));
+    } finally {
+      setBusy(false);
+      qc.invalidateQueries({ queryKey: ["marketing-captures"] });
+    }
+  };
+  return (
+    <div className="mt-6 space-y-2 rounded-md border border-dashed p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-1.5 text-base font-semibold"><Sparkles className="h-4 w-4" /> {t("ai.title")}</h3>
+        {canCurate && (
+          <Button size="sm" variant="outline" onClick={run} disabled={busy}>
+            <RefreshCw className={cn("mr-1 h-3.5 w-3.5", busy && "animate-spin")} /> {busy ? t("ai.running") : t("ai.rerun")}
+          </Button>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">{t("ai.disclaimer")}</p>
+      {!analysed && <p className="text-sm text-muted-foreground">{t("ai.pending")}</p>}
+      {capture.fit_score != null && <Row label={t("detail.fitScore")}>{capture.fit_score}</Row>}
+      {capture.ai_summary && <Row label={t("detail.aiSummary")}>{capture.ai_summary}</Row>}
+      {capture.missing_notes && <Row label={t("detail.missingNotes")}>{capture.missing_notes}</Row>}
+      {capture.ai_project_guess && <Row label={t("ai.projectGuess")}>{capture.ai_project_guess}</Row>}
+      {capture.ai_flags?.length > 0 && (
+        <Row label={t("ai.flags")}>
+          <div className="flex flex-wrap gap-1">
+            {capture.ai_flags.map((f) => <Badge key={f} variant="outline" className="bg-warning/15 text-warning border-warning/30">{f}</Badge>)}
+          </div>
+        </Row>
+      )}
+      {analysed && (
+        <p className="text-xs text-muted-foreground">
+          {t("ai.analysedWith", { version: capture.enriched_bible_version ?? "?", date: new Date(capture.enriched_at!).toLocaleString(), model: capture.enrichment_model ?? "" })}
+        </p>
+      )}
+      {canCurate && capture.enrichment_error && <p className="text-xs text-destructive">{capture.enrichment_error}</p>}
+    </div>
+  );
+}
+
 function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[]; profile: ProjectProfile | null }) {
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
@@ -516,11 +577,10 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
           )}
         </div>
 
+        <AiAnalysis capture={capture} canCurate={canCurate} />
+
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>
         {!canCurate && <p className="text-xs text-muted-foreground">{t("detail.readOnly")}</p>}
-        {capture.fit_score != null && <Row label={t("detail.fitScore")}>{capture.fit_score}</Row>}
-        {capture.ai_summary && <Row label={t("detail.aiSummary")}>{capture.ai_summary}</Row>}
-        {capture.missing_notes && <Row label={t("detail.missingNotes")}>{capture.missing_notes}</Row>}
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <OptSelect label={t("detail.project")} value={v.project_id} onChange={(x) => set({ project_id: x })} disabled={!canCurate} noneLabel={none}
