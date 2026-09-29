@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { StorySuggestions } from "@/components/marketing/story-suggestions";
 import {
   CLEARANCE_BADGE,
   CLEARANCE_ORDER,
@@ -208,6 +209,8 @@ function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {canEditStory && <StorySuggestions profileId={profile.id} thumbs={thumbs} onAccepted={() => { setDraft({}); qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />}
 
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.storyTitle")}</h2>

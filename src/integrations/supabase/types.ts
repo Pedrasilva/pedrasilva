@@ -4930,6 +4930,8 @@ export type Database = {
       }
       marketing_captures: {
         Row: {
+          ai_flags: string[]
+          ai_project_guess: string | null
           ai_summary: string | null
           channel: Database["public"]["Enums"]["marketing_channel"]
           clearance: Database["public"]["Enums"]["marketing_clearance"]
@@ -4939,6 +4941,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           curator_notes: string | null
+          enriched_at: string | null
+          enriched_bible_version: number | null
+          enrichment_attempts: number
+          enrichment_error: string | null
+          enrichment_model: string | null
           expires_at: string | null
           fit_score: number | null
           id: string
@@ -4959,6 +4966,8 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          ai_flags?: string[]
+          ai_project_guess?: string | null
           ai_summary?: string | null
           channel: Database["public"]["Enums"]["marketing_channel"]
           clearance?: Database["public"]["Enums"]["marketing_clearance"]
@@ -4968,6 +4977,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           curator_notes?: string | null
+          enriched_at?: string | null
+          enriched_bible_version?: number | null
+          enrichment_attempts?: number
+          enrichment_error?: string | null
+          enrichment_model?: string | null
           expires_at?: string | null
           fit_score?: number | null
           id?: string
@@ -4990,6 +5004,8 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          ai_flags?: string[]
+          ai_project_guess?: string | null
           ai_summary?: string | null
           channel?: Database["public"]["Enums"]["marketing_channel"]
           clearance?: Database["public"]["Enums"]["marketing_clearance"]
@@ -4999,6 +5015,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           curator_notes?: string | null
+          enriched_at?: string | null
+          enriched_bible_version?: number | null
+          enrichment_attempts?: number
+          enrichment_error?: string | null
+          enrichment_model?: string | null
           expires_at?: string | null
           fit_score?: number | null
           id?: string
@@ -5144,6 +5165,57 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: true
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_project_story_suggestions: {
+        Row: {
+          capture_id: string | null
+          created_at: string
+          field: string
+          id: string
+          profile_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          suggested_text: string
+        }
+        Insert: {
+          capture_id?: string | null
+          created_at?: string
+          field: string
+          id?: string
+          profile_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_text: string
+        }
+        Update: {
+          capture_id?: string | null
+          created_at?: string
+          field?: string
+          id?: string
+          profile_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_project_story_suggestions_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_project_story_suggestions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -11858,6 +11930,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      marketing_accept_story_suggestion: {
+        Args: { _id: string }
+        Returns: undefined
+      }
       marketing_active_bible: {
         Args: never
         Returns: {
@@ -11884,6 +11960,10 @@ export type Database = {
       marketing_effective_clearance: {
         Args: { _capture_id: string }
         Returns: Database["public"]["Enums"]["marketing_clearance"]
+      }
+      marketing_enrich_secret_matches: {
+        Args: { p_secret: string }
+        Returns: boolean
       }
       marketing_intake_secret_matches: {
         Args: { p_secret: string }
