@@ -98,7 +98,7 @@ ${JSON.stringify(projects)}
 - sector: one of ${SECTORS.join(', ')} or null. stage: one of ${STAGES.join(', ')} or null. content_type: one of ${CONTENT_TYPES.join(', ')} or null.
 - shelf_life: urgent, seasonal or evergreen.
 - story_suggestions: only facts actually stated or clearly visible in the capture, never invented, each tied to one story field. Empty array if none.
-- Write summary, missing notes, flags and suggestions in European Portuguese.`;
+- Write ai_summary, missing_notes, ai_flags, project_guess and story_suggestions in English.`;
 }
 
 async function callClaude(system: string, content: unknown[]): Promise<Result> {
