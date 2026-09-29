@@ -569,7 +569,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
             })}
           </div>
           {canCurate && <IgnoredAttachmentsNote captureId={capture.id} />}
-          {profile && (
+          {(profile || (effClearance && effClearance !== capture.clearance)) && (
             <div className="space-y-1 rounded-md border border-border p-2">
               {effClearance && (
                 <Row label={t("profile.effectiveClearance")}>
@@ -581,9 +581,11 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
                   )}
                 </Row>
               )}
-              <Link to="/marketing/projects/$profileId" params={{ profileId: profile.id }} className="text-xs text-primary underline">
-                {t("profile.openProfile")}
-              </Link>
+              {profile && (
+                <Link to="/marketing/projects/$profileId" params={{ profileId: profile.id }} className="text-xs text-primary underline">
+                  {t("profile.openProfile")}
+                </Link>
+              )}
             </div>
           )}
         </div>
