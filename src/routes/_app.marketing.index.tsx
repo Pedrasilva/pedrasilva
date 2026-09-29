@@ -176,6 +176,7 @@ function MarketingInboxPage() {
   const [clearance, setClearance] = useState<string>(ALL);
   const [channel, setChannel] = useState<string>(ALL);
   const [project, setProject] = useState<string>(ALL);
+  const [sort, setSort] = useState<string>("newest");
   const [addOpen, setAddOpen] = useState(false);
   const search = Route.useSearch();
   const [openId, setOpenId] = useState<string | null>(search.capture ?? null);
@@ -190,7 +191,9 @@ function MarketingInboxPage() {
       (clearance === ALL || c.clearance === clearance) &&
       (channel === ALL || c.channel === channel) &&
       (project === ALL || c.project_id === project),
-  );
+  ).sort((a, b) => sort === "fit"
+    ? (b.fit_score ?? -1) - (a.fit_score ?? -1) || b.received_at.localeCompare(a.received_at)
+    : b.received_at.localeCompare(a.received_at));
 
   const thumbPaths = filtered
     .map((c) => c.marketing_capture_assets.find((a) => a.mime_type.startsWith("image/"))?.storage_path)
@@ -223,6 +226,8 @@ function MarketingInboxPage() {
           options={[{ v: ALL, l: t("filters.all") }, ...CHANNELS.map((s) => ({ v: s, l: t(`channel.${s}`) }))]} />
         <FilterSelect label={t("filters.project")} value={project} onChange={setProject}
           options={[{ v: ALL, l: t("filters.all") }, ...projects.map((p) => ({ v: p.id, l: p.name }))]} />
+        <FilterSelect label={t("ai.sort")} value={sort} onChange={setSort}
+          options={[{ v: "newest", l: t("ai.sortNewest") }, { v: "fit", l: t("ai.sortFit") }]} />
       </div>
 
       {isLoading ? (
@@ -254,6 +259,12 @@ function MarketingInboxPage() {
                     <Badge variant="outline">{t(`channel.${c.channel}`)}</Badge>
                     <Badge variant="secondary">{t(`status.${c.status}`)}</Badge>
                     <Badge variant="outline" className={CLEARANCE_CLASS[effective(c)]}>{t(`clearance.${effective(c)}`)}</Badge>
+                    {c.fit_score != null && <Badge title={t("detail.fitScore")}>{Number(c.fit_score).toFixed(1)}</Badge>}
+                    {c.ai_flags?.length > 0 && (
+                      <span title={c.ai_flags.join(", ")} aria-label={t("ai.flags")} className="inline-flex items-center text-warning">
+                        <AlertTriangle className="h-4 w-4" />
+                      </span>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -503,7 +514,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
   const [lastId, setLastId] = useState<string | null>(null);
   const { data: effClearance } = useQuery({
     queryKey: ["marketing-effective-clearance", capture?.id, capture?.clearance, profile?.clearance],
-    enabled: !!capture && !!profile,
+    enabled: !!capture,
     queryFn: async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any).rpc("marketing_effective_clearance", { _capture_id: capture!.id });
