@@ -96,6 +96,7 @@ export type Collaborator = {
   foto_path: string | null;
   data_nascimento: string | null;
   inicio_carreira: string | null;
+  data_admissao?: string | null;
   situacao_contractual: string | null;
   departamento: "Projecto" | "Backoffice";
   margem_lucro_pct_override: number | null;
