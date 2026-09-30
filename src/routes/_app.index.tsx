@@ -69,7 +69,8 @@ type ModuleDef = {
     | "/finance"
     | "/inventory"
     | "/products"
-    | "/portfolio";
+    | "/portfolio"
+    | "/marketing";
 
   number: string;
   titleKey: string;
