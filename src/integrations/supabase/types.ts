@@ -5092,6 +5092,157 @@ export type Database = {
           },
         ]
       }
+      marketing_post_drafts: {
+        Row: {
+          ai_copy: string
+          ai_hashtags: string[]
+          asset_ids: string[]
+          bible_version: number
+          capture_ids: string[]
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          final_copy: string | null
+          final_hashtags: string[] | null
+          id: string
+          idea_id: string
+          model: string
+          persona: string | null
+          pillar: string | null
+          platform: Database["public"]["Enums"]["marketing_platform"]
+          project_id: string | null
+          published_at: string | null
+          published_url: string | null
+          rationale: string
+          readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
+          readiness_note: string | null
+          request_id: string
+          safety_flags: string[]
+          status: Database["public"]["Enums"]["marketing_draft_status"]
+        }
+        Insert: {
+          ai_copy: string
+          ai_hashtags?: string[]
+          asset_ids?: string[]
+          bible_version: number
+          capture_ids: string[]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          final_copy?: string | null
+          final_hashtags?: string[] | null
+          id?: string
+          idea_id: string
+          model: string
+          persona?: string | null
+          pillar?: string | null
+          platform: Database["public"]["Enums"]["marketing_platform"]
+          project_id?: string | null
+          published_at?: string | null
+          published_url?: string | null
+          rationale: string
+          readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
+          readiness_note?: string | null
+          request_id: string
+          safety_flags?: string[]
+          status?: Database["public"]["Enums"]["marketing_draft_status"]
+        }
+        Update: {
+          ai_copy?: string
+          ai_hashtags?: string[]
+          asset_ids?: string[]
+          bible_version?: number
+          capture_ids?: string[]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          final_copy?: string | null
+          final_hashtags?: string[] | null
+          id?: string
+          idea_id?: string
+          model?: string
+          persona?: string | null
+          pillar?: string | null
+          platform?: Database["public"]["Enums"]["marketing_platform"]
+          project_id?: string | null
+          published_at?: string | null
+          published_url?: string | null
+          rationale?: string
+          readiness?: Database["public"]["Enums"]["marketing_draft_readiness"]
+          readiness_note?: string | null
+          request_id?: string
+          safety_flags?: string[]
+          status?: Database["public"]["Enums"]["marketing_draft_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_drafts_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_post_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_post_requests: {
+        Row: {
+          bible_version: number | null
+          brief: string | null
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          idea_count: number
+          model: string | null
+          period_end: string
+          period_start: string
+          requested_by: string
+          source_capture_id: string | null
+          status: string
+        }
+        Insert: {
+          bible_version?: number | null
+          brief?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idea_count: number
+          model?: string | null
+          period_end: string
+          period_start: string
+          requested_by?: string
+          source_capture_id?: string | null
+          status?: string
+        }
+        Update: {
+          bible_version?: number | null
+          brief?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idea_count?: number
+          model?: string | null
+          period_end?: string
+          period_start?: string
+          requested_by?: string
+          source_capture_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_requests_source_capture_id_fkey"
+            columns: ["source_capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_project_profiles: {
         Row: {
           aliases: string[]
@@ -12345,7 +12496,14 @@ export type Database = {
         | "story"
         | "quote"
         | "link"
+      marketing_draft_readiness: "ready" | "needs_approval" | "blocked"
+      marketing_draft_status:
+        | "suggested"
+        | "approved"
+        | "rejected"
+        | "published"
       marketing_name_rule: "name" | "describe_only" | "never_mention"
+      marketing_platform: "instagram" | "linkedin"
       marketing_sector:
         | "workspace"
         | "healthcare"
@@ -12829,7 +12987,15 @@ export const Constants = {
         "quote",
         "link",
       ],
+      marketing_draft_readiness: ["ready", "needs_approval", "blocked"],
+      marketing_draft_status: [
+        "suggested",
+        "approved",
+        "rejected",
+        "published",
+      ],
       marketing_name_rule: ["name", "describe_only", "never_mention"],
+      marketing_platform: ["instagram", "linkedin"],
       marketing_sector: [
         "workspace",
         "healthcare",
