@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -87,6 +88,7 @@ function ProfilesPage() {
           </Button>
         )}
       </div>
+      <ModuleSubnav moduleId="marketing" />
 
       <div className="flex flex-wrap gap-2">
         <Filter label={t("filters.sector")} value={sector} onChange={setSector}

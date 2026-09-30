@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -224,6 +225,7 @@ function PostPlannerPage() {
         <h1 className="text-2xl font-semibold">{t("posts.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("posts.subtitle")}</p>
       </div>
+      <ModuleSubnav moduleId="marketing" />
 
       {canCurate && <Card className="space-y-3 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">

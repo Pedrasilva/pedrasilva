@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -118,6 +119,7 @@ function BiblePage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
+      <ModuleSubnav moduleId="marketing" />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{t("bible.title")}</h1>
@@ -322,6 +324,7 @@ function BibleEditor({
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
+      <ModuleSubnav moduleId="marketing" />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-2xl font-semibold">
           {initial ? t("bible.editingFrom", { version: initial.version }) : t("bible.createFirst")}
