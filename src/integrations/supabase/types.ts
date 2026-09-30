@@ -5099,6 +5099,7 @@ export type Database = {
         Row: {
           ai_suggested_question: string
           answer_audio_path: string | null
+          answer_source_message_id: string | null
           answer_text: string | null
           answered_at: string | null
           architect_user_id: string
@@ -5110,6 +5111,7 @@ export type Database = {
           id: string
           project_id: string | null
           question: string
+          reply_tag: string | null
           sent_at: string | null
           status: string
           story_suggestion_id: string | null
@@ -5117,6 +5119,7 @@ export type Database = {
         Insert: {
           ai_suggested_question: string
           answer_audio_path?: string | null
+          answer_source_message_id?: string | null
           answer_text?: string | null
           answered_at?: string | null
           architect_user_id: string
@@ -5128,6 +5131,7 @@ export type Database = {
           id?: string
           project_id?: string | null
           question: string
+          reply_tag?: string | null
           sent_at?: string | null
           status?: string
           story_suggestion_id?: string | null
@@ -5135,6 +5139,7 @@ export type Database = {
         Update: {
           ai_suggested_question?: string
           answer_audio_path?: string | null
+          answer_source_message_id?: string | null
           answer_text?: string | null
           answered_at?: string | null
           architect_user_id?: string
@@ -5146,6 +5151,7 @@ export type Database = {
           id?: string
           project_id?: string | null
           question?: string
+          reply_tag?: string | null
           sent_at?: string | null
           status?: string
           story_suggestion_id?: string | null
