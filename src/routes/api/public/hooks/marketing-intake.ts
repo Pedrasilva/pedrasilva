@@ -294,7 +294,7 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                   .upload(path, buf, { contentType: mime, upsert: true });
                 if (upErr) throw new Error(`upload ${p.filename}: ${upErr.message}`);
                 assets.push({
-                  capture_id: captureId, storage_path: path, file_name: p.filename,
+                  capture_id: captureId, storage_path: path, file_name: p.filename, position: assets.length,
                   mime_type: mime, size_bytes: buf.length,
                 });
               }
@@ -309,6 +309,7 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                 sender_name: name ?? email,
                 source_message_id: id,
                 raw_text: rawText,
+                ...(/(^|[^\p{L}\p{N}])(carrossel|carousel)(?![\p{L}\p{N}])/iu.test(subject) ? { format_hint: "carousel" } : {}),
                 received_at: msg.internalDate
                   ? new Date(Number(msg.internalDate)).toISOString()
                   : new Date().toISOString(),
