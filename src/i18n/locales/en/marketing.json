@@ -234,7 +234,11 @@
     "accept": "Accept",
     "reject": "Reject",
     "suggestionAccepted": "Added to the story",
-    "suggestionRejected": "Suggestion rejected"
+    "suggestionRejected": "Suggestion rejected",
+    "source": {
+      "ai": "AI",
+      "architect_answer": "Architect answer"
+    }
   },
   "posts": {
     "title": "Post planner",
@@ -309,5 +313,41 @@
     "cancel": "Cancel",
     "editNote": "What did you change and why? (optional)",
     "editedAfterApproval": "Edited after approval, please approve again"
+  },
+  "nudge": {
+    "title": "Ask an architect for context",
+    "ask": "Ask an architect",
+    "architect": "Architect",
+    "pickArchitect": "Choose a person",
+    "onTeam": "project team",
+    "noTeam": "No project team found; showing all staff.",
+    "question": "Question",
+    "suggest": "Suggest question",
+    "drafting": "Drafting a question…",
+    "channel": "Channel",
+    "comingSoon": "coming soon",
+    "send": "Send",
+    "sent": "Question sent",
+    "noProfile": "No project profile yet — create one to use this answer",
+    "notFound": "This question doesn't exist or isn't addressed to you.",
+    "askedBy": "Question from {{name}}",
+    "record": "Record voice note",
+    "stop": "Stop",
+    "discard": "Discard",
+    "emptyRecording": "Recording was empty — try again",
+    "micError": "Microphone access denied",
+    "typePlaceholder": "Or type your answer…",
+    "submit": "Send answer",
+    "notRelevant": "Not relevant",
+    "transcribing": "Transcribing your voice note…",
+    "thanks": "Thanks, answer sent",
+    "dismissed": "Marked as not relevant",
+    "yourAnswer": "Answer",
+    "status": {
+      "pending": "Pending",
+      "answered": "Answered",
+      "dismissed": "Dismissed",
+      "expired": "Expired"
+    }
   }
 }
