@@ -119,5 +119,10 @@
     "moduleTitle": "Marketing",
     "moduleSubtitle": "O que se está a cozinhar",
     "moduleDescription": "Momentos de obra, histórias do atelier e as publicações que daí nascem."
+  },
+  "questionsForYou": {
+    "title": "Perguntas para si",
+    "answer": "Responder",
+    "record": "Gravar briefing"
   }
 }

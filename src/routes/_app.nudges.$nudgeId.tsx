@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMarkNotificationRead, useNotifications } from "@/hooks/use-notifications";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -38,6 +39,12 @@ function NudgeAnswerPage() {
   const [audio, setAudio] = useState<Blob | null>(null);
   const [busy, setBusy] = useState(false);
   const key = ["marketing-nudge", nudgeId];
+  const { items: notes } = useNotifications();
+  const markRead = useMarkNotificationRead();
+  useEffect(() => {
+    for (const x of notes) if (!x.read_at && x.link_path === `/nudges/${nudgeId}`) markRead.mutate(x.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes, nudgeId]);
   const { data: n, isLoading, error } = useQuery({ queryKey: key, queryFn: () => getFn({ data: { nudgeId } }) });
 
   if (isLoading) return <div className="p-6 text-sm text-muted-foreground">{t("inbox.loading")}</div>;

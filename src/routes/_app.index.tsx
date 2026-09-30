@@ -27,6 +27,7 @@ import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
 import { RecentlyVisited } from "@/components/home/recently-visited";
+import { QuestionsForYou } from "@/components/home/questions-for-you";
 
 import {
   useProposalImages,
@@ -382,6 +383,8 @@ function HubPage() {
 
 
 
+
+      <QuestionsForYou />
 
       {/* MODULES ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 lg:pt-16">

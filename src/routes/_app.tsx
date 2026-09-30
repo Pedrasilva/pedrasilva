@@ -120,6 +120,8 @@ function AppLayout() {
                 <ModuleTopNav />
               </div>
 
+              <NotificationBell />
+
               {/* User menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -139,7 +141,6 @@ function AppLayout() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <div className="px-2 py-1">
-                    <NotificationBell />
                     <LanguageSwitcher />
                   </div>
                   {isRealAdmin && (
