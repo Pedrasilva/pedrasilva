@@ -39,6 +39,8 @@ export type FlyoutLink = {
   permV2Scope?: PermissionScope;
   /** Requires finance access (useFinanceAccess — same check as the /finance guard). */
   requiresFinance?: boolean;
+  /** Optional live count shown next to the label. */
+  badge?: "marketingQuestions";
 };
 
 export type FlyoutSection = {
@@ -296,6 +298,7 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/marketing/bible", labelKey: "marketing.bible" },
           { to: "/marketing/projects", labelKey: "marketing.projects" },
           { to: "/marketing/posts", labelKey: "marketing.posts", permV2: "marketing.curate", permV2Scope: "all" },
+          { to: "/marketing/questions", labelKey: "marketing.questions", permV2: "marketing.curate", permV2Scope: "all", badge: "marketingQuestions" },
         ],
       },
     ],

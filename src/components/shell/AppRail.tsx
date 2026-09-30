@@ -1,4 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
@@ -198,8 +200,23 @@ function RailButton({
   );
 }
 
+function usePendingQuestions(enabled: boolean) {
+  return useQuery({
+    queryKey: ["marketing-questions-pending"],
+    enabled,
+    staleTime: 60_000,
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count } = await (supabase as any).from("marketing_nudges").select("id", { count: "exact", head: true })
+        .eq("status", "pending").or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+      return count ?? 0;
+    },
+  });
+}
+
 function FlyoutLinkRow({ link, active }: { link: FlyoutLink; active: boolean }) {
   const { t } = useTranslation("common");
+  const { data: pending = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
   return (
     <Link
       to={link.to as never}
@@ -220,6 +237,9 @@ function FlyoutLinkRow({ link, active }: { link: FlyoutLink; active: boolean }) 
         />
       )}
       {t(`shell.link.${link.labelKey}`)}
+      {link.badge && pending > 0 && (
+        <span className="ml-2 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">{pending}</span>
+      )}
     </Link>
   );
 }
