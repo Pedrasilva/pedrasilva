@@ -71,7 +71,7 @@ export function AvailabilityYear({
                       ? PRE_ADMISSION_BG
                       : pre === "part"
                         ? absenceBg
-                          ? `${PRE_ADMISSION_BG.replace("repeating-linear-gradient", "repeating-linear-gradient")}, ${absenceBg}`
+                          ? `${PRE_ADMISSION_BG}, linear-gradient(${absenceBg}, ${absenceBg})`
                           : PRE_ADMISSION_BG
                         : absenceBg;
                   const tip = t("availability.year.cellTip", {
