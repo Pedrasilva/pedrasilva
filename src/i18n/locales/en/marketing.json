@@ -349,5 +349,17 @@
       "dismissed": "Dismissed",
       "expired": "Expired"
     }
+  },
+  "delete": {
+    "button": "Delete capture",
+    "title": "Delete capture?",
+    "confirm": "This permanently deletes the capture and its files.",
+    "deleting": "Deleting…",
+    "done": "Capture deleted",
+    "published": "Used in a published post — archive it instead.",
+    "drafts_one": "Used in {{count}} draft — delete that idea first.",
+    "drafts_other": "Used in {{count}} drafts — delete those ideas first.",
+    "forbidden": "You can't delete this capture.",
+    "error": "Could not delete the capture"
   }
 }
