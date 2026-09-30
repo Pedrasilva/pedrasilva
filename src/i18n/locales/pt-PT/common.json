@@ -340,7 +340,8 @@
       "inventory": "Inventário",
       "products": "Biblioteca de Produtos",
       "inbox": "Caixa de entrada",
-      "marketing": "Marketing"
+      "marketing": "Marketing",
+      "reports": "Relatórios"
     },
     "section": {
       "sharedLists": "Listas partilhadas",
@@ -408,7 +409,8 @@
       "inbox.settings": "Definições",
       "marketing.inbox": "Caixa de Marketing",
       "marketing.bible": "Bíblia de Marketing",
-      "marketing.projects": "Perfis de projeto"
+      "marketing.projects": "Perfis de projeto",
+      "reports.hours": "Horas registadas"
     },
     "top": {
       "create": "Criar",

@@ -340,7 +340,8 @@
       "inventory": "Inventory",
       "products": "Product Library",
       "inbox": "Inbox",
-      "marketing": "Marketing"
+      "marketing": "Marketing",
+      "reports": "Reports"
     },
     "section": {
       "sharedLists": "Shared lists",
@@ -408,7 +409,8 @@
       "inbox.settings": "Settings",
       "marketing.inbox": "Marketing Inbox",
       "marketing.bible": "Marketing Bible",
-      "marketing.projects": "Project profiles"
+      "marketing.projects": "Project profiles",
+      "reports.hours": "Hours logged"
     },
     "top": {
       "create": "Create",

@@ -1,0 +1,81 @@
+{
+  "index": {
+    "title": "Relatórios",
+    "subtitle": "Relatórios do atelier, só de leitura.",
+    "cards": {
+      "hours": {
+        "title": "Horas registadas",
+        "description": "Horas previstas vs registadas por pessoa, e semanas por submeter."
+      }
+    }
+  },
+  "hours": {
+    "title": "Horas registadas",
+    "subtitle": "As horas previstas descontam feriados, ausências aprovadas e contratos a tempo parcial.",
+    "rangeLabel": "{{start}} a {{end}}",
+    "error": "Não foi possível carregar o relatório. Tente novamente.",
+    "empty": "Nenhuma pessoa corresponde a estes filtros neste período.",
+    "noEntry": "Nenhum no período",
+    "expand": "Mostrar detalhe semanal de {{name}}",
+    "collapse": "Esconder detalhe semanal de {{name}}",
+    "presets": {
+      "lastWeek": "Semana passada",
+      "last2Weeks": "Últimas 2 semanas",
+      "lastMonth": "Mês passado",
+      "last3Months": "Últimos 3 meses",
+      "custom": "Intervalo personalizado"
+    },
+    "filters": {
+      "period": "Período",
+      "from": "De",
+      "to": "Até",
+      "department": "Departamento",
+      "team": "Equipa",
+      "people": "Pessoas",
+      "all": "Todos",
+      "everyone": "Todas",
+      "selected_one": "{{count}} pessoa",
+      "selected_other": "{{count}} pessoas",
+      "clear": "Limpar seleção"
+    },
+    "departments": {
+      "Projecto": "Projecto",
+      "Backoffice": "Backoffice"
+    },
+    "tiles": {
+      "behind": "Pessoas em atraso",
+      "missing": "Total de horas em falta",
+      "notSubmitted": "Semanas por submeter"
+    },
+    "chart": {
+      "title": "Registadas vs previstas, piores primeiro"
+    },
+    "cols": {
+      "person": "Pessoa",
+      "expected": "Previstas",
+      "logged": "Registadas",
+      "gap": "Diferença",
+      "pct": "% concluído",
+      "weeksNotSubmitted": "Semanas por submeter",
+      "lastEntry": "Último registo",
+      "status": "Estado"
+    },
+    "status": {
+      "onTrack": "Em dia",
+      "behind": "Em atraso",
+      "farBehind": "Muito atrasado"
+    },
+    "week": {
+      "week": "Semana",
+      "leave": "Ausência",
+      "status": "Estado da semana"
+    },
+    "weekStatus": {
+      "open": "Aberta",
+      "submitted": "Submetida",
+      "returned": "Devolvida",
+      "approved": "Aprovada",
+      "not_submitted": "Por submeter"
+    }
+  }
+}

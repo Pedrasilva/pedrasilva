@@ -1,0 +1,81 @@
+{
+  "index": {
+    "title": "Reports",
+    "subtitle": "Read-only studio reports.",
+    "cards": {
+      "hours": {
+        "title": "Hours logged",
+        "description": "Expected vs logged hours per person, and weeks not submitted."
+      }
+    }
+  },
+  "hours": {
+    "title": "Hours logged",
+    "subtitle": "Expected hours account for public holidays, approved leave and part-time contracts.",
+    "rangeLabel": "{{start}} to {{end}}",
+    "error": "Couldn't load the report. Try again.",
+    "empty": "No people match these filters for this period.",
+    "noEntry": "None in period",
+    "expand": "Show weekly breakdown for {{name}}",
+    "collapse": "Hide weekly breakdown for {{name}}",
+    "presets": {
+      "lastWeek": "Last week",
+      "last2Weeks": "Last 2 weeks",
+      "lastMonth": "Last month",
+      "last3Months": "Last 3 months",
+      "custom": "Custom range"
+    },
+    "filters": {
+      "period": "Period",
+      "from": "From",
+      "to": "To",
+      "department": "Department",
+      "team": "Team",
+      "people": "People",
+      "all": "All",
+      "everyone": "Everyone",
+      "selected_one": "{{count}} person",
+      "selected_other": "{{count}} people",
+      "clear": "Clear selection"
+    },
+    "departments": {
+      "Projecto": "Projecto",
+      "Backoffice": "Backoffice"
+    },
+    "tiles": {
+      "behind": "People behind",
+      "missing": "Total missing hours",
+      "notSubmitted": "Weeks not submitted"
+    },
+    "chart": {
+      "title": "Logged vs expected, worst first"
+    },
+    "cols": {
+      "person": "Person",
+      "expected": "Expected",
+      "logged": "Logged",
+      "gap": "Gap",
+      "pct": "% complete",
+      "weeksNotSubmitted": "Weeks not submitted",
+      "lastEntry": "Last entry",
+      "status": "Status"
+    },
+    "status": {
+      "onTrack": "On track",
+      "behind": "Behind",
+      "farBehind": "Far behind"
+    },
+    "week": {
+      "week": "Week",
+      "leave": "Leave",
+      "status": "Week status"
+    },
+    "weekStatus": {
+      "open": "Open",
+      "submitted": "Submitted",
+      "returned": "Returned",
+      "approved": "Approved",
+      "not_submitted": "Not submitted"
+    }
+  }
+}
