@@ -145,11 +145,13 @@ export const listNudgesOverview = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: rows, error } = await sb.from("marketing_nudges")
-      .select("id, kind, channel, question, status, expires_at, sent_at, answered_at, capture_id, project_id, created_by, architect_user_id, created_at, pm_projects(name)")
+      .select("id, kind, channel, question, status, expires_at, sent_at, answered_at, capture_id, project_id, created_by, architect_user_id, created_at")
       .order("created_at", { ascending: false }).limit(500);
     if (error) throw new Error(error.message);
     const list = (rows ?? []) as Array<Record<string, any>>;
     const pids = [...new Set(list.map((r) => r.project_id).filter(Boolean))];
+    const { data: pn } = pids.length ? await sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] };
+    const nameBy = new Map<string, string>(((pn ?? []) as { id: string; name: string }[]).map((p) => [p.id, p.name]));
     const { data: profs } = pids.length ? await sb.from("marketing_project_profiles").select("id, project_id").in("project_id", pids) : { data: [] };
     const profBy = new Map<string, string>(((profs ?? []) as { id: string; project_id: string }[]).map((p) => [p.project_id, p.id]));
     const { userName } = await import("./nudges.server");
@@ -160,7 +162,7 @@ export const listNudgesOverview = createServerFn({ method: "POST" })
       id: r.id, kind: r.kind, channel: r.channel, question: r.question, status: r.status,
       expired: r.status === "pending" && !!r.expires_at && new Date(r.expires_at).getTime() < now,
       sent_at: r.sent_at, answered_at: r.answered_at, capture_id: r.capture_id, project_id: r.project_id,
-      projectName: r.pm_projects?.name ?? null, profileId: r.project_id ? profBy.get(r.project_id) ?? null : null,
+      projectName: r.project_id ? nameBy.get(r.project_id) ?? null : null, profileId: r.project_id ? profBy.get(r.project_id) ?? null : null,
       created_by: r.created_by, createdByName: names.get(r.created_by) ?? "—",
       architect_user_id: r.architect_user_id, architectName: names.get(r.architect_user_id) ?? "—",
     }));

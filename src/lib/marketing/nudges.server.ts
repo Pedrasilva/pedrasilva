@@ -357,11 +357,12 @@ export async function draftBriefingPrompt(projectId: string): Promise<string> {
 
 /** Send (or re-send) a nudge's bell notification and, for email, the email with the same [Q-…] tag. */
 export async function deliverNudge(db: any, nudgeId: string, senderUserId: string, resend = false) {
-  const { data: n } = await db.from("marketing_nudges").select("*, pm_projects(name)").eq("id", nudgeId).single();
-  if (!n) throw new Error("Question not found");
+  const { data: n, error: nErr } = await db.from("marketing_nudges").select("*").eq("id", nudgeId).maybeSingle();
+  if (!n) throw new Error(`Question not found${nErr ? `: ${nErr.message}` : ""}`);
+  const { data: proj } = n.project_id ? await db.from("pm_projects").select("name").eq("id", n.project_id).maybeSingle() : { data: null };
   const sender = await userName(senderUserId);
   const first = sender.name.split(/\s+/)[0] || sender.name;
-  const project = n.pm_projects?.name ?? "uma captura";
+  const project = proj?.name ?? "uma captura";
   const link = `/nudges/${n.id}`;
   const stamp = resend ? `:resend:${Date.now()}` : "";
   const briefing = n.kind === "briefing";
