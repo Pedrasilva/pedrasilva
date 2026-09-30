@@ -4,7 +4,20 @@
     "subtitle": "Material de toda a equipa, pronto a ser curado em publicações.",
     "add": "Adicionar captura",
     "empty": "Ainda não há capturas.",
-    "loading": "A carregar…"
+    "loading": "A carregar…",
+    "quick": {
+      "new": "Novas",
+      "enriched": "Para curar",
+      "ready": "Prontas",
+      "used": "Usadas",
+      "all": "Todas",
+      "archived": "Arquivadas"
+    },
+    "card": {
+      "clearance": "Autorização: {{value}}",
+      "interest": "Interesse {{score}}",
+      "flags": "{{count}} alertas da IA"
+    }
   },
   "filters": {
     "status": "Estado",
@@ -13,7 +26,10 @@
     "channel": "Canal",
     "project": "Projeto",
     "all": "Todos",
-    "activeOnly": "Todos exceto arquivados"
+    "activeOnly": "Todos exceto arquivados",
+    "button": "Filtros",
+    "clear": "Limpar",
+    "showArchived": "Mostrar arquivadas"
   },
   "channel": {
     "hub": "Hub",

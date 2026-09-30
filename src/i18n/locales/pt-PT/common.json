@@ -347,7 +347,9 @@
       "sharedLists": "Listas partilhadas",
       "shortcuts": "Atalhos",
       "reports": "Relatórios",
-      "recentlyViewed": "Vistos recentemente"
+      "recentlyViewed": "Vistos recentemente",
+      "work": "Trabalho",
+      "strategy": "Estratégia"
     },
     "utility": {
       "help": "Ajuda",
@@ -421,7 +423,15 @@
       "schedule": "Agenda",
       "inbox": "Caixa",
       "account": "Conta"
-    }
+    },
+    "tab": {
+      "marketing.inbox": "Caixa",
+      "marketing.posts": "Planeador",
+      "marketing.projects": "Perfis",
+      "marketing.questions": "Perguntas",
+      "marketing.bible": "Bíblia"
+    },
+    "subnavLabel": "Páginas da secção"
   },
   "notifications": {
     "title": "Notificações",
