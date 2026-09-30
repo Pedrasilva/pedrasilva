@@ -82,7 +82,7 @@ function cutGmailQuote(html: string) {
   return i >= 0 ? html.slice(0, i) : html;
 }
 /** Plain reply text without the quoted original or signature. */
-export function stripReply(text: string): string {
+function stripReply(text: string): string {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   const out: string[] = [];
   for (let i = 0; i < lines.length; i++) {
