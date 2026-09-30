@@ -38,6 +38,8 @@ export type WeekBreakdown = {
   logged: number;
   leave: number;
   status: string; // open | submitted | returned | approved | not_submitted
+  /** Whole week ends before the person's effective start. */
+  beforeStart: boolean;
 };
 
 export type HoursLoggedRow = {
@@ -49,7 +51,8 @@ export type HoursLoggedRow = {
   pct: number | null; // 0..1+, null when nothing expected
   weeksNotSubmitted: number;
   lastEntryDate: string | null;
-  status: HoursStatus;
+  /** null when nothing is expected in the period. */
+  status: HoursStatus | null;
   weeks: WeekBreakdown[];
 };
 
@@ -60,6 +63,24 @@ export type HoursLoggedRow = {
  */
 export const WEEKLY_SUBMISSION_START = "2026-09-07";
 export const PRE_SUBMISSION_STATUS = "before_submission";
+
+/**
+ * Studio-wide tracking start: the date PSA Hub timesheets became the
+ * official record of hours. Nothing is expected before it, and weeks ending
+ * before it never count as "not submitted". Hours logged earlier are still
+ * shown (they are real) but never create a gap or a status.
+ */
+export const TRACKING_START = "2026-06-01";
+
+/**
+ * Effective start for one person in a period: the LATEST of the period
+ * start, TRACKING_START and the admission date. Reuse in every report.
+ */
+export function effectiveStart(rangeStart: string, admissionDate?: string | null): string {
+  let s = rangeStart > TRACKING_START ? rangeStart : TRACKING_START;
+  if (admissionDate && admissionDate > s) s = admissionDate;
+  return s;
+}
 
 export const ON_TRACK_PCT = 0.95;
 export const BEHIND_PCT = 0.5;
@@ -129,7 +150,8 @@ export function computeHoursLogged(input: {
     const cap = Number(person.daysPerWeek) || DEFAULT_DAYS_PER_WEEK;
     const nw = nwByUser.get(person.userId) ?? new Set<string>();
     const mine = entriesByUser.get(person.userId) ?? [];
-    const from = person.startDate && person.startDate > rangeStart ? person.startDate : rangeStart;
+    const from = effectiveStart(rangeStart, person.startDate);
+    let loggedFromStart = 0;
 
     let lastEntryDate: string | null = null;
     const lastPool = input.lastEntries
@@ -150,15 +172,16 @@ export function computeHoursLogged(input: {
         available++;
       }
       const expected = round2(Math.min(available, cap) * daily);
-      const t = totalsFromEntries(
-        mine.filter((e) => e.entry_date >= weekStart && e.entry_date <= weekEnd),
-      );
+      const inWeek = mine.filter((e) => e.entry_date >= weekStart && e.entry_date <= weekEnd);
+      const t = totalsFromEntries(inWeek);
+      loggedFromStart += totalsFromEntries(inWeek.filter((e) => e.entry_date >= from)).working;
       return {
         weekStart,
         weekEnd,
         expected,
         logged: round2(t.working),
         leave: round2(t.leave),
+        beforeStart: weekEnd < from,
         status:
           weekStart < WEEKLY_SUBMISSION_START
             ? PRE_SUBMISSION_STATUS
@@ -169,13 +192,15 @@ export function computeHoursLogged(input: {
     const expected = round2(weekRows.reduce((s, w) => s + w.expected, 0));
     const logged = round2(weekRows.reduce((s, w) => s + w.logged, 0));
     const leave = round2(weekRows.reduce((s, w) => s + w.leave, 0));
-    const pct = expected > 0 ? logged / expected : null;
+    // Gap and % only compare hours from the effective start onward.
+    const counted = round2(loggedFromStart);
+    const pct = expected > 0 ? counted / expected : null;
     return {
       person,
       expected,
       logged,
       leave,
-      gap: round2(expected - logged),
+      gap: expected > 0 ? round2(expected - counted) : 0,
       pct,
       weeksNotSubmitted: weekRows.filter(
         (w) =>
@@ -184,7 +209,7 @@ export function computeHoursLogged(input: {
           w.status !== "submitted" && w.status !== "approved",
       ).length,
       lastEntryDate,
-      status: statusFor(pct),
+      status: pct === null ? null : statusFor(pct),
       weeks: weekRows,
     };
   });

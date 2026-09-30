@@ -76,7 +76,10 @@
       "returned": "Returned",
       "approved": "Approved",
       "not_submitted": "Not submitted",
-      "before_submission": "Before weekly submission"
-    }
+      "before_submission": "Before weekly submission",
+      "before_tracking": "Before tracking start"
+    },
+    "beforeTracking": "Timesheets in PSA Hub started on 1 June 2026. Choose a period from that date.",
+    "trackingNote": "Hours are expected from 1 June 2026."
   }
 }
