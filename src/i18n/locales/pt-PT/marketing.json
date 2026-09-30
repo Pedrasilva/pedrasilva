@@ -301,6 +301,13 @@
     "fromCapture": "Sugerir uma publicação a partir desta",
     "recheck": "Verificar de novo",
     "saveEdit": "Guardar edição",
-    "editSaved": "Edição guardada"
+    "editSaved": "Edição guardada",
+    "deleteIdea": "Eliminar ideia",
+    "deleteRequest": "Eliminar pedido",
+    "deleteConfirm": "Isto remove os rascunhos definitivamente. Use Rejeitar se quiser que a máquina aprenda porque não foi usado.",
+    "deleted": "Eliminado",
+    "cancel": "Cancelar",
+    "editNote": "O que mudou e porquê? (opcional)",
+    "editedAfterApproval": "Editado após aprovação, aprove novamente"
   }
 }

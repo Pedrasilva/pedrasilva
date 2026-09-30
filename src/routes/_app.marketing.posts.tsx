@@ -281,6 +281,9 @@ function PostPlannerPage() {
             <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
             {req.brief && <span className="text-xs text-muted-foreground">“{req.brief}”</span>}
             <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
+            {req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
+              <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
+            )}
             <span className="text-xs text-muted-foreground">{new Date(req.created_at).toLocaleString()}</span>
           </div>
           {req.status === "running" && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("posts.generating")}</p>}
@@ -343,6 +346,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
         {pillar && <Badge variant="outline">{pillar}</Badge>}
         {persona && <Badge variant="outline">{persona}</Badge>}
+        {!drafts.some((d) => d.status === "published") && (
+          <span className="ml-auto"><DeleteButton label={t("posts.deleteIdea")} ids={drafts.map((d) => d.id)} column="id" /></span>
+        )}
       </div>
       {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note}</p>}
       {first.status === "suggested" && first.readiness !== "ready" && (
