@@ -12108,6 +12108,10 @@ export type Database = {
         Args: { _arr: Json; _label: string }
         Returns: undefined
       }
+      marketing_compute_draft_readiness: {
+        Args: { _capture_ids: string[]; _copy: string; _hashtags: string[] }
+        Returns: Record<string, unknown>
+      }
       marketing_effective_clearance: {
         Args: { _capture_id: string }
         Returns: Database["public"]["Enums"]["marketing_clearance"]
@@ -12123,6 +12127,10 @@ export type Database = {
       marketing_is_project_team_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      marketing_recheck_draft_readiness: {
+        Args: { _draft_id: string }
+        Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
       }
       notify_user: {
         Args: {

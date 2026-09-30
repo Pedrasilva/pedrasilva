@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Download, Loader2, Sparkles, X } from "lucide-react";
+import { Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { V2PermissionGate } from "@/components/PermissionGate";
@@ -97,6 +97,14 @@ function usePlannerData() {
   });
 }
 
+async function recheckDrafts(ids: string[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rpc = (supabase as any).rpc.bind(supabase);
+  const results = await Promise.all(ids.map((id) => rpc("marketing_recheck_draft_readiness", { _draft_id: id })));
+  const err = results.find((r: { error: unknown }) => r.error);
+  if (err) throw err.error;
+}
+
 function PostPlannerPage() {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
@@ -111,6 +119,13 @@ function PostPlannerPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const { data, isLoading } = usePlannerData();
   const { data: bible } = useActiveBible();
+  const rechecked = useRef(new Set<string>());
+  useEffect(() => {
+    const ids = (data?.drafts ?? []).filter((d) => d.status === "suggested" && !rechecked.current.has(d.id)).map((d) => d.id);
+    if (!ids.length) return;
+    ids.forEach((id) => rechecked.current.add(id));
+    recheckDrafts(ids).then(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] })).catch(() => {});
+  }, [data, qc]);
 
   const pillarName = (k: string | null) => (k ? bible?.pillars.find((p) => p.key === k)?.name ?? k : null);
   const personaName = (k: string | null) => (k ? bible?.personas.find((p) => p.key === k)?.name ?? k : null);
@@ -266,6 +281,15 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
   const { data: urls = {} } = useSigned(assets.map((a) => a.storage_path));
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
+  const qc = useQueryClient();
+  const [rechecking, setRechecking] = useState(false);
+  const recheck = async () => {
+    setRechecking(true);
+    try { await recheckDrafts(drafts.filter((d) => d.status === "suggested").map((d) => d.id)); }
+    catch (e) { toast.error((e as { message?: string })?.message || t("posts.error")); }
+    setRechecking(false);
+    qc.invalidateQueries({ queryKey: ["marketing-posts"] });
+  };
   return (
     <Card className="space-y-3 p-4">
       {assets.length > 0 && (
@@ -284,6 +308,11 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
         {persona && <Badge variant="outline">{persona}</Badge>}
       </div>
       {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note}</p>}
+      {first.status === "suggested" && first.readiness !== "ready" && (
+        <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck}>
+          <RefreshCw className={`mr-1 h-3.5 w-3.5 ${rechecking ? "animate-spin" : ""}`} /> {t("posts.recheck")}
+        </Button>
+      )}
       {first.safety_flags.length > 0 && (
         <div className="flex flex-wrap gap-1">{first.safety_flags.map((f) => <Badge key={f} variant="outline" className={READY_CLASS.blocked}>{f}</Badge>)}</div>
       )}
@@ -332,6 +361,12 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
+  };
+  const saveEdit = async () => {
+    if (await update({ final_copy: copy, final_hashtags: parsedTags }, t("posts.editSaved"))) {
+      try { await recheckDrafts([draft.id]); } catch { /* badge refreshes on next load */ }
+      qc.invalidateQueries({ queryKey: ["marketing-posts"] });
+    }
   };
   const edited = copy !== draft.ai_copy || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
   const approve = () => update({
@@ -393,6 +428,11 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
             <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)} disabled={saving}>
               <X className="mr-1 h-3.5 w-3.5" /> {t("posts.reject")}
             </Button>
+            {(copy !== (draft.final_copy ?? draft.ai_copy) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ")) && (
+              <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving}>
+                <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
+              </Button>
+            )}
           </>
         )}
         {draft.status === "approved" && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}

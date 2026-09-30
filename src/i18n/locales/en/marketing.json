@@ -298,6 +298,9 @@
     "approved": "Draft approved",
     "rejected": "Draft rejected",
     "publishedToast": "Marked as published; captures set to used",
-    "fromCapture": "Suggest a post from this"
+    "fromCapture": "Suggest a post from this",
+    "recheck": "Recheck",
+    "saveEdit": "Save edit",
+    "editSaved": "Edit saved"
   }
 }
