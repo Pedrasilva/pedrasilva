@@ -4,7 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, FileText, ImageIcon, Lightbulb, Link2, Plus, RefreshCw, Sparkles, Video } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, FileText, ImageIcon, Lightbulb, Link2, Plus, RefreshCw, Sparkles, Video } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
@@ -82,7 +82,7 @@ const NONE = "__none";
 const ALL = "__all";
 const ACTIVE = "__active";
 
-type Asset = { id: string; storage_path: string; file_name: string; mime_type: string; size_bytes: number };
+type Asset = { id: string; storage_path: string; file_name: string; mime_type: string; size_bytes: number; position?: number };
 type Capture = {
   id: string;
   created_by: string | null;
@@ -107,6 +107,7 @@ type Capture = {
   enrichment_model: string | null;
   enrichment_error: string | null;
   curator_notes: string | null;
+  format_hint?: "auto" | "carousel" | "single";
   status: (typeof STATUSES)[number];
   clearance: (typeof CLEARANCES)[number];
   shelf_life: (typeof SHELF)[number] | null;
@@ -142,10 +143,12 @@ function useCaptures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketing_captures")
-        .select("*, marketing_capture_assets(id, storage_path, file_name, mime_type, size_bytes)")
+        .select("*, marketing_capture_assets(id, storage_path, file_name, mime_type, size_bytes, position)")
         .order("received_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as Capture[];
+      const list = (data ?? []) as unknown as Capture[];
+      for (const c of list) c.marketing_capture_assets.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      return list;
     },
   });
 }
@@ -564,7 +567,8 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
       project_id: v.project_id, sector: v.sector, stage: v.stage, content_type: v.content_type,
       pillar: v.pillar, persona: v.persona, shelf_life: v.shelf_life, expires_at: v.expires_at, clearance: v.clearance,
       status: v.status, curator_notes: v.curator_notes,
-    }).eq("id", capture.id);
+      ...(draft.format_hint ? { format_hint: draft.format_hint } : {}),
+    } as never).eq("id", capture.id);
     setSaving(false);
     if (error) { toast.error(t("detail.error")); return; }
     toast.success(t("detail.saved"));
@@ -572,6 +576,18 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
   };
 
+  const images = assets.filter((a) => a.mime_type.startsWith("image/"));
+  const move = async (id: string, dir: -1 | 1) => {
+    const ids = assets.map((a) => a.id);
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if (j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).rpc("marketing_reorder_capture_assets", { _capture_id: capture.id, _asset_ids: ids });
+    if (error) { toast.error(error.message || t("detail.error")); return; }
+    qc.invalidateQueries({ queryKey: ["marketing-captures"] });
+  };
   const none = t("add.none");
   return (
     <Sheet open onOpenChange={(o) => !o && onClose()}>
@@ -588,7 +604,20 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
               const u = urls[a.storage_path];
               if (!u) return <div key={a.id} className="aspect-square rounded bg-muted" />;
               if (a.mime_type.startsWith("image/"))
-                return <img key={a.id} src={u} alt={a.file_name} className="aspect-square cursor-zoom-in rounded object-cover" onClick={() => setLightbox(u)} />;
+                return (
+                  <div key={a.id} className="relative">
+                    <img src={u} alt={a.file_name} className="aspect-square w-full cursor-zoom-in rounded object-cover" onClick={() => setLightbox(u)} />
+                    {images[0]?.id === a.id && images.length > 1 && (
+                      <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{t("detail.cover")}</span>
+                    )}
+                    {canCurate && assets.length > 1 && (
+                      <div className="absolute bottom-1 right-1 flex gap-1">
+                        <Button size="icon" variant="secondary" className="h-6 w-6" aria-label={t("detail.moveEarlier")} onClick={() => move(a.id, -1)} disabled={assets[0].id === a.id}><ArrowLeft className="h-3 w-3" /></Button>
+                        <Button size="icon" variant="secondary" className="h-6 w-6" aria-label={t("detail.moveLater")} onClick={() => move(a.id, 1)} disabled={assets[assets.length - 1].id === a.id}><ArrowRight className="h-3 w-3" /></Button>
+                      </div>
+                    )}
+                  </div>
+                );
               if (a.mime_type.startsWith("video/"))
                 return <video key={a.id} src={u} controls className="col-span-3 w-full rounded" />;
               return (
@@ -598,6 +627,16 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
               );
             })}
           </div>
+          {canCurate && images.length > 0 && (
+            <Row label={t("detail.formatHint")}>
+              <Select value={v.format_hint ?? "auto"} onValueChange={(x) => set({ format_hint: x as Capture["format_hint"] })}>
+                <SelectTrigger className="h-8 w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(["auto", "carousel", "single"] as const).map((k) => <SelectItem key={k} value={k}>{t(`detail.format.${k}`)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Row>
+          )}
           {canCurate && <IgnoredAttachmentsNote captureId={capture.id} />}
           {(profile || (effClearance && effClearance !== capture.clearance)) && (
             <div className="space-y-1 rounded-md border border-border p-2">
