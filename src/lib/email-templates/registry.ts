@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { template as expenseApprovedTemplate } from './expense-approved'
 import { template as remoteWorkLateTemplate } from './remote-work-late'
 import { template as timesheetReminderTemplate } from './timesheet-reminder'
+import { template as marketingNudgeTemplate } from './marketing-nudge'
 
 
 export interface TemplateEntry {
@@ -25,5 +26,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'expense-approved': expenseApprovedTemplate,
   'remote-work-late': remoteWorkLateTemplate,
   'timesheet-reminder': timesheetReminderTemplate,
+  'marketing-nudge': marketingNudgeTemplate,
 }
 

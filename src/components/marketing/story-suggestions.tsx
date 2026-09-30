@@ -17,6 +17,7 @@ type Suggestion = {
   id: string;
   field: StoryField;
   suggested_text: string;
+  source: "ai" | "architect_answer";
   capture_id: string | null;
   marketing_captures: { marketing_capture_assets: { storage_path: string; mime_type: string }[] } | null;
 };
@@ -32,7 +33,7 @@ export function StorySuggestions({ profileId, thumbs, onAccepted }: { profileId:
     queryFn: async () => {
       const { data, error } = await db
         .from("marketing_project_story_suggestions")
-        .select("id, field, suggested_text, capture_id, marketing_captures(marketing_capture_assets(storage_path, mime_type))")
+        .select("id, field, suggested_text, source, capture_id, marketing_captures(marketing_capture_assets(storage_path, mime_type))")
         .eq("profile_id", profileId)
         .eq("status", "pending")
         .order("created_at");
@@ -72,7 +73,7 @@ export function StorySuggestions({ profileId, thumbs, onAccepted }: { profileId:
               </Link>
             )}
             <div className="min-w-0 flex-1 space-y-2">
-              <Badge variant="outline">{t(`profile.fields.${s.field}`)}</Badge>
+              <div className="flex flex-wrap gap-1"><Badge variant="outline">{t(`profile.fields.${s.field}`)}</Badge><Badge variant="secondary">{t(`ai.source.${s.source}`)}</Badge></div>
               <p className="whitespace-pre-wrap text-sm">{s.suggested_text}</p>
               <div className="flex gap-2">
                 <Button size="sm" onClick={() => review(s, true)} disabled={busy === s.id}>{t("ai.accept")}</Button>

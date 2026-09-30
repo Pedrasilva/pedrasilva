@@ -1,3 +1,4 @@
+import { NudgePanel } from "@/components/marketing/nudge-panel";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -620,6 +621,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
 
         <AiAnalysis capture={capture} canCurate={canCurate} />
         {canCurate && <SuggestPostButton captureId={capture.id} />}
+        {canCurate && <NudgePanel captureId={capture.id} hasProfile={!!profile} />}
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>
         {!canCurate && <p className="text-xs text-muted-foreground">{t("detail.readOnly")}</p>}

@@ -234,7 +234,11 @@
     "accept": "Aceitar",
     "reject": "Rejeitar",
     "suggestionAccepted": "Acrescentado à história",
-    "suggestionRejected": "Sugestão rejeitada"
+    "suggestionRejected": "Sugestão rejeitada",
+    "source": {
+      "ai": "IA",
+      "architect_answer": "Resposta do arquiteto"
+    }
   },
   "posts": {
     "title": "Planeador de publicações",
@@ -309,5 +313,41 @@
     "cancel": "Cancelar",
     "editNote": "O que mudou e porquê? (opcional)",
     "editedAfterApproval": "Editado após aprovação, aprove novamente"
+  },
+  "nudge": {
+    "title": "Pedir contexto a um arquiteto",
+    "ask": "Perguntar a um arquiteto",
+    "architect": "Arquiteto",
+    "pickArchitect": "Escolha uma pessoa",
+    "onTeam": "equipa do projeto",
+    "noTeam": "Sem equipa de projeto; a mostrar toda a equipa.",
+    "question": "Pergunta",
+    "suggest": "Sugerir pergunta",
+    "drafting": "A preparar uma pergunta…",
+    "channel": "Canal",
+    "comingSoon": "em breve",
+    "send": "Enviar",
+    "sent": "Pergunta enviada",
+    "noProfile": "Ainda não há perfil do projeto — crie um para usar esta resposta",
+    "notFound": "Esta pergunta não existe ou não lhe foi dirigida.",
+    "askedBy": "Pergunta de {{name}}",
+    "record": "Gravar nota de voz",
+    "stop": "Parar",
+    "discard": "Descartar",
+    "emptyRecording": "A gravação ficou vazia — tente novamente",
+    "micError": "Acesso ao microfone negado",
+    "typePlaceholder": "Ou escreva a sua resposta…",
+    "submit": "Enviar resposta",
+    "notRelevant": "Não relevante",
+    "transcribing": "A transcrever a nota de voz…",
+    "thanks": "Obrigado, resposta enviada",
+    "dismissed": "Marcada como não relevante",
+    "yourAnswer": "Resposta",
+    "status": {
+      "pending": "Pendente",
+      "answered": "Respondida",
+      "dismissed": "Dispensada",
+      "expired": "Expirada"
+    }
   }
 }
