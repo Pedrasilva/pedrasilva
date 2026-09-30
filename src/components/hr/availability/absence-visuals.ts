@@ -13,6 +13,9 @@ export function mix(token: string, pct: number): string {
   return `color-mix(in oklch, ${token} ${pct}%, transparent)`;
 }
 
+/** Neutral hatch for days before a person's admission date. */
+export const PRE_ADMISSION_BG = `repeating-linear-gradient(45deg, ${mix("var(--muted-foreground)", 22)} 0 1px, transparent 1px 5px)`;
+
 /** Inline background for one person/day cell. */
 export function cellStyle(cell: Cell | undefined): React.CSSProperties {
   if (!cell) return {};
@@ -44,6 +47,8 @@ export function cellStyle(cell: Cell | undefined): React.CSSProperties {
       return { background: mix("var(--ink)", 14) };
     case "weekend":
       return { background: mix("var(--ink)", 9) };
+    case "pre-admission":
+      return { background: PRE_ADMISSION_BG };
     default:
       return {};
   }

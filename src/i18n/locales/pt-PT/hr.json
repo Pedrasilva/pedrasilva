@@ -1670,6 +1670,7 @@
       "remote": "A trabalhar remotamente",
       "publicHoliday": "Feriado",
       "weekend": "Fim-de-semana",
+      "beforeAdmission": "Antes da admissão",
       "remoteHalf": "Remoto meio dia"
     },
     "cards": {
