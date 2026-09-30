@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, X } from "lucide-react";
+import { Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { V2PermissionGate } from "@/components/PermissionGate";
@@ -49,8 +49,45 @@ type Draft = {
   final_copy: string | null; final_hashtags: string[] | null; rationale: string;
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
-  published_at: string | null; published_url: string | null; created_at: string;
+  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean;
 };
+
+function DeleteButton({ label, ids, column }: { label: string; ids: string[]; column: "id" | "request_id" | "idea" }) {
+  const { t } = useTranslation("marketing");
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    setBusy(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
+    const { error } = column === "request_id"
+      ? await db.from("marketing_post_requests").delete().in("id", ids)
+      : await db.from("marketing_post_drafts").delete().in("id", ids);
+    setBusy(false);
+    if (error) { toast.error(error.message || t("posts.error")); return; }
+    toast.success(t("posts.deleted"));
+    setOpen(false);
+    qc.invalidateQueries({ queryKey: ["marketing-posts"] });
+  };
+  return (
+    <>
+      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setOpen(true)}>
+        <Trash2 className="mr-1 h-3.5 w-3.5" /> {label}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{label}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("posts.deleteConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("posts.cancel")}</Button>
+            <Button variant="destructive" onClick={go} disabled={busy}>{label}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 type Req = { id: string; brief: string | null; period_start: string; period_end: string; idea_count: number; status: string; error: string | null; created_at: string };
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -244,6 +281,9 @@ function PostPlannerPage() {
             <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
             {req.brief && <span className="text-xs text-muted-foreground">“{req.brief}”</span>}
             <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
+            {req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
+              <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
+            )}
             <span className="text-xs text-muted-foreground">{new Date(req.created_at).toLocaleString()}</span>
           </div>
           {req.status === "running" && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("posts.generating")}</p>}
@@ -306,6 +346,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
         {pillar && <Badge variant="outline">{pillar}</Badge>}
         {persona && <Badge variant="outline">{persona}</Badge>}
+        {!drafts.some((d) => d.status === "published") && (
+          <span className="ml-auto"><DeleteButton label={t("posts.deleteIdea")} ids={drafts.map((d) => d.id)} column="id" /></span>
+        )}
       </div>
       {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note}</p>}
       {first.status === "suggested" && first.readiness !== "ready" && (
@@ -348,7 +391,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [pubDate, setPubDate] = useState(iso(new Date()));
   const [pubUrl, setPubUrl] = useState("");
   const [saving, setSaving] = useState(false);
-  const locked = draft.status !== "suggested";
+  const [editNote, setEditNote] = useState("");
+  const locked = draft.status === "rejected" || draft.status === "published";
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
 
   const update = async (patch: Record<string, unknown>, ok: string) => {
@@ -362,8 +406,12 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
   };
+  const changedFromSaved = copy !== (draft.final_copy ?? draft.ai_copy) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
   const saveEdit = async () => {
-    if (await update({ final_copy: copy, final_hashtags: parsedTags }, t("posts.editSaved"))) {
+    const patch: Record<string, unknown> = { final_copy: copy, final_hashtags: parsedTags };
+    if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
+    if (await update(patch, t("posts.editSaved"))) {
+      setEditNote("");
       try { await recheckDrafts([draft.id]); } catch { /* badge refreshes on next load */ }
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     }
@@ -371,7 +419,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const edited = copy !== draft.ai_copy || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
   const approve = () => update({
     status: "approved", final_copy: copy, final_hashtags: parsedTags,
-    decision_note: edited ? "Edited before approval" : null,
+    decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null),
   }, t("posts.approved"));
   const reject = async () => {
     if (await update({ status: "rejected", decision_note: reason.trim() || null }, t("posts.rejected"))) setRejectOpen(false);
@@ -419,6 +467,13 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           {draft.published_url && <a href={draft.published_url} target="_blank" rel="noreferrer" className="text-primary underline">{draft.published_url}</a>}
         </p>
       )}
+      {draft.edited_after_approval && draft.status === "suggested" && (
+        <p className="text-xs text-warning">{t("posts.editedAfterApproval")}</p>
+      )}
+      {!locked && (edited || changedFromSaved) && (
+        <Input value={editNote} onChange={(e) => setEditNote(e.target.value)} maxLength={500}
+          placeholder={t("posts.editNote")} aria-label={t("posts.editNote")} />
+      )}
       <div className="flex flex-wrap gap-2">
         {draft.status === "suggested" && (
           <>
@@ -428,14 +483,14 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
             <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)} disabled={saving}>
               <X className="mr-1 h-3.5 w-3.5" /> {t("posts.reject")}
             </Button>
-            {(copy !== (draft.final_copy ?? draft.ai_copy) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ")) && (
-              <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving}>
-                <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
-              </Button>
-            )}
           </>
         )}
-        {draft.status === "approved" && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
+        {!locked && changedFromSaved && (
+          <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving}>
+            <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
+          </Button>
+        )}
+        {draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
         {assets.length > 0 && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>

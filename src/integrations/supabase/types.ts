@@ -5106,6 +5106,7 @@ export type Database = {
           decided_at: string | null
           decided_by: string | null
           decision_note: string | null
+          edited_after_approval: boolean
           final_copy: string | null
           final_hashtags: string[] | null
           id: string
@@ -5134,6 +5135,7 @@ export type Database = {
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
+          edited_after_approval?: boolean
           final_copy?: string | null
           final_hashtags?: string[] | null
           id?: string
@@ -5162,6 +5164,7 @@ export type Database = {
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
+          edited_after_approval?: boolean
           final_copy?: string | null
           final_hashtags?: string[] | null
           id?: string

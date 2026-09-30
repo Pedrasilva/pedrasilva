@@ -93,6 +93,28 @@ async function callClaude(system: string, content: unknown[]): Promise<{ ideas: 
 
 const trunc = (s: string | null | undefined, n: number) => (s ?? "").slice(0, n);
 
+const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+function levenshtein(a: string, b: string) {
+  if (a === b) return 0;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+/** An edit counts as a lesson when hashtags changed or ≥5% of characters changed (whitespace ignored). */
+export function meaningfulEdit(aiCopy: string, finalCopy: string, aiTags: string[], finalTags: string[] | null) {
+  const tn = (xs: string[]) => xs.map((h) => h.replace(/^#+/, "").toLowerCase()).sort().join(" ");
+  if (finalTags && tn(aiTags ?? []) !== tn(finalTags)) return true;
+  const a = norm(aiCopy ?? "").slice(0, 3000), b = norm(finalCopy ?? "").slice(0, 3000);
+  if (a === b) return false;
+  return levenshtein(a, b) / Math.max(a.length, 1) >= 0.05;
+}
+
 export async function runPostRequest(requestId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -144,6 +166,22 @@ export async function runPostRequest(requestId: string) {
     const { data: lessons } = await db.from("marketing_post_drafts")
       .select("platform, ai_copy, decision_note").eq("status", "rejected").not("decision_note", "is", null)
       .gte("decided_at", since60).order("decided_at", { ascending: false }).limit(10);
+    const since90 = new Date(Date.now() - 90 * 864e5).toISOString();
+    const { data: editedRows } = await db.from("marketing_post_drafts")
+      .select("platform, status, ai_copy, ai_hashtags, final_copy, final_hashtags, decision_note, decided_at")
+      .in("status", ["approved", "published"]).not("final_copy", "is", null)
+      .gte("decided_at", since90).order("decided_at", { ascending: false }).limit(100);
+    type EditRow = { platform: string; status: string; ai_copy: string; ai_hashtags: string[]; final_copy: string; final_hashtags: string[] | null; decision_note: string | null; decided_at: string };
+    const editLessons = ((editedRows ?? []) as EditRow[])
+      .filter((r) => meaningfulEdit(r.ai_copy, r.final_copy, r.ai_hashtags, r.final_hashtags))
+      .sort((a, b) => (a.status === b.status ? b.decided_at.localeCompare(a.decided_at) : a.status === "published" ? -1 : 1))
+      .slice(0, 10)
+      .map((r) => ({
+        platform: r.platform, what_the_ai_wrote: r.ai_copy, what_we_approved: r.final_copy,
+        ai_hashtags: r.ai_hashtags, approved_hashtags: r.final_hashtags ?? r.ai_hashtags,
+        ...(r.decision_note ? { why: r.decision_note } : {}),
+      }));
+
 
     const content: unknown[] = [];
     for (const c of candidates.slice(0, 8)) {
@@ -180,8 +218,10 @@ export async function runPostRequest(requestId: string) {
       lessons_what_not_to_do: (lessons ?? []).map((l: { platform: string; ai_copy: string; decision_note: string }) => ({
         platform: l.platform, rejected_copy: l.ai_copy, why_rejected: l.decision_note,
       })),
+      edit_lessons: editLessons,
     };
     console.log(`[marketing-posts] request ${requestId}: ${candidates.length} candidates, ${payload.lessons_what_not_to_do.length} lessons`, JSON.stringify(payload.lessons_what_not_to_do));
+    console.log(`[marketing-posts] request ${requestId}: ${editLessons.length} edit lessons`, JSON.stringify(editLessons));
     content.push({ type: "text", text: `<request>\n${JSON.stringify(payload)}\n</request>` });
 
     const system = `You are a social media strategist writing for Pedra Silva Arquitectos, an architecture practice. You turn curated material into draft posts for Instagram and LinkedIn.
@@ -203,6 +243,7 @@ ${JSON.stringify(bible.personas)}
 - Never use a capture whose effective_clearance is internal_only. Captures with unknown or needs_client_approval may be used, but approval_note must say who needs to approve and why.
 - Respect each capture's ai_flags (e.g. identifiable people) and mention them in approval_note.
 - Balance ideas across pillars and personas, taking recent_history into account, and prefer the strongest material. Learn from lessons_what_not_to_do.
+- edit_lessons: Edits our team made to earlier drafts. Learn the pattern: match the approved versions' tone, length, structure and word choices, and avoid what was removed.
 - Return at most ideas_requested ideas (fewer if the material is weak). If must_build_around_capture is set, return exactly one idea built around that capture.
 - capture_ids and asset_ids must come from the candidates; asset_ids are ordered, first is the lead image, several means a carousel.
 - rationale: why this post, why now (1–2 sentences).

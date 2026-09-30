@@ -301,6 +301,13 @@
     "fromCapture": "Suggest a post from this",
     "recheck": "Recheck",
     "saveEdit": "Save edit",
-    "editSaved": "Edit saved"
+    "editSaved": "Edit saved",
+    "deleteIdea": "Delete idea",
+    "deleteRequest": "Delete request",
+    "deleteConfirm": "This removes the drafts permanently. Use Reject instead if you want the machine to learn why it wasn't used.",
+    "deleted": "Deleted",
+    "cancel": "Cancel",
+    "editNote": "What did you change and why? (optional)",
+    "editedAfterApproval": "Edited after approval, please approve again"
   }
 }
