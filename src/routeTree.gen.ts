@@ -61,6 +61,7 @@ import { Route as AppInventoryIntakeRouteImport } from './routes/_app.inventory.
 import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory.reports'
 import { Route as AppMarketingIndexRouteImport } from './routes/_app.marketing.index'
 import { Route as AppMarketingBibleRouteImport } from './routes/_app.marketing.bible'
+import { Route as AppMarketingPostsRouteImport } from './routes/_app.marketing.posts'
 import { Route as AppProductsIndexRouteImport } from './routes/_app.products.index'
 import { Route as AppProductsCategoriesRouteImport } from './routes/_app.products.categories'
 import { Route as AppProductsLibraryRouteImport } from './routes/_app.products.library'
@@ -404,6 +405,11 @@ const AppMarketingIndexRoute = AppMarketingIndexRouteImport.update({
 const AppMarketingBibleRoute = AppMarketingBibleRouteImport.update({
   id: '/marketing/bible',
   path: '/marketing/bible',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketingPostsRoute = AppMarketingPostsRouteImport.update({
+  id: '/marketing/posts',
+  path: '/marketing/posts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
@@ -907,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/marketing/bible': typeof AppMarketingBibleRoute
+  '/marketing/posts': typeof AppMarketingPostsRoute
   '/products/categories': typeof AppProductsCategoriesRoute
   '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -1033,6 +1040,7 @@ export interface FileRoutesByTo {
   '/inventory/intake': typeof AppInventoryIntakeRoute
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/marketing/bible': typeof AppMarketingBibleRoute
+  '/marketing/posts': typeof AppMarketingPostsRoute
   '/products/categories': typeof AppProductsCategoriesRoute
   '/products/library': typeof AppProductsLibraryRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -1169,6 +1177,7 @@ export interface FileRoutesById {
   '/_app/inventory/intake': typeof AppInventoryIntakeRoute
   '/_app/inventory/reports': typeof AppInventoryReportsRoute
   '/_app/marketing/bible': typeof AppMarketingBibleRoute
+  '/_app/marketing/posts': typeof AppMarketingPostsRoute
   '/_app/products/categories': typeof AppProductsCategoriesRoute
   '/_app/products/library': typeof AppProductsLibraryRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
@@ -1305,6 +1314,7 @@ export interface FileRouteTypes {
     | '/inventory/intake'
     | '/inventory/reports'
     | '/marketing/bible'
+    | '/marketing/posts'
     | '/products/categories'
     | '/products/library'
     | '/projects/$projectId'
@@ -1431,6 +1441,7 @@ export interface FileRouteTypes {
     | '/inventory/intake'
     | '/inventory/reports'
     | '/marketing/bible'
+    | '/marketing/posts'
     | '/products/categories'
     | '/products/library'
     | '/projects/$projectId'
@@ -1566,6 +1577,7 @@ export interface FileRouteTypes {
     | '/_app/inventory/intake'
     | '/_app/inventory/reports'
     | '/_app/marketing/bible'
+    | '/_app/marketing/posts'
     | '/_app/products/categories'
     | '/_app/products/library'
     | '/_app/projects/$projectId'
@@ -2043,6 +2055,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing/bible'
       fullPath: '/marketing/bible'
       preLoaderRoute: typeof AppMarketingBibleRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketing/posts': {
+      id: '/_app/marketing/posts'
+      path: '/marketing/posts'
+      fullPath: '/marketing/posts'
+      preLoaderRoute: typeof AppMarketingPostsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/products/': {
@@ -2889,6 +2908,7 @@ interface AppRouteChildren {
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
   AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
   AppMarketingBibleRoute: typeof AppMarketingBibleRoute
+  AppMarketingPostsRoute: typeof AppMarketingPostsRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
   AppProjectsApprovalsRoute: typeof AppProjectsApprovalsRoute
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
@@ -2929,6 +2949,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
   AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
   AppMarketingBibleRoute: AppMarketingBibleRoute,
+  AppMarketingPostsRoute: AppMarketingPostsRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
   AppProjectsApprovalsRoute: AppProjectsApprovalsRoute,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,

@@ -235,5 +235,69 @@
     "reject": "Reject",
     "suggestionAccepted": "Added to the story",
     "suggestionRejected": "Suggestion rejected"
+  },
+  "posts": {
+    "title": "Post planner",
+    "subtitle": "AI-drafted Instagram and LinkedIn posts from the best cleared material. You decide; posting stays manual.",
+    "brief": "Brief (optional)",
+    "briefHint": "e.g. focus on hospitality",
+    "periodStart": "From",
+    "periodEnd": "To",
+    "ideaCount": "Ideas",
+    "generate": "Generate suggestions",
+    "generating": "Generating suggestions…",
+    "generatingHint": "This can take a minute or two. You can leave the page; results are saved.",
+    "generated_one": "{{count}} idea generated",
+    "generated_other": "{{count}} ideas generated",
+    "error": "Could not complete the action",
+    "balance_one": "Last 30 days: {{count}} approved or published draft",
+    "balance_other": "Last 30 days: {{count}} approved or published drafts",
+    "balanceEmpty": "Nothing approved or published in the last 30 days.",
+    "empty": "No suggestions yet. Generate some above.",
+    "rationale": "Why",
+    "sourceCapture": "Source capture {{n}}",
+    "platform": {
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "status": {
+      "suggested": "Suggested",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "published": "Published"
+    },
+    "requestStatus": {
+      "running": "Running",
+      "done": "Done",
+      "failed": "Failed"
+    },
+    "readiness": {
+      "ready": "Ready",
+      "needs_approval": "Needs approval",
+      "blocked": "Blocked"
+    },
+    "hashtags": "Hashtags, separated by spaces",
+    "words_one": "{{count}} word",
+    "words_other": "{{count}} words",
+    "approve": "Approve",
+    "approveDisabled": "Only Ready drafts can be approved.",
+    "reject": "Reject",
+    "rejectTitle": "Reject this draft",
+    "rejectReason": "Reason (optional)",
+    "rejectHint": "The reason helps the machine learn.",
+    "copyText": "Copy text",
+    "copied": "Text copied",
+    "downloadImages": "Download images",
+    "showOriginal": "Show original",
+    "showEdited": "Show edited",
+    "markPublished": "Mark as published",
+    "publishedDate": "Published on",
+    "publishedUrl": "Link (optional)",
+    "publishedOn": "Published on {{date}}",
+    "decisionNote": "Note",
+    "approved": "Draft approved",
+    "rejected": "Draft rejected",
+    "publishedToast": "Marked as published; captures set to used",
+    "fromCapture": "Suggest a post from this"
   }
 }
