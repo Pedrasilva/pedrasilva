@@ -201,7 +201,7 @@ function HoursPage() {
               <CardContent style={{ height: Math.max(160, chart.length * 32 + 60) }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chart} layout="vertical" margin={{ left: 8, right: 16 }}>
-                    <CartesianGrid horizontal={false} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                    <CartesianGrid horizontal={false} stroke="var(--border)" strokeDasharray="3 3" />
                     <XAxis type="number" tick={{ fontSize: 11 }} />
                     <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} />
                     <Tooltip formatter={(v: number) => `${fmt(v)} h`} />
