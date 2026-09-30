@@ -119,7 +119,6 @@ function BiblePage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
-      <ModuleSubnav moduleId="marketing" />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{t("bible.title")}</h1>
@@ -141,6 +140,7 @@ function BiblePage() {
           </Button>
         )}
       </div>
+      <ModuleSubnav moduleId="marketing" />
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>
@@ -324,7 +324,6 @@ function BibleEditor({
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
-      <ModuleSubnav moduleId="marketing" />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-2xl font-semibold">
           {initial ? t("bible.editingFrom", { version: initial.version }) : t("bible.createFirst")}
@@ -334,6 +333,7 @@ function BibleEditor({
           <Button disabled={invalid || !dirty} onClick={() => setSummaryOpen(true)}>{t("bible.saveNew")}</Button>
         </div>
       </div>
+      <ModuleSubnav moduleId="marketing" />
       {invalid && <p className="text-xs text-destructive">{t("bible.invalidHint")}</p>}
 
       <div className="grid gap-4 lg:grid-cols-2">
