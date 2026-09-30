@@ -5095,6 +5095,78 @@ export type Database = {
           },
         ]
       }
+      marketing_nudges: {
+        Row: {
+          ai_suggested_question: string
+          answer_audio_path: string | null
+          answer_text: string | null
+          answered_at: string | null
+          architect_user_id: string
+          capture_id: string
+          channel: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          project_id: string | null
+          question: string
+          sent_at: string | null
+          status: string
+          story_suggestion_id: string | null
+        }
+        Insert: {
+          ai_suggested_question: string
+          answer_audio_path?: string | null
+          answer_text?: string | null
+          answered_at?: string | null
+          architect_user_id: string
+          capture_id: string
+          channel?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          project_id?: string | null
+          question: string
+          sent_at?: string | null
+          status?: string
+          story_suggestion_id?: string | null
+        }
+        Update: {
+          ai_suggested_question?: string
+          answer_audio_path?: string | null
+          answer_text?: string | null
+          answered_at?: string | null
+          architect_user_id?: string
+          capture_id?: string
+          channel?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          project_id?: string | null
+          question?: string
+          sent_at?: string | null
+          status?: string
+          story_suggestion_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_nudges_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_nudges_story_suggestion_id_fkey"
+            columns: ["story_suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_story_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_post_drafts: {
         Row: {
           ai_copy: string
@@ -5335,6 +5407,7 @@ export type Database = {
           profile_id: string
           reviewed_at: string | null
           reviewed_by: string | null
+          source: string
           status: string
           suggested_text: string
         }
@@ -5346,6 +5419,7 @@ export type Database = {
           profile_id: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: string
           status?: string
           suggested_text: string
         }
@@ -5357,6 +5431,7 @@ export type Database = {
           profile_id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: string
           status?: string
           suggested_text?: string
         }
