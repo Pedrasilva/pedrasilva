@@ -50,6 +50,8 @@ export type AvailabilityPerson = {
   includeInPlanning: boolean;
   fte: number;
   daysPerWeek: number | null;
+  /** Admission date (ISO), or null when not recorded. */
+  admissionDate: string | null;
   projectIds: string[];
   /** Leave balance, using the exact existing formula (holiday type only). */
   allowance: number;
@@ -67,7 +69,9 @@ export type CellKind =
   | "absent-half"
   | "pending"
   | "holiday"
-  | "weekend";
+  | "weekend"
+  /** Day before the person's admission date: not yet employed. */
+  | "pre-admission";
 
 export type Cell = {
   kind: CellKind;
@@ -142,7 +146,7 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       const { data, error } = await supabase
         .from("collaborators")
         .select(
-          "id, nome, foto_path, departamento, include_in_planning, daily_hours, days_per_week, dias_ferias_anuais, dias_ferias_extra, saldo_ferias_anterior, archived_at",
+          "id, nome, foto_path, departamento, include_in_planning, daily_hours, days_per_week, dias_ferias_anuais, dias_ferias_extra, saldo_ferias_anterior, data_admissao, archived_at",
         )
         .is("archived_at", null)
         .order("nome");
@@ -272,6 +276,7 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
         includeInPlanning: c.include_in_planning !== false,
         fte: computeCollaboratorFte(c.daily_hours as number, c.days_per_week as number),
         daysPerWeek: (c.days_per_week as number | null) ?? null,
+        admissionDate: ((c as { data_admissao?: string | null }).data_admissao ?? null) || null,
         projectIds: projectsByCollab.get(c.id as string) ?? [],
         allowance: Number(c.dias_ferias_anuais) || 0,
         extra: Number(c.dias_ferias_extra) || 0,
@@ -287,6 +292,10 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
 
     for (const day of days) {
       for (const p of people) {
+        if (p.admissionDate && day.iso < p.admissionDate) {
+          cells[p.id]![day.iso] = { kind: "pre-admission" };
+          continue;
+        }
         cells[p.id]![day.iso] = {
           kind: day.isWeekend ? "weekend" : day.holidayName ? "holiday" : "available",
           holidayName: day.holidayName ?? undefined,
@@ -300,6 +309,7 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       for (const day of days) {
         if (day.iso < l.data_inicio || day.iso > l.data_fim) continue;
         if (!day.isWorkingDay) continue; // weekends/holidays never consume leave
+        if (row[day.iso]?.kind === "pre-admission") continue;
         const half = HALF.has(l.periodo ?? "");
         row[day.iso] = {
           kind: l.estado === "pendente" ? "pending" : half ? "absent-half" : "absent",
@@ -325,7 +335,6 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
 
     // Coverage — active people flagged for planning.
     const pool = people.filter((p) => p.includeInPlanning);
-    const totalFte = pool.reduce((s, p) => s + p.fte, 0);
 
     const coverage: Coverage[] = days.map((day) => {
       if (!day.isWorkingDay) {
@@ -333,8 +342,11 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       }
       let available = 0;
       let fteAvailable = 0;
+      // Only people already employed that day count, either way.
+      const employed = pool.filter((p) => cells[p.id]?.[day.iso]?.kind !== "pre-admission");
+      const totalFte = employed.reduce((s, p) => s + p.fte, 0);
       const awayByGroup = new Map<string, number>();
-      for (const p of pool) {
+      for (const p of employed) {
         const cell = cells[p.id]?.[day.iso];
         const factor =
           cell?.kind === "absent" ? 0 : cell?.kind === "absent-half" ? 0.5 : 1;
@@ -354,9 +366,9 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
         .map(([k]) => k);
       return {
         iso: day.iso,
-        total: pool.length,
+        total: employed.length,
         available,
-        pct: pool.length ? (available / pool.length) * 100 : 100,
+        pct: employed.length ? (available / employed.length) * 100 : 100,
         capacityPct: totalFte ? (fteAvailable / totalFte) * 100 : 100,
         clashes,
       };
