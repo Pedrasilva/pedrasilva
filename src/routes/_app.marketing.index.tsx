@@ -4,7 +4,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ArrowLeft, ArrowRight, FileText, ImageIcon, Lightbulb, Link2, Plus, RefreshCw, Sparkles, Video } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, FileText, ImageIcon, LayoutGrid, Lightbulb, Link2, Mail, MessageCircle, Plus, RefreshCw, SlidersHorizontal, Sparkles, Video } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
@@ -119,8 +123,22 @@ const CLEARANCE_CLASS: Record<Capture["clearance"], string> = {
   cleared: "bg-success/15 text-success border-success/30",
   needs_client_approval: "bg-warning/15 text-warning border-warning/30",
   internal_only: "bg-destructive/15 text-destructive border-destructive/30",
-  unknown: "bg-muted text-muted-foreground border-border",
+  unknown: "bg-warning/15 text-warning border-warning/30",
 };
+
+const QUICK = ["new", "enriched", "ready", "used"] as const;
+const CHANNEL_ICON = { email: Mail, hub: LayoutGrid, whatsapp: MessageCircle } as const;
+
+/** Card title + preview; never shows a literal "Subject:" line. */
+function cardText(c: { raw_text: string | null; ai_summary: string | null }) {
+  const raw = (c.raw_text ?? "").trim();
+  const [first = "", ...rest] = raw.split(/\r?\n/);
+  if (/^subject:/i.test(first)) {
+    return { title: first.replace(/^subject:\s*/i, "").trim(), preview: rest.join(" ").trim() };
+  }
+  if (c.ai_summary) return { title: c.ai_summary, preview: raw };
+  return { title: first.trim(), preview: rest.join(" ").trim() };
+}
 
 const isAllowedType = (f: File) =>
   f.type.startsWith("image/") || f.type.startsWith("video/") || f.type === "application/pdf";
@@ -177,7 +195,8 @@ function MarketingInboxPage() {
   const { data: projects = [] } = useProjects();
   const projectName = useMemo(() => new Map(projects.map((p) => [p.id, p.name])), [projects]);
 
-  const [status, setStatus] = useState<string>(ACTIVE);
+  const [status, setStatus] = useState<string>(ALL);
+  const [showArchived, setShowArchived] = useState(false);
   const [sector, setSector] = useState<string>(ALL);
   const [clearance, setClearance] = useState<string>(ALL);
   const [channel, setChannel] = useState<string>(ALL);
@@ -190,13 +209,18 @@ function MarketingInboxPage() {
   const profileByProject = useMemo(() => new Map(profiles.map((p) => [p.project_id, p])), [profiles]);
   const effective = (c: Capture) => strictestClearance(c.clearance, c.project_id ? profileByProject.get(c.project_id)?.clearance : null);
 
-  const filtered = captures.filter(
-    (c) =>
-      (status === ACTIVE ? c.status !== "archived" : status === ALL || c.status === status) &&
+  const matchesOther = (c: Capture) =>
       (sector === ALL || c.sector === sector) &&
       (clearance === ALL || c.clearance === clearance) &&
       (channel === ALL || c.channel === channel) &&
-      (project === ALL || c.project_id === project),
+      (project === ALL || c.project_id === project);
+  const base = captures.filter(matchesOther);
+  const countFor = (s: string) => base.filter((c) => (s === ALL ? showArchived || c.status !== "archived" : c.status === s)).length;
+  const activeFilters = [sector, clearance, channel, project].filter((v) => v !== ALL).length + (showArchived ? 1 : 0);
+  const clearFilters = () => { setSector(ALL); setClearance(ALL); setChannel(ALL); setProject(ALL); setShowArchived(false); if (status === "archived") setStatus(ALL); };
+  const quickTabs = [...QUICK, ...(showArchived ? (["archived"] as const) : []), ALL];
+  const filtered = base.filter(
+    (c) => (status === ALL ? showArchived || c.status !== "archived" : c.status === status),
   ).sort((a, b) => sort === "fit"
     ? (b.fit_score ?? -1) - (a.fit_score ?? -1) || b.received_at.localeCompare(a.received_at)
     : b.received_at.localeCompare(a.received_at));
@@ -221,9 +245,27 @@ function MarketingInboxPage() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <FilterSelect label={t("filters.status")} value={status} onChange={setStatus}
-          options={[{ v: ACTIVE, l: t("filters.activeOnly") }, { v: ALL, l: t("filters.all") }, ...STATUSES.map((s) => ({ v: s, l: t(`status.${s}`) }))]} />
+      <ModuleSubnav moduleId="marketing" />
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div role="tablist" aria-label={t("filters.status")} className="flex flex-wrap gap-1">
+          {quickTabs.map((s) => (
+            <Button key={s} role="tab" aria-selected={status === s} size="sm" variant={status === s ? "secondary" : "ghost"}
+              onClick={() => setStatus(s)}>
+              {t(`inbox.quick.${s === ALL ? "all" : s}`)}
+              <span className="ml-1.5 text-xs text-muted-foreground">{countFor(s)}</span>
+            </Button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9">
+                <SlidersHorizontal className="mr-1 h-4 w-4" />
+                {t("filters.button")}{activeFilters > 0 && ` · ${activeFilters}`}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80 space-y-2">
         <FilterSelect label={t("filters.sector")} value={sector} onChange={setSector}
           options={[{ v: ALL, l: t("filters.all") }, ...SECTORS.map((s) => ({ v: s, l: t(`sector.${s}`) }))]} />
         <FilterSelect label={t("filters.clearance")} value={clearance} onChange={setClearance}
@@ -232,8 +274,19 @@ function MarketingInboxPage() {
           options={[{ v: ALL, l: t("filters.all") }, ...CHANNELS.map((s) => ({ v: s, l: t(`channel.${s}`) }))]} />
         <FilterSelect label={t("filters.project")} value={project} onChange={setProject}
           options={[{ v: ALL, l: t("filters.all") }, ...projects.map((p) => ({ v: p.id, l: p.name }))]} />
-        <FilterSelect label={t("ai.sort")} value={sort} onChange={setSort}
-          options={[{ v: "newest", l: t("ai.sortNewest") }, { v: "fit", l: t("ai.sortFit") }]} />
+              <div className="flex items-center justify-between pt-1">
+                <Label htmlFor="mk-show-archived" className="text-sm">{t("filters.showArchived")}</Label>
+                <Switch id="mk-show-archived" checked={showArchived}
+                  onCheckedChange={(v) => { setShowArchived(v); if (!v && status === "archived") setStatus(ALL); }} />
+              </div>
+              <Button variant="ghost" size="sm" className="w-full" disabled={activeFilters === 0} onClick={clearFilters}>
+                {t("filters.clear")}
+              </Button>
+            </PopoverContent>
+          </Popover>
+          <FilterSelect label={t("ai.sort")} value={sort} onChange={setSort}
+            options={[{ v: "newest", l: t("ai.sortNewest") }, { v: "fit", l: t("ai.sortFit") }]} />
+        </div>
       </div>
 
       {isLoading ? (
@@ -241,10 +294,14 @@ function MarketingInboxPage() {
       ) : filtered.length === 0 ? (
         <Card className="p-10 text-center text-sm text-muted-foreground">{t("inbox.empty")}</Card>
       ) : (
+        <TooltipProvider delayDuration={150}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((c) => {
             const img = c.marketing_capture_assets.find((a) => a.mime_type.startsWith("image/"));
             const hasVideo = c.marketing_capture_assets.some((a) => a.mime_type.startsWith("video/"));
+            const text = cardText(c);
+            const ChIcon = CHANNEL_ICON[c.channel] ?? LayoutGrid;
+            const eff = effective(c);
             const Icon = hasVideo ? Video : c.content_type === "link" ? Link2 : c.content_type === "idea" ? Lightbulb : ImageIcon;
             return (
               <Card key={c.id} className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md" onClick={() => setOpenId(c.id)}>
@@ -256,20 +313,30 @@ function MarketingInboxPage() {
                   )}
                 </div>
                 <div className="space-y-2 p-3">
-                  <p className="line-clamp-3 text-sm">{(c.raw_text ?? "").slice(0, 140)}</p>
+                  {text.title && <p className="line-clamp-2 text-sm font-semibold">{text.title}</p>}
+                  {text.preview && <p className="line-clamp-2 text-sm text-muted-foreground">{text.preview.slice(0, 160)}</p>}
                   <p className="text-xs text-muted-foreground">
                     {c.sender_name ?? c.sender_email ?? t("detail.unknownSender")} · {new Date(c.received_at).toLocaleDateString()}
                   </p>
                   {c.project_id && <p className="truncate text-xs font-medium">{projectName.get(c.project_id)}</p>}
                   <div className="flex flex-wrap gap-1">
-                    <Badge variant="outline">{t(`channel.${c.channel}`)}</Badge>
+                    <Badge variant="outline" className="gap-1"><ChIcon className="h-3 w-3" />{t(`channel.${c.channel}`)}</Badge>
                     <Badge variant="secondary">{t(`status.${c.status}`)}</Badge>
-                    <Badge variant="outline" className={CLEARANCE_CLASS[effective(c)]}>{t(`clearance.${effective(c)}`)}</Badge>
-                    {c.fit_score != null && <Badge title={t("detail.fitScore")}>{Number(c.fit_score).toFixed(1)}</Badge>}
+                    <Badge variant="outline" className={CLEARANCE_CLASS[eff]}>
+                      {t("inbox.card.clearance", { value: t(`clearance.${eff}`).toLocaleLowerCase() })}
+                    </Badge>
+                    {c.fit_score != null && <Badge variant="outline">{t("inbox.card.interest", { score: Number(c.fit_score).toFixed(1) })}</Badge>}
                     {c.ai_flags?.length > 0 && (
-                      <span title={c.ai_flags.join(", ")} aria-label={t("ai.flags")} className="inline-flex items-center text-warning">
-                        <AlertTriangle className="h-4 w-4" />
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button type="button" onClick={(e) => e.stopPropagation()}
+                            aria-label={t("inbox.card.flags", { count: c.ai_flags.length })}
+                            className="inline-flex items-center gap-0.5 rounded px-1 text-xs font-medium text-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                            <AlertTriangle className="h-3.5 w-3.5" /> {c.ai_flags.length}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><ul className="list-disc pl-4 text-xs">{c.ai_flags.map((fl) => <li key={fl}>{fl}</li>)}</ul></TooltipContent>
+                      </Tooltip>
                     )}
                   </div>
                 </div>
@@ -277,6 +344,7 @@ function MarketingInboxPage() {
             );
           })}
         </div>
+        </TooltipProvider>
       )}
 
       <AddCaptureDialog open={addOpen} onOpenChange={setAddOpen} projects={projects} />
