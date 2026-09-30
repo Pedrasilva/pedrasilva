@@ -349,5 +349,17 @@
       "dismissed": "Dispensada",
       "expired": "Expirada"
     }
+  },
+  "delete": {
+    "button": "Apagar captura",
+    "title": "Apagar captura?",
+    "confirm": "Isto apaga a captura e os ficheiros para sempre.",
+    "deleting": "A apagar…",
+    "done": "Captura apagada",
+    "published": "Esta captura foi usada numa publicação — arquive-a em vez de apagar.",
+    "drafts_one": "Usada em {{count}} rascunho — apague essa ideia primeiro.",
+    "drafts_other": "Usada em {{count}} rascunhos — apague essas ideias primeiro.",
+    "forbidden": "Não pode apagar esta captura.",
+    "error": "Não foi possível apagar a captura"
   }
 }
