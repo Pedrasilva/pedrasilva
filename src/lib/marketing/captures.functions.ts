@@ -16,7 +16,7 @@ export const deleteCapture = createServerFn({ method: "POST" })
     const { data: cap } = await sb.from("marketing_captures")
       .select("id, created_by, status, source_message_id, sender_email").eq("id", data.captureId).maybeSingle();
     if (!cap) return { ok: false, reason: "not_found" };
-    const { data: isCurator } = await sb.rpc("has_module_permission", { _user_id: context.userId, _module: "marketing.curate", _scope: "all" });
+    const { data: isCurator } = await sb.rpc("has_module_permission", { _user_id: context.userId, _key: "marketing.curate", _required_scope: "all" });
     const own = cap.created_by === context.userId && (cap.status === "new" || cap.status === "enriched");
     if (!isCurator && !own) return { ok: false, reason: "forbidden" };
     const { data: block } = await sb.rpc("marketing_capture_delete_block", { _capture_id: cap.id });
