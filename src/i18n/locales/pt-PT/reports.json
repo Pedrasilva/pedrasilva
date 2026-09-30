@@ -76,7 +76,10 @@
       "returned": "Devolvida",
       "approved": "Aprovada",
       "not_submitted": "Por submeter",
-      "before_submission": "Antes da submissão semanal"
-    }
+      "before_submission": "Antes da submissão semanal",
+      "before_tracking": "Antes do início do registo"
+    },
+    "beforeTracking": "As folhas de horas no PSA Hub começaram a 1 de junho de 2026. Escolha um período a partir dessa data.",
+    "trackingNote": "As horas são previstas a partir de 1 de junho de 2026."
   }
 }

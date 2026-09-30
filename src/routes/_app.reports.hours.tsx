@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toLocalISODate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
-import { addDays, mondayOf, type HoursLoggedRow, type HoursStatus } from "@/lib/reports/hours-logged";
+import { addDays, mondayOf, TRACKING_START, type HoursLoggedRow, type HoursStatus } from "@/lib/reports/hours-logged";
 import { useHoursLogged } from "@/lib/reports/use-hours-logged";
 
 export const Route = createFileRoute("/_app/reports/hours")({
@@ -82,7 +82,9 @@ function HoursPage() {
     [data, dept, team, people],
   );
 
-  const behind = rows.filter((r) => r.status !== "onTrack").length;
+  const allBeforeTracking = range.end < TRACKING_START;
+  const startsBeforeTracking = !allBeforeTracking && range.start < TRACKING_START;
+  const behind = rows.filter((r) => r.status && r.status !== "onTrack").length;
   const missing = rows.reduce((s, r) => s + Math.max(0, r.gap), 0);
   const notSubmitted = rows.reduce((s, r) => s + r.weeksNotSubmitted, 0);
   const chart = [...rows]
@@ -121,11 +123,11 @@ function HoursPage() {
               <>
                 <div className="space-y-1">
                   <Label htmlFor="rep-from">{t("hours.filters.from")}</Label>
-                  <Input id="rep-from" type="date" value={custom.start} onChange={(e) => setCustom((c) => ({ ...c, start: e.target.value }))} />
+                  <Input id="rep-from" type="date" min={TRACKING_START} value={custom.start} onChange={(e) => setCustom((c) => ({ ...c, start: e.target.value }))} />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="rep-to">{t("hours.filters.to")}</Label>
-                  <Input id="rep-to" type="date" max={yesterday} value={customCapped.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value > yesterday ? yesterday : e.target.value }))} />
+                  <Input id="rep-to" type="date" min={TRACKING_START} max={yesterday} value={customCapped.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value > yesterday ? yesterday : e.target.value }))} />
                 </div>
               </>
             )}
@@ -176,11 +178,16 @@ function HoursPage() {
                 </PopoverContent>
               </Popover>
             </div>
-            <p className="ml-auto text-xs text-muted-foreground">{t("hours.rangeLabel", { start: range.start, end: range.end })}</p>
+            <div className="ml-auto text-right text-xs text-muted-foreground">
+              <p>{t("hours.rangeLabel", { start: range.start, end: range.end })}</p>
+              {startsBeforeTracking && <p className="mt-0.5">{t("hours.trackingNote")}</p>}
+            </div>
           </CardContent>
         </Card>
 
-        {error ? (
+        {allBeforeTracking ? (
+          <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">{t("hours.beforeTracking")}</CardContent></Card>
+        ) : error ? (
           <Card><CardContent className="py-8 text-center text-sm text-destructive">{t("hours.error")}</CardContent></Card>
         ) : isLoading ? (
           <div className="space-y-3">
@@ -282,7 +289,9 @@ function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean
             ? new Date(row.lastEntryDate + "T00:00:00").toLocaleDateString(i18n.language, { day: "numeric", month: "short" })
             : t("hours.noEntry")}</TableCell>
         <TableCell>
-          <Badge variant="outline" className={cn(STATUS_CLASS[row.status])}>{t(`hours.status.${row.status}`)}</Badge>
+          {row.status && (
+            <Badge variant="outline" className={cn(STATUS_CLASS[row.status])}>{t(`hours.status.${row.status}`)}</Badge>
+          )}
         </TableCell>
       </TableRow>
       {open && (
@@ -303,10 +312,16 @@ function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean
                 {row.weeks.map((w) => (
                   <tr key={w.weekStart}>
                     <td className="py-1">{w.weekStart} → {w.weekEnd}</td>
-                    <td className="text-right tabular-nums">{fmt(w.expected)}</td>
-                    <td className="text-right tabular-nums">{fmt(w.logged)}</td>
-                    <td className="text-right tabular-nums">{fmt(w.leave)}</td>
-                    <td className="pl-4">{t(`hours.weekStatus.${w.status}`, { defaultValue: w.status })}</td>
+                    {w.beforeStart ? (
+                      <td colSpan={4} className="pl-4 text-muted-foreground">{t("hours.weekStatus.before_tracking")}</td>
+                    ) : (
+                      <>
+                        <td className="text-right tabular-nums">{fmt(w.expected)}</td>
+                        <td className="text-right tabular-nums">{fmt(w.logged)}</td>
+                        <td className="text-right tabular-nums">{fmt(w.leave)}</td>
+                        <td className="pl-4">{t(`hours.weekStatus.${w.status}`, { defaultValue: w.status })}</td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
