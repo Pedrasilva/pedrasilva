@@ -50,7 +50,12 @@ type Draft = {
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
   published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean;
+  format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
+type StickerType = "none" | "poll" | "question" | "link";
+type StoryFrame = { asset_id: string; text: string; sticker: { type: StickerType; text: string } };
+const renderFrames = (fr: StoryFrame[]) =>
+  fr.map((f, i) => `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
 
 function DeleteButton({ label, ids, column }: { label: string; ids: string[]; column: "id" | "request_id" | "idea" }) {
   const { t } = useTranslation("marketing");
@@ -152,6 +157,7 @@ function PostPlannerPage() {
   const [start, setStart] = useState(defStart);
   const [end, setEnd] = useState(defEnd);
   const [count, setCount] = useState(5);
+  const [storyCount, setStoryCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const { data, isLoading } = usePlannerData();
@@ -171,8 +177,8 @@ function PostPlannerPage() {
     setBusy(true);
     setTimeout(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] }), 1500);
     try {
-      const r = await generate({ data: { brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count } });
-      if (r.ok) toast.success(t("posts.generated", { count: r.ideas }));
+      const r = await generate({ data: { brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count, storyCount } });
+      if (r.ok) toast.success(`${t("posts.generated", { count: r.ideas })}${"stories" in r && r.stories ? ` · ${t("posts.storiesGenerated", { count: r.stories })}` : ""}`);
       else toast.error(r.error);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("posts.error"));
@@ -217,7 +223,7 @@ function PostPlannerPage() {
       </div>
 
       <Card className="space-y-3 p-4">
-        <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto]">
+        <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
           <div>
             <Label>{t("posts.brief")}</Label>
             <Input value={brief} onChange={(e) => setBrief(e.target.value)} placeholder={t("posts.briefHint")} />
@@ -232,12 +238,17 @@ function PostPlannerPage() {
           </div>
           <div>
             <Label>{t("posts.ideaCount")}</Label>
-            <Input type="number" min={1} max={10} value={count} className="w-20"
-              onChange={(e) => setCount(Math.max(1, Math.min(10, Number(e.target.value) || 1)))} />
+            <Input type="number" min={0} max={10} value={count} className="w-20"
+              onChange={(e) => setCount(Math.max(0, Math.min(10, Number(e.target.value) || 0)))} />
+          </div>
+          <div>
+            <Label>{t("posts.storyCount")}</Label>
+            <Input type="number" min={0} max={10} value={storyCount} className="w-20"
+              onChange={(e) => setStoryCount(Math.max(0, Math.min(10, Number(e.target.value) || 0)))} />
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button onClick={run} disabled={!!running || !start || !end}>
+          <Button onClick={run} disabled={!!running || !start || !end || count + storyCount < 1}>
             {running ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />}
             {running ? t("posts.generating") : t("posts.generate")}
           </Button>
@@ -334,14 +345,21 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
     <Card className="space-y-3 p-4">
       {assets.length > 0 && (
         <div className="flex snap-x gap-2 overflow-x-auto">
-          {assets.map((a) => urls[a.storage_path]
-            ? (a.mime_type.startsWith("video/")
-              ? <video key={a.storage_path} src={urls[a.storage_path]} controls className="h-48 shrink-0 snap-start rounded" />
-              : <img key={a.storage_path} src={urls[a.storage_path]} alt={a.file_name} className="h-48 shrink-0 snap-start rounded object-cover" />)
-            : <div key={a.storage_path} className="h-48 w-48 shrink-0 rounded bg-muted" />)}
+          {assets.map((a, i) => (
+            <div key={a.storage_path} className="relative shrink-0 snap-start">
+              {urls[a.storage_path]
+                ? (a.mime_type.startsWith("video/")
+                  ? <video src={urls[a.storage_path]} controls className="h-48 rounded" />
+                  : <img src={urls[a.storage_path]} alt={a.file_name} className={cn("rounded object-cover", first.format === "story" ? "h-64 w-36" : "h-48")} />)
+                : <div className="h-48 w-48 rounded bg-muted" />}
+              {assets.length > 1 && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1}</span>}
+            </div>
+          ))}
         </div>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
+        {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length })}</Badge>}
+        {first.format === "carousel" && <Badge>{t("posts.format.carousel", { count: assets.length })}</Badge>}
         <Badge variant="outline" className={READY_CLASS[first.readiness]}>{t(`posts.readiness.${first.readiness}`)}</Badge>
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
         {pillar && <Badge variant="outline">{pillar}</Badge>}
@@ -365,6 +383,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
           <Link key={id} to="/marketing" search={{ capture: id }} className="text-primary underline">{t("posts.sourceCapture", { n: i + 1 })}</Link>
         ))}
       </div>
+      {first.format === "story" ? <PlatformDraft draft={first} assets={assets} /> : (
       <Tabs defaultValue="instagram">
         <TabsList>
           {(["instagram", "linkedin"] as const).map((p) => byPlatform(p) && (
@@ -375,6 +394,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
           <TabsContent key={p} value={p}><PlatformDraft draft={byPlatform(p)!} assets={assets} /></TabsContent>
         ))}
       </Tabs>
+      )}
     </Card>
   );
 }
@@ -382,7 +402,12 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
 function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path: string; file_name: string }[] }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
-  const [copy, setCopy] = useState(draft.final_copy ?? draft.ai_copy);
+  const isStory = draft.format === "story";
+  const savedFrames = draft.final_story_frames ?? draft.ai_story_frames ?? [];
+  const [frames, setFrames] = useState<StoryFrame[]>(savedFrames);
+  const [plainCopy, setCopy] = useState(draft.final_copy ?? draft.ai_copy);
+  const copy = isStory ? renderFrames(frames) : plainCopy;
+  const setFrame = (i: number, f: Partial<StoryFrame>) => setFrames((fr) => fr.map((x, j) => (j === i ? { ...x, ...f } : x)));
   const [tags, setTags] = useState((draft.final_hashtags ?? draft.ai_hashtags).join(" "));
   const [showOriginal, setShowOriginal] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -406,9 +431,10 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
   };
-  const changedFromSaved = copy !== (draft.final_copy ?? draft.ai_copy) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
+  const framePatch = isStory ? { final_story_frames: frames } : {};
+  const changedFromSaved = (isStory ? JSON.stringify(frames) !== JSON.stringify(savedFrames) : copy !== (draft.final_copy ?? draft.ai_copy)) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
   const saveEdit = async () => {
-    const patch: Record<string, unknown> = { final_copy: copy, final_hashtags: parsedTags };
+    const patch: Record<string, unknown> = { final_copy: copy, final_hashtags: parsedTags, ...framePatch };
     if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
     if (await update(patch, t("posts.editSaved"))) {
       setEditNote("");
@@ -416,9 +442,9 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     }
   };
-  const edited = copy !== draft.ai_copy || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
+  const edited = (isStory ? JSON.stringify(frames) !== JSON.stringify(draft.ai_story_frames ?? []) : copy !== draft.ai_copy) || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
   const approve = () => update({
-    status: "approved", final_copy: copy, final_hashtags: parsedTags,
+    status: "approved", final_copy: copy, final_hashtags: parsedTags, ...framePatch,
     decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null),
   }, t("posts.approved"));
   const reject = async () => {
@@ -428,7 +454,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     if (await update({ status: "published", published_at: pubDate, published_url: pubUrl.trim() || null }, t("posts.publishedToast"))) setPubOpen(false);
   };
   const copyText = async () => {
-    const txt = `${copy}${parsedTags.length ? `\n\n${parsedTags.map((h) => `#${h}`).join(" ")}` : ""}`;
+    const txt = isStory ? frames.map((f, i) => `${t("posts.frame", { n: i + 1 })}: ${f.text}${f.sticker.type !== "none" ? `\n${t(`posts.sticker.${f.sticker.type}`)}: ${f.sticker.text}` : ""}`).join("\n\n") : `${copy}${parsedTags.length ? `\n\n${parsedTags.map((h) => `#${h}`).join(" ")}` : ""}`;
     await navigator.clipboard.writeText(txt);
     toast.success(t("posts.copied"));
   };
@@ -448,7 +474,30 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
 
   return (
     <div className="space-y-2">
-      {showOriginal ? (
+      {isStory ? (
+        <div className="space-y-2">
+          {(showOriginal ? draft.ai_story_frames ?? [] : frames).map((f, i) => (
+            <div key={i} className="space-y-1 rounded-md border p-2">
+              <Label className="text-xs">{t("posts.frame", { n: i + 1 })}</Label>
+              <Input value={f.text} maxLength={140} disabled={locked || showOriginal} onChange={(e) => setFrame(i, { text: e.target.value })} aria-label={t("posts.frame", { n: i + 1 })} />
+              <div className="flex gap-2">
+                <Select value={f.sticker.type} disabled={locked || showOriginal}
+                  onValueChange={(v) => setFrames((fr) => fr.map((x, j) => (j === i ? { ...x, sticker: { type: v as StickerType, text: v === "none" ? "" : x.sticker.text } } : v !== "none" && x.sticker.type !== "none" ? { ...x, sticker: { type: "none", text: "" } } : x)))}>
+                  <SelectTrigger className="w-36" aria-label={t("posts.stickerLabel")}><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(["none", "poll", "question", "link"] as const).map((k) => <SelectItem key={k} value={k}>{t(`posts.sticker.${k}`)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {f.sticker.type !== "none" && (
+                  <Input value={f.sticker.text} maxLength={100} disabled={locked || showOriginal}
+                    onChange={(e) => setFrame(i, { sticker: { ...f.sticker, text: e.target.value } })} aria-label={t("posts.stickerLabel")} />
+                )}
+              </div>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">{t("posts.storyHint")}</p>
+        </div>
+      ) : showOriginal ? (
         <div className="space-y-1 rounded-md bg-muted p-3 text-sm">
           <p className="whitespace-pre-wrap">{draft.ai_copy}</p>
           <p className="text-xs text-muted-foreground">{draft.ai_hashtags.map((h) => `#${h}`).join(" ")}</p>
