@@ -145,13 +145,15 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
           const ids: string[] = (list.messages ?? []).map((m: { id: string }) => m.id);
           if (ids.length === 0) return Response.json({ ok: true, ...summary });
 
-          const [{ data: caps }, { data: ign }] = await Promise.all([
+          const [{ data: caps }, { data: ign }, { data: ans }] = await Promise.all([
             db.from("marketing_captures").select("source_message_id").in("source_message_id", ids),
             db.from("marketing_email_ignored").select("message_id").in("message_id", ids),
+            db.from("marketing_nudges").select("answer_source_message_id").in("answer_source_message_id", ids),
           ]);
           const seen = new Set<string>([
             ...((caps ?? []) as Array<{ source_message_id: string }>).map((r) => r.source_message_id),
             ...((ign ?? []) as Array<{ message_id: string }>).map((r) => r.message_id),
+            ...((ans ?? []) as Array<{ answer_source_message_id: string }>).map((r) => r.answer_source_message_id),
           ]);
 
           for (const id of ids) {
@@ -182,6 +184,41 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                 else if (p.mimeType === "text/html" && html === null) html = decode(p.body.data);
               }
               const body = (plain ?? (html ? htmlToText(html) : "")).trim();
+
+              // Pass 5b — replies to a question email, tagged [Q-xxxxxxxx] in the subject.
+              let lateNudge: { id: string; project_id: string | null; created_by: string; capture_id: string } | null = null;
+              const tag = subject.match(/\[Q-([0-9a-f]{8})\]/i);
+              if (tag) {
+                const { data: n } = await db.from("marketing_nudges").select("*")
+                  .eq("reply_tag", `Q-${tag[1].toLowerCase()}`).maybeSingle();
+                if (n) {
+                  const { userName, applyNudgeAnswer } = await import("@/lib/marketing/nudges.server");
+                  const arch = await userName(n.architect_user_id);
+                  const valid = !!arch.email && arch.email.toLowerCase() === email &&
+                    n.status === "pending" && !(n.expires_at && new Date(n.expires_at) < new Date());
+                  if (valid) {
+                    const text = stripReply(plain ?? (html ? htmlToText(cutGmailQuote(html)) : ""));
+                    const voice = parts.find((p) => {
+                      if (!p.filename || !p.body?.attachmentId) return false;
+                      return (AUDIO_EXT.includes(ext(p.filename)) || (p.mimeType ?? "").startsWith("audio/")) &&
+                        (p.body.size ?? 0) <= MAX_ATTACHMENT_BYTES;
+                    });
+                    let audioBytes: Uint8Array | undefined;
+                    let audioMime: string | undefined;
+                    let audioExt: string | undefined;
+                    if (voice) {
+                      const att = await gmail(`/users/me/messages/${id}/attachments/${voice.body!.attachmentId}`, connKey, lovableKey);
+                      audioBytes = new Uint8Array(Buffer.from(String(att.data ?? "").replace(/-/g, "+").replace(/_/g, "/"), "base64"));
+                      audioExt = ext(voice.filename!) || "audio";
+                      audioMime = (voice.mimeType ?? "").startsWith("audio/") ? voice.mimeType! : audioMimeFor(audioExt);
+                    }
+                    await applyNudgeAnswer(db, n, { text, audioBytes, audioMime, audioExt, sourceMessageId: id });
+                    summary.answered++;
+                    continue;
+                  }
+                  lateNudge = n;
+                }
+              }
 
               const skipped: Array<{ filename: string; reason: string }> = [];
               const accepted: GmailPart[] = [];
