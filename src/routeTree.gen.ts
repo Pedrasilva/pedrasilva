@@ -76,6 +76,7 @@ import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
 import { Route as AppProjectsWeeklyApprovalRouteImport } from './routes/_app.projects.weekly-approval'
 import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
+import { Route as AppReportsIndexRouteImport } from './routes/_app.reports.index'
 import { Route as AppCrmCompaniesIndexRouteImport } from './routes/_app.crm.companies.index'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
 import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
@@ -478,6 +479,11 @@ const AppProjectsWeeklyApprovalRoute =
 const AppProposalsIndexRoute = AppProposalsIndexRouteImport.update({
   id: '/proposals/',
   path: '/proposals/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCrmCompaniesIndexRoute = AppCrmCompaniesIndexRouteImport.update({
@@ -917,6 +923,7 @@ export interface FileRoutesByFullPath {
   '/products/': typeof AppProductsIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/proposals/': typeof AppProposalsIndexRoute
+  '/reports/': typeof AppReportsIndexRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
@@ -1041,6 +1048,7 @@ export interface FileRoutesByTo {
   '/products': typeof AppProductsIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/proposals': typeof AppProposalsIndexRoute
+  '/reports': typeof AppReportsIndexRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
@@ -1175,6 +1183,7 @@ export interface FileRoutesById {
   '/_app/products/': typeof AppProductsIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/proposals/': typeof AppProposalsIndexRoute
+  '/_app/reports/': typeof AppReportsIndexRoute
   '/_app/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/_app/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
@@ -1309,6 +1318,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/projects/'
     | '/proposals/'
+    | '/reports/'
     | '/crm/companies/$companyId'
     | '/crm/contracts/$contractId'
     | '/crm/opportunities/$opportunityId'
@@ -1433,6 +1443,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/projects'
     | '/proposals'
+    | '/reports'
     | '/crm/companies/$companyId'
     | '/crm/contracts/$contractId'
     | '/crm/opportunities/$opportunityId'
@@ -1566,6 +1577,7 @@ export interface FileRouteTypes {
     | '/_app/products/'
     | '/_app/projects/'
     | '/_app/proposals/'
+    | '/_app/reports/'
     | '/_app/crm/companies/$companyId'
     | '/_app/crm/contracts/$contractId'
     | '/_app/crm/opportunities/$opportunityId'
@@ -2124,6 +2136,13 @@ declare module '@tanstack/react-router' {
       path: '/proposals'
       fullPath: '/proposals/'
       preLoaderRoute: typeof AppProposalsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports/': {
+      id: '/_app/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof AppReportsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/crm/companies/': {
@@ -2865,6 +2884,7 @@ interface AppRouteChildren {
   AppMarketingIndexRoute: typeof AppMarketingIndexRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
   AppProposalsIndexRoute: typeof AppProposalsIndexRoute
+  AppReportsIndexRoute: typeof AppReportsIndexRoute
   AppMarketingProjectsProfileIdRoute: typeof AppMarketingProjectsProfileIdRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
   AppMarketingProjectsIndexRoute: typeof AppMarketingProjectsIndexRoute
@@ -2903,6 +2923,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMarketingIndexRoute: AppMarketingIndexRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
   AppProposalsIndexRoute: AppProposalsIndexRoute,
+  AppReportsIndexRoute: AppReportsIndexRoute,
   AppMarketingProjectsProfileIdRoute: AppMarketingProjectsProfileIdRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
   AppMarketingProjectsIndexRoute: AppMarketingProjectsIndexRoute,
