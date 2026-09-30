@@ -347,7 +347,9 @@
       "sharedLists": "Shared lists",
       "shortcuts": "Shortcuts",
       "reports": "Reports",
-      "recentlyViewed": "Recently viewed"
+      "recentlyViewed": "Recently viewed",
+      "work": "Work",
+      "strategy": "Strategy"
     },
     "utility": {
       "help": "Help",
@@ -421,7 +423,15 @@
       "schedule": "Schedule",
       "inbox": "Inbox",
       "account": "Account"
-    }
+    },
+    "tab": {
+      "marketing.inbox": "Inbox",
+      "marketing.posts": "Planner",
+      "marketing.projects": "Profiles",
+      "marketing.questions": "Questions",
+      "marketing.bible": "Bible"
+    },
+    "subnavLabel": "Section pages"
   },
   "notifications": {
     "title": "Notifications",

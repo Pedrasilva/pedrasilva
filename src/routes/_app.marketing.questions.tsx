@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -80,6 +81,7 @@ function QuestionsPage() {
         <h1 className="text-2xl font-semibold">{t("questions.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("questions.subtitle")}</p>
       </div>
+      <ModuleSubnav moduleId="marketing" />
       <div className="flex flex-wrap gap-2">
         <Filter value={status} onChange={setStatus} label={t("questions.allStatuses")}
           options={(["pending", "answered", "dismissed", "expired"] as const).map((s) => [s, t(`nudge.status.${s}`)])} />

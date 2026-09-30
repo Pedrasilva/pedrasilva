@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -139,6 +140,7 @@ function BiblePage() {
           </Button>
         )}
       </div>
+      <ModuleSubnav moduleId="marketing" />
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>
@@ -331,6 +333,7 @@ function BibleEditor({
           <Button disabled={invalid || !dirty} onClick={() => setSummaryOpen(true)}>{t("bible.saveNew")}</Button>
         </div>
       </div>
+      <ModuleSubnav moduleId="marketing" />
       {invalid && <p className="text-xs text-destructive">{t("bible.invalidHint")}</p>}
 
       <div className="grid gap-4 lg:grid-cols-2">

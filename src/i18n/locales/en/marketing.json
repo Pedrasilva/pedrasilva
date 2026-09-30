@@ -4,7 +4,20 @@
     "subtitle": "Material from the whole team, ready to be curated into posts.",
     "add": "Add capture",
     "empty": "No captures yet.",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "quick": {
+      "new": "New",
+      "enriched": "To curate",
+      "ready": "Ready",
+      "used": "Used",
+      "all": "All",
+      "archived": "Archived"
+    },
+    "card": {
+      "clearance": "Clearance: {{value}}",
+      "interest": "Interest {{score}}",
+      "flags": "{{count}} AI flags"
+    }
   },
   "filters": {
     "status": "Status",
@@ -13,7 +26,10 @@
     "channel": "Channel",
     "project": "Project",
     "all": "All",
-    "activeOnly": "All except archived"
+    "activeOnly": "All except archived",
+    "button": "Filters",
+    "clear": "Clear",
+    "showArchived": "Show archived"
   },
   "channel": {
     "hub": "Hub",

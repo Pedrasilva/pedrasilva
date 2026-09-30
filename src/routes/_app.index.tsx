@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
 import { useUpcomingCelebrations } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
@@ -209,6 +210,10 @@ function quoteOfTheDay() {
 function HubPage() {
   const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
+  const { can: canV2 } = useMyPermissionsV2();
+  // Non-curators open Marketing on the Post planner.
+  const tileTo = (to: ModuleDef["to"]) =>
+    to === "/marketing" && !isAdmin && !canV2("marketing.curate", "all") ? "/marketing/posts" : to;
   const { canAccess, loading: accessLoading } = useModuleAccess();
 
   const loading = authLoading || accessLoading;
@@ -403,7 +408,7 @@ function HubPage() {
           {visible.map((m) => {
             const Icon = m.icon;
             return (
-              <Link key={m.to} to={m.to} className="group block">
+              <Link key={m.to} to={tileTo(m.to)} className="group block">
                 <Card
                   className={cn(
                     "relative h-full overflow-hidden rounded-none border-border/70 p-0 transition-all duration-300",

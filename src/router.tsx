@@ -1,5 +1,5 @@
 import { MutationCache, QueryClient } from "@tanstack/react-query";
-import { createRouter, useRouter } from "@tanstack/react-router";
+import { createRouter, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import i18n from "./i18n";
 import { routeTree } from "./routeTree.gen";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./lib/quotes/use-quote-lock";
 
 
-function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   // Helper that reads from the already-initialised i18n instance with a safe
   // English fallback. We avoid `useTranslation()` here so we don't depend on
@@ -28,7 +28,7 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {t("errorTitle", "Something went wrong")}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
             onClick={() => {

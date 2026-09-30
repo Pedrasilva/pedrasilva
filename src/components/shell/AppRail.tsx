@@ -108,6 +108,7 @@ function RailButton({
   const Icon = item.icon;
   const active = isRailItemActive(item, pathname);
   const label = t(`shell.rail.${item.labelKey}`);
+  const dest = useRailDestination(item);
 
   // Only certain modules carry a Recently Viewed list. The rail item id
   // doubles as the module key for the tracker.
@@ -156,7 +157,7 @@ function RailButton({
       >
         <div className="border-b px-4 py-3">
           <Link
-            to={item.to as never}
+            to={dest as never}
             className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <Icon className="h-4 w-4" />
@@ -200,7 +201,15 @@ function RailButton({
   );
 }
 
-function usePendingQuestions(enabled: boolean) {
+/** Rail icon destination, honouring `altTo` (e.g. non-curators open the Post planner). */
+export function useRailDestination(item: RailItem) {
+  const { isAdmin } = useAuth();
+  const { can: canV2 } = useMyPermissionsV2();
+  if (!item.altTo || isAdmin || canV2(item.altTo.unlessPermV2, item.altTo.unlessScope)) return item.to;
+  return item.altTo.to;
+}
+
+export function usePendingQuestions(enabled: boolean) {
   return useQuery({
     queryKey: ["marketing-questions-pending"],
     enabled,

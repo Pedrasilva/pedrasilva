@@ -55,6 +55,8 @@ export type RailItem = {
   icon: LucideIcon;
   /** Default destination when the rail icon is clicked. */
   to: string;
+  /** Alternative destination for users lacking a v2 permission. */
+  altTo?: { to: string; unlessPermV2: V2PermissionKey; unlessScope: PermissionScope };
   /** Path prefixes that mark this item as active. */
   matches: string[];
   /** Path prefixes that must NOT mark this item active (owned by another item). */
@@ -289,16 +291,23 @@ export const RAIL_ITEMS: RailItem[] = [
     labelKey: "marketing",
     icon: Megaphone,
     to: "/marketing",
+    // Curators land on the Inbox; everyone else on the Post planner.
+    altTo: { to: "/marketing/posts", unlessPermV2: "marketing.curate", unlessScope: "all" },
     matches: ["/marketing"],
     flyout: [
       {
-        titleKey: "sharedLists",
+        titleKey: "work",
         links: [
           { to: "/marketing", labelKey: "marketing.inbox" },
-          { to: "/marketing/bible", labelKey: "marketing.bible" },
-          { to: "/marketing/projects", labelKey: "marketing.projects" },
           { to: "/marketing/posts", labelKey: "marketing.posts", permV2: "marketing.view", permV2Scope: "all" },
           { to: "/marketing/questions", labelKey: "marketing.questions", permV2: "marketing.curate", permV2Scope: "all", badge: "marketingQuestions" },
+        ],
+      },
+      {
+        titleKey: "strategy",
+        links: [
+          { to: "/marketing/projects", labelKey: "marketing.projects" },
+          { to: "/marketing/bible", labelKey: "marketing.bible" },
         ],
       },
     ],

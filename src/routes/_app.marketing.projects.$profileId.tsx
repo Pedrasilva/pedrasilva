@@ -1,3 +1,4 @@
+import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -171,6 +172,7 @@ function ProfilePage() {
       <Link to="/marketing/projects" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> {t("profiles.title")}
       </Link>
+      <ModuleSubnav moduleId="marketing" />
 
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">
