@@ -235,5 +235,69 @@
     "reject": "Rejeitar",
     "suggestionAccepted": "Acrescentado à história",
     "suggestionRejected": "Sugestão rejeitada"
+  },
+  "posts": {
+    "title": "Planeador de publicações",
+    "subtitle": "Rascunhos de publicações para Instagram e LinkedIn, feitos pela IA a partir do melhor material autorizado. Quem decide é você; a publicação continua manual.",
+    "brief": "Orientação (opcional)",
+    "briefHint": "ex.: foco em hotelaria",
+    "periodStart": "De",
+    "periodEnd": "Até",
+    "ideaCount": "Ideias",
+    "generate": "Gerar sugestões",
+    "generating": "A gerar sugestões…",
+    "generatingHint": "Pode demorar um ou dois minutos. Pode sair da página; os resultados ficam guardados.",
+    "generated_one": "{{count}} ideia gerada",
+    "generated_other": "{{count}} ideias geradas",
+    "error": "Não foi possível concluir a ação",
+    "balance_one": "Últimos 30 dias: {{count}} rascunho aprovado ou publicado",
+    "balance_other": "Últimos 30 dias: {{count}} rascunhos aprovados ou publicados",
+    "balanceEmpty": "Nada aprovado ou publicado nos últimos 30 dias.",
+    "empty": "Ainda não há sugestões. Gere algumas acima.",
+    "rationale": "Porquê",
+    "sourceCapture": "Captura de origem {{n}}",
+    "platform": {
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "status": {
+      "suggested": "Sugerido",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado",
+      "published": "Publicado"
+    },
+    "requestStatus": {
+      "running": "Em curso",
+      "done": "Concluído",
+      "failed": "Falhou"
+    },
+    "readiness": {
+      "ready": "Pronto",
+      "needs_approval": "Requer aprovação",
+      "blocked": "Bloqueado"
+    },
+    "hashtags": "Hashtags, separadas por espaços",
+    "words_one": "{{count}} palavra",
+    "words_other": "{{count}} palavras",
+    "approve": "Aprovar",
+    "approveDisabled": "Só rascunhos Prontos podem ser aprovados.",
+    "reject": "Rejeitar",
+    "rejectTitle": "Rejeitar este rascunho",
+    "rejectReason": "Motivo (opcional)",
+    "rejectHint": "O motivo ajuda a máquina a aprender.",
+    "copyText": "Copiar texto",
+    "copied": "Texto copiado",
+    "downloadImages": "Descarregar imagens",
+    "showOriginal": "Mostrar original",
+    "showEdited": "Mostrar editado",
+    "markPublished": "Marcar como publicado",
+    "publishedDate": "Publicado em",
+    "publishedUrl": "Link (opcional)",
+    "publishedOn": "Publicado em {{date}}",
+    "decisionNote": "Nota",
+    "approved": "Rascunho aprovado",
+    "rejected": "Rascunho rejeitado",
+    "publishedToast": "Marcado como publicado; capturas marcadas como usadas",
+    "fromCapture": "Sugerir uma publicação a partir desta"
   }
 }

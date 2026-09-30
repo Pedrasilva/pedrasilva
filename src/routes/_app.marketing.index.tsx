@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, FileText, ImageIcon, Lightbulb, Link2, Plus, RefreshCw, Sparkles, Video } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
+import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -500,6 +501,33 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
   );
 }
 
+function SuggestPostButton({ captureId }: { captureId: string }) {
+  const { t } = useTranslation("marketing");
+  const navigate = useNavigate();
+  const generate = useServerFn(generatePostSuggestions);
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    try {
+      const today = new Date();
+      const d = (x: Date) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
+      const r = await generate({ data: { periodStart: d(today), periodEnd: d(end), ideaCount: 1, sourceCaptureId: captureId } });
+      if (!r.ok) toast.error(r.error);
+      navigate({ to: "/marketing/posts", search: { request: r.requestId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("posts.error"));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Button size="sm" variant="outline" className="mt-3" onClick={run} disabled={busy}>
+      <Sparkles className={cn("mr-1 h-3.5 w-3.5", busy && "animate-pulse")} /> {busy ? t("posts.generating") : t("posts.fromCapture")}
+    </Button>
+  );
+}
+
 function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[]; profile: ProjectProfile | null }) {
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
@@ -591,6 +619,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
         </div>
 
         <AiAnalysis capture={capture} canCurate={canCurate} />
+        {canCurate && <SuggestPostButton captureId={capture.id} />}
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>
         {!canCurate && <p className="text-xs text-muted-foreground">{t("detail.readOnly")}</p>}

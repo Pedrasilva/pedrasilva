@@ -295,6 +295,7 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/marketing", labelKey: "marketing.inbox" },
           { to: "/marketing/bible", labelKey: "marketing.bible" },
           { to: "/marketing/projects", labelKey: "marketing.projects" },
+          { to: "/marketing/posts", labelKey: "marketing.posts", permV2: "marketing.curate", permV2Scope: "all" },
         ],
       },
     ],
