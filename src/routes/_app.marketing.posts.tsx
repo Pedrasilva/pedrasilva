@@ -281,6 +281,15 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
   const { data: urls = {} } = useSigned(assets.map((a) => a.storage_path));
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
+  const qc = useQueryClient();
+  const [rechecking, setRechecking] = useState(false);
+  const recheck = async () => {
+    setRechecking(true);
+    try { await recheckDrafts(drafts.filter((d) => d.status === "suggested").map((d) => d.id)); }
+    catch (e) { toast.error((e as { message?: string })?.message || t("posts.error")); }
+    setRechecking(false);
+    qc.invalidateQueries({ queryKey: ["marketing-posts"] });
+  };
   return (
     <Card className="space-y-3 p-4">
       {assets.length > 0 && (

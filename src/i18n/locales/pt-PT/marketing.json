@@ -298,6 +298,9 @@
     "approved": "Rascunho aprovado",
     "rejected": "Rascunho rejeitado",
     "publishedToast": "Marcado como publicado; capturas marcadas como usadas",
-    "fromCapture": "Sugerir uma publicação a partir desta"
+    "fromCapture": "Sugerir uma publicação a partir desta",
+    "recheck": "Verificar de novo",
+    "saveEdit": "Guardar edição",
+    "editSaved": "Edição guardada"
   }
 }
