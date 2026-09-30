@@ -11435,6 +11435,33 @@ export type Database = {
           },
         ]
       }
+      user_access: {
+        Row: {
+          id: string
+          item_id: string
+          level: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          level: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          level?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           created_at: string

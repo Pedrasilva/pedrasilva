@@ -27,6 +27,7 @@ import { Route as ApiNotifyRemoteWorkLateRouteImport } from './routes/api.notify
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppAdminAccessRouteImport } from './routes/_app.admin.access'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
@@ -236,6 +237,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminAccessRoute = AppAdminAccessRouteImport.update({
+  id: '/admin/access',
+  path: '/admin/access',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
@@ -897,6 +903,7 @@ export interface FileRoutesByFullPath {
   '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
@@ -1028,6 +1035,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
@@ -1165,6 +1173,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/_app/admin/access': typeof AppAdminAccessRoute
   '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
@@ -1304,6 +1313,7 @@ export interface FileRouteTypes {
     | '/api/notify-remote-work-late'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
@@ -1435,6 +1445,7 @@ export interface FileRouteTypes {
     | '/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
@@ -1571,6 +1582,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/_app/admin/access'
     | '/_app/admin/backups'
     | '/_app/admin/company-settings'
     | '/_app/admin/imports'
@@ -1841,6 +1853,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/access': {
+      id: '/_app/admin/access'
+      path: '/admin/access'
+      fullPath: '/admin/access'
+      preLoaderRoute: typeof AppAdminAccessRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/backups': {
@@ -2937,6 +2956,7 @@ interface AppRouteChildren {
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppProductsRoute: typeof AppProductsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminAccessRoute: typeof AppAdminAccessRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
@@ -2980,6 +3000,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioRoute: AppPortfolioRoute,
   AppProductsRoute: AppProductsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppAdminAccessRoute: AppAdminAccessRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
