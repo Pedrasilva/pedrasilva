@@ -1,0 +1,3 @@
+UPDATE public.role_permissions SET scope='all' WHERE permission_key='marketing.view' AND role IN ('partner','project_lead','architect','hr','finance');
+CREATE POLICY mpr_select_view ON public.marketing_post_requests FOR SELECT TO authenticated USING (public.has_module_permission(auth.uid(),'marketing.view','all'));
+CREATE POLICY mpd_select_view ON public.marketing_post_drafts FOR SELECT TO authenticated USING (public.has_module_permission(auth.uid(),'marketing.view','all'));
