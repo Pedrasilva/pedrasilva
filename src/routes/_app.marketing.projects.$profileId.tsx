@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { StorySuggestions } from "@/components/marketing/story-suggestions";
+import { BriefingsCard } from "@/components/marketing/briefings-card";
 import {
   CLEARANCE_BADGE,
   CLEARANCE_ORDER,
@@ -211,6 +212,8 @@ function ProfilePage() {
       </Card>
 
       {canEditStory && <StorySuggestions profileId={profile.id} thumbs={thumbs} onAccepted={() => { setDraft({}); qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />}
+
+      {canEditStory && <BriefingsCard profileId={profile.id} projectId={profile.project_id} canCurate={canCurate} />}
 
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.storyTitle")}</h2>
