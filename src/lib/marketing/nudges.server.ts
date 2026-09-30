@@ -354,3 +354,37 @@ export async function draftBriefingPrompt(projectId: string): Promise<string> {
     return `Pode gravar 3–5 minutos sobre ${name}: o cliente, a ideia, as dificuldades, o que o orgulha?`;
   }
 }
+
+/** Send (or re-send) a nudge's bell notification and, for email, the email with the same [Q-…] tag. */
+export async function deliverNudge(db: any, nudgeId: string, senderUserId: string, resend = false) {
+  const { data: n } = await db.from("marketing_nudges").select("*, pm_projects(name)").eq("id", nudgeId).single();
+  if (!n) throw new Error("Question not found");
+  const sender = await userName(senderUserId);
+  const first = sender.name.split(/\s+/)[0] || sender.name;
+  const project = n.pm_projects?.name ?? "uma captura";
+  const link = `/nudges/${n.id}`;
+  const stamp = resend ? `:resend:${Date.now()}` : "";
+  const briefing = n.kind === "briefing";
+  await db.from("notifications").insert({
+    user_id: n.architect_user_id, kind: "marketing_nudge", module: "marketing",
+    entity_type: "marketing_nudge", entity_id: n.id,
+    title: briefing
+      ? `${first} pediu um briefing sobre ${project} · ${first} asked for a briefing about ${project}`
+      : `${first} perguntou sobre ${project} · ${first} asked about ${project}`,
+    body: n.question, link_path: link, dedupe_key: `marketing_nudge:${n.id}${stamp}`,
+  });
+  if (n.channel === "email") {
+    const arch = await userName(n.architect_user_id);
+    if (!arch.email) throw new Error("The architect has no email address");
+    const thumbs = n.capture_id ? (await captureImageUrls(n.capture_id, 2, 7 * 86400)).map((i) => i.url) : [];
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    await sendTemplateEmail("marketing-nudge", arch.email, {
+      idempotencyKey: `marketing-nudge-${n.id}${stamp}`,
+      replyTo: "ideas@pedrasilva.com",
+      templateData: {
+        senderName: sender.name, projectName: project, question: n.question, thumbs,
+        answerUrl: `${NUDGE_APP_URL}${link}`, replyTag: n.reply_tag ?? `Q-${String(n.id).slice(0, 8)}`,
+      },
+    });
+  }
+}
