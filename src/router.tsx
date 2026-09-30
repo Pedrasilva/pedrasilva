@@ -1,5 +1,5 @@
 import { MutationCache, QueryClient } from "@tanstack/react-query";
-import { createRouter, useRouter } from "@tanstack/react-router";
+import { createRouter, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import i18n from "./i18n";
 import { routeTree } from "./routeTree.gen";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./lib/quotes/use-quote-lock";
 
 
-function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   // Helper that reads from the already-initialised i18n instance with a safe
   // English fallback. We avoid `useTranslation()` here so we don't depend on
