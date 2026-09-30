@@ -12198,6 +12198,10 @@ export type Database = {
         Args: { _arr: Json; _label: string }
         Returns: undefined
       }
+      marketing_capture_delete_block: {
+        Args: { _capture_id: string }
+        Returns: string
+      }
       marketing_compute_draft_readiness: {
         Args: { _capture_ids: string[]; _copy: string; _hashtags: string[] }
         Returns: Record<string, unknown>
