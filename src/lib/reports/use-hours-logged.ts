@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toLocalISODate } from "@/lib/dates";
 import {
   expandNonWorkingForRange,
   type CollaboratorMapRow,
@@ -38,7 +39,7 @@ async function loadRoster(): Promise<RosterPerson[]> {
     supabase.rpc("pm_list_user_resource_map"),
     supabase
       .from("collaborators_directory")
-      .select("id, nome, departamento, daily_hours, days_per_week, archived_at"),
+      .select("id, nome, departamento, daily_hours, days_per_week, archived_at, data_admissao"),
     supabase.from("pm_resources").select("id, team"),
   ]);
   if (mapRes.error) throw mapRes.error;
@@ -61,7 +62,7 @@ async function loadRoster(): Promise<RosterPerson[]> {
       team: (m.resource_id && teams.get(m.resource_id)) || null,
       dailyHours: c.daily_hours,
       daysPerWeek: c.days_per_week,
-      startDate: null, // no admission date is stored on collaborators yet
+      startDate: (c as { data_admissao?: string | null }).data_admissao ?? null,
     });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
@@ -79,7 +80,10 @@ export function useHoursLogged(rangeStart: string, rangeEnd: string) {
           { collaborator_id: p.collaboratorId, user_id: p.userId, daily_hours: Number(p.dailyHours) || 8 },
         ]),
       );
-      const [entries, weekRows, nonWorking] = await Promise.all([
+      const lookback = new Date(rangeStart + "T00:00:00");
+      lookback.setMonth(lookback.getMonth() - 12);
+      const lookbackISO = toLocalISODate(lookback);
+      const [entries, weekRows, nonWorking, lastEntries] = await Promise.all([
         fetchAll<ReportEntry>((a, b) =>
           supabase
             .from("pm_time_entries")
@@ -99,8 +103,19 @@ export function useHoursLogged(rangeStart: string, rangeEnd: string) {
             .range(a, b) as never,
         ),
         expandNonWorkingForRange({ rangeStart, rangeEnd, userMap }),
+        // "Last entry" looks back up to 12 months before the period.
+        fetchAll<{ user_id: string; entry_date: string; entry_type: string }>((a, b) =>
+          supabase
+            .from("pm_time_entries")
+            .select("user_id, entry_date, entry_type")
+            .in("entry_type", ["project", "internal"])
+            .gte("entry_date", lookbackISO)
+            .lte("entry_date", rangeEnd)
+            .order("id")
+            .range(a, b) as never,
+        ),
       ]);
-      return computeHoursLogged({ rangeStart, rangeEnd, roster, entries, weekRows, nonWorking });
+      return computeHoursLogged({ rangeStart, rangeEnd, roster, entries, weekRows, nonWorking, lastEntries });
     },
   });
 }

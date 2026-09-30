@@ -15,7 +15,7 @@
     "rangeLabel": "{{start}} a {{end}}",
     "error": "Não foi possível carregar o relatório. Tente novamente.",
     "empty": "Nenhuma pessoa corresponde a estes filtros neste período.",
-    "noEntry": "Nenhum no período",
+    "noEntry": "Nenhum nos últimos 12 meses",
     "expand": "Mostrar detalhe semanal de {{name}}",
     "collapse": "Esconder detalhe semanal de {{name}}",
     "presets": {
@@ -75,7 +75,8 @@
       "submitted": "Submetida",
       "returned": "Devolvida",
       "approved": "Aprovada",
-      "not_submitted": "Por submeter"
+      "not_submitted": "Por submeter",
+      "before_submission": "Antes da submissão semanal"
     }
   }
 }

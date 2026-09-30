@@ -53,6 +53,14 @@ export type HoursLoggedRow = {
   weeks: WeekBreakdown[];
 };
 
+/**
+ * Weekly timesheet submission (pm_timesheet_weeks) went live the week of
+ * Monday 2026-09-07. Weeks starting before this date never count as
+ * "not submitted" and show as "Before weekly submission" in the breakdown.
+ */
+export const WEEKLY_SUBMISSION_START = "2026-09-07";
+export const PRE_SUBMISSION_STATUS = "before_submission";
+
 export const ON_TRACK_PCT = 0.95;
 export const BEHIND_PCT = 0.5;
 
@@ -94,6 +102,8 @@ export function computeHoursLogged(input: {
   entries: ReportEntry[];
   weekRows: ReportWeekRow[];
   nonWorking: NonWorkingDay[];
+  /** Optional lookback entries (any date up to rangeEnd) for "last entry". */
+  lastEntries?: { user_id: string; entry_date: string; entry_type: string }[];
 }): HoursLoggedRow[] {
   const { rangeStart, rangeEnd, roster } = input;
   const weeks = weeksInRange(rangeStart, rangeEnd);
@@ -122,7 +132,10 @@ export function computeHoursLogged(input: {
     const from = person.startDate && person.startDate > rangeStart ? person.startDate : rangeStart;
 
     let lastEntryDate: string | null = null;
-    for (const e of mine) {
+    const lastPool = input.lastEntries
+      ? input.lastEntries.filter((e) => e.user_id === person.userId && e.entry_date <= rangeEnd)
+      : mine;
+    for (const e of lastPool) {
       if (e.entry_type !== "project" && e.entry_type !== "internal") continue;
       if (!lastEntryDate || e.entry_date > lastEntryDate) lastEntryDate = e.entry_date;
     }
@@ -146,7 +159,10 @@ export function computeHoursLogged(input: {
         expected,
         logged: round2(t.working),
         leave: round2(t.leave),
-        status: weekStatus.get(`${person.userId}|${weekStart}`) ?? "not_submitted",
+        status:
+          weekStart < WEEKLY_SUBMISSION_START
+            ? PRE_SUBMISSION_STATUS
+            : weekStatus.get(`${person.userId}|${weekStart}`) ?? "not_submitted",
       };
     });
 
@@ -162,7 +178,10 @@ export function computeHoursLogged(input: {
       gap: round2(expected - logged),
       pct,
       weeksNotSubmitted: weekRows.filter(
-        (w) => w.weekEnd >= from && w.status !== "submitted" && w.status !== "approved",
+        (w) =>
+          w.weekEnd >= from &&
+          w.status !== PRE_SUBMISSION_STATUS &&
+          w.status !== "submitted" && w.status !== "approved",
       ).length,
       lastEntryDate,
       status: statusFor(pct),
