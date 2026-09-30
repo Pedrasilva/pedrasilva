@@ -514,6 +514,7 @@ export const MODULES: PermissionModule[] = [
   "Products",
   "Portfolio",
   "Marketing",
+  "Reports",
 ];
 
 export interface EffectivePermissionRow {
