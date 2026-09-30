@@ -50,7 +50,10 @@ export function AvailabilitySummary({
   todayISO: string;
 }) {
   const { t } = useTranslation("hr");
-  const pool = people.filter((p) => p.includeInPlanning);
+  // People not yet employed today are left out of today's tiles.
+  const pool = people.filter(
+    (p) => p.includeInPlanning && cells[p.id]?.[todayISO]?.kind !== "pre-admission",
+  );
 
   const awayToday = pool.filter((p) => {
     const k = cells[p.id]?.[todayISO]?.kind;

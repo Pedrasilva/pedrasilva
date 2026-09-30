@@ -30,6 +30,7 @@ export function AvailabilityGrid({
   const coverageByIso = new Map(coverage.map((c) => [c.iso, c]));
 
   const cellLabel = (cell: Cell | undefined, day: DayColumn) => {
+    if (cell?.kind === "pre-admission") return t("availability.legend.beforeAdmission");
     if (day.holidayName) return day.holidayName;
     if (!cell) return "";
     switch (cell.kind) {

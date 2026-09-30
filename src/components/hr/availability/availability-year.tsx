@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { AvailabilityPerson } from "@/lib/hr/use-team-availability";
-import { mix } from "./absence-visuals";
+import { mix, PRE_ADMISSION_BG } from "./absence-visuals";
 
 const MONTH_KEYS = [
   "jan", "feb", "mar", "apr", "may", "jun",
@@ -53,20 +53,43 @@ export function AvailabilityYear({
                 <th className="sticky left-0 z-10 border-b bg-card px-3 py-1.5 text-left text-[13px] font-normal">
                   {p.nome}
                 </th>
-                {row.map((n, i) => (
+                {row.map((n, i) => {
+                  const pad = (x: number) => String(x).padStart(2, "0");
+                  const monthStart = `${year}-${pad(i + 1)}-01`;
+                  const monthEnd = `${year}-${pad(i + 1)}-${pad(new Date(year, i + 1, 0).getDate())}`;
+                  // Whole month before admission → hatch; admission inside the month → half hatch.
+                  const pre = p.admissionDate
+                    ? p.admissionDate > monthEnd
+                      ? "full"
+                      : p.admissionDate > monthStart
+                        ? "part"
+                        : null
+                    : null;
+                  const absenceBg = n ? mix("var(--sage)", (n / max) * 70) : undefined;
+                  const background =
+                    pre === "full"
+                      ? PRE_ADMISSION_BG
+                      : pre === "part"
+                        ? absenceBg
+                          ? `${PRE_ADMISSION_BG.replace("repeating-linear-gradient", "repeating-linear-gradient")}, ${absenceBg}`
+                          : PRE_ADMISSION_BG
+                        : absenceBg;
+                  const tip = t("availability.year.cellTip", {
+                    name: p.nome,
+                    month: t(`availability.month.${MONTH_KEYS[i]}`),
+                    days: n,
+                  });
+                  return (
                   <td
                     key={i}
                     className="border-b border-l px-2 py-1.5 text-center text-xs tabular-nums"
-                    style={{ background: n ? mix("var(--sage)", (n / max) * 70) : undefined }}
-                    title={t("availability.year.cellTip", {
-                      name: p.nome,
-                      month: t(`availability.month.${MONTH_KEYS[i]}`),
-                      days: n,
-                    })}
+                    style={{ background }}
+                    title={pre ? `${tip} · ${t("availability.legend.beforeAdmission")}` : tip}
                   >
                     {n ? n : ""}
                   </td>
-                ))}
+                  );
+                })}
                 <td className={cn("border-b border-l px-2 py-1.5 text-center text-xs font-medium tabular-nums")}>
                   {total || ""}
                 </td>

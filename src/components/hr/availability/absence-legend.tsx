@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { absenceToken, mix } from "./absence-visuals";
+import { absenceToken, mix, PRE_ADMISSION_BG } from "./absence-visuals";
 
 function Swatch({ style, label }: { style: React.CSSProperties; label: string }) {
   return (
@@ -53,6 +53,7 @@ export function AbsenceLegend({ canSeeDetail }: { canSeeDetail: boolean }) {
       />
       <Swatch style={{ background: mix("var(--ink)", 10) }} label={t("availability.legend.publicHoliday")} />
       <Swatch style={{ background: mix("var(--ink)", 6) }} label={t("availability.legend.weekend")} />
+      <Swatch style={{ background: PRE_ADMISSION_BG }} label={t("availability.legend.beforeAdmission")} />
     </div>
   );
 }
