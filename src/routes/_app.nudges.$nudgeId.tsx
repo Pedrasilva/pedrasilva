@@ -75,6 +75,7 @@ function NudgeAnswerPage() {
         <p className="text-xs text-muted-foreground">{t("nudge.askedBy", { name: n.senderName })}{n.projectName ? ` · ${n.projectName}` : ""}</p>
         <h1 className="mt-1 text-xl font-semibold">{n.question}</h1>
         <Badge variant="outline" className="mt-2">{t(`nudge.status.${state}`)}</Badge>
+        {n.kind === "briefing" && <p className="mt-2 text-sm text-muted-foreground">{t("nudge.briefingHint")}</p>}
       </div>
       {n.images.length > 0 && (
         <div className="grid grid-cols-2 gap-2">
