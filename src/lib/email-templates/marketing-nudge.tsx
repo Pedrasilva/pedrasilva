@@ -34,6 +34,11 @@ export function MarketingNudgeEmail({
               ))}
             </Section>
           )}
+          <Text style={{ fontSize: '14px', color: '#1a1a1a', lineHeight: '20px', margin: '16px 0 12px' }}>
+            Pode responder diretamente a este email, com texto ou uma nota de voz em anexo.
+            <br />
+            You can reply to this email with text or an attached voice note.
+          </Text>
           <Button href={answerUrl} style={{ backgroundColor: '#111111', color: '#ffffff', padding: '12px 20px', borderRadius: '4px', fontSize: '14px' }}>
             Responder no PSA Hub · Answer in PSA Hub
           </Button>
@@ -48,7 +53,8 @@ export function MarketingNudgeEmail({
 
 export const template = {
   component: MarketingNudgeEmail,
-  subject: (d: Record<string, any>) => `${d.senderName ?? 'PSA Hub'} perguntou sobre ${d.projectName ?? 'um projeto'}`,
+  subject: (d: Record<string, any>) =>
+    `${d.senderName ?? 'PSA Hub'} perguntou sobre ${d.projectName ?? 'um projeto'}${d.replyTag ? ` [${d.replyTag}]` : ''}`,
   displayName: 'Marketing context question',
   previewData: { senderName: 'Adalberto', projectName: 'Apartamento ST', question: 'O que foi discutido na visita de ontem?', thumbs: [], answerUrl: 'https://pedrasilva.lovable.app/nudges/x' },
 } satisfies TemplateEntry
