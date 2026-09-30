@@ -106,7 +106,16 @@
     "persona": "Persona",
     "unknownPillar": "Pilar desconhecido: {{key}}",
     "unknownPersona": "Persona desconhecida: {{key}}",
-    "noBible": "Defina os pilares na Bíblia de Marketing"
+    "noBible": "Defina os pilares na Bíblia de Marketing",
+    "cover": "Capa",
+    "moveEarlier": "Mover para trás",
+    "moveLater": "Mover para a frente",
+    "formatHint": "Formato do post",
+    "format": {
+      "auto": "A IA decide",
+      "carousel": "Carrossel",
+      "single": "Imagem única"
+    }
   },
   "bible": {
     "title": "Bíblia de Marketing",
@@ -237,7 +246,8 @@
     "suggestionRejected": "Sugestão rejeitada",
     "source": {
       "ai": "IA",
-      "architect_answer": "Resposta do arquiteto"
+      "architect_answer": "Resposta do arquiteto",
+      "architect_briefing": "Do briefing"
     }
   },
   "posts": {
@@ -312,7 +322,23 @@
     "deleted": "Eliminado",
     "cancel": "Cancelar",
     "editNote": "O que mudou e porquê? (opcional)",
-    "editedAfterApproval": "Editado após aprovação, aprove novamente"
+    "editedAfterApproval": "Editado após aprovação, aprove novamente",
+    "storyCount": "Conjuntos de stories",
+    "storiesGenerated_one": "{{count}} conjunto de stories",
+    "storiesGenerated_other": "{{count}} conjuntos de stories",
+    "format": {
+      "story": "Story · {{count}} ecrãs",
+      "carousel": "Carrossel · {{count}} imagens"
+    },
+    "frame": "Ecrã {{n}}",
+    "stickerLabel": "Autocolante",
+    "sticker": {
+      "none": "Sem autocolante",
+      "poll": "Sondagem",
+      "question": "Pergunta",
+      "link": "Link"
+    },
+    "storyHint": "Máx. 140 caracteres por ecrã, um autocolante por story, sem hashtags."
   },
   "nudge": {
     "title": "Pedir contexto a um arquiteto",
@@ -348,7 +374,8 @@
       "answered": "Respondida",
       "dismissed": "Dispensada",
       "expired": "Expirada"
-    }
+    },
+    "briefingHint": "Grave uma nota de voz de 3–5 minutos (máx. 10). Fica privada e serve apenas de contexto."
   },
   "delete": {
     "button": "Apagar captura",
@@ -361,5 +388,62 @@
     "drafts_other": "Usada em {{count}} rascunhos — apague essas ideias primeiro.",
     "forbidden": "Não pode apagar esta captura.",
     "error": "Não foi possível apagar a captura"
+  },
+  "briefings": {
+    "title": "Briefings de voz",
+    "hint": "Fale 3–5 minutos sobre o cliente, a ideia, as dificuldades e o que o orgulha. Privado: usado só como contexto, nunca citado.",
+    "record": "Gravar briefing",
+    "stop": "Parar e guardar",
+    "upload": "Carregar áudio",
+    "processing": "A transcrever…",
+    "empty": "Ainda sem briefings.",
+    "saved": "Briefing guardado",
+    "error": "Não foi possível guardar o briefing",
+    "tooLarge": "Esta gravação tem mais de 25 MB.",
+    "micError": "Não foi possível aceder ao microfone",
+    "status": {
+      "processing": "Em processamento",
+      "done": "Concluído",
+      "failed": "Falhou"
+    },
+    "fromRequest": "Pedido",
+    "retry": "Tentar de novo",
+    "transcript": "Transcrição",
+    "ask": "Pedir briefing",
+    "askTo": "Quem",
+    "askToPlaceholder": "Escolha uma pessoa",
+    "onTeam": "equipa do projeto",
+    "askMessage": "Mensagem",
+    "drafting": "A redigir…",
+    "askChannel": "Enviar por",
+    "channelHub": "Hub",
+    "channelEmail": "Email",
+    "askSend": "Enviar pedido",
+    "asked": "Pedido de briefing enviado"
+  },
+  "questions": {
+    "title": "Perguntas",
+    "subtitle": "Perguntas e pedidos de briefing enviados aos arquitetos.",
+    "allStatuses": "Todos os estados",
+    "allKinds": "Todos os tipos",
+    "allArchitects": "Todas as pessoas",
+    "allProjects": "Todos os projetos",
+    "kind": {
+      "question": "Pergunta",
+      "briefing": "Briefing"
+    },
+    "to": "Para {{name}}",
+    "by": "por {{name}}",
+    "channel": {
+      "hub": "Hub",
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "resend": "Reenviar",
+    "resent": "Reenviado",
+    "error": "Não foi possível reenviar",
+    "empty": "Nenhuma pergunta corresponde.",
+    "openCapture": "Abrir captura",
+    "openQuestion": "Abrir"
   }
 }

@@ -22,6 +22,16 @@ type Profile = {
   client_ambition: string | null; central_idea: string | null; challenges: string | null; proud_of: string | null;
   key_facts: string | null; name_rule: string; public_description: string | null;
 };
+type Sticker = { type: "none" | "poll" | "question" | "link"; text: string };
+export type StoryFrame = { asset_id: string; text: string; sticker: Sticker };
+type Story = {
+  capture_ids: string[]; project_id: string | null; pillar: string | null; persona: string | null;
+  rationale: string; approval_note: string | null; frames: StoryFrame[];
+};
+/** Plain rendering of story frames kept in ai_copy/final_copy so readiness and learning keep working. */
+export function renderStoryFrames(frames: StoryFrame[]) {
+  return frames.map((f, i) => `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
+}
 type Idea = {
   capture_ids: string[]; asset_ids: string[]; project_id: string | null; pillar: string | null; persona: string | null;
   rationale: string; approval_note: string | null;
@@ -34,8 +44,32 @@ const platformSchema = {
 };
 const nstr = { type: ["string", "null"] };
 const SCHEMA = {
-  type: "object", additionalProperties: false, required: ["ideas"],
+  type: "object", additionalProperties: false, required: ["ideas", "stories"],
   properties: {
+    stories: {
+      type: "array",
+      items: {
+        type: "object", additionalProperties: false,
+        required: ["capture_ids", "project_id", "pillar", "persona", "rationale", "approval_note", "frames"],
+        properties: {
+          capture_ids: { type: "array", items: { type: "string" } },
+          project_id: nstr, pillar: nstr, persona: nstr, rationale: { type: "string" }, approval_note: nstr,
+          frames: {
+            type: "array",
+            items: {
+              type: "object", additionalProperties: false, required: ["asset_id", "text", "sticker"],
+              properties: {
+                asset_id: { type: "string" }, text: { type: "string" },
+                sticker: {
+                  type: "object", additionalProperties: false, required: ["type", "text"],
+                  properties: { type: { type: "string", enum: ["none", "poll", "question", "link"] }, text: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     ideas: {
       type: "array",
       items: {
@@ -52,7 +86,7 @@ const SCHEMA = {
   },
 };
 
-async function callClaude(system: string, content: unknown[]): Promise<{ ideas: Idea[] }> {
+async function callClaude(system: string, content: unknown[]): Promise<{ ideas: Idea[]; stories?: Story[] }> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
   const res = await fetch(GATEWAY, {
@@ -132,7 +166,7 @@ export async function runPostRequest(requestId: string) {
 
     // ── Candidates ──
     const { data: caps, error: capErr } = await db.from("marketing_captures")
-      .select("id, raw_text, ai_summary, fit_score, pillar, persona, project_id, clearance, ai_flags, received_at, status, expires_at, marketing_capture_assets(id, storage_path, file_name, mime_type)")
+      .select("id, raw_text, ai_summary, fit_score, pillar, persona, project_id, clearance, ai_flags, received_at, status, expires_at, format_hint, marketing_capture_assets(id, storage_path, file_name, mime_type, position, created_at)")
       .in("status", ["enriched", "ready"])
       .or(`expires_at.is.null,expires_at.gt.${req.period_start}`)
       .order("fit_score", { ascending: false, nullsFirst: false })
@@ -141,10 +175,13 @@ export async function runPostRequest(requestId: string) {
     type Cap = {
       id: string; raw_text: string | null; ai_summary: string | null; fit_score: number | null; pillar: string | null;
       persona: string | null; project_id: string | null; clearance: string; ai_flags: string[]; received_at: string;
-      marketing_capture_assets: Array<{ id: string; storage_path: string; file_name: string; mime_type: string }>;
+      format_hint: "auto" | "single" | "carousel";
+      marketing_capture_assets: Array<{ id: string; storage_path: string; file_name: string; mime_type: string; position: number | null; created_at: string }>;
       eff: string;
     };
-    let pool: Cap[] = (caps ?? []).map((c: Cap) => ({ ...c, eff: strictest(c.clearance, c.project_id ? projClear.get(c.project_id) : null) }))
+    const byPos = (a: { position: number | null; created_at: string }, b: { position: number | null; created_at: string }) =>
+      (a.position ?? 1e9) - (b.position ?? 1e9) || a.created_at.localeCompare(b.created_at);
+    let pool: Cap[] = (caps ?? []).map((c: Cap) => ({ ...c, marketing_capture_assets: [...c.marketing_capture_assets].sort(byPos), eff: strictest(c.clearance, c.project_id ? projClear.get(c.project_id) : null) }))
       .filter((c: Cap) => c.eff !== "internal_only");
     let candidates = pool.slice(0, 25);
     if (req.source_capture_id) {
@@ -155,6 +192,24 @@ export async function runPostRequest(requestId: string) {
     pool = [];
     if (!candidates.length) throw new Error("No usable captures: none are analysed, cleared for use and unused");
 
+    // Internal background: up to 3 recent briefing transcripts per candidate project.
+    const candProjects = [...new Set(candidates.map((c) => c.project_id).filter(Boolean))] as string[];
+    const background = new Map<string, string[]>();
+    if (candProjects.length) {
+      const { data: profRows } = await db.from("marketing_project_profiles").select("id, project_id").in("project_id", candProjects);
+      const projByProfile = new Map<string, string>(((profRows ?? []) as { id: string; project_id: string }[]).map((r) => [r.id, r.project_id]));
+      if (projByProfile.size) {
+        const { data: briefs } = await db.from("marketing_project_briefings").select("profile_id, transcript, created_at")
+          .in("profile_id", [...projByProfile.keys()]).eq("status", "done").not("transcript", "is", null)
+          .order("created_at", { ascending: false }).limit(100);
+        for (const b of (briefs ?? []) as { profile_id: string; transcript: string }[]) {
+          const pid = projByProfile.get(b.profile_id)!;
+          const list = background.get(pid) ?? [];
+          if (list.length < 3) list.push(b.transcript.slice(0, 3000));
+          background.set(pid, list);
+        }
+      }
+    }
     const capById = new Map(candidates.map((c) => [c.id, c]));
     const assetIds = new Set(candidates.flatMap((c) => c.marketing_capture_assets.map((a) => a.id)));
 
@@ -204,14 +259,17 @@ export async function runPostRequest(requestId: string) {
           ...(p.name_rule === "never_mention" ? {} : { sector: p.sector, location: p.location }),
           client_ambition: p.client_ambition, central_idea: p.central_idea, challenges: p.challenges,
           proud_of: p.proud_of, key_facts: p.key_facts,
+          ...(background.get(p.project_id)?.length ? { internal_background: background.get(p.project_id) } : {}),
         } : null,
-        images: c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a) => ({ id: a.id, file_name: a.file_name })),
+        format_hint: c.format_hint,
+        images: c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a, i) => ({ id: a.id, file_name: a.file_name, order: i, ...(i === 0 ? { cover: true } : {}) })),
       };
     });
     const payload = {
       brief: req.brief ?? null,
       period: { start: req.period_start, end: req.period_end },
       ideas_requested: req.idea_count,
+      story_sets_requested: req.story_count ?? 0,
       ...(req.source_capture_id ? { must_build_around_capture: req.source_capture_id } : {}),
       candidates: candidateData,
       recent_history: hist ?? [],
@@ -245,7 +303,13 @@ ${JSON.stringify(bible.personas)}
 - Balance ideas across pillars and personas, taking recent_history into account, and prefer the strongest material. Learn from lessons_what_not_to_do.
 - edit_lessons: Edits our team made to earlier drafts. Learn the pattern: match the approved versions' tone, length, structure and word choices, and avoid what was removed.
 - Return at most ideas_requested ideas (fewer if the material is weak). If must_build_around_capture is set, return exactly one idea built around that capture.
-- capture_ids and asset_ids must come from the candidates; asset_ids are ordered, first is the lead image, several means a carousel.
+- capture_ids and asset_ids must come from the candidates; asset_ids are ordered, first is the lead image.
+- Formats: a capture with format_hint "carousel" is one set: use its images in their stored order (cover first); you may drop images but never reorder them; the post is a carousel. A capture with format_hint "single" gives at most one image per idea (pick the best). With "auto" you choose. Instagram carousels have at most 20 images; on LinkedIn the same images become a multi-image post.
+- internal_background is private context from the team. Use it to understand the project; never quote it, never reveal costs, fees, disputes or anything the project's name_rule or clearance doesn't allow. The name rule still decides whether the client or project is named.
+
+# Instagram stories
+- Return at most story_sets_requested items in "stories" (an empty array when 0). Stories suit behind-the-scenes, site and studio moments, so prefer captures that feel too casual for the grid.
+- Each story has 1–5 frames; each frame uses a different image from the candidates (asset_id). On-screen text at most ~12 words per frame, in English. No hashtags. At most one sticker per set (all other frames use type "none").
 - rationale: why this post, why now (1–2 sentences).
 - Write in English, in the Bible's honest-expert voice. No hype, no clichés ("stunning", "dream home"), no invented quotes.
 
@@ -260,12 +324,44 @@ ${JSON.stringify(bible.personas)}
     const personaKeys = new Set(bible.personas.map((p) => p.key));
     const tag = (h: string) => h.replace(/^#+/, "").replace(/\s+/g, "").trim();
     const limit = req.source_capture_id ? 1 : req.idea_count;
+    const nameCheck = (projectIds: Set<string>, hay: string) => {
+      for (const pid of projectIds) {
+        const p = profileBy.get(pid);
+        if (!p || p.name_rule === "name") continue;
+        const names = [p.client, p.project_name].map((n) => n?.trim().toLowerCase()).filter((n): n is string => !!n && n.length >= 3);
+        if (names.some((n) => hay.includes(n)) || hay.includes(p.project_name?.toLowerCase().replace(/\s+/g, "") ?? "\u0000")) return true;
+      }
+      return false;
+    };
+    /** Enforce format hints: carousel captures keep stored order; single captures give at most one image. Max 20. */
+    const applyHints = (ids: string[], capIds: string[]) => {
+      const owner = new Map<string, Cap>();
+      for (const cid of capIds) for (const a of capById.get(cid)!.marketing_capture_assets) owner.set(a.id, capById.get(cid)!);
+      const out: string[] = [];
+      const singleUsed = new Set<string>();
+      for (const id of ids) {
+        const c = owner.get(id);
+        if (!c) continue;
+        if (c.format_hint === "single") { if (singleUsed.has(c.id)) continue; singleUsed.add(c.id); }
+        out.push(id);
+      }
+      // Re-sort each carousel capture's images into stored order within the slots they occupy.
+      for (const cid of capIds) {
+        const c = capById.get(cid)!;
+        if (c.format_hint !== "carousel") continue;
+        const order = new Map(c.marketing_capture_assets.map((a, i) => [a.id, i]));
+        const slots = out.map((id, i) => (order.has(id) ? i : -1)).filter((i) => i >= 0);
+        const sorted = slots.map((i) => out[i]).sort((a, b) => order.get(a)! - order.get(b)!);
+        slots.forEach((slot, k) => { out[slot] = sorted[k]; });
+      }
+      return out.slice(0, 20);
+    };
     const rows: Record<string, unknown>[] = [];
     for (const idea of (out.ideas ?? []).slice(0, limit)) {
       const capIds = [...new Set((idea.capture_ids ?? []).filter((id) => capById.has(id)))];
       if (!capIds.length) continue;
       const allowedAssets = new Set(capIds.flatMap((id) => capById.get(id)!.marketing_capture_assets.map((a) => a.id)));
-      const aIds = [...new Set((idea.asset_ids ?? []).filter((id) => assetIds.has(id) && allowedAssets.has(id)))];
+      const aIds = applyHints([...new Set((idea.asset_ids ?? []).filter((id) => assetIds.has(id) && allowedAssets.has(id)))], capIds);
       const caps = capIds.map((id) => capById.get(id)!);
       const projectIds = new Set<string>(caps.map((c) => c.project_id).filter(Boolean) as string[]);
       if (idea.project_id && profileBy.has(idea.project_id)) projectIds.add(idea.project_id);
@@ -277,19 +373,11 @@ ${JSON.stringify(bible.personas)}
       const ig = { copy: idea.instagram?.copy ?? "", hashtags: (idea.instagram?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 8) };
       const li = { copy: idea.linkedin?.copy ?? "", hashtags: (idea.linkedin?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 3) };
       const hay = `${ig.copy} ${ig.hashtags.join(" ")} ${li.copy} ${li.hashtags.join(" ")}`.toLowerCase();
-      for (const pid of projectIds) {
-        const p = profileBy.get(pid);
-        if (!p || p.name_rule === "name") continue;
-        const names = [p.client, p.project_name].map((n) => n?.trim().toLowerCase()).filter((n): n is string => !!n && n.length >= 3);
-        if (names.some((n) => hay.includes(n)) || hay.includes(p.project_name?.toLowerCase().replace(/\s+/g, "") ?? "\u0000")) {
-          readiness = "blocked";
-          if (!flags.includes("Names a client that must not be named")) flags.push("Names a client that must not be named");
-        }
-      }
+      if (nameCheck(projectIds, hay)) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
       if (readiness === "blocked") note = note ?? null;
       const ideaId = crypto.randomUUID();
       const base = {
-        request_id: requestId, idea_id: ideaId, capture_ids: capIds, asset_ids: aIds,
+        request_id: requestId, idea_id: ideaId, capture_ids: capIds, asset_ids: aIds, format: aIds.length >= 2 ? "carousel" : "single",
         project_id: idea.project_id && profileBy.has(idea.project_id) ? idea.project_id : caps[0].project_id,
         pillar: idea.pillar && pillarKeys.has(idea.pillar) ? idea.pillar : null,
         persona: idea.persona && personaKeys.has(idea.persona) ? idea.persona : null,
@@ -299,6 +387,44 @@ ${JSON.stringify(bible.personas)}
       rows.push({ ...base, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags });
       rows.push({ ...base, platform: "linkedin", ai_copy: li.copy, ai_hashtags: li.hashtags });
     }
+    const ideaCount = rows.length / 2;
+    let storyCount = 0;
+    for (const st of (req.source_capture_id ? [] : (out.stories ?? [])).slice(0, req.story_count ?? 0)) {
+      const capIds = [...new Set((st.capture_ids ?? []).filter((id) => capById.has(id)))];
+      const used = new Set<string>();
+      const allowed = new Set(candidates.flatMap((c) => c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a) => a.id)));
+      let stickerUsed = false;
+      const frames: StoryFrame[] = [];
+      for (const f of st.frames ?? []) {
+        if (!allowed.has(f.asset_id) || used.has(f.asset_id)) continue;
+        used.add(f.asset_id);
+        let sticker: Sticker = { type: "none", text: "" };
+        if (f.sticker && f.sticker.type !== "none" && !stickerUsed) { sticker = { type: f.sticker.type, text: (f.sticker.text ?? "").slice(0, 100) }; stickerUsed = true; }
+        frames.push({ asset_id: f.asset_id, text: (f.text ?? "").replace(/#\S+/g, "").trim().slice(0, 140), sticker });
+        if (frames.length === 5) break;
+      }
+      if (!frames.length) continue;
+      // Captures actually shown in the frames must be part of the story.
+      for (const f of frames) for (const c of candidates) if (c.marketing_capture_assets.some((a) => a.id === f.asset_id) && !capIds.includes(c.id)) capIds.push(c.id);
+      const caps = capIds.map((id) => capById.get(id)!);
+      const projectIds = new Set<string>(caps.map((c) => c.project_id).filter(Boolean) as string[]);
+      if (st.project_id && profileBy.has(st.project_id)) projectIds.add(st.project_id);
+      const copy = renderStoryFrames(frames);
+      let readiness: "ready" | "needs_approval" | "blocked" = caps.every((c) => c.eff === "cleared" && !(c.ai_flags?.length)) ? "ready" : "needs_approval";
+      const note = readiness === "ready" ? null : (st.approval_note?.trim() || "Needs approval before publishing");
+      const flags: string[] = [];
+      if (nameCheck(projectIds, copy.toLowerCase())) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
+      rows.push({
+        request_id: requestId, idea_id: crypto.randomUUID(), capture_ids: capIds, asset_ids: frames.map((f) => f.asset_id),
+        format: "story", platform: "instagram", ai_copy: copy, ai_hashtags: [], ai_story_frames: frames,
+        project_id: st.project_id && profileBy.has(st.project_id) ? st.project_id : caps[0].project_id,
+        pillar: st.pillar && pillarKeys.has(st.pillar) ? st.pillar : null,
+        persona: st.persona && personaKeys.has(st.persona) ? st.persona : null,
+        rationale: (st.rationale ?? "").slice(0, 2000) || "—",
+        readiness, readiness_note: note, safety_flags: flags, bible_version: bible.version, model: POSTS_MODEL,
+      });
+      storyCount++;
+    }
     if (rows.length) {
       const { error } = await db.from("marketing_post_drafts").insert(rows);
       if (error) throw new Error(`drafts: ${error.message}`);
@@ -307,7 +433,7 @@ ${JSON.stringify(bible.personas)}
       status: "done", bible_version: bible.version, model: POSTS_MODEL, finished_at: new Date().toISOString(),
       error: rows.length ? null : "The AI found no idea strong enough in the available material",
     }).eq("id", requestId);
-    return { ok: true as const, ideas: rows.length / 2 };
+    return { ok: true as const, ideas: ideaCount, stories: storyCount };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await db.from("marketing_post_requests").update({

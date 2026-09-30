@@ -4900,6 +4900,7 @@ export type Database = {
           file_name: string
           id: string
           mime_type: string
+          position: number | null
           size_bytes: number
           storage_path: string
         }
@@ -4909,6 +4910,7 @@ export type Database = {
           file_name: string
           id?: string
           mime_type: string
+          position?: number | null
           size_bytes: number
           storage_path: string
         }
@@ -4918,6 +4920,7 @@ export type Database = {
           file_name?: string
           id?: string
           mime_type?: string
+          position?: number | null
           size_bytes?: number
           storage_path?: string
         }
@@ -4951,6 +4954,7 @@ export type Database = {
           enrichment_model: string | null
           expires_at: string | null
           fit_score: number | null
+          format_hint: string
           id: string
           missing_notes: string | null
           persona: string | null
@@ -4987,6 +4991,7 @@ export type Database = {
           enrichment_model?: string | null
           expires_at?: string | null
           fit_score?: number | null
+          format_hint?: string
           id?: string
           missing_notes?: string | null
           persona?: string | null
@@ -5025,6 +5030,7 @@ export type Database = {
           enrichment_model?: string | null
           expires_at?: string | null
           fit_score?: number | null
+          format_hint?: string
           id?: string
           missing_notes?: string | null
           persona?: string | null
@@ -5103,12 +5109,14 @@ export type Database = {
           answer_text: string | null
           answered_at: string | null
           architect_user_id: string
-          capture_id: string
+          briefing_id: string | null
+          capture_id: string | null
           channel: string
           created_at: string
           created_by: string
           expires_at: string | null
           id: string
+          kind: string
           project_id: string | null
           question: string
           reply_tag: string | null
@@ -5123,12 +5131,14 @@ export type Database = {
           answer_text?: string | null
           answered_at?: string | null
           architect_user_id: string
-          capture_id: string
+          briefing_id?: string | null
+          capture_id?: string | null
           channel?: string
           created_at?: string
           created_by?: string
           expires_at?: string | null
           id?: string
+          kind?: string
           project_id?: string | null
           question: string
           reply_tag?: string | null
@@ -5143,12 +5153,14 @@ export type Database = {
           answer_text?: string | null
           answered_at?: string | null
           architect_user_id?: string
-          capture_id?: string
+          briefing_id?: string | null
+          capture_id?: string | null
           channel?: string
           created_at?: string
           created_by?: string
           expires_at?: string | null
           id?: string
+          kind?: string
           project_id?: string | null
           question?: string
           reply_tag?: string | null
@@ -5157,6 +5169,13 @@ export type Database = {
           story_suggestion_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_nudges_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_briefings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "marketing_nudges_capture_id_fkey"
             columns: ["capture_id"]
@@ -5177,6 +5196,7 @@ export type Database = {
         Row: {
           ai_copy: string
           ai_hashtags: string[]
+          ai_story_frames: Json | null
           asset_ids: string[]
           bible_version: number
           capture_ids: string[]
@@ -5187,6 +5207,8 @@ export type Database = {
           edited_after_approval: boolean
           final_copy: string | null
           final_hashtags: string[] | null
+          final_story_frames: Json | null
+          format: string
           id: string
           idea_id: string
           model: string
@@ -5206,6 +5228,7 @@ export type Database = {
         Insert: {
           ai_copy: string
           ai_hashtags?: string[]
+          ai_story_frames?: Json | null
           asset_ids?: string[]
           bible_version: number
           capture_ids: string[]
@@ -5216,6 +5239,8 @@ export type Database = {
           edited_after_approval?: boolean
           final_copy?: string | null
           final_hashtags?: string[] | null
+          final_story_frames?: Json | null
+          format?: string
           id?: string
           idea_id: string
           model: string
@@ -5235,6 +5260,7 @@ export type Database = {
         Update: {
           ai_copy?: string
           ai_hashtags?: string[]
+          ai_story_frames?: Json | null
           asset_ids?: string[]
           bible_version?: number
           capture_ids?: string[]
@@ -5245,6 +5271,8 @@ export type Database = {
           edited_after_approval?: boolean
           final_copy?: string | null
           final_hashtags?: string[] | null
+          final_story_frames?: Json | null
+          format?: string
           id?: string
           idea_id?: string
           model?: string
@@ -5286,6 +5314,7 @@ export type Database = {
           requested_by: string
           source_capture_id: string | null
           status: string
+          story_count: number
         }
         Insert: {
           bible_version?: number | null
@@ -5301,6 +5330,7 @@ export type Database = {
           requested_by?: string
           source_capture_id?: string | null
           status?: string
+          story_count?: number
         }
         Update: {
           bible_version?: number | null
@@ -5316,6 +5346,7 @@ export type Database = {
           requested_by?: string
           source_capture_id?: string | null
           status?: string
+          story_count?: number
         }
         Relationships: [
           {
@@ -5323,6 +5354,57 @@ export type Database = {
             columns: ["source_capture_id"]
             isOneToOne: false
             referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_project_briefings: {
+        Row: {
+          audio_path: string
+          created_at: string
+          error: string | null
+          id: string
+          nudge_id: string | null
+          profile_id: string
+          recorded_by: string
+          status: string
+          transcript: string | null
+        }
+        Insert: {
+          audio_path: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          nudge_id?: string | null
+          profile_id: string
+          recorded_by?: string
+          status?: string
+          transcript?: string | null
+        }
+        Update: {
+          audio_path?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          nudge_id?: string | null
+          profile_id?: string
+          recorded_by?: string
+          status?: string
+          transcript?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_project_briefings_nudge_id_fkey"
+            columns: ["nudge_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_nudges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_project_briefings_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -12198,6 +12280,14 @@ export type Database = {
         Args: { _arr: Json; _label: string }
         Returns: undefined
       }
+      marketing_can_arrange_capture: {
+        Args: { _capture_id: string }
+        Returns: boolean
+      }
+      marketing_can_brief_profile: {
+        Args: { _profile_id: string; _user_id: string }
+        Returns: boolean
+      }
       marketing_capture_delete_block: {
         Args: { _capture_id: string }
         Returns: string
@@ -12206,6 +12296,7 @@ export type Database = {
         Args: { _capture_ids: string[]; _copy: string; _hashtags: string[] }
         Returns: Record<string, unknown>
       }
+      marketing_curator_user_ids: { Args: never; Returns: string[] }
       marketing_effective_clearance: {
         Args: { _capture_id: string }
         Returns: Database["public"]["Enums"]["marketing_clearance"]
@@ -12225,6 +12316,14 @@ export type Database = {
       marketing_recheck_draft_readiness: {
         Args: { _draft_id: string }
         Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
+      }
+      marketing_reorder_capture_assets: {
+        Args: { _asset_ids: string[]; _capture_id: string }
+        Returns: undefined
+      }
+      marketing_set_capture_format: {
+        Args: { _capture_id: string; _format_hint: string }
+        Returns: undefined
       }
       notify_user: {
         Args: {

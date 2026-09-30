@@ -26,15 +26,18 @@ export type NudgeRecipient = { userId: string; name: string; email: string; onTe
 /** Curators: people who can be asked. Project team first (pm_project_team → pm_resources, matched by email), then staff. */
 export const listNudgeRecipients = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ captureId: z.string().uuid() }).parse(d))
+  .inputValidator((d) => z.object({ captureId: z.string().uuid().optional(), projectId: z.string().uuid().optional() }).parse(d))
   .handler(async ({ data, context }): Promise<{ recipients: NudgeRecipient[]; senderUserId: string | null }> => {
     await requireCurator(context as unknown as Ctx);
     const { admin } = await import("./nudges.server");
     const db = await admin();
-    const { data: c } = await db.from("marketing_captures").select("project_id, created_by, sender_email").eq("id", data.captureId).single();
+    const { data: c } = data.captureId
+      ? await db.from("marketing_captures").select("project_id, created_by, sender_email").eq("id", data.captureId).single()
+      : { data: null };
+    const projectId = c?.project_id ?? data.projectId ?? null;
     const teamIds = new Set<string>();
-    if (c?.project_id) {
-      const { data: team } = await db.from("pm_project_team").select("resource_id").eq("project_id", c.project_id);
+    if (projectId) {
+      const { data: team } = await db.from("pm_project_team").select("resource_id").eq("project_id", projectId);
       for (const t of team ?? []) teamIds.add(t.resource_id);
     }
     const { data: res } = await db.from("pm_resources").select("id, name, email, active").not("email", "is", null);
@@ -54,16 +57,28 @@ export const listNudgeRecipients = createServerFn({ method: "POST" })
       const prev = out.get(uid);
       if (!prev || (onTeam && !prev.onTeam)) out.set(uid, { userId: uid, name: r.name, email: r.email, onTeam });
     }
-    const sender = c?.created_by ?? (c?.sender_email ? byEmail.get(String(c.sender_email).toLowerCase()) ?? null : null);
+    const sender = c ? (c.created_by ?? (c.sender_email ? byEmail.get(String(c.sender_email).toLowerCase()) ?? null : null)) : null;
     const recipients = [...out.values()].sort((a, b) => Number(b.onTeam) - Number(a.onTeam) || a.name.localeCompare(b.name));
     return { recipients, senderUserId: sender };
   });
 
-/** Curators: create and send a nudge. */
+/** Curators: AI-suggested prompt for a briefing request. */
+export const suggestBriefingPrompt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireCurator(context as unknown as Ctx);
+    const { draftBriefingPrompt } = await import("./nudges.server");
+    return { question: await draftBriefingPrompt(data.projectId) };
+  });
+
+/** Curators: create and send a nudge (a question about a capture, or a briefing request about a project). */
 export const sendNudge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
-    captureId: z.string().uuid(),
+    kind: z.enum(["question", "briefing"]).default("question"),
+    captureId: z.string().uuid().optional(),
+    projectId: z.string().uuid().optional(),
     architectUserId: z.string().uuid(),
     question: z.string().trim().min(3).max(1000),
     aiSuggestedQuestion: z.string().max(1000).default(""),
@@ -73,53 +88,89 @@ export const sendNudge = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireCurator(context as unknown as Ctx);
     if (data.channel === "whatsapp") throw new Error("WhatsApp channel not connected yet");
-    const { admin, userName, captureImageUrls, NUDGE_APP_URL } = await import("./nudges.server");
+    const { admin, deliverNudge } = await import("./nudges.server");
     const db = await admin();
-    const { data: c } = await db.from("marketing_captures").select("id, project_id, pm_projects(name)").eq("id", data.captureId).single();
-    if (!c) throw new Error("Capture not found");
-
+    let captureId: string | null = null;
+    let projectId: string | null = null;
+    if (data.kind === "question") {
+      if (!data.captureId) throw new Error("Capture missing");
+      const { data: c } = await db.from("marketing_captures").select("id, project_id").eq("id", data.captureId).single();
+      if (!c) throw new Error("Capture not found");
+      captureId = c.id; projectId = c.project_id;
+    } else {
+      if (!data.projectId) throw new Error("Project missing");
+      projectId = data.projectId;
+    }
     const now = new Date();
     const expires = new Date(now.getTime() + data.expiresInDays * 86400_000);
     // Insert as the curator so RLS applies; created_by defaults to auth.uid().
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: nudge, error } = await (context.supabase as any).from("marketing_nudges").insert({
-      capture_id: c.id, project_id: c.project_id, architect_user_id: data.architectUserId,
+      kind: data.kind, capture_id: captureId, project_id: projectId, architect_user_id: data.architectUserId,
       question: data.question, ai_suggested_question: data.aiSuggestedQuestion || data.question,
       channel: data.channel, sent_at: now.toISOString(), expires_at: expires.toISOString(),
-    }).select("id, reply_tag").single();
+    }).select("id").single();
     if (error || !nudge) throw new Error(error?.message ?? "Could not create the question");
-
-    const sender = await userName(context.userId);
-    const first = sender.name.split(/\s+/)[0] || sender.name;
-    const project = c.pm_projects?.name ?? "uma captura";
-    const link = `/nudges/${nudge.id}`;
-    await db.from("notifications").insert({
-      user_id: data.architectUserId, kind: "marketing_nudge", module: "marketing",
-      entity_type: "marketing_nudge", entity_id: nudge.id,
-      title: `${first} perguntou sobre ${project} · ${first} asked about ${project}`,
-      body: data.question, link_path: link, dedupe_key: `marketing_nudge:${nudge.id}`,
-    });
-
-    if (data.channel === "email") {
-      const arch = await userName(data.architectUserId);
-      if (!arch.email) throw new Error("The architect has no email address");
-      const thumbs = (await captureImageUrls(c.id, 2, 7 * 86400)).map((i) => i.url);
-      const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      await sendTemplateEmail("marketing-nudge", arch.email, {
-        idempotencyKey: `marketing-nudge-${nudge.id}`,
-        replyTo: "ideas@pedrasilva.com",
-        templateData: {
-          senderName: sender.name, projectName: project, question: data.question, thumbs,
-          answerUrl: `${NUDGE_APP_URL}${link}`, replyTag: nudge.reply_tag ?? `Q-${String(nudge.id).slice(0, 8)}`,
-        },
-      });
-    }
+    await deliverNudge(db, nudge.id, context.userId);
     return { id: nudge.id as string };
+  });
+
+/** Curators: re-send a pending nudge by the same channel (no new nudge, same question and expiry). */
+export const resendNudge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ nudgeId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireCurator(context as unknown as Ctx);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: n } = await (context.supabase as any).from("marketing_nudges").select("id, status, expires_at").eq("id", data.nudgeId).maybeSingle();
+    if (!n) throw new Error("Not found");
+    if (n.status !== "pending" || (n.expires_at && new Date(n.expires_at) < new Date())) throw new Error("Only open questions can be re-sent");
+    const { admin, deliverNudge } = await import("./nudges.server");
+    await deliverNudge(await admin(), n.id, context.userId, true);
+    return { ok: true };
+  });
+
+export type NudgeOverviewRow = {
+  id: string; kind: "question" | "briefing"; channel: string; question: string; status: string; expired: boolean;
+  sent_at: string | null; answered_at: string | null; capture_id: string | null; project_id: string | null;
+  projectName: string | null; profileId: string | null; created_by: string; createdByName: string;
+  architect_user_id: string; architectName: string;
+};
+
+/** Curators: every nudge with names for the Questions page. */
+export const listNudgesOverview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<NudgeOverviewRow[]> => {
+    await requireCurator(context as unknown as Ctx);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: rows, error } = await sb.from("marketing_nudges")
+      .select("id, kind, channel, question, status, expires_at, sent_at, answered_at, capture_id, project_id, created_by, architect_user_id, created_at")
+      .order("created_at", { ascending: false }).limit(500);
+    if (error) throw new Error(error.message);
+    const list = (rows ?? []) as Array<Record<string, any>>;
+    const pids = [...new Set(list.map((r) => r.project_id).filter(Boolean))];
+    const { data: pn } = pids.length ? await sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] };
+    const nameBy = new Map<string, string>(((pn ?? []) as { id: string; name: string }[]).map((p) => [p.id, p.name]));
+    const { data: profs } = pids.length ? await sb.from("marketing_project_profiles").select("id, project_id").in("project_id", pids) : { data: [] };
+    const profBy = new Map<string, string>(((profs ?? []) as { id: string; project_id: string }[]).map((p) => [p.project_id, p.id]));
+    const { userName } = await import("./nudges.server");
+    const names = new Map<string, string>();
+    for (const uid of new Set(list.flatMap((r) => [r.created_by, r.architect_user_id]))) names.set(uid, (await userName(uid)).name);
+    const now = Date.now();
+    return list.map((r) => ({
+      id: r.id, kind: r.kind, channel: r.channel, question: r.question, status: r.status,
+      expired: r.status === "pending" && !!r.expires_at && new Date(r.expires_at).getTime() < now,
+      sent_at: r.sent_at, answered_at: r.answered_at, capture_id: r.capture_id, project_id: r.project_id,
+      projectName: r.project_id ? nameBy.get(r.project_id) ?? null : null, profileId: r.project_id ? profBy.get(r.project_id) ?? null : null,
+      created_by: r.created_by, createdByName: names.get(r.created_by) ?? "—",
+      architect_user_id: r.architect_user_id, architectName: names.get(r.architect_user_id) ?? "—",
+    }));
   });
 
 export type MyNudge = {
   id: string; question: string; status: string; expired: boolean; answer_text: string | null;
-  answered_at: string | null; projectName: string | null; senderName: string; captureText: string | null;
+  answered_at: string | null; projectName: string | null; senderName: string; captureText: string | null; kind: "question" | "briefing";
   images: string[]; audioUrl: string | null;
 };
 
@@ -134,7 +185,10 @@ export const getNudge = createServerFn({ method: "POST" })
     if (!n) throw new Error("Not found");
     const { admin, captureImageUrls, userName } = await import("./nudges.server");
     const db = await admin();
-    const { data: c } = await db.from("marketing_captures").select("raw_text, pm_projects(name)").eq("id", n.capture_id).single();
+    const { data: c } = n.capture_id
+      ? await db.from("marketing_captures").select("raw_text, pm_projects(name)").eq("id", n.capture_id).single()
+      : { data: null };
+    const { data: proj } = !c && n.project_id ? await db.from("pm_projects").select("name").eq("id", n.project_id).maybeSingle() : { data: null };
     let audioUrl: string | null = null;
     if (n.answer_audio_path) {
       const { data: s } = await db.storage.from("marketing-voice").createSignedUrl(n.answer_audio_path, 3600);
@@ -144,8 +198,9 @@ export const getNudge = createServerFn({ method: "POST" })
       id: n.id, question: n.question, status: n.status,
       expired: n.status === "pending" && !!n.expires_at && new Date(n.expires_at) < new Date(),
       answer_text: n.answer_text, answered_at: n.answered_at,
-      projectName: c?.pm_projects?.name ?? null, senderName: (await userName(n.created_by)).name,
-      captureText: c?.raw_text ?? null, images: (await captureImageUrls(n.capture_id, 4)).map((i) => i.url), audioUrl,
+      kind: n.kind ?? "question",
+      projectName: c?.pm_projects?.name ?? proj?.name ?? null, senderName: (await userName(n.created_by)).name,
+      captureText: c?.raw_text ?? null, images: n.capture_id ? (await captureImageUrls(n.capture_id, 4)).map((i) => i.url) : [], audioUrl,
     };
   });
 
@@ -176,6 +231,10 @@ export const submitNudgeAnswer = createServerFn({ method: "POST" })
     let audioExt: string | undefined;
     if (data.audioBase64) {
       audioBytes = Uint8Array.from(atob(data.audioBase64), (ch) => ch.charCodeAt(0));
+      if (n.kind === "briefing") {
+        const { checkBriefingAudio } = await import("./nudges.server");
+        checkBriefingAudio(audioBytes, data.mime);
+      }
       audioExt = data.mime.includes("wav") ? "wav" : data.mime.includes("webm") ? "webm" : data.mime.includes("mp4") || data.mime.includes("m4a") ? "m4a" : "audio";
     }
     const { hasProfile } = await applyNudgeAnswer(db, n, { text: data.text, audioBytes, audioMime: data.mime, audioExt });

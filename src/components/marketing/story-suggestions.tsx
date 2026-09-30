@@ -17,7 +17,7 @@ type Suggestion = {
   id: string;
   field: StoryField;
   suggested_text: string;
-  source: "ai" | "architect_answer";
+  source: "ai" | "architect_answer" | "architect_briefing";
   capture_id: string | null;
   marketing_captures: { marketing_capture_assets: { storage_path: string; mime_type: string }[] } | null;
 };

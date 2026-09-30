@@ -411,7 +411,8 @@
       "marketing.bible": "Marketing Bible",
       "marketing.projects": "Project profiles",
       "marketing.posts": "Post planner",
-      "reports.hours": "Hours logged"
+      "reports.hours": "Hours logged",
+      "marketing.questions": "Questions"
     },
     "top": {
       "create": "Create",

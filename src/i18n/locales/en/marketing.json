@@ -106,7 +106,16 @@
     "persona": "Persona",
     "unknownPillar": "Unknown pillar: {{key}}",
     "unknownPersona": "Unknown persona: {{key}}",
-    "noBible": "Define pillars in the Marketing Bible"
+    "noBible": "Define pillars in the Marketing Bible",
+    "cover": "Cover",
+    "moveEarlier": "Move earlier",
+    "moveLater": "Move later",
+    "formatHint": "Post format",
+    "format": {
+      "auto": "Let the AI decide",
+      "carousel": "Carousel",
+      "single": "Single image"
+    }
   },
   "bible": {
     "title": "Marketing Bible",
@@ -237,7 +246,8 @@
     "suggestionRejected": "Suggestion rejected",
     "source": {
       "ai": "AI",
-      "architect_answer": "Architect answer"
+      "architect_answer": "Architect answer",
+      "architect_briefing": "From briefing"
     }
   },
   "posts": {
@@ -312,7 +322,23 @@
     "deleted": "Deleted",
     "cancel": "Cancel",
     "editNote": "What did you change and why? (optional)",
-    "editedAfterApproval": "Edited after approval, please approve again"
+    "editedAfterApproval": "Edited after approval, please approve again",
+    "storyCount": "Story sets",
+    "storiesGenerated_one": "{{count}} story set",
+    "storiesGenerated_other": "{{count}} story sets",
+    "format": {
+      "story": "Story · {{count}} frames",
+      "carousel": "Carousel · {{count}} slides"
+    },
+    "frame": "Frame {{n}}",
+    "stickerLabel": "Sticker",
+    "sticker": {
+      "none": "No sticker",
+      "poll": "Poll",
+      "question": "Question",
+      "link": "Link"
+    },
+    "storyHint": "Max 140 characters per frame, one sticker per story, no hashtags."
   },
   "nudge": {
     "title": "Ask an architect for context",
@@ -348,7 +374,8 @@
       "answered": "Answered",
       "dismissed": "Dismissed",
       "expired": "Expired"
-    }
+    },
+    "briefingHint": "Record a 3–5 minute voice note (max 10 minutes). It stays private and is used only as background."
   },
   "delete": {
     "button": "Delete capture",
@@ -361,5 +388,62 @@
     "drafts_other": "Used in {{count}} drafts — delete those ideas first.",
     "forbidden": "You can't delete this capture.",
     "error": "Could not delete the capture"
+  },
+  "briefings": {
+    "title": "Voice briefings",
+    "hint": "Talk for 3–5 minutes about the client, the idea, the difficulties and what you are proud of. Private: used only as background, never quoted.",
+    "record": "Record briefing",
+    "stop": "Stop and save",
+    "upload": "Upload audio",
+    "processing": "Transcribing…",
+    "empty": "No briefings yet.",
+    "saved": "Briefing saved",
+    "error": "Could not save the briefing",
+    "tooLarge": "This recording is larger than 25 MB.",
+    "micError": "Could not access the microphone",
+    "status": {
+      "processing": "Processing",
+      "done": "Done",
+      "failed": "Failed"
+    },
+    "fromRequest": "Requested",
+    "retry": "Retry",
+    "transcript": "Transcript",
+    "ask": "Ask for a briefing",
+    "askTo": "Who",
+    "askToPlaceholder": "Choose a person",
+    "onTeam": "project team",
+    "askMessage": "Message",
+    "drafting": "Drafting…",
+    "askChannel": "Send via",
+    "channelHub": "Hub",
+    "channelEmail": "Email",
+    "askSend": "Send request",
+    "asked": "Briefing request sent"
+  },
+  "questions": {
+    "title": "Questions",
+    "subtitle": "Questions and briefing requests sent to architects.",
+    "allStatuses": "All statuses",
+    "allKinds": "All types",
+    "allArchitects": "All people",
+    "allProjects": "All projects",
+    "kind": {
+      "question": "Question",
+      "briefing": "Briefing"
+    },
+    "to": "To {{name}}",
+    "by": "by {{name}}",
+    "channel": {
+      "hub": "Hub",
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "resend": "Re-send",
+    "resent": "Re-sent",
+    "error": "Could not re-send",
+    "empty": "No questions match.",
+    "openCapture": "Open capture",
+    "openQuestion": "Open"
   }
 }
