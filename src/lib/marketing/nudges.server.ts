@@ -125,7 +125,7 @@ export async function transcribe(bytes: Uint8Array, mime: string, filename: stri
   if (!key) throw new Error("LOVABLE_API_KEY missing");
   const form = new FormData();
   form.append("model", STT_MODEL);
-  form.append("file", new Blob([bytes], { type: mime }), filename);
+  form.append("file", new Blob([bytes as BlobPart], { type: mime }), filename);
   const res = await fetch(STT_URL, { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: form });
   if (!res.ok) throw new Error(`Transcription failed [${res.status}]: ${(await res.text()).slice(0, 300)}`);
   const json = (await res.json()) as { text?: string };
