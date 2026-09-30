@@ -174,6 +174,38 @@ export type MyNudge = {
   images: string[]; audioUrl: string | null;
 };
 
+export type PendingNudgeForMe = { id: string; kind: "question" | "briefing"; question: string; senderFirstName: string; projectName: string | null };
+
+/** Signed-in architect: their own pending, unexpired nudges (read as the caller via RLS). */
+export const listMyPendingNudges = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PendingNudgeForMe[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: rows } = await (context.supabase as any).from("marketing_nudges")
+      .select("id, kind, question, created_by, project_id, capture_id, expires_at")
+      .eq("architect_user_id", context.userId).eq("status", "pending")
+      .order("created_at", { ascending: false }).limit(20);
+    const now = Date.now();
+    const list = ((rows ?? []) as Array<{ id: string; kind: string | null; question: string; created_by: string; project_id: string | null; capture_id: string | null; expires_at: string | null }>)
+      .filter((r) => !r.expires_at || new Date(r.expires_at).getTime() > now);
+    if (!list.length) return [];
+    const { admin, userName } = await import("./nudges.server");
+    const db = await admin();
+    return Promise.all(list.map(async (n) => {
+      let projectName: string | null = null;
+      if (n.project_id) {
+        const { data: p } = await db.from("pm_projects").select("name").eq("id", n.project_id).maybeSingle();
+        projectName = p?.name ?? null;
+      } else if (n.capture_id) {
+        const { data: c } = await db.from("marketing_captures").select("pm_projects(name)").eq("id", n.capture_id).maybeSingle();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        projectName = (c as any)?.pm_projects?.name ?? null;
+      }
+      const full = (await userName(n.created_by)).name ?? "";
+      return { id: n.id, kind: (n.kind === "briefing" ? "briefing" : "question") as "question" | "briefing", question: n.question, senderFirstName: full.split(/\s+/)[0] ?? "", projectName };
+    }));
+  });
+
 /** The nudge's architect (or a curator): load the nudge and its photos. */
 export const getNudge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

@@ -119,5 +119,10 @@
     "moduleTitle": "Marketing",
     "moduleSubtitle": "What's cooking",
     "moduleDescription": "Site moments, studio stories and the posts they become."
+  },
+  "questionsForYou": {
+    "title": "Questions for you",
+    "answer": "Answer",
+    "record": "Record briefing"
   }
 }
