@@ -258,6 +258,7 @@ function CollaboratorPage() {
       (draft.situacao_contractual ?? "") !== (collab.situacao_contractual ?? "") ||
       (draft.data_nascimento ?? "") !== (collab.data_nascimento ?? "") ||
       (draft.inicio_carreira ?? "") !== (collab.inicio_carreira ?? "") ||
+      (draft.data_admissao ?? "") !== (collab.data_admissao ?? "") ||
       (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null) ||
       draft.dias_ferias_anuais !== collab.dias_ferias_anuais ||
       draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior ||
@@ -304,6 +305,7 @@ function CollaboratorPage() {
       situacao_contractual: draft.situacao_contractual || null,
       data_nascimento: draft.data_nascimento || null,
       inicio_carreira: draft.inicio_carreira || null,
+      data_admissao: draft.data_admissao || null,
       margem_lucro_pct_override: draft.margem_lucro_pct_override,
       dias_ferias_anuais: draft.dias_ferias_anuais,
       saldo_ferias_anterior: draft.saldo_ferias_anterior,
@@ -646,6 +648,14 @@ function CollaboratorPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                </Field>
+                <Field label={t("hr:collaborator.fields.admissionDate")}>
+                  <Input
+                    type="date"
+                    className="input-yellow"
+                    value={draft.data_admissao ?? ""}
+                    onChange={(e) => setField("data_admissao", e.target.value || null)}
+                  />
                 </Field>
                 <Field label={t("hr:collaborator.fields.birthDate")}>
                   <Input

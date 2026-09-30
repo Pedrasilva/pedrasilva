@@ -58,7 +58,9 @@ function HoursPage() {
   const { t } = useTranslation("reports");
   const [preset, setPreset] = useState<Preset>("last2Weeks");
   const [custom, setCustom] = useState(presetRange("last2Weeks"));
-  const range = preset === "custom" ? custom : presetRange(preset);
+  const yesterday = addDays(toLocalISODate(new Date()), -1);
+  const customCapped = { start: custom.start, end: custom.end > yesterday ? yesterday : custom.end };
+  const range = preset === "custom" ? customCapped : presetRange(preset);
   const [dept, setDept] = useState("all");
   const [team, setTeam] = useState("all");
   const [people, setPeople] = useState<Set<string>>(new Set());
@@ -123,7 +125,7 @@ function HoursPage() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="rep-to">{t("hours.filters.to")}</Label>
-                  <Input id="rep-to" type="date" value={custom.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value }))} />
+                  <Input id="rep-to" type="date" max={yesterday} value={customCapped.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value > yesterday ? yesterday : e.target.value }))} />
                 </div>
               </>
             )}
@@ -254,7 +256,7 @@ function Tile({ label, value }: { label: string; value: string }) {
 }
 
 function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean; onToggle: () => void }) {
-  const { t } = useTranslation("reports");
+  const { t, i18n } = useTranslation("reports");
   const Icon = open ? ChevronDown : ChevronRight;
   return (
     <Fragment>
@@ -276,7 +278,9 @@ function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean
         <TableCell className="text-right tabular-nums">{fmt(row.gap)}</TableCell>
         <TableCell className="text-right tabular-nums">{row.pct === null ? "—" : `${Math.round(row.pct * 100)}%`}</TableCell>
         <TableCell className="text-right tabular-nums">{row.weeksNotSubmitted}</TableCell>
-        <TableCell>{row.lastEntryDate ?? t("hours.noEntry")}</TableCell>
+        <TableCell>{row.lastEntryDate
+            ? new Date(row.lastEntryDate + "T00:00:00").toLocaleDateString(i18n.language, { day: "numeric", month: "short" })
+            : t("hours.noEntry")}</TableCell>
         <TableCell>
           <Badge variant="outline" className={cn(STATUS_CLASS[row.status])}>{t(`hours.status.${row.status}`)}</Badge>
         </TableCell>

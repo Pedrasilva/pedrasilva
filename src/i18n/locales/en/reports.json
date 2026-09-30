@@ -15,7 +15,7 @@
     "rangeLabel": "{{start}} to {{end}}",
     "error": "Couldn't load the report. Try again.",
     "empty": "No people match these filters for this period.",
-    "noEntry": "None in period",
+    "noEntry": "None in the last 12 months",
     "expand": "Show weekly breakdown for {{name}}",
     "collapse": "Hide weekly breakdown for {{name}}",
     "presets": {
@@ -75,7 +75,8 @@
       "submitted": "Submitted",
       "returned": "Returned",
       "approved": "Approved",
-      "not_submitted": "Not submitted"
+      "not_submitted": "Not submitted",
+      "before_submission": "Before weekly submission"
     }
   }
 }

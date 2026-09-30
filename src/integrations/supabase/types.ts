@@ -1216,6 +1216,7 @@ export type Database = {
           billing_role: string | null
           created_at: string
           daily_hours: number
+          data_admissao: string | null
           data_nascimento: string | null
           days_per_week: number
           departamento: Database["public"]["Enums"]["department"]
@@ -1253,6 +1254,7 @@ export type Database = {
           billing_role?: string | null
           created_at?: string
           daily_hours?: number
+          data_admissao?: string | null
           data_nascimento?: string | null
           days_per_week?: number
           departamento?: Database["public"]["Enums"]["department"]
@@ -1290,6 +1292,7 @@ export type Database = {
           billing_role?: string | null
           created_at?: string
           daily_hours?: number
+          data_admissao?: string | null
           data_nascimento?: string | null
           days_per_week?: number
           departamento?: Database["public"]["Enums"]["department"]
@@ -11488,6 +11491,7 @@ export type Database = {
           archived_by: string | null
           created_at: string | null
           daily_hours: number | null
+          data_admissao: string | null
           data_nascimento: string | null
           days_per_week: number | null
           departamento: Database["public"]["Enums"]["department"] | null
@@ -11509,6 +11513,7 @@ export type Database = {
           archived_by?: string | null
           created_at?: string | null
           daily_hours?: number | null
+          data_admissao?: string | null
           data_nascimento?: string | null
           days_per_week?: number | null
           departamento?: Database["public"]["Enums"]["department"] | null
@@ -11530,6 +11535,7 @@ export type Database = {
           archived_by?: string | null
           created_at?: string | null
           daily_hours?: number | null
+          data_admissao?: string | null
           data_nascimento?: string | null
           days_per_week?: number | null
           departamento?: Database["public"]["Enums"]["department"] | null
