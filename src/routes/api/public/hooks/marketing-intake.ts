@@ -67,6 +67,38 @@ function parseFrom(from: string | null): { name: string | null; email: string | 
   const e = from.match(/[^\s<>]+@[^\s<>]+/);
   return { name: null, email: e ? e[0].toLowerCase() : null };
 }
+/** Answer path only — audio never becomes a normal capture asset. */
+const AUDIO_EXT = ["m4a", "mp3", "wav", "ogg", "oga", "opus", "aac", "amr", "webm", "caf"];
+function audioMimeFor(e: string) {
+  const map: Record<string, string> = {
+    m4a: "audio/mp4", mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", oga: "audio/ogg",
+    opus: "audio/opus", aac: "audio/aac", amr: "audio/amr", webm: "audio/webm", caf: "audio/x-caf",
+  };
+  return map[e] ?? "application/octet-stream";
+}
+/** Drop Gmail's quoted block from an HTML body. */
+function cutGmailQuote(html: string) {
+  const i = html.search(/<div[^>]*class="[^"]*gmail_quote/i);
+  return i >= 0 ? html.slice(0, i) : html;
+}
+/** Plain reply text without the quoted original or signature. */
+function stripReply(text: string): string {
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    const t = l.trim();
+    const two = `${t} ${(lines[i + 1] ?? "").trim()}`;
+    if (l === "-- " || t === "--") break;
+    if (t.startsWith(">")) break;
+    if (/^On .+ wrote:$/.test(t) || /^Em .+ escreveu:$/.test(t)) break;
+    if ((/^On .+/.test(t) && /^On .+ wrote:$/.test(two)) || (/^Em .+/.test(t) && /^Em .+ escreveu:$/.test(two))) break;
+    if (/^-{2,}\s*(Original Message|Mensagem original)\s*-{2,}$/i.test(t)) break;
+    if (/^(De|From):\s/.test(t) && /^(Enviado|Sent|Date|Data|To|Para):\s/i.test((lines[i + 1] ?? "").trim())) break;
+    out.push(l);
+  }
+  return out.join("\n").trim();
+}
 function ext(filename: string) {
   const i = filename.lastIndexOf(".");
   return i >= 0 ? filename.slice(i + 1).toLowerCase() : "";
@@ -116,7 +148,7 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
         if (gateErr) return new Response("Intake gate unavailable", { status: 503 });
         if (ok !== true) return new Response("Unauthorized", { status: 401 });
 
-        const summary = { scanned: 0, created: 0, ignored: 0, skipped: 0, errors: [] as string[] };
+        const summary = { scanned: 0, created: 0, answered: 0, ignored: 0, skipped: 0, errors: [] as string[] };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const db = supabaseAdmin as any;
 
@@ -145,13 +177,15 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
           const ids: string[] = (list.messages ?? []).map((m: { id: string }) => m.id);
           if (ids.length === 0) return Response.json({ ok: true, ...summary });
 
-          const [{ data: caps }, { data: ign }] = await Promise.all([
+          const [{ data: caps }, { data: ign }, { data: ans }] = await Promise.all([
             db.from("marketing_captures").select("source_message_id").in("source_message_id", ids),
             db.from("marketing_email_ignored").select("message_id").in("message_id", ids),
+            db.from("marketing_nudges").select("answer_source_message_id").in("answer_source_message_id", ids),
           ]);
           const seen = new Set<string>([
             ...((caps ?? []) as Array<{ source_message_id: string }>).map((r) => r.source_message_id),
             ...((ign ?? []) as Array<{ message_id: string }>).map((r) => r.message_id),
+            ...((ans ?? []) as Array<{ answer_source_message_id: string }>).map((r) => r.answer_source_message_id),
           ]);
 
           for (const id of ids) {
@@ -182,6 +216,41 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                 else if (p.mimeType === "text/html" && html === null) html = decode(p.body.data);
               }
               const body = (plain ?? (html ? htmlToText(html) : "")).trim();
+
+              // Pass 5b — replies to a question email, tagged [Q-xxxxxxxx] in the subject.
+              let lateNudge: { id: string; project_id: string | null; created_by: string; capture_id: string } | null = null;
+              const tag = subject.match(/\[Q-([0-9a-f]{8})\]/i);
+              if (tag) {
+                const { data: n } = await db.from("marketing_nudges").select("*")
+                  .eq("reply_tag", `Q-${tag[1].toLowerCase()}`).maybeSingle();
+                if (n) {
+                  const { userName, applyNudgeAnswer } = await import("@/lib/marketing/nudges.server");
+                  const arch = await userName(n.architect_user_id);
+                  const valid = !!arch.email && arch.email.toLowerCase() === email &&
+                    n.status === "pending" && !(n.expires_at && new Date(n.expires_at) < new Date());
+                  if (valid) {
+                    const text = stripReply(plain ?? (html ? htmlToText(cutGmailQuote(html)) : ""));
+                    const voice = parts.find((p) => {
+                      if (!p.filename || !p.body?.attachmentId) return false;
+                      return (AUDIO_EXT.includes(ext(p.filename)) || (p.mimeType ?? "").startsWith("audio/")) &&
+                        (p.body.size ?? 0) <= MAX_ATTACHMENT_BYTES;
+                    });
+                    let audioBytes: Uint8Array | undefined;
+                    let audioMime: string | undefined;
+                    let audioExt: string | undefined;
+                    if (voice) {
+                      const att = await gmail(`/users/me/messages/${id}/attachments/${voice.body!.attachmentId}`, connKey, lovableKey);
+                      audioBytes = new Uint8Array(Buffer.from(String(att.data ?? "").replace(/-/g, "+").replace(/_/g, "/"), "base64"));
+                      audioExt = ext(voice.filename!) || "audio";
+                      audioMime = (voice.mimeType ?? "").startsWith("audio/") ? voice.mimeType! : audioMimeFor(audioExt);
+                    }
+                    await applyNudgeAnswer(db, n, { text, audioBytes, audioMime, audioExt, sourceMessageId: id });
+                    summary.answered++;
+                    continue;
+                  }
+                  lateNudge = n;
+                }
+              }
 
               const skipped: Array<{ filename: string; reason: string }> = [];
               const accepted: GmailPart[] = [];
@@ -235,6 +304,7 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                 id: captureId,
                 channel: "email",
                 created_by: await lookupUser(email),
+                ...(lateNudge?.project_id ? { project_id: lateNudge.project_id } : {}),
                 sender_email: email,
                 sender_name: name ?? email,
                 source_message_id: id,
@@ -259,6 +329,19 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
                   })),
                 );
                 summary.ignored += skipped.length;
+              }
+              if (lateNudge) {
+                const { data: pr } = lateNudge.project_id
+                  ? await db.from("pm_projects").select("name").eq("id", lateNudge.project_id).maybeSingle()
+                  : { data: null };
+                const pname = pr?.name ?? "uma captura";
+                await db.from("notifications").insert({
+                  user_id: lateNudge.created_by, kind: "marketing_nudge_late_reply", module: "marketing",
+                  entity_type: "marketing_capture", entity_id: captureId,
+                  title: `Chegou uma resposta sobre ${pname} depois de a pergunta fechar · A reply about ${pname} arrived after the question closed`,
+                  body: body.slice(0, 300), link_path: `/marketing?capture=${captureId}`,
+                  dedupe_key: `marketing_nudge_late_reply:${id}`,
+                });
               }
               summary.created++;
             } catch (err) {

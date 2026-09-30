@@ -86,7 +86,7 @@ export const sendNudge = createServerFn({ method: "POST" })
       capture_id: c.id, project_id: c.project_id, architect_user_id: data.architectUserId,
       question: data.question, ai_suggested_question: data.aiSuggestedQuestion || data.question,
       channel: data.channel, sent_at: now.toISOString(), expires_at: expires.toISOString(),
-    }).select("id").single();
+    }).select("id, reply_tag").single();
     if (error || !nudge) throw new Error(error?.message ?? "Could not create the question");
 
     const sender = await userName(context.userId);
@@ -107,7 +107,11 @@ export const sendNudge = createServerFn({ method: "POST" })
       const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
       await sendTemplateEmail("marketing-nudge", arch.email, {
         idempotencyKey: `marketing-nudge-${nudge.id}`,
-        templateData: { senderName: sender.name, projectName: project, question: data.question, thumbs, answerUrl: `${NUDGE_APP_URL}${link}` },
+        replyTo: "ideas@pedrasilva.com",
+        templateData: {
+          senderName: sender.name, projectName: project, question: data.question, thumbs,
+          answerUrl: `${NUDGE_APP_URL}${link}`, replyTag: nudge.reply_tag ?? `Q-${String(nudge.id).slice(0, 8)}`,
+        },
       });
     }
     return { id: nudge.id as string };
@@ -156,7 +160,7 @@ export const submitNudgeAnswer = createServerFn({ method: "POST" })
     mime: z.string().max(100).default("audio/wav"),
   }).parse(d))
   .handler(async ({ data, context }) => {
-    const { admin, transcribe, pickStoryField } = await import("./nudges.server");
+    const { admin, applyNudgeAnswer } = await import("./nudges.server");
     const db = await admin();
     const { data: n } = await db.from("marketing_nudges").select("*").eq("id", data.nudgeId).maybeSingle();
     if (!n || n.architect_user_id !== context.userId) throw new Error("Not allowed");
@@ -168,44 +172,12 @@ export const submitNudgeAnswer = createServerFn({ method: "POST" })
       return { status: "dismissed" as const, hasProfile: true };
     }
 
-    let text = (data.text ?? "").trim();
-    let audioPath: string | null = null;
+    let audioBytes: Uint8Array | undefined;
+    let audioExt: string | undefined;
     if (data.audioBase64) {
-      const bytes = Uint8Array.from(atob(data.audioBase64), (ch) => ch.charCodeAt(0));
-      const ext = data.mime.includes("wav") ? "wav" : data.mime.includes("webm") ? "webm" : data.mime.includes("mp4") || data.mime.includes("m4a") ? "m4a" : "audio";
-      audioPath = `${n.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await db.storage.from("marketing-voice").upload(audioPath, bytes, { contentType: data.mime });
-      if (upErr) throw new Error(`Could not store the voice note: ${upErr.message}`);
-      const transcript = (await transcribe(bytes, data.mime, `answer.${ext}`)).trim();
-      text = text ? `${text}\n${transcript}` : transcript;
+      audioBytes = Uint8Array.from(atob(data.audioBase64), (ch) => ch.charCodeAt(0));
+      audioExt = data.mime.includes("wav") ? "wav" : data.mime.includes("webm") ? "webm" : data.mime.includes("mp4") || data.mime.includes("m4a") ? "m4a" : "audio";
     }
-    if (!text) throw new Error("The answer is empty");
-
-    const answeredAt = new Date().toISOString();
-    let suggestionId: string | null = null;
-    const { data: profile } = n.project_id
-      ? await db.from("marketing_project_profiles").select("id").eq("project_id", n.project_id).maybeSingle()
-      : { data: null };
-    if (profile) {
-      const field = await pickStoryField(text);
-      const { data: s } = await db.from("marketing_project_story_suggestions").insert({
-        profile_id: profile.id, capture_id: n.capture_id, field, suggested_text: text.slice(0, 2000), source: "architect_answer",
-      }).select("id").single();
-      suggestionId = s?.id ?? null;
-    }
-    await db.from("marketing_nudges").update({
-      answer_text: text, answer_audio_path: audioPath, answered_at: answeredAt, status: "answered", story_suggestion_id: suggestionId,
-    }).eq("id", n.id);
-
-    const { data: c } = await db.from("marketing_captures").select("curator_notes").eq("id", n.capture_id).single();
-    if (c && !c.curator_notes?.trim()) {
-      await db.from("marketing_captures").update({ curator_notes: text.slice(0, 4000) }).eq("id", n.capture_id);
-    }
-    await db.from("notifications").insert({
-      user_id: n.created_by, kind: "marketing_nudge_answered", module: "marketing",
-      entity_type: "marketing_nudge", entity_id: n.id,
-      title: "Resposta recebida · Answer received", body: text.slice(0, 300),
-      link_path: `/marketing?capture=${n.capture_id}`, dedupe_key: `marketing_nudge_answered:${n.id}`,
-    });
-    return { status: "answered" as const, hasProfile: !!profile };
+    const { hasProfile } = await applyNudgeAnswer(db, n, { text: data.text, audioBytes, audioMime: data.mime, audioExt });
+    return { status: "answered" as const, hasProfile };
   });
