@@ -20,6 +20,7 @@ import {
   Boxes,
   Images,
   Armchair,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
@@ -39,6 +40,7 @@ import financeTexture from "@/assets/modules/finance.jpg.asset.json";
 import inventoryTexture from "@/assets/modules/inventory.jpg.asset.json";
 import productsTexture from "@/assets/modules/products.jpg.asset.json";
 import portfolioTexture from "@/assets/modules/portfolio.jpg.asset.json";
+import marketingTexture from "@/assets/modules/marketing.jpg.asset.json";
 import homeBanner from "@/assets/home-banner.png.asset.json";
 
 /** Quiet material textures behind each module card (decorative only). */
@@ -50,6 +52,7 @@ const MODULE_TEXTURE: Record<string, string> = {
   "/inventory": inventoryTexture.url,
   "/products": productsTexture.url,
   "/portfolio": portfolioTexture.url,
+  "/marketing": marketingTexture.url,
 };
 
 
@@ -66,7 +69,8 @@ type ModuleDef = {
     | "/finance"
     | "/inventory"
     | "/products"
-    | "/portfolio";
+    | "/portfolio"
+    | "/marketing";
 
   number: string;
   titleKey: string;
@@ -141,6 +145,15 @@ const MODULES: ModuleDef[] = [
     descriptionKey: "home:signature.moduleDescription",
     icon: Images,
     moduleId: "portfolio",
+  },
+  {
+    to: "/marketing",
+    number: "08",
+    titleKey: "home:marketing.moduleTitle",
+    subtitleKey: "home:marketing.moduleSubtitle",
+    descriptionKey: "home:marketing.moduleDescription",
+    icon: Megaphone,
+    moduleId: "marketing",
   },
 ];
 

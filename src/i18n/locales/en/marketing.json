@@ -338,7 +338,8 @@
       "question": "Question",
       "link": "Link"
     },
-    "storyHint": "Max 140 characters per frame, one sticker per story, no hashtags."
+    "storyHint": "Max 140 characters per frame, one sticker per story, no hashtags.",
+    "filterActive": "Active"
   },
   "nudge": {
     "title": "Ask an architect for context",

@@ -114,5 +114,10 @@
   },
   "recent": {
     "title": "Recently visited"
+  },
+  "marketing": {
+    "moduleTitle": "Marketing",
+    "moduleSubtitle": "What's cooking",
+    "moduleDescription": "Site moments, studio stories and the posts they become."
   }
 }

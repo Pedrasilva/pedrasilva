@@ -114,5 +114,10 @@
   },
   "recent": {
     "title": "Visto recentemente"
+  },
+  "marketing": {
+    "moduleTitle": "Marketing",
+    "moduleSubtitle": "O que se está a cozinhar",
+    "moduleDescription": "Momentos de obra, histórias do atelier e as publicações que daí nascem."
   }
 }
