@@ -65,6 +65,13 @@ const GROUPS: AdminGroup[] = [
         icon: Shield,
       },
       {
+        to: "/admin/access",
+        label: "Acessos (pré-visualização)",
+        description:
+          "Novo catálogo de acessos e níveis-alvo por pessoa. Ainda não está ativo.",
+        icon: Shield,
+      },
+      {
         to: "/hr/admin",
         label: "Permissões e administração HR",
         description:
