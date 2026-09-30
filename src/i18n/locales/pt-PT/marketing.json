@@ -338,7 +338,8 @@
       "question": "Pergunta",
       "link": "Link"
     },
-    "storyHint": "Máx. 140 caracteres por ecrã, um autocolante por story, sem hashtags."
+    "storyHint": "Máx. 140 caracteres por ecrã, um autocolante por story, sem hashtags.",
+    "filterActive": "Ativas"
   },
   "nudge": {
     "title": "Pedir contexto a um arquiteto",

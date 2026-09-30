@@ -7,6 +7,7 @@ import { Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, Trash2, X } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { V2PermissionGate } from "@/components/PermissionGate";
+import { useCan } from "@/hooks/use-permissions-v2";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_app/marketing/posts")({
   validateSearch: (s: Record<string, unknown>): { request?: string } =>
     typeof s.request === "string" ? { request: s.request } : {},
   component: () => (
-    <V2PermissionGate permission="marketing.curate" scope="all">
+    <V2PermissionGate permission="marketing.view" scope="all">
       <PostPlannerPage />
     </V2PermissionGate>
   ),
@@ -159,16 +160,17 @@ function PostPlannerPage() {
   const [count, setCount] = useState(5);
   const [storyCount, setStoryCount] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("active");
+  const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = usePlannerData();
   const { data: bible } = useActiveBible();
   const rechecked = useRef(new Set<string>());
   useEffect(() => {
     const ids = (data?.drafts ?? []).filter((d) => d.status === "suggested" && !rechecked.current.has(d.id)).map((d) => d.id);
-    if (!ids.length) return;
+    if (!canCurate || !ids.length) return;
     ids.forEach((id) => rechecked.current.add(id));
     recheckDrafts(ids).then(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] })).catch(() => {});
-  }, [data, qc]);
+  }, [data, qc, canCurate]);
 
   const pillarName = (k: string | null) => (k ? bible?.pillars.find((p) => p.key === k)?.name ?? k : null);
   const personaName = (k: string | null) => (k ? bible?.personas.find((p) => p.key === k)?.name ?? k : null);
@@ -210,9 +212,10 @@ function PostPlannerPage() {
         if (d.request_id !== r.id) continue;
         ideas.set(d.idea_id, [...(ideas.get(d.idea_id) ?? []), d]);
       }
-      const list = [...ideas.values()].filter((ds) => statusFilter === "all" || ds.some((d) => d.status === statusFilter));
+      const match = (st: string) => statusFilter === "all" || (statusFilter === "active" ? st !== "rejected" : st === statusFilter);
+      const list = [...ideas.values()].filter((ds) => ds.some((d) => match(d.status)));
       return { req: r, ideas: list };
-    });
+    }).filter((g) => statusFilter === "all" || g.ideas.length > 0 || g.req.status === "running" || g.req.id === focusRequest);
   }, [data, statusFilter, focusRequest]);
 
   return (
@@ -222,7 +225,7 @@ function PostPlannerPage() {
         <p className="text-sm text-muted-foreground">{t("posts.subtitle")}</p>
       </div>
 
-      <Card className="space-y-3 p-4">
+      {canCurate && <Card className="space-y-3 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
           <div>
             <Label>{t("posts.brief")}</Label>
@@ -254,7 +257,7 @@ function PostPlannerPage() {
           </Button>
           {running && <span className="text-xs text-muted-foreground">{t("posts.generatingHint")}</span>}
         </div>
-      </Card>
+      </Card>}
 
       <Card className="space-y-2 p-4">
         <h2 className="text-sm font-semibold">{t("posts.balance", { count: balance.total })}</h2>
@@ -277,6 +280,7 @@ function PostPlannerPage() {
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
+            <SelectItem value="active">{t("posts.filterActive")}</SelectItem>
             <SelectItem value="all">{t("filters.all")}</SelectItem>
             {STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`posts.status.${s}`)}</SelectItem>)}
           </SelectContent>
@@ -292,7 +296,7 @@ function PostPlannerPage() {
             <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
             {req.brief && <span className="text-xs text-muted-foreground">“{req.brief}”</span>}
             <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
-            {req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
+            {canCurate && req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
               <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
             )}
             <span className="text-xs text-muted-foreground">{new Date(req.created_at).toLocaleString()}</span>
@@ -334,6 +338,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
   const qc = useQueryClient();
   const [rechecking, setRechecking] = useState(false);
+  const { allowed: canCurate } = useCan("marketing.curate", "all");
   const recheck = async () => {
     setRechecking(true);
     try { await recheckDrafts(drafts.filter((d) => d.status === "suggested").map((d) => d.id)); }
@@ -364,12 +369,12 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
         {pillar && <Badge variant="outline">{pillar}</Badge>}
         {persona && <Badge variant="outline">{persona}</Badge>}
-        {!drafts.some((d) => d.status === "published") && (
+        {canCurate && !drafts.some((d) => d.status === "published") && (
           <span className="ml-auto"><DeleteButton label={t("posts.deleteIdea")} ids={drafts.map((d) => d.id)} column="id" /></span>
         )}
       </div>
       {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note}</p>}
-      {first.status === "suggested" && first.readiness !== "ready" && (
+      {canCurate && first.status === "suggested" && first.readiness !== "ready" && (
         <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck}>
           <RefreshCw className={`mr-1 h-3.5 w-3.5 ${rechecking ? "animate-spin" : ""}`} /> {t("posts.recheck")}
         </Button>
@@ -417,7 +422,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [pubUrl, setPubUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [editNote, setEditNote] = useState("");
-  const locked = draft.status === "rejected" || draft.status === "published";
+  const { allowed: canCurate } = useCan("marketing.curate", "all");
+  const locked = !canCurate || draft.status === "rejected" || draft.status === "published";
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
 
   const update = async (patch: Record<string, unknown>, ok: string) => {
@@ -504,8 +510,13 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         </div>
       ) : (
         <>
+          {canCurate ? <>
           <Textarea rows={draft.platform === "linkedin" ? 10 : 6} value={copy} onChange={(e) => setCopy(e.target.value)} disabled={locked} />
           <Input value={tags} onChange={(e) => setTags(e.target.value)} disabled={locked} placeholder={t("posts.hashtags")} />
+          </> : <div className="space-y-1 rounded-md border p-3 text-sm">
+            <p className="whitespace-pre-wrap">{copy}</p>
+            <p className="text-xs text-muted-foreground">{parsedTags.map((h) => `#${h}`).join(" ")}</p>
+          </div>}
           <p className="text-xs text-muted-foreground">{t("posts.words", { count: copy.trim() ? copy.trim().split(/\s+/).length : 0 })}</p>
         </>
       )}
@@ -524,7 +535,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           placeholder={t("posts.editNote")} aria-label={t("posts.editNote")} />
       )}
       <div className="flex flex-wrap gap-2">
-        {draft.status === "suggested" && (
+        {canCurate && draft.status === "suggested" && (
           <>
             <Button size="sm" onClick={approve} disabled={saving || draft.readiness !== "ready"} title={draft.readiness !== "ready" ? t("posts.approveDisabled") : undefined}>
               <Check className="mr-1 h-3.5 w-3.5" /> {t("posts.approve")}
@@ -539,12 +550,12 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
             <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
           </Button>
         )}
-        {draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
+        {canCurate && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
         {assets.length > 0 && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
-      {draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}
+      {canCurate && draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
