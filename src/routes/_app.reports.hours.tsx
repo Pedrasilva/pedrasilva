@@ -256,7 +256,7 @@ function Tile({ label, value }: { label: string; value: string }) {
 }
 
 function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean; onToggle: () => void }) {
-  const { t } = useTranslation("reports");
+  const { t, i18n } = useTranslation("reports");
   const Icon = open ? ChevronDown : ChevronRight;
   return (
     <Fragment>
