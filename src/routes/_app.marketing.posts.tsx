@@ -348,7 +348,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [pubDate, setPubDate] = useState(iso(new Date()));
   const [pubUrl, setPubUrl] = useState("");
   const [saving, setSaving] = useState(false);
-  const locked = draft.status !== "suggested";
+  const [editNote, setEditNote] = useState("");
+  const locked = draft.status === "rejected" || draft.status === "published";
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
 
   const update = async (patch: Record<string, unknown>, ok: string) => {
@@ -362,8 +363,12 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
   };
+  const changedFromSaved = copy !== (draft.final_copy ?? draft.ai_copy) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
   const saveEdit = async () => {
-    if (await update({ final_copy: copy, final_hashtags: parsedTags }, t("posts.editSaved"))) {
+    const patch: Record<string, unknown> = { final_copy: copy, final_hashtags: parsedTags };
+    if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
+    if (await update(patch, t("posts.editSaved"))) {
+      setEditNote("");
       try { await recheckDrafts([draft.id]); } catch { /* badge refreshes on next load */ }
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     }
@@ -371,7 +376,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const edited = copy !== draft.ai_copy || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
   const approve = () => update({
     status: "approved", final_copy: copy, final_hashtags: parsedTags,
-    decision_note: edited ? "Edited before approval" : null,
+    decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null),
   }, t("posts.approved"));
   const reject = async () => {
     if (await update({ status: "rejected", decision_note: reason.trim() || null }, t("posts.rejected"))) setRejectOpen(false);
