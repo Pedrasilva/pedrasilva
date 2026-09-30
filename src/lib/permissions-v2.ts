@@ -35,7 +35,8 @@ export type PermissionModule =
   | "Inventory"
   | "Products"
   | "Portfolio"
-  | "Marketing";
+  | "Marketing"
+  | "Reports";
 
 export type V2PermissionKey =
   // Projects (operational)
@@ -92,7 +93,9 @@ export type V2PermissionKey =
   | "marketing.contribute"
   | "marketing.view"
   | "marketing.curate"
-  | "marketing.edit_bible";
+  | "marketing.edit_bible"
+  // Reports
+  | "reports.view";
 
 
 export interface PermissionDefinition {
@@ -455,6 +458,13 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
     module: "Marketing",
     label: "Edit marketing strategy",
     description: "Reserved for a later pass (Marketing Bible).",
+    scopes: ["all"],
+  },
+  {
+    key: "reports.view",
+    module: "Reports",
+    label: "View reports",
+    description: "Open the Reports module (hours logged and other studio reports).",
     scopes: ["all"],
   },
 ];

@@ -22,6 +22,7 @@ import {
   Settings,
   Inbox,
   Megaphone,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions";
@@ -295,6 +296,22 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/marketing/bible", labelKey: "marketing.bible" },
           { to: "/marketing/projects", labelKey: "marketing.projects" },
         ],
+      },
+    ],
+  },
+
+  // ─── Reports ───
+  {
+    id: "reports",
+    moduleId: "reports",
+    labelKey: "reports",
+    icon: BarChart3,
+    to: "/reports",
+    matches: ["/reports"],
+    flyout: [
+      {
+        titleKey: "reports",
+        links: [{ to: "/reports/hours", labelKey: "reports.hours" }],
       },
     ],
   },
