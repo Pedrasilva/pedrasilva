@@ -414,7 +414,9 @@
       "marketing.projects": "Perfis de projeto",
       "marketing.posts": "Planeador de publicações",
       "reports.hours": "Horas registadas",
-      "marketing.questions": "Perguntas"
+      "marketing.questions": "Perguntas",
+      "marketing.actions": "Ações",
+      "marketing.actions": "Ações"
     },
     "top": {
       "create": "Criar",
