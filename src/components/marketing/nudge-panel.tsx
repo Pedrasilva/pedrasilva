@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
 import { listNudgeRecipients, sendNudge, suggestNudgeQuestion } from "@/lib/marketing/nudges.functions";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -143,6 +144,7 @@ export function NudgePanel({ captureId, hasProfile }: { captureId: string; hasPr
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{t(`nudge.status.${st}`)}</Badge>
               <span className="text-xs text-muted-foreground">{people ? nameOf(n.architect_user_id) : ""} · {t(`channel.${n.channel}`)}</span>
+              <span className="ml-auto"><DeleteNudgesButton ids={[n.id]} anyAnswered={n.status === "answered"} /></span>
             </div>
             <p className="text-muted-foreground">{n.question}</p>
             {n.answer_text && <p className="whitespace-pre-wrap">{n.answer_text}</p>}

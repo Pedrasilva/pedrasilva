@@ -50,7 +50,7 @@ export function DeleteNudgesButton({ ids, anyAnswered, label, onDone }: { ids: s
           <AlertDialogFooter>
             <AlertDialogCancel disabled={busy}>{t("posts.cancel")}</AlertDialogCancel>
             <AlertDialogAction disabled={busy} onClick={(e) => { e.preventDefault(); void run(); }}>{t("nudge.delete.action")}</AlertDialogAction>
-          </AlertDialogHeader>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

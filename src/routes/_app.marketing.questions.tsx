@@ -6,6 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
 import { V2PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,6 +54,8 @@ function QuestionsPage() {
   const [project, setProject] = useState<string>(ALL);
   const [kind, setKind] = useState<string>(ALL);
   const [busy, setBusy] = useState<string | null>(null);
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setSel((p) => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const architects = useMemo(() => [...new Map(rows.map((r) => [r.architect_user_id, r.architectName])).entries()].sort((a, b) => a[1].localeCompare(b[1])), [rows]);
   const projects = useMemo(() => [...new Map(rows.filter((r) => r.project_id).map((r) => [r.project_id!, r.projectName ?? "—"])).entries()].sort((a, b) => a[1].localeCompare(b[1])), [rows]);
@@ -89,6 +93,12 @@ function QuestionsPage() {
           options={[["question", t("questions.kind.question")], ["briefing", t("questions.kind.briefing")]]} />
         <Filter value={architect} onChange={setArchitect} label={t("questions.allArchitects")} options={architects} />
         <Filter value={project} onChange={setProject} label={t("questions.allProjects")} options={projects} />
+        {sel.size > 0 && (
+          <div className="ml-auto flex items-center">
+            <DeleteNudgesButton ids={[...sel]} anyAnswered={rows.some((r) => sel.has(r.id) && r.status === "answered")}
+              label={t("nudge.delete.selected", { count: sel.size })} onDone={() => setSel(new Set())} />
+          </div>
+        )}
       </div>
       {isLoading ? <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p> : list.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("questions.empty")}</p>
@@ -99,6 +109,7 @@ function QuestionsPage() {
             return (
               <Card key={r.id} className="space-y-1 p-3">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <Checkbox checked={sel.has(r.id)} onCheckedChange={() => toggle(r.id)} aria-label={t("nudge.delete.select")} />
                   <Badge variant="outline" className={STATE_CLASS[st]}>{t(`nudge.status.${st}`)}</Badge>
                   <Badge variant="secondary">{t(`questions.kind.${r.kind}`)}</Badge>
                   <span>{t("questions.to", { name: r.architectName })}</span>
@@ -110,6 +121,9 @@ function QuestionsPage() {
                       <RefreshCw className={`mr-1 h-3 w-3 ${busy === r.id ? "animate-spin" : ""}`} />{t("questions.resend")}
                     </Button>
                   )}
+                  <span className={st === "pending" ? "" : "ml-auto"}>
+                    <DeleteNudgesButton ids={[r.id]} anyAnswered={r.status === "answered"} onDone={() => setSel((p) => { const n = new Set(p); n.delete(r.id); return n; })} />
+                  </span>
                 </div>
                 <p className="text-sm">{r.question}</p>
                 <div className="flex flex-wrap gap-3 text-xs">
