@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -150,9 +150,11 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
   };
 
   // ── Media edits ──
-  const [edits, setEdits] = useState<Record<string, Partial<Media>>>({});
-  const val = (m: Media) => ({ ...m, ...edits[m.id] });
-  const setEdit = (id: string, patch: Partial<Media>) => setEdits((e) => ({ ...e, [id]: { ...e[id], ...patch } }));
+  // Edits live in a ref so typing re-renders only the edited card, not the whole grid.
+  const editsRef = useRef<Record<string, Partial<Media>>>({});
+  const val = (m: Media) => ({ ...m, ...editsRef.current[m.id] });
+  const setEdits = (fn: (e: Record<string, Partial<Media>>) => Record<string, Partial<Media>>) => { editsRef.current = fn(editsRef.current); };
+  const setEdit = (id: string, patch: Partial<Media>) => { editsRef.current = { ...editsRef.current, [id]: { ...editsRef.current[id], ...patch } }; };
   const update = async (id: string, patch: Record<string, unknown>) => {
     const { error } = await db.from("marketing_project_media").update(patch).eq("id", id);
     if (error) { toast.error(t("profiles.error")); return false; }
