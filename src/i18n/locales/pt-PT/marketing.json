@@ -527,5 +527,76 @@
     "clearBanner": "Este projeto tem press kit — marcar como autorizado para publicação?",
     "clearAction": "Marcar como autorizado",
     "save": "Guardar press kit"
+  },
+  "actions": {
+    "title": "Ações",
+    "subtitle": "Entrevistas, podcasts, sessões fotográficas e pedidos de autorização — cada uma com um responsável e um prazo.",
+    "new": "Nova ação",
+    "empty": "Nenhuma ação corresponde.",
+    "notFound": "Esta ação não existe ou não está visível para si.",
+    "error": "Não foi possível concluir a operação",
+    "kindLabel": "Tipo",
+    "titleLabel": "Título",
+    "owner": "Responsável",
+    "helpers": "Apoio",
+    "due": "Prazo",
+    "project": "Perfil do projeto",
+    "client": "Cliente (CRM)",
+    "brief": "Briefing",
+    "briefFiles": "Ficheiros do briefing (PDF, DOCX, imagens, áudio, vídeo — até 500 MB)",
+    "allStatuses": "Todos os estados",
+    "allPeople": "Todas as pessoas",
+    "overdue": "Em atraso",
+    "kind": {
+      "client_interview": "Entrevista a cliente",
+      "podcast": "Podcast",
+      "photo_session": "Sessão fotográfica",
+      "clearance_request": "Pedido de autorização",
+      "other": "Outra"
+    },
+    "status": {
+      "open": "Aberta",
+      "done": "Concluída",
+      "cancelled": "Cancelada"
+    },
+    "form": {
+      "editTitle": "Editar ação",
+      "pickPerson": "Escolha uma pessoa",
+      "addHelper": "Adicionar apoio",
+      "removeHelper": "Remover apoio",
+      "removeFile": "Remover ficheiro",
+      "channel": "Avisar por",
+      "channelHub": "Só Hub",
+      "channelEmail": "Hub + email",
+      "suggestTopics": "Sugerir tópicos",
+      "suggesting": "A preparar tópicos…",
+      "save": "Guardar ação",
+      "saved": "Ação guardada",
+      "tooLarge": "Ficheiro maior que 500 MB: {{file}}",
+      "badType": "Tipo de ficheiro não suportado: {{file}}",
+      "emailFailed": "Guardada, mas não foi possível enviar o email: {{error}}"
+    },
+    "outcome": "Resultado",
+    "outcomeNotes": "Notas do resultado",
+    "outcomeFiles": "Ficheiros do resultado",
+    "whatCameOut": "O que resultou?",
+    "complete": "Concluir",
+    "completed": "Ação concluída",
+    "completedBy": "Concluída por {{name}} em {{date}}",
+    "edit": "Editar",
+    "cancelAction": "Cancelar ação",
+    "cancelConfirm": "Cancelar esta ação?",
+    "cancelledToast": "Ação cancelada",
+    "uploading": "A carregar {{done}} de {{total}}…",
+    "addFiles": "Carregar {{count}} ficheiro(s)",
+    "routingHint": "Com um projeto ligado, as gravações tornam-se um briefing no perfil e as fotografias tornam-se capturas desse projeto. Os restantes ficheiros ficam na ação.",
+    "routed": {
+      "briefing": "{{file}} tornou-se um briefing",
+      "capture": "{{file}} tornou-se uma captura"
+    },
+    "routedBadge": {
+      "briefing": "Briefing",
+      "capture": "Captura"
+    }
   }
 }

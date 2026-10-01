@@ -527,5 +527,76 @@
     "clearBanner": "This project has a press kit — mark it cleared for publication?",
     "clearAction": "Mark cleared",
     "save": "Save press kit"
+  },
+  "actions": {
+    "title": "Actions",
+    "subtitle": "Interviews, podcasts, photo sessions and clearance requests — each with an owner and a due date.",
+    "new": "New action",
+    "empty": "No actions match.",
+    "notFound": "This action doesn't exist or isn't visible to you.",
+    "error": "Could not complete the action",
+    "kindLabel": "Type",
+    "titleLabel": "Title",
+    "owner": "Owner",
+    "helpers": "Helpers",
+    "due": "Due date",
+    "project": "Project profile",
+    "client": "CRM client",
+    "brief": "Brief",
+    "briefFiles": "Brief files (PDF, DOCX, images, audio, video — up to 500 MB)",
+    "allStatuses": "All statuses",
+    "allPeople": "All people",
+    "overdue": "Overdue",
+    "kind": {
+      "client_interview": "Client interview",
+      "podcast": "Podcast",
+      "photo_session": "Photo session",
+      "clearance_request": "Clearance request",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Open",
+      "done": "Done",
+      "cancelled": "Cancelled"
+    },
+    "form": {
+      "editTitle": "Edit action",
+      "pickPerson": "Choose a person",
+      "addHelper": "Add a helper",
+      "removeHelper": "Remove helper",
+      "removeFile": "Remove file",
+      "channel": "Let them know via",
+      "channelHub": "Hub only",
+      "channelEmail": "Hub + email",
+      "suggestTopics": "Suggest topics",
+      "suggesting": "Drafting topics…",
+      "save": "Save action",
+      "saved": "Action saved",
+      "tooLarge": "File larger than 500 MB: {{file}}",
+      "badType": "Unsupported file type: {{file}}",
+      "emailFailed": "Saved, but the email could not be sent: {{error}}"
+    },
+    "outcome": "Outcome",
+    "outcomeNotes": "Outcome notes",
+    "outcomeFiles": "Outcome files",
+    "whatCameOut": "What came out of it?",
+    "complete": "Complete",
+    "completed": "Action completed",
+    "completedBy": "Completed by {{name}} on {{date}}",
+    "edit": "Edit",
+    "cancelAction": "Cancel action",
+    "cancelConfirm": "Cancel this action?",
+    "cancelledToast": "Action cancelled",
+    "uploading": "Uploading {{done}} of {{total}}…",
+    "addFiles": "Upload {{count}} file(s)",
+    "routingHint": "With a linked project, recordings become a briefing on its profile and photos become captures for that project. Other files stay on the action.",
+    "routed": {
+      "briefing": "{{file}} became a briefing",
+      "capture": "{{file}} became a capture"
+    },
+    "routedBadge": {
+      "briefing": "Briefing",
+      "capture": "Capture"
+    }
   }
 }
