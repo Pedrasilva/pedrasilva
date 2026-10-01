@@ -230,10 +230,13 @@ export const routeOutcomeFile = createServerFn({ method: "POST" })
       const dest = `${captureId}/${crypto.randomUUID()}-${f.file_name}`;
       const { error: cpErr } = await db.storage.from("marketing-assets").copy(f.storage_path, dest);
       if (cpErr) throw new Error(cpErr.message);
-      const { data: info } = await db.storage.from("marketing-assets").info?.(dest) ?? { data: null };
+      const parts = String(f.storage_path).split("/");
+      const leaf = parts.pop()!;
+      const { data: listed } = await db.storage.from("marketing-assets").list(parts.join("/"), { search: leaf });
+      const size = (listed ?? []).find((o: { name: string }) => o.name === leaf)?.metadata?.size ?? 0;
       await db.from("marketing_capture_assets").insert({
         capture_id: captureId, storage_path: dest, file_name: f.file_name, mime_type: f.mime_type,
-        size_bytes: Number(info?.size ?? 0), position: 0,
+        size_bytes: Number(size), position: 0,
       });
       await mark("capture", captureId, null);
       return { routed: "capture" };
