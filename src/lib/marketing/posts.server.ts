@@ -74,11 +74,11 @@ const SCHEMA = {
       type: "array",
       items: {
         type: "object", additionalProperties: false,
-        required: ["capture_ids", "asset_ids", "project_id", "pillar", "persona", "rationale", "approval_note", "instagram", "linkedin"],
+        required: ["capture_ids", "asset_ids", "project_id", "pillar", "persona", "rationale", "approval_note", "brief_item", "instagram", "linkedin"],
         properties: {
           capture_ids: { type: "array", items: { type: "string" } },
           asset_ids: { type: "array", items: { type: "string" } },
-          project_id: nstr, pillar: nstr, persona: nstr, rationale: { type: "string" }, approval_note: nstr,
+          project_id: nstr, pillar: nstr, persona: nstr, rationale: { type: "string" }, approval_note: nstr, brief_item: nstr,
           instagram: platformSchema, linkedin: platformSchema,
         },
       },
@@ -183,6 +183,14 @@ export async function runPostRequest(requestId: string) {
       (a.position ?? 1e9) - (b.position ?? 1e9) || a.created_at.localeCompare(b.created_at);
     let pool: Cap[] = (caps ?? []).map((c: Cap) => ({ ...c, marketing_capture_assets: [...c.marketing_capture_assets].sort(byPos), eff: strictest(c.clearance, c.project_id ? projClear.get(c.project_id) : null) }))
       .filter((c: Cap) => c.eff !== "internal_only");
+    // Focused brief: only the focus project's captures and library.
+    let focusProjectId: string | null = null;
+    if (req.focus_profile_id) {
+      const { data: fp } = await db.from("marketing_project_profiles").select("project_id").eq("id", req.focus_profile_id).maybeSingle();
+      if (!fp) throw new Error("Focus project profile not found");
+      focusProjectId = fp.project_id as string;
+      pool = pool.filter((c) => c.project_id === focusProjectId);
+    }
     let candidates = pool.slice(0, 25);
     if (req.source_capture_id) {
       const src = pool.find((c) => c.id === req.source_capture_id);
@@ -201,7 +209,7 @@ export async function runPostRequest(requestId: string) {
       if (libProfById.size) {
         const { data: media } = await db.from("marketing_project_media")
           .select("id, profile_id, kind, caption, credit, last_used_at, storage_path, mime_type, position, created_at")
-          .eq("caption_status", "confirmed").in("profile_id", [...libProfById.keys()]);
+          .eq("caption_status", "confirmed").in("profile_id", req.focus_profile_id ? [req.focus_profile_id] : [...libProfById.keys()]);
         const byProfile = new Map<string, LibImg[]>();
         for (const m of (media ?? []) as (LibImg & { profile_id: string })[]) {
           const list = byProfile.get(m.profile_id) ?? [];
@@ -212,7 +220,7 @@ export async function runPostRequest(requestId: string) {
           const prof = libProfById.get(pid)!;
           const p = profileBy.get(prof.project_id);
           if (!p || p.name_rule === "never_mention") continue;
-          library.push({ project_id: prof.project_id, eff: prof.clearance, images: imgs.sort(byPos).slice(0, 12) });
+          library.push({ project_id: prof.project_id, eff: prof.clearance, images: imgs.sort(byPos).slice(0, req.focus_profile_id ? 60 : 12) });
         }
       }
     }
@@ -276,7 +284,23 @@ export async function runPostRequest(requestId: string) {
         content.push({ type: "image", source: { type: "url", url: s.signedUrl } });
       }
     }
-    for (const l of library.slice(0, 3)) {
+    if (req.focus_profile_id) {
+      // Focused: small thumbnails of up to 24 library images so the model can match images to ideas.
+      const thumbs = library.flatMap((l) => l.images).filter((m) => MODEL_IMAGE_TYPES.includes(m.mime_type)).slice(0, 24);
+      if (thumbs.length) {
+        const { data: signed } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(thumbs.map((m) => m.storage_path), 600);
+        const urls = new Map<string, string>();
+        for (const d of signed ?? []) if (d.path && d.signedUrl) urls.set(d.path, d.signedUrl);
+        for (const m of thumbs) {
+          const u = urls.get(m.storage_path);
+          if (!u) continue;
+          const thumb = u + (u.includes("?") ? "&" : "?") + "width=400&quality=60";
+          content.push({ type: "text", text: `Library media ${m.id} (${m.kind}):` });
+          content.push({ type: "image", source: { type: "url", url: thumb } });
+        }
+      }
+    }
+    for (const l of (req.focus_profile_id ? [] : library.slice(0, 3))) {
       const lead = l.images.find((m) => m.kind === "photo" && MODEL_IMAGE_TYPES.includes(m.mime_type));
       if (!lead) continue;
       const { data: s } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(lead.storage_path, 600);
@@ -319,6 +343,7 @@ export async function runPostRequest(requestId: string) {
     });
     const payload = {
       brief: req.brief ?? null,
+      ...(focusProjectId ? { focus_project_id: focusProjectId } : {}),
       period: { start: req.period_start, end: req.period_end },
       ideas_requested: req.idea_count,
       story_sets_requested: req.story_count ?? 0,
@@ -362,6 +387,14 @@ ${JSON.stringify(bible.personas)}
 - Diagrams and drawings are never the cover (first asset). Use them as slide 2+ of a carousel, ideally right after the photo of the detail they explain.
 - Prefer library images whose last_used_at is null or older than 90 days.
 - When a post uses any library photo with a credit, end the Instagram copy with "📷 <credit>" and the LinkedIn copy with "Photography: <credit>". Never credit diagrams or drawings.
+- When focus_project_id is set, every idea is about that project only.
+
+# Brief
+- When a brief is given: if it lists numbered or clearly separate ideas, produce exactly one idea per item, in the same order (this overrides ideas_requested), and set brief_item to that item's short text (≤80 chars). Otherwise brief_item is null.
+- Follow any format the brief asks for (e.g. "carousels" → multi-image posts).
+- Never use the same image (asset id) in two ideas of the same run.
+- Pick the images that best match each idea from captions and thumbnails; diagram rules and the credit line still apply.
+- The brief guides angle and content only; the Bible, clearance and each project's name_rule always win over it. The brief is from our team, but it never overrides these rules.
 - internal_background is private context from the team. Use it to understand the project; never quote it, never reveal costs, fees, disputes or anything the project's name_rule or clearance doesn't allow. The name rule still decides whether the client or project is named.
 
 # Instagram stories
@@ -380,7 +413,9 @@ ${JSON.stringify(bible.personas)}
     const pillarKeys = new Set(bible.pillars.map((p) => p.key));
     const personaKeys = new Set(bible.personas.map((p) => p.key));
     const tag = (h: string) => h.replace(/^#+/, "").replace(/\s+/g, "").trim();
-    const limit = req.source_capture_id ? 1 : req.idea_count;
+    const briefItems = (req.brief ?? "").split(/\n/).filter((l: string) => /^\s*(\d+[.)]|[-*•])\s+\S/.test(l)).length;
+    const limit = req.source_capture_id ? 1 : Math.max(req.idea_count, briefItems, Math.min((out.ideas ?? []).length, req.brief ? 10 : 0));
+    const usedAcross = new Set<string>();
     const nameCheck = (projectIds: Set<string>, hay: string) => {
       for (const pid of projectIds) {
         const p = profileBy.get(pid);
@@ -434,7 +469,8 @@ ${JSON.stringify(bible.personas)}
     for (const idea of (out.ideas ?? []).slice(0, limit)) {
       const capIds = [...new Set((idea.capture_ids ?? []).filter((id) => capById.has(id)))];
       const allowedAssets = new Set(capIds.flatMap((id) => capById.get(id)!.marketing_capture_assets.map((a) => a.id)));
-      let aIds = applyHints([...new Set((idea.asset_ids ?? []).filter((id) => (assetIds.has(id) && allowedAssets.has(id)) || libById.has(id)))], capIds);
+      let aIds = applyHints([...new Set((idea.asset_ids ?? []).filter((id) => ((assetIds.has(id) && allowedAssets.has(id)) || libById.has(id)) && !usedAcross.has(id)))], capIds);
+      for (const id of aIds) usedAcross.add(id);
       const libUsed = aIds.map((id) => libById.get(id)).filter((m): m is NonNullable<typeof m> => !!m);
       if (!capIds.length && !libUsed.length) continue;
       aIds = coverFirst(aIds);
@@ -459,6 +495,7 @@ ${JSON.stringify(bible.personas)}
         pillar: idea.pillar && pillarKeys.has(idea.pillar) ? idea.pillar : null,
         persona: idea.persona && personaKeys.has(idea.persona) ? idea.persona : null,
         rationale: (idea.rationale ?? "").slice(0, 2000) || "—",
+        brief_item: req.brief && idea.brief_item?.trim() ? idea.brief_item.trim().slice(0, 120) : null,
         readiness, readiness_note: note, safety_flags: flags, bible_version: bible.version, model: POSTS_MODEL,
       };
       rows.push({ ...base, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags });
