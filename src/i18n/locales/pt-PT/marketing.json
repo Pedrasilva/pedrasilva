@@ -364,7 +364,11 @@
       "link": "Link"
     },
     "storyHint": "Máx. 140 caracteres por ecrã, um autocolante por story, sem hashtags.",
-    "filterActive": "Ativas"
+    "filterActive": "Ativas",
+    "focusProject": "Focar num projeto",
+    "focusNone": "Sem foco (todo o material)",
+    "focusLabel": "Foco: {{name}}",
+    "briefItem": "Brief: {{item}}"
   },
   "nudge": {
     "title": "Pedir contexto a um arquiteto",
