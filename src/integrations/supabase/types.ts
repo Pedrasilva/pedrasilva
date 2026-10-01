@@ -5726,6 +5726,7 @@ export type Database = {
       }
       marketing_project_story_suggestions: {
         Row: {
+          accepted_text: string | null
           capture_id: string | null
           created_at: string
           field: string
@@ -5738,6 +5739,7 @@ export type Database = {
           suggested_text: string
         }
         Insert: {
+          accepted_text?: string | null
           capture_id?: string | null
           created_at?: string
           field: string
@@ -5750,6 +5752,7 @@ export type Database = {
           suggested_text: string
         }
         Update: {
+          accepted_text?: string | null
           capture_id?: string | null
           created_at?: string
           field?: string
@@ -12519,7 +12522,7 @@ export type Database = {
         }[]
       }
       marketing_accept_story_suggestion: {
-        Args: { _id: string }
+        Args: { _id: string; _mode?: string; _text?: string }
         Returns: undefined
       }
       marketing_action_support_key: {
