@@ -34,7 +34,7 @@ export function renderStoryFrames(frames: StoryFrame[]) {
 }
 type Idea = {
   capture_ids: string[]; asset_ids: string[]; project_id: string | null; pillar: string | null; persona: string | null;
-  rationale: string; approval_note: string | null;
+  rationale: string; approval_note: string | null; brief_item?: string | null;
   instagram: { copy: string; hashtags: string[] }; linkedin: { copy: string; hashtags: string[] };
 };
 
@@ -288,16 +288,14 @@ export async function runPostRequest(requestId: string) {
       // Focused: small thumbnails of up to 24 library images so the model can match images to ideas.
       const thumbs = library.flatMap((l) => l.images).filter((m) => MODEL_IMAGE_TYPES.includes(m.mime_type)).slice(0, 24);
       if (thumbs.length) {
-        const { data: signed } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(thumbs.map((m) => m.storage_path), 600);
-        const urls = new Map<string, string>();
-        for (const d of signed ?? []) if (d.path && d.signedUrl) urls.set(d.path, d.signedUrl);
-        for (const m of thumbs) {
-          const u = urls.get(m.storage_path);
-          if (!u) continue;
-          const thumb = u + (u.includes("?") ? "&" : "?") + "width=400&quality=60";
+        const signed = await Promise.all(thumbs.map((m) =>
+          supabaseAdmin.storage.from(BUCKET).createSignedUrl(m.storage_path, 600, { transform: { width: 400, height: 400, resize: "contain", quality: 60 } })));
+        thumbs.forEach((m, i) => {
+          const u = signed[i]?.data?.signedUrl;
+          if (!u) return;
           content.push({ type: "text", text: `Library media ${m.id} (${m.kind}):` });
-          content.push({ type: "image", source: { type: "url", url: thumb } });
-        }
+          content.push({ type: "image", source: { type: "url", url: u } });
+        });
       }
     }
     for (const l of (req.focus_profile_id ? [] : library.slice(0, 3))) {
@@ -341,11 +339,13 @@ export async function runPostRequest(requestId: string) {
         images: c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a, i) => ({ id: a.id, file_name: a.file_name, order: i, ...(i === 0 ? { cover: true } : {}) })),
       };
     });
+    const briefItems = Math.min(10, (req.brief ?? "").split(/\n/).filter((l: string) => /^\s*(\d+[.)]|[-*•])\s+\S/.test(l)).length);
+    const ideasRequested = Math.max(req.idea_count, briefItems);
     const payload = {
       brief: req.brief ?? null,
       ...(focusProjectId ? { focus_project_id: focusProjectId } : {}),
       period: { start: req.period_start, end: req.period_end },
-      ideas_requested: req.idea_count,
+      ideas_requested: ideasRequested,
       story_sets_requested: req.story_count ?? 0,
       ...(req.source_capture_id ? { must_build_around_capture: req.source_capture_id } : {}),
       candidates: candidateData,
@@ -413,8 +413,7 @@ ${JSON.stringify(bible.personas)}
     const pillarKeys = new Set(bible.pillars.map((p) => p.key));
     const personaKeys = new Set(bible.personas.map((p) => p.key));
     const tag = (h: string) => h.replace(/^#+/, "").replace(/\s+/g, "").trim();
-    const briefItems = (req.brief ?? "").split(/\n/).filter((l: string) => /^\s*(\d+[.)]|[-*•])\s+\S/.test(l)).length;
-    const limit = req.source_capture_id ? 1 : Math.max(req.idea_count, briefItems, Math.min((out.ideas ?? []).length, req.brief ? 10 : 0));
+    const limit = req.source_capture_id ? 1 : ideasRequested;
     const usedAcross = new Set<string>();
     const nameCheck = (projectIds: Set<string>, hay: string) => {
       for (const pid of projectIds) {
