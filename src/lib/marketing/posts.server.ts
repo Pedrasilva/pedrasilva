@@ -426,7 +426,9 @@ ${JSON.stringify(bible.personas)}
       // Credits are stored as "Fotografia: Nome"; drop that label so the prefix isn't doubled.
       const names = [...new Set(credits.map((c) => c.replace(/^\s*(fotografia|fotografias|foto|fotos|photography|photo|photos)\s*[:\-–]\s*/i, "").trim()).filter(Boolean))];
       const line = `${prefix}${names.join(", ")}`;
-      return copy.trimEnd().endsWith(line) ? copy : `${copy.trimEnd()}\n\n${line}`;
+      // Replace any credit line the AI wrote at the end with the canonical one.
+      const body = copy.trimEnd().replace(/(\n\s*)*(📷|photography:|fotografia:)[^\n]*$/i, "").trimEnd();
+      return `${body}\n\n${line}`;
     };
     const rows: Record<string, unknown>[] = [];
     for (const idea of (out.ideas ?? []).slice(0, limit)) {
