@@ -54,8 +54,10 @@ export function useNotifications(limit = 30) {
   // Live updates so a reminder promoted by the hourly job lands without reload.
   useEffect(() => {
     if (!userId) return;
+    // Unique topic per hook instance: the bell and a page can both mount this
+    // hook, and reusing a subscribed channel name throws in supabase-js.
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {
