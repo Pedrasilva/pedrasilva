@@ -264,41 +264,61 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
             {canEdit && unconfirmed > 0 && <Button size="sm" variant="outline" onClick={confirmAll}><Check className="mr-1 h-4 w-4" /> {t("pressKit.confirmAll")}</Button>}
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {media.map((m) => {
-              const v = val(m);
-              return (
-                <div key={m.id} className="space-y-2 rounded-md border p-2"
-                  draggable={canEdit} onDragStart={() => setDragId(m.id)} onDragOver={(e) => e.preventDefault()} onDrop={() => drop(m.id)}>
-                  <div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">
-                    {urls[m.storage_path] && <img src={urls[m.storage_path]} alt={v.caption ?? ""} className="h-full w-full object-cover" loading="lazy" />}
-                    {canEdit && <GripVertical className="absolute left-1 top-1 h-4 w-4 text-muted-foreground" aria-hidden />}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant={m.caption_status === "confirmed" ? "secondary" : "outline"}>{t(`pressKit.status.${m.caption_status}`)}</Badge>
-                    {m.last_used_at && <Badge variant="outline">{t("pressKit.lastUsed", { date: new Date(m.last_used_at).toLocaleDateString() })}</Badge>}
-                  </div>
-                  <Select value={v.kind} disabled={!canEdit} onValueChange={(x) => setEdit(m.id, { kind: x as Kind })}>
-                    <SelectTrigger aria-label={t("pressKit.kind")}><SelectValue /></SelectTrigger>
-                    <SelectContent>{KINDS.map((k) => <SelectItem key={k} value={k}>{t(`pressKit.kinds.${k}`)}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Textarea rows={3} value={v.caption ?? ""} disabled={!canEdit} placeholder={t("pressKit.captionPlaceholder")} aria-label={t("pressKit.caption")}
-                    onChange={(e) => setEdit(m.id, { caption: e.target.value })} />
-                  {v.kind === "photo" && (
-                    <Input value={v.credit ?? ""} disabled={!canEdit} placeholder={t("pressKit.creditPlaceholder")} aria-label={t("pressKit.credit")}
-                      onChange={(e) => setEdit(m.id, { credit: e.target.value })} />
-                  )}
-                  {canEdit && (
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => confirm(m)} disabled={!(v.caption ?? "").trim()}><Check className="mr-1 h-3.5 w-3.5" /> {t("pressKit.confirm")}</Button>
-                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(m)} aria-label={t("pressKit.delete")}><Trash2 className="h-3.5 w-3.5" /></Button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {media.map((m) => (
+              <MediaItem key={m.id} m={m} url={urls[m.storage_path]} canEdit={canEdit}
+                initial={editsRef.current[m.id]}
+                onEdit={setEdit} onConfirm={confirm} onRemove={remove}
+                onDragStart={setDragId} onDrop={drop} />
+            ))}
           </div>
         </div>
       )}
     </Card>
   );
 }
+
+type ItemProps = {
+  m: Media; url?: string; canEdit: boolean; initial?: Partial<Media>;
+  onEdit: (id: string, patch: Partial<Media>) => void;
+  onConfirm: (m: Media) => void; onRemove: (m: Media) => void;
+  onDragStart: (id: string) => void; onDrop: (id: string) => void;
+};
+
+/** One library image. Holds its own field state so typing never re-renders the rest of the grid. */
+const MediaItem = memo(function MediaItem({ m, url, canEdit, initial, onEdit, onConfirm, onRemove, onDragStart, onDrop }: ItemProps) {
+  const { t } = useTranslation("marketing");
+  const [caption, setCaption] = useState(initial?.caption ?? m.caption ?? "");
+  const [credit, setCredit] = useState(initial?.credit ?? m.credit ?? "");
+  const [kind, setKind] = useState<Kind>(initial?.kind ?? m.kind);
+  // Sync from the server after a save/refetch, unless the user has local edits.
+  useEffect(() => { if (!initial) { setCaption(m.caption ?? ""); setCredit(m.credit ?? ""); setKind(m.kind); } }, [m.caption, m.credit, m.kind]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="space-y-2 rounded-md border p-2" onDragOver={(e) => e.preventDefault()} onDrop={() => onDrop(m.id)}>
+      <div className="relative aspect-[4/3] overflow-hidden rounded bg-muted" draggable={canEdit} onDragStart={() => onDragStart(m.id)}>
+        {url && <img src={url} alt={caption} className="h-full w-full object-cover" loading="lazy" draggable={false} />}
+        {canEdit && <GripVertical className="absolute left-1 top-1 h-4 w-4 text-muted-foreground" aria-hidden />}
+      </div>
+      <div className="flex flex-wrap gap-1">
+        <Badge variant={m.caption_status === "confirmed" ? "secondary" : "outline"}>{t(`pressKit.status.${m.caption_status}`)}</Badge>
+        {m.last_used_at && <Badge variant="outline">{t("pressKit.lastUsed", { date: new Date(m.last_used_at).toLocaleDateString() })}</Badge>}
+      </div>
+      <Select value={kind} disabled={!canEdit} onValueChange={(x) => { setKind(x as Kind); onEdit(m.id, { kind: x as Kind }); }}>
+        <SelectTrigger aria-label={t("pressKit.kind")}><SelectValue /></SelectTrigger>
+        <SelectContent>{KINDS.map((k) => <SelectItem key={k} value={k}>{t(`pressKit.kinds.${k}`)}</SelectItem>)}</SelectContent>
+      </Select>
+      <Textarea rows={3} value={caption} disabled={!canEdit} placeholder={t("pressKit.captionPlaceholder")} aria-label={t("pressKit.caption")}
+        onChange={(e) => { setCaption(e.target.value); onEdit(m.id, { caption: e.target.value }); }} />
+      {kind === "photo" && (
+        <Input value={credit} disabled={!canEdit} placeholder={t("pressKit.creditPlaceholder")} aria-label={t("pressKit.credit")}
+          onChange={(e) => { setCredit(e.target.value); onEdit(m.id, { credit: e.target.value }); }} />
+      )}
+      {canEdit && (
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => onConfirm(m)} disabled={!caption.trim()}><Check className="mr-1 h-3.5 w-3.5" /> {t("pressKit.confirm")}</Button>
+          <Button size="sm" variant="ghost" className="text-destructive" onClick={() => onRemove(m)} aria-label={t("pressKit.delete")}><Trash2 className="h-3.5 w-3.5" /></Button>
+        </div>
+      )}
+    </div>
+  );
+});
