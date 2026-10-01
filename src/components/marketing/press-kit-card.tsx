@@ -232,7 +232,7 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
           <div className="space-y-1"><Label className="text-xs">{t("pressKit.credit")}</Label><Input value={credit} onChange={(e) => setCredit(e.target.value)} placeholder={t("pressKit.creditPlaceholder")} /></div>
           {progress && <p className="text-xs text-muted-foreground">{t("pressKit.uploading", { done: progress.done, total: progress.total })}</p>}
           <div className="flex gap-2">
-            <Button onClick={save} disabled={saving || extracting}>{saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}{t("detail.save")}</Button>
+            <Button onClick={save} disabled={saving || extracting}>{saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}{t("pressKit.save")}</Button>
             <Button variant="ghost" onClick={() => setOpen(false)} disabled={saving}>{t("posts.cancel")}</Button>
           </div>
         </div>

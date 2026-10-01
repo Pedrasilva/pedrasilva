@@ -525,6 +525,7 @@
     "deleteDrafts_one": "Esta imagem está em {{count}} rascunho. Apague primeiro esse rascunho.",
     "deleteDrafts_other": "Esta imagem está em {{count}} rascunhos. Apague primeiro esses rascunhos.",
     "clearBanner": "Este projeto tem press kit — marcar como autorizado para publicação?",
-    "clearAction": "Marcar como autorizado"
+    "clearAction": "Marcar como autorizado",
+    "save": "Guardar press kit"
   }
 }
