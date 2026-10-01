@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
+import { resolveDraftImages } from "@/lib/marketing/draft-images";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
   validateSearch: (s: Record<string, unknown>): { request?: string } =>
@@ -128,12 +129,12 @@ function usePlannerData() {
       const ds = (drafts ?? []) as Draft[];
       const assetIds = [...new Set(ds.flatMap((d) => d.asset_ids))];
       const projectIds = [...new Set(ds.map((d) => d.project_id).filter(Boolean))] as string[];
-      const [{ data: assets }, { data: projects }] = await Promise.all([
-        assetIds.length ? sb.from("marketing_capture_assets").select("id, storage_path, file_name, mime_type").in("id", assetIds) : { data: [] },
+      const [assets, { data: projects }] = await Promise.all([
+        resolveDraftImages(sb, assetIds),
         projectIds.length ? sb.from("pm_projects").select("id, name").in("id", projectIds) : { data: [] },
       ]);
       const assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }> = {};
-      for (const a of assets ?? []) assetMap[a.id] = a;
+      for (const a of assets) assetMap[a.id] = a;
       const projectMap: Record<string, string> = {};
       for (const p of projects ?? []) projectMap[p.id] = p.name;
       return { requests: (requests ?? []) as Req[], drafts: ds, assetMap, projectMap };
