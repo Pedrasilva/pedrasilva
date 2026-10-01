@@ -214,7 +214,7 @@ function ProfilePage() {
         </div>
       </Card>
 
-      {canEditStory && <StorySuggestions profileId={profile.id} thumbs={thumbs} onAccepted={() => { setDraft({}); qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />}
+      {canEditStory && <StorySuggestions profileId={profile.id} thumbs={thumbs} current={profile} onAccepted={() => { setDraft({}); qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />}
 
       <PressKitCard profileId={profile.id} canEdit={canEditStory} canCurate={canCurate} clearance={profile.clearance}
         onCleared={() => { qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />

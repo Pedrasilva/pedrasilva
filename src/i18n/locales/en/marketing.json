@@ -254,7 +254,7 @@
     "sortNewest": "Newest first",
     "sortFit": "Best fit first",
     "suggestionsTitle": "Suggested additions",
-    "suggestionsHint": "The AI found these facts in captures. Accepting adds the text to the end of the field; nothing is deleted.",
+    "suggestionsHint": "Facts the AI found in the project's material: captures, briefings, press kits and team answers. You can edit before accepting; nothing is removed without confirmation.",
     "sourceCapture": "Open source capture",
     "accept": "Accept",
     "reject": "Reject",
@@ -265,7 +265,15 @@
       "architect_answer": "Architect answer",
       "architect_briefing": "From briefing",
       "press_kit": "Press kit"
-    }
+    },
+    "edit": "Edit",
+    "saveAccept": "Save and accept",
+    "cancelEdit": "Cancel",
+    "original": "Original",
+    "currentField": "Current field text",
+    "modeAppend": "Append",
+    "modeReplace": "Replace",
+    "replaceConfirm": "Replace the field's whole current text with this suggestion?"
   },
   "posts": {
     "title": "Post planner",

@@ -254,7 +254,7 @@
     "sortNewest": "Mais recentes",
     "sortFit": "Maior adequação",
     "suggestionsTitle": "Acrescentos sugeridos",
-    "suggestionsHint": "A IA encontrou estes factos nas capturas. Aceitar acrescenta o texto ao fim do campo; nada é apagado.",
+    "suggestionsHint": "A IA encontrou estes factos no material do projeto: capturas, briefings, press kits e respostas da equipa. Pode editar antes de aceitar; nada é apagado sem confirmação.",
     "sourceCapture": "Abrir captura de origem",
     "accept": "Aceitar",
     "reject": "Rejeitar",
@@ -265,7 +265,15 @@
       "architect_answer": "Resposta do arquiteto",
       "architect_briefing": "Do briefing",
       "press_kit": "Press kit"
-    }
+    },
+    "edit": "Editar",
+    "saveAccept": "Guardar e aceitar",
+    "cancelEdit": "Cancelar",
+    "original": "Original",
+    "currentField": "Texto atual do campo",
+    "modeAppend": "Acrescentar",
+    "modeReplace": "Substituir",
+    "replaceConfirm": "Substituir todo o texto atual do campo por esta sugestão?"
   },
   "posts": {
     "title": "Planeador de publicações",
