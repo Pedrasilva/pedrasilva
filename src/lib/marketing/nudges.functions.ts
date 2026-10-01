@@ -58,6 +58,7 @@ export const listNudgeRecipients = createServerFn({ method: "POST" })
       if (!prev || (onTeam && !prev.onTeam)) out.set(uid, { userId: uid, name: r.name, email: r.email, onTeam });
     }
     const sender = c ? (c.created_by ?? (c.sender_email ? byEmail.get(String(c.sender_email).toLowerCase()) ?? null : null)) : null;
+    out.delete(context.userId);
     const recipients = [...out.values()].sort((a, b) => Number(b.onTeam) - Number(a.onTeam) || a.name.localeCompare(b.name));
     return { recipients, senderUserId: sender };
   });
@@ -101,6 +102,15 @@ export const sendNudge = createServerFn({ method: "POST" })
       if (!data.projectId) throw new Error("Project missing");
       projectId = data.projectId;
     }
+    if (data.architectUserId === context.userId) throw new Error("Não pode enviar uma pergunta a si próprio.");
+    {
+      const since = new Date(Date.now() - 120_000).toISOString();
+      let dq = db.from("marketing_nudges").select("id").eq("architect_user_id", data.architectUserId)
+        .eq("kind", data.kind).eq("status", "pending").eq("question", data.question).gte("created_at", since).limit(1);
+      dq = captureId ? dq.eq("capture_id", captureId) : dq.is("capture_id", null).eq("project_id", projectId!);
+      const { data: dup } = await dq;
+      if (dup && dup.length) throw new Error("Esta pergunta já foi enviada.");
+    }
     const now = new Date();
     const expires = new Date(now.getTime() + data.expiresInDays * 86400_000);
     // Insert as the curator so RLS applies; created_by defaults to auth.uid().
@@ -113,6 +123,25 @@ export const sendNudge = createServerFn({ method: "POST" })
     if (error || !nudge) throw new Error(error?.message ?? "Could not create the question");
     await deliverNudge(db, nudge.id, context.userId);
     return { id: nudge.id as string };
+  });
+
+/** Curators: delete nudges — voice files, the architect's notifications, then the rows. Suggestions/briefings stay (FKs set null). */
+export const deleteNudges = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ids: z.array(z.string().uuid()).min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireCurator(context as unknown as Ctx);
+    const { admin } = await import("./nudges.server");
+    const db = await admin();
+    for (const id of data.ids) {
+      const { data: files } = await db.storage.from("marketing-voice").list(id, { limit: 1000 });
+      const paths = (files ?? []).filter((f: { name: string }) => f.name).map((f: { name: string }) => `${id}/${f.name}`);
+      if (paths.length) await db.storage.from("marketing-voice").remove(paths);
+    }
+    await db.from("notifications").delete().eq("entity_type", "marketing_nudge").in("entity_id", data.ids);
+    const { error } = await db.from("marketing_nudges").delete().in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { deleted: data.ids.length };
   });
 
 /** Curators: re-send a pending nudge by the same channel (no new nudge, same question and expiry). */

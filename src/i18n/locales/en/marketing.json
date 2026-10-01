@@ -393,7 +393,19 @@
       "dismissed": "Dismissed",
       "expired": "Expired"
     },
-    "briefingHint": "Record a 3–5 minute voice note (max 10 minutes). It stays private and is used only as background."
+    "briefingHint": "Record a 3–5 minute voice note (max 10 minutes). It stays private and is used only as background.",
+    "delete": {
+      "action": "Delete",
+      "selected": "Delete selected ({{count}})",
+      "select": "Select",
+      "title_one": "Delete this question?",
+      "title_other": "Delete {{count}} questions?",
+      "body": "The question, its voice files and the architect's notification are removed. An email already sent can't be recalled.",
+      "answeredKept": "The answer already sent to the project profile stays.",
+      "done_one": "Question deleted",
+      "done_other": "{{count}} questions deleted",
+      "requests": "Briefing requests"
+    }
   },
   "delete": {
     "button": "Delete capture",

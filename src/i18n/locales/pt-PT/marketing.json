@@ -393,7 +393,19 @@
       "dismissed": "Dispensada",
       "expired": "Expirada"
     },
-    "briefingHint": "Grave uma nota de voz de 3–5 minutos (máx. 10). Fica privada e serve apenas de contexto."
+    "briefingHint": "Grave uma nota de voz de 3–5 minutos (máx. 10). Fica privada e serve apenas de contexto.",
+    "delete": {
+      "action": "Apagar",
+      "selected": "Apagar selecionadas ({{count}})",
+      "select": "Selecionar",
+      "title_one": "Apagar esta pergunta?",
+      "title_other": "Apagar {{count}} perguntas?",
+      "body": "A pergunta, os ficheiros de voz e a notificação do arquiteto são removidos. Um email já enviado não pode ser recuperado.",
+      "answeredKept": "A resposta já enviada para o perfil do projeto mantém-se.",
+      "done_one": "Pergunta apagada",
+      "done_other": "{{count}} perguntas apagadas",
+      "requests": "Pedidos de briefing"
+    }
   },
   "delete": {
     "button": "Apagar captura",

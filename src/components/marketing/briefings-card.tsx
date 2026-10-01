@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
 import { blobToBase64 } from "@/lib/projects/wav-encoder";
 import { listBriefings, recordBriefing, retryBriefing } from "@/lib/marketing/briefings.functions";
+import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
+import { supabase } from "@/integrations/supabase/client";
 import { listNudgeRecipients, sendNudge, suggestBriefingPrompt } from "@/lib/marketing/nudges.functions";
 
 const MAX_SECONDS = 600;
@@ -110,6 +112,7 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
           ))}
         </ul>
       )}
+      {canCurate && <BriefingRequests projectId={projectId} />}
       {askOpen && <AskBriefingDialog projectId={projectId} onClose={() => setAskOpen(false)} />}
     </Card>
   );
@@ -161,5 +164,36 @@ function AskBriefingDialog({ projectId, onClose }: { projectId: string; onClose:
         <DialogFooter><Button onClick={send} disabled={busy || !to || q.trim().length < 3}>{t("briefings.askSend")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BriefingRequests({ projectId }: { projectId: string }) {
+  const { t } = useTranslation("marketing");
+  const { data: rows = [] } = useQuery({
+    queryKey: ["marketing-briefing-requests", projectId],
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).from("marketing_nudges")
+        .select("id, question, status, expires_at, sent_at").eq("project_id", projectId).eq("kind", "briefing")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as { id: string; question: string; status: string; expires_at: string | null; sent_at: string | null }[];
+    },
+  });
+  if (!rows.length) return null;
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-muted-foreground">{t("nudge.delete.requests")}</p>
+      {rows.map((r) => {
+        const st = r.status === "pending" && r.expires_at && new Date(r.expires_at) < new Date() ? "expired" : r.status;
+        return (
+          <div key={r.id} className="flex items-center gap-2 rounded border border-border p-2 text-sm">
+            <Badge variant="outline">{t(`nudge.status.${st}`)}</Badge>
+            <span className="min-w-0 flex-1 truncate text-muted-foreground">{r.question}</span>
+            <DeleteNudgesButton ids={[r.id]} anyAnswered={r.status === "answered"} />
+          </div>
+        );
+      })}
+    </div>
   );
 }
