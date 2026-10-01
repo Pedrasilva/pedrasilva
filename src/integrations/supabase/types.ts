@@ -5324,6 +5324,7 @@ export type Database = {
           ai_story_frames: Json | null
           asset_ids: string[]
           bible_version: number
+          brief_item: string | null
           capture_ids: string[]
           created_at: string
           decided_at: string | null
@@ -5356,6 +5357,7 @@ export type Database = {
           ai_story_frames?: Json | null
           asset_ids?: string[]
           bible_version: number
+          brief_item?: string | null
           capture_ids: string[]
           created_at?: string
           decided_at?: string | null
@@ -5388,6 +5390,7 @@ export type Database = {
           ai_story_frames?: Json | null
           asset_ids?: string[]
           bible_version?: number
+          brief_item?: string | null
           capture_ids?: string[]
           created_at?: string
           decided_at?: string | null
@@ -5431,6 +5434,7 @@ export type Database = {
           created_at: string
           error: string | null
           finished_at: string | null
+          focus_profile_id: string | null
           id: string
           idea_count: number
           model: string | null
@@ -5447,6 +5451,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          focus_profile_id?: string | null
           id?: string
           idea_count: number
           model?: string | null
@@ -5463,6 +5468,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          focus_profile_id?: string | null
           id?: string
           idea_count?: number
           model?: string | null
@@ -5474,6 +5480,13 @@ export type Database = {
           story_count?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_post_requests_focus_profile_id_fkey"
+            columns: ["focus_profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "marketing_post_requests_source_capture_id_fkey"
             columns: ["source_capture_id"]
