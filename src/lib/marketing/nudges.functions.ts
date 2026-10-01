@@ -135,7 +135,7 @@ export const deleteNudges = createServerFn({ method: "POST" })
     const db = await admin();
     for (const id of data.ids) {
       const { data: files } = await db.storage.from("marketing-voice").list(id, { limit: 1000 });
-      const paths = (files ?? []).filter((f) => f.name).map((f) => `${id}/${f.name}`);
+      const paths = (files ?? []).filter((f: { name: string }) => f.name).map((f: { name: string }) => `${id}/${f.name}`);
       if (paths.length) await db.storage.from("marketing-voice").remove(paths);
     }
     await db.from("notifications").delete().eq("entity_type", "marketing_nudge").in("entity_id", data.ids);
