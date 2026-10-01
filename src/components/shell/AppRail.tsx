@@ -223,9 +223,29 @@ export function usePendingQuestions(enabled: boolean) {
   });
 }
 
+/** Open marketing actions where the signed-in user is owner or helper. */
+export function useMyOpenActions(enabled: boolean) {
+  return useQuery({
+    queryKey: ["marketing-actions-mine-open"],
+    enabled,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) return 0;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count } = await (supabase as any).from("marketing_actions").select("id", { count: "exact", head: true })
+        .eq("status", "open").or(`owner_user_id.eq.${uid},helper_user_ids.cs.{${uid}}`);
+      return count ?? 0;
+    },
+  });
+}
+
 function FlyoutLinkRow({ link, active }: { link: FlyoutLink; active: boolean }) {
   const { t } = useTranslation("common");
-  const { data: pending = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
+  const { data: pendingQ = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
+  const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
+  const pending = link.badge === "marketingActions" ? pendingA : pendingQ;
   return (
     <Link
       to={link.to as never}
