@@ -7,19 +7,20 @@ export const generatePostSuggestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      brief: z.string().max(1000).optional().nullable(),
+      brief: z.string().max(4000).optional().nullable(),
       periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       periodEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       ideaCount: z.number().int().min(0).max(10).default(5),
       storyCount: z.number().int().min(0).max(10).default(0),
       sourceCaptureId: z.string().uuid().optional().nullable(),
+      focusProfileId: z.string().uuid().optional().nullable(),
     }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: allowed, error } = await context.supabase.rpc("has_module_permission", {
       _user_id: context.userId, _key: "marketing.curate", _required_scope: "all",
     } as never);
     if (error || allowed !== true) throw new Error("Not allowed");
-    if (!data.sourceCaptureId && data.ideaCount + data.storyCount < 1) throw new Error("Ask for at least one post or story set");
+    if (!data.sourceCaptureId && data.ideaCount + data.storyCount < 1 && !data.brief?.trim()) throw new Error("Ask for at least one post or story set");
     if (data.periodEnd < data.periodStart) throw new Error("Period end is before its start");
 
     // Insert as the user (RLS applies); requested_by defaults to auth.uid().
@@ -31,6 +32,7 @@ export const generatePostSuggestions = createServerFn({ method: "POST" })
       idea_count: data.sourceCaptureId ? 1 : data.ideaCount,
       story_count: data.sourceCaptureId ? 0 : data.storyCount,
       source_capture_id: data.sourceCaptureId ?? null,
+      focus_profile_id: data.sourceCaptureId ? null : data.focusProfileId ?? null,
     }).select("id").single();
     if (insErr || !req) throw new Error(insErr?.message ?? "Could not create the request");
 

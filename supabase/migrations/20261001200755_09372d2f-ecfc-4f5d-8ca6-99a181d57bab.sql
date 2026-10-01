@@ -1,0 +1,2 @@
+ALTER TABLE public.marketing_post_requests ADD COLUMN focus_profile_id uuid NULL REFERENCES public.marketing_project_profiles(id) ON DELETE SET NULL;
+ALTER TABLE public.marketing_post_drafts ADD COLUMN brief_item text NULL;

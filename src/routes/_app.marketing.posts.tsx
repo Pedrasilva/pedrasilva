@@ -52,7 +52,7 @@ type Draft = {
   final_copy: string | null; final_hashtags: string[] | null; rationale: string;
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
-  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean;
+  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null;
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
@@ -96,7 +96,7 @@ function DeleteButton({ label, ids, column }: { label: string; ids: string[]; co
     </>
   );
 }
-type Req = { id: string; brief: string | null; period_start: string; period_end: string; idea_count: number; status: string; error: string | null; created_at: string };
+type Req = { id: string; brief: string | null; focus_profile_id?: string | null; period_start: string; period_end: string; idea_count: number; status: string; error: string | null; created_at: string };
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 function nextWeek() {
@@ -161,6 +161,19 @@ function PostPlannerPage() {
   const [end, setEnd] = useState(defEnd);
   const [count, setCount] = useState(5);
   const [storyCount, setStoryCount] = useState(0);
+  const [focusProfile, setFocusProfile] = useState("none");
+  const { data: focusOptions = [] } = useQuery({
+    queryKey: ["marketing-focus-profiles"],
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).from("marketing_project_profiles").select("id, pm_projects(name)");
+      if (error) throw error;
+      return ((data ?? []) as { id: string; pm_projects: { name: string } | null }[])
+        .map((p) => ({ id: p.id, name: p.pm_projects?.name ?? "—" }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    },
+  });
+  const focusName = (id: string | null | undefined) => (id ? focusOptions.find((o) => o.id === id)?.name ?? null : null);
   const [busy, setBusy] = useState(false);
   const [statusFilter, setStatusFilter] = useState("active");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
@@ -181,7 +194,7 @@ function PostPlannerPage() {
     setBusy(true);
     setTimeout(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] }), 1500);
     try {
-      const r = await generate({ data: { brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count, storyCount } });
+      const r = await generate({ data: { brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count, storyCount, focusProfileId: focusProfile === "none" ? null : focusProfile } });
       if (r.ok) toast.success(`${t("posts.generated", { count: r.ideas })}${"stories" in r && r.stories ? ` · ${t("posts.storiesGenerated", { count: r.stories })}` : ""}`);
       else toast.error(r.error);
     } catch (e) {
@@ -232,7 +245,16 @@ function PostPlannerPage() {
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
           <div>
             <Label>{t("posts.brief")}</Label>
-            <Input value={brief} onChange={(e) => setBrief(e.target.value)} placeholder={t("posts.briefHint")} />
+            <Textarea rows={4} value={brief} maxLength={4000} onChange={(e) => setBrief(e.target.value)} placeholder={t("posts.briefHint")}
+              className="field-sizing-content min-h-24" />
+            <Label className="mt-2 block">{t("posts.focusProject")}</Label>
+            <Select value={focusProfile} onValueChange={setFocusProfile}>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("posts.focusNone")}</SelectItem>
+                {focusOptions.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>{t("posts.periodStart")}</Label>
@@ -254,7 +276,7 @@ function PostPlannerPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button onClick={run} disabled={!!running || !start || !end || count + storyCount < 1}>
+          <Button onClick={run} disabled={!!running || !start || !end || (count + storyCount < 1 && !brief.trim())}>
             {running ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />}
             {running ? t("posts.generating") : t("posts.generate")}
           </Button>
@@ -297,7 +319,8 @@ function PostPlannerPage() {
         <section key={req.id} className="space-y-3">
           <div className="flex flex-wrap items-baseline gap-2 border-b pb-1">
             <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
-            {req.brief && <span className="text-xs text-muted-foreground">“{req.brief}”</span>}
+            {focusName(req.focus_profile_id) && <Badge variant="secondary">{t("posts.focusLabel", { name: focusName(req.focus_profile_id) })}</Badge>}
+            {req.brief && <span className="w-full whitespace-pre-wrap text-xs text-muted-foreground order-last">“{req.brief}”</span>}
             <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
             {canCurate && req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
               <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
@@ -366,6 +389,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
         </div>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
+        {first.brief_item && <Badge variant="outline" className="border-primary/40 text-primary">{t("posts.briefItem", { item: first.brief_item })}</Badge>}
         {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length })}</Badge>}
         {first.format === "carousel" && <Badge>{t("posts.format.carousel", { count: assets.length })}</Badge>}
         <Badge variant="outline" className={READY_CLASS[first.readiness]}>{t(`posts.readiness.${first.readiness}`)}</Badge>

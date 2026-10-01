@@ -364,7 +364,11 @@
       "link": "Link"
     },
     "storyHint": "Max 140 characters per frame, one sticker per story, no hashtags.",
-    "filterActive": "Active"
+    "filterActive": "Active",
+    "focusProject": "Focus on a project",
+    "focusNone": "No focus (all material)",
+    "focusLabel": "Focus: {{name}}",
+    "briefItem": "Brief: {{item}}"
   },
   "nudge": {
     "title": "Ask an architect for context",
