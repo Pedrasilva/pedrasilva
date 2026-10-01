@@ -423,7 +423,9 @@ ${JSON.stringify(bible.personas)}
     };
     const withCredit = (copy: string, credits: string[], prefix: string) => {
       if (!credits.length) return copy;
-      const line = `${prefix}${credits.join(", ")}`;
+      // Credits are stored as "Fotografia: Nome"; drop that label so the prefix isn't doubled.
+      const names = [...new Set(credits.map((c) => c.replace(/^\s*(fotografia|fotografias|foto|fotos|photography|photo|photos)\s*[:\-–]\s*/i, "").trim()).filter(Boolean))];
+      const line = `${prefix}${names.join(", ")}`;
       return copy.trimEnd().endsWith(line) ? copy : `${copy.trimEnd()}\n\n${line}`;
     };
     const rows: Record<string, unknown>[] = [];
