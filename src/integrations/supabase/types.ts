@@ -5409,6 +5409,119 @@ export type Database = {
           },
         ]
       }
+      marketing_project_media: {
+        Row: {
+          caption: string | null
+          caption_ai: string | null
+          caption_status: string
+          created_at: string
+          created_by: string | null
+          credit: string | null
+          file_name: string
+          id: string
+          kind: string
+          last_used_at: string | null
+          mime_type: string
+          position: number | null
+          press_kit_id: string | null
+          profile_id: string
+          storage_path: string
+        }
+        Insert: {
+          caption?: string | null
+          caption_ai?: string | null
+          caption_status?: string
+          created_at?: string
+          created_by?: string | null
+          credit?: string | null
+          file_name: string
+          id?: string
+          kind?: string
+          last_used_at?: string | null
+          mime_type: string
+          position?: number | null
+          press_kit_id?: string | null
+          profile_id: string
+          storage_path: string
+        }
+        Update: {
+          caption?: string | null
+          caption_ai?: string | null
+          caption_status?: string
+          created_at?: string
+          created_by?: string | null
+          credit?: string | null
+          file_name?: string
+          id?: string
+          kind?: string
+          last_used_at?: string | null
+          mime_type?: string
+          position?: number | null
+          press_kit_id?: string | null
+          profile_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_project_media_press_kit_id_fkey"
+            columns: ["press_kit_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_press_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_project_media_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_project_press_kits: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          press_text: string
+          process_error: string | null
+          processed_at: string | null
+          profile_id: string
+          source_file_path: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          press_text: string
+          process_error?: string | null
+          processed_at?: string | null
+          profile_id: string
+          source_file_path?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          press_text?: string
+          process_error?: string | null
+          processed_at?: string | null
+          profile_id?: string
+          source_file_path?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_project_press_kits_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_project_profiles: {
         Row: {
           aliases: string[]
@@ -12320,7 +12433,12 @@ export type Database = {
         Returns: string
       }
       marketing_compute_draft_readiness: {
-        Args: { _capture_ids: string[]; _copy: string; _hashtags: string[] }
+        Args: {
+          _capture_ids: string[]
+          _copy: string
+          _hashtags: string[]
+          _project_id?: string
+        }
         Returns: Record<string, unknown>
       }
       marketing_curator_user_ids: { Args: never; Returns: string[] }
@@ -12339,6 +12457,10 @@ export type Database = {
       marketing_is_project_team_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      marketing_media_delete_block: {
+        Args: { _media_id: string }
+        Returns: string
       }
       marketing_recheck_draft_readiness: {
         Args: { _draft_id: string }

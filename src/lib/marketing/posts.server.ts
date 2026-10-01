@@ -190,10 +190,38 @@ export async function runPostRequest(requestId: string) {
       candidates = [src, ...candidates.filter((c) => c.id !== src.id)].slice(0, 25);
     }
     pool = [];
-    if (!candidates.length) throw new Error("No usable captures: none are analysed, cleared for use and unused");
+
+    // ── Library candidates: confirmed media of profiles whose project clearance allows use ──
+    type LibImg = { id: string; kind: "photo" | "diagram" | "drawing"; caption: string | null; credit: string | null; last_used_at: string | null; storage_path: string; mime_type: string; position: number | null; created_at: string };
+    type Lib = { project_id: string; eff: string; images: LibImg[] };
+    const library: Lib[] = [];
+    if (!req.source_capture_id) {
+      const { data: libProfiles } = await db.from("marketing_project_profiles").select("id, project_id, clearance").neq("clearance", "internal_only");
+      const libProfById = new Map<string, { project_id: string; clearance: string }>(((libProfiles ?? []) as { id: string; project_id: string; clearance: string }[]).map((r) => [r.id, r]));
+      if (libProfById.size) {
+        const { data: media } = await db.from("marketing_project_media")
+          .select("id, profile_id, kind, caption, credit, last_used_at, storage_path, mime_type, position, created_at")
+          .eq("caption_status", "confirmed").in("profile_id", [...libProfById.keys()]);
+        const byProfile = new Map<string, LibImg[]>();
+        for (const m of (media ?? []) as (LibImg & { profile_id: string })[]) {
+          const list = byProfile.get(m.profile_id) ?? [];
+          list.push(m);
+          byProfile.set(m.profile_id, list);
+        }
+        for (const [pid, imgs] of byProfile) {
+          const prof = libProfById.get(pid)!;
+          const p = profileBy.get(prof.project_id);
+          if (!p || p.name_rule === "never_mention") continue;
+          library.push({ project_id: prof.project_id, eff: prof.clearance, images: imgs.sort(byPos).slice(0, 12) });
+        }
+      }
+    }
+    const libById = new Map<string, LibImg & { project_id: string; eff: string }>();
+    for (const l of library) for (const m of l.images) libById.set(m.id, { ...m, project_id: l.project_id, eff: l.eff });
+    if (!candidates.length && !library.length) throw new Error("No usable captures: none are analysed, cleared for use and unused");
 
     // Internal background: up to 3 recent briefing transcripts per candidate project.
-    const candProjects = [...new Set(candidates.map((c) => c.project_id).filter(Boolean))] as string[];
+    const candProjects = [...new Set([...candidates.map((c) => c.project_id), ...library.map((l) => l.project_id)].filter(Boolean))] as string[];
     const background = new Map<string, string[]>();
     if (candProjects.length) {
       const { data: profRows } = await db.from("marketing_project_profiles").select("id, project_id").in("project_id", candProjects);
@@ -248,6 +276,30 @@ export async function runPostRequest(requestId: string) {
         content.push({ type: "image", source: { type: "url", url: s.signedUrl } });
       }
     }
+    for (const l of library.slice(0, 3)) {
+      const lead = l.images.find((m) => m.kind === "photo" && MODEL_IMAGE_TYPES.includes(m.mime_type));
+      if (!lead) continue;
+      const { data: s } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(lead.storage_path, 600);
+      if (s?.signedUrl) {
+        content.push({ type: "text", text: `Lead image of the project library of ${l.project_id} (media ${lead.id}):` });
+        content.push({ type: "image", source: { type: "url", url: s.signedUrl } });
+      }
+    }
+    const projectData = (pid: string) => {
+      const p = profileBy.get(pid);
+      return p ? {
+        id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
+        ...(p.name_rule === "name" ? { name: p.project_name, client: p.client } : {}),
+        ...(p.name_rule === "never_mention" ? {} : { sector: p.sector, location: p.location }),
+        client_ambition: p.client_ambition, central_idea: p.central_idea, challenges: p.challenges,
+        proud_of: p.proud_of, key_facts: p.key_facts,
+        ...(background.get(p.project_id)?.length ? { internal_background: background.get(p.project_id) } : {}),
+      } : null;
+    };
+    const libraryData = library.map((l) => ({
+      kind: "library", project_id: l.project_id, effective_clearance: l.eff, project: projectData(l.project_id),
+      images: l.images.map((m) => ({ id: m.id, kind: m.kind, caption: m.caption, credit: m.kind === "photo" ? m.credit : null, last_used_at: m.last_used_at })),
+    }));
     const candidateData = candidates.map((c) => {
       const p = c.project_id ? profileBy.get(c.project_id) : null;
       return {
@@ -272,6 +324,7 @@ export async function runPostRequest(requestId: string) {
       story_sets_requested: req.story_count ?? 0,
       ...(req.source_capture_id ? { must_build_around_capture: req.source_capture_id } : {}),
       candidates: candidateData,
+      library_candidates: libraryData,
       recent_history: hist ?? [],
       lessons_what_not_to_do: (lessons ?? []).map((l: { platform: string; ai_copy: string; decision_note: string }) => ({
         platform: l.platform, rejected_copy: l.ai_copy, why_rejected: l.decision_note,
@@ -305,6 +358,10 @@ ${JSON.stringify(bible.personas)}
 - Return at most ideas_requested ideas (fewer if the material is weak). If must_build_around_capture is set, return exactly one idea built around that capture.
 - capture_ids and asset_ids must come from the candidates; asset_ids are ordered, first is the lead image.
 - Formats: a capture with format_hint "carousel" is one set: use its images in their stored order (cover first); you may drop images but never reorder them; the post is a carousel. A capture with format_hint "single" gives at most one image per idea (pick the best). With "auto" you choose. Instagram carousels have at most 20 images; on LinkedIn the same images become a multi-image post.
+- library_candidates are approved, evergreen project libraries (press kit photos, diagrams, drawings). Use their image ids in asset_ids (and frame asset_id); capture_ids may then be empty, and project_id must be that library's project_id. Captions are facts you may use; the press text is already in the project profile and story fields.
+- Diagrams and drawings are never the cover (first asset). Use them as slide 2+ of a carousel, ideally right after the photo of the detail they explain.
+- Prefer library images whose last_used_at is null or older than 90 days.
+- When a post uses any library photo with a credit, end the Instagram copy with "📷 <credit>" and the LinkedIn copy with "Photography: <credit>". Never credit diagrams or drawings.
 - internal_background is private context from the team. Use it to understand the project; never quote it, never reveal costs, fees, disputes or anything the project's name_rule or clearance doesn't allow. The name rule still decides whether the client or project is named.
 
 # Instagram stories
@@ -340,6 +397,7 @@ ${JSON.stringify(bible.personas)}
       const out: string[] = [];
       const singleUsed = new Set<string>();
       for (const id of ids) {
+        if (libById.has(id)) { out.push(id); continue; }
         const c = owner.get(id);
         if (!c) continue;
         if (c.format_hint === "single") { if (singleUsed.has(c.id)) continue; singleUsed.add(c.id); }
@@ -356,29 +414,44 @@ ${JSON.stringify(bible.personas)}
       }
       return out.slice(0, 20);
     };
+    /** Diagrams/drawings are never the cover: move the first photo to the front. */
+    const coverFirst = (ids: string[]) => {
+      const lead = libById.get(ids[0] ?? "");
+      if (!lead || lead.kind === "photo") return ids;
+      const i = ids.findIndex((id) => !libById.has(id) || libById.get(id)!.kind === "photo");
+      return i < 0 ? ids : [ids[i], ...ids.filter((_, k) => k !== i)];
+    };
+    const withCredit = (copy: string, credits: string[], prefix: string) => {
+      if (!credits.length) return copy;
+      const line = `${prefix}${credits.join(", ")}`;
+      return copy.trimEnd().endsWith(line) ? copy : `${copy.trimEnd()}\n\n${line}`;
+    };
     const rows: Record<string, unknown>[] = [];
     for (const idea of (out.ideas ?? []).slice(0, limit)) {
       const capIds = [...new Set((idea.capture_ids ?? []).filter((id) => capById.has(id)))];
-      if (!capIds.length) continue;
       const allowedAssets = new Set(capIds.flatMap((id) => capById.get(id)!.marketing_capture_assets.map((a) => a.id)));
-      const aIds = applyHints([...new Set((idea.asset_ids ?? []).filter((id) => assetIds.has(id) && allowedAssets.has(id)))], capIds);
+      let aIds = applyHints([...new Set((idea.asset_ids ?? []).filter((id) => (assetIds.has(id) && allowedAssets.has(id)) || libById.has(id)))], capIds);
+      const libUsed = aIds.map((id) => libById.get(id)).filter((m): m is NonNullable<typeof m> => !!m);
+      if (!capIds.length && !libUsed.length) continue;
+      aIds = coverFirst(aIds);
       const caps = capIds.map((id) => capById.get(id)!);
-      const projectIds = new Set<string>(caps.map((c) => c.project_id).filter(Boolean) as string[]);
+      const projectIds = new Set<string>([...caps.map((c) => c.project_id), ...libUsed.map((m) => m.project_id)].filter(Boolean) as string[]);
       if (idea.project_id && profileBy.has(idea.project_id)) projectIds.add(idea.project_id);
 
       let readiness: "ready" | "needs_approval" | "blocked" =
-        caps.every((c) => c.eff === "cleared" && !(c.ai_flags?.length)) ? "ready" : "needs_approval";
+        caps.every((c) => c.eff === "cleared" && !(c.ai_flags?.length)) && libUsed.every((m) => m.eff === "cleared") ? "ready" : "needs_approval";
       let note = readiness === "ready" ? null : (idea.approval_note?.trim() || "Needs approval before publishing");
       const flags: string[] = [];
-      const ig = { copy: idea.instagram?.copy ?? "", hashtags: (idea.instagram?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 8) };
-      const li = { copy: idea.linkedin?.copy ?? "", hashtags: (idea.linkedin?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 3) };
+      const credits = [...new Set(libUsed.filter((m) => m.kind === "photo" && m.credit?.trim()).map((m) => m.credit!.trim()))];
+      const ig = { copy: withCredit(idea.instagram?.copy ?? "", credits, "📷 "), hashtags: (idea.instagram?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 8) };
+      const li = { copy: withCredit(idea.linkedin?.copy ?? "", credits, "Photography: "), hashtags: (idea.linkedin?.hashtags ?? []).map(tag).filter(Boolean).slice(0, 3) };
       const hay = `${ig.copy} ${ig.hashtags.join(" ")} ${li.copy} ${li.hashtags.join(" ")}`.toLowerCase();
       if (nameCheck(projectIds, hay)) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
       if (readiness === "blocked") note = note ?? null;
       const ideaId = crypto.randomUUID();
       const base = {
         request_id: requestId, idea_id: ideaId, capture_ids: capIds, asset_ids: aIds, format: aIds.length >= 2 ? "carousel" : "single",
-        project_id: idea.project_id && profileBy.has(idea.project_id) ? idea.project_id : caps[0].project_id,
+        project_id: idea.project_id && profileBy.has(idea.project_id) ? idea.project_id : caps[0]?.project_id ?? libUsed[0]?.project_id ?? null,
         pillar: idea.pillar && pillarKeys.has(idea.pillar) ? idea.pillar : null,
         persona: idea.persona && personaKeys.has(idea.persona) ? idea.persona : null,
         rationale: (idea.rationale ?? "").slice(0, 2000) || "—",
@@ -392,7 +465,7 @@ ${JSON.stringify(bible.personas)}
     for (const st of (req.source_capture_id ? [] : (out.stories ?? [])).slice(0, req.story_count ?? 0)) {
       const capIds = [...new Set((st.capture_ids ?? []).filter((id) => capById.has(id)))];
       const used = new Set<string>();
-      const allowed = new Set(candidates.flatMap((c) => c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a) => a.id)));
+      const allowed = new Set([...candidates.flatMap((c) => c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a) => a.id)), ...libById.keys()]);
       let stickerUsed = false;
       const frames: StoryFrame[] = [];
       for (const f of st.frames ?? []) {
@@ -407,17 +480,18 @@ ${JSON.stringify(bible.personas)}
       // Captures actually shown in the frames must be part of the story.
       for (const f of frames) for (const c of candidates) if (c.marketing_capture_assets.some((a) => a.id === f.asset_id) && !capIds.includes(c.id)) capIds.push(c.id);
       const caps = capIds.map((id) => capById.get(id)!);
-      const projectIds = new Set<string>(caps.map((c) => c.project_id).filter(Boolean) as string[]);
+      const libFrames = frames.map((f) => libById.get(f.asset_id)).filter((m): m is NonNullable<typeof m> => !!m);
+      const projectIds = new Set<string>([...caps.map((c) => c.project_id), ...libFrames.map((m) => m.project_id)].filter(Boolean) as string[]);
       if (st.project_id && profileBy.has(st.project_id)) projectIds.add(st.project_id);
       const copy = renderStoryFrames(frames);
-      let readiness: "ready" | "needs_approval" | "blocked" = caps.every((c) => c.eff === "cleared" && !(c.ai_flags?.length)) ? "ready" : "needs_approval";
+      let readiness: "ready" | "needs_approval" | "blocked" = caps.every((c) => c.eff === "cleared" && !(c.ai_flags?.length)) && libFrames.every((m) => m.eff === "cleared") ? "ready" : "needs_approval";
       const note = readiness === "ready" ? null : (st.approval_note?.trim() || "Needs approval before publishing");
       const flags: string[] = [];
       if (nameCheck(projectIds, copy.toLowerCase())) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
       rows.push({
         request_id: requestId, idea_id: crypto.randomUUID(), capture_ids: capIds, asset_ids: frames.map((f) => f.asset_id),
         format: "story", platform: "instagram", ai_copy: copy, ai_hashtags: [], ai_story_frames: frames,
-        project_id: st.project_id && profileBy.has(st.project_id) ? st.project_id : caps[0].project_id,
+        project_id: st.project_id && profileBy.has(st.project_id) ? st.project_id : caps[0]?.project_id ?? libFrames[0]?.project_id ?? null,
         pillar: st.pillar && pillarKeys.has(st.pillar) ? st.pillar : null,
         persona: st.persona && personaKeys.has(st.persona) ? st.persona : null,
         rationale: (st.rationale ?? "").slice(0, 2000) || "—",

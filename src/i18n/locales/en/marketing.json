@@ -263,7 +263,8 @@
     "source": {
       "ai": "AI",
       "architect_answer": "Architect answer",
-      "architect_briefing": "From briefing"
+      "architect_briefing": "From briefing",
+      "press_kit": "Press kit"
     }
   },
   "posts": {
@@ -462,5 +463,56 @@
     "empty": "No questions match.",
     "openCapture": "Open capture",
     "openQuestion": "Open"
+  },
+  "pressKit": {
+    "title": "Press kit",
+    "hint": "Approved project text, professional photos and diagrams. Reused in posts many times; photos carry a credit line.",
+    "add": "Add press kit",
+    "kitTitle": "Title (optional)",
+    "pressText": "Press text — paste it, or choose a .docx or .pdf",
+    "pastePlaceholder": "Paste the press text here",
+    "extracting": "Reading the file…",
+    "extractFailed": "Couldn't read the text from that file. Please paste it instead.",
+    "images": "Photos, diagrams and drawings (JPEG, PNG, WebP or HEIC, up to 50 MB each)",
+    "exportAs": "Export as JPEG or PNG",
+    "tooBig": "larger than 50 MB",
+    "selected_one": "{{count}} image selected",
+    "selected_other": "{{count}} images selected",
+    "credit": "Credit",
+    "creditPlaceholder": "Photography: First Last",
+    "uploading": "Uploading {{done}} of {{total}}…",
+    "textRequired": "Add the press text first",
+    "processing": "The AI is reading the press kit and writing captions…",
+    "processed": "{{suggestions}} story suggestions and {{captions}} captions drafted",
+    "processPartial": "Part of the AI step failed. Try again.",
+    "retry": "Try again",
+    "untitled": "Press kit",
+    "library_one": "Library · {{count}} image",
+    "library_other": "Library · {{count}} images",
+    "confirmAll": "Confirm all",
+    "confirm": "Confirm",
+    "confirmedAll": "Captions confirmed",
+    "caption": "Caption",
+    "captionPlaceholder": "What this image shows",
+    "kind": "Type",
+    "kinds": {
+      "photo": "Photo",
+      "diagram": "Diagram",
+      "drawing": "Drawing"
+    },
+    "status": {
+      "pending": "No caption yet",
+      "ai_draft": "AI draft",
+      "confirmed": "Confirmed"
+    },
+    "lastUsed": "Last used {{date}}",
+    "delete": "Delete image",
+    "deleteConfirm": "Delete this image permanently?",
+    "deleted": "Image deleted",
+    "deletePublished": "This image is used in a published post and can't be deleted.",
+    "deleteDrafts_one": "This image is used in {{count}} post draft. Delete that draft first.",
+    "deleteDrafts_other": "This image is used in {{count}} post drafts. Delete those drafts first.",
+    "clearBanner": "This project has a press kit — mark it cleared for publication?",
+    "clearAction": "Mark cleared"
   }
 }

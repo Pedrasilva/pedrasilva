@@ -263,7 +263,8 @@
     "source": {
       "ai": "IA",
       "architect_answer": "Resposta do arquiteto",
-      "architect_briefing": "Do briefing"
+      "architect_briefing": "Do briefing",
+      "press_kit": "Press kit"
     }
   },
   "posts": {
@@ -462,5 +463,56 @@
     "empty": "Nenhuma pergunta corresponde.",
     "openCapture": "Abrir captura",
     "openQuestion": "Abrir"
+  },
+  "pressKit": {
+    "title": "Press kit",
+    "hint": "Texto aprovado do projeto, fotografias profissionais e diagramas. Reutilizados em várias publicações; as fotografias levam crédito.",
+    "add": "Adicionar press kit",
+    "kitTitle": "Título (opcional)",
+    "pressText": "Texto de imprensa — cole-o ou escolha um .docx ou .pdf",
+    "pastePlaceholder": "Cole aqui o texto de imprensa",
+    "extracting": "A ler o ficheiro…",
+    "extractFailed": "Não foi possível ler o texto desse ficheiro. Cole-o, por favor.",
+    "images": "Fotografias, diagramas e desenhos (JPEG, PNG, WebP ou HEIC, até 50 MB cada)",
+    "exportAs": "Exporte em JPEG ou PNG",
+    "tooBig": "maior do que 50 MB",
+    "selected_one": "{{count}} imagem selecionada",
+    "selected_other": "{{count}} imagens selecionadas",
+    "credit": "Crédito",
+    "creditPlaceholder": "Fotografia: Nome Apelido",
+    "uploading": "A carregar {{done}} de {{total}}…",
+    "textRequired": "Adicione primeiro o texto de imprensa",
+    "processing": "A IA está a ler o press kit e a escrever legendas…",
+    "processed": "{{suggestions}} sugestões para a história e {{captions}} legendas redigidas",
+    "processPartial": "Parte do passo da IA falhou. Tente novamente.",
+    "retry": "Tentar novamente",
+    "untitled": "Press kit",
+    "library_one": "Biblioteca · {{count}} imagem",
+    "library_other": "Biblioteca · {{count}} imagens",
+    "confirmAll": "Confirmar todas",
+    "confirm": "Confirmar",
+    "confirmedAll": "Legendas confirmadas",
+    "caption": "Legenda",
+    "captionPlaceholder": "O que mostra esta imagem",
+    "kind": "Tipo",
+    "kinds": {
+      "photo": "Fotografia",
+      "diagram": "Diagrama",
+      "drawing": "Desenho"
+    },
+    "status": {
+      "pending": "Sem legenda",
+      "ai_draft": "Rascunho da IA",
+      "confirmed": "Confirmada"
+    },
+    "lastUsed": "Usada em {{date}}",
+    "delete": "Apagar imagem",
+    "deleteConfirm": "Apagar esta imagem definitivamente?",
+    "deleted": "Imagem apagada",
+    "deletePublished": "Esta imagem está numa publicação publicada e não pode ser apagada.",
+    "deleteDrafts_one": "Esta imagem está em {{count}} rascunho. Apague primeiro esse rascunho.",
+    "deleteDrafts_other": "Esta imagem está em {{count}} rascunhos. Apague primeiro esses rascunhos.",
+    "clearBanner": "Este projeto tem press kit — marcar como autorizado para publicação?",
+    "clearAction": "Marcar como autorizado"
   }
 }
