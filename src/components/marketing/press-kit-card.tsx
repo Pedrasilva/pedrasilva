@@ -1,4 +1,5 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useBlocker } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -160,10 +161,18 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
     if (error) { toast.error(t("profiles.error")); return false; }
     return true;
   };
+  // Cards with unsaved local edits; used to warn before leaving the page.
+  const dirtyRef = useRef<Set<string>>(new Set());
+  const setDirty = useCallback((id: string, dirty: boolean) => { if (dirty) dirtyRef.current.add(id); else dirtyRef.current.delete(id); }, []);
+  useBlocker({
+    shouldBlockFn: () => dirtyRef.current.size > 0 && !window.confirm(t("pressKit.unsavedLeave")),
+    enableBeforeUnload: () => dirtyRef.current.size > 0,
+  });
   const confirm = async (m: Media) => {
     const v = val(m);
     if (await update(m.id, { caption: v.caption?.trim() || null, credit: v.credit?.trim() || null, kind: v.kind, caption_status: "confirmed" })) {
       setEdits((e) => { const n = { ...e }; delete n[m.id]; return n; });
+      dirtyRef.current.delete(m.id);
       qc.invalidateQueries({ queryKey: mediaKey });
     }
   };
@@ -261,13 +270,13 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("pressKit.library", { count: media.length })}</h3>
-            {canEdit && unconfirmed > 0 && <Button size="sm" variant="outline" onClick={confirmAll}><Check className="mr-1 h-4 w-4" /> {t("pressKit.confirmAll")}</Button>}
+            {canEdit && unconfirmed > 0 && <Button size="sm" variant="outline" onClick={confirmAll}><Check className="mr-1 h-4 w-4" /> {t("pressKit.confirmAllCount", { count: unconfirmed })}</Button>}
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {media.map((m) => (
               <MediaItem key={m.id} m={m} url={urls[m.storage_path]} canEdit={canEdit}
                 initial={editsRef.current[m.id]}
-                onEdit={setEdit} onConfirm={confirm} onRemove={remove}
+                onEdit={setEdit} onDirty={setDirty} onConfirm={confirm} onRemove={remove}
                 onDragStart={setDragId} onDrop={drop} />
             ))}
           </div>
@@ -280,18 +289,27 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
 type ItemProps = {
   m: Media; url?: string; canEdit: boolean; initial?: Partial<Media>;
   onEdit: (id: string, patch: Partial<Media>) => void;
+  onDirty: (id: string, dirty: boolean) => void;
   onConfirm: (m: Media) => void; onRemove: (m: Media) => void;
   onDragStart: (id: string) => void; onDrop: (id: string) => void;
 };
 
 /** One library image. Holds its own field state so typing never re-renders the rest of the grid. */
-const MediaItem = memo(function MediaItem({ m, url, canEdit, initial, onEdit, onConfirm, onRemove, onDragStart, onDrop }: ItemProps) {
+const MediaItem = memo(function MediaItem({ m, url, canEdit, initial, onEdit, onDirty, onConfirm, onRemove, onDragStart, onDrop }: ItemProps) {
   const { t } = useTranslation("marketing");
   const [caption, setCaption] = useState(initial?.caption ?? m.caption ?? "");
   const [credit, setCredit] = useState(initial?.credit ?? m.credit ?? "");
   const [kind, setKind] = useState<Kind>(initial?.kind ?? m.kind);
   // Sync from the server after a save/refetch, unless the user has local edits.
   useEffect(() => { if (!initial) { setCaption(m.caption ?? ""); setCredit(m.credit ?? ""); setKind(m.kind); } }, [m.caption, m.credit, m.kind]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const dirty = caption.trim() !== (m.caption ?? "").trim() || kind !== m.kind || (kind === "photo" && credit.trim() !== (m.credit ?? "").trim());
+  const confirmed = m.caption_status === "confirmed";
+  useEffect(() => { onDirty(m.id, dirty); }, [dirty, m.id, onDirty]);
+  useEffect(() => () => onDirty(m.id, false), [m.id, onDirty]);
+  // Caption box grows to fit its text.
+  const capRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => { const el = capRef.current; if (el) { el.style.height = "auto"; el.style.height = `${el.scrollHeight + 2}px`; } }, [caption]);
 
   return (
     <div className="space-y-2 rounded-md border p-2" onDragOver={(e) => e.preventDefault()} onDrop={() => onDrop(m.id)}>
@@ -300,22 +318,28 @@ const MediaItem = memo(function MediaItem({ m, url, canEdit, initial, onEdit, on
         {canEdit && <GripVertical className="absolute left-1 top-1 h-4 w-4 text-muted-foreground" aria-hidden />}
       </div>
       <div className="flex flex-wrap gap-1">
-        <Badge variant={m.caption_status === "confirmed" ? "secondary" : "outline"}>{t(`pressKit.status.${m.caption_status}`)}</Badge>
+        <Badge variant="outline" className={confirmed ? "border-success/40 bg-success/10 text-success" : "border-warning/40 bg-warning/10 text-warning"}>{confirmed ? t("pressKit.status.confirmed") : t("pressKit.status.toConfirm")}</Badge>
         {m.last_used_at && <Badge variant="outline">{t("pressKit.lastUsed", { date: new Date(m.last_used_at).toLocaleDateString() })}</Badge>}
       </div>
       <Select value={kind} disabled={!canEdit} onValueChange={(x) => { setKind(x as Kind); onEdit(m.id, { kind: x as Kind }); }}>
         <SelectTrigger aria-label={t("pressKit.kind")}><SelectValue /></SelectTrigger>
         <SelectContent>{KINDS.map((k) => <SelectItem key={k} value={k}>{t(`pressKit.kinds.${k}`)}</SelectItem>)}</SelectContent>
       </Select>
-      <Textarea rows={3} value={caption} disabled={!canEdit} placeholder={t("pressKit.captionPlaceholder")} aria-label={t("pressKit.caption")}
+      <Textarea ref={capRef} rows={2} className="resize-none overflow-hidden" value={caption} disabled={!canEdit} placeholder={t("pressKit.captionPlaceholder")} aria-label={t("pressKit.caption")}
         onChange={(e) => { setCaption(e.target.value); onEdit(m.id, { caption: e.target.value }); }} />
       {kind === "photo" && (
         <Input value={credit} disabled={!canEdit} placeholder={t("pressKit.creditPlaceholder")} aria-label={t("pressKit.credit")}
           onChange={(e) => { setCredit(e.target.value); onEdit(m.id, { credit: e.target.value }); }} />
       )}
       {canEdit && (
-        <div className="flex gap-2">
-          <Button size="sm" onClick={() => onConfirm(m)} disabled={!caption.trim()}><Check className="mr-1 h-3.5 w-3.5" /> {t("pressKit.confirm")}</Button>
+        <div className="flex items-center gap-2">
+          {!confirmed ? (
+            <Button size="sm" onClick={() => onConfirm(m)} disabled={!caption.trim()}><Check className="mr-1 h-3.5 w-3.5" /> {t("pressKit.confirm")}</Button>
+          ) : dirty ? (
+            <Button size="sm" onClick={() => onConfirm(m)} disabled={!caption.trim()}>{t("pressKit.saveChanges")}</Button>
+          ) : (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground"><Check className="h-3.5 w-3.5" /> {t("pressKit.confirmedLabel")}</span>
+          )}
           <Button size="sm" variant="ghost" className="text-destructive" onClick={() => onRemove(m)} aria-label={t("pressKit.delete")}><Trash2 className="h-3.5 w-3.5" /></Button>
         </div>
       )}

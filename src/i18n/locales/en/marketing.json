@@ -523,7 +523,8 @@
     "status": {
       "pending": "No caption yet",
       "ai_draft": "AI draft",
-      "confirmed": "Confirmed"
+      "confirmed": "Confirmed",
+      "toConfirm": "To confirm"
     },
     "lastUsed": "Last used {{date}}",
     "delete": "Delete image",
@@ -534,7 +535,11 @@
     "deleteDrafts_other": "This image is used in {{count}} post drafts. Delete those drafts first.",
     "clearBanner": "This project has a press kit — mark it cleared for publication?",
     "clearAction": "Mark cleared",
-    "save": "Save press kit"
+    "save": "Save press kit",
+    "confirmAllCount": "Confirm all ({{count}})",
+    "saveChanges": "Save changes",
+    "confirmedLabel": "Confirmed",
+    "unsavedLeave": "You have unsaved caption changes. Leave this page anyway?"
   },
   "actions": {
     "title": "Actions",

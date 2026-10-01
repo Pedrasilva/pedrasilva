@@ -523,7 +523,8 @@
     "status": {
       "pending": "Sem legenda",
       "ai_draft": "Rascunho da IA",
-      "confirmed": "Confirmada"
+      "confirmed": "Confirmada",
+      "toConfirm": "Por confirmar"
     },
     "lastUsed": "Usada em {{date}}",
     "delete": "Apagar imagem",
@@ -534,7 +535,11 @@
     "deleteDrafts_other": "Esta imagem está em {{count}} rascunhos. Apague primeiro esses rascunhos.",
     "clearBanner": "Este projeto tem press kit — marcar como autorizado para publicação?",
     "clearAction": "Marcar como autorizado",
-    "save": "Guardar press kit"
+    "save": "Guardar press kit",
+    "confirmAllCount": "Confirmar todas ({{count}})",
+    "saveChanges": "Guardar alterações",
+    "confirmedLabel": "Confirmada",
+    "unsavedLeave": "Tem alterações às legendas por guardar. Sair da página mesmo assim?"
   },
   "actions": {
     "title": "Ações",
