@@ -525,6 +525,7 @@
     "deleteDrafts_one": "This image is used in {{count}} post draft. Delete that draft first.",
     "deleteDrafts_other": "This image is used in {{count}} post drafts. Delete those drafts first.",
     "clearBanner": "This project has a press kit — mark it cleared for publication?",
-    "clearAction": "Mark cleared"
+    "clearAction": "Mark cleared",
+    "save": "Save press kit"
   }
 }
