@@ -44,7 +44,16 @@ export function reminderLink(r: Pick<Reminder, "entity_type" | "entity_id">): st
   if (r.entity_type === "crm_opportunity" && r.entity_id) {
     return `/crm/opportunities/${r.entity_id}`;
   }
+  // Helpers' reminders carry a per-person key; the action page resolves it.
+  if ((r.entity_type === "marketing_action" || r.entity_type === "marketing_action_support") && r.entity_id) {
+    return `/marketing/actions/${r.entity_id}`;
+  }
   return null;
+}
+
+/** Reminders that can only be closed from their record (an outcome is required). */
+export function closesOnRecord(r: Pick<Reminder, "entity_type">): boolean {
+  return r.entity_type === "marketing_action" || r.entity_type === "marketing_action_support";
 }
 
 /** Open reminders owned by the signed-in user, soonest first. */
