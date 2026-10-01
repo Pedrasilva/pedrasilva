@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, Check, ListTodo } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   bucketFor,
+  closesOnRecord,
   reminderLink,
   useCompleteReminder,
   useMyReminders,
@@ -26,6 +27,7 @@ export function MyActionsCard() {
   const dateLocale = i18n.language?.startsWith("en") ? "en-GB" : "pt-PT";
   const { data, isLoading } = useMyReminders({ windowDays: 7 });
   const complete = useCompleteReminder();
+  const navigate = useNavigate();
 
   const grouped = useMemo(() => {
     const map = new Map<ReminderBucket, Reminder[]>();
@@ -107,7 +109,11 @@ export function MyActionsCard() {
                       className="h-7 w-7 shrink-0"
                       aria-label={t("myActions.markDone")}
                       title={t("myActions.markDone")}
-                      onClick={() => complete.mutate(r.id)}
+                      onClick={() =>
+                        closesOnRecord(r) && link
+                          ? navigate({ to: link as never })
+                          : complete.mutate(r.id)
+                      }
                       disabled={complete.isPending}
                     >
                       <Check className="h-3.5 w-3.5" />

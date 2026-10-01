@@ -414,7 +414,8 @@
       "marketing.projects": "Perfis de projeto",
       "marketing.posts": "Planeador de publicações",
       "reports.hours": "Horas registadas",
-      "marketing.questions": "Perguntas"
+      "marketing.questions": "Perguntas",
+      "marketing.actions": "Ações"
     },
     "top": {
       "create": "Criar",
@@ -429,6 +430,7 @@
       "marketing.posts": "Planeador",
       "marketing.projects": "Perfis",
       "marketing.questions": "Perguntas",
+      "marketing.actions": "Ações",
       "marketing.bible": "Bíblia"
     },
     "subnavLabel": "Páginas da secção"

@@ -7,7 +7,7 @@ import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { RAIL_ITEMS, type FlyoutLink } from "./nav-config";
-import { usePendingQuestions } from "./AppRail";
+import { useMyOpenActions, usePendingQuestions } from "./AppRail";
 
 /**
  * In-module tab strip built from the module's rail flyout links, with the
@@ -45,7 +45,9 @@ export function ModuleSubnav({ moduleId }: { moduleId: string }) {
 
 function SubnavTab({ link, active }: { link: FlyoutLink; active: boolean }) {
   const { t } = useTranslation("common");
-  const { data: pending = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
+  const { data: pendingQ = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
+  const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
+  const pending = link.badge === "marketingActions" ? pendingA : pendingQ;
   return (
     <Link
       to={link.to as never}

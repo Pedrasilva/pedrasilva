@@ -19,7 +19,7 @@ export async function admin() {
 }
 
 /** Streamed Claude call returning plain text. */
-async function claudeText(system: string, content: unknown[], maxTokens = 1000): Promise<string> {
+export async function claudeText(system: string, content: unknown[], maxTokens = 1000): Promise<string> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
   const res = await fetch(GATEWAY, {

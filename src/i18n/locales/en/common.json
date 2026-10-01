@@ -414,7 +414,8 @@
       "marketing.projects": "Project profiles",
       "marketing.posts": "Post planner",
       "reports.hours": "Hours logged",
-      "marketing.questions": "Questions"
+      "marketing.questions": "Questions",
+      "marketing.actions": "Actions"
     },
     "top": {
       "create": "Create",
@@ -429,6 +430,7 @@
       "marketing.posts": "Planner",
       "marketing.projects": "Profiles",
       "marketing.questions": "Questions",
+      "marketing.actions": "Actions",
       "marketing.bible": "Bible"
     },
     "subnavLabel": "Section pages"

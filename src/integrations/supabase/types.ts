@@ -4860,6 +4860,131 @@ export type Database = {
           },
         ]
       }
+      marketing_action_files: {
+        Row: {
+          action_id: string
+          created_at: string
+          created_by: string
+          file_name: string
+          id: string
+          mime_type: string
+          purpose: string
+          routed_id: string | null
+          routed_note: string | null
+          routed_to: string | null
+          storage_path: string
+        }
+        Insert: {
+          action_id: string
+          created_at?: string
+          created_by?: string
+          file_name: string
+          id?: string
+          mime_type: string
+          purpose: string
+          routed_id?: string | null
+          routed_note?: string | null
+          routed_to?: string | null
+          storage_path: string
+        }
+        Update: {
+          action_id?: string
+          created_at?: string
+          created_by?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          purpose?: string
+          routed_id?: string | null
+          routed_note?: string | null
+          routed_to?: string | null
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_action_files_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_actions: {
+        Row: {
+          brief: string | null
+          channel: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          crm_company_id: string | null
+          due_date: string | null
+          helper_user_ids: string[]
+          id: string
+          kind: string
+          outcome_notes: string | null
+          owner_user_id: string
+          profile_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          brief?: string | null
+          channel?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          crm_company_id?: string | null
+          due_date?: string | null
+          helper_user_ids?: string[]
+          id?: string
+          kind?: string
+          outcome_notes?: string | null
+          owner_user_id: string
+          profile_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          brief?: string | null
+          channel?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          crm_company_id?: string | null
+          due_date?: string | null
+          helper_user_ids?: string[]
+          id?: string
+          kind?: string
+          outcome_notes?: string | null
+          owner_user_id?: string
+          profile_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_actions_crm_company_id_fkey"
+            columns: ["crm_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_actions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_bible_versions: {
         Row: {
           change_summary: string
@@ -12397,6 +12522,10 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      marketing_action_support_key: {
+        Args: { _action_id: string; _user_id: string }
+        Returns: string
+      }
       marketing_active_bible: {
         Args: never
         Returns: {
@@ -12428,6 +12557,10 @@ export type Database = {
         Args: { _profile_id: string; _user_id: string }
         Returns: boolean
       }
+      marketing_can_see_action: {
+        Args: { _action_id: string; _user_id: string }
+        Returns: boolean
+      }
       marketing_capture_delete_block: {
         Args: { _capture_id: string }
         Returns: string
@@ -12454,6 +12587,10 @@ export type Database = {
         Args: { p_secret: string }
         Returns: boolean
       }
+      marketing_is_action_participant: {
+        Args: { _action_id: string; _user_id: string }
+        Returns: boolean
+      }
       marketing_is_project_team_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
@@ -12470,6 +12607,7 @@ export type Database = {
         Args: { _asset_ids: string[]; _capture_id: string }
         Returns: undefined
       }
+      marketing_resolve_action: { Args: { _id: string }; Returns: string }
       marketing_set_capture_format: {
         Args: { _capture_id: string; _format_hint: string }
         Returns: undefined

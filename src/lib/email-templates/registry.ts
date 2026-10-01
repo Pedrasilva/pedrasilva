@@ -3,6 +3,7 @@ import { template as expenseApprovedTemplate } from './expense-approved'
 import { template as remoteWorkLateTemplate } from './remote-work-late'
 import { template as timesheetReminderTemplate } from './timesheet-reminder'
 import { template as marketingNudgeTemplate } from './marketing-nudge'
+import { template as marketingActionTemplate } from './marketing-action'
 
 
 export interface TemplateEntry {
@@ -27,5 +28,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'remote-work-late': remoteWorkLateTemplate,
   'timesheet-reminder': timesheetReminderTemplate,
   'marketing-nudge': marketingNudgeTemplate,
+  'marketing-action': marketingActionTemplate,
 }
 
