@@ -58,6 +58,13 @@ export const listNudgeRecipients = createServerFn({ method: "POST" })
       if (!prev || (onTeam && !prev.onTeam)) out.set(uid, { userId: uid, name: r.name, email: r.email, onTeam });
     }
     const sender = c ? (c.created_by ?? (c.sender_email ? byEmail.get(String(c.sender_email).toLowerCase()) ?? null : null)) : null;
+    // Always offer the capture's sender, even when their staff record is inactive
+    // or uses a different email than their login.
+    if (sender && sender !== context.userId && !out.has(sender)) {
+      const email = users.find((u) => u.id === sender)?.email ?? (c?.sender_email ? String(c.sender_email) : "");
+      const match = (res ?? []).find((r: { email: string }) => r.email.trim().toLowerCase() === email.trim().toLowerCase()) as { name: string } | undefined;
+      if (email) out.set(sender, { userId: sender, name: match?.name ?? email, email, onTeam: false });
+    }
     out.delete(context.userId);
     const recipients = [...out.values()].sort((a, b) => Number(b.onTeam) - Number(a.onTeam) || a.name.localeCompare(b.name));
     return { recipients, senderUserId: sender };
