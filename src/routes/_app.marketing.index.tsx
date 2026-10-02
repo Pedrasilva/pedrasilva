@@ -729,7 +729,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
 
         <AiAnalysis capture={capture} canCurate={canCurate} />
         {canCurate && <SuggestPostButton captureId={capture.id} />}
-        <CaptureContextCard captureId={capture.id} hasProfile={!!profile} canCurate={canCurate} />
+        <CaptureContextCard captureId={capture.id} hasProfile={!!profile} profileId={profile?.id ?? null} canCurate={canCurate} />
         <DeleteCaptureButton capture={capture} canCurate={canCurate} onDeleted={onClose} />
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>
