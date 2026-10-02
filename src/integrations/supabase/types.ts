@@ -5059,6 +5059,54 @@ export type Database = {
           },
         ]
       }
+      marketing_capture_notes: {
+        Row: {
+          audio_path: string | null
+          author_user_id: string
+          capture_id: string
+          created_at: string
+          id: string
+          source: string
+          story_suggestion_id: string | null
+          text: string
+        }
+        Insert: {
+          audio_path?: string | null
+          author_user_id?: string
+          capture_id: string
+          created_at?: string
+          id?: string
+          source: string
+          story_suggestion_id?: string | null
+          text: string
+        }
+        Update: {
+          audio_path?: string | null
+          author_user_id?: string
+          capture_id?: string
+          created_at?: string
+          id?: string
+          source?: string
+          story_suggestion_id?: string | null
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_capture_notes_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_capture_notes_story_suggestion_id_fkey"
+            columns: ["story_suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_story_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_captures: {
         Row: {
           ai_flags: string[]
@@ -12571,6 +12619,10 @@ export type Database = {
       }
       marketing_can_brief_profile: {
         Args: { _profile_id: string; _user_id: string }
+        Returns: boolean
+      }
+      marketing_can_note_capture: {
+        Args: { _capture_id: string; _user_id: string }
         Returns: boolean
       }
       marketing_can_see_action: {

@@ -1,4 +1,4 @@
-import { NudgePanel } from "@/components/marketing/nudge-panel";
+import { CaptureContextCard } from "@/components/marketing/capture-context-card";
 import { DeleteCaptureButton } from "@/components/marketing/delete-capture-button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -729,7 +729,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
 
         <AiAnalysis capture={capture} canCurate={canCurate} />
         {canCurate && <SuggestPostButton captureId={capture.id} />}
-        {canCurate && <NudgePanel captureId={capture.id} hasProfile={!!profile} />}
+        <CaptureContextCard captureId={capture.id} hasProfile={!!profile} profileId={profile?.id ?? null} canCurate={canCurate} />
         <DeleteCaptureButton capture={capture} canCurate={canCurate} onDeleted={onClose} />
 
         <h3 className="mt-6 text-base font-semibold">{t("detail.curation")}</h3>

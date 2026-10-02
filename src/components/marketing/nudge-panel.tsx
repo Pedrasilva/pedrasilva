@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,7 +23,7 @@ type NudgeRow = {
 };
 
 /** Curator panel in the capture drawer: ask an architect for context, and see nudge states. */
-export function NudgePanel({ captureId, hasProfile }: { captureId: string; hasProfile: boolean }) {
+export function NudgePanel({ captureId, hasProfile, embedded = false, leading }: { captureId: string; hasProfile: boolean; embedded?: boolean; leading?: ReactNode }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const suggestFn = useServerFn(suggestNudgeQuestion);
@@ -85,13 +85,24 @@ export function NudgePanel({ captureId, hasProfile }: { captureId: string; hasPr
     n.status === "pending" && n.expires_at && new Date(n.expires_at) < new Date() ? "expired" : n.status;
 
   return (
-    <div className="mt-4 space-y-3 rounded-md border border-border p-3">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold">
-          <MessageCircleQuestion className="h-4 w-4" aria-hidden />{t("nudge.title")}
-        </h3>
-        {!open && <Button size="sm" variant="outline" onClick={openForm}>{t("nudge.ask")}</Button>}
-      </div>
+    <div className={embedded ? "space-y-3" : "mt-4 space-y-3 rounded-md border border-border p-3"}>
+      {embedded ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {leading}
+          {!open && (
+            <Button size="sm" variant="outline" onClick={openForm}>
+              <MessageCircleQuestion className="mr-1 h-4 w-4" aria-hidden />{t("context.ask")}
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <MessageCircleQuestion className="h-4 w-4" aria-hidden />{t("nudge.title")}
+          </h3>
+          {!open && <Button size="sm" variant="outline" onClick={openForm}>{t("nudge.ask")}</Button>}
+        </div>
+      )}
 
       {open && (
         <div className="space-y-3">
