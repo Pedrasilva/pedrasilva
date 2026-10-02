@@ -163,6 +163,7 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
     const { data: s } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(img.storage_path, 600);
     if (s?.signedUrl) content.push({ type: "image", source: { type: "url", url: s.signedUrl } });
   }
+  const teamContext = await loadTeamContext(db, captureId);
   content.push({
     type: "text",
     text: [
@@ -171,7 +172,9 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
       `Received: ${c.received_at}`,
       `Currently linked project: ${linked ? `${linked.project_name} (${linked.project_id})` : c.project_id ?? "none"}`,
       others.length ? `Also attached (not shown): ${others.map((o) => `${o.mime_type.split("/")[0]} (${o.file_name})`).join(", ")}` : "",
-      "Text:", c.raw_text ?? "(no text)", "</capture>",
+      "Text:", c.raw_text ?? "(no text)",
+      ...teamContext.map((t) => `Team context: ${t.author}: ${t.text}`),
+      "</capture>",
     ].filter(Boolean).join("\n"),
   });
 
