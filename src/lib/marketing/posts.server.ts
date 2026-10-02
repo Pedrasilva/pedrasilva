@@ -23,14 +23,15 @@ type Profile = {
   key_facts: string | null; name_rule: string; public_description: string | null;
 };
 type Sticker = { type: "none" | "poll" | "question" | "link"; text: string };
-export type StoryFrame = { asset_id: string; text: string; sticker: Sticker };
+/** kind "text" = preview frame (first only, no image; asset_id ""); text = headline, line = optional line below. */
+export type StoryFrame = { kind?: "image" | "text"; asset_id: string; text: string; line?: string | null; sticker: Sticker };
 type Story = {
   capture_ids: string[]; project_id: string | null; pillar: string | null; persona: string | null;
   rationale: string; approval_note: string | null; frames: StoryFrame[];
 };
 /** Plain rendering of story frames kept in ai_copy/final_copy so readiness and learning keep working. */
 export function renderStoryFrames(frames: StoryFrame[]) {
-  return frames.map((f, i) => `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
+  return frames.map((f, i) => f.kind === "text" ? `${i + 1}. [Preview] ${f.text.trim()}${f.line?.trim() ? ` — ${f.line.trim()}` : ""}` : `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
 }
 type Idea = {
   capture_ids: string[]; asset_ids: string[]; project_id: string | null; pillar: string | null; persona: string | null;
@@ -57,9 +58,10 @@ const SCHEMA = {
           frames: {
             type: "array",
             items: {
-              type: "object", additionalProperties: false, required: ["asset_id", "text", "sticker"],
+              type: "object", additionalProperties: false, required: ["kind", "asset_id", "text", "line", "sticker"],
               properties: {
-                asset_id: { type: "string" }, text: { type: "string" },
+                kind: { type: "string", enum: ["image", "text"] },
+                asset_id: { type: "string" }, text: { type: "string" }, line: nstr,
                 sticker: {
                   type: "object", additionalProperties: false, required: ["type", "text"],
                   properties: { type: { type: "string", enum: ["none", "poll", "question", "link"] }, text: { type: "string" } },
@@ -175,7 +177,7 @@ export async function runPostRequest(requestId: string) {
     type Cap = {
       id: string; raw_text: string | null; ai_summary: string | null; fit_score: number | null; pillar: string | null;
       persona: string | null; project_id: string | null; clearance: string; ai_flags: string[]; received_at: string;
-      format_hint: "auto" | "single" | "carousel";
+      format_hint: "auto" | "single" | "carousel" | "story";
       marketing_capture_assets: Array<{ id: string; storage_path: string; file_name: string; mime_type: string; position: number | null; created_at: string }>;
       eff: string;
     };
@@ -339,6 +341,9 @@ export async function runPostRequest(requestId: string) {
         images: c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a, i) => ({ id: a.id, file_name: a.file_name, order: i, ...(i === 0 ? { cover: true } : {}) })),
       };
     });
+    // Single-capture path: "story" → one story set and no posts; "auto" → posts and/or at most one story set.
+    const srcHint = req.source_capture_id ? candidates.find((c) => c.id === req.source_capture_id)?.format_hint ?? "auto" : null;
+    const storyLimit = srcHint ? (srcHint === "story" || srcHint === "auto" ? 1 : 0) : (req.story_count ?? 0);
     const briefItems = Math.min(10, (req.brief ?? "").split(/\n/).filter((l: string) => /^\s*(\d+[.)]|[-*•])\s+\S/.test(l)).length);
     const ideasRequested = Math.max(req.idea_count, briefItems);
     const payload = {
@@ -346,7 +351,8 @@ export async function runPostRequest(requestId: string) {
       ...(focusProjectId ? { focus_project_id: focusProjectId } : {}),
       period: { start: req.period_start, end: req.period_end },
       ideas_requested: ideasRequested,
-      story_sets_requested: req.story_count ?? 0,
+      story_sets_requested: storyLimit,
+      ...(srcHint === "story" ? { story_only: true } : {}),
       ...(req.source_capture_id ? { must_build_around_capture: req.source_capture_id } : {}),
       candidates: candidateData,
       library_candidates: libraryData,
@@ -380,7 +386,7 @@ ${JSON.stringify(bible.personas)}
 - Respect each capture's ai_flags (e.g. identifiable people) and mention them in approval_note.
 - Balance ideas across pillars and personas, taking recent_history into account, and prefer the strongest material. Learn from lessons_what_not_to_do.
 - edit_lessons: Edits our team made to earlier drafts. Learn the pattern: match the approved versions' tone, length, structure and word choices, and avoid what was removed.
-- Return at most ideas_requested ideas (fewer if the material is weak). If must_build_around_capture is set, return exactly one idea built around that capture.
+- Return at most ideas_requested ideas (fewer if the material is weak). If must_build_around_capture is set, return exactly one idea built around that capture, unless story_only is true: then return no ideas and exactly one story set built around that capture. When must_build_around_capture is set without story_only, you may also return one story set if the material suits a story (sketches, site and process photos, behind-the-scenes); otherwise return no stories.
 - capture_ids and asset_ids must come from the candidates; asset_ids are ordered, first is the lead image.
 - Formats: a capture with format_hint "carousel" is one set: use its images in their stored order (cover first); you may drop images but never reorder them; the post is a carousel. A capture with format_hint "single" gives at most one image per idea (pick the best). With "auto" you choose. Instagram carousels have at most 20 images; on LinkedIn the same images become a multi-image post.
 - library_candidates are approved, evergreen project libraries (press kit photos, diagrams, drawings). Use their image ids in asset_ids (and frame asset_id); capture_ids may then be empty, and project_id must be that library's project_id. Captions are facts you may use; the press text is already in the project profile and story fields.
@@ -399,7 +405,9 @@ ${JSON.stringify(bible.personas)}
 
 # Instagram stories
 - Return at most story_sets_requested items in "stories" (an empty array when 0). Stories suit behind-the-scenes, site and studio moments, so prefer captures that feel too casual for the grid.
-- Each story has 1–5 frames; each frame uses a different image from the candidates (asset_id). On-screen text at most ~12 words per frame, in English. No hashtags. At most one sticker per set (all other frames use type "none").
+- A story may open with ONE text preview frame (kind "text", asset_id "", text = headline of at most ~12 words, line = optional line below of at most ~20 words or null). Only the first frame may be a text frame, and at most one per set.
+- Then 1–5 image frames (kind "image", line null); each uses a different image from the candidates (asset_id). On-screen text at most ~12 words per frame, in English. No hashtags anywhere. At most one sticker per set (all other frames use type "none").
+- Sketches, drawings and diagrams are welcome in stories, including as the first image frame; the "never the cover" rule applies to posts only.
 - rationale: why this post, why now (1–2 sentences).
 - Write in English, in the Bible's honest-expert voice. No hype, no clichés ("stunning", "dream home"), no invented quotes.
 
@@ -413,7 +421,7 @@ ${JSON.stringify(bible.personas)}
     const pillarKeys = new Set(bible.pillars.map((p) => p.key));
     const personaKeys = new Set(bible.personas.map((p) => p.key));
     const tag = (h: string) => h.replace(/^#+/, "").replace(/\s+/g, "").trim();
-    const limit = req.source_capture_id ? 1 : ideasRequested;
+    const limit = srcHint === "story" ? 0 : req.source_capture_id ? 1 : ideasRequested;
     const usedAcross = new Set<string>();
     const nameCheck = (projectIds: Set<string>, hay: string) => {
       for (const pid of projectIds) {
@@ -502,25 +510,36 @@ ${JSON.stringify(bible.personas)}
     }
     const ideaCount = rows.length / 2;
     let storyCount = 0;
-    for (const st of (req.source_capture_id ? [] : (out.stories ?? [])).slice(0, req.story_count ?? 0)) {
+    const words = (x: string, n: number) => x.replace(/#\S+/g, "").trim().split(/\s+/).filter(Boolean).slice(0, n).join(" ");
+    for (const st of (out.stories ?? []).slice(0, storyLimit)) {
       const capIds = [...new Set((st.capture_ids ?? []).filter((id) => capById.has(id)))];
       const used = new Set<string>();
       const allowed = new Set([...candidates.flatMap((c) => c.marketing_capture_assets.filter((a) => a.mime_type.startsWith("image/")).map((a) => a.id)), ...libById.keys()]);
       let stickerUsed = false;
       const frames: StoryFrame[] = [];
-      for (const f of st.frames ?? []) {
+      for (const [fi, f] of (st.frames ?? []).entries()) {
+        if (f.kind === "text") {
+          // Only the first frame may be a text preview.
+          if (fi !== 0 || frames.length) continue;
+          const head = words(f.text ?? "", 12);
+          if (!head) continue;
+          const line = f.line ? words(f.line, 20) : "";
+          frames.push({ kind: "text", asset_id: "", text: head, line: line || null, sticker: { type: "none", text: "" } });
+          continue;
+        }
         if (!allowed.has(f.asset_id) || used.has(f.asset_id)) continue;
         used.add(f.asset_id);
         let sticker: Sticker = { type: "none", text: "" };
         if (f.sticker && f.sticker.type !== "none" && !stickerUsed) { sticker = { type: f.sticker.type, text: (f.sticker.text ?? "").slice(0, 100) }; stickerUsed = true; }
-        frames.push({ asset_id: f.asset_id, text: (f.text ?? "").replace(/#\S+/g, "").trim().slice(0, 140), sticker });
-        if (frames.length === 5) break;
+        frames.push({ kind: "image", asset_id: f.asset_id, text: (f.text ?? "").replace(/#\S+/g, "").trim().slice(0, 140), sticker });
+        if (frames.filter((x) => x.kind !== "text").length === 5) break;
       }
-      if (!frames.length) continue;
+      if (!frames.some((x) => x.kind !== "text")) continue;
+      const imgFrames = frames.filter((x) => x.kind !== "text");
       // Captures actually shown in the frames must be part of the story.
-      for (const f of frames) for (const c of candidates) if (c.marketing_capture_assets.some((a) => a.id === f.asset_id) && !capIds.includes(c.id)) capIds.push(c.id);
+      for (const f of imgFrames) for (const c of candidates) if (c.marketing_capture_assets.some((a) => a.id === f.asset_id) && !capIds.includes(c.id)) capIds.push(c.id);
       const caps = capIds.map((id) => capById.get(id)!);
-      const libFrames = frames.map((f) => libById.get(f.asset_id)).filter((m): m is NonNullable<typeof m> => !!m);
+      const libFrames = imgFrames.map((f) => libById.get(f.asset_id)).filter((m): m is NonNullable<typeof m> => !!m);
       const projectIds = new Set<string>([...caps.map((c) => c.project_id), ...libFrames.map((m) => m.project_id)].filter(Boolean) as string[]);
       if (st.project_id && profileBy.has(st.project_id)) projectIds.add(st.project_id);
       const copy = renderStoryFrames(frames);
@@ -529,7 +548,7 @@ ${JSON.stringify(bible.personas)}
       const flags: string[] = [];
       if (nameCheck(projectIds, copy.toLowerCase())) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
       rows.push({
-        request_id: requestId, idea_id: crypto.randomUUID(), capture_ids: capIds, asset_ids: frames.map((f) => f.asset_id),
+        request_id: requestId, idea_id: crypto.randomUUID(), capture_ids: capIds, asset_ids: imgFrames.map((f) => f.asset_id),
         format: "story", platform: "instagram", ai_copy: copy, ai_hashtags: [], ai_story_frames: frames,
         project_id: st.project_id && profileBy.has(st.project_id) ? st.project_id : caps[0]?.project_id ?? libFrames[0]?.project_id ?? null,
         pillar: st.pillar && pillarKeys.has(st.pillar) ? st.pillar : null,
