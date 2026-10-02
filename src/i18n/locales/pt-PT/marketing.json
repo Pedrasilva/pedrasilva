@@ -130,7 +130,8 @@
     "format": {
       "auto": "A IA decide",
       "carousel": "Carrossel",
-      "single": "Imagem única"
+      "single": "Imagem única",
+      "story": "Story"
     }
   },
   "bible": {
@@ -368,7 +369,10 @@
     "focusProject": "Focar num projeto",
     "focusNone": "Sem foco (todo o material)",
     "focusLabel": "Foco: {{name}}",
-    "briefItem": "Brief: {{item}}"
+    "briefItem": "Brief: {{item}}",
+    "textFrame": "Pré-visualização em texto",
+    "textFrameHeadline": "Título (máx. ~12 palavras)",
+    "textFrameLine": "Linha abaixo (opcional, máx. ~20 palavras)"
   },
   "nudge": {
     "title": "Pedir contexto a um arquiteto",

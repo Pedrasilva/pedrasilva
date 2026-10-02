@@ -56,9 +56,59 @@ type Draft = {
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
-type StoryFrame = { asset_id: string; text: string; sticker: { type: StickerType; text: string } };
+type StoryFrame = { kind?: "image" | "text"; asset_id: string; text: string; line?: string | null; sticker: { type: StickerType; text: string } };
 const renderFrames = (fr: StoryFrame[]) =>
-  fr.map((f, i) => `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
+  fr.map((f, i) => f.kind === "text" ? `${i + 1}. [Preview] ${f.text.trim()}${f.line?.trim() ? ` — ${f.line.trim()}` : ""}` : `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
+
+/** Story text preview card, in the brand's colours and display typeface (theme tokens). */
+function TextFrameCard({ frame }: { frame: StoryFrame }) {
+  return (
+    <div className="flex h-64 w-36 flex-col justify-center gap-2 rounded border bg-background p-3 text-foreground">
+      <p className="font-display text-base leading-tight">{frame.text}</p>
+      {frame.line && <p className="text-[11px] leading-snug text-muted-foreground">{frame.line}</p>}
+    </div>
+  );
+}
+
+const wrapLines = (ctx: CanvasRenderingContext2D, text: string, max: number) => {
+  const out: string[] = []; let cur = "";
+  for (const w of text.split(/\s+/).filter(Boolean)) {
+    const next = cur ? `${cur} ${w}` : w;
+    if (ctx.measureText(next).width > max && cur) { out.push(cur); cur = w; } else cur = next;
+  }
+  if (cur) out.push(cur);
+  return out;
+};
+/** Export a text preview frame as a 1080×1920 PNG in the same style as TextFrameCard. */
+async function exportTextFrame(frame: StoryFrame, name: string) {
+  const probe = document.createElement("div");
+  probe.className = "bg-background text-foreground font-display";
+  const muted = document.createElement("span"); muted.className = "text-muted-foreground font-sans";
+  probe.appendChild(muted); document.body.appendChild(probe);
+  const cs = getComputedStyle(probe), ms = getComputedStyle(muted);
+  const bg = cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" ? cs.backgroundColor : "#f5f3ef";
+  const fg = cs.color || "#222", mutedFg = ms.color || "#666", display = cs.fontFamily, sans = ms.fontFamily;
+  probe.remove();
+  await document.fonts?.ready;
+  const c = document.createElement("canvas"); c.width = 1080; c.height = 1920;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, 1080, 1920);
+  ctx.font = `96px ${display}`;
+  const head = wrapLines(ctx, frame.text, 900);
+  ctx.font = `48px ${sans}`;
+  const sub = frame.line ? wrapLines(ctx, frame.line, 900) : [];
+  const total = head.length * 112 + (sub.length ? 48 + sub.length * 64 : 0);
+  let y = (1920 - total) / 2 + 96;
+  ctx.fillStyle = fg; ctx.font = `96px ${display}`;
+  for (const l of head) { ctx.fillText(l, 90, y); y += 112; }
+  if (sub.length) { y += 24; ctx.fillStyle = mutedFg; ctx.font = `48px ${sans}`; for (const l of sub) { ctx.fillText(l, 90, y); y += 64; } }
+  const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/png"));
+  if (!blob) return;
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement("a"); el.href = url; el.download = name;
+  document.body.appendChild(el); el.click(); el.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
 
 function DeleteButton({ label, ids, column }: { label: string; ids: string[]; column: "id" | "request_id" | "idea" }) {
   const { t } = useTranslation("marketing");
@@ -360,6 +410,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   const { t } = useTranslation("marketing");
   const first = drafts[0];
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
+  const textFrame = first.format === "story" ? (first.final_story_frames ?? first.ai_story_frames ?? []).find((f) => f.kind === "text") ?? null : null;
   const { data: urls = {} } = useSigned(assets.map((a) => a.storage_path));
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
   const qc = useQueryClient();
@@ -374,8 +425,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   };
   return (
     <Card className="space-y-3 p-4">
-      {assets.length > 0 && (
+      {(assets.length > 0 || textFrame) && (
         <div className="flex snap-x gap-2 overflow-x-auto">
+          {textFrame && <div className="relative shrink-0 snap-start"><TextFrameCard frame={textFrame} /><span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">1</span></div>}
           {assets.map((a, i) => (
             <div key={a.storage_path} className="relative shrink-0 snap-start">
               {urls[a.storage_path]
@@ -383,14 +435,14 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
                   ? <video src={urls[a.storage_path]} controls className="h-48 rounded" />
                   : <img src={urls[a.storage_path]} alt={a.file_name} className={cn("rounded object-cover", first.format === "story" ? "h-64 w-36" : "h-48")} />)
                 : <div className="h-48 w-48 rounded bg-muted" />}
-              {assets.length > 1 && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1}</span>}
+              {(assets.length > 1 || textFrame) && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1 + (textFrame ? 1 : 0)}</span>}
             </div>
           ))}
         </div>
       )}
       <div className="flex flex-wrap items-center gap-1.5">
         {first.brief_item && <Badge variant="outline" className="border-primary/40 text-primary">{t("posts.briefItem", { item: first.brief_item })}</Badge>}
-        {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length })}</Badge>}
+        {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length + (textFrame ? 1 : 0) })}</Badge>}
         {first.format === "carousel" && <Badge>{t("posts.format.carousel", { count: assets.length })}</Badge>}
         <Badge variant="outline" className={READY_CLASS[first.readiness]}>{t(`posts.readiness.${first.readiness}`)}</Badge>
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
@@ -492,6 +544,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     toast.success(t("posts.copied"));
   };
   const download = async () => {
+    const tf = isStory ? frames.find((f) => f.kind === "text") : null;
+    if (tf) await exportTextFrame(tf, "story-1-preview.png");
     for (const a of assets) {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(a.storage_path, 600, { download: a.file_name });
       if (data?.signedUrl) {
@@ -511,7 +565,11 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         <div className="space-y-2">
           {(showOriginal ? draft.ai_story_frames ?? [] : frames).map((f, i) => (
             <div key={i} className="space-y-1 rounded-md border p-2">
-              <Label className="text-xs">{t("posts.frame", { n: i + 1 })}</Label>
+              <Label className="text-xs">{t("posts.frame", { n: i + 1 })}{f.kind === "text" ? ` · ${t("posts.textFrame")}` : ""}</Label>
+              {f.kind === "text" ? <>
+                <Input value={f.text} maxLength={100} disabled={locked || showOriginal} onChange={(e) => setFrame(i, { text: e.target.value })} aria-label={t("posts.textFrameHeadline")} placeholder={t("posts.textFrameHeadline")} />
+                <Input value={f.line ?? ""} maxLength={160} disabled={locked || showOriginal} onChange={(e) => setFrame(i, { line: e.target.value || null })} aria-label={t("posts.textFrameLine")} placeholder={t("posts.textFrameLine")} />
+              </> : <>
               <Input value={f.text} maxLength={140} disabled={locked || showOriginal} onChange={(e) => setFrame(i, { text: e.target.value })} aria-label={t("posts.frame", { n: i + 1 })} />
               <div className="flex gap-2">
                 <Select value={f.sticker.type} disabled={locked || showOriginal}
@@ -526,6 +584,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
                     onChange={(e) => setFrame(i, { sticker: { ...f.sticker, text: e.target.value } })} aria-label={t("posts.stickerLabel")} />
                 )}
               </div>
+              </>}
             </div>
           ))}
           <p className="text-xs text-muted-foreground">{t("posts.storyHint")}</p>
@@ -579,7 +638,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         )}
         {canCurate && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
-        {assets.length > 0 && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
+        {(assets.length > 0 || (isStory && frames.some((f) => f.kind === "text"))) && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
       {canCurate && draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}

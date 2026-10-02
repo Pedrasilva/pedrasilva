@@ -111,7 +111,7 @@ type Capture = {
   enrichment_model: string | null;
   enrichment_error: string | null;
   curator_notes: string | null;
-  format_hint?: "auto" | "carousel" | "single";
+  format_hint?: "auto" | "carousel" | "single" | "story";
   status: (typeof STATUSES)[number];
   clearance: (typeof CLEARANCES)[number];
   shelf_life: (typeof SHELF)[number] | null;
@@ -700,7 +700,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
               <Select value={v.format_hint ?? "auto"} onValueChange={(x) => set({ format_hint: x as Capture["format_hint"] })}>
                 <SelectTrigger className="h-8 w-44"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(["auto", "carousel", "single"] as const).map((k) => <SelectItem key={k} value={k}>{t(`detail.format.${k}`)}</SelectItem>)}
+                  {(["auto", "carousel", "single", "story"] as const).map((k) => <SelectItem key={k} value={k}>{t(`detail.format.${k}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Row>
