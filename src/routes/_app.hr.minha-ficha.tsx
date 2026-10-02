@@ -20,6 +20,7 @@ import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight, Printer } from
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
+import { CalendarConnection } from "@/components/projects/calendar-connection";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,6 +113,10 @@ function MinhaFichaPage() {
         <Button variant="outline" size="sm" onClick={() => window.print()} className="no-print gap-2">
           <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
         </Button>
+      </div>
+
+      <div className="no-print">
+        <CalendarConnection />
       </div>
 
       {/* Cabeçalho do colaborador */}

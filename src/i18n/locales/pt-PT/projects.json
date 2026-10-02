@@ -1565,6 +1565,29 @@
     "saved": "{{hours}} h guardadas na sua folha de horas",
     "openTimesheet": "Abrir folha de horas",
     "noResource": "A sua conta ainda não está ligada a um recurso de projeto.",
-    "dictate": "Ditar"
+    "dictate": "Ditar",
+    "calendar": {
+      "fromCalendar": "Do seu calendário",
+      "fromCalendarBadge": "Do calendário",
+      "dismiss": "Ignorar este evento do calendário",
+      "dismissFailed": "Não foi possível ocultar este evento",
+      "nothingNew": "Não há eventos novos no calendário para registar esta semana.",
+      "connect": "Ligar o meu calendário",
+      "reconnect": "Voltar a ligar o calendário",
+      "disconnect": "Desligar",
+      "connectedAs": "Calendário ligado como {{email}}",
+      "notConnected": "Google Calendar não ligado",
+      "expired": "A ligação ao seu calendário expirou ou foi removida. Volte a ligar o calendário.",
+      "explain": "Só são lidos títulos, horas, locais e participantes dos eventos em horário de trabalho. Eventos privados são ignorados. Só o próprio vê as sugestões.",
+      "viewAs": "As sugestões do calendário não estão disponíveis em Ver como.",
+      "loading": "A carregar o estado do calendário",
+      "connectedToast": "Calendário ligado",
+      "domainError": "Só podem ser ligadas contas Google @pedrasilva.com.",
+      "scopeError": "O acesso ao calendário não foi concedido. Tente de novo e permita ver os eventos.",
+      "connectError": "Não foi possível ligar o calendário",
+      "disconnected": "Calendário desligado e acesso removido na Google",
+      "revokeFailed": "Calendário desligado no PSA Hub, mas a Google não confirmou. Remova o PSA Hub em myaccount.google.com/permissions.",
+      "disconnectError": "Não foi possível desligar o calendário"
+    }
   }
 }

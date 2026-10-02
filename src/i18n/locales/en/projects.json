@@ -1565,6 +1565,29 @@
     "saved": "{{hours}} h saved to your timesheet",
     "openTimesheet": "Open timesheet",
     "noResource": "Your account isn't linked to a project resource yet.",
-    "dictate": "Dictate"
+    "dictate": "Dictate",
+    "calendar": {
+      "fromCalendar": "From your calendar",
+      "fromCalendarBadge": "From calendar",
+      "dismiss": "Dismiss this calendar event",
+      "dismissFailed": "Couldn't hide this event",
+      "nothingNew": "No new calendar events to log this week.",
+      "connect": "Connect my calendar",
+      "reconnect": "Reconnect your calendar",
+      "disconnect": "Disconnect",
+      "connectedAs": "Calendar connected as {{email}}",
+      "notConnected": "Google Calendar not connected",
+      "expired": "Your calendar connection expired or was removed. Reconnect your calendar.",
+      "explain": "Only event titles, times, locations and attendees during working hours. Private events are skipped. Only you see the suggestions.",
+      "viewAs": "Calendar suggestions aren't available in View As.",
+      "loading": "Loading calendar status",
+      "connectedToast": "Calendar connected",
+      "domainError": "Only @pedrasilva.com Google accounts can be connected.",
+      "scopeError": "Calendar access wasn't granted. Try again and allow access to view events.",
+      "connectError": "Couldn't connect your calendar",
+      "disconnected": "Calendar disconnected and access removed at Google",
+      "revokeFailed": "Calendar disconnected in PSA Hub, but Google didn't confirm. Remove PSA Hub at myaccount.google.com/permissions.",
+      "disconnectError": "Couldn't disconnect your calendar"
+    }
   }
 }
