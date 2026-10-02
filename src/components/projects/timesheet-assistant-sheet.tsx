@@ -1,11 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, parseISO, startOfWeek, subWeeks } from "date-fns";
 import { toast } from "sonner";
-import { Check, Loader2, Mic, Square, Trash2, AlertTriangle } from "lucide-react";
+import { Check, Loader2, Mic, Square, Trash2, AlertTriangle, CalendarDays, X } from "lucide-react";
+import { CalendarConnection, useCalendarStatus } from "@/components/projects/calendar-connection";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -101,6 +102,7 @@ export function TimesheetAssistantSheet({
   const parse = useServerFn(parseTimesheetDictation);
   const upsert = useUpsertTimesheetCell();
   const ensureRow = useEnsureStageRow();
+  const cal = useCalendarStatus();
 
   const thisWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   const lastWeek = format(subWeeks(parseISO(thisWeek), 1), "yyyy-MM-dd");
@@ -123,11 +125,11 @@ export function TimesheetAssistantSheet({
     setTyping(startTyping);
   }
 
-  async function run(extra: Array<{ q: string; a: string }> = history, done = false) {
-    if (!text.trim()) return;
+  async function run(extra: Array<{ q: string; a: string }> = history, done = false, forWeek = week) {
+    if (!text.trim() && !cal.connected) return;
     setLoading(true);
     try {
-      const r = await parse({ data: { text, weekStart: week, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done } });
+      const r = await parse({ data: { text, weekStart: forWeek, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done, useCalendar: cal.connected } });
       setResult(r);
       setDrafts(r.entries.map((e, i) => ({ ...e, key: `${Date.now()}-${i}` })));
       setAnswers({});
@@ -136,6 +138,19 @@ export function TimesheetAssistantSheet({
     } finally {
       setLoading(false);
     }
+  }
+
+  // Calendar connected: draft the week's events as soon as the sheet opens / the week changes.
+  useEffect(() => {
+    if (open && cal.connected && !result && !loading && !text.trim()) void run([], false, week);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, cal.connected, week]);
+
+  async function dismiss(d: Draft) {
+    setDrafts((ds) => ds.filter((x) => x.key !== d.key));
+    if (!d.event_id || !user) return;
+    const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user.id, event_id: d.event_id });
+    if (error) toast.error(t(k("calendar.dismissFailed")), { description: error.message });
   }
 
   function submitAnswers(done = false) {
@@ -194,6 +209,15 @@ export function TimesheetAssistantSheet({
           existing_entry_id: cur?.id ?? null,
           source: "assistant",
         });
+        if (d.event_id) {
+          let q2 = supabase.from("pm_time_entries").select("id, calendar_event_ids").eq("user_id", user.id).eq("entry_date", d.date).eq("entry_type", d.entry_type);
+          q2 = taskId ? q2.eq("task_id", taskId) : q2.eq("internal_category", d.internal_category!);
+          const { data: row } = await q2.limit(1).maybeSingle();
+          if (row) {
+            const ids = [...new Set([...(row.calendar_event_ids ?? []), d.event_id])];
+            await supabase.from("pm_time_entries").update({ calendar_event_ids: ids }).eq("id", row.id);
+          }
+        }
         total += d.hours;
         update(d.key, { saved: true });
       }
@@ -210,9 +234,75 @@ export function TimesheetAssistantSheet({
     }
   }
 
-  const grouped = days.map((d) => ({ d, items: drafts.filter((x) => x.date === d) })).filter((g) => g.items.length);
+  const groupOf = (list: Draft[]) => days.map((d) => ({ d, items: list.filter((x) => x.date === d) })).filter((g) => g.items.length);
+  const grouped = groupOf(drafts.filter((x) => !x.event_id || text.trim()));
+  const calGrouped = groupOf(drafts.filter((x) => x.event_id && !text.trim()));
+  const calExpired = result?.calendar.status === "expired";
   const pending = drafts.filter((d) => !d.saved && ready(d));
   const locked = !!result?.locked;
+
+  const renderGroups = (groups: typeof grouped) => groups.map((g) => (
+          <div key={g.d} className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {format(parseISO(g.d), "EEEE d MMM", { locale })}
+            </h3>
+            {g.items.map((d) => {
+              const proj = d.project_id ? projById.get(d.project_id) : undefined;
+              const already = existingFor(d);
+              return (
+                <div key={d.key} className={cn("space-y-2 rounded-md border p-3", d.confidence === "low" && !d.saved && "border-warning bg-warning/5", d.saved && "opacity-60")}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {d.event_id && <Badge variant="outline" className="gap-1"><CalendarDays className="h-3 w-3" aria-hidden />{t(k("calendar.fromCalendarBadge"))}</Badge>}
+                    {d.confidence === "low" && !d.saved && <Badge variant="outline" className="border-warning text-warning">{t(k("lowConfidence"))}</Badge>}
+                    {d.start_time && d.end_time && <span className="text-xs text-muted-foreground">{d.start_time}–{d.end_time}</span>}
+                    {already > 0 && !d.saved && (
+                      <span className="text-xs text-muted-foreground">{t(k("adds"), { hours: d.hours, already })}</span>
+                    )}
+                    {d.saved && <span className="text-xs text-success">✓ {t(k("savedOne"))}</span>}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <select aria-label={t(k("day"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.date} disabled={d.saved} onChange={(e) => update(d.key, { date: e.target.value })}>
+                      {days.map((x) => <option key={x} value={x}>{format(parseISO(x), "EEE d", { locale })}</option>)}
+                    </select>
+                    <Input aria-label={t(k("hours"))} type="number" step="0.25" min="0.25" max="24" className="h-9" value={d.hours} disabled={d.saved} onChange={(e) => update(d.key, { hours: Number(e.target.value) })} />
+                    <select aria-label={t(k("type"))} className="col-span-2 h-9 rounded-md border bg-background px-2 text-sm" value={d.entry_type} disabled={d.saved} onChange={(e) => update(d.key, { entry_type: e.target.value as Draft["entry_type"], project_id: null, stage_id: null, internal_category: null })}>
+                      <option value="project">{t(k("project"))}</option>
+                      <option value="internal">{t(k("internal"))}</option>
+                    </select>
+                  </div>
+                  {d.entry_type === "project" ? (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <select aria-label={t(k("project"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.project_id ?? ""} disabled={d.saved} onChange={(e) => { const p = projById.get(e.target.value); update(d.key, { project_id: e.target.value || null, stage_id: p?.stages.length === 1 ? p.stages[0].id : null }); }}>
+                        <option value="">{t(k("pickProject"))}</option>
+                        {(result?.projects ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}{p.client ? ` — ${p.client}` : ""}</option>)}
+                      </select>
+                      <select aria-label={t(k("stage"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.stage_id ?? ""} disabled={d.saved || !proj} onChange={(e) => update(d.key, { stage_id: e.target.value || null })}>
+                        <option value="">{t(k("pickStage"))}</option>
+                        {(proj?.stages ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    </div>
+                  ) : (
+                    <select aria-label={t(k("category"))} className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={d.internal_category ?? ""} disabled={d.saved} onChange={(e) => update(d.key, { internal_category: e.target.value || null })}>
+                      <option value="">{t(k("pickCategory"))}</option>
+                      {(result?.categories ?? []).map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  )}
+                  <Input aria-label={t(k("note"))} className="h-9" value={d.note} disabled={d.saved} onChange={(e) => update(d.key, { note: e.target.value })} placeholder={t(k("note"))} />
+                  {!d.saved && (
+                    <div className="flex justify-end gap-2">
+                      <Button size="icon" variant="ghost" aria-label={d.event_id ? t(k("calendar.dismiss")) : t(k("delete"))} onClick={() => void dismiss(d)}>
+                        {d.event_id ? <X className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                      </Button>
+                      <Button size="sm" disabled={!ready(d) || saving || locked} onClick={() => save([d])}>
+                        <Check className="mr-1 h-4 w-4" /> {t(k("confirm"))}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ));
 
   return (
     <Sheet open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
@@ -232,6 +322,8 @@ export function TimesheetAssistantSheet({
             </Button>
           ))}
         </div>
+
+        <CalendarConnection compact expired={calExpired} />
 
         {/* INPUT */}
         <div className="space-y-3">
@@ -301,68 +393,19 @@ export function TimesheetAssistantSheet({
         )}
 
         {/* DRAFTS */}
-        {result && drafts.length === 0 && !loading && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
-        {grouped.map((g) => (
-          <div key={g.d} className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {format(parseISO(g.d), "EEEE d MMM", { locale })}
-            </h3>
-            {g.items.map((d) => {
-              const proj = d.project_id ? projById.get(d.project_id) : undefined;
-              const already = existingFor(d);
-              return (
-                <div key={d.key} className={cn("space-y-2 rounded-md border p-3", d.confidence === "low" && !d.saved && "border-warning bg-warning/5", d.saved && "opacity-60")}>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {d.confidence === "low" && !d.saved && <Badge variant="outline" className="border-warning text-warning">{t(k("lowConfidence"))}</Badge>}
-                    {d.start_time && d.end_time && <span className="text-xs text-muted-foreground">{d.start_time}–{d.end_time}</span>}
-                    {already > 0 && !d.saved && (
-                      <span className="text-xs text-muted-foreground">{t(k("adds"), { hours: d.hours, already })}</span>
-                    )}
-                    {d.saved && <span className="text-xs text-success">✓ {t(k("savedOne"))}</span>}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <select aria-label={t(k("day"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.date} disabled={d.saved} onChange={(e) => update(d.key, { date: e.target.value })}>
-                      {days.map((x) => <option key={x} value={x}>{format(parseISO(x), "EEE d", { locale })}</option>)}
-                    </select>
-                    <Input aria-label={t(k("hours"))} type="number" step="0.25" min="0.25" max="24" className="h-9" value={d.hours} disabled={d.saved} onChange={(e) => update(d.key, { hours: Number(e.target.value) })} />
-                    <select aria-label={t(k("type"))} className="col-span-2 h-9 rounded-md border bg-background px-2 text-sm" value={d.entry_type} disabled={d.saved} onChange={(e) => update(d.key, { entry_type: e.target.value as Draft["entry_type"], project_id: null, stage_id: null, internal_category: null })}>
-                      <option value="project">{t(k("project"))}</option>
-                      <option value="internal">{t(k("internal"))}</option>
-                    </select>
-                  </div>
-                  {d.entry_type === "project" ? (
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <select aria-label={t(k("project"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.project_id ?? ""} disabled={d.saved} onChange={(e) => { const p = projById.get(e.target.value); update(d.key, { project_id: e.target.value || null, stage_id: p?.stages.length === 1 ? p.stages[0].id : null }); }}>
-                        <option value="">{t(k("pickProject"))}</option>
-                        {(result?.projects ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}{p.client ? ` — ${p.client}` : ""}</option>)}
-                      </select>
-                      <select aria-label={t(k("stage"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.stage_id ?? ""} disabled={d.saved || !proj} onChange={(e) => update(d.key, { stage_id: e.target.value || null })}>
-                        <option value="">{t(k("pickStage"))}</option>
-                        {(proj?.stages ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                    </div>
-                  ) : (
-                    <select aria-label={t(k("category"))} className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={d.internal_category ?? ""} disabled={d.saved} onChange={(e) => update(d.key, { internal_category: e.target.value || null })}>
-                      <option value="">{t(k("pickCategory"))}</option>
-                      {(result?.categories ?? []).map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  )}
-                  <Input aria-label={t(k("note"))} className="h-9" value={d.note} disabled={d.saved} onChange={(e) => update(d.key, { note: e.target.value })} placeholder={t(k("note"))} />
-                  {!d.saved && (
-                    <div className="flex justify-end gap-2">
-                      <Button size="icon" variant="ghost" aria-label={t(k("delete"))} onClick={() => setDrafts((ds) => ds.filter((x) => x.key !== d.key))}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" disabled={!ready(d) || saving || locked} onClick={() => save([d])}>
-                        <Check className="mr-1 h-4 w-4" /> {t(k("confirm"))}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+        {result && drafts.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
+        {grouped.length > 0 && renderGroups(grouped)}
+        {calGrouped.length > 0 && (
+          <section className="space-y-3" aria-labelledby="ts-cal-heading">
+            <h2 id="ts-cal-heading" className="flex items-center gap-2 text-sm font-semibold">
+              <CalendarDays className="h-4 w-4" aria-hidden /> {t(k("calendar.fromCalendar"))}
+            </h2>
+            {renderGroups(calGrouped)}
+          </section>
+        )}
+        {result?.calendar.status === "connected" && result.calendar.events === 0 && !text.trim() && (
+          <p className="text-sm text-muted-foreground">{t(k("calendar.nothingNew"))}</p>
+        )}
         {pending.length > 1 && (
           <Button onClick={() => save(pending)} disabled={saving || locked} className="w-full">
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
