@@ -265,7 +265,8 @@
       "ai": "IA",
       "architect_answer": "Resposta do arquiteto",
       "architect_briefing": "Do briefing",
-      "press_kit": "Press kit"
+      "press_kit": "Press kit",
+      "team_note": "Nota da equipa"
     },
     "edit": "Editar",
     "saveAccept": "Guardar e aceitar",
@@ -619,5 +620,17 @@
       "briefing": "Briefing",
       "capture": "Captura"
     }
+  },
+  "context": {
+    "title": "Contexto",
+    "record": "Gravar contexto",
+    "ask": "Perguntar a um arquiteto",
+    "orType": "Ou escrever",
+    "save": "Guardar nota",
+    "saved": "Nota guardada",
+    "reanalysed": "Análise da IA atualizada com este contexto",
+    "delete": "Apagar nota",
+    "deleteConfirm": "Apagar esta nota? A gravação também é removida.",
+    "suggestionLink": "sugestão no perfil"
   }
 }

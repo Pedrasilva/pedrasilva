@@ -265,7 +265,8 @@
       "ai": "AI",
       "architect_answer": "Architect answer",
       "architect_briefing": "From briefing",
-      "press_kit": "Press kit"
+      "press_kit": "Press kit",
+      "team_note": "Team note"
     },
     "edit": "Edit",
     "saveAccept": "Save and accept",
@@ -619,5 +620,17 @@
       "briefing": "Briefing",
       "capture": "Capture"
     }
+  },
+  "context": {
+    "title": "Context",
+    "record": "Record context",
+    "ask": "Ask an architect",
+    "orType": "Or type",
+    "save": "Save note",
+    "saved": "Note saved",
+    "reanalysed": "AI analysis updated with this context",
+    "delete": "Delete note",
+    "deleteConfirm": "Delete this note? Its recording is removed too.",
+    "suggestionLink": "suggestion on profile"
   }
 }
