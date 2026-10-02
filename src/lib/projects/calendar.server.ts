@@ -48,9 +48,19 @@ async function decryptToken(s: string): Promise<string> {
   return new TextDecoder().decode(pt);
 }
 
+const PREVIEW_ORIGIN = "https://id-preview--945f60ba-be65-42ad-a5a3-dc640ed8b1b3.lovable.app";
+const PROJECT_ID = "945f60ba-be65-42ad-a5a3-dc640ed8b1b3";
 export function checkOrigin(origin: string): string {
-  if (!ALLOWED_ORIGINS.has(origin)) throw new Error("This address can't connect a calendar.");
-  return origin;
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  // Other addresses of this same project (editor preview, dev URLs) use the
+  // registered preview address for the Google round trip.
+  try {
+    const h = new URL(origin).hostname;
+    if (h.includes(PROJECT_ID) && (h.endsWith(".lovableproject.com") || h.endsWith(".lovable.app"))) return PREVIEW_ORIGIN;
+  } catch {
+    /* fall through */
+  }
+  throw new Error("This address can't connect a calendar.");
 }
 const safePath = (p: string) => (p.startsWith("/") && !p.startsWith("//") ? p.slice(0, 200) : "/");
 
