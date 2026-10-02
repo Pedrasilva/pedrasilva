@@ -59,6 +59,8 @@ The text may be Portuguese, English or a mix. Reply with ONE JSON object only, n
 {"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"note":string,"confidence":"high"|"low"}],
  "questions":[{"text":string,"options":[string]}]}
 Rules:
+- Create one entry for EVERY activity the person mentions (meetings included), even if something similar is already logged; saving adds to existing hours. "Already logged" only counts towards day totals.
+- Write questions in the language of the person's own text (English text → English questions).
 - Dates must fall inside the target week given. Resolve "Monday", "yesterday", "on the 24th", "segunda", "ontem" against today's date and the week dates.
 - hours: from start/end when given, otherwise as said. Round to 0.25.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
