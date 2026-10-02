@@ -361,6 +361,12 @@ function HubPage() {
       </section>
 
 
+      {canAccess("time") && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+          <LogHoursCard />
+        </section>
+      )}
+
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
         <TodayStrip />
