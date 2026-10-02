@@ -237,7 +237,10 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const entries: AssistantDraft[] = [];
     for (const r of (parsed.entries ?? []) as Array<Record<string, unknown>>) {
       const date = String(r.date ?? "");
-      const hours = Math.round(Number(r.hours ?? 0) * 4) / 4;
+      const tm = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.split(":").map(Number) : null);
+      const st = tm(r.start_time), en = tm(r.end_time);
+      const fromTimes = st && en ? (en[0] * 60 + en[1] - st[0] * 60 - st[1]) / 60 : 0;
+      const hours = Math.round((Number(r.hours) > 0 ? Number(r.hours) : fromTimes) * 4) / 4;
       if (!days.includes(date) || !(hours > 0) || hours > 24) continue;
       const type = r.entry_type === "internal" ? "internal" : "project";
       let project_id = type === "project" && typeof r.project_id === "string" && projById.has(r.project_id) ? r.project_id : null;
