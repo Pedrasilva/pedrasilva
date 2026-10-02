@@ -1206,6 +1206,24 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_dismissed_events: {
+        Row: {
+          dismissed_at: string
+          event_id: string
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          event_id: string
+          user_id?: string
+        }
+        Update: {
+          dismissed_at?: string
+          event_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       collaborators: {
         Row: {
           ano_fiscal: number
@@ -8416,6 +8434,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           billable: boolean
+          calendar_event_ids: string[] | null
           cost_rate_snapshot: number | null
           created_at: string
           ended_at: string | null
@@ -8443,6 +8462,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           billable?: boolean
+          calendar_event_ids?: string[] | null
           cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
@@ -8470,6 +8490,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           billable?: boolean
+          calendar_event_ids?: string[] | null
           cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
@@ -11760,6 +11781,30 @@ export type Database = {
           level?: string
           updated_at?: string
           updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_calendar_connections: {
+        Row: {
+          connected_at: string
+          google_email: string
+          last_used_at: string | null
+          refresh_token_enc: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          google_email: string
+          last_used_at?: string | null
+          refresh_token_enc: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          google_email?: string
+          last_used_at?: string | null
+          refresh_token_enc?: string
           user_id?: string
         }
         Relationships: []
