@@ -30,7 +30,10 @@ export type AssistantDraft = {
   internal_category: string | null;
   note: string;
   confidence: "high" | "low";
+  /** Google Calendar event this draft comes from, if any. */
+  event_id: string | null;
 };
+export type AssistantCalendar = { status: "off" | "not_connected" | "connected" | "expired"; email: string | null; events: number };
 export type AssistantQuestion = { text: string; options: string[] };
 export type AssistantResult = {
   weekStart: string;
@@ -42,6 +45,7 @@ export type AssistantResult = {
   existing: AssistantExisting[];
   entries: AssistantDraft[];
   questions: AssistantQuestion[];
+  calendar: AssistantCalendar;
 };
 
 const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -56,7 +60,7 @@ const dow = (d: string) => new Date(d + "T00:00:00Z").getUTCDay();
 
 const SYSTEM = `You turn a person's spoken or typed description of their working hours into draft timesheet entries.
 The text may be Portuguese, English or a mix. Reply with ONE JSON object only, no prose, no code fences:
-{"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"note":string,"confidence":"high"|"low"}],
+{"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
  "questions":[{"text":string,"options":[string]}]}
 Rules:
 - Create one entry for EVERY activity the person mentions (meetings included), even if something similar is already logged; saving adds to existing hours. "Already logged" only counts towards day totals.
@@ -70,6 +74,10 @@ Rules:
 - confidence "low" whenever you guessed anything.
 - Never create leave, vacation or holiday entries; those come from HR.
 - questions: one per real ambiguity (two possible projects, which stage, unclear day, hours that don't add up). Also, for each working day mentioned whose total (already logged + leave + new entries) is below the person's daily hours, ask e.g. "That's 7 of your 8 hours on Monday. Anything else?" with options like ["That's all"]. Write questions in the language the person used. Max 4 questions. Options are short answers the person can tap (project names, stage names, "That's all"); may be empty.
+- Calendar events (when listed): each has an id. Never invent event ids.
+  * With no dictated text, create one draft per listed event (event_id = its id, date/start/end from the event, hours from its times) matched to a project via title, location, aliases or the attendee companies' projects, or to an internal category when it sounds internal (team meeting, training, admin). If the match is ambiguous, set project_id null / confidence "low" and ask, never guess.
+  * With dictated text: if a dictated item matches an event, use the event's times and set event_id. If they conflict (different time or length), keep the dictated version without event_id and ask which is right. For each event on a day the person talked about that their text doesn't cover, don't create it; ask e.g. "You had 'Restelo site visit' at 15:00. Add it?" with options ["Add it","No"]. If they answer yes, create it with its event_id.
+  * Never create two drafts for the same event_id. Events count towards questions' max of 4 only when ambiguous.
 - If the person answered previous questions, apply the answers and don't ask them again. If they said they're done / "é tudo" / "that's all", ask no more questions about missing hours.`;
 
 export const parseTimesheetDictation = createServerFn({ method: "POST" })
@@ -77,12 +85,14 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        text: z.string().trim().min(1).max(6000),
+        text: z.string().trim().max(6000).default(""),
+        useCalendar: z.boolean().default(false),
         weekStart: iso,
         today: iso,
         answers: z.array(z.object({ q: z.string().max(500), a: z.string().max(1000) })).max(20).default([]),
         done: z.boolean().default(false),
       })
+      .refine((x) => x.text.length > 0 || x.useCalendar, "Say or type what you worked on.")
       .parse(input),
   )
   .handler(async ({ data, context }): Promise<AssistantResult> => {
@@ -97,7 +107,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       db.from("pm_timesheet_weeks").select("status").eq("user_id", userId).eq("week_start", weekStart).maybeSingle(),
       db
         .from("pm_time_entries")
-        .select("entry_date, hours, entry_type, internal_category, leave_type, task_id")
+        .select("entry_date, hours, entry_type, internal_category, leave_type, task_id, calendar_event_ids")
         .eq("user_id", userId)
         .gte("entry_date", weekStart)
         .lte("entry_date", weekEnd),
@@ -105,7 +115,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       db.from("pm_internal_categories").select("name, visible_to_profiles").is("archived_at", null).order("sort_order"),
       db
         .from("pm_projects")
-        .select("id, name, client, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self)")
+        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self)")
         .eq("status", "active")
         .order("name")
         .limit(400),
@@ -205,6 +215,57 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       };
     });
 
+    // Google Calendar — always the caller's own (context.userId). Event data is
+    // used for this request only and never stored.
+    const calendar: AssistantCalendar = { status: "off", email: null, events: 0 };
+    let events: import("./calendar.server").CalendarEvent[] = [];
+    if (data.useCalendar) {
+      const cal = await import("./calendar.server");
+      const conn = await cal.getConnection(userId);
+      calendar.status = conn ? "connected" : "not_connected";
+      calendar.email = conn?.google_email ?? null;
+      if (conn) {
+        try {
+          const all = (await cal.weekEvents(userId, weekStart, weekEnd)) ?? [];
+          const saved = new Set(rawEntries.flatMap((e) => e.calendar_event_ids ?? []));
+          const { data: dis } = await db.from("calendar_dismissed_events").select("event_id").eq("user_id", userId);
+          const dismissed = new Set((dis ?? []).map((d) => d.event_id));
+          events = all.filter((e) => !saved.has(e.id) && !dismissed.has(e.id));
+          calendar.events = events.length;
+        } catch (e) {
+          if (e instanceof cal.CalendarExpiredError) calendar.status = "expired";
+          else throw e;
+        }
+      }
+    }
+    if (!data.text && !events.length) {
+      return { weekStart, weekEnd, locked, dailyHours, projects, categories, existing, entries: [], questions: [], calendar };
+    }
+    // Attendee emails → CRM contacts → company → that company's projects (sent as names only).
+    const companyOfEmail = new Map<string, string>();
+    const companyName = new Map<string, string>();
+    const emails = [...new Set(events.flatMap((e) => e.attendees).filter((m) => !m.endsWith("@pedrasilva.com")))];
+    if (emails.length) {
+      const { data: cs } = await db.from("contacts").select("email, company_id").in("email", emails.slice(0, 300));
+      for (const c of (cs ?? []) as Array<{ email: string | null; company_id: string | null }>) if (c.email && c.company_id) companyOfEmail.set(c.email.toLowerCase(), c.company_id);
+      const ids = [...new Set(companyOfEmail.values())];
+      if (ids.length) {
+        const { data: co } = await db.from("companies").select("id, nome").in("id", ids);
+        for (const c of (co ?? []) as Array<{ id: string; nome: string }>) companyName.set(c.id, c.nome);
+      }
+    }
+    const projByCompany = new Map<string, string[]>();
+    for (const p of (projRes.data ?? []) as Array<{ id: string; name: string; company_id: string | null }>) {
+      if (p.company_id) projByCompany.set(p.company_id, [...(projByCompany.get(p.company_id) ?? []), p.name]);
+    }
+    const eventLine = (e: (typeof events)[number]) => {
+      const internal = e.attendees.filter((m) => m.endsWith("@pedrasilva.com")).length;
+      const cos = [...new Set(e.attendees.map((m) => companyOfEmail.get(m)).filter(Boolean) as string[])];
+      const other = e.attendees.length - internal - e.attendees.filter((m) => companyOfEmail.has(m)).length;
+      const coTxt = cos.map((c) => `${companyName.get(c) ?? "?"} (projects: ${(projByCompany.get(c) ?? []).join(", ") || "none"})`).join("; ");
+      return `${e.id} | ${WEEKDAY[dow(e.date)]} ${e.date} ${e.start}–${e.end} | title: ${JSON.stringify(e.title)} | location: ${e.location ? JSON.stringify(e.location) : "none"} | attendees: ${internal} colleague(s)${coTxt ? `, client companies: ${coTxt}` : ""}${other > 0 ? `, ${other} unknown external` : ""}`;
+    };
+
     // Prompt context.
     const days = Array.from({ length: 7 }, (_, i) => addDaysISO(weekStart, i));
     const ctx = [
@@ -216,15 +277,18 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       `Internal categories: ${JSON.stringify(categories)}`,
       `Projects (id | name | client | aliases | stages id:name):`,
       ...projects.map((p) => `${p.id} | ${p.name} | ${p.client ?? ""} | ${(aliasMap.get(p.id) ?? []).join(", ")} | ${p.stages.map((s) => `${s.id}:${s.name}`).join("; ")}`),
+      ...(events.length ? [`Calendar events not yet logged (event id | when | title | location | attendees):`, ...events.map(eventLine)] : []),
     ].join("\n");
     const convo = [
-      `What the person said:\n${data.text}`,
+      data.text ? `What the person said:\n${data.text}` : "The person said nothing yet: draft the calendar events.",
       ...(data.answers.length ? ["Answers to your earlier questions:", ...data.answers.map((x) => `Q: ${x.q}\nA: ${x.a}`)] : []),
       ...(data.done ? ["The person says they are done; ask no more questions about missing hours."] : []),
     ].join("\n\n");
 
     const { claudeText } = await import("@/lib/marketing/nudges.server");
     const out = await claudeText(SYSTEM, [{ type: "text", text: `${ctx}\n\n${convo}` }], 4000);
+    const evById = new Map(events.map((e) => [e.id, e]));
+    const usedEvents = new Set<string>();
     const json = out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1);
     let parsed: { entries?: unknown[]; questions?: unknown[] };
     try {
@@ -238,6 +302,12 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const questions: AssistantQuestion[] = [];
     const entries: AssistantDraft[] = [];
     for (const r of (parsed.entries ?? []) as Array<Record<string, unknown>>) {
+      let event_id = typeof r.event_id === "string" && evById.has(r.event_id) && !usedEvents.has(r.event_id) ? r.event_id : null;
+      if (event_id) {
+        const ev = evById.get(event_id)!;
+        Object.assign(r, { date: ev.date, start_time: ev.start, end_time: ev.end, hours: Math.round((ev.minutes / 60) * 4) / 4 });
+        usedEvents.add(event_id);
+      } else event_id = null;
       const date = String(r.date ?? "");
       const tm = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.split(":").map(Number) : null);
       const st = tm(r.start_time), en = tm(r.end_time);
@@ -271,6 +341,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         internal_category: category,
         note: String(r.note ?? "").slice(0, 300),
         confidence,
+        event_id,
       });
     }
     for (const q of (parsed.questions ?? []) as Array<Record<string, unknown>>) {
@@ -281,5 +352,5 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       questions.push({ text: text.slice(0, 400), options });
     }
 
-    return { weekStart, weekEnd, locked, dailyHours, projects, categories, existing, entries, questions };
+    return { weekStart, weekEnd, locked, dailyHours, projects, categories, existing, entries, questions, calendar };
   });

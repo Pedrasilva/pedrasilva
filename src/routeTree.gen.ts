@@ -136,6 +136,7 @@ import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.p
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
+import { Route as ApiPublicCalendarCallbackRouteImport } from './routes/api/public/calendar/callback'
 import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/public/hooks/doc-reprocess'
 import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/public/hooks/docusign-connect'
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
@@ -830,6 +831,12 @@ const AppProposalsProposalIdComposerRoute =
     path: '/proposals/$proposalId/composer',
     getParentRoute: () => AppRoute,
   } as any)
+const ApiPublicCalendarCallbackRoute =
+  ApiPublicCalendarCallbackRouteImport.update({
+    id: '/api/public/calendar/callback',
+    path: '/api/public/calendar/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDocReprocessRoute =
   ApiPublicHooksDocReprocessRouteImport.update({
     id: '/api/public/hooks/doc-reprocess',
@@ -1020,6 +1027,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1152,6 +1160,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1294,6 +1303,7 @@ export interface FileRoutesById {
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
+  '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1436,6 +1446,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
+    | '/api/public/calendar/callback'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1568,6 +1579,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
+    | '/api/public/calendar/callback'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1709,6 +1721,7 @@ export interface FileRouteTypes {
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
+    | '/api/public/calendar/callback'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1740,6 +1753,7 @@ export interface RootRouteChildren {
   ApiNotifyRemoteWorkLateRoute: typeof ApiNotifyRemoteWorkLateRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicCalendarCallbackRoute: typeof ApiPublicCalendarCallbackRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
   ApiPublicHooksDocusignConnectRoute: typeof ApiPublicHooksDocusignConnectRoute
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
@@ -2644,6 +2658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProposalsProposalIdComposerRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/calendar/callback': {
+      id: '/api/public/calendar/callback'
+      path: '/api/public/calendar/callback'
+      fullPath: '/api/public/calendar/callback'
+      preLoaderRoute: typeof ApiPublicCalendarCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/doc-reprocess': {
       id: '/api/public/hooks/doc-reprocess'
       path: '/api/public/hooks/doc-reprocess'
@@ -3093,6 +3114,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiNotifyRemoteWorkLateRoute: ApiNotifyRemoteWorkLateRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicCalendarCallbackRoute: ApiPublicCalendarCallbackRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,
   ApiPublicHooksDocusignConnectRoute: ApiPublicHooksDocusignConnectRoute,
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
