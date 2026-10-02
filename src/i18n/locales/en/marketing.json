@@ -130,7 +130,8 @@
     "format": {
       "auto": "Let the AI decide",
       "carousel": "Carousel",
-      "single": "Single image"
+      "single": "Single image",
+      "story": "Story"
     }
   },
   "bible": {
@@ -368,7 +369,10 @@
     "focusProject": "Focus on a project",
     "focusNone": "No focus (all material)",
     "focusLabel": "Focus: {{name}}",
-    "briefItem": "Brief: {{item}}"
+    "briefItem": "Brief: {{item}}",
+    "textFrame": "Text preview",
+    "textFrameHeadline": "Headline (max ~12 words)",
+    "textFrameLine": "Line below (optional, max ~20 words)"
   },
   "nudge": {
     "title": "Ask an architect for context",
