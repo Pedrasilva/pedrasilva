@@ -324,10 +324,19 @@ export async function runPostRequest(requestId: string) {
       kind: "library", project_id: l.project_id, effective_clearance: l.eff, project: projectData(l.project_id),
       images: l.images.map((m) => ({ id: m.id, kind: m.kind, caption: m.caption, credit: m.kind === "photo" ? m.credit : null, last_used_at: m.last_used_at })),
     }));
+    const teamCtx = new Map<string, string[]>();
+    {
+      const { loadTeamContext } = await import("./enrich.server");
+      for (const c of candidates) {
+        const items = await loadTeamContext(db, c.id);
+        if (items.length) teamCtx.set(c.id, items.map((i) => `${i.author}: ${i.text}`));
+      }
+    }
     const candidateData = candidates.map((c) => {
       const p = c.project_id ? profileBy.get(c.project_id) : null;
       return {
         id: c.id, raw_text: trunc(c.raw_text, 1500), ai_summary: c.ai_summary, fit_score: c.fit_score,
+        ...(teamCtx.get(c.id)?.length ? { team_context: teamCtx.get(c.id) } : {}),
         pillar: c.pillar, persona: c.persona, effective_clearance: c.eff, ai_flags: c.ai_flags, received: c.received_at,
         project: p ? {
           id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
@@ -380,6 +389,7 @@ ${JSON.stringify(bible.pillars.map((p) => ({ key: p.key, name: p.name, descripti
 ${JSON.stringify(bible.personas)}
 
 # Rules
+- team_context is first-hand information from the team. Use it to tell the story accurately; quote it only if it reads as a natural, public-safe sentence; never reveal costs, client names or anything the project's name rule or clearance doesn't allow.
 - Use only facts present in the candidates, project profiles and the Bible. Never invent details, numbers or quotes.
 - Obey every publishing rule in the Bible. When a project's name_rule is describe_only, never use the client's or project's name; use the public_description. When it's never_mention, don't identify the client or project in any way.
 - Never use a capture whose effective_clearance is internal_only. Captures with unknown or needs_client_approval may be used, but approval_note must say who needs to approve and why.
