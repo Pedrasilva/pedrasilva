@@ -188,7 +188,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const projById = new Map(projects.map((p) => [p.id, p]));
 
     // Existing entries with their project / stage.
-    const rawEntries = (entriesRes.data ?? []) as Array<{ entry_date: string; hours: number; entry_type: string; internal_category: string | null; leave_type: string | null; task_id: string | null }>;
+    const rawEntries = (entriesRes.data ?? []) as Array<{ entry_date: string; hours: number; entry_type: string; internal_category: string | null; leave_type: string | null; task_id: string | null; calendar_event_ids: string[] | null }>;
     const taskIds = [...new Set(rawEntries.map((e) => e.task_id).filter(Boolean) as string[])];
     const taskStage = new Map<string, { stage_id: string; stage: string; project_id: string; project: string }>();
     if (taskIds.length) {
