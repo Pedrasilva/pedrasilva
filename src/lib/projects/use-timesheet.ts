@@ -306,6 +306,8 @@ export function useUpsertTimesheetCell() {
       notes?: string | null;
       billable?: boolean;
       existing_entry_id: string | null;
+      /** Defaults to "timesheet"; the dictation assistant passes "assistant". */
+      source?: string;
     }) => {
       if (input.hours <= 0) {
         if (input.existing_entry_id) {
@@ -338,7 +340,7 @@ export function useUpsertTimesheetCell() {
           ...payload,
           user_id: input.user_id,
           entry_date: input.entry_date,
-          source: "timesheet",
+          source: input.source ?? "timesheet",
         } as never);
         if (error) throw error;
       }

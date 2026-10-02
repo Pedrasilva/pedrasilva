@@ -19,7 +19,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Eye } from "lucide-react";
+import { Check, ChevronsUpDown, Eye, Mic } from "lucide-react";
+import { TimesheetAssistantSheet } from "@/components/projects/timesheet-assistant-sheet";
 import {
   useTimesheetRows,
   useTimesheetEntries,
@@ -78,6 +79,8 @@ function TimesheetPage() {
   const { profile: selfProfile, user } = useProjectsAuth();
   const { isRealAdmin } = useAuth();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
+  const [dictateOpen, setDictateOpen] = useState(false);
+  const { t } = useTranslation();
   const [extraTaskIds, setExtraTaskIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -351,6 +354,16 @@ function TimesheetPage() {
               <span className="rounded-full border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                 Read-only · viewing another collaborator
               </span>
+            )}
+
+            {!viewingOther && (
+              <Button variant="outline" size="sm" onClick={() => setDictateOpen(true)}>
+                <Mic className="mr-1.5 h-4 w-4" />
+                {t("projects:timesheetAssistant.dictate")}
+              </Button>
+            )}
+            {dictateOpen && (
+              <TimesheetAssistantSheet open={dictateOpen} onOpenChange={setDictateOpen} weekStart={weekStart} />
             )}
 
             <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">

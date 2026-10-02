@@ -29,6 +29,7 @@ import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
 import { RecentlyVisited } from "@/components/home/recently-visited";
 import { QuestionsForYou } from "@/components/home/questions-for-you";
+import { LogHoursCard } from "@/components/projects/timesheet-assistant-sheet";
 
 import {
   useProposalImages,
@@ -360,6 +361,12 @@ function HubPage() {
         </div>
       </section>
 
+
+      {canAccess("time") && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+          <LogHoursCard />
+        </section>
+      )}
 
       {/* TODAY ============================================================ */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
