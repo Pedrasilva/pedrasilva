@@ -46,6 +46,12 @@ export const deleteCapture = createServerFn({ method: "POST" })
         if (error) console.error("deleteCapture: voice removal failed", n.id, error.message);
       }
     }
+    {
+      const dir = `capture-notes/${cap.id}`;
+      const { data: nv } = await admin.storage.from("marketing-voice").list(dir, { limit: 1000 });
+      const np = ((nv ?? []) as { name: string }[]).map((f) => `${dir}/${f.name}`);
+      if (np.length) await admin.storage.from("marketing-voice").remove(np);
+    }
     if (cap.source_message_id) {
       const { error } = await admin.from("marketing_email_ignored").insert({
         message_id: cap.source_message_id, capture_id: null, from_address: cap.sender_email, reason: "deleted_capture",
