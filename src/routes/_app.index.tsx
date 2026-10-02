@@ -29,6 +29,7 @@ import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
 import { RecentlyVisited } from "@/components/home/recently-visited";
 import { QuestionsForYou } from "@/components/home/questions-for-you";
+import { LogHoursCard } from "@/components/projects/timesheet-assistant-sheet";
 
 import {
   useProposalImages,
