@@ -57,6 +57,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   useDefaultResourceRates,
   effectiveCostRate,
+  lockedCostRate,
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
@@ -102,6 +103,7 @@ type EntryLite = {
   entry_date: string;
   task_id: string | null;
   internal_category: string | null;
+  cost_rate_snapshot?: number | string | null;
 };
 
 // Fixed list of internal cost centers (kept in sync with use-timesheet.ts).
@@ -223,7 +225,7 @@ function useMonthEntries(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category, cost_rate_snapshot")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
@@ -451,7 +453,7 @@ function FinancialsPage() {
     for (const e of filteredEntries) {
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
+      const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
       const saleRate = res
         ? (e.entry_type === "project" && monthData?.taskMap.get(e.task_id ?? "")?.sale_rate
             ? Number(monthData.taskMap.get(e.task_id ?? "")?.sale_rate)
@@ -587,7 +589,7 @@ function FinancialsPage() {
       const cat = (e.internal_category ?? "").trim() || "Uncategorised";
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
+      const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
       const cur = map.get(cat) ?? { category: cat, hours: 0, cost: 0 };
       cur.hours += h;
       cur.cost += h * costRate;
@@ -1276,7 +1278,7 @@ function useTrailingTrend(
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("user_id, entry_type, billable, hours, entry_date, task_id")
+        .select("user_id, entry_type, billable, hours, entry_date, task_id, cost_rate_snapshot")
         .gte("entry_date", start)
         .lte("entry_date", end);
       if (error) throw error;
@@ -1339,7 +1341,7 @@ function useTrailingTrend(
         }
 
         const res = resourceId ? resourceMap.get(resourceId) : null;
-        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
+        const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
         const saleRate = res
           ? (e.entry_type === "project" && taskMap.get(e.task_id ?? "")?.sale_rate
               ? Number(taskMap.get(e.task_id ?? "")?.sale_rate)
@@ -1970,7 +1972,7 @@ function useBusinessDevReport(
       // 2. All-time "Fee proposals" internal time + cost
       const { data: bdEntries, error: eErr } = await supabase
         .from("pm_time_entries")
-        .select("user_id, hours, entry_date, task_id, entry_type, internal_category, billable")
+        .select("user_id, hours, entry_date, task_id, entry_type, internal_category, billable, cost_rate_snapshot")
         .eq("entry_type", "internal")
         .eq("internal_category", "Fee proposals");
       if (eErr) throw eErr;
@@ -2013,7 +2015,7 @@ function useBusinessDevReport(
         bdHours += h;
         const resId = userToRes.get(e.user_id) ?? null;
         const res = resId ? resourceMap.get(resId) : null;
-        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
+        const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
         bdCost += h * costRate;
       }
 

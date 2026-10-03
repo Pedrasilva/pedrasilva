@@ -123,7 +123,7 @@ interface ComputeArgs {
   taskToAlloc: Map<string, AllocLite>;
   /** allocation_id -> stage_id */
   allocToStage: Map<string, string>;
-  entries: { task_id: string; hours: number; billable: boolean }[];
+  entries: { task_id: string; hours: number; billable: boolean; cost_rate_snapshot?: number | null }[];
   imported: {
     loggedHours: number;
     billableHours: number;
@@ -177,7 +177,7 @@ function computeControl({
   // Bucket logged entries by stage.
   const stageLogged = new Map<
     string,
-    { logged: number; billable: number; nonBillable: number }
+    { logged: number; billable: number; nonBillable: number; snapCost: number; unsnap: number }
   >();
   for (const e of entries) {
     const alloc = taskToAlloc.get(e.task_id);
@@ -185,8 +185,11 @@ function computeControl({
     const stageId = allocToStage.get(alloc.id);
     if (!stageId) continue;
     const h = Number(e.hours);
-    const cur = stageLogged.get(stageId) ?? { logged: 0, billable: 0, nonBillable: 0 };
+    const cur = stageLogged.get(stageId) ?? { logged: 0, billable: 0, nonBillable: 0, snapCost: 0, unsnap: 0 };
     cur.logged += h;
+    // Locked cost rate on the entry; entries without one use current rates.
+    if (e.cost_rate_snapshot != null) cur.snapCost += h * Number(e.cost_rate_snapshot);
+    else cur.unsnap += h;
     if (e.billable) cur.billable += h;
     else cur.nonBillable += h;
     stageLogged.set(stageId, cur);
@@ -209,8 +212,8 @@ function computeControl({
 
   for (const s of stages) {
     const planMeta = stagePlanned.get(s.id)!;
-    const log = stageLogged.get(s.id) ?? { logged: 0, billable: 0, nonBillable: 0 };
-    let cost = 0;
+    const log = stageLogged.get(s.id) ?? { logged: 0, billable: 0, nonBillable: 0, snapCost: 0, unsnap: 0 };
+    let cost = log.snapCost;
     let value = 0;
     let plannedFutureH = 0;
     let plannedFutureC = 0;
@@ -220,7 +223,7 @@ function computeControl({
     if (planMeta.totPlan > 0) {
       for (const p of planMeta.planned) {
         const w = p.h / planMeta.totPlan;
-        cost += w * log.logged * p.cost;
+        cost += w * log.unsnap * p.cost;
         value += w * log.billable * p.sale;
       }
     }
@@ -241,7 +244,7 @@ function computeControl({
         allocation_id: a.id,
         actual_hours_logged: aLogged,
         actual_billable_hours: aBillable,
-        actual_cost_consumed: aLogged * Number(a.cost_rate),
+        actual_cost_consumed: w * log.snapCost + w * log.unsnap * Number(a.cost_rate),
         planned_future_hours: fh,
         planned_future_cost: fh * Number(a.cost_rate),
       });
@@ -404,7 +407,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
       }
 
       const taskToAlloc = new Map<string, AllocLite>();
-      let entries: { task_id: string; hours: number; billable: boolean }[] = [];
+      let entries: { task_id: string; hours: number; billable: boolean; cost_rate_snapshot: number | null }[] = [];
       if (allocIds.length > 0) {
         const { data: tasks } = await supabase
           .from("pm_tasks")
@@ -420,13 +423,14 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         if (taskIds.length > 0) {
           const { data: ents } = await supabase
             .from("pm_time_entries")
-            .select("task_id, hours, billable")
+            .select("task_id, hours, billable, cost_rate_snapshot")
             .eq("entry_type", "project")
             .in("task_id", taskIds);
-          entries = ((ents ?? []) as Array<{ task_id: string; hours: number; billable: boolean }>).map((e) => ({
+          entries = ((ents ?? []) as Array<{ task_id: string; hours: number; billable: boolean; cost_rate_snapshot: number | string | null }>).map((e) => ({
             task_id: e.task_id,
             hours: Number(e.hours),
             billable: !!e.billable,
+            cost_rate_snapshot: e.cost_rate_snapshot == null ? null : Number(e.cost_rate_snapshot),
           }));
         }
       }
