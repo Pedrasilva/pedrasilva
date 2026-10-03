@@ -68,6 +68,8 @@ export type AssistantResult = {
   skipped: AssistantSkipped[];
   /** Monday of the single other week every out-of-week entry belongs to, if any. */
   otherWeek: string | null;
+  /** Notes for days that already had hours logged, e.g. "Segunda já tem 6 h registadas; com estas fica com 14 h." */
+  dayNotes: string[];
 };
 
 const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -94,7 +96,7 @@ Rules:
 - Write questions in the language of the person's own text (English text → English questions).
 - Dates must fall inside the target week given. Resolve "Monday", "yesterday", "on the 24th", "segunda", "ontem" against today's date and the week dates.
 - hours: from start/end when given, otherwise as said. Round to 0.25.
-- "o resto do tempo", "o resto do dia", "the rest of the day", "the rest of the time" mean the person's daily hours minus everything else that day (already logged + leave + the other new entries that day). Put that number in hours.
+- "o resto do tempo", "o resto do dia", "the rest of the day", "the rest of the time" mean the person's daily hours for that day, minus approved leave or public holiday that day, minus the OTHER activities mentioned for that same day in this text. Do NOT subtract hours already logged before. Example (8 h day): "uma hora de reunião e o resto do dia a fazer propostas de honorários" → 1 h Meetings + 7 h Fee proposals. Put that number in hours, and do not ask about it unless it is 0 or less.
 - Always use the real calendar dates the person means, even when they fall outside the target week (e.g. "semana passada", "last Monday"). Never move an activity into the target week.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
 - entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). If no category clearly fits, set internal_category null and confidence "low" — never invent one. project_id and stage_id must be null.
@@ -428,10 +430,9 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       }
       pushEntry(r, date, hours, event_id);
     }
-    // "The rest of the day": daily hours minus logged + leave + the other new entries that day.
+    // "The rest of the day": daily hours minus leave/holiday minus the other new entries that day (already-logged hours are NOT subtracted).
     const dayTotal = (d: string) =>
-      existing.filter((e) => e.date === d && e.entry_type !== "non_working").reduce((s2, e) => s2 + e.hours, 0)
-      + (leaveByDate.get(d)?.hours ?? 0)
+      (leaveByDate.get(d)?.hours ?? 0)
       + entries.filter((e) => e.date === d).reduce((s2, e) => s2 + e.hours, 0);
     const restQuestions: AssistantQuestion[] = [];
     for (const p of restPending) {
@@ -531,5 +532,16 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     }
     questions.push(...restQuestions);
 
-    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar, skipped, otherWeek };
+    // One note per day that already has hours logged.
+    const dayNotes: string[] = [];
+    for (const d of [...new Set(entries.map((e) => e.date))].sort()) {
+      const logged = existing.filter((e) => e.date === d && e.entry_type !== "non_working").reduce((s2, e) => s2 + e.hours, 0);
+      if (!(logged > 0)) continue;
+      const total = logged + entries.filter((e) => e.date === d).reduce((s2, e) => s2 + e.hours, 0);
+      const n = new Date(d + "T00:00:00Z").getUTCDay();
+      const fmt = (x: number) => String(Math.round(x * 100) / 100).replace(".", pt ? "," : ".");
+      dayNotes.push(pt ? `${DAY_PT[n]} já tem ${fmt(logged)} h registadas; com estas fica com ${fmt(total)} h.` : `${WEEKDAY[n]} already has ${fmt(logged)} h logged; with these it will have ${fmt(total)} h.`);
+    }
+
+    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar, skipped, otherWeek, dayNotes };
   });
