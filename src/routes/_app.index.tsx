@@ -162,7 +162,9 @@ const MODULES: ModuleDef[] = [
 
 
 
-const QUOTES = [
+type DailyQuote = { text: string; text_pt?: string; author: string; team: boolean };
+
+const FAMOUS_QUOTES: DailyQuote[] = [
   {
     text: "Architecture is the learned game, correct and magnificent, of forms assembled in the light.",
     author: "Le Corbusier",
@@ -197,13 +199,70 @@ const QUOTES = [
   },
 ];
 
-function quoteOfTheDay() {
+const TEAM_QUOTES: DailyQuote[] = [
+  { team: true, author: "Patrícia", text_pt: "Tudo o que fazemos é custom-made – não existe uma “fórmula”, muito menos um “catálogo”.", text: "Everything we do is custom-made — there is no “formula”, let alone a “catalogue”." },
+  { team: true, author: "Patrícia", text_pt: "Nós somos pessoas, que se envolvem com pessoas, e o resultado é algo muito humano – não é estéril, não é maquinado, não é só imagem.", text: "We are people who get involved with people, and the result is something deeply human — not sterile, not machine-made, not just image." },
+  { team: true, author: "Irene", text_pt: "Estudamos o que é o melhor para os clientes. Por vezes não é o melhor para nós.", text: "We study what is best for our clients. Sometimes it isn't what's best for us." },
+  { team: true, author: "Bernardo", text_pt: "Cada projeto é desenvolvido de forma personalizada, sem lugar a uma estandardização de soluções.", text: "Every project is developed for its client, with no room for standardised solutions." },
+  { team: true, author: "João", text_pt: "Sempre focados na qualidade, rigor e criatividade. Onde tudo é pensado ao mais pequeno pormenor.", text: "Always focused on quality, rigour and creativity. Where everything is thought through to the smallest detail." },
+  { team: true, author: "Patrícia", text_pt: "Somos flexíveis mas não “invertebrados”, e o nosso objetivo é que os clientes voltem, porque gostaram do resultado e da experiência.", text: "We are flexible but not “spineless”, and our goal is for clients to come back because they loved the result and the experience." },
+  { team: true, author: "Ricardo", text_pt: "Queremos pró-ativamente colaborar e fazer um bom trabalho.", text: "We want to collaborate proactively and do good work." },
+  { team: true, author: "Irene", text_pt: "Somos verdadeiros e não somos pelas aparências.", text: "We are genuine, and we don't go by appearances." },
+  { team: true, author: "Mariana", text_pt: "A equipa PSA é uma equipa humana, com valores e sentido estético e arquitetónico apurados.", text: "The PSA team is a human team, with values and a refined aesthetic and architectural sense." },
+  { team: true, author: "Ricardo Cabrita", text_pt: "Criatividade e exigência, mas sem perder a proximidade com o cliente.", text: "Creativity and high standards, without losing closeness to the client." },
+  { team: true, author: "Adalberto", text_pt: "Não precisamos de ser grandes para fazer um bom trabalho.", text: "We don't need to be big to do good work." },
+  { team: true, author: "Irene", text_pt: "Procuramos fazer projetos diferenciadores, muito pensados e muito trabalhados, que não são apenas o espelho do nosso ego.", text: "We aim for distinctive projects, deeply considered and carefully worked, that are never just a mirror of our own ego." },
+  { team: true, author: "Ricardo", text_pt: "Fazer trabalhos com qualidade e não em quantidade.", text: "Doing work for its quality, not its quantity." },
+  { team: true, author: "Francisco", text_pt: "Levar cada projeto como único.", text: "Treating every project as unique." },
+  { team: true, author: "Patrícia", text_pt: "A honestidade é um pilar essencial; acredito que, embora por vezes nos possa “atraiçoar”, a longo prazo será valorizada.", text: "Honesty is an essential pillar; even if it sometimes works against us, I believe it will be valued in the long run." },
+  { team: true, author: "Rita Saragoça", text_pt: "Atenção ao detalhe e qualidade.", text: "Attention to detail, and quality." },
+];
+
+// Team and famous quotes alternate (team, famous, …), then the remaining team quotes.
+const QUOTES: DailyQuote[] = (() => {
+  const out: DailyQuote[] = [];
+  const n = Math.max(TEAM_QUOTES.length, FAMOUS_QUOTES.length);
+  for (let i = 0; i < n; i++) {
+    if (TEAM_QUOTES[i]) out.push(TEAM_QUOTES[i]);
+    if (FAMOUS_QUOTES[i]) out.push(FAMOUS_QUOTES[i]);
+  }
+  return out;
+})();
+
+const HERO_LINES: { pt: string; en: string; name: string | null }[] = [
+  { pt: "We make room for creativity.", en: "We make room for creativity.", name: null },
+  { pt: "Sem fórmula, sem catálogo.", en: "No formula, no catalogue.", name: "Patrícia" },
+  { pt: "Flexíveis, mas não invertebrados.", en: "Flexible, but never spineless.", name: "Patrícia" },
+  { pt: "Pessoas que se envolvem com pessoas.", en: "People who get involved with people.", name: "Patrícia" },
+  { pt: "Cada projeto, único.", en: "Every project, unique.", name: "Francisco" },
+  { pt: "Pensado ao mais pequeno pormenor.", en: "Thought through to the smallest detail.", name: "João" },
+  { pt: "Verdadeiros, não pelas aparências.", en: "Genuine, never for appearances.", name: "Irene" },
+  { pt: "Qualidade, não quantidade.", en: "Quality, not quantity.", name: "Ricardo" },
+  { pt: "Criatividade e exigência, perto do cliente.", en: "Creativity and rigour, close to the client.", name: "Ricardo Cabrita" },
+  { pt: "Uma equipa humana, com valores.", en: "A human team, with values.", name: "Mariana" },
+  { pt: "Atenção ao detalhe e qualidade.", en: "Attention to detail, and quality.", name: "Rita Saragoça" },
+  { pt: "Cada projeto, feito à medida.", en: "Every project, made to measure.", name: "Bernardo" },
+];
+
+function dayOfYearNow() {
   const d = new Date();
-  const dayOfYear = Math.floor(
-    (d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) /
-      (1000 * 60 * 60 * 24),
+  return Math.floor(
+    (d.getTime() - new Date(d.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24),
   );
-  return QUOTES[dayOfYear % QUOTES.length];
+}
+
+function quoteOfTheDay() {
+  return QUOTES[dayOfYearNow() % QUOTES.length];
+}
+
+/** Hero line: offset from the quote card, and never the same person on the same day. */
+function heroLineOfTheDay(quote: DailyQuote) {
+  const start = (dayOfYearNow() + 5) % HERO_LINES.length;
+  for (let k = 0; k < HERO_LINES.length; k++) {
+    const line = HERO_LINES[(start + k) % HERO_LINES.length];
+    if (!quote.team || line.name !== quote.author) return line;
+  }
+  return HERO_LINES[0];
 }
 
 
@@ -261,6 +320,8 @@ function HubPage() {
   }, [weekdays, months]);
 
   const quote = useMemo(quoteOfTheDay, []);
+  const heroLine = useMemo(() => heroLineOfTheDay(quote), [quote]);
+  const isPt = (i18n.language ?? "").toLowerCase().startsWith("pt");
 
   const celebrationsQ = useUpcomingCelebrations(45);
 
@@ -306,8 +367,13 @@ function HubPage() {
               {greeting}
               {firstName ? `, ${firstName}` : ""}.
               <span className="mt-1 block text-muted-foreground">
-                {t("home:tagline")}
+                {heroLine.name ? (isPt ? heroLine.pt : heroLine.en) : t("home:tagline")}
               </span>
+              {heroLine.name && (
+                <span className="mt-3 block font-sans text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+                  — {heroLine.name}
+                </span>
+              )}
             </h1>
 
             <div className="mt-8 h-px w-14 bg-foreground/25" />
@@ -472,10 +538,11 @@ function HubPage() {
           <div className="px-8 py-10 sm:px-12 sm:py-14">
             <Quote className="h-6 w-6 opacity-40" />
             <blockquote className="mt-4 font-display text-2xl sm:text-3xl leading-snug tracking-tight max-w-4xl">
-              “{quote.text}”
+              {quote.team && isPt && quote.text_pt ? `«${quote.text_pt}»` : `“${quote.text}”`}
             </blockquote>
             <div className="mt-6 text-[11px] uppercase tracking-[0.24em] opacity-70">
               — {quote.author}
+              {quote.team ? ` · ${isPt ? "Equipa PSA" : "PSA team"}` : ""}
             </div>
           </div>
         </Card>
