@@ -47,6 +47,7 @@ import {
   type ProjectStatus,
 } from "@/lib/projects/use-planner";
 import { allocationCost, allocationHours, workingDays } from "@/lib/projects/gantt-utils";
+import { usePursuitTotals, pursuitByProject } from "@/lib/projects/use-pursuit";
 import {
   useDefaultResourceRates,
   effectiveCostRate,
@@ -187,6 +188,21 @@ function DashboardPage() {
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  // Pre-contract (pursuit) hours on the lead each project came from. The
+  // server function returns nothing to people without project-financials access.
+  const { data: pursuitRows } = usePursuitTotals(null, canSeeFinancials);
+  const pursuitMap = useMemo(
+    () =>
+      pursuitByProject(
+        pursuitRows ?? [],
+        (rid) => {
+          const r = resources?.find((x) => x.id === rid);
+          return r ? { cost_rate: r.cost_rate, isOverride: !!r.hourly_rate_is_override } : undefined;
+        },
+        defaultRates,
+      ),
+    [pursuitRows, resources, defaultRates],
+  );
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("active");
   const [query, setQuery] = useState("");
   const [period, setPeriod] = useState<Period>("month");
@@ -478,6 +494,9 @@ function DashboardPage() {
         tmRevenue: 0,
         nonBillableHours: 0,
       };
+      const pursuit = pursuitMap.get(p.id) ?? { hours: 0, cost: 0 };
+      // Pre-contract (pursuit) cost counts as labour on the won project.
+      const laborCost = actual.laborCost + pursuit.cost;
       const isTM =
         actual.tmRevenue > 0 ||
         ps.some((s) => (s as { billing_model?: string | null }).billing_model === "hourly");
@@ -486,13 +505,13 @@ function DashboardPage() {
       // earned revenue, so it fills in when no invoice exists.
       const actualRevenue = actual.invoicedRevenue > 0 ? actual.invoicedRevenue : actual.tmRevenue;
       // Actual Cost column = true burn: labour + materials + expenses (purchase).
-      const actualCost = actual.laborCost + actual.materialsCost + actual.expensesCost;
+      const actualCost = laborCost + actual.materialsCost + actual.expensesCost;
       // Profit = (Budget + T&M earned + materials.sale_price) − (labour + expenses).
       // Materials sit on the revenue side (charged on top of budget); expenses
       // and hours are pure cost. Hourly stages carry no budget, so their
       // revenue comes from billable hours × sale rate instead.
       const totalRevenueBase = budget + actual.tmRevenue + actual.materialsSale;
-      const profit = totalRevenueBase - actual.laborCost - actual.expensesCost;
+      const profit = totalRevenueBase - laborCost - actual.expensesCost;
       const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
 
       let status: HealthRow["status"] = "ok";
@@ -534,10 +553,12 @@ function DashboardPage() {
         stageHours: stageHoursByProject.get(p.id) ?? [],
         status,
         statusReason,
+        pursuitHours: pursuit.hours,
+        pursuitCost: pursuit.cost,
       };
 
     });
-  }, [filteredProjects, stagesByProject, projectActuals, projectPlannedHours, stageHoursByProject]);
+  }, [filteredProjects, stagesByProject, projectActuals, projectPlannedHours, stageHoursByProject, pursuitMap]);
 
   // ---------- Project effort rows (time-based view) ----------
   const effortRows: EffortRow[] = useMemo(() => {
