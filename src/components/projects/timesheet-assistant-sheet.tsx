@@ -172,16 +172,6 @@ export function TimesheetAssistantSheet({
     }
   }
 
-  const otherChoices = useMemo(() => {
-    if (!result) return [] as string[];
-    const out: string[] = [];
-    for (const p of result.projects) {
-      out.push(p.name);
-      for (const s of p.stages) out.push(`${p.name} · ${s.name}`);
-    }
-    for (const l of result.leads) out.push(`${l.name} · ${t(k("q.leadSuffix"))}`);
-    return out;
-  }, [result, t]);
 
   function submitAnswers(done = false) {
     if (!result) return;
