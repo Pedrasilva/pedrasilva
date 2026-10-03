@@ -1597,6 +1597,18 @@
       "searchPlaceholder": "Procurar projetos, fases e propostas",
       "leadSuffix": "proposta",
       "skipped": "Não será registado."
+    },
+    "otherWeek": {
+      "text": "Isto parece ser a semana de {{date}}. Mudar para essa semana?",
+      "switch": "Mudar de semana"
+    },
+    "skipped": {
+      "title": "Não registado",
+      "line": "Não consegui registar: «{{quote}}» — {{reason}}",
+      "outside_week": "fora da semana selecionada",
+      "no_hours": "sem horas indicadas",
+      "over_24h": "mais de 24 h",
+      "bad_date": "data ilegível"
     }
   },
   "pursuit": {

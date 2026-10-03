@@ -1597,6 +1597,18 @@
       "searchPlaceholder": "Search projects, stages and leads",
       "leadSuffix": "proposal",
       "skipped": "Won't be logged."
+    },
+    "otherWeek": {
+      "text": "This looks like the week of {{date}}. Switch to that week?",
+      "switch": "Switch week"
+    },
+    "skipped": {
+      "title": "Not logged",
+      "line": "Couldn't log: «{{quote}}» — {{reason}}",
+      "outside_week": "outside the selected week",
+      "no_hours": "no hours given",
+      "over_24h": "more than 24 h",
+      "bad_date": "unreadable date"
     }
   },
   "pursuit": {
