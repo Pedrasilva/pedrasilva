@@ -61,6 +61,8 @@ import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
+import { ProjectPursuitCard } from "@/components/projects/project-pursuit-card";
+import { usePursuitTotals, pursuitByProject } from "@/lib/projects/use-pursuit";
 import { ProjectFinancialTab } from "@/components/projects/project-financial-tab";
 import { HardDeleteProjectButton } from "@/components/projects/hard-delete-project-button";
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
@@ -239,6 +241,22 @@ function ProjectDetail() {
 
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
+  // Pre-contract (pursuit) hours on this project's CRM lead — folded into cost.
+  const { data: pursuitRows } = usePursuitTotals([projectId], canSeeFinancials);
+  const pursuit = useMemo(
+    () =>
+      pursuitByProject(
+        pursuitRows ?? [],
+        (rid) => {
+          const r = resources?.find((x) => x.id === rid);
+          return r
+            ? { cost_rate: r.cost_rate, isOverride: !!(r as { hourly_rate_is_override?: boolean }).hourly_rate_is_override }
+            : undefined;
+        },
+        defaultRates,
+      ).get(projectId) ?? { hours: 0, cost: 0 },
+    [pursuitRows, resources, defaultRates, projectId],
+  );
 
   // Real time entries for this project. Keep the entry month so Insights can
   // chart hours even when no separate activity/feed item was created.
@@ -540,7 +558,7 @@ function ProjectDetail() {
   // prevents double counting on re-imports; live timesheet rows are never
   // mirrored into historical_time_entries, so the same hour cannot appear twice.
   const actualRevenue = actuals.revenue + hist.amount;
-  const actualCost = actuals.cost + hist.cost;
+  const actualCost = actuals.cost + hist.cost + pursuit.cost;
   const actualProfit = actualRevenue - actualCost;
   const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
   const budgetOver = actualCost > totalBudget && totalBudget > 0;
@@ -1141,6 +1159,16 @@ function ProjectDetail() {
 
 
 
+            {tab === "insights" && canSeeFinancials && (
+              <div className="mt-4">
+                <ProjectPursuitCard
+                  projectId={projectId}
+                  opportunityId={(data?.project as { opportunity_id?: string | null } | undefined)?.opportunity_id ?? null}
+                  hours={pursuit.hours}
+                  cost={pursuit.cost}
+                />
+              </div>
+            )}
             {tab === "insights" && (
               <InsightsPanel
                 projectId={projectId}
