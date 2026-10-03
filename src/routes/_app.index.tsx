@@ -268,7 +268,7 @@ function heroLineOfTheDay(quote: DailyQuote) {
 
 
 function HubPage() {
-  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
+  const { t, i18n } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { can: canV2 } = useMyPermissionsV2();
   // Non-curators open Marketing on the Post planner.
