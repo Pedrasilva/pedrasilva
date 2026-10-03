@@ -476,6 +476,11 @@ export function TimesheetAssistantSheet({
         )}
         {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
         {grouped.length > 0 && renderGroups(grouped)}
+        {result && grouped.length > 0 && (result.dayNotes ?? []).length > 0 && (
+          <div className="space-y-0.5 text-xs text-muted-foreground">
+            {result.dayNotes.map((n, i) => <p key={i}>{n}</p>)}
+          </div>
+        )}
         {result && result.skipped.length > 0 && !result.otherWeek && (
           <ul className="space-y-1 rounded-md border border-dashed p-3 text-sm text-muted-foreground" aria-label={t(k("skipped.title"))}>
             {result.skipped.map((x, i) => (
