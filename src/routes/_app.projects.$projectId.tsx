@@ -265,7 +265,7 @@ function ProjectDetail() {
     enabled: !!projectId && !!data,
     queryFn: async () => {
       if (!data)
-        return [] as { stage_id: string; month: string; hours: number; billableHours: number; nonBillableHours: number }[];
+        return [] as { stage_id: string; month: string; hours: number; billableHours: number; nonBillableHours: number; snapCost: number; unsnapHours: number }[];
       // Aggregated, privacy-safe hours per stage/month. This lets any team
       // member with project visibility see how the project is performing
       // time-wise, not only their own logged hours (RLS on pm_time_entries
