@@ -72,6 +72,13 @@ const GROUPS: AdminGroup[] = [
         icon: Shield,
       },
       {
+        to: "/admin/cost-rates",
+        label: "Custos/hora bloqueados",
+        description:
+          "Períodos de custo por pessoa, preenchimento do histórico e recálculo a partir de uma data.",
+        icon: Shield,
+      },
+      {
         to: "/hr/admin",
         label: "Permissões e administração HR",
         description:
