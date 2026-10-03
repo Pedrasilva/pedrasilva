@@ -304,7 +304,7 @@ function ProjectDetail() {
       for (const t of tasks ?? []) taskToAlloc.set(t.id, t.allocation_id);
       const taskIds = (tasks ?? []).map((t) => t.id);
       const stageIds = data.stages.map((s) => s.id);
-      const selectEntries = "id, task_id, pm_stage_id, entry_date, hours, billable";
+      const selectEntries = "id, task_id, pm_stage_id, entry_date, hours, billable, cost_rate_snapshot";
       const [taskEntryResult, directEntryResult] = await Promise.all([
         taskIds.length
           ? supabase
@@ -330,7 +330,7 @@ function ProjectDetail() {
       );
       const byStage = new Map<
         string,
-        { hours: number; billableHours: number; nonBillableHours: number }
+        { hours: number; billableHours: number; nonBillableHours: number; snapCost: number; unsnapHours: number }
       >();
       for (const e of (entries ?? []) as Array<{
         task_id: string | null;
@@ -338,6 +338,7 @@ function ProjectDetail() {
         entry_date: string;
         hours: number;
         billable: boolean;
+        cost_rate_snapshot: number | string | null;
       }>) {
         const allocId = e.task_id ? taskToAlloc.get(e.task_id) : undefined;
         const stageId = e.pm_stage_id ?? (allocId ? allocToStage.get(allocId) : undefined);
@@ -345,8 +346,11 @@ function ProjectDetail() {
         const month = e.entry_date.slice(0, 7);
         const bucketKey = `${stageId}:${month}`;
         const h = Number(e.hours);
-        const cur = byStage.get(bucketKey) ?? { hours: 0, billableHours: 0, nonBillableHours: 0 };
+        const cur = byStage.get(bucketKey) ?? { hours: 0, billableHours: 0, nonBillableHours: 0, snapCost: 0, unsnapHours: 0 };
         cur.hours += h;
+        // Locked cost rate per hour; hours without one fall back to current rates below.
+        if (e.cost_rate_snapshot != null) cur.snapCost += h * Number(e.cost_rate_snapshot);
+        else cur.unsnapHours += h;
         if (e.billable) cur.billableHours += h;
         else cur.nonBillableHours += h;
         byStage.set(bucketKey, cur);
@@ -500,6 +504,10 @@ function ProjectDetail() {
     if (!s) return { revenue: 0, cost: 0, profit: 0 };
     const logged = stageLoggedHours(stageId);
     const billable = stageBillableHours(stageId);
+    const snapCost =
+      timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.snapCost : 0), 0) ?? 0;
+    const unsnap =
+      timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.unsnapHours : 0), 0) ?? 0;
     if (logged <= 0 && billable <= 0) return { revenue: 0, cost: 0, profit: 0 };
     const planned = s.allocations.map((a) => ({
       h: allocationHours({
@@ -511,12 +519,12 @@ function ProjectDetail() {
       saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    let cost = 0;
+    let cost = snapCost;
     let revenue = 0;
     if (totPlan > 0) {
       for (const p of planned) {
         const w = p.h / totPlan;
-        cost += w * logged * p.costRate;
+        cost += w * unsnap * p.costRate;
         revenue += w * billable * p.saleRate;
       }
     } else if (planned.length > 0) {
@@ -525,7 +533,7 @@ function ProjectDetail() {
       // resources assigned, instead of collapsing to €0.
       const w = 1 / planned.length;
       for (const p of planned) {
-        cost += w * logged * p.costRate;
+        cost += w * unsnap * p.costRate;
         revenue += w * billable * p.saleRate;
       }
     }

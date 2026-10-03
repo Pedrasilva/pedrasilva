@@ -1,3 +1,4 @@
+import { lockedCostRate } from "@/lib/projects/use-default-rates";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, startOfMonth } from "date-fns";
@@ -126,11 +127,11 @@ export function useProjectInsights(projectId: string) {
         }
       }
 
-      let entries: { task_id: string; entry_date: string; hours: number; billable: boolean }[] = [];
+      let entries: { task_id: string; entry_date: string; hours: number; billable: boolean; cost_rate_snapshot: number | null }[] = [];
       if (allTaskIds.length > 0) {
         const { data: tData, error: tErr } = await supabase
           .from("pm_time_entries")
-          .select("task_id, entry_date, hours, billable")
+          .select("task_id, entry_date, hours, billable, cost_rate_snapshot")
           .eq("entry_type", "project")
           .in("task_id", allTaskIds);
         if (tErr) throw tErr;
@@ -153,7 +154,7 @@ export function useProjectInsights(projectId: string) {
         const rate = Number(alloc.resource.hourly_rate);
         const costRate = Number(alloc.resource.cost_rate);
         const sale = isBillable ? hours * rate : 0;
-        const cost = hours * costRate;
+        const cost = hours * lockedCostRate(e.cost_rate_snapshot, costRate);
         if (isBillable) {
           billableHoursTotal += hours;
           earnedValue += sale;
