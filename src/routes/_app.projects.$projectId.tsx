@@ -274,19 +274,31 @@ function ProjectDetail() {
         p_project_id: projectId,
       });
       if (!summary.error && summary.data) {
+        // Locked cost per stage/month (only returned to project-financials viewers).
+        const locked = await supabase.rpc("pm_project_stage_locked_cost", { p_project_id: projectId });
+        const lockedBy = new Map<string, { snap: number; unsnap: number }>();
+        for (const l of (locked.data ?? []) as Array<{ stage_id: string; month: string; snap_cost: number | string; unsnap_hours: number | string }>) {
+          lockedBy.set(`${l.stage_id}:${l.month}`, { snap: Number(l.snap_cost) || 0, unsnap: Number(l.unsnap_hours) || 0 });
+        }
         return (summary.data as Array<{
           stage_id: string;
           month: string;
           hours: number | string;
           billable_hours: number | string;
           non_billable_hours: number | string;
-        }>).map((row) => ({
-          stage_id: row.stage_id,
-          month: row.month,
-          hours: Number(row.hours) || 0,
-          billableHours: Number(row.billable_hours) || 0,
-          nonBillableHours: Number(row.non_billable_hours) || 0,
-        }));
+        }>).map((row) => {
+          const hours = Number(row.hours) || 0;
+          const lk = lockedBy.get(`${row.stage_id}:${row.month}`);
+          return {
+            stage_id: row.stage_id,
+            month: row.month,
+            hours,
+            billableHours: Number(row.billable_hours) || 0,
+            nonBillableHours: Number(row.non_billable_hours) || 0,
+            snapCost: lk?.snap ?? 0,
+            unsnapHours: lk ? lk.unsnap : hours,
+          };
+        });
       }
       const allocIds = data.stages.flatMap((s) =>
         s.allocations.map((a) => a.id),
