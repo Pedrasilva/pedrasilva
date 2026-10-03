@@ -49,6 +49,8 @@ export type AssistantQuestion = {
   /** Built from our own data (events, transcript, day totals), never the model's wording. */
   context: string;
 };
+export type AssistantSkipReason = "outside_week" | "no_hours" | "over_24h" | "bad_date";
+export type AssistantSkipped = { quote: string | null; date: string | null; reason: AssistantSkipReason };
 export type AssistantResult = {
   weekStart: string;
   weekEnd: string;
@@ -62,6 +64,10 @@ export type AssistantResult = {
   entries: AssistantDraft[];
   questions: AssistantQuestion[];
   calendar: AssistantCalendar;
+  /** Entries the model returned that failed validation — never dropped silently. */
+  skipped: AssistantSkipped[];
+  /** Monday of the single other week every out-of-week entry belongs to, if any. */
+  otherWeek: string | null;
 };
 
 const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -88,8 +94,10 @@ Rules:
 - Write questions in the language of the person's own text (English text → English questions).
 - Dates must fall inside the target week given. Resolve "Monday", "yesterday", "on the 24th", "segunda", "ontem" against today's date and the week dates.
 - hours: from start/end when given, otherwise as said. Round to 0.25.
+- "o resto do tempo", "o resto do dia", "the rest of the day", "the rest of the time" mean the person's daily hours minus everything else that day (already logged + leave + the other new entries that day). Put that number in hours.
+- Always use the real calendar dates the person means, even when they fall outside the target week (e.g. "semana passada", "last Monday"). Never move an activity into the target week.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
-- entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). project_id and stage_id must be null.
+- entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). If no category clearly fits, set internal_category null and confidence "low" — never invent one. project_id and stage_id must be null.
 - Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Never use "Pursuit" without an opportunity_id.
 - Match projects by name, client, number or alias, tolerating misspellings and accents. NEVER invent a project, stage or category not in the lists. If nothing matches or two are plausible, still add the entry with project_id null (or your best guess with confidence "low") and ask, with the candidate names as options.
 - note: a short note in the person's own words and language (e.g. "layouts and test fits"). No times in the note.
@@ -268,7 +276,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       }
     }
     if (!data.text && !events.length) {
-      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar };
+      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar, skipped: [], otherWeek: null };
     }
     // Attendee emails → CRM contacts → company → that company's projects (sent as names only).
     const companyOfEmail = new Map<string, string>();
@@ -335,19 +343,16 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const refMap = new Map<string, string>();
     const lowerText = data.text.toLowerCase();
     let seq = 0;
-    for (const r of (parsed.entries ?? []) as Array<Record<string, unknown>>) {
-      let event_id = typeof r.event_id === "string" && evById.has(r.event_id) && !usedEvents.has(r.event_id) ? r.event_id : null;
-      if (event_id) {
-        const ev = evById.get(event_id)!;
-        Object.assign(r, { date: ev.date, start_time: ev.start, end_time: ev.end, hours: Math.round((ev.minutes / 60) * 4) / 4 });
-        usedEvents.add(event_id);
-      } else event_id = null;
-      const date = String(r.date ?? "");
-      const tm = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.split(":").map(Number) : null);
-      const st = tm(r.start_time), en = tm(r.end_time);
-      const fromTimes = st && en ? (en[0] * 60 + en[1] - st[0] * 60 - st[1]) / 60 : 0;
-      const hours = Math.round((Number(r.hours) > 0 ? Number(r.hours) : fromTimes) * 4) / 4;
-      if (!days.includes(date) || !(hours > 0) || hours > 24) continue;
+    const skipped: AssistantSkipped[] = [];
+    const restPending: Array<{ r: Record<string, unknown>; date: string; event_id: string | null }> = [];
+    const REST = /\b(o\s+)?resto\s+do\s+(tempo|dia)\b|\brest\s+of\s+(the\s+|my\s+)?(day|time)\b/i;
+    const quoteOf = (r: Record<string, unknown>) => {
+      const qRaw = typeof r.quote === "string" ? r.quote.trim() : "";
+      const qi = qRaw ? lowerText.indexOf(qRaw.toLowerCase()) : -1;
+      return qi >= 0 ? data.text.slice(qi, qi + qRaw.length).slice(0, 300) : qRaw ? qRaw.slice(0, 300) : null;
+    };
+    const rawList = (parsed.entries ?? []) as Array<Record<string, unknown>>;
+    const pushEntry = (r: Record<string, unknown>, date: string, hours: number, event_id: string | null) => {
       const type = r.entry_type === "internal" ? "internal" : "project";
       let project_id = type === "project" && typeof r.project_id === "string" && projById.has(r.project_id) ? r.project_id : null;
       let stage_id: string | null = null;
@@ -389,7 +394,72 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         confidence,
         event_id,
       });
+      return id;
+    };
+    for (const r of rawList) {
+      let event_id = typeof r.event_id === "string" && evById.has(r.event_id) && !usedEvents.has(r.event_id) ? r.event_id : null;
+      if (event_id) {
+        const ev = evById.get(event_id)!;
+        Object.assign(r, { date: ev.date, start_time: ev.start, end_time: ev.end, hours: Math.round((ev.minutes / 60) * 4) / 4 });
+        usedEvents.add(event_id);
+      } else event_id = null;
+      const date = String(r.date ?? "");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(date + "T00:00:00Z").getTime()) || new Date(date + "T00:00:00Z").toISOString().slice(0, 10) !== date) {
+        skipped.push({ quote: quoteOf(r), date: date || null, reason: "bad_date" });
+        continue;
+      }
+      if (!days.includes(date)) {
+        skipped.push({ quote: quoteOf(r), date, reason: "outside_week" });
+        continue;
+      }
+      const tm = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.split(":").map(Number) : null);
+      const st = tm(r.start_time), en = tm(r.end_time);
+      const fromTimes = st && en ? (en[0] * 60 + en[1] - st[0] * 60 - st[1]) / 60 : 0;
+      const hours = Math.round((Number(r.hours) > 0 ? Number(r.hours) : fromTimes) * 4) / 4;
+      if (!(hours > 0)) {
+        const q = quoteOf(r) ?? "";
+        if (!st && !en && REST.test(q) && !event_id) restPending.push({ r, date, event_id });
+        else skipped.push({ quote: quoteOf(r), date, reason: "no_hours" });
+        continue;
+      }
+      if (hours > 24) {
+        skipped.push({ quote: quoteOf(r), date, reason: "over_24h" });
+        continue;
+      }
+      pushEntry(r, date, hours, event_id);
     }
+    // "The rest of the day": daily hours minus logged + leave + the other new entries that day.
+    const dayTotal = (d: string) =>
+      existing.filter((e) => e.date === d && e.entry_type !== "non_working").reduce((s2, e) => s2 + e.hours, 0)
+      + (leaveByDate.get(d)?.hours ?? 0)
+      + entries.filter((e) => e.date === d).reduce((s2, e) => s2 + e.hours, 0);
+    const restQuestions: AssistantQuestion[] = [];
+    for (const p of restPending) {
+      const others = restPending.filter((x) => x.date === p.date).length;
+      const rem = Math.floor(((dailyHours - dayTotal(p.date)) / others) * 4) / 4;
+      if (rem > 0) {
+        pushEntry(p.r, p.date, rem, null);
+      } else {
+        const q = quoteOf(p.r);
+        const n = new Date(p.date + "T00:00:00Z").getUTCDay();
+        const DAYS_PT = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+        restQuestions.push({
+          text: data.lang === "pt"
+            ? `${DAYS_PT[n][0].toUpperCase() + DAYS_PT[n].slice(1)} já tem ${dayTotal(p.date)} de ${dailyHours} h. Quantas horas para «${q ?? ""}»?`
+            : `${WEEKDAY[n]} already has ${dayTotal(p.date)} of ${dailyHours} h. How many hours for "${q ?? ""}"?`,
+          options: [],
+          source: "dictation",
+          draft_ids: [],
+          event_ids: [],
+          context: q ? `«${q}»` : "",
+        });
+      }
+    }
+    const outWeeks = new Set(skipped.filter((x) => x.reason === "outside_week" && x.date).map((x) => addDaysISO(x.date!, -((dow(x.date!) + 6) % 7))));
+    const outCount = skipped.filter((x) => x.reason === "outside_week").length;
+    const otherWeek = outCount > 0 && outWeeks.size === 1 && entries.length === 0 && restPending.length === 0 ? [...outWeeks][0] : null;
+    const byReason = skipped.reduce<Record<string, number>>((m, x) => ({ ...m, [x.reason]: (m[x.reason] ?? 0) + 1 }), {});
+    console.log("[timesheet-assistant] counts", JSON.stringify({ returned: rawList.length, kept: entries.length, rest: restPending.length, skipped: byReason }));
     const pt = data.lang === "pt";
     const DOW_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const DOW_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -445,5 +515,21 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       questions.push({ text: text.slice(0, 400), options, source, draft_ids, event_ids, context });
     }
 
-    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar };
+    // Internal drafts without a category: ask, with the real categories as options.
+    const covered = new Set(questions.flatMap((q) => q.draft_ids));
+    for (const e of entries) {
+      if (e.entry_type !== "internal" || e.internal_category || covered.has(e.id)) continue;
+      const label = e.quote ?? e.note;
+      questions.push({
+        text: pt ? `Que categoria para «${label}»?` : `Which category for "${label}"?`,
+        options: categories.slice(0, 12),
+        source: "dictation",
+        draft_ids: [e.id],
+        event_ids: [],
+        context: e.quote ? `«${e.quote}» · ${shortDate(e.date)}` : shortDate(e.date),
+      });
+    }
+    questions.push(...restQuestions);
+
+    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar, skipped, otherWeek };
   });
