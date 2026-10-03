@@ -278,7 +278,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       }
     }
     if (!data.text && !events.length) {
-      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar, skipped: [], otherWeek: null };
+      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar, skipped: [], otherWeek: null, dayNotes: [] };
     }
     // Attendee emails → CRM contacts → company → that company's projects (sent as names only).
     const companyOfEmail = new Map<string, string>();
