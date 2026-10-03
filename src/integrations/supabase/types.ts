@@ -6229,6 +6229,108 @@ export type Database = {
           },
         ]
       }
+      pm_cost_rate_periods: {
+        Row: {
+          computed_at: string
+          cost_rate: number
+          id: string
+          inputs: Json
+          resource_id: string
+          valid_from: string
+          valid_to: string | null
+        }
+        Insert: {
+          computed_at?: string
+          cost_rate: number
+          id?: string
+          inputs?: Json
+          resource_id: string
+          valid_from: string
+          valid_to?: string | null
+        }
+        Update: {
+          computed_at?: string
+          cost_rate?: number
+          id?: string
+          inputs?: Json
+          resource_id?: string
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_cost_rate_periods_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_cost_rate_periods_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_cost_rate_rebuild_queue: {
+        Row: {
+          created_at: string
+          from_date: string
+          id: string
+          processed_at: string | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          from_date: string
+          id?: string
+          processed_at?: string | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          from_date?: string
+          id?: string
+          processed_at?: string | null
+          reason?: string
+        }
+        Relationships: []
+      }
+      pm_cost_rate_recalc_log: {
+        Row: {
+          entries_changed: number
+          from_date: string | null
+          id: string
+          kind: string
+          resource_id: string | null
+          run_at: string
+          run_by: string | null
+          to_date: string | null
+        }
+        Insert: {
+          entries_changed?: number
+          from_date?: string | null
+          id?: string
+          kind?: string
+          resource_id?: string | null
+          run_at?: string
+          run_by?: string | null
+          to_date?: string | null
+        }
+        Update: {
+          entries_changed?: number
+          from_date?: string | null
+          id?: string
+          kind?: string
+          resource_id?: string | null
+          run_at?: string
+          run_by?: string | null
+          to_date?: string | null
+        }
+        Relationships: []
+      }
       pm_expenses: {
         Row: {
           amount_ex_vat: number | null
@@ -8436,6 +8538,7 @@ export type Database = {
           billable: boolean
           calendar_event_ids: string[] | null
           cost_rate_snapshot: number | null
+          cost_rate_source: string | null
           created_at: string
           ended_at: string | null
           entry_date: string
@@ -8465,6 +8568,7 @@ export type Database = {
           billable?: boolean
           calendar_event_ids?: string[] | null
           cost_rate_snapshot?: number | null
+          cost_rate_source?: string | null
           created_at?: string
           ended_at?: string | null
           entry_date: string
@@ -8494,6 +8598,7 @@ export type Database = {
           billable?: boolean
           calendar_event_ids?: string[] | null
           cost_rate_snapshot?: number | null
+          cost_rate_source?: string | null
           created_at?: string
           ended_at?: string | null
           entry_date?: string
@@ -12781,6 +12886,22 @@ export type Database = {
         Returns: boolean
       }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_cost_rate_at: {
+        Args: { _date: string; _resource_id: string }
+        Returns: number
+      }
+      pm_entries_missing_cost: {
+        Args: never
+        Returns: {
+          entry_date: string
+          id: string
+          resource_id: string
+        }[]
+      }
+      pm_entry_resource: {
+        Args: { _task_id: string; _user_id: string }
+        Returns: string
+      }
       pm_expense_link_reimbursement: {
         Args: { p_expense_id: string }
         Returns: string
@@ -12843,6 +12964,10 @@ export type Database = {
           stage_id: string
         }[]
       }
+      pm_recalc_cost_snapshots: {
+        Args: { _from: string; _resource_id?: string }
+        Returns: number
+      }
       pm_resource_id_for_user: { Args: { _user_id: string }; Returns: string }
       pm_resource_map_for_users: {
         Args: { _user_ids: string[] }
@@ -12865,6 +12990,10 @@ export type Database = {
         Returns: {
           user_id: string
         }[]
+      }
+      pm_write_cost_snapshots: {
+        Args: { _rows: Json; _source: string }
+        Returns: number
       }
       project_dependency_counts: {
         Args: { _project_id: string }
