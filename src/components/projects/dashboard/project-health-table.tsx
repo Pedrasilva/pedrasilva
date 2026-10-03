@@ -35,6 +35,10 @@ export interface HealthRow {
   loggedHours?: number;
   /** Per-stage hours attributed vs used. */
   stageHours?: StageHoursRow[];
+  /** Pre-contract (pursuit) hours on the lead this project came from. Included in actualCost. */
+  pursuitHours?: number;
+  /** Pre-contract (pursuit) cost. Included in actualCost. */
+  pursuitCost?: number;
 
 }
 
@@ -199,6 +203,17 @@ export function ProjectHealthTable({
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
                   {euros(r.actualCost)}
+                  {(r.pursuitHours ?? 0) > 0 && (
+                    <div
+                      className="text-[10px] font-normal text-muted-foreground"
+                      title={t("health.pursuitHint")}
+                    >
+                      {t("health.pursuitLine", {
+                        hours: Math.round((r.pursuitHours ?? 0) * 10) / 10,
+                        cost: euros(r.pursuitCost ?? 0),
+                      })}
+                    </div>
+                  )}
                 </td>
                 <td
                   className={cn(
