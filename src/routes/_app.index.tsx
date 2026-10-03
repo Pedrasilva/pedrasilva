@@ -168,34 +168,42 @@ const FAMOUS_QUOTES: DailyQuote[] = [
   {
     text: "Architecture is the learned game, correct and magnificent, of forms assembled in the light.",
     author: "Le Corbusier",
+    team: false,
   },
   {
     text: "We shape our buildings; thereafter they shape us.",
     author: "Winston Churchill",
+    team: false,
   },
   {
     text: "Less is more.",
     author: "Mies van der Rohe",
+    team: false,
   },
   {
     text: "God is in the details.",
     author: "Mies van der Rohe",
+    team: false,
   },
   {
     text: "Form follows function — that has been misunderstood. Form and function should be one.",
     author: "Frank Lloyd Wright",
+    team: false,
   },
   {
     text: "Architecture is the thoughtful making of space.",
     author: "Louis Kahn",
+    team: false,
   },
   {
     text: "A great building must begin with the immeasurable, must go through measurable means when it is being designed, and in the end must be unmeasurable.",
     author: "Louis Kahn",
+    team: false,
   },
   {
     text: "Simplicity is the ultimate sophistication.",
     author: "Leonardo da Vinci",
+    team: false,
   },
 ];
 
