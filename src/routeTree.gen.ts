@@ -30,6 +30,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppAdminAccessRouteImport } from './routes/_app.admin.access'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
+import { Route as AppAdminCostRatesRouteImport } from './routes/_app.admin.cost-rates'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppAdminPermissionsRouteImport } from './routes/_app.admin.permissions'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
@@ -256,6 +257,11 @@ const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
 const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
   id: '/admin/company-settings',
   path: '/admin/company-settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminCostRatesRoute = AppAdminCostRatesRouteImport.update({
+  id: '/admin/cost-rates',
+  path: '/admin/cost-rates',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
@@ -933,6 +939,7 @@ export interface FileRoutesByFullPath {
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -1069,6 +1076,7 @@ export interface FileRoutesByTo {
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -1211,6 +1219,7 @@ export interface FileRoutesById {
   '/_app/admin/access': typeof AppAdminAccessRoute
   '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/_app/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/permissions': typeof AppAdminPermissionsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
@@ -1355,6 +1364,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
+    | '/admin/cost-rates'
     | '/admin/imports'
     | '/admin/permissions'
     | '/admin/projects'
@@ -1491,6 +1501,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
+    | '/admin/cost-rates'
     | '/admin/imports'
     | '/admin/permissions'
     | '/admin/projects'
@@ -1632,6 +1643,7 @@ export interface FileRouteTypes {
     | '/_app/admin/access'
     | '/_app/admin/backups'
     | '/_app/admin/company-settings'
+    | '/_app/admin/cost-rates'
     | '/_app/admin/imports'
     | '/_app/admin/permissions'
     | '/_app/admin/projects'
@@ -1927,6 +1939,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/company-settings'
       fullPath: '/admin/company-settings'
       preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/cost-rates': {
+      id: '/_app/admin/cost-rates'
+      path: '/admin/cost-rates'
+      fullPath: '/admin/cost-rates'
+      preLoaderRoute: typeof AppAdminCostRatesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/imports': {
@@ -3040,6 +3059,7 @@ interface AppRouteChildren {
   AppAdminAccessRoute: typeof AppAdminAccessRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
+  AppAdminCostRatesRoute: typeof AppAdminCostRatesRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminPermissionsRoute: typeof AppAdminPermissionsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
@@ -3086,6 +3106,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminAccessRoute: AppAdminAccessRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
+  AppAdminCostRatesRoute: AppAdminCostRatesRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminPermissionsRoute: AppAdminPermissionsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
