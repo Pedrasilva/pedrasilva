@@ -476,7 +476,7 @@ export function TimesheetAssistantSheet({
         )}
         {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
         {grouped.length > 0 && renderGroups(grouped)}
-        {result && result.entries.length > 0 && (result.dayNotes ?? []).length > 0 && (
+        {result && grouped.length > 0 && (result.dayNotes ?? []).length > 0 && (
           <div className="space-y-0.5 text-xs text-muted-foreground">
             {result.dayNotes.map((n, i) => <p key={i}>{n}</p>)}
           </div>
