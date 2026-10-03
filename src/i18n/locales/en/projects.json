@@ -1590,6 +1590,13 @@
       "disconnected": "Calendar disconnected and access removed at Google",
       "revokeFailed": "Calendar disconnected in PSA Hub, but Google didn't confirm. Remove PSA Hub at myaccount.google.com/permissions.",
       "disconnectError": "Couldn't disconnect your calendar"
+    },
+    "q": {
+      "dontLog": "Don't log",
+      "other": "Other…",
+      "searchPlaceholder": "Search projects, stages and leads",
+      "leadSuffix": "proposal",
+      "skipped": "Won't be logged."
     }
   },
   "pursuit": {

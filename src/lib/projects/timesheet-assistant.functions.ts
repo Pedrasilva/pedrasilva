@@ -20,6 +20,10 @@ export type AssistantExisting = {
   hours: number;
 };
 export type AssistantDraft = {
+  /** Stable id within one run, referenced by questions' draft_ids. */
+  id: string;
+  /** Exact phrase from the dictation this draft came from (validated substring), if any. */
+  quote: string | null;
   date: string;
   start_time: string | null;
   end_time: string | null;
@@ -36,7 +40,15 @@ export type AssistantDraft = {
   event_id: string | null;
 };
 export type AssistantCalendar = { status: "off" | "not_connected" | "connected" | "expired"; email: string | null; events: number };
-export type AssistantQuestion = { text: string; options: string[] };
+export type AssistantQuestion = {
+  text: string;
+  options: string[];
+  source: "calendar" | "dictation" | "hours";
+  draft_ids: string[];
+  event_ids: string[];
+  /** Built from our own data (events, transcript, day totals), never the model's wording. */
+  context: string;
+};
 export type AssistantResult = {
   weekStart: string;
   weekEnd: string;
@@ -64,9 +76,14 @@ const dow = (d: string) => new Date(d + "T00:00:00Z").getUTCDay();
 
 const SYSTEM = `You turn a person's spoken or typed description of their working hours into draft timesheet entries.
 The text may be Portuguese, English or a mix. Reply with ONE JSON object only, no prose, no code fences:
-{"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
- "questions":[{"text":string,"options":[string]}]}
+{"entries":[{"ref":"d1","quote":string|null,"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
+ "questions":[{"text":string,"options":[string],"source":"calendar"|"dictation"|"hours","draft_ids":[string],"event_ids":[string],"date":"YYYY-MM-DD"|null}]}
 Rules:
+- Every entry gets a unique ref ("d1","d2",...). quote = the exact, verbatim span of the person's text that this entry comes from (copy characters exactly, no paraphrase), or null for calendar-only drafts.
+- Every question MUST say what it is about: source "calendar" when it is about calendar events (list them in event_ids, and the drafts made from them in draft_ids), "dictation" when about dictated items (draft_ids of those entries), "hours" when about a day's total (date = that day, draft_ids/event_ids may be empty).
+- Options must be exact names from the lists (project names, stage names of the referenced project, category names, lead names) or exactly "That's all", "Add it", "No". Nothing else. Do not add a "don't log" or "other" option; the app adds those.
+- Leads as candidates: when an item doesn't clearly match a project, also consider the open leads; offer matching lead names as options next to project names.
+- An answer "Don't log" / "Não registar" means: create no entry for that item and don't ask about it again.
 - Create one entry for EVERY activity the person mentions (meetings included), even if something similar is already logged; saving adds to existing hours. "Already logged" only counts towards day totals.
 - Write questions in the language of the person's own text (English text → English questions).
 - Dates must fall inside the target week given. Resolve "Monday", "yesterday", "on the 24th", "segunda", "ontem" against today's date and the week dates.
@@ -96,6 +113,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         today: iso,
         answers: z.array(z.object({ q: z.string().max(500), a: z.string().max(1000) })).max(20).default([]),
         done: z.boolean().default(false),
+        lang: z.enum(["pt", "en"]).default("pt"),
       })
       .refine((x) => x.text.length > 0 || x.useCalendar, "Say or type what you worked on.")
       .parse(input),
@@ -314,6 +332,9 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const catSet = new Set(categories);
     const questions: AssistantQuestion[] = [];
     const entries: AssistantDraft[] = [];
+    const refMap = new Map<string, string>();
+    const lowerText = data.text.toLowerCase();
+    let seq = 0;
     for (const r of (parsed.entries ?? []) as Array<Record<string, unknown>>) {
       let event_id = typeof r.event_id === "string" && evById.has(r.event_id) && !usedEvents.has(r.event_id) ? r.event_id : null;
       if (event_id) {
@@ -348,7 +369,13 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         if (!category) confidence = "low";
       }
       const t = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.padStart(5, "0") : null);
+      const id = `d${++seq}`;
+      if (typeof r.ref === "string" && !refMap.has(r.ref)) refMap.set(r.ref, id);
+      const qRaw = typeof r.quote === "string" ? r.quote.trim() : "";
+      const qi = qRaw ? lowerText.indexOf(qRaw.toLowerCase()) : -1;
       entries.push({
+        id,
+        quote: qi >= 0 ? data.text.slice(qi, qi + qRaw.length).slice(0, 300) : null,
         date,
         start_time: t(r.start_time),
         end_time: t(r.end_time),
@@ -363,12 +390,59 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         event_id,
       });
     }
+    const pt = data.lang === "pt";
+    const DOW_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const DOW_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const DAY_PT = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    const MON_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    const MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const shortDate = (d: string) => {
+      const x = new Date(d + "T00:00:00Z");
+      return pt ? `${DOW_PT[x.getUTCDay()]} ${x.getUTCDate()} ${MON_PT[x.getUTCMonth()]}` : `${DOW_EN[x.getUTCDay()]} ${x.getUTCDate()} ${MON_EN[x.getUTCMonth()]}`;
+    };
+    const entryById = new Map(entries.map((e) => [e.id, e]));
+    const leadSuffix = pt ? " · proposta" : " · proposal";
+    const fixed = ["That's all", "Add it", "No", "É tudo", "Adicionar", "Não"];
+    const norm = (x: string) => x.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     for (const q of (parsed.questions ?? []) as Array<Record<string, unknown>>) {
       if (questions.length >= 4) break;
       const text = String(q.text ?? "").trim();
       if (!text) continue;
-      const options = Array.isArray(q.options) ? q.options.map((o) => String(o).slice(0, 120)).filter(Boolean).slice(0, 6) : [];
-      questions.push({ text: text.slice(0, 400), options });
+      const draft_ids = [...new Set((Array.isArray(q.draft_ids) ? q.draft_ids : []).map((x) => refMap.get(String(x))).filter(Boolean) as string[])];
+      const event_ids = [...new Set((Array.isArray(q.event_ids) ? q.event_ids : []).map(String).filter((x) => evById.has(x)))];
+      // Events linked through drafts count too.
+      for (const id of draft_ids) { const ev = entryById.get(id)?.event_id; if (ev && !event_ids.includes(ev)) event_ids.push(ev); }
+      let source: AssistantQuestion["source"] = q.source === "calendar" || q.source === "hours" ? q.source : "dictation";
+      if (event_ids.length && source === "dictation" && !draft_ids.some((id) => entryById.get(id)?.quote)) source = "calendar";
+      // Context from our own data.
+      let context = "";
+      if (source === "calendar" && event_ids.length) {
+        context = event_ids.map((id) => { const e = evById.get(id)!; return `📅 ${pt ? "Calendário" : "Calendar"} · ${shortDate(e.date)}, ${e.start}–${e.end} · «${e.title}»`; }).join("\n");
+      } else if (source === "hours") {
+        const d = typeof q.date === "string" && days.includes(q.date) ? q.date : draft_ids.map((id) => entryById.get(id)?.date).find(Boolean) ?? null;
+        if (d) {
+          const total = existing.filter((e) => e.date === d && e.entry_type !== "non_working").reduce((s, e) => s + e.hours, 0)
+            + (leaveByDate.get(d)?.hours ?? 0)
+            + entries.filter((e) => e.date === d).reduce((s, e) => s + e.hours, 0);
+          const n = new Date(d + "T00:00:00Z").getUTCDay();
+          context = pt ? `${DAY_PT[n]}: ${total} de ${dailyHours} h` : `${WEEKDAY[n]}: ${total} of ${dailyHours} h`;
+        }
+      } else {
+        const quotes = [...new Set(draft_ids.map((id) => entryById.get(id)?.quote).filter(Boolean) as string[])];
+        context = quotes.map((x) => `«${x}»`).join("\n");
+        if (!context && event_ids.length) context = event_ids.map((id) => { const e = evById.get(id)!; return `📅 ${pt ? "Calendário" : "Calendar"} · ${shortDate(e.date)}, ${e.start}–${e.end} · «${e.title}»`; }).join("\n");
+      }
+      // Only real answers.
+      const refProjects = draft_ids.map((id) => entryById.get(id)?.project_id).filter(Boolean) as string[];
+      const stagePool = (refProjects.length ? refProjects.map((id) => projById.get(id)!) : []).flatMap((p) => p.stages.map((s) => s.name));
+      const allowed = new Map<string, string>();
+      for (const p of projects) allowed.set(norm(p.name), p.name);
+      for (const s2 of stagePool) allowed.set(norm(s2), s2);
+      for (const c of categories) allowed.set(norm(c), c);
+      for (const l of leads) { allowed.set(norm(l.name), l.name + leadSuffix); allowed.set(norm(l.name + leadSuffix), l.name + leadSuffix); }
+      for (const f of fixed) allowed.set(norm(f), f);
+      const options = [...new Set((Array.isArray(q.options) ? q.options : []).map((o) => allowed.get(norm(String(o)))).filter(Boolean) as string[])].slice(0, 6);
+      questions.push({ text: text.slice(0, 400), options, source, draft_ids, event_ids, context });
     }
 
     return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar };

@@ -1590,6 +1590,13 @@
       "disconnected": "Calendário desligado e acesso removido na Google",
       "revokeFailed": "Calendário desligado no PSA Hub, mas a Google não confirmou. Remova o PSA Hub em myaccount.google.com/permissions.",
       "disconnectError": "Não foi possível desligar o calendário"
+    },
+    "q": {
+      "dontLog": "Não registar",
+      "other": "Outro…",
+      "searchPlaceholder": "Procurar projetos, fases e propostas",
+      "leadSuffix": "proposta",
+      "skipped": "Não será registado."
     }
   },
   "pursuit": {

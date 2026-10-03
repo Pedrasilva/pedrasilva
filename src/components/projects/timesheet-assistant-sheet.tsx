@@ -93,7 +93,7 @@ export function TimesheetAssistantSheet({
   weekStart?: string;
   startTyping?: boolean;
 }) {
-  const { t } = useTranslation(NS);
+  const { t, i18n } = useTranslation(NS);
   const isMobile = useIsMobile();
   const locale = useDateLocale();
   const navigate = useNavigate();
@@ -113,6 +113,8 @@ export function TimesheetAssistantSheet({
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [history, setHistory] = useState<Array<{ q: string; a: string }>>([]);
+  const [skipped, setSkipped] = useState<Record<number, boolean>>({});
+  const [otherOpen, setOtherOpen] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -129,10 +131,12 @@ export function TimesheetAssistantSheet({
     if (!text.trim() && !cal.connected) return;
     setLoading(true);
     try {
-      const r = await parse({ data: { text, weekStart: forWeek, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done, useCalendar: cal.connected } });
+      const r = await parse({ data: { text, weekStart: forWeek, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done, useCalendar: cal.connected, lang: i18n.language?.startsWith("pt") ? "pt" : "en" } });
       setResult(r);
-      setDrafts(r.entries.map((e, i) => ({ ...e, key: `${Date.now()}-${i}` })));
+      setDrafts(r.entries.map((e) => ({ ...e, key: `${Date.now()}-${e.id}` })));
       setAnswers({});
+      setSkipped({});
+      setOtherOpen({});
     } catch (e) {
       toast.error(t(k("parseFailed")), { description: (e as Error).message });
     } finally {
@@ -152,6 +156,32 @@ export function TimesheetAssistantSheet({
     const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user.id, event_id: d.event_id });
     if (error) toast.error(t(k("calendar.dismissFailed")), { description: error.message });
   }
+
+  /** "Don't log": drop the question's drafts and dismiss its calendar events for good. */
+  async function skipQuestion(i: number) {
+    const q = result?.questions[i];
+    if (!q) return;
+    setSkipped((s) => ({ ...s, [i]: true }));
+    setAnswers((a) => ({ ...a, [i]: t(k("q.dontLog")) }));
+    const ids = new Set(q.draft_ids);
+    const evs = new Set(q.event_ids);
+    setDrafts((ds) => ds.filter((d) => d.saved || !(ids.has(d.id) || (d.event_id && evs.has(d.event_id)))));
+    if (evs.size && user) {
+      const { error } = await supabase.from("calendar_dismissed_events").upsert([...evs].map((event_id) => ({ user_id: user.id, event_id })));
+      if (error) toast.error(t(k("calendar.dismissFailed")), { description: error.message });
+    }
+  }
+
+  const otherChoices = useMemo(() => {
+    if (!result) return [] as string[];
+    const out: string[] = [];
+    for (const p of result.projects) {
+      out.push(p.name);
+      for (const s of p.stages) out.push(`${p.name} · ${s.name}`);
+    }
+    for (const l of result.leads) out.push(`${l.name} · ${t(k("q.leadSuffix"))}`);
+    return out;
+  }, [result, t]);
 
   function submitAnswers(done = false) {
     if (!result) return;
@@ -382,21 +412,44 @@ export function TimesheetAssistantSheet({
         {result && result.questions.length > 0 && (
           <div className="space-y-3 rounded-md border bg-muted/40 p-3">
             {result.questions.map((q, i) => (
-              <div key={i} className="space-y-2">
-                <p className="text-sm font-medium">{q.text}</p>
-                {q.options.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {q.options.map((o) => (
-                      <Button key={o} size="sm" variant={answers[i] === o ? "default" : "outline"} onClick={() => setAnswers((a) => ({ ...a, [i]: o }))}>
-                        {o}
-                      </Button>
-                    ))}
-                  </div>
+              <div key={i} className={cn("space-y-2", skipped[i] && "opacity-60")}>
+                {q.context && (
+                  <p className="whitespace-pre-line rounded border-l-2 border-primary/40 bg-background px-2 py-1 text-xs text-muted-foreground">{q.context}</p>
                 )}
-                <div className="flex gap-2">
+                <p className="text-sm font-medium">{q.text}</p>
+                {skipped[i] ? (
+                  <p className="text-xs text-muted-foreground">✓ {t(k("q.skipped"))}</p>
+                ) : (
+                <>
+                <div className="flex flex-wrap gap-2">
+                  {q.options.map((o) => (
+                    <Button key={o} size="sm" variant={answers[i] === o ? "default" : "outline"} onClick={() => setAnswers((a) => ({ ...a, [i]: o }))}>
+                      {o}
+                    </Button>
+                  ))}
+                  <Button size="sm" variant={otherOpen[i] ? "default" : "outline"} onClick={() => setOtherOpen((x) => ({ ...x, [i]: !x[i] }))}>
+                    {t(k("q.other"))}
+                  </Button>
+                  {(q.draft_ids.length > 0 || q.event_ids.length > 0) && (
+                    <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" onClick={() => void skipQuestion(i)}>
+                      {t(k("q.dontLog"))}
+                    </Button>
+                  )}
+                </div>
+                {otherOpen[i] && (
+                  <>
+                    <Input list={`ts-other-${i}`} autoFocus placeholder={t(k("q.searchPlaceholder"))} aria-label={t(k("q.other"))} onChange={(e) => { if (otherChoices.includes(e.target.value)) setAnswers((a) => ({ ...a, [i]: e.target.value })); }} />
+                    <datalist id={`ts-other-${i}`}>
+                      {otherChoices.map((c) => <option key={c} value={c} />)}
+                    </datalist>
+                  </>
+                )}
+                </>
+                )}
+                {!skipped[i] && <div className="flex gap-2">
                   <Input value={answers[i] ?? ""} onChange={(e) => setAnswers((a) => ({ ...a, [i]: e.target.value }))} placeholder={t(k("answerPlaceholder"))} aria-label={q.text} />
                   <MicButton size="sm" onText={(x) => setAnswers((a) => ({ ...a, [i]: x }))} />
-                </div>
+                </div>}
               </div>
             ))}
             <div className="flex flex-wrap gap-2">
