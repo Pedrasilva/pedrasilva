@@ -24,6 +24,7 @@ import {
   type AssistantDraft,
   type AssistantResult,
 } from "@/lib/projects/timesheet-assistant.functions";
+import { ProjectStageLeadPicker } from "@/components/projects/project-stage-lead-picker";
 import { cn } from "@/lib/utils";
 
 const NS = "projects";
