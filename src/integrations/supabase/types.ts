@@ -12964,6 +12964,15 @@ export type Database = {
           stage_id: string
         }[]
       }
+      pm_project_stage_locked_cost: {
+        Args: { p_project_id: string }
+        Returns: {
+          month: string
+          snap_cost: number
+          stage_id: string
+          unsnap_hours: number
+        }[]
+      }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
         Returns: number

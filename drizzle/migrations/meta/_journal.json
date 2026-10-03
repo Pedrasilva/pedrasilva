@@ -29,6 +29,13 @@
       "when": 1791043800585,
       "tag": "0003_cost_rate_periods",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791044184187,
+      "tag": "0004_project_stage_locked_cost",
+      "breakpoints": true
     }
   ]
 }
