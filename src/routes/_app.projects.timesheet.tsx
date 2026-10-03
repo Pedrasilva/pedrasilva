@@ -33,6 +33,7 @@ import {
   type TimesheetTaskRow,
 } from "@/lib/projects/use-timesheet";
 import { useInternalCategories } from "@/lib/projects/use-internal-categories";
+import { PURSUIT_CATEGORY, useLeadsDirectory } from "@/lib/projects/use-pursuit";
 import { useWorkProfile, workProfileLayout } from "@/lib/hr/use-work-profile";
 import {
   ChevronLeft,
@@ -67,6 +68,7 @@ type CellKey = string;
 const projectKey = (taskId: string): CellKey => `project::${taskId}`;
 const internalKey = (cat: string): CellKey => `internal::${cat}`;
 const nonWorkingKey = (lt: string): CellKey => `non_working::${lt}`;
+const pursuitKey = (oppId: string): CellKey => `pursuit::${oppId}`;
 
 type CellInfo = {
   id: string;
@@ -82,6 +84,9 @@ function TimesheetPage() {
   const [dictateOpen, setDictateOpen] = useState(false);
   const { t } = useTranslation();
   const [extraTaskIds, setExtraTaskIds] = useState<string[]>([]);
+  // Pursuit rows added through "Add row" for this session (lead ids).
+  const [extraLeadIds, setExtraLeadIds] = useState<string[]>([]);
+  const { data: leads = [] } = useLeadsDirectory();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Admin "view as" selection — defaults to the logged-in user. Non-admins
@@ -212,7 +217,10 @@ function TimesheetPage() {
     name: string;
     isArchived: boolean;
   }[]>(() => {
-    const active = activeInternalCategories.map((c) => ({
+    // Pursuit is logged per lead (its own rows below), never as a plain row.
+    const active = activeInternalCategories
+      .filter((c) => c.name !== PURSUIT_CATEGORY)
+      .map((c) => ({
       name: c.name,
       isArchived: false,
     }));
@@ -222,6 +230,7 @@ function TimesheetPage() {
       if (
         e.entry_type === "internal" &&
         e.internal_category &&
+        e.internal_category !== PURSUIT_CATEGORY &&
         !activeNames.has(e.internal_category)
       ) {
         archivedWithEntries.add(e.internal_category);
@@ -235,12 +244,42 @@ function TimesheetPage() {
     ];
   }, [activeInternalCategories, entries]);
 
+  // Pursuit rows: leads with hours this week plus leads added via "Add row".
+  const pursuitRows = useMemo(() => {
+    const ids = new Set<string>(extraLeadIds);
+    for (const e of entries)
+      if (e.internal_category === PURSUIT_CATEGORY && e.opportunity_id) ids.add(e.opportunity_id);
+    const byId = new Map(leads.map((l) => [l.id, l]));
+    return Array.from(ids).map(
+      (id) =>
+        byId.get(id) ?? { id, name: t("projects:pursuit.unknownLead"), company_name: null, stage: "", is_open: false },
+    );
+  }, [entries, extraLeadIds, leads, t]);
+  const leadMatches = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return leads
+      .filter((l) => l.is_open)
+      .filter((l) => l.name.toLowerCase().includes(q) || (l.company_name ?? "").toLowerCase().includes(q))
+      .slice(0, 10);
+  }, [leads, searchQuery]);
+  const leadLabel = (l: { name: string; stage: string; company_name: string | null }) =>
+    [l.name, l.stage ? t(`projects:pursuit.stage.${l.stage}`, { defaultValue: l.stage }) : null, l.company_name]
+      .filter(Boolean)
+      .join(" · ");
+
   // Index entries by composite key + date so each section can look itself up.
   const entryMap = useMemo(() => {
     const m = new Map<CellKey, Map<string, CellInfo>>();
     for (const e of entries) {
       let key: CellKey | null = null;
       if (e.entry_type === "project" && e.task_id) key = projectKey(e.task_id);
+      else if (
+        e.entry_type === "internal" &&
+        e.internal_category === PURSUIT_CATEGORY &&
+        e.opportunity_id
+      )
+        key = pursuitKey(e.opportunity_id);
       else if (e.entry_type === "internal" && e.internal_category)
         key = internalKey(e.internal_category);
       else if (e.entry_type === "non_working" && e.leave_type)
@@ -431,12 +470,12 @@ function TimesheetPage() {
           <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
 
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
-              {projectsVisible && (
+              {(
               <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5" disabled={readOnly}>
                     <Plus className="h-3.5 w-3.5" />
-                    Add project / stage
+                    {t("projects:pursuit.addRow")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-[460px] p-0">
@@ -444,7 +483,7 @@ function TimesheetPage() {
                     <Search className="h-4 w-4 text-muted-foreground" />
                     <Input
                       autoFocus
-                      placeholder="Search any project by name or client..."
+                      placeholder={t("projects:pursuit.searchPlaceholder")}
                       value={searchQuery}
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
@@ -464,12 +503,35 @@ function TimesheetPage() {
                         Searching…
                       </div>
                     )}
-                    {searchQuery && !searching && searchResults.length === 0 && (
+                    {leadMatches.length > 0 && (
+                      <div className="mb-1 border-b border-border pb-1">
+                        <div className="px-3 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {t("projects:pursuit.leadsGroup")}
+                        </div>
+                        {leadMatches.map((l) => (
+                          <button
+                            key={l.id}
+                            onClick={() => {
+                              setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
+                              setSearchQuery("");
+                              setAddPopoverOpen(false);
+                              toast.success(t("projects:pursuit.added", { name: l.name }));
+                            }}
+                            className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent"
+                          >
+                            <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-muted-foreground" />
+                            <span className="min-w-0 flex-1 truncate">{leadLabel(l)}</span>
+                            <span className="text-[10px] text-muted-foreground">{t("projects:pursuit.categoryLabel")}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {searchQuery && !searching && searchResults.length === 0 && leadMatches.length === 0 && (
                       <div className="px-3 py-6 text-center text-xs text-muted-foreground">
                         No projects match "{searchQuery}".
                       </div>
                     )}
-                    {searchResults.map((p) => {
+                    {(projectsVisible ? searchResults : []).map((p) => {
                       const expanded = expandedProject === p.id;
                       return (
                         <div key={p.id} className="rounded">
@@ -660,6 +722,44 @@ function TimesheetPage() {
                     label="Internal cost centers"
                     sub="Non-billable working time (capacity used, no revenue)."
                   />
+                  {pursuitRows.map((lead) => (
+                    <FixedRow
+                      key={`pursuit-${lead.id}`}
+                      label={`${t("projects:pursuit.categoryLabel")} · ${lead.name}`}
+                      sub={
+                        lead.is_open
+                          ? [lead.stage ? t(`projects:pursuit.stage.${lead.stage}`, { defaultValue: lead.stage }) : null, lead.company_name]
+                              .filter(Boolean)
+                              .join(" · ") || t("projects:pursuit.rowSub")
+                          : t("projects:pursuit.closedSub")
+                      }
+                      tone="internal"
+                      days={days}
+                      entryMap={entryMap}
+                      keyFn={() => pursuitKey(lead.id)}
+                      pending={upsert.isPending}
+                      readOnly={readOnly || !lead.is_open}
+                      rowTotal={rowTotalFor(pursuitKey(lead.id))}
+                      onCommit={(dateStr, hours, notes, _billable, existingId) =>
+                        upsert.mutate(
+                          {
+                            entry_type: "internal",
+                            internal_category: PURSUIT_CATEGORY,
+                            opportunity_id: lead.id,
+                            user_id: effectiveUserId!,
+                            entry_date: dateStr,
+                            hours,
+                            notes,
+                            existing_entry_id: existingId,
+                          },
+                          {
+                            onError: (e) =>
+                              toast.error((e as Error).message || "Failed to save"),
+                          },
+                        )
+                      }
+                    />
+                  ))}
                   {displayedInternalCategories.map((cat) => (
                     <FixedRow
                       key={cat.name}

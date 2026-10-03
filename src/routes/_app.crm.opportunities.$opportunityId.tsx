@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useOpportunityPursuitHours } from "@/lib/projects/use-pursuit";
+import { formatHM } from "@/lib/projects/time-format";
 import { supabase } from "@/integrations/supabase/client";
 import { ActionOwnerPicker } from "@/components/ActionOwnerPicker";
 import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
@@ -50,6 +52,7 @@ type SentRevision = {
 function OpportunityDetail() {
   const { t } = useTranslation("crm");
   const { opportunityId } = Route.useParams();
+  const { data: pursuitHours } = useOpportunityPursuitHours(opportunityId);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [lostDialogOpen, setLostDialogOpen] = useState(false);
@@ -397,6 +400,12 @@ function OpportunityDetail() {
               <CardTitle className="text-sm">{t("opportunities.detail.summary")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
+              {pursuitHours != null && pursuitHours > 0 && (
+                <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-2 py-1.5 text-xs">
+                  <span className="text-muted-foreground">{t("opportunities.detail.pursuitHours")}</span>
+                  <span className="font-mono">{formatHM(pursuitHours)}</span>
+                </div>
+              )}
               <div>
                 <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
                 <Select

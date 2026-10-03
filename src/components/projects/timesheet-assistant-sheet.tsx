@@ -169,7 +169,10 @@ export function TimesheetAssistantSheet({
       .filter((e) => e.date === d.date && (d.entry_type === "project" ? e.entry_type === "project" && e.stage_id === d.stage_id && !!d.stage_id : e.entry_type === "internal" && e.internal_category === d.internal_category))
       .reduce((s, e) => s + e.hours, 0);
   }
-  const ready = (d: Draft) => (d.entry_type === "project" ? !!d.project_id && !!d.stage_id : !!d.internal_category) && d.hours > 0;
+  const ready = (d: Draft) =>
+    (d.entry_type === "project"
+      ? !!d.project_id && !!d.stage_id
+      : !!d.internal_category && (d.internal_category !== "Pursuit" || !!d.opportunity_id)) && d.hours > 0;
   const update = (key: string, patch: Partial<Draft>) => setDrafts((ds) => ds.map((d) => (d.key === key ? { ...d, ...patch } : d)));
 
   async function save(list: Draft[]) {
@@ -194,6 +197,7 @@ export function TimesheetAssistantSheet({
         }
         let q = supabase.from("pm_time_entries").select("id, hours, notes").eq("user_id", user.id).eq("entry_date", d.date).eq("entry_type", d.entry_type);
         q = taskId ? q.eq("task_id", taskId) : q.eq("internal_category", d.internal_category!);
+        if (d.opportunity_id) q = q.eq("opportunity_id", d.opportunity_id);
         const { data: ex } = await q.limit(1);
         const cur = (ex?.[0] as { id: string; hours: number; notes: string | null } | undefined) ?? null;
         const time = d.start_time && d.end_time ? `${d.start_time}–${d.end_time} ` : "";
@@ -202,6 +206,7 @@ export function TimesheetAssistantSheet({
           entry_type: d.entry_type,
           task_id: taskId,
           internal_category: d.entry_type === "internal" ? d.internal_category : null,
+          opportunity_id: d.entry_type === "internal" ? (d.opportunity_id ?? null) : null,
           user_id: user.id,
           entry_date: d.date,
           hours: Number(cur?.hours ?? 0) + d.hours,
@@ -212,6 +217,7 @@ export function TimesheetAssistantSheet({
         if (d.event_id) {
           let q2 = supabase.from("pm_time_entries").select("id, calendar_event_ids").eq("user_id", user.id).eq("entry_date", d.date).eq("entry_type", d.entry_type);
           q2 = taskId ? q2.eq("task_id", taskId) : q2.eq("internal_category", d.internal_category!);
+          if (d.opportunity_id) q2 = q2.eq("opportunity_id", d.opportunity_id);
           const { data: row } = await q2.limit(1).maybeSingle();
           if (row) {
             const ids = [...new Set([...(row.calendar_event_ids ?? []), d.event_id])];
@@ -265,7 +271,7 @@ export function TimesheetAssistantSheet({
                       {days.map((x) => <option key={x} value={x}>{format(parseISO(x), "EEE d", { locale })}</option>)}
                     </select>
                     <Input aria-label={t(k("hours"))} type="number" step="0.25" min="0.25" max="24" className="h-9" value={d.hours} disabled={d.saved} onChange={(e) => update(d.key, { hours: Number(e.target.value) })} />
-                    <select aria-label={t(k("type"))} className="col-span-2 h-9 rounded-md border bg-background px-2 text-sm" value={d.entry_type} disabled={d.saved} onChange={(e) => update(d.key, { entry_type: e.target.value as Draft["entry_type"], project_id: null, stage_id: null, internal_category: null })}>
+                    <select aria-label={t(k("type"))} className="col-span-2 h-9 rounded-md border bg-background px-2 text-sm" value={d.entry_type} disabled={d.saved} onChange={(e) => update(d.key, { entry_type: e.target.value as Draft["entry_type"], project_id: null, stage_id: null, internal_category: null, opportunity_id: null })}>
                       <option value="project">{t(k("project"))}</option>
                       <option value="internal">{t(k("internal"))}</option>
                     </select>
@@ -282,9 +288,22 @@ export function TimesheetAssistantSheet({
                       </select>
                     </div>
                   ) : (
-                    <select aria-label={t(k("category"))} className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={d.internal_category ?? ""} disabled={d.saved} onChange={(e) => update(d.key, { internal_category: e.target.value || null })}>
+                    <select aria-label={t(k("category"))} className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={d.opportunity_id ? `lead:${d.opportunity_id}` : (d.internal_category ?? "")} disabled={d.saved} onChange={(e) => {
+                      const v = e.target.value;
+                      if (v.startsWith("lead:")) update(d.key, { internal_category: "Pursuit", opportunity_id: v.slice(5) });
+                      else update(d.key, { internal_category: v || null, opportunity_id: null });
+                    }}>
                       <option value="">{t(k("pickCategory"))}</option>
                       {(result?.categories ?? []).map((c) => <option key={c} value={c}>{c}</option>)}
+                      {(result?.leads ?? []).length > 0 && (
+                        <optgroup label={t("projects:pursuit.leadsGroup")}>
+                          {(result?.leads ?? []).map((l) => (
+                            <option key={l.id} value={`lead:${l.id}`}>
+                              {t("projects:pursuit.categoryLabel")} · {l.name}{l.client ? ` · ${l.client}` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
                     </select>
                   )}
                   <Input aria-label={t(k("note"))} className="h-9" value={d.note} disabled={d.saved} onChange={(e) => update(d.key, { note: e.target.value })} placeholder={t(k("note"))} />

@@ -105,6 +105,11 @@ export const ACCESS_CATALOGUE: AccessItem[] = [
     id: "marketing.contribute", section: "marketing", tier: "standard", levels: ["edit"], defaultLevel: "edit",
     legacy: [v2("marketing.contribute", "edit")],
   },
+  {
+    // Names-only lead directory (crm_leads_directory) + logging pursuit hours.
+    id: "crm.leads", section: "crm", tier: "standard", levels: ["view"], defaultLevel: "view",
+    legacy: [],
+  },
   // ---------- CONFIDENTIAL ----------
   {
     id: "projects.financials", section: "projects", tier: "confidential", levels: ["view"],

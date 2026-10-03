@@ -8446,6 +8446,7 @@ export type Database = {
           internal_category: string | null
           leave_type: string | null
           notes: string | null
+          opportunity_id: string | null
           pm_stage_id: string | null
           quote_stage_id: string | null
           rejection_reason: string | null
@@ -8474,6 +8475,7 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          opportunity_id?: string | null
           pm_stage_id?: string | null
           quote_stage_id?: string | null
           rejection_reason?: string | null
@@ -8502,6 +8504,7 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          opportunity_id?: string | null
           pm_stage_id?: string | null
           quote_stage_id?: string | null
           rejection_reason?: string | null
@@ -8514,6 +8517,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_time_entries_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_time_entries_pm_stage_id_fkey"
             columns: ["pm_stage_id"]
@@ -12490,6 +12500,20 @@ export type Database = {
         Args: { p_source: string }
         Returns: string
       }
+      crm_leads_directory: {
+        Args: never
+        Returns: {
+          company_name: string
+          id: string
+          is_open: boolean
+          name: string
+          stage: string
+        }[]
+      }
+      crm_opportunity_pursuit_hours: {
+        Args: { _opportunity_id: string }
+        Returns: number
+      }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
         | {
@@ -12752,6 +12776,10 @@ export type Database = {
             Args: { _target_user_id: string; _user_id: string }
             Returns: boolean
           }
+      pm_can_see_project_financials: {
+        Args: { _uid: string }
+        Returns: boolean
+      }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
       pm_expense_link_reimbursement: {
         Args: { p_expense_id: string }
@@ -12767,6 +12795,19 @@ export type Database = {
         Returns: boolean
       }
       pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
+      pm_link_project_opportunity: {
+        Args: { _opportunity_id: string; _project_id: string }
+        Returns: undefined
+      }
+      pm_linkable_opportunities: {
+        Args: never
+        Returns: {
+          company_name: string
+          id: string
+          name: string
+          stage: string
+        }[]
+      }
       pm_list_user_resource_map: {
         Args: never
         Returns: {
@@ -12781,6 +12822,16 @@ export type Database = {
       pm_project_has_retainer: {
         Args: { _project_id: string }
         Returns: boolean
+      }
+      pm_project_pursuit_totals: {
+        Args: { _project_ids?: string[] }
+        Returns: {
+          hours: number
+          hours_without_snapshot: number
+          project_id: string
+          resource_id: string
+          snapshot_cost: number
+        }[]
       }
       pm_project_stage_hours: {
         Args: { p_project_id: string }

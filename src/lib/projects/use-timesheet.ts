@@ -27,6 +27,8 @@ export type TimesheetEntry = {
   entry_type: EntryType;
   internal_category: string | null;
   leave_type: string | null;
+  /** Pursuit entries only: the CRM lead the time was spent on. */
+  opportunity_id: string | null;
 };
 
 // Internal cost centers are now admin-managed in the database
@@ -144,7 +146,7 @@ export function useTimesheetEntries(opts: {
       const { data, error } = await supabase
         .from("pm_time_entries")
         .select(
-          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type",
+          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type, opportunity_id",
         )
         .eq("user_id", opts.userId!)
         .gte("entry_date", opts.weekStart)
@@ -160,6 +162,7 @@ export function useTimesheetEntries(opts: {
         entry_type?: EntryType;
         internal_category?: string | null;
         leave_type?: string | null;
+        opportunity_id?: string | null;
       };
       return ((data ?? []) as unknown as Row[]).map((e) => ({
         id: e.id,
@@ -171,6 +174,7 @@ export function useTimesheetEntries(opts: {
         entry_type: e.entry_type ?? "project",
         internal_category: e.internal_category ?? null,
         leave_type: e.leave_type ?? null,
+        opportunity_id: e.opportunity_id ?? null,
       }));
     },
   });
@@ -300,6 +304,8 @@ export function useUpsertTimesheetCell() {
       task_id?: string | null;
       internal_category?: string | null;
       leave_type?: string | null;
+      /** Pursuit entries only (internal_category = PURSUIT_CATEGORY). */
+      opportunity_id?: string | null;
       user_id: string;
       entry_date: string;
       hours: number;
@@ -328,6 +334,7 @@ export function useUpsertTimesheetCell() {
         task_id: input.task_id ?? null,
         internal_category: input.internal_category ?? null,
         leave_type: input.leave_type ?? null,
+        opportunity_id: input.opportunity_id ?? null,
       };
       if (input.existing_entry_id) {
         const { error } = await supabase

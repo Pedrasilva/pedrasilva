@@ -24,38 +24,137 @@
     "cancel": "Cancelar",
     "legendTodayTarget": "As células mostram Hoje → Alvo quando diferem."
   },
-  "tier": { "standard": "Padrão", "confidential": "Confidencial" },
-  "level": { "none": "Nenhum", "own": "Próprio", "view": "Ver", "edit": "Editar", "team": "Equipa", "all": "Todos" },
+  "tier": {
+    "standard": "Padrão",
+    "confidential": "Confidencial"
+  },
+  "level": {
+    "none": "Nenhum",
+    "own": "Próprio",
+    "view": "Ver",
+    "edit": "Editar",
+    "team": "Equipa",
+    "all": "Todos"
+  },
   "section": {
-    "projects": "Projetos", "time": "Tempo", "hr": "RH", "products": "Produtos", "portfolio": "Portefólio",
-    "marketing": "Marketing", "crm": "CRM", "finance": "Finanças", "other": "Outros"
+    "projects": "Projetos",
+    "time": "Tempo",
+    "hr": "RH",
+    "products": "Produtos",
+    "portfolio": "Portefólio",
+    "marketing": "Marketing",
+    "crm": "CRM",
+    "finance": "Finanças",
+    "other": "Outros"
   },
   "items": {
-    "projects_work": { "label": "Trabalhar em projetos", "description": "Abrir projetos, Gantt e tarefas próprias." },
-    "projects_plan": { "label": "Planear projetos", "description": "Editar fases, alocações e dependências em todos os projetos." },
-    "projects_workload": { "label": "Carga da equipa", "description": "Ver a carga e marcações de outras pessoas." },
-    "time_own": { "label": "Timesheet próprio", "description": "Registar e submeter as próprias horas." },
-    "time_team": { "label": "Timesheets da equipa", "description": "Ver as horas registadas por outras pessoas." },
-    "hr_self": { "label": "O meu RH", "description": "Ficha própria, férias, benefícios e teletrabalho." },
-    "hr_availability": { "label": "Disponibilidade da equipa", "description": "Quem está presente, ausente ou remoto." },
-    "products_use": { "label": "Biblioteca de produtos", "description": "Consultar a biblioteca e mapas de projeto." },
-    "portfolio_view": { "label": "Portefólio", "description": "Abrir o portefólio do atelier." },
-    "marketing_contribute": { "label": "Contribuir para o marketing", "description": "Enviar capturas e consultar o marketing." },
-    "projects_financials": { "label": "Finanças de projeto", "description": "Orçamento, custo, receita, margens e taxas nos projetos. Não é o módulo Finanças." },
-    "time_approve": { "label": "Aprovar timesheets", "description": "Equipa = as suas equipas; Todos = toda a gente." },
-    "hr_people": { "label": "Colaboradores", "description": "Lista e fichas de pessoas." },
-    "hr_compensation": { "label": "Remuneração", "description": "Salários, snapshots e saldos de benefícios." },
-    "hr_approve": { "label": "Aprovações RH", "description": "Aprovar férias e despesas de benefícios." },
-    "hr_settings": { "label": "Definições RH", "description": "Subsídio de alimentação, valor Backoffice e configuração RH." },
-    "products_edit": { "label": "Editar biblioteca de produtos", "description": "Criar, editar e arquivar produtos." },
-    "marketing_curate": { "label": "Curadoria de marketing", "description": "Editar capturas, rascunhos, perguntas e briefings." },
-    "marketing_bible": { "label": "Bíblia de Marketing", "description": "Editar a estratégia de marketing." },
-    "crm_view": { "label": "Ver CRM", "description": "Empresas, contactos e pipeline." },
-    "crm_edit": { "label": "Editar CRM", "description": "Criar e alterar empresas, contactos, oportunidades e orçamentos." },
-    "finance_view": { "label": "Ver Finanças", "description": "Finanças do escritório: documentos, banca e relatórios." },
-    "finance_edit": { "label": "Editar Finanças", "description": "Criar e liquidar documentos, banca e definições." },
-    "inbox": { "label": "Caixa de entrada", "description": "Triagem de emails." },
-    "reports": { "label": "Relatórios", "description": "Relatórios do atelier." },
-    "inventory": { "label": "Inventário", "description": "Registo de ativos." }
+    "projects_work": {
+      "label": "Trabalhar em projetos",
+      "description": "Abrir projetos, Gantt e tarefas próprias."
+    },
+    "projects_plan": {
+      "label": "Planear projetos",
+      "description": "Editar fases, alocações e dependências em todos os projetos."
+    },
+    "projects_workload": {
+      "label": "Carga da equipa",
+      "description": "Ver a carga e marcações de outras pessoas."
+    },
+    "time_own": {
+      "label": "Timesheet próprio",
+      "description": "Registar e submeter as próprias horas."
+    },
+    "time_team": {
+      "label": "Timesheets da equipa",
+      "description": "Ver as horas registadas por outras pessoas."
+    },
+    "hr_self": {
+      "label": "O meu RH",
+      "description": "Ficha própria, férias, benefícios e teletrabalho."
+    },
+    "hr_availability": {
+      "label": "Disponibilidade da equipa",
+      "description": "Quem está presente, ausente ou remoto."
+    },
+    "products_use": {
+      "label": "Biblioteca de produtos",
+      "description": "Consultar a biblioteca e mapas de projeto."
+    },
+    "portfolio_view": {
+      "label": "Portefólio",
+      "description": "Abrir o portefólio do atelier."
+    },
+    "marketing_contribute": {
+      "label": "Contribuir para o marketing",
+      "description": "Enviar capturas e consultar o marketing."
+    },
+    "projects_financials": {
+      "label": "Finanças de projeto",
+      "description": "Orçamento, custo, receita, margens e taxas nos projetos. Não é o módulo Finanças."
+    },
+    "time_approve": {
+      "label": "Aprovar timesheets",
+      "description": "Equipa = as suas equipas; Todos = toda a gente."
+    },
+    "hr_people": {
+      "label": "Colaboradores",
+      "description": "Lista e fichas de pessoas."
+    },
+    "hr_compensation": {
+      "label": "Remuneração",
+      "description": "Salários, snapshots e saldos de benefícios."
+    },
+    "hr_approve": {
+      "label": "Aprovações RH",
+      "description": "Aprovar férias e despesas de benefícios."
+    },
+    "hr_settings": {
+      "label": "Definições RH",
+      "description": "Subsídio de alimentação, valor Backoffice e configuração RH."
+    },
+    "products_edit": {
+      "label": "Editar biblioteca de produtos",
+      "description": "Criar, editar e arquivar produtos."
+    },
+    "marketing_curate": {
+      "label": "Curadoria de marketing",
+      "description": "Editar capturas, rascunhos, perguntas e briefings."
+    },
+    "marketing_bible": {
+      "label": "Bíblia de Marketing",
+      "description": "Editar a estratégia de marketing."
+    },
+    "crm_view": {
+      "label": "Ver CRM",
+      "description": "CRM confidencial: honorários, orçamentos, propostas e contactos."
+    },
+    "crm_edit": {
+      "label": "Editar CRM",
+      "description": "Criar e alterar empresas, contactos, oportunidades e orçamentos."
+    },
+    "finance_view": {
+      "label": "Ver Finanças",
+      "description": "Finanças do escritório: documentos, banca e relatórios."
+    },
+    "finance_edit": {
+      "label": "Editar Finanças",
+      "description": "Criar e liquidar documentos, banca e definições."
+    },
+    "inbox": {
+      "label": "Caixa de entrada",
+      "description": "Triagem de emails."
+    },
+    "reports": {
+      "label": "Relatórios",
+      "description": "Relatórios do atelier."
+    },
+    "inventory": {
+      "label": "Inventário",
+      "description": "Registo de ativos."
+    },
+    "crm_leads": {
+      "label": "Ver leads",
+      "description": "Ver nomes dos leads e clientes, e registar horas de angariação."
+    }
   }
 }
