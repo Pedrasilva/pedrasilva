@@ -48,6 +48,7 @@ import {
   Coffee,
   Plane,
 } from "lucide-react";
+import { ProjectStageLeadPicker } from "@/components/projects/project-stage-lead-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { formatHM, parseHM } from "@/lib/projects/time-format";
@@ -478,141 +479,47 @@ function TimesheetPage() {
                     {t("projects:pursuit.addRow")}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="start" className="w-[460px] p-0">
-                  <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      autoFocus
-                      placeholder={t("projects:pursuit.searchPlaceholder")}
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
+                <PopoverContent align="start" className="w-[min(460px,calc(100vw-1rem))] p-0">
+                  <ProjectStageLeadPicker
+                    autoFocus
+                    projects={projectsVisible ? searchResults : []}
+                    leads={leads.filter((l) => l.is_open).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
+                    categories={activeInternalCategories.map((c) => c.name).filter((n) => n !== PURSUIT_CATEGORY)}
+                    refDate={weekStart}
+                    searching={searching}
+                    emptyProjectsHint={t("projects:picker.typeToSearchProjects")}
+                    busy={ensureRow.isPending || !profile?.resource_id}
+                    onQueryChange={(q) => { setSearchQuery(q); setExpandedProject(null); }}
+                    onPickLead={(l) => {
+                      setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
+                      setSearchQuery("");
+                      setAddPopoverOpen(false);
+                      toast.success(t("projects:pursuit.added", { name: l.name }));
+                    }}
+                    onPickCategory={(c) => {
+                      setSearchQuery("");
+                      setAddPopoverOpen(false);
+                      toast.success(t("projects:picker.internalInGrid", { name: c }));
+                    }}
+                    onPickStage={async (p, s) => {
+                      if (!profile?.resource_id) return;
+                      try {
+                        const taskId = await ensureRow.mutateAsync({
+                          resource_id: profile.resource_id,
+                          stage_id: s.id,
+                          stage_start: s.start_date,
+                          stage_end: s.end_date,
+                        });
+                        setExtraTaskIds((ids) => Array.from(new Set([...ids, taskId])));
+                        setSearchQuery("");
                         setExpandedProject(null);
-                      }}
-                      className="h-7 border-0 px-0 shadow-none focus-visible:ring-0"
-                    />
-                  </div>
-                  <div className="max-h-80 overflow-y-auto p-1">
-                    {!searchQuery && (
-                      <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                        Type a project or client name to search.
-                      </div>
-                    )}
-                    {searchQuery && searching && (
-                      <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                        Searching…
-                      </div>
-                    )}
-                    {leadMatches.length > 0 && (
-                      <div className="mb-1 border-b border-border pb-1">
-                        <div className="px-3 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {t("projects:pursuit.leadsGroup")}
-                        </div>
-                        {leadMatches.map((l) => (
-                          <button
-                            key={l.id}
-                            onClick={() => {
-                              setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
-                              setSearchQuery("");
-                              setAddPopoverOpen(false);
-                              toast.success(t("projects:pursuit.added", { name: l.name }));
-                            }}
-                            className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent"
-                          >
-                            <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-muted-foreground" />
-                            <span className="min-w-0 flex-1 truncate">{leadLabel(l)}</span>
-                            <span className="text-[10px] text-muted-foreground">{t("projects:pursuit.categoryLabel")}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {searchQuery && !searching && searchResults.length === 0 && leadMatches.length === 0 && (
-                      <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                        No projects match "{searchQuery}".
-                      </div>
-                    )}
-                    {(projectsVisible ? searchResults : []).map((p) => {
-                      const expanded = expandedProject === p.id;
-                      return (
-                        <div key={p.id} className="rounded">
-                          <button
-                            onClick={() => setExpandedProject(expanded ? null : p.id)}
-                            className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent"
-                          >
-                            <span
-                              className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                              style={{ backgroundColor: p.color }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="truncate font-medium">{p.name}</div>
-                              {p.client && (
-                                <div className="truncate text-[11px] text-muted-foreground">
-                                  {p.client}
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">
-                              {p.stages.length}{" "}
-                              {p.stages.length === 1 ? "stage" : "stages"}
-                            </span>
-                            <ChevronDown
-                              className={`h-3.5 w-3.5 text-muted-foreground transition ${
-                                expanded ? "rotate-180" : ""
-                              }`}
-                            />
-                          </button>
-                          {expanded && (
-                            <div className="ml-5 border-l border-border pl-2">
-                              {p.stages.length === 0 && (
-                                <div className="px-3 py-2 text-[11px] text-muted-foreground">
-                                  No stages defined for this project.
-                                </div>
-                              )}
-                              {p.stages.map((s) => (
-                                <button
-                                  key={s.id}
-                                  disabled={ensureRow.isPending || !profile?.resource_id}
-                                  onClick={async () => {
-                                    if (!profile?.resource_id) return;
-                                    try {
-                                      const taskId = await ensureRow.mutateAsync({
-                                        resource_id: profile.resource_id,
-                                        stage_id: s.id,
-                                        stage_start: s.start_date,
-                                        stage_end: s.end_date,
-                                      });
-                                      setExtraTaskIds((ids) =>
-                                        Array.from(new Set([...ids, taskId])),
-                                      );
-                                      setSearchQuery("");
-                                      setExpandedProject(null);
-                                      setAddPopoverOpen(false);
-                                      toast.success(`Added ${p.name} · ${s.name}`);
-                                    } catch (err) {
-                                      toast.error(
-                                        (err as Error).message || "Failed to add stage",
-                                      );
-                                    }
-                                  }}
-                                  className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-[13px] hover:bg-accent disabled:opacity-50"
-                                >
-                                  <span
-                                    className="h-2 w-2 flex-shrink-0 rounded-full"
-                                    style={{ backgroundColor: s.color }}
-                                  />
-                                  <span className="flex-1 truncate">{s.name}</span>
-                                  <span className="text-[10px] text-muted-foreground">
-                                    {format(new Date(s.start_date), "MMM d")} –{" "}
-                                    {format(new Date(s.end_date), "MMM d")}
-                                  </span>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                        setAddPopoverOpen(false);
+                        toast.success(`${p.name} · ${s.name}`);
+                      } catch (err) {
+                        toast.error((err as Error).message || "Failed to add stage");
+                      }
+                    }}
+                  />
                 </PopoverContent>
               </Popover>
               )}
