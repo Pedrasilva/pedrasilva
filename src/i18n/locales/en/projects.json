@@ -634,7 +634,9 @@
       "negativeMargin": "Negative margin",
       "approachingBudget": "Approaching budget ({{pct}}%)",
       "lowMargin": "Low margin"
-    }
+    },
+    "pursuitLine": "Incl. pre-contract {{hours}} h · {{cost}}",
+    "pursuitHint": "Pursuit hours logged on this project's CRM lead before it was won."
   },
   "effort": {
     "title": "Project effort",
@@ -1588,6 +1590,33 @@
       "disconnected": "Calendar disconnected and access removed at Google",
       "revokeFailed": "Calendar disconnected in PSA Hub, but Google didn't confirm. Remove PSA Hub at myaccount.google.com/permissions.",
       "disconnectError": "Couldn't disconnect your calendar"
+    }
+  },
+  "pursuit": {
+    "title": "Pre-contract (pursuit)",
+    "linkedTo": "From lead: {{name}}",
+    "noLead": "No CRM lead linked",
+    "link": "Link a lead",
+    "change": "Change lead",
+    "hint": "Hours logged on this project's lead before it was won, at each person's cost rate. Included in the project's total cost.",
+    "saved": "Lead linked",
+    "pick": "Choose a lead",
+    "none": "No lead",
+    "cancel": "Cancel",
+    "unknownLead": "Lead",
+    "addRow": "Add project, stage or lead",
+    "searchPlaceholder": "Search a project, client or lead…",
+    "leadsGroup": "Open leads (pursuit)",
+    "added": "Added pursuit · {{name}}",
+    "categoryLabel": "Pursuit",
+    "rowSub": "Pursuit · non-billable",
+    "closedSub": "Lead closed · existing hours kept, no new hours",
+    "stage": {
+      "lead": "lead",
+      "proposal": "proposal",
+      "negotiation": "negotiation",
+      "won": "won",
+      "lost": "lost"
     }
   }
 }

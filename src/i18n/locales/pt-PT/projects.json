@@ -634,7 +634,9 @@
       "negativeMargin": "Margem negativa",
       "approachingBudget": "A aproximar-se do orçamento ({{pct}}%)",
       "lowMargin": "Margem baixa"
-    }
+    },
+    "pursuitLine": "Inclui pré-contrato {{hours}} h · {{cost}}",
+    "pursuitHint": "Horas de angariação registadas no lead do CRM antes de ser ganho."
   },
   "effort": {
     "title": "Esforço do projecto",
@@ -1588,6 +1590,33 @@
       "disconnected": "Calendário desligado e acesso removido na Google",
       "revokeFailed": "Calendário desligado no PSA Hub, mas a Google não confirmou. Remova o PSA Hub em myaccount.google.com/permissions.",
       "disconnectError": "Não foi possível desligar o calendário"
+    }
+  },
+  "pursuit": {
+    "title": "Pré-contrato (angariação)",
+    "linkedTo": "Do lead: {{name}}",
+    "noLead": "Sem lead do CRM ligado",
+    "link": "Ligar um lead",
+    "change": "Mudar lead",
+    "hint": "Horas registadas no lead deste projeto antes de ser ganho, ao custo/hora de cada pessoa. Incluídas no custo total do projeto.",
+    "saved": "Lead ligado",
+    "pick": "Escolher um lead",
+    "none": "Sem lead",
+    "cancel": "Cancelar",
+    "unknownLead": "Lead",
+    "addRow": "Adicionar projeto, fase ou lead",
+    "searchPlaceholder": "Procurar projeto, cliente ou lead…",
+    "leadsGroup": "Leads abertos (angariação)",
+    "added": "Adicionada angariação · {{name}}",
+    "categoryLabel": "Angariação",
+    "rowSub": "Angariação · não faturável",
+    "closedSub": "Lead fechado · horas existentes mantêm-se, sem novas horas",
+    "stage": {
+      "lead": "lead",
+      "proposal": "proposta",
+      "negotiation": "negociação",
+      "won": "ganho",
+      "lost": "perdido"
     }
   }
 }

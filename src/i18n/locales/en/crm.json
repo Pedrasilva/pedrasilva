@@ -126,7 +126,8 @@
       "contact": "Contact",
       "contactName": "Contact name",
       "contactEmail": "Email",
-      "contactPhone": "Phone"
+      "contactPhone": "Phone",
+      "pursuitHours": "Pursuit hours"
     },
     "activity": {
       "title": "Activity",

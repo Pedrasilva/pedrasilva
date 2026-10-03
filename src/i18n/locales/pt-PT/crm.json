@@ -126,7 +126,8 @@
       "contact": "Contacto",
       "contactName": "Nome do contacto",
       "contactEmail": "Email",
-      "contactPhone": "Telefone"
+      "contactPhone": "Telefone",
+      "pursuitHours": "Horas de angariação"
     },
     "activity": {
       "title": "Actividade",

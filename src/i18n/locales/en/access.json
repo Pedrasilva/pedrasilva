@@ -24,38 +24,137 @@
     "cancel": "Cancel",
     "legendTodayTarget": "Cells show Today → Target when they differ."
   },
-  "tier": { "standard": "Standard", "confidential": "Confidential" },
-  "level": { "none": "None", "own": "Own", "view": "View", "edit": "Edit", "team": "Team", "all": "All" },
+  "tier": {
+    "standard": "Standard",
+    "confidential": "Confidential"
+  },
+  "level": {
+    "none": "None",
+    "own": "Own",
+    "view": "View",
+    "edit": "Edit",
+    "team": "Team",
+    "all": "All"
+  },
   "section": {
-    "projects": "Projects", "time": "Time", "hr": "HR", "products": "Products", "portfolio": "Portfolio",
-    "marketing": "Marketing", "crm": "CRM", "finance": "Finance", "other": "Other"
+    "projects": "Projects",
+    "time": "Time",
+    "hr": "HR",
+    "products": "Products",
+    "portfolio": "Portfolio",
+    "marketing": "Marketing",
+    "crm": "CRM",
+    "finance": "Finance",
+    "other": "Other"
   },
   "items": {
-    "projects_work": { "label": "Work on projects", "description": "Open projects, Gantt and own tasks." },
-    "projects_plan": { "label": "Plan projects", "description": "Edit stages, allocations and dependencies on all projects." },
-    "projects_workload": { "label": "Team workload", "description": "See other people's workload and bookings." },
-    "time_own": { "label": "Own timesheet", "description": "Log and submit own hours." },
-    "time_team": { "label": "Team timesheets", "description": "See other people's logged hours." },
-    "hr_self": { "label": "My HR", "description": "Own record, leave, benefits and work from home." },
-    "hr_availability": { "label": "Team availability", "description": "Who is in, off or remote." },
-    "products_use": { "label": "Product library", "description": "Browse the library and project schedules." },
-    "portfolio_view": { "label": "Portfolio", "description": "Open the studio portfolio." },
-    "marketing_contribute": { "label": "Contribute to marketing", "description": "Send captures and browse marketing." },
-    "projects_financials": { "label": "Project financials", "description": "Budget, cost, revenue, margins and rates on projects. Not the Finance module." },
-    "time_approve": { "label": "Approve timesheets", "description": "Team = own teams; All = everyone." },
-    "hr_people": { "label": "Collaborators", "description": "People list and records." },
-    "hr_compensation": { "label": "Compensation", "description": "Salaries, snapshots and benefit balances." },
-    "hr_approve": { "label": "HR approvals", "description": "Approve leave and benefit expenses." },
-    "hr_settings": { "label": "HR settings", "description": "Meal allowance, backoffice value and HR configuration." },
-    "products_edit": { "label": "Edit product library", "description": "Create, edit and archive products." },
-    "marketing_curate": { "label": "Curate marketing", "description": "Edit captures, drafts, questions and briefings." },
-    "marketing_bible": { "label": "Marketing Bible", "description": "Edit the marketing strategy." },
-    "crm_view": { "label": "View CRM", "description": "Companies, contacts and pipeline." },
-    "crm_edit": { "label": "Edit CRM", "description": "Create and change companies, contacts, opportunities and quotes." },
-    "finance_view": { "label": "View Finance", "description": "Office finance: documents, banking and reports." },
-    "finance_edit": { "label": "Edit Finance", "description": "Create and settle documents, banking and settings." },
-    "inbox": { "label": "Inbox", "description": "Email triage inbox." },
-    "reports": { "label": "Reports", "description": "Studio reports." },
-    "inventory": { "label": "Inventory", "description": "Asset register." }
+    "projects_work": {
+      "label": "Work on projects",
+      "description": "Open projects, Gantt and own tasks."
+    },
+    "projects_plan": {
+      "label": "Plan projects",
+      "description": "Edit stages, allocations and dependencies on all projects."
+    },
+    "projects_workload": {
+      "label": "Team workload",
+      "description": "See other people's workload and bookings."
+    },
+    "time_own": {
+      "label": "Own timesheet",
+      "description": "Log and submit own hours."
+    },
+    "time_team": {
+      "label": "Team timesheets",
+      "description": "See other people's logged hours."
+    },
+    "hr_self": {
+      "label": "My HR",
+      "description": "Own record, leave, benefits and work from home."
+    },
+    "hr_availability": {
+      "label": "Team availability",
+      "description": "Who is in, off or remote."
+    },
+    "products_use": {
+      "label": "Product library",
+      "description": "Browse the library and project schedules."
+    },
+    "portfolio_view": {
+      "label": "Portfolio",
+      "description": "Open the studio portfolio."
+    },
+    "marketing_contribute": {
+      "label": "Contribute to marketing",
+      "description": "Send captures and browse marketing."
+    },
+    "projects_financials": {
+      "label": "Project financials",
+      "description": "Budget, cost, revenue, margins and rates on projects. Not the Finance module."
+    },
+    "time_approve": {
+      "label": "Approve timesheets",
+      "description": "Team = own teams; All = everyone."
+    },
+    "hr_people": {
+      "label": "Collaborators",
+      "description": "People list and records."
+    },
+    "hr_compensation": {
+      "label": "Compensation",
+      "description": "Salaries, snapshots and benefit balances."
+    },
+    "hr_approve": {
+      "label": "HR approvals",
+      "description": "Approve leave and benefit expenses."
+    },
+    "hr_settings": {
+      "label": "HR settings",
+      "description": "Meal allowance, backoffice value and HR configuration."
+    },
+    "products_edit": {
+      "label": "Edit product library",
+      "description": "Create, edit and archive products."
+    },
+    "marketing_curate": {
+      "label": "Curate marketing",
+      "description": "Edit captures, drafts, questions and briefings."
+    },
+    "marketing_bible": {
+      "label": "Marketing Bible",
+      "description": "Edit the marketing strategy."
+    },
+    "crm_view": {
+      "label": "View CRM",
+      "description": "Confidential CRM: fees, quotes, proposals and contacts."
+    },
+    "crm_edit": {
+      "label": "Edit CRM",
+      "description": "Create and change companies, contacts, opportunities and quotes."
+    },
+    "finance_view": {
+      "label": "View Finance",
+      "description": "Office finance: documents, banking and reports."
+    },
+    "finance_edit": {
+      "label": "Edit Finance",
+      "description": "Create and settle documents, banking and settings."
+    },
+    "inbox": {
+      "label": "Inbox",
+      "description": "Email triage inbox."
+    },
+    "reports": {
+      "label": "Reports",
+      "description": "Studio reports."
+    },
+    "inventory": {
+      "label": "Inventory",
+      "description": "Asset register."
+    },
+    "crm_leads": {
+      "label": "See leads",
+      "description": "See lead names and clients, and log pursuit hours."
+    }
   }
 }
