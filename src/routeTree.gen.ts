@@ -30,6 +30,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppAdminAccessRouteImport } from './routes/_app.admin.access'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
+import { Route as AppAdminCostRatesRouteImport } from './routes/_app.admin.cost-rates'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppAdminPermissionsRouteImport } from './routes/_app.admin.permissions'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
@@ -137,6 +138,7 @@ import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_a
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as ApiPublicCalendarCallbackRouteImport } from './routes/api/public/calendar/callback'
+import { Route as ApiPublicHooksCostRatesRouteImport } from './routes/api/public/hooks/cost-rates'
 import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/public/hooks/doc-reprocess'
 import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/public/hooks/docusign-connect'
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
@@ -255,6 +257,11 @@ const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
 const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
   id: '/admin/company-settings',
   path: '/admin/company-settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminCostRatesRoute = AppAdminCostRatesRouteImport.update({
+  id: '/admin/cost-rates',
+  path: '/admin/cost-rates',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
@@ -837,6 +844,11 @@ const ApiPublicCalendarCallbackRoute =
     path: '/api/public/calendar/callback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksCostRatesRoute = ApiPublicHooksCostRatesRouteImport.update({
+  id: '/api/public/hooks/cost-rates',
+  path: '/api/public/hooks/cost-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksDocReprocessRoute =
   ApiPublicHooksDocReprocessRouteImport.update({
     id: '/api/public/hooks/doc-reprocess',
@@ -927,6 +939,7 @@ export interface FileRoutesByFullPath {
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -1028,6 +1041,7 @@ export interface FileRoutesByFullPath {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
+  '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1062,6 +1076,7 @@ export interface FileRoutesByTo {
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -1161,6 +1176,7 @@ export interface FileRoutesByTo {
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
+  '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1203,6 +1219,7 @@ export interface FileRoutesById {
   '/_app/admin/access': typeof AppAdminAccessRoute
   '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
+  '/_app/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/permissions': typeof AppAdminPermissionsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
@@ -1304,6 +1321,7 @@ export interface FileRoutesById {
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
+  '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1346,6 +1364,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
+    | '/admin/cost-rates'
     | '/admin/imports'
     | '/admin/permissions'
     | '/admin/projects'
@@ -1447,6 +1466,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
+    | '/api/public/hooks/cost-rates'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1481,6 +1501,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/backups'
     | '/admin/company-settings'
+    | '/admin/cost-rates'
     | '/admin/imports'
     | '/admin/permissions'
     | '/admin/projects'
@@ -1580,6 +1601,7 @@ export interface FileRouteTypes {
     | '/projects/resources/$resourceId'
     | '/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
+    | '/api/public/hooks/cost-rates'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1621,6 +1643,7 @@ export interface FileRouteTypes {
     | '/_app/admin/access'
     | '/_app/admin/backups'
     | '/_app/admin/company-settings'
+    | '/_app/admin/cost-rates'
     | '/_app/admin/imports'
     | '/_app/admin/permissions'
     | '/_app/admin/projects'
@@ -1722,6 +1745,7 @@ export interface FileRouteTypes {
     | '/_app/projects/resources/$resourceId'
     | '/_app/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
+    | '/api/public/hooks/cost-rates'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1754,6 +1778,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCalendarCallbackRoute: typeof ApiPublicCalendarCallbackRoute
+  ApiPublicHooksCostRatesRoute: typeof ApiPublicHooksCostRatesRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
   ApiPublicHooksDocusignConnectRoute: typeof ApiPublicHooksDocusignConnectRoute
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
@@ -1914,6 +1939,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/company-settings'
       fullPath: '/admin/company-settings'
       preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/cost-rates': {
+      id: '/_app/admin/cost-rates'
+      path: '/admin/cost-rates'
+      fullPath: '/admin/cost-rates'
+      preLoaderRoute: typeof AppAdminCostRatesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/imports': {
@@ -2665,6 +2697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCalendarCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/cost-rates': {
+      id: '/api/public/hooks/cost-rates'
+      path: '/api/public/hooks/cost-rates'
+      fullPath: '/api/public/hooks/cost-rates'
+      preLoaderRoute: typeof ApiPublicHooksCostRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/doc-reprocess': {
       id: '/api/public/hooks/doc-reprocess'
       path: '/api/public/hooks/doc-reprocess'
@@ -3020,6 +3059,7 @@ interface AppRouteChildren {
   AppAdminAccessRoute: typeof AppAdminAccessRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
+  AppAdminCostRatesRoute: typeof AppAdminCostRatesRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminPermissionsRoute: typeof AppAdminPermissionsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
@@ -3066,6 +3106,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminAccessRoute: AppAdminAccessRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
+  AppAdminCostRatesRoute: AppAdminCostRatesRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminPermissionsRoute: AppAdminPermissionsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
@@ -3115,6 +3156,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCalendarCallbackRoute: ApiPublicCalendarCallbackRoute,
+  ApiPublicHooksCostRatesRoute: ApiPublicHooksCostRatesRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,
   ApiPublicHooksDocusignConnectRoute: ApiPublicHooksDocusignConnectRoute,
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,

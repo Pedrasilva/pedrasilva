@@ -102,3 +102,15 @@ export function effectiveRates(
     cost: effectiveCostRate(resource.cost_rate, resource.id, defaults, flag),
   };
 }
+
+// Actual cost of logged hours: the rate locked on the entry when it was saved
+// (pm_time_entries.cost_rate_snapshot). Falls back to the current rate only
+// when an entry has no locked rate. Forecasts / planning keep current rates.
+export function lockedCostRate(
+  snapshot: number | string | null | undefined,
+  fallback: number,
+): number {
+  if (snapshot == null || snapshot === "") return fallback;
+  const n = Number(snapshot);
+  return Number.isFinite(n) ? n : fallback;
+}

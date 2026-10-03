@@ -51,6 +51,7 @@ import { usePursuitTotals, pursuitByProject } from "@/lib/projects/use-pursuit";
 import {
   useDefaultResourceRates,
   effectiveCostRate,
+  lockedCostRate,
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,6 +85,7 @@ interface TimeEntryRow {
   hours: number;
   billable: boolean;
   entry_type: "project" | "internal" | "non_working";
+  cost_rate_snapshot: number | null;
 }
 
 function useMonthEntries(periodStart: string, periodEnd: string) {
@@ -92,13 +94,14 @@ function useMonthEntries(periodStart: string, periodEnd: string) {
     queryFn: async (): Promise<TimeEntryRow[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("user_id, task_id, entry_date, hours, billable, entry_type")
+        .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot")
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
       return (data ?? []).map((r) => ({
         ...r,
         hours: Number(r.hours ?? 0),
+        cost_rate_snapshot: r.cost_rate_snapshot == null ? null : Number(r.cost_rate_snapshot),
       })) as TimeEntryRow[];
     },
   });
@@ -273,13 +276,14 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("task_id, hours, billable")
+        .select("task_id, hours, billable, cost_rate_snapshot")
         .eq("entry_type", "project");
       if (error) throw error;
       return (data ?? []).map((r) => ({
         task_id: r.task_id as string | null,
         hours: Number(r.hours ?? 0),
         billable: r.billable,
+        cost_rate_snapshot: r.cost_rate_snapshot == null ? null : Number(r.cost_rate_snapshot),
       }));
     },
   });
@@ -389,7 +393,7 @@ function DashboardPage() {
         if (resourceId) {
           const res = resources?.find((r) => r.id === resourceId);
           const costRate = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
-          cur.laborCost += e.hours * costRate;
+          cur.laborCost += e.hours * lockedCostRate(e.cost_rate_snapshot, costRate);
           // Time-and-materials stages carry no fixed budget: revenue is earned
           // per billable hour at the resource's sale rate. Non-billable hours
           // stay on the cost side only (correctly dragging margin down).
@@ -621,7 +625,7 @@ function DashboardPage() {
         : undefined;
       const saleRate = effectiveSaleRate(res?.hourly_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
       const costRate = effectiveCostRate(res?.cost_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
-      cost += e.hours * costRate;
+      cost += e.hours * lockedCostRate(e.cost_rate_snapshot, costRate);
       totalLogged += e.hours;
       if (e.billable && e.entry_type === "project") {
         revenue += e.hours * saleRate;

@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAllStages, useResources } from "@/lib/projects/use-planner";
-import { useDefaultResourceRates, effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
+import { useDefaultResourceRates, effectiveCostRate, effectiveSaleRate, lockedCostRate } from "@/lib/projects/use-default-rates";
 import { computeResourceCapacity } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import {
@@ -146,7 +146,7 @@ function useActualByMonth(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, cost_rate_snapshot")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
@@ -158,6 +158,7 @@ function useActualByMonth(monthStartISO: string, monthEndISO: string) {
         hours: number;
         entry_date: string;
         task_id: string | null;
+        cost_rate_snapshot: number | null;
       }>;
 
       const taskIds = Array.from(new Set(list.filter((e) => e.task_id).map((e) => e.task_id as string)));
@@ -524,7 +525,7 @@ function ForecastPage() {
       const meta = e.task_id ? actual.taskMeta.get(e.task_id) : undefined;
       if (!meta) continue;
       const resource = resourceMap.get(meta.resource_id);
-      const cost = effectiveCostRate(resource?.cost_rate ?? meta.cost_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override);
+      const cost = lockedCostRate(e.cost_rate_snapshot, effectiveCostRate(resource?.cost_rate ?? meta.cost_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override));
       const sale = effectiveSaleRate(resource?.hourly_rate ?? meta.sale_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override);
 
       const cur = m.get(meta.project_id) ?? { hours: 0, revenue: 0, cost: 0, billableHours: 0 };

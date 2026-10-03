@@ -1618,5 +1618,35 @@
       "won": "ganho",
       "lost": "perdido"
     }
+  },
+  "costRates": {
+    "title": "Custos/hora bloqueados",
+    "subtitle": "Cada hora guarda o custo €/h da pessoa válido na sua data. Alterações de salário ou definições nunca reescrevem horas passadas, exceto pelo recálculo abaixo.",
+    "statusTitle": "Estado",
+    "locked": "Horas com custo bloqueado",
+    "missing_one": "{{count}} registo sem custo bloqueado (os custos reais usam o custo atual).",
+    "missing_other": "{{count}} registos sem custo bloqueado (os custos reais usam o custo atual).",
+    "rebuild": "Reconstruir períodos",
+    "backfill": "Preencher custos em falta",
+    "rebuilt_one": "{{count}} período reconstruído",
+    "rebuilt_other": "{{count}} períodos reconstruídos",
+    "backfilled_one": "{{count}} registo preenchido",
+    "backfilled_other": "{{count}} registos preenchidos",
+    "recalcTitle": "Recalcular custos a partir de…",
+    "recalcHint": "Volta a aplicar os períodos às horas a partir desta data, para uma pessoa ou para todos. Fica registado quem o fez.",
+    "everyone": "Todos",
+    "recalc": "Recalcular",
+    "recalcConfirm": "Recalcular o custo de todas as horas a partir de {{date}}?",
+    "recalculated_one": "{{count}} registo alterado",
+    "recalculated_other": "{{count}} registos alterados",
+    "periodsTitle": "Períodos de custo",
+    "person": "Pessoa",
+    "from": "De",
+    "to": "Até",
+    "inputs": "Dados",
+    "manual": "Custo manual no recurso",
+    "logTitle": "Histórico",
+    "changed_one": "{{count}} registo",
+    "changed_other": "{{count}} registos"
   }
 }

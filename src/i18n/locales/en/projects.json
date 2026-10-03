@@ -1618,5 +1618,35 @@
       "won": "won",
       "lost": "lost"
     }
+  },
+  "costRates": {
+    "title": "Locked cost rates",
+    "subtitle": "Each hour stores the person's cost €/h valid on its date. Salary or settings changes never rewrite past hours, except through the recalculation below.",
+    "statusTitle": "Status",
+    "locked": "Hours with a locked rate",
+    "missing_one": "{{count}} entry has no locked rate (actual costs use the current rate for it).",
+    "missing_other": "{{count}} entries have no locked rate (actual costs use the current rate for them).",
+    "rebuild": "Rebuild rate periods",
+    "backfill": "Fill missing rates",
+    "rebuilt_one": "{{count}} period rebuilt",
+    "rebuilt_other": "{{count}} periods rebuilt",
+    "backfilled_one": "{{count}} entry filled",
+    "backfilled_other": "{{count}} entries filled",
+    "recalcTitle": "Recalculate costs from date…",
+    "recalcHint": "Re-applies the rate periods to hours from this date, for one person or everyone. Logged with who ran it.",
+    "everyone": "Everyone",
+    "recalc": "Recalculate",
+    "recalcConfirm": "Recalculate the cost of every hour from {{date}}?",
+    "recalculated_one": "{{count}} entry changed",
+    "recalculated_other": "{{count}} entries changed",
+    "periodsTitle": "Rate periods",
+    "person": "Person",
+    "from": "From",
+    "to": "Until",
+    "inputs": "Inputs",
+    "manual": "Manual cost rate on the resource",
+    "logTitle": "History",
+    "changed_one": "{{count}} entry",
+    "changed_other": "{{count}} entries"
   }
 }
