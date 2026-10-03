@@ -465,8 +465,26 @@ export function TimesheetAssistantSheet({
         )}
 
         {/* DRAFTS */}
-        {result && drafts.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
+        {result?.otherWeek && !loading && (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-warning bg-warning/5 p-3 text-sm">
+            <AlertTriangle className="h-4 w-4 text-warning" aria-hidden />
+            <span className="flex-1">{t(k("otherWeek.text"), { date: format(parseISO(result.otherWeek), "d MMM", { locale }) })}</span>
+            <Button size="sm" onClick={() => { const w = result.otherWeek!; setWeek(w); setDrafts([]); setHistory([]); void run([], false, w); }}>
+              {t(k("otherWeek.switch"))}
+            </Button>
+          </div>
+        )}
+        {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
         {grouped.length > 0 && renderGroups(grouped)}
+        {result && result.skipped.length > 0 && !result.otherWeek && (
+          <ul className="space-y-1 rounded-md border border-dashed p-3 text-sm text-muted-foreground" aria-label={t(k("skipped.title"))}>
+            {result.skipped.map((x, i) => (
+              <li key={i}>
+                {t(k("skipped.line"), { quote: x.quote ?? x.date ?? "?", reason: t(k(`skipped.${x.reason}`)) })}
+              </li>
+            ))}
+          </ul>
+        )}
         {calGrouped.length > 0 && (
           <section className="space-y-3" aria-labelledby="ts-cal-heading">
             <h2 id="ts-cal-heading" className="flex items-center gap-2 text-sm font-semibold">
