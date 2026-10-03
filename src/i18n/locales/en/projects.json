@@ -1667,5 +1667,19 @@
     "logTitle": "History",
     "changed_one": "{{count}} entry",
     "changed_other": "{{count}} entries"
+  },
+  "picker": {
+    "projects": "Projects",
+    "leads": "Proposals (CRM)",
+    "internal": "Internal",
+    "searchPlaceholder": "Search project, client, lead or category…",
+    "backToProjects": "Projects",
+    "noStages": "No stages defined for this project.",
+    "olderMonths": "Earlier months",
+    "laterMonths": "Later months",
+    "searching": "Searching…",
+    "noMatch": "Nothing matches \"{{query}}\".",
+    "typeToSearchProjects": "Type to search projects by name, number or client.",
+    "internalInGrid": "{{name}} is already in the Internal rows below."
   }
 }

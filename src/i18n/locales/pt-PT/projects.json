@@ -1667,5 +1667,19 @@
     "logTitle": "Histórico",
     "changed_one": "{{count}} registo",
     "changed_other": "{{count}} registos"
+  },
+  "picker": {
+    "projects": "Projetos",
+    "leads": "Propostas (CRM)",
+    "internal": "Interno",
+    "searchPlaceholder": "Procurar projeto, cliente, proposta ou categoria…",
+    "backToProjects": "Projetos",
+    "noStages": "Este projeto não tem fases definidas.",
+    "olderMonths": "Meses anteriores",
+    "laterMonths": "Meses seguintes",
+    "searching": "A procurar…",
+    "noMatch": "Nada corresponde a \"{{query}}\".",
+    "typeToSearchProjects": "Escreva para procurar projetos por nome, número ou cliente.",
+    "internalInGrid": "{{name}} já está nas linhas internas abaixo."
   }
 }

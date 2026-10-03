@@ -24,6 +24,7 @@ import {
   type AssistantDraft,
   type AssistantResult,
 } from "@/lib/projects/timesheet-assistant.functions";
+import { ProjectStageLeadPicker } from "@/components/projects/project-stage-lead-picker";
 import { cn } from "@/lib/utils";
 
 const NS = "projects";
@@ -172,16 +173,6 @@ export function TimesheetAssistantSheet({
     }
   }
 
-  const otherChoices = useMemo(() => {
-    if (!result) return [] as string[];
-    const out: string[] = [];
-    for (const p of result.projects) {
-      out.push(p.name);
-      for (const s of p.stages) out.push(`${p.name} · ${s.name}`);
-    }
-    for (const l of result.leads) out.push(`${l.name} · ${t(k("q.leadSuffix"))}`);
-    return out;
-  }, [result, t]);
 
   function submitAnswers(done = false) {
     if (!result) return;
@@ -436,13 +427,19 @@ export function TimesheetAssistantSheet({
                     </Button>
                   )}
                 </div>
-                {otherOpen[i] && (
-                  <>
-                    <Input list={`ts-other-${i}`} autoFocus placeholder={t(k("q.searchPlaceholder"))} aria-label={t(k("q.other"))} onChange={(e) => { if (otherChoices.includes(e.target.value)) setAnswers((a) => ({ ...a, [i]: e.target.value })); }} />
-                    <datalist id={`ts-other-${i}`}>
-                      {otherChoices.map((c) => <option key={c} value={c} />)}
-                    </datalist>
-                  </>
+                {otherOpen[i] && result && (
+                  <div className="rounded-md border bg-background">
+                    <ProjectStageLeadPicker
+                      autoFocus
+                      projects={result.projects}
+                      leads={result.leads}
+                      categories={result.categories.filter((c) => c !== "Pursuit")}
+                      refDate={q.draft_ids.map((id) => drafts.find((d) => d.id === id)?.date).find(Boolean) ?? week}
+                      onPickStage={(p, s) => { setAnswers((a) => ({ ...a, [i]: `${p.name} · ${s.name}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
+                      onPickLead={(l) => { setAnswers((a) => ({ ...a, [i]: `${l.name} · ${t(k("q.leadSuffix"))}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
+                      onPickCategory={(c) => { setAnswers((a) => ({ ...a, [i]: c })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
+                    />
+                  </div>
                 )}
                 </>
                 )}

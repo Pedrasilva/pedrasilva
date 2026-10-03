@@ -9,7 +9,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type AssistantStage = { id: string; name: string; start_date: string; end_date: string };
-export type AssistantProject = { id: string; name: string; client: string | null; stages: AssistantStage[] };
+export type AssistantProject = { id: string; name: string; client: string | null; aliases?: string[]; stages: AssistantStage[] };
 export type AssistantExisting = {
   date: string;
   entry_type: "project" | "internal" | "non_working";
@@ -218,6 +218,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         id: p.id,
         name: p.name,
         client: p.client,
+        aliases: aliasMap.get(p.id) ?? [],
         stages: raw
           .filter((s) => !parents.has(s.id) && s.is_self !== false)
           .sort((a, b) => a.sort_order - b.sort_order)
@@ -473,7 +474,6 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     };
     const entryById = new Map(entries.map((e) => [e.id, e]));
     const leadSuffix = pt ? " · proposta" : " · proposal";
-    const fixed = ["That's all", "Add it", "No", "É tudo", "Adicionar", "Não"];
     const norm = (x: string) => x.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     for (const q of (parsed.questions ?? []) as Array<Record<string, unknown>>) {
       if (questions.length >= 4) break;
@@ -511,7 +511,9 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       for (const s2 of stagePool) allowed.set(norm(s2), s2);
       for (const c of categories) allowed.set(norm(c), c);
       for (const l of leads) { allowed.set(norm(l.name), l.name + leadSuffix); allowed.set(norm(l.name + leadSuffix), l.name + leadSuffix); }
-      for (const f of fixed) allowed.set(norm(f), f);
+      // Fixed answers follow the person's language.
+      const fixedPairs: Array<[string, string]> = [["That's all", "É tudo"], ["Add it", "Adicionar"], ["No", "Não"]];
+      for (const [en, ptx] of fixedPairs) { const v = pt ? ptx : en; allowed.set(norm(en), v); allowed.set(norm(ptx), v); }
       const options = [...new Set((Array.isArray(q.options) ? q.options : []).map((o) => allowed.get(norm(String(o)))).filter(Boolean) as string[])].slice(0, 6);
       questions.push({ text: text.slice(0, 400), options, source, draft_ids, event_ids, context });
     }
