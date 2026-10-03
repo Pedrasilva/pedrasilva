@@ -28,6 +28,8 @@ export type AssistantDraft = {
   project_id: string | null;
   stage_id: string | null;
   internal_category: string | null;
+  /** Pursuit drafts only (internal_category = "Pursuit"): the open CRM lead. */
+  opportunity_id: string | null;
   note: string;
   confidence: "high" | "low";
   /** Google Calendar event this draft comes from, if any. */
@@ -42,6 +44,8 @@ export type AssistantResult = {
   dailyHours: number;
   projects: AssistantProject[];
   categories: string[];
+  /** Open CRM leads (names only) the person can log Pursuit time against. */
+  leads: { id: string; name: string; client: string | null }[];
   existing: AssistantExisting[];
   entries: AssistantDraft[];
   questions: AssistantQuestion[];
@@ -60,7 +64,7 @@ const dow = (d: string) => new Date(d + "T00:00:00Z").getUTCDay();
 
 const SYSTEM = `You turn a person's spoken or typed description of their working hours into draft timesheet entries.
 The text may be Portuguese, English or a mix. Reply with ONE JSON object only, no prose, no code fences:
-{"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
+{"entries":[{"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
  "questions":[{"text":string,"options":[string]}]}
 Rules:
 - Create one entry for EVERY activity the person mentions (meetings included), even if something similar is already logged; saving adds to existing hours. "Already logged" only counts towards day totals.
@@ -69,6 +73,7 @@ Rules:
 - hours: from start/end when given, otherwise as said. Round to 0.25.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
 - entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). project_id and stage_id must be null.
+- Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Never use "Pursuit" without an opportunity_id.
 - Match projects by name, client, number or alias, tolerating misspellings and accents. NEVER invent a project, stage or category not in the lists. If nothing matches or two are plausible, still add the entry with project_id null (or your best guess with confidence "low") and ask, with the candidate names as options.
 - note: a short note in the person's own words and language (e.g. "layouts and test fits"). No times in the note.
 - confidence "low" whenever you guessed anything.
@@ -102,7 +107,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const weekEnd = addDaysISO(weekStart, 6);
     if (dow(weekStart) !== 1) throw new Error("weekStart must be a Monday");
 
-    const [{ data: collabId }, weekRow, entriesRes, holRes, catRes, projRes, aliasRes] = await Promise.all([
+    const [{ data: collabId }, weekRow, entriesRes, holRes, catRes, leadRes, projRes, aliasRes] = await Promise.all([
       db.rpc("get_my_collaborator_id"),
       db.from("pm_timesheet_weeks").select("status").eq("user_id", userId).eq("week_start", weekStart).maybeSingle(),
       db
@@ -113,6 +118,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         .lte("entry_date", weekEnd),
       db.from("holidays").select("data, nome").gte("data", weekStart).lte("data", weekEnd),
       db.from("pm_internal_categories").select("name, visible_to_profiles").is("archived_at", null).order("sort_order"),
+      db.rpc("crm_leads_directory"),
       db
         .from("pm_projects")
         .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self)")
@@ -164,7 +170,12 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
 
     const categories = ((catRes.data ?? []) as Array<{ name: string; visible_to_profiles: string[] | null }>)
       .filter((c) => !c.visible_to_profiles?.length || c.visible_to_profiles.includes(workProfile))
-      .map((c) => c.name);
+      .map((c) => c.name)
+      .filter((n) => n !== "Pursuit");
+    const leads = ((leadRes.data ?? []) as Array<{ id: string; name: string; company_name: string | null; is_open: boolean }>)
+      .filter((l) => l.is_open)
+      .map((l) => ({ id: l.id, name: l.name, client: l.company_name }));
+    const leadIds = new Set(leads.map((l) => l.id));
 
     const aliasMap = new Map<string, string[]>();
     for (const a of (aliasRes.data ?? []) as Array<{ project_id: string; aliases: string[] | null }>) {
@@ -239,7 +250,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       }
     }
     if (!data.text && !events.length) {
-      return { weekStart, weekEnd, locked, dailyHours, projects, categories, existing, entries: [], questions: [], calendar };
+      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar };
     }
     // Attendee emails → CRM contacts → company → that company's projects (sent as names only).
     const companyOfEmail = new Map<string, string>();
@@ -275,6 +286,8 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       `Leave / public holidays this week (already handled, never create): ${[...leaveByDate].map(([d, l]) => `${d} ${l.label} ${l.hours}h`).join("; ") || "none"}`,
       `Already logged this week: ${existing.filter((e) => e.entry_type !== "non_working").map((e) => `${e.date} ${e.label} ${e.hours}h`).join("; ") || "nothing"}`,
       `Internal categories: ${JSON.stringify(categories)}`,
+      `Open CRM leads for Pursuit (id | name | client): ${leads.length ? "" : "none"}`,
+      ...leads.map((l) => `${l.id} | ${l.name} | ${l.client ?? ""}`),
       `Projects (id | name | client | aliases | stages id:name):`,
       ...projects.map((p) => `${p.id} | ${p.name} | ${p.client ?? ""} | ${(aliasMap.get(p.id) ?? []).join(", ")} | ${p.stages.map((s) => `${s.id}:${s.name}`).join("; ")}`),
       ...(events.length ? [`Calendar events not yet logged (event id | when | title | location | attendees):`, ...events.map(eventLine)] : []),
@@ -318,6 +331,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       let project_id = type === "project" && typeof r.project_id === "string" && projById.has(r.project_id) ? r.project_id : null;
       let stage_id: string | null = null;
       let category: string | null = null;
+      let opportunity_id: string | null = null;
       let confidence: "high" | "low" = r.confidence === "low" ? "low" : "high";
       if (type === "project") {
         const p = project_id ? projById.get(project_id)! : null;
@@ -327,6 +341,10 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         if (!project_id || !stage_id) confidence = "low";
       } else {
         category = typeof r.internal_category === "string" && catSet.has(r.internal_category) ? r.internal_category : null;
+        if (typeof r.opportunity_id === "string" && leadIds.has(r.opportunity_id)) {
+          category = "Pursuit";
+          opportunity_id = r.opportunity_id;
+        }
         if (!category) confidence = "low";
       }
       const t = (v: unknown) => (typeof v === "string" && /^\d{1,2}:\d{2}$/.test(v) ? v.padStart(5, "0") : null);
@@ -339,6 +357,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         project_id,
         stage_id,
         internal_category: category,
+        opportunity_id,
         note: String(r.note ?? "").slice(0, 300),
         confidence,
         event_id,
@@ -352,5 +371,5 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       questions.push({ text: text.slice(0, 400), options });
     }
 
-    return { weekStart, weekEnd, locked, dailyHours, projects, categories, existing, entries, questions, calendar };
+    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar };
   });
