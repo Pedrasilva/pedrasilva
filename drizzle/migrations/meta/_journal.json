@@ -15,6 +15,13 @@
       "when": 1790963736423,
       "tag": "0001_calendar_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791035116374,
+      "tag": "0002_pursuit_hours",
+      "breakpoints": true
     }
   ]
 }
