@@ -8548,6 +8548,7 @@ export type Database = {
           id: string
           internal_category: string | null
           leave_type: string | null
+          non_working_day_reason: string | null
           notes: string | null
           opportunity_id: string | null
           pm_stage_id: string | null
@@ -8578,6 +8579,7 @@ export type Database = {
           id?: string
           internal_category?: string | null
           leave_type?: string | null
+          non_working_day_reason?: string | null
           notes?: string | null
           opportunity_id?: string | null
           pm_stage_id?: string | null
@@ -8608,6 +8610,7 @@ export type Database = {
           id?: string
           internal_category?: string | null
           leave_type?: string | null
+          non_working_day_reason?: string | null
           notes?: string | null
           opportunity_id?: string | null
           pm_stage_id?: string | null
@@ -12939,6 +12942,10 @@ export type Database = {
           resource_id: string
           user_id: string
         }[]
+      }
+      pm_non_working_day_reason: {
+        Args: { _date: string; _user_id: string }
+        Returns: string
       }
       pm_project_has_retainer: {
         Args: { _project_id: string }

@@ -36,6 +36,13 @@
       "when": 1791044184187,
       "tag": "0004_project_stage_locked_cost",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791114019265,
+      "tag": "0005_non_working_day_entries",
+      "breakpoints": true
     }
   ]
 }
