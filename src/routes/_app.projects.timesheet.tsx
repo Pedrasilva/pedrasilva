@@ -340,6 +340,7 @@ function TimesheetPage() {
   };
 
   const grandTotal = buckets.billable + buckets.internal + buckets.nonWorking;
+  const [calExpanded, setCalExpanded] = useState(false);
   const noResource = !profile?.resource_id;
 
   // Auto-create non-working entries from approved leave/holidays the first
@@ -637,19 +638,8 @@ function TimesheetPage() {
     />
   );
 
-  return (
-    <AppShell active="timesheet">
-      <div className="w-full px-6 py-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Weekly Timesheet
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Log time per project stage, internal cost center, or non-working time.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+  const headerControls = (
+    <>
             {isRealAdmin && (
               <CollaboratorViewPicker
                 selectedCollaboratorId={viewedCollaboratorId ?? selfProfile?.collaborator_id ?? null}
@@ -676,7 +666,7 @@ function TimesheetPage() {
               <TimesheetAssistantSheet open={dictateOpen} onOpenChange={setDictateOpen} weekStart={weekStart} />
             )}
 
-            <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
+            <div className="flex items-center gap-1 rounded-md border border-border bg-card px-1 py-0.5">
               <Button
                 size="icon"
                 variant="ghost"
@@ -704,22 +694,12 @@ function TimesheetPage() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-        </div>
+    </>
+  );
 
-
-        {/* Summary chips */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <SummaryChip label="Billable" value={buckets.billable} tone="primary" />
-          <SummaryChip
-            label="Internal (non-billable)"
-            value={buckets.internal}
-            tone="muted"
-          />
-          <SummaryChip label="Non-working" value={buckets.nonWorking} tone="muted" />
-          <SummaryChip label="Total" value={grandTotal} tone="bold" />
-        </div>
-
+  return (
+    <AppShell active="timesheet">
+      <div className="w-full px-4 py-4 sm:px-6">
         <MyWeekCard
           userId={effectiveUserId}
           collaboratorId={effectiveCollaboratorId}
@@ -728,8 +708,9 @@ function TimesheetPage() {
           weekLabel={`${format(weekStartDate, "MMM d")} – ${format(addDays(weekStartDate, 6), "MMM d, yyyy")}`}
           totals={totalsFromEntries(entries)}
           viewingOther={viewingOther}
+          controls={headerControls}
+          billable={buckets.billable}
         />
-
 
         {noResource ? (
           <div className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
@@ -738,7 +719,7 @@ function TimesheetPage() {
           </div>
         ) : (
           <>
-          <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+          <div className="mt-3 overflow-hidden rounded-lg border border-border bg-card">
 
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
               {(
@@ -829,11 +810,11 @@ function TimesheetPage() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="max-h-[calc(100vh-11rem)] overflow-auto">
               <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/20 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="sticky left-0 z-10 bg-muted/40 px-4 py-2 text-left font-medium">
+                <thead className="sticky top-0 z-20 bg-card shadow-[0_1px_0_var(--border)]">
+                  <tr className="border-b border-border bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <th className="sticky left-0 z-10 bg-muted px-4 py-2 text-left font-medium">
                       Description
                     </th>
                     {days.map((d) => (
@@ -849,13 +830,32 @@ function TimesheetPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {calendarAllowed && gridCalendar && gridCalendar.status !== "not_connected" && (
+                  {calendarAllowed && gridCalendar && gridCalendar.status !== "not_connected" && (() => {
+                    const allEmpty =
+                      gridCalendar.status !== "expired" &&
+                      days.every((d) => !(calByDay.get(format(d, "yyyy-MM-dd")) ?? []).length);
+                    if (allEmpty && !calExpanded)
+                      return (
+                        <tr className="border-b border-border bg-primary/5">
+                          <td colSpan={9} className="sticky left-0 px-4 py-1">
+                            <button
+                              type="button"
+                              onClick={() => setCalExpanded(true)}
+                              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                              {t("projects:timesheetWeek.calendarAllLogged")}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    return (
                     <tr className="border-b border-border bg-primary/5">
                       <td className="sticky left-0 z-10 bg-card px-4 py-2">
-                        <div className="flex items-center gap-2 text-sm font-medium">
+                        <button type="button" onClick={() => allEmpty && setCalExpanded(false)} className="flex items-center gap-2 text-sm font-medium">
                           <CalendarDays className="h-3.5 w-3.5 text-primary" />
                           {t("projects:tsCalendar.row")}
-                        </div>
+                        </button>
                         <div className="text-[11px] text-muted-foreground">
                           {gridCalendar.status === "expired" ? t("projects:tsCalendar.expired") : t("projects:tsCalendar.rowSub")}
                         </div>
@@ -870,7 +870,8 @@ function TimesheetPage() {
                       })}
                       <td />
                     </tr>
-                  )}
+                    );
+                  })()}
                   {(() => {
                   const projectSection = !projectsVisible ? null : (
                   <>
@@ -952,6 +953,7 @@ function TimesheetPage() {
                   <>
                   {/* ====== INTERNAL ====== */}
                   <SectionHeaderRow
+                    tone="internal"
                     icon={<Coffee className="h-3.5 w-3.5" />}
                     label="Internal cost centers"
                     sub="Non-billable working time (capacity used, no revenue)."
@@ -1040,6 +1042,7 @@ function TimesheetPage() {
                   })()}
                   {/* ====== NON-WORKING ====== */}
                   <SectionHeaderRow
+                    tone="nonworking"
                     icon={<Plane className="h-3.5 w-3.5" />}
                     label="Non-working time"
                     sub="Auto-filled from approved leave + public holidays. Reduces capacity."
@@ -1083,9 +1086,9 @@ function TimesheetPage() {
                     />
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-border bg-muted/30 text-sm">
-                    <td className="sticky left-0 bg-muted/50 px-4 py-2 text-right text-xs uppercase tracking-wider text-muted-foreground">
+                <tfoot className="sticky bottom-0 z-20 bg-card shadow-[0_-1px_0_var(--border)]">
+                  <tr className="border-t-2 border-border bg-muted/60 text-sm">
+                    <td className="sticky left-0 bg-muted px-4 py-2 text-right text-xs uppercase tracking-wider text-muted-foreground">
                       Daily total
                     </td>
                     {days.map((d) => {
@@ -1148,20 +1151,24 @@ function SectionHeaderRow({
   icon,
   label,
   sub,
+  tone = "project",
 }: {
   icon: React.ReactNode;
   label: string;
   sub: string;
+  tone?: "project" | "internal" | "nonworking";
 }) {
+  const bg =
+    tone === "internal" ? "bg-ts-internal-head" : tone === "nonworking" ? "bg-ts-nonworking-head" : "bg-ts-project-head";
   return (
-    <tr className="border-b border-border bg-muted/15">
+    <tr className={`border-b border-border ${bg}`}>
       <td
         colSpan={9}
-        className="sticky left-0 z-10 bg-muted/30 px-4 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground"
+        className={`sticky left-0 z-10 px-4 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground ${bg}`}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-foreground">
           {icon}
-          <span className="font-semibold text-foreground">{label}</span>
+          <span className="font-bold">{label}</span>
           <span className="ml-2 normal-case tracking-normal text-muted-foreground">
             {sub}
           </span>
@@ -1221,9 +1228,11 @@ function ProjectRow({
             >
               {row.stage.name}
             </div>
-            <div className="mt-0.5 text-[10px] text-muted-foreground">
-              Suggested {formatHM(row.hours_per_day) || "0h00"}/day
-            </div>
+            {row.hours_per_day > 0 && (
+              <div className="mt-0.5 text-[10px] text-muted-foreground">
+                Suggested {formatHM(row.hours_per_day)}/day
+              </div>
+            )}
           </div>
           {isExtra && (
             <Button
@@ -1379,9 +1388,10 @@ function FixedRow({
   ) => void;
 }) {
   const dotCls = tone === "internal" ? "bg-muted-foreground" : "bg-accent-foreground/60";
+  const bg = tone === "internal" ? "bg-ts-internal" : "bg-ts-nonworking";
   return (
-    <tr className="border-b border-border last:border-0">
-      <td className="sticky left-0 z-10 bg-card px-4 py-2">
+    <tr className={`border-b border-border last:border-0 ${bg}`}>
+      <td className={`sticky left-0 z-10 px-4 py-2 ${bg}`}>
         <div className="flex items-start gap-2">
           <span
             className={`mt-1.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full ${dotCls}`}
@@ -1398,7 +1408,7 @@ function FixedRow({
         const dow = d.getDay();
         const isWeekend = dow === 0 || dow === 6;
         return (
-          <td key={dateStr} className="px-1 py-1 text-center">
+          <td key={dateStr} className={`px-1 py-1 text-center ${tone === "nonworking" ? "ts-hatch" : ""}`}>
             <HourCell
               date={d}
               title={label}
@@ -1469,7 +1479,7 @@ function HourCell({
   }, [value, notes, billable]);
 
   const display = formatHM(value);
-  const placeholder = suggested ? formatHM(suggested) : "0h00";
+  const placeholder = suggested ? formatHM(suggested) : "–";
 
   const handleSave = () => {
     const parsed = parseHM(draftHours);
@@ -1529,7 +1539,7 @@ function HourCell({
           title={notes && value > 0 ? notes : undefined}
           className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${cellCls}`}
         >
-          {display || <span className="text-muted-foreground/60">{placeholder}</span>}
+          {display || <span className={suggested ? "text-muted-foreground/60" : "text-muted-foreground/40"}>{placeholder}</span>}
           {notes && value > 0 && (
             <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary" />
           )}
