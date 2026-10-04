@@ -1609,7 +1609,21 @@
       "no_hours": "no hours given",
       "over_24h": "more than 24 h",
       "bad_date": "unreadable date"
-    }
+    },
+    "record": {
+      "tap": "🎙 Tap to talk",
+      "recording": "Recording… {{time}}",
+      "stop": "Stop",
+      "transcribing": "Transcribing…"
+    },
+    "dictation": {
+      "list": "Earlier dictations",
+      "label": "Dictation {{n}}",
+      "edit": "Edit text",
+      "cancel": "Cancel",
+      "next": "Add more (each dictation is used once)"
+    },
+    "preparing": "Preparing entries…"
   },
   "pursuit": {
     "title": "Pre-contract (pursuit)",
