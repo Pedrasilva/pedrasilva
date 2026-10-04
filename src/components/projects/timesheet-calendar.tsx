@@ -12,7 +12,33 @@ import { Input } from "@/components/ui/input";
 import { formatHM, parseHM } from "@/lib/projects/time-format";
 import type { GridCalendarEvent } from "@/lib/projects/calendar.functions";
 
-const sumH = (evs: GridCalendarEvent[]) => evs.reduce((a, e) => a + e.minutes, 0) / 60;
+/** Time covered by the events (overlaps merged, per day), in hours. */
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+};
+const sumH = (evs: GridCalendarEvent[]) => {
+  const byDay = new Map<string, Array<[number, number]>>();
+  for (const e of evs) {
+    const s = toMin(e.start);
+    let en = toMin(e.end);
+    if (en <= s) en = s + e.minutes;
+    const list = byDay.get(e.date) ?? [];
+    list.push([s, en]);
+    byDay.set(e.date, list);
+  }
+  let total = 0;
+  for (const list of byDay.values()) {
+    list.sort((a, b) => a[0] - b[0]);
+    let [cs, ce] = list[0];
+    for (const [s, en] of list.slice(1)) {
+      if (s <= ce) ce = Math.max(ce, en);
+      else { total += ce - cs; cs = s; ce = en; }
+    }
+    total += ce - cs;
+  }
+  return total / 60;
+};
 const hm = (h: number) => {
   const m = Math.round(h * 60);
   return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
