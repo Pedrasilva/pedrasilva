@@ -1519,7 +1519,12 @@
       "closed": "Week approved and closed",
       "bankedHours": "{{hours}} banked",
       "reopenReason": "Reason for reopening",
-      "reopen": "Reopen week"
+      "reopen": "Reopen week",
+      "shortfallTitle": "Short week",
+      "shortfallNotice": "Accounted {{accounted}} of {{capacity}} — {{short}} short. Unpaid leave does not count.",
+      "shortfallToBank": "Hours to debit",
+      "shortfallHint": "Lower it (to 0 if this short week shouldn't count) and add a note.",
+      "debitedHours": "{{hours}} debited from the bank"
     }
   },
   "hoursBank": {
@@ -1536,7 +1541,9 @@
       "additional_hours": "Additional hours",
       "converted_to_leave": "Converted to leave",
       "paid_compensation": "Paid compensation",
-      "manual_adjustment": "Manual adjustment"
+      "manual_adjustment": "Manual adjustment",
+      "opening_balance": "Opening balance",
+      "shortfall": "Short week"
     },
     "addMovement": "Add movement",
     "addTitle": "Add hours bank movement",
@@ -1547,7 +1554,18 @@
     "save": "Save",
     "cancel": "Cancel",
     "savedToast": "Hours bank updated",
-    "weekOf": "Week of {{date}}"
+    "weekOf": "Week of {{date}}",
+    "openingBalance": "Opening balance",
+    "editOpening": "Edit opening balance",
+    "asOf": "as of {{date}}",
+    "asOfLabel": "As of",
+    "openingHoursLabel": "Hours (negative if owed)",
+    "noteLabel": "Note",
+    "noteRequired": "A note is required.",
+    "openingHint": "Covers everything before the \"as of\" date. Weeks ending before it never create credits or debits. Changes are logged.",
+    "openingHistory": "Opening balance changes",
+    "beforeOpening": "before opening balance — no effect",
+    "unpaidTag": "unpaid"
   },
   "timesheetAssistant": {
     "cardTitle": "Log my hours",
