@@ -52,6 +52,11 @@
  */
 
 @theme inline {
+  --color-ts-project-head: var(--ts-project-head);
+  --color-ts-internal: var(--ts-internal);
+  --color-ts-internal-head: var(--ts-internal-head);
+  --color-ts-nonworking: var(--ts-nonworking);
+  --color-ts-nonworking-head: var(--ts-nonworking-head);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -135,6 +140,11 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --success: oklch(0.55 0.14 150);
   --warning: oklch(0.62 0.15 70);
+  --ts-project-head: oklch(0.955 0.006 85);
+  --ts-internal: #efe9e0;
+  --ts-internal-head: #e3dacd;
+  --ts-nonworking: oklch(0.965 0.003 85);
+  --ts-nonworking-head: oklch(0.92 0.004 85);
   --border: oklch(0.905 0.009 80);
   --input: oklch(0.905 0.009 80);
   --ring: oklch(0.68 0.02 70);
@@ -193,6 +203,11 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --success: oklch(0.72 0.15 150);
   --warning: oklch(0.8 0.15 80);
+  --ts-project-head: oklch(0.26 0.03 260);
+  --ts-internal: oklch(0.27 0.02 70);
+  --ts-internal-head: oklch(0.32 0.025 70);
+  --ts-nonworking: oklch(0.24 0.01 260);
+  --ts-nonworking-head: oklch(0.29 0.01 260);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364);
@@ -1855,4 +1870,8 @@
     font-size: 8pt;
     color: #777;
   }
+}
+
+@utility ts-hatch {
+  background-image: repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted-foreground) 14%, transparent) 0 1px, transparent 1px 7px);
 }

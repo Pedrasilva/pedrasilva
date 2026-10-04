@@ -1427,7 +1427,12 @@
       "submitted": "Submitted",
       "returned": "Returned",
       "approved": "Approved"
-    }
+    },
+    "title": "Timesheet",
+    "totalOf": "Total {{total}} of {{capacity}}",
+    "billableSplit": "Billable {{billable}} · Non-billable {{nonBillable}}",
+    "summaryLeave": "Leave",
+    "calendarAllLogged": "Calendar: everything logged this week"
   },
   "weeklyApproval": {
     "title": "Weekly approval",
