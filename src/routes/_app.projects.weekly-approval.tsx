@@ -1,3 +1,5 @@
+import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
+
 /**
  * Projects → Timesheets → Weekly Approval.
  *
@@ -50,8 +52,6 @@ type FilterKey =
   | "approved"
   | "returned"
   | "over_capacity";
-
-import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
 
 function WeeklyApprovalPage() {
   const { t } = useTranslation(["projects", "common"]);
@@ -437,6 +437,11 @@ function ReviewPanel({
               <SheetTitle>{row.name}</SheetTitle>
               <p className="text-sm text-muted-foreground">{weekLabel}</p>
             </SheetHeader>
+            {nwdCount > 0 && (
+              <p className="mt-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
+                {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
+              </p>
+            )}
 
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Summary label={t("weeklyApproval.columns.project")} value={row.totals.project} />
