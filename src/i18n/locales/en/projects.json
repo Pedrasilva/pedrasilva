@@ -1714,5 +1714,20 @@
     },
     "pendingCount_one": "{{count}} entry on a non-working day awaits approval",
     "pendingCount_other": "{{count}} entries on non-working days await approval"
+  },
+  "tsCalendar": {
+    "row": "Calendar",
+    "rowSub": "Unlogged events from your calendar",
+    "expired": "Calendar connection expired — reconnect it in the assistant.",
+    "register": "Log",
+    "dismiss": "Dismiss",
+    "back": "Back",
+    "hours": "Hours",
+    "badHours": "Enter hours like 1h30 (up to 24h).",
+    "untitled": "(no title)",
+    "chooseRow": "Add to which row?",
+    "added": "{{hours}} added to {{name}}",
+    "noRetainerMonth": "No retainer stage for {{month}}",
+    "retainerSub": "Retainer · hours go to each day's month"
   }
 }
