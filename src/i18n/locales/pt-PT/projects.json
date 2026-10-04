@@ -1696,5 +1696,21 @@
     "noMatch": "Nada corresponde a \"{{query}}\".",
     "typeToSearchProjects": "Escreva para procurar projetos por nome, número ou cliente.",
     "internalInGrid": "{{name}} já está nas linhas internas abaixo."
+  },
+  "nonWorkingDay": {
+    "sectionTitle": "Trabalho em dia não útil",
+    "sectionSub": "Aprove ou rejeite cada entrada individualmente — nunca incluídas em aprovar tudo.",
+    "badge": {
+      "holiday": "Feriado",
+      "weekend": "Fim de semana",
+      "leave": "Férias"
+    },
+    "line": {
+      "holiday": "{{date}} é feriado ({{name}}). Estas horas vão precisar de aprovação.",
+      "weekend": "{{date}} é fim de semana. Estas horas vão precisar de aprovação.",
+      "leave": "{{date}} está de férias. Estas horas vão precisar de aprovação."
+    },
+    "pendingCount_one": "{{count}} entrada em dia não útil aguarda aprovação",
+    "pendingCount_other": "{{count}} entradas em dia não útil aguardam aprovação"
   }
 }

@@ -1696,5 +1696,21 @@
     "noMatch": "Nothing matches \"{{query}}\".",
     "typeToSearchProjects": "Type to search projects by name, number or client.",
     "internalInGrid": "{{name}} is already in the Internal rows below."
+  },
+  "nonWorkingDay": {
+    "sectionTitle": "Work on non-working days",
+    "sectionSub": "Approve or reject each entry individually — never included in approve all.",
+    "badge": {
+      "holiday": "Holiday",
+      "weekend": "Weekend",
+      "leave": "Leave"
+    },
+    "line": {
+      "holiday": "{{date}} is a public holiday ({{name}}). These hours will need approval.",
+      "weekend": "{{date}} is a weekend. These hours will need approval.",
+      "leave": "{{date}} you are on leave. These hours will need approval."
+    },
+    "pendingCount_one": "{{count}} entry on a non-working day awaits approval",
+    "pendingCount_other": "{{count}} entries on non-working days await approval"
   }
 }

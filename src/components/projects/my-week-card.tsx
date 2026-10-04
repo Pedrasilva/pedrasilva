@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatHM } from "@/lib/projects/time-format";
+import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
 import {
   excessHours,
   isWeekLocked,
@@ -65,6 +66,7 @@ export function MyWeekCard({
   const { data: week } = useTimesheetWeek({ userId, weekStart });
   const { data: capacityInfo } = useWeeklyCapacity(collaboratorId);
   const submit = useSubmitWeek();
+  const nwdCount = useNonWorkingPendingCount(userId, weekStart, weekEnd).data ?? 0;
 
   const capacity = capacityInfo?.weeklyCapacity ?? 40;
   const excess = useMemo(() => excessHours(totals, capacity), [totals, capacity]);
@@ -137,6 +139,13 @@ export function MyWeekCard({
             </div>
           )}
 
+{nwdCount > 0 && (
+            <p className="mt-3 flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning" />
+              {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
+            </p>
+          )}
+
           {status === "submitted" && (
             <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" /> {t("timesheetWeek.submittedNotice")}
@@ -171,6 +180,12 @@ export function MyWeekCard({
             <SummaryLine label={t("timesheetWeek.leaveHours")} value={totals.leave} />
             <SummaryLine label={t("timesheetWeek.workingHours")} value={totals.working} strong />
           </div>
+{nwdCount > 0 && (
+            <p className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning" />
+              {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
+            </p>
+          )}
           {excess > 0 && (
             <p className="text-xs text-amber-700 dark:text-amber-300">
               {t("timesheetWeek.confirmOverCapacity", {

@@ -25,6 +25,8 @@ export interface PendingEntry {
   stage_name: string | null;
   stage_number: string | null;
   user_name: string | null;
+  /** holiday | weekend | leave — approved one by one, never in bulk. */
+  non_working_day_reason: string | null;
 }
 
 interface StageRow {
@@ -46,7 +48,7 @@ export function useProjectPendingHours(projectId: string) {
   return useQuery({
     queryKey: ["hour-approvals", projectId],
     enabled: !!projectId,
-    queryFn: async (): Promise<{ groups: ApprovalGroup[]; total: number }> => {
+    queryFn: async (): Promise<{ groups: ApprovalGroup[]; total: number; nonWorking: PendingEntry[] }> => {
       const { data: stagesRaw } = await supabase
         .from("pm_stages")
         .select("id, name, budget, sort_order")
@@ -55,7 +57,7 @@ export function useProjectPendingHours(projectId: string) {
         ((stagesRaw ?? []) as unknown as StageRow[]).map((s) => [s.id, s]),
       );
       const stageIds = Array.from(stages.keys());
-      if (!stageIds.length) return { groups: [], total: 0 };
+      if (!stageIds.length) return { groups: [], total: 0, nonWorking: [] };
 
       // Task -> stage lookup.
       const { data: allocs } = await supabase
@@ -77,7 +79,7 @@ export function useProjectPendingHours(projectId: string) {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
         .select(
-          "id, user_id, entry_date, hours, billable, notes, task_id, pm_stage_id, cost_rate_snapshot, sale_rate_snapshot, sale_rate_override, approval_status",
+          "id, user_id, entry_date, hours, billable, notes, task_id, pm_stage_id, cost_rate_snapshot, sale_rate_snapshot, sale_rate_override, approval_status, non_working_day_reason",
         )
         .eq("approval_status", "pending")
         .or(orClauses.join(","))
@@ -109,6 +111,7 @@ export function useProjectPendingHours(projectId: string) {
         sale_rate_snapshot: number | string | null;
         sale_rate_override: number | string | null;
         approval_status: ApprovalStatus;
+        non_working_day_reason: string | null;
       }>).map((e) => {
         const stageId =
           e.pm_stage_id ?? (e.task_id ? taskToStage.get(e.task_id) ?? null : null);
@@ -130,11 +133,13 @@ export function useProjectPendingHours(projectId: string) {
           stage_name: stage?.name ?? null,
           stage_number: stage ? String(stage.sort_order + 1) : null,
           user_name: userNames.get(e.user_id) ?? null,
+          non_working_day_reason: e.non_working_day_reason,
         };
       });
 
       const groupMap = new Map<string, ApprovalGroup>();
       for (const e of enriched) {
+        if (e.non_working_day_reason) continue;
         const key = e.stage_id ?? "__unassigned__";
         let g = groupMap.get(key);
         if (!g) {
@@ -158,7 +163,7 @@ export function useProjectPendingHours(projectId: string) {
       const groups = Array.from(groupMap.values()).sort(
         (a, b) => (a.stage?.sort_order ?? 9999) - (b.stage?.sort_order ?? 9999),
       );
-      return { groups, total: enriched.length };
+      return { groups, total: enriched.length, nonWorking: enriched.filter((e) => e.non_working_day_reason) };
     },
   });
 }
@@ -198,6 +203,7 @@ export function useApproveEntry(projectId: string) {
       qc.invalidateQueries({ queryKey: ["pm-project-insights", projectId] });
       qc.invalidateQueries({ queryKey: ["retainer-monthly-actuals"] });
       qc.invalidateQueries({ queryKey: ["pending-approvals-summary"] });
+      qc.invalidateQueries({ queryKey: ["nwd-queue"] });
     },
   });
 }

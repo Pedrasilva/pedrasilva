@@ -27,7 +27,15 @@ export type RosterPerson = {
   startDate?: string | null;
 };
 
-export type ReportEntry = { user_id: string; entry_date: string; entry_type: string; hours: number };
+export type ReportEntry = {
+  user_id: string;
+  entry_date: string;
+  entry_type: string;
+  hours: number;
+  /** Set by the database for work on a holiday, weekend or full-day leave. */
+  non_working_day_reason?: string | null;
+  approval_status?: string | null;
+};
 export type ReportWeekRow = { user_id: string; week_start: string; status: string };
 export type NonWorkingDay = { user_id: string; entry_date: string };
 
@@ -50,6 +58,8 @@ export type HoursLoggedRow = {
   gap: number;
   pct: number | null; // 0..1+, null when nothing expected
   weeksNotSubmitted: number;
+  /** Hours worked on non-working days (already included in logged). */
+  nonWorkingDay: { total: number; pending: number; approved: number };
   lastEntryDate: string | null;
   /** null when nothing is expected in the period. */
   status: HoursStatus | null;
@@ -194,6 +204,8 @@ export function computeHoursLogged(input: {
     const leave = round2(weekRows.reduce((s, w) => s + w.leave, 0));
     // Gap and % only compare hours from the effective start onward.
     const counted = round2(loggedFromStart);
+    const nwdEntries = mine.filter((e) => e.non_working_day_reason && e.entry_type !== "non_working" && e.approval_status !== "rejected");
+    const nwdSum = (xs: ReportEntry[]) => round2(xs.reduce((s, e) => s + Number(e.hours || 0), 0));
     const pct = expected > 0 ? counted / expected : null;
     return {
       person,
@@ -208,6 +220,11 @@ export function computeHoursLogged(input: {
           w.status !== PRE_SUBMISSION_STATUS &&
           w.status !== "submitted" && w.status !== "approved",
       ).length,
+      nonWorkingDay: {
+        total: nwdSum(nwdEntries),
+        pending: nwdSum(nwdEntries.filter((e) => e.approval_status !== "approved")),
+        approved: nwdSum(nwdEntries.filter((e) => e.approval_status === "approved")),
+      },
       lastEntryDate,
       status: pct === null ? null : statusFor(pct),
       weeks: weekRows,

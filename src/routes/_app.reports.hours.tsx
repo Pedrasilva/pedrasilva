@@ -230,6 +230,7 @@ function HoursPage() {
                     <TableHead>{t("hours.cols.person")}</TableHead>
                     <TableHead className="text-right">{t("hours.cols.expected")}</TableHead>
                     <TableHead className="text-right">{t("hours.cols.logged")}</TableHead>
+                    <TableHead className="text-right">{t("hours.cols.nonWorkingDay")}</TableHead>
                     <TableHead className="text-right">{t("hours.cols.gap")}</TableHead>
                     <TableHead className="text-right">{t("hours.cols.pct")}</TableHead>
                     <TableHead className="text-right">{t("hours.cols.weeksNotSubmitted")}</TableHead>
@@ -282,6 +283,16 @@ function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean
         <TableCell className="font-medium">{row.person.name}</TableCell>
         <TableCell className="text-right tabular-nums">{fmt(row.expected)}</TableCell>
         <TableCell className="text-right tabular-nums">{fmt(row.logged)}</TableCell>
+        <TableCell className="text-right tabular-nums">
+          {row.nonWorkingDay.total > 0 ? (
+            <div>
+              <div>{fmt(row.nonWorkingDay.total)}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {t("hours.nonWorkingDaySplit", { pending: fmt(row.nonWorkingDay.pending), approved: fmt(row.nonWorkingDay.approved) })}
+              </div>
+            </div>
+          ) : "—"}
+        </TableCell>
         <TableCell className="text-right tabular-nums">{fmt(row.gap)}</TableCell>
         <TableCell className="text-right tabular-nums">{row.pct === null ? "—" : `${Math.round(row.pct * 100)}%`}</TableCell>
         <TableCell className="text-right tabular-nums">{row.weeksNotSubmitted}</TableCell>
@@ -297,7 +308,7 @@ function PersonRow({ row, open, onToggle }: { row: HoursLoggedRow; open: boolean
       {open && (
         <TableRow className="bg-muted/30 hover:bg-muted/30">
           <TableCell />
-          <TableCell colSpan={8}>
+          <TableCell colSpan={9}>
             <table className="w-full text-xs">
               <thead className="text-muted-foreground">
                 <tr>

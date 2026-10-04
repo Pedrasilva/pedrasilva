@@ -3,7 +3,13 @@ import { useTranslation } from "react-i18next";
 import { usePendingApprovalsSummary } from "@/lib/projects/use-hour-approvals";
 import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/projects/app-shell";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { Check, CheckCircle2, Loader2, X } from "lucide-react";
+import { toast } from "sonner";
+import { format, parseISO } from "date-fns";
+import { useDateLocale } from "@/i18n/use-date-locale";
+import { useDecideNonWorkingEntry, useNonWorkingQueue } from "@/lib/projects/use-non-working-days";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_app/projects/approvals")({
   component: ProjectsApprovalsQueue,
@@ -13,6 +19,23 @@ function ProjectsApprovalsQueue() {
   const { t } = useTranslation(["projects", "common"]);
   const { isAdmin } = useAuth();
   const { data, isLoading } = usePendingApprovalsSummary();
+  const nwd = useNonWorkingQueue(isAdmin);
+  const decide = useDecideNonWorkingEntry();
+  const locale = useDateLocale();
+  async function act(id: string, approve: boolean) {
+    let reason: string | undefined;
+    if (!approve) {
+      const r = window.prompt(t("projects:approvals.rejectPrompt", { defaultValue: "Reason for rejection?" }) ?? "");
+      if (!r) return;
+      reason = r;
+    }
+    try {
+      await decide.mutateAsync({ id, approve, reason });
+      toast.success(approve ? t("projects:approvals.approved", { defaultValue: "Entry approved" }) : t("projects:approvals.rejected", { defaultValue: "Entry rejected" }));
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
 
   if (!isAdmin) {
     return (
@@ -37,6 +60,40 @@ function ProjectsApprovalsQueue() {
             })}
           </p>
         </div>
+
+        {(nwd.data ?? []).length > 0 && (
+          <section className="mb-6 rounded-lg border border-warning bg-warning/5" aria-labelledby="nwd-title">
+            <div className="p-4">
+              <h2 id="nwd-title" className="font-semibold">{t("projects:nonWorkingDay.sectionTitle")}</h2>
+              <p className="text-xs text-muted-foreground">{t("projects:nonWorkingDay.sectionSub")}</p>
+            </div>
+            <ul className="divide-y border-t">
+              {nwd.data!.map((e) => (
+                <li key={e.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="border-warning text-warning">
+                        {t(`projects:nonWorkingDay.badge.${e.reason}`)}{e.holiday ? ` · ${e.holiday}` : ""}
+                      </Badge>
+                      <span className="font-medium">{format(parseISO(e.entry_date), "EEE d MMM yyyy", { locale })}</span>
+                      <span className="text-muted-foreground">· {e.user_name ?? "—"}</span>
+                    </div>
+                    <div className="mt-1 truncate text-xs text-muted-foreground">
+                      {e.label}{e.notes ? ` — ${e.notes}` : ""}
+                    </div>
+                  </div>
+                  <span className="font-mono">{e.hours.toFixed(2)} h</span>
+                  <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => void act(e.id, true)}>
+                    <Check className="mr-1 h-4 w-4" /> {t("projects:approvals.approve", { defaultValue: "Approve" })}
+                  </Button>
+                  <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" disabled={decide.isPending} onClick={() => void act(e.id, false)}>
+                    <X className="mr-1 h-4 w-4" /> {t("projects:approvals.reject", { defaultValue: "Reject" })}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

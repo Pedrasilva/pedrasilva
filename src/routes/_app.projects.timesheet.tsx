@@ -1,3 +1,5 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -1045,6 +1047,13 @@ function HourCell({
   const [draftBillable, setDraftBillable] = useState<boolean>(billable);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t: tNwd } = useTranslation(["projects"]);
+  const nwdLocale = useDateLocale();
+  const isoDay = format(date, "yyyy-MM-dd");
+  const wkStart = format(startOfWeek(date, { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const wkEnd = format(addDays(startOfWeek(date, { weekStartsOn: 1 }), 6), "yyyy-MM-dd");
+  const nwdMap = useNonWorkingDays(wkStart, wkEnd).data;
+  const nwdInfo = entryType !== "non_working" ? nwdMap?.get(isoDay) ?? null : null;
 
   useEffect(() => {
     setDraftHours(formatHM(value));
@@ -1117,6 +1126,12 @@ function HourCell({
           {notes && value > 0 && (
             <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary" />
           )}
+          {nwdInfo && value > 0 && (
+            <span
+              aria-label={tNwd(`projects:nonWorkingDay.badge.${nwdInfo.reason}`)}
+              className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full bg-warning"
+            />
+          )}
         </button>
       </PopoverTrigger>
       <PopoverContent align="center" className="w-80 p-0">
@@ -1126,6 +1141,12 @@ function HourCell({
           </div>
           <div className="mt-0.5 truncate text-sm font-medium">{title}</div>
           <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
+          {nwdInfo && (
+            <div className="mt-2 rounded border border-warning/40 bg-warning/10 px-2 py-1.5 text-[11px]">
+              <span className="mr-1 font-medium text-warning">{tNwd(`projects:nonWorkingDay.badge.${nwdInfo.reason}`)}</span>
+              {nonWorkingLine(tNwd, isoDay, nwdInfo, nwdLocale)}
+            </div>
+          )}
         </div>
         {readOnly ? (
           <div className="space-y-3 px-4 py-3">

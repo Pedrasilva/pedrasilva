@@ -1,3 +1,5 @@
+import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
+
 /**
  * Projects → Timesheets → Weekly Approval.
  *
@@ -393,6 +395,7 @@ function ReviewPanel({
   const approve = useApproveWeek();
   const returnWeek = useReturnWeek();
   const reopen = useReopenWeek();
+  const nwdCount = useNonWorkingPendingCount(row?.userId ?? null, weekStart, weekEnd).data ?? 0;
 
   const { data: breakdown } = useWeekBreakdown({
     userId: row?.userId ?? null,
@@ -434,6 +437,11 @@ function ReviewPanel({
               <SheetTitle>{row.name}</SheetTitle>
               <p className="text-sm text-muted-foreground">{weekLabel}</p>
             </SheetHeader>
+            {nwdCount > 0 && (
+              <p className="mt-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
+                {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
+              </p>
+            )}
 
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Summary label={t("weeklyApproval.columns.project")} value={row.totals.project} />
