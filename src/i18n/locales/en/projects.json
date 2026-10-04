@@ -1623,7 +1623,8 @@
       "cancel": "Cancel",
       "next": "Add more (each dictation is used once)"
     },
-    "preparing": "Preparing entries…"
+    "preparing": "Preparing entries…",
+    "dayNote": "{{day}} already has {{logged}} h logged; with these it will have {{total}} h."
   },
   "pursuit": {
     "title": "Pre-contract (pursuit)",

@@ -643,11 +643,16 @@ export function TimesheetAssistantSheet({
         )}
         {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && activeDict !== "cal" && activeDict && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
         {grouped.length > 0 && renderGroups(grouped)}
-        {result && grouped.length > 0 && (result.dayNotes ?? []).length > 0 && (
-          <div className="space-y-0.5 text-xs text-muted-foreground">
-            {result.dayNotes.map((n, i) => <p key={i}>{n}</p>)}
-          </div>
-        )}
+        {result && grouped.length > 0 && (() => {
+          const notes = grouped.map((g) => {
+            const logged = result.existing.filter((e) => e.date === g.d && e.entry_type !== "non_working").reduce((x, e) => x + e.hours, 0);
+            if (!(logged > 0)) return null;
+            const added = g.items.filter((d) => !d.saved).reduce((x, d) => x + d.hours, 0);
+            const day = format(parseISO(g.d), "EEEE", { locale });
+            return t(k("dayNote"), { day: day.charAt(0).toUpperCase() + day.slice(1).replace(/-feira$/, ""), logged, total: logged + added });
+          }).filter(Boolean);
+          return notes.length > 0 && <div className="space-y-0.5 text-xs text-muted-foreground">{notes.map((n, i) => <p key={i}>{n}</p>)}</div>;
+        })()}
         {result && result.skipped.length > 0 && !result.otherWeek && (
           <ul className="space-y-1 rounded-md border border-dashed p-3 text-sm text-muted-foreground" aria-label={t(k("skipped.title"))}>
             {result.skipped.map((x, i) => (
