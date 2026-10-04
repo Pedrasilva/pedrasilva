@@ -25,6 +25,8 @@ export type RosterPerson = {
   daysPerWeek: number | null;
   /** Optional start date (yyyy-mm-dd); no hours are expected before it. */
   startDate?: string | null;
+  /** Linked planning resource, when any. */
+  resourceId?: string | null;
 };
 
 export type ReportEntry = {

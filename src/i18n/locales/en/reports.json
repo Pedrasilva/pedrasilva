@@ -6,6 +6,10 @@
       "hours": {
         "title": "Hours logged",
         "description": "Expected vs logged hours per person, and weeks not submitted."
+      },
+      "business": {
+        "title": "Business performance",
+        "description": "Revenue from billable hours, cost, profit and utilisation, by project and person."
       }
     }
   },
@@ -85,5 +89,56 @@
     "beforeTracking": "Timesheets in PSA Hub started on 1 June 2026. Choose a period from that date.",
     "trackingNote": "Hours are expected from 1 June 2026.",
     "nonWorkingDaySplit": "{{pending}} pending · {{approved}} approved"
+  },
+  "business": {
+    "title": "Business performance",
+    "subtitle": "Revenue from billable hours, cost and profit by period, project and person. Costs use the locked cost rates.",
+    "presets": {
+      "lastWeek": "Last week",
+      "lastMonth": "Last month",
+      "last6Months": "Last 6 months",
+      "lastYear": "Last year",
+      "custom": "Custom range"
+    },
+    "filters": {
+      "projectStatus": "Project status"
+    },
+    "status": {
+      "all": "All",
+      "active": "Active",
+      "paused": "Paused",
+      "closing": "Closing",
+      "archived": "Archived"
+    },
+    "tiles": {
+      "revenue": "Revenue (billable hours × sale rate)",
+      "revenueShort": "Revenue",
+      "cost": "Total cost",
+      "profit": "Profit",
+      "utilization": "Utilisation",
+      "capacity": "Capacity used"
+    },
+    "vsPrev": "{{pct}}% vs previous period",
+    "noPrev": "No previous period to compare",
+    "chart": {
+      "moneyWeek": "Revenue, cost and profit per week",
+      "moneyMonth": "Revenue, cost and profit per month",
+      "utilWeek": "Utilisation per week",
+      "utilMonth": "Utilisation per month"
+    },
+    "byProject": {
+      "title": "By project",
+      "project": "Project",
+      "hours": "Hours",
+      "margin": "Margin %",
+      "empty": "No project hours in this period."
+    },
+    "byPerson": {
+      "title": "By person",
+      "capacity": "Capacity",
+      "billablePct": "Billable %",
+      "internalPct": "Internal %",
+      "target": "(target ≤ {{pct}}%)"
+    }
   }
 }

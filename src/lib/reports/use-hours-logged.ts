@@ -16,7 +16,7 @@ import {
 const PAGE = 1000;
 
 /** Page through a query so long periods are not cut at the 1000-row limit. */
-async function fetchAll<T>(
+export async function fetchAll<T>(
   build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
 ): Promise<T[]> {
   const out: T[] = [];
@@ -34,7 +34,7 @@ async function fetchAll<T>(
  * overview — pm_list_user_resource_map, one row per user, collaborator
  * present and not archived.
  */
-async function loadRoster(): Promise<RosterPerson[]> {
+export async function loadRoster(): Promise<RosterPerson[]> {
   const [mapRes, dirRes, resRes] = await Promise.all([
     supabase.rpc("pm_list_user_resource_map"),
     supabase
@@ -63,6 +63,7 @@ async function loadRoster(): Promise<RosterPerson[]> {
       dailyHours: c.daily_hours,
       daysPerWeek: c.days_per_week,
       startDate: (c as { data_admissao?: string | null }).data_admissao ?? null,
+      resourceId: m.resource_id ?? null,
     });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
