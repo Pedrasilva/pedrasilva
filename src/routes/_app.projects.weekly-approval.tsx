@@ -51,6 +51,8 @@ type FilterKey =
   | "returned"
   | "over_capacity";
 
+import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
+
 function WeeklyApprovalPage() {
   const { t } = useTranslation(["projects", "common"]);
   const locale = useDateLocale();
@@ -393,6 +395,7 @@ function ReviewPanel({
   const approve = useApproveWeek();
   const returnWeek = useReturnWeek();
   const reopen = useReopenWeek();
+  const nwdCount = useNonWorkingPendingCount(row?.userId ?? null, weekStart, weekEnd).data ?? 0;
 
   const { data: breakdown } = useWeekBreakdown({
     userId: row?.userId ?? null,
