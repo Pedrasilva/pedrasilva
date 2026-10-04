@@ -71,8 +71,11 @@ import {
 import {
   stageActuals,
   projectActualsFromStages,
+  stageBudgetSplit,
+  splitOtherCosts,
   type StageLite,
 } from "@/lib/reports/budget-consumption";
+import { useSupplierStages } from "@/lib/reports/use-supplier-stages";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
@@ -483,11 +486,19 @@ function DashboardPage() {
     });
   }, [projects, statusFilter, query]);
 
+  const { data: supplierStages } = useSupplierStages();
+  const supplierCostSplit = useMemo(
+    () => (supplierStages ? splitOtherCosts(supplierStages.items, supplierStages.keysByProject) : null),
+    [supplierStages],
+  );
+
   // ---------- Project health rows ----------
   const healthRows: HealthRow[] = useMemo(() => {
     return filteredProjects.map((p) => {
       const ps = stagesByProject.get(p.id) ?? [];
-      const budget = ps.reduce((acc, s) => acc + Number(s.budget), 0);
+      // Budget on PSA's own work: own stages + margin on supplier stages.
+      const budget = ps.reduce((acc, s) => acc + stageBudgetSplit(s, supplierStages?.supplier ?? new Map()).own, 0);
+      const extPaid = supplierCostSplit?.external.get(p.id) ?? 0;
       const actual = projectActuals.get(p.id) ?? {
         invoicedRevenue: 0,
         laborCost: 0,
@@ -509,13 +520,14 @@ function DashboardPage() {
       // earned revenue, so it fills in when no invoice exists.
       const actualRevenue = actual.invoicedRevenue > 0 ? actual.invoicedRevenue : actual.tmRevenue;
       // Actual Cost column = true burn: labour + materials + expenses (purchase).
-      const actualCost = laborCost + actual.materialsCost + actual.expensesCost;
+      // Payments to supplier-stage suppliers are excluded from actual cost.
+      const actualCost = laborCost + actual.materialsCost + actual.expensesCost - extPaid;
       // Profit = (Budget + T&M earned + materials.sale_price) − (labour + expenses).
       // Materials sit on the revenue side (charged on top of budget); expenses
       // and hours are pure cost. Hourly stages carry no budget, so their
       // revenue comes from billable hours × sale rate instead.
       const totalRevenueBase = budget + actual.tmRevenue + actual.materialsSale;
-      const profit = totalRevenueBase - laborCost - actual.expensesCost;
+      const profit = totalRevenueBase - laborCost - Math.max(0, actual.expensesCost - extPaid);
       const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
 
       let status: HealthRow["status"] = "ok";
@@ -562,7 +574,7 @@ function DashboardPage() {
       };
 
     });
-  }, [filteredProjects, stagesByProject, projectActuals, projectPlannedHours, stageHoursByProject, pursuitMap]);
+  }, [filteredProjects, stagesByProject, projectActuals, projectPlannedHours, stageHoursByProject, pursuitMap, supplierStages, supplierCostSplit]);
 
   // ---------- Project effort rows (time-based view) ----------
   const effortRows: EffortRow[] = useMemo(() => {
