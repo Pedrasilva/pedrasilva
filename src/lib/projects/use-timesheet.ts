@@ -29,6 +29,8 @@ export type TimesheetEntry = {
   leave_type: string | null;
   /** Pursuit entries only: the CRM lead the time was spent on. */
   opportunity_id: string | null;
+  /** Open-logging retainer entries (no task) point straight at the month stage. */
+  pm_stage_id?: string | null;
 };
 
 // Internal cost centers are now admin-managed in the database
@@ -146,7 +148,7 @@ export function useTimesheetEntries(opts: {
       const { data, error } = await supabase
         .from("pm_time_entries")
         .select(
-          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type, opportunity_id",
+          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type, opportunity_id, pm_stage_id",
         )
         .eq("user_id", opts.userId!)
         .gte("entry_date", opts.weekStart)
@@ -163,6 +165,7 @@ export function useTimesheetEntries(opts: {
         internal_category?: string | null;
         leave_type?: string | null;
         opportunity_id?: string | null;
+        pm_stage_id?: string | null;
       };
       return ((data ?? []) as unknown as Row[]).map((e) => ({
         id: e.id,
@@ -175,6 +178,7 @@ export function useTimesheetEntries(opts: {
         internal_category: e.internal_category ?? null,
         leave_type: e.leave_type ?? null,
         opportunity_id: e.opportunity_id ?? null,
+        pm_stage_id: e.pm_stage_id ?? null,
       }));
     },
   });

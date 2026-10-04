@@ -1714,5 +1714,20 @@
     },
     "pendingCount_one": "{{count}} entrada em dia não útil aguarda aprovação",
     "pendingCount_other": "{{count}} entradas em dia não útil aguardam aprovação"
+  },
+  "tsCalendar": {
+    "row": "Calendário",
+    "rowSub": "Eventos do seu calendário por registar",
+    "expired": "A ligação ao calendário expirou — volte a ligá-lo no assistente.",
+    "register": "Registar",
+    "dismiss": "Dispensar",
+    "back": "Voltar",
+    "hours": "Horas",
+    "badHours": "Indique horas como 1h30 (até 24h).",
+    "untitled": "(sem título)",
+    "chooseRow": "Adicionar a que linha?",
+    "added": "{{hours}} adicionadas a {{name}}",
+    "noRetainerMonth": "Sem etapa de avença para {{month}}",
+    "retainerSub": "Avença · as horas vão para o mês de cada dia"
   }
 }

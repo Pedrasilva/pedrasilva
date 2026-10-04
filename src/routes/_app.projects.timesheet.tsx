@@ -6,7 +6,11 @@ import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
-import { TimesheetRetainerStages } from "@/components/projects/timesheet-retainer-stages";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getCalendarGridSuggestions, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
+import { useTimesheetRetainers, type RetainerParentRow } from "@/lib/projects/use-timesheet-retainers";
+import { CalendarDayBadge, CalendarRowHint, type HintTarget } from "@/components/projects/timesheet-calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,7 +86,7 @@ type CellInfo = {
 
 function TimesheetPage() {
   const { profile: selfProfile, user } = useProjectsAuth();
-  const { isRealAdmin } = useAuth();
+  const { isRealAdmin, viewAsUser } = useAuth();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
   const [dictateOpen, setDictateOpen] = useState(false);
   const { t } = useTranslation();
@@ -143,7 +147,7 @@ function TimesheetPage() {
   const weekStart = format(weekStartDate, "yyyy-MM-dd");
   const weekEnd = format(addDays(weekStartDate, 6), "yyyy-MM-dd");
 
-  const { data: projectRows = [], isLoading } = useTimesheetRows({
+  const { data: allProjectRows = [], isLoading } = useTimesheetRows({
     resourceId: effectiveResourceId,
     userId: effectiveUserId,
     weekStart,
@@ -161,6 +165,13 @@ function TimesheetPage() {
     weekEnd,
   });
   const upsert = useUpsertTimesheetCell();
+  const { data: retainerData } = useTimesheetRetainers(effectiveResourceId);
+  const [extraRetainerIds, setExtraRetainerIds] = useState<string[]>([]);
+  // Retainer month stages are shown as one row per retainer, never per month.
+  const projectRows = useMemo(
+    () => allProjectRows.filter((r) => !retainerData?.childToParent.has(r.stage.id)),
+    [allProjectRows, retainerData],
+  );
   const { data: searchResults = [], isFetching: searching } = useProjectSearch({
     query: searchQuery,
   });
@@ -369,6 +380,263 @@ function TimesheetPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, nonWorkingPrefill, weekStart]);
 
+  // ---------------- Retainers as normal project rows ----------------
+  const qc = useQueryClient();
+  const dateLocale = useDateLocale();
+  const retainerTaskToChild = useMemo(() => {
+    const m = new Map(retainerData?.taskToChild ?? []);
+    for (const r of allProjectRows) if (retainerData?.childToParent.has(r.stage.id)) m.set(r.task_id, r.stage.id);
+    return m;
+  }, [retainerData, allProjectRows]);
+  const retainerParentForProject = (stageIds: string[]): string | null => {
+    if (!retainerData || stageIds.length === 0) return null;
+    const parents = new Set(stageIds.map((id) => retainerData.childToParent.get(id) ?? null));
+    if (parents.has(null) || parents.size !== 1) return null;
+    return [...parents][0];
+  };
+  /** Entries (this week) on a retainer month stage, task-based or open-logging. */
+  const retainerEntryChild = (e: TimesheetEntry): string | null =>
+    e.entry_type !== "project"
+      ? null
+      : (e.task_id ? retainerTaskToChild.get(e.task_id) : null) ??
+        (e.pm_stage_id && retainerData?.childToParent.has(e.pm_stage_id) ? e.pm_stage_id : null);
+  const retainerRows = useMemo<RetainerParentRow[]>(() => {
+    if (!retainerData) return [];
+    const ids = new Set<string>(extraRetainerIds);
+    for (const r of allProjectRows) {
+      const p = retainerData.childToParent.get(r.stage.id);
+      if (p) ids.add(p);
+    }
+    for (const e of entries) {
+      const c = retainerEntryChild(e);
+      if (c) ids.add(retainerData.childToParent.get(c)!);
+    }
+    return retainerData.rows.filter((r) => ids.has(r.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retainerData, extraRetainerIds, allProjectRows, entries, retainerTaskToChild]);
+  const childForDate = (r: RetainerParentRow, date: string) => r.children.find((c) => c.month === date.slice(0, 7)) ?? null;
+  const ensureRetainerTask = async (child: { id: string; start_date: string; end_date: string }) => {
+    if (!profile?.resource_id) throw new Error("No resource");
+    const taskId = await ensureRow.mutateAsync({
+      resource_id: profile.resource_id,
+      stage_id: child.id,
+      stage_start: child.start_date,
+      stage_end: child.end_date,
+    });
+    qc.invalidateQueries({ queryKey: ["pm-timesheet-retainers"] });
+    return taskId;
+  };
+  const commitRetainerCell = async (
+    r: RetainerParentRow,
+    date: string,
+    hours: number,
+    notes: string | null,
+    billable: boolean,
+  ) => {
+    const child = childForDate(r, date);
+    if (!child) return;
+    const existing = entries.filter((e) => e.entry_date === date && retainerEntryChild(e) === child.id);
+    const first = existing[0] ?? null;
+    const others = existing.slice(1).reduce((a, e) => a + e.hours, 0);
+    if (!first && hours <= 0) return;
+    try {
+      const taskId = first ? first.task_id : await ensureRetainerTask(child);
+      await upsert.mutateAsync({
+        entry_type: "project",
+        task_id: taskId,
+        user_id: effectiveUserId!,
+        entry_date: date,
+        hours: Math.max(0, hours - others),
+        notes,
+        billable,
+        existing_entry_id: first?.id ?? null,
+      });
+    } catch (e) {
+      toast.error((e as Error).message || "Failed to save");
+    }
+  };
+
+  // ---------------- Calendar suggestions (own timesheet only) ----------------
+  const calendarAllowed = !viewingOther && !viewAsUser && !weekLocked && !!user?.id;
+  const fetchGridCalendar = useServerFn(getCalendarGridSuggestions);
+  const { data: gridCalendar } = useQuery({
+    queryKey: ["timesheet-calendar-grid", user?.id ?? null, weekStart],
+    enabled: calendarAllowed,
+    staleTime: 60_000,
+    retry: false,
+    queryFn: () => fetchGridCalendar({ data: { weekStart, weekEnd } }),
+  });
+  const calEvents = calendarAllowed && gridCalendar?.status === "connected" ? gridCalendar.events : [];
+  const calByDay = useMemo(() => {
+    const m = new Map<string, GridCalendarEvent[]>();
+    for (const e of calEvents) m.set(e.date, [...(m.get(e.date) ?? []), e]);
+    return m;
+  }, [calEvents]);
+  const hintEvents = (match: (e: GridCalendarEvent) => boolean, date: string) =>
+    (calByDay.get(date) ?? []).filter(match);
+
+  type AddTarget =
+    | { kind: "task"; taskId: string }
+    | { kind: "retainer"; row: RetainerParentRow }
+    | { kind: "internal"; category: string; opportunity_id?: string | null };
+
+  /** Adds hours to a cell and records the calendar event ids, as the assistant does. */
+  const addToCell = async (target: AddTarget, date: string, hours: number, eventIds: string[]) => {
+    const uid = user!.id;
+    let taskId: string | null = null;
+    let existing: TimesheetEntry | undefined;
+    if (target.kind === "task") {
+      taskId = target.taskId;
+      existing = entries.find((e) => e.entry_date === date && e.entry_type === "project" && e.task_id === taskId);
+    } else if (target.kind === "retainer") {
+      const child = childForDate(target.row, date);
+      if (!child) throw new Error(t("projects:tsCalendar.noRetainerMonth", { month: format(new Date(date + "T00:00:00"), "MMM yyyy", { locale: dateLocale }) }));
+      existing = entries.find((e) => e.entry_date === date && retainerEntryChild(e) === child.id);
+      taskId = existing ? existing.task_id : await ensureRetainerTask(child);
+    } else {
+      existing = entries.find(
+        (e) =>
+          e.entry_date === date &&
+          e.entry_type === "internal" &&
+          e.internal_category === target.category &&
+          (e.opportunity_id ?? null) === (target.opportunity_id ?? null),
+      );
+    }
+    await upsert.mutateAsync({
+      entry_type: target.kind === "internal" ? "internal" : "project",
+      task_id: target.kind === "internal" ? null : taskId,
+      internal_category: target.kind === "internal" ? target.category : null,
+      opportunity_id: target.kind === "internal" ? (target.opportunity_id ?? null) : null,
+      user_id: uid,
+      entry_date: date,
+      hours: (existing?.hours ?? 0) + hours,
+      notes: existing?.notes ?? null,
+      billable: existing?.billable ?? true,
+      existing_entry_id: existing?.id ?? null,
+    });
+    let rowId = existing?.id ?? null;
+    if (!rowId) {
+      let q = supabase.from("pm_time_entries").select("id").eq("user_id", uid).eq("entry_date", date);
+      if (target.kind === "internal") {
+        q = q.eq("entry_type", "internal").eq("internal_category", target.category);
+        if (target.opportunity_id) q = q.eq("opportunity_id", target.opportunity_id);
+      } else q = q.eq("entry_type", "project").eq("task_id", taskId!);
+      const { data: row } = await q.order("created_at", { ascending: false }).limit(1).maybeSingle();
+      rowId = (row as { id: string } | null)?.id ?? null;
+    }
+    if (rowId && eventIds.length) {
+      const { data: cur } = await supabase.from("pm_time_entries").select("calendar_event_ids").eq("id", rowId).maybeSingle();
+      const ids = [...new Set([...(((cur as { calendar_event_ids: string[] | null } | null)?.calendar_event_ids) ?? []), ...eventIds])];
+      await supabase.from("pm_time_entries").update({ calendar_event_ids: ids } as never).eq("id", rowId);
+    }
+    qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
+    qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
+  };
+  const runAdd = async (target: AddTarget, date: string, hours: number, eventIds: string[], label: string) => {
+    try {
+      await addToCell(target, date, hours, eventIds);
+      toast.success(t("projects:tsCalendar.added", { hours: formatHM(hours), name: label }));
+    } catch (e) {
+      toast.error((e as Error).message || "Failed to save");
+    }
+  };
+  const dismissEvent = async (id: string) => {
+    const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user!.id, event_id: id });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
+  };
+
+  // Row hint targets per project: every grid row for that project.
+  const projectTargets = useMemo(() => {
+    const m = new Map<string, Array<HintTarget & { target: AddTarget }>>();
+    for (const r of projectRows)
+      m.set(r.project.id, [...(m.get(r.project.id) ?? []), { key: `t:${r.task_id}`, label: `${r.project.name} · ${r.stage.name}`, target: { kind: "task", taskId: r.task_id } }]);
+    for (const r of retainerRows)
+      m.set(r.project.id, [...(m.get(r.project.id) ?? []), { key: `r:${r.id}`, label: `${r.project.name} · ${r.name}`, target: { kind: "retainer", row: r } }]);
+    return m;
+  }, [projectRows, retainerRows]);
+  /** Hint shown only on the first grid row of a matched project. */
+  const projectHint = (projectId: string, rowKey: string, date: string) => {
+    if (!calEvents.length) return null;
+    const targets = projectTargets.get(projectId) ?? [];
+    if (!targets.length || targets[0].key !== rowKey) return null;
+    const evs = hintEvents((e) => e.project_id === projectId, date);
+    if (!evs.length) return null;
+    const hours = evs.reduce((a, e) => a + e.minutes, 0) / 60;
+    return (
+      <CalendarRowHint
+        events={evs}
+        targets={targets}
+        onAdd={async (key) => {
+          const tg = targets.find((x) => x.key === key)!;
+          await runAdd(tg.target, date, hours, evs.map((e) => e.id), tg.label);
+        }}
+      />
+    );
+  };
+  const leadHint = (leadId: string, label: string, date: string) => {
+    if (!calEvents.length) return null;
+    const evs = hintEvents((e) => e.lead_id === leadId, date);
+    if (!evs.length) return null;
+    const hours = evs.reduce((a, e) => a + e.minutes, 0) / 60;
+    return (
+      <CalendarRowHint
+        events={evs}
+        targets={[{ key: "lead", label }]}
+        onAdd={() => runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label)}
+      />
+    );
+  };
+  const calendarPicker = (ev: GridCalendarEvent, hours: number, done: () => void) => (
+    <ProjectStageLeadPicker
+      autoFocus
+      projects={searchResults}
+      leads={leads.filter((l) => l.is_open).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
+      categories={activeInternalCategories.map((c) => c.name).filter((n) => n !== PURSUIT_CATEGORY)}
+      refDate={ev.date}
+      searching={searching}
+      emptyProjectsHint={t("projects:picker.typeToSearchProjects")}
+      busy={upsert.isPending || ensureRow.isPending}
+      onQueryChange={(q) => setSearchQuery(q)}
+      onPickDirect={(p) => {
+        const parent = retainerParentForProject(p.stages.map((s) => s.id));
+        const row = parent ? retainerData?.rows.find((r) => r.id === parent) : null;
+        if (!row) return false;
+        setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
+        void runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`).then(done);
+        return true;
+      }}
+      onPickLead={(l) => {
+        setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
+        void runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: l.id }, ev.date, hours, [ev.id], l.name).then(done);
+      }}
+      onPickCategory={(c) => {
+        void runAdd({ kind: "internal", category: c }, ev.date, hours, [ev.id], c).then(done);
+      }}
+      onPickStage={async (p, s) => {
+        const rp = retainerData?.childToParent.get(s.id);
+        const row = rp ? retainerData?.rows.find((r) => r.id === rp) : null;
+        if (row) {
+          setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
+          await runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`);
+          return done();
+        }
+        if (!profile?.resource_id) return;
+        try {
+          const taskId = await ensureRow.mutateAsync({ resource_id: profile.resource_id, stage_id: s.id, stage_start: s.start_date, stage_end: s.end_date });
+          setExtraTaskIds((ids) => Array.from(new Set([...ids, taskId])));
+          await runAdd({ kind: "task", taskId }, ev.date, hours, [ev.id], `${p.name} · ${s.name}`);
+          done();
+        } catch (err) {
+          toast.error((err as Error).message || "Failed to add stage");
+        }
+      }}
+    />
+  );
+
   return (
     <AppShell active="timesheet">
       <div className="w-full px-6 py-8">
@@ -492,6 +760,15 @@ function TimesheetPage() {
                     emptyProjectsHint={t("projects:picker.typeToSearchProjects")}
                     busy={ensureRow.isPending || !profile?.resource_id}
                     onQueryChange={(q) => { setSearchQuery(q); setExpandedProject(null); }}
+                    onPickDirect={(p) => {
+                      const parent = retainerParentForProject(p.stages.map((s) => s.id));
+                      if (!parent) return false;
+                      setExtraRetainerIds((ids) => Array.from(new Set([...ids, parent])));
+                      setSearchQuery("");
+                      setAddPopoverOpen(false);
+                      toast.success(p.name);
+                      return true;
+                    }}
                     onPickLead={(l) => {
                       setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
                       setSearchQuery("");
@@ -505,6 +782,14 @@ function TimesheetPage() {
                     }}
                     onPickStage={async (p, s) => {
                       if (!profile?.resource_id) return;
+                      const rp = retainerData?.childToParent.get(s.id);
+                      if (rp) {
+                        setExtraRetainerIds((ids) => Array.from(new Set([...ids, rp])));
+                        setSearchQuery("");
+                        setAddPopoverOpen(false);
+                        toast.success(p.name);
+                        return;
+                      }
                       try {
                         const taskId = await ensureRow.mutateAsync({
                           resource_id: profile.resource_id,
@@ -564,6 +849,28 @@ function TimesheetPage() {
                   </tr>
                 </thead>
                 <tbody>
+                  {calendarAllowed && gridCalendar && gridCalendar.status !== "not_connected" && (
+                    <tr className="border-b border-border bg-primary/5">
+                      <td className="sticky left-0 z-10 bg-card px-4 py-2">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                          {t("projects:tsCalendar.row")}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {gridCalendar.status === "expired" ? t("projects:tsCalendar.expired") : t("projects:tsCalendar.rowSub")}
+                        </div>
+                      </td>
+                      {days.map((d) => {
+                        const ds = format(d, "yyyy-MM-dd");
+                        return (
+                          <td key={ds} className="px-1 py-1 text-center">
+                            <CalendarDayBadge events={calByDay.get(ds) ?? []} onDismiss={dismissEvent} picker={calendarPicker} />
+                          </td>
+                        );
+                      })}
+                      <td />
+                    </tr>
+                  )}
                   {(() => {
                   const projectSection = !projectsVisible ? null : (
                   <>
@@ -580,7 +887,7 @@ function TimesheetPage() {
                       </td>
                     </tr>
                   )}
-                  {!isLoading && projectRows.length === 0 && (
+                  {!isLoading && projectRows.length === 0 && retainerRows.length === 0 && (
                     <tr>
                       <td colSpan={9} className="px-4 py-6 text-center text-muted-foreground">
                         No active stages this week. Use "Add project / stage" to log time
@@ -601,6 +908,7 @@ function TimesheetPage() {
                       pending={upsert.isPending}
                       readOnly={readOnly}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
+                      renderHint={(dateStr) => projectHint(r.project.id, `t:${r.task_id}`, dateStr)}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
                           {
@@ -619,6 +927,23 @@ function TimesheetPage() {
                           },
                         )
                       }
+                    />
+                  ))}
+                  {retainerRows.map((r) => (
+                    <RetainerRow
+                      key={`retainer-${r.id}`}
+                      row={r}
+                      days={days}
+                      entries={entries.filter((e) => {
+                        const c = retainerEntryChild(e);
+                        return !!c && r.children.some((k) => k.id === c);
+                      })}
+                      pending={upsert.isPending || ensureRow.isPending}
+                      readOnly={readOnly}
+                      isExtra={extraRetainerIds.includes(r.id)}
+                      onRemove={() => setExtraRetainerIds((ids) => ids.filter((x) => x !== r.id))}
+                      renderHint={(dateStr) => projectHint(r.project.id, `r:${r.id}`, dateStr)}
+                      onCommit={(dateStr, hours, notes, billable) => commitRetainerCell(r, dateStr, hours, notes, billable)}
                     />
                   ))}
                   </>
@@ -649,6 +974,7 @@ function TimesheetPage() {
                       pending={upsert.isPending}
                       readOnly={readOnly || !lead.is_open}
                       rowTotal={rowTotalFor(pursuitKey(lead.id))}
+                      renderHint={lead.is_open ? (dateStr) => leadHint(lead.id, `${t("projects:pursuit.categoryLabel")} · ${lead.name}`, dateStr) : undefined}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
@@ -784,9 +1110,6 @@ function TimesheetPage() {
               </table>
             </div>
           </div>
-          <div className="mt-6">
-            <TimesheetRetainerStages />
-          </div>
           </>
         )}
       </div>
@@ -858,7 +1181,9 @@ function ProjectRow({
   readOnly,
   rowTotal,
   onCommit,
+  renderHint,
 }: {
+  renderHint?: (dateStr: string) => React.ReactNode;
   row: TimesheetTaskRow;
   days: Date[];
   entryMap: Map<CellKey, Map<string, CellInfo>>;
@@ -935,10 +1260,89 @@ function ProjectRow({
                 onCommit(dateStr, hours, notes, billable, cell?.id ?? null)
               }
             />
+            {renderHint?.(dateStr)}
           </td>
         );
       })}
       <td className="px-3 py-2 text-right font-mono text-sm">{formatHM(rowTotal) || "—"}</td>
+    </tr>
+  );
+}
+
+function RetainerRow({
+  row,
+  days,
+  entries,
+  pending,
+  readOnly,
+  isExtra,
+  onRemove,
+  renderHint,
+  onCommit,
+}: {
+  row: RetainerParentRow;
+  days: Date[];
+  entries: TimesheetEntry[];
+  pending: boolean;
+  readOnly?: boolean;
+  isExtra: boolean;
+  onRemove: () => void;
+  renderHint?: (dateStr: string) => React.ReactNode;
+  onCommit: (dateStr: string, hours: number, notes: string | null, billable: boolean) => void;
+}) {
+  const { t } = useTranslation("projects");
+  const locale = useDateLocale();
+  const label = `${row.project.name} · ${row.name}`;
+  const total = entries.reduce((a, e) => a + e.hours, 0);
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="sticky left-0 z-10 bg-card px-4 py-2">
+        <div className="flex items-start gap-2">
+          <span className="mt-1.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: row.project.color }} />
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{label}</div>
+            <div className="truncate text-[11px] text-muted-foreground">{t("tsCalendar.retainerSub")}</div>
+          </div>
+          {isExtra && (
+            <Button size="icon" variant="ghost" className="h-6 w-6 flex-shrink-0" onClick={onRemove} aria-label="Remove row">
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </td>
+      {days.map((d) => {
+        const dateStr = format(d, "yyyy-MM-dd");
+        const month = dateStr.slice(0, 7);
+        const hasMonth = row.children.some((c) => c.month === month);
+        const dayEntries = entries.filter((e) => e.entry_date === dateStr);
+        const value = dayEntries.reduce((a, e) => a + e.hours, 0);
+        const first = dayEntries[0];
+        return (
+          <td key={dateStr} className="px-1 py-1 text-center">
+            {hasMonth ? (
+              <HourCell
+                date={d}
+                title={label}
+                subtitle={format(d, "MMM yyyy", { locale })}
+                entryType="project"
+                value={value}
+                notes={first?.notes ?? ""}
+                billable={first?.billable ?? true}
+                suggested={0}
+                disabled={pending}
+                readOnly={readOnly}
+                onCommit={(hours, notes, billable) => onCommit(dateStr, hours, notes, billable)}
+              />
+            ) : (
+              <div className="mx-auto w-20 text-[10px] leading-tight text-muted-foreground">
+                {t("tsCalendar.noRetainerMonth", { month: format(d, "MMM yyyy", { locale }) })}
+              </div>
+            )}
+            {hasMonth && renderHint?.(dateStr)}
+          </td>
+        );
+      })}
+      <td className="px-3 py-2 text-right font-mono text-sm">{formatHM(total) || "—"}</td>
     </tr>
   );
 }
@@ -954,7 +1358,9 @@ function FixedRow({
   readOnly,
   rowTotal,
   onCommit,
+  renderHint,
 }: {
+  renderHint?: (dateStr: string) => React.ReactNode;
   label: string;
   sub: string;
   tone: "internal" | "nonworking";
@@ -1008,6 +1414,7 @@ function FixedRow({
                 onCommit(dateStr, hours, notes, false, cell?.id ?? null)
               }
             />
+            {renderHint?.(dateStr)}
           </td>
         );
       })}
