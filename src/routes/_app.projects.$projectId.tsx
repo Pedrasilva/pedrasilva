@@ -3363,7 +3363,7 @@ function CostVsBudgetCell({
   return (
     <div>
       <div className="flex items-baseline justify-end gap-3 text-xs">
-        <span className="font-mono tabular-nums">
+        <span className="whitespace-nowrap font-mono tabular-nums">
           <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
             <Num value={cost} kind="eur" />
           </span>
