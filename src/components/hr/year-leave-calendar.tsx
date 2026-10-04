@@ -29,7 +29,10 @@ const PALETTE = [
   "#44AA99", "#999933", "#332288", "#AA4499", "#117733", "#DDCC77", "#88CCEE", "#777777",
   "#661100", "#6699CC", "#AA4466", "#4477AA",
 ];
-const initials = (n: string) => n.split(/\s+/).filter(Boolean).map((w) => w[0]).filter((c) => c === c.toUpperCase()).slice(0, 1).concat(n.split(/\s+/).filter(Boolean).slice(-1).map((w) => w[0])).join("").toUpperCase();
+const initials = (n: string) => {
+  const w = n.split(/\s+/).filter(Boolean);
+  return ((w[0]?.[0] ?? "") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+};
 
 type DayEntry = { req: CalRequest; collab: string };
 
