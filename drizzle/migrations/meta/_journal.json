@@ -43,6 +43,13 @@
       "when": 1791114019265,
       "tag": "0005_non_working_day_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791114079827,
+      "tag": "0006_non_working_day_backfill_fix",
+      "breakpoints": true
     }
   ]
 }
