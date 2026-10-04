@@ -50,6 +50,13 @@
       "when": 1791114079827,
       "tag": "0006_non_working_day_backfill_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791114403211,
+      "tag": "0007_non_working_day_week_notify",
+      "breakpoints": true
     }
   ]
 }
