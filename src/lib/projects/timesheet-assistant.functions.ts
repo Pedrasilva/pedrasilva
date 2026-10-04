@@ -388,6 +388,16 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         else if (p && p.stages.length === 1) stage_id = p.stages[0].id;
         if (!p) project_id = null;
         if (!project_id || !stage_id) confidence = "low";
+        if (wordHint && !project_id) {
+          // Claude meant a project but didn't pin it: find it by name in what was said.
+          const STOP = new Set(["proposta", "propostas", "para", "preparar", "layout", "horas", "hora", "projeto", "obra", "the", "and", "for"]);
+          const toks = norm(said).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !STOP.has(x));
+          const hits = [...projById.values()].filter((pp) => toks.some((tk) => norm(`${pp.name} ${(pp.aliases ?? []).join(" ")}`).split(/[^a-z0-9]+/).includes(tk)));
+          if (hits.length === 1) {
+            project_id = hits[0].id;
+            if (hits[0].stages.length === 1) stage_id = hits[0].stages[0].id;
+          }
+        }
         if (wordHint && project_id) confidence = "low";
       } else {
         category = typeof r.internal_category === "string" && catSet.has(r.internal_category) ? r.internal_category : null;
