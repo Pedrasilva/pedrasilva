@@ -1455,7 +1455,8 @@
     "totalOf": "Total {{total}} de {{capacity}}",
     "billableSplit": "Faturável {{billable}} · Não faturável {{nonBillable}}",
     "summaryLeave": "Ausências",
-    "calendarAllLogged": "Calendário: tudo registado esta semana"
+    "calendarAllLogged": "Calendário: tudo registado esta semana",
+    "noApprovedRequest": "Sem pedido aprovado"
   },
   "weeklyApproval": {
     "title": "Aprovação semanal",

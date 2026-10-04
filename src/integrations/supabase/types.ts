@@ -12818,6 +12818,7 @@ export type Database = {
         Returns: Json
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      leave_label_for: { Args: { _tipo: string }; Returns: string }
       list_collaborators_basic: {
         Args: never
         Returns: {

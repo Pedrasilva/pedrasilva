@@ -351,6 +351,27 @@ function TimesheetPage() {
   };
 
   const grandTotal = buckets.billable + buckets.internal + buckets.nonWorking;
+
+  // Non-working rows shown in the grid: every approved leave/holiday row PLUS
+  // any non_working entry this week with no matching approved source, so the
+  // totals never include hours the grid does not show.
+  const nonWorkingRows = useMemo(() => {
+    const rows = nonWorkingPrefill.map((r) => ({ ...r, orphanDates: [] as string[] }));
+    const byType = new Map(rows.map((r) => [r.leave_type, r]));
+    for (const e of entries) {
+      if (e.entry_type !== "non_working" || !e.leave_type) continue;
+      let row = byType.get(e.leave_type);
+      if (!row) {
+        row = { key: e.leave_type, leave_type: e.leave_type, autoHoursByDate: new Map(), orphanDates: [] };
+        byType.set(e.leave_type, row);
+        rows.push(row);
+      }
+      if (!row.autoHoursByDate.has(e.entry_date) && !row.orphanDates.includes(e.entry_date))
+        row.orphanDates.push(e.entry_date);
+    }
+    for (const r of rows) r.orphanDates.sort();
+    return rows;
+  }, [nonWorkingPrefill, entries]);
   const [calExpanded, setCalExpanded] = useState(false);
   const noResource = !profile?.resource_id;
 
@@ -1088,14 +1109,14 @@ function TimesheetPage() {
                     label="Non-working time"
                     sub="Auto-filled from approved leave + public holidays. Reduces capacity."
                   />
-                  {nonWorkingPrefill.length === 0 && (
+                  {nonWorkingRows.length === 0 && (
                     <tr>
                       <td colSpan={9} className="px-4 py-4 text-center text-xs text-muted-foreground">
                         No approved leave or holidays this week.
                       </td>
                     </tr>
                   )}
-                  {nonWorkingPrefill.map((row) => (
+                  {nonWorkingRows.map((row) => (
                     <FixedRow
                       key={row.key}
                       label={
@@ -1103,7 +1124,13 @@ function TimesheetPage() {
                           ? `${row.leave_type} · ${t("projects:hoursBank.unpaidTag")}`
                           : row.leave_type
                       }
-                      sub="Non-working · capacity reducer"
+                      sub={
+                        row.orphanDates.length > 0
+                          ? `⚠ ${t("projects:timesheetWeek.noApprovedRequest")} · ${row.orphanDates
+                              .map((d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`)
+                              .join(", ")}`
+                          : "Non-working · capacity reducer"
+                      }
                       tone="nonworking"
                       days={days}
                       entryMap={entryMap}
