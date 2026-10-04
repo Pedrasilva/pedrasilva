@@ -366,12 +366,16 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     };
     const rawList = (parsed.entries ?? []) as Array<Record<string, unknown>>;
     const currentRefs = new Set(data.current.map((c) => c.ref));
-    const PURSUIT = /\b(leads?|propostas?|proposals?|pursuit|pitch|angaria\w*|n[aã]o\s+(est[aá]\s+)?assinad\w*|ainda\s+n[aã]o\s+assinad\w*|not\s+(yet\s+)?signed|unsigned)\b/i;
+    const PURSUIT = /\b(propostas?|proposals?|pursuit|pitch|angaria\w*|n[aã]o\s+(est[aá]\s+)?assinad\w*|ainda\s+n[aã]o\s+assinad\w*|not\s+(yet\s+)?signed|unsigned)\b/i;
     const FEE = /propostas?\s+de\s+honor\w*|fee\s+proposals?/gi;
     const pursuitAsk: Array<{ id: string; hint: string }> = [];
+    const ambiguousAsk: Array<{ id: string; hint: string; project: string }> = [];
+    const normW = (x: string) => x.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const pushEntry = (r: Record<string, unknown>, date: string, hours: number, event_id: string | null) => {
       const said = `${quoteOf(r) ?? ""} ${String(r.note ?? "")}`.replace(FEE, " ");
-      const explicitLead = PURSUIT.test(said) || r.internal_category === "Pursuit" || (typeof r.lead_hint === "string" && r.lead_hint.trim() !== "");
+      // Only Claude's own Pursuit / lead_hint forces Angariação; the word check alone just asks.
+      const explicitLead = r.internal_category === "Pursuit" || (typeof r.lead_hint === "string" && r.lead_hint.trim() !== "");
+      const wordHint = !explicitLead && PURSUIT.test(said);
       if (explicitLead) r.entry_type = "internal";
       const type = r.entry_type === "internal" ? "internal" : "project";
       let project_id = type === "project" && typeof r.project_id === "string" && projById.has(r.project_id) ? r.project_id : null;
@@ -385,6 +389,17 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         else if (p && p.stages.length === 1) stage_id = p.stages[0].id;
         if (!p) project_id = null;
         if (!project_id || !stage_id) confidence = "low";
+        if (wordHint && !project_id) {
+          // Claude meant a project but didn't pin it: find it by name in what was said.
+          const STOP = new Set(["proposta", "propostas", "para", "preparar", "layout", "horas", "hora", "projeto", "obra", "the", "and", "for"]);
+          const toks = normW(said).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !STOP.has(x));
+          const hits = [...projById.values()].filter((pp) => toks.some((tk) => normW(`${pp.name} ${(pp.aliases ?? []).join(" ")}`).split(/[^a-z0-9]+/).includes(tk)));
+          if (hits.length === 1) {
+            project_id = hits[0].id;
+            if (hits[0].stages.length === 1) stage_id = hits[0].stages[0].id;
+          }
+        }
+        if (wordHint && project_id) confidence = "low";
       } else {
         category = typeof r.internal_category === "string" && catSet.has(r.internal_category) ? r.internal_category : null;
         if (typeof r.opportunity_id === "string" && leadIds.has(r.opportunity_id)) {
@@ -421,6 +436,9 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       if (category === "Pursuit" && !opportunity_id) {
         const hint = typeof r.lead_hint === "string" && r.lead_hint.trim() ? r.lead_hint.trim() : (quoteOf(r) ?? String(r.note ?? ""));
         pursuitAsk.push({ id, hint: hint.slice(0, 80) });
+      }
+      if (wordHint && type === "project" && project_id) {
+        ambiguousAsk.push({ id, hint: (quoteOf(r) ?? String(r.note ?? "")).slice(0, 80), project: projById.get(project_id)!.name });
       }
       return id;
     };
@@ -571,6 +589,26 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         options: opts,
         source: "dictation",
         draft_ids: [p.id],
+        event_ids: [],
+        context: e?.quote ? `«${e.quote}» · ${shortDate(e.date)}` : e ? shortDate(e.date) : "",
+      });
+    }
+    // Proposal words on a project draft: project or unsigned proposal?
+    // Asked first, even when Claude also asked about the stage of the same draft.
+    for (const a of [...ambiguousAsk].reverse()) {
+      const e = entryById.get(a.id);
+      const toks = norm(`${a.hint} ${a.project}`).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !/^\d+$/.test(x));
+      const leadOpts = leads
+        .filter((l) => toks.some((tk) => norm(`${l.name} ${l.client ?? ""}`).includes(tk)))
+        .slice(0, 5)
+        .map((l) => l.name + leadSuffix);
+      questions.unshift({
+        text: pt
+          ? `Isto foi numa proposta ainda não assinada (angariação) ou no projeto «${a.project}»?`
+          : `Was this on an unsigned proposal (pursuit) or on the project "${a.project}"?`,
+        options: [a.project, ...leadOpts],
+        source: "dictation",
+        draft_ids: [a.id],
         event_ids: [],
         context: e?.quote ? `«${e.quote}» · ${shortDate(e.date)}` : e ? shortDate(e.date) : "",
       });
