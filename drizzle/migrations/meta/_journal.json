@@ -57,6 +57,13 @@
       "when": 1791114403211,
       "tag": "0007_non_working_day_week_notify",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791141227537,
+      "tag": "0008_hours_bank_opening_shortfall",
+      "breakpoints": true
     }
   ]
 }
