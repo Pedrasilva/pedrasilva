@@ -370,6 +370,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const FEE = /propostas?\s+de\s+honor\w*|fee\s+proposals?/gi;
     const pursuitAsk: Array<{ id: string; hint: string }> = [];
     const ambiguousAsk: Array<{ id: string; hint: string; project: string }> = [];
+    const normW = (x: string) => x.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const pushEntry = (r: Record<string, unknown>, date: string, hours: number, event_id: string | null) => {
       const said = `${quoteOf(r) ?? ""} ${String(r.note ?? "")}`.replace(FEE, " ");
       // Only Claude's own Pursuit / lead_hint forces Angariação; the word check alone just asks.
@@ -391,8 +392,8 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         if (wordHint && !project_id) {
           // Claude meant a project but didn't pin it: find it by name in what was said.
           const STOP = new Set(["proposta", "propostas", "para", "preparar", "layout", "horas", "hora", "projeto", "obra", "the", "and", "for"]);
-          const toks = norm(said).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !STOP.has(x));
-          const hits = [...projById.values()].filter((pp) => toks.some((tk) => norm(`${pp.name} ${(pp.aliases ?? []).join(" ")}`).split(/[^a-z0-9]+/).includes(tk)));
+          const toks = normW(said).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !STOP.has(x));
+          const hits = [...projById.values()].filter((pp) => toks.some((tk) => normW(`${pp.name} ${(pp.aliases ?? []).join(" ")}`).split(/[^a-z0-9]+/).includes(tk)));
           if (hits.length === 1) {
             project_id = hits[0].id;
             if (hits[0].stages.length === 1) stage_id = hits[0].stages[0].id;
