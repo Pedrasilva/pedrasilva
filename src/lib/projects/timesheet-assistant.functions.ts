@@ -38,6 +38,8 @@ export type AssistantDraft = {
   confidence: "high" | "low";
   /** Google Calendar event this draft comes from, if any. */
   event_id: string | null;
+  /** Ref of a current (earlier) draft this entry corrects; the client patches that draft instead of adding one. */
+  updates?: string | null;
 };
 export type AssistantCalendar = { status: "off" | "not_connected" | "connected" | "expired"; email: string | null; events: number };
 export type AssistantQuestion = {
@@ -84,10 +86,12 @@ const dow = (d: string) => new Date(d + "T00:00:00Z").getUTCDay();
 
 const SYSTEM = `You turn a person's spoken or typed description of their working hours into draft timesheet entries.
 The text may be Portuguese, English or a mix. Reply with ONE JSON object only, no prose, no code fences:
-{"entries":[{"ref":"d1","quote":string|null,"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
+{"entries":[{"ref":"d1","updates":string|null,"quote":string|null,"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"lead_hint":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
  "questions":[{"text":string,"options":[string],"source":"calendar"|"dictation"|"hours","draft_ids":[string],"event_ids":[string],"date":"YYYY-MM-DD"|null}]}
 Rules:
 - Every entry gets a unique ref ("d1","d2",...). quote = the exact, verbatim span of the person's text that this entry comes from (copy characters exactly, no paraphrase), or null for calendar-only drafts.
+- Current drafts (listed with refs "c1","c2",...) were already prepared from earlier dictations and are not saved yet. NEVER recreate them. Only return NEW activities from this text, or corrections the person states explicitly ("actually that was 2 hours", "afinal foram duas horas"). A correction is ONE entry with updates = the current draft's ref and the full corrected values; it replaces that draft. updates is null for every new entry.
+- Explicit leads: if the person says the time was on a lead, a proposal, pursuit, a pitch, not signed, "proposta", "angariação", "ainda não assinado" or similar (fee proposals as an internal category "propostas de honorários" are NOT this), the entry MUST be entry_type "internal", internal_category "Pursuit" with the matching open lead's opportunity_id — never a project stage, even if a project with a similar name exists. If no open lead matches, still return it as Pursuit with opportunity_id null, confidence "low", and lead_hint = the name they used (e.g. "Mastercard"). lead_hint is null otherwise.
 - Every question MUST say what it is about: source "calendar" when it is about calendar events (list them in event_ids, and the drafts made from them in draft_ids), "dictation" when about dictated items (draft_ids of those entries), "hours" when about a day's total (date = that day, draft_ids/event_ids may be empty).
 - Options must be exact names from the lists (project names, stage names of the referenced project, category names, lead names) or exactly "That's all", "Add it", "No". Nothing else. Do not add a "don't log" or "other" option; the app adds those.
 - Leads as candidates: when an item doesn't clearly match a project, also consider the open leads; offer matching lead names as options next to project names.
