@@ -295,6 +295,9 @@ function WeeklyApprovalPage() {
                       +{formatHM(r.excess)}
                     </span>
                   )}
+                  {r.excess <= 0 && r.shortfall > 0 && (
+                    <span className="ml-1 text-destructive">−{formatHM(r.shortfall)}</span>
+                  )}
                 </div>
                 <div className="col-span-2 flex justify-start md:col-span-1 md:justify-end">
                   <StatusPill status={r.status} />
@@ -391,6 +394,7 @@ function ReviewPanel({
   const [additional, setAdditional] = useState("");
   const [reopenReason, setReopenReason] = useState("");
   const [showDaily, setShowDaily] = useState(false);
+  const [shortInput, setShortInput] = useState("");
 
   const approve = useApproveWeek();
   const returnWeek = useReturnWeek();
@@ -408,6 +412,9 @@ function ReviewPanel({
   const proposed = additional === "" ? excess : Math.max(0, Number(additional) || 0);
   const capped = Math.min(proposed, excess);
   const reduced = excess > 0 && acknowledge && capped < excess;
+  const shortfall = excess > 0 ? 0 : row?.shortfall ?? 0;
+  const shortKept =
+    shortInput === "" ? shortfall : Math.min(shortfall, Math.max(0, Number(shortInput) || 0));
 
   const week = row?.week ?? null;
   const canAct = !!week && !!approverId;
@@ -418,6 +425,7 @@ function ReviewPanel({
     setAcknowledge(true);
     setReopenReason("");
     setShowDaily(false);
+    setShortInput("");
   };
 
   return (
@@ -532,6 +540,11 @@ function ReviewPanel({
                           hours: formatHM(week.additional_hours_approved) || "0:00",
                         })}`
                       : ""}
+                    {week.shortfall_hours_approved > 0
+                      ? ` · ${t("weeklyApproval.review.debitedHours", {
+                          hours: formatHM(week.shortfall_hours_approved) || "0:00",
+                        })}`
+                      : ""}
                   </span>
                 </div>
                 <div>
@@ -613,6 +626,41 @@ function ReviewPanel({
                   </div>
                 )}
 
+                {shortfall > 0 && (
+                  <div className="rounded-md border border-border p-3">
+                    <h4 className="text-sm font-semibold">
+                      {t("weeklyApproval.review.shortfallTitle")}
+                    </h4>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("weeklyApproval.review.shortfallNotice", {
+                        accounted: formatHM(row.totals.accounted) || "0:00",
+                        capacity: formatHM(row.capacity) || "0:00",
+                        short: formatHM(shortfall) || "0:00",
+                      })}
+                    </p>
+                    <div className="mt-3 flex items-center gap-2">
+                      <label className="text-xs text-muted-foreground">
+                        {t("weeklyApproval.review.shortfallToBank")}
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={shortfall}
+                        step="0.25"
+                        value={shortInput === "" ? String(shortfall) : shortInput}
+                        onChange={(e) => setShortInput(e.target.value)}
+                        className="h-8 w-24"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {t("weeklyApproval.review.maxHours", { hours: shortfall })}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {t("weeklyApproval.review.shortfallHint")}
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <label className="text-xs text-muted-foreground">
                     {t("weeklyApproval.review.comment")}
@@ -639,8 +687,11 @@ function ReviewPanel({
                           approverId: approverId!,
                           collaboratorId: row.collaboratorId,
                           weekStart,
+                          weekEnd,
                           additionalHours: excess > 0 && acknowledge ? capped : 0,
                           calculatedExcess: excess,
+                          shortfallHours: shortKept,
+                          calculatedShortfall: shortfall,
                           note: comment.trim() || null,
                           comment: comment.trim() || null,
                         },

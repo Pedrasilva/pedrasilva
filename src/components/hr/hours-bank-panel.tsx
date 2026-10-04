@@ -33,7 +33,10 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import { formatHM } from "@/lib/projects/time-format";
 import {
   describeHours,
+  TRACKING_START_DEFAULT,
   useAddHoursBankMovement,
+  useOpeningBalanceAudit,
+  useSetOpeningBalance,
   useHoursBank,
   type HoursBankType,
 } from "@/lib/hr/use-hours-bank";
@@ -52,6 +55,44 @@ export function HoursBankPanel({
   const { data } = useHoursBank(collaboratorId);
   const { data: capacity } = useWeeklyCapacity(collaboratorId);
   const addMovement = useAddHoursBankMovement();
+  const setOpening = useSetOpeningBalance();
+  const { data: audit } = useOpeningBalanceAudit(canManage ? collaboratorId : null);
+  const opening = data?.opening ?? null;
+  const [openingOpen, setOpeningOpen] = useState(false);
+  const [oHours, setOHours] = useState("");
+  const [oAsOf, setOAsOf] = useState(TRACKING_START_DEFAULT);
+  const [oNote, setONote] = useState("");
+
+  const startOpening = () => {
+    setOHours(opening ? String(opening.hours) : "");
+    setOAsOf(opening?.as_of_date ?? TRACKING_START_DEFAULT);
+    setONote(opening?.reason ?? "");
+    setOpeningOpen(true);
+  };
+
+  const saveOpening = async () => {
+    if (!collaboratorId) return;
+    const value = Number(oHours);
+    if (oHours.trim() === "" || Number.isNaN(value) || !oAsOf) return;
+    if (oNote.trim().length === 0) {
+      toast.error(t("hoursBank.noteRequired"));
+      return;
+    }
+    try {
+      await setOpening.mutateAsync({
+        collaboratorId,
+        existingId: opening?.id ?? null,
+        hours: value,
+        asOf: oAsOf,
+        reason: oNote.trim(),
+        createdBy: user?.id ?? null,
+      });
+      toast.success(t("hoursBank.savedToast"));
+      setOpeningOpen(false);
+    } catch (e) {
+      toast.error((e as Error)?.message ?? "Error");
+    }
+  };
 
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<HoursBankType>("converted_to_leave");
@@ -153,9 +194,14 @@ export function HoursBankPanel({
           </div>
         </div>
         {canManage && collaboratorId && (
-          <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-            {t("hoursBank.addMovement")}
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={startOpening}>
+              {opening ? t("hoursBank.editOpening") : t("hoursBank.openingBalance")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+              {t("hoursBank.addMovement")}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -168,18 +214,25 @@ export function HoursBankPanel({
           (data?.entries ?? []).map((e) => (
             <div
               key={e.id}
-              className="flex items-start justify-between gap-3 border-b border-border px-3 py-2 text-sm last:border-0"
+              className={`flex items-start justify-between gap-3 border-b border-border px-3 py-2 text-sm last:border-0 ${
+                e.excluded ? "opacity-50" : ""
+              }`}
             >
               <div className="min-w-0">
                 <div className="font-medium">{t(`hoursBank.type.${e.transaction_type}`)}</div>
                 <div className="text-xs text-muted-foreground">
-                  {format(parseISO(e.entry_date), "d MMM yyyy", { locale })}
+                  {e.transaction_type === "opening_balance"
+                    ? t("hoursBank.asOf", {
+                        date: format(parseISO(e.as_of_date ?? e.entry_date), "d MMM yyyy", { locale }),
+                      })
+                    : format(parseISO(e.entry_date), "d MMM yyyy", { locale })}
                   {e.week_start
                     ? ` · ${t("hoursBank.weekOf", {
                         date: format(parseISO(e.week_start), "d MMM", { locale }),
                       })}`
                     : ""}
                   {e.reason ? ` · ${e.reason}` : ""}
+                  {e.excluded ? ` · ${t("hoursBank.beforeOpening")}` : ""}
                 </div>
               </div>
               <div className="text-right">
@@ -200,6 +253,60 @@ export function HoursBankPanel({
           ))
         )}
       </div>
+
+      {canManage && (audit ?? []).length > 0 && (
+        <details className="mt-3 text-xs text-muted-foreground">
+          <summary className="cursor-pointer">{t("hoursBank.openingHistory")}</summary>
+          <ul className="mt-1 space-y-0.5">
+            {(audit ?? []).map((a) => (
+              <li key={a.id} className="tabular-nums">
+                {format(parseISO(a.changed_at), "d MMM yyyy HH:mm", { locale })} ·{" "}
+                {formatHM(Math.abs(Number(a.old_hours ?? 0))) || "0:00"}
+                {Number(a.old_hours) < 0 ? " (−)" : ""} → {formatHM(Math.abs(Number(a.new_hours ?? 0))) || "0:00"}
+                {Number(a.new_hours) < 0 ? " (−)" : ""}
+                {a.old_as_of !== a.new_as_of ? ` · ${a.old_as_of} → ${a.new_as_of}` : ""}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <Dialog open={openingOpen} onOpenChange={setOpeningOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("hoursBank.openingBalance")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">{t("hoursBank.openingHint")}</p>
+            <div>
+              <label className="text-xs text-muted-foreground">{t("hoursBank.asOfLabel")}</label>
+              <Input type="date" value={oAsOf} onChange={(e) => setOAsOf(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">{t("hoursBank.openingHoursLabel")}</label>
+              <Input
+                type="number"
+                step="0.25"
+                value={oHours}
+                onChange={(e) => setOHours(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">{t("hoursBank.noteLabel")}</label>
+              <Textarea rows={2} value={oNote} onChange={(e) => setONote(e.target.value)} className="mt-1" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpeningOpen(false)}>
+              {t("hoursBank.cancel")}
+            </Button>
+            <Button onClick={saveOpening} disabled={setOpening.isPending}>
+              {t("hoursBank.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={open}

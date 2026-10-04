@@ -1519,7 +1519,12 @@
       "closed": "Semana aprovada e fechada",
       "bankedHours": "{{hours}} creditadas",
       "reopenReason": "Motivo da reabertura",
-      "reopen": "Reabrir semana"
+      "reopen": "Reabrir semana",
+      "shortfallTitle": "Semana incompleta",
+      "shortfallNotice": "Contabilizado {{accounted}} de {{capacity}} — faltam {{short}}. Ausências não pagas não contam.",
+      "shortfallToBank": "Horas a debitar",
+      "shortfallHint": "Pode reduzir (até 0 se esta semana não deve contar) e acrescentar uma nota.",
+      "debitedHours": "{{hours}} debitadas do banco"
     }
   },
   "hoursBank": {
@@ -1536,7 +1541,9 @@
       "additional_hours": "Horas adicionais",
       "converted_to_leave": "Convertidas em ausência",
       "paid_compensation": "Compensação paga",
-      "manual_adjustment": "Ajuste manual"
+      "manual_adjustment": "Ajuste manual",
+      "opening_balance": "Saldo inicial",
+      "shortfall": "Semana incompleta"
     },
     "addMovement": "Adicionar movimento",
     "addTitle": "Adicionar movimento ao banco de horas",
@@ -1547,7 +1554,18 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "savedToast": "Banco de horas atualizado",
-    "weekOf": "Semana de {{date}}"
+    "weekOf": "Semana de {{date}}",
+    "openingBalance": "Saldo inicial",
+    "editOpening": "Editar saldo inicial",
+    "asOf": "a {{date}}",
+    "asOfLabel": "Data de referência",
+    "openingHoursLabel": "Horas (negativas se em dívida)",
+    "noteLabel": "Nota",
+    "noteRequired": "É obrigatória uma nota.",
+    "openingHint": "Cobre tudo antes da data de referência. Semanas que terminam antes dela nunca geram créditos nem débitos. As alterações ficam registadas.",
+    "openingHistory": "Alterações ao saldo inicial",
+    "beforeOpening": "antes do saldo inicial — sem efeito",
+    "unpaidTag": "não paga"
   },
   "timesheetAssistant": {
     "cardTitle": "Registar horas",

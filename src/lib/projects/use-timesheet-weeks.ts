@@ -44,6 +44,7 @@ export interface TimesheetWeek {
   calculated_excess_hours: number;
   additional_hours_approved: number;
   additional_hours_note: string | null;
+  shortfall_hours_approved: number;
 }
 
 /**
@@ -74,20 +75,32 @@ export const EMPTY_TOTALS: WeekTotals = {
   accounted: 0,
 };
 
+/** Label of approved unpaid leave rows; shown on the timesheet but never accounted. */
+export const UNPAID_LEAVE_LABEL = "Authorized (unpaid)";
+export const isUnpaidLeave = (e: { entry_type: string; leave_type?: string | null }) =>
+  e.entry_type === "non_working" && e.leave_type === UNPAID_LEAVE_LABEL;
+
 export function totalsFromEntries(
-  entries: Array<{ entry_type: string; hours: number }>,
+  entries: Array<{ entry_type: string; hours: number; leave_type?: string | null }>,
 ): WeekTotals {
   let project = 0;
   let internal = 0;
   let leave = 0;
   for (const e of entries) {
     const h = Number(e.hours) || 0;
+    // Unpaid leave is time owed: visible on the timesheet, never accounted.
+    if (isUnpaidLeave(e)) continue;
     if (e.entry_type === "project") project += h;
     else if (e.entry_type === "internal") internal += h;
     else leave += h;
   }
   const working = project + internal;
   return { project, internal, leave, working, accounted: working + leave };
+}
+
+/** Hours the week is short of capacity (accounted vs capacity, never negative). */
+export function shortfallHours(totals: WeekTotals, capacity: number): number {
+  return Math.max(0, round2(capacity - totals.accounted));
 }
 
 /** Hours worked above the person's own normal weekly capacity (never negative). */
@@ -128,7 +141,7 @@ export function useWeeklyCapacity(collaboratorId: string | null) {
 }
 
 const WEEK_COLUMNS =
-  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note";
+  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note, shortfall_hours_approved";
 
 function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
   const num = (k: string) => Number(row[k] ?? 0) || 0;
@@ -159,6 +172,7 @@ function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
     calculated_excess_hours: num("calculated_excess_hours"),
     additional_hours_approved: num("additional_hours_approved"),
     additional_hours_note: (row.additional_hours_note as string | null) ?? null,
+    shortfall_hours_approved: num("shortfall_hours_approved"),
   };
 }
 
@@ -237,9 +251,13 @@ export interface ApproveWeekInput {
   approverId: string;
   collaboratorId: string | null;
   weekStart: string;
+  weekEnd?: string;
   /** Hours the approver explicitly acknowledges. Never above the calculated excess. */
   additionalHours: number;
   calculatedExcess: number;
+  /** Shortfall the approver keeps as a debit. Never above the calculated shortfall. */
+  shortfallHours?: number;
+  calculatedShortfall?: number;
   note: string | null;
   comment: string | null;
 }
@@ -247,17 +265,37 @@ export interface ApproveWeekInput {
 /**
  * Approver action: close the week and reconcile the hours bank.
  *
- * Reconciliation matters because a week can be reopened and approved again.
- * There is at most ONE `additional_hours` ledger entry per week (enforced by a
- * unique index), so re-approval updates or removes the existing entry rather
- * than adding a second one.
+ * A week has at most ONE bank movement (credit `additional_hours` or debit
+ * `shortfall`, enforced by a unique index). Re-approval replaces it. Weeks
+ * ending before the person's opening-balance "as of" date never move the bank.
  */
 export function useApproveWeek() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: ApproveWeekInput) => {
-      const hours = Math.max(0, Math.min(input.additionalHours, input.calculatedExcess));
+      let credit = Math.max(0, Math.min(input.additionalHours, input.calculatedExcess));
+      let debit = Math.max(
+        0,
+        Math.min(input.shortfallHours ?? 0, input.calculatedShortfall ?? 0),
+      );
+      if (credit > 0) debit = 0;
       const now = new Date().toISOString();
+
+      // Respect the opening balance: earlier weeks are covered by it.
+      if (input.collaboratorId && (credit > 0 || debit > 0)) {
+        const { data: opening } = await supabase
+          .from("pm_hours_bank_entries")
+          .select("as_of_date")
+          .eq("collaborator_id", input.collaboratorId)
+          .eq("transaction_type", "opening_balance")
+          .maybeSingle();
+        const asOf = (opening as { as_of_date: string | null } | null)?.as_of_date;
+        const weekEnd = input.weekEnd ?? input.weekStart;
+        if (asOf && weekEnd < asOf) {
+          credit = 0;
+          debit = 0;
+        }
+      }
 
       const { error } = await supabase
         .from("pm_timesheet_weeks")
@@ -265,59 +303,38 @@ export function useApproveWeek() {
           status: "approved",
           approved_at: now,
           approved_by: input.approverId,
-          additional_hours_approved: hours,
+          additional_hours_approved: credit,
           additional_hours_note: input.note,
+          shortfall_hours_approved: debit,
           reviewer_comment: input.comment,
         } as never)
         .eq("id", input.weekId);
       if (error) throw error;
 
-      // Reconcile the ledger entry for this week.
-      const { data: existing, error: exErr } = await supabase
+      // Replace this week's movement (credit or debit).
+      const { error: dErr } = await supabase
         .from("pm_hours_bank_entries")
-        .select("id")
+        .delete()
         .eq("week_id", input.weekId)
-        .eq("transaction_type", "additional_hours")
-        .maybeSingle();
-      if (exErr) throw exErr;
+        .in("transaction_type", ["additional_hours", "shortfall"]);
+      if (dErr) throw dErr;
 
-      if (hours <= 0) {
-        if (existing?.id) {
-          const { error: dErr } = await supabase
-            .from("pm_hours_bank_entries")
-            .delete()
-            .eq("id", existing.id);
-          if (dErr) throw dErr;
-        }
-        return;
-      }
-      if (!input.collaboratorId) return;
-
-      if (existing?.id) {
-        const { error: uErr } = await supabase
-          .from("pm_hours_bank_entries")
-          .update({
-            hours,
-            reason: input.note,
-            created_by: input.approverId,
-            entry_date: input.weekStart,
-          } as never)
-          .eq("id", existing.id);
-        if (uErr) throw uErr;
-      } else {
-        const { error: iErr } = await supabase.from("pm_hours_bank_entries").insert({
-          collaborator_id: input.collaboratorId,
-          week_id: input.weekId,
-          entry_date: input.weekStart,
-          transaction_type: "additional_hours",
-          hours,
-          reason: input.note,
-          created_by: input.approverId,
-        } as never);
-        if (iErr) throw iErr;
-      }
+      if (!input.collaboratorId || (credit <= 0 && debit <= 0)) return;
+      const { error: iErr } = await supabase.from("pm_hours_bank_entries").insert({
+        collaborator_id: input.collaboratorId,
+        week_id: input.weekId,
+        entry_date: input.weekStart,
+        transaction_type: credit > 0 ? "additional_hours" : "shortfall",
+        hours: credit > 0 ? credit : -debit,
+        reason: input.note,
+        created_by: input.approverId,
+      } as never);
+      if (iErr) throw iErr;
     },
-    onSuccess: () => invalidateWeeks(qc),
+    onSuccess: () => {
+      invalidateWeeks(qc);
+      qc.invalidateQueries({ queryKey: ["pm-hours-bank"] });
+    },
   });
 }
 
@@ -378,6 +395,8 @@ export interface WeeklyApprovalRow {
   capacity: number;
   totals: WeekTotals;
   excess: number;
+  /** Hours short of capacity (accounted < capacity). */
+  shortfall: number;
   week: TimesheetWeek | null;
   status: WeekStatus | "not_submitted";
 }
@@ -401,7 +420,7 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           .eq("week_start", weekStart),
         supabase
           .from("pm_time_entries")
-          .select("user_id, hours, entry_type")
+          .select("user_id, hours, entry_type, leave_type")
           .gte("entry_date", weekStart)
           .lte("entry_date", weekEnd),
       ]);
@@ -426,14 +445,18 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           .map((w) => [w.user_id, w]),
       );
 
-      const entriesByUser = new Map<string, Array<{ entry_type: string; hours: number }>>();
+      const entriesByUser = new Map<
+        string,
+        Array<{ entry_type: string; hours: number; leave_type: string | null }>
+      >();
       for (const e of (entryRes.data ?? []) as Array<{
         user_id: string;
         hours: number;
         entry_type: string;
+        leave_type: string | null;
       }>) {
         const list = entriesByUser.get(e.user_id) ?? [];
-        list.push({ entry_type: e.entry_type, hours: Number(e.hours) || 0 });
+        list.push({ entry_type: e.entry_type, hours: Number(e.hours) || 0, leave_type: e.leave_type });
         entriesByUser.set(e.user_id, list);
       }
 
@@ -464,6 +487,7 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           capacity,
           totals,
           excess: excessHours(totals, capacity),
+          shortfall: shortfallHours(totals, capacity),
           week,
           status: week ? week.status : "not_submitted",
         });

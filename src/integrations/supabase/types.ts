@@ -6464,8 +6464,66 @@ export type Database = {
           },
         ]
       }
+      pm_hours_bank_audit: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          collaborator_id: string
+          entry_id: string
+          id: string
+          new_as_of: string | null
+          new_hours: number | null
+          new_reason: string | null
+          old_as_of: string | null
+          old_hours: number | null
+          old_reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          collaborator_id: string
+          entry_id: string
+          id?: string
+          new_as_of?: string | null
+          new_hours?: number | null
+          new_reason?: string | null
+          old_as_of?: string | null
+          old_hours?: number | null
+          old_reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          collaborator_id?: string
+          entry_id?: string
+          id?: string
+          new_as_of?: string | null
+          new_hours?: number | null
+          new_reason?: string | null
+          old_as_of?: string | null
+          old_hours?: number | null
+          old_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_hours_bank_audit_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_hours_bank_audit_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_hours_bank_entries: {
         Row: {
+          as_of_date: string | null
           collaborator_id: string
           created_at: string
           created_by: string | null
@@ -6480,6 +6538,7 @@ export type Database = {
           week_id: string | null
         }
         Insert: {
+          as_of_date?: string | null
           collaborator_id: string
           created_at?: string
           created_by?: string | null
@@ -6494,6 +6553,7 @@ export type Database = {
           week_id?: string | null
         }
         Update: {
+          as_of_date?: string | null
           collaborator_id?: string
           created_at?: string
           created_by?: string | null
@@ -8671,6 +8731,7 @@ export type Database = {
           returned_at: string | null
           returned_by: string | null
           reviewer_comment: string | null
+          shortfall_hours_approved: number
           status: string
           submitted_at: string | null
           submitted_by: string | null
@@ -8701,6 +8762,7 @@ export type Database = {
           returned_at?: string | null
           returned_by?: string | null
           reviewer_comment?: string | null
+          shortfall_hours_approved?: number
           status?: string
           submitted_at?: string | null
           submitted_by?: string | null
@@ -8731,6 +8793,7 @@ export type Database = {
           returned_at?: string | null
           returned_by?: string | null
           reviewer_comment?: string | null
+          shortfall_hours_approved?: number
           status?: string
           submitted_at?: string | null
           submitted_by?: string | null
