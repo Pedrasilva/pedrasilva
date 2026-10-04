@@ -6,7 +6,7 @@
  * never presented as a deficit. Only working time above capacity raises a
  * workload notice, and even then submission is never blocked.
  */
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, Clock, RotateCcw, Send } from "lucide-react";
@@ -63,7 +63,7 @@ export function MyWeekCard({
   totals: WeekTotals;
   viewingOther: boolean;
   /** Person selector, Ditar, week navigation — rendered before "Submeter semana". */
-  controls?: React.ReactNode;
+  controls?: ReactNode;
   /** Billable project hours, for the Projeto tooltip. */
   billable?: number;
 }) {
