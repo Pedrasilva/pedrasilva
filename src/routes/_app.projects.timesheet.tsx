@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getCalendarGridSuggestions, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
+import { getCalendarGridSuggestions, rememberCalendarMatch, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
 import { useTimesheetRetainers, type RetainerParentRow } from "@/lib/projects/use-timesheet-retainers";
 import { CalendarDayBadge, CalendarRowHint, type HintTarget } from "@/components/projects/timesheet-calendar";
 import { Button } from "@/components/ui/button";
@@ -471,6 +471,7 @@ function TimesheetPage() {
   // ---------------- Calendar suggestions (own timesheet only) ----------------
   const calendarAllowed = !viewingOther && !viewAsUser && !weekLocked && !!user?.id;
   const fetchGridCalendar = useServerFn(getCalendarGridSuggestions);
+  const rememberMatch = useServerFn(rememberCalendarMatch);
   const { data: gridCalendar } = useQuery({
     queryKey: ["timesheet-calendar-grid", user?.id ?? null, weekStart],
     enabled: calendarAllowed,
@@ -599,7 +600,7 @@ function TimesheetPage() {
       <CalendarRowHint
         events={evs}
         targets={[{ key: "lead", label }]}
-        onAdd={() => { for (const e of evs) learn(e, { opportunity_id: leadId, internal_category: PURSUIT_CATEGORY }); return runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label)}
+        onAdd={() => { for (const e of evs) learn(e, { opportunity_id: leadId, internal_category: PURSUIT_CATEGORY }); return runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label); }}
       />
     );
   };
