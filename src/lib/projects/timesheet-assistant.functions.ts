@@ -72,6 +72,8 @@ export type AssistantResult = {
   otherWeek: string | null;
   /** Notes for days that already had hours logged, e.g. "Segunda já tem 6 h registadas; com estas fica com 14 h." */
   dayNotes: string[];
+  /** Ranked calendar matches per event id (same ranking as the grid), plus learning keys. */
+  eventMatches: Record<string, { suggestions: import("./calendar-match.server").EventSuggestion[]; series_id: string | null; match_word: string | null }>;
 };
 
 const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -112,6 +114,7 @@ Rules:
 - Never create leave, vacation or holiday entries; those come from HR.
 - questions: one per real ambiguity (two possible projects, which stage, unclear day, hours that don't add up). Also, for each working day mentioned whose total (already logged + leave + new entries) is below the person's daily hours, ask e.g. "That's 7 of your 8 hours on Monday. Anything else?" with options like ["That's all"]. Write questions in the language the person used. Max 4 questions. Options are short answers the person can tap (project names, stage names, "That's all"); may be empty.
 - Calendar events (when listed): each has an id. Never invent event ids.
+  * When an event lists "ranked matches", use them: a [remembered choice] or a single match → draft it with that project/stage (or lead / internal category). Several matches without a remembered choice → set project_id null and ask, with those matches as the options. Never pick a project outside the ranked list when one is given, unless the dictated text says otherwise.
   * With no dictated text, create one draft per listed event (event_id = its id, date/start/end from the event, hours from its times) matched to a project via title, location, aliases or the attendee companies' projects, or to an internal category when it sounds internal (team meeting, training, admin). If the match is ambiguous, set project_id null / confidence "low" and ask, never guess.
   * With dictated text: if a dictated item matches an event, use the event's times and set event_id. If they conflict (different time or length), keep the dictated version without event_id and ask which is right. For each event on a day the person talked about that their text doesn't cover, don't create it; ask e.g. "You had 'Restelo site visit' at 15:00. Add it?" with options ["Add it","No"]. If they answer yes, create it with its event_id.
   * Never create two drafts for the same event_id. Events count towards questions' max of 4 only when ambiguous.
@@ -298,7 +301,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       }
     }
     if (!data.text && !events.length) {
-      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar, skipped: [], otherWeek: null, dayNotes: [] };
+      return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries: [], questions: [], calendar, skipped: [], otherWeek: null, dayNotes: [], eventMatches: {} };
     }
     // Attendee emails → CRM contacts → company → that company's projects (sent as names only).
     const companyOfEmail = new Map<string, string>();
@@ -317,12 +320,30 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     for (const p of (projRes.data ?? []) as Array<{ id: string; name: string; company_id: string | null }>) {
       if (p.company_id) projByCompany.set(p.company_id, [...(projByCompany.get(p.company_id) ?? []), p.name]);
     }
+    // Shared ranking (remembered series/word → project number → distinctive words → attendee company).
+    const eventMatches: AssistantResult["eventMatches"] = {};
+    if (events.length) {
+      const { buildMatcher } = await import("./calendar-match.server");
+      const coOf = new Map(((projRes.data ?? []) as Array<{ id: string; company_id: string | null }>).map((p) => [p.id, p.company_id]));
+      const matcher = await buildMatcher(db as never, userId, projects.map((p) => ({ ...p, company_id: coOf.get(p.id) ?? null })), leads);
+      for (const e of events) {
+        const r = matcher.rank(e, companyOfEmail);
+        eventMatches[e.id] = { suggestions: r.suggestions, series_id: e.series_id, match_word: r.match_word };
+      }
+    }
+    const rankedTxt = (id: string) => {
+      const m = eventMatches[id];
+      if (!m?.suggestions.length) return "";
+      return ` | ranked matches: ${m.suggestions
+        .map((sg, i) => `${i + 1}. ${sg.lead_id ? `lead ${sg.lead_id} (${sg.lead_name})` : sg.internal_category && !sg.project_id ? `internal "${sg.internal_category}"` : `project ${sg.project_id}${sg.stage ? ` stage ${sg.stage.id}` : ""} (${sg.label})`}${sg.reason === "remembered" ? " [remembered choice]" : ""}`)
+        .join("; ")}`;
+    };
     const eventLine = (e: (typeof events)[number]) => {
       const internal = e.attendees.filter((m) => m.endsWith("@pedrasilva.com")).length;
       const cos = [...new Set(e.attendees.map((m) => companyOfEmail.get(m)).filter(Boolean) as string[])];
       const other = e.attendees.length - internal - e.attendees.filter((m) => companyOfEmail.has(m)).length;
       const coTxt = cos.map((c) => `${companyName.get(c) ?? "?"} (projects: ${(projByCompany.get(c) ?? []).join(", ") || "none"})`).join("; ");
-      return `${e.id} | ${WEEKDAY[dow(e.date)]} ${e.date} ${e.start}–${e.end} | title: ${JSON.stringify(e.title)} | location: ${e.location ? JSON.stringify(e.location) : "none"} | attendees: ${internal} colleague(s)${coTxt ? `, client companies: ${coTxt}` : ""}${other > 0 ? `, ${other} unknown external` : ""}`;
+      return `${e.id} | ${WEEKDAY[dow(e.date)]} ${e.date} ${e.start}–${e.end} | title: ${JSON.stringify(e.title)} | location: ${e.location ? JSON.stringify(e.location) : "none"} | attendees: ${internal} colleague(s)${coTxt ? `, client companies: ${coTxt}` : ""}${other > 0 ? `, ${other} unknown external` : ""}${rankedTxt(e.id)}`;
     };
 
     // Prompt context.
@@ -636,5 +657,5 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       dayNotes.push(pt ? `${DAY_PT[n]} já tem ${fmt(logged)} h registadas; com estas fica com ${fmt(total)} h.` : `${WEEKDAY[n]} already has ${fmt(logged)} h logged; with these it will have ${fmt(total)} h.`);
     }
 
-    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar, skipped, otherWeek, dayNotes };
+    return { weekStart, weekEnd, locked, dailyHours, projects, categories, leads, existing, entries, questions, calendar, skipped, otherWeek, dayNotes, eventMatches };
   });
