@@ -10,6 +10,10 @@
       "business": {
         "title": "Desempenho do negócio",
         "description": "Receita das horas facturáveis, custo, lucro e utilização, por projecto e pessoa."
+      },
+      "budget": {
+        "title": "Orçamento vs consumo",
+        "description": "Orçamento consumido por projecto, projectos acima do orçamento e ritmo face ao prazo."
       }
     }
   },
@@ -139,6 +143,55 @@
       "billablePct": "% facturável",
       "internalPct": "% interno",
       "target": "(meta ≤ {{pct}}%)"
+    }
+  },
+  "budget": {
+    "title": "Orçamento vs consumo",
+    "subtitle": "Quanto do orçamento de cada projecto já foi consumido, com as taxas de custo fixadas, incluindo o custo de angariação.",
+    "upTo": "Até",
+    "toDate": "Custos até hoje",
+    "upToLabel": "Custos até {{date}}",
+    "search": "Pesquisar",
+    "searchPlaceholder": "Projecto ou cliente",
+    "tiles": {
+      "budget": "Orçamento total",
+      "cost": "Custo total",
+      "used": "% consumido global",
+      "over": "Acima do orçamento",
+      "overSub": "{{amount}} acima",
+      "near": "Perto do limite (80–100%)"
+    },
+    "chart": {
+      "title": "Orçamento consumido por projecto, maior primeiro",
+      "label": "{{name}} · {{cost}} de {{budget}} · {{pct}}%"
+    },
+    "pace": {
+      "title": "Orçamento consumido vs tempo decorrido",
+      "x": "Prazo decorrido",
+      "y": "Orçamento consumido",
+      "noDates_one": "{{count}} projecto sem datas fica de fora.",
+      "noDates_other": "{{count}} projectos sem datas ficam de fora."
+    },
+    "cols": {
+      "budget": "Orçamento",
+      "cost": "Custo real",
+      "remaining": "Restante",
+      "used": "% consumido",
+      "hours": "Horas usadas / previstas"
+    },
+    "band": {
+      "ok": "Dentro do orçamento",
+      "near": "Perto do limite",
+      "over": "Acima do orçamento"
+    },
+    "pursuit": "Angariação",
+    "projectLevel": "Sem fase atribuída: angariação {{pursuit}} · materiais e despesas {{other}}",
+    "expand": "Mostrar fases de {{name}}",
+    "collapse": "Esconder fases de {{name}}",
+    "empty": "Nenhum projecto com orçamento corresponde a estes filtros.",
+    "noBudget": {
+      "title": "Sem orçamento definido",
+      "hint": "Estes projectos têm custos mas não têm orçamento, por isso ficam fora dos totais em %."
     }
   }
 }
