@@ -6,6 +6,10 @@
       "hours": {
         "title": "Horas registadas",
         "description": "Horas previstas vs registadas por pessoa, e semanas por submeter."
+      },
+      "business": {
+        "title": "Desempenho do negócio",
+        "description": "Receita das horas facturáveis, custo, lucro e utilização, por projecto e pessoa."
       }
     }
   },
@@ -85,5 +89,56 @@
     "beforeTracking": "As folhas de horas no PSA Hub começaram a 1 de junho de 2026. Escolha um período a partir dessa data.",
     "trackingNote": "As horas são previstas a partir de 1 de junho de 2026.",
     "nonWorkingDaySplit": "{{pending}} pendentes · {{approved}} aprovadas"
+  },
+  "business": {
+    "title": "Desempenho do negócio",
+    "subtitle": "Receita das horas facturáveis, custo e lucro por período, projecto e pessoa. Os custos usam as taxas de custo fixadas.",
+    "presets": {
+      "lastWeek": "Última semana",
+      "lastMonth": "Último mês",
+      "last6Months": "Último semestre",
+      "lastYear": "Último ano",
+      "custom": "Intervalo personalizado"
+    },
+    "filters": {
+      "projectStatus": "Estado do projecto"
+    },
+    "status": {
+      "all": "Todos",
+      "active": "Activos",
+      "paused": "Em pausa",
+      "closing": "Em fecho",
+      "archived": "Arquivados"
+    },
+    "tiles": {
+      "revenue": "Receita (horas facturáveis × valor de venda)",
+      "revenueShort": "Receita",
+      "cost": "Custo total",
+      "profit": "Lucro",
+      "utilization": "Utilização",
+      "capacity": "Capacidade usada"
+    },
+    "vsPrev": "{{pct}}% vs período anterior",
+    "noPrev": "Sem período anterior para comparar",
+    "chart": {
+      "moneyWeek": "Receita, custo e lucro por semana",
+      "moneyMonth": "Receita, custo e lucro por mês",
+      "utilWeek": "Utilização por semana",
+      "utilMonth": "Utilização por mês"
+    },
+    "byProject": {
+      "title": "Por projecto",
+      "project": "Projecto",
+      "hours": "Horas",
+      "margin": "Margem %",
+      "empty": "Sem horas de projecto neste período."
+    },
+    "byPerson": {
+      "title": "Por pessoa",
+      "capacity": "Capacidade",
+      "billablePct": "% facturável",
+      "internalPct": "% interno",
+      "target": "(meta ≤ {{pct}}%)"
+    }
   }
 }

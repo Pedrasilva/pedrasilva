@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Clock } from "lucide-react";
+import { Clock, TrendingUp } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { V2PermissionGate } from "@/components/PermissionGate";
 
@@ -16,7 +16,10 @@ export const Route = createFileRoute("/_app/reports/")({
   component: ReportsIndex,
 });
 
-const REPORTS = [{ to: "/reports/hours", key: "hours", icon: Clock }] as const;
+const REPORTS = [
+  { to: "/reports/hours", key: "hours", icon: Clock },
+  { to: "/reports/business", key: "business", icon: TrendingUp },
+] as const;
 
 function ReportsIndex() {
   const { t } = useTranslation("reports");
