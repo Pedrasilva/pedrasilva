@@ -23,10 +23,10 @@ export function useSupplierStages() {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const [stages, markups, mats, exps] = await Promise.all([
-        fetchAll<{ id: string; project_id: string; quote_stages: QS | QS[] | null }>((a, b) =>
+        fetchAll<{ id: string; project_id: string; source_quote_stage_id: string }>((a, b) =>
           supabase
             .from("pm_stages")
-            .select("id, project_id, quote_stages!pm_stages_source_quote_stage_id_fkey(is_self, quote_id, supplier_id, supplier_company_id, supplier_placeholder, markup_pct)")
+            .select("id, project_id, source_quote_stage_id")
             .not("source_quote_stage_id", "is", null)
             .order("id")
             .range(a, b) as never,
@@ -41,12 +41,22 @@ export function useSupplierStages() {
           supabase.from("pm_expenses").select("project_id, purchase_price, supplier_id, supplier_company_id, vendor").order("id").range(a, b) as never,
         ),
       ]);
+      const qsIds = [...new Set(stages.map((s) => s.source_quote_stage_id))];
+      const qsById = new Map<string, QS>();
+      for (let i = 0; i < qsIds.length; i += 200) {
+        const { data, error } = await supabase
+          .from("quote_stages")
+          .select("id, is_self, quote_id, supplier_id, supplier_company_id, supplier_placeholder, markup_pct")
+          .in("id", qsIds.slice(i, i + 200));
+        if (error) throw error;
+        for (const r of (data ?? []) as unknown as (QS & { id: string })[]) qsById.set(r.id, r);
+      }
       const markupsByQuote = new Map<string, SupplierMarkupRow[]>();
       for (const m of markups) markupsByQuote.set(m.quote_id, [...(markupsByQuote.get(m.quote_id) ?? []), m]);
       const supplier = new Map<string, SupplierStageInfo>();
       const keysByProject = new Map<string, Set<string>>();
       for (const s of stages) {
-        const q = Array.isArray(s.quote_stages) ? s.quote_stages[0] : s.quote_stages;
+        const q = qsById.get(s.source_quote_stage_id);
         if (!q || q.is_self !== false) continue;
         const id = { supplier_company_id: q.supplier_company_id, supplier_id: q.supplier_id, supplier_label: q.supplier_placeholder };
         const resolved = resolveSupplierMarkupPct(id, markupsByQuote.get(q.quote_id));
