@@ -44,6 +44,7 @@ export interface TimesheetWeek {
   calculated_excess_hours: number;
   additional_hours_approved: number;
   additional_hours_note: string | null;
+  shortfall_hours_approved: number;
 }
 
 /**
@@ -74,20 +75,32 @@ export const EMPTY_TOTALS: WeekTotals = {
   accounted: 0,
 };
 
+/** Label of approved unpaid leave rows; shown on the timesheet but never accounted. */
+export const UNPAID_LEAVE_LABEL = "Authorized (unpaid)";
+export const isUnpaidLeave = (e: { entry_type: string; leave_type?: string | null }) =>
+  e.entry_type === "non_working" && e.leave_type === UNPAID_LEAVE_LABEL;
+
 export function totalsFromEntries(
-  entries: Array<{ entry_type: string; hours: number }>,
+  entries: Array<{ entry_type: string; hours: number; leave_type?: string | null }>,
 ): WeekTotals {
   let project = 0;
   let internal = 0;
   let leave = 0;
   for (const e of entries) {
     const h = Number(e.hours) || 0;
+    // Unpaid leave is time owed: visible on the timesheet, never accounted.
+    if (isUnpaidLeave(e)) continue;
     if (e.entry_type === "project") project += h;
     else if (e.entry_type === "internal") internal += h;
     else leave += h;
   }
   const working = project + internal;
   return { project, internal, leave, working, accounted: working + leave };
+}
+
+/** Hours the week is short of capacity (accounted vs capacity, never negative). */
+export function shortfallHours(totals: WeekTotals, capacity: number): number {
+  return Math.max(0, round2(capacity - totals.accounted));
 }
 
 /** Hours worked above the person's own normal weekly capacity (never negative). */
@@ -128,7 +141,7 @@ export function useWeeklyCapacity(collaboratorId: string | null) {
 }
 
 const WEEK_COLUMNS =
-  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note";
+  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note, shortfall_hours_approved";
 
 function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
   const num = (k: string) => Number(row[k] ?? 0) || 0;
@@ -159,6 +172,7 @@ function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
     calculated_excess_hours: num("calculated_excess_hours"),
     additional_hours_approved: num("additional_hours_approved"),
     additional_hours_note: (row.additional_hours_note as string | null) ?? null,
+    shortfall_hours_approved: num("shortfall_hours_approved"),
   };
 }
 
@@ -401,7 +415,7 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           .eq("week_start", weekStart),
         supabase
           .from("pm_time_entries")
-          .select("user_id, hours, entry_type")
+          .select("user_id, hours, entry_type, leave_type")
           .gte("entry_date", weekStart)
           .lte("entry_date", weekEnd),
       ]);
@@ -426,14 +440,18 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           .map((w) => [w.user_id, w]),
       );
 
-      const entriesByUser = new Map<string, Array<{ entry_type: string; hours: number }>>();
+      const entriesByUser = new Map<
+        string,
+        Array<{ entry_type: string; hours: number; leave_type: string | null }>
+      >();
       for (const e of (entryRes.data ?? []) as Array<{
         user_id: string;
         hours: number;
         entry_type: string;
+        leave_type: string | null;
       }>) {
         const list = entriesByUser.get(e.user_id) ?? [];
-        list.push({ entry_type: e.entry_type, hours: Number(e.hours) || 0 });
+        list.push({ entry_type: e.entry_type, hours: Number(e.hours) || 0, leave_type: e.leave_type });
         entriesByUser.set(e.user_id, list);
       }
 
@@ -464,6 +482,7 @@ export function useWeeklyApprovalOverview(weekStart: string, weekEnd: string) {
           capacity,
           totals,
           excess: excessHours(totals, capacity),
+          shortfall: shortfallHours(totals, capacity),
           week,
           status: week ? week.status : "not_submitted",
         });
