@@ -14,6 +14,10 @@
       "budget": {
         "title": "Budget vs consumption",
         "description": "Budget used per project, over-budget projects and pace against the schedule."
+      },
+      "billable": {
+        "title": "Billable vs non-billable",
+        "description": "Billable, non-billable project and internal hours per person against their target."
       }
     }
   },
@@ -196,6 +200,46 @@
     "external": {
       "title": "External services",
       "line": "sold {{sold}} · supplier cost {{cost}} · margin {{margin}}"
+    }
+  },
+  "billable": {
+    "title": "Billable vs non-billable",
+    "subtitle": "Billable project, non-billable project and internal time. Leave and holidays are excluded from every percentage.",
+    "kinds": {
+      "billable": "Billable project",
+      "nonBillable": "Non-billable project",
+      "internal": "Internal"
+    },
+    "tiles": {
+      "logged": "Logged hours",
+      "target": "Billable vs target",
+      "targetSub": "Actual / team target (weighted by logged hours)"
+    },
+    "leaveContext": "Absences {{h}} h (not counted)",
+    "leaveExcluded": "Leave and holidays excluded",
+    "chart": {
+      "period": "Whole period",
+      "week": "Per week",
+      "month": "Per month"
+    },
+    "byPerson": {
+      "title": "By person",
+      "hint": "Sorted by % billable. The black marker is the person's HR target. Click a person for detail.",
+      "split": "Split",
+      "target": "Target",
+      "diff": "Difference"
+    },
+    "detail": {
+      "byProject": "By project",
+      "stage": "Stage",
+      "hBillable": "Billable h",
+      "hNonBillable": "Non-billable h",
+      "share": "% of their time",
+      "internal": "Internal time by category",
+      "trend": "Weekly % billable vs target",
+      "viewTimesheet": "View timesheet",
+      "none": "No hours in this period.",
+      "noProject": "No project"
     }
   }
 }
