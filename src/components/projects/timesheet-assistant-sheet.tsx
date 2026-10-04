@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, parseISO, startOfWeek, subWeeks } from "date-fns";
 import { toast } from "sonner";
-import { Check, Loader2, Mic, Square, Trash2, AlertTriangle, CalendarDays, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Loader2, Mic, Square, Trash2, AlertTriangle, CalendarDays, X } from "lucide-react";
 import { CalendarConnection, useCalendarStatus } from "@/components/projects/calendar-connection";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,73 @@ async function blobToBase64(b: Blob): Promise<string> {
   return btoa(s);
 }
 
-type Draft = AssistantDraft & { key: string; saved?: boolean };
+type Draft = AssistantDraft & { key: string; saved?: boolean; /** Dictation id, or "cal" for calendar-only drafts. */ dict: string };
+type Dictation = { id: string; n: number; text: string; edit: string | null; open: boolean; answers: Array<{ q: string; a: string }> };
+
+/** Large "Tap to talk" button: records, shows a timer, transcribes, hands the text back. Audio is never stored. */
+function RecordButton({ onText, disabled, className }: { onText: (t: string) => void; disabled?: boolean; className?: string }) {
+  const { t } = useTranslation(NS);
+  const rec = useVoiceRecorder();
+  const transcribe = useServerFn(transcribeProjectNote);
+  const [busy, setBusy] = useState(false);
+  const [secs, setSecs] = useState(0);
+  const startedAt = useRef(0);
+  useEffect(() => {
+    if (!rec.recording) return;
+    const id = window.setInterval(() => setSecs(Math.floor((Date.now() - startedAt.current) / 1000)), 500);
+    return () => window.clearInterval(id);
+  }, [rec.recording]);
+  async function toggle() {
+    if (rec.recording) {
+      const wav = await rec.stop();
+      if (!wav) return;
+      setBusy(true);
+      try {
+        const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav" } });
+        if (text.trim()) onText(text.trim());
+      } catch (e) {
+        toast.error(t(k("transcribeFailed")), { description: (e as Error).message });
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+    try {
+      startedAt.current = Date.now();
+      setSecs(0);
+      await rec.start();
+    } catch {
+      toast.error(t(k("micBlocked")));
+    }
+  }
+  const time = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+  return (
+    <Button
+      type="button"
+      onClick={toggle}
+      disabled={busy || (disabled && !rec.recording)}
+      variant={rec.recording ? "destructive" : "default"}
+      size="lg"
+      className={cn("h-14 w-full gap-3 text-base", className)}
+      aria-label={rec.recording ? t(k("record.stop")) : t(k("record.tap"))}
+    >
+      {busy ? (
+        <><Loader2 className="h-5 w-5 animate-spin" /> {t(k("record.transcribing"))}</>
+      ) : rec.recording ? (
+        <>
+          <span className="relative flex h-3 w-3" aria-hidden>
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive-foreground opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive-foreground" />
+          </span>
+          <span>{t(k("record.recording"), { time })}</span>
+          <span className="ml-auto flex items-center gap-1"><Square className="h-4 w-4" /> {t(k("record.stop"))}</span>
+        </>
+      ) : (
+        <span>{t(k("record.tap"))}</span>
+      )}
+    </Button>
+  );
+}
 
 /** Mic button that records, transcribes and hands the text back. Audio is never stored. */
 function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?: "lg" | "sm" }) {
@@ -109,7 +175,9 @@ export function TimesheetAssistantSheet({
   const lastWeek = format(subWeeks(parseISO(thisWeek), 1), "yyyy-MM-dd");
   const [week, setWeek] = useState(initialWeek ?? thisWeek);
   const [text, setText] = useState("");
-  const [typing, setTyping] = useState(startTyping);
+  const [dictations, setDictations] = useState<Dictation[]>([]);
+  /** Dictation the current questions belong to. */
+  const [activeDict, setActiveDict] = useState<string | null>(null);
   const [result, setResult] = useState<AssistantResult | null>(null);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -125,16 +193,67 @@ export function TimesheetAssistantSheet({
     setDrafts([]);
     setAnswers({});
     setHistory([]);
-    setTyping(startTyping);
+    setDictations([]);
+    setActiveDict(null);
   }
 
-  async function run(extra: Array<{ q: string; a: string }> = history, done = false, forWeek = week) {
-    if (!text.trim() && !cal.connected) return;
+  /**
+   * Process ONE dictation (or the calendar when dictId is "cal"). Its previous
+   * unsaved drafts are replaced; every other draft is sent as context so the
+   * model never recreates it, and explicit corrections patch it in place.
+   */
+  async function run(dictId: string, dictText: string, extra: Array<{ q: string; a: string }> = [], done = false, forWeek = week, base: Draft[] = drafts) {
+    if (!dictText.trim() && !cal.connected) return;
     setLoading(true);
     try {
-      const r = await parse({ data: { text, weekStart: forWeek, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done, useCalendar: cal.connected, lang: i18n.language?.startsWith("pt") ? "pt" : "en" } });
-      setResult(r);
-      setDrafts(r.entries.map((e) => ({ ...e, key: `${Date.now()}-${e.id}` })));
+      const others = base.filter((d) => !d.saved && d.dict !== dictId);
+      const refToKey = new Map(others.map((d, i) => [`c${i + 1}`, d.key]));
+      const labelOf = (d: Draft) => {
+        if (d.entry_type === "project") {
+          const p = result?.projects.find((x) => x.id === d.project_id);
+          return `project ${p?.name ?? "?"} · ${p?.stages.find((s) => s.id === d.stage_id)?.name ?? "?"}`;
+        }
+        if (d.opportunity_id) return `Pursuit · ${result?.leads.find((l) => l.id === d.opportunity_id)?.name ?? "?"}`;
+        return `internal ${d.internal_category ?? "?"}`;
+      };
+      const current = others.map((d, i) => ({ ref: `c${i + 1}`, date: d.date, hours: d.hours, label: labelOf(d).slice(0, 300), note: d.note.slice(0, 300), event_id: d.event_id }));
+      const r = await parse({ data: { text: dictText, current, weekStart: forWeek, today: format(new Date(), "yyyy-MM-dd"), answers: extra, done, useCalendar: cal.connected, lang: i18n.language?.startsWith("pt") ? "pt" : "en" } });
+      const stamp = Date.now();
+      const idMap = new Map<string, string>();
+      const patches = new Map<string, AssistantDraft>();
+      const added: Draft[] = [];
+      for (const e of r.entries) {
+        const target = e.updates ? refToKey.get(e.updates) : undefined;
+        if (target) {
+          patches.set(target, e);
+          idMap.set(e.id, base.find((d) => d.key === target)!.id);
+        } else {
+          const id = `${dictId}:${e.id}`;
+          idMap.set(e.id, id);
+          added.push({ ...e, id, key: `${stamp}-${id}`, dict: dictId });
+        }
+      }
+      setDrafts((ds) => [
+        ...ds
+          .filter((d) => d.saved || d.dict !== dictId)
+          .map((d) => {
+            const p = patches.get(d.key);
+            if (!p || d.saved) return d;
+            return {
+              ...d,
+              date: p.date,
+              hours: p.hours,
+              start_time: p.start_time ?? d.start_time,
+              end_time: p.end_time ?? d.end_time,
+              ...(p.entry_type === "project" ? (p.project_id ? { entry_type: "project" as const, project_id: p.project_id, stage_id: p.stage_id, internal_category: null, opportunity_id: null } : {}) : p.internal_category ? { entry_type: "internal" as const, project_id: null, stage_id: null, internal_category: p.internal_category, opportunity_id: p.opportunity_id } : {}),
+              note: p.note || d.note,
+              confidence: p.confidence,
+            };
+          }),
+        ...added,
+      ]);
+      setResult({ ...r, questions: r.questions.map((q) => ({ ...q, draft_ids: q.draft_ids.map((x) => idMap.get(x) ?? x) })) });
+      setActiveDict(dictId);
       setAnswers({});
       setSkipped({});
       setOtherOpen({});
@@ -147,7 +266,7 @@ export function TimesheetAssistantSheet({
 
   // Calendar connected: draft the week's events as soon as the sheet opens / the week changes.
   useEffect(() => {
-    if (open && cal.connected && !result && !loading && !text.trim()) void run([], false, week);
+    if (open && cal.connected && !result && !loading && dictations.length === 0) void run("cal", "", [], false, week);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, cal.connected, week]);
 
@@ -176,9 +295,33 @@ export function TimesheetAssistantSheet({
 
   function submitAnswers(done = false) {
     if (!result) return;
-    const next = [...history, ...result.questions.map((q, i) => ({ q: q.text, a: answers[i] ?? "" })).filter((x) => x.a.trim())];
-    setHistory(next);
-    void run(next, done);
+    const dictId = activeDict ?? "cal";
+    const dict = dictations.find((d) => d.id === dictId);
+    const prev = dict ? dict.answers : history;
+    const next = [...prev, ...result.questions.map((q, i) => ({ q: q.text, a: answers[i] ?? "" })).filter((x) => x.a.trim())];
+    if (dict) setDictations((ds) => ds.map((d) => (d.id === dictId ? { ...d, answers: next } : d)));
+    else setHistory(next);
+    void run(dictId, dict?.text ?? "", next, done);
+  }
+
+  /** A new dictation: processed on its own, its drafts are added to the current ones. */
+  function addDictation(raw: string) {
+    const body = raw.trim();
+    if (!body) return;
+    const n = dictations.length + 1;
+    const id = `t${n}`;
+    setDictations((ds) => [...ds, { id, n, text: body, edit: null, open: false, answers: [] }]);
+    setText("");
+    void run(id, body, []);
+  }
+
+  /** Re-process an edited earlier dictation; replaces only its drafts. */
+  function reprocess(id: string) {
+    const d = dictations.find((x) => x.id === id);
+    if (!d || d.edit == null || !d.edit.trim()) return;
+    const body = d.edit.trim();
+    setDictations((ds) => ds.map((x) => (x.id === id ? { ...x, text: body, edit: null, answers: [] } : x)));
+    void run(id, body, []);
   }
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => format(addDays(parseISO(week), i), "yyyy-MM-dd")), [week]);
@@ -262,8 +405,8 @@ export function TimesheetAssistantSheet({
   }
 
   const groupOf = (list: Draft[]) => days.map((d) => ({ d, items: list.filter((x) => x.date === d) })).filter((g) => g.items.length);
-  const grouped = groupOf(drafts.filter((x) => !x.event_id || text.trim()));
-  const calGrouped = groupOf(drafts.filter((x) => x.event_id && !text.trim()));
+  const grouped = groupOf(drafts.filter((x) => x.dict !== "cal"));
+  const calGrouped = groupOf(drafts.filter((x) => x.dict === "cal"));
   const calExpired = result?.calendar.status === "expired";
   const pending = drafts.filter((d) => !d.saved && ready(d));
   const locked = !!result?.locked;
@@ -315,6 +458,7 @@ export function TimesheetAssistantSheet({
                       else update(d.key, { internal_category: v || null, opportunity_id: null });
                     }}>
                       <option value="">{t(k("pickCategory"))}</option>
+                      {d.internal_category === "Pursuit" && !d.opportunity_id && <option value="Pursuit" disabled>{t("projects:pursuit.categoryLabel")} · ?</option>}
                       {(result?.categories ?? []).map((c) => <option key={c} value={c}>{c}</option>)}
                       {(result?.leads ?? []).length > 0 && (
                         <optgroup label={t("projects:pursuit.leadsGroup")}>
@@ -357,7 +501,7 @@ export function TimesheetAssistantSheet({
 
         <div className="flex flex-wrap gap-2" role="group" aria-label={t(k("week"))}>
           {[thisWeek, lastWeek, ...(initialWeek && initialWeek !== thisWeek && initialWeek !== lastWeek ? [initialWeek] : [])].map((w) => (
-            <Button key={w} size="sm" variant={w === week ? "default" : "outline"} onClick={() => { setWeek(w); setResult(null); setDrafts([]); }}>
+            <Button key={w} size="sm" variant={w === week ? "default" : "outline"} onClick={() => { setWeek(w); setResult(null); setDrafts([]); setDictations([]); setActiveDict(null); setHistory([]); }}>
               {w === thisWeek ? t(k("thisWeek")) : w === lastWeek ? t(k("lastWeek")) : format(parseISO(w), "d MMM", { locale })}
             </Button>
           ))}
@@ -365,32 +509,58 @@ export function TimesheetAssistantSheet({
 
         <CalendarConnection compact expired={calExpired} />
 
+        {/* EARLIER DICTATIONS — each used once */}
+        {dictations.length > 0 && (
+          <ul className="space-y-1" aria-label={t(k("dictation.list"))}>
+            {dictations.map((d) => (
+              <li key={d.id} className="rounded-md border bg-muted/30 text-sm">
+                <button type="button" className="flex min-h-11 w-full items-center gap-2 px-3 py-2 text-left" aria-expanded={d.open} onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, open: !x.open } : x)))}>
+                  {d.open ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="font-medium">{t(k("dictation.label"), { n: d.n })}:</span> «{d.text}»
+                  </span>
+                </button>
+                {d.open && (
+                  <div className="space-y-2 px-3 pb-3">
+                    {d.edit == null ? (
+                      <>
+                        <p className="whitespace-pre-wrap text-muted-foreground">{d.text}</p>
+                        <button type="button" className="text-xs underline underline-offset-4" onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: x.text } : x)))}>
+                          {t(k("dictation.edit"))}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Textarea rows={3} value={d.edit} aria-label={t(k("dictation.label"), { n: d.n })} onChange={(e) => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: e.target.value } : x)))} />
+                        <div className="flex gap-2">
+                          {d.edit.trim() !== d.text && (
+                            <Button size="sm" disabled={loading || !d.edit.trim()} onClick={() => reprocess(d.id)}>{t(k("reparse"))}</Button>
+                          )}
+                          <Button size="sm" variant="ghost" onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: null } : x)))}>{t(k("dictation.cancel"))}</Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
         {/* INPUT */}
         <div className="space-y-3">
-          {!typing && !text && (
-            <div className="flex flex-col items-center gap-3 py-4">
-              <MicButton onText={(x) => setText((p) => (p ? `${p} ${x}` : x))} />
-              <p className="text-sm text-muted-foreground">{t(k("tapToDictate"))}</p>
-              <button type="button" className="text-sm underline underline-offset-4" onClick={() => setTyping(true)}>
-                {t(k("typeInstead"))}
-              </button>
-            </div>
+          <label className="text-xs font-medium text-muted-foreground" htmlFor="ts-assistant-text">
+            {dictations.length ? t(k("dictation.next")) : t(k("describe"))}
+          </label>
+          <Textarea id="ts-assistant-text" rows={3} autoFocus={startTyping} value={text} onChange={(e) => setText(e.target.value)} placeholder={t(k("placeholder"))} />
+          {text.trim() && (
+            <Button onClick={() => addDictation(text)} disabled={loading} variant="outline" className="w-full">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t(k("draft"))}
+            </Button>
           )}
-          {(typing || text) && (
-            <>
-              <label className="text-xs font-medium text-muted-foreground" htmlFor="ts-assistant-text">
-                {text && !typing ? t(k("transcript")) : t(k("describe"))}
-              </label>
-              <div className="flex gap-2">
-                <Textarea id="ts-assistant-text" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder={t(k("placeholder"))} />
-                <MicButton size="sm" onText={(x) => setText((p) => (p ? `${p} ${x}` : x))} />
-              </div>
-              <Button onClick={() => { setHistory([]); void run([]); }} disabled={loading || !text.trim()} className="w-full">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {result ? t(k("reparse")) : t(k("draft"))}
-              </Button>
-            </>
-          )}
+          {!isMobile && <RecordButton disabled={loading} onText={addDictation} />}
+          {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> {t(k("preparing"))}</p>}
         </div>
 
         {locked && (
@@ -466,12 +636,12 @@ export function TimesheetAssistantSheet({
           <div className="flex flex-wrap items-center gap-2 rounded-md border border-warning bg-warning/5 p-3 text-sm">
             <AlertTriangle className="h-4 w-4 text-warning" aria-hidden />
             <span className="flex-1">{t(k("otherWeek.text"), { date: format(parseISO(result.otherWeek), "d MMM", { locale }) })}</span>
-            <Button size="sm" onClick={() => { const w = result.otherWeek!; setWeek(w); setDrafts([]); setHistory([]); void run([], false, w); }}>
+            <Button size="sm" onClick={() => { const w = result.otherWeek!; const id = activeDict ?? "cal"; const body = dictations.find((x) => x.id === id)?.text ?? ""; setWeek(w); setDrafts([]); setHistory([]); void run(id, body, [], false, w, []); }}>
               {t(k("otherWeek.switch"))}
             </Button>
           </div>
         )}
-        {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && text.trim() && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
+        {result && result.entries.length === 0 && result.skipped.length === 0 && result.questions.length === 0 && !loading && activeDict !== "cal" && activeDict && <p className="text-sm text-muted-foreground">{t(k("noDrafts"))}</p>}
         {grouped.length > 0 && renderGroups(grouped)}
         {result && grouped.length > 0 && (result.dayNotes ?? []).length > 0 && (
           <div className="space-y-0.5 text-xs text-muted-foreground">
@@ -495,7 +665,7 @@ export function TimesheetAssistantSheet({
             {renderGroups(calGrouped)}
           </section>
         )}
-        {result?.calendar.status === "connected" && result.calendar.events === 0 && !text.trim() && (
+        {result?.calendar.status === "connected" && result.calendar.events === 0 && dictations.length === 0 && (
           <p className="text-sm text-muted-foreground">{t(k("calendar.nothingNew"))}</p>
         )}
         {pending.length > 1 && (
@@ -503,6 +673,11 @@ export function TimesheetAssistantSheet({
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t(k("confirmAll"), { count: pending.length })}
           </Button>
+        )}
+        {isMobile && (
+          <div className="sticky bottom-0 -mx-6 -mb-6 mt-auto border-t bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <RecordButton disabled={loading} onText={addDictation} />
+          </div>
         )}
       </SheetContent>
     </Sheet>
