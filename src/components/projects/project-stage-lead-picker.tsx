@@ -39,6 +39,8 @@ type Props = {
   busy?: boolean;
   autoFocus?: boolean;
   onPickStage: (p: PickerProject, s: PickerStage) => void;
+  /** Optional: offer "only the project" in step 2 and fill the answer as soon as a project is opened. */
+  onPickProject?: (p: PickerProject) => void;
   onPickLead: (l: PickerLead) => void;
   onPickCategory: (c: string) => void;
 };
@@ -121,6 +123,11 @@ export function ProjectStageLeadPicker(props: Props) {
           <div className="px-3 pb-2 font-medium">{project.name}</div>
         </div>
         <div className="max-h-80 overflow-y-auto p-1">
+          {props.onPickProject && (
+            <button type="button" disabled={props.busy} className={cn(row, "font-medium text-primary")} onClick={() => props.onPickProject!(project)}>
+              <span className="flex-1">{t("picker.justProject")}</span>
+            </button>
+          )}
           {project.stages.length === 0 && <div className="px-3 py-6 text-center text-xs text-muted-foreground">{t("picker.noStages")}</div>}
           {stageGroups.top.map(stageBtn)}
           {stageGroups.regular.map(stageBtn)}
