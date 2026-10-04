@@ -1455,7 +1455,8 @@
     "totalOf": "Total {{total}} of {{capacity}}",
     "billableSplit": "Billable {{billable}} · Non-billable {{nonBillable}}",
     "summaryLeave": "Leave",
-    "calendarAllLogged": "Calendar: everything logged this week"
+    "calendarAllLogged": "Calendar: everything logged this week",
+    "noApprovedRequest": "No approved request"
   },
   "weeklyApproval": {
     "title": "Weekly approval",
