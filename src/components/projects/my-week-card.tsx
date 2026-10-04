@@ -9,7 +9,8 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2, Clock, RotateCcw, Send } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, MessageSquareWarning, RotateCcw, Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,6 +25,7 @@ import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
 import {
   excessHours,
   isWeekLocked,
+  useRequestWeekChange,
   useSubmitWeek,
   useTimesheetWeek,
   useWeeklyCapacity,
@@ -72,6 +74,9 @@ export function MyWeekCard({
   const { data: week } = useTimesheetWeek({ userId, weekStart });
   const { data: capacityInfo } = useWeeklyCapacity(collaboratorId);
   const submit = useSubmitWeek();
+  const requestChange = useRequestWeekChange();
+  const [changeOpen, setChangeOpen] = useState(false);
+  const [changeReason, setChangeReason] = useState("");
   const nwdCount = useNonWorkingPendingCount(userId, weekStart, weekEnd).data ?? 0;
 
   const capacity = capacityInfo?.weeklyCapacity ?? 40;
@@ -91,9 +96,20 @@ export function MyWeekCard({
           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusTone(status)}`}>
             {statusLabel}
           </span>
+          {week?.change_requested_at && (
+            <span className="shrink-0 rounded-full border border-amber-500/40 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+              {t("timesheetWeek.changeRequested")}
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {controls}
+          {!viewingOther && week && (status === "submitted" || status === "approved") && !week.change_requested_at && (
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setChangeOpen(true)}>
+              <MessageSquareWarning className="h-3.5 w-3.5" />
+              {t("timesheetWeek.requestChange")}
+            </Button>
+          )}
           {!viewingOther && (
             <Button
               size="sm"
@@ -162,12 +178,60 @@ export function MyWeekCard({
           {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
         </p>
       )}
+      {week?.change_requested_at && (
+        <p className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+          <MessageSquareWarning className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          {t("timesheetWeek.changeRequestedNotice", { reason: week.change_request_reason ?? "" })}
+        </p>
+      )}
+      {status === "approved" && week?.self_approved && (
+        <p className="text-xs text-muted-foreground">{t("timesheetWeek.selfApproved")}</p>
+      )}
       {status === "submitted" && (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock className="h-3.5 w-3.5" /> {t("timesheetWeek.submittedNotice")}
         </p>
       )}
 
+
+      <Dialog open={changeOpen} onOpenChange={setChangeOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("timesheetWeek.requestChangeTitle")}</DialogTitle>
+            <DialogDescription>{t("timesheetWeek.requestChangeBody", { week: weekLabel })}</DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={changeReason}
+            onChange={(e) => setChangeReason(e.target.value)}
+            rows={3}
+            placeholder={t("timesheetWeek.requestChangeReason")}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChangeOpen(false)}>
+              {t("timesheetWeek.cancel")}
+            </Button>
+            <Button
+              disabled={!week || !changeReason.trim() || requestChange.isPending}
+              onClick={() =>
+                week &&
+                requestChange.mutate(
+                  { weekId: week.id, reason: changeReason },
+                  {
+                    onSuccess: () => {
+                      setChangeOpen(false);
+                      setChangeReason("");
+                      toast.success(t("timesheetWeek.requestChangeToast"));
+                    },
+                    onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+                  },
+                )
+              }
+            >
+              {t("timesheetWeek.requestChangeSend")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="sm:max-w-md">

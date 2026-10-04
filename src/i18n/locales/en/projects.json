@@ -1456,7 +1456,16 @@
     "billableSplit": "Billable {{billable}} · Non-billable {{nonBillable}}",
     "summaryLeave": "Leave",
     "calendarAllLogged": "Calendar: everything logged this week",
-    "noApprovedRequest": "No approved request"
+    "noApprovedRequest": "No approved request",
+    "changeRequested": "Change requested",
+    "requestChange": "Request change",
+    "requestChangeTitle": "Request a change to this week",
+    "requestChangeBody": "Tell your approver what needs to change in {{week}}. They can return or reopen the week.",
+    "requestChangeReason": "Reason (required)",
+    "requestChangeSend": "Send request",
+    "requestChangeToast": "Change request sent to your approver",
+    "changeRequestedNotice": "Change requested — {{reason}}",
+    "selfApproved": "Self-approved"
   },
   "weeklyApproval": {
     "title": "Weekly approval",
@@ -1525,7 +1534,16 @@
       "shortfallNotice": "Accounted {{accounted}} of {{capacity}} — {{short}} short. Unpaid leave does not count.",
       "shortfallToBank": "Hours to debit",
       "shortfallHint": "Lower it (to 0 if this short week shouldn't count) and add a note.",
-      "debitedHours": "{{hours}} debited from the bank"
+      "debitedHours": "{{hours}} debited from the bank",
+      "selfApproved": "self-approved",
+      "ownWeekHint": "This is your own week — your approver will approve it."
+    },
+    "changeRequests": {
+      "title_one": "{{count}} change request",
+      "title_other": "{{count}} change requests",
+      "open": "Open",
+      "returnToFix": "Return to fix",
+      "reopen": "Reopen"
     }
   },
   "hoursBank": {
