@@ -124,3 +124,71 @@ export function consumptionTotals(rows: ConsumptionRow[]) {
     nearCount: budgeted.filter((r) => r.pct != null && r.pct >= 80 && r.pct <= 100).length,
   };
 }
+
+// ---------------------------------------------------------------------------
+// PSA-own budget rule
+//
+// A project stage is a supplier stage when its source quote stage has
+// is_self = false (same split as the project page's Services / Suppliers).
+// For supplier stages pm_stages.budget is the supplier cost; the sold value is
+// cost × (1 + supplier markup %). Only the positive margin counts as budget.
+// Purchases / expenses paid to those suppliers (matched by supplier company,
+// supplier id or label) are excluded from the actual cost.
+// ---------------------------------------------------------------------------
+
+export interface SupplierStageInfo {
+  /** Supplier administration markup % (0 = pass-through). */
+  markupPct: number;
+  /** Identity keys (co:/pm:/lb:) used to match purchases & expenses. */
+  supplierKey: string;
+}
+
+export interface ExternalLine {
+  sold: number;
+  cost: number;
+  margin: number;
+}
+
+export function stageBudgetSplit(
+  stage: { id: string; budget: number | string | null },
+  supplier: Map<string, SupplierStageInfo>,
+): { own: number; external: ExternalLine | null } {
+  const b = Number(stage.budget) || 0;
+  const info = supplier.get(stage.id);
+  if (!info) return { own: b, external: null };
+  const sold = b * (1 + (info.markupPct || 0) / 100);
+  return { own: Math.max(0, sold - b), external: { sold, cost: b, margin: Math.max(0, sold - b) } };
+}
+
+export function addExternal(a: ExternalLine, b: ExternalLine | null): ExternalLine {
+  if (!b) return a;
+  return { sold: a.sold + b.sold, cost: a.cost + b.cost, margin: a.margin + b.margin };
+}
+
+export const emptyExternal = (): ExternalLine => ({ sold: 0, cost: 0, margin: 0 });
+
+/** Purchase/expense row with optional supplier identity. */
+export interface CostItem {
+  project_id: string | null;
+  amount: number;
+  supplierKey: string;
+}
+
+/**
+ * Split project purchases/expenses into PSA-own cost and payments to the
+ * project's supplier-stage suppliers (excluded from actual cost).
+ */
+export function splitOtherCosts(
+  items: CostItem[],
+  supplierKeysByProject: Map<string, Set<string>>,
+): { own: Map<string, number>; external: Map<string, number> } {
+  const own = new Map<string, number>();
+  const external = new Map<string, number>();
+  for (const it of items) {
+    if (!it.project_id) continue;
+    const keys = supplierKeysByProject.get(it.project_id);
+    const target = it.supplierKey && keys?.has(it.supplierKey) ? external : own;
+    target.set(it.project_id, (target.get(it.project_id) ?? 0) + it.amount);
+  }
+  return { own, external };
+}

@@ -24,10 +24,16 @@ import {
   projectActualsFromStages,
   scheduleElapsedPct,
   stageActuals,
+  stageBudgetSplit,
+  splitOtherCosts,
+  addExternal,
+  emptyExternal,
+  type ExternalLine,
   type ConsumptionBand,
   type StageLite,
 } from "@/lib/reports/budget-consumption";
 import { useBudgetConsumptionData } from "@/lib/reports/use-budget-consumption";
+import { useSupplierStages } from "@/lib/reports/use-supplier-stages";
 
 export const Route = createFileRoute("/_app/reports/budget")({
   head: () => ({
@@ -72,7 +78,8 @@ interface Row {
   logged: number;
   planned: number;
   elapsed: number | null;
-  stages: { id: string; name: string; budget: number; cost: number; pct: number | null; logged: number; planned: number }[];
+  external: ExternalLine;
+  stages: { id: string; name: string; budget: number; cost: number; pct: number | null; logged: number; planned: number; external: ExternalLine | null }[];
 }
 
 function BudgetPage() {
@@ -92,6 +99,7 @@ function BudgetPage() {
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: pursuitRows } = usePursuitTotals(null, true);
+  const { data: sup, isLoading: supLoading } = useSupplierStages();
 
   const resById = useMemo(() => new Map((resources ?? []).map((r) => [r.id, r])), [resources]);
   const stageById = useMemo(() => new Map((stages ?? []).map((s) => [s.id, s as unknown as StageLite])), [stages]);
@@ -112,7 +120,8 @@ function BudgetPage() {
   const teams = useMemo(() => [...new Set(roster.map((r) => r.team).filter(Boolean) as string[])].sort(), [roster]);
 
   const allRows: Row[] = useMemo(() => {
-    if (!data || !projects || !stages) return [];
+    if (!data || !projects || !stages || !sup) return [];
+    const otherSplit = splitOtherCosts(sup.items, sup.keysByProject);
     const byStage = stageActuals({
       entries: data.entries,
       taskToStage: data.taskToStage,
@@ -131,10 +140,12 @@ function BudgetPage() {
     for (const s of stages) stagesByProject.set(s.project_id, [...(stagesByProject.get(s.project_id) ?? []), s]);
     return projects.map((p) => {
       const ps = stagesByProject.get(p.id) ?? [];
-      const budget = ps.reduce((a, s) => a + Number(s.budget), 0);
+      const splits = new Map(ps.map((s) => [s.id, stageBudgetSplit(s, sup.supplier)]));
+      const budget = ps.reduce((a, s) => a + (splits.get(s.id)?.own ?? 0), 0);
+      const external = ps.reduce((a, s) => addExternal(a, splits.get(s.id)?.external ?? null), emptyExternal());
       const labor = byProject.get(p.id)?.laborCost ?? 0;
       const pur = pursuit.get(p.id)?.cost ?? 0;
-      const other = data.otherCost.get(p.id) ?? 0;
+      const other = otherSplit.own.get(p.id) ?? 0;
       const cost = labor + pur + other;
       const pct = budget > 0 ? (cost / budget) * 100 : null;
       const starts = ps.map((s) => s.start_date).filter(Boolean).sort();
@@ -143,7 +154,7 @@ function BudgetPage() {
       const end = ends[ends.length - 1] ?? null;
       const stageRows = ps.map((s) => {
         const a = byStage.get(s.id);
-        const sb = Number(s.budget) || 0;
+        const sb = splits.get(s.id)?.own ?? 0;
         const sc = a?.laborCost ?? 0;
         const gantt = (s as { gantt_number?: string | null }).gantt_number;
         return {
@@ -154,6 +165,7 @@ function BudgetPage() {
           pct: sb > 0 ? (sc / sb) * 100 : null,
           logged: a?.loggedHours ?? 0,
           planned: s.allocations.reduce((x, al) => x + allocationHours(al), 0),
+          external: splits.get(s.id)?.external ?? null,
         };
       });
       return {
@@ -169,12 +181,13 @@ function BudgetPage() {
         logged: byProject.get(p.id)?.loggedHours ?? 0,
         planned: stageRows.reduce((x, s) => x + s.planned, 0),
         elapsed: scheduleElapsedPct(start, end, asOf),
+        external,
         stages: stageRows,
         _status: p.status ?? "active",
         _client: p.client ?? "",
       } as Row & { _status: string; _client: string };
     });
-  }, [data, projects, stages, stageById, resById, defaultRates, pursuit, asOf]);
+  }, [data, projects, stages, stageById, resById, defaultRates, pursuit, asOf, sup]);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -196,7 +209,8 @@ function BudgetPage() {
   const scatter = budgeted.filter((r) => r.elapsed != null).map((r) => ({ x: r.elapsed!, y: Math.min(r.pct ?? 0, 200), name: r.name, above: (r.pct ?? 0) > r.elapsed! }));
   const noDates = budgeted.length - scatter.length;
   const maxPct = Math.max(100, ...budgeted.map((r) => r.pct ?? 0));
-  const loading = isLoading || pLoading || sLoading;
+  const loading = isLoading || pLoading || sLoading || supLoading;
+  const extTotal = rows.reduce((a, r) => addExternal(a, r.external), emptyExternal());
 
   return (
     <V2PermissionGate permission="reports.view" scope="all">
@@ -255,19 +269,20 @@ function BudgetPage() {
           <Card><CardContent className="py-8 text-center text-sm text-destructive">{t("hours.error")}</CardContent></Card>
         ) : loading ? (
           <div className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24" />)}</div>
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">{[0, 1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-24" />)}</div>
             <Skeleton className="h-80" />
             <Skeleton className="h-72" />
             <Skeleton className="h-80" />
           </div>
         ) : (
           <>
-            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
               <Tile label={t("budget.tiles.budget")} value={euros(totals.budget)} />
               <Tile label={t("budget.tiles.cost")} value={euros(totals.cost)} />
               <Tile label={t("budget.tiles.used")} value={pct0(totals.pct)} />
               <Tile label={t("budget.tiles.over")} value={String(totals.overCount)} sub={t("budget.tiles.overSub", { amount: euros(totals.overAmount) })} />
               <Tile label={t("budget.tiles.near")} value={String(totals.nearCount)} />
+              <Tile label={t("budget.external.title")} value={euros(extTotal.margin)} sub={t("budget.external.line", { sold: euros(extTotal.sold), cost: euros(extTotal.cost), margin: euros(extTotal.margin) })} />
             </div>
 
             <Card>
@@ -369,7 +384,10 @@ function BudgetPage() {
                               <Icon className="h-4 w-4" />
                             </button>
                           </TableCell>
-                          <TableCell className="font-medium">{r.name}</TableCell>
+                          <TableCell className="font-medium">
+                            {r.name}
+                            <ExternalNote ext={r.external} />
+                          </TableCell>
                           <TableCell className="text-right tabular-nums">{euros(r.budget)}</TableCell>
                           <TableCell className="text-right tabular-nums">
                             {euros(r.cost)}
@@ -383,7 +401,10 @@ function BudgetPage() {
                         {isOpen && r.stages.map((s) => (
                           <TableRow key={s.id} className="bg-muted/30 text-xs hover:bg-muted/30">
                             <TableCell />
-                            <TableCell className="pl-6">{s.name}</TableCell>
+                            <TableCell className="pl-6">
+                              {s.name}
+                              <ExternalNote ext={s.external} />
+                            </TableCell>
                             <TableCell className="text-right tabular-nums">{euros(s.budget)}</TableCell>
                             <TableCell className="text-right tabular-nums">{euros(s.cost)}</TableCell>
                             <TableCell className="text-right tabular-nums">{euros(s.budget - s.cost)}</TableCell>
@@ -428,6 +449,16 @@ function BudgetPage() {
         )}
       </div>
     </V2PermissionGate>
+  );
+}
+
+function ExternalNote({ ext }: { ext: ExternalLine | null }) {
+  const { t } = useTranslation("reports");
+  if (!ext || ext.sold <= 0) return null;
+  return (
+    <div className="text-[11px] font-normal text-muted-foreground">
+      {t("budget.external.title")}: {t("budget.external.line", { sold: euros(ext.sold), cost: euros(ext.cost), margin: euros(ext.margin) })}
+    </div>
   );
 }
 

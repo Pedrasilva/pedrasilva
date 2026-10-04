@@ -147,7 +147,7 @@
   },
   "budget": {
     "title": "Orçamento vs consumo",
-    "subtitle": "Quanto do orçamento de cada projecto já foi consumido, com as taxas de custo fixadas, incluindo o custo de angariação.",
+    "subtitle": "Orçamento e custo do trabalho próprio da PSA: fases próprias mais a margem das fases de fornecedores; pagamentos a esses fornecedores ficam de fora.",
     "upTo": "Até",
     "toDate": "Custos até hoje",
     "upToLabel": "Custos até {{date}}",
@@ -192,6 +192,10 @@
     "noBudget": {
       "title": "Sem orçamento definido",
       "hint": "Estes projectos têm custos mas não têm orçamento, por isso ficam fora dos totais em %."
+    },
+    "external": {
+      "title": "Serviços externos",
+      "line": "vendido {{sold}} · custo do fornecedor {{cost}} · margem {{margin}}"
     }
   }
 }
