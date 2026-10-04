@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { CalendarDays, Loader2, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useViewAsUserId } from "@/hooks/use-view-as-user-id";
-import { disconnectCalendar, getCalendarConnectUrl, getCalendarStatus } from "@/lib/projects/calendar.functions";
+import { clearCalendarMemory, disconnectCalendar, getCalendarConnectUrl, getCalendarMemoryCount, getCalendarStatus } from "@/lib/projects/calendar.functions";
 import { cn } from "@/lib/utils";
 
 const k = (s: string) => `timesheetAssistant.calendar.${s}`;
@@ -26,6 +26,20 @@ export function CalendarConnection({ compact = false, expired = false, className
   const { viewAs, connected, email, loading } = useCalendarStatus();
   const getUrl = useServerFn(getCalendarConnectUrl);
   const disc = useServerFn(disconnectCalendar);
+  const getMem = useServerFn(getCalendarMemoryCount);
+  const clearMem = useServerFn(clearCalendarMemory);
+  const mem = useQuery({ queryKey: ["calendar-match-memory"], queryFn: () => getMem(), enabled: !viewAs && !compact, staleTime: 60_000 });
+  async function clearMemory() {
+    try {
+      await clearMem();
+      toast.success(t(k("memoryCleared")));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      qc.invalidateQueries({ queryKey: ["calendar-match-memory"] });
+      qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
+    }
+  }
 
   // Result of the Google round trip (?calendar=...).
   useEffect(() => {

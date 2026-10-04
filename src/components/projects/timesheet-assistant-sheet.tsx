@@ -18,6 +18,7 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
 import { transcribeTimesheetDictation } from "@/lib/projects/timesheet-transcribe.functions";
+import { rememberCalendarMatch } from "@/lib/projects/calendar.functions";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { useEnsureStageRow, useUpsertTimesheetCell } from "@/lib/projects/use-timesheet";
 import {
@@ -171,6 +172,7 @@ export function TimesheetAssistantSheet({
   const qc = useQueryClient();
   const { user, profile } = useProjectsAuth();
   const parse = useServerFn(parseTimesheetDictation);
+  const rememberMatch = useServerFn(rememberCalendarMatch);
   const upsert = useUpsertTimesheetCell();
   const ensureRow = useEnsureStageRow();
   const cal = useCalendarStatus();
