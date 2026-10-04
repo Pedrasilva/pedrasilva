@@ -147,7 +147,7 @@
   },
   "budget": {
     "title": "Budget vs consumption",
-    "subtitle": "How much of each project's budget has been used, from locked cost rates, including pre-contract pursuit cost.",
+    "subtitle": "Budget and cost on PSA's own work: own stages plus margin on supplier stages; payments to those suppliers are excluded.",
     "upTo": "Up to",
     "toDate": "Costs to date",
     "upToLabel": "Costs up to {{date}}",
@@ -192,6 +192,10 @@
     "noBudget": {
       "title": "No budget set",
       "hint": "These projects have costs but no budget, so they are left out of the % totals."
+    },
+    "external": {
+      "title": "External services",
+      "line": "sold {{sold}} · supplier cost {{cost}} · margin {{margin}}"
     }
   }
 }
