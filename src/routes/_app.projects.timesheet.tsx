@@ -438,6 +438,7 @@ function TimesheetPage() {
     const existing = entries.filter((e) => e.entry_date === date && retainerEntryChild(e) === child.id);
     const first = existing[0] ?? null;
     const others = existing.slice(1).reduce((a, e) => a + e.hours, 0);
+    if (!first && hours <= 0) return;
     try {
       const taskId = first ? first.task_id : await ensureRetainerTask(child);
       await upsert.mutateAsync({
