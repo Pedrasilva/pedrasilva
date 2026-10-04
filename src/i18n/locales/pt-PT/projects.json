@@ -167,6 +167,29 @@
       "co_author": "Co-autor",
       "support": "Apoio",
       "allocated": "Alocados"
+    },
+    "resumo": {
+      "legend": {
+        "actual": "Texto normal = real",
+        "planned": "itálico cinzento = planeado (alocações)",
+        "zero": "– = zero"
+      },
+      "plannedTip": "planeado",
+      "showAllocations": "Mostrar alocações",
+      "hideAllocations": "Esconder alocações",
+      "noOwner": "Sem responsável",
+      "allocations_one": "{{count}} alocação",
+      "allocations_other": "{{count}} alocações",
+      "unallocated": "{{hours}} h por alocar",
+      "overAllocated": "{{hours}} h acima do previsto"
+    },
+    "rail": {
+      "team": "Equipa",
+      "teamTip": "Equipa: {{count}} pessoas",
+      "budget": "Orçam.",
+      "budgetTip": "Orçamento consumido: {{pct}}%",
+      "profit": "Lucro",
+      "profitTip": "Lucro face ao orçamento: {{amount}}"
     }
   },
   "quickCreate": {
