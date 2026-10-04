@@ -1742,5 +1742,37 @@
       "autorizada_paga": "Ausência autorizada — paga",
       "autorizada_nao_paga": "Ausência autorizada — não paga"
     }
+  },
+  "annualCal": {
+    "all": "Todos",
+    "onlyMe": "Só eu",
+    "department": "Departamento",
+    "allDepartments": "Todos os departamentos",
+    "people": "Pessoas",
+    "prevYear": "Ano anterior",
+    "nextYear": "Ano seguinte",
+    "weekdays": "S,T,Q,Q,S,S,D",
+    "openRequests": "Pedidos",
+    "status": {
+      "pendente": "pendente",
+      "aprovada": "aprovada",
+      "rejeitada": "rejeitada"
+    },
+    "kind": {
+      "vacation": "férias",
+      "other": "outra ausência ({{type}})"
+    },
+    "legend": {
+      "approved": "Ponto cheio = aprovado",
+      "pending": "Anel = pendente",
+      "other": "Quadrado = outra ausência (não férias)",
+      "workingDays": "Só os dias úteis são marcados (sem fins de semana nem feriados). Clique numa pessoa para mostrar/esconder; clique num dia para ver detalhes."
+    },
+    "totals": {
+      "approved": "Dias aprovados",
+      "pending": "Dias pendentes",
+      "balance": "Saldo",
+      "caption": "Férias {{year}} — {{name}} (iguais ao Saldo de férias)"
+    }
   }
 }

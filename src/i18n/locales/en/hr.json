@@ -1742,5 +1742,37 @@
       "autorizada_paga": "Authorised absence (paid)",
       "autorizada_nao_paga": "Authorised absence (unpaid)"
     }
+  },
+  "annualCal": {
+    "all": "Everyone",
+    "onlyMe": "Only me",
+    "department": "Department",
+    "allDepartments": "All departments",
+    "people": "People",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "weekdays": "M,T,W,T,F,S,S",
+    "openRequests": "Requests",
+    "status": {
+      "pendente": "pending",
+      "aprovada": "approved",
+      "rejeitada": "rejected"
+    },
+    "kind": {
+      "vacation": "vacation",
+      "other": "other absence ({{type}})"
+    },
+    "legend": {
+      "approved": "Filled dot = approved",
+      "pending": "Outlined ring = pending",
+      "other": "Square = other absence (not vacation)",
+      "workingDays": "Only working days are marked (no weekends or public holidays). Click a person to show/hide; click a day for details."
+    },
+    "totals": {
+      "approved": "Days approved",
+      "pending": "Days pending",
+      "balance": "Balance",
+      "caption": "Vacation {{year}} — {{name}} (same as their vacation balance)"
+    }
   }
 }
