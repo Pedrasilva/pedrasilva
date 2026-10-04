@@ -8,7 +8,7 @@ import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
  * It is intentionally separate from `/projects/approvals`, which reviews
  * individual entries for project/billing purposes and is left untouched.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
@@ -20,6 +20,7 @@ import {
   CalendarDays,
   Loader2,
   RotateCcw,
+  MessageSquareWarning,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/projects/app-shell";
@@ -36,12 +37,18 @@ import {
   useApproveWeek,
   useReopenWeek,
   useReturnWeek,
+  useCanSelfApprove,
   useWeekBreakdown,
   useWeeklyApprovalOverview,
   type WeeklyApprovalRow,
 } from "@/lib/projects/use-timesheet-weeks";
 
 export const Route = createFileRoute("/_app/projects/weekly-approval")({
+  // ?week=YYYY-MM-DD&user=<uuid> opens that person's week (notification links).
+  validateSearch: (s: Record<string, unknown>): { week?: string; user?: string } => ({
+    ...(typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {}),
+    ...(typeof s.user === "string" ? { user: s.user } : {}),
+  }),
   component: WeeklyApprovalPage,
 });
 
@@ -60,9 +67,16 @@ function WeeklyApprovalPage() {
   const { can, loading: permsLoading } = useMyPermissionsV2();
   const canApprove = isAdmin || can("timesheets.approve", "team");
 
-  const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
+  const search = Route.useSearch();
+  const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
+    search.week ? new Date(`${search.week}T12:00:00`) : new Date(),
+  );
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(search.user ?? null);
+  useEffect(() => {
+    if (search.week) setWeekAnchor(new Date(`${search.week}T12:00:00`));
+    if (search.user) setSelected(search.user);
+  }, [search.week, search.user]);
 
   const weekStartDate = useMemo(
     () => startOfWeek(weekAnchor, { weekStartsOn: 1 }),
@@ -126,6 +140,11 @@ function WeeklyApprovalPage() {
         return rows;
     }
   }, [rows, filter]);
+
+  const changeRequests = useMemo(
+    () => rows.filter((r) => !!r.week?.change_requested_at),
+    [rows],
+  );
 
   const selectedRow = rows.find((r) => r.userId === selected) ?? null;
 
@@ -230,6 +249,28 @@ function WeeklyApprovalPage() {
           />
         </div>
 
+        {/* Change requests from collaborators */}
+        {changeRequests.length > 0 && (
+          <div className="mt-5 rounded-lg border border-amber-500/40 bg-amber-50/60 p-3 dark:bg-amber-950/20">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              <MessageSquareWarning className="h-4 w-4" />
+              {t("weeklyApproval.changeRequests.title", { count: changeRequests.length })}
+            </h2>
+            <ul className="mt-2 space-y-1.5">
+              {changeRequests.map((r) => (
+                <li key={r.userId} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <span className="font-medium">{r.name}</span>
+                  <StatusPill status={r.status} />
+                  <span className="min-w-0 flex-1 text-muted-foreground">“{r.week?.change_request_reason}”</span>
+                  <Button size="sm" variant="outline" className="h-7" onClick={() => setSelected(r.userId)}>
+                    {t("weeklyApproval.changeRequests.open")}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="mt-5 flex flex-wrap gap-2">
           {filters.map((f) => (
@@ -299,8 +340,9 @@ function WeeklyApprovalPage() {
                     <span className="ml-1 text-destructive">−{formatHM(r.shortfall)}</span>
                   )}
                 </div>
-                <div className="col-span-2 flex justify-start md:col-span-1 md:justify-end">
+                <div className="col-span-2 flex flex-wrap justify-start gap-1 md:col-span-1 md:justify-end">
                   <StatusPill status={r.status} />
+                  {r.week?.change_requested_at && <ChangeRequestedPill />}
                 </div>
               </button>
             ))
@@ -373,6 +415,15 @@ function StatusPill({ status }: { status: WeeklyApprovalRow["status"] }) {
   );
 }
 
+function ChangeRequestedPill() {
+  const { t } = useTranslation(["projects"]);
+  return (
+    <span className="rounded-full border border-amber-500/40 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+      {t("timesheetWeek.changeRequested")}
+    </span>
+  );
+}
+
 function ReviewPanel({
   row,
   weekStart,
@@ -418,6 +469,18 @@ function ReviewPanel({
 
   const week = row?.week ?? null;
   const canAct = !!week && !!approverId;
+  const ownWeek = !!row && !!approverId && row.userId === approverId;
+  const { data: canSelfApprove = false } = useCanSelfApprove(approverId, ownWeek);
+  const approveHidden = ownWeek && !canSelfApprove;
+  const changeReason = week?.change_requested_at ? week.change_request_reason ?? "" : "";
+  const done = (msg: string) => ({
+    onSuccess: () => {
+      toast.success(msg);
+      reset();
+      onClose();
+    },
+    onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+  });
 
   const reset = () => {
     setComment("");
@@ -524,6 +587,47 @@ function ReviewPanel({
               )}
             </div>
 
+            {changeReason && week && (
+              <div className="mt-5 space-y-2 rounded-md border border-amber-500/40 bg-amber-50/70 p-3 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+                <div className="flex items-start gap-2">
+                  <MessageSquareWarning className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold">{t("timesheetWeek.changeRequested")}</div>
+                    <div className="text-xs">“{changeReason}”</div>
+                  </div>
+                </div>
+                {week.status === "submitted" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!canAct || returnWeek.isPending}
+                    onClick={() =>
+                      returnWeek.mutate(
+                        { weekId: week.id, approverId: approverId!, comment: changeReason },
+                        done(t("weeklyApproval.review.returnedToast")),
+                      )
+                    }
+                  >
+                    {t("weeklyApproval.changeRequests.returnToFix")}
+                  </Button>
+                ) : week.status === "approved" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!canAct || reopen.isPending}
+                    onClick={() =>
+                      reopen.mutate(
+                        { weekId: week.id, approverId: approverId!, reason: changeReason },
+                        done(t("weeklyApproval.review.reopenedToast")),
+                      )
+                    }
+                  >
+                    {t("weeklyApproval.changeRequests.reopen")}
+                  </Button>
+                ) : null}
+              </div>
+            )}
+
             {/* Actions */}
             {!week ? (
               <p className="mt-6 rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
@@ -535,6 +639,7 @@ function ReviewPanel({
                   <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                   <span>
                     {t("weeklyApproval.review.closed")}
+                    {week.self_approved ? ` · ${t("weeklyApproval.review.selfApproved")}` : ""}
                     {week.additional_hours_approved > 0
                       ? ` · ${t("weeklyApproval.review.bankedHours", {
                           hours: formatHM(week.additional_hours_approved) || "0:00",
@@ -673,7 +778,11 @@ function ReviewPanel({
                   />
                 </div>
 
+                {approveHidden && (
+                  <p className="text-xs text-muted-foreground">{t("weeklyApproval.review.ownWeekHint")}</p>
+                )}
                 <div className="flex flex-wrap gap-2">
+                  {!approveHidden && (
                   <Button
                     disabled={
                       !canAct ||
@@ -708,6 +817,7 @@ function ReviewPanel({
                   >
                     {t("weeklyApproval.review.approve")}
                   </Button>
+                  )}
                   <Button
                     variant="outline"
                     disabled={!canAct || returnWeek.isPending || comment.trim().length === 0}

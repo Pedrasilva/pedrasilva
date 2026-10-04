@@ -1456,7 +1456,16 @@
     "billableSplit": "Faturável {{billable}} · Não faturável {{nonBillable}}",
     "summaryLeave": "Ausências",
     "calendarAllLogged": "Calendário: tudo registado esta semana",
-    "noApprovedRequest": "Sem pedido aprovado"
+    "noApprovedRequest": "Sem pedido aprovado",
+    "changeRequested": "Alteração pedida",
+    "requestChange": "Pedir alteração",
+    "requestChangeTitle": "Pedir alteração a esta semana",
+    "requestChangeBody": "Diz ao teu aprovador o que precisa de mudar em {{week}}. Ele pode devolver ou reabrir a semana.",
+    "requestChangeReason": "Motivo (obrigatório)",
+    "requestChangeSend": "Enviar pedido",
+    "requestChangeToast": "Pedido de alteração enviado ao aprovador",
+    "changeRequestedNotice": "Alteração pedida — {{reason}}",
+    "selfApproved": "Auto-aprovada"
   },
   "weeklyApproval": {
     "title": "Aprovação semanal",
@@ -1525,7 +1534,16 @@
       "shortfallNotice": "Contabilizado {{accounted}} de {{capacity}} — faltam {{short}}. Ausências não pagas não contam.",
       "shortfallToBank": "Horas a debitar",
       "shortfallHint": "Pode reduzir (até 0 se esta semana não deve contar) e acrescentar uma nota.",
-      "debitedHours": "{{hours}} debitadas do banco"
+      "debitedHours": "{{hours}} debitadas do banco",
+      "selfApproved": "auto-aprovada",
+      "ownWeekHint": "Esta é a tua semana — o teu aprovador vai aprová-la."
+    },
+    "changeRequests": {
+      "title_one": "{{count}} pedido de alteração",
+      "title_other": "{{count}} pedidos de alteração",
+      "open": "Abrir",
+      "returnToFix": "Devolver para corrigir",
+      "reopen": "Reabrir"
     }
   },
   "hoursBank": {

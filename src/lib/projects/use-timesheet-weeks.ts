@@ -14,6 +14,13 @@
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { sendWeekWorkflowEmails } from "@/lib/projects/timesheet-week-email.functions";
+
+/** Best-effort email copy of the bell notifications the DB just created. */
+function emailWeekWorkflow(weekId: string | null | undefined) {
+  if (!weekId) return;
+  void sendWeekWorkflowEmails({ data: { weekId } }).catch(() => undefined);
+}
 
 export type WeekStatus = "open" | "submitted" | "returned" | "approved";
 
@@ -45,6 +52,11 @@ export interface TimesheetWeek {
   additional_hours_approved: number;
   additional_hours_note: string | null;
   shortfall_hours_approved: number;
+  /** Owner asked for a change on a submitted/approved week (cleared by any approver action). */
+  change_requested_at: string | null;
+  change_request_reason: string | null;
+  /** The owner approved their own week (only allowed when nobody else approves it). */
+  self_approved: boolean;
 }
 
 /**
@@ -141,7 +153,7 @@ export function useWeeklyCapacity(collaboratorId: string | null) {
 }
 
 const WEEK_COLUMNS =
-  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note, shortfall_hours_approved";
+  "id, user_id, collaborator_id, week_start, week_end, status, submitted_at, submitted_by, approved_at, approved_by, returned_at, returned_by, reopened_at, reopened_by, reopen_reason, reviewer_comment, was_approved_before, weekly_capacity_hours, total_accounted_hours, total_working_hours, total_project_hours, total_internal_hours, total_leave_hours, calculated_excess_hours, additional_hours_approved, additional_hours_note, shortfall_hours_approved, change_requested_at, change_request_reason, self_approved";
 
 function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
   const num = (k: string) => Number(row[k] ?? 0) || 0;
@@ -173,6 +185,9 @@ function normaliseWeek(row: Record<string, unknown>): TimesheetWeek {
     additional_hours_approved: num("additional_hours_approved"),
     additional_hours_note: (row.additional_hours_note as string | null) ?? null,
     shortfall_hours_approved: num("shortfall_hours_approved"),
+    change_requested_at: (row.change_requested_at as string | null) ?? null,
+    change_request_reason: (row.change_request_reason as string | null) ?? null,
+    self_approved: !!row.self_approved,
   };
 }
 
@@ -237,10 +252,13 @@ export function useSubmitWeek() {
         total_leave_hours: round2(input.totals.leave),
         calculated_excess_hours: excessHours(input.totals, input.capacity),
       };
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("pm_timesheet_weeks")
-        .upsert(payload as never, { onConflict: "user_id,week_start" });
+        .upsert(payload as never, { onConflict: "user_id,week_start" })
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      emailWeekWorkflow((data as { id: string } | null)?.id);
     },
     onSuccess: () => invalidateWeeks(qc),
   });
@@ -310,6 +328,7 @@ export function useApproveWeek() {
         } as never)
         .eq("id", input.weekId);
       if (error) throw error;
+      emailWeekWorkflow(input.weekId);
 
       // Replace this week's movement (credit or debit).
       const { error: dErr } = await supabase
@@ -353,6 +372,7 @@ export function useReturnWeek() {
         } as never)
         .eq("id", input.weekId);
       if (error) throw error;
+      emailWeekWorkflow(input.weekId);
     },
     onSuccess: () => invalidateWeeks(qc),
   });
@@ -379,8 +399,44 @@ export function useReopenWeek() {
         } as never)
         .eq("id", input.weekId);
       if (error) throw error;
+      emailWeekWorkflow(input.weekId);
     },
     onSuccess: () => invalidateWeeks(qc),
+  });
+}
+
+/**
+ * Owner action: ask the approver to change a submitted or approved week.
+ * Only records the request (status is untouched); the approver then returns
+ * or reopens the week. A DB trigger validates it and notifies approvers.
+ */
+export function useRequestWeekChange() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { weekId: string; reason: string }) => {
+      const reason = input.reason.trim();
+      if (!reason) throw new Error("Reason required");
+      const { error } = await supabase
+        .from("pm_timesheet_weeks")
+        .update({ change_requested_at: new Date().toISOString(), change_request_reason: reason } as never)
+        .eq("id", input.weekId);
+      if (error) throw error;
+      emailWeekWorkflow(input.weekId);
+    },
+    onSuccess: () => invalidateWeeks(qc),
+  });
+}
+
+/** True when the signed-in user may approve their own week (no other approver covers it). */
+export function useCanSelfApprove(userId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ["pm-week-can-self-approve", userId],
+    enabled: !!userId && enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("pm_week_can_self_approve", { _target_user_id: userId! });
+      if (error) throw error;
+      return !!data;
+    },
   });
 }
 

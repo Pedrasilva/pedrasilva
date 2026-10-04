@@ -8806,6 +8806,9 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           calculated_excess_hours: number
+          change_request_reason: string | null
+          change_requested_at: string | null
+          change_requested_by: string | null
           collaborator_id: string | null
           created_at: string
           id: string
@@ -8815,6 +8818,7 @@ export type Database = {
           returned_at: string | null
           returned_by: string | null
           reviewer_comment: string | null
+          self_approved: boolean
           shortfall_hours_approved: number
           status: string
           submitted_at: string | null
@@ -8837,6 +8841,9 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           calculated_excess_hours?: number
+          change_request_reason?: string | null
+          change_requested_at?: string | null
+          change_requested_by?: string | null
           collaborator_id?: string | null
           created_at?: string
           id?: string
@@ -8846,6 +8853,7 @@ export type Database = {
           returned_at?: string | null
           returned_by?: string | null
           reviewer_comment?: string | null
+          self_approved?: boolean
           shortfall_hours_approved?: number
           status?: string
           submitted_at?: string | null
@@ -8868,6 +8876,9 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           calculated_excess_hours?: number
+          change_request_reason?: string | null
+          change_requested_at?: string | null
+          change_requested_by?: string | null
           collaborator_id?: string | null
           created_at?: string
           id?: string
@@ -8877,6 +8888,7 @@ export type Database = {
           returned_at?: string | null
           returned_by?: string | null
           reviewer_comment?: string | null
+          self_approved?: boolean
           shortfall_hours_approved?: number
           status?: string
           submitted_at?: string | null
@@ -13167,6 +13179,16 @@ export type Database = {
         Returns: {
           user_id: string
         }[]
+      }
+      pm_week_approver_ids: {
+        Args: { _target_user_id: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
+      pm_week_can_self_approve: {
+        Args: { _target_user_id: string }
+        Returns: boolean
       }
       pm_write_cost_snapshots: {
         Args: { _rows: Json; _source: string }
