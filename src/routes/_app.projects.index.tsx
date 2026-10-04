@@ -62,6 +62,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CreateProjectDirectDialog } from "@/components/projects/create-project-direct-dialog";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
@@ -190,6 +191,7 @@ function DashboardPage() {
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
+  const { data: resourceSchedules } = useResourceSchedules();
   const { data: defaultRates } = useDefaultResourceRates();
   // Pre-contract (pursuit) hours on the lead each project came from. The
   // server function returns nothing to people without project-financials access.
@@ -870,23 +872,30 @@ function DashboardPage() {
       });
     }
 
-    // High internal time per user (>30% of logged in period)
+    // High internal time per user — compared with each person's own HR target
+    // chargeability (internal allowed = 100% − target). Target 0% → no alert.
     for (const tr of teamRows) {
       const totalLogged = tr.billableHours + tr.internalHours;
       if (totalLogged < 8) continue;
+      const target = resourceSchedules?.get(tr.resourceId)?.targetChargeabilityPct;
+      if (target == null || target <= 0) continue;
+      const allowed = Math.max(0, 100 - Math.min(100, target));
       const internalPct = (tr.internalHours / totalLogged) * 100;
-      if (internalPct > 30) {
+      if (internalPct > allowed) {
         list.push({
           id: `hi-${tr.resourceId}`,
           kind: "high_internal",
           title: t("alerts.highInternal", { name: tr.name }),
-          detail: t("alerts.highInternalDetail", { pct: Math.round(internalPct) }),
+          detail: t("alerts.highInternalDetail", {
+            pct: Math.round(internalPct),
+            allowed: Math.round(allowed),
+          }),
         });
       }
     }
 
     return list;
-  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, periodStart, periodEnd, periodLabel, t]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, resourceSchedules, periodStart, periodEnd, periodLabel, t]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
@@ -957,8 +966,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
-          <div className="min-w-0 space-y-5">
+        <div className="min-w-0">
             {canSeeFinancials ? (
               <ProjectHealthTable
                 rows={healthRows}
@@ -976,6 +984,10 @@ function DashboardPage() {
                 }
               />
             )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="order-2 min-w-0 lg:order-1">
             <TeamPerformance
               rows={visibleTeamRows}
               loading={isLoading}
@@ -989,8 +1001,10 @@ function DashboardPage() {
               showSort={canSeeTeam}
             />
           </div>
-          <div className="xl:sticky xl:top-4 xl:self-start">
-            <AlertsPanel alerts={alerts} loading={isLoading} />
+          <div className="order-1 min-w-0 lg:relative lg:order-2 lg:min-h-[320px]">
+            <div className="lg:absolute lg:inset-0">
+              <AlertsPanel alerts={alerts} loading={isLoading} />
+            </div>
           </div>
         </div>
       </div>

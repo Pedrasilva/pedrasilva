@@ -683,7 +683,7 @@
     "overbookedDetail_one": "{{count}} dia em {{period}} excede a capacidade diária",
     "overbookedDetail_other": "{{count}} dias em {{period}} excedem a capacidade diária",
     "highInternal": "{{name}} tem muito tempo interno",
-    "highInternalDetail": "{{pct}}% das horas são internas (meta ≤ 20%)",
+    "highInternalDetail": "{{pct}}% interno (meta ≤ {{allowed}}%)",
     "overBudgetDetail": "Custo {{cost}} • {{pct}}% de {{budget}} de orçamento",
     "overrunDetail": "Registadas {{logged}}h • {{pct}}% de {{planned}}h planeadas"
   },
