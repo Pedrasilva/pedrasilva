@@ -1,3 +1,4 @@
+import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -325,6 +326,7 @@ export function TimesheetAssistantSheet({
   }
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => format(addDays(parseISO(week), i), "yyyy-MM-dd")), [week]);
+  const nwdMap = useNonWorkingDays(days[0], days[6]).data;
   const projById = useMemo(() => new Map((result?.projects ?? []).map((p) => [p.id, p])), [result]);
 
   function existingFor(d: Draft): number {
@@ -430,6 +432,12 @@ export function TimesheetAssistantSheet({
                     )}
                     {d.saved && <span className="text-xs text-success">✓ {t(k("savedOne"))}</span>}
                   </div>
+                  {!d.saved && nwdMap?.get(d.date) && (
+                    <p className="rounded border border-warning/40 bg-warning/10 px-2 py-1 text-xs">
+                      <span className="mr-1 font-medium text-warning">{t(`projects:nonWorkingDay.badge.${nwdMap.get(d.date)!.reason}`)}</span>
+                      {nonWorkingLine(t, d.date, nwdMap.get(d.date)!, locale)}
+                    </p>
+                  )}
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <select aria-label={t(k("day"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.date} disabled={d.saved} onChange={(e) => update(d.key, { date: e.target.value })}>
                       {days.map((x) => <option key={x} value={x}>{format(parseISO(x), "EEE d", { locale })}</option>)}
