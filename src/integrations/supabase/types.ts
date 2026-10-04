@@ -8769,6 +8769,36 @@ export type Database = {
           },
         ]
       }
+      pm_time_entry_deletion_log: {
+        Row: {
+          deleted_at: string
+          deleted_by: string
+          entry: Json
+          entry_id: string
+          entry_user_id: string | null
+          id: string
+          reason: string
+        }
+        Insert: {
+          deleted_at?: string
+          deleted_by: string
+          entry: Json
+          entry_id: string
+          entry_user_id?: string | null
+          id?: string
+          reason: string
+        }
+        Update: {
+          deleted_at?: string
+          deleted_by?: string
+          entry?: Json
+          entry_id?: string
+          entry_user_id?: string | null
+          id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       pm_timesheet_weeks: {
         Row: {
           additional_hours_approved: number
