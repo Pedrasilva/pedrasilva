@@ -140,3 +140,130 @@ export function pctChange(current: number, previous: number): number | null {
   if (!previous) return null;
   return ((current - previous) / Math.abs(previous)) * 100;
 }
+
+// ---------------------------------------------------------------- report helpers
+
+export type BucketKind = "week" | "month";
+
+/** Weekly buckets for periods up to ~3 months, monthly beyond. */
+export function bucketKindFor(start: string, end: string): BucketKind {
+  const days = (Date.parse(end) - Date.parse(start)) / 86_400_000 + 1;
+  return days <= 93 ? "week" : "month";
+}
+
+function isoMonday(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  const dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function bucketKey(iso: string, kind: BucketKind): string {
+  return kind === "month" ? iso.slice(0, 7) : isoMonday(iso);
+}
+
+export interface BucketPoint {
+  key: string;
+  revenue: number;
+  cost: number;
+  profit: number;
+  utilizationPct: number;
+}
+
+export function bucketSeries(
+  entries: BPEntry[],
+  ratesFor: (e: BPEntry) => BPRates,
+  start: string,
+  end: string,
+  kind: BucketKind,
+): BucketPoint[] {
+  const keys: string[] = [];
+  const d = new Date(start + "T00:00:00");
+  const endD = new Date(end + "T00:00:00");
+  while (d <= endD) {
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const k = bucketKey(iso, kind);
+    if (keys[keys.length - 1] !== k) keys.push(k);
+    d.setDate(d.getDate() + 1);
+  }
+  const groups = new Map<string, BPEntry[]>(keys.map((k) => [k, []]));
+  for (const e of entries) groups.get(bucketKey(e.entry_date, kind))?.push(e);
+  return keys.map((k) => {
+    const r = computeBusinessPerformance({ entries: groups.get(k) ?? [], ratesFor, capacityHours: 0 });
+    return { key: k, revenue: r.revenue, cost: r.cost, profit: r.profit, utilizationPct: r.utilizationPct };
+  });
+}
+
+export interface ProjectPerfRow {
+  projectId: string;
+  hours: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  marginPct: number | null;
+}
+
+export function byProject(
+  entries: BPEntry[],
+  ratesFor: (e: BPEntry) => BPRates,
+  projectOf: (e: BPEntry) => string | null,
+): ProjectPerfRow[] {
+  const m = new Map<string, ProjectPerfRow>();
+  for (const e of entries) {
+    if (e.entry_type !== "project") continue;
+    const pid = projectOf(e);
+    if (!pid) continue;
+    const f = entryFigures(e, ratesFor(e));
+    if (!f) continue;
+    const row = m.get(pid) ?? { projectId: pid, hours: 0, revenue: 0, cost: 0, profit: 0, marginPct: null };
+    row.hours += f.hours;
+    row.revenue += f.revenue;
+    row.cost += f.cost;
+    m.set(pid, row);
+  }
+  return [...m.values()].map((r) => ({
+    ...r,
+    profit: r.revenue - r.cost,
+    marginPct: r.revenue > 0 ? ((r.revenue - r.cost) / r.revenue) * 100 : null,
+  }));
+}
+
+export interface PersonPerfRow {
+  userId: string;
+  capacity: number;
+  logged: number;
+  billablePct: number | null;
+  internalPct: number | null;
+  /** HR target chargeability (0..100); internal allowed = 100 − target. */
+  targetPct: number | null;
+  overInternal: boolean;
+}
+
+export function byPerson(
+  entries: BPEntry[],
+  people: { userId: string; capacity: number; targetPct: number | null }[],
+): PersonPerfRow[] {
+  const acc = new Map<string, { logged: number; billable: number }>();
+  for (const e of entries) {
+    if (e.entry_type === "non_working") continue;
+    const a = acc.get(e.user_id) ?? { logged: 0, billable: 0 };
+    a.logged += e.hours;
+    if (e.billable && e.entry_type === "project") a.billable += e.hours;
+    acc.set(e.user_id, a);
+  }
+  return people.map((p) => {
+    const a = acc.get(p.userId) ?? { logged: 0, billable: 0 };
+    const billablePct = a.logged > 0 ? (a.billable / a.logged) * 100 : null;
+    const internalPct = billablePct == null ? null : 100 - billablePct;
+    const allowed = p.targetPct != null && p.targetPct > 0 ? 100 - Math.min(100, p.targetPct) : null;
+    return {
+      userId: p.userId,
+      capacity: p.capacity,
+      logged: a.logged,
+      billablePct,
+      internalPct,
+      targetPct: p.targetPct,
+      overInternal: allowed != null && internalPct != null && internalPct > allowed,
+    };
+  });
+}
