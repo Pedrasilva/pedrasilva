@@ -63,6 +63,11 @@ import { CreateProjectDirectDialog } from "@/components/projects/create-project-
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
+import {
+  computeBusinessPerformance,
+  makeRateResolver,
+  studioCapacityHours,
+} from "@/lib/reports/business-performance";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
@@ -606,57 +611,17 @@ function DashboardPage() {
 
   // ---------- KPIs (period-scoped) ----------
   const kpi: FinancialKpiData = useMemo(() => {
-    let revenue = 0;
-    let cost = 0;
-    let billableLogged = 0;
-    let totalLogged = 0;
-
-    for (const e of entries ?? []) {
-      if (e.entry_type === "non_working") continue;
-      let resourceId: string | null = null;
-      if (e.task_id && taskToStage) {
-        const stageId = taskToStage.get(e.task_id);
-        if (stageId) {
-          const stage = stageById.get(stageId);
-          const repAlloc = stage?.allocations[0];
-          resourceId = repAlloc?.resource_id ?? null;
-        }
-      }
-      const res = resourceId
-        ? resources?.find((r) => r.id === resourceId)
-        : undefined;
-      const saleRate = effectiveSaleRate(res?.hourly_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
-      const costRate = effectiveCostRate(res?.cost_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
-      cost += e.hours * lockedCostRate(e.cost_rate_snapshot, costRate);
-      totalLogged += e.hours;
-      if (e.billable && e.entry_type === "project") {
-        revenue += e.hours * saleRate;
-        billableLogged += e.hours;
-      }
-    }
-
-    const profit = revenue - cost;
-    const marginPct = revenue > 0 ? (profit / revenue) * 100 : 0;
-    const utilizationPct = totalLogged > 0 ? (billableLogged / totalLogged) * 100 : 0;
-
-    // Capacity: sum weekly_capacity * working weeks in period for active resources
-    let capacityHours = 0;
-    const wd = workingDays(periodStartISO, periodEndISO);
-    for (const r of resources ?? []) {
-      if (!r.active) continue;
-      const dailyCapacity = (Number(r.weekly_capacity) || 40) / 5;
-      capacityHours += dailyCapacity * wd;
-    }
-
-    return {
-      revenue,
-      cost,
-      profit,
-      marginPct,
-      utilizationPct,
-      capacityUsedHours: totalLogged,
-      capacityAvailableHours: capacityHours,
-    };
+    const ratesFor = makeRateResolver({
+      taskToStage,
+      stageRepResource: (sid) => stageById.get(sid)?.allocations[0]?.resource_id ?? null,
+      resources,
+      defaultRates,
+    });
+    return computeBusinessPerformance({
+      entries: entries ?? [],
+      ratesFor,
+      capacityHours: studioCapacityHours(resources ?? [], workingDays(periodStartISO, periodEndISO)),
+    });
   }, [entries, taskToStage, stageById, resources, defaultRates, periodStartISO, periodEndISO]);
 
   // ---------- Hours-only KPI (period-scoped) ----------
