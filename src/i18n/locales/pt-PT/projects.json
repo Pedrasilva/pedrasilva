@@ -1427,7 +1427,12 @@
       "submitted": "Submetida",
       "returned": "Devolvida",
       "approved": "Aprovada"
-    }
+    },
+    "title": "Folha de horas",
+    "totalOf": "Total {{total}} de {{capacity}}",
+    "billableSplit": "Faturável {{billable}} · Não faturável {{nonBillable}}",
+    "summaryLeave": "Ausências",
+    "calendarAllLogged": "Calendário: tudo registado esta semana"
   },
   "weeklyApproval": {
     "title": "Aprovação semanal",
