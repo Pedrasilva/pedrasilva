@@ -151,7 +151,7 @@ function BusinessPage() {
 
   const projectRows = byProject(cur, ratesFor, projectOf).map((r) => {
     const p = projectById.get(r.projectId);
-    return { ...r, name: p ? `${p.project_number ?? ""} ${p.name}`.trim() : "—" };
+    return { ...r, name: p?.name ?? "—" };
   });
   const resById = new Map((resources ?? []).map((r) => [r.id, r]));
   const wd = workingDays(start, end);
