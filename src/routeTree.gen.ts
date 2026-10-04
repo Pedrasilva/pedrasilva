@@ -82,6 +82,7 @@ import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects
 import { Route as AppProjectsWeeklyApprovalRouteImport } from './routes/_app.projects.weekly-approval'
 import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
 import { Route as AppReportsIndexRouteImport } from './routes/_app.reports.index'
+import { Route as AppReportsBillableRouteImport } from './routes/_app.reports.billable'
 import { Route as AppReportsBudgetRouteImport } from './routes/_app.reports.budget'
 import { Route as AppReportsBusinessRouteImport } from './routes/_app.reports.business'
 import { Route as AppReportsHoursRouteImport } from './routes/_app.reports.hours'
@@ -521,6 +522,11 @@ const AppProposalsIndexRoute = AppProposalsIndexRouteImport.update({
 const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsBillableRoute = AppReportsBillableRouteImport.update({
+  id: '/reports/billable',
+  path: '/reports/billable',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReportsBudgetRoute = AppReportsBudgetRouteImport.update({
@@ -993,6 +999,7 @@ export interface FileRoutesByFullPath {
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/projects/weekly-approval': typeof AppProjectsWeeklyApprovalRoute
+  '/reports/billable': typeof AppReportsBillableRoute
   '/reports/budget': typeof AppReportsBudgetRoute
   '/reports/business': typeof AppReportsBusinessRoute
   '/reports/hours': typeof AppReportsHoursRoute
@@ -1130,6 +1137,7 @@ export interface FileRoutesByTo {
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/projects/weekly-approval': typeof AppProjectsWeeklyApprovalRoute
+  '/reports/billable': typeof AppReportsBillableRoute
   '/reports/budget': typeof AppReportsBudgetRoute
   '/reports/business': typeof AppReportsBusinessRoute
   '/reports/hours': typeof AppReportsHoursRoute
@@ -1277,6 +1285,7 @@ export interface FileRoutesById {
   '/_app/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/_app/projects/weekly-approval': typeof AppProjectsWeeklyApprovalRoute
+  '/_app/reports/billable': typeof AppReportsBillableRoute
   '/_app/reports/budget': typeof AppReportsBudgetRoute
   '/_app/reports/business': typeof AppReportsBusinessRoute
   '/_app/reports/hours': typeof AppReportsHoursRoute
@@ -1424,6 +1433,7 @@ export interface FileRouteTypes {
     | '/projects/resources'
     | '/projects/timesheet'
     | '/projects/weekly-approval'
+    | '/reports/billable'
     | '/reports/budget'
     | '/reports/business'
     | '/reports/hours'
@@ -1561,6 +1571,7 @@ export interface FileRouteTypes {
     | '/projects/resources'
     | '/projects/timesheet'
     | '/projects/weekly-approval'
+    | '/reports/billable'
     | '/reports/budget'
     | '/reports/business'
     | '/reports/hours'
@@ -1707,6 +1718,7 @@ export interface FileRouteTypes {
     | '/_app/projects/resources'
     | '/_app/projects/timesheet'
     | '/_app/projects/weekly-approval'
+    | '/_app/reports/billable'
     | '/_app/reports/budget'
     | '/_app/reports/business'
     | '/_app/reports/hours'
@@ -2327,6 +2339,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports/'
       preLoaderRoute: typeof AppReportsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports/billable': {
+      id: '/_app/reports/billable'
+      path: '/reports/billable'
+      fullPath: '/reports/billable'
+      preLoaderRoute: typeof AppReportsBillableRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/reports/budget': {
@@ -3118,6 +3137,7 @@ interface AppRouteChildren {
   AppProjectsResourcesRoute: typeof AppProjectsResourcesRouteWithChildren
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
   AppProjectsWeeklyApprovalRoute: typeof AppProjectsWeeklyApprovalRoute
+  AppReportsBillableRoute: typeof AppReportsBillableRoute
   AppReportsBudgetRoute: typeof AppReportsBudgetRoute
   AppReportsBusinessRoute: typeof AppReportsBusinessRoute
   AppReportsHoursRoute: typeof AppReportsHoursRoute
@@ -3167,6 +3187,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsResourcesRoute: AppProjectsResourcesRouteWithChildren,
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
   AppProjectsWeeklyApprovalRoute: AppProjectsWeeklyApprovalRoute,
+  AppReportsBillableRoute: AppReportsBillableRoute,
   AppReportsBudgetRoute: AppReportsBudgetRoute,
   AppReportsBusinessRoute: AppReportsBusinessRoute,
   AppReportsHoursRoute: AppReportsHoursRoute,
