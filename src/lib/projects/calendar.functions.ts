@@ -34,11 +34,11 @@ export const disconnectCalendar = createServerFn({ method: "POST" })
 
 /**
  * Calendar suggestions for the timesheet grid — the caller's own calendar only.
- * Fixed matching rules (no AI): attendee email → CRM contact → company → its
- * active projects, or the project's number/name/alias in the title; leads by
- * name in the title or by the attendee's company. Returns only title/time and
- * the match — never descriptions, locations or attendee addresses.
+ * Ranking (no AI) lives in calendar-match.server.ts and is shared with the
+ * assistant. Returns only title/time and the matches — never descriptions,
+ * locations or attendee addresses.
  */
+export type GridSuggestion = import("./calendar-match.server").EventSuggestion;
 export type GridCalendarEvent = {
   id: string;
   title: string;
@@ -46,14 +46,41 @@ export type GridCalendarEvent = {
   start: string;
   end: string;
   minutes: number;
+  /** Top match when it is certain (only match, or remembered for the series) — drives row hints. */
   project_id: string | null;
   lead_id: string | null;
+  suggestions: GridSuggestion[];
+  series_id: string | null;
+  match_word: string | null;
 };
 export type GridCalendar = { status: "not_connected" | "expired" | "connected"; events: GridCalendarEvent[] };
 
 const ISO = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const normT = (x: string) =>
-  ` ${x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim()} `;
+
+type RawStage = { id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; is_self: boolean | null; status: string | null; stage_kind: string | null };
+/** Active projects with only the stages that take new hours (same rule as the assistant). */
+export function toMatchProjects(
+  rows: Array<{ id: string; name: string; client: string | null; company_id: string | null; stages: RawStage[] | null }>,
+  aliases: Map<string, string[]>,
+) {
+  return rows.map((p) => {
+    const raw = p.stages ?? [];
+    const parents = new Set(raw.map((s) => s.parent_stage_id).filter(Boolean) as string[]);
+    const retainerParents = new Set(raw.filter((s) => s.stage_kind === "retainer_monthly").map((s) => s.id));
+    return {
+      id: p.id,
+      name: p.name,
+      client: p.client,
+      company_id: p.company_id,
+      aliases: aliases.get(p.id) ?? [],
+      stages: raw
+        .filter((s) => !parents.has(s.id) && s.is_self !== false)
+        .filter((s) => s.status === "active" || (!!s.parent_stage_id && retainerParents.has(s.parent_stage_id)))
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map(({ id, name, start_date, end_date }) => ({ id, name, start_date, end_date })),
+    };
+  });
+}
 
 export const getCalendarGridSuggestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -74,7 +101,11 @@ export const getCalendarGridSuggestions = createServerFn({ method: "POST" })
     const [entRes, disRes, projRes, aliasRes, leadRes] = await Promise.all([
       db.from("pm_time_entries").select("calendar_event_ids").eq("user_id", userId).gte("entry_date", data.weekStart).lte("entry_date", data.weekEnd),
       db.from("calendar_dismissed_events").select("event_id").eq("user_id", userId),
-      db.from("pm_projects").select("id, name, company_id").eq("status", "active"),
+      db
+        .from("pm_projects")
+        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self, status, stage_kind)")
+        .eq("status", "active")
+        .limit(400),
       db.from("marketing_project_profiles").select("project_id, aliases"),
       db.rpc("crm_leads_directory"),
     ]);
@@ -83,53 +114,77 @@ export const getCalendarGridSuggestions = createServerFn({ method: "POST" })
     const events = all.filter((e) => !saved.has(e.id) && !dismissed.has(e.id));
     if (!events.length) return { status: "connected", events: [] };
 
-    const projects = (projRes.data ?? []) as Array<{ id: string; name: string; company_id: string | null }>;
     const aliases = new Map<string, string[]>();
     for (const a of (aliasRes.data ?? []) as Array<{ project_id: string; aliases: string[] | null }>) if (a.aliases?.length) aliases.set(a.project_id, a.aliases);
-    const leads = ((leadRes.data ?? []) as Array<{ id: string; name: string; company_name: string | null; is_open: boolean }>).filter((l) => l.is_open);
+    const projects = toMatchProjects((projRes.data ?? []) as never, aliases);
+    const leads = ((leadRes.data ?? []) as Array<{ id: string; name: string; company_name: string | null; is_open: boolean }>)
+      .filter((l) => l.is_open)
+      .map((l) => ({ id: l.id, name: l.name, client: l.company_name }));
 
     // Attendee emails → contacts → companies.
     const emails = [...new Set(events.flatMap((e) => e.attendees).filter((m) => !m.endsWith("@pedrasilva.com")))];
     const companyOfEmail = new Map<string, string>();
-    const companyName = new Map<string, string>();
     if (emails.length) {
       const { data: cs } = await db.from("contacts").select("email, company_id").in("email", emails.slice(0, 300));
       for (const c of (cs ?? []) as Array<{ email: string | null; company_id: string | null }>)
         if (c.email && c.company_id) companyOfEmail.set(c.email.toLowerCase(), c.company_id);
-      const ids = [...new Set(companyOfEmail.values())];
-      if (ids.length) {
-        const { data: cos } = await db.from("companies").select("id, nome").in("id", ids);
-        for (const c of (cos ?? []) as Array<{ id: string; nome: string }>) companyName.set(c.id, normT(c.nome));
-      }
     }
 
-    const projKeys = projects.map((p) => {
-      const n = normT(p.name);
-      const first = n.trim().split(" ")[0] ?? "";
-      const number = /^\d{3,5}[a-z]?$/.test(first) ? first : null;
-      const rest = number ? ` ${n.trim().split(" ").slice(1).join(" ")} ` : n;
-      const phrases = [rest, ...(aliases.get(p.id) ?? []).map(normT)].filter((x) => x.trim().length >= 4);
-      return { id: p.id, company: p.company_id, number, phrases };
-    });
-
+    const { buildMatcher } = await import("./calendar-match.server");
+    const matcher = await buildMatcher(db as never, userId, projects, leads);
     const out: GridCalendarEvent[] = events.map((e) => {
-      const title = normT(e.title);
-      const titleHits = projKeys.filter((p) => (p.number && title.includes(` ${p.number} `)) || p.phrases.some((ph) => title.includes(ph)));
-      const cos = new Set(e.attendees.map((m) => companyOfEmail.get(m)).filter(Boolean) as string[]);
-      const coHits = projKeys.filter((p) => p.company && cos.has(p.company));
-      const hits = titleHits.length ? titleHits : coHits;
-      let project_id = hits.length === 1 ? hits[0].id : null;
-      let lead_id: string | null = null;
-      if (!project_id && hits.length === 0) {
-        const coNames = new Set([...cos].map((c) => companyName.get(c)).filter(Boolean) as string[]);
-        const lh = leads.filter((l) => {
-          const ln = normT(l.name);
-          return (ln.trim().length >= 4 && title.includes(ln)) || (!!l.company_name && coNames.has(normT(l.company_name)));
-        });
-        if (lh.length === 1) lead_id = lh[0].id;
-      }
-      if (hits.length > 1) project_id = null;
-      return { id: e.id, title: e.title, date: e.date, start: e.start, end: e.end, minutes: e.minutes, project_id, lead_id };
+      const r = matcher.rank(e, companyOfEmail);
+      const top = r.suggestions[0]?.preselect ? r.suggestions[0] : null;
+      return {
+        id: e.id, title: e.title, date: e.date, start: e.start, end: e.end, minutes: e.minutes,
+        project_id: top?.project_id ?? null,
+        lead_id: top?.lead_id ?? null,
+        suggestions: r.suggestions,
+        series_id: e.series_id,
+        match_word: r.match_word,
+      };
     });
     return { status: "connected", events: out };
+  });
+
+/** Remember what the caller chose for an event (series id and/or one word). */
+export const rememberCalendarMatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        series_id: z.string().max(300).nullable(),
+        word: z.string().regex(/^[a-z]{4,40}$/).nullable(),
+        project_id: z.string().uuid().nullable(),
+        stage_id: z.string().uuid().nullable(),
+        opportunity_id: z.string().uuid().nullable(),
+        internal_category: z.string().max(100).nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const keys: Array<{ key_type: "series" | "word"; key: string }> = [];
+    if (data.series_id) keys.push({ key_type: "series", key: data.series_id });
+    if (data.word) keys.push({ key_type: "word", key: data.word });
+    if (!keys.length) return { ok: true };
+    const { rememberChoice } = await import("./calendar-match.server");
+    await rememberChoice(context.supabase as never, context.userId, keys, {
+      project_id: data.project_id, stage_id: data.stage_id, opportunity_id: data.opportunity_id, internal_category: data.internal_category,
+    });
+    return { ok: true };
+  });
+
+export const getCalendarMemoryCount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { count } = await context.supabase.from("calendar_match_memory").select("id", { count: "exact", head: true }).eq("user_id", context.userId);
+    return { count: count ?? 0 };
+  });
+
+export const clearCalendarMemory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase.from("calendar_match_memory").delete().eq("user_id", context.userId);
+    if (error) throw error;
+    return { ok: true };
   });
