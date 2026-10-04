@@ -325,7 +325,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     if (events.length) {
       const { buildMatcher } = await import("./calendar-match.server");
       const coOf = new Map(((projRes.data ?? []) as Array<{ id: string; company_id: string | null }>).map((p) => [p.id, p.company_id]));
-      const matcher = await buildMatcher(db as never, userId, projects.map((p) => ({ ...p, company_id: coOf.get(p.id) ?? null })), leads);
+      const matcher = await buildMatcher(db as never, userId, projects.map((p) => ({ ...p, aliases: p.aliases ?? [], company_id: coOf.get(p.id) ?? null })), leads);
       for (const e of events) {
         const r = matcher.rank(e, companyOfEmail);
         eventMatches[e.id] = { suggestions: r.suggestions, series_id: e.series_id, match_word: r.match_word };
