@@ -167,6 +167,29 @@
       "co_author": "Co-author",
       "support": "Support",
       "allocated": "Allocated"
+    },
+    "resumo": {
+      "legend": {
+        "actual": "Normal text = actual",
+        "planned": "italic grey = planned (allocations)",
+        "zero": "– = zero"
+      },
+      "plannedTip": "planned",
+      "showAllocations": "Show allocations",
+      "hideAllocations": "Hide allocations",
+      "noOwner": "No owner",
+      "allocations_one": "{{count}} allocation",
+      "allocations_other": "{{count}} allocations",
+      "unallocated": "{{hours}} h unallocated",
+      "overAllocated": "{{hours}} h over-allocated"
+    },
+    "rail": {
+      "team": "Team",
+      "teamTip": "Team: {{count}} people",
+      "budget": "Budget",
+      "budgetTip": "Budget used: {{pct}}%",
+      "profit": "Profit",
+      "profitTip": "Profit vs budget: {{amount}}"
     }
   },
   "quickCreate": {

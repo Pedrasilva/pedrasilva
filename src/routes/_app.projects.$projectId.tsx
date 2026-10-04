@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
+import { Tooltip as UiTip, TooltipContent as UiTipContent, TooltipTrigger as UiTipTrigger } from "@/components/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import * as RC from "recharts";
 import {
@@ -898,32 +899,48 @@ function ProjectDetail() {
                 </button>
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  title={t("projects:detail.sidebar.team")}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground hover:bg-accent"
+                  title={t("projects:detail.rail.teamTip", { count: team.length })}
+                  aria-label={t("projects:detail.rail.teamTip", { count: team.length })}
+                  className="flex flex-col items-center gap-0.5"
                 >
-                  {team.length}
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground hover:bg-accent">
+                    {team.length}
+                  </span>
+                  <span className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("projects:detail.rail.team")}</span>
                 </button>
                 {canSeeFinancials && (
                   <>
                     <button
                       onClick={() => setSidebarOpen(true)}
-                      title={`${t("projects:detail.sidebar.budgetUsage")} · ${Math.round(budgetUsedPct * 100)}%`}
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
-                        budgetOver ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
-                      )}
+                      title={t("projects:detail.rail.budgetTip", { pct: Math.round(budgetUsedPct * 100) })}
+                      aria-label={t("projects:detail.rail.budgetTip", { pct: Math.round(budgetUsedPct * 100) })}
+                      className="flex flex-col items-center gap-0.5"
                     >
-                      {Math.round(budgetUsedPct * 100)}%
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                          budgetOver ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                        )}
+                      >
+                        {Math.round(budgetUsedPct * 100)}%
+                      </span>
+                      <span className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("projects:detail.rail.budget")}</span>
                     </button>
                     <button
                       onClick={() => setSidebarOpen(true)}
-                      title={`${t("projects:detail.sidebar.profit")} · ${euros(actualProfit)}`}
-                      className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
-                        actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
-                      )}
+                      title={t("projects:detail.rail.profitTip", { amount: euros(actualProfit) })}
+                      aria-label={t("projects:detail.rail.profitTip", { amount: euros(actualProfit) })}
+                      className="flex flex-col items-center gap-0.5"
                     >
-                      {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                          actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                        )}
+                      >
+                        {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
+                      </span>
+                      <span className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("projects:detail.rail.profit")}</span>
                     </button>
                   </>
                 )}
@@ -1666,6 +1683,29 @@ function MilestonesTable({
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
   );
+  const { t } = useTranslation("projects");
+  const allocKey = `psa.resumo.allocOpen.${projectId}`;
+  const [allocOpen, setAllocOpen] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(allocKey);
+      setAllocOpen(new Set(raw ? (JSON.parse(raw) as string[]) : []));
+    } catch {
+      setAllocOpen(new Set());
+    }
+  }, [allocKey]);
+  const toggleAlloc = (id: string) =>
+    setAllocOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        window.localStorage.setItem(allocKey, JSON.stringify([...next]));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "empty">("all");
   const [search, setSearch] = useState("");
   const allocationIds = (stages ?? []).flatMap((s) => s.allocations.map((a) => a.id));
@@ -1806,36 +1846,40 @@ function MilestonesTable({
         </div>
       </div>
 
+      {/* Legend */}
+      <p className="border-b border-border px-4 py-1.5 text-[11px] text-muted-foreground">
+        {t("detail.resumo.legend.actual")} · <span className="italic">{t("detail.resumo.legend.planned")}</span> · {t("detail.resumo.legend.zero")}
+      </p>
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="max-h-[75vh] overflow-auto">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="sticky top-0 z-20 bg-card shadow-[0_1px_0_var(--border)]">
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
+              <th className="sticky left-0 z-30 bg-card px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
               {canSeeFinancials && (
                 <>
                   <th
-                    className="px-4 py-2.5 font-semibold"
+                    className="px-4 py-2.5 text-right font-semibold"
                     title="Actual cost = Σ logged hours × cost rate. Compared to the stage budget when defined."
                   >
                     Cost (actual vs budget)
                   </th>
                   <th
-                    className="px-4 py-2.5 font-semibold"
+                    className="px-4 py-2.5 text-right font-semibold"
                     title="Revenue earned = Σ billable hours × sale rate"
                   >
                     Revenue (earned)
                   </th>
                   <th
-                    className="px-4 py-2.5 font-semibold"
+                    className="px-4 py-2.5 text-right font-semibold"
                     title="Profit = revenue − cost. Margin shown only when revenue > 0."
                   >
                     Profit / Margin
                   </th>
                 </>
               )}
-              <th className="px-4 py-2.5 font-semibold">Hours used / planned</th>
+              <th className="px-4 py-2.5 text-right font-semibold">Hours used / planned</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
               <th className="px-4 py-2.5 text-right font-semibold">Actions</th>
@@ -1912,28 +1956,38 @@ function MilestonesTable({
                 const logged = hasChildren ? aggLogged(s) : stageLoggedHours(s.id);
                 const planned = hasChildren ? aggPlanned(s) : stagePlannedHours(s.id);
                 const over = cost > budget && budget > 0;
+                const level: 1 | 2 | 3 = depth === 0 ? 1 : hasChildren ? 2 : 3;
+                const allocsOpen = allocOpen.has(s.id);
+                const env = !hasChildren ? envelopeFor(s) : null;
+                const stickyBg =
+                  level === 1 ? "bg-[color-mix(in_oklab,var(--muted)_45%,var(--card))]" : "bg-card";
 
                 rows.push(
                   <Fragment key={s.id}>
                     <tr
                       className={
-                        depth === 0
-                          ? "border-b border-border bg-muted/30 hover:bg-muted/40"
+                        level === 1
+                          ? "border-b border-border bg-[color-mix(in_oklab,var(--muted)_45%,var(--card))]"
                           : "border-b border-border hover:bg-muted/20"
                       }
                     >
-                      <td className="px-4 py-3">
+                      <td className={cn("sticky left-0 z-10 px-4 py-3", stickyBg)}>
                         <div
                           className="flex items-center gap-2"
                           style={{ paddingLeft: depth * 20 }}
                         >
                           {hasChildren || s.allocations.length > 0 ? (
                             <button
-                              onClick={() => toggle(s.id)}
+                              onClick={() => (hasChildren ? toggle(s.id) : toggleAlloc(s.id))}
                               className="text-muted-foreground hover:text-foreground"
-                              aria-label={isOpen ? "Colapsar" : "Expandir"}
+                              aria-expanded={hasChildren ? isOpen : allocsOpen}
+                              aria-label={
+                                hasChildren
+                                  ? isOpen ? "Colapsar" : "Expandir"
+                                  : t(allocsOpen ? "detail.resumo.hideAllocations" : "detail.resumo.showAllocations")
+                              }
                             >
-                              {isOpen ? (
+                              {(hasChildren ? isOpen : allocsOpen) ? (
                                 <ChevronDown className="h-3.5 w-3.5" />
                               ) : (
                                 <ChevronRight className="h-3.5 w-3.5" />
@@ -1950,24 +2004,23 @@ function MilestonesTable({
                             <button
                               type="button"
                               onClick={() => onOpenStageInsights?.(s.id)}
-                              className={
-                                depth === 0
-                                  ? "truncate font-semibold text-foreground text-left hover:underline"
-                                  : "truncate text-foreground text-left hover:underline"
-                              }
+                              className={cn(
+                                "truncate text-left text-foreground hover:underline",
+                                level === 1 && "text-[15px] font-bold",
+                                level === 2 && "font-semibold",
+                              )}
                               title="Open insights for this stage"
                             >
                               {label}. {s.name}
                             </button>
 
-                            <div className="text-[11px] text-muted-foreground">
-                              {hasChildren
-                                ? `${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`
-                                : s.allocations.length === 0
-                                  ? "Sem responsável"
-                                  : `${s.allocations.length} alocaç${s.allocations.length === 1 ? "ão" : "ões"}`}
-                            </div>
-                            {!hasChildren && <StageEnvelopeChip env={envelopeFor(s)} showFinancials={canSeeFinancials} />}
+                            {hasChildren ? (
+                              <div className="text-[11px] text-muted-foreground">
+                                {`${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`}
+                              </div>
+                            ) : (
+                              <StageDetailLine env={env!} allocations={s.allocations.length} showFinancials={canSeeFinancials} />
+                            )}
                           </div>
                         </div>
                       </td>
@@ -1980,7 +2033,7 @@ function MilestonesTable({
                       </td>
                       {canSeeFinancials && (
                         <>
-                          <td className="px-4 py-3 min-w-[200px] w-[18%]">
+                          <td className="px-4 py-3 min-w-[200px] w-[18%] text-right">
                             <CostVsBudgetCell
                               cost={cost}
                               budget={budget}
@@ -1992,15 +2045,15 @@ function MilestonesTable({
                             />
 
                           </td>
-                          <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                          <td className="px-4 py-3 min-w-[140px] w-[13%] text-right">
                             <RevenueEarnedCell revenue={revenue} />
                           </td>
-                          <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                          <td className="px-4 py-3 min-w-[140px] w-[13%] text-right">
                             <ProfitMarginCell revenue={revenue} cost={cost} />
                           </td>
                         </>
                       )}
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap text-right">
                         <UsageBudgetCell logged={logged} planned={planned} over={over} />
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -2025,7 +2078,7 @@ function MilestonesTable({
                       </td>
                     </tr>
 
-                    {isOpen && !hasChildren &&
+                    {allocsOpen && !hasChildren &&
                       s.allocations.map((a) => {
                         const aHours =
                           Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
@@ -2039,25 +2092,25 @@ function MilestonesTable({
                         return (
                           <tr
                             key={a.id}
-                            className="border-b border-border last:border-b-0"
+                            className="h-10 border-b border-border text-xs text-muted-foreground last:border-b-0"
                             onDoubleClick={() =>
                               setEditingTask({ allocationId: a.id, stageId: s.id })
                             }
                             title="Double-click to edit this task"
                           >
-                            <td className="px-4 py-2.5">
+                            <td className="sticky left-0 z-10 bg-card px-4 py-1">
                               <div
                                 className="flex items-center gap-2"
-                                style={{ paddingLeft: (depth + 1) * 20 + 8 }}
+                                style={{ paddingLeft: (depth + 1) * 20 + 24 }}
                               >
                                 <CollaboratorAvatar
                                   collaboratorId={(a.resource as { collaborator_id?: string | null }).collaborator_id ?? null}
                                   name={a.resource.name}
                                   color={a.resource.color}
-                                  size={20}
+                                  size={18}
                                 />
                                 <div className="min-w-0">
-                                  <div className="truncate text-foreground">
+                                  <div className="truncate text-foreground/80">
                                     {taskNames[a.id] ?? a.resource.name}
                                   </div>
                                   <div className="text-[10px] text-muted-foreground truncate">
@@ -2069,32 +2122,32 @@ function MilestonesTable({
 
                               </div>
                             </td>
-                            <td className="px-4 py-2.5">
-                              <StatusDot active label="Planned" />
+                            <td className="px-4 py-1">
+                              <StatusDot active label="Planned" dotOnly />
                             </td>
                             {canSeeFinancials && (
                               <>
-                                <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                                <td className="px-4 py-1 text-right min-w-[200px]" title="Planned cost (allocation × cost rate)">
                                   <PlannedAmountCell amount={aPlannedCost} label="planned" />
                                 </td>
-                                <td className="px-4 py-2.5 min-w-[160px]" title="Planned revenue (allocation × sale rate)">
+                                <td className="px-4 py-1 text-right min-w-[160px]" title="Planned revenue (allocation × sale rate)">
                                   <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
                                 </td>
-                                <td className="px-4 py-2.5 min-w-[160px]" title="Planned profit = planned revenue − planned cost">
+                                <td className="px-4 py-1 text-right min-w-[160px]" title="Planned profit = planned revenue − planned cost">
                                   <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
                                 </td>
                               </>
                             )}
-                            <td className="px-4 py-2.5 whitespace-nowrap">
+                            <td className="px-4 py-1 whitespace-nowrap text-right">
                               <UsageBudgetCell logged={0} planned={aHours} over={false} />
                             </td>
-                            <td className="px-4 py-2.5 whitespace-nowrap">
+                            <td className="px-4 py-1 whitespace-nowrap">
                               <DateLink date={parseISO(a.start_date)} />
                             </td>
-                            <td className="px-4 py-2.5 whitespace-nowrap">
+                            <td className="px-4 py-1 whitespace-nowrap">
                               <DateLink date={parseISO(a.end_date)} />
                             </td>
-                            <td className="px-4 py-2.5 text-right">
+                            <td className="px-4 py-1 text-right">
                               <AllocationRowActions
                                 allocationId={a.id}
                                 projectId={projectId}
@@ -2193,6 +2246,47 @@ function StageEnvelopeChip({
         </div>
       )}
     </div>
+  );
+}
+
+/** One-line stage summary; capacity / planned cost / margin in a tooltip. */
+function StageDetailLine({
+  env,
+  allocations,
+  showFinancials,
+}: {
+  env: ReturnType<typeof computeStageEnvelope>;
+  allocations: number;
+  showFinancials: boolean;
+}) {
+  const { t, i18n } = useTranslation("projects");
+  const nf = new Intl.NumberFormat(i18n.language?.startsWith("pt") ? "pt-PT" : "en-GB", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const hasEnv = env.capacityHours > 0 || env.before.allocatedHours > 0;
+  const remaining = env.before.remainingHours;
+  const label =
+    allocations === 0
+      ? t("detail.resumo.noOwner")
+      : t("detail.resumo.allocations", { count: allocations });
+  if (!hasEnv) return <div className="text-[11px] text-muted-foreground">{label}</div>;
+  return (
+    <UiTip>
+      <UiTipTrigger asChild>
+        <div tabIndex={0} className="w-fit cursor-default text-[11px] text-muted-foreground">
+          {label} ·{" "}
+          <span className={remaining < 0 ? "text-destructive" : ""}>
+            {t(remaining < 0 ? "detail.resumo.overAllocated" : "detail.resumo.unallocated", {
+              hours: nf.format(Math.abs(remaining)),
+            })}
+          </span>
+        </div>
+      </UiTipTrigger>
+      <UiTipContent className="max-w-xs">
+        <StageEnvelopeChip env={env} showFinancials={showFinancials} />
+      </UiTipContent>
+    </UiTip>
   );
 }
 
@@ -3205,7 +3299,22 @@ function ResourceBarList<
 
 // ---- Cells ---------------------------------------------------------------
 
-function StatusDot({ active, label }: { active: boolean; label: string }) {
+function StatusDot({ active, label, dotOnly }: { active: boolean; label: string; dotOnly?: boolean }) {
+  if (dotOnly) {
+    return (
+      <UiTip>
+        <UiTipTrigger asChild>
+          <span
+            role="img"
+            aria-label={label}
+            tabIndex={0}
+            className={cn("inline-block h-2 w-2 rounded-full", active ? "bg-emerald-500" : "bg-muted-foreground/40")}
+          />
+        </UiTipTrigger>
+        <UiTipContent>{label}</UiTipContent>
+      </UiTip>
+    );
+  }
   return (
     <span className="inline-flex items-center gap-1.5 text-xs">
       <span
@@ -3253,17 +3362,17 @@ function CostVsBudgetCell({
       : 0;
   return (
     <div>
-      <div className="flex items-baseline justify-between text-xs">
-        <span className="font-mono">
+      <div className="flex items-baseline justify-end gap-3 text-xs">
+        <span className="whitespace-nowrap font-mono tabular-nums">
           <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
-            {euros(cost)}
+            <Num value={cost} kind="eur" />
           </span>
           {hasBudget ? (
-            <span className="text-muted-foreground"> / {euros(budget)}</span>
+            <span className="text-muted-foreground"> / {fmtEur(budget)}</span>
           ) : tm ? (
             <span className="text-muted-foreground">
               {" "}
-              / {euros(revenue)}
+              / <Num value={revenue} kind="eur" />
               <span className="ml-1 text-[10px] uppercase tracking-wider">T&amp;M</span>
             </span>
           ) : (
@@ -3276,7 +3385,7 @@ function CostVsBudgetCell({
         {(hasBudget || (tm && revenue > 0)) && (
           <span
             className={cn(
-              "tabular-nums",
+              "w-9 text-right tabular-nums",
               over || (tm && cost > revenue)
                 ? "text-destructive font-semibold"
                 : "text-muted-foreground",
@@ -3312,12 +3421,26 @@ function CostVsBudgetCell({
 function RevenueEarnedCell({ revenue }: { revenue: number }) {
   return (
     <div className="text-xs">
-      <span className="font-mono text-foreground">{euros(revenue)}</span>
-      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-        earned
-      </div>
+      <span className="font-mono tabular-nums text-foreground">
+        <Num value={revenue} kind="eur" />
+      </span>
     </div>
   );
+}
+
+/** Formats € as "€9.554" (thousands with a dot, no decimals). */
+function fmtEur(n: number): string {
+  const r = Math.round(n);
+  const abs = Math.abs(r).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${r < 0 ? "−" : ""}€${abs}`;
+}
+
+/** Number with a faint "–" for zero. */
+function Num({ value, kind }: { value: number; kind: "eur" | "hours" }) {
+  if (!Number.isFinite(value) || Math.abs(value) < (kind === "eur" ? 0.5 : 1 / 120)) {
+    return <span className="text-muted-foreground/50" aria-label="0">–</span>;
+  }
+  return <>{kind === "eur" ? fmtEur(value) : formatHm(value)}</>;
 }
 
 /**
@@ -3337,7 +3460,9 @@ function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) 
         : "text-emerald-600 dark:text-emerald-400";
   return (
     <div className="text-xs">
-      <span className={cn("font-mono font-semibold", tone)}>{euros(profit)}</span>
+      <span className={cn("font-mono font-semibold tabular-nums", profit === 0 ? "" : tone)}>
+        <Num value={profit} kind="eur" />
+      </span>
       {hasRevenue ? (
         <div className={cn("mt-0.5 text-[10px] tabular-nums", tone)}>
           {margin >= 0 ? "+" : ""}
@@ -3354,15 +3479,23 @@ function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) 
 
 /** Sub-row planned amount (allocation forecast). Dimmed to differentiate from actuals. */
 function PlannedAmountCell({ amount, label }: { amount: number; label: string }) {
+  const { t } = useTranslation("projects");
+  void label;
   return (
-    <div className="text-xs">
-      <span className={cn("font-mono", amount < 0 ? "text-destructive" : "text-muted-foreground")}>
-        {euros(amount)}
-      </span>
-      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-    </div>
+    <UiTip>
+      <UiTipTrigger asChild>
+        <span
+          tabIndex={0}
+          className={cn(
+            "font-mono text-xs italic tabular-nums",
+            amount < 0 ? "text-destructive" : "text-muted-foreground",
+          )}
+        >
+          <Num value={amount} kind="eur" />
+        </span>
+      </UiTipTrigger>
+      <UiTipContent>{t("detail.resumo.plannedTip")}</UiTipContent>
+    </UiTip>
   );
 }
 
@@ -3375,22 +3508,20 @@ function UsageBudgetCell({
   planned: number;
   over: boolean;
 }) {
-  const noBudget = planned <= 0;
+  const hoursOver = planned > 0 && logged > planned;
   return (
-    <div className="flex items-center gap-2 font-mono text-xs">
+    <div className="flex items-center justify-end gap-2 font-mono text-xs tabular-nums">
       <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
-        {formatHm(logged)}
+        <Num value={logged} kind="hours" />
       </span>
       <span className="text-muted-foreground">/</span>
       <span
         className={cn(
-          "rounded px-1.5 py-0.5 text-[11px]",
-          noBudget || over
-            ? "bg-destructive/15 text-destructive"
-            : "bg-muted text-foreground",
+          "min-w-[4.5rem] rounded px-1.5 py-0.5 text-right text-[11px]",
+          hoursOver ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground",
         )}
       >
-        {formatHm(planned)}
+        <Num value={planned} kind="hours" />
       </span>
     </div>
   );
