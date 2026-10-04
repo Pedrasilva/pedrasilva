@@ -1636,7 +1636,11 @@
       "connectError": "Não foi possível ligar o calendário",
       "disconnected": "Calendário desligado e acesso removido na Google",
       "revokeFailed": "Calendário desligado no PSA Hub, mas a Google não confirmou. Remova o PSA Hub em myaccount.google.com/permissions.",
-      "disconnectError": "Não foi possível desligar o calendário"
+      "disconnectError": "Não foi possível desligar o calendário",
+      "memoryCount_one": "{{count}} correspondência de calendário memorizada",
+      "memoryCount_other": "{{count}} correspondências de calendário memorizadas",
+      "memoryClear": "Limpar correspondências memorizadas",
+      "memoryCleared": "Correspondências memorizadas limpas"
     },
     "q": {
       "dontLog": "Não registar",
@@ -1744,7 +1748,14 @@
     "noMatch": "Nada corresponde a \"{{query}}\".",
     "typeToSearchProjects": "Escreva para procurar projetos por nome, número ou cliente.",
     "internalInGrid": "{{name}} já está nas linhas internas abaixo.",
-    "noActiveStages": "Sem fases activas"
+    "noActiveStages": "Sem fases activas",
+    "suggestions": "Sugestões",
+    "suggestionReason": {
+      "remembered": "a sua escolha habitual",
+      "word": "nome coincide",
+      "number": "nº do projeto",
+      "attendee": "participante"
+    }
   },
   "nonWorkingDay": {
     "sectionTitle": "Trabalho em dia não útil",

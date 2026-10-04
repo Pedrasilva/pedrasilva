@@ -1636,7 +1636,11 @@
       "connectError": "Couldn't connect your calendar",
       "disconnected": "Calendar disconnected and access removed at Google",
       "revokeFailed": "Calendar disconnected in PSA Hub, but Google didn't confirm. Remove PSA Hub at myaccount.google.com/permissions.",
-      "disconnectError": "Couldn't disconnect your calendar"
+      "disconnectError": "Couldn't disconnect your calendar",
+      "memoryCount_one": "{{count}} remembered calendar match",
+      "memoryCount_other": "{{count}} remembered calendar matches",
+      "memoryClear": "Clear remembered matches",
+      "memoryCleared": "Remembered matches cleared"
     },
     "q": {
       "dontLog": "Don't log",
@@ -1744,7 +1748,14 @@
     "noMatch": "Nothing matches \"{{query}}\".",
     "typeToSearchProjects": "Type to search projects by name, number or client.",
     "internalInGrid": "{{name}} is already in the Internal rows below.",
-    "noActiveStages": "No active stages"
+    "noActiveStages": "No active stages",
+    "suggestions": "Suggestions",
+    "suggestionReason": {
+      "remembered": "your usual choice",
+      "word": "name match",
+      "number": "project no.",
+      "attendee": "attendee"
+    }
   },
   "nonWorkingDay": {
     "sectionTitle": "Work on non-working days",
