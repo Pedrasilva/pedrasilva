@@ -23,6 +23,8 @@ export type EventSuggestion = {
   reason: MatchReason;
   project_id: string | null;
   project_name: string | null;
+  /** All stages that take new hours, so the picker can open the project. */
+  project_stages: MatchStage[];
   stage: MatchStage | null;
   lead_id: string | null;
   lead_name: string | null;
@@ -104,19 +106,19 @@ export async function buildMatcher(db: SupabaseClient, userId: string, projects:
       const p = projById.get(m.project_id);
       if (!p || !p.stages.length) return null;
       const st = stageFor(p, date, m.stage_id);
-      return { key: `p:${p.id}`, reason: "remembered", project_id: p.id, project_name: p.name, stage: st, lead_id: null, lead_name: null, internal_category: null, label: st ? `${p.name} · ${st.name}` : p.name, preselect: false };
+      return { key: `p:${p.id}`, reason: "remembered", project_id: p.id, project_name: p.name, project_stages: p.stages, stage: st, lead_id: null, lead_name: null, internal_category: null, label: st ? `${p.name} · ${st.name}` : p.name, preselect: false };
     }
     if (m.opportunity_id) {
       const l = leadById.get(m.opportunity_id);
       if (!l) return null;
-      return { key: `l:${l.id}`, reason: "remembered", project_id: null, project_name: null, stage: null, lead_id: l.id, lead_name: l.name, internal_category: null, label: l.name, preselect: false };
+      return { key: `l:${l.id}`, reason: "remembered", project_id: null, project_name: null, project_stages: [], stage: null, lead_id: l.id, lead_name: l.name, internal_category: null, label: l.name, preselect: false };
     }
-    if (m.internal_category) return { key: `c:${m.internal_category}`, reason: "remembered", project_id: null, project_name: null, stage: null, lead_id: null, lead_name: null, internal_category: m.internal_category, label: m.internal_category, preselect: false };
+    if (m.internal_category) return { key: `c:${m.internal_category}`, reason: "remembered", project_id: null, project_name: null, project_stages: [], stage: null, lead_id: null, lead_name: null, internal_category: m.internal_category, label: m.internal_category, preselect: false };
     return null;
   };
   const projSugg = (p: MatchProject, date: string, reason: MatchReason): EventSuggestion => {
     const st = stageFor(p, date, null);
-    return { key: `p:${p.id}`, reason, project_id: p.id, project_name: p.name, stage: st, lead_id: null, lead_name: null, internal_category: null, label: st ? `${p.name} · ${st.name}` : p.name, preselect: false };
+    return { key: `p:${p.id}`, reason, project_id: p.id, project_name: p.name, project_stages: p.stages, stage: st, lead_id: null, lead_name: null, internal_category: null, label: st ? `${p.name} · ${st.name}` : p.name, preselect: false };
   };
 
   return {
@@ -156,7 +158,7 @@ export async function buildMatcher(db: SupabaseClient, userId: string, projects:
         const hit = evWords.filter((w) => lw.words.has(w));
         if (hit.length) {
           anyWord = true;
-          push({ key: `l:${lw.l.id}`, reason: "word", project_id: null, project_name: null, stage: null, lead_id: lw.l.id, lead_name: lw.l.name, internal_category: null, label: lw.l.name, preselect: false }, 1000 * hit.length - 1);
+          push({ key: `l:${lw.l.id}`, reason: "word", project_id: null, project_name: null, project_stages: [], stage: null, lead_id: lw.l.id, lead_name: lw.l.name, internal_category: null, label: lw.l.name, preselect: false }, 1000 * hit.length - 1);
           wordHits.set(`l:${lw.l.id}`, hit);
         }
       }
