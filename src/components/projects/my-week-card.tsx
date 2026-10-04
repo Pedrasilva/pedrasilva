@@ -52,6 +52,8 @@ export function MyWeekCard({
   weekLabel,
   totals,
   viewingOther,
+  controls,
+  billable,
 }: {
   userId: string | null;
   collaboratorId: string | null;
@@ -60,6 +62,10 @@ export function MyWeekCard({
   weekLabel: string;
   totals: WeekTotals;
   viewingOther: boolean;
+  /** Person selector, Ditar, week navigation — rendered before "Submeter semana". */
+  controls?: React.ReactNode;
+  /** Billable project hours, for the Projeto tooltip. */
+  billable?: number;
 }) {
   const { t } = useTranslation(["projects"]);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -72,99 +78,96 @@ export function MyWeekCard({
   const excess = useMemo(() => excessHours(totals, capacity), [totals, capacity]);
   const status = week?.status ?? "open";
   const locked = isWeekLocked(week);
-
   const statusLabel = t(`timesheetWeek.status.${status}`);
+  const h = (v: number) => formatHM(v) || "0h";
+  const pct = capacity > 0 ? Math.min(100, (totals.accounted / capacity) * 100) : 0;
+  const bill = billable ?? totals.project;
 
   return (
-    <div className="mt-4 rounded-lg border border-border bg-card p-4">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-base font-semibold">{t("timesheetWeek.myWeek")}</h2>
-            <span className="text-sm text-muted-foreground">{weekLabel}</span>
-            <span
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusTone(status)}`}
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <h1 className="truncate text-xl font-semibold tracking-tight">{t("timesheetWeek.title")}</h1>
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusTone(status)}`}>
+            {statusLabel}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {controls}
+          {!viewingOther && (
+            <Button
+              size="sm"
+              className="gap-1.5"
+              disabled={locked || !userId || submit.isPending}
+              onClick={() => setConfirmOpen(true)}
             >
-              {statusLabel}
-            </span>
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-            <Metric label={t("timesheetWeek.projectHours")} value={totals.project} />
-            <Metric label={t("timesheetWeek.internalHours")} value={totals.internal} />
-            <Metric label={t("timesheetWeek.leaveHours")} value={totals.leave} />
-            <Metric label={t("timesheetWeek.workingHours")} value={totals.working} strong />
-            <Metric label={t("timesheetWeek.accountedHours")} value={totals.accounted} />
-          </div>
-
-          <p className="mt-2 text-xs text-muted-foreground">
-            {t("timesheetWeek.capacityLine", {
-              worked: formatHM(totals.working) || "0:00",
-              capacity: formatHM(capacity) || "0:00",
-            })}
-          </p>
-
-          {excess > 0 && (
-            <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              <span>
-                {t("timesheetWeek.overCapacityNotice", {
-                  excess: formatHM(excess) || "0:00",
-                  capacity: formatHM(capacity) || "0:00",
-                })}
-              </span>
-            </div>
-          )}
-
-          {status === "returned" && week?.reviewer_comment && (
-            <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
-              <RotateCcw className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              <span>
-                {t("timesheetWeek.returnedNotice")} — {week.reviewer_comment}
-              </span>
-            </div>
-          )}
-
-          {status === "approved" && (
-            <div className="mt-3 flex items-start gap-2 rounded-md border border-emerald-500/30 bg-emerald-50/70 px-3 py-2 text-xs text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200">
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              <span>
-                {t("timesheetWeek.approvedNotice")}
-                {week && week.additional_hours_approved > 0
-                  ? ` · ${t("timesheetWeek.additionalBanked", {
-                      hours: formatHM(week.additional_hours_approved) || "0:00",
-                    })}`
-                  : ""}
-              </span>
-            </div>
-          )}
-
-{nwdCount > 0 && (
-            <p className="mt-3 flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning" />
-              {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
-            </p>
-          )}
-
-          {status === "submitted" && (
-            <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" /> {t("timesheetWeek.submittedNotice")}
-            </p>
+              <Send className="h-3.5 w-3.5" />
+              {t("timesheetWeek.submitWeek")}
+            </Button>
           )}
         </div>
-
-        {!viewingOther && (
-          <Button
-            size="sm"
-            className="gap-1.5"
-            disabled={locked || !userId || submit.isPending}
-            onClick={() => setConfirmOpen(true)}
-          >
-            <Send className="h-3.5 w-3.5" />
-            {t("timesheetWeek.submitWeek")}
-          </Button>
-        )}
       </div>
+
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        <span className="text-muted-foreground">
+          <span
+            className="cursor-help underline decoration-dotted underline-offset-2"
+            title={t("timesheetWeek.billableSplit", {
+              billable: h(bill),
+              nonBillable: h(Math.max(0, totals.project - bill)),
+            })}
+          >
+            {t("timesheetWeek.projectHours")} <b className="font-mono text-foreground">{h(totals.project)}</b>
+          </span>
+          {" · "}
+          {t("timesheetWeek.internalHours")} <b className="font-mono text-foreground">{h(totals.internal)}</b>
+          {" · "}
+          {t("timesheetWeek.summaryLeave")} <b className="font-mono text-foreground">{h(totals.leave)}</b>
+          {" · "}
+          <span className="font-semibold text-foreground">
+            {t("timesheetWeek.totalOf", { total: h(totals.accounted), capacity: h(capacity) })}
+          </span>
+        </span>
+        <div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted" aria-hidden>
+          <div
+            className={`h-full rounded-full ${excess > 0 ? "bg-warning" : "bg-primary"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+
+      {excess > 0 && (
+        <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          <span>
+            {t("timesheetWeek.overCapacityNotice", { excess: h(excess), capacity: h(capacity) })}
+          </span>
+        </div>
+      )}
+      {status === "returned" && week?.reviewer_comment && (
+        <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+          <RotateCcw className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          <span>{t("timesheetWeek.returnedNotice")} — {week.reviewer_comment}</span>
+        </div>
+      )}
+      {status === "approved" && week && week.additional_hours_approved > 0 && (
+        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          {t("timesheetWeek.additionalBanked", { hours: h(week.additional_hours_approved) })}
+        </p>
+      )}
+      {nwdCount > 0 && (
+        <p className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning" />
+          {t("projects:nonWorkingDay.pendingCount", { count: nwdCount })}
+        </p>
+      )}
+      {status === "submitted" && (
+        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="h-3.5 w-3.5" /> {t("timesheetWeek.submittedNotice")}
+        </p>
+      )}
+
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="sm:max-w-md">
