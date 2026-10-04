@@ -938,8 +938,6 @@ function ProjectDetail() {
             {tab === "overview" && (
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
-                <ContractBaselineCard projectId={projectId} />
-                <ContractDiffCard projectId={projectId} />
                 {/* Budget control moved to A&P tab */}
 
 
@@ -966,6 +964,8 @@ function ProjectDetail() {
                   />
 
                 </div>
+                <ContractBaselineCard projectId={projectId} />
+                <ContractDiffCard projectId={projectId} />
               </div>
             )}
 
