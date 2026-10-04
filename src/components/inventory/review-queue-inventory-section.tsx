@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InvoiceInventoryDialog } from "./invoice-inventory-dialog";
-import { useCanManageInventory, useInvoiceForInventory } from "@/lib/inventory/use-inventory";
+import { inventoryErrorMessage, useCanManageInventory, useInvoiceForInventory } from "@/lib/inventory/use-inventory";
 
 /**
  * Inventory marker shown inside the Finance review queue.
@@ -41,7 +41,7 @@ export function ReviewQueueInventorySection({
       if (error) throw error;
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(inventoryErrorMessage(e, t)),
   });
 
   const status = invoice?.inventory_status ?? null;
