@@ -71,6 +71,13 @@
       "when": 1791141306060,
       "tag": "0009_hours_bank_approver_delete_week_movement",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791143562043,
+      "tag": "0010_time_entry_active_stage_guard",
+      "breakpoints": true
     }
   ]
 }

@@ -171,7 +171,13 @@ function TimesheetPage() {
   const [extraRetainerIds, setExtraRetainerIds] = useState<string[]>([]);
   // Retainer month stages are shown as one row per retainer, never per month.
   const projectRows = useMemo(
-    () => allProjectRows.filter((r) => !retainerData?.childToParent.has(r.stage.id)),
+    // Non-active stages only show in weeks where they already have hours (read-only).
+    () =>
+      allProjectRows.filter(
+        (r) =>
+          !retainerData?.childToParent.has(r.stage.id) &&
+          (isStageActive(r) || r.has_week_entries),
+      ),
     [allProjectRows, retainerData],
   );
   const { data: searchResults = [], isFetching: searching } = useProjectSearch({
@@ -558,7 +564,7 @@ function TimesheetPage() {
   // Row hint targets per project: every grid row for that project.
   const projectTargets = useMemo(() => {
     const m = new Map<string, Array<HintTarget & { target: AddTarget }>>();
-    for (const r of projectRows)
+    for (const r of projectRows.filter(isStageActive))
       m.set(r.project.id, [...(m.get(r.project.id) ?? []), { key: `t:${r.task_id}`, label: `${r.project.name} · ${r.stage.name}`, target: { kind: "task", taskId: r.task_id } }]);
     for (const r of retainerRows)
       m.set(r.project.id, [...(m.get(r.project.id) ?? []), { key: `r:${r.id}`, label: `${r.project.name} · ${r.name}`, target: { kind: "retainer", row: r } }]);
@@ -912,7 +918,7 @@ function TimesheetPage() {
                         setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
                       }
                       pending={upsert.isPending}
-                      readOnly={readOnly}
+                      readOnly={readOnly || !isStageActive(r)}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
                       renderHint={(dateStr) => projectHint(r.project.id, `t:${r.task_id}`, dateStr)}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
@@ -1187,6 +1193,16 @@ function SectionHeaderRow({
   );
 }
 
+/** Missing status (older rows) is treated as active so nothing disappears by accident. */
+function isStageActive(r: TimesheetTaskRow): boolean {
+  return !r.stage.status || r.stage.status === "active";
+}
+
+function StageClosedNote({ status }: { status?: string | null }) {
+  const { t } = useTranslation("projects");
+  return <>{t(`stageGate.note.${status === "done" ? "done" : status === "paused" ? "paused" : "planned"}`)}</>;
+}
+
 function ProjectRow({
   row,
   days,
@@ -1237,6 +1253,11 @@ function ProjectRow({
             >
               {row.stage.name}
             </div>
+            {!isStageActive(row) && (
+              <div className="mt-0.5 text-[10px] text-muted-foreground">
+                <StageClosedNote status={row.stage.status} />
+              </div>
+            )}
             {row.hours_per_day > 0 && (
               <div className="mt-0.5 text-[10px] text-muted-foreground">
                 Suggested {formatHM(row.hours_per_day)}/day

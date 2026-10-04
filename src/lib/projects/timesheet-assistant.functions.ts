@@ -103,6 +103,7 @@ Rules:
 - "o resto do tempo", "o resto do dia", "the rest of the day", "the rest of the time" mean the person's daily hours for that day, minus approved leave or public holiday that day, minus the OTHER activities mentioned for that same day in this text. Do NOT subtract hours already logged before. Example (8 h day): "uma hora de reunião e o resto do dia a fazer propostas de honorários" → 1 h Meetings + 7 h Fee proposals. Put that number in hours, and do not ask about it unless it is 0 or less.
 - Always use the real calendar dates the person means, even when they fall outside the target week (e.g. "semana passada", "last Monday"). Never move an activity into the target week.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
+- Each project's stages list contains ONLY its active stages. If the person names a stage that is not listed (finished, paused or planned), never pick another stage silently: set stage_id null, confidence "low", and ask which of the listed stages to use (options = those stage names).
 - entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). If no category clearly fits, set internal_category null and confidence "low" — never invent one. project_id and stage_id must be null.
 - Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Only use "Pursuit" without an opportunity_id for explicit leads with no matching open lead (see above).
 - Match projects by name, client, number or alias, tolerating misspellings and accents. NEVER invent a project, stage or category not in the lists. If nothing matches or two are plausible, still add the entry with project_id null (or your best guess with confidence "low") and ask, with the candidate names as options.
@@ -163,7 +164,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       db.rpc("crm_leads_directory"),
       db
         .from("pm_projects")
-        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self)")
+        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self, status, stage_kind)")
         .eq("status", "active")
         .order("name")
         .limit(400),
@@ -224,10 +225,11 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       if (a.aliases?.length) aliasMap.set(a.project_id, a.aliases);
     }
 
-    type RawStage = { id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; is_self: boolean | null };
+    type RawStage = { id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; is_self: boolean | null; status: string | null; stage_kind: string | null };
     const projects: AssistantProject[] = ((projRes.data ?? []) as Array<{ id: string; name: string; client: string | null; stages: RawStage[] | null }>).map((p) => {
       const raw = p.stages ?? [];
       const parents = new Set(raw.map((s) => s.parent_stage_id).filter(Boolean) as string[]);
+      const retainerParents = new Set(raw.filter((s) => s.stage_kind === "retainer_monthly").map((s) => s.id));
       return {
         id: p.id,
         name: p.name,
@@ -235,6 +237,8 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         aliases: aliasMap.get(p.id) ?? [],
         stages: raw
           .filter((s) => !parents.has(s.id) && s.is_self !== false)
+          // Only active stages take new hours; retainer month stages always (their month).
+          .filter((s) => s.status === "active" || (!!s.parent_stage_id && retainerParents.has(s.parent_stage_id)))
           .sort((a, b) => a.sort_order - b.sort_order)
           .map(({ id, name, start_date, end_date }) => ({ id, name, start_date, end_date })),
       };

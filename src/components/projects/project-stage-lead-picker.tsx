@@ -160,8 +160,9 @@ export function ProjectStageLeadPicker(props: Props) {
           <div>
             <div className={heading}>{t("picker.projects")}</div>
             {projects.map((p) => (
-              <button key={p.id} type="button" disabled={props.busy} className={row} onClick={() => pickProject(p)}>
+              <button key={p.id} type="button" disabled={props.busy || p.stages.length === 0} className={row} onClick={() => pickProject(p)}>
                 <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
+                {p.stages.length === 0 && <span className="text-[11px] text-muted-foreground">{t("picker.noActiveStages")}</span>}
                 {p.stages.length > 1 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
               </button>
             ))}

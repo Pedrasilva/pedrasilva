@@ -11,8 +11,10 @@ export type TimesheetTaskRow = {
   allocation_end: string;
   hours_per_day: number;
   resource_id: string;
-  stage: { id: string; name: string; color: string };
+  stage: { id: string; name: string; color: string; status?: string | null };
   project: { id: string; name: string; client: string | null; color: string };
+  /** True when this person already has project hours on this task this week. */
+  has_week_entries?: boolean;
 };
 
 export type EntryType = "project" | "internal" | "non_working";
@@ -75,7 +77,7 @@ export function useTimesheetRows(opts: {
       const { data: allTasks, error } = await supabase
         .from("pm_tasks")
         .select(
-          "id, name, allocation_id, allocation:pm_allocations!inner(id, start_date, end_date, hours_per_day, resource_id, stage:pm_stages(id, name, color, project:pm_projects(id, name, client, color)))",
+          "id, name, allocation_id, allocation:pm_allocations!inner(id, start_date, end_date, hours_per_day, resource_id, stage:pm_stages(id, name, color, status, project:pm_projects(id, name, client, color)))",
         )
         .eq("allocation.resource_id", opts.resourceId);
       if (error) throw error;
@@ -94,6 +96,7 @@ export function useTimesheetRows(opts: {
             id: string;
             name: string;
             color: string;
+            status: string | null;
             project: { id: string; name: string; client: string | null; color: string };
           };
         };
@@ -131,6 +134,7 @@ export function useTimesheetRows(opts: {
         resource_id: r.allocation.resource_id,
         stage: r.allocation.stage,
         project: r.allocation.stage.project,
+        has_week_entries: taskIdsWithEntries.has(r.id),
       }));
     },
   });
@@ -381,7 +385,7 @@ export function useProjectSearch(opts: { query: string }) {
       const { data, error } = await supabase
         .from("pm_projects")
         .select(
-          "id, name, client, color, stages:pm_stages(id, name, color, start_date, end_date, sort_order, parent_stage_id, is_self)",
+          "id, name, client, color, stages:pm_stages(id, name, color, start_date, end_date, sort_order, parent_stage_id, is_self, status, stage_kind)",
         )
         .or(`name.ilike.%${q}%,client.ilike.%${q}%`)
         .eq("status", "active")
@@ -398,7 +402,10 @@ export function useProjectSearch(opts: { query: string }) {
           sort_order: number;
           parent_stage_id: string | null;
           is_self: boolean | null;
+          status: string | null;
+          stage_kind: string | null;
         }>;
+        const retainerParents = new Set(raw.filter((s) => s.stage_kind === "retainer_monthly").map((s) => s.id));
         // Only leaf, in-house rows are loggable: summary parents (any stage
         // that has children) and supplier stages are not time-tracked.
         const parentIds = new Set(
@@ -410,7 +417,9 @@ export function useProjectSearch(opts: { query: string }) {
           client: p.client,
           color: p.color,
           stages: raw
+            // New hours only on active stages; retainer months take hours in their own month.
             .filter((s) => !parentIds.has(s.id) && s.is_self !== false)
+            .filter((s) => s.status === "active" || (!!s.parent_stage_id && retainerParents.has(s.parent_stage_id)))
             .sort((a, b) => a.sort_order - b.sort_order)
             .map(({ id, name, color, start_date, end_date }) => ({
               id,

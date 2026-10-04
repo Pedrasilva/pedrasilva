@@ -1743,7 +1743,8 @@
     "searching": "Searching…",
     "noMatch": "Nothing matches \"{{query}}\".",
     "typeToSearchProjects": "Type to search projects by name, number or client.",
-    "internalInGrid": "{{name}} is already in the Internal rows below."
+    "internalInGrid": "{{name}} is already in the Internal rows below.",
+    "noActiveStages": "No active stages"
   },
   "nonWorkingDay": {
     "sectionTitle": "Work on non-working days",
@@ -1775,5 +1776,12 @@
     "added": "{{hours}} added to {{name}}",
     "noRetainerMonth": "No retainer stage for {{month}}",
     "retainerSub": "Retainer · hours go to each day's month"
+  },
+  "stageGate": {
+    "note": {
+      "done": "Stage done — read-only",
+      "paused": "Stage paused — read-only",
+      "planned": "Stage not started — read-only"
+    }
   }
 }
