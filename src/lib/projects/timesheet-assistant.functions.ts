@@ -163,7 +163,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       db.rpc("crm_leads_directory"),
       db
         .from("pm_projects")
-        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self)")
+        .select("id, name, client, company_id, stages:pm_stages(id, name, start_date, end_date, sort_order, parent_stage_id, is_self, status, stage_kind)")
         .eq("status", "active")
         .order("name")
         .limit(400),
@@ -224,10 +224,11 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       if (a.aliases?.length) aliasMap.set(a.project_id, a.aliases);
     }
 
-    type RawStage = { id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; is_self: boolean | null };
+    type RawStage = { id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; is_self: boolean | null; status: string | null; stage_kind: string | null };
     const projects: AssistantProject[] = ((projRes.data ?? []) as Array<{ id: string; name: string; client: string | null; stages: RawStage[] | null }>).map((p) => {
       const raw = p.stages ?? [];
       const parents = new Set(raw.map((s) => s.parent_stage_id).filter(Boolean) as string[]);
+      const retainerParents = new Set(raw.filter((s) => s.stage_kind === "retainer_monthly").map((s) => s.id));
       return {
         id: p.id,
         name: p.name,
@@ -235,6 +236,8 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         aliases: aliasMap.get(p.id) ?? [],
         stages: raw
           .filter((s) => !parents.has(s.id) && s.is_self !== false)
+          // Only active stages take new hours; retainer month stages always (their month).
+          .filter((s) => s.status === "active" || (!!s.parent_stage_id && retainerParents.has(s.parent_stage_id)))
           .sort((a, b) => a.sort_order - b.sort_order)
           .map(({ id, name, start_date, end_date }) => ({ id, name, start_date, end_date })),
       };
