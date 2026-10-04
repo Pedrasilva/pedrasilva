@@ -683,7 +683,7 @@
     "overbookedDetail_one": "{{count}} day in {{period}} exceeds daily capacity",
     "overbookedDetail_other": "{{count}} days in {{period}} exceed daily capacity",
     "highInternal": "{{name}} has high internal time",
-    "highInternalDetail": "{{pct}}% of logged hours are internal (target ≤ 20%)",
+    "highInternalDetail": "{{pct}}% internal (target ≤ {{allowed}}%)",
     "overBudgetDetail": "Cost {{cost}} • {{pct}}% of {{budget}} budget",
     "overrunDetail": "Logged {{logged}}h • {{pct}}% of {{planned}}h planned"
   },
