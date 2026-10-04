@@ -62,6 +62,8 @@ import { MyWeekCard } from "@/components/projects/my-week-card";
 import {
   isWeekLocked,
   totalsFromEntries,
+  isUnpaidLeave,
+  UNPAID_LEAVE_LABEL,
   useTimesheetWeek,
 } from "@/lib/projects/use-timesheet-weeks";
 
@@ -312,7 +314,10 @@ function TimesheetPage() {
 
   const dayTotals = useMemo(() => {
     const t = new Map<string, number>();
-    for (const e of entries) t.set(e.entry_date, (t.get(e.entry_date) ?? 0) + e.hours);
+    for (const e of entries) {
+      if (isUnpaidLeave(e)) continue; // unpaid leave is time owed, never accounted
+      t.set(e.entry_date, (t.get(e.entry_date) ?? 0) + e.hours);
+    }
     return t;
   }, [entries]);
 
@@ -326,7 +331,7 @@ function TimesheetPage() {
         if (e.billable) billable += e.hours;
         else internal += e.hours; // non-billable project time still consumes capacity
       } else if (e.entry_type === "internal") internal += e.hours;
-      else if (e.entry_type === "non_working") nonWorking += e.hours;
+      else if (e.entry_type === "non_working" && !isUnpaidLeave(e)) nonWorking += e.hours;
     }
     return { billable, internal, nonWorking };
   }, [entries]);
@@ -1057,7 +1062,11 @@ function TimesheetPage() {
                   {nonWorkingPrefill.map((row) => (
                     <FixedRow
                       key={row.key}
-                      label={row.leave_type}
+                      label={
+                        row.leave_type === UNPAID_LEAVE_LABEL
+                          ? `${row.leave_type} · ${t("projects:hoursBank.unpaidTag")}`
+                          : row.leave_type
+                      }
                       sub="Non-working · capacity reducer"
                       tone="nonworking"
                       days={days}

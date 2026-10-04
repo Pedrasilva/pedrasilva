@@ -37,6 +37,7 @@ export type ReportEntry = {
   /** Set by the database for work on a holiday, weekend or full-day leave. */
   non_working_day_reason?: string | null;
   approval_status?: string | null;
+  leave_type?: string | null;
 };
 export type ReportWeekRow = { user_id: string; week_start: string; status: string };
 export type NonWorkingDay = { user_id: string; entry_date: string };
@@ -143,6 +144,8 @@ export function computeHoursLogged(input: {
 
   const nwByUser = new Map<string, Set<string>>();
   for (const n of input.nonWorking) {
+    // Unpaid leave is time owed: it does not reduce expected hours.
+    if ((n as { leave_type?: string }).leave_type === "Authorized (unpaid)") continue;
     const s = nwByUser.get(n.user_id) ?? new Set<string>();
     s.add(n.entry_date);
     nwByUser.set(n.user_id, s);

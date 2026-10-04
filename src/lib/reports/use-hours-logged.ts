@@ -88,7 +88,7 @@ export function useHoursLogged(rangeStart: string, rangeEnd: string) {
         fetchAll<ReportEntry>((a, b) =>
           supabase
             .from("pm_time_entries")
-            .select("user_id, entry_date, entry_type, hours, non_working_day_reason, approval_status")
+            .select("user_id, entry_date, entry_type, hours, non_working_day_reason, approval_status, leave_type")
             .gte("entry_date", rangeStart)
             .lte("entry_date", rangeEnd)
             .order("id")
