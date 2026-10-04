@@ -13,7 +13,6 @@ export function useBudgetConsumptionData(upTo: string) {
           supabase
             .from("pm_time_entries")
             .select("task_id, hours, billable, cost_rate_snapshot")
-            .eq("entry_type", "project")
             .lte("entry_date", upTo)
             .order("id")
             .range(a, b) as never,
