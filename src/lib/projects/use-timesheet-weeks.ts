@@ -251,9 +251,13 @@ export interface ApproveWeekInput {
   approverId: string;
   collaboratorId: string | null;
   weekStart: string;
+  weekEnd?: string;
   /** Hours the approver explicitly acknowledges. Never above the calculated excess. */
   additionalHours: number;
   calculatedExcess: number;
+  /** Shortfall the approver keeps as a debit. Never above the calculated shortfall. */
+  shortfallHours?: number;
+  calculatedShortfall?: number;
   note: string | null;
   comment: string | null;
 }
@@ -261,17 +265,37 @@ export interface ApproveWeekInput {
 /**
  * Approver action: close the week and reconcile the hours bank.
  *
- * Reconciliation matters because a week can be reopened and approved again.
- * There is at most ONE `additional_hours` ledger entry per week (enforced by a
- * unique index), so re-approval updates or removes the existing entry rather
- * than adding a second one.
+ * A week has at most ONE bank movement (credit `additional_hours` or debit
+ * `shortfall`, enforced by a unique index). Re-approval replaces it. Weeks
+ * ending before the person's opening-balance "as of" date never move the bank.
  */
 export function useApproveWeek() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: ApproveWeekInput) => {
-      const hours = Math.max(0, Math.min(input.additionalHours, input.calculatedExcess));
+      let credit = Math.max(0, Math.min(input.additionalHours, input.calculatedExcess));
+      let debit = Math.max(
+        0,
+        Math.min(input.shortfallHours ?? 0, input.calculatedShortfall ?? 0),
+      );
+      if (credit > 0) debit = 0;
       const now = new Date().toISOString();
+
+      // Respect the opening balance: earlier weeks are covered by it.
+      if (input.collaboratorId && (credit > 0 || debit > 0)) {
+        const { data: opening } = await supabase
+          .from("pm_hours_bank_entries")
+          .select("as_of_date")
+          .eq("collaborator_id", input.collaboratorId)
+          .eq("transaction_type", "opening_balance")
+          .maybeSingle();
+        const asOf = (opening as { as_of_date: string | null } | null)?.as_of_date;
+        const weekEnd = input.weekEnd ?? input.weekStart;
+        if (asOf && weekEnd < asOf) {
+          credit = 0;
+          debit = 0;
+        }
+      }
 
       const { error } = await supabase
         .from("pm_timesheet_weeks")
@@ -279,59 +303,38 @@ export function useApproveWeek() {
           status: "approved",
           approved_at: now,
           approved_by: input.approverId,
-          additional_hours_approved: hours,
+          additional_hours_approved: credit,
           additional_hours_note: input.note,
+          shortfall_hours_approved: debit,
           reviewer_comment: input.comment,
         } as never)
         .eq("id", input.weekId);
       if (error) throw error;
 
-      // Reconcile the ledger entry for this week.
-      const { data: existing, error: exErr } = await supabase
+      // Replace this week's movement (credit or debit).
+      const { error: dErr } = await supabase
         .from("pm_hours_bank_entries")
-        .select("id")
+        .delete()
         .eq("week_id", input.weekId)
-        .eq("transaction_type", "additional_hours")
-        .maybeSingle();
-      if (exErr) throw exErr;
+        .in("transaction_type", ["additional_hours", "shortfall"]);
+      if (dErr) throw dErr;
 
-      if (hours <= 0) {
-        if (existing?.id) {
-          const { error: dErr } = await supabase
-            .from("pm_hours_bank_entries")
-            .delete()
-            .eq("id", existing.id);
-          if (dErr) throw dErr;
-        }
-        return;
-      }
-      if (!input.collaboratorId) return;
-
-      if (existing?.id) {
-        const { error: uErr } = await supabase
-          .from("pm_hours_bank_entries")
-          .update({
-            hours,
-            reason: input.note,
-            created_by: input.approverId,
-            entry_date: input.weekStart,
-          } as never)
-          .eq("id", existing.id);
-        if (uErr) throw uErr;
-      } else {
-        const { error: iErr } = await supabase.from("pm_hours_bank_entries").insert({
-          collaborator_id: input.collaboratorId,
-          week_id: input.weekId,
-          entry_date: input.weekStart,
-          transaction_type: "additional_hours",
-          hours,
-          reason: input.note,
-          created_by: input.approverId,
-        } as never);
-        if (iErr) throw iErr;
-      }
+      if (!input.collaboratorId || (credit <= 0 && debit <= 0)) return;
+      const { error: iErr } = await supabase.from("pm_hours_bank_entries").insert({
+        collaborator_id: input.collaboratorId,
+        week_id: input.weekId,
+        entry_date: input.weekStart,
+        transaction_type: credit > 0 ? "additional_hours" : "shortfall",
+        hours: credit > 0 ? credit : -debit,
+        reason: input.note,
+        created_by: input.approverId,
+      } as never);
+      if (iErr) throw iErr;
     },
-    onSuccess: () => invalidateWeeks(qc),
+    onSuccess: () => {
+      invalidateWeeks(qc);
+      qc.invalidateQueries({ queryKey: ["pm-hours-bank"] });
+    },
   });
 }
 
@@ -392,6 +395,8 @@ export interface WeeklyApprovalRow {
   capacity: number;
   totals: WeekTotals;
   excess: number;
+  /** Hours short of capacity (accounted < capacity). */
+  shortfall: number;
   week: TimesheetWeek | null;
   status: WeekStatus | "not_submitted";
 }
