@@ -69,6 +69,9 @@ import {
 
 
 export const Route = createFileRoute("/_app/projects/timesheet")({
+  // ?week=YYYY-MM-DD opens that week (used by notification links).
+  validateSearch: (s: Record<string, unknown>): { week?: string } =>
+    typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {},
   component: TimesheetPage,
 });
 
@@ -89,7 +92,13 @@ type CellInfo = {
 function TimesheetPage() {
   const { profile: selfProfile, user } = useProjectsAuth();
   const { isRealAdmin, viewAsUser } = useAuth();
-  const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
+  const { week: weekParam } = Route.useSearch();
+  const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
+    weekParam ? new Date(`${weekParam}T12:00:00`) : new Date(),
+  );
+  useEffect(() => {
+    if (weekParam) setWeekAnchor(new Date(`${weekParam}T12:00:00`));
+  }, [weekParam]);
   const [dictateOpen, setDictateOpen] = useState(false);
   const { t } = useTranslation();
   const [extraTaskIds, setExtraTaskIds] = useState<string[]>([]);
