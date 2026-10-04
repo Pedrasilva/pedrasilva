@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getCalendarGridSuggestions, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
+import { getCalendarGridSuggestions, rememberCalendarMatch, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
 import { useTimesheetRetainers, type RetainerParentRow } from "@/lib/projects/use-timesheet-retainers";
 import { CalendarDayBadge, CalendarRowHint, type HintTarget } from "@/components/projects/timesheet-calendar";
 import { Button } from "@/components/ui/button";
@@ -471,6 +471,7 @@ function TimesheetPage() {
   // ---------------- Calendar suggestions (own timesheet only) ----------------
   const calendarAllowed = !viewingOther && !viewAsUser && !weekLocked && !!user?.id;
   const fetchGridCalendar = useServerFn(getCalendarGridSuggestions);
+  const rememberMatch = useServerFn(rememberCalendarMatch);
   const { data: gridCalendar } = useQuery({
     queryKey: ["timesheet-calendar-grid", user?.id ?? null, weekStart],
     enabled: calendarAllowed,
@@ -584,6 +585,7 @@ function TimesheetPage() {
         targets={targets}
         onAdd={async (key) => {
           const tg = targets.find((x) => x.key === key)!;
+          for (const e of evs) learn(e, { project_id: projectId });
           await runAdd(tg.target, date, hours, evs.map((e) => e.id), tg.label);
         }}
       />
@@ -598,13 +600,37 @@ function TimesheetPage() {
       <CalendarRowHint
         events={evs}
         targets={[{ key: "lead", label }]}
-        onAdd={() => runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label)}
+        onAdd={() => { for (const e of evs) learn(e, { opportunity_id: leadId, internal_category: PURSUIT_CATEGORY }); return runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label); }}
       />
     );
+  };
+  /** Remember the person's choice for this event's series / single matched word (own rows only). */
+  const learn = (ev: GridCalendarEvent, target: { project_id?: string | null; stage_id?: string | null; opportunity_id?: string | null; internal_category?: string | null }) => {
+    if (!ev.series_id && !ev.match_word) return;
+    void rememberMatch({
+      data: {
+        series_id: ev.series_id,
+        word: ev.match_word,
+        project_id: target.project_id ?? null,
+        stage_id: target.stage_id ?? null,
+        opportunity_id: target.opportunity_id ?? null,
+        internal_category: target.internal_category ?? null,
+      },
+    }).catch(() => undefined);
   };
   const calendarPicker = (ev: GridCalendarEvent, hours: number, done: () => void) => (
     <ProjectStageLeadPicker
       autoFocus
+      suggestions={ev.suggestions.map((sg) => ({
+        key: sg.key,
+        label: sg.label,
+        reason: sg.reason,
+        preselect: sg.preselect,
+        project: sg.project_id ? { id: sg.project_id, name: sg.project_name ?? "", client: null, stages: sg.project_stages } : undefined,
+        stage: sg.stage,
+        lead: sg.lead_id ? { id: sg.lead_id, name: sg.lead_name ?? "", client: null } : undefined,
+        category: sg.internal_category ?? undefined,
+      }))}
       projects={searchResults}
       leads={leads.filter((l) => l.is_open).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
       categories={activeInternalCategories.map((c) => c.name).filter((n) => n !== PURSUIT_CATEGORY)}
@@ -618,19 +644,23 @@ function TimesheetPage() {
         const row = parent ? retainerData?.rows.find((r) => r.id === parent) : null;
         if (!row) return false;
         setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
+        learn(ev, { project_id: p.id });
         void runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`).then(done);
         return true;
       }}
       onPickLead={(l) => {
         setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
+        learn(ev, { opportunity_id: l.id, internal_category: PURSUIT_CATEGORY });
         void runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: l.id }, ev.date, hours, [ev.id], l.name).then(done);
       }}
       onPickCategory={(c) => {
+        learn(ev, { internal_category: c });
         void runAdd({ kind: "internal", category: c }, ev.date, hours, [ev.id], c).then(done);
       }}
       onPickStage={async (p, s) => {
         const rp = retainerData?.childToParent.get(s.id);
         const row = rp ? retainerData?.rows.find((r) => r.id === rp) : null;
+        learn(ev, { project_id: p.id, stage_id: s.id });
         if (row) {
           setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
           await runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`);

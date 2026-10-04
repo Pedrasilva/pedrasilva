@@ -203,6 +203,8 @@ export type CalendarEvent = {
   minutes: number;
   location: string | null;
   attendees: string[]; // emails, other than the person
+  /** Recurring series id (Google recurringEventId), or null for one-off events. */
+  series_id: string | null;
 };
 
 function local(iso: string): { date: string; time: string; mins: number } {
@@ -234,7 +236,7 @@ export async function weekEvents(userId: string, weekStart: string, weekEnd: str
       timeMin: pad(weekStart, -1),
       timeMax: pad(weekEnd, 2),
       maxResults: "250",
-      fields: "nextPageToken,items(id,status,summary,location,visibility,eventType,start,end,attendees(email,self,responseStatus))",
+      fields: "nextPageToken,items(id,recurringEventId,status,summary,location,visibility,eventType,start,end,attendees(email,self,responseStatus))",
     });
     if (pageToken) q.set("pageToken", pageToken);
     const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${q}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -244,6 +246,7 @@ export async function weekEvents(userId: string, weekStart: string, weekEnd: str
       nextPageToken?: string;
       items?: Array<{
         id: string;
+        recurringEventId?: string;
         status?: string;
         summary?: string;
         location?: string;
@@ -276,6 +279,7 @@ export async function weekEvents(userId: string, weekStart: string, weekEnd: str
         minutes,
         location: e.location ? e.location.slice(0, 200) : null,
         attendees: (e.attendees ?? []).filter((a) => !a.self && a.email).map((a) => a.email!.toLowerCase()).slice(0, 50),
+        series_id: e.recurringEventId ?? null,
       });
     }
     pageToken = j.nextPageToken;

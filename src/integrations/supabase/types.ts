@@ -1224,6 +1224,60 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_match_memory: {
+        Row: {
+          id: string
+          internal_category: string | null
+          key: string
+          key_type: string
+          last_used_at: string
+          opportunity_id: string | null
+          project_id: string | null
+          stage_id: string | null
+          user_id: string
+          uses: number
+        }
+        Insert: {
+          id?: string
+          internal_category?: string | null
+          key: string
+          key_type: string
+          last_used_at?: string
+          opportunity_id?: string | null
+          project_id?: string | null
+          stage_id?: string | null
+          user_id?: string
+          uses?: number
+        }
+        Update: {
+          id?: string
+          internal_category?: string | null
+          key?: string
+          key_type?: string
+          last_used_at?: string
+          opportunity_id?: string | null
+          project_id?: string | null
+          stage_id?: string | null
+          user_id?: string
+          uses?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_match_memory_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_match_memory_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaborators: {
         Row: {
           ano_fiscal: number

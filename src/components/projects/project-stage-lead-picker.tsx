@@ -13,6 +13,18 @@ import { cn } from "@/lib/utils";
 export type PickerStage = { id: string; name: string; start_date: string; end_date: string };
 export type PickerProject = { id: string; name: string; client: string | null; aliases?: string[]; stages: PickerStage[] };
 export type PickerLead = { id: string; name: string; client: string | null };
+/** A ranked calendar match shown above the normal sections (best first). */
+export type PickerSuggestion = {
+  key: string;
+  label: string;
+  /** Why it is suggested: remembered choice, matched word, project number, attendee company. */
+  reason: "remembered" | "word" | "number" | "attendee";
+  project?: PickerProject;
+  stage?: PickerStage | null;
+  lead?: PickerLead;
+  category?: string;
+  preselect?: boolean;
+};
 
 const norm = (x: string) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
@@ -45,6 +57,8 @@ type Props = {
   onPickDirect?: (p: PickerProject) => boolean;
   onPickLead: (l: PickerLead) => void;
   onPickCategory: (c: string) => void;
+  /** Calendar matches, best first (max 3), shown in a "Suggestions" section at the top. */
+  suggestions?: PickerSuggestion[];
 };
 
 export function ProjectStageLeadPicker(props: Props) {
@@ -141,13 +155,21 @@ export function ProjectStageLeadPicker(props: Props) {
     );
   }
 
+  const sugg = !q ? (props.suggestions ?? []).slice(0, 3) : [];
+  const pickSuggestion = (sg: PickerSuggestion) => {
+    if (sg.lead) return props.onPickLead(sg.lead);
+    if (sg.category) return props.onPickCategory(sg.category);
+    if (sg.project && sg.stage) return props.onPickStage(sg.project, sg.stage);
+    if (sg.project) return pickProject(sg.project);
+  };
+  const preselected = sugg.find((x) => x.preselect);
   const nothing = projects.length === 0 && leads.length === 0 && categories.length === 0;
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
-          autoFocus={props.autoFocus}
+          autoFocus={props.autoFocus && !preselected}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("picker.searchPlaceholder")}
@@ -156,6 +178,24 @@ export function ProjectStageLeadPicker(props: Props) {
         />
       </div>
       <div className="max-h-80 overflow-y-auto p-1">
+        {sugg.length > 0 && (
+          <div className="border-b border-border pb-1">
+            <div className={heading}>{t("picker.suggestions")}</div>
+            {sugg.map((sg) => (
+              <button
+                key={sg.key}
+                type="button"
+                autoFocus={sg === preselected}
+                disabled={props.busy}
+                className={cn(row, sg === preselected && "bg-accent ring-1 ring-primary")}
+                onClick={() => pickSuggestion(sg)}
+              >
+                <span className="min-w-0 flex-1 truncate font-medium">{sg.label}</span>
+                <span className="shrink-0 text-[11px] text-muted-foreground">{t(`picker.suggestionReason.${sg.reason}`)}</span>
+              </button>
+            ))}
+          </div>
+        )}
         {projects.length > 0 && (
           <div>
             <div className={heading}>{t("picker.projects")}</div>
