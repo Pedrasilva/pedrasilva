@@ -402,6 +402,20 @@ export function TimesheetAssistantSheet({
             await supabase.from("pm_time_entries").update({ calendar_event_ids: ids }).eq("id", row.id);
           }
         }
+        if (d.event_id) {
+          const m = result.eventMatches?.[d.event_id];
+          if (m && (m.series_id || m.match_word))
+            void rememberMatch({
+              data: {
+                series_id: m.series_id,
+                word: m.match_word,
+                project_id: d.entry_type === "project" ? d.project_id : null,
+                stage_id: d.entry_type === "project" ? d.stage_id : null,
+                opportunity_id: d.opportunity_id ?? null,
+                internal_category: d.entry_type === "internal" ? d.internal_category : null,
+              },
+            }).catch(() => undefined);
+        }
         total += d.hours;
         update(d.key, { saved: true });
       }
@@ -641,6 +655,16 @@ export function TimesheetAssistantSheet({
                       leads={result.leads}
                       categories={result.categories.filter((c) => c !== "Pursuit")}
                       refDate={q.draft_ids.map((id) => drafts.find((d) => d.id === id)?.date).find(Boolean) ?? week}
+                      suggestions={(result.eventMatches?.[q.event_ids[0]]?.suggestions ?? []).map((sg) => ({
+                        key: sg.key,
+                        label: sg.label,
+                        reason: sg.reason,
+                        preselect: sg.preselect,
+                        project: sg.project_id ? result.projects.find((p) => p.id === sg.project_id) : undefined,
+                        stage: sg.stage,
+                        lead: sg.lead_id ? result.leads.find((l) => l.id === sg.lead_id) : undefined,
+                        category: sg.internal_category && !sg.lead_id ? sg.internal_category : undefined,
+                      }))}
                       onPickStage={(p, s) => { setAnswers((a) => ({ ...a, [i]: `${p.name} · ${s.name}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
                       onPickProject={(p) => { setAnswers((a) => ({ ...a, [i]: p.name })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
                       onPickLead={(l) => { setAnswers((a) => ({ ...a, [i]: `${l.name} · ${t(k("q.leadSuffix"))}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
