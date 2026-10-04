@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { InvoiceInventoryDialog } from "@/components/inventory/invoice-inventory-dialog";
-import { useCanManageInventory, useInventoryIntakeQueue } from "@/lib/inventory/use-inventory";
+import { useInventoryIntakeQueue } from "@/lib/inventory/use-inventory";
 
 export const Route = createFileRoute("/_app/inventory/intake")({
   component: IntakePage,
@@ -43,7 +43,6 @@ const eur = (v: number | null | undefined) =>
 
 function IntakePage() {
   const { t } = useTranslation(["inventory", "common"]);
-  const canManage = useCanManageInventory();
   const { data = [], isLoading } = useInventoryIntakeQueue();
   const [openDoc, setOpenDoc] = useState<string | null>(null);
 
@@ -92,11 +91,9 @@ function IntakePage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {canManage && (
                     <Button size="sm" variant="outline" onClick={() => setOpenDoc(row.id)}>
                       {t("inventory:dashboard.review")}
                     </Button>
-                    )}
                   </TableCell>
                 </TableRow>
               ))}

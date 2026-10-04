@@ -178,6 +178,5 @@
     "selectPerson": "Choose a person",
     "add": "Add",
     "remove": "Remove"
-  },
-  "noAccess": "You don't have access to change the inventory"
+  }
 }

@@ -36,8 +36,6 @@ import {
   useSetLineSkipped,
   type InvoiceLine,
   type LineAssetPlan,
-  inventoryErrorMessage,
-  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import { TRACKING_LEVELS, suggestCategoryCode, type TrackingLevel } from "@/lib/inventory/types";
 
@@ -153,7 +151,7 @@ export function InvoiceInventoryDialog({
       toast.success(t("inventory:invoice.created", { count: created.length }));
       onOpenChange(false);
     } catch (err) {
-      toast.error(inventoryErrorMessage(err, t));
+      toast.error((err as Error).message);
     }
   };
 
@@ -182,7 +180,7 @@ export function InvoiceInventoryDialog({
                     toast.success(t("inventory:invoice.linesExtracted", { count: res.created }));
                   }
                 } catch (err) {
-                  toast.error(inventoryErrorMessage(err, t));
+                  toast.error((err as Error).message);
                 }
               }}
             >

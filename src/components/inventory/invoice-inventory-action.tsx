@@ -8,8 +8,6 @@ import { InvoiceInventoryDialog } from "./invoice-inventory-dialog";
 import {
   useInvoiceForInventory,
   useMarkInvoiceForInventory,
-  inventoryErrorMessage,
-  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 
 /**
@@ -22,7 +20,6 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
   const [open, setOpen] = useState(false);
   const { data: invoice } = useInvoiceForInventory(documentId);
   const mark = useMarkInvoiceForInventory();
-  const canManage = useCanManageInventory();
 
   const status = invoice?.inventory_status ?? null;
 
@@ -31,7 +28,7 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
       try {
         await mark.mutateAsync({ documentId, status: "pending" });
       } catch (err) {
-        toast.error(inventoryErrorMessage(err, t));
+        toast.error((err as Error).message);
         return;
       }
     }
@@ -49,12 +46,10 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
               : t("inventory:invoice.statusPending")}
         </Badge>
       )}
-      {canManage && (
       <Button size="sm" variant="outline" onClick={start} disabled={mark.isPending}>
         <Boxes className="mr-1 h-4 w-4" />
         {t("inventory:invoice.sendToInventory")}
       </Button>
-      )}
       <InvoiceInventoryDialog documentId={documentId} open={open} onOpenChange={setOpen} />
     </div>
   );

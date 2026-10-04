@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { inventoryErrorMessage, useAssignAsset } from "@/lib/inventory/use-inventory";
+import { useAssignAsset } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 import { CUSTODY_MODES, type CustodyMode, type InventoryAsset } from "@/lib/inventory/types";
 
@@ -68,7 +68,7 @@ export function AssignAssetDialog({
       toast.success(t("inventory:assign.done"));
       onOpenChange(false);
     } catch (err) {
-      toast.error(inventoryErrorMessage(err, t));
+      toast.error((err as Error).message);
     }
   };
 

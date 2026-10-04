@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
-import { useCanManageInventory, useInventoryAssets, useInventoryCategories } from "@/lib/inventory/use-inventory";
+import { useInventoryAssets, useInventoryCategories } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 import { ASSET_STATUSES, indicativeDepreciatedValue } from "@/lib/inventory/types";
 
@@ -34,7 +34,6 @@ const eur = (v: number | null | undefined) =>
 
 function AssetRegister() {
   const { t } = useTranslation(["inventory", "common"]);
-  const canManage = useCanManageInventory();
   const { data: assets = [], isLoading } = useInventoryAssets();
   const { data: categories = [] } = useInventoryCategories();
   const { data: collaborators = [] } = useCollaboratorsList({ status: "all" });
@@ -100,11 +99,9 @@ function AssetRegister() {
           <span className="text-xs text-muted-foreground">
             {t("inventory:register.count", { count: rows.length })}
           </span>
-          {canManage && (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              {t("inventory:register.newAsset")}
-            </Button>
-          )}
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            {t("inventory:register.newAsset")}
+          </Button>
         </div>
       </div>
 

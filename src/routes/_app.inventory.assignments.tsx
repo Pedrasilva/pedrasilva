@@ -16,8 +16,6 @@ import {
   useInventoryAssets,
   useOpenAssignments,
   useReturnAsset,
-  inventoryErrorMessage,
-  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 
@@ -43,7 +41,7 @@ function AssignmentsPage() {
       await returnAsset.mutateAsync({ assignmentId: id });
       toast.success(t("inventory:assign.returned"));
     } catch (err) {
-      toast.error(inventoryErrorMessage(err, t));
+      toast.error((err as Error).message);
     }
   };
 
