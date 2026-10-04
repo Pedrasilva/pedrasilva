@@ -1609,7 +1609,22 @@
       "no_hours": "sem horas indicadas",
       "over_24h": "mais de 24 h",
       "bad_date": "data ilegível"
-    }
+    },
+    "record": {
+      "tap": "🎙 Toque para falar",
+      "recording": "A gravar… {{time}}",
+      "stop": "Parar",
+      "transcribing": "A transcrever…"
+    },
+    "dictation": {
+      "list": "Ditados anteriores",
+      "label": "Ditado {{n}}",
+      "edit": "Editar texto",
+      "cancel": "Cancelar",
+      "next": "Acrescentar (cada ditado é usado uma vez)"
+    },
+    "preparing": "A preparar registos…",
+    "dayNote": "{{day}} já tem {{logged}} h registadas; com estas fica com {{total}} h."
   },
   "pursuit": {
     "title": "Pré-contrato (angariação)",

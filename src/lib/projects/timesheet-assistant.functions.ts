@@ -38,6 +38,8 @@ export type AssistantDraft = {
   confidence: "high" | "low";
   /** Google Calendar event this draft comes from, if any. */
   event_id: string | null;
+  /** Ref of a current (earlier) draft this entry corrects; the client patches that draft instead of adding one. */
+  updates?: string | null;
 };
 export type AssistantCalendar = { status: "off" | "not_connected" | "connected" | "expired"; email: string | null; events: number };
 export type AssistantQuestion = {
@@ -84,10 +86,12 @@ const dow = (d: string) => new Date(d + "T00:00:00Z").getUTCDay();
 
 const SYSTEM = `You turn a person's spoken or typed description of their working hours into draft timesheet entries.
 The text may be Portuguese, English or a mix. Reply with ONE JSON object only, no prose, no code fences:
-{"entries":[{"ref":"d1","quote":string|null,"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
+{"entries":[{"ref":"d1","updates":string|null,"quote":string|null,"date":"YYYY-MM-DD","start_time":"HH:MM"|null,"end_time":"HH:MM"|null,"hours":number,"entry_type":"project"|"internal","project_id":string|null,"stage_id":string|null,"internal_category":string|null,"opportunity_id":string|null,"lead_hint":string|null,"note":string,"confidence":"high"|"low","event_id":string|null}],
  "questions":[{"text":string,"options":[string],"source":"calendar"|"dictation"|"hours","draft_ids":[string],"event_ids":[string],"date":"YYYY-MM-DD"|null}]}
 Rules:
 - Every entry gets a unique ref ("d1","d2",...). quote = the exact, verbatim span of the person's text that this entry comes from (copy characters exactly, no paraphrase), or null for calendar-only drafts.
+- Current drafts (listed with refs "c1","c2",...) were already prepared from earlier dictations and are not saved yet. NEVER recreate them. Only return NEW activities from this text, or corrections the person states explicitly ("actually that was 2 hours", "afinal foram duas horas"). A correction is ONE entry with updates = the current draft's ref and the full corrected values; it replaces that draft. updates is null for every new entry.
+- Explicit leads: if the person says the time was on a lead, a proposal, pursuit, a pitch, not signed, "proposta", "angariação", "ainda não assinado" or similar (fee proposals as an internal category "propostas de honorários" are NOT this), the entry MUST be entry_type "internal", internal_category "Pursuit" with the matching open lead's opportunity_id — never a project stage, even if a project with a similar name exists. If no open lead matches, still return it as Pursuit with opportunity_id null, confidence "low", and lead_hint = the name they used (e.g. "Mastercard"). lead_hint is null otherwise.
 - Every question MUST say what it is about: source "calendar" when it is about calendar events (list them in event_ids, and the drafts made from them in draft_ids), "dictation" when about dictated items (draft_ids of those entries), "hours" when about a day's total (date = that day, draft_ids/event_ids may be empty).
 - Options must be exact names from the lists (project names, stage names of the referenced project, category names, lead names) or exactly "That's all", "Add it", "No". Nothing else. Do not add a "don't log" or "other" option; the app adds those.
 - Leads as candidates: when an item doesn't clearly match a project, also consider the open leads; offer matching lead names as options next to project names.
@@ -100,7 +104,7 @@ Rules:
 - Always use the real calendar dates the person means, even when they fall outside the target week (e.g. "semana passada", "last Monday"). Never move an activity into the target week.
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
 - entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). If no category clearly fits, set internal_category null and confidence "low" — never invent one. project_id and stage_id must be null.
-- Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Never use "Pursuit" without an opportunity_id.
+- Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Only use "Pursuit" without an opportunity_id for explicit leads with no matching open lead (see above).
 - Match projects by name, client, number or alias, tolerating misspellings and accents. NEVER invent a project, stage or category not in the lists. If nothing matches or two are plausible, still add the entry with project_id null (or your best guess with confidence "low") and ask, with the candidate names as options.
 - note: a short note in the person's own words and language (e.g. "layouts and test fits"). No times in the note.
 - confidence "low" whenever you guessed anything.
@@ -121,6 +125,10 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         useCalendar: z.boolean().default(false),
         weekStart: iso,
         today: iso,
+        current: z
+          .array(z.object({ ref: z.string().max(20), date: iso, hours: z.number(), label: z.string().max(300), note: z.string().max(300), event_id: z.string().max(300).nullable() }))
+          .max(80)
+          .default([]),
         answers: z.array(z.object({ q: z.string().max(500), a: z.string().max(1000) })).max(20).default([]),
         done: z.boolean().default(false),
         lang: z.enum(["pt", "en"]).default("pt"),
@@ -270,7 +278,8 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
           const saved = new Set(rawEntries.flatMap((e) => e.calendar_event_ids ?? []));
           const { data: dis } = await db.from("calendar_dismissed_events").select("event_id").eq("user_id", userId);
           const dismissed = new Set((dis ?? []).map((d) => d.event_id));
-          events = all.filter((e) => !saved.has(e.id) && !dismissed.has(e.id));
+          const drafted = new Set(data.current.map((c) => c.event_id).filter(Boolean) as string[]);
+          events = all.filter((e) => !saved.has(e.id) && !dismissed.has(e.id) && !drafted.has(e.id));
           calendar.events = events.length;
         } catch (e) {
           if (e instanceof cal.CalendarExpiredError) calendar.status = "expired";
@@ -319,6 +328,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       ...leads.map((l) => `${l.id} | ${l.name} | ${l.client ?? ""}`),
       `Projects (id | name | client | aliases | stages id:name):`,
       ...projects.map((p) => `${p.id} | ${p.name} | ${p.client ?? ""} | ${(aliasMap.get(p.id) ?? []).join(", ")} | ${p.stages.map((s) => `${s.id}:${s.name}`).join("; ")}`),
+      ...(data.current.length ? [`Current drafts, not saved yet (ref | date | hours | what | note) — never recreate; use updates only for explicit corrections:`, ...data.current.map((c) => `${c.ref} | ${c.date} | ${c.hours}h | ${c.label} | ${c.note}`)] : []),
       ...(events.length ? [`Calendar events not yet logged (event id | when | title | location | attendees):`, ...events.map(eventLine)] : []),
     ].join("\n");
     const convo = [
@@ -355,7 +365,14 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       return qi >= 0 ? data.text.slice(qi, qi + qRaw.length).slice(0, 300) : qRaw ? qRaw.slice(0, 300) : null;
     };
     const rawList = (parsed.entries ?? []) as Array<Record<string, unknown>>;
+    const currentRefs = new Set(data.current.map((c) => c.ref));
+    const PURSUIT = /\b(leads?|propostas?|proposals?|pursuit|pitch|angaria\w*|n[aã]o\s+(est[aá]\s+)?assinad\w*|ainda\s+n[aã]o\s+assinad\w*|not\s+(yet\s+)?signed|unsigned)\b/i;
+    const FEE = /propostas?\s+de\s+honor\w*|fee\s+proposals?/gi;
+    const pursuitAsk: Array<{ id: string; hint: string }> = [];
     const pushEntry = (r: Record<string, unknown>, date: string, hours: number, event_id: string | null) => {
+      const said = `${quoteOf(r) ?? ""} ${String(r.note ?? "")}`.replace(FEE, " ");
+      const explicitLead = PURSUIT.test(said) || r.internal_category === "Pursuit" || (typeof r.lead_hint === "string" && r.lead_hint.trim() !== "");
+      if (explicitLead) r.entry_type = "internal";
       const type = r.entry_type === "internal" ? "internal" : "project";
       let project_id = type === "project" && typeof r.project_id === "string" && projById.has(r.project_id) ? r.project_id : null;
       let stage_id: string | null = null;
@@ -373,6 +390,9 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         if (typeof r.opportunity_id === "string" && leadIds.has(r.opportunity_id)) {
           category = "Pursuit";
           opportunity_id = r.opportunity_id;
+        } else if (explicitLead) {
+          category = "Pursuit";
+          confidence = "low";
         }
         if (!category) confidence = "low";
       }
@@ -396,7 +416,12 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         note: String(r.note ?? "").slice(0, 300),
         confidence,
         event_id,
+        updates: typeof r.updates === "string" && currentRefs.has(r.updates) ? r.updates : null,
       });
+      if (category === "Pursuit" && !opportunity_id) {
+        const hint = typeof r.lead_hint === "string" && r.lead_hint.trim() ? r.lead_hint.trim() : (quoteOf(r) ?? String(r.note ?? ""));
+        pursuitAsk.push({ id, hint: hint.slice(0, 80) });
+      }
       return id;
     };
     for (const r of rawList) {
@@ -530,6 +555,24 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         draft_ids: [e.id],
         event_ids: [],
         context: e.quote ? `«${e.quote}» · ${shortDate(e.date)}` : shortDate(e.date),
+      });
+    }
+    // Explicit lead with no matching open lead: ask which one.
+    for (const p of pursuitAsk) {
+      if (covered.has(p.id)) continue;
+      const e = entryById.get(p.id);
+      const toks = norm(p.hint).split(/[^a-z0-9]+/).filter((x) => x.length >= 3);
+      const opts = leads
+        .filter((l) => toks.some((tk) => norm(`${l.name} ${l.client ?? ""}`).includes(tk)))
+        .slice(0, 6)
+        .map((l) => l.name + leadSuffix);
+      questions.push({
+        text: pt ? `Não encontrei uma proposta aberta para «${p.hint}». Qual é?` : `I couldn't find an open lead for "${p.hint}". Which one is it?`,
+        options: opts,
+        source: "dictation",
+        draft_ids: [p.id],
+        event_ids: [],
+        context: e?.quote ? `«${e.quote}» · ${shortDate(e.date)}` : e ? shortDate(e.date) : "",
       });
     }
     questions.push(...restQuestions);
