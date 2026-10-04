@@ -58,7 +58,8 @@
       "pct": "% complete",
       "weeksNotSubmitted": "Weeks not submitted",
       "lastEntry": "Last entry",
-      "status": "Status"
+      "status": "Status",
+      "nonWorkingDay": "On non-working day"
     },
     "status": {
       "onTrack": "On track",
@@ -80,6 +81,7 @@
       "before_tracking": "Before tracking start"
     },
     "beforeTracking": "Timesheets in PSA Hub started on 1 June 2026. Choose a period from that date.",
-    "trackingNote": "Hours are expected from 1 June 2026."
+    "trackingNote": "Hours are expected from 1 June 2026.",
+    "nonWorkingDaySplit": "{{pending}} pending · {{approved}} approved"
   }
 }

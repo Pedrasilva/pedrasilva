@@ -58,7 +58,8 @@
       "pct": "% concluído",
       "weeksNotSubmitted": "Semanas por submeter",
       "lastEntry": "Último registo",
-      "status": "Estado"
+      "status": "Estado",
+      "nonWorkingDay": "Em dia não útil"
     },
     "status": {
       "onTrack": "Em dia",
@@ -80,6 +81,7 @@
       "before_tracking": "Antes do início do registo"
     },
     "beforeTracking": "As folhas de horas no PSA Hub começaram a 1 de junho de 2026. Escolha um período a partir dessa data.",
-    "trackingNote": "As horas são previstas a partir de 1 de junho de 2026."
+    "trackingNote": "As horas são previstas a partir de 1 de junho de 2026.",
+    "nonWorkingDaySplit": "{{pending}} pendentes · {{approved}} aprovadas"
   }
 }
