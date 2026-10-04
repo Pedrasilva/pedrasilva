@@ -1251,6 +1251,14 @@ function SectionHeaderRow({
 }
 
 /** Missing status (older rows) is treated as active so nothing disappears by accident. */
+/** Public holidays in the visible week — used to hatch the whole day column. Display only. */
+function useHolidayCols(days: Date[]) {
+  const from = days.length ? format(days[0], "yyyy-MM-dd") : null;
+  const to = days.length ? format(days[days.length - 1], "yyyy-MM-dd") : null;
+  const map = useNonWorkingDays(from, to).data;
+  return (ds: string) => (map?.get(ds)?.reason === "holiday" ? "ts-hatch" : "");
+}
+
 function isStageActive(r: TimesheetTaskRow): boolean {
   return !r.stage.status || r.stage.status === "active";
 }
@@ -1340,7 +1348,7 @@ function ProjectRow({
         const cell = entryMap.get(projectKey(row.task_id))?.get(dateStr);
         const suggested = inAlloc ? row.hours_per_day : 0;
         return (
-          <td key={dateStr} className="px-1 py-1 text-center">
+          <td key={dateStr} className={`px-1 py-1 text-center ${holCls(dateStr)}`}>
             <HourCell
               date={d}
               title={row.project.name}
@@ -1414,7 +1422,7 @@ function RetainerRow({
         const value = dayEntries.reduce((a, e) => a + e.hours, 0);
         const first = dayEntries[0];
         return (
-          <td key={dateStr} className="px-1 py-1 text-center">
+          <td key={dateStr} className={`px-1 py-1 text-center ${holCls(dateStr)}`}>
             {hasMonth ? (
               <HourCell
                 date={d}
@@ -1495,7 +1503,7 @@ function FixedRow({
         const dow = d.getDay();
         const isWeekend = dow === 0 || dow === 6;
         return (
-          <td key={dateStr} className={`px-1 py-1 text-center ${tone === "nonworking" ? "ts-hatch" : ""}`}>
+          <td key={dateStr} className={`px-1 py-1 text-center ${tone === "nonworking" ? "ts-hatch" : holCls(dateStr)}`}>
             <HourCell
               date={d}
               title={label}
