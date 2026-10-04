@@ -1297,6 +1297,7 @@ function ProjectRow({
     existingId: string | null,
   ) => void;
 }) {
+  const holCls = useHolidayCols(days);
   return (
     <tr className="border-b border-border last:border-0">
       <td className="sticky left-0 z-10 bg-card px-4 py-2">
@@ -1394,6 +1395,7 @@ function RetainerRow({
   renderHint?: (dateStr: string) => React.ReactNode;
   onCommit: (dateStr: string, hours: number, notes: string | null, billable: boolean) => void;
 }) {
+  const holCls = useHolidayCols(days);
   const { t } = useTranslation("projects");
   const locale = useDateLocale();
   const label = `${row.project.name} · ${row.name}`;
@@ -1482,6 +1484,7 @@ function FixedRow({
     existingId: string | null,
   ) => void;
 }) {
+  const holCls = useHolidayCols(days);
   const dotCls = tone === "internal" ? "bg-muted-foreground" : "bg-accent-foreground/60";
   const bg = tone === "internal" ? "bg-ts-internal" : "bg-ts-nonworking";
   return (
