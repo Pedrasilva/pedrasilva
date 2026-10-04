@@ -68,6 +68,11 @@ import {
   makeRateResolver,
   studioCapacityHours,
 } from "@/lib/reports/business-performance";
+import {
+  stageActuals,
+  projectActualsFromStages,
+  type StageLite,
+} from "@/lib/reports/budget-consumption";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
@@ -384,38 +389,26 @@ function DashboardPage() {
       return cur;
     };
     if (allEntries && taskToStage) {
-      for (const e of allEntries) {
-        if (!e.task_id) continue;
-        const stageId = taskToStage.get(e.task_id);
-        if (!stageId) continue;
-        const stage = stageById.get(stageId);
-        if (!stage) continue;
-        const repAlloc =
-          stage.allocations.find((a) => taskToResource.get(a.id) === a.resource_id) ??
-          stage.allocations[0];
-        const resourceId = repAlloc?.resource_id;
-        const cur = ensure(stage.project_id);
-        cur.loggedHours += e.hours;
-        if (!e.billable) cur.nonBillableHours += e.hours;
-        if (resourceId) {
-          const res = resources?.find((r) => r.id === resourceId);
-          const costRate = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
-          cur.laborCost += e.hours * lockedCostRate(e.cost_rate_snapshot, costRate);
-          // Time-and-materials stages carry no fixed budget: revenue is earned
-          // per billable hour at the resource's sale rate. Non-billable hours
-          // stay on the cost side only (correctly dragging margin down).
-          const isHourly =
-            (stage as { billing_model?: string | null }).billing_model === "hourly";
-          if (isHourly && e.billable) {
-            const saleRate = effectiveSaleRate(
-              res?.hourly_rate,
-              resourceId,
-              defaultRates,
-              !!res?.hourly_rate_is_override,
-            );
-            cur.tmRevenue += e.hours * saleRate;
-          }
-        }
+      const resById = new Map((resources ?? []).map((r) => [r.id, r]));
+      const byStage = stageActuals({
+        entries: allEntries,
+        taskToStage,
+        stageById: stageById as unknown as Map<string, StageLite>,
+        costRateFor: (rid) => {
+          const res = resById.get(rid);
+          return effectiveCostRate(res?.cost_rate, rid, defaultRates, !!res?.hourly_rate_is_override);
+        },
+        saleRateFor: (rid) => {
+          const res = resById.get(rid);
+          return effectiveSaleRate(res?.hourly_rate, rid, defaultRates, !!res?.hourly_rate_is_override);
+        },
+      });
+      for (const [pid, a] of projectActualsFromStages(byStage, stageById as unknown as Map<string, StageLite>)) {
+        const cur = ensure(pid);
+        cur.loggedHours += a.loggedHours;
+        cur.nonBillableHours += a.nonBillableHours;
+        cur.laborCost += a.laborCost;
+        cur.tmRevenue += a.tmRevenue;
       }
     }
 
