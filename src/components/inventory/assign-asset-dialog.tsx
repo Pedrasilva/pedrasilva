@@ -68,7 +68,7 @@ export function AssignAssetDialog({
       toast.success(t("inventory:assign.done"));
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(inventoryErrorMessage(err, t));
     }
   };
 

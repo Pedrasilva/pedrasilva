@@ -151,7 +151,7 @@ export function InvoiceInventoryDialog({
       toast.success(t("inventory:invoice.created", { count: created.length }));
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(inventoryErrorMessage(err, t));
     }
   };
 
@@ -180,7 +180,7 @@ export function InvoiceInventoryDialog({
                     toast.success(t("inventory:invoice.linesExtracted", { count: res.created }));
                   }
                 } catch (err) {
-                  toast.error((err as Error).message);
+                  toast.error(inventoryErrorMessage(err, t));
                 }
               }}
             >

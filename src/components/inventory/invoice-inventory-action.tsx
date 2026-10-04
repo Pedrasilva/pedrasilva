@@ -28,7 +28,7 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
       try {
         await mark.mutateAsync({ documentId, status: "pending" });
       } catch (err) {
-        toast.error((err as Error).message);
+        toast.error(inventoryErrorMessage(err, t));
         return;
       }
     }

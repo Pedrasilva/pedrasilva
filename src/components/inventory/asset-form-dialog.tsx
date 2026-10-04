@@ -176,7 +176,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: Props) {
       }
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(inventoryErrorMessage(err, t));
     }
   };
 

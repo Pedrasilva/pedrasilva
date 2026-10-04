@@ -68,7 +68,7 @@ function AssetDetail() {
       await returnAsset.mutateAsync({ assignmentId: openAssignment.id });
       toast.success(t("inventory:assign.returned"));
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(inventoryErrorMessage(err, t));
     }
   };
 
