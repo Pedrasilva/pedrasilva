@@ -31,8 +31,8 @@ export const Route = createFileRoute("/_app/reports/hours")({
   component: HoursPage,
 });
 
-type Preset = "lastWeek" | "last2Weeks" | "lastMonth" | "last3Months" | "custom";
-const PRESETS: Preset[] = ["lastWeek", "last2Weeks", "lastMonth", "last3Months", "custom"];
+type Preset = "lastWeek" | "last2Weeks" | "lastMonth" | "last3Months" | "last6Months" | "lastYear" | "custom";
+const PRESETS: Preset[] = ["lastWeek", "last2Weeks", "lastMonth", "last3Months", "last6Months", "lastYear", "custom"];
 
 function presetRange(p: Preset): { start: string; end: string } {
   const today = new Date();
@@ -40,7 +40,7 @@ function presetRange(p: Preset): { start: string; end: string } {
   const lastSunday = addDays(thisMonday, -1);
   if (p === "lastWeek") return { start: addDays(thisMonday, -7), end: lastSunday };
   if (p === "last2Weeks") return { start: addDays(thisMonday, -14), end: lastSunday };
-  const months = p === "lastMonth" ? 1 : 3;
+  const months = p === "lastMonth" ? 1 : p === "last6Months" ? 6 : p === "lastYear" ? 12 : 3;
   const start = new Date(today.getFullYear(), today.getMonth() - months, 1);
   const end = new Date(today.getFullYear(), today.getMonth(), 0);
   return { start: toLocalISODate(start), end: toLocalISODate(end) };
