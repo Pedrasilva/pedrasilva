@@ -584,3 +584,32 @@ export function useCreateAssetsFromInvoice() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: KEY }),
   });
 }
+
+/* ───────────────────────────── access ───────────────────────────── */
+
+/** Same check the database uses (public.can_manage_inventory). */
+export function useCanManageInventory() {
+  const { data } = useQuery({
+    queryKey: [...KEY, "can-manage"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<boolean> => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: ok, error } = await (supabase as any).rpc("can_manage_inventory", { _user_id: u.user.id });
+      if (error) return false;
+      return ok === true;
+    },
+  });
+  return data === true;
+}
+
+/** Friendly message when the database refuses an inventory write. */
+export function inventoryErrorMessage(err: unknown, t: (k: string) => string): string {
+  const e = err as { message?: string; code?: string } | null;
+  const msg = e?.message ?? String(err);
+  if (e?.code === "42501" || /row-level security|permission denied|not allowed/i.test(msg)) {
+    return t("inventory:noAccess");
+  }
+  return msg;
+}

@@ -26,6 +26,8 @@ import {
   useInventoryCategories,
   useInventoryKits,
   useUpdateAsset,
+  inventoryErrorMessage,
+  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import {
   ASSET_STATUSES,
@@ -176,7 +178,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: Props) {
       }
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(inventoryErrorMessage(err, t));
     }
   };
 

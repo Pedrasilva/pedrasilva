@@ -12820,6 +12820,18 @@ export type Database = {
         Returns: Record<string, unknown>
       }
       marketing_curator_user_ids: { Args: never; Returns: string[] }
+      marketing_delete_capture_rows: {
+        Args: { _capture_id: string }
+        Returns: string[]
+      }
+      marketing_draft_library_project: {
+        Args: {
+          _asset_ids: string[]
+          _capture_ids: string[]
+          _project_id: string
+        }
+        Returns: string
+      }
       marketing_effective_clearance: {
         Args: { _capture_id: string }
         Returns: Database["public"]["Enums"]["marketing_clearance"]
@@ -12893,6 +12905,7 @@ export type Database = {
         Args: { _date: string; _resource_id: string }
         Returns: number
       }
+      pm_cost_rate_fallback: { Args: { _resource_id: string }; Returns: number }
       pm_entries_missing_cost: {
         Args: never
         Returns: {
