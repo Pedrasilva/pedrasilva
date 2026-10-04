@@ -1743,7 +1743,8 @@
     "searching": "A procurar…",
     "noMatch": "Nada corresponde a \"{{query}}\".",
     "typeToSearchProjects": "Escreva para procurar projetos por nome, número ou cliente.",
-    "internalInGrid": "{{name}} já está nas linhas internas abaixo."
+    "internalInGrid": "{{name}} já está nas linhas internas abaixo.",
+    "noActiveStages": "Sem fases activas"
   },
   "nonWorkingDay": {
     "sectionTitle": "Trabalho em dia não útil",
@@ -1775,5 +1776,12 @@
     "added": "{{hours}} adicionadas a {{name}}",
     "noRetainerMonth": "Sem etapa de avença para {{month}}",
     "retainerSub": "Avença · as horas vão para o mês de cada dia"
+  },
+  "stageGate": {
+    "note": {
+      "done": "Fase concluída — só leitura",
+      "paused": "Fase em pausa — só leitura",
+      "planned": "Fase ainda não iniciada — só leitura"
+    }
   }
 }
