@@ -583,15 +583,15 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       });
     }
     // Proposal words on a project draft: project or unsigned proposal?
-    for (const a of ambiguousAsk) {
-      if (covered.has(a.id)) continue;
+    // Asked first, even when Claude also asked about the stage of the same draft.
+    for (const a of [...ambiguousAsk].reverse()) {
       const e = entryById.get(a.id);
       const toks = norm(`${a.hint} ${a.project}`).split(/[^a-z0-9]+/).filter((x) => x.length >= 3 && !/^\d+$/.test(x));
       const leadOpts = leads
         .filter((l) => toks.some((tk) => norm(`${l.name} ${l.client ?? ""}`).includes(tk)))
         .slice(0, 5)
         .map((l) => l.name + leadSuffix);
-      questions.push({
+      questions.unshift({
         text: pt
           ? `Isto foi numa proposta ainda não assinada (angariação) ou no projeto «${a.project}»?`
           : `Was this on an unsigned proposal (pursuit) or on the project "${a.project}"?`,
