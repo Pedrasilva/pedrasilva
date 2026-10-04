@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Clock, PieChart, TrendingUp } from "lucide-react";
+import { Clock, PieChart, Scale, TrendingUp } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { V2PermissionGate } from "@/components/PermissionGate";
 
@@ -20,6 +20,7 @@ const REPORTS = [
   { to: "/reports/hours", key: "hours", icon: Clock },
   { to: "/reports/business", key: "business", icon: TrendingUp },
   { to: "/reports/budget", key: "budget", icon: PieChart },
+  { to: "/reports/billable", key: "billable", icon: Scale },
 ] as const;
 
 function ReportsIndex() {

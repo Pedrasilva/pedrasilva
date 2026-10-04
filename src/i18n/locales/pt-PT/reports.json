@@ -14,6 +14,10 @@
       "budget": {
         "title": "Orçamento vs consumo",
         "description": "Orçamento consumido por projecto, projectos acima do orçamento e ritmo face ao prazo."
+      },
+      "billable": {
+        "title": "Facturável vs não facturável",
+        "description": "Horas facturáveis, de projeto não facturáveis e internas por pessoa face ao objetivo."
       }
     }
   },
@@ -196,6 +200,46 @@
     "external": {
       "title": "Serviços externos",
       "line": "vendido {{sold}} · custo do fornecedor {{cost}} · margem {{margin}}"
+    }
+  },
+  "billable": {
+    "title": "Facturável vs não facturável",
+    "subtitle": "Tempo de projeto facturável, de projeto não facturável e interno. Ausências e feriados ficam fora de todas as percentagens.",
+    "kinds": {
+      "billable": "Projeto facturável",
+      "nonBillable": "Projeto não facturável",
+      "internal": "Interno"
+    },
+    "tiles": {
+      "logged": "Horas registadas",
+      "target": "Facturável vs objetivo",
+      "targetSub": "Real / objetivo da equipa (ponderado pelas horas)"
+    },
+    "leaveContext": "Ausências {{h}} h (não contam)",
+    "leaveExcluded": "Ausências e feriados excluídos",
+    "chart": {
+      "period": "Período completo",
+      "week": "Por semana",
+      "month": "Por mês"
+    },
+    "byPerson": {
+      "title": "Por pessoa",
+      "hint": "Ordenado por % facturável. O marcador preto é o objetivo de RH da pessoa. Clique numa pessoa para ver o detalhe.",
+      "split": "Distribuição",
+      "target": "Objetivo",
+      "diff": "Diferença"
+    },
+    "detail": {
+      "byProject": "Por projeto",
+      "stage": "Fase",
+      "hBillable": "h facturável",
+      "hNonBillable": "h não facturável",
+      "share": "% do seu tempo",
+      "internal": "Tempo interno por categoria",
+      "trend": "% facturável semanal vs objetivo",
+      "viewTimesheet": "Ver folha de horas",
+      "none": "Sem horas neste período.",
+      "noProject": "Sem projeto"
     }
   }
 }
