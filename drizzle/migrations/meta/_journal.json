@@ -64,6 +64,13 @@
       "when": 1791141227537,
       "tag": "0008_hours_bank_opening_shortfall",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791141306060,
+      "tag": "0009_hours_bank_approver_delete_week_movement",
+      "breakpoints": true
     }
   ]
 }
