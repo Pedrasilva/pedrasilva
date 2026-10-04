@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InvoiceInventoryDialog } from "./invoice-inventory-dialog";
-import { useInvoiceForInventory } from "@/lib/inventory/use-inventory";
+import { useCanManageInventory, useInvoiceForInventory } from "@/lib/inventory/use-inventory";
 
 /**
  * Inventory marker shown inside the Finance review queue.
@@ -27,6 +27,7 @@ export function ReviewQueueInventorySection({
   documentId: string | null;
 }) {
   const { t } = useTranslation(["inventory"]);
+  const canManage = useCanManageInventory();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data: invoice } = useInvoiceForInventory(documentId ?? undefined);
@@ -76,7 +77,7 @@ export function ReviewQueueInventorySection({
                   : t("inventory:invoice.statusPending")}
             </Badge>
           )}
-          {documentId && (
+          {canManage && documentId && (
             <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
               {t("inventory:queue.openIntake")}
             </Button>

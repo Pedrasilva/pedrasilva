@@ -44,6 +44,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 function AssetDetail() {
   const { assetId } = useParams({ from: "/_app/inventory/assets/$assetId" });
   const { t } = useTranslation(["inventory", "common"]);
+  const canManage = useCanManageInventory();
   const { data: asset, isLoading } = useInventoryAsset(assetId);
   const { data: categories = [] } = useInventoryCategories();
   const { data: assignments = [] } = useAssetAssignments(assetId);
@@ -84,17 +85,19 @@ function AssetDetail() {
         <Badge variant="secondary">{t(`inventory:status.${asset.status}`)}</Badge>
         <Badge variant="outline">{t(`inventory:tracking.${asset.tracking_level}`)}</Badge>
         <div className="ml-auto flex gap-2">
-          {openAssignment && (
+          {canManage && openAssignment && (
             <Button size="sm" variant="outline" onClick={doReturn} disabled={returnAsset.isPending}>
               {t("inventory:assign.return")}
             </Button>
           )}
+          {canManage && (<>
           <Button size="sm" variant="outline" onClick={() => setAssignOpen(true)}>
             {openAssignment ? t("inventory:assign.reassign") : t("inventory:assign.assign")}
           </Button>
           <Button size="sm" onClick={() => setEditOpen(true)}>
             {t("common:edit")}
           </Button>
+          </>)}
         </div>
       </div>
 
