@@ -27,6 +27,9 @@ import {
 } from "@/lib/projects/timesheet-assistant.functions";
 import { ProjectStageLeadPicker } from "@/components/projects/project-stage-lead-picker";
 import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { TRACKING_START } from "@/lib/reports/hours-logged";
 
 const NS = "projects";
 const k = (s: string) => `timesheetAssistant.${s}`;
@@ -175,6 +178,10 @@ export function TimesheetAssistantSheet({
   const thisWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   const lastWeek = format(subWeeks(parseISO(thisWeek), 1), "yyyy-MM-dd");
   const [week, setWeek] = useState(initialWeek ?? thisWeek);
+  /** Extra week buttons (opened from the timesheet, picked, or switched to). */
+  const [extraWeeks, setExtraWeeks] = useState<string[]>(initialWeek && initialWeek !== thisWeek && initialWeek !== lastWeek ? [initialWeek] : []);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const addWeek = (w: string) => { if (w !== thisWeek && w !== lastWeek) setExtraWeeks((xs) => (xs.includes(w) ? xs : [...xs, w].sort())); };
   const [text, setText] = useState("");
   const [dictations, setDictations] = useState<Dictation[]>([]);
   /** Dictation the current questions belong to. */
@@ -204,7 +211,8 @@ export function TimesheetAssistantSheet({
    * model never recreates it, and explicit corrections patch it in place.
    */
   async function run(dictId: string, dictText: string, extra: Array<{ q: string; a: string }> = [], done = false, forWeek = week, base: Draft[] = drafts) {
-    if (!dictText.trim() && !cal.connected) return;
+    // A dictation is never sent empty (the server would refuse it); only the calendar pass may.
+    if (!dictText.trim() && (dictId !== "cal" || !cal.connected)) return;
     setLoading(true);
     try {
       const others = base.filter((d) => !d.saved && d.dict !== dictId);
@@ -323,6 +331,10 @@ export function TimesheetAssistantSheet({
     const body = d.edit.trim();
     setDictations((ds) => ds.map((x) => (x.id === id ? { ...x, text: body, edit: null, answers: [] } : x)));
     void run(id, body, []);
+  }
+
+  function selectWeek(w: string) {
+    setWeek(w); setResult(null); setDrafts([]); setDictations([]); setActiveDict(null); setHistory([]);
   }
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => format(addDays(parseISO(week), i), "yyyy-MM-dd")), [week]);
@@ -508,11 +520,27 @@ export function TimesheetAssistantSheet({
         </SheetHeader>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label={t(k("week"))}>
-          {[thisWeek, lastWeek, ...(initialWeek && initialWeek !== thisWeek && initialWeek !== lastWeek ? [initialWeek] : [])].map((w) => (
-            <Button key={w} size="sm" variant={w === week ? "default" : "outline"} onClick={() => { setWeek(w); setResult(null); setDrafts([]); setDictations([]); setActiveDict(null); setHistory([]); }}>
+          {[thisWeek, lastWeek, ...extraWeeks].map((w) => (
+            <Button key={w} size="sm" variant={w === week ? "default" : "outline"} onClick={() => selectWeek(w)}>
               {w === thisWeek ? t(k("thisWeek")) : w === lastWeek ? t(k("lastWeek")) : format(parseISO(w), "d MMM", { locale })}
             </Button>
           ))}
+          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline"><CalendarDays className="mr-1 h-4 w-4" />{t(k("otherWeekPick"))}</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                weekStartsOn={1}
+                selected={parseISO(week)}
+                defaultMonth={parseISO(week)}
+                disabled={[{ before: parseISO(TRACKING_START) }, { after: addDays(parseISO(thisWeek), 6) }]}
+                onSelect={(d) => { if (!d) return; const w = format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd"); addWeek(w); selectWeek(w); setPickerOpen(false); }}
+                className="pointer-events-auto p-3"
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <CalendarConnection compact expired={calExpired} />
@@ -533,7 +561,7 @@ export function TimesheetAssistantSheet({
                     {d.edit == null ? (
                       <>
                         <p className="whitespace-pre-wrap text-muted-foreground">{d.text}</p>
-                        <button type="button" className="text-xs underline underline-offset-4" onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: x.text } : x)))}>
+                        <button type="button" className="text-xs underline underline-offset-4" onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: x.text ?? "" } : x)))}>
                           {t(k("dictation.edit"))}
                         </button>
                       </>
@@ -541,7 +569,7 @@ export function TimesheetAssistantSheet({
                       <>
                         <Textarea rows={3} value={d.edit} aria-label={t(k("dictation.label"), { n: d.n })} onChange={(e) => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: e.target.value } : x)))} />
                         <div className="flex gap-2">
-                          {d.edit.trim() !== d.text && (
+                          {d.edit.trim() !== "" && d.edit.trim() !== d.text && (
                             <Button size="sm" disabled={loading || !d.edit.trim()} onClick={() => reprocess(d.id)}>{t(k("reparse"))}</Button>
                           )}
                           <Button size="sm" variant="ghost" onClick={() => setDictations((ds) => ds.map((x) => (x.id === d.id ? { ...x, edit: null } : x)))}>{t(k("dictation.cancel"))}</Button>
@@ -645,7 +673,7 @@ export function TimesheetAssistantSheet({
           <div className="flex flex-wrap items-center gap-2 rounded-md border border-warning bg-warning/5 p-3 text-sm">
             <AlertTriangle className="h-4 w-4 text-warning" aria-hidden />
             <span className="flex-1">{t(k("otherWeek.text"), { date: format(parseISO(result.otherWeek), "d MMM", { locale }) })}</span>
-            <Button size="sm" onClick={() => { const w = result.otherWeek!; const id = activeDict ?? "cal"; const body = dictations.find((x) => x.id === id)?.text ?? ""; setWeek(w); setDrafts([]); setHistory([]); void run(id, body, [], false, w, []); }}>
+            <Button size="sm" onClick={() => { const w = result.otherWeek!; const id = activeDict ?? dictations[dictations.length - 1]?.id ?? "cal"; const dict = dictations.find((x) => x.id === id); const body = dict?.text ?? ""; addWeek(w); setWeek(w); setDrafts((ds) => ds.filter((x) => x.saved)); setHistory([]); if (dict) setDictations((ds) => ds.map((x) => (x.id === id ? { ...x, edit: null, answers: [] } : x))); void run(id, body, [], false, w, []); }}>
               {t(k("otherWeek.switch"))}
             </Button>
           </div>

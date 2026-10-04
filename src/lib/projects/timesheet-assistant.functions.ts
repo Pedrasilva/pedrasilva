@@ -142,6 +142,12 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
     const weekStart = data.weekStart;
     const weekEnd = addDaysISO(weekStart, 6);
     if (dow(weekStart) !== 1) throw new Error("weekStart must be a Monday");
+    {
+      const { TRACKING_START } = await import("@/lib/reports/hours-logged");
+      const t = new Date(data.today + "T00:00:00Z");
+      const curMon = addDaysISO(data.today, -((t.getUTCDay() + 6) % 7));
+      if (weekStart < TRACKING_START || weekStart > curMon) throw new Error(`Week must be between ${TRACKING_START} and ${curMon}`);
+    }
 
     const [{ data: collabId }, weekRow, entriesRes, holRes, catRes, leadRes, projRes, aliasRes] = await Promise.all([
       db.rpc("get_my_collaborator_id"),
