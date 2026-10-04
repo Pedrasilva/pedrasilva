@@ -102,6 +102,12 @@ export function CalendarConnection({ compact = false, expired = false, className
         )}
       </div>
       {!compact || !connected ? <p className="text-xs text-muted-foreground">{t(k("explain"))}</p> : null}
+      {!compact && (mem.data?.count ?? 0) > 0 && (
+        <div className="flex flex-wrap items-center gap-2 border-t pt-2">
+          <span className="flex-1 text-xs text-muted-foreground">{t(k("memoryCount"), { count: mem.data!.count })}</span>
+          <Button size="sm" variant="outline" onClick={clearMemory}>{t(k("memoryClear"))}</Button>
+        </div>
+      )}
     </div>
   );
 }
