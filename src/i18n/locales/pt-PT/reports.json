@@ -23,6 +23,8 @@
       "last2Weeks": "Últimas 2 semanas",
       "lastMonth": "Mês passado",
       "last3Months": "Últimos 3 meses",
+      "last6Months": "Últimos 6 meses",
+      "lastYear": "Último ano",
       "custom": "Intervalo personalizado"
     },
     "filters": {
