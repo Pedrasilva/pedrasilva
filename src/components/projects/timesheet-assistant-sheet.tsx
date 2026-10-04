@@ -17,7 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
-import { transcribeProjectNote } from "@/lib/projects/notes.functions";
+import { transcribeTimesheetDictation } from "@/lib/projects/timesheet-transcribe.functions";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { useEnsureStageRow, useUpsertTimesheetCell } from "@/lib/projects/use-timesheet";
 import {
@@ -48,7 +48,7 @@ type Dictation = { id: string; n: number; text: string; edit: string | null; ope
 function RecordButton({ onText, disabled, className }: { onText: (t: string) => void; disabled?: boolean; className?: string }) {
   const { t } = useTranslation(NS);
   const rec = useVoiceRecorder();
-  const transcribe = useServerFn(transcribeProjectNote);
+  const transcribe = useServerFn(transcribeTimesheetDictation);
   const [busy, setBusy] = useState(false);
   const [secs, setSecs] = useState(0);
   const startedAt = useRef(0);
@@ -113,7 +113,7 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
 function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?: "lg" | "sm" }) {
   const { t } = useTranslation(NS);
   const rec = useVoiceRecorder();
-  const transcribe = useServerFn(transcribeProjectNote);
+  const transcribe = useServerFn(transcribeTimesheetDictation);
   const [busy, setBusy] = useState(false);
   async function toggle() {
     if (rec.recording) {
