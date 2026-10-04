@@ -6,7 +6,11 @@ import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
-import { TimesheetRetainerStages } from "@/components/projects/timesheet-retainer-stages";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getCalendarGridSuggestions, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
+import { useTimesheetRetainers, type RetainerParentRow } from "@/lib/projects/use-timesheet-retainers";
+import { CalendarDayBadge, CalendarRowHint, type HintTarget } from "@/components/projects/timesheet-calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,7 +86,7 @@ type CellInfo = {
 
 function TimesheetPage() {
   const { profile: selfProfile, user } = useProjectsAuth();
-  const { isRealAdmin } = useAuth();
+  const { isRealAdmin, viewAsUser } = useAuth();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
   const [dictateOpen, setDictateOpen] = useState(false);
   const { t } = useTranslation();
@@ -143,7 +147,7 @@ function TimesheetPage() {
   const weekStart = format(weekStartDate, "yyyy-MM-dd");
   const weekEnd = format(addDays(weekStartDate, 6), "yyyy-MM-dd");
 
-  const { data: projectRows = [], isLoading } = useTimesheetRows({
+  const { data: allProjectRows = [], isLoading } = useTimesheetRows({
     resourceId: effectiveResourceId,
     userId: effectiveUserId,
     weekStart,
@@ -161,6 +165,13 @@ function TimesheetPage() {
     weekEnd,
   });
   const upsert = useUpsertTimesheetCell();
+  const { data: retainerData } = useTimesheetRetainers(effectiveResourceId);
+  const [extraRetainerIds, setExtraRetainerIds] = useState<string[]>([]);
+  // Retainer month stages are shown as one row per retainer, never per month.
+  const projectRows = useMemo(
+    () => allProjectRows.filter((r) => !retainerData?.childToParent.has(r.stage.id)),
+    [allProjectRows, retainerData],
+  );
   const { data: searchResults = [], isFetching: searching } = useProjectSearch({
     query: searchQuery,
   });
@@ -492,6 +503,15 @@ function TimesheetPage() {
                     emptyProjectsHint={t("projects:picker.typeToSearchProjects")}
                     busy={ensureRow.isPending || !profile?.resource_id}
                     onQueryChange={(q) => { setSearchQuery(q); setExpandedProject(null); }}
+                    onPickDirect={(p) => {
+                      const parent = retainerParentForProject(p.stages.map((s) => s.id));
+                      if (!parent) return false;
+                      setExtraRetainerIds((ids) => Array.from(new Set([...ids, parent])));
+                      setSearchQuery("");
+                      setAddPopoverOpen(false);
+                      toast.success(p.name);
+                      return true;
+                    }}
                     onPickLead={(l) => {
                       setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
                       setSearchQuery("");
@@ -505,6 +525,14 @@ function TimesheetPage() {
                     }}
                     onPickStage={async (p, s) => {
                       if (!profile?.resource_id) return;
+                      const rp = retainerData?.childToParent.get(s.id);
+                      if (rp) {
+                        setExtraRetainerIds((ids) => Array.from(new Set([...ids, rp])));
+                        setSearchQuery("");
+                        setAddPopoverOpen(false);
+                        toast.success(p.name);
+                        return;
+                      }
                       try {
                         const taskId = await ensureRow.mutateAsync({
                           resource_id: profile.resource_id,
@@ -783,9 +811,6 @@ function TimesheetPage() {
                 </tfoot>
               </table>
             </div>
-          </div>
-          <div className="mt-6">
-            <TimesheetRetainerStages />
           </div>
           </>
         )}
