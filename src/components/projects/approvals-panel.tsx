@@ -99,6 +99,30 @@ export function ApprovalsPanel({ projectId }: Props) {
         </div>
       </div>
 
+      {data.nonWorking.length > 0 && (
+        <div className="rounded-lg border border-warning bg-warning/5">
+          <div className="p-3">
+            <div className="font-medium">{t("projects:nonWorkingDay.sectionTitle")}</div>
+            <div className="text-xs text-muted-foreground">{t("projects:nonWorkingDay.sectionSub")}</div>
+          </div>
+          <div className="border-t">
+            {data.nonWorking.map((entry) => (
+              <div key={entry.id}>
+                <div className="px-3 pt-2 text-xs font-medium text-warning">
+                  {t(`projects:nonWorkingDay.badge.${entry.non_working_day_reason}`)} · {format(parseISO(entry.entry_date), "EEE d MMM yyyy")}
+                </div>
+                <EntryRow
+                  entry={entry}
+                  stages={allStages ?? []}
+                  onApprove={(patch) => approve.mutateAsync({ id: entry.id, ...patch })}
+                  onReject={(reason) => reject.mutateAsync({ id: entry.id, reason })}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {data.groups.map((g) => {
         const key = g.stage?.id ?? "__unassigned__";
         const open = openGroups.has(key);
