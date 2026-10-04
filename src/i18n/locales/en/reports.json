@@ -10,6 +10,10 @@
       "business": {
         "title": "Business performance",
         "description": "Revenue from billable hours, cost, profit and utilisation, by project and person."
+      },
+      "budget": {
+        "title": "Budget vs consumption",
+        "description": "Budget used per project, over-budget projects and pace against the schedule."
       }
     }
   },
@@ -139,6 +143,55 @@
       "billablePct": "Billable %",
       "internalPct": "Internal %",
       "target": "(target ≤ {{pct}}%)"
+    }
+  },
+  "budget": {
+    "title": "Budget vs consumption",
+    "subtitle": "How much of each project's budget has been used, from locked cost rates, including pre-contract pursuit cost.",
+    "upTo": "Up to",
+    "toDate": "Costs to date",
+    "upToLabel": "Costs up to {{date}}",
+    "search": "Search",
+    "searchPlaceholder": "Project or client",
+    "tiles": {
+      "budget": "Total budget",
+      "cost": "Total cost",
+      "used": "% used overall",
+      "over": "Over budget",
+      "overSub": "{{amount}} over",
+      "near": "Close to limit (80–100%)"
+    },
+    "chart": {
+      "title": "Budget used per project, highest first",
+      "label": "{{name}} · {{cost}} of {{budget}} · {{pct}}%"
+    },
+    "pace": {
+      "title": "Budget used vs time elapsed",
+      "x": "Schedule elapsed",
+      "y": "Budget used",
+      "noDates_one": "{{count}} project without dates is left out.",
+      "noDates_other": "{{count}} projects without dates are left out."
+    },
+    "cols": {
+      "budget": "Budget",
+      "cost": "Actual cost",
+      "remaining": "Remaining",
+      "used": "% used",
+      "hours": "Hours used / planned"
+    },
+    "band": {
+      "ok": "On budget",
+      "near": "Close to limit",
+      "over": "Over budget"
+    },
+    "pursuit": "Pursuit",
+    "projectLevel": "Not assigned to a stage: pursuit {{pursuit}} · materials and expenses {{other}}",
+    "expand": "Show stages of {{name}}",
+    "collapse": "Hide stages of {{name}}",
+    "empty": "No projects with a budget match these filters.",
+    "noBudget": {
+      "title": "No budget set",
+      "hint": "These projects have costs but no budget, so they are left out of the % totals."
     }
   }
 }
