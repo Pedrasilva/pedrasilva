@@ -614,6 +614,7 @@ export function TimesheetAssistantSheet({
                       categories={result.categories.filter((c) => c !== "Pursuit")}
                       refDate={q.draft_ids.map((id) => drafts.find((d) => d.id === id)?.date).find(Boolean) ?? week}
                       onPickStage={(p, s) => { setAnswers((a) => ({ ...a, [i]: `${p.name} · ${s.name}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
+                      onPickProject={(p) => { setAnswers((a) => ({ ...a, [i]: p.name })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
                       onPickLead={(l) => { setAnswers((a) => ({ ...a, [i]: `${l.name} · ${t(k("q.leadSuffix"))}` })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
                       onPickCategory={(c) => { setAnswers((a) => ({ ...a, [i]: c })); setOtherOpen((x) => ({ ...x, [i]: false })); }}
                     />

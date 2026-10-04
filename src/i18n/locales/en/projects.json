@@ -1689,6 +1689,7 @@
     "internal": "Internal",
     "searchPlaceholder": "Search project, client, lead or category…",
     "backToProjects": "Projects",
+    "justProject": "Only the project (no specific stage)",
     "noStages": "No stages defined for this project.",
     "olderMonths": "Earlier months",
     "laterMonths": "Later months",

@@ -1689,6 +1689,7 @@
     "internal": "Interno",
     "searchPlaceholder": "Procurar projeto, cliente, proposta ou categoria…",
     "backToProjects": "Projetos",
+    "justProject": "Só o projeto (sem etapa específica)",
     "noStages": "Este projeto não tem fases definidas.",
     "olderMonths": "Meses anteriores",
     "laterMonths": "Meses seguintes",
