@@ -41,6 +41,8 @@ type Props = {
   onPickStage: (p: PickerProject, s: PickerStage) => void;
   /** Optional: offer "only the project" in step 2 and fill the answer as soon as a project is opened. */
   onPickProject?: (p: PickerProject) => void;
+  /** Optional: return true to accept the project at once (e.g. retainers — no month choice). */
+  onPickDirect?: (p: PickerProject) => boolean;
   onPickLead: (l: PickerLead) => void;
   onPickCategory: (c: string) => void;
 };
@@ -59,6 +61,7 @@ export function ProjectStageLeadPicker(props: Props) {
   const categories = props.categories.filter((c) => match(c));
 
   function pickProject(p: PickerProject) {
+    if (props.onPickDirect?.(p)) return;
     if (p.stages.length === 1) return props.onPickStage(p, p.stages[0]);
     setProject(p);
     setShowOlder(false);
