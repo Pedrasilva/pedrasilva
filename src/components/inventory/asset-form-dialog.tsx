@@ -26,6 +26,8 @@ import {
   useInventoryCategories,
   useInventoryKits,
   useUpdateAsset,
+  inventoryErrorMessage,
+  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import {
   ASSET_STATUSES,

@@ -16,6 +16,8 @@ import {
   useInventoryAssets,
   useOpenAssignments,
   useReturnAsset,
+  inventoryErrorMessage,
+  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 

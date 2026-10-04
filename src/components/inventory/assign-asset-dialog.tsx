@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAssignAsset } from "@/lib/inventory/use-inventory";
+import { inventoryErrorMessage, useAssignAsset } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 import { CUSTODY_MODES, type CustodyMode, type InventoryAsset } from "@/lib/inventory/types";
 

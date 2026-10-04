@@ -178,5 +178,6 @@
     "selectPerson": "Escolher pessoa",
     "add": "Adicionar",
     "remove": "Remover"
-  }
+  },
+  "noAccess": "Não tem acesso para alterar o inventário"
 }

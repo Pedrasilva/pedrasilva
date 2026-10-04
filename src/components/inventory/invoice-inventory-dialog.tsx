@@ -36,6 +36,8 @@ import {
   useSetLineSkipped,
   type InvoiceLine,
   type LineAssetPlan,
+  inventoryErrorMessage,
+  useCanManageInventory,
 } from "@/lib/inventory/use-inventory";
 import { TRACKING_LEVELS, suggestCategoryCode, type TrackingLevel } from "@/lib/inventory/types";
 
