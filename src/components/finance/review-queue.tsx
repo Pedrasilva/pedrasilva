@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { restoreDuplicate } from "@/lib/finance/intake-inbox.functions";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
@@ -299,6 +300,18 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
           },
         });
         if (!res.ok) toast.error(`${file.name}: ${res.error ?? "extraction failed"}`);
+        const dup = res.ok ? (res.duplicate ?? res.possibleDuplicates?.[0]) : undefined;
+        if (dup && res.queueItemId) {
+          const qid = res.queueItemId;
+          toast.warning(
+            t("finance:intakeInbox.dup.uploadWarn", { file: file.name, label: dup.label, date: new Date(dup.registeredAt).toLocaleDateString(i18n.language) }),
+            {
+              duration: 15000,
+              action: { label: t("finance:intakeInbox.dup.open"), onClick: () => { window.location.href = dup.documentId ? `/finance/documents/${dup.documentId}` : "/finance/inbox"; } },
+              ...(res.duplicate ? { cancel: { label: t("finance:intakeInbox.dup.keepAnyway"), onClick: () => { void restoreDup({ data: { id: qid } }).then(() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })); } } } : {}),
+            },
+          );
+        }
       }
       toast.success(t("finance:reviewQueue.uploadDone"));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
