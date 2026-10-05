@@ -446,7 +446,8 @@
     "money": {
       "title": "Where the money goes",
       "how": "Full cost = {{people}} people ({{proj}} project, {{bo}} back office): project salaries {{projSal}} + back-office salaries {{boSal}} (annual cost ÷ {{days}} working days × days worked) + operating costs {{opex}} ({{opexAnnual}}/year ÷ {{days}} × working days × {{share}}%). Project-team hours at the locked cost rate; structure is the rest.",
-      "withoutSalary": "{{n}} people have no salary record and add €0."
+      "withoutSalary": "{{n}} people have no salary record and add €0.",
+      "running": "Running total"
     },
     "losses": {
       "title": "Where we lose money",
@@ -460,7 +461,15 @@
       "cost": "Cost",
       "colHours": "Hours",
       "colCost": "€",
-      "sortBy": "Sort by {{col}}"
+      "sortBy": "Sort by {{col}}",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "peopleSort": "Sort people by",
+      "inStructure": "included in structure",
+      "noPeople": "No one in this period.",
+      "pctNotLogged": "{{pct}}% not logged",
+      "week": "Week",
+      "structureNote": "Back-office hours are costed in Structure (back office & overheads), so they show as \"included in structure\" instead of €0 to avoid counting that cost twice."
     },
     "trends": {
       "title": "Trends by month",

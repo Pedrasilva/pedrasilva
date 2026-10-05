@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { V2PermissionGate } from "@/components/PermissionGate";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +19,7 @@ import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 import { effectiveCostRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { addDays, TRACKING_START, type RosterPerson } from "@/lib/reports/hours-logged";
 import { makeRateResolver, pctChange, type BPEntry } from "@/lib/reports/business-performance";
-import { computeCompanyHealth, monthsIn, type Health, type HealthEntry } from "@/lib/reports/company-health";
+import { computeCompanyHealth, monthsIn, type Health, type HealthEntry, type LossPerson } from "@/lib/reports/company-health";
 import { useCompanyHealthData, useStudioCost } from "@/lib/reports/use-company-health";
 
 export const Route = createFileRoute("/_app/reports/health")({
@@ -433,6 +436,7 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
           <CardHeader><CardTitle className="text-base">{t("health.losses.title")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <LossesTable
+              people={H.lossPeople}
               rows={[
                 ...H.hours.internalByCategory.map((c) => ({ key: `i:${c.category}`, label: t("health.losses.internal", { cat: c.category }), hours: c.hours as number | null, cost: c.cost })),
                 { key: "unlogged", label: t("health.losses.unlogged"), hours: H.hours.unlogged, cost: unloggedCost },
@@ -554,10 +558,13 @@ function WrapTick({ x = 0, y = 0, payload }: { x?: number; y?: number; payload?:
 
 type LossRow = { key: string; label: string; hours: number | null; cost: number };
 
-/** "Onde perdemos dinheiro": sortable by hours or € (highest ↔ lowest). */
-function LossesTable({ rows }: { rows: LossRow[] }) {
-  const { t } = useTranslation("reports");
+/** "Onde perdemos dinheiro": sortable by hours or €, each row expandable per person. */
+function LossesTable({ rows, people }: { rows: LossRow[]; people: Health["lossPeople"] }) {
+  const { t, i18n } = useTranslation("reports");
   const [sort, setSort] = useState<{ by: "default" | "hours" | "cost"; dir: "desc" | "asc" }>({ by: "default", dir: "desc" });
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const [personSort, setPersonSort] = useState<"hours" | "cost">("hours");
+  const [detail, setDetail] = useState<{ row: LossRow; person: LossPerson } | null>(null);
   const sorted = useMemo(() => {
     if (sort.by === "default") return rows;
     const key = sort.by;
@@ -566,6 +573,13 @@ function LossesTable({ rows }: { rows: LossRow[] }) {
   }, [rows, sort]);
   const toggle = (by: "hours" | "cost") =>
     setSort((s) => (s.by !== by ? { by, dir: "desc" } : s.dir === "desc" ? { by, dir: "asc" } : { by: "default", dir: "desc" }));
+  const flip = (k: string) =>
+    setOpen((o) => {
+      const n = new Set(o);
+      if (n.has(k)) n.delete(k);
+      else n.add(k);
+      return n;
+    });
   const head = (by: "hours" | "cost", label: string) => (
     <TableHead className="text-right">
       <button type="button" onClick={() => toggle(by)} className="inline-flex items-center gap-1 hover:text-foreground"
@@ -575,24 +589,93 @@ function LossesTable({ rows }: { rows: LossRow[] }) {
       </button>
     </TableHead>
   );
+  const anyOverhead = rows.some((r) => (people[r.key] ?? []).some((p) => p.overhead));
+  const weekLabel = (w: string) => new Date(w + "T00:00:00").toLocaleDateString(i18n.language, { day: "numeric", month: "short" });
+  const money = (cost: number, ovh: boolean) => (ovh ? <span className="text-xs text-muted-foreground">{t("health.losses.inStructure")}</span> : eur(cost));
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead />
-          {head("hours", t("health.losses.colHours"))}
-          {head("cost", t("health.losses.colCost"))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sorted.map((r) => (
-          <TableRow key={r.key}>
-            <TableCell>{r.label}</TableCell>
-            <TableCell className="text-right">{r.hours == null ? "" : h(r.hours)}</TableCell>
-            <TableCell className="text-right">{eur(r.cost)}</TableCell>
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="outline" onClick={() => setOpen(new Set(rows.map((r) => r.key)))}>{t("health.losses.expandAll")}</Button>
+        <Button size="sm" variant="outline" onClick={() => setOpen(new Set())}>{t("health.losses.collapseAll")}</Button>
+        <span className="ml-auto text-xs text-muted-foreground">{t("health.losses.peopleSort")}</span>
+        <Button size="sm" variant={personSort === "hours" ? "secondary" : "ghost"} onClick={() => setPersonSort("hours")}>{t("health.losses.colHours")}</Button>
+        <Button size="sm" variant={personSort === "cost" ? "secondary" : "ghost"} onClick={() => setPersonSort("cost")}>{t("health.losses.colCost")}</Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead />
+            {head("hours", t("health.losses.colHours"))}
+            {head("cost", t("health.losses.colCost"))}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {sorted.map((r) => {
+            const list = [...(people[r.key] ?? [])].sort((a, b) => (personSort === "hours" ? b.hours - a.hours : b.cost - a.cost));
+            const totalH = list.reduce((a, p) => a + p.hours, 0);
+            const isOpen = open.has(r.key);
+            return (
+              <Fragment key={r.key}>
+                <TableRow>
+                  <TableCell>
+                    <button type="button" onClick={() => flip(r.key)} aria-expanded={isOpen} className="inline-flex items-center gap-1 text-left hover:underline">
+                      {isOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                      {r.label}
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">{r.hours == null ? "" : h(r.hours)}</TableCell>
+                  <TableCell className="text-right">{eur(r.cost)}</TableCell>
+                </TableRow>
+                {isOpen && (list.length === 0 ? (
+                  <TableRow><TableCell colSpan={3} className="pl-8 text-xs text-muted-foreground">{t("health.losses.noPeople")}</TableCell></TableRow>
+                ) : list.map((p) => (
+                  <TableRow key={p.userId} className="bg-muted/30">
+                    <TableCell className="pl-8 text-sm">
+                      <button type="button" className="hover:underline" onClick={() => setDetail({ row: r, person: p })}>{p.name}</button>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {totalH > 0 ? `${Math.round((p.hours / totalH) * 100)}%` : ""}
+                        {r.key === "unlogged" && p.pctNotLogged != null && ` · ${t("health.losses.pctNotLogged", { pct: Math.round(p.pctNotLogged) })}`}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right text-sm">{h(p.hours)}</TableCell>
+                    <TableCell className="text-right text-sm">{money(p.cost, p.overhead)}</TableCell>
+                  </TableRow>
+                )))}
+              </Fragment>
+            );
+          })}
+        </TableBody>
+      </Table>
+      {anyOverhead && <p className="text-xs text-muted-foreground">{t("health.losses.structureNote")}</p>}
+      <Sheet open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+          {detail && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{detail.person.name}</SheetTitle>
+                <SheetDescription>{detail.row.label} · {h(detail.person.hours)} · {detail.person.overhead ? t("health.losses.inStructure") : eur(detail.person.cost)}</SheetDescription>
+              </SheetHeader>
+              <Table className="mt-4">
+                <TableHeader><TableRow><TableHead>{t("health.losses.week")}</TableHead><TableHead className="text-right">h</TableHead><TableHead className="text-right">€</TableHead><TableHead /></TableRow></TableHeader>
+                <TableBody>
+                  {detail.person.weeks.map((w) => (
+                    <TableRow key={w.weekStart}>
+                      <TableCell>{weekLabel(w.weekStart)}</TableCell>
+                      <TableCell className="text-right">{h(w.hours)}</TableCell>
+                      <TableCell className="text-right">{money(w.cost, detail.person.overhead)}</TableCell>
+                      <TableCell className="text-right">
+                        <Link to="/projects/weekly-approval" search={{ week: w.weekStart, user: detail.person.userId }} className="text-xs hover:underline">
+                          {t("billable.detail.viewTimesheet")}
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
