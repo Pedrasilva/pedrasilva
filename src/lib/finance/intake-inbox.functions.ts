@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TYPES = [
   "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento", "extrato_bancario",
-  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido", "outra_entidade",
+  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido",
 ] as const;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -184,7 +184,7 @@ export const markOtherDocumentFiled = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
     const row = await loadPending(supabase, data.id);
-    if (row.intake_route !== "other" && row.intake_route !== "other_entity") throw new Error("Not an 'other' document");
+    if (row.intake_route !== "other") throw new Error("Not an 'other' document");
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({ status: "filed", filed_at: new Date().toISOString(), reviewed_by: userId, reviewed_at: new Date().toISOString() })

@@ -1097,7 +1097,10 @@ export async function ingestStoredDocument(opts: {
   Object.assign(payload, dups.duplicateColumns(dupRes));
   // Duplicate logic wins; otherwise apply the recipient rule / deletion rules.
   if (payload.status !== "duplicate") {
-    if (rcp.kind === "remove") Object.assign(payload, rr.removeColumns({ reason: rcp.reason, source: "recipient_rule", tag: "not_psa" }));
+    // Auto-removal only when the non-PSA recipient is actually stored on the item.
+    const rcpStored = !!(payload.extracted_recipient_name || payload.extracted_recipient_vat);
+    if (rcp.kind === "remove" && !rcpStored) { if (payload.intake_route !== "ignored") payload.intake_route = "triage"; }
+    else if (rcp.kind === "remove") Object.assign(payload, rr.removeColumns({ reason: rcp.reason, source: "recipient_rule", tag: "not_psa" }));
     else if (removalRule) Object.assign(payload, rr.removeColumns({ reason: removalRule.text, source: `rule:${removalRule.id}`, tag: "rule" }));
   }
 
