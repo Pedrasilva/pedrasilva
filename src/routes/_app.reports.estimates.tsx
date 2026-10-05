@@ -16,11 +16,15 @@ import { euros } from "@/lib/projects/gantt-utils";
 import { useResources } from "@/lib/projects/use-planner";
 import { effectiveCostRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { buildStageNumberMap } from "@/lib/quotes/stage-numbering";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
+import { stagePlannedHours } from "@/lib/projects/stage-load-estimate";
 import { stageActuals, type StageLite } from "@/lib/reports/budget-consumption";
 import {
+  ESTIMATE_SOURCES,
   PHASE_TYPES,
   overrun,
-  phaseTypeFromText,
+  resolvePhaseType,
+  type EstimateSource,
   summarise,
   toStageRow,
   type PhaseType,
@@ -59,7 +63,10 @@ function EstimatesPage() {
   const [ptype, setPtype] = useState("all");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [onlyDone, setOnlyDone] = useState(true);
+  const [onlyDone, setOnlyDone] = useState(false);
+  const [source, setSource] = useState("all");
+  const { data: teamAvg } = useTeamPricingAverages();
+  const avgSale = teamAvg?.avgSalePerHour ?? 0;
   const [view, setView] = useState<View>(null);
 
   const resById = useMemo(() => new Map((resources ?? []).map((r) => [r.id, r])), [resources]);
@@ -85,12 +92,24 @@ function EstimatesPage() {
       },
       saleRateFor: () => 0,
     });
-    const typeOf = (s: EvaStage): PhaseType | null => {
-      const own = phaseTypeFromText(s.quote_stages?.phase_code) ?? phaseTypeFromText(s.name) ?? phaseTypeFromText(s.quote_stages?.phase_group);
-      if (own) return own;
-      // A month/sub-stage inherits its parent's phase when the parent maps explicitly.
-      const parent = s.parent_stage_id ? byId.get(s.parent_stage_id) : undefined;
-      return parent ? phaseTypeFromText(parent.quote_stages?.phase_code) ?? phaseTypeFromText(parent.name) : null;
+    const typeOf = (s: EvaStage): PhaseType | null =>
+      resolvePhaseType(s, (x) => (x.parent_stage_id ? byId.get(x.parent_stage_id) : undefined));
+    /** First available wins: sold quote stage → current plan → locked baseline. */
+    const estimateOf = (s: EvaStage): { source: EstimateSource | null; hours: number | null; cost: number | null } => {
+      const pos = (n: number | null | undefined) => (n != null && Number(n) > 0 ? Number(n) : null);
+      if (s.source_quote_stage_id) {
+        const h = pos(data.quoteHours.get(s.source_quote_stage_id));
+        const c = pos(s.quote_stages?.budget);
+        if (h != null || c != null) return { source: "quote", hours: h, cost: c };
+      }
+      const planH = pos(stagePlannedHours({ allocations: s.pm_allocations ?? [], budget: s.budget, avgSaleRate: avgSale }));
+      const planC = pos(s.budget);
+      if (planH != null || planC != null) return { source: "plan", hours: planH, cost: planC };
+      if (s.baseline_locked_at) {
+        const h = pos(s.baseline_target_hours), c = pos(s.baseline_budget);
+        if (h != null || c != null) return { source: "baseline", hours: h, cost: c };
+      }
+      return { source: null, hours: null, cost: null };
     };
     // Leaf stages only, so a parent's roll-up is never counted twice.
     const rows: (StageRow & { client: string; projectStatus: string })[] = own
@@ -99,6 +118,7 @@ function EstimatesPage() {
         const p = projById.get(s.project_id);
         const a = actuals.get(s.id);
         const num = numbers.get(s.id);
+        const est = estimateOf(s);
         return {
           ...toStageRow({
             id: s.id,
@@ -107,8 +127,9 @@ function EstimatesPage() {
             projectId: s.project_id,
             projectName: p?.name ?? "—",
             status: s.status,
-            plannedHours: s.baseline_target_hours == null ? null : Number(s.baseline_target_hours),
-            plannedCost: s.baseline_budget == null ? null : Number(s.baseline_budget),
+            plannedHours: est.hours,
+            plannedCost: est.cost,
+            source: est.source,
             actualHours: a?.loggedHours ?? 0,
             actualCost: a?.laborCost ?? 0,
             baselineStart: s.baseline_start_date,
@@ -122,7 +143,7 @@ function EstimatesPage() {
         };
       });
     return rows;
-  }, [data, resById, defaultRates]);
+  }, [data, resById, defaultRates, avgSale]);
 
   const clients = useMemo(() => [...new Set((base ?? []).map((r) => r.client).filter(Boolean))].sort(), [base]);
 
@@ -133,11 +154,12 @@ function EstimatesPage() {
         if (client !== "all" && r.client !== client) return false;
         if (ptype !== "all" && r.phaseType !== ptype) return false;
         if (onlyDone && r.status !== "done") return false;
+        if (source !== "all" && r.source !== source) return false;
         if (from && (!r.end || r.end < from)) return false;
         if (to && (!r.end || r.end > to)) return false;
         return true;
       }),
-    [base, status, client, ptype, onlyDone, from, to],
+    [base, status, client, ptype, onlyDone, from, to, source],
   );
   const hasEstimate = (r: StageRow) => (r.plannedHours ?? 0) > 0 || (r.plannedCost ?? 0) > 0;
   const missing = filtered.filter((r) => !((r.plannedHours ?? 0) > 0));
@@ -184,6 +206,15 @@ function EstimatesPage() {
                 <SelectContent>
                   <SelectItem value="all">{t("estimates.filters.all")}</SelectItem>
                   {PHASE_TYPES.map((p) => <SelectItem key={p} value={p}>{t(`estimates.types.${p}`)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={t("estimates.filters.source")}>
+              <Select value={source} onValueChange={setSource}>
+                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("estimates.filters.all")}</SelectItem>
+                  {ESTIMATE_SOURCES.map((x) => <SelectItem key={x} value={x}>{t(`estimates.sources.${x}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
@@ -281,6 +312,13 @@ function EstimatesPage() {
                   </TableBody>
                 </Table>
                 <p className="mt-2 text-xs text-muted-foreground">{t("estimates.note")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("estimates.sourceCounts", {
+                    quote: scoped.filter((r) => r.source === "quote").length,
+                    plan: scoped.filter((r) => r.source === "plan").length,
+                    baseline: scoped.filter((r) => r.source === "baseline").length,
+                  })}
+                </p>
               </CardContent>
             </Card>
           </>
@@ -310,7 +348,10 @@ function EstimatesPage() {
                   <TableRow key={r.id}>
                     <TableCell>
                       <Link to="/projects/$projectId" params={{ projectId: r.projectId }} className="font-medium hover:underline">{r.projectName}</Link>
-                      <div className="text-xs text-muted-foreground">{r.label}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.label}
+                        {r.source && <span className="ml-1 rounded border px-1 text-[10px]">{t(`estimates.sources.${r.source}`)}</span>}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">{h0(r.plannedHours)}</TableCell>
                     <TableCell className="text-right">{h0(r.actualHours)}</TableCell>

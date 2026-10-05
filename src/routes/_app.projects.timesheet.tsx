@@ -8,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { getMyStageLoadEstimates } from "@/lib/projects/stage-load.functions";
+import { CalendarNoteConfirm, type CalendarConfirmItem } from "@/components/projects/calendar-note-confirm";
 import { getCalendarGridSuggestions, rememberCalendarMatch, type GridCalendarEvent } from "@/lib/projects/calendar.functions";
 import { useTimesheetRetainers, type RetainerParentRow } from "@/lib/projects/use-timesheet-retainers";
 import { CalendarDayBadge, CalendarRowHint, type HintTarget } from "@/components/projects/timesheet-calendar";
@@ -394,6 +396,23 @@ function TimesheetPage() {
     userId: effectiveUserId ?? null,
     stageIds: projectRows.map((r) => r.stage.id),
   });
+  // Estimated allocation for own assignments without hours (same rule as the Capacity forecast).
+  const fetchStageEstimates = useServerFn(getMyStageLoadEstimates);
+  const estStageIds = [...new Set(projectRows.map((r) => r.stage.id))].sort();
+  const { data: stageEstimates } = useQuery({
+    queryKey: ["pm-timesheet-stage-estimates", user?.id ?? null, estStageIds.join(",")],
+    enabled: !viewingOther && !viewAsUser && !!user?.id && estStageIds.length > 0,
+    staleTime: 5 * 60_000,
+    retry: false,
+    queryFn: async () => new Map((await fetchStageEstimates({ data: { stageIds: estStageIds } })).map((e) => [e.stage_id, e.estimated])),
+  });
+  const balanceFor = (stageId: string) => {
+    const b = stageBalance?.get(stageId);
+    if (b && b.allocated > 0) return { ...b, estimated: false };
+    const est = stageEstimates?.get(stageId);
+    if (est != null && est > 0) return { allocated: est, logged: b?.logged ?? 0, estimated: true };
+    return b ? { ...b, estimated: false } : undefined;
+  };
   const noResource = !profile?.resource_id;
 
   // Auto-create non-working entries from approved leave/holidays the first
@@ -563,13 +582,12 @@ function TimesheetPage() {
     qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
     qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
   };
-  const runAdd = async (target: AddTarget, date: string, evs: GridCalendarEvent[], label: string) => {
+  const saveCalendar = async (target: AddTarget, date: string, evs: GridCalendarEvent[], label: string, notes: Record<string, string>) => {
     try {
       let total = 0;
       for (const ev of evs) {
         const hours = ev.minutes / 60;
-        const time = ev.start && ev.end ? `${ev.start.slice(11, 16) || ev.start}–${ev.end.slice(11, 16) || ev.end} ` : "";
-        await addToCell(target, date, hours, [ev.id], `${time}${ev.title}`.trim() || null);
+        await addToCell(target, date, hours, [ev.id], (notes[ev.id] ?? "").trim() || null);
         total += hours;
       }
       toast.success(t("projects:tsCalendar.added", { hours: formatHM(total), name: label }));
@@ -577,6 +595,20 @@ function TimesheetPage() {
       toast.error((e as Error).message || "Failed to save");
     }
   };
+  /** Every calendar → activity path goes through this confirm; nothing is saved without it. */
+  const [calConfirm, setCalConfirm] = useState<{
+    target: AddTarget; date: string; evs: GridCalendarEvent[]; label: string; resolve: () => void;
+    items: CalendarConfirmItem[];
+  } | null>(null);
+  const runAdd = (target: AddTarget, date: string, evs: GridCalendarEvent[], label: string) =>
+    new Promise<void>((resolve) => {
+      const items = evs.map((ev) => {
+        const s = ev.start?.slice(11, 16), e = ev.end?.slice(11, 16);
+        const time = s && e ? `${s}–${e}` : "";
+        return { id: ev.id, hours: ev.minutes / 60, suggested: [time, ev.title].filter(Boolean).join(" · ") };
+      });
+      setCalConfirm({ target, date, evs, label, resolve, items });
+    });
   const dismissEvent = async (id: string) => {
     const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user!.id, event_id: id });
     if (error) {
@@ -764,6 +796,20 @@ function TimesheetPage() {
 
   return (
     <AppShell active="timesheet">
+      <CalendarNoteConfirm
+        open={!!calConfirm}
+        label={calConfirm?.label ?? ""}
+        items={calConfirm?.items ?? []}
+        busy={upsert.isPending}
+        onCancel={() => { calConfirm?.resolve(); setCalConfirm(null); }}
+        onConfirm={async (notes) => {
+          const c = calConfirm;
+          if (!c) return;
+          await saveCalendar(c.target, c.date, c.evs, c.label, notes);
+          c.resolve();
+          setCalConfirm(null);
+        }}
+      />
       <div className="w-full px-4 py-4 sm:px-6">
         <MyWeekCard
           userId={effectiveUserId}
@@ -974,7 +1020,7 @@ function TimesheetPage() {
                       pending={upsert.isPending}
                       readOnly={readOnly || !isStageActive(r)}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
-                      balance={stageBalance?.get(r.stage.id)}
+                      balance={balanceFor(r.stage.id)}
                       renderHint={(dateStr) => projectHint(r.project.id, `t:${r.task_id}`, dateStr)}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
@@ -1286,7 +1332,7 @@ function ProjectRow({
   balance,
 }: {
   renderHint?: (dateStr: string) => React.ReactNode;
-  balance?: { allocated: number; logged: number };
+  balance?: { allocated: number; logged: number; estimated?: boolean };
   row: TimesheetTaskRow;
   days: Date[];
   entryMap: Map<CellKey, Map<string, CellInfo>>;
@@ -1333,7 +1379,7 @@ function ProjectRow({
             )}
             {balance && balance.allocated > 0 && (
               <div className={`mt-0.5 text-[10px] ${balance.logged > balance.allocated ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                {tBal("tsActivities.balance", {
+                {tBal(balance.estimated ? "tsActivities.balanceEstimated" : "tsActivities.balance", {
                   allocated: formatHM(balance.allocated),
                   logged: formatHM(balance.logged) || "0h00",
                   left: formatHM(Math.max(0, balance.allocated - balance.logged)) || "0h00",

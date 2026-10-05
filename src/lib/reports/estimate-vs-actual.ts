@@ -1,12 +1,18 @@
 /**
  * Estimate vs actual per phase type — pure calculation (no Supabase calls).
  *
- * planned hours = stage.baseline_target_hours, planned € = stage.baseline_budget
+ * planned hours / € = first available of: sold quote stage, current plan, locked baseline
  * actual hours / € = stageActuals() from budget-consumption.ts (locked cost-rate
  * snapshots). Only own-work (is_self) leaf stages are passed in.
  */
-export const PHASE_TYPES = ["F0", "F1", "F2", "F3", "F4", "F5", "F6"] as const;
+export const PHASE_TYPES = [
+  "management", "programme", "concept", "developed", "technical", "tender",
+  "construction", "licensing", "interiors", "closeout", "singleProject",
+] as const;
 export type PhaseType = (typeof PHASE_TYPES)[number];
+
+export const ESTIMATE_SOURCES = ["quote", "plan", "baseline"] as const;
+export type EstimateSource = (typeof ESTIMATE_SOURCES)[number];
 
 const norm = (s: string) =>
   s
@@ -15,24 +21,51 @@ const norm = (s: string) =>
     .toLowerCase()
     .trim();
 
-/** Common names (accent-free, lower-case) → phase type. Only explicit matches; no guessing. */
+/** 1. Keywords in the name (accent-free, lower-case), by meaning. First match wins. */
 const NAME_RULES: [RegExp, PhaseType][] = [
-  [/\b(gestao|management|coordenacao de projeto)\b/, "F0"],
-  [/\b(concept|conceito|estudo previo|programa|programme|programa preliminar|briefing|viabilidade|due dil+igence)\b/, "F1"],
-  [/\b(developed design|licenciamento|projeto de licenciamento|comunicacao previa|anteprojeto|alvara)\b/, "F2"],
-  [/\b(technical design|projeto de execucao|execucao)\b/, "F3"],
-  [/\b(tender|concurso)\b/, "F4"],
-  [/\b(construction|construcao|assistencia tecnica|avenca de obra|obra)\b/, "F5"],
-  [/\b(close ?out|telas finais|encerramento)\b/, "F6"],
+  [/\b(programa|programme|program)\b/, "programme"],
+  [/\b(concept|conceito|estudo previo)\b/, "concept"],
+  [/\b(developed|anteprojecto|anteprojeto)\b/, "developed"],
+  [/\b(technical|execucao)\b/, "technical"],
+  [/\b(tender|concurso)\b/, "tender"],
+  [/\b(construction|construcao|obra|assistencia|avenca)\b/, "construction"],
+  [/\b(licenciamento|comunicacao previa)\b/, "licensing"],
+  [/\b(mobiliario|interiores)\b/, "interiors"],
+  [/\b(gestao|management)\b/, "management"],
+  [/\b(close ?out|telas finais|encerramento)\b/, "closeout"],
 ];
+const PREFIX: Record<string, PhaseType> = {
+  "0": "management", "1": "concept", "2": "developed", "3": "technical", "4": "tender", "5": "construction", "6": "closeout",
+};
 
-/** Map a code/name to a phase type, or null when it can't be mapped confidently. */
-export function phaseTypeFromText(text: string | null | undefined): PhaseType | null {
-  if (!text) return null;
-  const m = /^\s*f\s*([0-6])(?![0-9])/i.exec(text);
-  if (m) return `F${m[1]}` as PhaseType;
-  const n = norm(text);
+export function phaseTypeFromKeywords(name: string | null | undefined): PhaseType | null {
+  if (!name) return null;
+  const n = norm(name);
+  if (/final-stage support/.test(n)) return "construction";
   for (const [re, pt] of NAME_RULES) if (re.test(n)) return pt;
+  return null;
+}
+export function phaseTypeFromPrefix(name: string | null | undefined): PhaseType | null {
+  const m = name ? /^\s*f\s*([0-6])(?![0-9])/i.exec(name) : null;
+  return m ? PREFIX[m[1]] : null;
+}
+
+/**
+ * Mapping order: 1. keywords in the name; 2. the parent's type; 3. the
+ * F-number prefix; 4. a single all-in-one "Projecto" stage. Else unmapped.
+ */
+export function resolvePhaseType<T extends { name: string; parent_stage_id: string | null }>(
+  s: T,
+  parentOf: (s: T) => T | undefined,
+): PhaseType | null {
+  const kw = phaseTypeFromKeywords(s.name);
+  if (kw) return kw;
+  const parent = parentOf(s);
+  const pt = parent ? resolvePhaseType(parent, parentOf) : null;
+  if (pt) return pt;
+  const pre = phaseTypeFromPrefix(s.name);
+  if (pre) return pre;
+  if (/^projec?to$/.test(norm(s.name))) return "singleProject";
   return null;
 }
 
@@ -52,6 +85,7 @@ export interface StageInput {
   start: string | null;
   end: string | null;
   phaseType: PhaseType | null;
+  source: EstimateSource | null;
 }
 
 export interface StageRow extends StageInput {

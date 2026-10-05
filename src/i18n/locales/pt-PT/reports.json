@@ -263,12 +263,15 @@
       "avg": "Carga média, próximas 4 semanas",
       "over": "Pessoas acima de 110%",
       "under": "Pessoas abaixo de 50%",
-      "unassigned": "Horas por atribuir"
+      "unassigned": "Horas por atribuir",
+      "estimatedLabel": "Estimado",
+      "estimated": "{{est}} h estimadas de {{planned}} h planeadas"
     },
     "chart": {
       "title": "Equipa: disponível vs planeado por semana",
       "available": "Disponível",
-      "planned": "Planeado"
+      "planned": "Planeado",
+      "estimated": "Estimado"
     },
     "heatmap": {
       "title": "Carga por pessoa e semana (planeado ÷ disponível)"
@@ -282,11 +285,20 @@
     "detail": {
       "projectStage": "Projecto · fase",
       "none": "Nada planeado"
+    },
+    "explicitOnly": "Só horas explícitas",
+    "estimatedLegend": "Tracejado = inclui estimativa",
+    "estimatedTag": "estimado",
+    "cellEstimated": "das quais ~{{hours}} h estimadas",
+    "noPlan": {
+      "title_one": "{{count}} fase sem horas planeadas",
+      "title_other": "{{count}} fases sem horas planeadas",
+      "hint": "Há pessoas atribuídas sem horas e a fase não tem horas planeadas (sem horas alocadas nem orçamento), por isso não há estimativa."
     }
   },
   "estimates": {
     "title": "Estimativa vs real por fase",
-    "subtitle": "Horas, custo e duração previstos (baseline da fase) vs reais por tipo de fase. Só fases de trabalho próprio; custos com taxas de custo bloqueadas.",
+    "subtitle": "Horas, custo e duração previstos vs reais por tipo de fase. Estimativa da proposta vendida, senão do plano actual, senão da baseline bloqueada. Só trabalho próprio; custos com taxas de custo bloqueadas.",
     "filters": {
       "status": "Estado do projeto",
       "client": "Cliente",
@@ -294,7 +306,8 @@
       "endFrom": "Fim da fase desde",
       "endTo": "Fim da fase até",
       "onlyDone": "Só fases concluídas",
-      "all": "Todos"
+      "all": "Todos",
+      "source": "Origem da estimativa"
     },
     "status": {
       "all": "Todos",
@@ -303,13 +316,17 @@
       "archived": "Arquivado"
     },
     "types": {
-      "F0": "F0 Gestão",
-      "F1": "F1 Conceito",
-      "F2": "F2 Desenvolvimento",
-      "F3": "F3 Projeto técnico",
-      "F4": "F4 Concurso",
-      "F5": "F5 Obra",
-      "F6": "F6 Encerramento"
+      "management": "Gestão",
+      "programme": "Programa",
+      "concept": "Concept",
+      "developed": "Developed Design",
+      "technical": "Technical Design",
+      "tender": "Concurso",
+      "construction": "Construção",
+      "licensing": "Licenciamento",
+      "interiors": "Mobiliário / Interiores",
+      "closeout": "Close out",
+      "singleProject": "Projecto (fase única)"
     },
     "missing_one": "{{count}} fase sem estimativa",
     "missing_other": "{{count}} fases sem estimativa",
@@ -334,6 +351,12 @@
       "worst": "Pior",
       "duration": "Duração",
       "stage": "Projeto / fase"
-    }
+    },
+    "sources": {
+      "quote": "proposta",
+      "plan": "plano actual",
+      "baseline": "baseline"
+    },
+    "sourceCounts": "Origem da estimativa: {{quote}} proposta · {{plan}} plano actual · {{baseline}} baseline"
   }
 }

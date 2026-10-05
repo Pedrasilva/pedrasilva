@@ -1806,7 +1806,13 @@
     "chooseRow": "Add to which row?",
     "added": "{{hours}} added to {{name}}",
     "noRetainerMonth": "No retainer stage for {{month}}",
-    "retainerSub": "Retainer · hours go to each day's month"
+    "retainerSub": "Retainer · hours go to each day's month",
+    "confirmTitle": "Add calendar event",
+    "confirmHours": "{{hours}} h",
+    "confirmDescription": "Description",
+    "confirmHint": "This description stays on the timesheet and is visible to whoever approves it.",
+    "confirmCancel": "Cancel",
+    "confirmSave": "Save"
   },
   "stageGate": {
     "note": {
@@ -1846,6 +1852,7 @@
       "pending": "Pending approval",
       "approved": "Approved",
       "rejected": "Rejected"
-    }
+    },
+    "balanceEstimated": "Allocated ~{{allocated}} (estimated) · logged {{logged}} · {{left}} left"
   }
 }

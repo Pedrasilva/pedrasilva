@@ -34,82 +34,97 @@ export function useTeamPricingAverages() {
       if (snapRes.error) throw snapRes.error;
       if (boRes.error) throw boRes.error;
 
-      const projecto = (collabRes.data ?? []) as Collaborator[];
-      const snapshots = (snapRes.data ?? []) as Snapshot[];
-      const bo = boRes.data as {
-        custos_operacionais_anual: number;
-        dias_uteis: number;
-        horas_dia: number;
-        margem_lucro_pct: number;
-      } | null;
-
       // Also need backoffice total VBG to compute BO share. Fetch separately.
       const { data: allCollabs, error: allErr } = await supabase
         .from("collaborators")
         .select("*")
         .is("archived_at", null);
       if (allErr) throw allErr;
-      const backoffice = ((allCollabs ?? []) as Collaborator[]).filter(
-        (c) => c.departamento === "Backoffice",
-      );
-
-      const custosOp = Number(bo?.custos_operacionais_anual ?? 0);
-      const diasUteis = Number(bo?.dias_uteis ?? 220);
-      const horasDia = Number(bo?.horas_dia ?? 8);
-      // Default to the recommended 50% margin (matches HR › Pricing scenario)
-      // when bo_settings.margem_lucro_pct is unset or 0.
-      const margem = Number(bo?.margem_lucro_pct) || 0.5;
-
-
-      const vbgFor = (c: Collaborator): number => {
-        const s = snapshots.find((sn) => sn.collaborator_id === c.id);
-        return s ? computeSnapshot(s).custoVBG : 0;
-      };
-      const totalBackofficeVbg = backoffice.reduce((a, c) => a + vbgFor(c), 0);
-
-      const fteTotalProjecto = projecto.reduce(
-        (a, c) => a + computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia),
-        0,
-      );
-      const cotaBo = cotaBoPorColabProjecto({
-        custosOperacionais: custosOp,
-        custoBackofficeVbg: totalBackofficeVbg,
-        numColabProjecto: projecto.length,
-        fteTotalProjecto,
+      return computeTeamPricingAverages({
+        projecto: (collabRes.data ?? []) as Collaborator[],
+        snapshots: (snapRes.data ?? []) as Snapshot[],
+        bo: boRes.data as TeamPricingBo | null,
+        allCollabs: (allCollabs ?? []) as Collaborator[],
       });
-
-      const costs: number[] = [];
-      const sales: number[] = [];
-      for (const c of projecto) {
-        const vbg = vbgFor(c);
-        if (!vbg) continue;
-        const collabHorasDia = effectiveDailyHours(c.daily_hours, horasDia);
-        const fte = computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia);
-        const chargeability =
-          c.target_chargeability_pct != null
-            ? Number(c.target_chargeability_pct) / 100
-            : undefined;
-        const p = computePricing({
-          vbgColaborador: vbg,
-          cotaBoAnual: cotaBo * fte,
-          diasUteis,
-          horasDia: collabHorasDia,
-          margemLucroPct: c.margem_lucro_pct_override ?? margem,
-          chargeabilityPct: chargeability,
-        });
-        costs.push(p.custoHoraDesperdicio);
-        sales.push(p.vendaHora);
-      }
-
-      const avg = (xs: number[]) =>
-        xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
-
-      return {
-        avgCostPerHour: avg(costs),
-        avgSalePerHour: avg(sales),
-        marginPct: margem,
-        sampleSize: costs.length,
-      };
     },
   });
+}
+
+export type TeamPricingBo = {
+  custos_operacionais_anual: number;
+  dias_uteis: number;
+  horas_dia: number;
+  margem_lucro_pct: number;
+};
+
+/** Pure: team average cost/sale per hour (also used server-side). */
+export function computeTeamPricingAverages(input: {
+  projecto: Collaborator[];
+  snapshots: Snapshot[];
+  bo: TeamPricingBo | null;
+  allCollabs: Collaborator[];
+}): TeamPricingAverages {
+  const { projecto, snapshots, bo, allCollabs } = input;
+
+    const backoffice = allCollabs.filter(
+      (c) => c.departamento === "Backoffice",
+    );
+
+    const custosOp = Number(bo?.custos_operacionais_anual ?? 0);
+    const diasUteis = Number(bo?.dias_uteis ?? 220);
+    const horasDia = Number(bo?.horas_dia ?? 8);
+    // Default to the recommended 50% margin (matches HR › Pricing scenario)
+    // when bo_settings.margem_lucro_pct is unset or 0.
+    const margem = Number(bo?.margem_lucro_pct) || 0.5;
+
+
+    const vbgFor = (c: Collaborator): number => {
+      const s = snapshots.find((sn) => sn.collaborator_id === c.id);
+      return s ? computeSnapshot(s).custoVBG : 0;
+    };
+    const totalBackofficeVbg = backoffice.reduce((a, c) => a + vbgFor(c), 0);
+
+    const fteTotalProjecto = projecto.reduce(
+      (a, c) => a + computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia),
+      0,
+    );
+    const cotaBo = cotaBoPorColabProjecto({
+      custosOperacionais: custosOp,
+      custoBackofficeVbg: totalBackofficeVbg,
+      numColabProjecto: projecto.length,
+      fteTotalProjecto,
+    });
+
+    const costs: number[] = [];
+    const sales: number[] = [];
+    for (const c of projecto) {
+      const vbg = vbgFor(c);
+      if (!vbg) continue;
+      const collabHorasDia = effectiveDailyHours(c.daily_hours, horasDia);
+      const fte = computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia);
+      const chargeability =
+        c.target_chargeability_pct != null
+          ? Number(c.target_chargeability_pct) / 100
+          : undefined;
+      const p = computePricing({
+        vbgColaborador: vbg,
+        cotaBoAnual: cotaBo * fte,
+        diasUteis,
+        horasDia: collabHorasDia,
+        margemLucroPct: c.margem_lucro_pct_override ?? margem,
+        chargeabilityPct: chargeability,
+      });
+      costs.push(p.custoHoraDesperdicio);
+      sales.push(p.vendaHora);
+    }
+
+    const avg = (xs: number[]) =>
+      xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
+
+    return {
+      avgCostPerHour: avg(costs),
+      avgSalePerHour: avg(sales),
+      marginPct: margem,
+      sampleSize: costs.length,
+    };
 }

@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Switch } from "@/components/ui/switch";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from "recharts";
@@ -46,6 +48,8 @@ function CapacityPage() {
   const [team, setTeam] = useState("all");
   const [project, setProject] = useState("all");
   const [openUser, setOpenUser] = useState<string | null>(null);
+  const [explicitOnly, setExplicitOnly] = useState(false);
+  const { data: teamAvg } = useTeamPricingAverages();
 
   const start = mondayOf(toLocalISODate(new Date()));
   const end = addDays(start, Number(nWeeks) * 7 - 1);
@@ -63,10 +67,10 @@ function CapacityPage() {
     if (!data) return null;
     const roster = data.roster.filter((p) => (dept === "all" || p.department === dept) && (team === "all" || p.team === team));
     const stages = project === "all" ? data.stages : new Map([...data.stages].filter(([, s]) => s.project_id === project));
-    const r = computeCapacityForecast({ rangeStart: start, rangeEnd: end, roster, nonWorking: data.nonWorking, holidays: data.holidays, allocations: data.allocations, stages, placeholders: data.placeholders });
+    const r = computeCapacityForecast({ rangeStart: start, rangeEnd: end, roster, nonWorking: data.nonWorking, holidays: data.holidays, allocations: data.allocations, stages, placeholders: data.placeholders, loggedByStage: data.loggedByStage, avgSaleRate: teamAvg?.avgSalePerHour ?? 0, explicitOnly });
     if (project !== "all") r.people = r.people.filter((p) => p.planned > 0);
     return r;
-  }, [data, dept, team, project, start, end]);
+  }, [data, dept, team, project, start, end, teamAvg, explicitOnly]);
 
   const fmtWeek = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString(i18n.language, { day: "numeric", month: "short" });
 
@@ -81,6 +85,8 @@ function CapacityPage() {
       over: loads.filter((l) => l != null && l > 1.1).length,
       under: loads.filter((l) => l != null && l < 0.5).length,
       unassigned: result.team.reduce((s, w) => s + w.unassigned, 0),
+      estimated: result.team.reduce((s, w) => s + w.estimated, 0),
+      planned: result.team.reduce((s, w) => s + w.planned, 0),
     };
   }, [result]);
 
@@ -136,6 +142,10 @@ function CapacityPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center gap-2 pb-2">
+              <Switch id="explicit-only" checked={explicitOnly} onCheckedChange={setExplicitOnly} />
+              <Label htmlFor="explicit-only">{t("capacity.explicitOnly")}</Label>
+            </div>
             <p className="ml-auto text-xs text-muted-foreground">{t("hours.rangeLabel", { start, end })}</p>
           </CardContent>
         </Card>
@@ -150,24 +160,26 @@ function CapacityPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <Tile label={t("capacity.tiles.avg")} value={fmtP(tiles.avg)} />
               <Tile label={t("capacity.tiles.over")} value={String(tiles.over)} />
               <Tile label={t("capacity.tiles.under")} value={String(tiles.under)} />
               <Tile label={t("capacity.tiles.unassigned")} value={`${fmtH(tiles.unassigned)} h`} />
+              <Tile label={t("capacity.tiles.estimatedLabel")} value={t("capacity.tiles.estimated", { est: fmtH(tiles.estimated), planned: fmtH(tiles.planned) })} />
             </div>
 
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">{t("capacity.chart.title")}</CardTitle></CardHeader>
               <CardContent className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={result.team.map((w) => ({ week: fmtWeek(w.weekStart), available: w.available, planned: w.planned, unassigned: w.unassigned }))}>
+                  <ComposedChart data={result.team.map((w) => ({ week: fmtWeek(w.weekStart), available: w.available, explicit: Math.max(0, w.planned - w.estimated), estimated: w.estimated, unassigned: w.unassigned }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                     <XAxis dataKey="week" fontSize={11} />
                     <YAxis fontSize={11} />
                     <RTooltip formatter={(v: number) => `${fmtH(v)} h`} />
                     <Legend />
-                    <Area type="monotone" stackId="d" dataKey="planned" name={t("capacity.chart.planned")} stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.35} />
+                    <Area type="monotone" stackId="d" dataKey="explicit" name={t("capacity.chart.planned")} stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.35} />
+                    <Area type="monotone" stackId="d" dataKey="estimated" name={t("capacity.chart.estimated")} stroke="var(--chart-3)" fill="var(--chart-3)" fillOpacity={0.2} strokeDasharray="4 3" />
                     <Area type="monotone" stackId="d" dataKey="unassigned" name={t("capacity.unassigned")} stroke="var(--chart-4)" fill="var(--chart-4)" fillOpacity={0.35} />
                     <Line type="monotone" dataKey="available" name={t("capacity.chart.available")} stroke="var(--foreground)" strokeWidth={2} dot={false} />
                   </ComposedChart>
@@ -182,6 +194,7 @@ function CapacityPage() {
                   {(["low", "ok", "high", "over"] as LoadBand[]).map((b) => (
                     <span key={b} className="flex items-center gap-1"><span className={cn("inline-block h-3 w-3 rounded-sm", BAND_CLS[b])} />{t(`capacity.band.${b}`)}</span>
                   ))}
+                  <span className="flex items-center gap-1"><span className="ts-hatch inline-block h-3 w-3 rounded-sm border" />{t("capacity.estimatedLegend")}</span>
                 </div>
               </CardHeader>
               <CardContent className="overflow-x-auto">
@@ -217,6 +230,21 @@ function CapacityPage() {
                 )}
               </CardContent>
             </Card>
+
+            {result.noPlan.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">{t("capacity.noPlan.title", { count: result.noPlan.length })}</CardTitle></CardHeader>
+                <CardContent className="space-y-1 text-sm">
+                  <p className="text-xs text-muted-foreground">{t("capacity.noPlan.hint")}</p>
+                  {result.noPlan.map((s) => (
+                    <div key={s.stageId}>
+                      <Link to="/projects/$projectId" params={{ projectId: s.projectId }} className="font-medium hover:underline">{s.projectLabel}</Link>
+                      <span className="text-muted-foreground"> · {s.stageLabel}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
 
@@ -242,11 +270,11 @@ function CapacityPage() {
                         </TableCell>
                         <TableCell>
                           {w.items.length === 0 ? <span className="text-muted-foreground">{t("capacity.detail.none")}</span> : w.items.map((i) => (
-                            <div key={i.stageId}>{i.projectLabel} · <span className="text-muted-foreground">{i.stageLabel}</span></div>
+                            <div key={i.stageId + i.estimated}>{i.projectLabel} · <span className="text-muted-foreground">{i.stageLabel}</span>{i.estimated && <span className="ml-1 text-[10px] italic text-muted-foreground">({t("capacity.estimatedTag")})</span>}</div>
                           ))}
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {w.items.map((i) => <div key={i.stageId}>{fmtH(i.hours)}</div>)}
+                          {w.items.map((i) => <div key={i.stageId + i.estimated}>{i.estimated ? "~" : ""}{fmtH(i.hours)}</div>)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -268,13 +296,14 @@ function HeatCell({ cell }: { cell: CfCell }) {
     <td className="p-0">
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={cn("min-w-12 rounded px-1 py-1.5 text-center font-mono", band ? BAND_CLS[band] : "text-muted-foreground")}>
+          <div className={cn("relative min-w-12 overflow-hidden rounded px-1 py-1.5 text-center font-mono", band ? BAND_CLS[band] : "text-muted-foreground", cell.estimated > 0 && "ts-hatch")}>
             {cell.available > 0 ? fmtP(cell.load) : "—"}
           </div>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-xs">
           <p className="font-medium">{t("capacity.cell", { planned: fmtH(cell.planned), available: fmtH(cell.available) })}</p>
-          {cell.items.map((i) => <p key={i.stageId}>{i.projectLabel} · {i.stageLabel}: {fmtH(i.hours)} h</p>)}
+          {cell.estimated > 0 && <p className="italic">{t("capacity.cellEstimated", { hours: fmtH(cell.estimated) })}</p>}
+          {cell.items.map((i) => <p key={i.stageId + i.estimated}>{i.projectLabel} · {i.stageLabel}: {i.estimated ? "~" : ""}{fmtH(i.hours)} h</p>)}
         </TooltipContent>
       </Tooltip>
     </td>
