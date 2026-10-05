@@ -1,3 +1,4 @@
+import { allocationHours } from "@/lib/projects/gantt-utils";
 import { toLocalISODate } from "@/lib/dates";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,11 @@ export type TimesheetEntry = {
   opportunity_id: string | null;
   /** Open-logging retainer entries (no task) point straight at the month stage. */
   pm_stage_id?: string | null;
+  /** "timesheet" (typed), "assistant", "calendar", "auto-nonworking"… */
+  source?: string | null;
+  approval_status?: string | null;
+  non_working_day_reason?: string | null;
+  calendar_event_ids?: string[] | null;
 };
 
 // Internal cost centers are now admin-managed in the database
@@ -152,11 +158,12 @@ export function useTimesheetEntries(opts: {
       const { data, error } = await supabase
         .from("pm_time_entries")
         .select(
-          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type, opportunity_id, pm_stage_id",
+          "id, task_id, entry_date, hours, notes, billable, entry_type, internal_category, leave_type, opportunity_id, pm_stage_id, source, approval_status, non_working_day_reason, calendar_event_ids, created_at",
         )
         .eq("user_id", opts.userId!)
         .gte("entry_date", opts.weekStart)
-        .lte("entry_date", opts.weekEnd);
+        .lte("entry_date", opts.weekEnd)
+        .order("created_at", { ascending: true });
       if (error) throw error;
       type Row = {
         id: string;
@@ -170,6 +177,10 @@ export function useTimesheetEntries(opts: {
         leave_type?: string | null;
         opportunity_id?: string | null;
         pm_stage_id?: string | null;
+        source?: string | null;
+        approval_status?: string | null;
+        non_working_day_reason?: string | null;
+        calendar_event_ids?: string[] | null;
       };
       return ((data ?? []) as unknown as Row[]).map((e) => ({
         id: e.id,
@@ -183,6 +194,10 @@ export function useTimesheetEntries(opts: {
         leave_type: e.leave_type ?? null,
         opportunity_id: e.opportunity_id ?? null,
         pm_stage_id: e.pm_stage_id ?? null,
+        source: e.source ?? null,
+        approval_status: e.approval_status ?? null,
+        non_working_day_reason: e.non_working_day_reason ?? null,
+        calendar_event_ids: e.calendar_event_ids ?? null,
       }));
     },
   });
@@ -320,9 +335,11 @@ export function useUpsertTimesheetCell() {
       notes?: string | null;
       billable?: boolean;
       existing_entry_id: string | null;
-      /** Defaults to "timesheet"; the dictation assistant passes "assistant". */
+      /** Defaults to "timesheet"; the dictation assistant passes "assistant", calendar adds "calendar". */
       source?: string;
-    }) => {
+      /** New activities only: calendar events this activity records. */
+      calendar_event_ids?: string[];
+    }): Promise<string | null> => {
       if (input.hours <= 0) {
         if (input.existing_entry_id) {
           const { error } = await supabase
@@ -331,7 +348,7 @@ export function useUpsertTimesheetCell() {
             .eq("id", input.existing_entry_id);
           if (error) throw error;
         }
-        return;
+        return null;
       }
       const billable = input.entry_type === "project" ? (input.billable ?? true) : false;
       const payload = {
@@ -350,15 +367,21 @@ export function useUpsertTimesheetCell() {
           .update(payload as never)
           .eq("id", input.existing_entry_id);
         if (error) throw error;
-      } else {
-        const { error } = await supabase.from("pm_time_entries").insert({
+        return input.existing_entry_id;
+      }
+      const { data, error } = await supabase
+        .from("pm_time_entries")
+        .insert({
           ...payload,
           user_id: input.user_id,
           entry_date: input.entry_date,
           source: input.source ?? "timesheet",
-        } as never);
-        if (error) throw error;
-      }
+          ...(input.calendar_event_ids?.length ? { calendar_event_ids: input.calendar_event_ids } : {}),
+        } as never)
+        .select("id")
+        .single();
+      if (error) throw error;
+      return (data as { id: string } | null)?.id ?? null;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
@@ -484,3 +507,55 @@ export function useEnsureStageRow() {
     },
   });
 }
+
+/**
+ * Per-stage allocation balance for one person: allocated = Σ working days ×
+ * hours_per_day over their pm_allocations on the stage; logged = all their
+ * project hours on that stage up to today (any week).
+ */
+export function useStageAllocationBalance(opts: { resourceId: string | null; userId: string | null; stageIds: string[] }) {
+  const ids = [...new Set(opts.stageIds)].sort();
+  return useQuery({
+    queryKey: ["pm-timesheet-stage-balance", opts.resourceId, opts.userId, ids.join(",")],
+    enabled: !!opts.resourceId && !!opts.userId && ids.length > 0,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const today = toLocalISODate(new Date());
+      const [{ data: allocs, error: ae }, { data: tasks, error: te }] = await Promise.all([
+        supabase.from("pm_allocations").select("stage_id, start_date, end_date, hours_per_day").eq("resource_id", opts.resourceId!).in("stage_id", ids),
+        supabase.from("pm_tasks").select("id, pm_allocations!inner(stage_id, resource_id)").in("pm_allocations.stage_id", ids),
+      ]);
+      if (ae) throw ae;
+      if (te) throw te;
+      const taskStage = new Map<string, string>();
+      for (const t of (tasks ?? []) as unknown as Array<{ id: string; pm_allocations: { stage_id: string } | { stage_id: string }[] }>) {
+        const a = Array.isArray(t.pm_allocations) ? t.pm_allocations[0] : t.pm_allocations;
+        if (a?.stage_id) taskStage.set(t.id, a.stage_id);
+      }
+      const out = new Map<string, { allocated: number; logged: number }>();
+      for (const a of (allocs ?? []) as Array<{ stage_id: string; start_date: string; end_date: string; hours_per_day: number | null }>) {
+        const cur = out.get(a.stage_id) ?? { allocated: 0, logged: 0 };
+        cur.allocated += allocationHours({ start_date: a.start_date, end_date: a.end_date, hours_per_day: Number(a.hours_per_day ?? 0) });
+        out.set(a.stage_id, cur);
+      }
+      const taskIds = [...taskStage.keys()];
+      for (let i = 0; i < taskIds.length; i += 200) {
+        const { data: ents, error } = await supabase
+          .from("pm_time_entries")
+          .select("task_id, hours")
+          .eq("user_id", opts.userId!)
+          .eq("entry_type", "project")
+          .lte("entry_date", today)
+          .in("task_id", taskIds.slice(i, i + 200));
+        if (error) throw error;
+        for (const e of (ents ?? []) as Array<{ task_id: string; hours: number }>) {
+          const sid = taskStage.get(e.task_id);
+          const cur = sid ? out.get(sid) : undefined;
+          if (cur) cur.logged += Number(e.hours ?? 0);
+        }
+      }
+      return out;
+    },
+  });
+}
+

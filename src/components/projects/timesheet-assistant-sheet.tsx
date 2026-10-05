@@ -375,13 +375,9 @@ export function TimesheetAssistantSheet({
           if (!stage) continue;
           taskId = await ensureRow.mutateAsync({ resource_id: profile.resource_id, stage_id: stage.id, stage_start: stage.start_date, stage_end: stage.end_date });
         }
-        let q = supabase.from("pm_time_entries").select("id, hours, notes").eq("user_id", user.id).eq("entry_date", d.date).eq("entry_type", d.entry_type);
-        q = taskId ? q.eq("task_id", taskId) : q.eq("internal_category", d.internal_category!);
-        if (d.opportunity_id) q = q.eq("opportunity_id", d.opportunity_id);
-        const { data: ex } = await q.limit(1);
-        const cur = (ex?.[0] as { id: string; hours: number; notes: string | null } | undefined) ?? null;
         const time = d.start_time && d.end_time ? `${d.start_time}–${d.end_time} ` : "";
         const note = `${time}${d.note}`.trim();
+        // Each confirmed draft is its own activity (own note, own calendar event id).
         await upsert.mutateAsync({
           entry_type: d.entry_type,
           task_id: taskId,
@@ -389,21 +385,12 @@ export function TimesheetAssistantSheet({
           opportunity_id: d.entry_type === "internal" ? (d.opportunity_id ?? null) : null,
           user_id: user.id,
           entry_date: d.date,
-          hours: Number(cur?.hours ?? 0) + d.hours,
-          notes: [cur?.notes, note].filter((x) => x && x.trim()).join(" · ") || null,
-          existing_entry_id: cur?.id ?? null,
+          hours: d.hours,
+          notes: note || null,
+          existing_entry_id: null,
           source: "assistant",
+          calendar_event_ids: d.event_id ? [d.event_id] : undefined,
         });
-        if (d.event_id) {
-          let q2 = supabase.from("pm_time_entries").select("id, calendar_event_ids").eq("user_id", user.id).eq("entry_date", d.date).eq("entry_type", d.entry_type);
-          q2 = taskId ? q2.eq("task_id", taskId) : q2.eq("internal_category", d.internal_category!);
-          if (d.opportunity_id) q2 = q2.eq("opportunity_id", d.opportunity_id);
-          const { data: row } = await q2.limit(1).maybeSingle();
-          if (row) {
-            const ids = [...new Set([...(row.calendar_event_ids ?? []), d.event_id])];
-            await supabase.from("pm_time_entries").update({ calendar_event_ids: ids }).eq("id", row.id);
-          }
-        }
         if (d.event_id) {
           const m = result.eventMatches?.[d.event_id];
           if (m && (m.series_id || m.match_word))
@@ -455,8 +442,11 @@ export function TimesheetAssistantSheet({
                     {d.event_id && <Badge variant="outline" className="gap-1"><CalendarDays className="h-3 w-3" aria-hidden />{t(k("calendar.fromCalendarBadge"))}</Badge>}
                     {d.confidence === "low" && !d.saved && <Badge variant="outline" className="border-warning text-warning">{t(k("lowConfidence"))}</Badge>}
                     {d.start_time && d.end_time && <span className="text-xs text-muted-foreground">{d.start_time}–{d.end_time}</span>}
-                    {already > 0 && !d.saved && (
-                      <span className="text-xs text-muted-foreground">{t(k("adds"), { hours: d.hours, already })}</span>
+                    {!d.saved && (
+                      <span className="text-xs text-muted-foreground">
+                        {t(k("adds"), { hours: d.hours })}
+                        {already > 0 ? ` · ${t(k("addsAlready"), { already })}` : ""}
+                      </span>
                     )}
                     {d.saved && <span className="text-xs text-success">✓ {t(k("savedOne"))}</span>}
                   </div>
