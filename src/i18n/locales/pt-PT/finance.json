@@ -1081,7 +1081,8 @@
       "reviewQueue": "Fila de revisão",
       "statements": "Extratos",
       "intakeInbox": "Caixa de entrada",
-      "purchaseDuplicates": "Possíveis duplicados"
+      "purchaseDuplicates": "Possíveis duplicados",
+      "driveArchive": "Arquivo Drive"
     }
   },
   "purchases": {
@@ -2092,5 +2093,34 @@
     "confirmVoid": "Anular",
     "voided": "Duplicado anulado",
     "remembered": "Marcado como não duplicado"
+  },
+  "driveArchive": {
+    "title": "Arquivo Drive",
+    "subtitle": "Cópias dos documentos arquivados no Google Drive do contabilista. A cópia do Hub é sempre a original.",
+    "root": "Pasta de arquivo",
+    "openFolder": "Abrir no Drive",
+    "rootError": "Não foi possível ler a pasta",
+    "notConfigured": "Não há pasta de arquivo definida.",
+    "lastCopy": "Última cópia bem sucedida",
+    "never": "nunca",
+    "status": {
+      "copied": "copiado",
+      "failed": "falhou",
+      "pending": "pendente"
+    },
+    "open": "abrir",
+    "retry": "Tentar de novo",
+    "retryAll": "Tentar todos",
+    "copiedToast": "Copiado para o Drive",
+    "retryAllDone": "{{copied}} copiados, {{failed}} ainda a falhar",
+    "nextRetry": "nova tentativa automática {{date}}",
+    "waitingManual": "à espera de \"Tentar de novo\"",
+    "listTitle": "Cópias falhadas ou pendentes",
+    "none": "Nada pendente.",
+    "attempts": "tentativas",
+    "hrTitle": "Sincronização das despesas RH (mesma pasta de arquivo)",
+    "hrLast": "Última sincronização RH",
+    "doc": "Documento",
+    "error": "Erro"
   }
 }

@@ -1081,7 +1081,8 @@
       "reviewQueue": "Review queue",
       "statements": "Statements",
       "intakeInbox": "Finance inbox",
-      "purchaseDuplicates": "Suspected duplicates"
+      "purchaseDuplicates": "Suspected duplicates",
+      "driveArchive": "Drive archive"
     }
   },
   "purchases": {
@@ -2092,5 +2093,34 @@
     "confirmVoid": "Void",
     "voided": "Duplicate voided",
     "remembered": "Marked as not a duplicate"
+  },
+  "driveArchive": {
+    "title": "Drive archive",
+    "subtitle": "Copies of filed documents in the accountant's Google Drive. The Hub copy is always the original.",
+    "root": "Archive folder",
+    "openFolder": "Open in Drive",
+    "rootError": "The folder could not be read",
+    "notConfigured": "No archive folder is set.",
+    "lastCopy": "Last successful copy",
+    "never": "never",
+    "status": {
+      "copied": "copied",
+      "failed": "failed",
+      "pending": "pending"
+    },
+    "open": "open",
+    "retry": "Try again",
+    "retryAll": "Try all",
+    "copiedToast": "Copied to Drive",
+    "retryAllDone": "{{copied}} copied, {{failed}} still failing",
+    "nextRetry": "automatic retry {{date}}",
+    "waitingManual": "waiting for \"Try again\"",
+    "listTitle": "Failed or pending copies",
+    "none": "Nothing waiting.",
+    "attempts": "attempts",
+    "hrTitle": "HR expenses sync (same archive folder)",
+    "hrLast": "Last HR sync",
+    "doc": "Document",
+    "error": "Error"
   }
 }
