@@ -119,6 +119,8 @@ const SHARED_SCHEMA = (() => {
 })();
 
 const INTAKE_RULES = `
+SEVERAL DOCUMENTS IN ONE FILE: if the file holds several separate documents (for example several bank notices), call the tool once per document, in page order, and set page_first / page_last on each call.
+
 INTAKE TYPE (field intake_type) — pick exactly one:
 - "fatura_compra": an invoice / fatura / fatura-recibo / fatura simplificada ISSUED BY A SUPPLIER TO THE FIRM (the firm is the buyer).
 - "nota_credito": a credit note ("nota de crédito", "credit note") from a supplier. Put the invoice it corrects in referenced_document_number when printed.
@@ -136,6 +138,12 @@ Keep doc_type consistent with intake_type (fatura_compra/nota_credito/fatura_emi
 BANK FIELDS (bank documents only, null otherwise): iban exactly as printed (no spaces needed); account_number = the bank account number ("N.º conta", "Conta") as printed; period_start / period_end ISO dates of the statement period (for a nota de lançamento use the movement date for both). For a nota de lançamento also fill total_amount with the movement amount.
 For every type, amount_ex_vat is the base amount before VAT (null if not printed).`;
 
+/** Types that get a second reading (Gemini) for the cross-check. */
+export const SECOND_READER_TYPES: IntakeType[] = [
+  "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento",
+  "extrato_bancario", "nota_lancamento", "fatura_emitida",
+];
+
 export type ModelRun = {
   model: string;
   ok: boolean;
@@ -145,8 +153,12 @@ export type ModelRun = {
   ms: number;
   input_tokens?: number;
   output_tokens?: number;
-  /** Additional documents Claude found in the same file (only the first is used). */
+  /** Additional documents Claude found in the same file. */
   extra_documents?: number;
+  /** Page ranges Claude gave for each document in the file (in order). */
+  parts?: { first: number; last: number }[];
+  /** True when this reader was not needed for the type (cost rule). */
+  skipped?: boolean;
   output?: DualExtraction;
 };
 
@@ -250,7 +262,14 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
           {
             name: "financial_document_intake",
             description: "Return the extracted document fields.",
-            input_schema: SHARED_SCHEMA,
+            input_schema: {
+              ...SHARED_SCHEMA,
+              properties: {
+                ...(SHARED_SCHEMA as { properties: Record<string, unknown> }).properties,
+                page_first: { type: "integer", description: "First page (1-based) of this document in the file." },
+                page_last: { type: "integer", description: "Last page (1-based) of this document in the file." },
+              },
+            },
           },
         ],
         tool_choice: { type: "tool", name: "financial_document_intake" },
@@ -269,6 +288,7 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
     let startInput: unknown = null;
     let firstIndex: number | null = null;
     const extraIdx = new Set<number>();
+    const blocks = new Map<number, string>();
     let buf = "";
     const dec = new TextDecoder();
     const reader = res.body.getReader();
@@ -294,7 +314,8 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
           // bank notices). Keep only the first one; the count is reported.
           if (firstIndex == null) firstIndex = ev.index;
           if (ev.index === firstIndex) json += ev.delta.partial_json;
-          else if (!extraIdx.has(ev.index)) extraIdx.add(ev.index);
+          else extraIdx.add(ev.index);
+          blocks.set(ev.index, (blocks.get(ev.index) ?? "") + ev.delta.partial_json);
         } else if (ev.type === "message_delta") {
           outT = ev.usage?.output_tokens ?? outT;
           stop = ev.delta?.stop_reason ?? stop;
@@ -311,7 +332,21 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
         ? parseLenient(json)
         : startInput && Object.keys(startInput as object).length > 0 ? startInput : null;
       if (!parsed) throw new Error("empty");
-      return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, extra_documents: extraIdx.size, output: parsed as DualExtraction };
+      // Page ranges of every document Claude found (used to split multi-notice PDFs).
+      const parts: { first: number; last: number }[] = [];
+      for (const k of [...blocks.keys()].sort((a, b) => a - b)) {
+        try {
+          const o = parseLenient(blocks.get(k)!) as { page_first?: number; page_last?: number };
+          const f = Number(o.page_first), l = Number(o.page_last ?? o.page_first);
+          if (Number.isInteger(f) && Number.isInteger(l) && f >= 1 && l >= f) parts.push({ first: f, last: l });
+        } catch { /* ignore an unreadable extra block */ }
+      }
+      return {
+        model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT,
+        extra_documents: extraIdx.size,
+        parts: parts.length === blocks.size ? parts : undefined,
+        output: parsed as DualExtraction,
+      };
     } catch {
       return { model: CLAUDE_MODEL, ok: false, ms, error: `no structured output (stop: ${stop || "?"}, ${json.length} chars: ${json.slice(0, 60)}…${json.slice(-60)})` };
     }
@@ -419,7 +454,9 @@ export type DualResult =
       ok: true;
       extraction: DualExtraction;
       checks: Record<CheckedField, FieldCheck>;
-      verification: "full" | "partial";
+      verification: "full" | "partial" | "single";
+      /** Page ranges when the PDF holds several documents (split into one item each). */
+      parts?: { first: number; last: number }[];
       retryLater: boolean;
       runs: { claude: ModelRun; gemini: ModelRun };
     }
@@ -433,6 +470,8 @@ export async function runDualExtraction(
   bucket: string,
   path: string,
   forcedType?: IntakeType | null,
+  /** Read only these pages (one document cut out of a multi-document PDF). */
+  pages?: { first: number; last: number } | null,
 ): Promise<DualResult> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) return { ok: false, error: "LOVABLE_API_KEY missing", retryLater: false };
@@ -450,11 +489,18 @@ export async function runDualExtraction(
   const userText = forcedType
     ? `A person has confirmed this document is of type "${forcedType}". Set intake_type to "${forcedType}" with confidence 1 and extract the fields for that type.`
     : "Extract the document fields per the schema.";
+  const pageText = pages
+    ? `\nThis file holds several documents. Read ONLY page${pages.first === pages.last ? ` ${pages.first}` : `s ${pages.first}–${pages.last}`} and ignore all other pages. Return exactly one result.`
+    : "";
 
-  const [claude, gemini] = await Promise.all([
-    runClaude(system, userText, file.b64, file.mime, key),
-    runGemini(system, userText, file.b64, file.mime, key),
-  ]);
+  // Claude reads the type first; Gemini is a second reader only for the
+  // money-bearing types (or as a fallback when Claude fails).
+  const claude = await runClaude(system, userText + pageText, file.b64, file.mime, key);
+  const claudeType = forcedType ?? (claude.ok ? claude.output?.intake_type : null);
+  const needSecond = !claude.ok || (!!claudeType && SECOND_READER_TYPES.includes(claudeType as IntakeType));
+  const gemini: ModelRun = needSecond
+    ? await runGemini(system, userText + pageText, file.b64, file.mime, key)
+    : { model: GEMINI_MODEL, ok: false, ms: 0, skipped: true };
   const runs = { claude, gemini };
   const retryLater = (!claude.ok && !!claude.limit) || (!gemini.ok && !!gemini.limit);
 
@@ -464,7 +510,7 @@ export async function runDualExtraction(
 
   const primary = (claude.ok ? claude.output : gemini.output)!;
   const type: IntakeType = forcedType ?? (INTAKE_TYPES.includes(primary.intake_type) ? primary.intake_type : "desconhecido");
-  const checks = crossCheck(claude.output, gemini.output, routeForType(type, 1) === "bank");
+  const checks = crossCheck(claude.ok ? claude.output : undefined, gemini.ok ? gemini.output : undefined, routeForType(type, 1) === "bank");
 
   const extraction: DualExtraction = {
     ...primary,
@@ -489,7 +535,8 @@ export async function runDualExtraction(
     ok: true,
     extraction,
     checks,
-    verification: claude.ok && gemini.ok ? "full" : "partial",
+    verification: claude.ok && gemini.ok ? "full" : gemini.skipped ? "single" : "partial",
+    parts: !pages && file.mime === "application/pdf" && claude.parts && claude.parts.length > 1 ? claude.parts : undefined,
     retryLater,
     runs,
   };
@@ -506,6 +553,8 @@ export function summariseRuns(runs: { claude: ModelRun; gemini: ModelRun }) {
     input_tokens: r.input_tokens ?? null,
     output_tokens: r.output_tokens ?? null,
     extra_documents: r.extra_documents ?? 0,
+    parts: r.parts ?? null,
+    skipped: !!r.skipped,
     intake_type: r.output?.intake_type ?? null,
     classification_code: r.output?.classification_code ?? null,
   });

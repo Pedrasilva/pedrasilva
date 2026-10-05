@@ -1824,6 +1824,14 @@
       "not_a_pdf_attachment": "No PDF attachment",
       "attachment_too_large": "Attachment too large",
       "no_attachments": "No attachments"
-    }
+    },
+    "status": {
+      "pending": "To review",
+      "filed": "Filed",
+      "paid": "Paid",
+      "approved": "Approved"
+    },
+    "splitPart": "Notice {{n}} · p. {{first}}–{{last}}",
+    "single": "Single reading"
   }
 }

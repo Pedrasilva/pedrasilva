@@ -87,7 +87,7 @@ export const confirmPaymentMatch = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({
-        status: "approved",
+        status: "paid",
         settled_document_id: data.documentId,
         settled_payment_id: pay.id,
         reviewed_by: userId,
@@ -140,7 +140,7 @@ export const fileBankDocument = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({
-        status: "approved",
+        status: "filed",
         matched_bank_account_id: data.bankAccountId,
         bank_period: data.period,
         filed_at: new Date().toISOString(),
@@ -204,7 +204,7 @@ export const markOtherDocumentFiled = createServerFn({ method: "POST" })
     if (row.intake_route !== "other") throw new Error("Not an 'other' document");
     const { error } = await supabase
       .from("financial_document_review_queue")
-      .update({ status: "approved", filed_at: new Date().toISOString(), reviewed_by: userId, reviewed_at: new Date().toISOString() })
+      .update({ status: "filed", filed_at: new Date().toISOString(), reviewed_by: userId, reviewed_at: new Date().toISOString() })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

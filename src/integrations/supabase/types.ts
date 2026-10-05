@@ -3106,6 +3106,10 @@ export type Database = {
           source_benefit_expense_id: string | null
           source_bucket: string
           source_file_url: string
+          split_of_file_url: string | null
+          split_page_first: number | null
+          split_page_last: number | null
+          split_part: number | null
           status: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code: string | null
           suggested_classification_id: string | null
@@ -3192,6 +3196,10 @@ export type Database = {
           source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url: string
+          split_of_file_url?: string | null
+          split_page_first?: number | null
+          split_page_last?: number | null
+          split_part?: number | null
           status?: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code?: string | null
           suggested_classification_id?: string | null
@@ -3278,6 +3286,10 @@ export type Database = {
           source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url?: string
+          split_of_file_url?: string | null
+          split_page_first?: number | null
+          split_page_last?: number | null
+          split_part?: number | null
           status?: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code?: string | null
           suggested_classification_id?: string | null
@@ -13470,7 +13482,7 @@ export type Database = {
         | "email_ingestion"
         | "drive_folder"
         | "hr_benefit"
-      fdrq_status: "pending_review" | "approved" | "rejected"
+      fdrq_status: "pending_review" | "approved" | "rejected" | "filed" | "paid"
       fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
       financial_class_level: "category" | "group" | "subgroup"
       financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
@@ -13947,7 +13959,7 @@ export const Constants = {
         "drive_folder",
         "hr_benefit",
       ],
-      fdrq_status: ["pending_review", "approved", "rejected"],
+      fdrq_status: ["pending_review", "approved", "rejected", "filed", "paid"],
       fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
       financial_class_level: ["category", "group", "subgroup"],
       financial_debt_payment_status: ["planned", "paid", "overdue", "skipped"],
