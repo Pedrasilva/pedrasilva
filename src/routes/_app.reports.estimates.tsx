@@ -26,7 +26,7 @@ import {
   resolvePhaseType,
   type EstimateSource,
   summarise,
-  toStageRow,
+  toStageRow, pickPlannedHours,
   type PhaseType,
   type StageRow,
 } from "@/lib/reports/estimate-vs-actual";
@@ -95,21 +95,23 @@ function EstimatesPage() {
     const typeOf = (s: EvaStage): PhaseType | null =>
       resolvePhaseType(s, (x) => (x.parent_stage_id ? byId.get(x.parent_stage_id) : undefined));
     /** First available wins: sold quote stage → current plan → locked baseline. */
-    const estimateOf = (s: EvaStage): { source: EstimateSource | null; hours: number | null; cost: number | null } => {
+    /** First available wins: sold quote stage → current plan → locked baseline; hours by the 80% rule. */
+    const estimateOf = (s: EvaStage) => {
       const pos = (n: number | null | undefined) => (n != null && Number(n) > 0 ? Number(n) : null);
+      const pick = (source: EstimateSource, alloc: number | null, cost: number | null) => ({ source, cost, ...pickPlannedHours(alloc, cost, avgSale) });
       if (s.source_quote_stage_id) {
         const h = pos(data.quoteHours.get(s.source_quote_stage_id));
         const c = pos(s.quote_stages?.budget);
-        if (h != null || c != null) return { source: "quote", hours: h, cost: c };
+        if (h != null || c != null) return pick("quote", h, c);
       }
-      const planH = pos(stagePlannedHours({ allocations: s.pm_allocations ?? [], budget: s.budget, avgSaleRate: avgSale }));
+      const planH = pos(stagePlannedHours({ allocations: s.pm_allocations ?? [], budget: null, avgSaleRate: avgSale }));
       const planC = pos(s.budget);
-      if (planH != null || planC != null) return { source: "plan", hours: planH, cost: planC };
+      if (planH != null || planC != null) return pick("plan", planH, planC);
       if (s.baseline_locked_at) {
         const h = pos(s.baseline_target_hours), c = pos(s.baseline_budget);
-        if (h != null || c != null) return { source: "baseline", hours: h, cost: c };
+        if (h != null || c != null) return pick("baseline", h, c);
       }
-      return { source: null, hours: null, cost: null };
+      return { source: null, cost: null, plannedHours: null, allocatedHours: null, budgetHours: null, hoursBasis: null };
     };
     // Leaf stages only, so a parent's roll-up is never counted twice.
     const rows: (StageRow & { client: string; projectStatus: string })[] = own
@@ -127,7 +129,10 @@ function EstimatesPage() {
             projectId: s.project_id,
             projectName: p?.name ?? "—",
             status: s.status,
-            plannedHours: est.hours,
+            plannedHours: est.plannedHours,
+            allocatedHours: est.allocatedHours,
+            budgetHours: est.budgetHours,
+            hoursBasis: est.hoursBasis,
             plannedCost: est.cost,
             source: est.source,
             actualHours: a?.loggedHours ?? 0,
@@ -306,7 +311,7 @@ function EstimatesPage() {
                         <TableCell className="text-right">{euros(s.actualValue)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.costPct))}>{pct(s.costPct)}</TableCell>
                         <TableCell className="text-right text-muted-foreground">{euros(s.actualCost)}</TableCell>
-                        <TableCell className="text-right text-muted-foreground">{s.consumedPct == null ? "—" : `${Math.round(s.consumedPct)}%`}</TableCell>
+                        <TableCell className="text-right whitespace-nowrap">{s.consumedPct == null ? "—" : `${Math.round(s.consumedPct)}%`}{s.consumedHoursPct != null && <div className="text-[10px] text-muted-foreground">{t("estimates.consumedHours", { pct: Math.round(s.consumedHoursPct) })}</div>}</TableCell>
                         <TableCell className={cn("text-right", tone(s.best))}>{pct(s.best)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.median))}>{pct(s.median)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.worst))}>{pct(s.worst)}</TableCell>
@@ -341,6 +346,8 @@ function EstimatesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("estimates.cols.stage")}</TableHead>
+                  <TableHead className="text-right">{t("estimates.cols.allocatedH")}</TableHead>
+                  <TableHead className="text-right">{t("estimates.cols.budgetH")}</TableHead>
                   <TableHead className="text-right">{t("estimates.cols.plannedH")}</TableHead>
                   <TableHead className="text-right">{t("estimates.cols.actualH")}</TableHead>
                   <TableHead className="text-right">%</TableHead>
@@ -361,14 +368,16 @@ function EstimatesPage() {
                         {r.source && <span className="ml-1 rounded border px-1 text-[10px]">{t(`estimates.sources.${r.source}`)}</span>}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">{h0(r.plannedHours)}</TableCell>
+                    <TableCell className={cn("text-right", r.hoursBasis === "allocated" ? "font-medium" : "text-muted-foreground")}>{h0(r.allocatedHours)}</TableCell>
+                    <TableCell className={cn("text-right", r.hoursBasis === "budget" ? "font-medium" : "text-muted-foreground")}>{h0(r.budgetHours)}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">{h0(r.plannedHours)}{r.hoursBasis && <div className="text-[10px] text-muted-foreground">{t(`estimates.basis.${r.hoursBasis}`)}</div>}</TableCell>
                     <TableCell className="text-right">{h0(r.actualHours)}</TableCell>
                     <TableCell className={cn("text-right", tone(r.hoursPct))}>{pct(r.hoursPct)}</TableCell>
                     <TableCell className="text-right">{r.plannedCost == null ? "—" : euros(r.plannedCost)}</TableCell>
                     <TableCell className="text-right">{euros(r.actualValue)}</TableCell>
                     <TableCell className={cn("text-right", tone(r.costPct))}>{pct(r.costPct)}</TableCell>
                     <TableCell className="text-right text-muted-foreground">{euros(r.actualCost)}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{r.consumedPct == null ? "—" : `${Math.round(r.consumedPct)}%`}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">{r.consumedPct == null ? "—" : `${Math.round(r.consumedPct)}%`}{r.consumedHoursPct != null && <div className="text-[10px] text-muted-foreground">{t("estimates.consumedHours", { pct: Math.round(r.consumedHoursPct) })}</div>}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
