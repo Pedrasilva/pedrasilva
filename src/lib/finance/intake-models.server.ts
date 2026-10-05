@@ -219,7 +219,7 @@ function parseLenient(s: string): unknown {
   try {
     return JSON.parse(s);
   } catch (e) {
-    if (process.env.INTAKE_DEBUG) console.error(String(e), s.slice(0, 20));
+    if (process.env.INTAKE_DEBUG) require("fs").writeFileSync("/tmp/modelcmp/bad.json", s);
     // eslint-disable-next-line no-control-regex
     return JSON.parse(s.replace(/[\u0000-\u001f]/g, (c) => (c === "\n" || c === "\t" || c === "\r" ? " " : "")));
   }
