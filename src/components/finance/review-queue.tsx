@@ -305,7 +305,7 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
         if (dup && res.queueItemId) {
           const qid = res.queueItemId;
           toast.warning(
-            t("finance:intakeInbox.dup.uploadWarn", { file: file.name, label: dup.label, date: new Date(dup.registeredAt).toLocaleDateString(i18n.language) }),
+            t("finance:intakeInbox.dup.uploadWarn", { file: file.name, label: dup.label, date: dup.registeredAt ? new Date(dup.registeredAt).toLocaleDateString(i18n.language) : "—" }),
             {
               duration: 15000,
               action: { label: t("finance:intakeInbox.dup.open"), onClick: () => { window.location.href = dup.documentId ? `/finance/documents/${dup.documentId}` : "/finance/inbox"; } },

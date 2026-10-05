@@ -104,7 +104,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type ManualDup = { kind: string; reason: string; documentId?: string; queueItemId?: string; label: string; registeredAt: string; supplier: string };
+type ManualDup = { kind: string; reason: string; documentId?: string; queueItemId?: string; label: string; registeredAt: string | null; supplier: string };
 
 export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
@@ -461,7 +461,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
             <AlertDialogDescription asChild>
               <div className="space-y-2">
                 {(dupWarn?.matches ?? []).map((m, i) => {
-                  const date = new Date(m.registeredAt).toLocaleDateString(i18n.language);
+                  const date = m.registeredAt ? new Date(m.registeredAt).toLocaleDateString(i18n.language) : "—";
                   const text = m.kind === "probable"
                     ? t("finance:intakeInbox.dup.manualProbable", { supplier: m.supplier, label: m.label, date })
                     : t("finance:intakeInbox.dup.manualExists", { number: documentNumber.trim() || m.label, supplier: m.supplier, date });
