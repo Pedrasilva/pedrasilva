@@ -346,10 +346,19 @@ export function nifCheckFails(v: string | number | null): boolean {
   return !normalizePortugueseNif(s) || !isValidPortugueseNif(s);
 }
 
-export function crossCheck(claude?: DualExtraction, gemini?: DualExtraction): Record<CheckedField, FieldCheck> {
+export function crossCheck(
+  claude?: DualExtraction,
+  gemini?: DualExtraction,
+  bankDoc = false,
+): Record<CheckedField, FieldCheck> {
   const both = !!claude && !!gemini;
   const out = {} as Record<CheckedField, FieldCheck>;
   for (const f of CHECKED_FIELDS) {
+    // IBAN / account number only matter for bank documents.
+    if (!bankDoc && (f === "iban" || f === "account_number")) {
+      out[f] = { status: "ok", value: null, reasons: [] };
+      continue;
+    }
     const c = pick(claude, f);
     const g = pick(gemini, f);
     const value = claude ? c : g;
@@ -429,8 +438,8 @@ export async function runDualExtraction(
   }
 
   const primary = (claude.ok ? claude.output : gemini.output)!;
-  const checks = crossCheck(claude.output, gemini.output);
   const type: IntakeType = forcedType ?? (INTAKE_TYPES.includes(primary.intake_type) ? primary.intake_type : "desconhecido");
+  const checks = crossCheck(claude.output, gemini.output, routeForType(type, 1) === "bank");
 
   const extraction: DualExtraction = {
     ...primary,
