@@ -396,7 +396,7 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
         <CardContent className="space-y-3">
           <div className="h-72">
             <ResponsiveContainer>
-              <BarChart data={wf} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={wf} barCategoryGap="10%" margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" interval={0} height={44} tick={<WrapTick />} />
                 <YAxis fontSize={12} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
@@ -520,7 +520,8 @@ type WfRow = { name: string; base: number; v: number; own: number; running: numb
 /** Coloured step plus a thin connector to the next bar at the running-total level. */
 function WfShape(props: { x?: number; y?: number; width?: number; height?: number; fill?: string; payload?: WfRow; background?: { width: number } }) {
   const { x = 0, y = 0, width = 0, height = 0, fill, payload, background } = props;
-  const band = background?.width ?? width;
+  // barCategoryGap="10%" on each side → the bar fills 80% of its band.
+  const band = background && background.width > width ? background.width : width / 0.8;
   const ly = payload?.connect === "bottom" ? y + height : y;
   return (
     <g>
