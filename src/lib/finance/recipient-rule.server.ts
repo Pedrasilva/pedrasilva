@@ -41,6 +41,8 @@ const NO_NAME = /^(consumidor final|cliente|client|customer|n a|na|desconhecido|
 export function isPsaName(name: string | null | undefined, psa: PsaIdentity): boolean {
   const n = norm(name);
   if (!n) return false;
+  // PSA's own mailbox printed as the addressee.
+  if (/@pedrasilva\.com\b/i.test(String(name))) return true;
   if (psa.variants.some((v) => norm(v) && ` ${n} `.includes(` ${norm(v)} `))) return true;
   return mentionsFirm(name, psa.name);
 }
