@@ -1079,7 +1079,8 @@
       "audit": "Auditoria",
       "qa": "QA",
       "reviewQueue": "Fila de revisão",
-      "statements": "Extratos"
+      "statements": "Extratos",
+      "intakeInbox": "Caixa de entrada"
     }
   },
   "purchases": {
@@ -1727,6 +1728,102 @@
     "byVendor": {
       "title": "Compras por fornecedor",
       "subtitle": "Concentração do que a empresa deve atualmente."
+    }
+  },
+  "intakeInbox": {
+    "title": "Caixa de entrada financeira",
+    "subtitle": "Todos os documentos recebidos, separados por tipo. Dois modelos de IA lêem cada um; nada é aprovado sem si.",
+    "tabs": {
+      "triage": "Triagem",
+      "purchases": "Compras",
+      "payments": "Pagamentos",
+      "bank": "Banco",
+      "issued": "Emitidas",
+      "other": "Outros documentos",
+      "ignored": "Ignorados"
+    },
+    "empty": "Nada aqui.",
+    "selectItem": "Seleccione um documento.",
+    "notClassified": "Sem tipo",
+    "types": {
+      "fatura_compra": "Fatura de compra",
+      "nota_credito": "Nota de crédito",
+      "recibo": "Recibo",
+      "comprovativo_pagamento": "Comprovativo de pagamento",
+      "extrato_bancario": "Extrato bancário",
+      "nota_lancamento": "Nota de lançamento",
+      "fatura_emitida": "Fatura emitida",
+      "documento_fiscal": "Documento fiscal / oficial",
+      "contrato_outro": "Contrato / outro",
+      "nao_financeiro": "Não financeiro",
+      "desconhecido": "Desconhecido"
+    },
+    "retryPending": "A aguardar nova tentativa",
+    "retryHint": "Foi atingido o limite de IA. Este documento volta a ser lido automaticamente.",
+    "partial": "Verificação parcial",
+    "verifyCount_one": "{{count}} a verificar",
+    "verifyCount_other": "{{count}} a verificar",
+    "verify": "Verificar",
+    "manualType": "Tipo escolhido por uma pessoa",
+    "reclassify": "Reclassificar",
+    "pickType": "Escolher tipo…",
+    "rerunning": "A ler de novo…",
+    "reclassified": "Tipo alterado e documento lido de novo.",
+    "reclassifyFailed": "Não foi possível ler o documento de novo.",
+    "triageAsk": "Que documento é este?",
+    "field": "Campo",
+    "prefilled": "Valor preenchido",
+    "preview": "Pré-visualização",
+    "fields": {
+      "supplier_vat": "NIF do fornecedor",
+      "document_number": "N.º do documento",
+      "issue_date": "Data",
+      "amount_ex_vat": "Base",
+      "vat_amount": "IVA",
+      "total_amount": "Total",
+      "iban": "IBAN",
+      "account_number": "N.º de conta"
+    },
+    "reasons": {
+      "models_differ": "Os dois modelos leram valores diferentes (está preenchido o do Claude).",
+      "nif_check": "O dígito de controlo do NIF não é válido.",
+      "sum_check": "Base + IVA não dá o total.",
+      "direction_mismatch": "O tipo não corresponde a quem emitiu o documento."
+    },
+    "creditNoteLinked": "Ligada à fatura original que corrige.",
+    "creditNoteNoMatch": "Fatura original ainda não encontrada.",
+    "payment": {
+      "title": "O que liquida este pagamento?",
+      "hint": "Sugestões a partir das compras em aberto do mesmo fornecedor. Confirmar regista o pagamento; nunca cria uma compra.",
+      "none": "Nenhuma compra em aberto deste fornecedor.",
+      "due": "vence",
+      "sameAmount": "Mesmo valor",
+      "amount": "Valor",
+      "date": "Data do pagamento",
+      "confirm": "Confirmar pagamento",
+      "done": "Pagamento registado na compra."
+    },
+    "bank": {
+      "title": "Arquivar documento bancário",
+      "matched": "Conta identificada pelo IBAN / n.º de conta.",
+      "noMatch": "Nenhuma conta identificada — escolha uma.",
+      "account": "Conta bancária",
+      "pickAccount": "Escolher conta…",
+      "period": "Mês",
+      "importHint": "Os extratos em PDF não podem ser importados automaticamente na banca; use a exportação MT940 ou Excel do banco.",
+      "file": "Arquivar e copiar para o Drive",
+      "filedDrive": "Arquivado e copiado para o Drive.",
+      "filedNoDrive": "Arquivado, mas a cópia para o Drive falhou: {{error}}"
+    },
+    "other": {
+      "hint": "Arquive este documento manualmente no sítio certo e marque-o aqui.",
+      "markFiled": "Marcar como arquivado",
+      "done": "Marcado como arquivado."
+    },
+    "emailReason": {
+      "not_a_pdf_attachment": "Sem anexo PDF",
+      "attachment_too_large": "Anexo demasiado grande",
+      "no_attachments": "Sem anexos"
     }
   }
 }

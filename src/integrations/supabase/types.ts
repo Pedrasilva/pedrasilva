@@ -3033,6 +3033,7 @@ export type Database = {
           ambiguous_client_ids: string[]
           ambiguous_supplier_ids: string[]
           assigned_collaborator_id: string | null
+          bank_period: string | null
           buyer_vat_is_own: boolean
           classification_approved_at: string | null
           classification_approved_by: string | null
@@ -3042,12 +3043,17 @@ export type Database = {
           created_by: string | null
           created_expense_id: string | null
           created_project_id: string | null
+          credit_note_original_document_id: string | null
           direction: Database["public"]["Enums"]["fdrq_direction"]
           direction_confidence: number | null
           doc_type: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence: number | null
+          drive_copy_error: string | null
+          drive_file_id: string | null
+          extracted_account_number: string | null
           extracted_amount: number | null
           extracted_balance_due: number | null
+          extracted_base_amount: number | null
           extracted_buyer_name: string | null
           extracted_buyer_vat: string | null
           extracted_card_last4: string | null
@@ -3055,7 +3061,11 @@ export type Database = {
           extracted_date: string | null
           extracted_document_number: string | null
           extracted_due_date: string | null
+          extracted_iban: string | null
           extracted_payment_method: string | null
+          extracted_period_end: string | null
+          extracted_period_start: string | null
+          extracted_referenced_document_number: string | null
           extracted_seller_name: string | null
           extracted_seller_vat: string | null
           extracted_supplier_name: string | null
@@ -3063,20 +3073,35 @@ export type Database = {
           extracted_vat_amount: number | null
           extracted_withholding_amount: number | null
           extraction_error: string | null
+          field_checks: Json | null
+          filed_at: string | null
           id: string
+          intake_route: string | null
+          intake_type: string | null
+          intake_type_confidence: number | null
+          intake_type_reason: string | null
+          intake_type_source: string
           is_recurring_candidate: boolean
           linked_document_group_id: string
           mark_for_inventory: boolean
+          matched_bank_account_id: string | null
           matched_client_id: string | null
           matched_supplier_id: string | null
+          model_runs: Json | null
           original_filename: string | null
           paid_from_account_id: string | null
+          payment_match_candidates: Json | null
+          payment_match_document_id: string | null
           payment_status: string
           raw_extraction: Json | null
           recurring_reference_id: string | null
           rejection_reason: string | null
+          retry_after: string | null
+          retry_count: number
           reviewed_at: string | null
           reviewed_by: string | null
+          settled_document_id: string | null
+          settled_payment_id: string | null
           source: Database["public"]["Enums"]["fdrq_source"]
           source_benefit_expense_id: string | null
           source_bucket: string
@@ -3088,11 +3113,13 @@ export type Database = {
           supplier_approved_by: string | null
           supplier_match_status: Database["public"]["Enums"]["fdrq_supplier_match"]
           updated_at: string
+          verification: string | null
         }
         Insert: {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           assigned_collaborator_id?: string | null
+          bank_period?: string | null
           buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
@@ -3102,12 +3129,17 @@ export type Database = {
           created_by?: string | null
           created_expense_id?: string | null
           created_project_id?: string | null
+          credit_note_original_document_id?: string | null
           direction?: Database["public"]["Enums"]["fdrq_direction"]
           direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
+          drive_copy_error?: string | null
+          drive_file_id?: string | null
+          extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
+          extracted_base_amount?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
           extracted_card_last4?: string | null
@@ -3115,7 +3147,11 @@ export type Database = {
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_iban?: string | null
           extracted_payment_method?: string | null
+          extracted_period_end?: string | null
+          extracted_period_start?: string | null
+          extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
@@ -3123,20 +3159,35 @@ export type Database = {
           extracted_vat_amount?: number | null
           extracted_withholding_amount?: number | null
           extraction_error?: string | null
+          field_checks?: Json | null
+          filed_at?: string | null
           id?: string
+          intake_route?: string | null
+          intake_type?: string | null
+          intake_type_confidence?: number | null
+          intake_type_reason?: string | null
+          intake_type_source?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
+          matched_bank_account_id?: string | null
           matched_client_id?: string | null
           matched_supplier_id?: string | null
+          model_runs?: Json | null
           original_filename?: string | null
           paid_from_account_id?: string | null
+          payment_match_candidates?: Json | null
+          payment_match_document_id?: string | null
           payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
+          retry_after?: string | null
+          retry_count?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
+          settled_document_id?: string | null
+          settled_payment_id?: string | null
           source?: Database["public"]["Enums"]["fdrq_source"]
           source_benefit_expense_id?: string | null
           source_bucket?: string
@@ -3148,11 +3199,13 @@ export type Database = {
           supplier_approved_by?: string | null
           supplier_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
           updated_at?: string
+          verification?: string | null
         }
         Update: {
           ambiguous_client_ids?: string[]
           ambiguous_supplier_ids?: string[]
           assigned_collaborator_id?: string | null
+          bank_period?: string | null
           buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
@@ -3162,12 +3215,17 @@ export type Database = {
           created_by?: string | null
           created_expense_id?: string | null
           created_project_id?: string | null
+          credit_note_original_document_id?: string | null
           direction?: Database["public"]["Enums"]["fdrq_direction"]
           direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
+          drive_copy_error?: string | null
+          drive_file_id?: string | null
+          extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
+          extracted_base_amount?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
           extracted_card_last4?: string | null
@@ -3175,7 +3233,11 @@ export type Database = {
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
+          extracted_iban?: string | null
           extracted_payment_method?: string | null
+          extracted_period_end?: string | null
+          extracted_period_start?: string | null
+          extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
           extracted_supplier_name?: string | null
@@ -3183,20 +3245,35 @@ export type Database = {
           extracted_vat_amount?: number | null
           extracted_withholding_amount?: number | null
           extraction_error?: string | null
+          field_checks?: Json | null
+          filed_at?: string | null
           id?: string
+          intake_route?: string | null
+          intake_type?: string | null
+          intake_type_confidence?: number | null
+          intake_type_reason?: string | null
+          intake_type_source?: string
           is_recurring_candidate?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
+          matched_bank_account_id?: string | null
           matched_client_id?: string | null
           matched_supplier_id?: string | null
+          model_runs?: Json | null
           original_filename?: string | null
           paid_from_account_id?: string | null
+          payment_match_candidates?: Json | null
+          payment_match_document_id?: string | null
           payment_status?: string
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
+          retry_after?: string | null
+          retry_count?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
+          settled_document_id?: string | null
+          settled_payment_id?: string | null
           source?: Database["public"]["Enums"]["fdrq_source"]
           source_benefit_expense_id?: string | null
           source_bucket?: string
@@ -3208,8 +3285,16 @@ export type Database = {
           supplier_approved_by?: string | null
           supplier_match_status?: Database["public"]["Enums"]["fdrq_supplier_match"]
           updated_at?: string
+          verification?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "financial_document_review_que_credit_note_original_documen_fkey"
+            columns: ["credit_note_original_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "financial_document_review_queu_suggested_classification_id_fkey"
             columns: ["suggested_classification_id"]
@@ -3246,6 +3331,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_document_review_queue_matched_bank_account_id_fkey"
+            columns: ["matched_bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_document_review_queue_matched_client_id_fkey"
             columns: ["matched_client_id"]
             isOneToOne: false
@@ -3264,6 +3356,20 @@ export type Database = {
             columns: ["paid_from_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_payment_match_document_id_fkey"
+            columns: ["payment_match_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_settled_document_id_fkey"
+            columns: ["settled_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
             referencedColumns: ["id"]
           },
           {
