@@ -1080,7 +1080,8 @@
       "qa": "QA",
       "reviewQueue": "Review queue",
       "statements": "Statements",
-      "intakeInbox": "Finance inbox"
+      "intakeInbox": "Finance inbox",
+      "purchaseDuplicates": "Suspected duplicates"
     }
   },
   "purchases": {
@@ -1929,5 +1930,53 @@
       "saved": "Instruction saved.",
       "deleted": "Instruction deleted."
     }
+  },
+  "purchaseDups": {
+    "title": "Suspected duplicate purchases",
+    "subtitle": "Read-only until you decide. Voided purchases are kept, marked cancelled, with a reason and a link to the one kept.",
+    "countExact_one": "{{count}} group with the same number",
+    "countExact_other": "{{count}} groups with the same number",
+    "countProbable_one": "{{count}} possible pair",
+    "countProbable_other": "{{count}} possible pairs",
+    "countTwoPaid_one": "{{count}} group paid twice",
+    "countTwoPaid_other": "{{count}} groups paid twice",
+    "countFlagged_one": "{{count}} flagged",
+    "countFlagged_other": "{{count}} flagged",
+    "payHint": "Paid = marked paid or has a recorded payment. Scheduled = not paid, with a due date. Open = neither.",
+    "none": "No suspected duplicates.",
+    "kindExact": "Same supplier, number and year",
+    "kindProbable": "Same supplier and total, dates within 5 days",
+    "bothPaid": "Both paid",
+    "bothScheduled": "Both scheduled",
+    "pay": {
+      "paid": "Paid",
+      "scheduled": "Scheduled",
+      "open": "Open"
+    },
+    "number": "Number",
+    "date": "Date",
+    "total": "Total",
+    "nif": "NIF",
+    "payments": "Payments",
+    "due": "Due",
+    "enteredBy": "Entered",
+    "how": {
+      "intake": "intake",
+      "manual": "manual",
+      "import": "import"
+    },
+    "open": "Open",
+    "file": "File",
+    "noFile": "No file",
+    "keepVoid": "Duplicate → keep {{keep}}, void {{drop}}",
+    "notDup": "Not a duplicate",
+    "voidTitle": "Void the duplicate",
+    "voidDesc": "It will be marked cancelled, linked to the one kept. Nothing is deleted.",
+    "voidPaidWarn": "The purchase you are voiding has a payment. Check the payment and the bank reconciliation afterwards.",
+    "reasonPh": "Reason (required)",
+    "cancel": "Cancel",
+    "confirmVoid": "Void",
+    "voided": "Duplicate voided",
+    "remembered": "Marked as not a duplicate"
   }
 }
