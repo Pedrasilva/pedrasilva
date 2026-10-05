@@ -507,3 +507,48 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
     </div>
   );
 }
+
+type LossRow = { key: string; label: string; hours: number | null; cost: number };
+
+/** "Onde perdemos dinheiro": sortable by hours or € (highest ↔ lowest). */
+function LossesTable({ rows }: { rows: LossRow[] }) {
+  const { t } = useTranslation("reports");
+  const [sort, setSort] = useState<{ by: "default" | "hours" | "cost"; dir: "desc" | "asc" }>({ by: "default", dir: "desc" });
+  const sorted = useMemo(() => {
+    if (sort.by === "default") return rows;
+    const key = sort.by;
+    const f = sort.dir === "desc" ? -1 : 1;
+    return [...rows].sort((a, b) => f * ((a[key] ?? -1) - (b[key] ?? -1)));
+  }, [rows, sort]);
+  const toggle = (by: "hours" | "cost") =>
+    setSort((s) => (s.by !== by ? { by, dir: "desc" } : s.dir === "desc" ? { by, dir: "asc" } : { by: "default", dir: "desc" }));
+  const head = (by: "hours" | "cost", label: string) => (
+    <TableHead className="text-right">
+      <button type="button" onClick={() => toggle(by)} className="inline-flex items-center gap-1 hover:text-foreground"
+        aria-label={t("health.losses.sortBy", { col: label })}>
+        {label}
+        <span aria-hidden>{sort.by === by ? (sort.dir === "desc" ? "↓" : "↑") : "↕"}</span>
+      </button>
+    </TableHead>
+  );
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead />
+          {head("hours", t("health.losses.colHours"))}
+          {head("cost", t("health.losses.colCost"))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {sorted.map((r) => (
+          <TableRow key={r.key}>
+            <TableCell>{r.label}</TableCell>
+            <TableCell className="text-right">{r.hours == null ? "" : h(r.hours)}</TableCell>
+            <TableCell className="text-right">{eur(r.cost)}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
