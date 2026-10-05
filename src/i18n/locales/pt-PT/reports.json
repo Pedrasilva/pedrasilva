@@ -457,7 +457,10 @@
       "projects": "Projectos com custo acima do valor do trabalho",
       "noProjects": "Nenhum neste período.",
       "project": "Projecto",
-      "cost": "Custo"
+      "cost": "Custo",
+      "colHours": "Horas",
+      "colCost": "€",
+      "sortBy": "Ordenar por {{col}}"
     },
     "trends": {
       "title": "Tendência mensal",

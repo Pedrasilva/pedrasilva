@@ -428,16 +428,14 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
         <Card>
           <CardHeader><CardTitle className="text-base">{t("health.losses.title")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <Table>
-              <TableBody>
-                {H.hours.internalByCategory.map((c) => (
-                  <TableRow key={c.category}><TableCell>{t("health.losses.internal", { cat: c.category })}</TableCell><TableCell className="text-right">{h(c.hours)}</TableCell><TableCell className="text-right">{eur(c.cost)}</TableCell></TableRow>
-                ))}
-                <TableRow><TableCell>{t("health.losses.unlogged")}</TableCell><TableCell className="text-right">{h(H.hours.unlogged)}</TableCell><TableCell className="text-right">{eur(unloggedCost)}</TableCell></TableRow>
-                <TableRow><TableCell>{t("health.losses.nonBillable")}</TableCell><TableCell className="text-right">{h(split.nonBillable)}</TableCell><TableCell className="text-right">{eur(m.blocks.nonBillable)}</TableCell></TableRow>
-                <TableRow><TableCell>{t("health.losses.pursuitLost")}</TableCell><TableCell /><TableCell className="text-right">{eur(H.losses.pursuitLost)}</TableCell></TableRow>
-              </TableBody>
-            </Table>
+            <LossesTable
+              rows={[
+                ...H.hours.internalByCategory.map((c) => ({ key: `i:${c.category}`, label: t("health.losses.internal", { cat: c.category }), hours: c.hours as number | null, cost: c.cost })),
+                { key: "unlogged", label: t("health.losses.unlogged"), hours: H.hours.unlogged, cost: unloggedCost },
+                { key: "nonBillable", label: t("health.losses.nonBillable"), hours: split.nonBillable, cost: m.blocks.nonBillable },
+                { key: "pursuitLost", label: t("health.losses.pursuitLost"), hours: null, cost: H.losses.pursuitLost },
+              ]}
+            />
             <p className="text-sm font-medium">{t("health.losses.projects")}</p>
             {H.losses.projects.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("health.losses.noProjects")}</p>

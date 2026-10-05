@@ -457,7 +457,10 @@
       "projects": "Projects costing more than the value of their work",
       "noProjects": "None in this period.",
       "project": "Project",
-      "cost": "Cost"
+      "cost": "Cost",
+      "colHours": "Hours",
+      "colCost": "€",
+      "sortBy": "Sort by {{col}}"
     },
     "trends": {
       "title": "Trends by month",
