@@ -41,6 +41,7 @@ import {
 } from "@/lib/finance/intake-inbox.functions";
 import { RemoveButton, RemovedPanel } from "@/components/finance/intake-removal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RecebimentosPanel } from "@/components/finance/recebimentos-panel";
 
 const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates", "removed"] as const;
 const MAIN_TABS = ["triage", "purchases", "payments", "bank", "issued", "other"] as const;
@@ -83,6 +84,7 @@ type InboxRow = QueueRow & {
   credit_note_original_document_id: string | null;
   payment_match_document_id: string | null;
   extracted_recipient_name: string | null;
+  payment_direction: "incoming" | "outgoing" | null;
   extracted_recipient_vat: string | null;
   other_entity_action: string | null;
   forwarded_to: string | null;
@@ -127,6 +129,7 @@ export function IntakeInbox() {
   const [tab, setTab] = useState<Tab | "rules" | "instructions">("triage");
   const [ruleId, setRuleId] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [paySub, setPaySub] = useState<"incoming" | "outgoing">("incoming");
   const qc = useQueryClient();
 
   const rowsQ = useQuery({
@@ -190,7 +193,7 @@ export function IntakeInbox() {
 
   const switchTab = (v: Tab | "rules" | "instructions") => { setTab(v); setSelected(null); setRuleId(null); };
   const countOf = (k: Tab) => (k === "duplicates" || k === "removed" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length);
-  const list = tab === "rules" || tab === "instructions" ? [] : byTab[tab];
+  const list = tab === "rules" || tab === "instructions" ? [] : tab === "payments" ? byTab.payments.filter((r) => r.payment_direction !== "incoming") : byTab[tab];
   const openItem = (id: string) => {
     const rows = qc.getQueryData<InboxRow[]>(["finance", "review-queue", "inbox"]) ?? rowsQ.data ?? [];
     const r = rows.find((x) => x.id === id);
@@ -257,7 +260,16 @@ export function IntakeInbox() {
         </div>
       </Tabs>
 
-      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : (
+      {tab === "payments" && (
+        <div className="flex gap-2">
+          {(["incoming", "outgoing"] as const).map((k) => (
+            <Button key={k} size="sm" variant={paySub === k ? "default" : "outline"} onClick={() => { setPaySub(k); setSelected(null); }}>
+              {t(`finance:recebimentos.subtabs.${k}`)}
+            </Button>
+          ))}
+        </div>
+      )}
+      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : tab === "payments" && paySub === "incoming" ? <RecebimentosPanel /> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
@@ -282,6 +294,7 @@ export function IntakeInbox() {
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   <TypeBadge row={r} />
                   <StatusBadges row={r} />
+                  {r.payment_direction && <Badge variant="outline" className="text-[10px]">{t(`finance:recebimentos.direction.${r.payment_direction}`)}</Badge>}
                   <span className="text-[10px] text-muted-foreground">{r.extracted_date ?? "—"}</span>
                 </div>
               </button>

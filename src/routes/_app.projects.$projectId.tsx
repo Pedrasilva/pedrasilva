@@ -62,6 +62,7 @@ import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
+import { PaymentsReceived } from "@/components/finance/recebimentos-panel";
 import { ProjectPursuitCard } from "@/components/projects/project-pursuit-card";
 import { usePursuitTotals, pursuitByProject } from "@/lib/projects/use-pursuit";
 import { ProjectFinancialTab } from "@/components/projects/project-financial-tab";
@@ -1124,6 +1125,7 @@ function ProjectDetail() {
                 ) : (
                   <NoQuoteLinkedPlaceholder label="Incoming" projectId={projectId} />
                 )}
+                <div className="mt-4"><PaymentsReceived projectId={projectId} /></div>
               </div>
             )}
             {tab === "outgoing" && (

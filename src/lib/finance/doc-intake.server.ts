@@ -1108,8 +1108,22 @@ export async function ingestStoredDocument(opts: {
     else if (removalRule) Object.assign(payload, rr.removeColumns({ reason: removalRule.text, source: `rule:${removalRule.id}`, tag: "rule" }));
   }
 
+  // Incoming / outgoing payments: store payer + beneficiary and the direction.
+  const recMod = await import("./recebimentos.server");
+  const isProof = (recMod.PAYMENT_PROOF_TYPES as readonly string[]).includes(type ?? "");
+  if (isProof) {
+    Object.assign(payload, await recMod.partiesColumns({
+      payer: { name: ex.payer_name ?? null, vat: ex.payer_vat ?? null, iban: ex.payer_iban ?? null },
+      beneficiary: { name: ex.beneficiary_name ?? null, vat: ex.beneficiary_vat ?? null, iban: ex.beneficiary_iban ?? null },
+      description: ex.payment_description ?? null,
+    }));
+  }
+
   const { data: row, error } = await write(payload);
   if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
+  if (isProof && payload.payment_direction === "incoming" && payload.status !== "duplicate" && payload.status !== "removed") {
+    try { await recMod.attachProof(row.id); } catch (e) { console.error("[recebimentos] attach failed", e); }
+  }
   return {
     ok: true,
     queueItemId: row.id,

@@ -101,6 +101,7 @@ export type DualExtraction = IntakeExtraction & {
   beneficiary_name?: string | null;
   beneficiary_vat?: string | null;
   beneficiary_iban?: string | null;
+  payment_description?: string | null;
 };
 
 /** Shared field list: the existing schema plus the intake-routing fields. */
@@ -126,6 +127,7 @@ const SHARED_SCHEMA = (() => {
     beneficiary_name: { type: ["string", "null"] },
     beneficiary_vat: { type: ["string", "null"] },
     beneficiary_iban: { type: ["string", "null"] },
+    payment_description: { type: ["string", "null"] },
   };
   return {
     ...base,
@@ -150,7 +152,7 @@ INTAKE TYPE (field intake_type) — pick exactly one:
 - "nao_financeiro": not a financial or business document at all (newsletters, marketing, drawings, photos, signatures, terms and conditions, empty pages).
 - "desconhecido": you genuinely cannot tell.
 RECIPIENT (every document type, including bank statements and bank notices): recipient_name / recipient_vat = the party the document is ADDRESSED TO — the customer, bill-to, account holder ("Titular", "Cliente", "Exmo(s). Sr(s).", "Adquirente"), exactly as printed. For an invoice issued by the firm this is the client. null when not printed.
-PAYER / BENEFICIARY (comprovativo_pagamento and bank transfer confirmations only, null otherwise): payer_name / payer_vat / payer_iban = the ordenante (who sends the money: "Ordenante", "Conta origem", "Debitado"); beneficiary_name / beneficiary_vat / beneficiary_iban = who receives it ("Beneficiário", "Destinatário", "Conta destino", "Creditado"), exactly as printed. For these documents put the beneficiary in recipient_name / recipient_vat as well.
+PAYER / BENEFICIARY (comprovativo_pagamento, bank transfer confirmations, recibo and nota_lancamento only, null otherwise; on a receipt the payer is the customer who paid and the beneficiary the issuer; on a bank credit/debit notice the account holder is the beneficiary of a credit and the payer of a debit): payer_name / payer_vat / payer_iban = the ordenante (who sends the money: "Ordenante", "Conta origem", "Debitado"); beneficiary_name / beneficiary_vat / beneficiary_iban = who receives it ("Beneficiário", "Destinatário", "Conta destino", "Creditado"), exactly as printed. payment_description = the transfer description / descritivo / referência exactly as printed (null otherwise). For comprovativo_pagamento put the beneficiary in recipient_name / recipient_vat as well.
 intake_type_confidence 0..1, honest. intake_type_reason: one short sentence saying why (no amounts, no personal data).
 Keep doc_type consistent with intake_type (fatura_compra/nota_credito/fatura_emitida → "invoice", recibo → "receipt", comprovativo_pagamento → "proof_of_payment", extrato_bancario/nota_lancamento → "bank_statement", others → "unknown").
 BANK FIELDS (bank documents only, null otherwise): iban exactly as printed (no spaces needed); account_number = the bank account number ("N.º conta", "Conta") as printed; period_start / period_end ISO dates of the statement period (for a nota de lançamento use the movement date for both). For a nota de lançamento also fill total_amount with the movement amount.
