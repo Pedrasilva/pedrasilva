@@ -21,7 +21,7 @@ export function useCompanyHealthData(start: string, end: string) {
         fetchAll<HealthEntry>((a, b) =>
           supabase
             .from("pm_time_entries")
-            .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, internal_category, opportunity_id, leave_type, non_working_day_reason, approval_status")
+            .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, internal_category, opportunity_id, leave_type, non_working_day_reason, approval_status, cost_rate_source")
             .gte("entry_date", start)
             .lte("entry_date", end)
             .order("id")

@@ -11,7 +11,7 @@
  * holidays); "estrutura" = full cost − those blocks (back office salaries,
  * operating costs not absorbed by the rates).
  */
-import { computeHoursLogged, effectiveStart, addDays, type RosterPerson } from "./hours-logged";
+import { computeHoursLogged, effectiveStart, addDays, mondayOf, type RosterPerson } from "./hours-logged";
 import { entryFigures, type BPRates } from "./business-performance";
 import { addEntry, emptySplit, weightedTarget, type Split, type SplitEntry } from "./billable-split";
 
@@ -20,6 +20,7 @@ export interface HealthEntry extends SplitEntry {
   leave_type: string | null;
   non_working_day_reason: string | null;
   approval_status: string | null;
+  cost_rate_source?: string | null;
 }
 export interface LeaveDay {
   user_id: string;
@@ -66,6 +67,20 @@ export interface Health {
     blocks: { billable: number; nonBillable: number; internal: number; unlogged: number; leave: number; estrutura: number };
   };
   losses: { projects: { projectId: string; value: number; cost: number; hours: number }[]; pursuitLost: number };
+  /** Per-person breakdown of each "where we lose money" row (keys: i:<cat>, unlogged, nonBillable, pursuitLost). */
+  lossPeople: Record<string, LossPerson[]>;
+}
+
+export interface LossPerson {
+  userId: string;
+  name: string;
+  hours: number;
+  cost: number;
+  /** Hours costed in "estrutura" (back office / overhead rate): € shown as included in structure. */
+  overhead: boolean;
+  /** Only for "unlogged": share of expected hours not logged. */
+  pctNotLogged?: number | null;
+  weeks: { weekStart: string; hours: number; cost: number }[];
 }
 
 export function computeCompanyHealth(i: HealthInput): Health {
@@ -131,6 +146,22 @@ export function computeCompanyHealth(i: HealthInput): Health {
   const blocks = { billable: 0, nonBillable: 0, internal: 0, unlogged: 0, leave: 0, estrutura: 0 };
   let value = 0, billableHours = 0, pursuitLost = 0;
   const proj = new Map<string, { projectId: string; value: number; cost: number; hours: number }>();
+  const nameOf = new Map(i.roster.map((p) => [p.userId, p.name]));
+  const lp = new Map<string, Map<string, LossPerson & { wk: Map<string, { hours: number; cost: number }> }>>();
+  const addLoss = (key: string, userId: string, hours: number, cost: number, week: string, overhead: boolean, pctNotLogged?: number | null) => {
+    const m = lp.get(key) ?? new Map();
+    lp.set(key, m);
+    const r = m.get(userId) ?? { userId, name: nameOf.get(userId) ?? "—", hours: 0, cost: 0, overhead: true, weeks: [], wk: new Map() };
+    r.hours += hours;
+    r.cost += overhead ? 0 : cost;
+    if (!overhead) r.overhead = false;
+    if (pctNotLogged !== undefined) r.pctNotLogged = pctNotLogged;
+    const w = r.wk.get(week) ?? { hours: 0, cost: 0 };
+    w.hours += hours;
+    w.cost += overhead ? 0 : cost;
+    r.wk.set(week, w);
+    m.set(userId, r);
+  };
   for (const e of entries) {
     if (!users.has(e.user_id)) continue;
     addEntry(split, e);
@@ -141,7 +172,13 @@ export function computeCompanyHealth(i: HealthInput): Health {
     if (!f) continue;
     value += f.revenue;
     billableHours += f.billableHours;
-    if (e.entry_type === "internal" && e.opportunity_id && i.lostLeads.has(e.opportunity_id)) pursuitLost += f.cost;
+    const ovh = !!bo.get(e.user_id) || e.cost_rate_source === "overhead";
+    const wk = mondayOf(e.entry_date);
+    if (e.entry_type === "internal" && e.opportunity_id && i.lostLeads.has(e.opportunity_id)) {
+      pursuitLost += f.cost;
+      addLoss("pursuitLost", e.user_id, f.hours, f.cost, wk, false);
+    }
+    if (e.entry_type === "project" && f.billableHours <= 0) addLoss("nonBillable", e.user_id, f.hours, f.cost, wk, ovh);
     if (e.entry_type === "project" && i.isOwnWork(e)) {
       const pid = i.projectOf(e);
       if (pid) {
@@ -158,6 +195,7 @@ export function computeCompanyHealth(i: HealthInput): Health {
       c.hours += f.hours;
       if (!bo.get(e.user_id)) c.cost += f.cost;
       cat.set(k, c);
+      addLoss(`i:${k}`, e.user_id, f.hours, f.cost, wk, ovh);
     }
     if (bo.get(e.user_id)) continue;
     if (f.billableHours > 0) blocks.billable += f.cost;
@@ -171,8 +209,20 @@ export function computeCompanyHealth(i: HealthInput): Health {
     unlogged += gap;
     const p = r.person;
     if ((i.targetOf(p) ?? 0) > 0) teamAvail += r.expected;
-    if (bo.get(p.userId)) continue;
     const rate = i.costRateAt(p.resourceId, end);
+    const isBo = !!bo.get(p.userId);
+    if (gap > 0) {
+      const pct = r.expected > 0 ? (gap / r.expected) * 100 : null;
+      for (const w of r.weeks) {
+        const wg = Math.max(0, w.expected - w.logged);
+        if (wg > 0) addLoss("unlogged", p.userId, wg, wg * rate, w.weekStart, isBo, pct);
+      }
+      // Keep the person's total equal to their period gap (same rule as Hours logged).
+      const row = lp.get("unlogged")?.get(p.userId);
+      if (row) { row.hours = gap; row.cost = isBo ? 0 : gap * rate; }
+      else addLoss("unlogged", p.userId, gap, gap * rate, mondayOf(end), isBo, pct);
+    }
+    if (isBo) continue;
     blocks.unlogged += gap * rate;
     const lv = paidLeaveDays.get(p.userId);
     const daily = Number(p.dailyHours) || 8;
@@ -208,6 +258,15 @@ export function computeCompanyHealth(i: HealthInput): Health {
       breakEven,
     },
     money: { value, fullCost: i.fullCost, result, marginPct: value > 0 ? (result / value) * 100 : null, avgSaleRate, blocks },
+    lossPeople: Object.fromEntries(
+      [...lp.entries()].map(([k, m]) => [
+        k,
+        [...m.values()]
+          .map(({ wk, ...r }) => ({ ...r, weeks: [...wk.entries()].map(([weekStart, v]) => ({ weekStart, ...v })).sort((a, b) => a.weekStart.localeCompare(b.weekStart)) }))
+          .filter((r) => r.hours > 0.001)
+          .sort((a, b) => b.hours - a.hours),
+      ]),
+    ),
     losses: { projects: [...proj.values()].filter((p) => p.cost > p.value).sort((a, b) => b.cost - b.value - (a.cost - a.value)), pursuitLost },
   };
 }

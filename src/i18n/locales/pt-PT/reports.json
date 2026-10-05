@@ -446,7 +446,8 @@
     "money": {
       "title": "Para onde vai o dinheiro",
       "how": "Custo total = {{people}} pessoas ({{proj}} projecto, {{bo}} backoffice): salários de projecto {{projSal}} + salários de backoffice {{boSal}} (custo anual ÷ {{days}} dias úteis × dias trabalhados) + custos operacionais {{opex}} ({{opexAnnual}}/ano ÷ {{days}} × dias úteis × {{share}}%). Horas da equipa de projecto à taxa de custo fixada; a estrutura é o resto.",
-      "withoutSalary": "{{n}} pessoas não têm registo salarial e somam 0 €."
+      "withoutSalary": "{{n}} pessoas não têm registo salarial e somam 0 €.",
+      "running": "Total acumulado"
     },
     "losses": {
       "title": "Onde perdemos dinheiro",
@@ -460,7 +461,15 @@
       "cost": "Custo",
       "colHours": "Horas",
       "colCost": "€",
-      "sortBy": "Ordenar por {{col}}"
+      "sortBy": "Ordenar por {{col}}",
+      "expandAll": "Expandir tudo",
+      "collapseAll": "Recolher tudo",
+      "peopleSort": "Ordenar pessoas por",
+      "inStructure": "incluído em estrutura",
+      "noPeople": "Ninguém neste período.",
+      "pctNotLogged": "{{pct}}% por registar",
+      "week": "Semana",
+      "structureNote": "As horas de back office são custeadas na Estrutura (back office e custos gerais); por isso aparecem como \"incluído em estrutura\" em vez de €0, para não contar esse custo duas vezes."
     },
     "trends": {
       "title": "Tendência mensal",
