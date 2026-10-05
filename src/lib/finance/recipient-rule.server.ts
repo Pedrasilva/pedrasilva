@@ -37,6 +37,8 @@ const norm = (s: string | null | undefined) =>
 
 /** Placeholder names that say nothing about who the customer is. */
 const NO_NAME = /^(consumidor final|cliente|client|customer|n a|na|desconhecido|unknown)$/;
+/** A bare street address is a location, not an entity. */
+const ADDRESS_ONLY = /^(rua|r|av|avenida|travessa|tv|largo|praca|estrada|alameda|calcada)\b[^a-z]*[a-z\s]*\d+[\s\w]*$/;
 
 export function isPsaName(name: string | null | undefined, psa: PsaIdentity): boolean {
   const n = norm(name);
@@ -71,7 +73,7 @@ export function decideRecipient(o: {
   if (o.direction === "issued" || o.type === "fatura_emitida") return { kind: "psa" };
   if ((o.sellerVat && o.psa.vat && sameVat(o.sellerVat, o.psa.vat)) || isPsaName(o.sellerName, o.psa)) return { kind: "psa" };
   if (o.verify) return { kind: "triage" };
-  const name = o.name && !NO_NAME.test(norm(o.name)) ? o.name.trim() : null;
+  const name = o.name && !NO_NAME.test(norm(o.name)) && !ADDRESS_ONLY.test(norm(o.name)) ? o.name.trim() : null;
   if (o.vat) {
     if (o.psa.vat && sameVat(o.vat, o.psa.vat)) return { kind: "psa" };
     return { kind: "remove", reason: removalReason(name, o.vat) };

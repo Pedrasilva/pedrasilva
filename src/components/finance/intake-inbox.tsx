@@ -113,7 +113,6 @@ function tabOf(r: InboxRow): Tab {
   if (String(r.status) === "removed") return "removed";
   const route = r.intake_route;
   if (!route || route === "retry") return "triage";
-  if (route === "other_entity") return "triage";
   return route as Tab;
 }
 

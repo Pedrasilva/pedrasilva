@@ -1749,7 +1749,6 @@
       "rules": "Rules",
       "duplicates": "Duplicates",
       "instructions": "Instructions",
-      "other_entity": "Other entities",
       "removed": "Deleted"
     },
     "empty": "Nothing here.",
@@ -1766,8 +1765,7 @@
       "documento_fiscal": "Tax / official notice",
       "contrato_outro": "Contract / other",
       "nao_financeiro": "Not financial",
-      "desconhecido": "Unknown",
-      "outra_entidade": "Other entity"
+      "desconhecido": "Unknown"
     },
     "retryPending": "Waiting to retry",
     "retryHint": "The AI limit was reached. This document will be read again automatically.",
@@ -1985,24 +1983,6 @@
       "forwardedTo": "Forwarded to {{to}}",
       "forwardFailed": "Forwarding failed",
       "archived": "Archived."
-    },
-    "otherEntities": {
-      "title": "Other entities",
-      "hint": "Documents addressed to these companies or people (by NIF) are never recorded as PSA documents. Any recipient NIF that isn't PSA's goes to \"Other entities\"; this list decides what happens next.",
-      "name": "Name",
-      "nif": "NIF",
-      "action": "Action",
-      "email": "Forward to (email)",
-      "actions": {
-        "archive": "Archive",
-        "ignore": "Ignore",
-        "forward": "Forward by email"
-      },
-      "add": "Add",
-      "remove": "Remove",
-      "none": "No entities yet.",
-      "saved": "Saved.",
-      "emailNeeded": "Enter the email address first."
     },
     "removal": {
       "button": "Delete",

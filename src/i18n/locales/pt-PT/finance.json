@@ -1749,7 +1749,6 @@
       "rules": "Regras",
       "duplicates": "Duplicados",
       "instructions": "Instruções",
-      "other_entity": "Outras entidades",
       "removed": "Eliminados"
     },
     "empty": "Nada aqui.",
@@ -1766,8 +1765,7 @@
       "documento_fiscal": "Documento fiscal / oficial",
       "contrato_outro": "Contrato / outro",
       "nao_financeiro": "Não financeiro",
-      "desconhecido": "Desconhecido",
-      "outra_entidade": "Outra entidade"
+      "desconhecido": "Desconhecido"
     },
     "retryPending": "A aguardar nova tentativa",
     "retryHint": "Foi atingido o limite de IA. Este documento volta a ser lido automaticamente.",
@@ -1985,24 +1983,6 @@
       "forwardedTo": "Encaminhado para {{to}}",
       "forwardFailed": "Falha no encaminhamento",
       "archived": "Arquivado."
-    },
-    "otherEntities": {
-      "title": "Outras entidades",
-      "hint": "Documentos dirigidos a estas empresas ou pessoas (por NIF) nunca são registados como documentos da PSA. Qualquer NIF de destinatário que não seja o da PSA vai para \"Outras entidades\"; esta lista decide o que acontece a seguir.",
-      "name": "Nome",
-      "nif": "NIF",
-      "action": "Acção",
-      "email": "Encaminhar para (email)",
-      "actions": {
-        "archive": "Arquivar",
-        "ignore": "Ignorar",
-        "forward": "Encaminhar por email"
-      },
-      "add": "Adicionar",
-      "remove": "Remover",
-      "none": "Ainda sem entidades.",
-      "saved": "Guardado.",
-      "emailNeeded": "Indique primeiro o endereço de email."
     },
     "removal": {
       "button": "Eliminar",

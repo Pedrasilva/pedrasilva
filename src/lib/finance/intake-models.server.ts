@@ -34,12 +34,11 @@ export const INTAKE_TYPES = [
   "contrato_outro",
   "nao_financeiro",
   "desconhecido",
-  "outra_entidade",
 ] as const;
 export type IntakeType = (typeof INTAKE_TYPES)[number];
 
 export type IntakeRoute =
-  | "triage" | "purchases" | "payments" | "bank" | "issued" | "other" | "ignored" | "retry" | "other_entity";
+  | "triage" | "purchases" | "payments" | "bank" | "issued" | "other" | "ignored" | "retry";
 
 export const TYPE_CONFIDENCE_MIN = 0.7;
 
@@ -63,8 +62,6 @@ export function routeForType(type: IntakeType | null, confidence: number | null)
       return "other";
     case "nao_financeiro":
       return "ignored";
-    case "outra_entidade":
-      return "other_entity";
   }
 }
 
