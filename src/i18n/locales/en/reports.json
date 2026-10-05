@@ -263,12 +263,15 @@
       "avg": "Average load, next 4 weeks",
       "over": "People over 110%",
       "under": "People under 50%",
-      "unassigned": "Unassigned hours"
+      "unassigned": "Unassigned hours",
+      "estimatedLabel": "Estimated",
+      "estimated": "{{est}} h estimated of {{planned}} h planned"
     },
     "chart": {
       "title": "Team: available vs planned per week",
       "available": "Available",
-      "planned": "Planned"
+      "planned": "Planned",
+      "estimated": "Estimated"
     },
     "heatmap": {
       "title": "Load per person and week (planned ÷ available)"
@@ -282,6 +285,15 @@
     "detail": {
       "projectStage": "Project · stage",
       "none": "Nothing planned"
+    },
+    "explicitOnly": "Explicit hours only",
+    "estimatedLegend": "Hatched = includes estimate",
+    "estimatedTag": "estimated",
+    "cellEstimated": "of which ~{{hours}} h estimated",
+    "noPlan": {
+      "title_one": "{{count}} stage without planned hours",
+      "title_other": "{{count}} stages without planned hours",
+      "hint": "People are assigned without hours, and the stage has no planned hours (no allocated hours and no budget), so nothing can be estimated."
     }
   },
   "estimates": {
@@ -294,7 +306,8 @@
       "endFrom": "Stage end from",
       "endTo": "Stage end to",
       "onlyDone": "Completed phases only",
-      "all": "All"
+      "all": "All",
+      "source": "Estimate source"
     },
     "status": {
       "all": "All",
@@ -303,13 +316,17 @@
       "archived": "Archived"
     },
     "types": {
-      "F0": "F0 Management",
-      "F1": "F1 Concept",
-      "F2": "F2 Developed Design",
-      "F3": "F3 Technical Design",
-      "F4": "F4 Tender",
-      "F5": "F5 Construction",
-      "F6": "F6 Close out"
+      "management": "Management",
+      "programme": "Programme",
+      "concept": "Concept",
+      "developed": "Developed Design",
+      "technical": "Technical Design",
+      "tender": "Tender",
+      "construction": "Construction",
+      "licensing": "Licensing",
+      "interiors": "Furniture / Interiors",
+      "closeout": "Close out",
+      "singleProject": "Project (single phase)"
     },
     "missing_one": "{{count}} phase without an estimate",
     "missing_other": "{{count}} phases without an estimate",
@@ -334,6 +351,12 @@
       "worst": "Worst",
       "duration": "Duration",
       "stage": "Project / phase"
-    }
+    },
+    "sources": {
+      "quote": "proposal",
+      "plan": "current plan",
+      "baseline": "baseline"
+    },
+    "sourceCounts": "Estimate source: {{quote}} proposal · {{plan}} current plan · {{baseline}} baseline"
   }
 }

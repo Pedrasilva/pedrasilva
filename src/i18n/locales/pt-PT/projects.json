@@ -1806,7 +1806,13 @@
     "chooseRow": "Adicionar a que linha?",
     "added": "{{hours}} adicionadas a {{name}}",
     "noRetainerMonth": "Sem etapa de avença para {{month}}",
-    "retainerSub": "Avença · as horas vão para o mês de cada dia"
+    "retainerSub": "Avença · as horas vão para o mês de cada dia",
+    "confirmTitle": "Adicionar evento do calendário",
+    "confirmHours": "{{hours}} h",
+    "confirmDescription": "Descrição",
+    "confirmHint": "Esta descrição fica na folha de horas e é visível para quem aprova.",
+    "confirmCancel": "Cancelar",
+    "confirmSave": "Guardar"
   },
   "stageGate": {
     "note": {
@@ -1846,6 +1852,7 @@
       "pending": "Aguarda aprovação",
       "approved": "Aprovada",
       "rejected": "Rejeitada"
-    }
+    },
+    "balanceEstimated": "Alocado ~{{allocated}} (estimado) · registado {{logged}} · restam {{left}}"
   }
 }
