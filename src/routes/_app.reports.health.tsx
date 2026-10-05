@@ -401,8 +401,7 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
                 <XAxis dataKey="name" interval={0} height={44} tick={<WrapTick />} />
                 <YAxis fontSize={12} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
                 <Tooltip cursor={false} content={<WfTooltip />} />
-                <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} activeBar={false} tooltipType="none" />
-                <Bar dataKey="v" stackId="w" shape={<WfShape />} activeBar={false} isAnimationActive={false}>
+                <Bar dataKey={(r: WfRow) => [r.base, r.base + r.v]} shape={<WfShape />} activeBar={false} isAnimationActive={false}>
                   {wf.map((x, i) => <Cell key={i} fill={x.fill} />)}
                   <LabelList dataKey="own" position="top" fontSize={11} formatter={(v: number) => eurSigned(v)} />
                 </Bar>
