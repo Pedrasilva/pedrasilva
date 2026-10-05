@@ -98,6 +98,7 @@ import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppFinanceAdminAuditRouteImport } from './routes/_app.finance.admin.audit'
+import { Route as AppFinanceAdminDriveArchiveRouteImport } from './routes/_app.finance.admin.drive-archive'
 import { Route as AppFinanceAdminImportsRouteImport } from './routes/_app.finance.admin.imports'
 import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_app.finance.admin.inconsistencies'
 import { Route as AppFinanceAdminQaRouteImport } from './routes/_app.finance.admin.qa'
@@ -614,6 +615,12 @@ const AppFinanceAdminAuditRoute = AppFinanceAdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => AppFinanceRoute,
 } as any)
+const AppFinanceAdminDriveArchiveRoute =
+  AppFinanceAdminDriveArchiveRouteImport.update({
+    id: '/admin/drive-archive',
+    path: '/admin/drive-archive',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceAdminImportsRoute = AppFinanceAdminImportsRouteImport.update({
   id: '/admin/imports',
   path: '/admin/imports',
@@ -1055,6 +1062,7 @@ export interface FileRoutesByFullPath {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/admin/audit': typeof AppFinanceAdminAuditRoute
+  '/finance/admin/drive-archive': typeof AppFinanceAdminDriveArchiveRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/finance/admin/qa': typeof AppFinanceAdminQaRoute
@@ -1198,6 +1206,7 @@ export interface FileRoutesByTo {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/admin/audit': typeof AppFinanceAdminAuditRoute
+  '/finance/admin/drive-archive': typeof AppFinanceAdminDriveArchiveRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/finance/admin/qa': typeof AppFinanceAdminQaRoute
@@ -1351,6 +1360,7 @@ export interface FileRoutesById {
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/_app/finance/admin/audit': typeof AppFinanceAdminAuditRoute
+  '/_app/finance/admin/drive-archive': typeof AppFinanceAdminDriveArchiveRoute
   '/_app/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/_app/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/_app/finance/admin/qa': typeof AppFinanceAdminQaRoute
@@ -1504,6 +1514,7 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/admin/audit'
+    | '/finance/admin/drive-archive'
     | '/finance/admin/imports'
     | '/finance/admin/inconsistencies'
     | '/finance/admin/qa'
@@ -1647,6 +1658,7 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/admin/audit'
+    | '/finance/admin/drive-archive'
     | '/finance/admin/imports'
     | '/finance/admin/inconsistencies'
     | '/finance/admin/qa'
@@ -1799,6 +1811,7 @@ export interface FileRouteTypes {
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
     | '/_app/finance/admin/audit'
+    | '/_app/finance/admin/drive-archive'
     | '/_app/finance/admin/imports'
     | '/_app/finance/admin/inconsistencies'
     | '/_app/finance/admin/qa'
@@ -2514,6 +2527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceAdminAuditRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/admin/drive-archive': {
+      id: '/_app/finance/admin/drive-archive'
+      path: '/admin/drive-archive'
+      fullPath: '/finance/admin/drive-archive'
+      preLoaderRoute: typeof AppFinanceAdminDriveArchiveRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/admin/imports': {
       id: '/_app/finance/admin/imports'
       path: '/admin/imports'
@@ -3001,6 +3021,7 @@ interface AppFinanceRouteChildren {
   AppFinanceInboxRoute: typeof AppFinanceInboxRoute
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceAdminAuditRoute: typeof AppFinanceAdminAuditRoute
+  AppFinanceAdminDriveArchiveRoute: typeof AppFinanceAdminDriveArchiveRoute
   AppFinanceAdminImportsRoute: typeof AppFinanceAdminImportsRoute
   AppFinanceAdminInconsistenciesRoute: typeof AppFinanceAdminInconsistenciesRoute
   AppFinanceAdminQaRoute: typeof AppFinanceAdminQaRoute
@@ -3039,6 +3060,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceInboxRoute: AppFinanceInboxRoute,
   AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceAdminAuditRoute: AppFinanceAdminAuditRoute,
+  AppFinanceAdminDriveArchiveRoute: AppFinanceAdminDriveArchiveRoute,
   AppFinanceAdminImportsRoute: AppFinanceAdminImportsRoute,
   AppFinanceAdminInconsistenciesRoute: AppFinanceAdminInconsistenciesRoute,
   AppFinanceAdminQaRoute: AppFinanceAdminQaRoute,

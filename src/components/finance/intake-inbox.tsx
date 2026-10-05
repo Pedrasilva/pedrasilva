@@ -458,6 +458,7 @@ function ItemDetail({
         <>
           {row.status === "pending_review" && tab === "payments" && <PaymentPanel row={row} />}
           {row.status === "pending_review" && tab === "bank" && <BankPanel row={row} />}
+          {row.status === "filed" && tab === "bank" && <DriveCopyLine row={row} />}
           {row.status === "pending_review" && tab === "other" && <OtherPanel row={row} />}
           <DocPreview row={row} />
         </>
@@ -677,6 +678,36 @@ function OtherPanel({ row }: { row: InboxRow }) {
       <CardContent className="py-3 flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{t("finance:intakeInbox.other.hint")}</p>
         <Button size="sm" onClick={() => m.mutate()} disabled={m.isPending}>{t("finance:intakeInbox.other.markFiled")}</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DriveCopyLine({ row }: { row: InboxRow }) {
+  const { t } = useTranslation(["finance"]);
+  const qc = useQueryClient();
+  const retry = useServerFn(retryBankDriveCopy);
+  const r = row as InboxRow & { drive_copy_status: string | null; drive_web_link: string | null; drive_copy_error: string | null; drive_next_retry_at: string | null };
+  const m = useMutation({
+    mutationFn: () => retry({ data: { id: row.id } }),
+    onSuccess: (res) => { res.ok ? toast.success(t("finance:driveArchive.copiedToast")) : toast.error(res.driveError ?? t("finance:driveArchive.status.failed")); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+  });
+  const status = r.drive_copy_status ?? "pending";
+  return (
+    <Card>
+      <CardContent className="py-3 flex items-center justify-between gap-3 text-sm flex-wrap">
+        <span>
+          Drive: <span className={status === "failed" ? "text-destructive font-medium" : "font-medium"}>{t(`finance:driveArchive.status.${status}`)}</span>
+          {status === "copied" && r.drive_web_link && <> (<a className="underline" href={r.drive_web_link} target="_blank" rel="noreferrer">{t("finance:driveArchive.open")}</a>)</>}
+          {status === "failed" && r.drive_next_retry_at && <span className="text-xs text-muted-foreground"> · {t("finance:driveArchive.nextRetry", { date: new Date(r.drive_next_retry_at).toLocaleString() })}</span>}
+        </span>
+        {status !== "copied" && (
+          <Button size="sm" variant="outline" disabled={m.isPending} onClick={() => m.mutate()}>
+            {m.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}{t("finance:driveArchive.retry")}
+          </Button>
+        )}
+        {status === "failed" && r.drive_copy_error && <p className="w-full text-xs text-muted-foreground break-all">{r.drive_copy_error.slice(0, 300)}</p>}
       </CardContent>
     </Card>
   );

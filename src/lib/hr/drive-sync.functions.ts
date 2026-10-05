@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { parseDriveFolderId } from "@/lib/google-drive-folder";
 import { createHash } from "crypto";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -59,8 +60,8 @@ type ArchiveCtx =
   | { mode: "myDrive"; pathPrefix: ""; rootParentId: null; driveId: null };
 
 function getArchiveCtx(): ArchiveCtx {
-  const rootFolder = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID?.trim();
-  const sharedDrive = process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID?.trim();
+  const rootFolder = parseDriveFolderId(process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID);
+  const sharedDrive = parseDriveFolderId(process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID);
   const rootName = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_NAME?.trim() || "PSA Hub Archive";
   if (rootFolder) {
     return {

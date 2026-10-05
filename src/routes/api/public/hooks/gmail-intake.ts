@@ -112,6 +112,8 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         try {
           const { purgeExpiredRemoved } = await import("@/lib/finance/recipient-rule.server");
           await purgeExpiredRemoved();
+          const { processDueDriveCopies } = await import("@/lib/finance/bank-drive-filing.server");
+          await processDueDriveCopies();
         } catch (e) {
           console.error("[gmail-intake] purge failed", e);
         }
