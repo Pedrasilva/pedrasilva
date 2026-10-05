@@ -1069,6 +1069,10 @@ export async function ingestStoredDocument(opts: {
     psa: await rr.loadPsaIdentity(), name: rcpName, vat: rcpVat, direction: dir.direction, type,
     sellerName: ex.seller_name ?? ex.supplier_name ?? null, sellerVat: ex.seller_vat ?? ex.supplier_vat ?? null,
     forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify", keep: keepFlag,
+    parties: [
+      { name: ex.payer_name ?? null, vat: ex.payer_vat ?? null, iban: ex.payer_iban ?? null },
+      { name: ex.beneficiary_name ?? null, vat: ex.beneficiary_vat ?? null, iban: ex.beneficiary_iban ?? null },
+    ],
   });
   payload.extracted_recipient_name = rcpName;
   payload.extracted_recipient_vat = rcpVat;
