@@ -1,3 +1,4 @@
+import { allocationHours } from "@/lib/projects/gantt-utils";
 import { toLocalISODate } from "@/lib/dates";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -534,7 +535,7 @@ export function useStageAllocationBalance(opts: { resourceId: string | null; use
       const out = new Map<string, { allocated: number; logged: number }>();
       for (const a of (allocs ?? []) as Array<{ stage_id: string; start_date: string; end_date: string; hours_per_day: number | null }>) {
         const cur = out.get(a.stage_id) ?? { allocated: 0, logged: 0 };
-        cur.allocated += workingDaysBetween(a.start_date, a.end_date) * Number(a.hours_per_day ?? 0);
+        cur.allocated += allocationHours({ start_date: a.start_date, end_date: a.end_date, hours_per_day: Number(a.hours_per_day ?? 0) });
         out.set(a.stage_id, cur);
       }
       const taskIds = [...taskStage.keys()];
@@ -558,14 +559,3 @@ export function useStageAllocationBalance(opts: { resourceId: string | null; use
   });
 }
 
-function workingDaysBetween(start: string, end: string): number {
-  let n = 0;
-  const d = new Date(`${start}T12:00:00`);
-  const e = new Date(`${end}T12:00:00`);
-  while (d <= e) {
-    const w = d.getDay();
-    if (w !== 0 && w !== 6) n++;
-    d.setDate(d.getDate() + 1);
-  }
-  return n;
-}
