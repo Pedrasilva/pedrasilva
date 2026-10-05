@@ -1741,7 +1741,9 @@
       "issued": "Issued",
       "other": "Other documents",
       "ignored": "Ignored",
-      "rules": "Rules"
+      "rules": "Rules",
+      "duplicates": "Duplicates",
+      "instructions": "Instructions"
     },
     "empty": "Nothing here.",
     "selectItem": "Select a document.",
@@ -1830,7 +1832,8 @@
       "pending": "To review",
       "filed": "Filed",
       "paid": "Paid",
-      "approved": "Approved"
+      "approved": "Approved",
+      "duplicate": "Duplicate"
     },
     "splitPart": "Notice {{n}} · p. {{first}}–{{last}}",
     "single": "Single reading",
@@ -1852,6 +1855,78 @@
       "count_one": "{{count}} ignored",
       "count_other": "{{count}} ignored",
       "invalid": "Enter an address or domain."
+    },
+    "dup": {
+      "badge": "Duplicate",
+      "possibleBadge": "Possible duplicate",
+      "title": "Duplicate",
+      "possibleTitle": "Possible duplicate",
+      "of": "Duplicate of:",
+      "registeredAt": "registered on {{date}}",
+      "open": "Open",
+      "isDuplicate": "It's a duplicate",
+      "notDuplicate": "Not a duplicate",
+      "possibleHint": "Same supplier, same total and a date within 5 days. Choose before approving; the decision is remembered for this pair.",
+      "nothingCreated": "Nothing is created from a duplicate.",
+      "restored": "Back to review.",
+      "marked": "Marked as duplicate.",
+      "kept": "Kept as a separate document.",
+      "liveDocument": "Registered document",
+      "reasons": {
+        "same_file": "Exactly the same file was already received.",
+        "same_nif_number_year": "Same supplier NIF, document number and year as an inbox item.",
+        "same_nif_number_year_live": "Same supplier NIF, document number and year as a registered document.",
+        "same_nif_total_date": "Same supplier NIF and total, dates within 5 days.",
+        "same_nif_total_date_live": "Same supplier NIF and total as a registered document, dates within 5 days.",
+        "same_bank_movement": "Same account, date, amount and reference.",
+        "same_account_date_amount": "Same account, date and amount (no shared reference).",
+        "same_statement_period": "Same account and statement period."
+      },
+      "uploadWarn": "{{file}}: already exists ({{label}}, registered on {{date}}).",
+      "keepAnyway": "Save anyway",
+      "manualTitle": "This invoice may already exist",
+      "manualExists": "Invoice {{number}} from {{supplier}} already exists, registered on {{date}}.",
+      "manualProbable": "A document from {{supplier}} with the same total and a close date exists ({{label}}, registered on {{date}})."
+    },
+    "learn": {
+      "title": "Applied rules and learning",
+      "instruction": "Studio rule",
+      "default": "Supplier pattern",
+      "defaultText": "Type {{type}} · code {{code}} (last {{n}} approved documents)",
+      "aiSaid": "The reader had said: {{type}} · {{code}}",
+      "examples_one": "{{count}} past correction for this supplier given as an example",
+      "examples_other": "{{count}} past corrections for this supplier given as examples",
+      "editRule": "Edit rule",
+      "explain": "Explain",
+      "explainPlaceholder": "A short note on this document (e.g. \"EDP invoices are always electricity, code 62221\").",
+      "applyFuture": "Apply to future documents from this supplier",
+      "save": "Save note",
+      "saved": "Note saved.",
+      "savedRule": "Note saved and added as a rule for this supplier."
+    },
+    "instructions": {
+      "title": "Instructions for the reader",
+      "hint": "Sent to Claude as \"Studio rules\" whenever they apply. They take priority over the model's own judgement.",
+      "text": "Instruction",
+      "scope": "Applies to",
+      "scopeValue": "NIF, address or domain",
+      "scopes": {
+        "global": "All documents",
+        "supplier_nif": "Supplier NIF",
+        "sender": "Sender address / domain"
+      },
+      "add": "Add instruction",
+      "active": "Active",
+      "inactive": "Inactive",
+      "createdBy": "Added {{date}}",
+      "empty": "No instructions yet.",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this instruction?",
+      "saved": "Instruction saved.",
+      "deleted": "Instruction deleted."
     }
   }
 }

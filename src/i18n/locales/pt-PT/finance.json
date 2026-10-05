@@ -1741,7 +1741,9 @@
       "issued": "Emitidas",
       "other": "Outros documentos",
       "ignored": "Ignorados",
-      "rules": "Regras"
+      "rules": "Regras",
+      "duplicates": "Duplicados",
+      "instructions": "Instruções"
     },
     "empty": "Nada aqui.",
     "selectItem": "Seleccione um documento.",
@@ -1830,7 +1832,8 @@
       "pending": "Por rever",
       "filed": "Arquivado",
       "paid": "Pago",
-      "approved": "Aprovado"
+      "approved": "Aprovado",
+      "duplicate": "Duplicado"
     },
     "splitPart": "Aviso {{n}} · pág. {{first}}–{{last}}",
     "single": "Leitura única",
@@ -1852,6 +1855,78 @@
       "count_one": "{{count}} ignorado",
       "count_other": "{{count}} ignorados",
       "invalid": "Indique um endereço ou domínio."
+    },
+    "dup": {
+      "badge": "Duplicado",
+      "possibleBadge": "Possível duplicado",
+      "title": "Duplicado",
+      "possibleTitle": "Possível duplicado",
+      "of": "Duplicado de:",
+      "registeredAt": "registado em {{date}}",
+      "open": "Abrir",
+      "isDuplicate": "É duplicado",
+      "notDuplicate": "Não é duplicado",
+      "possibleHint": "Mesmo fornecedor, mesmo total e data a menos de 5 dias. Decida antes de aprovar; a decisão fica guardada para este par.",
+      "nothingCreated": "Nada é criado a partir de um duplicado.",
+      "restored": "Voltou para revisão.",
+      "marked": "Marcado como duplicado.",
+      "kept": "Mantido como documento separado.",
+      "liveDocument": "Documento registado",
+      "reasons": {
+        "same_file": "Já foi recebido exactamente o mesmo ficheiro.",
+        "same_nif_number_year": "Mesmo NIF do fornecedor, n.º de documento e ano que um item da caixa.",
+        "same_nif_number_year_live": "Mesmo NIF do fornecedor, n.º de documento e ano que um documento registado.",
+        "same_nif_total_date": "Mesmo NIF do fornecedor e total, datas a menos de 5 dias.",
+        "same_nif_total_date_live": "Mesmo NIF e total que um documento registado, datas a menos de 5 dias.",
+        "same_bank_movement": "Mesma conta, data, valor e referência.",
+        "same_account_date_amount": "Mesma conta, data e valor (sem referência comum).",
+        "same_statement_period": "Mesma conta e mesmo período de extrato."
+      },
+      "uploadWarn": "{{file}}: já existe ({{label}}, registado em {{date}}).",
+      "keepAnyway": "Guardar mesmo assim",
+      "manualTitle": "Esta fatura pode já existir",
+      "manualExists": "Já existe a fatura {{number}} do fornecedor {{supplier}}, registada em {{date}}.",
+      "manualProbable": "Existe um documento de {{supplier}} com o mesmo total e data próxima ({{label}}, registado em {{date}})."
+    },
+    "learn": {
+      "title": "Regras e aprendizagem aplicadas",
+      "instruction": "Regra do estúdio",
+      "default": "Padrão do fornecedor",
+      "defaultText": "Tipo {{type}} · código {{code}} (últimos {{n}} documentos aprovados)",
+      "aiSaid": "O leitor tinha dito: {{type}} · {{code}}",
+      "examples_one": "{{count}} correcção anterior deste fornecedor dada como exemplo",
+      "examples_other": "{{count}} correcções anteriores deste fornecedor dadas como exemplo",
+      "editRule": "Editar regra",
+      "explain": "Explicar",
+      "explainPlaceholder": "Uma nota curta sobre este documento (ex.: \"Faturas da EDP são sempre electricidade, código 62221\").",
+      "applyFuture": "Aplicar a futuros documentos deste fornecedor",
+      "save": "Guardar nota",
+      "saved": "Nota guardada.",
+      "savedRule": "Nota guardada e adicionada como regra para este fornecedor."
+    },
+    "instructions": {
+      "title": "Instruções para o leitor",
+      "hint": "Enviadas ao Claude como \"Regras do estúdio\" sempre que se aplicam. Têm prioridade sobre o critério do próprio modelo.",
+      "text": "Instrução",
+      "scope": "Aplica-se a",
+      "scopeValue": "NIF, endereço ou domínio",
+      "scopes": {
+        "global": "Todos os documentos",
+        "supplier_nif": "NIF do fornecedor",
+        "sender": "Endereço / domínio do remetente"
+      },
+      "add": "Adicionar instrução",
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "createdBy": "Adicionada {{date}}",
+      "empty": "Ainda não há instruções.",
+      "edit": "Editar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Apagar",
+      "deleteConfirm": "Apagar esta instrução?",
+      "saved": "Instrução guardada.",
+      "deleted": "Instrução apagada."
     }
   }
 }
