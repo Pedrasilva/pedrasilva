@@ -55,7 +55,7 @@ export function useCapacityForecastData(start: string, end: string) {
           if (s.status !== "active" && s.status !== "planned") continue;
           stages.set(s.id, {
             id: s.id, project_id: pid, projectLabel,
-            label: formatStageLabel(nums.get(s.id) ?? null, s.name),
+            label: formatStageLabel(s as never, nums.get(s.id)),
             start_date: s.start_date, end_date: s.end_date,
           });
         }
