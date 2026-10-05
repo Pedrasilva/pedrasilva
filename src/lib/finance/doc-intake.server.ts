@@ -708,6 +708,8 @@ export async function ingestStoredDocument(opts: {
   retryCount?: number;
   /** Set on items cut out of a multi-notice PDF; they are never split again. */
   splitOf?: { fileUrl: string; part: number; first: number; last: number } | null;
+  /** Sender matched a "sempre processar" rule: an AI "ignored" route goes to triage. */
+  forceProcess?: boolean;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
   const intake = await import("./intake-models.server");
   const result = await intake.runDualExtraction(
@@ -937,7 +939,8 @@ export async function ingestStoredDocument(opts: {
     intake_type_confidence: opts.forcedType ? 1 : ex.intake_type_confidence ?? null,
     intake_type_source: opts.forcedType ? "manual" : "ai",
     intake_type_reason: ex.intake_type_reason ?? null,
-    intake_route: route,
+    // "Sempre processar" sender rule: never auto-ignore; a person triages it.
+    intake_route: opts.forceProcess && route === "ignored" ? "triage" : route,
     verification: result.verification,
     field_checks: { ...checks, ...typeChecks },
     model_runs: intake.summariseRuns(result.runs),
