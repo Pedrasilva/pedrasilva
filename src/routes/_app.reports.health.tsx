@@ -277,8 +277,6 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
   wf.push({ name: t("health.blocks.fullCost"), base: 0, v: m.fullCost, own: m.fullCost, running: m.fullCost, fill: "var(--foreground)", connect: null });
   wf.push({ name: t("health.blocks.value"), base: 0, v: m.value, own: m.value, running: m.value, fill: C.value, connect: "top" });
   wf.push({ name: t("health.blocks.result"), base: Math.min(m.value, m.fullCost), v: Math.abs(m.result), own: m.result, running: m.result, fill: m.result >= 0 ? C.billable : C.loss, connect: null });
-  // Connector from "value" sits on the value level: top when result ≥ 0 is below it? value is the lower bar edge only when loss.
-  if (m.result >= 0) wf[wf.length - 2].connect = "top";
 
   const split = H.hours.split;
   const periodBar = [{ name: t("health.period"), billable: split.billable, nonBillable: split.nonBillable, internal: split.internal, unlogged: H.hours.unlogged }];
