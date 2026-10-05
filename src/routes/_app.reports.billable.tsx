@@ -455,7 +455,7 @@ function Legend3() {
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: React.ReactNode; sub: string }) {
+function Tile({ label, value, sub }: { label: string; value: React.ReactNode; sub: React.ReactNode }) {
   return (
     <Card>
       <CardContent className="pt-4">

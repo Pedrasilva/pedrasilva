@@ -221,7 +221,9 @@
     "tiles": {
       "logged": "Logged hours",
       "target": "Billable vs target",
-      "targetSub": "Actual / team target (weighted by logged hours)"
+      "targetSub": "Actual / team target (weighted by logged hours)",
+      "projectTeam": "Project team: {{actual}} vs target {{target}}",
+      "wholeStudio": "Whole studio: {{pct}} billable"
     },
     "leaveContext": "Absences {{h}} h (not counted)",
     "leaveExcluded": "Leave and holidays excluded",
@@ -235,7 +237,8 @@
       "hint": "Sorted by % billable. The black marker is the person's HR target. Click a person for detail.",
       "split": "Split",
       "target": "Target",
-      "diff": "Difference"
+      "diff": "Difference",
+      "backOffice": "0% · back office"
     },
     "detail": {
       "byProject": "By project",
