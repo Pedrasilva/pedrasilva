@@ -9,7 +9,7 @@ import { mentionsFirm, sameVat } from "@/lib/finance/doc-intake.server";
 
 export const REMOVAL_DAYS = 30;
 
-export type PsaIdentity = { vat: string | null; name: string | null; variants: string[] };
+export type PsaIdentity = { vat: string | null; name: string | null; variants: string[]; ibans?: string[] };
 
 export async function loadPsaIdentity(): Promise<PsaIdentity> {
   const { data } = await supabaseAdmin
@@ -22,7 +22,25 @@ export async function loadPsaIdentity(): Promise<PsaIdentity> {
     vat: data?.company_nif ?? null,
     name: data?.company_name ?? null,
     variants: (data?.company_name_variants as string[] | null) ?? [],
+    ibans: await loadPsaIbans(),
   };
+}
+
+const ibanKey = (v: string | null | undefined) => (v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+/** IBANs of PSA's bank accounts registered in the Hub. */
+async function loadPsaIbans(): Promise<string[]> {
+  const { data } = await supabaseAdmin.from("bank_accounts").select("iban").not("iban", "is", null);
+  return (data ?? []).map((r) => ibanKey(r.iban)).filter((v) => v.length >= 15);
+}
+
+export type Party = { name: string | null; vat: string | null; iban: string | null };
+
+/** A payer/beneficiary side is PSA by NIF, name variant or a PSA account IBAN. */
+export function isPsaParty(p: Party, psa: PsaIdentity): boolean {
+  if (p.vat && psa.vat && sameVat(p.vat, psa.vat)) return true;
+  if (p.iban && (psa.ibans ?? []).includes(ibanKey(p.iban))) return true;
+  return isPsaName(p.name, psa);
 }
 
 const norm = (s: string | null | undefined) =>
@@ -66,9 +84,21 @@ export function decideRecipient(o: {
   forcedType: string | null;
   verify: boolean;
   keep: boolean;
+  /** Payer + beneficiary of a payment proof / transfer confirmation. */
+  parties?: Party[];
 }): RecipientDecision {
   if (o.keep || o.forcedType) return { kind: "psa" };
   if (o.type === "nao_financeiro") return { kind: "skip" };
+  if (o.type === "comprovativo_pagamento") {
+    // PSA's if EITHER side is PSA; removed only when neither is and one side is clearly another entity.
+    const sides: Party[] = [...(o.parties ?? []), { name: o.name, vat: o.vat, iban: null }];
+    if (sides.some((p) => isPsaParty(p, o.psa))) return { kind: "psa" };
+    if (o.verify) return { kind: "triage" };
+    const other = sides.find((p) => p.vat || (p.name && !NO_NAME.test(norm(p.name)) && !ADDRESS_ONLY.test(norm(p.name))));
+    const sidesKnown = (o.parties ?? []).some((p) => p.name || p.vat || p.iban);
+    if (other && sidesKnown) return { kind: "remove", reason: removalReason(other.name?.trim() ?? null, other.vat) };
+    return { kind: "triage" };
+  }
   // Documents PSA issued name its client as recipient.
   if (o.direction === "issued" || o.type === "fatura_emitida") return { kind: "psa" };
   if ((o.sellerVat && o.psa.vat && sameVat(o.sellerVat, o.psa.vat)) || isPsaName(o.sellerName, o.psa)) return { kind: "psa" };
