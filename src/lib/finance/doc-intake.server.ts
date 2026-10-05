@@ -1054,23 +1054,28 @@ export async function ingestStoredDocument(opts: {
 
   payload.applied_learning = applied;
 
-  // Recipient check: addressed to someone other than the firm → "outra_entidade",
-  // never a PSA purchase or bank document. Model disagreement → "Verificar".
-  const oe = await import("./other-entities.server");
+  // Recipient rule: only PSA's documents stay. Clearly another recipient →
+  // removed (restorable 30 days); unreadable/missing → Triagem.
+  const rr = await import("./recipient-rule.server");
   const rcpCheck = (checks as Record<string, { status?: string; value?: unknown } | undefined>).recipient_vat;
   const rcpVat = ((rcpCheck?.value as string | null | undefined) ?? ex.recipient_vat ?? ex.buyer_vat ?? null) || null;
   const rcpName = ex.recipient_name ?? ex.buyer_name ?? null;
-  const rcp = oe.recipientCheck({
-    own, name: rcpName, vat: rcpVat, direction: dir.direction, type,
+  let keepFlag = false;
+  if (replaceId) {
+    const { data: k } = await supabaseAdmin.from("financial_document_review_queue").select("keep_despite_recipient").eq("id", replaceId).maybeSingle();
+    keepFlag = !!k?.keep_despite_recipient;
+  }
+  const rcp = rr.decideRecipient({
+    psa: await rr.loadPsaIdentity(), name: rcpName, vat: rcpVat, direction: dir.direction, type,
     sellerName: ex.seller_name ?? ex.supplier_name ?? null, sellerVat: ex.seller_vat ?? ex.supplier_vat ?? null,
-    forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify",
-    entities: await oe.loadOtherEntities(),
+    forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify", keep: keepFlag,
   });
   payload.extracted_recipient_name = rcpName;
   payload.extracted_recipient_vat = rcpVat;
-  payload.other_entity_id = null;
-  payload.other_entity_action = null;
-  if (rcp.other) Object.assign(payload, oe.otherEntityColumns(rcp));
+  if (rcp.kind === "triage" && payload.intake_route !== "ignored") payload.intake_route = "triage";
+  const removalRule = keepFlag ? null : rr.matchRemovalRule(await rr.loadRemovalRules(), {
+    recipientVat: rcpVat, supplierVat: counterpartyVat, sender,
+  });
 
   // A — same document / bank movement / probable duplicate.
   const dupRes = await dups.checkDocumentDuplicates({
@@ -1090,12 +1095,14 @@ export async function ingestStoredDocument(opts: {
     periodEnd: ex.period_end ?? null,
   });
   Object.assign(payload, dups.duplicateColumns(dupRes));
+  // Duplicate logic wins; otherwise apply the recipient rule / deletion rules.
+  if (payload.status !== "duplicate") {
+    if (rcp.kind === "remove") Object.assign(payload, rr.removeColumns({ reason: rcp.reason, source: "recipient_rule", tag: "not_psa" }));
+    else if (removalRule) Object.assign(payload, rr.removeColumns({ reason: removalRule.text, source: `rule:${removalRule.id}`, tag: "rule" }));
+  }
 
   const { data: row, error } = await write(payload);
   if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
-  if (rcp.other && !rcp.verify && rcp.entity?.action === "forward" && rcp.entity.forward_email && payload.status !== "duplicate") {
-    await oe.forwardOtherEntityItem(row.id, rcp.entity.forward_email);
-  }
   return {
     ok: true,
     queueItemId: row.id,
