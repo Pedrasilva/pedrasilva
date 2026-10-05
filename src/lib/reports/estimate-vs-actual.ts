@@ -79,6 +79,12 @@ export interface StageInput {
   projectName: string;
   status: string | null;
   plannedHours: number | null;
+  /** Σ assignment hours (quote allocations, stage allocations or baseline target). */
+  allocatedHours: number | null;
+  /** Planned € ÷ the sale rate used. */
+  budgetHours: number | null;
+  /** Which of the two became plannedHours. */
+  hoursBasis: "allocated" | "budget" | null;
   plannedCost: number | null;
   actualHours: number;
   /** PSA cost of the hours (locked snapshots). */
@@ -96,8 +102,10 @@ export interface StageInput {
 export interface StageRow extends StageInput {
   hoursPct: number | null;
   costPct: number | null;
-  /** In-progress only: actual ÷ planned (hours, else €). */
+  /** In-progress only: valor das horas ÷ € previsto (main progress). */
   consumedPct: number | null;
+  /** In-progress only: actual h ÷ planned h (secondary). */
+  consumedHoursPct: number | null;
   done: boolean;
   plannedDays: number | null;
   actualDays: number | null;
@@ -115,6 +123,7 @@ export interface PhaseSummary {
   costPct: number | null;
   doneCount: number;
   consumedPct: number | null;
+  consumedHoursPct: number | null;
   best: number | null;
   median: number | null;
   worst: number | null;
@@ -149,7 +158,8 @@ export function toStageRow(s: StageInput): StageRow {
     done,
     hoursPct: done ? variance(s.plannedHours, s.actualHours) : null,
     costPct: done ? variance(s.plannedCost, s.actualValue) : null,
-    consumedPct: done ? null : ratio(s.plannedHours, s.actualHours) ?? ratio(s.plannedCost, s.actualValue),
+    consumedPct: done ? null : ratio(s.plannedCost, s.actualValue),
+    consumedHoursPct: done ? null : ratio(s.plannedHours, s.actualHours),
     plannedDays: days(s.baselineStart, s.baselineEnd),
     actualDays: s.status === "done" ? days(s.start, s.end) : null,
   };
@@ -180,7 +190,8 @@ export function summarise(rows: StageRow[]): PhaseSummary[] {
       actualCost: aC,
       costPct: variance(sum(dn, (r) => r.plannedCost ?? 0), sum(dn, (r) => r.actualValue)),
       doneCount: dn.length,
-      consumedPct: ipPH > 0 ? ratio(ipPH, sum(ip, (r) => r.actualHours)) : ratio(sum(ip, (r) => r.plannedCost ?? 0), sum(ip, (r) => r.actualValue)),
+      consumedPct: ratio(sum(ip, (r) => r.plannedCost ?? 0), sum(ip, (r) => r.actualValue)),
+      consumedHoursPct: ratio(ipPH, sum(ip, (r) => r.actualHours)),
       best: ov.length ? Math.min(...ov) : null,
       median: median(ov),
       worst: ov.length ? Math.max(...ov) : null,
@@ -190,4 +201,13 @@ export function summarise(rows: StageRow[]): PhaseSummary[] {
       stages: st,
     };
   });
+}
+
+/** Planned hours = budget hours when assignments cover < 80% of them, else assigned hours. */
+export function pickPlannedHours(allocated: number | null, cost: number | null, saleRate: number) {
+  const budgetHours = cost && cost > 0 && saleRate > 0 ? cost / saleRate : null;
+  if (budgetHours != null && (allocated ?? 0) < 0.8 * budgetHours)
+    return { plannedHours: budgetHours, allocatedHours: allocated, budgetHours, hoursBasis: "budget" as const };
+  if (allocated != null && allocated > 0) return { plannedHours: allocated, allocatedHours: allocated, budgetHours, hoursBasis: "allocated" as const };
+  return { plannedHours: null, allocatedHours: allocated, budgetHours, hoursBasis: null };
 }
