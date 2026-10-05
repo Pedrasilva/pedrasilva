@@ -28,8 +28,14 @@ async function loadPending(supabase: any, id: string) {
     .single();
   if (error) throw new Error(error.message);
   if (data.status !== "pending_review") throw new Error(`Item is already ${data.status}`);
+  if (Array.isArray(data.possible_duplicates) && data.possible_duplicates.length > 0 && !data.possible_duplicate_resolved) {
+    throw new Error("Possible duplicate: choose \"É duplicado\" or \"Não é duplicado\" first");
+  }
   return data;
 }
+
+const nifOf = (v: string | null | undefined) =>
+  (v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^PT/, "").toLowerCase() || null;
 
 /** "Reclassificar" / Triagem buttons: set the type and re-run extraction for it. */
 export const reclassifyQueueItem = createServerFn({ method: "POST" })
@@ -37,7 +43,22 @@ export const reclassifyQueueItem = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), type: z.enum(TYPES) }).parse(i))
   .handler(async ({ data, context }) => {
     await assertFinanceAccess(context.supabase, context.userId);
-    await loadPending(context.supabase, data.id);
+    const { data: row, error } = await context.supabase
+      .from("financial_document_review_queue")
+      .select("status, intake_type, model_runs, applied_learning, extracted_supplier_vat")
+      .eq("id", data.id)
+      .single();
+    if (error) throw new Error(error.message);
+    if (row.status !== "pending_review") throw new Error(`Item is already ${row.status}`);
+    // Learning: record the person's type correction (no document contents).
+    const aiType =
+      row.applied_learning?.ai_type ?? row.model_runs?.claude?.intake_type ?? row.intake_type ?? null;
+    if (aiType !== data.type) {
+      await context.supabase.from("finance_intake_corrections").insert({
+        queue_item_id: data.id, supplier_nif: nifOf(row.extracted_supplier_vat), field: "intake_type",
+        ai_value: aiType, corrected_value: data.type, corrected_by: context.userId,
+      });
+    }
     const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
     return reprocessQueueItem(data.id, { forcedType: data.type });
   });
@@ -208,4 +229,192 @@ export const markOtherDocumentFiled = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Duplicates
+// ---------------------------------------------------------------------------
+
+const ordered = (x: string, y: string) => (x < y ? { item_a: x, item_b: y } : { item_a: y, item_b: x });
+
+/** "Possível duplicado": a person decides; the decision is remembered for each pair. */
+export const resolvePossibleDuplicate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      decision: z.enum(["duplicate", "not_duplicate"]),
+      /** The candidate it duplicates (queue item or live document). */
+      otherId: z.string().uuid().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, status, possible_duplicates")
+      .eq("id", data.id)
+      .single();
+    if (error) throw new Error(error.message);
+    if (row.status !== "pending_review") throw new Error(`Item is already ${row.status}`);
+    const cands = (row.possible_duplicates ?? []) as Array<{ queueItemId?: string; documentId?: string; reason: string }>;
+    const ids = cands.map((c) => c.queueItemId ?? c.documentId).filter(Boolean) as string[];
+    if (data.decision === "duplicate") {
+      const other = cands.find((c) => (c.queueItemId ?? c.documentId) === data.otherId) ?? cands[0];
+      if (!other) throw new Error("No candidate to link");
+      const otherId = (other.queueItemId ?? other.documentId)!;
+      await supabase.from("finance_duplicate_decisions").upsert(
+        { ...ordered(data.id, otherId), decision: "duplicate", decided_by: userId },
+        { onConflict: "item_a,item_b" },
+      );
+      const { error: e2 } = await supabase
+        .from("financial_document_review_queue")
+        .update({
+          status: "duplicate",
+          duplicate_kind: "probable",
+          duplicate_reason: other.reason,
+          duplicate_of_id: other.queueItemId ?? null,
+          duplicate_of_document_id: other.documentId ?? null,
+          possible_duplicate_resolved: true,
+          reviewed_by: userId,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", data.id);
+      if (e2) throw new Error(e2.message);
+    } else {
+      if (ids.length) {
+        await supabase.from("finance_duplicate_decisions").upsert(
+          ids.map((o) => ({ ...ordered(data.id, o), decision: "not_duplicate", decided_by: userId })),
+          { onConflict: "item_a,item_b" },
+        );
+      }
+      const { error: e2 } = await supabase
+        .from("financial_document_review_queue")
+        .update({ possible_duplicate_resolved: true })
+        .eq("id", data.id);
+      if (e2) throw new Error(e2.message);
+    }
+    return { ok: true };
+  });
+
+/**
+ * "Não é duplicado" / "Guardar mesmo assim" on a duplicate: back to review.
+ * A same-file duplicate was never read, so it is read now.
+ */
+export const restoreDuplicate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, status, duplicate_kind, duplicate_of_id, duplicate_of_document_id")
+      .eq("id", data.id)
+      .single();
+    if (error) throw new Error(error.message);
+    if (row.status !== "duplicate") throw new Error("Not a duplicate");
+    const other = row.duplicate_of_id ?? row.duplicate_of_document_id;
+    if (other) {
+      await supabase.from("finance_duplicate_decisions").upsert(
+        { ...ordered(data.id, other), decision: "not_duplicate", decided_by: userId },
+        { onConflict: "item_a,item_b" },
+      );
+    }
+    const { error: e2 } = await supabase
+      .from("financial_document_review_queue")
+      .update({
+        status: "pending_review",
+        duplicate_kind: null,
+        duplicate_reason: null,
+        duplicate_of_id: null,
+        duplicate_of_document_id: null,
+        possible_duplicate_resolved: true,
+      })
+      .eq("id", data.id);
+    if (e2) throw new Error(e2.message);
+    if (row.duplicate_kind === "file") {
+      const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
+      return reprocessQueueItem(data.id);
+    }
+    return { ok: true };
+  });
+
+/** Manual purchase entry: warn before saving a document that already exists (checks b and c). */
+export const checkManualDuplicate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      supplierId: z.string().uuid(),
+      documentNumber: z.string().max(120).nullable(),
+      issueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+      total: z.number().nullable(),
+      excludeDocumentId: z.string().uuid().nullable().optional(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: co } = await supabase.from("companies").select("nif, nome").eq("id", data.supplierId).maybeSingle();
+    if (!co?.nif) return { matches: [] };
+    const { checkDocumentDuplicates } = await import("@/lib/finance/intake-duplicates.server");
+    const res = await checkDocumentDuplicates({
+      selfId: data.excludeDocumentId ?? null,
+      intakeType: "fatura_compra",
+      direction: "received",
+      nif: co.nif,
+      supplierName: co.nome,
+      documentNumber: data.documentNumber,
+      date: data.issueDate,
+      total: data.total,
+      bankAccountId: null, iban: null, accountNumber: null, periodStart: null, periodEnd: null,
+    });
+    const all = [...(res.exact ? [res.exact] : []), ...res.probable]
+      .filter((m) => !data.excludeDocumentId || m.documentId !== data.excludeDocumentId);
+    return { matches: all.map((m) => ({ ...m, supplier: co.nome })) };
+  });
+
+// ---------------------------------------------------------------------------
+// Learning: "Explicar" box
+// ---------------------------------------------------------------------------
+
+export const saveExplanation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      note: z.string().trim().min(1).max(1000),
+      applyToSupplier: z.boolean(),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, extracted_supplier_vat, sender_address")
+      .eq("id", data.id)
+      .single();
+    if (error) throw new Error(error.message);
+    await supabase.from("financial_document_review_queue").update({ review_note: data.note }).eq("id", data.id);
+    let instructionId: string | null = null;
+    if (data.applyToSupplier) {
+      const nif = nifOf(row.extracted_supplier_vat);
+      const sender = row.sender_address?.toLowerCase() ?? null;
+      if (!nif && !sender) throw new Error("No supplier NIF or sender on this document");
+      const { data: ins, error: e2 } = await supabase
+        .from("finance_intake_instructions")
+        .insert({
+          text: data.note,
+          scope_type: nif ? "supplier_nif" : "sender",
+          scope_value: nif ?? sender,
+          created_by: userId,
+        })
+        .select("id")
+        .single();
+      if (e2) throw new Error(e2.message);
+      instructionId = ins.id;
+    }
+    return { ok: true, instructionId };
   });

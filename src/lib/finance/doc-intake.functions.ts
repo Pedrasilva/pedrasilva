@@ -259,6 +259,24 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
       throw new Error("A staff member must be assigned for benefit classifications");
     }
 
+    // Learning: remember a person's change of the reader's code (no contents).
+    const { data: before } = await supabase
+      .from("financial_document_review_queue")
+      .select("model_runs, suggested_classification_code, extracted_supplier_vat, applied_learning")
+      .eq("id", data.id)
+      .maybeSingle();
+    const aiCode =
+      (before?.applied_learning as { ai_code?: string | null } | null)?.ai_code ??
+      (before?.model_runs as { claude?: { classification_code?: string | null } } | null)?.claude?.classification_code ??
+      before?.suggested_classification_code ?? null;
+    if (cls?.code && aiCode !== cls.code) {
+      const nif = (before?.extracted_supplier_vat ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^PT/, "").toLowerCase() || null;
+      await supabase.from("finance_intake_corrections").insert({
+        queue_item_id: data.id, supplier_nif: nif, field: "classification_code",
+        ai_value: aiCode, corrected_value: cls.code, corrected_by: userId,
+      });
+    }
+
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({
@@ -296,6 +314,10 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row.supplier_approved_at || !row.classification_approved_at) {
       throw new Error("Both supplier and classification must be approved first");
+    }
+    if (row.status === "duplicate") throw new Error("This document is a duplicate; nothing is created from it");
+    if (Array.isArray(row.possible_duplicates) && row.possible_duplicates.length > 0 && !row.possible_duplicate_resolved) {
+      throw new Error("Possible duplicate: choose \"É duplicado\" or \"Não é duplicado\" first");
     }
     if (row.status === "approved" && row.created_expense_id) {
       return { ok: true, documentId: row.created_expense_id as string };
