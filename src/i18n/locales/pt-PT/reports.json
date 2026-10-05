@@ -348,18 +348,21 @@
       "plannedH": "h previstas",
       "actualH": "h reais",
       "plannedC": "€ previsto",
-      "actualC": "€ real",
+      "actualC": "Valor das horas",
       "best": "Melhor",
       "median": "Mediana",
       "worst": "Pior",
       "duration": "Duração",
-      "stage": "Projeto / fase"
+      "stage": "Projeto / fase",
+      "psaCost": "Custo",
+      "consumed": "Consumido até agora"
     },
     "sources": {
       "quote": "proposta",
       "plan": "plano actual",
       "baseline": "baseline"
     },
-    "sourceCounts": "Origem da estimativa: {{quote}} proposta · {{plan}} plano actual · {{baseline}} baseline"
+    "sourceCounts": "Origem da estimativa: {{quote}} proposta · {{plan}} plano actual · {{baseline}} baseline",
+    "likeForLikeHint": "€ real = horas × taxa de venda. Desvios e melhor/mediana/pior só com fases concluídas; fases em curso mostram o consumido até agora."
   }
 }
