@@ -52,6 +52,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
     key: "payments",
     labelKey: "finance:sidebar.groups.payments",
     items: [
+      { to: "/finance/inbox", labelKey: "finance:sidebar.items.intakeInbox", icon: Inbox },
       { to: "/finance/payments/review-queue", labelKey: "finance:sidebar.items.reviewQueue", icon: ScanLine },
       { to: "/finance/payments/suppliers", labelKey: "finance:sidebar.items.suppliers", icon: Truck },
       { to: "/finance/payments/purchases", labelKey: "finance:sidebar.items.purchases", icon: Receipt },

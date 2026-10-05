@@ -1079,7 +1079,8 @@
       "audit": "Audit",
       "qa": "QA",
       "reviewQueue": "Review queue",
-      "statements": "Statements"
+      "statements": "Statements",
+      "intakeInbox": "Finance inbox"
     }
   },
   "purchases": {
@@ -1727,6 +1728,102 @@
     "byVendor": {
       "title": "Purchases by vendor",
       "subtitle": "Concentration of what the firm currently owes."
+    }
+  },
+  "intakeInbox": {
+    "title": "Finance inbox",
+    "subtitle": "Every incoming document, sorted by type. Two AI models read each one; nothing is approved without you.",
+    "tabs": {
+      "triage": "Triage",
+      "purchases": "Purchases",
+      "payments": "Payments",
+      "bank": "Bank",
+      "issued": "Issued",
+      "other": "Other documents",
+      "ignored": "Ignored"
+    },
+    "empty": "Nothing here.",
+    "selectItem": "Select a document.",
+    "notClassified": "Not classified",
+    "types": {
+      "fatura_compra": "Purchase invoice",
+      "nota_credito": "Credit note",
+      "recibo": "Receipt",
+      "comprovativo_pagamento": "Proof of payment",
+      "extrato_bancario": "Bank statement",
+      "nota_lancamento": "Bank advice",
+      "fatura_emitida": "Issued invoice",
+      "documento_fiscal": "Tax / official notice",
+      "contrato_outro": "Contract / other",
+      "nao_financeiro": "Not financial",
+      "desconhecido": "Unknown"
+    },
+    "retryPending": "Waiting to retry",
+    "retryHint": "The AI limit was reached. This document will be read again automatically.",
+    "partial": "Partial check",
+    "verifyCount_one": "{{count}} to check",
+    "verifyCount_other": "{{count}} to check",
+    "verify": "Check",
+    "manualType": "Type set by a person",
+    "reclassify": "Reclassify",
+    "pickType": "Choose type…",
+    "rerunning": "Reading again…",
+    "reclassified": "Type changed and document read again.",
+    "reclassifyFailed": "Could not read the document again.",
+    "triageAsk": "What is this document?",
+    "field": "Field",
+    "prefilled": "Pre-filled value",
+    "preview": "Preview",
+    "fields": {
+      "supplier_vat": "Supplier NIF",
+      "document_number": "Document number",
+      "issue_date": "Date",
+      "amount_ex_vat": "Base",
+      "vat_amount": "VAT",
+      "total_amount": "Total",
+      "iban": "IBAN",
+      "account_number": "Account number"
+    },
+    "reasons": {
+      "models_differ": "The two models read different values (Claude's is pre-filled).",
+      "nif_check": "NIF check digit is not valid.",
+      "sum_check": "Base + VAT does not equal the total.",
+      "direction_mismatch": "The type does not match who issued the document."
+    },
+    "creditNoteLinked": "Linked to the original invoice it corrects.",
+    "creditNoteNoMatch": "Original invoice not found yet.",
+    "payment": {
+      "title": "What does this payment settle?",
+      "hint": "Suggested from open purchases of the same supplier. Confirming records the payment; it never creates a purchase.",
+      "none": "No open purchase found for this supplier.",
+      "due": "due",
+      "sameAmount": "Same amount",
+      "amount": "Amount",
+      "date": "Payment date",
+      "confirm": "Confirm payment",
+      "done": "Payment recorded on the purchase."
+    },
+    "bank": {
+      "title": "File bank document",
+      "matched": "Account matched by IBAN / account number.",
+      "noMatch": "No account matched — choose one.",
+      "account": "Bank account",
+      "pickAccount": "Choose account…",
+      "period": "Month",
+      "importHint": "PDF statements can't be imported into banking automatically; use the bank's MT940 or Excel export for that.",
+      "file": "File and copy to Drive",
+      "filedDrive": "Filed and copied to Drive.",
+      "filedNoDrive": "Filed, but the Drive copy failed: {{error}}"
+    },
+    "other": {
+      "hint": "File this document manually where it belongs, then mark it here.",
+      "markFiled": "Mark as filed",
+      "done": "Marked as filed."
+    },
+    "emailReason": {
+      "not_a_pdf_attachment": "No PDF attachment",
+      "attachment_too_large": "Attachment too large",
+      "no_attachments": "No attachments"
     }
   }
 }
