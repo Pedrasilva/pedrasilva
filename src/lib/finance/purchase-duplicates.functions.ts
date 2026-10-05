@@ -104,8 +104,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
     };
     const sup = (d: any) => nifKey(d.companies?.nif) ?? d.counterparty_supplier_id ?? null;
     const groups: DupGroup[] = [];
-    const inExact = new Set<string>();
-    const byNum = new Map<string, any[]>();
+      const byNum = new Map<string, any[]>();
     for (const d of docs) {
       const n = normDocNumber(d.document_number);
       const s = sup(d);
@@ -123,13 +122,12 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
       // Skip when every pair in the group was marked "not duplicate".
       let open = false;
       for (let i = 0; i < pairIds.length; i++) for (let j = i + 1; j < pairIds.length; j++) if (!decided.has(`${pairIds[i]}|${pairIds[j]}`)) open = true;
-      list.forEach((x) => inExact.add(x.id));
       if (open) finish(`n:${k}`, "same_number", list);
     }
     const bySup = new Map<string, any[]>();
     for (const d of docs) {
       const s = sup(d);
-      if (!s || !d.issue_date || inExact.has(d.id)) continue;
+      if (!s || !d.issue_date) continue;
       bySup.set(s, [...(bySup.get(s) ?? []), d]);
     }
     for (const list of bySup.values()) {
@@ -138,6 +136,9 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
           const a = list[i], b = list[j];
           if (Math.abs(Number(a.total_inc_vat ?? 0) - Number(b.total_inc_vat ?? 0)) > 0.01) continue;
           if (days(a.issue_date, b.issue_date) > 5) continue;
+          // Same number is already a "same_number" group; probable pairs have no number match.
+          const na = normDocNumber(a.document_number), nb = normDocNumber(b.document_number);
+          if (na && nb && na === nb) continue;
           const o = ordered(a.id, b.id);
           if (decided.has(`${o.item_a}|${o.item_b}`)) continue;
           finish(`p:${o.item_a}|${o.item_b}`, "probable", [a, b]);
