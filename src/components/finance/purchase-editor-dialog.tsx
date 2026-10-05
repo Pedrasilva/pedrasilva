@@ -98,6 +98,14 @@ const fmt = (n: number) =>
     currency: "EUR",
   }).format(n);
 
+import { checkManualDuplicate } from "@/lib/finance/intake-inbox.functions";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type ManualDup = { kind: string; reason: string; documentId?: string; queueItemId?: string; label: string; registeredAt: string; supplier: string };
+
 export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
@@ -135,6 +143,8 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
   const [ocrFailed, setOcrFailed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const extractFn = useServerFn(extractPurchaseDocument);
+  const dupCheckFn = useServerFn(checkManualDuplicate);
+  const [dupWarn, setDupWarn] = useState<{ matches: ManualDup[]; next?: "draft" | "issued" } | null>(null);
 
 
   // Hydrate when editing
@@ -335,11 +345,22 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
     return null;
   }
 
-  async function handleSave(nextStatus?: "draft" | "issued") {
+  async function handleSave(nextStatus?: "draft" | "issued", force = false) {
     const err = validate();
     if (err) {
       toast.error(err);
       return;
+    }
+    // Duplicate checks (same NIF + number + year; same NIF + total + date ±5 days).
+    if (!force && supplierId) {
+      try {
+        const total = lines.reduce((a, l) => a + Number(l.quantity) * Number(l.unit_price_ex_vat) * (1 + Number(l.vat_rate) / 100), 0);
+        const res = await dupCheckFn({ data: {
+          supplierId, documentNumber: documentNumber.trim() || null, issueDate: issueDate || null,
+          total: Math.round(total * 100) / 100, excludeDocumentId: documentId ?? null,
+        } });
+        if (res.matches.length) { setDupWarn({ matches: res.matches as ManualDup[], next: nextStatus }); return; }
+      } catch { /* a failed check never blocks saving */ }
     }
     const supplierName =
       suppliersQ.data?.find((s) => s.id === supplierId)?.name ?? null;
@@ -433,6 +454,37 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
 
   return (
     <>
+      <AlertDialog open={!!dupWarn} onOpenChange={(o) => !o && setDupWarn(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("finance:intakeInbox.dup.manualTitle")}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                {(dupWarn?.matches ?? []).map((m, i) => {
+                  const date = new Date(m.registeredAt).toLocaleDateString(i18n.language);
+                  const text = m.kind === "probable"
+                    ? t("finance:intakeInbox.dup.manualProbable", { supplier: m.supplier, label: m.label, date })
+                    : t("finance:intakeInbox.dup.manualExists", { number: documentNumber.trim() || m.label, supplier: m.supplier, date });
+                  return (
+                    <div key={i} className="flex items-center justify-between gap-2 text-sm">
+                      <span>{text}</span>
+                      <Button size="sm" variant="outline" onClick={() => window.open(m.documentId ? `/finance/documents/${m.documentId}` : "/finance/inbox", "_blank")}>
+                        {t("finance:intakeInbox.dup.open")}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("finance:intakeInbox.instructions.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { const n = dupWarn?.next; setDupWarn(null); void handleSave(n, true); }}>
+              {t("finance:intakeInbox.dup.keepAnyway")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0">
           <div className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur px-6 py-4">
