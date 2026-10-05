@@ -308,7 +308,7 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
             t("finance:intakeInbox.dup.uploadWarn", { file: file.name, label: dup.label, date: dup.registeredAt ? new Date(dup.registeredAt).toLocaleDateString(i18n.language) : "—" }),
             {
               duration: 15000,
-              action: { label: t("finance:intakeInbox.dup.open"), onClick: () => { window.location.href = dup.documentId ? `/finance/documents/${dup.documentId}` : "/finance/inbox"; } },
+              action: { label: t("finance:intakeInbox.dup.open"), onClick: () => { window.location.href = dup.documentId ? `/finance/documents/${dup.documentId}` : "/finance/entrada"; } },
               ...(res.duplicate ? { cancel: { label: t("finance:intakeInbox.dup.keepAnyway"), onClick: () => { void restoreDup({ data: { id: qid } }).then(() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })); } } } : {}),
             },
           );

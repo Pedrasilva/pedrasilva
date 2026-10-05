@@ -1044,6 +1044,7 @@
     "brand": "Finanças",
     "brandSub": "Operações",
     "groups": {
+      "intake": "Entrada",
       "overview": "Visão geral",
       "payments": "Pagamentos",
       "invoicing": "Faturação",
@@ -1905,7 +1906,7 @@
       "examples_other": "{{count}} correcções anteriores deste fornecedor dadas como exemplo",
       "editRule": "Editar regra",
       "explain": "Explicar",
-      "explainPlaceholder": "Uma nota curta sobre este documento (ex.: \"Faturas da EDP são sempre electricidade, código 62221\").",
+      "explainPlaceholder": "Uma nota curta sobre este documento (ex.: \"Faturas da EDP são sempre electricidade\").",
       "applyFuture": "Aplicar a futuros documentos deste fornecedor",
       "save": "Guardar nota",
       "saved": "Nota guardada.",
