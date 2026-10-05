@@ -51,7 +51,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
     for (let from = 0; ; from += 1000) {
       const { data, error } = await supabase
         .from("financial_documents")
-        .select("id, document_number, issue_date, due_date, total_inc_vat, status, payment_status, paid_amount, created_by, created_at, source, file_path, counterparty_supplier_id, counterparty_name_snapshot, companies:counterparty_supplier_id(name, nif)")
+        .select("id, document_number, issue_date, due_date, total_inc_vat, status, payment_status, paid_amount, created_by, created_at, source, file_path, counterparty_supplier_id, counterparty_name_snapshot, companies:counterparty_supplier_id(nome, nif)")
         .eq("doc_type", "supplier_invoice")
         .neq("status", "cancelled")
         .order("id")
@@ -87,7 +87,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
       const paid = d.status === "paid" || d.status === "partially_paid" || ["reconciled", "paid_at_source"].includes(d.payment_status) || payments > 0;
       return {
         id: d.id,
-        supplier: d.companies?.name ?? d.counterparty_name_snapshot ?? "—",
+        supplier: d.companies?.nome ?? d.counterparty_name_snapshot ?? "—",
         nif: d.companies?.nif ?? null,
         number: d.document_number,
         date: d.issue_date,
