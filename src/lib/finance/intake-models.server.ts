@@ -295,7 +295,7 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
       if (!parsed) throw new Error("empty");
       return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, output: parsed as DualExtraction };
     } catch {
-      return { model: CLAUDE_MODEL, ok: false, ms, error: `no structured output (stop: ${stop || "?"})` };
+      return { model: CLAUDE_MODEL, ok: false, ms, error: `no structured output (stop: ${stop || "?"}, ${json.length} chars: ${json.slice(0, 60)}…${json.slice(-60)})` };
     }
   } catch (e) {
     return { model: CLAUDE_MODEL, ok: false, ms: Date.now() - t0, error: e instanceof Error ? e.message : String(e) };
