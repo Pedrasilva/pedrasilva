@@ -254,6 +254,7 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
     let outT = 0;
     let stop = "";
     let streamError: string | null = null;
+    let startInput: unknown = null;
     let buf = "";
     const dec = new TextDecoder();
     const reader = res.body.getReader();
@@ -272,6 +273,8 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
         if (ev.type === "message_start") {
           const u = ev.message?.usage ?? {};
           inT = (u.input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0);
+        } else if (ev.type === "content_block_start" && ev.content_block?.type === "tool_use") {
+          startInput = ev.content_block.input ?? null;
         } else if (ev.type === "content_block_delta" && ev.delta?.type === "input_json_delta") {
           json += ev.delta.partial_json;
         } else if (ev.type === "message_delta") {
@@ -286,7 +289,11 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
     if (streamError) return { model: CLAUDE_MODEL, ok: false, ms, error: streamError, limit: /limit|overloaded/i.test(streamError) };
     if (stop === "refusal") return { model: CLAUDE_MODEL, ok: false, ms, error: "model refused" };
     try {
-      return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, output: JSON.parse(json) as DualExtraction };
+      const parsed = json.trim()
+        ? JSON.parse(json)
+        : startInput && Object.keys(startInput as object).length > 0 ? startInput : null;
+      if (!parsed) throw new Error("empty");
+      return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, output: parsed as DualExtraction };
     } catch {
       return { model: CLAUDE_MODEL, ok: false, ms, error: `no structured output (stop: ${stop || "?"})` };
     }
