@@ -20,6 +20,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SenderRulesPanel } from "@/components/finance/sender-rules-panel";
+import { IntakeInstructionsPanel } from "@/components/finance/intake-instructions-panel";
+import { Link } from "@tanstack/react-router";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import { QueueItemCard, type QueueRow } from "@/components/finance/review-queue";
 import {
@@ -28,9 +32,12 @@ import {
   fileBankDocument,
   retryBankDriveCopy,
   markOtherDocumentFiled,
+  resolvePossibleDuplicate,
+  restoreDuplicate,
+  saveExplanation,
 } from "@/lib/finance/intake-inbox.functions";
 
-const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored"] as const;
+const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates"] as const;
 type Tab = (typeof TABS)[number];
 
 export const INTAKE_TYPES = [
@@ -68,13 +75,27 @@ type InboxRow = QueueRow & {
   bank_period: string | null;
   credit_note_original_document_id: string | null;
   payment_match_document_id: string | null;
+  duplicate_of_id: string | null;
+  duplicate_of_document_id: string | null;
+  duplicate_kind: string | null;
+  duplicate_reason: string | null;
+  possible_duplicates: DupCand[] | null;
+  possible_duplicate_resolved: boolean;
+  applied_learning: {
+    instructions?: Array<{ id: string; text: string; scope_type: string; scope_value: string | null }>;
+    defaults?: { intake_type: string; classification_code: string; based_on: string[]; prefilled: boolean } | null;
+    examples?: number; ai_type?: string | null; ai_code?: string | null;
+  } | null;
   payment_match_candidates: Array<{
     id: string; document_number: string | null; issue_date: string | null; due_date: string | null;
     total: number; open: number; supplier: string | null; exact_amount: boolean;
   }> | null;
 };
 
+type DupCand = { reason: string; queueItemId?: string; documentId?: string; label: string; registeredAt: string };
+
 function tabOf(r: InboxRow): Tab {
+  if (String(r.status) === "duplicate") return "duplicates";
   const route = r.intake_route;
   if (!route || route === "retry") return "triage";
   return route as Tab;
@@ -88,7 +109,8 @@ function fmt(v: number | null | undefined) {
 export function IntakeInbox() {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = !!i18n.language?.startsWith("pt");
-  const [tab, setTab] = useState<Tab | "rules">("triage");
+  const [tab, setTab] = useState<Tab | "rules" | "instructions">("triage");
+  const [ruleId, setRuleId] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const qc = useQueryClient();
 
@@ -99,7 +121,7 @@ export function IntakeInbox() {
         .from("financial_document_review_queue")
         .select("*")
         // Filed / paid items stay visible in their tab with their status.
-        .in("status", ["pending_review", "filed", "paid"])
+        .in("status", ["pending_review", "filed", "paid", "duplicate"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as InboxRow[];
@@ -146,12 +168,17 @@ export function IntakeInbox() {
   });
 
   const byTab = useMemo(() => {
-    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], ignored: [] };
+    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], ignored: [], duplicates: [] };
     for (const r of rowsQ.data ?? []) m[tabOf(r)].push(r);
     return m;
   }, [rowsQ.data]);
 
-  const list = tab === "rules" ? [] : byTab[tab];
+  const list = tab === "rules" || tab === "instructions" ? [] : byTab[tab];
+  const openItem = (id: string) => {
+    const r = (rowsQ.data ?? []).find((x) => x.id === id);
+    if (r) { setTab(tabOf(r)); setSelected(id); }
+  };
+  const openRule = (id: string) => { setRuleId(id); setTab("instructions"); };
   const active = list.find((r) => r.id === selected) ?? list[0] ?? null;
 
   return (
@@ -167,19 +194,20 @@ export function IntakeInbox() {
         </Button>
       </header>
 
-      <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab | "rules"); setSelected(null); }}>
+      <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab | "rules" | "instructions"); setSelected(null); setRuleId(null); }}>
         <TabsList className="flex-wrap h-auto">
           {TABS.map((k) => (
             <TabsTrigger key={k} value={k}>
               {t(`finance:intakeInbox.tabs.${k}`)}
-              <Badge variant="secondary" className="ml-1.5 text-[10px]">{byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
+              <Badge variant="secondary" className="ml-1.5 text-[10px]">{k === "duplicates" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
             </TabsTrigger>
           ))}
+          <TabsTrigger value="instructions">{t("finance:intakeInbox.tabs.instructions")}</TabsTrigger>
           <TabsTrigger value="rules">{t("finance:intakeInbox.tabs.rules")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {tab === "rules" ? <SenderRulesPanel /> : (
+      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
@@ -221,6 +249,8 @@ export function IntakeInbox() {
               classifications={classificationsQ.data ?? []}
               suppliers={suppliersQ.data ?? []}
               projects={projectsQ.data ?? []}
+              onOpenItem={openItem}
+              onOpenRule={openRule}
             />
           ) : (
             <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">{t("finance:intakeInbox.selectItem")}</CardContent></Card>
@@ -274,6 +304,9 @@ function StatusBadges({ row }: { row: InboxRow }) {
       <Badge variant={status === "pending_review" ? "outline" : "default"} className="text-[10px]">
         {t(`finance:intakeInbox.status.${status === "pending_review" ? "pending" : status}`)}
       </Badge>
+      {row.possible_duplicates?.length && !row.possible_duplicate_resolved && status === "pending_review" ? (
+        <Badge variant="destructive" className="text-[10px]">{t("finance:intakeInbox.dup.possibleBadge")}</Badge>
+      ) : null}
       {row.split_part != null && row.split_part > 0 && (
         <Badge variant="outline" className="text-[10px]">
           {t("finance:intakeInbox.splitPart", { n: row.split_part, first: row.split_page_first, last: row.split_page_last })}
@@ -298,8 +331,10 @@ function StatusBadges({ row }: { row: InboxRow }) {
 }
 
 function ItemDetail({
-  row, tab, isPt, classifications, suppliers, projects,
+  row, tab, isPt, classifications, suppliers, projects, onOpenItem, onOpenRule,
 }: {
+  onOpenItem: (id: string) => void;
+  onOpenRule: (id: string) => void;
   row: InboxRow;
   tab: Tab;
   isPt: boolean;
@@ -320,6 +355,15 @@ function ItemDetail({
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
   const reviewCardTabs: Tab[] = ["purchases", "issued"];
+  if (String(row.status) === "duplicate") {
+    return (
+      <>
+        <Card><CardHeader className="py-3 flex flex-row items-center gap-2 flex-wrap"><TypeBadge row={row} /><StatusBadges row={row} /></CardHeader></Card>
+        <DuplicatePanel row={row} onOpenItem={onOpenItem} />
+        <DocPreview row={row} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -372,6 +416,9 @@ function ItemDetail({
           <FieldChecksPanel row={row} />
         </CardContent>
       </Card>
+
+      <DuplicatePanel row={row} onOpenItem={onOpenItem} />
+      <LearningPanel row={row} onOpenRule={onOpenRule} />
 
       {reviewCardTabs.includes(tab) ? (
         <>
@@ -615,4 +662,125 @@ function OtherPanel({ row }: { row: InboxRow }) {
 /** Used by the bank-documents list to retry a failed Drive copy. */
 export function useRetryDriveCopy() {
   return useServerFn(retryBankDriveCopy);
+}
+
+function DupLink({ c, onOpenItem }: { c: { queueItemId?: string | null; documentId?: string | null; label: string; registeredAt?: string | null }; onOpenItem: (id: string) => void }) {
+  const { t, i18n } = useTranslation(["finance"]);
+  const date = c.registeredAt ? new Date(c.registeredAt).toLocaleDateString(i18n.language) : "—";
+  return (
+    <div className="flex items-center justify-between gap-2 text-sm">
+      <span className="truncate">{c.label} · <span className="text-muted-foreground">{t("finance:intakeInbox.dup.registeredAt", { date })}</span></span>
+      {c.documentId ? (
+        <Button asChild size="sm" variant="outline"><Link to="/finance/documents/$documentId" params={{ documentId: c.documentId }}>{t("finance:intakeInbox.dup.open")}</Link></Button>
+      ) : c.queueItemId ? (
+        <Button size="sm" variant="outline" onClick={() => onOpenItem(c.queueItemId!)}>{t("finance:intakeInbox.dup.open")}</Button>
+      ) : null}
+    </div>
+  );
+}
+
+function DuplicatePanel({ row, onOpenItem }: { row: InboxRow; onOpenItem: (id: string) => void }) {
+  const { t } = useTranslation(["finance"]);
+  const qc = useQueryClient();
+  const resolve = useServerFn(resolvePossibleDuplicate);
+  const restore = useServerFn(restoreDuplicate);
+  const done = (msg: string) => { toast.success(msg); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); };
+  const onErr = (e: unknown) => toast.error(e instanceof Error ? e.message : String(e));
+  const resolveM = useMutation({
+    mutationFn: (v: { decision: "duplicate" | "not_duplicate"; otherId?: string }) => resolve({ data: { id: row.id, ...v } }),
+    onSuccess: (_r, v) => done(v.decision === "duplicate" ? t("finance:intakeInbox.dup.marked") : t("finance:intakeInbox.dup.kept")),
+    onError: onErr,
+  });
+  const restoreM = useMutation({ mutationFn: () => restore({ data: { id: row.id } }), onSuccess: () => done(t("finance:intakeInbox.dup.restored")), onError: onErr });
+
+  if (String(row.status) === "duplicate") {
+    const label = row.duplicate_of_document_id ? t("finance:intakeInbox.dup.liveDocument") : (row.original_filename ?? "—");
+    return (
+      <Card>
+        <CardHeader className="py-3"><CardTitle className="text-sm">{t("finance:intakeInbox.dup.title")}</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          {row.duplicate_reason && <p className="text-xs text-muted-foreground">{t(`finance:intakeInbox.dup.reasons.${row.duplicate_reason}`, { defaultValue: row.duplicate_reason })}</p>}
+          <p className="text-xs font-medium">{t("finance:intakeInbox.dup.of")}</p>
+          <DupLink c={{ queueItemId: row.duplicate_of_id, documentId: row.duplicate_of_document_id, label }} onOpenItem={onOpenItem} />
+          <p className="text-[11px] text-muted-foreground">{t("finance:intakeInbox.dup.nothingCreated")}</p>
+          <Button size="sm" variant="outline" disabled={restoreM.isPending} onClick={() => restoreM.mutate()}>{t("finance:intakeInbox.dup.notDuplicate")}</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+  const cands = row.possible_duplicates ?? [];
+  if (!cands.length || row.possible_duplicate_resolved || row.status !== "pending_review") return null;
+  return (
+    <Card className="border-destructive">
+      <CardHeader className="py-3"><CardTitle className="text-sm">{t("finance:intakeInbox.dup.possibleTitle")}</CardTitle></CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-xs text-muted-foreground">{t("finance:intakeInbox.dup.possibleHint")}</p>
+        {cands.map((c) => (
+          <div key={c.queueItemId ?? c.documentId} className="rounded-md border p-2 space-y-1.5">
+            <p className="text-[11px] text-muted-foreground">{t(`finance:intakeInbox.dup.reasons.${c.reason}`, { defaultValue: c.reason })}</p>
+            <DupLink c={c} onOpenItem={onOpenItem} />
+            <Button size="sm" variant="destructive" disabled={resolveM.isPending}
+              onClick={() => resolveM.mutate({ decision: "duplicate", otherId: c.queueItemId ?? c.documentId })}>
+              {t("finance:intakeInbox.dup.isDuplicate")}
+            </Button>
+          </div>
+        ))}
+        <Button size="sm" variant="outline" disabled={resolveM.isPending} onClick={() => resolveM.mutate({ decision: "not_duplicate" })}>
+          {t("finance:intakeInbox.dup.notDuplicate")}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LearningPanel({ row, onOpenRule }: { row: InboxRow; onOpenRule: (id: string) => void }) {
+  const { t } = useTranslation(["finance"]);
+  const qc = useQueryClient();
+  const save = useServerFn(saveExplanation);
+  const [note, setNote] = useState(row.review_note ?? "");
+  const [apply, setApply] = useState(false);
+  const m = useMutation({
+    mutationFn: () => save({ data: { id: row.id, note: note.trim(), applyToSupplier: apply } }),
+    onSuccess: (r) => {
+      toast.success(r.instructionId ? t("finance:intakeInbox.learn.savedRule") : t("finance:intakeInbox.learn.saved"));
+      qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
+      qc.invalidateQueries({ queryKey: ["finance", "intake-instructions"] });
+      setApply(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+  });
+  const l = row.applied_learning;
+  const typeLabel = (v?: string | null) => (v ? t(`finance:intakeInbox.types.${v}`, { defaultValue: v }) : "—");
+  return (
+    <Card>
+      <CardHeader className="py-3"><CardTitle className="text-sm">{t("finance:intakeInbox.learn.title")}</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        {(l?.instructions ?? []).map((i) => (
+          <div key={i.id} className="flex items-start justify-between gap-2 text-sm">
+            <div><Badge variant="secondary" className="text-[10px] mr-1.5">{t("finance:intakeInbox.learn.instruction")}</Badge>{i.text}</div>
+            <Button size="sm" variant="ghost" onClick={() => onOpenRule(i.id)}>{t("finance:intakeInbox.learn.editRule")}</Button>
+          </div>
+        ))}
+        {l?.defaults && (
+          <div className="text-sm">
+            <Badge variant="secondary" className="text-[10px] mr-1.5">{t("finance:intakeInbox.learn.default")}</Badge>
+            {t("finance:intakeInbox.learn.defaultText", { type: typeLabel(l.defaults.intake_type), code: l.defaults.classification_code, n: l.defaults.based_on.length })}
+          </div>
+        )}
+        {(l?.instructions?.length || l?.defaults) && (l?.ai_type || l?.ai_code) ? (
+          <p className="text-[11px] text-muted-foreground">{t("finance:intakeInbox.learn.aiSaid", { type: typeLabel(l?.ai_type), code: l?.ai_code ?? "—" })}</p>
+        ) : null}
+        {l?.examples ? <p className="text-xs text-muted-foreground">{t("finance:intakeInbox.learn.examples", { count: l.examples })}</p> : null}
+        <div className="space-y-1.5">
+          <Label className="text-xs">{t("finance:intakeInbox.learn.explain")}</Label>
+          <Textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("finance:intakeInbox.learn.explainPlaceholder")} />
+          <label className="flex items-center gap-2 text-xs">
+            <Checkbox checked={apply} onCheckedChange={(v) => setApply(v === true)} />
+            {t("finance:intakeInbox.learn.applyFuture")}
+          </label>
+          <Button size="sm" variant="outline" disabled={!note.trim() || m.isPending} onClick={() => m.mutate()}>{t("finance:intakeInbox.learn.save")}</Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
