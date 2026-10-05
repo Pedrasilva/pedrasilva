@@ -126,9 +126,18 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         }
 
         try {
+          const { financeGmailQuery, matchSenderRule } = await import("@/lib/finance/sender-rules");
+          const { data: settings } = await supabaseAdmin
+            .from("finance_intake_settings").select("finance_address").maybeSingle();
+          const financeAddress = settings?.finance_address?.trim();
+          if (!financeAddress) {
+            return Response.json({ ok: false, error: "Finance address not configured", ...summary }, { status: 503 });
+          }
+          const { data: ruleRows } = await supabaseAdmin.from("finance_sender_rules").select("pattern, action");
+          const rules = (ruleRows ?? []) as Array<{ pattern: string; action: "ignore" | "process" }>;
           const list = await gmail(
             `/users/me/messages?maxResults=${MAX_MESSAGES}&q=${encodeURIComponent(
-              "has:attachment newer_than:14d",
+              financeGmailQuery(financeAddress),
             )}`,
             connKey,
             lovableKey,
@@ -153,7 +162,17 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
               const headers = msg.payload?.headers as Array<{ name: string; value: string }>;
               const from = header(headers, "From");
               const subject = header(headers, "Subject");
-              const parts = flatten(msg.payload as GmailPart).filter((p) => p.filename);
+              const senderRule = matchSenderRule(from, rules);
+              // "Sempre ignorar" wins over everything: nothing is downloaded or read.
+              const parts = senderRule === "ignore"
+                ? []
+                : flatten(msg.payload as GmailPart).filter((p) => p.filename);
+              if (senderRule === "ignore") {
+                await supabaseAdmin.from("financial_email_ignored_items").insert({
+                  message_id: id, from_address: from, subject, reason: "sender_rule_ignore",
+                });
+                summary.ignored++;
+              }
 
               let queued = 0;
               for (const part of parts) {
