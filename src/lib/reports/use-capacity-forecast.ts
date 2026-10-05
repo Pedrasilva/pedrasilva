@@ -4,10 +4,11 @@ import { expandNonWorkingForRange, type CollaboratorMapRow } from "@/lib/project
 import { buildStageNumberMap, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import { fetchAll, loadRoster } from "./use-hours-logged";
 import type { CfAllocation, CfPlaceholder, CfStage } from "./capacity-forecast";
+import { todayISO } from "./capacity-forecast";
 
 type StageRow = {
   id: string; project_id: string; name: string; status: string | null; is_self: boolean | null;
-  start_date: string | null; end_date: string | null; parent_stage_id: string | null; sort_order: number | null; archived_at: string | null;
+  budget: number | null; start_date: string | null; end_date: string | null; parent_stage_id: string | null; sort_order: number | null; archived_at: string | null;
 };
 
 /** Inputs for the capacity forecast over [start, end] (future dates). */
@@ -24,12 +25,12 @@ export function useCapacityForecastData(start: string, end: string) {
         expandNonWorkingForRange({ rangeStart: start, rangeEnd: end, userMap }),
         fetchAll<CfAllocation>((a, b) =>
           supabase.from("pm_allocations")
-            .select("resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage")
-            .lte("start_date", end).gte("end_date", start).order("id").range(a, b) as never,
+            .select("id, resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage")
+            .order("id").range(a, b) as never,
         ),
         fetchAll<StageRow>((a, b) =>
           supabase.from("pm_stages")
-            .select("id, project_id, name, status, is_self, start_date, end_date, parent_stage_id, sort_order, archived_at")
+            .select("id, project_id, name, status, is_self, budget, start_date, end_date, parent_stage_id, sort_order, archived_at")
             .order("id").range(a, b) as never,
         ),
         fetchAll<{ id: string; name: string }>((a, b) =>
@@ -38,7 +39,7 @@ export function useCapacityForecastData(start: string, end: string) {
         fetchAll<CfPlaceholder>((a, b) =>
           supabase.from("pm_stage_allocation_placeholders").select("project_stage_id, expected_hours").order("id").range(a, b) as never,
         ),
-        supabase.from("holidays").select("data").gte("data", start).lte("data", end),
+        supabase.from("holidays").select("data").gte("data", start < todayISO() ? start : todayISO()),
       ]);
       if (holRes.error) throw holRes.error;
       const projById = new Map(projects.map((p) => [p.id, p]));
@@ -57,10 +58,24 @@ export function useCapacityForecastData(start: string, end: string) {
             id: s.id, project_id: pid, projectLabel,
             label: formatStageLabel(s as never, nums.get(s.id)),
             start_date: s.start_date, end_date: s.end_date,
+            budget: s.budget == null ? null : Number(s.budget),
           });
         }
       }
+      // All hours logged so far on the included stages (any person) — for the remaining-hours estimate.
+      const allocStage = new Map((allocations as (CfAllocation & { id: string })[]).filter((a) => stages.has(a.stage_id)).map((a) => [a.id, a.stage_id]));
+      const tasks = await fetchAll<{ id: string; allocation_id: string }>((a, b) =>
+        supabase.from("pm_tasks").select("id, allocation_id").order("id").range(a, b) as never,
+      );
+      const taskStage = new Map<string, string>();
+      for (const t of tasks) { const sid = allocStage.get(t.allocation_id); if (sid) taskStage.set(t.id, sid); }
+      const entries = await fetchAll<{ task_id: string; hours: number }>((a, b) =>
+        supabase.from("pm_time_entries").select("task_id, hours").not("task_id", "is", null).order("id").range(a, b) as never,
+      );
+      const loggedByStage = new Map<string, number>();
+      for (const e of entries) { const sid = taskStage.get(e.task_id); if (sid) loggedByStage.set(sid, (loggedByStage.get(sid) ?? 0) + Number(e.hours ?? 0)); }
       return {
+        loggedByStage,
         roster,
         nonWorking,
         allocations: allocations.map((a) => ({ ...a, hours_per_day: a.hours_per_day == null ? null : Number(a.hours_per_day), allocation_percentage: a.allocation_percentage == null ? null : Number(a.allocation_percentage) })),
