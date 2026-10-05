@@ -18,6 +18,10 @@
       "billable": {
         "title": "Facturável vs não facturável",
         "description": "Horas facturáveis, de projeto não facturáveis e internas por pessoa face ao objetivo."
+      },
+      "capacity": {
+        "title": "Previsão de capacidade",
+        "description": "Horas planeadas vs disponíveis por pessoa nas próximas semanas, mais procura por atribuir."
       }
     }
   },
@@ -240,6 +244,40 @@
       "viewTimesheet": "Ver folha de horas",
       "none": "Sem horas neste período.",
       "noProject": "Sem projeto"
+    }
+  },
+  "capacity": {
+    "title": "Previsão de capacidade",
+    "subtitle": "Horas planeadas nas fases próprias da PSA, activas e planeadas, face às horas disponíveis (feriados, ausências aprovadas, tempo parcial e datas de admissão incluídos).",
+    "nextWeeks_one": "Próxima {{count}} semana",
+    "nextWeeks_other": "Próximas {{count}} semanas",
+    "project": "Projecto",
+    "unassigned": "Por atribuir",
+    "team": "Equipa",
+    "cell": "{{planned}} h planeadas de {{available}} h disponíveis",
+    "tiles": {
+      "avg": "Carga média, próximas 4 semanas",
+      "over": "Pessoas acima de 110%",
+      "under": "Pessoas abaixo de 50%",
+      "unassigned": "Horas por atribuir"
+    },
+    "chart": {
+      "title": "Equipa: disponível vs planeado por semana",
+      "available": "Disponível",
+      "planned": "Planeado"
+    },
+    "heatmap": {
+      "title": "Carga por pessoa e semana (planeado ÷ disponível)"
+    },
+    "band": {
+      "low": "Abaixo de 50%",
+      "ok": "50–90%",
+      "high": "90–110%",
+      "over": "Acima de 110%"
+    },
+    "detail": {
+      "projectStage": "Projecto · fase",
+      "none": "Nada planeado"
     }
   }
 }
