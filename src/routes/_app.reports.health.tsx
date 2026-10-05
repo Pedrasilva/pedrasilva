@@ -172,7 +172,7 @@ function HealthPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>{t("billable.filters.team")}</Label>
+              <Label>{t("hours.filters.team")}</Label>
               <Select value={team} onValueChange={setTeam}>
                 <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                 <SelectContent>
