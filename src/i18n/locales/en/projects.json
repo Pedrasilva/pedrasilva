@@ -1814,5 +1814,38 @@
       "paused": "Stage paused — read-only",
       "planned": "Stage not started — read-only"
     }
+  },
+  "tsActivities": {
+    "count_one": "{{count}} activity",
+    "count_other": "{{count}} activities",
+    "empty": "No activities yet.",
+    "add": "Add activity",
+    "edit": "Edit activity",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "hours": "Time (e.g. 1h, 6h30)",
+    "note": "Description",
+    "notePlaceholder": "What did you work on?",
+    "noteRequired": "Add a description for this activity.",
+    "hoursError": "Enter time like 1h or 6h30 (more than 0, up to 24h).",
+    "noNote": "No description",
+    "readOnly": "This week is locked — activities are read-only.",
+    "nonBillable": "Non-billable",
+    "billable": "Billable",
+    "billableHint": "Uncheck to log time that won't be charged to the client.",
+    "internalHint": "Internal time is always non-billable and counts toward used capacity.",
+    "nonWorkingHint": "Non-working time reduces available capacity and isn't billable.",
+    "balance": "Allocated {{allocated}} · logged {{logged}} · {{left}} left",
+    "source": {
+      "calendar": "Calendar",
+      "assistant": "Assistant",
+      "typed": "Typed"
+    },
+    "status": {
+      "pending": "Pending approval",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
   }
 }

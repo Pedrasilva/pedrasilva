@@ -1814,5 +1814,38 @@
       "paused": "Fase em pausa — só leitura",
       "planned": "Fase ainda não iniciada — só leitura"
     }
+  },
+  "tsActivities": {
+    "count_one": "{{count}} actividade",
+    "count_other": "{{count}} actividades",
+    "empty": "Ainda sem actividades.",
+    "add": "Adicionar actividade",
+    "edit": "Editar actividade",
+    "delete": "Apagar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "hours": "Tempo (ex.: 1h, 6h30)",
+    "note": "Descrição",
+    "notePlaceholder": "Em que trabalhou?",
+    "noteRequired": "Adicione uma descrição a esta actividade.",
+    "hoursError": "Indique o tempo como 1h ou 6h30 (mais de 0, até 24h).",
+    "noNote": "Sem descrição",
+    "readOnly": "Esta semana está bloqueada — actividades só de leitura.",
+    "nonBillable": "Não facturável",
+    "billable": "Facturável",
+    "billableHint": "Desmarque para registar tempo que não será cobrado ao cliente.",
+    "internalHint": "O tempo interno nunca é facturável e conta como capacidade usada.",
+    "nonWorkingHint": "O tempo não laboral reduz a capacidade disponível e não é facturável.",
+    "balance": "Alocado {{allocated}} · registado {{logged}} · restam {{left}}",
+    "source": {
+      "calendar": "Calendário",
+      "assistant": "Assistente",
+      "typed": "Escrito"
+    },
+    "status": {
+      "pending": "Aguarda aprovação",
+      "approved": "Aprovada",
+      "rejected": "Rejeitada"
+    }
   }
 }

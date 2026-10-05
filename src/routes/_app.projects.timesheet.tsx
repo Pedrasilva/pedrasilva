@@ -34,6 +34,7 @@ import {
   useProjectSearch,
   useEnsureStageRow,
   useNonWorkingPrefill,
+  useStageAllocationBalance,
   type EntryType,
   type TimesheetEntry,
   type TimesheetTaskRow,
