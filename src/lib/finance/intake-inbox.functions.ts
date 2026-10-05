@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TYPES = [
   "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento", "extrato_bancario",
-  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido",
+  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido", "outra_entidade",
 ] as const;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -224,7 +224,7 @@ export const markOtherDocumentFiled = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
     const row = await loadPending(supabase, data.id);
-    if (row.intake_route !== "other") throw new Error("Not an 'other' document");
+    if (row.intake_route !== "other" && row.intake_route !== "other_entity") throw new Error("Not an 'other' document");
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({ status: "filed", filed_at: new Date().toISOString(), reviewed_by: userId, reviewed_at: new Date().toISOString() })
@@ -381,13 +381,30 @@ export const checkManualDuplicate = createServerFn({ method: "POST" })
 // Learning: "Explicar" box
 // ---------------------------------------------------------------------------
 
+const SCOPES = ["document", "recipient", "supplier", "sender", "global"] as const;
+const SCOPE_TYPE = {
+  document: "document", recipient: "recipient_nif", supplier: "supplier_nif", sender: "sender", global: "global",
+} as const;
+
+function senderMatches(scope: string, sender: string | null) {
+  if (!sender) return false;
+  const email = sender.toLowerCase();
+  if (scope.includes("@")) return scope === email;
+  const domain = email.split("@")[1] ?? "";
+  return domain === scope || domain.endsWith(`.${scope}`);
+}
+
+/**
+ * "Guardar nota": store the note on the document and, for the chosen scope,
+ * as an instruction. The same note with the same scope is never saved twice.
+ */
 export const saveExplanation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       note: z.string().trim().min(1).max(1000),
-      applyToSupplier: z.boolean(),
+      scope: z.enum(SCOPES),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -395,28 +412,117 @@ export const saveExplanation = createServerFn({ method: "POST" })
     await assertFinanceAccess(supabase, userId);
     const { data: row, error } = await supabase
       .from("financial_document_review_queue")
-      .select("id, extracted_supplier_vat, sender_address")
+      .select("id, extracted_supplier_vat, extracted_seller_vat, extracted_recipient_vat, extracted_buyer_vat, sender_address")
       .eq("id", data.id)
       .single();
     if (error) throw new Error(error.message);
     await supabase.from("financial_document_review_queue").update({ review_note: data.note }).eq("id", data.id);
-    let instructionId: string | null = null;
-    if (data.applyToSupplier) {
-      const nif = nifOf(row.extracted_supplier_vat);
-      const sender = row.sender_address?.toLowerCase() ?? null;
-      if (!nif && !sender) throw new Error("No supplier NIF or sender on this document");
-      const { data: ins, error: e2 } = await supabase
-        .from("finance_intake_instructions")
-        .insert({
-          text: data.note,
-          scope_type: nif ? "supplier_nif" : "sender",
-          scope_value: nif ?? sender,
-          created_by: userId,
-        })
-        .select("id")
-        .single();
-      if (e2) throw new Error(e2.message);
-      instructionId = ins.id;
+    const value =
+      data.scope === "document" ? data.id.toLowerCase()
+      : data.scope === "recipient" ? nifOf(row.extracted_recipient_vat ?? row.extracted_buyer_vat)
+      : data.scope === "supplier" ? nifOf(row.extracted_supplier_vat ?? row.extracted_seller_vat)
+      : data.scope === "sender" ? row.sender_address?.toLowerCase().trim() ?? null
+      : null;
+    if (data.scope !== "global" && !value) throw new Error(`No ${data.scope} on this document`);
+    const scopeType = SCOPE_TYPE[data.scope];
+    let q = supabase
+      .from("finance_intake_instructions")
+      .select("id, text, scope_type, scope_value")
+      .eq("active", true)
+      .eq("scope_type", scopeType)
+      .eq("text", data.note);
+    q = value ? q.eq("scope_value", value) : q.is("scope_value", null);
+    const { data: existing } = await q.limit(1).maybeSingle();
+    if (existing) return { ok: true, instruction: existing, reused: true };
+    const { data: ins, error: e2 } = await supabase
+      .from("finance_intake_instructions")
+      .insert({ text: data.note, scope_type: scopeType, scope_value: value, created_by: userId })
+      .select("id, text, scope_type, scope_value")
+      .single();
+    if (e2) throw new Error(e2.message);
+    return { ok: true, instruction: ins, reused: false };
+  });
+
+type ItemSummary = {
+  id: string; status: string; intake_type: string | null; intake_route: string | null;
+  title: string; date: string | null;
+};
+
+async function summarise(supabase: any, ids: string[]): Promise<ItemSummary[]> {
+  if (!ids.length) return [];
+  const { data } = await supabase
+    .from("financial_document_review_queue")
+    .select("id, status, intake_type, intake_route, extracted_seller_name, extracted_supplier_name, original_filename, extracted_date")
+    .in("id", ids);
+  return (data ?? []).map((r: any) => ({
+    id: r.id, status: r.status, intake_type: r.intake_type, intake_route: r.intake_route,
+    title: r.extracted_seller_name ?? r.extracted_supplier_name ?? r.original_filename ?? "—",
+    date: r.extracted_date,
+  }));
+}
+
+/** Re-read pending documents now (the current rules apply). At most 3 per call. */
+export const rereadItems = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(3) }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertFinanceAccess(context.supabase, context.userId);
+    const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
+    const errors: Array<{ id: string; error: string }> = [];
+    for (const id of data.ids) {
+      const r = await reprocessQueueItem(id);
+      if (!r.ok) errors.push({ id, error: r.error ?? "failed" });
     }
-    return { ok: true, instructionId };
+    return { items: await summarise(context.supabase, data.ids), errors };
+  });
+
+/** Pending documents a saved instruction would apply to (preview only). */
+export const findRuleMatches = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ instructionId: z.string().uuid(), excludeId: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: ins, error } = await supabase
+      .from("finance_intake_instructions")
+      .select("id, scope_type, scope_value")
+      .eq("id", data.instructionId)
+      .single();
+    if (error) throw new Error(error.message);
+    if (ins.scope_type === "document") return { items: [] as ItemSummary[] };
+    const { data: rows, error: e2 } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, status, intake_type, intake_route, intake_type_source, extracted_seller_name, extracted_supplier_name, original_filename, extracted_date, extracted_recipient_vat, extracted_buyer_vat, extracted_supplier_vat, extracted_seller_vat, sender_address")
+      .eq("status", "pending_review")
+      .neq("id", data.excludeId)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (e2) throw new Error(e2.message);
+    const v = ins.scope_value ?? "";
+    const hit = (r: any) =>
+      ins.scope_type === "global" ? true
+      : ins.scope_type === "recipient_nif" ? nifOf(r.extracted_recipient_vat ?? r.extracted_buyer_vat) === v
+      : ins.scope_type === "supplier_nif" ? nifOf(r.extracted_supplier_vat ?? r.extracted_seller_vat) === v
+      : ins.scope_type === "sender" ? senderMatches(v, r.sender_address)
+      : false;
+    const items = (rows ?? []).filter(hit).map((r: any) => ({
+      id: r.id, status: r.status, intake_type: r.intake_type, intake_route: r.intake_route,
+      title: r.extracted_seller_name ?? r.extracted_supplier_name ?? r.original_filename ?? "—",
+      date: r.extracted_date, manualType: r.intake_type_source === "manual",
+    }));
+    return { items };
+  });
+
+/** "Encaminhar": email an outra_entidade document (download link) and file it. */
+export const forwardOtherEntityDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), to: z.string().trim().email() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertFinanceAccess(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("financial_document_review_queue").select("intake_type").eq("id", data.id).single();
+    if (error) throw new Error(error.message);
+    if (row.intake_type !== "outra_entidade") throw new Error("Not a document for another entity");
+    const { forwardOtherEntityItem } = await import("@/lib/finance/other-entities.server");
+    return forwardOtherEntityItem(data.id, data.to.toLowerCase(), context.userId);
   });

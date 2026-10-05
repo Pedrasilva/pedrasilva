@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type Scope = "global" | "supplier_nif" | "sender";
+type Scope = "global" | "supplier_nif" | "sender" | "recipient_nif" | "document";
 type Row = {
   id: string; text: string; scope_type: Scope; scope_value: string | null;
   active: boolean; created_at: string;
@@ -29,7 +29,7 @@ const KEY = ["finance", "intake-instructions"];
 
 function normScope(scope: Scope, v: string) {
   const s = v.trim().toLowerCase();
-  if (scope === "supplier_nif") return s.replace(/[^a-z0-9]/g, "").replace(/^pt/, "");
+  if (scope === "supplier_nif" || scope === "recipient_nif") return s.replace(/[^a-z0-9]/g, "").replace(/^pt/, "");
   return s.replace(/^@/, "");
 }
 
@@ -83,7 +83,7 @@ export function IntakeInstructionsPanel({ highlightId }: { highlightId?: string 
               <Select value={scope} onValueChange={(v) => setScope(v as Scope)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(["global", "supplier_nif", "sender"] as const).map((s) => (
+                  {(["global", "supplier_nif", "recipient_nif", "sender"] as const).map((s) => (
                     <SelectItem key={s} value={s}>{t(`finance:intakeInbox.instructions.scopes.${s}`)}</SelectItem>
                   ))}
                 </SelectContent>

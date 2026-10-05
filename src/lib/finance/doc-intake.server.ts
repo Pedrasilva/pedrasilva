@@ -771,7 +771,7 @@ export async function ingestStoredDocument(opts: {
 
   // B — studio rules, supplier pattern and recent corrections.
   const hintNif = priorNif ?? (await learn.nifHintForSender(sender));
-  let learning = await learn.loadLearning({ nif: hintNif, sender });
+  let learning = await learn.loadLearning({ nif: hintNif, sender, docId: replaceId });
   const result = await intake.runDualExtraction(
     opts.bucket,
     opts.storagePath,
@@ -781,7 +781,7 @@ export async function ingestStoredDocument(opts: {
       preloaded: file,
       claudeContext: learn.learningPrompt(learning),
       geminiContext: async (nif) => {
-        if (learn.nifKey(nif) && learn.nifKey(nif) !== learning.nif) learning = await learn.loadLearning({ nif, sender });
+        if (learn.nifKey(nif) && learn.nifKey(nif) !== learning.nif) learning = await learn.loadLearning({ nif, sender, docId: replaceId });
         return learn.learningPrompt(learning);
       },
     },
@@ -856,7 +856,7 @@ export async function ingestStoredDocument(opts: {
   const ownEarly = await getOwnCompanyVat();
   const readNifRaw = ex.seller_vat ?? ex.supplier_vat ?? null;
   const readNif = readNifRaw && !(ownEarly.vat && sameVat(readNifRaw, ownEarly.vat)) ? readNifRaw : null;
-  if (learn.nifKey(readNif) !== learning.nif) learning = await learn.loadLearning({ nif: readNif, sender });
+  if (learn.nifKey(readNif) !== learning.nif) learning = await learn.loadLearning({ nif: readNif, sender, docId: replaceId });
   const aiType = ex.intake_type ?? null;
   const aiCode = ex.classification_code ?? null;
   let defaultsPrefilled = false;
@@ -867,7 +867,9 @@ export async function ingestStoredDocument(opts: {
     ex.classification_code = learning.defaults.classification_code;
     defaultsPrefilled = true;
   }
-  const applied = learn.appliedLearning(learning, readNif, { defaultsPrefilled, aiType, aiCode });
+  const applied = learn.appliedLearning(learning, readNif, {
+    defaultsPrefilled, aiType, aiCode, recipientNif: ex.recipient_vat ?? ex.buyer_vat ?? null,
+  });
 
   // Routing step: bank statements never go through supplier matching or
   // accounting classification — they belong to the Banking import path.
@@ -1052,6 +1054,24 @@ export async function ingestStoredDocument(opts: {
 
   payload.applied_learning = applied;
 
+  // Recipient check: addressed to someone other than the firm → "outra_entidade",
+  // never a PSA purchase or bank document. Model disagreement → "Verificar".
+  const oe = await import("./other-entities.server");
+  const rcpCheck = (checks as Record<string, { status?: string; value?: unknown } | undefined>).recipient_vat;
+  const rcpVat = ((rcpCheck?.value as string | null | undefined) ?? ex.recipient_vat ?? ex.buyer_vat ?? null) || null;
+  const rcpName = ex.recipient_name ?? ex.buyer_name ?? null;
+  const rcp = oe.recipientCheck({
+    own, name: rcpName, vat: rcpVat, direction: dir.direction, type,
+    sellerName: ex.seller_name ?? ex.supplier_name ?? null, sellerVat: ex.seller_vat ?? ex.supplier_vat ?? null,
+    forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify",
+    entities: await oe.loadOtherEntities(),
+  });
+  payload.extracted_recipient_name = rcpName;
+  payload.extracted_recipient_vat = rcpVat;
+  payload.other_entity_id = null;
+  payload.other_entity_action = null;
+  if (rcp.other) Object.assign(payload, oe.otherEntityColumns(rcp));
+
   // A — same document / bank movement / probable duplicate.
   const dupRes = await dups.checkDocumentDuplicates({
     selfId: replaceId,
@@ -1073,6 +1093,9 @@ export async function ingestStoredDocument(opts: {
 
   const { data: row, error } = await write(payload);
   if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
+  if (rcp.other && !rcp.verify && rcp.entity?.action === "forward" && rcp.entity.forward_email && payload.status !== "duplicate") {
+    await oe.forwardOtherEntityItem(row.id, rcp.entity.forward_email);
+  }
   return {
     ok: true,
     queueItemId: row.id,

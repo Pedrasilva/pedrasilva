@@ -1744,7 +1744,8 @@
       "ignored": "Ignorados",
       "rules": "Regras",
       "duplicates": "Duplicados",
-      "instructions": "Instruções"
+      "instructions": "Instruções",
+      "other_entity": "Outras entidades"
     },
     "empty": "Nada aqui.",
     "selectItem": "Seleccione um documento.",
@@ -1760,7 +1761,8 @@
       "documento_fiscal": "Documento fiscal / oficial",
       "contrato_outro": "Contrato / outro",
       "nao_financeiro": "Não financeiro",
-      "desconhecido": "Desconhecido"
+      "desconhecido": "Desconhecido",
+      "outra_entidade": "Outra entidade"
     },
     "retryPending": "A aguardar nova tentativa",
     "retryHint": "Foi atingido o limite de IA. Este documento volta a ser lido automaticamente.",
@@ -1786,7 +1788,8 @@
       "vat_amount": "IVA",
       "total_amount": "Total",
       "iban": "IBAN",
-      "account_number": "N.º de conta"
+      "account_number": "N.º de conta",
+      "recipient_vat": "NIF do destinatário"
     },
     "reasons": {
       "models_differ": "Os dois modelos leram valores diferentes (está preenchido o do Claude).",
@@ -1904,7 +1907,36 @@
       "applyFuture": "Aplicar a futuros documentos deste fornecedor",
       "save": "Guardar nota",
       "saved": "Nota guardada.",
-      "savedRule": "Nota guardada e adicionada como regra para este fornecedor."
+      "savedRule": "Regra guardada.",
+      "scopeTitle": "Aplica-se a",
+      "scope": {
+        "document": "Só este documento",
+        "recipient": "Este destinatário: {{who}} — todos os documentos dirigidos a ele",
+        "recipientNone": "Este destinatário (sem NIF do destinatário lido)",
+        "supplier": "Este fornecedor: {{who}} — todos os documentos deste fornecedor",
+        "supplierNone": "Este fornecedor (sem NIF do fornecedor lido)",
+        "sender": "Este remetente: {{who}} — todos os emails deste endereço",
+        "senderNone": "Este remetente (sem endereço do remetente)",
+        "global": "Todos os documentos"
+      },
+      "confirmText": "Guardar esta regra? O documento é relido logo com ela.",
+      "confirm": "Guardar e reler",
+      "cancel": "Cancelar",
+      "rereading": "A reler…",
+      "savedTitle": "Regra guardada",
+      "viewRule": "Ver em Instruções",
+      "rereadResult": "Relido com a nova regra: {{type}} · agora em {{tab}}.",
+      "rereadFailed": "Não foi possível reler",
+      "applySimilar_one": "Aplicar a {{count}} documento semelhante",
+      "applySimilar_other": "Aplicar a {{count}} documentos semelhantes",
+      "applyConfirm_one": "Reler {{count}} documento",
+      "applyConfirm_other": "Reler {{count}} documentos",
+      "keepsManual": "tipo escolhido por uma pessoa, mantém-se",
+      "toBeRead": "decidido ao reler",
+      "noSimilar": "Nenhum outro documento pendente corresponde a esta regra.",
+      "progress": "Relidos {{done}} de {{total}} · {{failed}} falharam",
+      "appliedSimilar_one": "{{count}} documento relido.",
+      "appliedSimilar_other": "{{count}} documentos relidos."
     },
     "instructions": {
       "title": "Instruções para o leitor",
@@ -1915,7 +1947,9 @@
       "scopes": {
         "global": "Todos os documentos",
         "supplier_nif": "NIF do fornecedor",
-        "sender": "Endereço / domínio do remetente"
+        "sender": "Endereço / domínio do remetente",
+        "recipient_nif": "NIF do destinatário",
+        "document": "Só este documento"
       },
       "add": "Adicionar instrução",
       "active": "Activa",
@@ -1929,6 +1963,41 @@
       "deleteConfirm": "Apagar esta instrução?",
       "saved": "Instrução guardada.",
       "deleted": "Instrução apagada."
+    },
+    "otherEntity": {
+      "title": "Dirigido a outra entidade",
+      "addressedTo": "Destinatário",
+      "unknownEntity": "Não está na lista de entidades conhecidas (Regras). Arquive ou encaminhe.",
+      "action": {
+        "archive": "Entidade conhecida: arquivado automaticamente.",
+        "ignore": "Entidade conhecida: ignorado.",
+        "forward": "Entidade conhecida: encaminhado automaticamente."
+      },
+      "archive": "Arquivar",
+      "forward": "Encaminhar",
+      "forwardPh": "email@exemplo.pt",
+      "forwarded": "Enviado para {{to}} e arquivado.",
+      "forwardedTo": "Encaminhado para {{to}}",
+      "forwardFailed": "Falha no encaminhamento",
+      "archived": "Arquivado."
+    },
+    "otherEntities": {
+      "title": "Outras entidades",
+      "hint": "Documentos dirigidos a estas empresas ou pessoas (por NIF) nunca são registados como documentos da PSA. Qualquer NIF de destinatário que não seja o da PSA vai para \"Outras entidades\"; esta lista decide o que acontece a seguir.",
+      "name": "Nome",
+      "nif": "NIF",
+      "action": "Acção",
+      "email": "Encaminhar para (email)",
+      "actions": {
+        "archive": "Arquivar",
+        "ignore": "Ignorar",
+        "forward": "Encaminhar por email"
+      },
+      "add": "Adicionar",
+      "remove": "Remover",
+      "none": "Ainda sem entidades.",
+      "saved": "Guardado.",
+      "emailNeeded": "Indique primeiro o endereço de email."
     }
   },
   "purchaseDups": {

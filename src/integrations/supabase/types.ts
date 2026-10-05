@@ -2854,6 +2854,39 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_other_entities: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string | null
+          forward_email: string | null
+          id: string
+          name: string
+          nif: string
+          updated_at: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          forward_email?: string | null
+          id?: string
+          name: string
+          nif: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          forward_email?: string | null
+          id?: string
+          name?: string
+          nif?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       finance_sender_rules: {
         Row: {
           action: string
@@ -3246,6 +3279,8 @@ export type Database = {
           extracted_payment_method: string | null
           extracted_period_end: string | null
           extracted_period_start: string | null
+          extracted_recipient_name: string | null
+          extracted_recipient_vat: string | null
           extracted_referenced_document_number: string | null
           extracted_seller_name: string | null
           extracted_seller_vat: string | null
@@ -3257,6 +3292,9 @@ export type Database = {
           field_checks: Json | null
           file_sha256: string | null
           filed_at: string | null
+          forward_error: string | null
+          forwarded_at: string | null
+          forwarded_to: string | null
           id: string
           intake_route: string | null
           intake_type: string | null
@@ -3271,6 +3309,8 @@ export type Database = {
           matched_supplier_id: string | null
           model_runs: Json | null
           original_filename: string | null
+          other_entity_action: string | null
+          other_entity_id: string | null
           paid_from_account_id: string | null
           payment_match_candidates: Json | null
           payment_match_document_id: string | null
@@ -3346,6 +3386,8 @@ export type Database = {
           extracted_payment_method?: string | null
           extracted_period_end?: string | null
           extracted_period_start?: string | null
+          extracted_recipient_name?: string | null
+          extracted_recipient_vat?: string | null
           extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
@@ -3357,6 +3399,9 @@ export type Database = {
           field_checks?: Json | null
           file_sha256?: string | null
           filed_at?: string | null
+          forward_error?: string | null
+          forwarded_at?: string | null
+          forwarded_to?: string | null
           id?: string
           intake_route?: string | null
           intake_type?: string | null
@@ -3371,6 +3416,8 @@ export type Database = {
           matched_supplier_id?: string | null
           model_runs?: Json | null
           original_filename?: string | null
+          other_entity_action?: string | null
+          other_entity_id?: string | null
           paid_from_account_id?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
@@ -3446,6 +3493,8 @@ export type Database = {
           extracted_payment_method?: string | null
           extracted_period_end?: string | null
           extracted_period_start?: string | null
+          extracted_recipient_name?: string | null
+          extracted_recipient_vat?: string | null
           extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
@@ -3457,6 +3506,9 @@ export type Database = {
           field_checks?: Json | null
           file_sha256?: string | null
           filed_at?: string | null
+          forward_error?: string | null
+          forwarded_at?: string | null
+          forwarded_to?: string | null
           id?: string
           intake_route?: string | null
           intake_type?: string | null
@@ -3471,6 +3523,8 @@ export type Database = {
           matched_supplier_id?: string | null
           model_runs?: Json | null
           original_filename?: string | null
+          other_entity_action?: string | null
+          other_entity_id?: string | null
           paid_from_account_id?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
@@ -3581,6 +3635,13 @@ export type Database = {
             columns: ["matched_supplier_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_other_entity_id_fkey"
+            columns: ["other_entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_other_entities"
             referencedColumns: ["id"]
           },
           {

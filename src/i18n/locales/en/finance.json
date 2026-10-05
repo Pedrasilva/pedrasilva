@@ -1744,7 +1744,8 @@
       "ignored": "Ignored",
       "rules": "Rules",
       "duplicates": "Duplicates",
-      "instructions": "Instructions"
+      "instructions": "Instructions",
+      "other_entity": "Other entities"
     },
     "empty": "Nothing here.",
     "selectItem": "Select a document.",
@@ -1760,7 +1761,8 @@
       "documento_fiscal": "Tax / official notice",
       "contrato_outro": "Contract / other",
       "nao_financeiro": "Not financial",
-      "desconhecido": "Unknown"
+      "desconhecido": "Unknown",
+      "outra_entidade": "Other entity"
     },
     "retryPending": "Waiting to retry",
     "retryHint": "The AI limit was reached. This document will be read again automatically.",
@@ -1786,7 +1788,8 @@
       "vat_amount": "VAT",
       "total_amount": "Total",
       "iban": "IBAN",
-      "account_number": "Account number"
+      "account_number": "Account number",
+      "recipient_vat": "Recipient NIF"
     },
     "reasons": {
       "models_differ": "The two models read different values (Claude's is pre-filled).",
@@ -1904,7 +1907,36 @@
       "applyFuture": "Apply to future documents from this supplier",
       "save": "Save note",
       "saved": "Note saved.",
-      "savedRule": "Note saved and added as a rule for this supplier."
+      "savedRule": "Rule saved.",
+      "scopeTitle": "Applies to",
+      "scope": {
+        "document": "Only this document",
+        "recipient": "This recipient: {{who}} — every document addressed to them",
+        "recipientNone": "This recipient (no recipient NIF read)",
+        "supplier": "This supplier: {{who}} — every document from this supplier",
+        "supplierNone": "This supplier (no supplier NIF read)",
+        "sender": "This sender: {{who}} — every email from this address",
+        "senderNone": "This sender (no sender address)",
+        "global": "All documents"
+      },
+      "confirmText": "Save this rule? The document is then read again with it.",
+      "confirm": "Save and re-read",
+      "cancel": "Cancel",
+      "rereading": "Re-reading…",
+      "savedTitle": "Saved rule",
+      "viewRule": "See in Instructions",
+      "rereadResult": "Re-read with the new rule: {{type}} · now in {{tab}}.",
+      "rereadFailed": "Could not re-read",
+      "applySimilar_one": "Apply to {{count}} similar document",
+      "applySimilar_other": "Apply to {{count}} similar documents",
+      "applyConfirm_one": "Re-read {{count}} document",
+      "applyConfirm_other": "Re-read {{count}} documents",
+      "keepsManual": "type set by a person, kept",
+      "toBeRead": "decided on re-reading",
+      "noSimilar": "No other pending documents match this rule.",
+      "progress": "Re-read {{done}} of {{total}} · {{failed}} failed",
+      "appliedSimilar_one": "{{count}} document re-read.",
+      "appliedSimilar_other": "{{count}} documents re-read."
     },
     "instructions": {
       "title": "Instructions for the reader",
@@ -1915,7 +1947,9 @@
       "scopes": {
         "global": "All documents",
         "supplier_nif": "Supplier NIF",
-        "sender": "Sender address / domain"
+        "sender": "Sender address / domain",
+        "recipient_nif": "Recipient NIF",
+        "document": "This document only"
       },
       "add": "Add instruction",
       "active": "Active",
@@ -1929,6 +1963,41 @@
       "deleteConfirm": "Delete this instruction?",
       "saved": "Instruction saved.",
       "deleted": "Instruction deleted."
+    },
+    "otherEntity": {
+      "title": "Addressed to another entity",
+      "addressedTo": "Addressed to",
+      "unknownEntity": "Not in the known entities list (Rules). Archive or forward it.",
+      "action": {
+        "archive": "Known entity: archived automatically.",
+        "ignore": "Known entity: ignored.",
+        "forward": "Known entity: forwarded automatically."
+      },
+      "archive": "Archive",
+      "forward": "Forward",
+      "forwardPh": "email@example.com",
+      "forwarded": "Sent to {{to}} and archived.",
+      "forwardedTo": "Forwarded to {{to}}",
+      "forwardFailed": "Forwarding failed",
+      "archived": "Archived."
+    },
+    "otherEntities": {
+      "title": "Other entities",
+      "hint": "Documents addressed to these companies or people (by NIF) are never recorded as PSA documents. Any recipient NIF that isn't PSA's goes to \"Other entities\"; this list decides what happens next.",
+      "name": "Name",
+      "nif": "NIF",
+      "action": "Action",
+      "email": "Forward to (email)",
+      "actions": {
+        "archive": "Archive",
+        "ignore": "Ignore",
+        "forward": "Forward by email"
+      },
+      "add": "Add",
+      "remove": "Remove",
+      "none": "No entities yet.",
+      "saved": "Saved.",
+      "emailNeeded": "Enter the email address first."
     }
   },
   "purchaseDups": {
