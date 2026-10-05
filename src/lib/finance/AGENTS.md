@@ -1,0 +1,2 @@
+
+- Finance intake queue statuses: filing a bank/"other" document sets "filed", confirming a payment match sets "paid"; "approved" is only for purchase approvals. Multi-document PDFs become one queue item per document sharing the source file (split_of_file_url + page range) and each is read with a page-only instruction (pdf-lib can't parse many bank PDFs). Claude reads first; Gemini is a second reader only for SECOND_READER_TYPES. Why: clear status semantics and lower AI cost.
