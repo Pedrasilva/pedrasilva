@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { V2PermissionGate } from "@/components/PermissionGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,7 @@ function presetRange(p: Preset, back = 0): { start: string; end: string } {
 }
 
 const eur = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString(undefined, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }));
+const eurSigned = (n: number) => (n < 0 ? `−${eur(-n)}` : eur(n));
 const h = (n: number) => `${Math.round(n).toLocaleString()} h`;
 const p0 = (n: number | null | undefined) => (n == null ? "—" : `${Math.round(n)}%`);
 
@@ -268,14 +269,16 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
     [t("health.blocks.estrutura"), m.blocks.estrutura],
   ];
   let acc = 0;
-  const wf = blocks.map(([name, v]) => {
-    const row = { name, base: Math.min(acc, acc + v), v: Math.abs(v), fill: C.cost };
+  const wf: WfRow[] = blocks.map(([name, v]) => {
+    const row: WfRow = { name, base: Math.min(acc, acc + v), v: Math.abs(v), own: v, running: acc + v, fill: C.cost, connect: v >= 0 ? "top" : "bottom" };
     acc += v;
     return row;
   });
-  wf.push({ name: t("health.blocks.fullCost"), base: 0, v: m.fullCost, fill: "var(--foreground)" });
-  wf.push({ name: t("health.blocks.value"), base: 0, v: m.value, fill: C.value });
-  wf.push({ name: t("health.blocks.result"), base: Math.min(m.value, m.fullCost), v: Math.abs(m.result), fill: m.result >= 0 ? C.billable : C.loss });
+  wf.push({ name: t("health.blocks.fullCost"), base: 0, v: m.fullCost, own: m.fullCost, running: m.fullCost, fill: "var(--foreground)", connect: null });
+  wf.push({ name: t("health.blocks.value"), base: 0, v: m.value, own: m.value, running: m.value, fill: C.value, connect: "top" });
+  wf.push({ name: t("health.blocks.result"), base: Math.min(m.value, m.fullCost), v: Math.abs(m.result), own: m.result, running: m.result, fill: m.result >= 0 ? C.billable : C.loss, connect: null });
+  // Connector from "value" sits on the value level: top when result ≥ 0 is below it? value is the lower bar edge only when loss.
+  if (m.result >= 0) wf[wf.length - 2].connect = "top";
 
   const split = H.hours.split;
   const periodBar = [{ name: t("health.period"), billable: split.billable, nonBillable: split.nonBillable, internal: split.internal, unlogged: H.hours.unlogged }];
@@ -392,13 +395,16 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
         <CardContent className="space-y-3">
           <div className="h-72">
             <ResponsiveContainer>
-              <BarChart data={wf}>
+              <BarChart data={wf} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" fontSize={11} interval={0} angle={-15} textAnchor="end" height={50} />
+                <XAxis dataKey="name" interval={0} height={44} tick={<WrapTick />} />
                 <YAxis fontSize={12} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
-                <Tooltip formatter={(v: number, k) => (k === "base" ? null : eur(v))} />
-                <Bar dataKey="base" stackId="w" fill="transparent" />
-                <Bar dataKey="v" stackId="w">{wf.map((x, i) => <Cell key={i} fill={x.fill} />)}</Bar>
+                <Tooltip cursor={false} content={<WfTooltip />} />
+                <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} activeBar={false} tooltipType="none" />
+                <Bar dataKey="v" stackId="w" shape={<WfShape />} activeBar={false} isAnimationActive={false}>
+                  {wf.map((x, i) => <Cell key={i} fill={x.fill} />)}
+                  <LabelList dataKey="own" position="top" fontSize={11} formatter={(v: number) => eurSigned(v)} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -505,6 +511,46 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
         </Card>
       </div>
     </div>
+  );
+}
+
+type WfRow = { name: string; base: number; v: number; own: number; running: number; fill: string; connect: "top" | "bottom" | null };
+
+/** Coloured step plus a thin connector to the next bar at the running-total level. */
+function WfShape(props: { x?: number; y?: number; width?: number; height?: number; fill?: string; payload?: WfRow; background?: { width: number } }) {
+  const { x = 0, y = 0, width = 0, height = 0, fill, payload, background } = props;
+  const band = background?.width ?? width;
+  const ly = payload?.connect === "bottom" ? y + height : y;
+  return (
+    <g>
+      <rect x={x} y={y} width={width} height={Math.max(height, 1)} fill={fill} />
+      {payload?.connect && <line x1={x + width} x2={x + band} y1={ly} y2={ly} stroke="var(--muted-foreground)" strokeWidth={1} strokeDasharray="3 2" />}
+    </g>
+  );
+}
+
+function WfTooltip({ active, payload }: { active?: boolean; payload?: { payload: WfRow }[] }) {
+  const { t } = useTranslation("reports");
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
+  return (
+    <div className="rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+      <p className="font-medium">{row.name}</p>
+      <p className="tabular-nums">{eurSigned(row.own)}</p>
+      <p className="tabular-nums text-muted-foreground">{t("health.money.running")}: {eurSigned(row.running)}</p>
+    </div>
+  );
+}
+
+/** Horizontal X-axis label wrapped onto up to two lines. */
+function WrapTick({ x = 0, y = 0, payload }: { x?: number; y?: number; payload?: { value: string } }) {
+  const words = String(payload?.value ?? "").split(" ");
+  const half = Math.ceil(words.length / 2);
+  const lines = words.length > 1 ? [words.slice(0, half).join(" "), words.slice(half).join(" ")] : words;
+  return (
+    <text x={x} y={y + 10} textAnchor="middle" fontSize={11} fill="var(--muted-foreground)">
+      {lines.map((l, i) => <tspan key={i} x={x} dy={i === 0 ? 0 : 13}>{l}</tspan>)}
+    </text>
   );
 }
 
