@@ -1824,6 +1824,14 @@
       "not_a_pdf_attachment": "Sem anexo PDF",
       "attachment_too_large": "Anexo demasiado grande",
       "no_attachments": "Sem anexos"
-    }
+    },
+    "status": {
+      "pending": "Por rever",
+      "filed": "Arquivado",
+      "paid": "Pago",
+      "approved": "Aprovado"
+    },
+    "splitPart": "Aviso {{n}} · pág. {{first}}–{{last}}",
+    "single": "Leitura única"
   }
 }

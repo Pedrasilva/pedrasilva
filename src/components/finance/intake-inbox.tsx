@@ -54,7 +54,10 @@ type InboxRow = QueueRow & {
   intake_type_source: "ai" | "manual";
   intake_type_reason: string | null;
   intake_route: string | null;
-  verification: "full" | "partial" | "none" | null;
+  verification: "full" | "partial" | "none" | "single" | null;
+  split_part: number | null;
+  split_page_first: number | null;
+  split_page_last: number | null;
   field_checks: Record<string, FieldCheck> | null;
   retry_after: string | null;
   extracted_base_amount: number | null;
@@ -94,7 +97,8 @@ export function IntakeInbox() {
       const { data, error } = await supabase
         .from("financial_document_review_queue")
         .select("*")
-        .eq("status", "pending_review")
+        // Filed / paid items stay visible in their tab with their status.
+        .in("status", ["pending_review", "filed", "paid"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as InboxRow[];
@@ -167,7 +171,7 @@ export function IntakeInbox() {
           {TABS.map((k) => (
             <TabsTrigger key={k} value={k}>
               {t(`finance:intakeInbox.tabs.${k}`)}
-              <Badge variant="secondary" className="ml-1.5 text-[10px]">{byTab[k].length}</Badge>
+              <Badge variant="secondary" className="ml-1.5 text-[10px]">{byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -260,8 +264,20 @@ function TypeBadge({ row }: { row: InboxRow }) {
 function StatusBadges({ row }: { row: InboxRow }) {
   const { t } = useTranslation(["finance"]);
   const verifyCount = Object.values(row.field_checks ?? {}).filter((c) => c?.status === "verify").length;
+  const status = String(row.status);
   return (
     <>
+      <Badge variant={status === "pending_review" ? "outline" : "default"} className="text-[10px]">
+        {t(`finance:intakeInbox.status.${status === "pending_review" ? "pending" : status}`)}
+      </Badge>
+      {row.split_part != null && row.split_part > 0 && (
+        <Badge variant="outline" className="text-[10px]">
+          {t("finance:intakeInbox.splitPart", { n: row.split_part, first: row.split_page_first, last: row.split_page_last })}
+        </Badge>
+      )}
+      {row.verification === "single" && (
+        <Badge variant="secondary" className="text-[10px]">{t("finance:intakeInbox.single")}</Badge>
+      )}
       {row.intake_route === "retry" && (
         <Badge variant="secondary" className="text-[10px]"><Clock className="h-3 w-3 mr-1" />{t("finance:intakeInbox.retryPending")}</Badge>
       )}
@@ -366,9 +382,9 @@ function ItemDetail({
         </>
       ) : (
         <>
-          {tab === "payments" && <PaymentPanel row={row} />}
-          {tab === "bank" && <BankPanel row={row} />}
-          {tab === "other" && <OtherPanel row={row} />}
+          {row.status === "pending_review" && tab === "payments" && <PaymentPanel row={row} />}
+          {row.status === "pending_review" && tab === "bank" && <BankPanel row={row} />}
+          {row.status === "pending_review" && tab === "other" && <OtherPanel row={row} />}
           <DocPreview row={row} />
         </>
       )}

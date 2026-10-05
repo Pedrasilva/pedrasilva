@@ -706,9 +706,16 @@ export async function ingestStoredDocument(opts: {
   forcedType?: import("./intake-models.server").IntakeType | null;
   /** Retry counter carried across automatic AI-limit retries. */
   retryCount?: number;
+  /** Set on items cut out of a multi-notice PDF; they are never split again. */
+  splitOf?: { fileUrl: string; part: number; first: number; last: number } | null;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
   const intake = await import("./intake-models.server");
-  const result = await intake.runDualExtraction(opts.bucket, opts.storagePath, opts.forcedType ?? null);
+  const result = await intake.runDualExtraction(
+    opts.bucket,
+    opts.storagePath,
+    opts.forcedType ?? null,
+    opts.splitOf && opts.splitOf.part > 0 ? { first: opts.splitOf.first, last: opts.splitOf.last } : null,
+  );
   const replaceId = opts.replaceQueueItemId ?? null;
   const retryCount = opts.retryCount ?? 0;
   // AI-limit failures come back automatically: 30 min, 1 h, 2 h … capped at 12 h.
@@ -756,6 +763,20 @@ export async function ingestStoredDocument(opts: {
     };
   }
 
+
+  // A PDF holding several documents (e.g. bank notices) becomes one item per
+  // document: each page range is stored as its own file and read separately.
+  if (result.parts && !opts.splitOf) {
+    return splitAndIngest(opts, result.parts);
+  }
+  if (opts.splitOf) {
+    Object.assign(base, {
+      split_of_file_url: opts.splitOf.fileUrl,
+      split_part: opts.splitOf.part,
+      split_page_first: opts.splitOf.first,
+      split_page_last: opts.splitOf.last,
+    });
+  }
 
   const ex = result.extraction;
 
@@ -955,7 +976,7 @@ export async function reprocessQueueItem(
 ): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
   const { data: item, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last")
     .eq("id", queueItemId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -979,10 +1000,35 @@ export async function reprocessQueueItem(
         ? (item.intake_type as import("./intake-models.server").IntakeType | null)
         : null),
     retryCount: item.retry_count ?? 0,
+    splitOf: item.split_of_file_url
+      ? { fileUrl: item.split_of_file_url, part: item.split_part ?? 0, first: item.split_page_first ?? 1, last: item.split_page_last ?? 1 }
+      : null,
   });
 }
 
 
+
+/**
+ * A PDF holding several documents becomes one item per document. Every item
+ * keeps the same source file and its own page range, and is read separately
+ * (the readers are told to look only at those pages).
+ */
+async function splitAndIngest(
+  opts: Parameters<typeof ingestStoredDocument>[0],
+  parts: { first: number; last: number }[],
+): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
+  let first: { ok: boolean; queueItemId?: string; groupId?: string; error?: string } | null = null;
+  for (let i = 0; i < parts.length; i++) {
+    const r = await ingestStoredDocument({
+      ...opts,
+      // The first document reuses the original item; the others are new items.
+      replaceQueueItemId: i === 0 ? opts.replaceQueueItemId ?? null : null,
+      splitOf: { fileUrl: opts.storagePath, part: i + 1, first: parts[i].first, last: parts[i].last },
+    });
+    if (i === 0) first = r;
+  }
+  return first!;
+}
 
 // ---------------------------------------------------------------------------
 // Intake routing helpers (suggestions only — a person confirms each one)
