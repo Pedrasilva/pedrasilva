@@ -32,8 +32,8 @@ export function useCapacityForecastData(start: string, end: string) {
             .select("id, project_id, name, status, is_self, start_date, end_date, parent_stage_id, sort_order, archived_at")
             .order("id").range(a, b) as never,
         ),
-        fetchAll<{ id: string; name: string; code: string | null }>((a, b) =>
-          supabase.from("pm_projects").select("id, name, code").order("id").range(a, b) as never,
+        fetchAll<{ id: string; name: string }>((a, b) =>
+          supabase.from("pm_projects").select("id, name").order("id").range(a, b) as never,
         ),
         fetchAll<CfPlaceholder>((a, b) =>
           supabase.from("pm_stage_allocation_placeholders").select("project_stage_id, expected_hours").order("id").range(a, b) as never,
@@ -48,7 +48,7 @@ export function useCapacityForecastData(start: string, end: string) {
       for (const [pid, list] of byProject) {
         const nums = buildStageNumberMap(list as never);
         const p = projById.get(pid);
-        const projectLabel = p ? [p.code, p.name].filter(Boolean).join(" ") : "—";
+        const projectLabel = p?.name ?? "—";
         for (const s of list) {
           // Own work only, on stages still to be delivered.
           if (s.archived_at || s.is_self === false) continue;
