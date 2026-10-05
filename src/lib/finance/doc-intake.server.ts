@@ -827,7 +827,7 @@ export async function ingestStoredDocument(opts: {
 
   const payload: Record<string, unknown> = {
     ...base,
-    raw_extraction: result.raw as object,
+    raw_extraction: { source: "dual_intake", claude: result.runs.claude.output ?? null, gemini: result.runs.gemini.output ?? null } as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
     direction: dir.direction,

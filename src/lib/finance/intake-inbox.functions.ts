@@ -68,7 +68,8 @@ export const confirmPaymentMatch = createServerFn({ method: "POST" })
     if (doc.direction !== "received" || doc.status === "cancelled") throw new Error("Not an open purchase");
 
     const pm = row.extracted_payment_method as string | null;
-    const method = ["bank_transfer", "cash", "card", "direct_debit"].includes(pm ?? "") ? pm : "other";
+    const method = (["bank_transfer", "cash", "card", "direct_debit"].includes(pm ?? "") ? pm : "other") as
+      "bank_transfer" | "cash" | "card" | "direct_debit" | "other";
     const { data: pay, error: payErr } = await supabase
       .from("financial_document_payments")
       .insert({
