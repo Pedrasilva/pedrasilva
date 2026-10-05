@@ -22,6 +22,10 @@
       "capacity": {
         "title": "Capacity forecast",
         "description": "Planned vs available hours per person for the coming weeks, plus unassigned demand."
+      },
+      "estimates": {
+        "title": "Estimate vs actual by phase",
+        "description": "Planned vs actual hours and cost per phase type, with the spread and overruns."
       }
     }
   },
@@ -278,6 +282,58 @@
     "detail": {
       "projectStage": "Project · stage",
       "none": "Nothing planned"
+    }
+  },
+  "estimates": {
+    "title": "Estimate vs actual by phase",
+    "subtitle": "Planned (stage baseline) vs actual hours, cost and duration per phase type. Own-work stages only; costs use locked cost rates.",
+    "filters": {
+      "status": "Project status",
+      "client": "Client",
+      "phaseType": "Phase type",
+      "endFrom": "Stage end from",
+      "endTo": "Stage end to",
+      "onlyDone": "Completed phases only",
+      "all": "All"
+    },
+    "status": {
+      "all": "All",
+      "active": "Active",
+      "closing": "Closing",
+      "archived": "Archived"
+    },
+    "types": {
+      "F0": "F0 Management",
+      "F1": "F1 Concept",
+      "F2": "F2 Developed Design",
+      "F3": "F3 Technical Design",
+      "F4": "F4 Tender",
+      "F5": "F5 Construction",
+      "F6": "F6 Close out"
+    },
+    "missing_one": "{{count}} phase without an estimate",
+    "missing_other": "{{count}} phases without an estimate",
+    "missingTitle": "Phases without an estimate",
+    "unmapped_one": "{{count}} phase not mapped to a type",
+    "unmapped_other": "{{count}} phases not mapped to a type",
+    "unmappedTitle": "Phases not mapped to a type",
+    "chartTitle": "Median over/under per phase type (0 = on estimate)",
+    "tableTitle": "By phase type",
+    "empty": "No phases with an estimate for these filters.",
+    "error": "Could not load the report.",
+    "note": "% = actual vs planned. Best/median/worst use hours, or cost when no hours were planned. Duration = average planned → actual days for completed phases.",
+    "cols": {
+      "type": "Phase type",
+      "stages": "Phases",
+      "plannedH": "Planned h",
+      "actualH": "Actual h",
+      "plannedC": "Planned €",
+      "actualC": "Actual €",
+      "best": "Best",
+      "median": "Median",
+      "worst": "Worst",
+      "duration": "Duration",
+      "stage": "Project / phase"
     }
   }
 }
