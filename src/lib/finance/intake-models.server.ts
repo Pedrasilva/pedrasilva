@@ -145,6 +145,8 @@ export type ModelRun = {
   ms: number;
   input_tokens?: number;
   output_tokens?: number;
+  /** Additional documents Claude found in the same file (only the first is used). */
+  extra_documents?: number;
   output?: DualExtraction;
 };
 
@@ -219,7 +221,6 @@ function parseLenient(s: string): unknown {
   try {
     return JSON.parse(s);
   } catch (e) {
-    if (process.env.INTAKE_DEBUG) require("fs").writeFileSync("/tmp/modelcmp/bad.json", s);
     // eslint-disable-next-line no-control-regex
     return JSON.parse(s.replace(/[\u0000-\u001f]/g, (c) => (c === "\n" || c === "\t" || c === "\r" ? " " : "")));
   }
@@ -266,6 +267,8 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
     let stop = "";
     let streamError: string | null = null;
     let startInput: unknown = null;
+    let firstIndex: number | null = null;
+    const extraIdx = new Set<number>();
     let buf = "";
     const dec = new TextDecoder();
     const reader = res.body.getReader();
@@ -287,7 +290,11 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
         } else if (ev.type === "content_block_start" && ev.content_block?.type === "tool_use") {
           startInput = ev.content_block.input ?? null;
         } else if (ev.type === "content_block_delta" && ev.delta?.type === "input_json_delta") {
-          json += ev.delta.partial_json;
+          // Claude may answer with several tool calls (e.g. a PDF holding several
+          // bank notices). Keep only the first one; the count is reported.
+          if (firstIndex == null) firstIndex = ev.index;
+          if (ev.index === firstIndex) json += ev.delta.partial_json;
+          else if (!extraIdx.has(ev.index)) extraIdx.add(ev.index);
         } else if (ev.type === "message_delta") {
           outT = ev.usage?.output_tokens ?? outT;
           stop = ev.delta?.stop_reason ?? stop;
@@ -304,7 +311,7 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
         ? parseLenient(json)
         : startInput && Object.keys(startInput as object).length > 0 ? startInput : null;
       if (!parsed) throw new Error("empty");
-      return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, output: parsed as DualExtraction };
+      return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, extra_documents: extraIdx.size, output: parsed as DualExtraction };
     } catch {
       return { model: CLAUDE_MODEL, ok: false, ms, error: `no structured output (stop: ${stop || "?"}, ${json.length} chars: ${json.slice(0, 60)}…${json.slice(-60)})` };
     }
@@ -498,6 +505,7 @@ export function summariseRuns(runs: { claude: ModelRun; gemini: ModelRun }) {
     ms: r.ms,
     input_tokens: r.input_tokens ?? null,
     output_tokens: r.output_tokens ?? null,
+    extra_documents: r.extra_documents ?? 0,
     intake_type: r.output?.intake_type ?? null,
     classification_code: r.output?.classification_code ?? null,
   });
