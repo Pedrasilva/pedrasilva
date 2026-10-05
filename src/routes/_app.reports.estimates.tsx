@@ -132,6 +132,7 @@ function EstimatesPage() {
             source: est.source,
             actualHours: a?.loggedHours ?? 0,
             actualCost: a?.laborCost ?? 0,
+            actualValue: (a?.loggedHours ?? 0) * avgSale,
             baselineStart: s.baseline_start_date,
             baselineEnd: s.baseline_end_date,
             start: s.start_date,
@@ -177,6 +178,7 @@ function EstimatesPage() {
         <div>
           <h1 className="text-xl font-semibold">{t("estimates.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("estimates.subtitle")}</p>
+          <p className="text-xs text-muted-foreground">{t("estimates.likeForLikeHint")}</p>
         </div>
 
         <Card>
@@ -284,6 +286,8 @@ function EstimatesPage() {
                       <TableHead className="text-right">{t("estimates.cols.plannedC")}</TableHead>
                       <TableHead className="text-right">{t("estimates.cols.actualC")}</TableHead>
                       <TableHead className="text-right">%</TableHead>
+                      <TableHead className="text-right">{t("estimates.cols.psaCost")}</TableHead>
+                      <TableHead className="text-right">{t("estimates.cols.consumed")}</TableHead>
                       <TableHead className="text-right">{t("estimates.cols.best")}</TableHead>
                       <TableHead className="text-right">{t("estimates.cols.median")}</TableHead>
                       <TableHead className="text-right">{t("estimates.cols.worst")}</TableHead>
@@ -299,8 +303,10 @@ function EstimatesPage() {
                         <TableCell className="text-right">{h0(s.actualHours)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.hoursPct))}>{pct(s.hoursPct)}</TableCell>
                         <TableCell className="text-right">{euros(s.plannedCost)}</TableCell>
-                        <TableCell className="text-right">{euros(s.actualCost)}</TableCell>
+                        <TableCell className="text-right">{euros(s.actualValue)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.costPct))}>{pct(s.costPct)}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{euros(s.actualCost)}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{s.consumedPct == null ? "—" : `${Math.round(s.consumedPct)}%`}</TableCell>
                         <TableCell className={cn("text-right", tone(s.best))}>{pct(s.best)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.median))}>{pct(s.median)}</TableCell>
                         <TableCell className={cn("text-right", tone(s.worst))}>{pct(s.worst)}</TableCell>
@@ -341,6 +347,8 @@ function EstimatesPage() {
                   <TableHead className="text-right">{t("estimates.cols.plannedC")}</TableHead>
                   <TableHead className="text-right">{t("estimates.cols.actualC")}</TableHead>
                   <TableHead className="text-right">%</TableHead>
+                  <TableHead className="text-right">{t("estimates.cols.psaCost")}</TableHead>
+                  <TableHead className="text-right">{t("estimates.cols.consumed")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -357,8 +365,10 @@ function EstimatesPage() {
                     <TableCell className="text-right">{h0(r.actualHours)}</TableCell>
                     <TableCell className={cn("text-right", tone(r.hoursPct))}>{pct(r.hoursPct)}</TableCell>
                     <TableCell className="text-right">{r.plannedCost == null ? "—" : euros(r.plannedCost)}</TableCell>
-                    <TableCell className="text-right">{euros(r.actualCost)}</TableCell>
+                    <TableCell className="text-right">{euros(r.actualValue)}</TableCell>
                     <TableCell className={cn("text-right", tone(r.costPct))}>{pct(r.costPct)}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{euros(r.actualCost)}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{r.consumedPct == null ? "—" : `${Math.round(r.consumedPct)}%`}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -23,15 +23,15 @@ const norm = (s: string) =>
 
 /** 1. Keywords in the name (accent-free, lower-case), by meaning. First match wins. */
 const NAME_RULES: [RegExp, PhaseType][] = [
-  [/\b(programa|programme|program)\b/, "programme"],
-  [/\b(concept|conceito|estudo previo)\b/, "concept"],
+  [/\b(programa|programme|program|due dil+igence)\b/, "programme"],
+  [/\b(concept|conceito|estudo previo|plano geral)\b/, "concept"],
   [/\b(developed|anteprojecto|anteprojeto)\b/, "developed"],
   [/\b(technical|execucao)\b/, "technical"],
   [/\b(tender|concurso)\b/, "tender"],
   [/\b(construction|construcao|obra|assistencia|avenca)\b/, "construction"],
-  [/\b(licenciamento|comunicacao previa)\b/, "licensing"],
+  [/\b(licenciamento|comunicacao previa|pip|pedido de informacao previa|alvara|loteamento)\b/, "licensing"],
   [/\b(mobiliario|interiores)\b/, "interiors"],
-  [/\b(gestao|management)\b/, "management"],
+  [/\b(gestao|management|coordenacao)\b/, "management"],
   [/\b(close ?out|telas finais|encerramento)\b/, "closeout"],
 ];
 const PREFIX: Record<string, PhaseType> = {
@@ -43,6 +43,8 @@ export function phaseTypeFromKeywords(name: string | null | undefined): PhaseTyp
   const n = norm(name);
   if (/final-stage support/.test(n)) return "construction";
   for (const [re, pt] of NAME_RULES) if (re.test(n)) return pt;
+  // A leading "AT" = Assistência Técnica (site support).
+  if (/^at\b/.test(n)) return "construction";
   return null;
 }
 export function phaseTypeFromPrefix(name: string | null | undefined): PhaseType | null {
@@ -79,7 +81,10 @@ export interface StageInput {
   plannedHours: number | null;
   plannedCost: number | null;
   actualHours: number;
+  /** PSA cost of the hours (locked snapshots). */
   actualCost: number;
+  /** Value of the hours worked: hours × the same sale rate used for planned hours. */
+  actualValue: number;
   baselineStart: string | null;
   baselineEnd: string | null;
   start: string | null;
@@ -91,6 +96,9 @@ export interface StageInput {
 export interface StageRow extends StageInput {
   hoursPct: number | null;
   costPct: number | null;
+  /** In-progress only: actual ÷ planned (hours, else €). */
+  consumedPct: number | null;
+  done: boolean;
   plannedDays: number | null;
   actualDays: number | null;
 }
@@ -102,8 +110,11 @@ export interface PhaseSummary {
   actualHours: number;
   hoursPct: number | null;
   plannedCost: number;
+  actualValue: number;
   actualCost: number;
   costPct: number | null;
+  doneCount: number;
+  consumedPct: number | null;
   best: number | null;
   median: number | null;
   worst: number | null;
@@ -128,11 +139,17 @@ export function median(xs: number[]): number | null {
 /** The overrun used for ranking: hours % when estimated, else cost %. */
 export const overrun = (r: StageRow) => r.hoursPct ?? r.costPct;
 
+const ratio = (planned: number | null, actual: number) => (planned && planned > 0 ? (actual / planned) * 100 : null);
+
+/** Over/under only for done stages; in-progress stages get "consumed so far" instead. */
 export function toStageRow(s: StageInput): StageRow {
+  const done = s.status === "done";
   return {
     ...s,
-    hoursPct: variance(s.plannedHours, s.actualHours),
-    costPct: variance(s.plannedCost, s.actualCost),
+    done,
+    hoursPct: done ? variance(s.plannedHours, s.actualHours) : null,
+    costPct: done ? variance(s.plannedCost, s.actualValue) : null,
+    consumedPct: done ? null : ratio(s.plannedHours, s.actualHours) ?? ratio(s.plannedCost, s.actualValue),
     plannedDays: days(s.baselineStart, s.baselineEnd),
     actualDays: s.status === "done" ? days(s.start, s.end) : null,
   };
@@ -145,6 +162,11 @@ export function summarise(rows: StageRow[]): PhaseSummary[] {
     const aH = st.reduce((a, r) => a + r.actualHours, 0);
     const pC = st.reduce((a, r) => a + (r.plannedCost ?? 0), 0);
     const aC = st.reduce((a, r) => a + r.actualCost, 0);
+    const aV = st.reduce((a, r) => a + r.actualValue, 0);
+    const dn = st.filter((r) => r.done);
+    const ip = st.filter((r) => !r.done);
+    const sum = (xs: StageRow[], f: (r: StageRow) => number) => xs.reduce((a, r) => a + f(r), 0);
+    const ipPH = sum(ip, (r) => r.plannedHours ?? 0);
     const ov = st.map(overrun).filter((x): x is number => x != null);
     const dur = st.filter((r) => r.plannedDays != null && r.actualDays != null);
     return {
@@ -152,10 +174,13 @@ export function summarise(rows: StageRow[]): PhaseSummary[] {
       count: st.length,
       plannedHours: pH,
       actualHours: aH,
-      hoursPct: variance(pH, aH),
+      hoursPct: variance(sum(dn, (r) => r.plannedHours ?? 0), sum(dn, (r) => r.actualHours)),
       plannedCost: pC,
+      actualValue: aV,
       actualCost: aC,
-      costPct: variance(pC, aC),
+      costPct: variance(sum(dn, (r) => r.plannedCost ?? 0), sum(dn, (r) => r.actualValue)),
+      doneCount: dn.length,
+      consumedPct: ipPH > 0 ? ratio(ipPH, sum(ip, (r) => r.actualHours)) : ratio(sum(ip, (r) => r.plannedCost ?? 0), sum(ip, (r) => r.actualValue)),
       best: ov.length ? Math.min(...ov) : null,
       median: median(ov),
       worst: ov.length ? Math.max(...ov) : null,

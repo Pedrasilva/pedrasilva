@@ -348,18 +348,21 @@
       "plannedH": "Planned h",
       "actualH": "Actual h",
       "plannedC": "Planned €",
-      "actualC": "Actual €",
+      "actualC": "Value of hours worked",
       "best": "Best",
       "median": "Median",
       "worst": "Worst",
       "duration": "Duration",
-      "stage": "Project / phase"
+      "stage": "Project / phase",
+      "psaCost": "Cost",
+      "consumed": "Consumed so far"
     },
     "sources": {
       "quote": "proposal",
       "plan": "current plan",
       "baseline": "baseline"
     },
-    "sourceCounts": "Estimate source: {{quote}} proposal · {{plan}} current plan · {{baseline}} baseline"
+    "sourceCounts": "Estimate source: {{quote}} proposal · {{plan}} current plan · {{baseline}} baseline",
+    "likeForLikeHint": "€ actual = hours × sale rate. Over/under and best/median/worst use done phases only; phases in progress show consumed so far."
   }
 }
