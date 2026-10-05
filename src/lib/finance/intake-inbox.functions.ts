@@ -613,7 +613,7 @@ export const restoreRemovedItem = createServerFn({ method: "POST" })
     const { error: e2 } = await supabase
       .from("financial_document_review_queue")
       .update({
-        status: prev, keep_despite_recipient: true, removed_at: null, removed_by: null,
+        status: prev as "pending_review" | "filed" | "paid", keep_despite_recipient: true, removed_at: null, removed_by: null,
         removed_source: null, removed_reason: null, removed_tag: null, removed_prev_status: null,
       })
       .eq("id", data.id);
