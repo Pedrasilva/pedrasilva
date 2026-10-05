@@ -280,6 +280,7 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
   const activeGroup =
     groups.find((g) => g.gid === selectedGroup) ?? groups[0] ?? null;
 
+  const restoreDup = useServerFn(restoreDuplicate);
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
     setUploading(true);
