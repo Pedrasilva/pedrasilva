@@ -1880,7 +1880,8 @@
         "same_nif_total_date_live": "Same supplier NIF and total as a registered document, dates within 5 days.",
         "same_bank_movement": "Same account, date, amount and reference.",
         "same_account_date_amount": "Same account, date and amount (no shared reference).",
-        "same_statement_period": "Same account and statement period."
+        "same_statement_period": "Same account and statement period.",
+        "same_payment_live": "A payment with the same amount and a close date is already recorded on this supplier's purchase."
       },
       "uploadWarn": "{{file}}: already exists ({{label}}, registered on {{date}}).",
       "keepAnyway": "Save anyway",

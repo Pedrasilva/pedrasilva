@@ -1880,7 +1880,8 @@
         "same_nif_total_date_live": "Mesmo NIF e total que um documento registado, datas a menos de 5 dias.",
         "same_bank_movement": "Mesma conta, data, valor e referência.",
         "same_account_date_amount": "Mesma conta, data e valor (sem referência comum).",
-        "same_statement_period": "Mesma conta e mesmo período de extrato."
+        "same_statement_period": "Mesma conta e mesmo período de extrato.",
+        "same_payment_live": "Já está registado um pagamento com o mesmo valor e data próxima numa compra deste fornecedor."
       },
       "uploadWarn": "{{file}}: já existe ({{label}}, registado em {{date}}).",
       "keepAnyway": "Guardar mesmo assim",

@@ -230,6 +230,26 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
       live.push(...((docs ?? []) as typeof live));
     }
   }
+  // Live payments: a proof of payment already recorded on a purchase of this supplier.
+  const livePayments: Array<{ id: string; amount: number; payment_date: string; created_at: string; label: string }> = [];
+  if (type === "comprovativo_pagamento") {
+    const { data: cos } = await supabaseAdmin.from("companies").select("id, nif").not("nif", "is", null);
+    const ids = (cos ?? []).filter((c) => nifKey(c.nif) === nif).map((c) => c.id);
+    if (ids.length) {
+      const { data: docs } = await supabaseAdmin
+        .from("financial_documents").select("id, document_number, counterparty_name_snapshot").in("counterparty_supplier_id", ids);
+      const byId = new Map((docs ?? []).map((d) => [d.id, d]));
+      if (byId.size) {
+        const { data: pays } = await supabaseAdmin
+          .from("financial_document_payments").select("id, document_id, amount, payment_date, created_at").in("document_id", [...byId.keys()]);
+        for (const p of pays ?? []) {
+          const d = byId.get(p.document_id);
+          livePayments.push({ id: p.document_id, amount: Number(p.amount), payment_date: p.payment_date, created_at: p.created_at,
+            label: [d?.document_number, d?.counterparty_name_snapshot].filter(Boolean).join(" · ") });
+        }
+      }
+    }
+  }
   const liveLabel = (d: (typeof live)[number]) => [d.document_number, d.counterparty_name_snapshot].filter(Boolean).join(" · ");
   if (num && year) {
     const hit = live.find((d) => normDocNumber(d.document_number) === num && d.issue_date?.slice(0, 4) === year && !skip.has(d.id));
@@ -247,6 +267,9 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
     ...live
       .filter((d) => !skip.has(d.id) && near(d.total_inc_vat, d.issue_date))
       .map((d) => ({ kind: "probable" as const, reason: "same_nif_total_date_live", documentId: d.id, label: liveLabel(d), registeredAt: d.created_at })),
+    ...livePayments
+      .filter((p) => !skip.has(p.id) && near(p.amount, p.payment_date))
+      .map((p) => ({ kind: "probable" as const, reason: "same_payment_live", documentId: p.id, label: p.label, registeredAt: p.created_at })),
   ].slice(0, 5);
   return { exact: null, probable };
 }
