@@ -3670,6 +3670,10 @@ export type Database = {
           updated_at: string
           vat_amount: number
           vat_period: string | null
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+          voided_duplicate_of: string | null
           withholding_tax_amount: number
         }
         Insert: {
@@ -3721,6 +3725,10 @@ export type Database = {
           updated_at?: string
           vat_amount?: number
           vat_period?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+          voided_duplicate_of?: string | null
           withholding_tax_amount?: number
         }
         Update: {
@@ -3772,6 +3780,10 @@ export type Database = {
           updated_at?: string
           vat_amount?: number
           vat_period?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+          voided_duplicate_of?: string | null
           withholding_tax_amount?: number
         }
         Relationships: [
@@ -3815,6 +3827,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_voided_duplicate_of_fkey"
+            columns: ["voided_duplicate_of"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
             referencedColumns: ["id"]
           },
         ]
