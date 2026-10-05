@@ -355,7 +355,9 @@
       "duration": "Duration",
       "stage": "Project / phase",
       "psaCost": "Cost",
-      "consumed": "Consumed so far"
+      "consumed": "Consumed (value)",
+      "allocatedH": "h allocated",
+      "budgetH": "h by budget"
     },
     "sources": {
       "quote": "proposal",
@@ -363,6 +365,11 @@
       "baseline": "baseline"
     },
     "sourceCounts": "Estimate source: {{quote}} proposal · {{plan}} current plan · {{baseline}} baseline",
-    "likeForLikeHint": "€ actual = hours × sale rate. Over/under and best/median/worst use done phases only; phases in progress show consumed so far."
+    "likeForLikeHint": "€ actual = hours × sale rate. Over/under and best/median/worst use done phases only; phases in progress show consumed so far.",
+    "consumedHours": "{{pct}}% of hours",
+    "basis": {
+      "allocated": "allocated",
+      "budget": "by budget"
+    }
   }
 }

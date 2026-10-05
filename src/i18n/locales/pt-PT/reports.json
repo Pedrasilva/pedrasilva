@@ -355,7 +355,9 @@
       "duration": "Duração",
       "stage": "Projeto / fase",
       "psaCost": "Custo",
-      "consumed": "Consumido até agora"
+      "consumed": "Consumido (valor)",
+      "allocatedH": "h alocadas",
+      "budgetH": "h pelo orçamento"
     },
     "sources": {
       "quote": "proposta",
@@ -363,6 +365,11 @@
       "baseline": "baseline"
     },
     "sourceCounts": "Origem da estimativa: {{quote}} proposta · {{plan}} plano actual · {{baseline}} baseline",
-    "likeForLikeHint": "€ real = horas × taxa de venda. Desvios e melhor/mediana/pior só com fases concluídas; fases em curso mostram o consumido até agora."
+    "likeForLikeHint": "€ real = horas × taxa de venda. Desvios e melhor/mediana/pior só com fases concluídas; fases em curso mostram o consumido até agora.",
+    "consumedHours": "{{pct}}% das horas",
+    "basis": {
+      "allocated": "alocadas",
+      "budget": "pelo orçamento"
+    }
   }
 }
