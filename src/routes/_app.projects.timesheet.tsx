@@ -556,10 +556,16 @@ function TimesheetPage() {
     qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
     qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
   };
-  const runAdd = async (target: AddTarget, date: string, hours: number, eventIds: string[], label: string) => {
+  const runAdd = async (target: AddTarget, date: string, evs: GridCalendarEvent[], label: string) => {
     try {
-      await addToCell(target, date, hours, eventIds);
-      toast.success(t("projects:tsCalendar.added", { hours: formatHM(hours), name: label }));
+      let total = 0;
+      for (const ev of evs) {
+        const hours = ev.minutes / 60;
+        const time = ev.start && ev.end ? `${ev.start.slice(11, 16) || ev.start}–${ev.end.slice(11, 16) || ev.end} ` : "";
+        await addToCell(target, date, hours, [ev.id], `${time}${ev.title}`.trim() || null);
+        total += hours;
+      }
+      toast.success(t("projects:tsCalendar.added", { hours: formatHM(total), name: label }));
     } catch (e) {
       toast.error((e as Error).message || "Failed to save");
     }
@@ -597,7 +603,7 @@ function TimesheetPage() {
         onAdd={async (key) => {
           const tg = targets.find((x) => x.key === key)!;
           for (const e of evs) learn(e, { project_id: projectId });
-          await runAdd(tg.target, date, hours, evs.map((e) => e.id), tg.label);
+          await runAdd(tg.target, date, evs, tg.label);
         }}
       />
     );
@@ -611,7 +617,7 @@ function TimesheetPage() {
       <CalendarRowHint
         events={evs}
         targets={[{ key: "lead", label }]}
-        onAdd={() => { for (const e of evs) learn(e, { opportunity_id: leadId, internal_category: PURSUIT_CATEGORY }); return runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, hours, evs.map((e) => e.id), label); }}
+        onAdd={() => { for (const e of evs) learn(e, { opportunity_id: leadId, internal_category: PURSUIT_CATEGORY }); return runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: leadId }, date, evs, label); }}
       />
     );
   };
@@ -656,17 +662,17 @@ function TimesheetPage() {
         if (!row) return false;
         setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
         learn(ev, { project_id: p.id });
-        void runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`).then(done);
+        void runAdd({ kind: "retainer", row }, ev.date, [ev], `${row.project.name} · ${row.name}`).then(done);
         return true;
       }}
       onPickLead={(l) => {
         setExtraLeadIds((ids) => Array.from(new Set([...ids, l.id])));
         learn(ev, { opportunity_id: l.id, internal_category: PURSUIT_CATEGORY });
-        void runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: l.id }, ev.date, hours, [ev.id], l.name).then(done);
+        void runAdd({ kind: "internal", category: PURSUIT_CATEGORY, opportunity_id: l.id }, ev.date, [ev], l.name).then(done);
       }}
       onPickCategory={(c) => {
         learn(ev, { internal_category: c });
-        void runAdd({ kind: "internal", category: c }, ev.date, hours, [ev.id], c).then(done);
+        void runAdd({ kind: "internal", category: c }, ev.date, [ev], c).then(done);
       }}
       onPickStage={async (p, s) => {
         const rp = retainerData?.childToParent.get(s.id);
@@ -674,14 +680,14 @@ function TimesheetPage() {
         learn(ev, { project_id: p.id, stage_id: s.id });
         if (row) {
           setExtraRetainerIds((ids) => Array.from(new Set([...ids, row.id])));
-          await runAdd({ kind: "retainer", row }, ev.date, hours, [ev.id], `${row.project.name} · ${row.name}`);
+          await runAdd({ kind: "retainer", row }, ev.date, [ev], `${row.project.name} · ${row.name}`);
           return done();
         }
         if (!profile?.resource_id) return;
         try {
           const taskId = await ensureRow.mutateAsync({ resource_id: profile.resource_id, stage_id: s.id, stage_start: s.start_date, stage_end: s.end_date });
           setExtraTaskIds((ids) => Array.from(new Set([...ids, taskId])));
-          await runAdd({ kind: "task", taskId }, ev.date, hours, [ev.id], `${p.name} · ${s.name}`);
+          await runAdd({ kind: "task", taskId }, ev.date, [ev], `${p.name} · ${s.name}`);
           done();
         } catch (err) {
           toast.error((err as Error).message || "Failed to add stage");
