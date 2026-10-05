@@ -270,13 +270,14 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                   storagePath: path,
                   originalFilename: part.filename ?? null,
                   source: "email_ingestion",
+                  forceProcess: senderRule === "process",
                 });
                 if (res.queueItemId) queued++;
                 if (!res.ok) summary.errors.push(`${part.filename}: ${res.error}`);
               }
 
 
-              if (queued === 0 && parts.length === 0) {
+              if (queued === 0 && parts.length === 0 && senderRule !== "ignore") {
                 await supabaseAdmin.from("financial_email_ignored_items").insert({
                   message_id: id,
                   from_address: from,
