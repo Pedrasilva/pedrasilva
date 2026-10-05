@@ -344,7 +344,10 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       const { data: doc, error: docErr } = await supabase
         .from("financial_documents")
         .insert({
-          doc_type: isIssued ? "client_invoice" : "supplier_invoice",
+          doc_type:
+            (row as { intake_type?: string | null }).intake_type === "nota_credito"
+              ? (isIssued ? "client_credit_note" : "supplier_credit_note")
+              : isIssued ? "client_invoice" : "supplier_invoice",
           direction: isIssued ? "issued" : "received",
           source: "ocr",
           status: "issued",

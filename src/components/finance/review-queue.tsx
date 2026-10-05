@@ -59,7 +59,7 @@ import {
 } from "@/lib/finance/doc-intake.functions";
 
 
-type QueueRow = {
+export type QueueRow = {
   id: string;
   source_file_url: string;
   source_bucket: string;
@@ -504,7 +504,7 @@ function IgnoredEmailItems() {
   );
 }
 
-function QueueItemCard({
+export function QueueItemCard({
   row,
   isPt,
   classifications,

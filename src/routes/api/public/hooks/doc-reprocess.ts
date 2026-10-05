@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/hooks/doc-reprocess")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        let body: { ids?: unknown; all_pending?: unknown } = {};
+        let body: { ids?: unknown; all_pending?: unknown; retry_due?: unknown } = {};
         try {
           body = (await request.json()) as typeof body;
         } catch {
@@ -45,6 +45,18 @@ export const Route = createFileRoute("/api/public/hooks/doc-reprocess")({
         const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
 
         let ids = Array.isArray(body.ids) ? (body.ids as string[]).filter(Boolean) : [];
+        if (ids.length === 0 && body.retry_due) {
+          // Automatic retry of items that hit an AI limit (never approved/rejected ones).
+          const { data } = await supabaseAdmin
+            .from("financial_document_review_queue")
+            .select("id")
+            .eq("status", "pending_review")
+            .lte("retry_after", new Date().toISOString())
+            .order("retry_after", { ascending: true })
+            .limit(10);
+          ids = (data ?? []).map((r) => r.id);
+          if (ids.length === 0) return Response.json({ ok: true, processed: 0, results: [] });
+        }
         if (ids.length === 0) {
           const { data } = await supabaseAdmin
             .from("financial_document_review_queue")

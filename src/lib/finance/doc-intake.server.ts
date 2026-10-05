@@ -133,7 +133,7 @@ export function parsePaymentMethod(raw: string | null | undefined): PaymentMetho
 }
 
 
-const JSON_SCHEMA = {
+export const JSON_SCHEMA = {
   name: "financial_document_extraction",
   strict: true,
   schema: {
@@ -232,25 +232,12 @@ export async function loadClassificationCatalog() {
   }>;
 }
 
-export async function extractDocument(
-  bucket: string,
-  storagePath: string,
-): Promise<{ ok: true; extraction: IntakeExtraction; raw: unknown } | { ok: false; error: string }> {
-  const { data: file, error: dlErr } = await supabaseAdmin.storage.from(bucket).download(storagePath);
-  if (dlErr || !file) return { ok: false, error: `download: ${dlErr?.message ?? "no file"}` };
-
-  const buf = Buffer.from(await file.arrayBuffer());
-  const mime = file.type || guessMime(storagePath);
-  const dataUrl = `data:${mime};base64,${buf.toString("base64")}`;
-
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) return { ok: false, error: "LOVABLE_API_KEY missing" };
-
-  const catalog = await loadClassificationCatalog();
-  const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
-  const own = await getOwnCompanyVat();
-
-  const system = `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) handled by an architecture firm in Portugal. Documents may be Portuguese or English.
+/** Shared extraction instructions (used by the single-model path and the dual-model intake). */
+export function buildExtractionSystemPrompt(
+  own: { vat: string | null; name: string | null },
+  catalogText: string,
+): string {
+  return `You classify and extract structured data from financial documents (invoices, receipts, proofs of payment, bank statements) handled by an architecture firm in Portugal. Documents may be Portuguese or English.
 
 THE FIRM ITSELF (the entity whose accounting this is):
 - Registered name: ${own.name ?? "Pedra Silva Arquitecto Lda"} (also printed as "Pedra Silva Architects", "Pedra Silva Arquitectos", "Pedra Silva Arquitetos")
@@ -293,6 +280,27 @@ Rules:
 
 TAXONOMY:
 ${catalogText}`;
+}
+
+export async function extractDocument(
+  bucket: string,
+  storagePath: string,
+): Promise<{ ok: true; extraction: IntakeExtraction; raw: unknown } | { ok: false; error: string }> {
+  const { data: file, error: dlErr } = await supabaseAdmin.storage.from(bucket).download(storagePath);
+  if (dlErr || !file) return { ok: false, error: `download: ${dlErr?.message ?? "no file"}` };
+
+  const buf = Buffer.from(await file.arrayBuffer());
+  const mime = file.type || guessMime(storagePath);
+  const dataUrl = `data:${mime};base64,${buf.toString("base64")}`;
+
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) return { ok: false, error: "LOVABLE_API_KEY missing" };
+
+  const catalog = await loadClassificationCatalog();
+  const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
+  const own = await getOwnCompanyVat();
+
+  const system = buildExtractionSystemPrompt(own, catalogText);
 
 
   const res = await fetch(GATEWAY_URL, {
@@ -694,9 +702,18 @@ export async function ingestStoredDocument(opts: {
   extraFields?: Record<string, unknown>;
   /** When set, the existing pending queue row is re-extracted in place. */
   replaceQueueItemId?: string | null;
+  /** Type confirmed by a person ("Reclassificar"); models extract for it. */
+  forcedType?: import("./intake-models.server").IntakeType | null;
+  /** Retry counter carried across automatic AI-limit retries. */
+  retryCount?: number;
 }): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
-  const result = await extractDocument(opts.bucket, opts.storagePath);
+  const intake = await import("./intake-models.server");
+  const result = await intake.runDualExtraction(opts.bucket, opts.storagePath, opts.forcedType ?? null);
   const replaceId = opts.replaceQueueItemId ?? null;
+  const retryCount = opts.retryCount ?? 0;
+  // AI-limit failures come back automatically: 30 min, 1 h, 2 h … capped at 12 h.
+  const retryAt = () =>
+    new Date(Date.now() + Math.min(30 * 2 ** retryCount, 720) * 60_000).toISOString();
 
   const write = async (values: Record<string, unknown>) => {
     const q = supabaseAdmin.from("financial_document_review_queue");
@@ -718,7 +735,18 @@ export async function ingestStoredDocument(opts: {
 
 
   if (!result.ok) {
-    const { data: row, error } = await write({ ...base, extraction_error: result.error });
+    const { data: row, error } = await write({
+      ...base,
+      extraction_error: result.error,
+      model_runs: result.runs ? intake.summariseRuns(result.runs) : null,
+      // Limit failures wait for an automatic retry instead of becoming "unknown".
+      intake_route: result.retryLater ? "retry" : "triage",
+      intake_type: opts.forcedType ?? null,
+      intake_type_source: opts.forcedType ? "manual" : "ai",
+      verification: "none",
+      retry_after: result.retryLater ? retryAt() : null,
+      retry_count: result.retryLater ? retryCount + 1 : retryCount,
+    });
     if (error || !row) return { ok: false, error: error?.message ?? result.error };
     return {
       ok: false,
@@ -871,6 +899,46 @@ export async function ingestStoredDocument(opts: {
 
   if (groupId) payload.linked_document_group_id = groupId;
 
+  // ---- Intake type, cross-check and routing (review queue only) ----------
+  const checks = result.checks as Record<string, { status: string; reasons: string[] }>;
+  const type = ex.intake_type;
+  const route = intake.routeForType(type, opts.forcedType ? 1 : ex.intake_type_confidence);
+  // Type vs. direction disagreement is surfaced, never silently fixed.
+  const typeChecks: Record<string, unknown> = {};
+  if ((type === "fatura_emitida" && dir.direction === "received") ||
+      ((type === "fatura_compra" || type === "nota_credito") && dir.direction === "issued")) {
+    typeChecks.intake_type = { status: "verify", value: type, reasons: ["direction_mismatch"] };
+  }
+  const isBank = route === "bank";
+  const periodSrc = ex.period_end ?? ex.issue_date ?? null;
+  Object.assign(payload, {
+    intake_type: type,
+    intake_type_confidence: opts.forcedType ? 1 : ex.intake_type_confidence ?? null,
+    intake_type_source: opts.forcedType ? "manual" : "ai",
+    intake_type_reason: ex.intake_type_reason ?? null,
+    intake_route: route,
+    verification: result.verification,
+    field_checks: { ...checks, ...typeChecks },
+    model_runs: intake.summariseRuns(result.runs),
+    retry_after: result.retryLater ? retryAt() : null,
+    retry_count: result.retryLater ? retryCount + 1 : 0,
+    extracted_base_amount: isStatement && !isBank ? null : ex.amount_ex_vat ?? null,
+    extracted_iban: ex.iban ?? null,
+    extracted_account_number: ex.account_number ?? null,
+    extracted_period_start: ex.period_start ?? null,
+    extracted_period_end: ex.period_end ?? null,
+    extracted_referenced_document_number: ex.referenced_document_number ?? null,
+    // Bank documents keep their movement amount so the Banco list can show it.
+    ...(type === "nota_lancamento" ? { extracted_amount: ex.total_amount ?? null } : {}),
+    matched_bank_account_id: isBank ? await matchBankAccount(ex.iban, ex.account_number) : null,
+    bank_period: isBank && periodSrc && /^\d{4}-\d{2}/.test(periodSrc) ? periodSrc.slice(0, 7) : null,
+    credit_note_original_document_id:
+      type === "nota_credito" ? await matchOriginalInvoice(counterpartyVat, ex.referenced_document_number) : null,
+    ...(route === "payments"
+      ? await matchPaymentCandidates(ex.seller_vat ?? counterpartyVat, ex.total_amount)
+      : { payment_match_document_id: null, payment_match_candidates: null }),
+  });
+
   const { data: row, error } = await write(payload);
   if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
   return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
@@ -883,10 +951,11 @@ export async function ingestStoredDocument(opts: {
  */
 export async function reprocessQueueItem(
   queueItemId: string,
+  opts: { forcedType?: import("./intake-models.server").IntakeType | null } = {},
 ): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
   const { data: item, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count")
     .eq("id", queueItemId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -903,6 +972,104 @@ export async function reprocessQueueItem(
     source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder") ?? "manual_upload",
     createdBy: item.created_by,
     replaceQueueItemId: item.id,
+    // A person's type choice survives automatic retries and re-runs.
+    forcedType:
+      opts.forcedType ??
+      (item.intake_type_source === "manual"
+        ? (item.intake_type as import("./intake-models.server").IntakeType | null)
+        : null),
+    retryCount: item.retry_count ?? 0,
   });
 }
 
+
+
+// ---------------------------------------------------------------------------
+// Intake routing helpers (suggestions only — a person confirms each one)
+// ---------------------------------------------------------------------------
+
+const digits = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");
+const alnum = (v: string | null | undefined) => (v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+/** Bank account by IBAN, else by account number (digits contained in the IBAN/number). */
+export async function matchBankAccount(iban: string | null, accountNumber: string | null): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("bank_accounts")
+    .select("id, iban, account_number")
+    .is("archived_at", null);
+  const rows = data ?? [];
+  const ib = alnum(iban);
+  if (ib.length >= 15) {
+    const hit = rows.find((r) => alnum(r.iban) === ib);
+    if (hit) return hit.id;
+  }
+  const acc = digits(accountNumber) || (ib.length >= 15 ? digits(ib.slice(-15)) : "");
+  if (acc.length >= 6) {
+    const hits = rows.filter(
+      (r) => (digits(r.account_number) && digits(r.account_number) === acc) ||
+        (digits(r.iban).includes(acc)) || (digits(r.account_number).length >= 6 && acc.includes(digits(r.account_number))),
+    );
+    if (hits.length === 1) return hits[0].id;
+  }
+  return null;
+}
+
+async function supplierIdsByVat(vat: string | null): Promise<string[]> {
+  const n = normalizeVat(vat)?.replace(/^PT/, "");
+  if (!n) return [];
+  const { data } = await supabaseAdmin.from("companies").select("id, nif");
+  return (data ?? []).filter((c) => normalizeVat(c.nif)?.replace(/^PT/, "") === n).map((c) => c.id);
+}
+
+/** Credit note → the supplier invoice it corrects (same supplier NIF + invoice number). */
+export async function matchOriginalInvoice(vat: string | null, refNumber: string | null): Promise<string | null> {
+  if (!refNumber) return null;
+  const ids = await supplierIdsByVat(vat);
+  if (ids.length === 0) return null;
+  const { data } = await supabaseAdmin
+    .from("financial_documents")
+    .select("id, document_number")
+    .in("counterparty_supplier_id", ids)
+    .eq("direction", "received");
+  const want = alnum(refNumber);
+  const hits = (data ?? []).filter((d) => {
+    const n = alnum(d.document_number);
+    return n && (n === want || n.endsWith(want) || want.endsWith(n));
+  });
+  return hits.length === 1 ? hits[0].id : null;
+}
+
+/** Receipts / payment proofs → open purchases of the same supplier for that amount. */
+export async function matchPaymentCandidates(vat: string | null, amount: number | null) {
+  const empty = { payment_match_document_id: null, payment_match_candidates: [] as unknown[] };
+  const ids = await supplierIdsByVat(vat);
+  if (ids.length === 0) return empty;
+  const { data } = await supabaseAdmin
+    .from("financial_documents")
+    .select("id, document_number, issue_date, due_date, total_inc_vat, outstanding_amount, paid_amount, status, counterparty_name_snapshot")
+    .in("counterparty_supplier_id", ids)
+    .eq("direction", "received")
+    .not("status", "in", "(paid,cancelled)")
+    .order("issue_date", { ascending: false })
+    .limit(50);
+  const rows = (data ?? []).map((d) => {
+    const open = Number(d.outstanding_amount ?? Number(d.total_inc_vat) - Number(d.paid_amount ?? 0));
+    const exact = amount != null && (Math.abs(open - amount) <= 0.02 || Math.abs(Number(d.total_inc_vat) - amount) <= 0.02);
+    return {
+      id: d.id,
+      document_number: d.document_number,
+      issue_date: d.issue_date,
+      due_date: d.due_date,
+      total: Number(d.total_inc_vat),
+      open,
+      supplier: d.counterparty_name_snapshot,
+      exact_amount: exact,
+    };
+  });
+  rows.sort((a, b) => Number(b.exact_amount) - Number(a.exact_amount));
+  const exact = rows.filter((r) => r.exact_amount);
+  return {
+    payment_match_document_id: exact.length === 1 ? exact[0].id : null,
+    payment_match_candidates: rows.slice(0, 10),
+  };
+}
