@@ -166,7 +166,7 @@ function isLimit(status: number, body: string) {
   return status === 429 || status === 402 || (status === 403 && /credit_limit|limit/i.test(body));
 }
 
-async function loadFile(bucket: string, path: string) {
+export async function loadFile(bucket: string, path: string) {
   const { data: file, error } = await supabaseAdmin.storage.from(bucket).download(path);
   if (error || !file) throw new Error(`download: ${error?.message ?? "no file"}`);
   const buf = Buffer.from(await file.arrayBuffer());
@@ -178,7 +178,7 @@ async function loadFile(bucket: string, path: string) {
       : ext === "png" ? "image/png"
       : ext === "webp" ? "image/webp"
       : "image/jpeg";
-  return { b64: buf.toString("base64"), mime };
+  return { b64: buf.toString("base64"), mime, bytes: new Uint8Array(buf) };
 }
 
 async function runGemini(system: string, userText: string, b64: string, mime: string, key: string): Promise<ModelRun> {
@@ -472,13 +472,21 @@ export async function runDualExtraction(
   forcedType?: IntakeType | null,
   /** Read only these pages (one document cut out of a multi-document PDF). */
   pages?: { first: number; last: number } | null,
+  extra?: {
+    /** File already downloaded by the caller (hash check). */
+    preloaded?: { b64: string; mime: string } | null;
+    /** "Regras do estúdio", supplier pattern and examples for Claude. */
+    claudeContext?: string;
+    /** Same, for the second reader, once Claude's supplier NIF is known. */
+    geminiContext?: (claudeNif: string | null) => Promise<string>;
+  },
 ): Promise<DualResult> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) return { ok: false, error: "LOVABLE_API_KEY missing", retryLater: false };
 
   let file: { b64: string; mime: string };
   try {
-    file = await loadFile(bucket, path);
+    file = extra?.preloaded ?? (await loadFile(bucket, path));
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e), retryLater: false };
   }
@@ -495,11 +503,14 @@ export async function runDualExtraction(
 
   // Claude reads the type first; Gemini is a second reader only for the
   // money-bearing types (or as a fallback when Claude fails).
-  const claude = await runClaude(system, userText + pageText, file.b64, file.mime, key);
+  const claude = await runClaude(system + (extra?.claudeContext ?? ""), userText + pageText, file.b64, file.mime, key);
   const claudeType = forcedType ?? (claude.ok ? claude.output?.intake_type : null);
   const needSecond = !claude.ok || (!!claudeType && SECOND_READER_TYPES.includes(claudeType as IntakeType));
   const gemini: ModelRun = needSecond
-    ? await runGemini(system, userText + pageText, file.b64, file.mime, key)
+    ? await runGemini(
+        system + (extra?.geminiContext ? await extra.geminiContext(claude.ok ? claude.output?.seller_vat ?? claude.output?.supplier_vat ?? null : null) : extra?.claudeContext ?? ""),
+        userText + pageText, file.b64, file.mime, key,
+      )
     : { model: GEMINI_MODEL, ok: false, ms: 0, skipped: true };
   const runs = { claude, gemini };
   const retryLater = (!claude.ok && !!claude.limit) || (!gemini.ok && !!gemini.limit);

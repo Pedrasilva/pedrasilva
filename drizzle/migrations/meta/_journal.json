@@ -127,6 +127,13 @@
       "when": 1791201978269,
       "tag": "0017_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791224457111,
+      "tag": "0018_finance_intake_duplicates_learning",
+      "breakpoints": true
     }
   ]
 }

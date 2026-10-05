@@ -27,7 +27,10 @@ export function matchSenderRule(from: string | null | undefined, rules: SenderRu
   return null;
 }
 
-export function financeGmailQuery(address: string) {
-  const a = address.trim().toLowerCase();
-  return `has:attachment newer_than:14d (to:${a} OR deliveredto:${a} OR cc:${a})`;
+/**
+ * The finance mailbox is read directly, so no address filter is needed.
+ * `since` (YYYY/MM/DD) is only used for a one-off catch-up.
+ */
+export function financeGmailQuery(since?: string | null) {
+  return since ? `has:attachment after:${since}` : "has:attachment newer_than:14d";
 }
