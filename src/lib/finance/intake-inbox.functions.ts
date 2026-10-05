@@ -513,16 +513,110 @@ export const findRuleMatches = createServerFn({ method: "POST" })
     return { items };
   });
 
-/** "Encaminhar": email an outra_entidade document (download link) and file it. */
-export const forwardOtherEntityDocument = createServerFn({ method: "POST" })
+const REMOVE_TAGS = ["not_psa", "duplicate", "not_financial", "test", "other"] as const;
+const REMOVE_SCOPES = ["none", "recipient", "supplier", "sender", "sender_domain"] as const;
+
+/**
+ * "Eliminar": a required reason. The item moves to Eliminados (restorable for
+ * 30 days), the reason is recorded as a correction and, with a scope, saved as
+ * a deletion rule (instruction with action "remove").
+ */
+export const removeQueueItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), to: z.string().trim().email() }).parse(i))
+  .inputValidator((i: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      reason: z.string().trim().min(1).max(1000),
+      tag: z.enum(REMOVE_TAGS),
+      scope: z.enum(REMOVE_SCOPES).default("none"),
+    }).parse(i),
+  )
   .handler(async ({ data, context }) => {
-    await assertFinanceAccess(context.supabase, context.userId);
-    const { data: row, error } = await context.supabase
-      .from("financial_document_review_queue").select("intake_type").eq("id", data.id).single();
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, status, intake_type, extracted_supplier_vat, extracted_seller_vat, extracted_recipient_vat, extracted_buyer_vat, sender_address")
+      .eq("id", data.id)
+      .single();
     if (error) throw new Error(error.message);
-    if (row.intake_type !== "outra_entidade") throw new Error("Not a document for another entity");
-    const { forwardOtherEntityItem } = await import("@/lib/finance/other-entities.server");
-    return forwardOtherEntityItem(data.id, data.to.toLowerCase(), context.userId);
+    if (row.status === "approved" || row.status === "removed") throw new Error(`Item is already ${row.status}`);
+    const { removeColumns } = await import("@/lib/finance/recipient-rule.server");
+    const { error: e1 } = await supabase
+      .from("financial_document_review_queue")
+      .update({ ...removeColumns({ reason: data.reason, source: "manual", tag: data.tag, by: userId, prevStatus: row.status }) })
+      .eq("id", data.id);
+    if (e1) throw new Error(e1.message);
+    const supplierNif = nifOf(row.extracted_supplier_vat ?? row.extracted_seller_vat);
+    await supabase.from("finance_intake_corrections").insert({
+      queue_item_id: data.id, supplier_nif: supplierNif, field: "removal",
+      ai_value: row.intake_type, corrected_value: `${data.tag}: ${data.reason}`.slice(0, 500), corrected_by: userId,
+    });
+    if (data.scope === "none") return { ok: true, instruction: null };
+    const sender = row.sender_address?.toLowerCase().trim() ?? null;
+    const value =
+      data.scope === "recipient" ? nifOf(row.extracted_recipient_vat ?? row.extracted_buyer_vat)
+      : data.scope === "supplier" ? supplierNif
+      : data.scope === "sender" ? sender
+      : sender?.split("@")[1] ?? null;
+    if (!value) throw new Error(`No ${data.scope} on this document`);
+    const scopeType = data.scope === "recipient" ? "recipient_nif" : data.scope === "supplier" ? "supplier_nif" : "sender";
+    const { data: existing } = await supabase
+      .from("finance_intake_instructions")
+      .select("id, text, scope_type, scope_value, action")
+      .eq("active", true).eq("action", "remove").eq("scope_type", scopeType).eq("scope_value", value)
+      .limit(1).maybeSingle();
+    if (existing) return { ok: true, instruction: existing };
+    const { data: ins, error: e2 } = await supabase
+      .from("finance_intake_instructions")
+      .insert({ text: data.reason, scope_type: scopeType, scope_value: value, action: "remove", created_by: userId })
+      .select("id, text, scope_type, scope_value, action")
+      .single();
+    if (e2) throw new Error(e2.message);
+    return { ok: true, instruction: ins };
+  });
+
+/** Apply a deletion rule to the confirmed similar pending documents. */
+export const applyRemovalRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ instructionId: z.string().uuid(), ids: z.array(z.string().uuid()).min(1).max(500) }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: ins, error } = await supabase
+      .from("finance_intake_instructions").select("id, text, action").eq("id", data.instructionId).single();
+    if (error) throw new Error(error.message);
+    if (ins.action !== "remove") throw new Error("Not a deletion rule");
+    const { removeColumns } = await import("@/lib/finance/recipient-rule.server");
+    const { data: done, error: e2 } = await supabase
+      .from("financial_document_review_queue")
+      .update({ ...removeColumns({ reason: ins.text, source: `rule:${ins.id}`, tag: "rule", by: userId }) })
+      .in("id", data.ids)
+      .eq("status", "pending_review")
+      .select("id");
+    if (e2) throw new Error(e2.message);
+    return { removed: done?.length ?? 0 };
+  });
+
+/** "Restaurar": back to its previous status; the recipient rule won't remove it again. */
+export const restoreRemovedItem = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("financial_document_review_queue").select("id, status, removed_prev_status").eq("id", data.id).single();
+    if (error) throw new Error(error.message);
+    if (row.status !== "removed") throw new Error("Item is not removed");
+    const prev = ["pending_review", "filed", "paid"].includes(row.removed_prev_status ?? "") ? row.removed_prev_status : "pending_review";
+    const { error: e2 } = await supabase
+      .from("financial_document_review_queue")
+      .update({
+        status: prev, keep_despite_recipient: true, removed_at: null, removed_by: null,
+        removed_source: null, removed_reason: null, removed_tag: null, removed_prev_status: null,
+      })
+      .eq("id", data.id);
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
   });
