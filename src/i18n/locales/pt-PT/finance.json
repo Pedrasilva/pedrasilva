@@ -1080,7 +1080,8 @@
       "qa": "QA",
       "reviewQueue": "Fila de revisão",
       "statements": "Extratos",
-      "intakeInbox": "Caixa de entrada"
+      "intakeInbox": "Caixa de entrada",
+      "purchaseDuplicates": "Possíveis duplicados"
     }
   },
   "purchases": {
@@ -1929,5 +1930,53 @@
       "saved": "Instrução guardada.",
       "deleted": "Instrução apagada."
     }
+  },
+  "purchaseDups": {
+    "title": "Compras possivelmente duplicadas",
+    "subtitle": "Só leitura até decidir. As compras anuladas ficam guardadas, marcadas como anuladas, com motivo e ligação à que fica.",
+    "countExact_one": "{{count}} grupo com o mesmo número",
+    "countExact_other": "{{count}} grupos com o mesmo número",
+    "countProbable_one": "{{count}} par possível",
+    "countProbable_other": "{{count}} pares possíveis",
+    "countTwoPaid_one": "{{count}} grupo pago duas vezes",
+    "countTwoPaid_other": "{{count}} grupos pagos duas vezes",
+    "countFlagged_one": "{{count}} assinalado",
+    "countFlagged_other": "{{count}} assinalados",
+    "payHint": "Pago = marcado como pago ou com pagamento registado. Agendado = por pagar, com data de vencimento. Em aberto = nenhum dos dois.",
+    "none": "Sem possíveis duplicados.",
+    "kindExact": "Mesmo fornecedor, número e ano",
+    "kindProbable": "Mesmo fornecedor e total, datas a 5 dias",
+    "bothPaid": "Ambos pagos",
+    "bothScheduled": "Ambos agendados",
+    "pay": {
+      "paid": "Pago",
+      "scheduled": "Agendado",
+      "open": "Em aberto"
+    },
+    "number": "Número",
+    "date": "Data",
+    "total": "Total",
+    "nif": "NIF",
+    "payments": "Pagamentos",
+    "due": "Vencimento",
+    "enteredBy": "Registado",
+    "how": {
+      "intake": "recolha",
+      "manual": "manual",
+      "import": "importação"
+    },
+    "open": "Abrir",
+    "file": "Ficheiro",
+    "noFile": "Sem ficheiro",
+    "keepVoid": "É duplicado → manter {{keep}}, anular {{drop}}",
+    "notDup": "Não é duplicado",
+    "voidTitle": "Anular o duplicado",
+    "voidDesc": "Fica marcado como anulado, ligado ao que se mantém. Nada é apagado.",
+    "voidPaidWarn": "A compra a anular tem um pagamento. Verifique depois o pagamento e a reconciliação bancária.",
+    "reasonPh": "Motivo (obrigatório)",
+    "cancel": "Cancelar",
+    "confirmVoid": "Anular",
+    "voided": "Duplicado anulado",
+    "remembered": "Marcado como não duplicado"
   }
 }
