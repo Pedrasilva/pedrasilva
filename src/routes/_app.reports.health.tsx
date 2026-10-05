@@ -526,7 +526,7 @@ function WfShape(props: { x?: number; y?: number; width?: number; height?: numbe
   return (
     <g>
       <rect x={x} y={y} width={width} height={Math.max(height, 1)} fill={fill} />
-      {payload?.connect && <line x1={x + width} x2={x + band} y1={ly} y2={ly} stroke="var(--muted-foreground)" strokeWidth={1} strokeDasharray="3 2" />}
+      {payload?.connect && <line x1={x + width} x2={x + band} y1={ly} y2={ly} stroke="var(--foreground)" strokeOpacity={0.5} strokeWidth={1} />}
     </g>
   );
 }
