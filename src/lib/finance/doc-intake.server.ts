@@ -710,15 +710,82 @@ export async function ingestStoredDocument(opts: {
   splitOf?: { fileUrl: string; part: number; first: number; last: number } | null;
   /** Sender matched a "sempre processar" rule: an AI "ignored" route goes to triage. */
   forceProcess?: boolean;
-}): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
+  /** Email sender address (sender-scoped instructions and supplier hints). */
+  senderAddress?: string | null;
+}): Promise<IngestOutcome> {
   const intake = await import("./intake-models.server");
+  const dups = await import("./intake-duplicates.server");
+  const learn = await import("./intake-learning.server");
+  const replaceId = opts.replaceQueueItemId ?? null;
+
+  // Existing row (re-reads): keep its age (the oldest copy is the original),
+  // its sender and the supplier NIF read last time.
+  let selfCreatedAt: string | null = null;
+  let priorNif: string | null = null;
+  let sender = opts.senderAddress?.toLowerCase() ?? null;
+  if (replaceId) {
+    const { data: prev } = await supabaseAdmin
+      .from("financial_document_review_queue")
+      .select("created_at, extracted_supplier_vat, sender_address")
+      .eq("id", replaceId)
+      .maybeSingle();
+    selfCreatedAt = prev?.created_at ?? null;
+    priorNif = prev?.extracted_supplier_vat ?? null;
+    sender = sender ?? prev?.sender_address ?? null;
+  }
+
+  // A — same file: known hash → duplicate, never sent to the AI.
+  let file: { b64: string; mime: string; bytes: Uint8Array } | null = null;
+  try { file = await intake.loadFile(opts.bucket, opts.storagePath); } catch { file = null; }
+  const hash = file ? await dups.sha256Hex(file.bytes) : null;
+  if (hash && !opts.splitOf) {
+    const fd = await dups.findFileDuplicate({ hash, selfId: replaceId, storagePath: opts.storagePath, createdBefore: selfCreatedAt });
+    if (fd) {
+      const q = supabaseAdmin.from("financial_document_review_queue");
+      const values = {
+        source_file_url: opts.storagePath,
+        source_bucket: opts.bucket,
+        original_filename: opts.originalFilename ?? null,
+        source: opts.source,
+        created_by: opts.createdBy ?? null,
+        ...(opts.extraFields ?? {}),
+        file_sha256: hash,
+        sender_address: sender,
+        status: "duplicate",
+        intake_route: "triage",
+        verification: "none",
+        duplicate_kind: fd.kind,
+        duplicate_reason: fd.reason,
+        duplicate_of_id: fd.queueItemId ?? null,
+        duplicate_of_document_id: null,
+      };
+      const { data: row, error } = replaceId
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ? await q.update(values as any).eq("id", replaceId).select("id, linked_document_group_id").single()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : await q.insert(values as any).select("id, linked_document_group_id").single();
+      if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
+      return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id, duplicate: fd };
+    }
+  }
+
+  // B — studio rules, supplier pattern and recent corrections.
+  const hintNif = priorNif ?? (await learn.nifHintForSender(sender));
+  let learning = await learn.loadLearning({ nif: hintNif, sender });
   const result = await intake.runDualExtraction(
     opts.bucket,
     opts.storagePath,
     opts.forcedType ?? null,
     opts.splitOf && opts.splitOf.part > 0 ? { first: opts.splitOf.first, last: opts.splitOf.last } : null,
+    {
+      preloaded: file,
+      claudeContext: learn.learningPrompt(learning),
+      geminiContext: async (nif) => {
+        if (learn.nifKey(nif) && learn.nifKey(nif) !== learning.nif) learning = await learn.loadLearning({ nif, sender });
+        return learn.learningPrompt(learning);
+      },
+    },
   );
-  const replaceId = opts.replaceQueueItemId ?? null;
   const retryCount = opts.retryCount ?? 0;
   // AI-limit failures come back automatically: 30 min, 1 h, 2 h … capped at 12 h.
   const retryAt = () =>
@@ -740,6 +807,8 @@ export async function ingestStoredDocument(opts: {
     source: opts.source,
     created_by: opts.createdBy ?? null,
     ...(opts.extraFields ?? {}),
+    file_sha256: hash,
+    sender_address: sender,
   };
 
 
@@ -781,6 +850,24 @@ export async function ingestStoredDocument(opts: {
   }
 
   const ex = result.extraction;
+
+  // Supplier pattern: the last 2+ approved documents of this supplier agree
+  // on type and code → pre-fill them (a person's own type choice wins).
+  const ownEarly = await getOwnCompanyVat();
+  const readNifRaw = ex.seller_vat ?? ex.supplier_vat ?? null;
+  const readNif = readNifRaw && !(ownEarly.vat && sameVat(readNifRaw, ownEarly.vat)) ? readNifRaw : null;
+  if (learn.nifKey(readNif) !== learning.nif) learning = await learn.loadLearning({ nif: readNif, sender });
+  const aiType = ex.intake_type ?? null;
+  const aiCode = ex.classification_code ?? null;
+  let defaultsPrefilled = false;
+  if (learning.defaults && !opts.forcedType) {
+    ex.intake_type = learning.defaults.intake_type as typeof ex.intake_type;
+    ex.intake_type_confidence = Math.max(Number(ex.intake_type_confidence ?? 0), 0.9);
+    ex.doc_type = intake.legacyDocType(ex.intake_type);
+    ex.classification_code = learning.defaults.classification_code;
+    defaultsPrefilled = true;
+  }
+  const applied = learn.appliedLearning(learning, readNif, { defaultsPrefilled, aiType, aiCode });
 
   // Routing step: bank statements never go through supplier matching or
   // accounting classification — they belong to the Banking import path.
@@ -963,10 +1050,46 @@ export async function ingestStoredDocument(opts: {
       : { payment_match_document_id: null, payment_match_candidates: null }),
   });
 
+  payload.applied_learning = applied;
+
+  // A — same document / bank movement / probable duplicate.
+  const dupRes = await dups.checkDocumentDuplicates({
+    selfId: replaceId,
+    createdBefore: selfCreatedAt,
+    intakeType: type,
+    direction: dir.direction,
+    nif: counterpartyVat,
+    supplierName: counterpartyName,
+    documentNumber: ex.document_number,
+    date: ex.issue_date,
+    total: ex.total_amount ?? null,
+    bankAccountId: (payload.matched_bank_account_id as string | null) ?? null,
+    iban: ex.iban ?? null,
+    accountNumber: ex.account_number ?? null,
+    periodStart: ex.period_start ?? null,
+    periodEnd: ex.period_end ?? null,
+  });
+  Object.assign(payload, dups.duplicateColumns(dupRes));
+
   const { data: row, error } = await write(payload);
   if (error || !row) return { ok: false, error: error?.message ?? "write failed" };
-  return { ok: true, queueItemId: row.id, groupId: row.linked_document_group_id };
+  return {
+    ok: true,
+    queueItemId: row.id,
+    groupId: row.linked_document_group_id,
+    duplicate: dupRes.exact ?? undefined,
+    possibleDuplicates: dupRes.probable.length ? dupRes.probable : undefined,
+  };
 }
+
+export type IngestOutcome = {
+  ok: boolean;
+  queueItemId?: string;
+  groupId?: string;
+  error?: string;
+  duplicate?: import("./intake-duplicates.server").DupMatch;
+  possibleDuplicates?: import("./intake-duplicates.server").DupMatch[];
+};
 
 /**
  * Re-run extraction + direction detection on an existing PENDING queue row,
@@ -979,7 +1102,7 @@ export async function reprocessQueueItem(
 ): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
   const { data: item, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last, sender_address")
     .eq("id", queueItemId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -1003,6 +1126,7 @@ export async function reprocessQueueItem(
         ? (item.intake_type as import("./intake-models.server").IntakeType | null)
         : null),
     retryCount: item.retry_count ?? 0,
+    senderAddress: (item as { sender_address?: string | null }).sender_address ?? null,
     splitOf: item.split_of_file_url
       ? { fileUrl: item.split_of_file_url, part: item.split_part ?? 0, first: item.split_page_first ?? 1, last: item.split_page_last ?? 1 }
       : null,
@@ -1019,8 +1143,8 @@ export async function reprocessQueueItem(
 async function splitAndIngest(
   opts: Parameters<typeof ingestStoredDocument>[0],
   parts: { first: number; last: number }[],
-): Promise<{ ok: boolean; queueItemId?: string; groupId?: string; error?: string }> {
-  let first: { ok: boolean; queueItemId?: string; groupId?: string; error?: string } | null = null;
+): Promise<IngestOutcome> {
+  let first: IngestOutcome | null = null;
   for (let i = 0; i < parts.length; i++) {
     const r = await ingestStoredDocument({
       ...opts,
