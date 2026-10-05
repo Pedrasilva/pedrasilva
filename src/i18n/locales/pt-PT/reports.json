@@ -26,6 +26,10 @@
       "estimates": {
         "title": "Estimativa vs real por fase",
         "description": "Horas e custo previstos vs reais por tipo de fase, com dispersão e desvios."
+      },
+      "health": {
+        "title": "Saúde da empresa",
+        "description": "Dias, horas, custo total, valor do trabalho, equilíbrio e onde perdemos dinheiro."
       }
     }
   },
@@ -370,6 +374,97 @@
     "basis": {
       "allocated": "alocadas",
       "budget": "pelo orçamento"
+    }
+  },
+  "health": {
+    "title": "Saúde da empresa",
+    "subtitle": "Dias, horas, custo total do estúdio, valor do trabalho e facturabilidade de equilíbrio. Só períodos concluídos, desde 1 de Junho de 2026. Os custos usam as taxas de custo fixadas; os salários ficam no servidor.",
+    "presets": {
+      "lastMonth": "Último mês",
+      "last2Months": "Últimos 2 meses",
+      "last6Months": "Último semestre",
+      "lastYear": "Último ano",
+      "custom": "Personalizado"
+    },
+    "range": "{{start}} → {{end}}",
+    "beforeTracking": "Nada a mostrar antes de 1 de Junho de 2026.",
+    "error": "Não foi possível carregar este relatório.",
+    "noAccess": "Só administradores podem ver este relatório.",
+    "vsPrevious": "vs período anterior",
+    "period": "Período",
+    "unitDays": "dias",
+    "unitPersonDays": "dias-pessoa",
+    "tiles": {
+      "result": "Resultado",
+      "margin": "Margem {{pct}}",
+      "value": "Valor do trabalho facturável",
+      "valueSub": "Horas facturáveis × taxa de venda — não é facturação emitida",
+      "fullCost": "Custo total do estúdio",
+      "fullCostSub": "Salários + custos operacionais, proporcionais aos dias úteis",
+      "breakEven": "Facturabilidade vs equilíbrio",
+      "breakEvenSub": "Horas facturáveis da equipa de projecto ÷ horas disponíveis · taxa média de venda {{rate}}/h"
+    },
+    "days": {
+      "title": "Dias",
+      "total": "Dias de calendário",
+      "weekends": "Fins de semana",
+      "holidays": "Feriados",
+      "working": "Dias úteis",
+      "gross": "Dias-pessoa ({{n}} pessoas)",
+      "vacation": "Férias",
+      "otherPaid": "Outras ausências pagas",
+      "available": "Dias-pessoa disponíveis",
+      "unpaid": "Ausências não pagas (à parte)",
+      "note": "Os dias-pessoa contam desde a data de admissão e até aos dias por semana de cada pessoa. As ausências não pagas não reduzem o tempo disponível (é tempo em dívida)."
+    },
+    "hours": {
+      "title": "Horas",
+      "available": "Horas disponíveis",
+      "logged": "Registadas",
+      "unlogged": "Por registar ({{pct}})",
+      "chargeTeam": "Equipa de projecto: {{actual}} vs meta {{target}}",
+      "chargeStudio": "Estúdio todo: {{pct}} facturável",
+      "internalCat": "Interno por categoria"
+    },
+    "kinds": {
+      "billable": "Projecto facturável",
+      "nonBillable": "Projecto não facturável",
+      "internal": "Interno",
+      "unlogged": "Por registar"
+    },
+    "blocks": {
+      "billable": "Horas de projecto facturáveis",
+      "nonBillable": "Horas de projecto não facturáveis",
+      "internal": "Horas internas",
+      "unlogged": "Horas por registar",
+      "leave": "Ausências pagas e feriados",
+      "estrutura": "Estrutura (backoffice e custos fixos)",
+      "fullCost": "Custo total",
+      "value": "Valor do trabalho",
+      "result": "Resultado"
+    },
+    "money": {
+      "title": "Para onde vai o dinheiro",
+      "how": "Custo total = {{people}} pessoas ({{proj}} projecto, {{bo}} backoffice): salários de projecto {{projSal}} + salários de backoffice {{boSal}} (custo anual ÷ {{days}} dias úteis × dias trabalhados) + custos operacionais {{opex}} ({{opexAnnual}}/ano ÷ {{days}} × dias úteis × {{share}}%). Horas da equipa de projecto à taxa de custo fixada; a estrutura é o resto.",
+      "withoutSalary": "{{n}} pessoas não têm registo salarial e somam 0 €."
+    },
+    "losses": {
+      "title": "Onde perdemos dinheiro",
+      "internal": "Interno · {{cat}}",
+      "unlogged": "Horas por registar",
+      "nonBillable": "Horas de projecto não facturáveis",
+      "pursuitLost": "Pursuit em leads perdidas",
+      "projects": "Projectos com custo acima do valor do trabalho",
+      "noProjects": "Nenhum neste período.",
+      "project": "Projecto",
+      "cost": "Custo"
+    },
+    "trends": {
+      "title": "Tendência mensal",
+      "margin": "Margem %",
+      "charge": "Facturabilidade",
+      "breakEven": "Equilíbrio",
+      "unlogged": "Por registar %"
     }
   }
 }

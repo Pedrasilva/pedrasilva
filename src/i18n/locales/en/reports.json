@@ -26,6 +26,10 @@
       "estimates": {
         "title": "Estimate vs actual by phase",
         "description": "Planned vs actual hours and cost per phase type, with the spread and overruns."
+      },
+      "health": {
+        "title": "Company health",
+        "description": "Days, hours, full cost, value of work, break-even and where we lose money."
       }
     }
   },
@@ -370,6 +374,97 @@
     "basis": {
       "allocated": "allocated",
       "budget": "by budget"
+    }
+  },
+  "health": {
+    "title": "Company health",
+    "subtitle": "Days, hours, full studio cost, value of work and break-even chargeability. Completed periods only, from 1 June 2026. Costs use the locked cost rates; salaries stay on the server.",
+    "presets": {
+      "lastMonth": "Last month",
+      "last2Months": "Last 2 months",
+      "last6Months": "Last semester",
+      "lastYear": "Last year",
+      "custom": "Custom range"
+    },
+    "range": "{{start}} → {{end}}",
+    "beforeTracking": "Nothing to show before 1 June 2026.",
+    "error": "Could not load this report.",
+    "noAccess": "Only admins can see this report.",
+    "vsPrevious": "vs previous period",
+    "period": "Period",
+    "unitDays": "days",
+    "unitPersonDays": "person-days",
+    "tiles": {
+      "result": "Result",
+      "margin": "Margin {{pct}}",
+      "value": "Value of billable work",
+      "valueSub": "Billable hours × sale rate — not invoiced revenue",
+      "fullCost": "Full studio cost",
+      "fullCostSub": "Salaries + operating costs, prorated by working days",
+      "breakEven": "Chargeability vs break-even",
+      "breakEvenSub": "Project team billable ÷ available hours · average sale rate {{rate}}/h"
+    },
+    "days": {
+      "title": "Days",
+      "total": "Calendar days",
+      "weekends": "Weekends",
+      "holidays": "Public holidays",
+      "working": "Working days",
+      "gross": "Person-days ({{n}} people)",
+      "vacation": "Vacation",
+      "otherPaid": "Other paid leave",
+      "available": "Available person-days",
+      "unpaid": "Unpaid leave (shown separately)",
+      "note": "Person-days count from each admission date and up to each person's days per week. Unpaid leave does not reduce available time (it is time owed)."
+    },
+    "hours": {
+      "title": "Hours",
+      "available": "Available hours",
+      "logged": "Logged",
+      "unlogged": "Unlogged ({{pct}})",
+      "chargeTeam": "Project team: {{actual}} vs target {{target}}",
+      "chargeStudio": "Whole studio: {{pct}} billable",
+      "internalCat": "Internal by category"
+    },
+    "kinds": {
+      "billable": "Billable project",
+      "nonBillable": "Non-billable project",
+      "internal": "Internal",
+      "unlogged": "Unlogged"
+    },
+    "blocks": {
+      "billable": "Billable project hours",
+      "nonBillable": "Non-billable project hours",
+      "internal": "Internal hours",
+      "unlogged": "Unlogged hours",
+      "leave": "Paid leave & holidays",
+      "estrutura": "Structure (back office & overheads)",
+      "fullCost": "Full cost",
+      "value": "Value of work",
+      "result": "Result"
+    },
+    "money": {
+      "title": "Where the money goes",
+      "how": "Full cost = {{people}} people ({{proj}} project, {{bo}} back office): project salaries {{projSal}} + back-office salaries {{boSal}} (annual cost ÷ {{days}} working days × days worked) + operating costs {{opex}} ({{opexAnnual}}/year ÷ {{days}} × working days × {{share}}%). Project-team hours at the locked cost rate; structure is the rest.",
+      "withoutSalary": "{{n}} people have no salary record and add €0."
+    },
+    "losses": {
+      "title": "Where we lose money",
+      "internal": "Internal · {{cat}}",
+      "unlogged": "Unlogged hours",
+      "nonBillable": "Non-billable project hours",
+      "pursuitLost": "Pursuit on lost leads",
+      "projects": "Projects costing more than the value of their work",
+      "noProjects": "None in this period.",
+      "project": "Project",
+      "cost": "Cost"
+    },
+    "trends": {
+      "title": "Trends by month",
+      "margin": "Margin %",
+      "charge": "Chargeability",
+      "breakEven": "Break-even",
+      "unlogged": "Unlogged %"
     }
   }
 }

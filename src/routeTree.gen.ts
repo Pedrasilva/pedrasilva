@@ -87,6 +87,7 @@ import { Route as AppReportsBudgetRouteImport } from './routes/_app.reports.budg
 import { Route as AppReportsBusinessRouteImport } from './routes/_app.reports.business'
 import { Route as AppReportsCapacityRouteImport } from './routes/_app.reports.capacity'
 import { Route as AppReportsEstimatesRouteImport } from './routes/_app.reports.estimates'
+import { Route as AppReportsHealthRouteImport } from './routes/_app.reports.health'
 import { Route as AppReportsHoursRouteImport } from './routes/_app.reports.hours'
 import { Route as AppCrmCompaniesIndexRouteImport } from './routes/_app.crm.companies.index'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
@@ -549,6 +550,11 @@ const AppReportsCapacityRoute = AppReportsCapacityRouteImport.update({
 const AppReportsEstimatesRoute = AppReportsEstimatesRouteImport.update({
   id: '/reports/estimates',
   path: '/reports/estimates',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsHealthRoute = AppReportsHealthRouteImport.update({
+  id: '/reports/health',
+  path: '/reports/health',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReportsHoursRoute = AppReportsHoursRouteImport.update({
@@ -1016,6 +1022,7 @@ export interface FileRoutesByFullPath {
   '/reports/business': typeof AppReportsBusinessRoute
   '/reports/capacity': typeof AppReportsCapacityRoute
   '/reports/estimates': typeof AppReportsEstimatesRoute
+  '/reports/health': typeof AppReportsHealthRoute
   '/reports/hours': typeof AppReportsHoursRoute
   '/admin/': typeof AppAdminIndexRoute
   '/crm/': typeof AppCrmIndexRoute
@@ -1156,6 +1163,7 @@ export interface FileRoutesByTo {
   '/reports/business': typeof AppReportsBusinessRoute
   '/reports/capacity': typeof AppReportsCapacityRoute
   '/reports/estimates': typeof AppReportsEstimatesRoute
+  '/reports/health': typeof AppReportsHealthRoute
   '/reports/hours': typeof AppReportsHoursRoute
   '/admin': typeof AppAdminIndexRoute
   '/crm': typeof AppCrmIndexRoute
@@ -1306,6 +1314,7 @@ export interface FileRoutesById {
   '/_app/reports/business': typeof AppReportsBusinessRoute
   '/_app/reports/capacity': typeof AppReportsCapacityRoute
   '/_app/reports/estimates': typeof AppReportsEstimatesRoute
+  '/_app/reports/health': typeof AppReportsHealthRoute
   '/_app/reports/hours': typeof AppReportsHoursRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/crm/': typeof AppCrmIndexRoute
@@ -1456,6 +1465,7 @@ export interface FileRouteTypes {
     | '/reports/business'
     | '/reports/capacity'
     | '/reports/estimates'
+    | '/reports/health'
     | '/reports/hours'
     | '/admin/'
     | '/crm/'
@@ -1596,6 +1606,7 @@ export interface FileRouteTypes {
     | '/reports/business'
     | '/reports/capacity'
     | '/reports/estimates'
+    | '/reports/health'
     | '/reports/hours'
     | '/admin'
     | '/crm'
@@ -1745,6 +1756,7 @@ export interface FileRouteTypes {
     | '/_app/reports/business'
     | '/_app/reports/capacity'
     | '/_app/reports/estimates'
+    | '/_app/reports/health'
     | '/_app/reports/hours'
     | '/_app/admin/'
     | '/_app/crm/'
@@ -2398,6 +2410,13 @@ declare module '@tanstack/react-router' {
       path: '/reports/estimates'
       fullPath: '/reports/estimates'
       preLoaderRoute: typeof AppReportsEstimatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports/health': {
+      id: '/_app/reports/health'
+      path: '/reports/health'
+      fullPath: '/reports/health'
+      preLoaderRoute: typeof AppReportsHealthRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/reports/hours': {
@@ -3180,6 +3199,7 @@ interface AppRouteChildren {
   AppReportsBusinessRoute: typeof AppReportsBusinessRoute
   AppReportsCapacityRoute: typeof AppReportsCapacityRoute
   AppReportsEstimatesRoute: typeof AppReportsEstimatesRoute
+  AppReportsHealthRoute: typeof AppReportsHealthRoute
   AppReportsHoursRoute: typeof AppReportsHoursRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   AppMarketingIndexRoute: typeof AppMarketingIndexRoute
@@ -3232,6 +3252,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppReportsBusinessRoute: AppReportsBusinessRoute,
   AppReportsCapacityRoute: AppReportsCapacityRoute,
   AppReportsEstimatesRoute: AppReportsEstimatesRoute,
+  AppReportsHealthRoute: AppReportsHealthRoute,
   AppReportsHoursRoute: AppReportsHoursRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   AppMarketingIndexRoute: AppMarketingIndexRoute,

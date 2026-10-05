@@ -56,7 +56,7 @@ export async function loadInputs(db: Db): Promise<Inputs> {
 const lowerOf = (s: Snapshot) => s.project_cost_effective_from ?? s.effective_from ?? s.reference_date;
 
 /** Snapshot that drives project cost on date d (same rules as default-rates). */
-function pickAt(sns: Snapshot[], d: string): Snapshot | null {
+export function pickAt(sns: Snapshot[], d: string): Snapshot | null {
   const b = sns.map((s) => ({ s, lower: lowerOf(s), upper: s.effective_to }));
   const active = b.filter((x) => x.lower <= d && (x.upper == null || d < x.upper)).sort((a, z) => z.lower.localeCompare(a.lower));
   if (active.length) return active[0].s;
