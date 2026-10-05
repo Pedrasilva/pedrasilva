@@ -63,6 +63,27 @@ async function gmail(path: string, apiKey: string, lovableKey: string) {
   return JSON.parse(text);
 }
 
+/** The linked Gmail connection whose mailbox IS the finance address (cached per worker). */
+let mailboxCache: { address: string; key: string } | null = null;
+async function findMailboxKey(address: string, lovableKey: string): Promise<string | null> {
+  const want = address.trim().toLowerCase();
+  if (mailboxCache?.address === want) return mailboxCache.key;
+  const keys = Object.keys(process.env)
+    .filter((k) => /^GOOGLE_MAIL_API_KEY(_\d+)?$/.test(k))
+    .map((k) => process.env[k]!)
+    .filter(Boolean);
+  for (const key of new Set(keys)) {
+    try {
+      const p = await gmail("/users/me/profile", key, lovableKey);
+      if (String(p.emailAddress ?? "").toLowerCase() === want) {
+        mailboxCache = { address: want, key };
+        return key;
+      }
+    } catch { /* not this one */ }
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
   server: {
     handlers: {
@@ -84,13 +105,14 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         }
 
         const lovableKey = process.env.LOVABLE_API_KEY;
-        const connKey = process.env.GOOGLE_MAIL_API_KEY;
-        if (!lovableKey || !connKey) {
-          return Response.json(
-            { ok: false, error: "Gmail connector not linked (GOOGLE_MAIL_API_KEY missing)" },
-            { status: 503 },
-          );
+        if (!lovableKey) {
+          return Response.json({ ok: false, error: "LOVABLE_API_KEY missing" }, { status: 503 });
         }
+        // Optional catch-up window (shared-secret callers only): read older mail.
+        let body: { since?: string; pageToken?: string } = {};
+        try { body = (await request.json()) as typeof body; } catch { body = {}; }
+        const since = typeof body.since === "string" && /^\d{4}\/\d{2}\/\d{2}$/.test(body.since) ? body.since : null;
+        const pageToken = typeof body.pageToken === "string" ? body.pageToken : null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { ingestStoredDocument } = await import("@/lib/finance/doc-intake.server");
@@ -105,6 +127,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
           skipped: 0,
           mt940Imported: 0,
           mt940Duplicates: 0,
+          duplicates: 0,
           errors: [] as string[],
         };
 
@@ -126,24 +149,34 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         }
 
         try {
-          const { financeGmailQuery, matchSenderRule } = await import("@/lib/finance/sender-rules");
+          const { financeGmailQuery, matchSenderRule, senderEmail } = await import("@/lib/finance/sender-rules");
           const { data: settings } = await supabaseAdmin
             .from("finance_intake_settings").select("finance_address").maybeSingle();
           const financeAddress = settings?.finance_address?.trim();
           if (!financeAddress) {
             return Response.json({ ok: false, error: "Finance address not configured", ...summary }, { status: 503 });
           }
+          // Only the finance mailbox itself is read: pick the linked Google
+          // connection signed in as the finance address. Never another inbox.
+          const connKey = await findMailboxKey(financeAddress, lovableKey);
+          if (!connKey) {
+            return Response.json(
+              { ok: false, error: `No Google connection signed in as ${financeAddress}`, ...summary },
+              { status: 503 },
+            );
+          }
           const { data: ruleRows } = await supabaseAdmin.from("finance_sender_rules").select("pattern, action");
           const rules = (ruleRows ?? []) as Array<{ pattern: string; action: "ignore" | "process" }>;
           const list = await gmail(
             `/users/me/messages?maxResults=${MAX_MESSAGES}&q=${encodeURIComponent(
-              financeGmailQuery(financeAddress),
-            )}`,
+              financeGmailQuery(since),
+            )}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`,
             connKey,
             lovableKey,
           );
+          const nextPageToken: string | null = list.nextPageToken ?? null;
           const ids: string[] = (list.messages ?? []).map((m: { id: string }) => m.id);
-          if (ids.length === 0) return Response.json({ ok: true, ...summary });
+          if (ids.length === 0) return Response.json({ ok: true, nextPageToken, ...summary });
 
           const { data: seen } = await supabaseAdmin
             .from("financial_email_processed_messages")
@@ -271,8 +304,10 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                   originalFilename: part.filename ?? null,
                   source: "email_ingestion",
                   forceProcess: senderRule === "process",
+                  senderAddress: senderEmail(from),
                 });
                 if (res.queueItemId) queued++;
+                if (res.duplicate) summary.duplicates++;
                 if (!res.ok) summary.errors.push(`${part.filename}: ${res.error}`);
               }
 
@@ -303,7 +338,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
             }
           }
 
-          return Response.json({ ok: true, ...summary });
+          return Response.json({ ok: true, nextPageToken, ...summary });
         } catch (err) {
           return Response.json(
             { ok: false, error: err instanceof Error ? err.message : String(err), ...summary },
