@@ -1745,7 +1745,8 @@
       "rules": "Rules",
       "duplicates": "Duplicates",
       "instructions": "Instructions",
-      "other_entity": "Other entities"
+      "other_entity": "Other entities",
+      "removed": "Deleted"
     },
     "empty": "Nothing here.",
     "selectItem": "Select a document.",
@@ -1998,6 +1999,50 @@
       "none": "No entities yet.",
       "saved": "Saved.",
       "emailNeeded": "Enter the email address first."
+    },
+    "removal": {
+      "button": "Delete",
+      "title": "Why are you deleting this document?",
+      "reason": "Reason (required)",
+      "future": "Apply to similar documents in the future",
+      "scope": {
+        "none": "Only this document",
+        "recipient": "This recipient: {{name}} ({{nif}}) — all documents addressed to it",
+        "supplier": "This supplier: {{name}} ({{nif}}) — all documents from this supplier",
+        "sender": "This sender: {{v}}",
+        "senderDomain": "This sender domain: {{v}}"
+      },
+      "tag": {
+        "not_psa": "Not PSA's",
+        "duplicate": "Duplicate",
+        "not_financial": "Not financial",
+        "test": "Test / junk",
+        "other": "Other"
+      },
+      "confirm": "Delete",
+      "removed": "Document moved to Deleted (restorable for 30 days)",
+      "savedTitle": "Deletion rule saved",
+      "ruleSaved": "Saved rule",
+      "viewRule": "View in Instructions",
+      "noSimilar": "No pending documents match this rule.",
+      "similar_one": "{{count}} similar pending document:",
+      "similar_other": "{{count}} similar pending documents:",
+      "removedState": "deleted",
+      "applyN_one": "Apply to {{count}} similar document",
+      "applyN_other": "Apply to {{count}} similar documents",
+      "applied_one": "{{count}} document deleted",
+      "applied_other": "{{count}} documents deleted",
+      "close": "Close",
+      "removedTitle": "Deleted",
+      "restore": "Restore",
+      "restored": "Document restored",
+      "daysLeft_one": "permanently deleted in {{count}} day",
+      "daysLeft_other": "permanently deleted in {{count}} days",
+      "by": {
+        "manual": "Deleted by a person",
+        "rule": "Deleted by a rule",
+        "recipient": "Removed automatically (recipient rule)"
+      }
     }
   },
   "purchaseDups": {

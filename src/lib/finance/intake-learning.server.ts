@@ -89,6 +89,7 @@ export async function loadLearning(opts: { nif: string | null; sender: string | 
     .from("finance_intake_instructions")
     .select("id, text, scope_type, scope_value")
     .eq("active", true)
+    .eq("action", "note")
     .order("created_at", { ascending: true });
   const all = (data ?? []) as Instruction[];
   const nif = nifKey(opts.nif);

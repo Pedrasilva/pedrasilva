@@ -1745,7 +1745,8 @@
       "rules": "Regras",
       "duplicates": "Duplicados",
       "instructions": "Instruções",
-      "other_entity": "Outras entidades"
+      "other_entity": "Outras entidades",
+      "removed": "Eliminados"
     },
     "empty": "Nada aqui.",
     "selectItem": "Seleccione um documento.",
@@ -1998,6 +1999,50 @@
       "none": "Ainda sem entidades.",
       "saved": "Guardado.",
       "emailNeeded": "Indique primeiro o endereço de email."
+    },
+    "removal": {
+      "button": "Eliminar",
+      "title": "Porque está a eliminar este documento?",
+      "reason": "Motivo (obrigatório)",
+      "future": "Aplicar a documentos semelhantes no futuro",
+      "scope": {
+        "none": "Só este documento",
+        "recipient": "Este destinatário: {{name}} ({{nif}}) — todos os documentos dirigidos a ele",
+        "supplier": "Este fornecedor: {{name}} ({{nif}}) — todos os documentos deste fornecedor",
+        "sender": "Este remetente: {{v}}",
+        "senderDomain": "Este domínio de remetente: {{v}}"
+      },
+      "tag": {
+        "not_psa": "Não é da PSA",
+        "duplicate": "Duplicado",
+        "not_financial": "Não é financeiro",
+        "test": "Teste / lixo",
+        "other": "Outro"
+      },
+      "confirm": "Eliminar",
+      "removed": "Documento movido para Eliminados (pode ser restaurado durante 30 dias)",
+      "savedTitle": "Regra de eliminação guardada",
+      "ruleSaved": "Regra guardada",
+      "viewRule": "Ver em Instruções",
+      "noSimilar": "Nenhum documento pendente corresponde a esta regra.",
+      "similar_one": "{{count}} documento pendente semelhante:",
+      "similar_other": "{{count}} documentos pendentes semelhantes:",
+      "removedState": "eliminado",
+      "applyN_one": "Aplicar a {{count}} documento semelhante",
+      "applyN_other": "Aplicar a {{count}} documentos semelhantes",
+      "applied_one": "{{count}} documento eliminado",
+      "applied_other": "{{count}} documentos eliminados",
+      "close": "Fechar",
+      "removedTitle": "Eliminado",
+      "restore": "Restaurar",
+      "restored": "Documento restaurado",
+      "daysLeft_one": "eliminado definitivamente dentro de {{count}} dia",
+      "daysLeft_other": "eliminado definitivamente dentro de {{count}} dias",
+      "by": {
+        "manual": "Eliminado por uma pessoa",
+        "rule": "Eliminado por uma regra",
+        "recipient": "Removido automaticamente (regra do destinatário)"
+      }
     }
   },
   "purchaseDups": {

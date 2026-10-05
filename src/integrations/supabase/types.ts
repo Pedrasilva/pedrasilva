@@ -2802,6 +2802,7 @@ export type Database = {
       }
       finance_intake_instructions: {
         Row: {
+          action: string
           active: boolean
           created_at: string
           created_by: string | null
@@ -2812,6 +2813,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          action?: string
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -2822,6 +2824,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          action?: string
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -3302,6 +3305,7 @@ export type Database = {
           intake_type_reason: string | null
           intake_type_source: string
           is_recurring_candidate: boolean
+          keep_despite_recipient: boolean
           linked_document_group_id: string
           mark_for_inventory: boolean
           matched_bank_account_id: string | null
@@ -3320,6 +3324,12 @@ export type Database = {
           raw_extraction: Json | null
           recurring_reference_id: string | null
           rejection_reason: string | null
+          removed_at: string | null
+          removed_by: string | null
+          removed_prev_status: string | null
+          removed_reason: string | null
+          removed_source: string | null
+          removed_tag: string | null
           retry_after: string | null
           retry_count: number
           review_note: string | null
@@ -3409,6 +3419,7 @@ export type Database = {
           intake_type_reason?: string | null
           intake_type_source?: string
           is_recurring_candidate?: boolean
+          keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
           matched_bank_account_id?: string | null
@@ -3427,6 +3438,12 @@ export type Database = {
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          removed_prev_status?: string | null
+          removed_reason?: string | null
+          removed_source?: string | null
+          removed_tag?: string | null
           retry_after?: string | null
           retry_count?: number
           review_note?: string | null
@@ -3516,6 +3533,7 @@ export type Database = {
           intake_type_reason?: string | null
           intake_type_source?: string
           is_recurring_candidate?: boolean
+          keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
           matched_bank_account_id?: string | null
@@ -3534,6 +3552,12 @@ export type Database = {
           raw_extraction?: Json | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          removed_prev_status?: string | null
+          removed_reason?: string | null
+          removed_source?: string | null
+          removed_tag?: string | null
           retry_after?: string | null
           retry_count?: number
           review_note?: string | null
@@ -7160,6 +7184,7 @@ export type Database = {
           company_address: string | null
           company_email: string | null
           company_name: string
+          company_name_variants: string[]
           company_nif: string | null
           company_phone: string | null
           created_at: string
@@ -7189,6 +7214,7 @@ export type Database = {
           company_address?: string | null
           company_email?: string | null
           company_name?: string
+          company_name_variants?: string[]
           company_nif?: string | null
           company_phone?: string | null
           created_at?: string
@@ -7218,6 +7244,7 @@ export type Database = {
           company_address?: string | null
           company_email?: string | null
           company_name?: string
+          company_name_variants?: string[]
           company_nif?: string | null
           company_phone?: string | null
           created_at?: string
@@ -13789,6 +13816,7 @@ export type Database = {
         | "filed"
         | "paid"
         | "duplicate"
+        | "removed"
       fdrq_supplier_match: "matched" | "no_match" | "ambiguous"
       financial_class_level: "category" | "group" | "subgroup"
       financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
@@ -14272,6 +14300,7 @@ export const Constants = {
         "filed",
         "paid",
         "duplicate",
+        "removed",
       ],
       fdrq_supplier_match: ["matched", "no_match", "ambiguous"],
       financial_class_level: ["category", "group", "subgroup"],

@@ -139,7 +139,6 @@ INTAKE TYPE (field intake_type) — pick exactly one:
 - "documento_fiscal": official notices from Autoridade Tributária / Finanças, Segurança Social, courts or other public bodies (notifications, guides, payment notes "DUC", certificates).
 - "contrato_outro": contracts, proposals, quotes, orders, agreements and other business documents that are not one of the above.
 - "nao_financeiro": not a financial or business document at all (newsletters, marketing, drawings, photos, signatures, terms and conditions, empty pages).
-- "outra_entidade": the document is addressed to a company or person OTHER than the firm (its customer / account holder / addressee NIF is not the firm's) and was not issued by the firm.
 - "desconhecido": you genuinely cannot tell.
 RECIPIENT (every document type, including bank statements and bank notices): recipient_name / recipient_vat = the party the document is ADDRESSED TO — the customer, bill-to, account holder ("Titular", "Cliente", "Exmo(s). Sr(s).", "Adquirente"), exactly as printed. For an invoice issued by the firm this is the client. null when not printed.
 intake_type_confidence 0..1, honest. intake_type_reason: one short sentence saying why (no amounts, no personal data).

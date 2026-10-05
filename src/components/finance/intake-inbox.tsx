@@ -36,17 +36,16 @@ import {
   saveExplanation,
   rereadItems,
   findRuleMatches,
-  forwardOtherEntityDocument,
 } from "@/lib/finance/intake-inbox.functions";
-import { OtherEntitiesPanel } from "@/components/finance/other-entities-panel";
+import { RemoveButton, RemovedPanel } from "@/components/finance/intake-removal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "other_entity", "ignored", "duplicates"] as const;
+const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates", "removed"] as const;
 type Tab = (typeof TABS)[number];
 
 export const INTAKE_TYPES = [
   "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento", "extrato_bancario",
-  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido", "outra_entidade",
+  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido",
 ] as const;
 type IntakeType = (typeof INTAKE_TYPES)[number];
 
@@ -107,9 +106,10 @@ type DupCand = { reason: string; queueItemId?: string; documentId?: string; labe
 
 function tabOf(r: InboxRow): Tab {
   if (String(r.status) === "duplicate") return "duplicates";
+  if (String(r.status) === "removed") return "removed";
   const route = r.intake_route;
   if (!route || route === "retry") return "triage";
-  if (route === "other_entity") return "other_entity";
+  if (route === "other_entity") return "triage";
   return route as Tab;
 }
 
@@ -133,7 +133,7 @@ export function IntakeInbox() {
         .from("financial_document_review_queue")
         .select("*")
         // Filed / paid items stay visible in their tab with their status.
-        .in("status", ["pending_review", "filed", "paid", "duplicate"])
+        .in("status", ["pending_review", "filed", "paid", "duplicate", "removed"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as InboxRow[];
@@ -180,7 +180,7 @@ export function IntakeInbox() {
   });
 
   const byTab = useMemo(() => {
-    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], other_entity: [], ignored: [], duplicates: [] };
+    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], ignored: [], duplicates: [], removed: [] };
     for (const r of rowsQ.data ?? []) m[tabOf(r)].push(r);
     return m;
   }, [rowsQ.data]);
@@ -212,7 +212,7 @@ export function IntakeInbox() {
           {TABS.map((k) => (
             <TabsTrigger key={k} value={k}>
               {t(`finance:intakeInbox.tabs.${k}`)}
-              <Badge variant="secondary" className="ml-1.5 text-[10px]">{k === "duplicates" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
+              <Badge variant="secondary" className="ml-1.5 text-[10px]">{k === "duplicates" || k === "removed" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
             </TabsTrigger>
           ))}
           <TabsTrigger value="instructions">{t("finance:intakeInbox.tabs.instructions")}</TabsTrigger>
@@ -220,7 +220,7 @@ export function IntakeInbox() {
         </TabsList>
       </Tabs>
 
-      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <div className="space-y-4"><SenderRulesPanel /><OtherEntitiesPanel /></div> : (
+      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
@@ -368,6 +368,15 @@ function ItemDetail({
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
   const reviewCardTabs: Tab[] = ["purchases", "issued"];
+  if (String(row.status) === "removed") {
+    return (
+      <>
+        <Card><CardHeader className="py-3 flex flex-row items-center gap-2 flex-wrap"><TypeBadge row={row} /></CardHeader></Card>
+        <RemovedPanel row={row} />
+        <DocPreview row={row} />
+      </>
+    );
+  }
   if (String(row.status) === "duplicate") {
     return (
       <>
@@ -390,6 +399,7 @@ function ItemDetail({
             )}
           </div>
           <div className="flex items-center gap-2">
+            <RemoveButton row={row} onOpenRule={onOpenRule} />
             <Label className="text-xs text-muted-foreground">{t("finance:intakeInbox.reclassify")}</Label>
             <Select
               value=""
@@ -449,7 +459,6 @@ function ItemDetail({
           {row.status === "pending_review" && tab === "payments" && <PaymentPanel row={row} />}
           {row.status === "pending_review" && tab === "bank" && <BankPanel row={row} />}
           {row.status === "pending_review" && tab === "other" && <OtherPanel row={row} />}
-          {tab === "other_entity" && <OtherEntityPanel row={row} />}
           <DocPreview row={row} />
         </>
       )}
@@ -742,47 +751,6 @@ function DuplicatePanel({ row, onOpenItem }: { row: InboxRow; onOpenItem: (id: s
         <Button size="sm" variant="outline" disabled={resolveM.isPending} onClick={() => resolveM.mutate({ decision: "not_duplicate" })}>
           {t("finance:intakeInbox.dup.notDuplicate")}
         </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function OtherEntityPanel({ row }: { row: InboxRow }) {
-  const { t } = useTranslation(["finance"]);
-  const k = (x: string, o?: Record<string, unknown>) => t(`finance:intakeInbox.otherEntity.${x}`, o);
-  const qc = useQueryClient();
-  const mark = useServerFn(markOtherDocumentFiled);
-  const fwd = useServerFn(forwardOtherEntityDocument);
-  const [to, setTo] = useState("");
-  const done = (msg: string) => { toast.success(msg); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); };
-  const markM = useMutation({ mutationFn: () => mark({ data: { id: row.id } }), onSuccess: () => done(k("archived")), onError: (e) => toast.error(e instanceof Error ? e.message : String(e)) });
-  const fwdM = useMutation({
-    mutationFn: () => fwd({ data: { id: row.id, to: to.trim() } }),
-    onSuccess: (r) => (r.ok ? done(k("forwarded", { to: to.trim() })) : toast.error(r.error ?? k("forwardFailed"))),
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
-  });
-  return (
-    <Card>
-      <CardHeader className="py-3"><CardTitle className="text-sm">{k("title")}</CardTitle></CardHeader>
-      <CardContent className="space-y-3 text-sm">
-        <p>
-          {k("addressedTo")}: <span className="font-medium">{row.extracted_recipient_name ?? row.extracted_buyer_name ?? "—"}</span>
-          {" "}<span className="tabular-nums text-muted-foreground">({row.extracted_recipient_vat ?? row.extracted_buyer_vat ?? "—"})</span>
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {row.other_entity_action ? k(`action.${row.other_entity_action}`) : k("unknownEntity")}
-        </p>
-        {row.forwarded_to && <p className="text-xs text-muted-foreground">{k("forwardedTo", { to: row.forwarded_to })}</p>}
-        {row.forward_error && <p className="text-xs text-destructive">{k("forwardFailed")}: {row.forward_error}</p>}
-        {row.status === "pending_review" && (
-          <div className="flex flex-wrap items-end gap-2">
-            <Button size="sm" onClick={() => markM.mutate()} disabled={markM.isPending}>{k("archive")}</Button>
-            <Input className="h-8 w-[240px]" type="email" placeholder={k("forwardPh")} value={to} onChange={(e) => setTo(e.target.value)} />
-            <Button size="sm" variant="outline" disabled={!to.includes("@") || fwdM.isPending} onClick={() => fwdM.mutate()}>
-              {fwdM.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}{k("forward")}
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

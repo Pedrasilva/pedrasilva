@@ -148,6 +148,13 @@
       "when": 1791232005795,
       "tag": "0020_finance_other_entities",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791235444715,
+      "tag": "0021_finance_intake_removed_items",
+      "breakpoints": true
     }
   ]
 }

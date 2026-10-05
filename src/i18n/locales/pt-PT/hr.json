@@ -1415,7 +1415,9 @@
     "saved": "Definições da empresa guardadas",
     "errors": {
       "invalidNif": "NIF português inválido (checksum falhou)"
-    }
+    },
+    "nameVariants": "Variantes do nome da PSA (uma por linha)",
+    "nameVariantsHint": "Usadas na entrada de documentos financeiros quando não há NIF do destinatário: um destinatário com um destes nomes (ignorando acentos, maiúsculas e Lda/Unipessoal) é a PSA."
   },
   "commercialRole": {
     "title": "Função comercial",

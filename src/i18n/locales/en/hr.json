@@ -1415,7 +1415,9 @@
     "saved": "Company settings saved",
     "errors": {
       "invalidNif": "Invalid Portuguese NIF (checksum failed)"
-    }
+    },
+    "nameVariants": "PSA name variants (one per line)",
+    "nameVariantsHint": "Used by the finance intake when a document has no recipient NIF: a recipient matching one of these names (accents, case and Lda/Unipessoal ignored) is PSA."
   },
   "commercialRole": {
     "title": "Commercial role",

@@ -108,6 +108,13 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         if (!lovableKey) {
           return Response.json({ ok: false, error: "LOVABLE_API_KEY missing" }, { status: 503 });
         }
+        // Items removed more than 30 days ago are permanently deleted (logged).
+        try {
+          const { purgeExpiredRemoved } = await import("@/lib/finance/recipient-rule.server");
+          await purgeExpiredRemoved();
+        } catch (e) {
+          console.error("[gmail-intake] purge failed", e);
+        }
         // Optional catch-up window (shared-secret callers only): read older mail.
         let body: { since?: string; pageToken?: string } = {};
         try { body = (await request.json()) as typeof body; } catch { body = {}; }
