@@ -488,6 +488,21 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            <Table>
+              <TableHeader><TableRow><TableHead /><TableHead className="text-right">{t("health.blocks.result")}</TableHead><TableHead className="text-right">{t("health.trends.margin")}</TableHead><TableHead className="text-right">{t("health.trends.charge")}</TableHead><TableHead className="text-right">{t("health.trends.breakEven")}</TableHead><TableHead className="text-right">{t("health.trends.unlogged")}</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {trend.map((x) => (
+                  <TableRow key={x.name}>
+                    <TableCell>{x.name}</TableCell>
+                    <TableCell className={cn("text-right", x.result < 0 && "text-destructive")}>{eur(x.result)}</TableCell>
+                    <TableCell className="text-right">{p0(x.margin)}</TableCell>
+                    <TableCell className="text-right">{p0(x.charge)}</TableCell>
+                    <TableCell className="text-right">{p0(x.breakEven)}</TableCell>
+                    <TableCell className="text-right">{p0(x.unlogged)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
