@@ -167,3 +167,23 @@ export async function processDueDriveCopies(limit = 10) {
   }
   return { copied, failed };
 }
+
+/** Name and link of the archive root (folder or shared drive), or the error reading it. */
+export async function getArchiveRootInfo() {
+  const r = root();
+  const rawSet = !!(process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID?.trim() || process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID?.trim());
+  if (!r.parent) return { configured: rawSet, id: null, name: null, link: null, error: rawSet ? "Folder id could not be read from the setting" : null };
+  const isShared = r.prefix.startsWith("shared:");
+  try {
+    const url = isShared
+      ? `${GATEWAY_BASE}/drive/v3/drives/${r.parent}?fields=id,name`
+      : `${GATEWAY_BASE}/drive/v3/files/${r.parent}?fields=id,name,webViewLink&supportsAllDrives=true`;
+    const res = await fetch(url, { headers: headers() });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`[${res.status}] ${text.slice(0, 200)}`);
+    const j = JSON.parse(text) as { id: string; name: string; webViewLink?: string };
+    return { configured: true, id: j.id, name: j.name, link: j.webViewLink ?? `https://drive.google.com/drive/folders/${j.id}`, error: null };
+  } catch (e) {
+    return { configured: true, id: r.parent, name: null, link: `https://drive.google.com/drive/folders/${r.parent}`, error: e instanceof Error ? e.message : String(e) };
+  }
+}
