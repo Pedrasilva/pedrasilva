@@ -83,10 +83,13 @@ const nonWorkingKey = (lt: string): CellKey => `non_working::${lt}`;
 const pursuitKey = (oppId: string): CellKey => `pursuit::${oppId}`;
 
 type CellInfo = {
+  /** First activity's id (legacy single-entry callers). */
   id: string;
+  /** Total hours of every activity in the cell. */
   hours: number;
   notes: string | null;
   billable: boolean;
+  activities: TimesheetEntry[];
 };
 
 function TimesheetPage() {
@@ -317,12 +320,14 @@ function TimesheetPage() {
         key = nonWorkingKey(e.leave_type);
       if (!key) continue;
       if (!m.has(key)) m.set(key, new Map());
-      m.get(key)!.set(e.entry_date, {
-        id: e.id,
-        hours: e.hours,
-        notes: e.notes,
-        billable: e.billable,
-      });
+      const cells = m.get(key)!;
+      const cur = cells.get(e.entry_date);
+      // Several activities per cell: keep each entry, total the hours.
+      if (cur) {
+        cur.hours += e.hours;
+        cur.activities.push(e);
+      } else
+        cells.set(e.entry_date, { id: e.id, hours: e.hours, notes: e.notes, billable: e.billable, activities: [e] });
     }
     return m;
   }, [entries]);
@@ -474,24 +479,24 @@ function TimesheetPage() {
     hours: number,
     notes: string | null,
     billable: boolean,
+    existingId: string | null,
   ) => {
     const child = childForDate(r, date);
     if (!child) return;
     const existing = entries.filter((e) => e.entry_date === date && retainerEntryChild(e) === child.id);
-    const first = existing[0] ?? null;
-    const others = existing.slice(1).reduce((a, e) => a + e.hours, 0);
-    if (!first && hours <= 0) return;
+    const current = existingId ? existing.find((e) => e.id === existingId) ?? null : null;
+    if (!current && hours <= 0) return;
     try {
-      const taskId = first ? first.task_id : await ensureRetainerTask(child);
+      const taskId = current?.task_id ?? existing.find((e) => e.task_id)?.task_id ?? (await ensureRetainerTask(child));
       await upsert.mutateAsync({
         entry_type: "project",
         task_id: taskId,
         user_id: effectiveUserId!,
         entry_date: date,
-        hours: Math.max(0, hours - others),
+        hours: Math.max(0, hours),
         notes,
         billable,
-        existing_entry_id: first?.id ?? null,
+        existing_entry_id: current?.id ?? null,
       });
     } catch (e) {
       toast.error((e as Error).message || "Failed to save");
@@ -523,27 +528,16 @@ function TimesheetPage() {
     | { kind: "retainer"; row: RetainerParentRow }
     | { kind: "internal"; category: string; opportunity_id?: string | null };
 
-  /** Adds hours to a cell and records the calendar event ids, as the assistant does. */
-  const addToCell = async (target: AddTarget, date: string, hours: number, eventIds: string[]) => {
+  /** Each registered calendar event becomes its own activity in the cell, carrying its event id. */
+  const addToCell = async (target: AddTarget, date: string, hours: number, eventIds: string[], note: string | null) => {
     const uid = user!.id;
     let taskId: string | null = null;
-    let existing: TimesheetEntry | undefined;
-    if (target.kind === "task") {
-      taskId = target.taskId;
-      existing = entries.find((e) => e.entry_date === date && e.entry_type === "project" && e.task_id === taskId);
-    } else if (target.kind === "retainer") {
+    if (target.kind === "task") taskId = target.taskId;
+    else if (target.kind === "retainer") {
       const child = childForDate(target.row, date);
       if (!child) throw new Error(t("projects:tsCalendar.noRetainerMonth", { month: format(new Date(date + "T00:00:00"), "MMM yyyy", { locale: dateLocale }) }));
-      existing = entries.find((e) => e.entry_date === date && retainerEntryChild(e) === child.id);
-      taskId = existing ? existing.task_id : await ensureRetainerTask(child);
-    } else {
-      existing = entries.find(
-        (e) =>
-          e.entry_date === date &&
-          e.entry_type === "internal" &&
-          e.internal_category === target.category &&
-          (e.opportunity_id ?? null) === (target.opportunity_id ?? null),
-      );
+      const existing = entries.find((e) => e.entry_date === date && retainerEntryChild(e) === child.id && e.task_id);
+      taskId = existing?.task_id ?? (await ensureRetainerTask(child));
     }
     await upsert.mutateAsync({
       entry_type: target.kind === "internal" ? "internal" : "project",
@@ -552,26 +546,13 @@ function TimesheetPage() {
       opportunity_id: target.kind === "internal" ? (target.opportunity_id ?? null) : null,
       user_id: uid,
       entry_date: date,
-      hours: (existing?.hours ?? 0) + hours,
-      notes: existing?.notes ?? null,
-      billable: existing?.billable ?? true,
-      existing_entry_id: existing?.id ?? null,
+      hours,
+      notes: note,
+      billable: true,
+      existing_entry_id: null,
+      source: "calendar",
+      calendar_event_ids: eventIds,
     });
-    let rowId = existing?.id ?? null;
-    if (!rowId) {
-      let q = supabase.from("pm_time_entries").select("id").eq("user_id", uid).eq("entry_date", date);
-      if (target.kind === "internal") {
-        q = q.eq("entry_type", "internal").eq("internal_category", target.category);
-        if (target.opportunity_id) q = q.eq("opportunity_id", target.opportunity_id);
-      } else q = q.eq("entry_type", "project").eq("task_id", taskId!);
-      const { data: row } = await q.order("created_at", { ascending: false }).limit(1).maybeSingle();
-      rowId = (row as { id: string } | null)?.id ?? null;
-    }
-    if (rowId && eventIds.length) {
-      const { data: cur } = await supabase.from("pm_time_entries").select("calendar_event_ids").eq("id", rowId).maybeSingle();
-      const ids = [...new Set([...(((cur as { calendar_event_ids: string[] | null } | null)?.calendar_event_ids) ?? []), ...eventIds])];
-      await supabase.from("pm_time_entries").update({ calendar_event_ids: ids } as never).eq("id", rowId);
-    }
     qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
     qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
   };
