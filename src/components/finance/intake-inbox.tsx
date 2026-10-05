@@ -737,7 +737,7 @@ function LearningPanel({ row, onOpenRule }: { row: InboxRow; onOpenRule: (id: st
   const { t } = useTranslation(["finance"]);
   const qc = useQueryClient();
   const save = useServerFn(saveExplanation);
-  const [note, setNote] = useState(row.review_note ?? "");
+  const [note, setNote] = useState((row as { review_note?: string | null }).review_note ?? "");
   const [apply, setApply] = useState(false);
   const m = useMutation({
     mutationFn: () => save({ data: { id: row.id, note: note.trim(), applyToSupplier: apply } }),
