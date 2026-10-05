@@ -22,6 +22,10 @@
       "capacity": {
         "title": "Previsão de capacidade",
         "description": "Horas planeadas vs disponíveis por pessoa nas próximas semanas, mais procura por atribuir."
+      },
+      "estimates": {
+        "title": "Estimativa vs real por fase",
+        "description": "Horas e custo previstos vs reais por tipo de fase, com dispersão e desvios."
       }
     }
   },
@@ -278,6 +282,58 @@
     "detail": {
       "projectStage": "Projecto · fase",
       "none": "Nada planeado"
+    }
+  },
+  "estimates": {
+    "title": "Estimativa vs real por fase",
+    "subtitle": "Horas, custo e duração previstos (baseline da fase) vs reais por tipo de fase. Só fases de trabalho próprio; custos com taxas de custo bloqueadas.",
+    "filters": {
+      "status": "Estado do projeto",
+      "client": "Cliente",
+      "phaseType": "Tipo de fase",
+      "endFrom": "Fim da fase desde",
+      "endTo": "Fim da fase até",
+      "onlyDone": "Só fases concluídas",
+      "all": "Todos"
+    },
+    "status": {
+      "all": "Todos",
+      "active": "Ativo",
+      "closing": "Em fecho",
+      "archived": "Arquivado"
+    },
+    "types": {
+      "F0": "F0 Gestão",
+      "F1": "F1 Conceito",
+      "F2": "F2 Desenvolvimento",
+      "F3": "F3 Projeto técnico",
+      "F4": "F4 Concurso",
+      "F5": "F5 Obra",
+      "F6": "F6 Encerramento"
+    },
+    "missing_one": "{{count}} fase sem estimativa",
+    "missing_other": "{{count}} fases sem estimativa",
+    "missingTitle": "Fases sem estimativa",
+    "unmapped_one": "{{count}} fase sem tipo atribuído",
+    "unmapped_other": "{{count}} fases sem tipo atribuído",
+    "unmappedTitle": "Fases sem tipo atribuído",
+    "chartTitle": "Desvio mediano por tipo de fase (0 = conforme estimativa)",
+    "tableTitle": "Por tipo de fase",
+    "empty": "Sem fases com estimativa para estes filtros.",
+    "error": "Não foi possível carregar o relatório.",
+    "note": "% = real vs previsto. Melhor/mediana/pior usam horas, ou custo quando não há horas previstas. Duração = média de dias previstos → reais nas fases concluídas.",
+    "cols": {
+      "type": "Tipo de fase",
+      "stages": "Fases",
+      "plannedH": "h previstas",
+      "actualH": "h reais",
+      "plannedC": "€ previsto",
+      "actualC": "€ real",
+      "best": "Melhor",
+      "median": "Mediana",
+      "worst": "Pior",
+      "duration": "Duração",
+      "stage": "Projeto / fase"
     }
   }
 }
