@@ -43,6 +43,7 @@ import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
 import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
 import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
+import { Route as AppFinanceInboxRouteImport } from './routes/_app.finance.inbox'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
@@ -328,6 +329,11 @@ const AppCrmQuoteTemplatesRoute = AppCrmQuoteTemplatesRouteImport.update({
 const AppFinanceIndexRoute = AppFinanceIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceInboxRoute = AppFinanceInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => AppFinanceRoute,
 } as any)
 const AppHrIndexRoute = AppHrIndexRouteImport.update({
@@ -986,6 +992,7 @@ export interface FileRoutesByFullPath {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -1128,6 +1135,7 @@ export interface FileRoutesByTo {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -1278,6 +1286,7 @@ export interface FileRoutesById {
   '/_app/crm/contacts': typeof AppCrmContactsRoute
   '/_app/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/_app/finance/inbox': typeof AppFinanceInboxRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
   '/_app/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -1429,6 +1438,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/pipeline'
     | '/crm/quote-templates'
+    | '/finance/inbox'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/colaboradores'
@@ -1571,6 +1581,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/pipeline'
     | '/crm/quote-templates'
+    | '/finance/inbox'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/colaboradores'
@@ -1720,6 +1731,7 @@ export interface FileRouteTypes {
     | '/_app/crm/contacts'
     | '/_app/crm/pipeline'
     | '/_app/crm/quote-templates'
+    | '/_app/finance/inbox'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
     | '/_app/hr/colaboradores'
@@ -2102,6 +2114,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/finance/'
       preLoaderRoute: typeof AppFinanceIndexRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/inbox': {
+      id: '/_app/finance/inbox'
+      path: '/inbox'
+      fullPath: '/finance/inbox'
+      preLoaderRoute: typeof AppFinanceInboxRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/hr/': {
@@ -2959,6 +2978,7 @@ const AppCrmRouteWithChildren =
   AppCrmRoute._addFileChildren(AppCrmRouteChildren)
 
 interface AppFinanceRouteChildren {
+  AppFinanceInboxRoute: typeof AppFinanceInboxRoute
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceAdminAuditRoute: typeof AppFinanceAdminAuditRoute
   AppFinanceAdminImportsRoute: typeof AppFinanceAdminImportsRoute
@@ -2995,6 +3015,7 @@ interface AppFinanceRouteChildren {
 }
 
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
+  AppFinanceInboxRoute: AppFinanceInboxRoute,
   AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceAdminAuditRoute: AppFinanceAdminAuditRoute,
   AppFinanceAdminImportsRoute: AppFinanceAdminImportsRoute,
