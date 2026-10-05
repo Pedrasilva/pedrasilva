@@ -1737,6 +1737,8 @@
     "title": "Finance inbox",
     "subtitle": "Every incoming document, sorted by type. Two AI models read each one; nothing is approved without you.",
     "tabs": {
+      "more": "More",
+      "settings": "Settings",
       "triage": "Triage",
       "purchases": "Purchases",
       "payments": "Payments",
