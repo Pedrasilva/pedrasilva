@@ -143,23 +143,6 @@ export const fileBankDocument = createServerFn({ method: "POST" })
       .single();
     if (aErr) throw new Error(aErr.message);
 
-    let driveId: string | null = null;
-    let driveErr: string | null = null;
-    try {
-      const { copyBankDocumentToDrive } = await import("@/lib/finance/bank-drive-filing.server");
-      const ext = (row.source_file_url as string).split(".").pop() ?? "pdf";
-      const kind = row.intake_type === "nota_lancamento" ? "nota-lancamento" : "extrato";
-      driveId = await copyBankDocumentToDrive({
-        bucket: row.source_bucket ?? "financial-documents",
-        storagePath: row.source_file_url,
-        filename: `${data.period}_${kind}_${(row.id as string).slice(0, 8)}.${ext}`,
-        accountLabel: [acct.bank_name, acct.account_name].filter(Boolean).join(" "),
-        period: data.period,
-      });
-    } catch (e) {
-      driveErr = e instanceof Error ? e.message : String(e);
-    }
-
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({
@@ -167,14 +150,18 @@ export const fileBankDocument = createServerFn({ method: "POST" })
         matched_bank_account_id: data.bankAccountId,
         bank_period: data.period,
         filed_at: new Date().toISOString(),
-        drive_file_id: driveId,
-        drive_copy_error: driveErr,
+        drive_copy_status: "pending",
+        drive_copy_attempts: 0,
+        drive_next_retry_at: new Date().toISOString(),
         reviewed_by: userId,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
-    return { ok: true, driveCopied: !!driveId, driveError: driveErr };
+    // The Hub copy is filed either way; a failed Drive copy retries automatically.
+    const { copyQueueItemToDrive } = await import("@/lib/finance/bank-drive-filing.server");
+    const r = await copyQueueItemToDrive(data.id);
+    return { ok: true, driveCopied: r.ok, driveError: r.ok ? null : r.error ?? null };
   });
 
 /** Retry only the Drive copy of an already filed bank document. */
@@ -184,36 +171,9 @@ export const retryBankDriveCopy = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
-    const { data: row, error } = await supabase
-      .from("financial_document_review_queue")
-      .select("id, intake_type, source_bucket, source_file_url, matched_bank_account_id, bank_period, drive_file_id, filed_at")
-      .eq("id", data.id)
-      .single();
-    if (error) throw new Error(error.message);
-    if (!row.filed_at || !row.matched_bank_account_id || !row.bank_period) throw new Error("Not filed yet");
-    if (row.drive_file_id) return { ok: true, driveCopied: true };
-    const { data: acct } = await supabase
-      .from("bank_accounts").select("account_name, bank_name").eq("id", row.matched_bank_account_id).single();
-    const { copyBankDocumentToDrive } = await import("@/lib/finance/bank-drive-filing.server");
-    let driveId: string | null = null;
-    let driveErr: string | null = null;
-    try {
-      const ext = (row.source_file_url as string).split(".").pop() ?? "pdf";
-      driveId = await copyBankDocumentToDrive({
-        bucket: row.source_bucket ?? "financial-documents",
-        storagePath: row.source_file_url,
-        filename: `${row.bank_period}_${row.intake_type === "nota_lancamento" ? "nota-lancamento" : "extrato"}_${row.id.slice(0, 8)}.${ext}`,
-        accountLabel: [acct?.bank_name, acct?.account_name].filter(Boolean).join(" "),
-        period: row.bank_period,
-      });
-    } catch (e) {
-      driveErr = e instanceof Error ? e.message : String(e);
-    }
-    await supabase
-      .from("financial_document_review_queue")
-      .update({ drive_file_id: driveId, drive_copy_error: driveErr })
-      .eq("id", data.id);
-    return { ok: !!driveId, driveCopied: !!driveId, driveError: driveErr };
+    const { copyQueueItemToDrive } = await import("@/lib/finance/bank-drive-filing.server");
+    const r = await copyQueueItemToDrive(data.id, { manual: true });
+    return { ok: r.ok, driveCopied: r.ok, driveError: r.ok ? null : r.error ?? null };
   });
 
 /** "Outros documentos": mark as filed manually. */
