@@ -24,7 +24,6 @@ import {
   Beaker,
   Users,
   Truck,
-  ScanLine,
 } from "lucide-react";
 
 export type FinanceNavItem = {
@@ -50,11 +49,16 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
     ],
   },
   {
+    key: "intake",
+    labelKey: "finance:sidebar.groups.intake",
+    items: [
+      { to: "/finance/entrada", labelKey: "finance:sidebar.items.intakeInbox", icon: Inbox },
+    ],
+  },
+  {
     key: "payments",
     labelKey: "finance:sidebar.groups.payments",
     items: [
-      { to: "/finance/inbox", labelKey: "finance:sidebar.items.intakeInbox", icon: Inbox },
-      { to: "/finance/payments/review-queue", labelKey: "finance:sidebar.items.reviewQueue", icon: ScanLine },
       { to: "/finance/payments/suppliers", labelKey: "finance:sidebar.items.suppliers", icon: Truck },
       { to: "/finance/payments/purchases", labelKey: "finance:sidebar.items.purchases", icon: Receipt },
       { to: "/finance/payments/expenses", labelKey: "finance:sidebar.items.expenses", icon: Wallet },
@@ -66,7 +70,6 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
     key: "invoicing",
     labelKey: "finance:sidebar.groups.invoicing",
     items: [
-      { to: "/finance/invoicing/review-queue", labelKey: "finance:sidebar.items.reviewQueue", icon: ScanLine },
       { to: "/finance/invoicing/clients", labelKey: "finance:sidebar.items.clients", icon: Users },
 
       { to: "/finance/invoicing/invoices", labelKey: "finance:sidebar.items.invoices", icon: FileText },

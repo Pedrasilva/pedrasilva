@@ -1,11 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { ReviewQueue } from "@/components/finance/review-queue";
-import { checkFinanceAccess } from "@/lib/finance/access";
 
+// Retired: the finance intake lives at /finance/entrada.
 export const Route = createFileRoute("/_app/finance/invoicing/review-queue")({
-  beforeLoad: async () => {
-    const ok = await checkFinanceAccess();
-    if (!ok) throw redirect({ to: "/" });
+  beforeLoad: () => {
+    throw redirect({ to: "/finance/entrada", replace: true });
   },
-  component: () => <ReviewQueue side="issued" />,
 });

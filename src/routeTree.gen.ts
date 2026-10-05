@@ -43,6 +43,7 @@ import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
 import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
 import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
+import { Route as AppFinanceEntradaRouteImport } from './routes/_app.finance.entrada'
 import { Route as AppFinanceInboxRouteImport } from './routes/_app.finance.inbox'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
@@ -331,6 +332,11 @@ const AppCrmQuoteTemplatesRoute = AppCrmQuoteTemplatesRouteImport.update({
 const AppFinanceIndexRoute = AppFinanceIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceEntradaRoute = AppFinanceEntradaRouteImport.update({
+  id: '/entrada',
+  path: '/entrada',
   getParentRoute: () => AppFinanceRoute,
 } as any)
 const AppFinanceInboxRoute = AppFinanceInboxRouteImport.update({
@@ -1006,6 +1012,7 @@ export interface FileRoutesByFullPath {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1151,6 +1158,7 @@ export interface FileRoutesByTo {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1304,6 +1312,7 @@ export interface FileRoutesById {
   '/_app/crm/contacts': typeof AppCrmContactsRoute
   '/_app/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
+  '/_app/finance/entrada': typeof AppFinanceEntradaRoute
   '/_app/finance/inbox': typeof AppFinanceInboxRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1458,6 +1467,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/pipeline'
     | '/crm/quote-templates'
+    | '/finance/entrada'
     | '/finance/inbox'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -1603,6 +1613,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/pipeline'
     | '/crm/quote-templates'
+    | '/finance/entrada'
     | '/finance/inbox'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -1755,6 +1766,7 @@ export interface FileRouteTypes {
     | '/_app/crm/contacts'
     | '/_app/crm/pipeline'
     | '/_app/crm/quote-templates'
+    | '/_app/finance/entrada'
     | '/_app/finance/inbox'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
@@ -2140,6 +2152,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/finance/'
       preLoaderRoute: typeof AppFinanceIndexRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/entrada': {
+      id: '/_app/finance/entrada'
+      path: '/entrada'
+      fullPath: '/finance/entrada'
+      preLoaderRoute: typeof AppFinanceEntradaRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/finance/inbox': {
@@ -3018,6 +3037,7 @@ const AppCrmRouteWithChildren =
   AppCrmRoute._addFileChildren(AppCrmRouteChildren)
 
 interface AppFinanceRouteChildren {
+  AppFinanceEntradaRoute: typeof AppFinanceEntradaRoute
   AppFinanceInboxRoute: typeof AppFinanceInboxRoute
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceAdminAuditRoute: typeof AppFinanceAdminAuditRoute
@@ -3057,6 +3077,7 @@ interface AppFinanceRouteChildren {
 }
 
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
+  AppFinanceEntradaRoute: AppFinanceEntradaRoute,
   AppFinanceInboxRoute: AppFinanceInboxRoute,
   AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceAdminAuditRoute: AppFinanceAdminAuditRoute,

@@ -1044,6 +1044,7 @@
     "brand": "Finance",
     "brandSub": "Operations",
     "groups": {
+      "intake": "Intake",
       "overview": "Overview",
       "payments": "Payments",
       "invoicing": "Invoicing",
@@ -1736,6 +1737,8 @@
     "title": "Finance inbox",
     "subtitle": "Every incoming document, sorted by type. Two AI models read each one; nothing is approved without you.",
     "tabs": {
+      "more": "More",
+      "settings": "Settings",
       "triage": "Triage",
       "purchases": "Purchases",
       "payments": "Payments",
@@ -1905,7 +1908,7 @@
       "examples_other": "{{count}} past corrections for this supplier given as examples",
       "editRule": "Edit rule",
       "explain": "Explain",
-      "explainPlaceholder": "A short note on this document (e.g. \"EDP invoices are always electricity, code 62221\").",
+      "explainPlaceholder": "A short note on this document (e.g. \"EDP invoices are always electricity\").",
       "applyFuture": "Apply to future documents from this supplier",
       "save": "Save note",
       "saved": "Note saved.",

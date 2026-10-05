@@ -8,7 +8,9 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { AlertTriangle, Check, Clock, Loader2, RefreshCw } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, Clock, Loader2, RefreshCw, Settings } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { IntakeUploadButton } from "@/components/finance/intake-upload-button";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,8 @@ import { RemoveButton, RemovedPanel } from "@/components/finance/intake-removal"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates", "removed"] as const;
+const MAIN_TABS = ["triage", "purchases", "payments", "bank", "issued", "other"] as const;
+const MORE_TABS = ["ignored", "duplicates", "removed"] as const;
 type Tab = (typeof TABS)[number];
 
 export const INTAKE_TYPES = [
@@ -185,6 +189,8 @@ export function IntakeInbox() {
     return m;
   }, [rowsQ.data]);
 
+  const switchTab = (v: Tab | "rules" | "instructions") => { setTab(v); setSelected(null); setRuleId(null); };
+  const countOf = (k: Tab) => (k === "duplicates" || k === "removed" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length);
   const list = tab === "rules" || tab === "instructions" ? [] : byTab[tab];
   const openItem = (id: string) => {
     const rows = qc.getQueryData<InboxRow[]>(["finance", "review-queue", "inbox"]) ?? rowsQ.data ?? [];
@@ -201,23 +207,55 @@ export function IntakeInbox() {
           <h1 className="text-2xl font-semibold">{t("finance:intakeInbox.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("finance:intakeInbox.subtitle")}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })}>
-          <RefreshCw className="h-4 w-4 mr-1.5" />
-          {t("common:actions.refresh", { defaultValue: "Refresh" })}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })}>
+            <RefreshCw className="h-4 w-4 mr-1.5" />
+            {t("common:actions.refresh", { defaultValue: "Refresh" })}
+          </Button>
+          <IntakeUploadButton />
+        </div>
       </header>
 
-      <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab | "rules" | "instructions"); setSelected(null); setRuleId(null); }}>
-        <TabsList className="flex-wrap h-auto">
-          {TABS.map((k) => (
-            <TabsTrigger key={k} value={k}>
-              {t(`finance:intakeInbox.tabs.${k}`)}
-              <Badge variant="secondary" className="ml-1.5 text-[10px]">{k === "duplicates" || k === "removed" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
-            </TabsTrigger>
-          ))}
-          <TabsTrigger value="instructions">{t("finance:intakeInbox.tabs.instructions")}</TabsTrigger>
-          <TabsTrigger value="rules">{t("finance:intakeInbox.tabs.rules")}</TabsTrigger>
-        </TabsList>
+      <Tabs value={tab} onValueChange={(v) => switchTab(v as Tab | "rules" | "instructions")}>
+        <div className="flex flex-wrap items-center gap-2">
+          <TabsList className="flex-wrap h-auto">
+            {MAIN_TABS.map((k) => (
+              <TabsTrigger key={k} value={k}>
+                {t(`finance:intakeInbox.tabs.${k}`)}
+                <Badge variant="secondary" className="ml-1.5 text-[10px]">{countOf(k)}</Badge>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant={(MORE_TABS as readonly string[]).includes(tab) ? "default" : "outline"}>
+                {(MORE_TABS as readonly string[]).includes(tab) ? t(`finance:intakeInbox.tabs.${tab}`) : t("finance:intakeInbox.tabs.more")}
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {MORE_TABS.map((k) => (
+                <DropdownMenuItem key={k} onClick={() => switchTab(k)} className="justify-between gap-4">
+                  {t(`finance:intakeInbox.tabs.${k}`)}
+                  <Badge variant="secondary" className="text-[10px]">{countOf(k)}</Badge>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant={tab === "rules" || tab === "instructions" ? "default" : "outline"} aria-label={t("finance:intakeInbox.tabs.settings")} title={t("finance:intakeInbox.tabs.settings")}>
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => switchTab("instructions")}>{t("finance:intakeInbox.tabs.instructions")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => switchTab("rules")}>{t("finance:intakeInbox.tabs.rules")}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </Tabs>
 
       {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : (

@@ -468,7 +468,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
                   return (
                     <div key={i} className="flex items-center justify-between gap-2 text-sm">
                       <span>{text}</span>
-                      <Button size="sm" variant="outline" onClick={() => window.open(m.documentId ? `/finance/documents/${m.documentId}` : "/finance/inbox", "_blank")}>
+                      <Button size="sm" variant="outline" onClick={() => window.open(m.documentId ? `/finance/documents/${m.documentId}` : "/finance/entrada", "_blank")}>
                         {t("finance:intakeInbox.dup.open")}
                       </Button>
                     </div>
