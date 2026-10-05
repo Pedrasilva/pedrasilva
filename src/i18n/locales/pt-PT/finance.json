@@ -1740,7 +1740,8 @@
       "bank": "Banco",
       "issued": "Emitidas",
       "other": "Outros documentos",
-      "ignored": "Ignorados"
+      "ignored": "Ignorados",
+      "rules": "Regras"
     },
     "empty": "Nada aqui.",
     "selectItem": "Seleccione um documento.",
@@ -1832,6 +1833,25 @@
       "approved": "Aprovado"
     },
     "splitPart": "Aviso {{n}} · pág. {{first}}–{{last}}",
-    "single": "Leitura única"
+    "single": "Leitura única",
+    "senderRules": {
+      "title": "Regras por remetente",
+      "hint": "Só é lido o correio enviado para o endereço financeiro. \"Sempre ignorar\" prevalece sobre a IA; \"Sempre processar\" envia os documentos para triagem mesmo que a IA os considere não financeiros.",
+      "address": "Endereço financeiro",
+      "save": "Guardar",
+      "saved": "Guardado",
+      "pattern": "Endereço ou domínio",
+      "patternPh": "ex.: fornecedor.pt ou nome@fornecedor.pt",
+      "ignore": "Sempre ignorar",
+      "process": "Sempre processar",
+      "add": "Adicionar",
+      "remove": "Remover",
+      "none": "Ainda sem regras.",
+      "suggestions": "Sugestões a partir dos remetentes ignorados",
+      "suggestionsEmpty": "Sem sugestões.",
+      "count_one": "{{count}} ignorado",
+      "count_other": "{{count}} ignorados",
+      "invalid": "Indique um endereço ou domínio."
+    }
   }
 }

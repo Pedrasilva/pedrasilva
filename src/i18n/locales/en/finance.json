@@ -1740,7 +1740,8 @@
       "bank": "Bank",
       "issued": "Issued",
       "other": "Other documents",
-      "ignored": "Ignored"
+      "ignored": "Ignored",
+      "rules": "Rules"
     },
     "empty": "Nothing here.",
     "selectItem": "Select a document.",
@@ -1832,6 +1833,25 @@
       "approved": "Approved"
     },
     "splitPart": "Notice {{n}} · p. {{first}}–{{last}}",
-    "single": "Single reading"
+    "single": "Single reading",
+    "senderRules": {
+      "title": "Sender rules",
+      "hint": "Only mail sent to the finance address is read. \"Always ignore\" wins over the AI; \"Always process\" sends documents to triage even if the AI calls them non-financial.",
+      "address": "Finance address",
+      "save": "Save",
+      "saved": "Saved",
+      "pattern": "Address or domain",
+      "patternPh": "e.g. supplier.pt or name@supplier.pt",
+      "ignore": "Always ignore",
+      "process": "Always process",
+      "add": "Add",
+      "remove": "Remove",
+      "none": "No rules yet.",
+      "suggestions": "Suggestions from Ignored senders",
+      "suggestionsEmpty": "No suggestions.",
+      "count_one": "{{count}} ignored",
+      "count_other": "{{count}} ignored",
+      "invalid": "Enter an address or domain."
+    }
   }
 }

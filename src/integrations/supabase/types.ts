@@ -2702,6 +2702,51 @@ export type Database = {
           },
         ]
       }
+      finance_intake_settings: {
+        Row: {
+          finance_address: string
+          id: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          finance_address?: string
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          finance_address?: string
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      finance_sender_rules: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string | null
+          id: string
+          pattern: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pattern: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pattern?: string
+        }
+        Relationships: []
+      }
       financial_classifications: {
         Row: {
           active: boolean
