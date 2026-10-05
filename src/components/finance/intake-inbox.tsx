@@ -22,7 +22,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SenderRulesPanel } from "@/components/finance/sender-rules-panel";
 import { IntakeInstructionsPanel } from "@/components/finance/intake-instructions-panel";
 import { Link } from "@tanstack/react-router";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import { QueueItemCard, type QueueRow } from "@/components/finance/review-queue";
@@ -35,18 +34,23 @@ import {
   resolvePossibleDuplicate,
   restoreDuplicate,
   saveExplanation,
+  rereadItems,
+  findRuleMatches,
+  forwardOtherEntityDocument,
 } from "@/lib/finance/intake-inbox.functions";
+import { OtherEntitiesPanel } from "@/components/finance/other-entities-panel";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates"] as const;
+const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "other_entity", "ignored", "duplicates"] as const;
 type Tab = (typeof TABS)[number];
 
 export const INTAKE_TYPES = [
   "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento", "extrato_bancario",
-  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido",
+  "nota_lancamento", "fatura_emitida", "documento_fiscal", "contrato_outro", "nao_financeiro", "desconhecido", "outra_entidade",
 ] as const;
 type IntakeType = (typeof INTAKE_TYPES)[number];
 
-const CHECKED = ["supplier_vat", "document_number", "issue_date", "amount_ex_vat", "vat_amount", "total_amount", "iban", "account_number"] as const;
+const CHECKED = ["supplier_vat", "document_number", "issue_date", "amount_ex_vat", "vat_amount", "total_amount", "iban", "account_number", "recipient_vat"] as const;
 
 type FieldCheck = {
   status: "ok" | "verify";
@@ -75,6 +79,13 @@ type InboxRow = QueueRow & {
   bank_period: string | null;
   credit_note_original_document_id: string | null;
   payment_match_document_id: string | null;
+  extracted_recipient_name: string | null;
+  extracted_recipient_vat: string | null;
+  other_entity_action: string | null;
+  forwarded_to: string | null;
+  forwarded_at: string | null;
+  forward_error: string | null;
+  sender_address: string | null;
   duplicate_of_id: string | null;
   duplicate_of_document_id: string | null;
   duplicate_kind: string | null;
@@ -98,6 +109,7 @@ function tabOf(r: InboxRow): Tab {
   if (String(r.status) === "duplicate") return "duplicates";
   const route = r.intake_route;
   if (!route || route === "retry") return "triage";
+  if (route === "other_entity") return "other_entity";
   return route as Tab;
 }
 
@@ -168,14 +180,15 @@ export function IntakeInbox() {
   });
 
   const byTab = useMemo(() => {
-    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], ignored: [], duplicates: [] };
+    const m: Record<Tab, InboxRow[]> = { triage: [], purchases: [], payments: [], bank: [], issued: [], other: [], other_entity: [], ignored: [], duplicates: [] };
     for (const r of rowsQ.data ?? []) m[tabOf(r)].push(r);
     return m;
   }, [rowsQ.data]);
 
   const list = tab === "rules" || tab === "instructions" ? [] : byTab[tab];
   const openItem = (id: string) => {
-    const r = (rowsQ.data ?? []).find((x) => x.id === id);
+    const rows = qc.getQueryData<InboxRow[]>(["finance", "review-queue", "inbox"]) ?? rowsQ.data ?? [];
+    const r = rows.find((x) => x.id === id);
     if (r) { setTab(tabOf(r)); setSelected(id); }
   };
   const openRule = (id: string) => { setRuleId(id); setTab("instructions"); };
@@ -207,7 +220,7 @@ export function IntakeInbox() {
         </TabsList>
       </Tabs>
 
-      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : (
+      {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <div className="space-y-4"><SenderRulesPanel /><OtherEntitiesPanel /></div> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
@@ -418,7 +431,7 @@ function ItemDetail({
       </Card>
 
       <DuplicatePanel row={row} onOpenItem={onOpenItem} />
-      <LearningPanel row={row} onOpenRule={onOpenRule} />
+      <LearningPanel row={row} onOpenRule={onOpenRule} onOpenItem={onOpenItem} />
 
       {reviewCardTabs.includes(tab) ? (
         <>
@@ -436,6 +449,7 @@ function ItemDetail({
           {row.status === "pending_review" && tab === "payments" && <PaymentPanel row={row} />}
           {row.status === "pending_review" && tab === "bank" && <BankPanel row={row} />}
           {row.status === "pending_review" && tab === "other" && <OtherPanel row={row} />}
+          {tab === "other_entity" && <OtherEntityPanel row={row} />}
           <DocPreview row={row} />
         </>
       )}
@@ -733,53 +747,233 @@ function DuplicatePanel({ row, onOpenItem }: { row: InboxRow; onOpenItem: (id: s
   );
 }
 
-function LearningPanel({ row, onOpenRule }: { row: InboxRow; onOpenRule: (id: string) => void }) {
+function OtherEntityPanel({ row }: { row: InboxRow }) {
   const { t } = useTranslation(["finance"]);
+  const k = (x: string, o?: Record<string, unknown>) => t(`finance:intakeInbox.otherEntity.${x}`, o);
   const qc = useQueryClient();
-  const save = useServerFn(saveExplanation);
-  const [note, setNote] = useState((row as { review_note?: string | null }).review_note ?? "");
-  const [apply, setApply] = useState(false);
-  const m = useMutation({
-    mutationFn: () => save({ data: { id: row.id, note: note.trim(), applyToSupplier: apply } }),
-    onSuccess: (r) => {
-      toast.success(r.instructionId ? t("finance:intakeInbox.learn.savedRule") : t("finance:intakeInbox.learn.saved"));
-      qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
-      qc.invalidateQueries({ queryKey: ["finance", "intake-instructions"] });
-      setApply(false);
-    },
+  const mark = useServerFn(markOtherDocumentFiled);
+  const fwd = useServerFn(forwardOtherEntityDocument);
+  const [to, setTo] = useState("");
+  const done = (msg: string) => { toast.success(msg); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); };
+  const markM = useMutation({ mutationFn: () => mark({ data: { id: row.id } }), onSuccess: () => done(k("archived")), onError: (e) => toast.error(e instanceof Error ? e.message : String(e)) });
+  const fwdM = useMutation({
+    mutationFn: () => fwd({ data: { id: row.id, to: to.trim() } }),
+    onSuccess: (r) => (r.ok ? done(k("forwarded", { to: to.trim() })) : toast.error(r.error ?? k("forwardFailed"))),
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
+  return (
+    <Card>
+      <CardHeader className="py-3"><CardTitle className="text-sm">{k("title")}</CardTitle></CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <p>
+          {k("addressedTo")}: <span className="font-medium">{row.extracted_recipient_name ?? row.extracted_buyer_name ?? "—"}</span>
+          {" "}<span className="tabular-nums text-muted-foreground">({row.extracted_recipient_vat ?? row.extracted_buyer_vat ?? "—"})</span>
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {row.other_entity_action ? k(`action.${row.other_entity_action}`) : k("unknownEntity")}
+        </p>
+        {row.forwarded_to && <p className="text-xs text-muted-foreground">{k("forwardedTo", { to: row.forwarded_to })}</p>}
+        {row.forward_error && <p className="text-xs text-destructive">{k("forwardFailed")}: {row.forward_error}</p>}
+        {row.status === "pending_review" && (
+          <div className="flex flex-wrap items-end gap-2">
+            <Button size="sm" onClick={() => markM.mutate()} disabled={markM.isPending}>{k("archive")}</Button>
+            <Input className="h-8 w-[240px]" type="email" placeholder={k("forwardPh")} value={to} onChange={(e) => setTo(e.target.value)} />
+            <Button size="sm" variant="outline" disabled={!to.includes("@") || fwdM.isPending} onClick={() => fwdM.mutate()}>
+              {fwdM.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}{k("forward")}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+type Scope = "document" | "recipient" | "supplier" | "sender" | "global";
+type Summary = { id: string; status: string; intake_type: string | null; intake_route: string | null; title: string; date: string | null; manualType?: boolean };
+
+function LearningPanel({ row, onOpenRule, onOpenItem }: { row: InboxRow; onOpenRule: (id: string) => void; onOpenItem: (id: string) => void }) {
+  const { t } = useTranslation(["finance"]);
+  const k = (x: string, o?: Record<string, unknown>) => t(`finance:intakeInbox.learn.${x}`, o);
+  const qc = useQueryClient();
+  const save = useServerFn(saveExplanation);
+  const reread = useServerFn(rereadItems);
+  const findMatches = useServerFn(findRuleMatches);
+  const [note, setNote] = useState((row as { review_note?: string | null }).review_note ?? "");
+  const [scope, setScope] = useState<Scope>("document");
+  const [confirming, setConfirming] = useState(false);
+  const [saved, setSaved] = useState<{ id: string; text: string; scope: Scope; label: string } | null>(null);
+  const [result, setResult] = useState<Summary | null>(null);
+  const [rereadError, setRereadError] = useState<string | null>(null);
+  const [matches, setMatches] = useState<Summary[] | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number; failed: number } | null>(null);
+
   const l = row.applied_learning;
   const typeLabel = (v?: string | null) => (v ? t(`finance:intakeInbox.types.${v}`, { defaultValue: v }) : "—");
+  const tabLabel = (r?: string | null, status?: string) =>
+    status === "duplicate" ? t("finance:intakeInbox.tabs.duplicates")
+    : t(`finance:intakeInbox.tabs.${!r || r === "retry" ? "triage" : r}`, { defaultValue: r ?? "" });
+
+  const recName = row.extracted_recipient_name ?? row.extracted_buyer_name;
+  const recNif = row.extracted_recipient_vat ?? row.extracted_buyer_vat;
+  const supName = row.extracted_supplier_name ?? row.extracted_seller_name;
+  const supNif = row.extracted_supplier_vat ?? row.extracted_seller_vat;
+  const sender = row.sender_address;
+  const who = (name?: string | null, nif?: string | null) => [name, nif ? `(${nif})` : null].filter(Boolean).join(" ");
+  const options: Array<{ v: Scope; label: string; disabled: boolean }> = [
+    { v: "document", label: k("scope.document"), disabled: false },
+    { v: "recipient", label: recNif ? k("scope.recipient", { who: who(recName, recNif) }) : k("scope.recipientNone"), disabled: !recNif },
+    { v: "supplier", label: supNif ? k("scope.supplier", { who: who(supName, supNif) }) : k("scope.supplierNone"), disabled: !supNif },
+    { v: "sender", label: sender ? k("scope.sender", { who: sender }) : k("scope.senderNone"), disabled: !sender },
+    { v: "global", label: k("scope.global"), disabled: false },
+  ];
+  const chosen = options.find((o) => o.v === scope)!;
+
+  const refresh = async () => {
+    await qc.refetchQueries({ queryKey: ["finance", "review-queue", "inbox"] });
+  };
+
+  const m = useMutation({
+    mutationFn: async () => {
+      const r = await save({ data: { id: row.id, note: note.trim(), scope } });
+      setSaved({ id: r.instruction.id, text: r.instruction.text, scope, label: chosen.label });
+      setConfirming(false);
+      qc.invalidateQueries({ queryKey: ["finance", "intake-instructions"] });
+      // Re-read THIS document with the new rule.
+      if (row.status === "pending_review") {
+        const rr = await reread({ data: { ids: [row.id] } });
+        setRereadError(rr.errors[0]?.error ?? null);
+        setResult(rr.items[0] ?? null);
+      }
+      if (scope !== "document") {
+        const fm = await findMatches({ data: { instructionId: r.instruction.id, excludeId: row.id } });
+        setMatches(fm.items);
+      } else setMatches([]);
+      await refresh();
+      onOpenItem(row.id);
+    },
+    onSuccess: () => toast.success(k("savedRule")),
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+  });
+
+  const applyM = useMutation({
+    mutationFn: async () => {
+      const ids = (matches ?? []).map((x) => x.id);
+      let failed = 0;
+      setProgress({ done: 0, total: ids.length, failed: 0 });
+      for (let i = 0; i < ids.length; i += 3) {
+        const r = await reread({ data: { ids: ids.slice(i, i + 3) } });
+        failed += r.errors.length;
+        setProgress({ done: Math.min(i + 3, ids.length), total: ids.length, failed });
+      }
+      await refresh();
+      return { total: ids.length, failed };
+    },
+    onSuccess: (r) => { toast.success(k("appliedSimilar", { count: r.total - r.failed })); setShowPreview(false); setMatches([]); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+  });
+
+  const predicted = scope === "recipient" || scope === "supplier" ? result?.intake_type ?? null : null;
+
   return (
     <Card>
       <CardHeader className="py-3"><CardTitle className="text-sm">{t("finance:intakeInbox.learn.title")}</CardTitle></CardHeader>
       <CardContent className="space-y-3">
         {(l?.instructions ?? []).map((i) => (
           <div key={i.id} className="flex items-start justify-between gap-2 text-sm">
-            <div><Badge variant="secondary" className="text-[10px] mr-1.5">{t("finance:intakeInbox.learn.instruction")}</Badge>{i.text}</div>
-            <Button size="sm" variant="ghost" onClick={() => onOpenRule(i.id)}>{t("finance:intakeInbox.learn.editRule")}</Button>
+            <div><Badge variant="secondary" className="text-[10px] mr-1.5">{k("instruction")}</Badge>{i.text}</div>
+            <Button size="sm" variant="ghost" onClick={() => onOpenRule(i.id)}>{k("editRule")}</Button>
           </div>
         ))}
         {l?.defaults && (
           <div className="text-sm">
-            <Badge variant="secondary" className="text-[10px] mr-1.5">{t("finance:intakeInbox.learn.default")}</Badge>
-            {t("finance:intakeInbox.learn.defaultText", { type: typeLabel(l.defaults.intake_type), code: l.defaults.classification_code, n: l.defaults.based_on.length })}
+            <Badge variant="secondary" className="text-[10px] mr-1.5">{k("default")}</Badge>
+            {k("defaultText", { type: typeLabel(l.defaults.intake_type), code: l.defaults.classification_code, n: l.defaults.based_on.length })}
           </div>
         )}
         {(l?.instructions?.length || l?.defaults) && (l?.ai_type || l?.ai_code) ? (
-          <p className="text-[11px] text-muted-foreground">{t("finance:intakeInbox.learn.aiSaid", { type: typeLabel(l?.ai_type), code: l?.ai_code ?? "—" })}</p>
+          <p className="text-[11px] text-muted-foreground">{k("aiSaid", { type: typeLabel(l?.ai_type), code: l?.ai_code ?? "—" })}</p>
         ) : null}
-        {l?.examples ? <p className="text-xs text-muted-foreground">{t("finance:intakeInbox.learn.examples", { count: l.examples })}</p> : null}
-        <div className="space-y-1.5">
-          <Label className="text-xs">{t("finance:intakeInbox.learn.explain")}</Label>
-          <Textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("finance:intakeInbox.learn.explainPlaceholder")} />
-          <label className="flex items-center gap-2 text-xs">
-            <Checkbox checked={apply} onCheckedChange={(v) => setApply(v === true)} />
-            {t("finance:intakeInbox.learn.applyFuture")}
-          </label>
-          <Button size="sm" variant="outline" disabled={!note.trim() || m.isPending} onClick={() => m.mutate()}>{t("finance:intakeInbox.learn.save")}</Button>
+        {l?.examples ? <p className="text-xs text-muted-foreground">{k("examples", { count: l.examples })}</p> : null}
+
+        <div className="space-y-2">
+          <Label className="text-xs">{k("explain")}</Label>
+          <Textarea rows={2} maxLength={1000} value={note} onChange={(e) => { setNote(e.target.value); setConfirming(false); }} placeholder={k("explainPlaceholder")} />
+          <Label className="text-xs">{k("scopeTitle")}</Label>
+          <RadioGroup value={scope} onValueChange={(v) => { setScope(v as Scope); setConfirming(false); }} className="gap-1.5">
+            {options.map((o) => (
+              <label key={o.v} className={`flex items-start gap-2 text-xs ${o.disabled ? "opacity-50" : "cursor-pointer"}`}>
+                <RadioGroupItem value={o.v} disabled={o.disabled} className="mt-0.5" />
+                <span>{o.label}</span>
+              </label>
+            ))}
+          </RadioGroup>
+          {!confirming ? (
+            <Button size="sm" variant="outline" disabled={!note.trim() || m.isPending} onClick={() => setConfirming(true)}>{k("save")}</Button>
+          ) : (
+            <div className="rounded-md border p-2.5 space-y-2 bg-muted/30">
+              <p className="text-xs">{k("confirmText")}</p>
+              <p className="text-sm">“{note.trim()}”</p>
+              <p className="text-xs text-muted-foreground">{chosen.label}</p>
+              <div className="flex gap-2">
+                <Button size="sm" disabled={m.isPending} onClick={() => m.mutate()}>
+                  {m.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+                  {m.isPending ? k("rereading") : k("confirm")}
+                </Button>
+                <Button size="sm" variant="ghost" disabled={m.isPending} onClick={() => setConfirming(false)}>{k("cancel")}</Button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {saved && (
+          <div className="rounded-md border p-2.5 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-sm">
+                <Badge variant="secondary" className="text-[10px] mr-1.5">{k("savedTitle")}</Badge>“{saved.text}”
+                <div className="text-xs text-muted-foreground mt-0.5">{saved.label}</div>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => onOpenRule(saved.id)}>{k("viewRule")}</Button>
+            </div>
+            {result && (
+              <p className="text-xs">
+                {k("rereadResult", { type: typeLabel(result.intake_type), tab: tabLabel(result.intake_route, result.status) })}
+              </p>
+            )}
+            {rereadError && <p className="text-xs text-destructive">{k("rereadFailed")}: {rereadError}</p>}
+            {matches && matches.length > 0 && !progress && (
+              <div className="space-y-2">
+                {!showPreview ? (
+                  <Button size="sm" variant="outline" onClick={() => setShowPreview(true)}>{k("applySimilar", { count: matches.length })}</Button>
+                ) : (
+                  <>
+                    <div className="max-h-[260px] overflow-auto rounded-md border divide-y">
+                      {matches.map((x) => (
+                        <div key={x.id} className="grid grid-cols-[1fr_auto] gap-2 px-2 py-1.5 text-xs">
+                          <span className="truncate">{x.title} <span className="text-muted-foreground">· {x.date ?? "—"}</span></span>
+                          <span className="text-muted-foreground">
+                            {typeLabel(x.intake_type)} → {x.manualType ? k("keepsManual") : predicted ? typeLabel(predicted) : k("toBeRead")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => applyM.mutate()} disabled={applyM.isPending}>{k("applyConfirm", { count: matches.length })}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setShowPreview(false)}>{k("cancel")}</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            {matches && matches.length === 0 && scope !== "document" && !progress && <p className="text-xs text-muted-foreground">{k("noSimilar")}</p>}
+            {progress && (
+              <p className="text-xs text-muted-foreground">
+                {applyM.isPending && <Loader2 className="inline h-3 w-3 mr-1 animate-spin" />}
+                {k("progress", { done: progress.done, total: progress.total, failed: progress.failed })}
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

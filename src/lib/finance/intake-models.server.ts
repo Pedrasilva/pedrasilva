@@ -34,11 +34,12 @@ export const INTAKE_TYPES = [
   "contrato_outro",
   "nao_financeiro",
   "desconhecido",
+  "outra_entidade",
 ] as const;
 export type IntakeType = (typeof INTAKE_TYPES)[number];
 
 export type IntakeRoute =
-  | "triage" | "purchases" | "payments" | "bank" | "issued" | "other" | "ignored" | "retry";
+  | "triage" | "purchases" | "payments" | "bank" | "issued" | "other" | "ignored" | "retry" | "other_entity";
 
 export const TYPE_CONFIDENCE_MIN = 0.7;
 
@@ -62,6 +63,8 @@ export function routeForType(type: IntakeType | null, confidence: number | null)
       return "other";
     case "nao_financeiro":
       return "ignored";
+    case "outra_entidade":
+      return "other_entity";
   }
 }
 
@@ -93,6 +96,8 @@ export type DualExtraction = IntakeExtraction & {
   period_start: string | null;
   period_end: string | null;
   referenced_document_number: string | null;
+  recipient_name: string | null;
+  recipient_vat: string | null;
 };
 
 /** Shared field list: the existing schema plus the intake-routing fields. */
@@ -110,6 +115,8 @@ const SHARED_SCHEMA = (() => {
     period_start: { type: ["string", "null"] },
     period_end: { type: ["string", "null"] },
     referenced_document_number: { type: ["string", "null"] },
+    recipient_name: { type: ["string", "null"] },
+    recipient_vat: { type: ["string", "null"] },
   };
   return {
     ...base,
@@ -132,7 +139,9 @@ INTAKE TYPE (field intake_type) — pick exactly one:
 - "documento_fiscal": official notices from Autoridade Tributária / Finanças, Segurança Social, courts or other public bodies (notifications, guides, payment notes "DUC", certificates).
 - "contrato_outro": contracts, proposals, quotes, orders, agreements and other business documents that are not one of the above.
 - "nao_financeiro": not a financial or business document at all (newsletters, marketing, drawings, photos, signatures, terms and conditions, empty pages).
+- "outra_entidade": the document is addressed to a company or person OTHER than the firm (its customer / account holder / addressee NIF is not the firm's) and was not issued by the firm.
 - "desconhecido": you genuinely cannot tell.
+RECIPIENT (every document type, including bank statements and bank notices): recipient_name / recipient_vat = the party the document is ADDRESSED TO — the customer, bill-to, account holder ("Titular", "Cliente", "Exmo(s). Sr(s).", "Adquirente"), exactly as printed. For an invoice issued by the firm this is the client. null when not printed.
 intake_type_confidence 0..1, honest. intake_type_reason: one short sentence saying why (no amounts, no personal data).
 Keep doc_type consistent with intake_type (fatura_compra/nota_credito/fatura_emitida → "invoice", recibo → "receipt", comprovativo_pagamento → "proof_of_payment", extrato_bancario/nota_lancamento → "bank_statement", others → "unknown").
 BANK FIELDS (bank documents only, null otherwise): iban exactly as printed (no spaces needed); account_number = the bank account number ("N.º conta", "Conta") as printed; period_start / period_end ISO dates of the statement period (for a nota de lançamento use the movement date for both). For a nota de lançamento also fill total_amount with the movement amount.
@@ -368,6 +377,7 @@ export const CHECKED_FIELDS = [
   "total_amount",
   "iban",
   "account_number",
+  "recipient_vat",
 ] as const;
 export type CheckedField = (typeof CHECKED_FIELDS)[number];
 
@@ -383,6 +393,7 @@ export type FieldCheck = {
 function pick(o: DualExtraction | undefined, f: CheckedField): string | number | null {
   if (!o) return null;
   if (f === "supplier_vat") return o.seller_vat ?? o.supplier_vat ?? null;
+  if (f === "recipient_vat") return o.recipient_vat ?? o.buyer_vat ?? null;
   const v = (o as Record<string, unknown>)[f];
   return v == null || v === "" ? null : (v as string | number);
 }
@@ -393,7 +404,7 @@ function norm(f: CheckedField, v: string | number | null): string {
     const n = Number(v);
     return Number.isFinite(n) ? n.toFixed(2) : String(v);
   }
-  if (f === "supplier_vat") return normalizeVat(String(v))?.replace(/^PT/, "") ?? "";
+  if (f === "supplier_vat" || f === "recipient_vat") return normalizeVat(String(v))?.replace(/^PT/, "") ?? "";
   return String(v).toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
@@ -537,6 +548,7 @@ export async function runDualExtraction(
     total_amount: checks.total_amount.value == null ? null : Number(checks.total_amount.value),
     iban: (checks.iban.value as string | null) ?? null,
     account_number: (checks.account_number.value as string | null) ?? null,
+    recipient_vat: (checks.recipient_vat.value as string | null) ?? primary.recipient_vat ?? null,
     // Type + classification come from Claude (Gemini only as a fallback).
     classification_code: primary.classification_code,
     classification_confidence: primary.classification_confidence,
