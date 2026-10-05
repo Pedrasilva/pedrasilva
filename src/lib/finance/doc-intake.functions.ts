@@ -32,8 +32,8 @@ export type IngestResult = {
   queueItemId?: string;
   groupId?: string;
   error?: string;
-  duplicate?: { kind: string; reason: string; queueItemId?: string; documentId?: string; label: string; registeredAt: string };
-  possibleDuplicates?: Array<{ kind: string; reason: string; queueItemId?: string; documentId?: string; label: string; registeredAt: string }>;
+  duplicate?: import("./intake-duplicates.server").DupMatch;
+  possibleDuplicates?: import("./intake-duplicates.server").DupMatch[];
 };
 
 /** Upload → extract → match → queue. Never writes to live financial tables. */
