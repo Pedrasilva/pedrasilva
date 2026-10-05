@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SenderRulesPanel } from "@/components/finance/sender-rules-panel";
 import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import { QueueItemCard, type QueueRow } from "@/components/finance/review-queue";
 import {
@@ -87,7 +88,7 @@ function fmt(v: number | null | undefined) {
 export function IntakeInbox() {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = !!i18n.language?.startsWith("pt");
-  const [tab, setTab] = useState<Tab>("triage");
+  const [tab, setTab] = useState<Tab | "rules">("triage");
   const [selected, setSelected] = useState<string | null>(null);
   const qc = useQueryClient();
 
@@ -150,7 +151,7 @@ export function IntakeInbox() {
     return m;
   }, [rowsQ.data]);
 
-  const list = byTab[tab];
+  const list = tab === "rules" ? [] : byTab[tab];
   const active = list.find((r) => r.id === selected) ?? list[0] ?? null;
 
   return (
@@ -166,7 +167,7 @@ export function IntakeInbox() {
         </Button>
       </header>
 
-      <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab); setSelected(null); }}>
+      <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab | "rules"); setSelected(null); }}>
         <TabsList className="flex-wrap h-auto">
           {TABS.map((k) => (
             <TabsTrigger key={k} value={k}>
@@ -174,9 +175,11 @@ export function IntakeInbox() {
               <Badge variant="secondary" className="ml-1.5 text-[10px]">{byTab[k].filter((r) => r.status === "pending_review").length}</Badge>
             </TabsTrigger>
           ))}
+          <TabsTrigger value="rules">{t("finance:intakeInbox.tabs.rules")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
+      {tab === "rules" ? <SenderRulesPanel /> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
@@ -244,6 +247,7 @@ export function IntakeInbox() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
