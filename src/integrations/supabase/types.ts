@@ -3261,8 +3261,14 @@ export type Database = {
           direction_confidence: number | null
           doc_type: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence: number | null
+          drive_copied_at: string | null
+          drive_copy_attempted_at: string | null
+          drive_copy_attempts: number
           drive_copy_error: string | null
+          drive_copy_status: string | null
           drive_file_id: string | null
+          drive_next_retry_at: string | null
+          drive_web_link: string | null
           duplicate_kind: string | null
           duplicate_of_document_id: string | null
           duplicate_of_id: string | null
@@ -3375,8 +3381,14 @@ export type Database = {
           direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
+          drive_copied_at?: string | null
+          drive_copy_attempted_at?: string | null
+          drive_copy_attempts?: number
           drive_copy_error?: string | null
+          drive_copy_status?: string | null
           drive_file_id?: string | null
+          drive_next_retry_at?: string | null
+          drive_web_link?: string | null
           duplicate_kind?: string | null
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
@@ -3489,8 +3501,14 @@ export type Database = {
           direction_confidence?: number | null
           doc_type?: Database["public"]["Enums"]["fdrq_doc_type"]
           doc_type_confidence?: number | null
+          drive_copied_at?: string | null
+          drive_copy_attempted_at?: string | null
+          drive_copy_attempts?: number
           drive_copy_error?: string | null
+          drive_copy_status?: string | null
           drive_file_id?: string | null
+          drive_next_retry_at?: string | null
+          drive_web_link?: string | null
           duplicate_kind?: string | null
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
