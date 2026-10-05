@@ -59,6 +59,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { toast } from "sonner";
 import { formatHM, parseHM } from "@/lib/projects/time-format";
 import { MyWeekCard } from "@/components/projects/my-week-card";
+import { HourCell } from "@/components/projects/timesheet-activity-cell";
 import {
   isWeekLocked,
   totalsFromEntries,
@@ -387,6 +388,11 @@ function TimesheetPage() {
     return rows;
   }, [nonWorkingPrefill, entries]);
   const [calExpanded, setCalExpanded] = useState(false);
+  const { data: stageBalance } = useStageAllocationBalance({
+    resourceId: profile?.resource_id ?? null,
+    userId: effectiveUserId ?? null,
+    stageIds: projectRows.map((r) => r.stage.id),
+  });
   const noResource = !profile?.resource_id;
 
   // Auto-create non-working entries from approved leave/holidays the first
@@ -967,6 +973,7 @@ function TimesheetPage() {
                       pending={upsert.isPending}
                       readOnly={readOnly || !isStageActive(r)}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
+                      balance={stageBalance?.get(r.stage.id)}
                       renderHint={(dateStr) => projectHint(r.project.id, `t:${r.task_id}`, dateStr)}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
@@ -1002,7 +1009,7 @@ function TimesheetPage() {
                       isExtra={extraRetainerIds.includes(r.id)}
                       onRemove={() => setExtraRetainerIds((ids) => ids.filter((x) => x !== r.id))}
                       renderHint={(dateStr) => projectHint(r.project.id, `r:${r.id}`, dateStr)}
-                      onCommit={(dateStr, hours, notes, billable) => commitRetainerCell(r, dateStr, hours, notes, billable)}
+                      onCommit={(dateStr, hours, notes, billable, id) => commitRetainerCell(r, dateStr, hours, notes, billable, id)}
                     />
                   ))}
                   </>
@@ -1275,8 +1282,10 @@ function ProjectRow({
   rowTotal,
   onCommit,
   renderHint,
+  balance,
 }: {
   renderHint?: (dateStr: string) => React.ReactNode;
+  balance?: { allocated: number; logged: number };
   row: TimesheetTaskRow;
   days: Date[];
   entryMap: Map<CellKey, Map<string, CellInfo>>;
@@ -1294,6 +1303,7 @@ function ProjectRow({
   ) => void;
 }) {
   const holCls = useHolidayCols(days);
+  const { t: tBal } = useTranslation("projects");
   return (
     <tr className="border-b border-border last:border-0">
       <td className="sticky left-0 z-10 bg-card px-4 py-2">
@@ -1320,9 +1330,13 @@ function ProjectRow({
                 <StageClosedNote status={row.stage.status} />
               </div>
             )}
-            {row.hours_per_day > 0 && (
-              <div className="mt-0.5 text-[10px] text-muted-foreground">
-                Suggested {formatHM(row.hours_per_day)}/day
+            {balance && balance.allocated > 0 && (
+              <div className={`mt-0.5 text-[10px] ${balance.logged > balance.allocated ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                {tBal("tsActivities.balance", {
+                  allocated: formatHM(balance.allocated),
+                  logged: formatHM(balance.logged) || "0h00",
+                  left: formatHM(Math.max(0, balance.allocated - balance.logged)) || "0h00",
+                })}
               </div>
             )}
           </div>
@@ -1351,15 +1365,11 @@ function ProjectRow({
               title={row.project.name}
               subtitle={row.stage.name}
               entryType="project"
-              value={cell?.hours ?? 0}
-              notes={cell?.notes ?? ""}
-              billable={cell?.billable ?? true}
+              activities={cell?.activities ?? []}
               suggested={suggested}
               disabled={pending}
               readOnly={readOnly}
-              onCommit={(hours, notes, billable) =>
-                onCommit(dateStr, hours, notes, billable, cell?.id ?? null)
-              }
+              onCommit={(hours, notes, billable, id) => onCommit(dateStr, hours, notes, billable, id)}
             />
             {renderHint?.(dateStr)}
           </td>
@@ -1389,7 +1399,7 @@ function RetainerRow({
   isExtra: boolean;
   onRemove: () => void;
   renderHint?: (dateStr: string) => React.ReactNode;
-  onCommit: (dateStr: string, hours: number, notes: string | null, billable: boolean) => void;
+  onCommit: (dateStr: string, hours: number, notes: string | null, billable: boolean, id: string | null) => void;
 }) {
   const holCls = useHolidayCols(days);
   const { t } = useTranslation("projects");
@@ -1417,8 +1427,6 @@ function RetainerRow({
         const month = dateStr.slice(0, 7);
         const hasMonth = row.children.some((c) => c.month === month);
         const dayEntries = entries.filter((e) => e.entry_date === dateStr);
-        const value = dayEntries.reduce((a, e) => a + e.hours, 0);
-        const first = dayEntries[0];
         return (
           <td key={dateStr} className={`px-1 py-1 text-center ${holCls(dateStr)}`}>
             {hasMonth ? (
@@ -1427,13 +1435,11 @@ function RetainerRow({
                 title={label}
                 subtitle={format(d, "MMM yyyy", { locale })}
                 entryType="project"
-                value={value}
-                notes={first?.notes ?? ""}
-                billable={first?.billable ?? true}
+                activities={dayEntries}
                 suggested={0}
                 disabled={pending}
                 readOnly={readOnly}
-                onCommit={(hours, notes, billable) => onCommit(dateStr, hours, notes, billable)}
+                onCommit={(hours, notes, billable, id) => onCommit(dateStr, hours, notes, billable, id)}
               />
             ) : (
               <div className="mx-auto w-20 text-[10px] leading-tight text-muted-foreground">
@@ -1508,15 +1514,12 @@ function FixedRow({
               title={label}
               subtitle={sub}
               entryType={tone === "internal" ? "internal" : "non_working"}
-              value={cell?.hours ?? 0}
-              notes={cell?.notes ?? ""}
-              billable={false}
+              activities={cell?.activities ?? []}
+              singleActivity={tone === "nonworking"}
               suggested={isWeekend ? 0 : tone === "nonworking" ? 8 : 0}
               disabled={pending}
               readOnly={readOnly}
-              onCommit={(hours, notes) =>
-                onCommit(dateStr, hours, notes, false, cell?.id ?? null)
-              }
+              onCommit={(hours, notes, _b, id) => onCommit(dateStr, hours, notes, false, id)}
             />
             {renderHint?.(dateStr)}
           </td>
@@ -1524,244 +1527,6 @@ function FixedRow({
       })}
       <td className="px-3 py-2 text-right font-mono text-sm">{formatHM(rowTotal) || "—"}</td>
     </tr>
-  );
-}
-
-function HourCell({
-  date,
-  title,
-  subtitle,
-  entryType,
-  value,
-  notes,
-  billable,
-  suggested,
-  disabled,
-  readOnly,
-  onCommit,
-}: {
-  date: Date;
-  title: string;
-  subtitle: string;
-  entryType: EntryType;
-  value: number;
-  notes: string;
-  billable: boolean;
-  suggested: number;
-  disabled: boolean;
-  readOnly?: boolean;
-  onCommit: (hours: number, notes: string | null, billable: boolean) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [draftHours, setDraftHours] = useState<string>(formatHM(value));
-  const [draftNotes, setDraftNotes] = useState<string>(notes);
-  const [draftBillable, setDraftBillable] = useState<boolean>(billable);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { t: tNwd } = useTranslation(["projects"]);
-  const nwdLocale = useDateLocale();
-  const isoDay = format(date, "yyyy-MM-dd");
-  const wkStart = format(startOfWeek(date, { weekStartsOn: 1 }), "yyyy-MM-dd");
-  const wkEnd = format(addDays(startOfWeek(date, { weekStartsOn: 1 }), 6), "yyyy-MM-dd");
-  const nwdMap = useNonWorkingDays(wkStart, wkEnd).data;
-  const nwdInfo = entryType !== "non_working" ? nwdMap?.get(isoDay) ?? null : null;
-
-  useEffect(() => {
-    setDraftHours(formatHM(value));
-    setDraftNotes(notes);
-    setDraftBillable(billable);
-  }, [value, notes, billable]);
-
-  const display = formatHM(value);
-  const placeholder = suggested ? formatHM(suggested) : "–";
-
-  const handleSave = () => {
-    const parsed = parseHM(draftHours);
-    if (parsed === null || parsed < 0 || parsed > 24) {
-      setError("Use format like 6h30");
-      return;
-    }
-    setError(null);
-    const trimmedNotes = draftNotes.trim();
-    onCommit(
-      parsed,
-      trimmedNotes === "" ? null : trimmedNotes,
-      entryType === "project" ? draftBillable : false,
-    );
-    setOpen(false);
-  };
-
-  const handleClear = () => {
-    setError(null);
-    onCommit(0, null, true);
-    setDraftHours("");
-    setDraftNotes("");
-    setDraftBillable(true);
-    setOpen(false);
-  };
-
-  // Visual treatment per type
-  const cellCls =
-    value > 0
-      ? entryType === "project"
-        ? billable
-          ? "border-border bg-background text-foreground hover:border-ring"
-          : "border-dashed border-border bg-muted/40 text-muted-foreground hover:border-ring"
-        : entryType === "internal"
-          ? "border-border bg-muted/50 text-foreground hover:border-ring"
-          : "border-border bg-accent/40 text-foreground hover:border-ring"
-      : "border-transparent text-muted-foreground hover:border-border hover:bg-background";
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o);
-        if (o) {
-          setDraftHours(formatHM(value));
-          setDraftNotes(notes);
-          setDraftBillable(billable);
-          setError(null);
-          setTimeout(() => inputRef.current?.select(), 50);
-        }
-      }}
-    >
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          disabled={disabled}
-          title={notes && value > 0 ? notes : undefined}
-          className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${cellCls}`}
-        >
-          {display || <span className={suggested ? "text-muted-foreground/60" : "text-muted-foreground/40"}>{placeholder}</span>}
-          {notes && value > 0 && (
-            <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary" />
-          )}
-          {nwdInfo && value > 0 && (
-            <span
-              aria-label={tNwd(`projects:nonWorkingDay.badge.${nwdInfo.reason}`)}
-              className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full bg-warning"
-            />
-          )}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="center" className="w-80 p-0">
-        <div className="border-b border-border px-4 py-3">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">
-            {format(date, "EEEE, MMM d")}
-          </div>
-          <div className="mt-0.5 truncate text-sm font-medium">{title}</div>
-          <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
-          {nwdInfo && (
-            <div className="mt-2 rounded border border-warning/40 bg-warning/10 px-2 py-1.5 text-[11px]">
-              <span className="mr-1 font-medium text-warning">{tNwd(`projects:nonWorkingDay.badge.${nwdInfo.reason}`)}</span>
-              {nonWorkingLine(tNwd, isoDay, nwdInfo, nwdLocale)}
-            </div>
-          )}
-        </div>
-        {readOnly ? (
-          <div className="space-y-3 px-4 py-3">
-            <div>
-              <div className="mb-1 text-xs font-medium text-muted-foreground">Time</div>
-              <div className="font-mono text-sm">{display || "0h00"}</div>
-            </div>
-            <div>
-              <div className="mb-1 text-xs font-medium text-muted-foreground">Description</div>
-              <p className="whitespace-pre-wrap text-sm">
-                {notes || <span className="text-muted-foreground">No description</span>}
-              </p>
-            </div>
-            {entryType === "project" && (
-              <div className="rounded border border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-                {billable ? "Billable" : "Non-billable"}
-              </div>
-            )}
-          </div>
-        ) : (
-        <>
-        <div className="space-y-3 px-4 py-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-              Time (e.g. 6h05, 6h30)
-            </label>
-            <Input
-              ref={inputRef}
-              value={draftHours}
-              onChange={(e) => {
-                setDraftHours(e.target.value);
-                if (error) setError(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSave();
-                }
-              }}
-              placeholder={placeholder}
-              className="font-mono"
-            />
-            {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-              Description
-            </label>
-            <Textarea
-              value={draftNotes}
-              onChange={(e) => setDraftNotes(e.target.value)}
-              placeholder="What did you work on?"
-              rows={3}
-              className="resize-none text-sm"
-            />
-          </div>
-          {entryType === "project" ? (
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-border bg-muted/30 px-3 py-2">
-              <div className="min-w-0">
-                <div className="text-sm font-medium">Billable</div>
-                <div className="text-[11px] text-muted-foreground">
-                  Uncheck to log time that won't be charged to the client.
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={draftBillable}
-                onChange={(e) => setDraftBillable(e.target.checked)}
-                className="h-4 w-4 flex-shrink-0 cursor-pointer accent-primary"
-              />
-            </label>
-          ) : (
-            <div className="rounded border border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-              {entryType === "internal"
-                ? "Internal time is always non-billable and counts toward used capacity."
-                : "Non-working time reduces available capacity and isn't billable."}
-            </div>
-          )}
-        </div>
-        <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleClear}
-            disabled={value === 0}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="mr-1 h-3.5 w-3.5" />
-            Clear
-          </Button>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="button" size="sm" onClick={handleSave}>
-              Save
-            </Button>
-          </div>
-        </div>
-        </>
-        )}
-      </PopoverContent>
-    </Popover>
   );
 }
 
