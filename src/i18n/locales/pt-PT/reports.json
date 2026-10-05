@@ -221,7 +221,9 @@
     "tiles": {
       "logged": "Horas registadas",
       "target": "Facturável vs objetivo",
-      "targetSub": "Real / objetivo da equipa (ponderado pelas horas)"
+      "targetSub": "Real / objetivo da equipa (ponderado pelas horas)",
+      "projectTeam": "Equipa de projecto: {{actual}} vs meta {{target}}",
+      "wholeStudio": "Estúdio todo: {{pct}} facturável"
     },
     "leaveContext": "Ausências {{h}} h (não contam)",
     "leaveExcluded": "Ausências e feriados excluídos",
@@ -235,7 +237,8 @@
       "hint": "Ordenado por % facturável. O marcador preto é o objetivo de RH da pessoa. Clique numa pessoa para ver o detalhe.",
       "split": "Distribuição",
       "target": "Objetivo",
-      "diff": "Diferença"
+      "diff": "Diferença",
+      "backOffice": "0% · back office"
     },
     "detail": {
       "byProject": "Por projeto",

@@ -61,7 +61,7 @@ function presetRange(p: Preset): { start: string; end: string } {
 const fmtH = (n: number) => (Math.round(n * 10) / 10).toLocaleString(undefined, { maximumFractionDigits: 1 });
 const fmtP = (n: number | null) => (n == null ? "—" : `${Math.round(n)}%`);
 
-type PersonRow = { person: RosterPerson; split: Split; billPct: number | null; targetPct: number | null; diff: number | null };
+type PersonRow = { person: RosterPerson; split: Split; billPct: number | null; targetPct: number | null; backOffice: boolean; diff: number | null };
 
 function BillablePage() {
   const { t, i18n } = useTranslation("reports");
@@ -104,11 +104,14 @@ function BillablePage() {
       const billPct = pctOf(split.billable, split);
       const tp = person.resourceId ? schedules?.get(person.resourceId)?.targetChargeabilityPct ?? null : null;
       const targetPct = tp != null && tp > 0 ? tp : null;
-      return { person, split, billPct, targetPct, diff: billPct != null && targetPct != null ? billPct - targetPct : null };
+      return { person, split, billPct, targetPct, backOffice: tp != null && tp <= 0, diff: billPct != null && targetPct != null ? billPct - targetPct : null };
     })
     .filter((r) => r.split.logged > 0 || r.split.leave > 0)
     .sort((a, b) => (b.billPct ?? -1) - (a.billPct ?? -1));
   const teamTarget = weightedTarget(personRows.map((r) => ({ logged: r.split.logged, targetPct: r.targetPct })));
+  // Like with like: the project team = people with a target above 0% (back office excluded from both sides).
+  const projTeam = personRows.filter((r) => r.targetPct != null);
+  const projTotal = projTeam.reduce((a, r) => ({ ...a, logged: a.logged + r.split.logged, billable: a.billable + r.split.billable }), { ...total, logged: 0, billable: 0 });
   const openRow = personRows.find((r) => r.person.userId === openUser) ?? null;
 
   return (
@@ -190,8 +193,11 @@ function BillablePage() {
               <Tile label={t("billable.kinds.internal")} value={fmtP(pctOf(total.internal, total))} sub={`${fmtH(total.internal)} h`} />
               <Tile
                 label={t("billable.tiles.target")}
-                value={<>{fmtP(pctOf(total.billable, total))}<span className="text-muted-foreground"> / {fmtP(teamTarget)}</span></>}
-                sub={t("billable.tiles.targetSub")}
+                value={<>{fmtP(pctOf(projTotal.billable, projTotal))}<span className="text-muted-foreground"> / {fmtP(teamTarget)}</span></>}
+                sub={<>
+                  <span className="block">{t("billable.tiles.projectTeam", { actual: fmtP(pctOf(projTotal.billable, projTotal)), target: fmtP(teamTarget) })}</span>
+                  <span className="block">{t("billable.tiles.wholeStudio", { pct: fmtP(pctOf(total.billable, total)) })}</span>
+                </>}
               />
             </div>
 
@@ -255,7 +261,7 @@ function BillablePage() {
                         <TableCell className="text-right tabular-nums">{fmtP(r.billPct)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtH(r.split.nonBillable)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtH(r.split.internal)}</TableCell>
-                        <TableCell className="text-right tabular-nums">{fmtP(r.targetPct)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{r.backOffice ? t("billable.byPerson.backOffice") : fmtP(r.targetPct)}</TableCell>
                         <TableCell className={cn("text-right tabular-nums", r.diff != null && r.diff < 0 && "font-medium text-destructive")}>
                           {r.diff == null ? "—" : `${r.diff >= 0 ? "+" : ""}${Math.round(r.diff)} p.p.`}
                         </TableCell>
@@ -449,7 +455,7 @@ function Legend3() {
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: React.ReactNode; sub: string }) {
+function Tile({ label, value, sub }: { label: string; value: React.ReactNode; sub: React.ReactNode }) {
   return (
     <Card>
       <CardContent className="pt-4">
