@@ -2158,6 +2158,7 @@
     "direction": {
       "incoming": "Recebimento",
       "outgoing": "Pagamento"
-    }
+    },
+    "alreadyReconciled": "Já reconciliada"
   }
 }

@@ -72,6 +72,10 @@ export const Route = createFileRoute("/api/public/hooks/recebimentos-backfill")(
             }
           }
         }
+        if (body.group_only) {
+          const { data: open } = await supabaseAdmin.from("finance_recebimentos").select("id").eq("status", "suggested");
+          for (const r of open ?? []) await rec.refreshSuggestions(r.id);
+        }
         const { count: remaining } = await supabaseAdmin
           .from("financial_document_review_queue").select("id", { count: "exact", head: true })
           .eq("status", "pending_review").in("intake_type", [...rec.PAYMENT_PROOF_TYPES])

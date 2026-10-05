@@ -39,7 +39,7 @@ type Proof = {
   id: string; recebimento_id: string; intake_type: string | null; original_filename: string | null;
   source_bucket: string | null; source_file_url: string; extracted_amount: number | null; extracted_date: string | null; status: string;
 };
-type Tx = { id: string; transaction_date: string; amount: number; description: string | null; bank_account_id: string };
+type Tx = { id: string; transaction_date: string; amount: number; description: string | null; bank_account_id: string; reconciled_at: string | null };
 
 const fmt = (v: number | null | undefined) =>
   v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(v));
@@ -65,7 +65,7 @@ function useRecebimentos(filter: { projectId?: string; companyId?: string; onlyC
               .in("recebimento_id", ids)
           : Promise.resolve({ data: [] }),
         txIds.length
-          ? supabase.from("bank_transactions").select("id, transaction_date, amount, description, bank_account_id").in("id", txIds)
+          ? supabase.from("bank_transactions").select("id, transaction_date, amount, description, bank_account_id, reconciled_at").in("id", txIds)
           : Promise.resolve({ data: [] }),
         companyIds.length ? supabase.from("companies").select("id, nome, nif").in("id", companyIds) : Promise.resolve({ data: [] }),
       ]);
@@ -157,7 +157,7 @@ function RecebimentoCard({ rec, proofs, txs, company }: { rec: Rec; proofs: Proo
   const sugg = rec.suggested_targets ?? [];
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(rec.received_date);
-  const [bankIds, setBankIds] = useState<string[]>(confirmed ? rec.bank_transaction_ids : rec.suggested_bank_transaction_ids.slice(0, 1));
+  const [bankIds, setBankIds] = useState<string[]>(confirmed ? rec.bank_transaction_ids : rec.suggested_bank_transaction_ids.filter((id) => !txs.find((x) => x.id === id)?.reconciled_at).slice(0, 1));
   const [targets, setTargets] = useState<TargetItem[]>(sugg[0]?.items ?? []);
 
   const companiesQ = useQuery({
@@ -235,9 +235,10 @@ function RecebimentoCard({ rec, proofs, txs, company }: { rec: Rec; proofs: Proo
                 const x = txOf(id);
                 return (
                   <label key={id} className="flex items-center gap-2 rounded-md border p-2 text-sm">
-                    {!confirmed && <Checkbox checked={bankIds.includes(id)} onCheckedChange={(v) => setBankIds((c) => (v ? [...c, id] : c.filter((y) => y !== id)))} />}
+                    {!confirmed && !x?.reconciled_at && <Checkbox checked={bankIds.includes(id)} onCheckedChange={(v) => setBankIds((c) => (v ? [...c, id] : c.filter((y) => y !== id)))} />}
                     <span className="tabular-nums">{x?.transaction_date ?? "—"}</span>
                     <span className="truncate flex-1">{x?.description ?? "—"}</span>
+                    {x?.reconciled_at && !confirmed && <Badge variant="secondary" className="text-[10px]">{t("finance:recebimentos.alreadyReconciled")}</Badge>}
                     <span className="tabular-nums">{fmt(x?.amount)}</span>
                   </label>
                 );

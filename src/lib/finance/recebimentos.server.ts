@@ -170,13 +170,13 @@ export async function refreshSuggestions(recId: string) {
     .from("bank_transactions")
     .select("id, transaction_date, amount, reconciled_at")
     .gte("amount", amount - AMOUNT_TOL).lte("amount", amount + AMOUNT_TOL)
-    .gte("transaction_date", addDays(date, -DATE_TOL_DAYS)).lte("transaction_date", addDays(date, DATE_TOL_DAYS))
-    .is("reconciled_at", null);
+    .gte("transaction_date", addDays(date, -DATE_TOL_DAYS)).lte("transaction_date", addDays(date, DATE_TOL_DAYS));
   const { data: taken } = await supabaseAdmin.from("finance_recebimentos").select("id, bank_transaction_ids").eq("status", "confirmed");
   const used = new Set((taken ?? []).flatMap((r) => r.bank_transaction_ids ?? []));
   const bankIds = (tx ?? [])
     .filter((t) => !used.has(t.id))
-    .sort((a, b) => dayDiff(a.transaction_date, date) - dayDiff(b.transaction_date, date))
+    // Unreconciled lines first; an already reconciled line is still shown (flagged) as evidence.
+    .sort((a, b) => (a.reconciled_at ? 1 : 0) - (b.reconciled_at ? 1 : 0) || dayDiff(a.transaction_date, date) - dayDiff(b.transaction_date, date))
     .map((t) => t.id);
 
   const targets = await findTargets(rec.company_id, amount, date, rec.description);

@@ -2158,6 +2158,7 @@
     "direction": {
       "incoming": "Incoming",
       "outgoing": "Outgoing"
-    }
+    },
+    "alreadyReconciled": "Already reconciled"
   }
 }
