@@ -109,6 +109,22 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         };
 
 
+        // Documents that hit an AI limit are read again once their retry time
+        // has passed (a few per run), so they never stay "unknown".
+        try {
+          const { reprocessQueueItem } = await import("@/lib/finance/doc-intake.server");
+          const { data: due } = await supabaseAdmin
+            .from("financial_document_review_queue")
+            .select("id")
+            .eq("status", "pending_review")
+            .lte("retry_after", new Date().toISOString())
+            .order("retry_after", { ascending: true })
+            .limit(2);
+          for (const r of due ?? []) await reprocessQueueItem(r.id);
+        } catch (err) {
+          summary.errors.push(`retry: ${err instanceof Error ? err.message : String(err)}`);
+        }
+
         try {
           const list = await gmail(
             `/users/me/messages?maxResults=${MAX_MESSAGES}&q=${encodeURIComponent(
