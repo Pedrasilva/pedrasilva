@@ -214,6 +214,17 @@ async function runGemini(system: string, userText: string, b64: string, mime: st
   }
 }
 
+/** Tool JSON can carry raw control characters copied from the PDF text. */
+function parseLenient(s: string): unknown {
+  try {
+    return JSON.parse(s);
+  } catch (e) {
+    if (process.env.INTAKE_DEBUG) console.error(String(e), s.slice(0, 20));
+    // eslint-disable-next-line no-control-regex
+    return JSON.parse(s.replace(/[\u0000-\u001f]/g, (c) => (c === "\n" || c === "\t" || c === "\r" ? " " : "")));
+  }
+}
+
 /** Claude: native Messages API, PDF as a `document` block, schema as a forced tool, streamed. */
 async function runClaude(system: string, userText: string, b64: string, mime: string, key: string): Promise<ModelRun> {
   const t0 = Date.now();
@@ -290,7 +301,7 @@ async function runClaude(system: string, userText: string, b64: string, mime: st
     if (stop === "refusal") return { model: CLAUDE_MODEL, ok: false, ms, error: "model refused" };
     try {
       const parsed = json.trim()
-        ? JSON.parse(json)
+        ? parseLenient(json)
         : startInput && Object.keys(startInput as object).length > 0 ? startInput : null;
       if (!parsed) throw new Error("empty");
       return { model: CLAUDE_MODEL, ok: true, ms, input_tokens: inT, output_tokens: outT, output: parsed as DualExtraction };
