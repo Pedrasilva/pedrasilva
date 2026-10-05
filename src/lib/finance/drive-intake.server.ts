@@ -15,6 +15,7 @@
  * Reuses the Google Drive connector already used by the HR/backup sync
  * (LOVABLE_API_KEY + GOOGLE_DRIVE_API_KEY through the connector gateway).
  */
+import { parseDriveFolderId } from "@/lib/google-drive-folder";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { ingestStoredDocument } from "@/lib/finance/doc-intake.server";
 
@@ -45,14 +46,7 @@ const EXT_MIME: Record<string, string> = {
   tiff: "image/tiff",
 };
 
-/** Accepts a raw folder id or a full Drive folder URL. */
-function folderId(raw: string | undefined | null): string | null {
-  const v = (raw ?? "").trim();
-  if (!v) return null;
-  const m = v.match(/\/folders\/([a-zA-Z0-9_-]+)/) ?? v.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m) return m[1];
-  return v.replace(/^https?:\/\/\S*$/, "") || null;
-}
+const folderId = parseDriveFolderId;
 
 function driveHeaders(extra: Record<string, string> = {}): Record<string, string> {
   const lovableKey = process.env.LOVABLE_API_KEY;

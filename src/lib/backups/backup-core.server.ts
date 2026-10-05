@@ -1,4 +1,5 @@
 import { gzipSync } from "node:zlib";
+import { parseDriveFolderId } from "@/lib/google-drive-folder";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
@@ -227,9 +228,7 @@ async function dumpAllTables() {
 }
 
 function extractFolderId(raw: string): string {
-  const trimmed = raw.trim();
-  const m = trimmed.match(/folders\/([a-zA-Z0-9_-]+)/) ?? trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  return (m ? m[1] : trimmed).replace(/[?#].*$/, "");
+  return parseDriveFolderId(raw) ?? raw.trim();
 }
 
 export async function performBackup(trigger: Trigger, triggeredBy: string | null) {
