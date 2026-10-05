@@ -298,7 +298,7 @@
   },
   "estimates": {
     "title": "Estimate vs actual by phase",
-    "subtitle": "Planned (stage baseline) vs actual hours, cost and duration per phase type. Own-work stages only; costs use locked cost rates.",
+    "subtitle": "Planned vs actual hours, cost and duration per phase type. Estimate from the sold proposal, else the current plan, else the locked baseline. Own work only; costs use locked cost rates.",
     "filters": {
       "status": "Project status",
       "client": "Client",

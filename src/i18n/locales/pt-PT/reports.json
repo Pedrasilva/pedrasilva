@@ -298,7 +298,7 @@
   },
   "estimates": {
     "title": "Estimativa vs real por fase",
-    "subtitle": "Horas, custo e duração previstos (baseline da fase) vs reais por tipo de fase. Só fases de trabalho próprio; custos com taxas de custo bloqueadas.",
+    "subtitle": "Horas, custo e duração previstos vs reais por tipo de fase. Estimativa da proposta vendida, senão do plano actual, senão da baseline bloqueada. Só trabalho próprio; custos com taxas de custo bloqueadas.",
     "filters": {
       "status": "Estado do projeto",
       "client": "Cliente",
