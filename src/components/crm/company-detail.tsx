@@ -17,6 +17,7 @@ import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch, Receipt, Wallet }
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { CompanyProjectsTab } from "@/components/crm/company-projects-tab";
+import { PaymentsReceived } from "@/components/finance/recebimentos-panel";
 
 import { StatementView } from "@/components/finance/statement-view";
 import { useCounterpartyStatement } from "@/lib/finance/use-documents";
@@ -516,6 +517,7 @@ export function CompanyDetail({
               />
             </CardContent>
           </Card>
+          <PaymentsReceived companyId={companyId} />
 
           <Dialog open={settleOpen} onOpenChange={setSettleOpen}>
             <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">

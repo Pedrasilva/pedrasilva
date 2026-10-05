@@ -2105,5 +2105,59 @@
     "hrLast": "Última sincronização RH",
     "doc": "Documento",
     "error": "Erro"
+  },
+  "recebimentos": {
+    "hint": "Cada recebimento junta todas as provas de um pagamento (comprovativo do cliente, nota de lançamento do banco da PSA, recibos) com a linha bancária e o que paga. Nada é marcado como pago sem a sua confirmação.",
+    "status": {
+      "suggested": "Sugerido",
+      "confirmed": "Confirmado"
+    },
+    "empty": "Sem recebimentos aqui.",
+    "unknownClient": "Cliente não identificado",
+    "askClient": "Cliente incerto — escolha",
+    "matchBy": {
+      "nif": "Encontrado por NIF",
+      "iban": "Encontrado por IBAN conhecido",
+      "name": "Encontrado pelo nome",
+      "manual": "Escolhido manualmente"
+    },
+    "payer": "Ordenante",
+    "proofs_one": "{{count}} prova",
+    "proofs_other": "{{count}} provas",
+    "openFile": "Abrir ficheiro",
+    "bankLine": "Linha bancária",
+    "noBankLine": "Sem crédito correspondente nas contas da PSA em ±5 dias.",
+    "pays": "O que paga",
+    "noTarget": "Nenhuma fatura ou prestação em aberto com este valor. Use “Alterar” para escolher.",
+    "combination": "Combinação",
+    "hintAward": "Descritivo refere “adjudicação”",
+    "hintRef": "Descritivo refere {{ref}}",
+    "kind": {
+      "pm_invoice": "Fatura",
+      "schedule_item": "Prestação",
+      "issued_document": "Fatura emitida"
+    },
+    "client": "Cliente",
+    "pickClient": "Escolher cliente",
+    "noOpen": "Este cliente não tem nada em aberto.",
+    "totalDiffers": "O total escolhido {{total}} difere do valor recebido.",
+    "date": "Data de recebimento",
+    "confirm": "Confirmar",
+    "change": "Alterar",
+    "needClient": "Escolha primeiro o cliente.",
+    "done": "Recebimento confirmado: marcado como pago, linha bancária reconciliada, provas arquivadas.",
+    "doneUnallocated": "Recebimento confirmado. {{amount}} sem fatura associada.",
+    "confirmedCount_one": "{{count}} item marcado como pago",
+    "confirmedCount_other": "{{count}} itens marcados como pagos",
+    "receivedTitle": "Recebimentos",
+    "receivedEmpty": "Ainda sem recebimentos registados.",
+    "subtabs": {
+      "incoming": "Recebimentos",
+      "outgoing": "Pagamentos"
+    },
+    "direction": {
+      "incoming": "Recebimento",
+      "outgoing": "Pagamento"
+    }
   }
 }

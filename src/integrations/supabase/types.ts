@@ -1582,6 +1582,48 @@ export type Database = {
           },
         ]
       }
+      company_ibans: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          iban: string
+          id: string
+          recebimento_id: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          iban: string
+          id?: string
+          recebimento_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          iban?: string
+          id?: string
+          recebimento_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_ibans_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ibans_recebimento_id_fkey"
+            columns: ["recebimento_id"]
+            isOneToOne: false
+            referencedRelation: "finance_recebimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           apelido: string | null
@@ -2890,6 +2932,89 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_recebimentos: {
+        Row: {
+          amount: number
+          bank_transaction_ids: string[]
+          client_match_detail: string | null
+          client_match_method: string | null
+          company_id: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          description: string | null
+          financial_document_ids: string[]
+          id: string
+          payer_iban: string | null
+          payer_name: string | null
+          payer_vat: string | null
+          pm_invoice_ids: string[]
+          project_ids: string[]
+          received_date: string
+          schedule_item_ids: string[]
+          status: string
+          suggested_bank_transaction_ids: string[]
+          suggested_targets: Json
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_transaction_ids?: string[]
+          client_match_detail?: string | null
+          client_match_method?: string | null
+          company_id?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          description?: string | null
+          financial_document_ids?: string[]
+          id?: string
+          payer_iban?: string | null
+          payer_name?: string | null
+          payer_vat?: string | null
+          pm_invoice_ids?: string[]
+          project_ids?: string[]
+          received_date: string
+          schedule_item_ids?: string[]
+          status?: string
+          suggested_bank_transaction_ids?: string[]
+          suggested_targets?: Json
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_transaction_ids?: string[]
+          client_match_detail?: string | null
+          client_match_method?: string | null
+          company_id?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          description?: string | null
+          financial_document_ids?: string[]
+          id?: string
+          payer_iban?: string | null
+          payer_name?: string | null
+          payer_vat?: string | null
+          pm_invoice_ids?: string[]
+          project_ids?: string[]
+          received_date?: string
+          schedule_item_ids?: string[]
+          status?: string
+          suggested_bank_transaction_ids?: string[]
+          suggested_targets?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_recebimentos_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_sender_rules: {
         Row: {
           action: string
@@ -3247,6 +3372,9 @@ export type Database = {
           applied_learning: Json | null
           assigned_collaborator_id: string | null
           bank_period: string | null
+          beneficiary_iban: string | null
+          beneficiary_name: string | null
+          beneficiary_vat: string | null
           buyer_vat_is_own: boolean
           classification_approved_at: string | null
           classification_approved_by: string | null
@@ -3322,12 +3450,18 @@ export type Database = {
           other_entity_action: string | null
           other_entity_id: string | null
           paid_from_account_id: string | null
+          payer_iban: string | null
+          payer_name: string | null
+          payer_vat: string | null
+          payment_description: string | null
+          payment_direction: string | null
           payment_match_candidates: Json | null
           payment_match_document_id: string | null
           payment_status: string
           possible_duplicate_resolved: boolean
           possible_duplicates: Json | null
           raw_extraction: Json | null
+          recebimento_id: string | null
           recurring_reference_id: string | null
           rejection_reason: string | null
           removed_at: string | null
@@ -3367,6 +3501,9 @@ export type Database = {
           applied_learning?: Json | null
           assigned_collaborator_id?: string | null
           bank_period?: string | null
+          beneficiary_iban?: string | null
+          beneficiary_name?: string | null
+          beneficiary_vat?: string | null
           buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
@@ -3442,12 +3579,18 @@ export type Database = {
           other_entity_action?: string | null
           other_entity_id?: string | null
           paid_from_account_id?: string | null
+          payer_iban?: string | null
+          payer_name?: string | null
+          payer_vat?: string | null
+          payment_description?: string | null
+          payment_direction?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
           raw_extraction?: Json | null
+          recebimento_id?: string | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
           removed_at?: string | null
@@ -3487,6 +3630,9 @@ export type Database = {
           applied_learning?: Json | null
           assigned_collaborator_id?: string | null
           bank_period?: string | null
+          beneficiary_iban?: string | null
+          beneficiary_name?: string | null
+          beneficiary_vat?: string | null
           buyer_vat_is_own?: boolean
           classification_approved_at?: string | null
           classification_approved_by?: string | null
@@ -3562,12 +3708,18 @@ export type Database = {
           other_entity_action?: string | null
           other_entity_id?: string | null
           paid_from_account_id?: string | null
+          payer_iban?: string | null
+          payer_name?: string | null
+          payer_vat?: string | null
+          payment_description?: string | null
+          payment_direction?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
           raw_extraction?: Json | null
+          recebimento_id?: string | null
           recurring_reference_id?: string | null
           rejection_reason?: string | null
           removed_at?: string | null
@@ -3602,6 +3754,13 @@ export type Database = {
           verification?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fdrq_recebimento_fk"
+            columns: ["recebimento_id"]
+            isOneToOne: false
+            referencedRelation: "finance_recebimentos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "financial_document_review_que_credit_note_original_documen_fkey"
             columns: ["credit_note_original_document_id"]

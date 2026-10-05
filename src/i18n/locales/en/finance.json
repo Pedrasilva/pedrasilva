@@ -2105,5 +2105,59 @@
     "hrLast": "Last HR sync",
     "doc": "Document",
     "error": "Error"
+  },
+  "recebimentos": {
+    "hint": "Incoming payments group every proof of one payment (client transfer proof, PSA bank notice, receipts) with the bank line and what it pays. Nothing is marked paid until you confirm.",
+    "status": {
+      "suggested": "Suggested",
+      "confirmed": "Confirmed"
+    },
+    "empty": "No incoming payments here.",
+    "unknownClient": "Client not identified",
+    "askClient": "Client unclear — choose",
+    "matchBy": {
+      "nif": "Matched by NIF",
+      "iban": "Matched by known IBAN",
+      "name": "Matched by name",
+      "manual": "Chosen manually"
+    },
+    "payer": "Payer",
+    "proofs_one": "{{count}} proof",
+    "proofs_other": "{{count}} proofs",
+    "openFile": "Open file",
+    "bankLine": "Bank line",
+    "noBankLine": "No matching credit on PSA's accounts within ±5 days.",
+    "pays": "What it pays",
+    "noTarget": "No open invoice or schedule item with this amount. Use “Change” to pick one.",
+    "combination": "Combination",
+    "hintAward": "Description mentions “adjudicação”",
+    "hintRef": "Description mentions {{ref}}",
+    "kind": {
+      "pm_invoice": "Invoice",
+      "schedule_item": "Schedule item",
+      "issued_document": "Issued invoice"
+    },
+    "client": "Client",
+    "pickClient": "Choose client",
+    "noOpen": "This client has nothing open.",
+    "totalDiffers": "Selected total {{total}} differs from the amount received.",
+    "date": "Date received",
+    "confirm": "Confirm",
+    "change": "Change",
+    "needClient": "Choose the client first.",
+    "done": "Payment confirmed: marked paid, bank line reconciled, proofs filed.",
+    "doneUnallocated": "Payment confirmed. {{amount}} not allocated to any invoice.",
+    "confirmedCount_one": "{{count}} item marked paid",
+    "confirmedCount_other": "{{count}} items marked paid",
+    "receivedTitle": "Payments received",
+    "receivedEmpty": "No payments received recorded yet.",
+    "subtabs": {
+      "incoming": "Incoming",
+      "outgoing": "Payments"
+    },
+    "direction": {
+      "incoming": "Incoming",
+      "outgoing": "Outgoing"
+    }
   }
 }

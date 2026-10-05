@@ -156,6 +156,7 @@ import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksMarketingEnrichRouteImport } from './routes/api/public/hooks/marketing-enrich'
 import { Route as ApiPublicHooksMarketingIntakeRouteImport } from './routes/api/public/hooks/marketing-intake'
+import { Route as ApiPublicHooksRecebimentosBackfillRouteImport } from './routes/api/public/hooks/recebimentos-backfill'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as ApiPublicHooksTimesheetReminderRouteImport } from './routes/api/public/hooks/timesheet-reminder'
 import { Route as ApiPublicInboxImageRouteImport } from './routes/api/public/inbox/image'
@@ -952,6 +953,12 @@ const ApiPublicHooksMarketingIntakeRoute =
     path: '/api/public/hooks/marketing-intake',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRecebimentosBackfillRoute =
+  ApiPublicHooksRecebimentosBackfillRouteImport.update({
+    id: '/api/public/hooks/recebimentos-backfill',
+    path: '/api/public/hooks/recebimentos-backfill',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   id: '/api/public/hooks/run-backup',
   path: '/api/public/hooks/run-backup',
@@ -1121,6 +1128,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1266,6 +1274,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1421,6 +1430,7 @@ export interface FileRoutesById {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
   '/api/public/inbox/image': typeof ApiPublicInboxImageRoute
@@ -1576,6 +1586,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1721,6 +1732,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1875,6 +1887,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
     | '/api/public/inbox/image'
@@ -1908,6 +1921,7 @@ export interface RootRouteChildren {
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksMarketingEnrichRoute: typeof ApiPublicHooksMarketingEnrichRoute
   ApiPublicHooksMarketingIntakeRoute: typeof ApiPublicHooksMarketingIntakeRoute
+  ApiPublicHooksRecebimentosBackfillRoute: typeof ApiPublicHooksRecebimentosBackfillRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
   ApiPublicHooksTimesheetReminderRoute: typeof ApiPublicHooksTimesheetReminderRoute
   ApiPublicInboxImageRoute: typeof ApiPublicInboxImageRoute
@@ -2945,6 +2959,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMarketingIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/recebimentos-backfill': {
+      id: '/api/public/hooks/recebimentos-backfill'
+      path: '/api/public/hooks/recebimentos-backfill'
+      fullPath: '/api/public/hooks/recebimentos-backfill'
+      preLoaderRoute: typeof ApiPublicHooksRecebimentosBackfillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/run-backup': {
       id: '/api/public/hooks/run-backup'
       path: '/api/public/hooks/run-backup'
@@ -3376,6 +3397,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksMarketingEnrichRoute: ApiPublicHooksMarketingEnrichRoute,
   ApiPublicHooksMarketingIntakeRoute: ApiPublicHooksMarketingIntakeRoute,
+  ApiPublicHooksRecebimentosBackfillRoute:
+    ApiPublicHooksRecebimentosBackfillRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
   ApiPublicHooksTimesheetReminderRoute: ApiPublicHooksTimesheetReminderRoute,
   ApiPublicInboxImageRoute: ApiPublicInboxImageRoute,
