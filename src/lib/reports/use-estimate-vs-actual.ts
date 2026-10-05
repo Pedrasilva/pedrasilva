@@ -43,7 +43,7 @@ export function useEstimateVsActualData() {
               supabase
                 .from("pm_stages")
                 .select(
-                  "id, project_id, parent_stage_id, name, sort_order, status, is_self, start_date, end_date, baseline_start_date, baseline_end_date, baseline_budget, baseline_target_hours, baseline_locked_at, budget, billing_model, source_quote_stage_id, quote_stages:source_quote_stage_id(phase_code, phase_group, budget), pm_allocations(resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage)",
+                  "id, project_id, parent_stage_id, name, sort_order, status, is_self, start_date, end_date, baseline_start_date, baseline_end_date, baseline_budget, baseline_target_hours, baseline_locked_at, budget, billing_model, source_quote_stage_id, pm_allocations(resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage)",
                 )
                 .in("project_id", ids)
                 .is("archived_at", null)
@@ -71,6 +71,14 @@ export function useEstimateVsActualData() {
       // Planned hours sold in the quote: Σ quote_allocations hours per quote stage.
       const qIds = [...new Set(stages.map((s) => s.source_quote_stage_id).filter(Boolean) as string[])];
       const quoteHours = new Map<string, number>();
+      const quoteStage = new Map<string, { phase_code: string | null; phase_group: string | null; budget: number | null }>();
+      for (let i = 0; i < qIds.length; i += 200) {
+        const { data: qs, error } = await supabase.from("quote_stages").select("id, phase_code, phase_group, budget").in("id", qIds.slice(i, i + 200));
+        if (error) throw error;
+        for (const q of qs ?? []) quoteStage.set(q.id, { phase_code: q.phase_code, phase_group: q.phase_group, budget: q.budget == null ? null : Number(q.budget) });
+      }
+      // No FK from pm_stages to quote_stages, so attach the sold quote stage here.
+      for (const s of stages) s.quote_stages = s.source_quote_stage_id ? quoteStage.get(s.source_quote_stage_id) ?? null : null;
       for (let i = 0; i < qIds.length; i += 200) {
         const { data: qa, error } = await supabase
           .from("quote_allocations")
