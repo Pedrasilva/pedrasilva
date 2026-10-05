@@ -6,6 +6,7 @@ import { AdminOnly } from "@/components/AdminOnly";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Building2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
@@ -22,12 +23,13 @@ function CompanySettingsPage() {
   const [rowId, setRowId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState("");
   const [companyNif, setCompanyNif] = useState("");
+  const [variants, setVariants] = useState("");
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("pm_invoice_settings")
-        .select("id, company_name, company_nif, singleton")
+        .select("id, company_name, company_nif, company_name_variants, singleton")
         .order("singleton", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -35,6 +37,7 @@ function CompanySettingsPage() {
         setRowId((data as { id: string }).id);
         setCompanyName((data as { company_name: string | null }).company_name ?? "");
         setCompanyNif((data as { company_nif: string | null }).company_nif ?? "");
+        setVariants(((data as { company_name_variants: string[] | null }).company_name_variants ?? []).join("\n"));
       }
       setLoading(false);
     })();
@@ -55,6 +58,7 @@ function CompanySettingsPage() {
       .update({
         company_name: companyName.trim(),
         company_nif: normalized,
+        company_name_variants: variants.split("\n").map((v) => v.trim()).filter(Boolean),
       })
       .eq("id", rowId);
     setSaving(false);
@@ -123,6 +127,11 @@ function CompanySettingsPage() {
                   <p className="text-[12px] text-muted-foreground">
                     {t("hr:companySettings.nifHelper")}
                   </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{t("hr:companySettings.nameVariants")}</Label>
+                  <Textarea rows={4} value={variants} onChange={(e) => setVariants(e.target.value)} />
+                  <p className="text-[12px] text-muted-foreground">{t("hr:companySettings.nameVariantsHint")}</p>
                 </div>
                 <div className="flex justify-end">
                   <Button onClick={save} disabled={saving}>

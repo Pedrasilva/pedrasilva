@@ -41,7 +41,7 @@ export function IntakeInstructionsPanel({ highlightId }: { highlightId?: string 
     queryFn: async () => {
       const { data, error } = await supabase
         .from("finance_intake_instructions")
-        .select("id, text, scope_type, scope_value, active, created_at")
+        .select("id, text, scope_type, scope_value, active, created_at, action")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];
@@ -150,6 +150,7 @@ function InstructionRow({ row, highlight, locale }: { row: Row; highlight: boole
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 flex-wrap">
           <Badge variant="outline" className="text-[10px]">{t(`finance:intakeInbox.instructions.scopes.${row.scope_type}`)}</Badge>
+          {(row as { action?: string }).action === "remove" && <Badge variant="destructive" className="text-[10px]">{t("finance:intakeInbox.removal.button")}</Badge>}
           {row.scope_value && <span className="text-xs tabular-nums">{row.scope_value}</span>}
           <span className="text-[11px] text-muted-foreground">
             {t("finance:intakeInbox.instructions.createdBy", { date: new Date(row.created_at).toLocaleDateString(locale) })}
