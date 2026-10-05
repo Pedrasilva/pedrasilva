@@ -52,7 +52,9 @@ export const reclassifyQueueItem = createServerFn({ method: "POST" })
     if (row.status !== "pending_review") throw new Error(`Item is already ${row.status}`);
     // Learning: record the person's type correction (no document contents).
     const aiType =
-      row.applied_learning?.ai_type ?? row.model_runs?.claude?.intake_type ?? row.intake_type ?? null;
+      (row.applied_learning as { ai_type?: string | null } | null)?.ai_type ??
+      (row.model_runs as { claude?: { intake_type?: string | null } } | null)?.claude?.intake_type ??
+      row.intake_type ?? null;
     if (aiType !== data.type) {
       await context.supabase.from("finance_intake_corrections").insert({
         queue_item_id: data.id, supplier_nif: nifOf(row.extracted_supplier_vat), field: "intake_type",
