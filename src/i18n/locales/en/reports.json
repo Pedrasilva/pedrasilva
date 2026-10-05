@@ -18,6 +18,10 @@
       "billable": {
         "title": "Billable vs non-billable",
         "description": "Billable, non-billable project and internal hours per person against their target."
+      },
+      "capacity": {
+        "title": "Capacity forecast",
+        "description": "Planned vs available hours per person for the coming weeks, plus unassigned demand."
       }
     }
   },
@@ -240,6 +244,40 @@
       "viewTimesheet": "View timesheet",
       "none": "No hours in this period.",
       "noProject": "No project"
+    }
+  },
+  "capacity": {
+    "title": "Capacity forecast",
+    "subtitle": "Planned hours on PSA's own active and planned stages against available hours (holidays, approved leave, part-time and admission dates accounted for).",
+    "nextWeeks_one": "Next {{count}} week",
+    "nextWeeks_other": "Next {{count}} weeks",
+    "project": "Project",
+    "unassigned": "To be assigned",
+    "team": "Team",
+    "cell": "{{planned}} h planned of {{available}} h available",
+    "tiles": {
+      "avg": "Average load, next 4 weeks",
+      "over": "People over 110%",
+      "under": "People under 50%",
+      "unassigned": "Unassigned hours"
+    },
+    "chart": {
+      "title": "Team: available vs planned per week",
+      "available": "Available",
+      "planned": "Planned"
+    },
+    "heatmap": {
+      "title": "Load per person and week (planned ÷ available)"
+    },
+    "band": {
+      "low": "Under 50%",
+      "ok": "50–90%",
+      "high": "90–110%",
+      "over": "Over 110%"
+    },
+    "detail": {
+      "projectStage": "Project · stage",
+      "none": "Nothing planned"
     }
   }
 }
