@@ -303,7 +303,7 @@ export const Route = createFileRoute("/api/public/hooks/crm-email-intake")({
                 if (o) { oppId = o.id; reasons.push("opportunity:contact"); }
               }
 
-              const mentioned = typeof x.mentioned_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.mentioned_date) ? x.mentioned_date : null;
+              const mentioned = typeof x.mentioned_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.mentioned_date) && x.mentioned_date >= new Date().toISOString().slice(0, 10) ? x.mentioned_date : null;
               const nextDate = mentioned ?? addWorkingDays(new Date(), 2, holidays);
 
               const { data: draft, error: dErr } = await db
