@@ -268,7 +268,7 @@ function FeriasPage() {
 
   const createReq = useMutation({
     mutationFn: async () => {
-      const collab_id = isAdmin && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
+      const collab_id = isAdminRole && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
       if (!collab_id) throw new Error("Sem colaborador associado à sua conta");
       if (!newReq.data_inicio) throw new Error("Indique a data");
       // Para período parcial (meio-dia ou horas) usamos um único dia.
@@ -380,7 +380,7 @@ function FeriasPage() {
         </div>
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" disabled={!isAdmin && !myCollab}>
+            <Button size="sm" disabled={!isAdminRole && !myCollab}>
               <Plus className="h-4 w-4" /> Novo pedido
             </Button>
           </DialogTrigger>
@@ -394,7 +394,7 @@ function FeriasPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {isAdmin && (
+              {isAdminRole && (
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label className="text-xs text-muted-foreground">Colaborador</Label>
                   <Select
