@@ -40,6 +40,7 @@ import { Route as AppAdminQuotesTrashRouteImport } from './routes/_app.admin.quo
 import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
+import { Route as AppCrmEmailLeadsRouteImport } from './routes/_app.crm.email-leads'
 import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
 import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
 import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
@@ -319,6 +320,11 @@ const AppCrmCompaniesRoute = AppCrmCompaniesRouteImport.update({
 const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
+  getParentRoute: () => AppCrmRoute,
+} as any)
+const AppCrmEmailLeadsRoute = AppCrmEmailLeadsRouteImport.update({
+  id: '/email-leads',
+  path: '/email-leads',
   getParentRoute: () => AppCrmRoute,
 } as any)
 const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
@@ -1024,6 +1030,7 @@ export interface FileRoutesByFullPath {
   '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
+  '/crm/email-leads': typeof AppCrmEmailLeadsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/finance/entrada': typeof AppFinanceEntradaRoute
@@ -1172,6 +1179,7 @@ export interface FileRoutesByTo {
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/contacts': typeof AppCrmContactsRoute
+  '/crm/email-leads': typeof AppCrmEmailLeadsRoute
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/finance/entrada': typeof AppFinanceEntradaRoute
@@ -1328,6 +1336,7 @@ export interface FileRoutesById {
   '/_app/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/_app/crm/contacts': typeof AppCrmContactsRoute
+  '/_app/crm/email-leads': typeof AppCrmEmailLeadsRoute
   '/_app/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/_app/finance/entrada': typeof AppFinanceEntradaRoute
@@ -1485,6 +1494,7 @@ export interface FileRouteTypes {
     | '/admin/quotes-trash'
     | '/crm/companies'
     | '/crm/contacts'
+    | '/crm/email-leads'
     | '/crm/pipeline'
     | '/crm/quote-templates'
     | '/finance/entrada'
@@ -1633,6 +1643,7 @@ export interface FileRouteTypes {
     | '/admin/proposal-roles'
     | '/admin/quotes-trash'
     | '/crm/contacts'
+    | '/crm/email-leads'
     | '/crm/pipeline'
     | '/crm/quote-templates'
     | '/finance/entrada'
@@ -1788,6 +1799,7 @@ export interface FileRouteTypes {
     | '/_app/admin/quotes-trash'
     | '/_app/crm/companies'
     | '/_app/crm/contacts'
+    | '/_app/crm/email-leads'
     | '/_app/crm/pipeline'
     | '/_app/crm/quote-templates'
     | '/_app/finance/entrada'
@@ -2159,6 +2171,13 @@ declare module '@tanstack/react-router' {
       path: '/contacts'
       fullPath: '/crm/contacts'
       preLoaderRoute: typeof AppCrmContactsRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/email-leads': {
+      id: '/_app/crm/email-leads'
+      path: '/email-leads'
+      fullPath: '/crm/email-leads'
+      preLoaderRoute: typeof AppCrmEmailLeadsRouteImport
       parentRoute: typeof AppCrmRoute
     }
     '/_app/crm/pipeline': {
@@ -3054,6 +3073,7 @@ const AppCrmPipelineRouteWithChildren = AppCrmPipelineRoute._addFileChildren(
 interface AppCrmRouteChildren {
   AppCrmCompaniesRoute: typeof AppCrmCompaniesRouteWithChildren
   AppCrmContactsRoute: typeof AppCrmContactsRoute
+  AppCrmEmailLeadsRoute: typeof AppCrmEmailLeadsRoute
   AppCrmPipelineRoute: typeof AppCrmPipelineRouteWithChildren
   AppCrmQuoteTemplatesRoute: typeof AppCrmQuoteTemplatesRoute
   AppCrmIndexRoute: typeof AppCrmIndexRoute
@@ -3066,6 +3086,7 @@ interface AppCrmRouteChildren {
 const AppCrmRouteChildren: AppCrmRouteChildren = {
   AppCrmCompaniesRoute: AppCrmCompaniesRouteWithChildren,
   AppCrmContactsRoute: AppCrmContactsRoute,
+  AppCrmEmailLeadsRoute: AppCrmEmailLeadsRoute,
   AppCrmPipelineRoute: AppCrmPipelineRouteWithChildren,
   AppCrmQuoteTemplatesRoute: AppCrmQuoteTemplatesRoute,
   AppCrmIndexRoute: AppCrmIndexRoute,
