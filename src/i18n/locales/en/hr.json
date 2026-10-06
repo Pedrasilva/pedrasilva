@@ -1742,7 +1742,8 @@
       "trabalhador_estudante": "Student worker leave",
       "doacao_sangue": "Blood donation",
       "autorizada_paga": "Authorised absence (paid)",
-      "autorizada_nao_paga": "Authorised absence (unpaid)"
+      "autorizada_nao_paga": "Authorised absence (unpaid)",
+      "consulta_medica": "Medical appointment — unpaid"
     }
   },
   "annualCal": {
@@ -1843,6 +1844,10 @@
     "approve": "Approve",
     "reject": "Reject",
     "rejectTitle": "Reject request",
-    "rejectReason": "Reason (required, sent to the person)"
+    "rejectReason": "Reason (required, sent to the person)",
+    "medicalHint": "Don't include medical details",
+    "attachment": "Proof of attendance (optional)",
+    "viewAttachment": "View proof",
+    "typeConsultaMedica": "Medical appointment — unpaid"
   }
 }

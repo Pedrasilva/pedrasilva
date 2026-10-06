@@ -145,7 +145,7 @@ export function computeHoursLogged(input: {
   const nwByUser = new Map<string, Set<string>>();
   for (const n of input.nonWorking) {
     // Unpaid leave is time owed: it does not reduce expected hours.
-    if ((n as { leave_type?: string }).leave_type === "Authorized (unpaid)") continue;
+    if (["Authorized (unpaid)", "Medical appointment (unpaid)"].includes((n as { leave_type?: string }).leave_type ?? "")) continue;
     const s = nwByUser.get(n.user_id) ?? new Set<string>();
     s.add(n.entry_date);
     nwByUser.set(n.user_id, s);

@@ -297,7 +297,8 @@
       "trabalhador_estudante": "Trabalhador-estudante",
       "doacao_sangue": "Doação de sangue",
       "autorizada_paga": "Autorizada (paga)",
-      "autorizada_nao_paga": "Autorizada (não paga)"
+      "autorizada_nao_paga": "Autorizada (não paga)",
+      "consulta_medica": "Consulta médica — não paga"
     },
     "toasts": {
       "taskCreated": "Tarefa criada",

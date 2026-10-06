@@ -95,7 +95,8 @@
     "trabalhador_estudante": "Student worker",
     "doacao_sangue": "Blood donation",
     "autorizada_paga": "Authorised",
-    "autorizada_nao_paga": "Authorised"
+    "autorizada_nao_paga": "Authorised",
+    "consulta_medica": "Medical appointment — unpaid"
   },
   "availability": {
     "title": "Team availability",

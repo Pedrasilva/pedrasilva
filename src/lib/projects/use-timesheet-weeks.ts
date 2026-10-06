@@ -89,8 +89,11 @@ export const EMPTY_TOTALS: WeekTotals = {
 
 /** Label of approved unpaid leave rows; shown on the timesheet but never accounted. */
 export const UNPAID_LEAVE_LABEL = "Authorized (unpaid)";
+/** Every unpaid leave label (autorizada_nao_paga, consulta_medica). */
+export const UNPAID_LEAVE_LABELS = new Set<string>([UNPAID_LEAVE_LABEL, "Medical appointment (unpaid)"]);
+export const isUnpaidLeaveLabel = (l?: string | null) => !!l && UNPAID_LEAVE_LABELS.has(l);
 export const isUnpaidLeave = (e: { entry_type: string; leave_type?: string | null }) =>
-  e.entry_type === "non_working" && e.leave_type === UNPAID_LEAVE_LABEL;
+  e.entry_type === "non_working" && isUnpaidLeaveLabel(e.leave_type);
 
 export function totalsFromEntries(
   entries: Array<{ entry_type: string; hours: number; leave_type?: string | null }>,

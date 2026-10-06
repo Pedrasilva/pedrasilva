@@ -1742,7 +1742,8 @@
       "trabalhador_estudante": "Trabalhador-estudante",
       "doacao_sangue": "Dádiva de sangue",
       "autorizada_paga": "Ausência autorizada — paga",
-      "autorizada_nao_paga": "Ausência autorizada — não paga"
+      "autorizada_nao_paga": "Ausência autorizada — não paga",
+      "consulta_medica": "Consulta médica — não paga"
     }
   },
   "annualCal": {
@@ -1843,6 +1844,10 @@
     "approve": "Aprovar",
     "reject": "Rejeitar",
     "rejectTitle": "Rejeitar pedido",
-    "rejectReason": "Motivo (obrigatório, enviado à pessoa)"
+    "rejectReason": "Motivo (obrigatório, enviado à pessoa)",
+    "medicalHint": "Não indique o motivo médico",
+    "attachment": "Comprovativo de presença (opcional)",
+    "viewAttachment": "Ver comprovativo",
+    "typeConsultaMedica": "Consulta médica — não paga"
   }
 }
