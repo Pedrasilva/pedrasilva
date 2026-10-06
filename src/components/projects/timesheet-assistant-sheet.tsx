@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { supabase } from "@/integrations/supabase/client";
-import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
+import { useVoiceRecorder, transcriptionLanguage } from "@/components/marketing/use-voice-recorder";
+import { VoiceLevelMeter } from "@/components/marketing/voice-level-meter";
 import { transcribeTimesheetDictation } from "@/lib/projects/timesheet-transcribe.functions";
 import { rememberCalendarMatch } from "@/lib/projects/calendar.functions";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
@@ -48,7 +49,7 @@ type Dictation = { id: string; n: number; text: string; edit: string | null; ope
 /** Large "Tap to talk" button: records, shows a timer, transcribes, hands the text back. Audio is never stored. */
 function RecordButton({ onText, disabled, className }: { onText: (t: string) => void; disabled?: boolean; className?: string }) {
   const { t } = useTranslation(NS);
-  const rec = useVoiceRecorder();
+  const rec = useVoiceRecorder("timesheet");
   const transcribe = useServerFn(transcribeTimesheetDictation);
   const [busy, setBusy] = useState(false);
   const [secs, setSecs] = useState(0);
@@ -64,7 +65,7 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
       if (!wav) return;
       setBusy(true);
       try {
-        const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav" } });
+        const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav", language: transcriptionLanguage() } });
         if (text.trim()) onText(text.trim());
       } catch (e) {
         toast.error(t(k("transcribeFailed")), { description: (e as Error).message });
@@ -73,20 +74,16 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
       }
       return;
     }
-    try {
-      startedAt.current = Date.now();
-      setSecs(0);
-      await rec.start();
-    } catch {
-      toast.error(t(k("micBlocked")));
-    }
+    setSecs(0);
+    const ok = await rec.start();
+    if (ok) startedAt.current = Date.now();
   }
   const time = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
   return (
     <Button
       type="button"
       onClick={toggle}
-      disabled={busy || (disabled && !rec.recording)}
+      disabled={busy || rec.starting || (disabled && !rec.recording)}
       variant={rec.recording ? "destructive" : "default"}
       size="lg"
       className={cn("h-14 w-full gap-3 text-base", className)}
@@ -94,12 +91,11 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
     >
       {busy ? (
         <><Loader2 className="h-5 w-5 animate-spin" /> {t(k("record.transcribing"))}</>
+      ) : rec.starting ? (
+        <><Loader2 className="h-5 w-5 animate-spin" /> {t("common:voice.starting")}</>
       ) : rec.recording ? (
         <>
-          <span className="relative flex h-3 w-3" aria-hidden>
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive-foreground opacity-75" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive-foreground" />
-          </span>
+          <VoiceLevelMeter level={rec.level} />
           <span>{t(k("record.recording"), { time })}</span>
           <span className="ml-auto flex items-center gap-1"><Square className="h-4 w-4" /> {t(k("record.stop"))}</span>
         </>
@@ -113,7 +109,7 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
 /** Mic button that records, transcribes and hands the text back. Audio is never stored. */
 function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?: "lg" | "sm" }) {
   const { t } = useTranslation(NS);
-  const rec = useVoiceRecorder();
+  const rec = useVoiceRecorder("timesheet");
   const transcribe = useServerFn(transcribeTimesheetDictation);
   const [busy, setBusy] = useState(false);
   async function toggle() {
@@ -122,7 +118,7 @@ function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?
       if (!wav) return;
       setBusy(true);
       try {
-        const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav" } });
+        const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav", language: transcriptionLanguage() } });
         if (text.trim()) onText(text.trim());
       } catch (e) {
         toast.error(t(k("transcribeFailed")), { description: (e as Error).message });
@@ -131,24 +127,20 @@ function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?
       }
       return;
     }
-    try {
-      await rec.start();
-    } catch {
-      toast.error(t(k("micBlocked")));
-    }
+    await rec.start();
   }
   const big = size === "lg";
   return (
     <Button
       type="button"
       onClick={toggle}
-      disabled={busy}
+      disabled={busy || rec.starting}
       variant={rec.recording ? "destructive" : big ? "default" : "outline"}
       size={big ? "lg" : "icon"}
       className={cn(big && "h-16 w-16 rounded-full p-0")}
       aria-label={rec.recording ? t(k("stopRecording")) : t(k("startRecording"))}
     >
-      {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : rec.recording ? <Square className="h-5 w-5" /> : <Mic className={big ? "h-7 w-7" : "h-4 w-4"} />}
+      {busy || rec.starting ? <Loader2 className="h-5 w-5 animate-spin" /> : rec.recording ? <VoiceLevelMeter level={rec.level} /> : <Mic className={big ? "h-7 w-7" : "h-4 w-4"} />}
     </Button>
   );
 }

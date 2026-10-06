@@ -1,5 +1,5 @@
 // Timesheet assistant voice → text, with a vocabulary hint (names the person
-// is likely to say). No language is forced: people mix PT and EN.
+// is likely to say). Language follows the person's app language (pt default, en for English UI).
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -59,7 +59,7 @@ export async function buildTimesheetVocabularyHint(db: any, userId: string): Pro
 export const transcribeTimesheetDictation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ audioBase64: z.string().min(1), mimeType: z.string().default("audio/wav"), filename: z.string().default("hours.wav") }).parse(input),
+    z.object({ audioBase64: z.string().min(1), mimeType: z.string().default("audio/wav"), filename: z.string().default("hours.wav"), language: z.enum(["pt", "en"]).default("pt") }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ text: string }> => {
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -70,6 +70,7 @@ export const transcribeTimesheetDictation = createServerFn({ method: "POST" })
     const call = (withHint: boolean) => {
       const form = new FormData();
       form.append("model", TIMESHEET_STT_MODEL);
+      form.append("language", data.language);
       if (withHint && hint) form.append("prompt", hint);
       form.append("file", new Blob([bytes as BlobPart], { type: data.mimeType }), data.filename);
       return fetch(STT_URL, { method: "POST", headers: { Authorization: `Bearer ${apiKey}` }, body: form });
