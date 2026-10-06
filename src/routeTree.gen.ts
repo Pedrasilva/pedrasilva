@@ -149,6 +149,7 @@ import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_ap
 import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as ApiPublicCalendarCallbackRouteImport } from './routes/api/public/calendar/callback'
 import { Route as ApiPublicHooksCostRatesRouteImport } from './routes/api/public/hooks/cost-rates'
+import { Route as ApiPublicHooksCrmEmailIntakeRouteImport } from './routes/api/public/hooks/crm-email-intake'
 import { Route as ApiPublicHooksDocReprocessRouteImport } from './routes/api/public/hooks/doc-reprocess'
 import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/public/hooks/docusign-connect'
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
@@ -912,6 +913,12 @@ const ApiPublicHooksCostRatesRoute = ApiPublicHooksCostRatesRouteImport.update({
   path: '/api/public/hooks/cost-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksCrmEmailIntakeRoute =
+  ApiPublicHooksCrmEmailIntakeRouteImport.update({
+    id: '/api/public/hooks/crm-email-intake',
+    path: '/api/public/hooks/crm-email-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDocReprocessRoute =
   ApiPublicHooksDocReprocessRouteImport.update({
     id: '/api/public/hooks/doc-reprocess',
@@ -1121,6 +1128,7 @@ export interface FileRoutesByFullPath {
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
+  '/api/public/hooks/crm-email-intake': typeof ApiPublicHooksCrmEmailIntakeRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1267,6 +1275,7 @@ export interface FileRoutesByTo {
   '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
+  '/api/public/hooks/crm-email-intake': typeof ApiPublicHooksCrmEmailIntakeRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1423,6 +1432,7 @@ export interface FileRoutesById {
   '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/calendar/callback': typeof ApiPublicCalendarCallbackRoute
   '/api/public/hooks/cost-rates': typeof ApiPublicHooksCostRatesRoute
+  '/api/public/hooks/crm-email-intake': typeof ApiPublicHooksCrmEmailIntakeRoute
   '/api/public/hooks/doc-reprocess': typeof ApiPublicHooksDocReprocessRoute
   '/api/public/hooks/docusign-connect': typeof ApiPublicHooksDocusignConnectRoute
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
@@ -1579,6 +1589,7 @@ export interface FileRouteTypes {
     | '/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
     | '/api/public/hooks/cost-rates'
+    | '/api/public/hooks/crm-email-intake'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1725,6 +1736,7 @@ export interface FileRouteTypes {
     | '/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
     | '/api/public/hooks/cost-rates'
+    | '/api/public/hooks/crm-email-intake'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1880,6 +1892,7 @@ export interface FileRouteTypes {
     | '/_app/proposals/$proposalId/composer'
     | '/api/public/calendar/callback'
     | '/api/public/hooks/cost-rates'
+    | '/api/public/hooks/crm-email-intake'
     | '/api/public/hooks/doc-reprocess'
     | '/api/public/hooks/docusign-connect'
     | '/api/public/hooks/drive-intake'
@@ -1914,6 +1927,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCalendarCallbackRoute: typeof ApiPublicCalendarCallbackRoute
   ApiPublicHooksCostRatesRoute: typeof ApiPublicHooksCostRatesRoute
+  ApiPublicHooksCrmEmailIntakeRoute: typeof ApiPublicHooksCrmEmailIntakeRoute
   ApiPublicHooksDocReprocessRoute: typeof ApiPublicHooksDocReprocessRoute
   ApiPublicHooksDocusignConnectRoute: typeof ApiPublicHooksDocusignConnectRoute
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
@@ -2910,6 +2924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksCostRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/crm-email-intake': {
+      id: '/api/public/hooks/crm-email-intake'
+      path: '/api/public/hooks/crm-email-intake'
+      fullPath: '/api/public/hooks/crm-email-intake'
+      preLoaderRoute: typeof ApiPublicHooksCrmEmailIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/doc-reprocess': {
       id: '/api/public/hooks/doc-reprocess'
       path: '/api/public/hooks/doc-reprocess'
@@ -3390,6 +3411,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCalendarCallbackRoute: ApiPublicCalendarCallbackRoute,
   ApiPublicHooksCostRatesRoute: ApiPublicHooksCostRatesRoute,
+  ApiPublicHooksCrmEmailIntakeRoute: ApiPublicHooksCrmEmailIntakeRoute,
   ApiPublicHooksDocReprocessRoute: ApiPublicHooksDocReprocessRoute,
   ApiPublicHooksDocusignConnectRoute: ApiPublicHooksDocusignConnectRoute,
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
