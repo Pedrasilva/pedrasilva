@@ -13666,6 +13666,10 @@ export type Database = {
         }
         Returns: string
       }
+      leave_decide_pending: {
+        Args: { _approve: boolean; _reason: string; _req: string }
+        Returns: undefined
+      }
       leave_direct_change: {
         Args: {
           _dias: number
