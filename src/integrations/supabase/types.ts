@@ -2107,6 +2107,172 @@ export type Database = {
           },
         ]
       }
+      crm_email_intake_gate: {
+        Row: {
+          id: number
+          token: string
+        }
+        Insert: {
+          id?: number
+          token?: string
+        }
+        Update: {
+          id?: number
+          token?: string
+        }
+        Relationships: []
+      }
+      crm_email_lead_drafts: {
+        Row: {
+          attachment_names: string[]
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email_text: string | null
+          extracted: Json
+          from_address: string | null
+          gmail_message_ids: string[]
+          id: string
+          kind: string
+          mailbox: string
+          match_reason: string | null
+          matched_company_id: string | null
+          matched_contact_id: string | null
+          matched_opportunity_id: string | null
+          model_error: string | null
+          owner_id: string | null
+          received_at: string | null
+          result_activity_id: string | null
+          result_opportunity_id: string | null
+          status: string
+          subject: string | null
+          suggested_next_action: string | null
+          suggested_next_action_date: string | null
+          summary: string | null
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_names?: string[]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email_text?: string | null
+          extracted?: Json
+          from_address?: string | null
+          gmail_message_ids?: string[]
+          id?: string
+          kind?: string
+          mailbox: string
+          match_reason?: string | null
+          matched_company_id?: string | null
+          matched_contact_id?: string | null
+          matched_opportunity_id?: string | null
+          model_error?: string | null
+          owner_id?: string | null
+          received_at?: string | null
+          result_activity_id?: string | null
+          result_opportunity_id?: string | null
+          status?: string
+          subject?: string | null
+          suggested_next_action?: string | null
+          suggested_next_action_date?: string | null
+          summary?: string | null
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_names?: string[]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email_text?: string | null
+          extracted?: Json
+          from_address?: string | null
+          gmail_message_ids?: string[]
+          id?: string
+          kind?: string
+          mailbox?: string
+          match_reason?: string | null
+          matched_company_id?: string | null
+          matched_contact_id?: string | null
+          matched_opportunity_id?: string | null
+          model_error?: string | null
+          owner_id?: string | null
+          received_at?: string | null
+          result_activity_id?: string | null
+          result_opportunity_id?: string | null
+          status?: string
+          subject?: string | null
+          suggested_next_action?: string | null
+          suggested_next_action_date?: string | null
+          summary?: string | null
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_email_lead_drafts_matched_company_id_fkey"
+            columns: ["matched_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_email_lead_drafts_matched_contact_id_fkey"
+            columns: ["matched_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_email_lead_drafts_matched_opportunity_id_fkey"
+            columns: ["matched_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_email_lead_drafts_result_opportunity_id_fkey"
+            columns: ["result_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_email_threads: {
+        Row: {
+          first_draft_id: string | null
+          mailbox: string
+          processed_message_ids: string[]
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          first_draft_id?: string | null
+          mailbox: string
+          processed_message_ids?: string[]
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          first_draft_id?: string | null
+          mailbox?: string
+          processed_message_ids?: string[]
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_email_threads_first_draft_id_fkey"
+            columns: ["first_draft_id"]
+            isOneToOne: false
+            referencedRelation: "crm_email_lead_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_opportunities: {
         Row: {
           company_id: string | null
@@ -13544,6 +13710,8 @@ export type Database = {
         Args: { p_source: string }
         Returns: string
       }
+      crm_email_lead_confirm: { Args: { p_draft: string }; Returns: string }
+      crm_email_lead_discard: { Args: { p_draft: string }; Returns: undefined }
       crm_leads_directory: {
         Args: never
         Returns: {

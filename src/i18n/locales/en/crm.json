@@ -13,7 +13,8 @@
       "opportunities": "Opportunities",
       "companies": "Companies",
       "contacts": "Contacts",
-      "pipelineLegacy": "Legacy pipeline"
+      "pipelineLegacy": "Legacy pipeline",
+      "emailLeads": "Email leads"
     }
   },
   "overview": {
@@ -121,7 +122,8 @@
         "web": "Web",
         "referral": "Referral",
         "repeat": "Repeat client",
-        "other": "Other"
+        "other": "Other",
+        "email": "Email"
       },
       "contact": "Contact",
       "contactName": "Contact name",
@@ -1402,5 +1404,50 @@
     "unresolved": "{{count}} placeholder(s) could not be resolved: {{list}}",
     "warning.existingBlocks": "This document already has blocks. New sections will be appended at the end.",
     "presetLocked": "Only Workplace / Large Corporate Fitout / PSA-led is available in this version."
+  },
+  "emailLeads": {
+    "title": "New email leads",
+    "subtitle": "Threads labelled “CRM” in Gmail. Nothing is added to the CRM until you confirm.",
+    "tab": "Email leads",
+    "empty": "No email leads waiting.",
+    "kindLead": "New lead",
+    "kindReply": "Reply in imported thread",
+    "summary": "Summary",
+    "fields": {
+      "contact_name": "Contact name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "role": "Role",
+      "project_type": "Project type",
+      "location": "Location",
+      "size": "Size",
+      "budget": "Budget",
+      "timing": "Timing",
+      "how_found": "How they found PSA"
+    },
+    "matchedContact": "Matched contact",
+    "matchedCompany": "Matched company",
+    "matchedOpportunity": "Open opportunity (activity only)",
+    "noMatch": "None — will be created",
+    "nextAction": "Next action",
+    "nextActionDate": "Follow-up date",
+    "attachments": "Attachments (not stored)",
+    "confirm": "Confirm",
+    "discard": "Discard",
+    "openGmail": "Open in Gmail",
+    "save": "Save changes",
+    "saved": "Saved",
+    "confirmed": "Added to the CRM",
+    "discarded": "Discarded",
+    "adminOnly": "Only admins can confirm or discard.",
+    "modelError": "Automatic reading failed — fill in the fields by hand.",
+    "statusFilter": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "discarded": "Discarded"
+    },
+    "openOpportunity": "Open opportunity",
+    "from": "From"
   }
 }
