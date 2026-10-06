@@ -1822,7 +1822,9 @@
       "change_accepted": "Alteração aceite",
       "change_refused": "Alteração recusada",
       "edited_by_approver": "Editado pelo aprovador",
-      "cancelled_by_approver": "Cancelado pelo aprovador"
+      "cancelled_by_approver": "Cancelado pelo aprovador",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado"
     },
     "errors": {
       "overlap": "Estas datas sobrepõem-se a outro pedido aprovado ou pendente.",
@@ -1834,7 +1836,13 @@
       "reason_required": "O motivo é obrigatório.",
       "own_approved": "Para as suas próprias ausências aprovadas, use “Pedir alteração” e envie a outro aprovador.",
       "not_recipient": "Só a pessoa escolhida pode decidir esta alteração.",
-      "not_pending": "Esta alteração já foi decidida."
-    }
+      "not_pending": "Esta alteração já foi decidida.",
+      "own_request": "Não pode decidir o seu próprio pedido — tem de ser outro aprovador.",
+      "not_approver": "Não tem direitos de aprovação de ausências."
+    },
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "rejectTitle": "Rejeitar pedido",
+    "rejectReason": "Motivo (obrigatório, enviado à pessoa)"
   }
 }
