@@ -99,7 +99,7 @@ function EmailLeadsPage() {
 }
 
 function DraftCard({ draft }: { draft: Draft }) {
-  const { t } = useTranslation("crm");
+  const { t, i18n } = useTranslation("crm");
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const pending = draft.status === "pending";
