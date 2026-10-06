@@ -1776,5 +1776,65 @@
       "balance": "Balance",
       "caption": "Vacation {{year}} — {{name}} (same as their vacation balance)"
     }
+  },
+  "leaveChange": {
+    "requestBtn": "Request change",
+    "requestTitle": "Request a change",
+    "requestSub": "The request stays Approved until the person you choose decides.",
+    "directTitle": "Edit or cancel leave",
+    "directSub": "The person affected gets an email and a notification.",
+    "what": "What to change",
+    "kind": {
+      "cancel": "Cancel the whole request",
+      "dates": "Change dates",
+      "type": "Change the type"
+    },
+    "duration": "Duration",
+    "periodo": {
+      "dia_inteiro": "Full days",
+      "manha": "Morning (half day)",
+      "tarde": "Afternoon (half day)",
+      "horas": "Some hours"
+    },
+    "start": "Start",
+    "end": "End",
+    "hours": "Hours",
+    "newType": "New type",
+    "explanation": "Explanation (required)",
+    "reason": "Reason (required)",
+    "sendTo": "Send to",
+    "yourApprover": "your approver",
+    "noApprovers": "No approvers available",
+    "cancelBtn": "Close",
+    "send": "Send request",
+    "apply": "Apply change",
+    "sent": "Change request sent",
+    "applied": "Change applied",
+    "decided": "Decision recorded",
+    "pendingBadge": "Change pending",
+    "accept": "Accept",
+    "refuse": "Refuse",
+    "refuseTitle": "Refuse change",
+    "history": "Change history",
+    "noHistory": "No changes yet.",
+    "action": {
+      "change_requested": "Change requested",
+      "change_accepted": "Change accepted",
+      "change_refused": "Change refused",
+      "edited_by_approver": "Edited by approver",
+      "cancelled_by_approver": "Cancelled by approver"
+    },
+    "errors": {
+      "overlap": "These dates overlap another approved or pending request.",
+      "not_owner": "You can only request changes to your own leave.",
+      "not_approved": "Only approved requests can be changed this way.",
+      "explanation_required": "Please add a short explanation.",
+      "invalid_recipient": "Choose another person with leave approval rights.",
+      "invalid_dates": "Check the dates.",
+      "reason_required": "A reason is required.",
+      "own_approved": "For your own approved leave, use “Request change” and send it to another approver.",
+      "not_recipient": "Only the chosen person can decide this change.",
+      "not_pending": "This change was already decided."
+    }
   }
 }
