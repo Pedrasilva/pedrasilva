@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Building2, Users, LayoutDashboard, Target } from "lucide-react";
+import { Building2, Users, LayoutDashboard, Target, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 
@@ -15,6 +15,7 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
     // finance; account_id links on quotes/projects stay untouched.
     { to: "/crm/companies" as const, label: t("shell.tabs.companies"), icon: Building2, match: (p: string) => p.startsWith("/crm/companies") },
     { to: "/crm/contacts" as const, label: t("shell.tabs.contacts"), icon: Users, match: (p: string) => p.startsWith("/crm/contacts") },
+    { to: "/crm/email-leads" as const, label: t("shell.tabs.emailLeads"), icon: Mail, match: (p: string) => p.startsWith("/crm/email-leads") },
     // Legacy pipeline fully retired — /crm/pipeline now redirects to Opportunities.
   ];
 
