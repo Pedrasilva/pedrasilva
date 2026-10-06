@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-type Estado = "pendente" | "aprovada" | "rejeitada";
+type Estado = "pendente" | "aprovada" | "rejeitada" | "cancelada";
 export type CalRequest = { id: string; collaborator_id: string; tipo: string; data_inicio: string; data_fim: string; estado: Estado; dias_uteis: number | null };
 export type CalCollaborator = {
   id: string;
