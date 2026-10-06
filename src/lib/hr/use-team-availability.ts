@@ -29,7 +29,8 @@ export type AbsenceType =
   | "trabalhador_estudante"
   | "doacao_sangue"
   | "autorizada_paga"
-  | "autorizada_nao_paga";
+  | "autorizada_nao_paga"
+  | "consulta_medica";
 
 export type LeaveRow = {
   id: string;

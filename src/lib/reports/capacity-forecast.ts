@@ -76,7 +76,7 @@ export function computeCapacityForecast(input: {
   const expected = computeHoursLogged({ rangeStart, rangeEnd, roster, entries: [], weekRows: [], nonWorking: input.nonWorking });
   const nwByUser = new Map<string, Set<string>>();
   for (const n of input.nonWorking) {
-    if ((n as { leave_type?: string }).leave_type === "Authorized (unpaid)") continue;
+    if (["Authorized (unpaid)", "Medical appointment (unpaid)"].includes((n as { leave_type?: string }).leave_type ?? "")) continue;
     const s = nwByUser.get(n.user_id) ?? new Set<string>();
     s.add(n.entry_date);
     nwByUser.set(n.user_id, s);

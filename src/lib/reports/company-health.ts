@@ -120,7 +120,7 @@ export function computeCompanyHealth(i: HealthInput): Health {
       weekCount++;
       gross++;
       const t = lv?.get(d);
-      if (t === UNPAID) pd.unpaid++;
+      if (t === UNPAID || t === "Medical appointment (unpaid)") pd.unpaid++;
       else if (t === VACATION) { pd.vacation++; paid++; }
       else if (t) { pd.otherPaid++; paid++; }
     }

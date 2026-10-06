@@ -78,6 +78,8 @@ export function leaveLabelFor(tipo: string): string {
       return "Authorized (paid)";
     case "autorizada_nao_paga":
       return "Authorized (unpaid)";
+    case "consulta_medica":
+      return "Medical appointment (unpaid)";
     default:
       return tipo;
   }

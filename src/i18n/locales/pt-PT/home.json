@@ -95,7 +95,8 @@
     "trabalhador_estudante": "Estudante",
     "doacao_sangue": "Dádiva de sangue",
     "autorizada_paga": "Autorizada",
-    "autorizada_nao_paga": "Autorizada"
+    "autorizada_nao_paga": "Autorizada",
+    "consulta_medica": "Consulta médica — não paga"
   },
   "availability": {
     "title": "Disponibilidade da equipa",

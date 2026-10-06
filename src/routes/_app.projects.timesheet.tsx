@@ -68,6 +68,7 @@ import {
   totalsFromEntries,
   isUnpaidLeave,
   UNPAID_LEAVE_LABEL,
+  UNPAID_LEAVE_LABELS,
   useTimesheetWeek,
 } from "@/lib/projects/use-timesheet-weeks";
 
@@ -1170,7 +1171,7 @@ function TimesheetPage() {
                     <FixedRow
                       key={row.key}
                       label={
-                        row.leave_type === UNPAID_LEAVE_LABEL
+                        UNPAID_LEAVE_LABELS.has(row.leave_type ?? "")
                           ? `${row.leave_type} · ${t("projects:hoursBank.unpaidTag")}`
                           : row.leave_type
                       }

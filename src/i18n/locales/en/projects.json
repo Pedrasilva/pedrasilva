@@ -297,7 +297,8 @@
       "trabalhador_estudante": "Working student",
       "doacao_sangue": "Blood donation",
       "autorizada_paga": "Authorised (paid)",
-      "autorizada_nao_paga": "Authorised (unpaid)"
+      "autorizada_nao_paga": "Authorised (unpaid)",
+      "consulta_medica": "Medical appointment — unpaid"
     },
     "toasts": {
       "taskCreated": "Task created",

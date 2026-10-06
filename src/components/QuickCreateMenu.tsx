@@ -703,7 +703,7 @@ const requestSchema = z.object({
   tipo: z.enum([
     "ferias", "casamento", "falecimento_familiar", "assistencia_filho",
     "nascimento_filho", "trabalhador_estudante", "doacao_sangue",
-    "autorizada_paga", "autorizada_nao_paga",
+    "autorizada_paga", "autorizada_nao_paga", "consulta_medica",
   ]),
   data_inicio: z.string().min(1),
   data_fim: z.string().min(1),
@@ -719,7 +719,7 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
     tipo: "ferias" as
       | "ferias" | "casamento" | "falecimento_familiar" | "assistencia_filho"
       | "nascimento_filho" | "trabalhador_estudante" | "doacao_sangue"
-      | "autorizada_paga" | "autorizada_nao_paga",
+      | "autorizada_paga" | "autorizada_nao_paga" | "consulta_medica",
     data_inicio: today, data_fim: today, notas: "",
   });
 
@@ -778,6 +778,7 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
                 <SelectItem value="doacao_sangue">{t("projects:quickCreate.leaveType.doacao_sangue")}</SelectItem>
                 <SelectItem value="autorizada_paga">{t("projects:quickCreate.leaveType.autorizada_paga")}</SelectItem>
                 <SelectItem value="autorizada_nao_paga">{t("projects:quickCreate.leaveType.autorizada_nao_paga")}</SelectItem>
+                <SelectItem value="consulta_medica">{t("projects:quickCreate.leaveType.consulta_medica")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
