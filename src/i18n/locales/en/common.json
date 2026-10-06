@@ -458,5 +458,21 @@
   },
   "access": {
     "financeDenied": "You don't have access to Finance."
+  },
+  "voice": {
+    "starting": "Starting microphone…",
+    "listening": "Recording",
+    "meter": "Microphone level",
+    "errors": {
+      "NotAllowedError": "Microphone blocked. Allow it in the browser (padlock icon next to the address) and in the system: Windows Settings → Privacy → Microphone, or macOS System Settings → Privacy & Security → Microphone. Then reload the page.",
+      "NotFoundError": "No microphone found. Connect one and try again.",
+      "NotReadableError": "The microphone is in use by another app (e.g. Teams or Zoom). Close it and try again.",
+      "SecurityError": "Voice input isn't allowed here. Open the published site directly (not inside the editor preview).",
+      "Timeout": "No permission prompt appeared after 10 seconds. Check the browser's address bar for a blocked-microphone icon and try again.",
+      "ContextNotRunning": "The browser didn't start audio. Click the microphone again; if it keeps failing, reload the page.",
+      "NoFrames": "No sound is arriving from the microphone. Check the selected input device and try again.",
+      "Silent": "We didn't hear anything — check the microphone.",
+      "Unknown": "Couldn't start the microphone."
+    }
   }
 }

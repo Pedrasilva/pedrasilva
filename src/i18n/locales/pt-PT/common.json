@@ -458,5 +458,21 @@
   },
   "access": {
     "financeDenied": "Não tem acesso ao módulo Financeiro."
+  },
+  "voice": {
+    "starting": "A ligar o microfone…",
+    "listening": "A gravar",
+    "meter": "Nível do microfone",
+    "errors": {
+      "NotAllowedError": "Microfone bloqueado. Permita-o no navegador (cadeado junto ao endereço) e no sistema: Definições do Windows → Privacidade → Microfone, ou Definições do Sistema do macOS → Privacidade e Segurança → Microfone. Depois recarregue a página.",
+      "NotFoundError": "Nenhum microfone encontrado. Ligue um e tente novamente.",
+      "NotReadableError": "O microfone está a ser usado por outra aplicação (ex.: Teams ou Zoom). Feche-a e tente novamente.",
+      "SecurityError": "A entrada de voz não é permitida aqui. Abra o site publicado diretamente (não dentro da pré-visualização do editor).",
+      "Timeout": "Não apareceu nenhum pedido de permissão em 10 segundos. Verifique na barra de endereço se há um ícone de microfone bloqueado e tente novamente.",
+      "ContextNotRunning": "O navegador não iniciou o áudio. Clique novamente no microfone; se continuar a falhar, recarregue a página.",
+      "NoFrames": "Não está a chegar som do microfone. Verifique o dispositivo de entrada selecionado e tente novamente.",
+      "Silent": "Não ouvimos nada — verifique o microfone.",
+      "Unknown": "Não foi possível iniciar o microfone."
+    }
   }
 }

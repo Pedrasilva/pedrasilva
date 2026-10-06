@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getNudge, submitNudgeAnswer } from "@/lib/marketing/nudges.functions";
 import { blobToBase64 } from "@/lib/projects/wav-encoder";
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
+import { VoiceLevelMeter } from "@/components/marketing/voice-level-meter";
 
 export const Route = createFileRoute("/_app/nudges/$nudgeId")({
   component: NudgeAnswerPage,
@@ -34,7 +35,7 @@ function NudgeAnswerPage() {
   const qc = useQueryClient();
   const getFn = useServerFn(getNudge);
   const submitFn = useServerFn(submitNudgeAnswer);
-  const rec = useVoiceRecorder();
+  const rec = useVoiceRecorder("marketing-nudge");
   const [text, setText] = useState("");
   const [audio, setAudio] = useState<Blob | null>(null);
   const [busy, setBusy] = useState(false);
@@ -57,7 +58,6 @@ function NudgeAnswerPage() {
     try {
       if (rec.recording) {
         const wav = await rec.stop();
-        if (!wav) toast.error(t("nudge.emptyRecording"));
         setAudio(wav);
       } else await rec.start();
     } catch { toast.error(t("nudge.micError")); }
@@ -94,11 +94,12 @@ function NudgeAnswerPage() {
       {open ? (
         <Card className="space-y-3 p-4">
           <div className="flex items-center gap-3">
-            <Button type="button" variant={rec.recording ? "destructive" : "outline"} onClick={toggleRec} disabled={busy}
+            <Button type="button" variant={rec.recording ? "destructive" : "outline"} onClick={toggleRec} disabled={busy || rec.starting}
               aria-label={rec.recording ? t("nudge.stop") : t("nudge.record")}>
               {rec.recording ? <Square className="mr-1 h-4 w-4" /> : <Mic className="mr-1 h-4 w-4" />}
               {rec.recording ? t("nudge.stop") : t("nudge.record")}
             </Button>
+            {rec.recording && <VoiceLevelMeter level={rec.level} className="text-destructive" />}
             {audio && !rec.recording && (
               <span className="flex items-center gap-2 text-sm">
                 <audio controls src={URL.createObjectURL(audio)} className="h-8" />

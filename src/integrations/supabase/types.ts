@@ -12961,6 +12961,48 @@ export type Database = {
           },
         ]
       }
+      voice_input_failures: {
+        Row: {
+          browser: string | null
+          context_state: string | null
+          created_at: string
+          error_name: string
+          feature: string | null
+          id: string
+          os: string | null
+          recording_seconds: number | null
+          silent: boolean | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          context_state?: string | null
+          created_at?: string
+          error_name: string
+          feature?: string | null
+          id?: string
+          os?: string | null
+          recording_seconds?: number | null
+          silent?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Update: {
+          browser?: string | null
+          context_state?: string | null
+          created_at?: string
+          error_name?: string
+          feature?: string | null
+          id?: string
+          os?: string | null
+          recording_seconds?: number | null
+          silent?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       benefit_expenses_v: {

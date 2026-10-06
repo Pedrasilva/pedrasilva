@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { NudgePanel } from "@/components/marketing/nudge-panel";
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
+import { VoiceLevelMeter } from "@/components/marketing/voice-level-meter";
 import { blobToBase64 } from "@/lib/projects/wav-encoder";
 import { addCaptureNote, canAddCaptureNote, deleteCaptureNote, listCaptureNotes } from "@/lib/marketing/capture-notes.functions";
 
@@ -25,7 +26,7 @@ export function CaptureContextCard({ captureId, hasProfile, profileId, canCurate
   const listFn = useServerFn(listCaptureNotes);
   const addFn = useServerFn(addCaptureNote);
   const delFn = useServerFn(deleteCaptureNote);
-  const rec = useVoiceRecorder();
+  const rec = useVoiceRecorder("marketing-capture");
   const [open, setOpen] = useState(false);
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState("");
@@ -45,14 +46,13 @@ export function CaptureContextCard({ captureId, hasProfile, profileId, canCurate
   const stopRec = async () => {
     if (timer.current) { clearInterval(timer.current); timer.current = null; }
     const wav = await rec.stop();
-    if (!wav) toast.error(t("nudge.emptyRecording"));
     setAudio(wav);
   };
   const toggleRec = async () => {
     try {
       if (rec.recording) return await stopRec();
       setAudio(null); setSecs(0);
-      await rec.start();
+      if (!(await rec.start())) return;
       const started = Date.now();
       timer.current = setInterval(() => {
         const s = Math.floor((Date.now() - started) / 1000);
@@ -99,10 +99,11 @@ export function CaptureContextCard({ captureId, hasProfile, profileId, canCurate
       {open && (
         <div className="space-y-2 rounded border border-border p-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" size="sm" variant={rec.recording ? "destructive" : "outline"} onClick={toggleRec} disabled={busy}>
+            <Button type="button" size="sm" variant={rec.recording ? "destructive" : "outline"} onClick={toggleRec} disabled={busy || rec.starting}>
               {rec.recording ? <Square className="mr-1 h-4 w-4" /> : <Mic className="mr-1 h-4 w-4" />}
               {rec.recording ? t("nudge.stop") : t("nudge.record")}
             </Button>
+            {rec.recording && <VoiceLevelMeter level={rec.level} className="text-destructive" />}
             {(rec.recording || secs > 0) && (
               <span className="text-xs tabular-nums text-muted-foreground">{fmt(secs)} / {fmt(MAX_SECONDS)}</span>
             )}
