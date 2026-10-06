@@ -13658,6 +13658,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      leave_request_history: {
+        Args: { _req: string }
+        Returns: {
+          action: string
+          actor_name: string
+          created_at: string
+          id: string
+          reason: string
+        }[]
+      }
       leave_request_owner_user: { Args: { _collab: string }; Returns: string }
       list_collaborators_basic: {
         Args: never

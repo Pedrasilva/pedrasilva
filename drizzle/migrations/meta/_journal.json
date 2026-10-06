@@ -176,6 +176,13 @@
       "when": 1791292434320,
       "tag": "0024_leave_change_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791292608124,
+      "tag": "0025_leave_history_names",
+      "breakpoints": true
     }
   ]
 }
