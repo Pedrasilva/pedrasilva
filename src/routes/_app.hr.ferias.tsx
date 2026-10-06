@@ -805,7 +805,7 @@ function FeriasPage() {
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
                       {r.notas ?? ""}
-                      {r.attachment_path && (
+                      {r.attachment_path && (r.collaborator_id === myCollab?.id || canApprove || isAdminRole) && (
                         <button
                           type="button"
                           className="ml-1 underline"
