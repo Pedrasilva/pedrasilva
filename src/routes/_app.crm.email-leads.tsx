@@ -45,6 +45,7 @@ type Draft = {
   summary: string | null;
   suggested_next_action: string | null;
   suggested_next_action_date: string | null;
+  mentioned_date: string | null;
   status: string;
   model_error: string | null;
   result_opportunity_id: string | null;
@@ -63,7 +64,7 @@ function EmailLeadsPage() {
       const { data, error } = await supabase
         .from("crm_email_lead_drafts")
         .select(
-          "id, kind, thread_id, subject, from_address, received_at, attachment_names, extracted, summary, suggested_next_action, suggested_next_action_date, status, model_error, result_opportunity_id, matched_opportunity_id, contact:contacts(id, primeiro_nome, apelido), company:companies(id, nome), opportunity:crm_opportunities!crm_email_lead_drafts_matched_opportunity_id_fkey(id, name)",
+          "id, kind, thread_id, subject, from_address, received_at, attachment_names, extracted, summary, suggested_next_action, suggested_next_action_date, mentioned_date, status, model_error, result_opportunity_id, matched_opportunity_id, contact:contacts(id, primeiro_nome, apelido), company:companies(id, nome), opportunity:crm_opportunities!crm_email_lead_drafts_matched_opportunity_id_fkey(id, name)",
         )
         .eq("status", status)
         .order("created_at", { ascending: false })
@@ -233,6 +234,13 @@ function DraftCard({ draft }: { draft: Draft }) {
           <div className="space-y-1">
             <Label className="text-xs">{t("emailLeads.nextActionDate")}</Label>
             <Input type="date" value={nextDate} disabled={!editable} onChange={(e) => setNextDate(e.target.value)} />
+            {draft.mentioned_date && (
+              <p className="text-xs text-muted-foreground">
+                {t("emailLeads.mentionedDateHint", {
+                  date: new Date(`${draft.mentioned_date}T00:00:00`).toLocaleDateString(i18n.language.startsWith("pt") ? "pt-PT" : "en-GB", { day: "numeric", month: "short" }),
+                })}
+              </p>
+            )}
           </div>
         </div>
         {draft.attachment_names.length > 0 && (
