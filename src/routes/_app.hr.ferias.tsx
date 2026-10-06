@@ -57,6 +57,7 @@ import { useTranslation } from "react-i18next";
 import {
   useLeaveApproval,
   RequestChangeDialog,
+  DecidePendingButtons,
   DirectChangeDialog,
   PendingChangeBadge,
   LeaveHistoryButton,
@@ -308,25 +309,6 @@ function FeriasPage() {
         horas: "",
         notas: "",
       });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const setEstado = useMutation({
-    mutationFn: async ({ id, estado }: { id: string; estado: "aprovada" | "rejeitada" }) => {
-      const { error } = await supabase
-        .from("vacation_requests")
-        .update({
-          estado,
-          aprovado_por: user?.id ?? null,
-          aprovado_em: new Date().toISOString(),
-        })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Pedido actualizado");
-      qc.invalidateQueries({ queryKey: ["vacation_requests"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
