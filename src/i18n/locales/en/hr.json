@@ -1822,7 +1822,9 @@
       "change_accepted": "Change accepted",
       "change_refused": "Change refused",
       "edited_by_approver": "Edited by approver",
-      "cancelled_by_approver": "Cancelled by approver"
+      "cancelled_by_approver": "Cancelled by approver",
+      "approved": "Approved",
+      "rejected": "Rejected"
     },
     "errors": {
       "overlap": "These dates overlap another approved or pending request.",
@@ -1834,7 +1836,13 @@
       "reason_required": "A reason is required.",
       "own_approved": "For your own approved leave, use “Request change” and send it to another approver.",
       "not_recipient": "Only the chosen person can decide this change.",
-      "not_pending": "This change was already decided."
-    }
+      "not_pending": "This change was already decided.",
+      "own_request": "You can't decide your own request — another approver must.",
+      "not_approver": "You don't have leave approval rights."
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectTitle": "Reject request",
+    "rejectReason": "Reason (required, sent to the person)"
   }
 }
