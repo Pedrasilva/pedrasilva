@@ -86,7 +86,7 @@ export function YearLeaveCalendar({
   const byDay = useMemo(() => {
     const map = new Map<string, DayEntry[]>();
     for (const r of requests) {
-      if (r.estado === "rejeitada") continue;
+      if (r.estado === "rejeitada" || r.estado === "cancelada") continue;
       const end = new Date(r.data_fim + "T00:00:00");
       for (let d = new Date(r.data_inicio + "T00:00:00"); d <= end; d.setDate(d.getDate() + 1)) {
         if (d.getFullYear() !== year) continue;
