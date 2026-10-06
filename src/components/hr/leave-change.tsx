@@ -396,23 +396,9 @@ export function LeaveHistoryButton({ requestId }: { requestId: string }) {
     queryKey: ["vacation_request_history", requestId],
     enabled: open,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("vacation_request_history")
-        .select("id, actor_id, action, after, reason, created_at")
-        .eq("request_id", requestId)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("leave_request_history", { _req: requestId });
       if (error) throw error;
       return data ?? [];
-    },
-  });
-  const { data: names = {} } = useQuery({
-    queryKey: ["leave_actor_names"],
-    enabled: open,
-    queryFn: async () => {
-      const { data } = await supabase.rpc("list_collaborators_basic" as never);
-      const map: Record<string, string> = {};
-      for (const c of ((data ?? []) as { user_id?: string; nome?: string }[])) if (c.user_id && c.nome) map[c.user_id] = c.nome;
-      return map;
     },
   });
   return (
@@ -433,7 +419,7 @@ export function LeaveHistoryButton({ requestId }: { requestId: string }) {
                 <li key={h.id} className="rounded-md border p-2">
                   <div className="font-medium">{t(`leaveChange.action.${h.action}`, { defaultValue: h.action })}</div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(h.created_at).toLocaleString()} · {(h.actor_id && names[h.actor_id]) || "—"}
+                    {new Date(h.created_at).toLocaleString()} · {h.actor_name || "—"}
                   </div>
                   {h.reason && <div className="text-xs">“{h.reason}”</div>}
                 </li>
