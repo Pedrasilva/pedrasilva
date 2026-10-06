@@ -88,7 +88,8 @@ type AbsenceType =
   | "trabalhador_estudante"
   | "doacao_sangue"
   | "autorizada_paga"
-  | "autorizada_nao_paga";
+  | "autorizada_nao_paga"
+  | "consulta_medica";
 
 const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descontaFerias: boolean }[] = [
   { value: "ferias", label: "Férias", paga: true, descontaFerias: true },
@@ -100,6 +101,7 @@ const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descont
   { value: "doacao_sangue", label: "Dádiva de sangue (paga)", paga: true, descontaFerias: false },
   { value: "autorizada_paga", label: "Outra ausência autorizada — paga", paga: true, descontaFerias: false },
   { value: "autorizada_nao_paga", label: "Outra ausência autorizada — não paga", paga: false, descontaFerias: false },
+  { value: "consulta_medica", label: "Consulta médica — não paga", paga: false, descontaFerias: false },
 ];
 
 const absenceLabel = (t: AbsenceType) => ABSENCE_TYPES.find((x) => x.value === t)?.label ?? t;
@@ -116,7 +118,14 @@ type VacationRequest = {
   aprovado_por: string | null;
   aprovado_em: string | null;
   created_at: string;
+  attachment_path?: string | null;
 };
+
+async function openLeaveAttachment(path: string) {
+  const { data, error } = await supabase.storage.from("leave-attachments").createSignedUrl(path, 300);
+  if (error || !data) return toast.error(error?.message ?? "Erro");
+  window.open(data.signedUrl, "_blank", "noopener");
+}
 
 function FeriasPage() {
   const { user, isAdmin: isAdminRole } = useAuth();
@@ -223,6 +232,7 @@ function FeriasPage() {
 
   // Novo pedido
   const [newOpen, setNewOpen] = useState(false);
+  const [attachFile, setAttachFile] = useState<File | null>(null);
   const [newReq, setNewReq] = useState<{
     collaborator_id: string;
     tipo: AbsenceType;
@@ -283,7 +293,15 @@ function FeriasPage() {
           : newReq.periodo === "manha" || newReq.periodo === "tarde"
             ? 4
             : null;
+      let attachment_path: string | null = null;
+      if (newReq.tipo === "consulta_medica" && attachFile) {
+        const ext = attachFile.name.split(".").pop()?.toLowerCase() || "pdf";
+        attachment_path = `${collab_id}/${crypto.randomUUID()}.${ext}`;
+        const up = await supabase.storage.from("leave-attachments").upload(attachment_path, attachFile);
+        if (up.error) throw up.error;
+      }
       const { error } = await supabase.from("vacation_requests").insert({
+        attachment_path,
         collaborator_id: collab_id,
         tipo: newReq.tipo,
         data_inicio: newReq.data_inicio,
@@ -300,6 +318,7 @@ function FeriasPage() {
       toast.success("Pedido criado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       setNewOpen(false);
+      setAttachFile(null);
       setNewReq({
         collaborator_id: "",
         tipo: "ferias",
@@ -555,7 +574,20 @@ function FeriasPage() {
                   value={newReq.notas}
                   onChange={(e) => setNewReq((f) => ({ ...f, notas: e.target.value }))}
                 />
+                {newReq.tipo === "consulta_medica" && (
+                  <p className="text-[11px] text-muted-foreground">{t("leaveChange.medicalHint")}</p>
+                )}
               </div>
+              {newReq.tipo === "consulta_medica" && (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label className="text-xs text-muted-foreground">{t("leaveChange.attachment")}</Label>
+                  <Input
+                    type="file"
+                    accept="application/pdf,image/*"
+                    onChange={(e) => setAttachFile(e.target.files?.[0] ?? null)}
+                  />
+                </div>
+              )}
               <div className="sm:col-span-2 space-y-2 rounded-md bg-muted px-3 py-2 text-sm">
                 <div>
                   {newReq.periodo === "horas" ? (
@@ -773,6 +805,15 @@ function FeriasPage() {
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
                       {r.notas ?? ""}
+                      {r.attachment_path && (
+                        <button
+                          type="button"
+                          className="ml-1 underline"
+                          onClick={() => openLeaveAttachment(r.attachment_path!)}
+                        >
+                          {t("leaveChange.viewAttachment")}
+                        </button>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex gap-1">
