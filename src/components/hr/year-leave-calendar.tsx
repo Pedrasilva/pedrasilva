@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-type Estado = "pendente" | "aprovada" | "rejeitada";
+type Estado = "pendente" | "aprovada" | "rejeitada" | "cancelada";
 export type CalRequest = { id: string; collaborator_id: string; tipo: string; data_inicio: string; data_fim: string; estado: Estado; dias_uteis: number | null };
 export type CalCollaborator = {
   id: string;
@@ -86,7 +86,7 @@ export function YearLeaveCalendar({
   const byDay = useMemo(() => {
     const map = new Map<string, DayEntry[]>();
     for (const r of requests) {
-      if (r.estado === "rejeitada") continue;
+      if (r.estado === "rejeitada" || r.estado === "cancelada") continue;
       const end = new Date(r.data_fim + "T00:00:00");
       for (let d = new Date(r.data_inicio + "T00:00:00"); d <= end; d.setDate(d.getDate() + 1)) {
         if (d.getFullYear() !== year) continue;

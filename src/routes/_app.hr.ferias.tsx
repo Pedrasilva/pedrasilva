@@ -53,6 +53,15 @@ import type { Holiday } from "@/lib/workdays";
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { YearLeaveCalendar } from "@/components/hr/year-leave-calendar";
+import { useTranslation } from "react-i18next";
+import {
+  useLeaveApproval,
+  RequestChangeDialog,
+  DirectChangeDialog,
+  PendingChangeBadge,
+  LeaveHistoryButton,
+  EditIcon,
+} from "@/components/hr/leave-change";
 
 type FeriasSearch = { scope?: "meus" | "colaborador" | "calendario" };
 
@@ -100,7 +109,7 @@ type VacationRequest = {
   data_inicio: string;
   data_fim: string;
   dias_uteis: number;
-  estado: "pendente" | "aprovada" | "rejeitada";
+  estado: "pendente" | "aprovada" | "rejeitada" | "cancelada";
   tipo: AbsenceType;
   notas: string | null;
   aprovado_por: string | null;
@@ -109,8 +118,14 @@ type VacationRequest = {
 };
 
 function FeriasPage() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin: isAdminRole } = useAuth();
   const qc = useQueryClient();
+  const { t } = useTranslation("hr");
+  const { canApprove, pendingByRequest } = useLeaveApproval(user?.id ?? null);
+  // Leave approvers (hr.leave.approve · All) get the team views; admins keep everything else.
+  const isAdmin = isAdminRole || canApprove;
+  const [changeTarget, setChangeTarget] = useState<{ row: VacationRequest; mode: "request" | "direct" } | null>(null);
+  const typeOptions = ABSENCE_TYPES.map((x) => ({ value: x.value, label: x.label }));
   const currentYear = new Date().getFullYear();
 
   const { data: collaborators = [] } = useQuery({
@@ -253,7 +268,7 @@ function FeriasPage() {
 
   const createReq = useMutation({
     mutationFn: async () => {
-      const collab_id = isAdmin && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
+      const collab_id = isAdminRole && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
       if (!collab_id) throw new Error("Sem colaborador associado à sua conta");
       if (!newReq.data_inicio) throw new Error("Indique a data");
       // Para período parcial (meio-dia ou horas) usamos um único dia.
@@ -365,7 +380,7 @@ function FeriasPage() {
         </div>
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" disabled={!isAdmin && !myCollab}>
+            <Button size="sm" disabled={!isAdminRole && !myCollab}>
               <Plus className="h-4 w-4" /> Novo pedido
             </Button>
           </DialogTrigger>
@@ -379,7 +394,7 @@ function FeriasPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {isAdmin && (
+              {isAdminRole && (
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label className="text-xs text-muted-foreground">Colaborador</Label>
                   <Select
@@ -766,13 +781,20 @@ function FeriasPage() {
                     <TableCell className="text-right tabular-nums">{r.dias_uteis}</TableCell>
                     <TableCell>
                       <EstadoBadge estado={r.estado} />
+                      {pendingByRequest.get(r.id) && (
+                        <PendingChangeBadge
+                          change={pendingByRequest.get(r.id)!}
+                          userId={user?.id ?? null}
+                          typeLabel={(x) => absenceLabel(x as AbsenceType)}
+                        />
+                      )}
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
                       {r.notas ?? ""}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex gap-1">
-                        {isAdmin && r.estado === "pendente" && (
+                        {isAdminRole && r.estado === "pendente" && (
                           <>
                             <Button
                               size="sm"
@@ -790,7 +812,32 @@ function FeriasPage() {
                             </Button>
                           </>
                         )}
-                        {(isAdmin || r.estado === "pendente") && (
+                        {r.estado === "aprovada" &&
+                          r.collaborator_id === myCollab?.id &&
+                          !pendingByRequest.has(r.id) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setChangeTarget({ row: r, mode: "request" })}
+                            >
+                              {t("leaveChange.requestBtn")}
+                            </Button>
+                          )}
+                        {canApprove &&
+                          (r.estado === "aprovada" || r.estado === "pendente") &&
+                          !(r.estado === "aprovada" && r.collaborator_id === myCollab?.id) && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title={t("leaveChange.directTitle")}
+                              onClick={() => setChangeTarget({ row: r, mode: "direct" })}
+                            >
+                              <EditIcon />
+                            </Button>
+                          )}
+                        <LeaveHistoryButton requestId={r.id} />
+                        {(r.estado === "pendente" ||
+                          (isAdminRole && r.estado === "rejeitada")) && (
                           <Button
                             size="sm"
                             variant="ghost"
@@ -808,6 +855,24 @@ function FeriasPage() {
           )}
         </CardContent>
       </Card>
+      {changeTarget?.mode === "request" && (
+        <RequestChangeDialog
+          open
+          onOpenChange={(o) => !o && setChangeTarget(null)}
+          request={changeTarget.row}
+          types={typeOptions}
+          holidays={holidayDates}
+        />
+      )}
+      {changeTarget?.mode === "direct" && (
+        <DirectChangeDialog
+          open
+          onOpenChange={(o) => !o && setChangeTarget(null)}
+          request={changeTarget.row}
+          types={typeOptions}
+          holidays={holidayDates}
+        />
+      )}
     </div>
   );
 }
@@ -826,7 +891,8 @@ function EstadoBadge({ estado }: { estado: VacationRequest["estado"] }) {
     pendente: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
     aprovada: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
     rejeitada: "bg-red-500/15 text-red-700 dark:text-red-400",
+    cancelada: "bg-muted text-muted-foreground",
   }[estado];
-  const labels = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada" }[estado];
+  const labels = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada", cancelada: "Cancelada" }[estado];
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles}`}>{labels}</span>;
 }

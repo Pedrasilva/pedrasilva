@@ -1776,5 +1776,65 @@
       "balance": "Saldo",
       "caption": "Férias {{year}} — {{name}} (iguais ao Saldo de férias)"
     }
+  },
+  "leaveChange": {
+    "requestBtn": "Pedir alteração",
+    "requestTitle": "Pedir alteração",
+    "requestSub": "O pedido mantém-se Aprovado até a pessoa escolhida decidir.",
+    "directTitle": "Editar ou cancelar ausência",
+    "directSub": "A pessoa afectada recebe um email e uma notificação.",
+    "what": "O que alterar",
+    "kind": {
+      "cancel": "Cancelar o pedido todo",
+      "dates": "Alterar datas",
+      "type": "Alterar o tipo"
+    },
+    "duration": "Duração",
+    "periodo": {
+      "dia_inteiro": "Dias inteiros",
+      "manha": "Manhã (meio dia)",
+      "tarde": "Tarde (meio dia)",
+      "horas": "Algumas horas"
+    },
+    "start": "Início",
+    "end": "Fim",
+    "hours": "Horas",
+    "newType": "Novo tipo",
+    "explanation": "Explicação (obrigatória)",
+    "reason": "Motivo (obrigatório)",
+    "sendTo": "Enviar a",
+    "yourApprover": "o seu aprovador",
+    "noApprovers": "Sem aprovadores disponíveis",
+    "cancelBtn": "Fechar",
+    "send": "Enviar pedido",
+    "apply": "Aplicar alteração",
+    "sent": "Pedido de alteração enviado",
+    "applied": "Alteração aplicada",
+    "decided": "Decisão registada",
+    "pendingBadge": "Alteração pendente",
+    "accept": "Aceitar",
+    "refuse": "Recusar",
+    "refuseTitle": "Recusar alteração",
+    "history": "Histórico de alterações",
+    "noHistory": "Sem alterações.",
+    "action": {
+      "change_requested": "Alteração pedida",
+      "change_accepted": "Alteração aceite",
+      "change_refused": "Alteração recusada",
+      "edited_by_approver": "Editado pelo aprovador",
+      "cancelled_by_approver": "Cancelado pelo aprovador"
+    },
+    "errors": {
+      "overlap": "Estas datas sobrepõem-se a outro pedido aprovado ou pendente.",
+      "not_owner": "Só pode pedir alterações às suas próprias ausências.",
+      "not_approved": "Só pedidos aprovados podem ser alterados desta forma.",
+      "explanation_required": "Indique uma breve explicação.",
+      "invalid_recipient": "Escolha outra pessoa com direitos de aprovação de ausências.",
+      "invalid_dates": "Verifique as datas.",
+      "reason_required": "O motivo é obrigatório.",
+      "own_approved": "Para as suas próprias ausências aprovadas, use “Pedir alteração” e envie a outro aprovador.",
+      "not_recipient": "Só a pessoa escolhida pode decidir esta alteração.",
+      "not_pending": "Esta alteração já foi decidida."
+    }
   }
 }
