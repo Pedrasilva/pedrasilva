@@ -12786,6 +12786,115 @@ export type Database = {
         }
         Relationships: []
       }
+      vacation_change_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_reason: string | null
+          explanation: string
+          id: string
+          kind: string
+          new_data_fim: string | null
+          new_data_inicio: string | null
+          new_dias_uteis: number | null
+          new_horas: number | null
+          new_periodo: string | null
+          new_tipo: Database["public"]["Enums"]["absence_type"] | null
+          recipient_id: string
+          request_id: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          explanation: string
+          id?: string
+          kind: string
+          new_data_fim?: string | null
+          new_data_inicio?: string | null
+          new_dias_uteis?: number | null
+          new_horas?: number | null
+          new_periodo?: string | null
+          new_tipo?: Database["public"]["Enums"]["absence_type"] | null
+          recipient_id: string
+          request_id: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          explanation?: string
+          id?: string
+          kind?: string
+          new_data_fim?: string | null
+          new_data_inicio?: string | null
+          new_dias_uteis?: number | null
+          new_horas?: number | null
+          new_periodo?: string | null
+          new_tipo?: Database["public"]["Enums"]["absence_type"] | null
+          recipient_id?: string
+          request_id?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vacation_change_requests_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "vacation_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vacation_request_history: {
+        Row: {
+          action: string
+          actor_id: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          id: string
+          reason: string | null
+          request_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          request_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vacation_request_history_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "vacation_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vacation_requests: {
         Row: {
           aprovado_em: string | null
@@ -13380,6 +13489,7 @@ export type Database = {
         Returns: Json
       }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
+      can_approve_leave: { Args: { _uid: string }; Returns: boolean }
       can_manage_inventory: { Args: { _user_id: string }; Returns: boolean }
       clone_fee_proposal_as_revision: {
         Args: { p_source: string }
@@ -13482,7 +13592,73 @@ export type Database = {
         Returns: Json
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      leave_apply_change: {
+        Args: {
+          _dias: number
+          _end: string
+          _horas: number
+          _kind: string
+          _periodo: string
+          _req: string
+          _start: string
+          _tipo: Database["public"]["Enums"]["absence_type"]
+        }
+        Returns: undefined
+      }
+      leave_change_decide: {
+        Args: { _accept: boolean; _change: string; _reason: string }
+        Returns: undefined
+      }
+      leave_change_submit: {
+        Args: {
+          _dias: number
+          _end: string
+          _explanation: string
+          _horas: number
+          _kind: string
+          _periodo: string
+          _recipient: string
+          _req: string
+          _start: string
+          _tipo: Database["public"]["Enums"]["absence_type"]
+        }
+        Returns: string
+      }
+      leave_direct_change: {
+        Args: {
+          _dias: number
+          _end: string
+          _horas: number
+          _kind: string
+          _periodo: string
+          _reason: string
+          _req: string
+          _start: string
+          _tipo: Database["public"]["Enums"]["absence_type"]
+        }
+        Returns: undefined
+      }
       leave_label_for: { Args: { _tipo: string }; Returns: string }
+      leave_notify: {
+        Args: {
+          _body: string
+          _kind: string
+          _req: string
+          _title: string
+          _user: string
+        }
+        Returns: undefined
+      }
+      leave_overlaps: {
+        Args: {
+          _collab: string
+          _end: string
+          _exclude: string
+          _start: string
+        }
+        Returns: boolean
+      }
+      leave_request_owner_user: { Args: { _collab: string }; Returns: string }
       list_collaborators_basic: {
         Args: never
         Returns: {
@@ -13490,6 +13666,15 @@ export type Database = {
           foto_path: string
           id: string
           nome: string
+        }[]
+      }
+      list_leave_approvers: {
+        Args: never
+        Returns: {
+          email: string
+          is_default: boolean
+          nome: string
+          user_id: string
         }[]
       }
       list_user_effective_permissions: {

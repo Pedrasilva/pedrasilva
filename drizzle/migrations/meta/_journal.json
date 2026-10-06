@@ -169,6 +169,13 @@
       "when": 1791238735628,
       "tag": "0023_finance_recebimentos",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791292434320,
+      "tag": "0024_leave_change_requests",
+      "breakpoints": true
     }
   ]
 }
