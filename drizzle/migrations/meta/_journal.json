@@ -197,6 +197,13 @@
       "when": 1791294137418,
       "tag": "0027_leave_decide_pending",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791295103279,
+      "tag": "0028_leave_consulta_medica",
+      "breakpoints": true
     }
   ]
 }

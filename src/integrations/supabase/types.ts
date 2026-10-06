@@ -12899,6 +12899,7 @@ export type Database = {
         Row: {
           aprovado_em: string | null
           aprovado_por: string | null
+          attachment_path: string | null
           collaborator_id: string
           created_at: string
           data_fim: string
@@ -12915,6 +12916,7 @@ export type Database = {
         Insert: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          attachment_path?: string | null
           collaborator_id: string
           created_at?: string
           data_fim: string
@@ -12931,6 +12933,7 @@ export type Database = {
         Update: {
           aprovado_em?: string | null
           aprovado_por?: string | null
+          attachment_path?: string | null
           collaborator_id?: string
           created_at?: string
           data_fim?: string
@@ -14161,6 +14164,7 @@ export type Database = {
         | "doacao_sangue"
         | "autorizada_paga"
         | "autorizada_nao_paga"
+        | "consulta_medica"
       app_role: "admin" | "user"
       backup_status: "running" | "success" | "failed"
       backup_trigger: "daily" | "weekly" | "manual"
@@ -14641,6 +14645,7 @@ export const Constants = {
         "doacao_sangue",
         "autorizada_paga",
         "autorizada_nao_paga",
+        "consulta_medica",
       ],
       app_role: ["admin", "user"],
       backup_status: ["running", "success", "failed"],
