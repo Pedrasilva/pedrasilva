@@ -88,7 +88,7 @@ function useInvalidate() {
 
 function errText(t: (k: string) => string, e: unknown) {
   const m = (e as Error)?.message ?? "";
-  for (const code of ["overlap", "not_owner", "not_approved", "explanation_required", "invalid_recipient", "invalid_dates", "reason_required", "own_approved", "not_recipient", "not_pending"]) {
+  for (const code of ["overlap", "not_owner", "not_approved", "explanation_required", "invalid_recipient", "invalid_dates", "reason_required", "own_approved", "not_recipient", "not_pending", "own_request", "not_approver"]) {
     if (m.includes(code)) return t(`leaveChange.errors.${code}`);
   }
   return m;
@@ -434,4 +434,51 @@ export function LeaveHistoryButton({ requestId }: { requestId: string }) {
 
 export function EditIcon() {
   return <Pencil className="h-3 w-3" />;
+}
+
+/** Aprovar / Rejeitar on a NEW pending request — via leave_decide_pending (no self-approval, reason on reject). */
+export function DecidePendingButtons({ requestId }: { requestId: string }) {
+  const { t } = useTranslation("hr");
+  const invalidate = useInvalidate();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const decide = useMutation({
+    mutationFn: async (approve: boolean) => {
+      const { error } = await supabase.rpc("leave_decide_pending", {
+        _req: requestId, _approve: approve, _reason: approve ? "" : reason,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("leaveChange.decided"));
+      notifyEmails(requestId);
+      invalidate();
+      setOpen(false);
+    },
+    onError: (e) => toast.error(errText(t, e)),
+  });
+  return (
+    <>
+      <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => decide.mutate(true)}>
+        <Check className="h-3 w-3" /> {t("leaveChange.approve")}
+      </Button>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <X className="h-3 w-3" /> {t("leaveChange.reject")}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("leaveChange.rejectTitle")}</DialogTitle>
+          </DialogHeader>
+          <Label className="text-xs text-muted-foreground">{t("leaveChange.rejectReason")}</Label>
+          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
+          <DialogFooter>
+            <Button disabled={!reason.trim() || decide.isPending} onClick={() => decide.mutate(false)}>
+              {t("leaveChange.reject")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

@@ -75,6 +75,10 @@ export const sendLeaveChangeEmails = createServerFn({ method: "POST" })
         lines.push(`Alteração aplicada: ${proposal}`);
       } else if (n.kind === "leave_changed_by_approver") {
         lines.push(`Agora: ${req.estado} · ${req.data_inicio} → ${req.data_fim}`, `Motivo: ${hist?.reason ?? ""}`);
+      } else if (n.kind === "leave_request_approved") {
+        lines.push("Estado: aprovado");
+      } else if (n.kind === "leave_request_rejected") {
+        lines.push("Estado: rejeitado", `Motivo: ${hist?.reason ?? ""}`);
       }
       try {
         const { data: u } = await supabaseAdmin.auth.admin.getUserById(n.user_id);

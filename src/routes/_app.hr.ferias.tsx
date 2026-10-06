@@ -794,23 +794,8 @@ function FeriasPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex gap-1">
-                        {isAdminRole && r.estado === "pendente" && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEstado.mutate({ id: r.id, estado: "aprovada" })}
-                            >
-                              <Check className="h-3 w-3" /> Aprovar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEstado.mutate({ id: r.id, estado: "rejeitada" })}
-                            >
-                              <X className="h-3 w-3" /> Rejeitar
-                            </Button>
-                          </>
+                        {isAdmin && r.estado === "pendente" && r.collaborator_id !== myCollab?.id && (
+                          <DecidePendingButtons requestId={r.id} />
                         )}
                         {r.estado === "aprovada" &&
                           r.collaborator_id === myCollab?.id &&
