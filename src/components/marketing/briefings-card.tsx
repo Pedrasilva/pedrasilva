@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useVoiceRecorder } from "@/components/marketing/use-voice-recorder";
+import { VoiceLevelMeter } from "@/components/marketing/voice-level-meter";
 import { blobToBase64 } from "@/lib/projects/wav-encoder";
 import { listBriefings, recordBriefing, retryBriefing } from "@/lib/marketing/briefings.functions";
 import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
@@ -29,7 +30,7 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
   const listFn = useServerFn(listBriefings);
   const recordFn = useServerFn(recordBriefing);
   const retryFn = useServerFn(retryBriefing);
-  const rec = useVoiceRecorder();
+  const rec = useVoiceRecorder("marketing-briefing");
   const [seconds, setSeconds] = useState(0);
   const [busy, setBusy] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
@@ -78,10 +79,11 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
       </div>
       <p className="text-xs text-muted-foreground">{t("briefings.hint")}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm" variant={rec.recording ? "destructive" : "default"} onClick={toggle} disabled={busy}>
+        <Button size="sm" variant={rec.recording ? "destructive" : "default"} onClick={toggle} disabled={busy || rec.starting}>
           {rec.recording ? <Square className="mr-1 h-3.5 w-3.5" /> : <Mic className="mr-1 h-3.5 w-3.5" />}
           {rec.recording ? t("briefings.stop") : t("briefings.record")}
         </Button>
+        {rec.recording && <VoiceLevelMeter level={rec.level} className="text-destructive" />}
         {rec.recording && <span className="text-sm tabular-nums">{fmt(seconds)} / {fmt(MAX_SECONDS)}</span>}
         <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={busy || rec.recording}>
           <Upload className="mr-1 h-3.5 w-3.5" />{t("briefings.upload")}
