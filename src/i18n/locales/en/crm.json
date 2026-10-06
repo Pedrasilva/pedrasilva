@@ -1432,6 +1432,7 @@
     "noMatch": "None — will be created",
     "nextAction": "Next action",
     "nextActionDate": "Follow-up date",
+    "mentionedDateHint": "The email mentioned {{date}}",
     "attachments": "Attachments (not stored)",
     "confirm": "Confirm",
     "discard": "Discard",

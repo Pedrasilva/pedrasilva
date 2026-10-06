@@ -1432,6 +1432,7 @@
     "noMatch": "Nenhum — será criado",
     "nextAction": "Próxima acção",
     "nextActionDate": "Data de seguimento",
+    "mentionedDateHint": "O email mencionava {{date}}",
     "attachments": "Anexos (não guardados)",
     "confirm": "Confirmar",
     "discard": "Descartar",

@@ -1,6 +1,6 @@
 /**
  * CRM email intake — threads labelled "CRM" in luis@pedrasilva.com become
- * lead drafts (crm_email_lead_drafts). Polled by pg_cron every 10 minutes;
+ * lead drafts (crm_email_lead_drafts). Polled by pg_cron every hour, on the hour;
  * the gate token lives in the service-role-only crm_email_intake_gate table.
  *
  * Guarantees:
@@ -303,7 +303,9 @@ export const Route = createFileRoute("/api/public/hooks/crm-email-intake")({
                 if (o) { oppId = o.id; reasons.push("opportunity:contact"); }
               }
 
-              const mentioned = typeof x.mentioned_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.mentioned_date) && x.mentioned_date >= new Date().toISOString().slice(0, 10) ? x.mentioned_date : null;
+              const rawMentioned = typeof x.mentioned_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.mentioned_date) ? x.mentioned_date : null;
+              const mentioned = rawMentioned && rawMentioned >= new Date().toISOString().slice(0, 10) ? rawMentioned : null;
+              const pastMentioned = rawMentioned && !mentioned ? rawMentioned : null;
               const nextDate = mentioned ?? addWorkingDays(new Date(), 2, holidays);
 
               const { data: draft, error: dErr } = await db
@@ -326,6 +328,7 @@ export const Route = createFileRoute("/api/public/hooks/crm-email-intake")({
                   match_reason: reasons.join(",") || null,
                   suggested_next_action: (x.next_action as string | null) ?? null,
                   suggested_next_action_date: nextDate,
+                  mentioned_date: pastMentioned,
                   owner_id: ownerId,
                   model_error: modelError,
                 })

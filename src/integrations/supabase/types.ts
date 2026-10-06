@@ -2139,6 +2139,7 @@ export type Database = {
           matched_company_id: string | null
           matched_contact_id: string | null
           matched_opportunity_id: string | null
+          mentioned_date: string | null
           model_error: string | null
           owner_id: string | null
           received_at: string | null
@@ -2168,6 +2169,7 @@ export type Database = {
           matched_company_id?: string | null
           matched_contact_id?: string | null
           matched_opportunity_id?: string | null
+          mentioned_date?: string | null
           model_error?: string | null
           owner_id?: string | null
           received_at?: string | null
@@ -2197,6 +2199,7 @@ export type Database = {
           matched_company_id?: string | null
           matched_contact_id?: string | null
           matched_opportunity_id?: string | null
+          mentioned_date?: string | null
           model_error?: string | null
           owner_id?: string | null
           received_at?: string | null
