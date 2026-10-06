@@ -163,7 +163,7 @@ export type CrmAccount = {
   updated_at: string;
 };
 
-export type OpportunitySource = "web" | "referral" | "repeat" | "other";
+export type OpportunitySource = "web" | "referral" | "repeat" | "email" | "other";
 
 export type OpportunityActivityType = "call" | "email" | "meeting" | "note";
 
@@ -187,6 +187,7 @@ export const OPPORTUNITY_SOURCES: { value: OpportunitySource }[] = [
   { value: "web" },
   { value: "referral" },
   { value: "repeat" },
+  { value: "email" },
   { value: "other" },
 ];
 

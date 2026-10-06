@@ -13,7 +13,8 @@
       "opportunities": "Oportunidades",
       "companies": "Empresas",
       "contacts": "Contactos",
-      "pipelineLegacy": "Pipeline legado"
+      "pipelineLegacy": "Pipeline legado",
+      "emailLeads": "Leads de email"
     }
   },
   "overview": {
@@ -121,7 +122,8 @@
         "web": "Web",
         "referral": "Referência",
         "repeat": "Cliente recorrente",
-        "other": "Outro"
+        "other": "Outro",
+        "email": "Email"
       },
       "contact": "Contacto",
       "contactName": "Nome do contacto",
@@ -1402,5 +1404,50 @@
     "unresolved": "{{count}} marcador(es) não resolvido(s): {{list}}",
     "warning.existingBlocks": "Este documento já tem blocos. As novas secções serão acrescentadas no fim.",
     "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão."
+  },
+  "emailLeads": {
+    "title": "Novos leads de email",
+    "subtitle": "Conversas com a etiqueta “CRM” no Gmail. Nada entra no CRM até confirmar.",
+    "tab": "Leads de email",
+    "empty": "Sem leads de email por rever.",
+    "kindLead": "Novo lead",
+    "kindReply": "Resposta numa conversa importada",
+    "summary": "Resumo",
+    "fields": {
+      "contact_name": "Nome do contacto",
+      "email": "Email",
+      "phone": "Telefone",
+      "company": "Empresa",
+      "role": "Cargo",
+      "project_type": "Tipo de projecto",
+      "location": "Localização",
+      "size": "Dimensão",
+      "budget": "Orçamento",
+      "timing": "Prazo",
+      "how_found": "Como conheceu a PSA"
+    },
+    "matchedContact": "Contacto encontrado",
+    "matchedCompany": "Empresa encontrada",
+    "matchedOpportunity": "Oportunidade aberta (só actividade)",
+    "noMatch": "Nenhum — será criado",
+    "nextAction": "Próxima acção",
+    "nextActionDate": "Data de seguimento",
+    "attachments": "Anexos (não guardados)",
+    "confirm": "Confirmar",
+    "discard": "Descartar",
+    "openGmail": "Abrir no Gmail",
+    "save": "Guardar alterações",
+    "saved": "Guardado",
+    "confirmed": "Adicionado ao CRM",
+    "discarded": "Descartado",
+    "adminOnly": "Só administradores podem confirmar ou descartar.",
+    "modelError": "A leitura automática falhou — preencha os campos à mão.",
+    "statusFilter": {
+      "pending": "Pendentes",
+      "confirmed": "Confirmados",
+      "discarded": "Descartados"
+    },
+    "openOpportunity": "Abrir oportunidade",
+    "from": "De"
   }
 }
