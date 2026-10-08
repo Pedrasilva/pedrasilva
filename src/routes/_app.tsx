@@ -49,10 +49,13 @@ function AppLayout() {
 
   // Non-staff (other entities' members) only see Finance: send every other link there.
   useEffect(() => {
-    if (!loading && session && !isPsaStaff && !loc.pathname.startsWith("/finance")) {
+    if (
+      !loading && session && !isPsaStaff && !accessLoading && canAccess("finance") &&
+      !loc.pathname.startsWith("/finance")
+    ) {
       navigate({ to: "/finance", replace: true });
     }
-  }, [loading, session, isPsaStaff, loc.pathname, navigate]);
+  }, [loading, session, isPsaStaff, accessLoading, canAccess, loc.pathname, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -244,7 +247,11 @@ function AppLayout() {
           )}
         >
           {!loading && !isPsaStaff && !loc.pathname.startsWith("/finance") ? (
-            <div className="text-sm text-muted-foreground">{t("loading")}</div>
+            accessLoading || canAccess("finance") ? (
+              <div className="text-sm text-muted-foreground">{t("loading")}</div>
+            ) : (
+              <RestrictedCard />
+            )
           ) : !currentModule ? (
             <Outlet />
           ) : accessLoading ? (
