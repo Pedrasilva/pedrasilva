@@ -96,6 +96,7 @@ export async function ingestMt940File(args: {
   const { data: rules } = await supabaseAdmin
     .from("bank_classification_rules")
     .select("id, match_type, pattern, case_sensitive, classification_id, needs_review, priority, active")
+    .eq("entity_id", match.entity_id ?? PSA_ENTITY_ID)
     .eq("active", true);
 
   // The same file already imported for this account (identical constraint the manual

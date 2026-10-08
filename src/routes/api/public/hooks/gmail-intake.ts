@@ -161,7 +161,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
         try {
           const { financeGmailQuery, matchSenderRule, senderEmail } = await import("@/lib/finance/sender-rules");
           const { data: settings } = await supabaseAdmin
-            .from("finance_intake_settings").select("finance_address").maybeSingle();
+            .from("finance_intake_settings").select("finance_address").eq("entity_id", PSA_ENTITY_ID).maybeSingle();
           const financeAddress = settings?.finance_address?.trim();
           if (!financeAddress) {
             return Response.json({ ok: false, error: "Finance address not configured", ...summary }, { status: 503 });
@@ -175,7 +175,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
               { status: 503 },
             );
           }
-          const { data: ruleRows } = await supabaseAdmin.from("finance_sender_rules").select("pattern, action");
+          const { data: ruleRows } = await supabaseAdmin.from("finance_sender_rules").select("pattern, action").eq("entity_id", PSA_ENTITY_ID);
           const rules = (ruleRows ?? []) as Array<{ pattern: string; action: "ignore" | "process" }>;
           const list = await gmail(
             `/users/me/messages?maxResults=${MAX_MESSAGES}&q=${encodeURIComponent(
