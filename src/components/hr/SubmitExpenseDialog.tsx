@@ -38,6 +38,7 @@ import { routeBenefitReceiptToQueue } from "@/lib/hr/benefit-queue.functions";
 import { getOwnCompanyNif } from "@/lib/finance/own-company.functions";
 import { findCompanyByNif } from "@/lib/finance/supplier-matching";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
@@ -435,6 +436,7 @@ export function SubmitExpenseDialog({
       };
 
       const payload = {
+        entity_id: PSA_ENTITY_ID,
         collaborator_id: collaboratorId,
         ano_fiscal: anoFiscal,
         categoria: legacy,

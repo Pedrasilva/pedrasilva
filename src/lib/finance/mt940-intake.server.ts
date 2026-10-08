@@ -15,6 +15,7 @@ import {
   type RuleRow,
 } from "./bank-statement-parser";
 import { looksLikeMt940, decodeMt940, parseMt940 } from "./mt940-parser";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export { looksLikeMt940, decodeMt940 };
 
@@ -60,7 +61,7 @@ export async function ingestMt940File(args: {
   // 2. Resolve the account strictly by IBAN — never guess.
   const { data: accounts, error: accErr } = await supabaseAdmin
     .from("bank_accounts")
-    .select("id, iban, account_number")
+    .select("id, iban, account_number, entity_id")
     .is("archived_at", null);
   if (accErr) return { ok: false, status: "error", reason: accErr.message, storagePath };
 
@@ -120,6 +121,7 @@ export async function ingestMt940File(args: {
   const { data: importLog, error: logErr } = await supabaseAdmin
     .from("bank_statement_imports")
     .insert({
+      entity_id: match.entity_id ?? PSA_ENTITY_ID,
       bank_account_id: match.id,
       file_name: args.fileName,
       file_checksum: fileChecksum,
@@ -139,6 +141,7 @@ export async function ingestMt940File(args: {
   if (logErr) return { ok: false, status: "error", reason: logErr.message, iban, storagePath };
 
   const inserts = newRows.map((r) => ({
+    entity_id: match.entity_id ?? PSA_ENTITY_ID,
     bank_account_id: match.id,
     statement_import_id: importLog.id,
     transaction_date: r.transaction_date,

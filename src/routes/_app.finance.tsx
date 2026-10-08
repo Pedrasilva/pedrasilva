@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FinanceTopNav } from "@/components/finance/finance-top-nav";
+import { FinanceEntitySwitcher } from "@/components/finance/finance-entity-switcher";
 import {
   FinanceShellProvider,
   useFinanceShell,
@@ -63,6 +64,7 @@ function FinanceHeader() {
   const { vatMode, setVatMode } = useFinanceShell();
   return (
     <header className="sticky top-14 z-30 flex h-12 items-center gap-3 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <FinanceEntitySwitcher />
       <div className="ml-auto flex items-center gap-2">
 
         <Label className="hidden text-xs text-muted-foreground sm:inline">

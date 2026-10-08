@@ -77,6 +77,7 @@ import {
   formatAnchorMonth,
 } from "@/lib/quotes/retainer-monthly";
 import { parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
@@ -658,6 +659,7 @@ function QuoteDetail() {
           const { data: inserted, error: insErr } = await db
             .from("pm_payment_schedule_items")
             .insert({
+              entity_id: PSA_ENTITY_ID,
               project_id: project.id,
               stage_id: mappedStage,
               label: p.label,

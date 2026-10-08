@@ -18,6 +18,7 @@
 import { parseDriveFolderId } from "@/lib/google-drive-folder";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { ingestStoredDocument } from "@/lib/finance/doc-intake.server";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
 const BUCKET = "financial-documents";
@@ -192,6 +193,7 @@ export async function runDriveFolderIntake(): Promise<DriveIntakeSummary> {
     const log = async (values: Record<string, unknown>) => {
       await supabaseAdmin.from("financial_drive_processed_files").upsert(
         {
+          entity_id: PSA_ENTITY_ID,
           drive_file_id: file.id,
           file_name: file.name,
           mime_type: mime,

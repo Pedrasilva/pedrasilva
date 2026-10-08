@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export type Invoice = Database["public"]["Tables"]["pm_invoices"]["Row"];
 export type InvoiceInsert = Database["public"]["Tables"]["pm_invoices"]["Insert"];
@@ -68,7 +69,7 @@ export function useCreateInvoice(projectId: string) {
     }) => {
       const { data: inv, error } = await supabase
         .from("pm_invoices")
-        .insert({ ...input.invoice, project_id: projectId })
+        .insert({ entity_id: PSA_ENTITY_ID, ...input.invoice, project_id: projectId })
         .select("*")
         .single();
       if (error) throw error;

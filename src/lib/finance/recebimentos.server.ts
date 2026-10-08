@@ -8,6 +8,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { isPsaParty, loadPsaIdentity, type Party, type PsaIdentity } from "@/lib/finance/recipient-rule.server";
 import { sameVat } from "@/lib/finance/doc-intake.server";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -95,7 +96,7 @@ type QueueProof = {
 export async function attachProof(queueItemId: string): Promise<{ recebimentoId: string | null; joined: boolean }> {
   const { data: q } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, intake_type, extracted_amount, extracted_date, payer_name, payer_vat, payer_iban, payment_description, payment_direction, recebimento_id, status")
+    .select("id, intake_type, extracted_amount, extracted_date, payer_name, payer_vat, payer_iban, payment_description, payment_direction, recebimento_id, status, entity_id")
     .eq("id", queueItemId)
     .maybeSingle();
   const row = q as (QueueProof & { status: string }) | null;
@@ -110,6 +111,7 @@ export async function attachProof(queueItemId: string): Promise<{ recebimentoId:
   const { data: near } = await supabaseAdmin
     .from("finance_recebimentos")
     .select("id, company_id, payer_name, payer_vat, payer_iban, amount, received_date")
+    .eq("entity_id", (row as { entity_id?: string }).entity_id ?? PSA_ENTITY_ID)
     .gte("amount", amount - AMOUNT_TOL).lte("amount", amount + AMOUNT_TOL)
     .gte("received_date", addDays(date, -DATE_TOL_DAYS)).lte("received_date", addDays(date, DATE_TOL_DAYS));
   const same = (near ?? []).find((r) =>
@@ -136,6 +138,7 @@ export async function attachProof(queueItemId: string): Promise<{ recebimentoId:
     const { data: ins, error } = await supabaseAdmin
       .from("finance_recebimentos")
       .insert({
+        entity_id: (row as { entity_id?: string }).entity_id ?? PSA_ENTITY_ID,
         company_id: client.companyId,
         client_match_method: client.method,
         client_match_detail: client.detail,

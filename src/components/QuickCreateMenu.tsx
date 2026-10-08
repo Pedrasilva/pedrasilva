@@ -32,6 +32,7 @@ import {
   QuickExpenseDialog,
   QuickMaterialDialog,
 } from "@/components/quick-finance-dialogs";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 type Sheet =
   | null
@@ -626,6 +627,7 @@ export function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () =>
       if (rpcErr) throw rpcErr;
       if (!collabId) throw new Error(t("projects:quickCreate.errors.userNotLinked"));
       const { error } = await supabase.from("benefit_expenses").insert({
+        entity_id: PSA_ENTITY_ID,
         collaborator_id: collabId,
         categoria: parsed.categoria,
         data_despesa: parsed.data_despesa,

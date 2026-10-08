@@ -368,6 +368,7 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       const { data: doc, error: docErr } = await supabase
         .from("financial_documents")
         .insert({
+          entity_id: row.entity_id,
           doc_type:
             (row as { intake_type?: string | null }).intake_type === "nota_credito"
               ? (isIssued ? "client_credit_note" : "supplier_credit_note")
@@ -515,6 +516,7 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
 
         const expenseDate = row.extracted_date ?? new Date().toISOString().slice(0, 10);
         const { error: benErr } = await supabaseAdmin.from("benefit_expenses").insert({
+          entity_id: row.entity_id,
           collaborator_id: assignedCollaboratorId,
           ano_fiscal: Number(expenseDate.slice(0, 4)),
           categoria: (cat?.legacy_enum ?? "outros") as "carro" | "ticket" | "premio" | "outros",

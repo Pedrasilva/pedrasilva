@@ -225,6 +225,34 @@
       "when": 1791448507581,
       "tag": "0031_finance_entities_stage1",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791451162291,
+      "tag": "0032_finance_entities_stage2_access_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791451222886,
+      "tag": "0033_finance_entities_stage2_current_entity",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791451457271,
+      "tag": "0034_finance_entities_stage2_no_default",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791451496889,
+      "tag": "0035_finance_entities_stage2_withholding_fix",
+      "breakpoints": true
     }
   ]
 }

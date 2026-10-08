@@ -2160,5 +2160,8 @@
       "outgoing": "Outgoing"
     },
     "alreadyReconciled": "Already reconciled"
+  },
+  "entity": {
+    "label": "Entity"
   }
 }
