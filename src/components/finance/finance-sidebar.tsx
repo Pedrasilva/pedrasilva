@@ -70,6 +70,7 @@ const GROUPS: Group[] = [
       { to: "/finance/payments/suppliers", labelKey: "finance:sidebar.items.suppliers", icon: Truck },
       { to: "/finance/payments/purchases", labelKey: "finance:sidebar.items.purchases", icon: Receipt },
       { to: "/finance/payments/duplicates", labelKey: "finance:sidebar.items.purchaseDuplicates", icon: Copy },
+      { to: "/finance/payments/reclassify", labelKey: "finance:sidebar.items.reclassify", icon: Copy },
       { to: "/finance/payments/expenses", labelKey: "finance:sidebar.items.expenses", icon: Wallet },
       { to: "/finance/payments/outflows", labelKey: "finance:sidebar.items.outflows", icon: ArrowDownToLine },
       { to: "/finance/payments/cards", labelKey: "finance:sidebar.items.cards", icon: CreditCard },
