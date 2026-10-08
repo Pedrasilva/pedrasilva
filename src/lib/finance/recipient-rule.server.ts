@@ -187,10 +187,11 @@ function senderMatches(scope: string, sender: string | null) {
 
 export type RemovalRule = { id: string; text: string; scope_type: string; scope_value: string | null };
 
-export async function loadRemovalRules(): Promise<RemovalRule[]> {
+export async function loadRemovalRules(entityId: string): Promise<RemovalRule[]> {
   const { data } = await supabaseAdmin
     .from("finance_intake_instructions")
     .select("id, text, scope_type, scope_value")
+    .eq("entity_id", entityId)
     .eq("active", true)
     .eq("action", "remove");
   return (data ?? []) as RemovalRule[];
@@ -222,6 +223,7 @@ export async function purgeExpiredRemoved(limit = 200) {
     .from("financial_document_review_queue")
     .select("id, source_bucket, source_file_url, removed_reason, removed_at, removed_source")
     .eq("status", "removed")
+    .eq("purge_exempt", false)
     .lt("removed_at", cutoff)
     .limit(limit);
   if (!rows?.length) return { purged: 0 };
