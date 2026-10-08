@@ -2027,7 +2027,9 @@
         "rule": "Deleted by a rule",
         "recipient": "Removed automatically (recipient rule)"
       }
-    }
+    },
+    "twoEntities": "Two entities",
+    "historical": "Historical (before 2027)"
   },
   "purchaseDups": {
     "title": "Suspected duplicate purchases",

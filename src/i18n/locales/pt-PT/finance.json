@@ -2027,7 +2027,9 @@
         "rule": "Eliminado por uma regra",
         "recipient": "Removido automaticamente (regra do destinatário)"
       }
-    }
+    },
+    "twoEntities": "Duas entidades",
+    "historical": "Histórico (antes de 2027)"
   },
   "purchaseDups": {
     "title": "Compras possivelmente duplicadas",
