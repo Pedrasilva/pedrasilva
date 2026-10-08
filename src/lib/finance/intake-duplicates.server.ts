@@ -11,6 +11,7 @@
  * are honoured by every check.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { normalizeVat } from "@/lib/finance/doc-intake.server";
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
@@ -112,6 +113,8 @@ export type DupInput = {
   accountNumber: string | null;
   periodStart: string | null;
   periodEnd: string | null;
+  /** Only this entity's items and records are compared (default PSA). */
+  entityId?: string;
 };
 
 type QRow = {
@@ -156,6 +159,7 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
   let q = supabaseAdmin
     .from("financial_document_review_queue")
     .select(Q_COLS)
+    .eq("entity_id", input.entityId ?? PSA_ENTITY_ID)
     .eq("intake_type", type)
     .neq("status", "rejected")
     .neq("status", "duplicate")
@@ -224,6 +228,7 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
       const { data: docs } = await supabaseAdmin
         .from("financial_documents")
         .select("id, document_number, issue_date, total_inc_vat, counterparty_name_snapshot, created_at, status")
+        .eq("entity_id", input.entityId ?? PSA_ENTITY_ID)
         .in(issued ? "counterparty_client_id" : "counterparty_supplier_id", ids)
         .eq("direction", issued ? "issued" : "received")
         .neq("status", "cancelled");
@@ -237,7 +242,7 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
     const ids = (cos ?? []).filter((c) => nifKey(c.nif) === nif).map((c) => c.id);
     if (ids.length) {
       const { data: docs } = await supabaseAdmin
-        .from("financial_documents").select("id, document_number, counterparty_name_snapshot").in("counterparty_supplier_id", ids);
+        .from("financial_documents").select("id, document_number, counterparty_name_snapshot").eq("entity_id", input.entityId ?? PSA_ENTITY_ID).in("counterparty_supplier_id", ids);
       const byId = new Map((docs ?? []).map((d) => [d.id, d]));
       if (byId.size) {
         const { data: pays } = await supabaseAdmin

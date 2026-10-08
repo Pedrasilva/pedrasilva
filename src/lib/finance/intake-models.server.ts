@@ -513,7 +513,7 @@ export async function runDualExtraction(
     return { ok: false, error: e instanceof Error ? e.message : String(e), retryLater: false };
   }
 
-  const [catalog, own] = await Promise.all([loadClassificationCatalog(), getOwnCompanyVat()]);
+  const [catalog, own] = await Promise.all([loadClassificationCatalog(extra?.entityId), getOwnCompanyVat(extra?.entityId)]);
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
   const system = buildExtractionSystemPrompt(own, catalogText) + "\n" + INTAKE_RULES;
   const userText = forcedType
