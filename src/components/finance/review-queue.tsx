@@ -1238,7 +1238,7 @@ export function QueueItemCard({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+                  <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     disabled={doLinkSupplier.isPending}
                     onClick={(e) => { e.preventDefault(); if (nifMatch) doLinkSupplier.mutate(nifMatch.id); }}
