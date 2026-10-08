@@ -9,6 +9,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 async function assertFinanceAccess(supabase: any, userId: string) {
@@ -273,7 +274,7 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
       before?.suggested_classification_code ?? null;
     if (cls?.code && aiCode !== cls.code) {
       const nif = (before?.extracted_supplier_vat ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^PT/, "").toLowerCase() || null;
-      await supabase.from("finance_intake_corrections").insert({
+      await supabase.from("finance_intake_corrections").insert({ entity_id: await currentEntityId(supabase), 
         queue_item_id: data.id, supplier_nif: nif, field: "classification_code",
         ai_value: aiCode, corrected_value: cls.code, corrected_by: userId,
       });

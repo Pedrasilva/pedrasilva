@@ -34,6 +34,7 @@ import { InlineCounterpartyDialog } from "@/components/finance/inline-counterpar
 import { CreateDocFromTxDialog } from "@/components/finance/create-doc-from-tx";
 import { StatementPeriodsPanel, PeriodStatusBadge } from "@/components/finance/statement-periods-panel";
 import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } from "@/lib/finance/use-statement-periods";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -160,7 +161,7 @@ function ManageAccountDialog({ onSaved }: { onSaved: () => void }) {
   async function save() {
     if (!form.account_name.trim()) { toast.error(t("finance:bankRec.accountNameRequired")); return; }
     setSaving(true);
-    const { error } = await supabase.from("bank_accounts").insert({
+    const { error } = await supabase.from("bank_accounts").insert({ entity_id: await currentEntityId(), 
       account_name: form.account_name.trim(),
       bank_name: form.bank_name.trim() || null,
       account_number: form.account_number.trim() || null,
@@ -322,7 +323,7 @@ function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accou
       // Insert import log
       const { data: importLog, error: logErr } = await supabase
         .from("bank_statement_imports")
-        .insert({
+        .insert({ entity_id: await currentEntityId(), 
           bank_account_id: accountId,
           file_name: preview.fileName,
           file_checksum: preview.fileChecksum,

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 /**
  * Financial import log helpers.
@@ -125,7 +126,7 @@ export async function recordFinancialImportLog(
   // 2. Insert
   const { data, error } = await supabase
     .from("financial_import_logs")
-    .insert({
+    .insert({ entity_id: await currentEntityId(), 
       import_type: importType,
       file_name: input.file_name,
       file_checksum: input.file_checksum,

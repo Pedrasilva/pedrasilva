@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 type Scope = "global" | "supplier_nif" | "sender" | "recipient_nif" | "document";
 type Row = {
@@ -53,7 +54,7 @@ export function IntakeInstructionsPanel({ highlightId }: { highlightId?: string 
 
   const add = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("finance_intake_instructions").insert({
+      const { error } = await supabase.from("finance_intake_instructions").insert({ entity_id: await currentEntityId(), 
         text: text.trim(),
         scope_type: scope,
         scope_value: scope === "global" ? null : normScope(scope, value),

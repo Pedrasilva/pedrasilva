@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 const TYPES = [
   "fatura_compra", "nota_credito", "recibo", "comprovativo_pagamento", "extrato_bancario",
@@ -56,7 +57,7 @@ export const reclassifyQueueItem = createServerFn({ method: "POST" })
       (row.model_runs as { claude?: { intake_type?: string | null } } | null)?.claude?.intake_type ??
       row.intake_type ?? null;
     if (aiType !== data.type) {
-      await context.supabase.from("finance_intake_corrections").insert({
+      await context.supabase.from("finance_intake_corrections").insert({ entity_id: await currentEntityId(context.supabase), 
         queue_item_id: data.id, supplier_nif: nifOf(row.extracted_supplier_vat), field: "intake_type",
         ai_value: aiType, corrected_value: data.type, corrected_by: context.userId,
       });
@@ -227,7 +228,7 @@ export const resolvePossibleDuplicate = createServerFn({ method: "POST" })
       if (!other) throw new Error("No candidate to link");
       const otherId = (other.queueItemId ?? other.documentId)!;
       await supabase.from("finance_duplicate_decisions").upsert(
-        { ...ordered(data.id, otherId), decision: "duplicate", decided_by: userId },
+        { entity_id: await currentEntityId(supabase),  ...ordered(data.id, otherId), decision: "duplicate", decided_by: userId },
         { onConflict: "item_a,item_b" },
       );
       const { error: e2 } = await supabase
@@ -247,7 +248,7 @@ export const resolvePossibleDuplicate = createServerFn({ method: "POST" })
     } else {
       if (ids.length) {
         await supabase.from("finance_duplicate_decisions").upsert(
-          ids.map((o) => ({ ...ordered(data.id, o), decision: "not_duplicate", decided_by: userId })),
+          ids.map((o) => ({ entity_id: await currentEntityId(supabase),  ...ordered(data.id, o), decision: "not_duplicate", decided_by: userId })),
           { onConflict: "item_a,item_b" },
         );
       }
@@ -280,7 +281,7 @@ export const restoreDuplicate = createServerFn({ method: "POST" })
     const other = row.duplicate_of_id ?? row.duplicate_of_document_id;
     if (other) {
       await supabase.from("finance_duplicate_decisions").upsert(
-        { ...ordered(data.id, other), decision: "not_duplicate", decided_by: userId },
+        { entity_id: await currentEntityId(supabase),  ...ordered(data.id, other), decision: "not_duplicate", decided_by: userId },
         { onConflict: "item_a,item_b" },
       );
     }
@@ -396,7 +397,7 @@ export const saveExplanation = createServerFn({ method: "POST" })
     if (existing) return { ok: true, instruction: existing, reused: true };
     const { data: ins, error: e2 } = await supabase
       .from("finance_intake_instructions")
-      .insert({ text: data.note, scope_type: scopeType, scope_value: value, created_by: userId })
+      .insert({ entity_id: await currentEntityId(supabase),  text: data.note, scope_type: scopeType, scope_value: value, created_by: userId })
       .select("id, text, scope_type, scope_value")
       .single();
     if (e2) throw new Error(e2.message);
@@ -508,7 +509,7 @@ export const removeQueueItem = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (e1) throw new Error(e1.message);
     const supplierNif = nifOf(row.extracted_supplier_vat ?? row.extracted_seller_vat);
-    await supabase.from("finance_intake_corrections").insert({
+    await supabase.from("finance_intake_corrections").insert({ entity_id: await currentEntityId(supabase), 
       queue_item_id: data.id, supplier_nif: supplierNif, field: "removal",
       ai_value: row.intake_type, corrected_value: `${data.tag}: ${data.reason}`.slice(0, 500), corrected_by: userId,
     });
@@ -529,7 +530,7 @@ export const removeQueueItem = createServerFn({ method: "POST" })
     if (existing) return { ok: true, instruction: existing };
     const { data: ins, error: e2 } = await supabase
       .from("finance_intake_instructions")
-      .insert({ text: data.reason, scope_type: scopeType, scope_value: value, action: "remove", created_by: userId })
+      .insert({ entity_id: await currentEntityId(supabase),  text: data.reason, scope_type: scopeType, scope_value: value, action: "remove", created_by: userId })
       .select("id, text, scope_type, scope_value, action")
       .single();
     if (e2) throw new Error(e2.message);

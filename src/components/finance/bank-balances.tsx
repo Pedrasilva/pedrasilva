@@ -50,6 +50,7 @@ import {
   useCalculatedBalanceAt,
   checkSnapshot,
 } from "@/lib/finance/use-bank-balances";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 type AccountKind = "bank" | "credit_card" | "benefits" | "other";
 
@@ -193,7 +194,7 @@ export function BankBalancesSection() {
     mutationFn: async () => {
       const amt = Number(balance);
       if (!accountId || !date || Number.isNaN(amt)) throw new Error("Invalid input");
-      const { error } = await supabase.from("bank_balance_snapshots").insert({
+      const { error } = await supabase.from("bank_balance_snapshots").insert({ entity_id: await currentEntityId(), 
         bank_account_id: accountId,
         snapshot_date: date,
         balance: amt,
