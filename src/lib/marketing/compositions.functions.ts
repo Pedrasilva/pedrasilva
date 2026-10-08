@@ -176,3 +176,28 @@ export const duplicateComposition = createServerFn({ method: "POST" })
     }
     return { id: copy.id as string };
   });
+
+/** Delete a draft carousel (RLS decides who may). Voice files of its still-pending questions are
+ * removed here, because the DB trigger that deletes those questions can't touch storage. */
+export const deleteComposition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ compositionId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: comp } = await sb.from("marketing_compositions").select("id").eq("id", data.compositionId).maybeSingle();
+    if (!comp) throw new Error("Carousel not found");
+    const { admin } = await import("./nudges.server");
+    const db = await admin();
+    const { data: pending } = await db.from("marketing_nudges").select("id")
+      .eq("composition_id", comp.id).eq("status", "pending");
+    const ids = ((pending ?? []) as Array<{ id: string }>).map((n) => n.id);
+    const { data: gone, error } = await sb.from("marketing_compositions").delete().eq("id", comp.id).select("id");
+    if (error || !gone?.length) throw new Error("Not allowed");
+    for (const id of ids) {
+      const { data: files } = await db.storage.from("marketing-voice").list(id, { limit: 1000 });
+      const paths = (files ?? []).map((f: { name: string }) => `${id}/${f.name}`);
+      if (paths.length) await db.storage.from("marketing-voice").remove(paths);
+    }
+    return { ok: true };
+  });
