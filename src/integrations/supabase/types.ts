@@ -6459,6 +6459,176 @@ export type Database = {
           },
         ]
       }
+      marketing_composition_comments: {
+        Row: {
+          audio_path: string | null
+          author_user_id: string
+          composition_id: string
+          created_at: string
+          id: string
+          nudge_id: string | null
+          slide_id: string | null
+          text: string
+        }
+        Insert: {
+          audio_path?: string | null
+          author_user_id?: string
+          composition_id: string
+          created_at?: string
+          id?: string
+          nudge_id?: string | null
+          slide_id?: string | null
+          text: string
+        }
+        Update: {
+          audio_path?: string | null
+          author_user_id?: string
+          composition_id?: string
+          created_at?: string
+          id?: string
+          nudge_id?: string | null
+          slide_id?: string | null
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_composition_comments_composition_id_fkey"
+            columns: ["composition_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_compositions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_composition_comments_slide_id_fkey"
+            columns: ["slide_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_composition_slides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_composition_slides: {
+        Row: {
+          capture_asset_id: string | null
+          composition_id: string
+          created_at: string
+          design_media_id: string | null
+          id: string
+          kind: string
+          media_id: string | null
+          position: number
+          text_body: string | null
+          text_heading: string | null
+        }
+        Insert: {
+          capture_asset_id?: string | null
+          composition_id: string
+          created_at?: string
+          design_media_id?: string | null
+          id?: string
+          kind: string
+          media_id?: string | null
+          position: number
+          text_body?: string | null
+          text_heading?: string | null
+        }
+        Update: {
+          capture_asset_id?: string | null
+          composition_id?: string
+          created_at?: string
+          design_media_id?: string | null
+          id?: string
+          kind?: string
+          media_id?: string | null
+          position?: number
+          text_body?: string | null
+          text_heading?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_composition_slides_capture_asset_id_fkey"
+            columns: ["capture_asset_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_composition_slides_composition_id_fkey"
+            columns: ["composition_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_compositions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_composition_slides_design_media_id_fkey"
+            columns: ["design_media_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_composition_slides_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_compositions: {
+        Row: {
+          created_at: string
+          created_by: string
+          duplicated_from: string | null
+          id: string
+          idea_id: string | null
+          intent: string | null
+          profile_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          duplicated_from?: string | null
+          id?: string
+          idea_id?: string | null
+          intent?: string | null
+          profile_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          duplicated_from?: string | null
+          id?: string
+          idea_id?: string | null
+          intent?: string | null
+          profile_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_compositions_duplicated_from_fkey"
+            columns: ["duplicated_from"]
+            isOneToOne: false
+            referencedRelation: "marketing_compositions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_compositions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_email_ignored: {
         Row: {
           attachment_filename: string | null
@@ -6511,6 +6681,7 @@ export type Database = {
           briefing_id: string | null
           capture_id: string | null
           channel: string
+          composition_id: string | null
           created_at: string
           created_by: string
           expires_at: string | null
@@ -6533,6 +6704,7 @@ export type Database = {
           briefing_id?: string | null
           capture_id?: string | null
           channel?: string
+          composition_id?: string | null
           created_at?: string
           created_by?: string
           expires_at?: string | null
@@ -6555,6 +6727,7 @@ export type Database = {
           briefing_id?: string | null
           capture_id?: string | null
           channel?: string
+          composition_id?: string | null
           created_at?: string
           created_by?: string
           expires_at?: string | null
@@ -6580,6 +6753,13 @@ export type Database = {
             columns: ["capture_id"]
             isOneToOne: false
             referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_nudges_composition_id_fkey"
+            columns: ["composition_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_compositions"
             referencedColumns: ["id"]
           },
           {
@@ -6712,6 +6892,7 @@ export type Database = {
           id: string
           idea_count: number
           model: string | null
+          origin: string
           period_end: string
           period_start: string
           requested_by: string
@@ -6729,6 +6910,7 @@ export type Database = {
           id?: string
           idea_count: number
           model?: string | null
+          origin?: string
           period_end: string
           period_start: string
           requested_by?: string
@@ -6746,6 +6928,7 @@ export type Database = {
           id?: string
           idea_count?: number
           model?: string | null
+          origin?: string
           period_end?: string
           period_start?: string
           requested_by?: string
@@ -14418,6 +14601,10 @@ export type Database = {
         Args: { _profile_id: string; _user_id: string }
         Returns: boolean
       }
+      marketing_can_edit_composition: {
+        Args: { _composition_id: string; _user_id: string }
+        Returns: boolean
+      }
       marketing_can_note_capture: {
         Args: { _capture_id: string; _user_id: string }
         Returns: boolean
@@ -14429,6 +14616,10 @@ export type Database = {
       marketing_capture_delete_block: {
         Args: { _capture_id: string }
         Returns: string
+      }
+      marketing_composition_is_draft: {
+        Args: { _composition_id: string }
+        Returns: boolean
       }
       marketing_compute_draft_readiness: {
         Args: {

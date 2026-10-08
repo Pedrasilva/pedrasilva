@@ -17,7 +17,7 @@ export const processPressKit = createServerFn({ method: "POST" })
     return run(kit.id);
   });
 
-export type DeleteMediaResult = { ok: true } | { ok: false; reason: "not_found" | "forbidden" | "published" | "drafts" | "failed"; count?: number };
+export type DeleteMediaResult = { ok: true } | { ok: false; reason: "not_found" | "forbidden" | "published" | "drafts" | "compositions" | "failed"; count?: number };
 
 /** Curators and the project's team: delete one library image unless a draft uses it; removes the file. */
 export const deleteMedia = createServerFn({ method: "POST" })
@@ -32,6 +32,7 @@ export const deleteMedia = createServerFn({ method: "POST" })
     if (ok !== true) return { ok: false, reason: "forbidden" };
     const { data: block } = await sb.rpc("marketing_media_delete_block", { _media_id: m.id });
     if (block === "published") return { ok: false, reason: "published" };
+    if (typeof block === "string" && block.startsWith("compositions:")) return { ok: false, reason: "compositions", count: Number(block.split(":")[1]) };
     if (typeof block === "string" && block.startsWith("drafts:")) return { ok: false, reason: "drafts", count: Number(block.split(":")[1]) };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

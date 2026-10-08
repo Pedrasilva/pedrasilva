@@ -87,6 +87,7 @@ export const sendNudge = createServerFn({ method: "POST" })
     kind: z.enum(["question", "briefing"]).default("question"),
     captureId: z.string().uuid().optional(),
     projectId: z.string().uuid().optional(),
+    compositionId: z.string().uuid().optional(),
     architectUserId: z.string().uuid(),
     question: z.string().trim().min(3).max(1000),
     aiSuggestedQuestion: z.string().max(1000).default(""),
@@ -100,7 +101,12 @@ export const sendNudge = createServerFn({ method: "POST" })
     const db = await admin();
     let captureId: string | null = null;
     let projectId: string | null = null;
-    if (data.kind === "question") {
+    let compositionId: string | null = null;
+    if (data.kind === "question" && data.compositionId) {
+      const { data: comp } = await db.from("marketing_compositions").select("id, marketing_project_profiles(project_id)").eq("id", data.compositionId).single();
+      if (!comp) throw new Error("Carousel not found");
+      compositionId = comp.id; projectId = comp.marketing_project_profiles?.project_id ?? null;
+    } else if (data.kind === "question") {
       if (!data.captureId) throw new Error("Capture missing");
       const { data: c } = await db.from("marketing_captures").select("id, project_id").eq("id", data.captureId).single();
       if (!c) throw new Error("Capture not found");
@@ -114,7 +120,7 @@ export const sendNudge = createServerFn({ method: "POST" })
       const since = new Date(Date.now() - 120_000).toISOString();
       let dq = db.from("marketing_nudges").select("id").eq("architect_user_id", data.architectUserId)
         .eq("kind", data.kind).eq("status", "pending").eq("question", data.question).gte("created_at", since).limit(1);
-      dq = captureId ? dq.eq("capture_id", captureId) : dq.is("capture_id", null).eq("project_id", projectId!);
+      dq = captureId ? dq.eq("capture_id", captureId) : compositionId ? dq.eq("composition_id", compositionId) : dq.is("capture_id", null).eq("project_id", projectId!);
       const { data: dup } = await dq;
       if (dup && dup.length) throw new Error("Esta pergunta já foi enviada.");
     }
@@ -123,7 +129,7 @@ export const sendNudge = createServerFn({ method: "POST" })
     // Insert as the curator so RLS applies; created_by defaults to auth.uid().
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: nudge, error } = await (context.supabase as any).from("marketing_nudges").insert({
-      kind: data.kind, capture_id: captureId, project_id: projectId, architect_user_id: data.architectUserId,
+      kind: data.kind, capture_id: captureId, composition_id: compositionId, project_id: projectId, architect_user_id: data.architectUserId,
       question: data.question, ai_suggested_question: data.aiSuggestedQuestion || data.question,
       channel: data.channel, sent_at: now.toISOString(), expires_at: expires.toISOString(),
     }).select("id").single();

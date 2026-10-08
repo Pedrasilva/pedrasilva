@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
 import { listNudgeRecipients, sendNudge, suggestNudgeQuestion } from "@/lib/marketing/nudges.functions";
+import { suggestCompositionQuestion } from "@/lib/marketing/compositions.functions";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -23,10 +24,12 @@ type NudgeRow = {
 };
 
 /** Curator panel in the capture drawer: ask an architect for context, and see nudge states. */
-export function NudgePanel({ captureId, hasProfile, embedded = false, leading }: { captureId: string; hasProfile: boolean; embedded?: boolean; leading?: ReactNode }) {
+/** Pass compositionId + projectId (instead of captureId) to ask about a hand-built carousel. */
+export function NudgePanel({ captureId, compositionId, projectId, hasProfile, embedded = false, leading, onSent }: { captureId?: string; compositionId?: string; projectId?: string; hasProfile: boolean; embedded?: boolean; leading?: ReactNode; onSent?: () => void }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const suggestFn = useServerFn(suggestNudgeQuestion);
+  const suggestCompFn = useServerFn(suggestCompositionQuestion);
   const listFn = useServerFn(listNudgeRecipients);
   const sendFn = useServerFn(sendNudge);
   const [open, setOpen] = useState(false);
@@ -37,19 +40,19 @@ export function NudgePanel({ captureId, hasProfile, embedded = false, leading }:
   const [drafting, setDrafting] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const key = ["marketing-nudges", captureId];
+  const key = ["marketing-nudges", captureId ?? compositionId];
   const { data: nudges = [] } = useQuery({
     queryKey: key,
     queryFn: async () => {
-      const { data, error } = await db.from("marketing_nudges").select("*").eq("capture_id", captureId).order("created_at", { ascending: false });
+      const { data, error } = await db.from("marketing_nudges").select("*").eq(captureId ? "capture_id" : "composition_id", captureId ?? compositionId).order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as NudgeRow[];
     },
   });
   const { data: people } = useQuery({
-    queryKey: ["marketing-nudge-recipients", captureId],
+    queryKey: ["marketing-nudge-recipients", captureId ?? projectId],
     enabled: open,
-    queryFn: () => listFn({ data: { captureId } }),
+    queryFn: () => listFn({ data: captureId ? { captureId } : { projectId } }),
   });
   const recipients = (people?.recipients ?? []).filter((r) => r.userId !== people?.senderUserId);
   const hasTeam = recipients.some((r) => r.onTeam);
@@ -58,7 +61,7 @@ export function NudgePanel({ captureId, hasProfile, embedded = false, leading }:
   const draft = async () => {
     setDrafting(true);
     try {
-      const { question: q } = await suggestFn({ data: { captureId } });
+      const { question: q } = captureId ? await suggestFn({ data: { captureId } }) : await suggestCompFn({ data: { compositionId: compositionId! } });
       setQuestion(q); setAiQuestion(q);
     } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setDrafting(false); }
@@ -73,10 +76,11 @@ export function NudgePanel({ captureId, hasProfile, embedded = false, leading }:
     if (!architect || !question.trim()) return;
     setSending(true);
     try {
-      await sendFn({ data: { captureId, architectUserId: architect, question: question.trim(), aiSuggestedQuestion: aiQuestion, channel, expiresInDays: 7 } });
+      await sendFn({ data: { ...(captureId ? { captureId } : { compositionId }), architectUserId: architect, question: question.trim(), aiSuggestedQuestion: aiQuestion, channel, expiresInDays: 7 } });
       toast.success(t("nudge.sent"));
       setOpen(false); setQuestion(""); setAiQuestion(""); setArchitect("");
       qc.invalidateQueries({ queryKey: key });
+      onSent?.();
     } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setSending(false); }
   };
