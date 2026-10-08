@@ -129,7 +129,7 @@ function AskBriefingDialog({ projectId, onClose }: { projectId: string; onClose:
   const { data: sug } = useQuery({ queryKey: ["marketing-briefing-prompt", projectId], queryFn: () => suggestFn({ data: { projectId } }) });
   const [to, setTo] = useState("");
   const [question, setQuestion] = useState<string | null>(null);
-  const [channel, setChannel] = useState<"hub" | "email">("hub");
+  const [channel, setChannel] = useState<"hub" | "email">("email");
   const [busy, setBusy] = useState(false);
   const q = question ?? sug?.question ?? "";
   const send = async () => {

@@ -36,7 +36,7 @@ export function NudgePanel({ captureId, compositionId, projectId, hasProfile, em
   const [architect, setArchitect] = useState<string>("");
   const [question, setQuestion] = useState("");
   const [aiQuestion, setAiQuestion] = useState("");
-  const [channel, setChannel] = useState<"hub" | "email" | "whatsapp">("hub");
+  const [channel, setChannel] = useState<"hub" | "email" | "whatsapp">("email");
   const [drafting, setDrafting] = useState(false);
   const [sending, setSending] = useState(false);
 
