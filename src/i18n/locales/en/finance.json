@@ -1541,6 +1541,11 @@
       "bank_transfer": "Bank transfer",
       "direct_debit": "Direct debit",
       "not_stated": "Not stated"
+    },
+    "nifMatch": {
+      "title": "Supplier already exists",
+      "body": "A supplier with NIF {{nif}} already exists: {{name}}. Link it to this company instead of creating a new one? It stays shared and only PSA staff can edit it.",
+      "link": "Link supplier"
     }
   },
   "vatReport": {

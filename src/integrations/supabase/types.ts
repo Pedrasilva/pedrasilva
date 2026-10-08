@@ -3083,6 +3083,42 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_entity_companies: {
+        Row: {
+          company_id: string
+          entity_id: string
+          linked_at: string
+          linked_by: string | null
+        }
+        Insert: {
+          company_id: string
+          entity_id: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          entity_id?: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_entity_companies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_entity_companies_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_entity_members: {
         Row: {
           created_at: string
@@ -14357,6 +14393,18 @@ export type Database = {
       }
       fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
       fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
+      fin_find_company_by_nif: {
+        Args: { _nif: string }
+        Returns: {
+          id: string
+          nif: string
+          nome: string
+        }[]
+      }
+      fin_link_company_to_entity: {
+        Args: { _company_id: string }
+        Returns: string
+      }
       fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
       fin_storage_visible: { Args: { _name: string }; Returns: boolean }
       finance_delete_unused_supplier_companies: {

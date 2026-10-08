@@ -32,6 +32,10 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -623,6 +627,19 @@ export function QueueItemCard({
 
 
   const approveSupplier = useServerFn(approveQueueSupplier);
+  // "Find by NIF": an existing supplier this entity can't see yet (name + NIF only).
+  const [nifMatch, setNifMatch] = useState<{ id: string; nome: string; nif: string } | null>(null);
+  const doLinkSupplier = useMutation({
+    mutationFn: async (id: string) => {
+      await approveSupplier({ data: { id: row.id, linkSupplierId: id } });
+    },
+    onSuccess: () => {
+      setNifMatch(null);
+      toast.success(t("finance:reviewQueue.supplierApproved"));
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const approveClient = useServerFn(approveQueueClient);
   const approveClassification = useServerFn(approveQueueClassification);
   const finalize = useServerFn(finalizeQueueItem);
@@ -748,7 +765,7 @@ export function QueueItemCard({
       if (supplierId) {
         await approveSupplier({ data: { id: row.id, supplierId } });
       } else {
-        await approveSupplier({
+        const res = await approveSupplier({
           data: {
             id: row.id,
             newSupplier: {
@@ -757,9 +774,14 @@ export function QueueItemCard({
             },
           },
         });
+        if (res && "nifMatch" in res && res.nifMatch) {
+          setNifMatch(res.nifMatch);
+          return "nifMatch";
+        }
       }
     },
-    onSuccess: () => {
+    onSuccess: (r) => {
+      if (r === "nifMatch") return;
       toast.success(
         isIssued
           ? t("finance:reviewQueue.clientApproved")
@@ -1207,6 +1229,25 @@ export function QueueItemCard({
               <Check className="h-4 w-4 mr-1.5" />
               {t(isIssued ? "finance:reviewQueue.approveClient" : "finance:reviewQueue.approveSupplier")}
             </Button>
+            <AlertDialog open={!!nifMatch} onOpenChange={(o) => { if (!o) setNifMatch(null); }}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("finance:reviewQueue.nifMatch.title")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("finance:reviewQueue.nifMatch.body", { name: nifMatch?.nome ?? "", nif: nifMatch?.nif ?? "" })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={doLinkSupplier.isPending}
+                    onClick={(e) => { e.preventDefault(); if (nifMatch) doLinkSupplier.mutate(nifMatch.id); }}
+                  >
+                    {t("finance:reviewQueue.nifMatch.link")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
         )}

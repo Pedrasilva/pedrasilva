@@ -1541,6 +1541,11 @@
       "bank_transfer": "Transferência bancária",
       "direct_debit": "Débito directo",
       "not_stated": "Não indicado"
+    },
+    "nifMatch": {
+      "title": "Fornecedor já existe",
+      "body": "Já existe um fornecedor com o NIF {{nif}}: {{name}}. Ligar este fornecedor a esta empresa em vez de criar um novo? Continua partilhado e só a equipa PSA o pode editar.",
+      "link": "Ligar fornecedor"
     }
   },
   "vatReport": {

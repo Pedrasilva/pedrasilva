@@ -83,6 +83,8 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
           })
           .nullable()
           .optional(),
+        /** "Find by NIF": link an existing supplier (seen only as name + NIF) to the current entity. */
+        linkSupplierId: z.string().uuid().nullable().optional(),
       })
       .parse(input),
   )
@@ -91,6 +93,11 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
     await assertFinanceAccess(supabase, userId);
 
     let supplierId = data.supplierId ?? null;
+    if (!supplierId && data.linkSupplierId) {
+      const { error: linkErr } = await supabase.rpc("fin_link_company_to_entity", { _company_id: data.linkSupplierId });
+      if (linkErr) throw new Error(linkErr.message);
+      supplierId = data.linkSupplierId;
+    }
     if (!supplierId && data.newSupplier) {
       const nif = (data.newSupplier.nif ?? "").replace(/\D/g, "") || null;
 
@@ -100,14 +107,26 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
       if (nif) {
         const { data: existing, error: findErr } = await supabase
           .from("companies")
-          .select("id")
+          .select("id, is_supplier")
           .eq("nif", nif)
           .maybeSingle();
         if (findErr) throw new Error(findErr.message);
         existingId = existing?.id ?? null;
+        if (existing?.is_supplier) {
+          supplierId = existing.id;
+          existingId = null;
+        } else if (!existingId) {
+          // Not visible to the caller (e.g. a PSA supplier seen from another
+          // entity): offer to link it — only name and NIF are returned.
+          const { data: found } = await supabase.rpc("fin_find_company_by_nif", { _nif: nif });
+          const hit = (found as Array<{ id: string; nome: string; nif: string }> | null)?.[0];
+          if (hit) return { ok: false as const, supplierId: null, nifMatch: { id: hit.id, nome: hit.nome, nif: hit.nif } };
+        }
       }
 
-      if (existingId) {
+      if (supplierId) {
+        // already a supplier — nothing to flag
+      } else if (existingId) {
         const { error: flagErr } = await supabase
           .from("companies")
           .update({ is_supplier: true })
@@ -144,7 +163,7 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (upErr) throw new Error(upErr.message);
 
-    return { ok: true, supplierId };
+    return { ok: true as const, supplierId, nifMatch: null };
   });
 
 /**

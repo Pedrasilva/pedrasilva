@@ -234,6 +234,28 @@ export async function loadClassificationCatalog(entityId: string = PSA_ENTITY_ID
   }>;
 }
 
+/**
+ * Catalogue text for the AI. The reader does not yet know which entity the
+ * document belongs to, so every other active entity's CATEGORY codes are
+ * listed with its name/NIF; after routing, the code is looked up only in the
+ * routed entity's own catalogue (a code from another entity never matches).
+ */
+export async function buildCatalogText(entityId: string = PSA_ENTITY_ID): Promise<string> {
+  const base = (await loadClassificationCatalog(entityId)).map((c) => `${c.code} — ${c.name_en}`).join("\n");
+  const { data: ents } = await supabaseAdmin.from("finance_entities").select("id, name, nif").eq("active", true).neq("id", entityId);
+  const parts: string[] = [base];
+  for (const e of ents ?? []) {
+    const { data } = await supabaseAdmin
+      .from("financial_classifications")
+      .select("code, name_en, name_pt")
+      .eq("entity_id", e.id).eq("active", true).eq("level", "category").order("sort_order");
+    if (!data?.length) continue;
+    parts.push(`\nIf the document's recipient / buyer / payer is ${e.name} (NIF ${e.nif ?? "?"}) instead, use ONLY these codes (always a category):\n` +
+      data.map((c) => `${c.code} — ${c.name_en} (${c.name_pt})`).join("\n"));
+  }
+  return parts.join("\n");
+}
+
 /** Shared extraction instructions (used by the single-model path and the dual-model intake). */
 export function buildExtractionSystemPrompt(
   own: { vat: string | null; name: string | null },
