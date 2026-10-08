@@ -2160,5 +2160,8 @@
       "outgoing": "Pagamento"
     },
     "alreadyReconciled": "Já reconciliada"
+  },
+  "entity": {
+    "label": "Entidade"
   }
 }

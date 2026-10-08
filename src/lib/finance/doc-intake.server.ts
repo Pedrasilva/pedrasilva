@@ -15,6 +15,7 @@
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { normalizePortugueseNif } from "@/lib/finance/nif";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 const MODEL = "google/gemini-2.5-flash";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -743,6 +744,7 @@ export async function ingestStoredDocument(opts: {
     if (fd) {
       const q = supabaseAdmin.from("financial_document_review_queue");
       const values = {
+        entity_id: PSA_ENTITY_ID,
         source_file_url: opts.storagePath,
         source_bucket: opts.bucket,
         original_filename: opts.originalFilename ?? null,
@@ -793,6 +795,7 @@ export async function ingestStoredDocument(opts: {
 
   const write = async (values: Record<string, unknown>) => {
     const q = supabaseAdmin.from("financial_document_review_queue");
+    if (!replaceId && values.entity_id == null) values = { entity_id: PSA_ENTITY_ID, ...values };
     return replaceId
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? q.update(values as any).eq("id", replaceId).select("id, linked_document_group_id").single()

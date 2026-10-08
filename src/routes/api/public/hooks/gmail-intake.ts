@@ -17,6 +17,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "node:crypto";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 function safeEqual(a: string, b: string) {
   const ab = Buffer.from(a);
@@ -210,7 +211,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 ? []
                 : flatten(msg.payload as GmailPart).filter((p) => p.filename);
               if (senderRule === "ignore") {
-                await supabaseAdmin.from("financial_email_ignored_items").insert({
+                await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                   message_id: id, from_address: from, subject, reason: "sender_rule_ignore",
                 });
                 summary.ignored++;
@@ -219,7 +220,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
               let queued = 0;
               for (const part of parts) {
                 if (!part.body?.attachmentId) {
-                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                     message_id: id,
                     from_address: from,
                     subject,
@@ -232,7 +233,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 }
 
                 if ((part.body.size ?? 0) > MAX_ATTACHMENT_BYTES) {
-                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                     message_id: id,
                     from_address: from,
                     subject,
@@ -270,7 +271,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                     queued++;
                   } else {
                     // Never silently dropped: the raw file is retained and the case is visible.
-                    await supabaseAdmin.from("financial_email_ignored_items").insert({
+                    await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                       message_id: id,
                       from_address: from,
                       subject,
@@ -289,7 +290,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 }
 
                 if (!isPdf) {
-                  await supabaseAdmin.from("financial_email_ignored_items").insert({
+                  await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                     message_id: id,
                     from_address: from,
                     subject,
@@ -322,7 +323,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
 
 
               if (queued === 0 && parts.length === 0 && senderRule !== "ignore") {
-                await supabaseAdmin.from("financial_email_ignored_items").insert({
+                await supabaseAdmin.from("financial_email_ignored_items").insert({ entity_id: PSA_ENTITY_ID,
                   message_id: id,
                   from_address: from,
                   subject,
@@ -331,7 +332,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 summary.ignored++;
               }
 
-              await supabaseAdmin.from("financial_email_processed_messages").insert({
+              await supabaseAdmin.from("financial_email_processed_messages").insert({ entity_id: PSA_ENTITY_ID,
                 message_id: id,
                 thread_id: msg.threadId ?? null,
                 from_address: from,

@@ -45,6 +45,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 type Level = "category" | "group" | "subgroup";
 type Nature =
@@ -229,7 +230,7 @@ export function FinancialClassificationsAdmin() {
       } else {
         const { error } = await supabase
           .from("financial_classifications")
-          .insert(clean);
+          .insert({ ...clean, entity_id: await currentEntityId() });
         if (error) throw error;
       }
     },

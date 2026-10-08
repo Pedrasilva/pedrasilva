@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export type InvoiceSettings = Database["public"]["Tables"]["pm_invoice_settings"]["Row"];
 export type InvoiceSettingsUpdate = Database["public"]["Tables"]["pm_invoice_settings"]["Update"];
@@ -18,7 +19,7 @@ export function useInvoiceSettings(projectId: string) {
       if (data) return data;
       const { data: created, error: insErr } = await supabase
         .from("pm_invoice_settings")
-        .insert({ project_id: projectId })
+        .insert({ entity_id: PSA_ENTITY_ID, project_id: projectId })
         .select("*")
         .single();
       if (insErr) throw insErr;

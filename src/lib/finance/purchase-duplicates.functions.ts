@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 async function assertFinanceAccess(supabase: any, userId: string) {
@@ -166,7 +167,7 @@ export const resolvePurchaseDuplicate = createServerFn({ method: "POST" })
       for (let j = i + 1; j < all.length; j++) {
         const { error } = await supabase
           .from("finance_duplicate_decisions")
-          .upsert({ ...ordered(all[i], all[j]), decision: data.decision, decided_by: userId }, { onConflict: "item_a,item_b" });
+          .upsert({ entity_id: await currentEntityId(supabase),  ...ordered(all[i], all[j]), decision: data.decision, decided_by: userId }, { onConflict: "item_a,item_b" });
         if (error) throw new Error(error.message);
       }
     if (data.decision === "not_duplicate") return { ok: true, voided: 0 };

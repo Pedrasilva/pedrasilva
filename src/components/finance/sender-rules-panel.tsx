@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { senderDomain } from "@/lib/finance/sender-rules";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 type Action = "ignore" | "process";
 const KEY = ["finance", "sender-rules"];
@@ -84,7 +85,7 @@ export function SenderRulesPanel() {
     mutationFn: async ({ p, action }: { p: string; action: Action }) => {
       const v = p.trim().toLowerCase().replace(/^@/, "");
       if (!v || !v.includes(".")) throw new Error(k("invalid"));
-      const { error } = await supabase.from("finance_sender_rules").upsert({ pattern: v, action }, { onConflict: "pattern" });
+      const { error } = await supabase.from("finance_sender_rules").upsert({ entity_id: await currentEntityId(),  pattern: v, action }, { onConflict: "pattern" });
       if (error) throw error;
     },
     onSuccess: () => { setPattern(""); qc.invalidateQueries({ queryKey: KEY }); },

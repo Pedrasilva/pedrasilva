@@ -18,6 +18,7 @@ import {
 } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export interface Supplier {
   id: string;
@@ -128,7 +129,7 @@ export function useUpsertSupplier() {
       }
       const { data, error } = await db
         .from("pm_suppliers")
-        .insert(input)
+        .insert({ entity_id: PSA_ENTITY_ID, ...input })
         .select()
         .single();
       if (error) throw new Error(error.message);

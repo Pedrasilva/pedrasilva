@@ -29,6 +29,7 @@ import {
   type ReceivableRow,
   type VatMode,
 } from "@/lib/finance/use-cashflow-report";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 const DASH = "—";
 
@@ -155,7 +156,7 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
       } else {
         const { error } = await supabase
           .from("cost_categories")
-          .insert({ name });
+          .insert({ entity_id: await currentEntityId(),  name });
         if (error) throw error;
       }
     },

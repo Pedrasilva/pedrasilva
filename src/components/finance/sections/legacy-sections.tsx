@@ -50,6 +50,7 @@ import {
   useCalculatedBankBalances,
   sumCalculatedBalances,
 } from "@/lib/finance/use-bank-balances";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 // ---------------------------------------------------------------------------
 // Shared types & helpers
@@ -1051,7 +1052,7 @@ export function BankBalancesSection() {
       if (!accountId || !date || Number.isNaN(amt)) {
         throw new Error("Invalid input");
       }
-      const { error } = await supabase.from("bank_balance_snapshots").insert({
+      const { error } = await supabase.from("bank_balance_snapshots").insert({ entity_id: await currentEntityId(), 
         bank_account_id: accountId,
         snapshot_date: date,
         balance: amt,

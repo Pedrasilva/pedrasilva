@@ -96,7 +96,7 @@ export type Database = {
           bic?: string | null
           created_at?: string
           currency?: string
-          entity_id?: string
+          entity_id: string
           iban?: string | null
           id?: string
           is_active?: boolean
@@ -148,7 +148,7 @@ export type Database = {
           balance: number
           bank_account_id: string
           created_at?: string
-          entity_id?: string
+          entity_id: string
           id?: string
           notes?: string | null
           snapshot_date: string
@@ -201,7 +201,7 @@ export type Database = {
           case_sensitive?: boolean
           classification_id?: string | null
           created_at?: string
-          entity_id?: string
+          entity_id: string
           id?: string
           match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
           name: string
@@ -271,7 +271,7 @@ export type Database = {
         Insert: {
           bank_account_id: string
           created_at?: string
-          entity_id?: string
+          entity_id: string
           exported_at?: string | null
           file_checksum: string
           file_name: string
@@ -357,7 +357,7 @@ export type Database = {
           closing_balance?: number
           created_at?: string
           created_by?: string | null
-          entity_id?: string
+          entity_id: string
           id?: string
           notes?: string | null
           opening_balance?: number
@@ -530,7 +530,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description: string
-          entity_id?: string
+          entity_id: string
           id?: string
           ignored_reason?: string | null
           notes?: string | null
@@ -1001,7 +1001,7 @@ export type Database = {
           data_despesa: string
           descricao: string
           document_number?: string | null
-          entity_id?: string
+          entity_id: string
           estado?: Database["public"]["Enums"]["expense_status"]
           financial_document_id?: string | null
           foto_path?: string | null
@@ -1597,7 +1597,7 @@ export type Database = {
           cost_category_id?: string | null
           created_at?: string
           description: string
-          entity_id?: string
+          entity_id: string
           id?: string
           incurred_at?: string | null
           notes?: string | null
@@ -2058,7 +2058,7 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
-          entity_id?: string
+          entity_id: string
           id?: string
           is_default?: boolean
           name: string
@@ -2636,7 +2636,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          entity_id?: string
+          entity_id: string
           id?: string
           is_active?: boolean
           name: string
@@ -3029,7 +3029,7 @@ export type Database = {
           decided_at?: string
           decided_by?: string | null
           decision: string
-          entity_id?: string
+          entity_id: string
           id?: string
           item_a: string
           item_b: string
@@ -3083,6 +3083,61 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_entity_members: {
+        Row: {
+          created_at: string
+          entity_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_entity_members_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_entity_preferences: {
+        Row: {
+          entity_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          entity_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          entity_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_entity_preferences_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_intake_corrections: {
         Row: {
           ai_value: string | null
@@ -3100,7 +3155,7 @@ export type Database = {
           corrected_by?: string | null
           corrected_value?: string | null
           created_at?: string
-          entity_id?: string
+          entity_id: string
           field: string
           id?: string
           queue_item_id?: string | null
@@ -3182,7 +3237,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           created_by?: string | null
-          entity_id?: string
+          entity_id: string
           id?: string
           scope_type?: string
           scope_value?: string | null
@@ -3220,7 +3275,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
-          entity_id?: string
+          entity_id: string
           finance_address?: string
           id?: boolean
           updated_at?: string
@@ -3237,7 +3292,7 @@ export type Database = {
           {
             foreignKeyName: "finance_intake_settings_entity_id_fkey"
             columns: ["entity_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
@@ -3312,7 +3367,7 @@ export type Database = {
           confirmed_by?: string | null
           created_at?: string
           description?: string | null
-          entity_id?: string
+          entity_id: string
           financial_document_ids?: string[]
           id?: string
           payer_iban?: string | null
@@ -3382,7 +3437,7 @@ export type Database = {
           action: string
           created_at?: string
           created_by?: string | null
-          entity_id?: string
+          entity_id: string
           id?: string
           pattern: string
         }
@@ -3436,7 +3491,7 @@ export type Database = {
           collaborator_link_allowed?: boolean
           cost_category_id?: string | null
           created_at?: string
-          entity_id?: string
+          entity_id: string
           financial_nature: Database["public"]["Enums"]["financial_nature"]
           id?: string
           level?: Database["public"]["Enums"]["financial_class_level"]
@@ -3582,7 +3637,7 @@ export type Database = {
           creditor_name: string
           description?: string | null
           end_date?: string | null
-          entity_id?: string
+          entity_id: string
           id?: string
           notes?: string | null
           original_amount?: number
@@ -3917,7 +3972,7 @@ export type Database = {
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
           duplicate_reason?: string | null
-          entity_id?: string
+          entity_id: string
           extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
@@ -4351,7 +4406,7 @@ export type Database = {
           doc_type: Database["public"]["Enums"]["financial_doc_type"]
           document_number?: string | null
           due_date?: string | null
-          entity_id?: string
+          entity_id: string
           external_reference?: string | null
           file_path?: string | null
           id?: string
@@ -4524,7 +4579,7 @@ export type Database = {
         }
         Insert: {
           drive_file_id: string
-          entity_id?: string
+          entity_id: string
           error?: string | null
           file_name?: string | null
           id?: string
@@ -4584,7 +4639,7 @@ export type Database = {
         Insert: {
           attachment_filename?: string | null
           created_at?: string
-          entity_id?: string
+          entity_id: string
           from_address?: string | null
           id?: string
           message_id?: string | null
@@ -4627,7 +4682,7 @@ export type Database = {
         }
         Insert: {
           attachments_queued?: number
-          entity_id?: string
+          entity_id: string
           from_address?: string | null
           id?: string
           message_id: string
@@ -4692,7 +4747,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
-          entity_id?: string
+          entity_id: string
           expense_type?: Database["public"]["Enums"]["financial_expense_type"]
           id?: string
           notes?: string | null
@@ -4860,7 +4915,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
-          entity_id?: string
+          entity_id: string
           file_checksum?: string | null
           file_name: string
           id?: string
@@ -4938,7 +4993,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          entity_id?: string
+          entity_id: string
           expected_payment_date?: string | null
           id?: string
           invoice_number?: string | null
@@ -5030,7 +5085,7 @@ export type Database = {
           closed_by?: string | null
           closing_balance?: number
           created_at?: string
-          entity_id?: string
+          entity_id: string
           id?: string
           is_closed?: boolean
           month: number
@@ -7877,7 +7932,7 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_notes?: string | null
-          entity_id?: string
+          entity_id: string
           file_name?: string | null
           iban?: string | null
           id?: string
@@ -7984,7 +8039,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           due_date?: string | null
-          entity_id?: string
+          entity_id: string
           financial_document_id?: string | null
           id?: string
           invoice_number: string
@@ -8196,7 +8251,7 @@ export type Database = {
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at?: string
           direction?: string
-          entity_id?: string
+          entity_id: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
           generator_source?: string | null
@@ -9709,7 +9764,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           email?: string | null
-          entity_id?: string
+          entity_id: string
           id?: string
           name: string
           notes?: string | null
@@ -13131,7 +13186,7 @@ export type Database = {
           created_at?: string
           currency?: string
           document_number?: string | null
-          entity_id?: string
+          entity_id: string
           filed_at?: string | null
           filed_by?: string | null
           financial_document_id: string
@@ -14092,6 +14147,7 @@ export type Database = {
         Args: { _opportunity_id: string }
         Returns: number
       }
+      current_finance_entity: { Args: never; Returns: string }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
         | {
@@ -14106,6 +14162,8 @@ export type Database = {
         Args: { _quote_id: string }
         Returns: number
       }
+      fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
+      fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
@@ -14137,6 +14195,7 @@ export type Database = {
         Args: { _note?: string; _proposal_id: string }
         Returns: undefined
       }
+      has_entity_access: { Args: { _entity_id: string }; Returns: boolean }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }
         Returns: boolean
@@ -14170,6 +14229,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_finance_user: { Args: { _uid: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       leave_apply_change: {
         Args: {
@@ -14429,6 +14489,14 @@ export type Database = {
         Args: { _capture_id: string; _format_hint: string }
         Returns: undefined
       }
+      my_finance_entities: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+          nif: string
+        }[]
+      }
       notify_user: {
         Args: {
           _body?: string
@@ -14643,6 +14711,7 @@ export type Database = {
         Args: { _proposal_id: string }
         Returns: undefined
       }
+      set_finance_entity: { Args: { _entity_id: string }; Returns: string }
       set_pending_permission: {
         Args: { _email: string; _granted: boolean; _key: string }
         Returns: undefined
