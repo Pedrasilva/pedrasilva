@@ -950,7 +950,7 @@ export async function ingestStoredDocument(opts: {
 
   const isIssued = dir.direction === "issued";
 
-  const catalog = isStatement ? [] : await loadClassificationCatalog();
+  const catalog = isStatement ? [] : await loadClassificationCatalog(entityId);
   const suggested =
     !isStatement && ex.classification_code
       ? catalog.find(
