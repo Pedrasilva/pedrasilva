@@ -207,13 +207,10 @@ export const extractPurchaseDocument = createServerFn({ method: "POST" })
       // Own-company check
       let ownCompanyNif: string | null = null;
       {
-        const { data: settings } = await supabaseAdmin
-          .from("pm_invoice_settings")
-          .select("company_nif")
-          .order("singleton", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        ownCompanyNif = normalizePortugueseNif(settings?.company_nif ?? null);
+        // The caller's current finance entity is the buyer.
+        const { currentEntityId } = await import("@/lib/finance/current-entity");
+        const { loadEntityIdentity } = await import("@/lib/finance/recipient-rule.server");
+        ownCompanyNif = normalizePortugueseNif((await loadEntityIdentity(await currentEntityId(supabase))).vat);
       }
       const supplierIsOwnCompany =
         !!ownCompanyNif &&

@@ -51,14 +51,10 @@ export const linkOrCreateSupplierForBenefitExpense = createServerFn({ method: "P
     }
 
     // Guard: refuse to create a supplier matching the buyer (own company).
-    const { data: settings } = await supabaseAdmin
-      .from("pm_invoice_settings")
-      .select("company_nif")
-      .order("singleton", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const ownNif = normalizePortugueseNif(settings?.company_nif ?? null);
-    if (ownNif && ownNif === nif) {
+    // None of our own entities can be a supplier.
+    const { loadActiveIdentities } = await import("@/lib/finance/recipient-rule.server");
+    const ownNifs = (await loadActiveIdentities()).map((i) => normalizePortugueseNif(i.vat)).filter(Boolean);
+    if (ownNifs.includes(nif)) {
       throw new Response("Refusing to create supplier for own-company NIF", { status: 400 });
     }
 

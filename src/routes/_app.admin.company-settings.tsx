@@ -30,7 +30,8 @@ function CompanySettingsPage() {
       const { data } = await supabase
         .from("pm_invoice_settings")
         .select("id, company_name, company_nif, company_name_variants, singleton")
-        .order("singleton", { ascending: false })
+        // The current finance entity's own row (RLS limits to that entity); never a project row.
+        .is("project_id", null)
         .limit(1)
         .maybeSingle();
       if (data) {

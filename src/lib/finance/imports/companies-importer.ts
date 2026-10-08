@@ -295,7 +295,8 @@ export async function uploadAndPreviewCompanies(
   const { data: ownSettings } = await supabase
     .from("pm_invoice_settings")
     .select("company_nif")
-    .order("singleton", { ascending: false })
+    // The user's current entity's own row (RLS limits to it); never a project row.
+    .is("project_id", null)
     .limit(1)
     .maybeSingle();
   const ownNif = normalizePortugueseNif(ownSettings?.company_nif ?? null);

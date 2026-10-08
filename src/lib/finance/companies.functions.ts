@@ -66,14 +66,10 @@ async function requireAdmin(userId: string) {
   if (!data) throw new Response("Forbidden: admin required", { status: 403 });
 }
 
-async function getOwnCompanyNif(): Promise<string | null> {
-  const { data } = await supabaseAdmin
-    .from("pm_invoice_settings")
-    .select("company_nif")
-    .order("singleton", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return normalizePortugueseNif(data?.company_nif ?? null);
+/** NIFs of all our own active entities (none of them may be flagged as a supplier). */
+async function getOwnCompanyNifs(): Promise<string[]> {
+  const { loadActiveIdentities } = await import("@/lib/finance/recipient-rule.server");
+  return (await loadActiveIdentities()).map((i) => normalizePortugueseNif(i.vat)).filter((v): v is string => !!v);
 }
 
 export const listCompanies = createServerFn({ method: "POST" })
@@ -133,8 +129,8 @@ export const upsertCompany = createServerFn({ method: "POST" })
       if (!normalizedNif) {
         throw new Response("Invalid tax number", { status: 400 });
       }
-      const ownNif = await getOwnCompanyNif();
-      if (ownNif && ownNif === normalizedNif && data.is_supplier) {
+      const ownNifs = await getOwnCompanyNifs();
+      if (ownNifs.includes(normalizedNif) && data.is_supplier) {
         throw new Response("Refusing to flag own-company NIF as a supplier", { status: 400 });
       }
     }
