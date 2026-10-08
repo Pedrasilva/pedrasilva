@@ -295,6 +295,13 @@
       "when": 1791497356886,
       "tag": "0041_psa_staff_access",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1791498472873,
+      "tag": "0042_part_c_staff_archived_and_entity_suppliers",
+      "breakpoints": true
     }
   ]
 }

@@ -14323,6 +14323,7 @@ export type Database = {
         Args: { p_source: string }
         Returns: string
       }
+      company_psa_referenced: { Args: { _id: string }; Returns: boolean }
       crm_email_lead_confirm: { Args: { p_draft: string }; Returns: string }
       crm_email_lead_discard: { Args: { p_draft: string }; Returns: undefined }
       crm_leads_directory: {
@@ -14424,6 +14425,7 @@ export type Database = {
         Returns: Json
       }
       is_finance_user: { Args: { _uid: string }; Returns: boolean }
+      is_non_psa_entity_member: { Args: never; Returns: boolean }
       is_psa_staff: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       leave_apply_change: {

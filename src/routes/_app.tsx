@@ -39,13 +39,23 @@ function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation("common");
-  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
+  const { session, loading, isPsaStaff, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
   const { canAccess, loading: accessLoading } = useModuleAccess();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  // Non-staff (other entities' members) only see Finance: send every other link there.
+  useEffect(() => {
+    if (
+      !loading && session && !isPsaStaff && !accessLoading && canAccess("finance") &&
+      !loc.pathname.startsWith("/finance")
+    ) {
+      navigate({ to: "/finance", replace: true });
+    }
+  }, [loading, session, isPsaStaff, accessLoading, canAccess, loc.pathname, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -117,10 +127,10 @@ function AppLayout() {
               )}
 
               <div className="hidden md:flex items-center gap-0.5">
-                <ModuleTopNav />
+                {isPsaStaff && <ModuleTopNav />}
               </div>
 
-              <NotificationBell />
+              {isPsaStaff && <NotificationBell />}
 
               {/* User menu */}
               <DropdownMenu>
@@ -236,7 +246,13 @@ function AppLayout() {
 
           )}
         >
-          {!currentModule ? (
+          {!loading && !isPsaStaff && !loc.pathname.startsWith("/finance") ? (
+            accessLoading || canAccess("finance") ? (
+              <div className="text-sm text-muted-foreground">{t("loading")}</div>
+            ) : (
+              <RestrictedCard />
+            )
+          ) : !currentModule ? (
             <Outlet />
           ) : accessLoading ? (
             <div className="text-sm text-muted-foreground">{t("loading")}</div>
