@@ -29,6 +29,7 @@ import {
   addCompositionComment, deleteCompositionComment, duplicateComposition, listCompositionComments, writeComposedPost,
 } from "@/lib/marketing/compositions.functions";
 import { cn } from "@/lib/utils";
+import { DeleteCarouselDialog } from "@/components/marketing/carousels-card";
 
 export const Route = createFileRoute("/_app/marketing/carousels/$id")({
   component: () => (
@@ -235,6 +236,7 @@ function CarouselPage() {
     } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setWriting(false); }
   };
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const duplicate = async () => {
     if (!comp) return;
     try {
@@ -256,6 +258,8 @@ function CarouselPage() {
         <ArrowLeft className="h-4 w-4" />{projectName}
       </Link>
 
+      {editable && <DeleteCarouselDialog compositionId={comp.id} profileId={comp.profile_id} open={deleteOpen} onOpenChange={setDeleteOpen}
+        onDeleted={() => navigate({ to: "/marketing/projects/$profileId", params: { profileId: comp.profile_id } })} />}
       <Card className="space-y-3 p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={comp.status === "sent" ? "default" : "outline"}>{t(`carousel.status.${comp.status}`)}</Badge>
@@ -265,6 +269,7 @@ function CarouselPage() {
           )}
           <div className="ml-auto flex flex-wrap gap-2">
             {canEditRaw && <Button size="sm" variant="outline" onClick={duplicate}><Copy className="mr-1 h-3.5 w-3.5" />{t("carousel.duplicate")}</Button>}
+            {editable && <Button size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}><Trash2 className="mr-1 h-3.5 w-3.5" />{t("carousel.delete")}</Button>}
           </div>
         </div>
         <div className="space-y-1">

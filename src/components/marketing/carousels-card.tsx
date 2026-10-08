@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { GalleryHorizontal, Loader2, Plus } from "lucide-react";
+import { GalleryHorizontal, Loader2, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
+import { deleteComposition } from "@/lib/marketing/compositions.functions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,9 +88,31 @@ export function NewCarouselButton({ profileId, variant = "outline" }: { profileI
   );
 }
 
+/** Confirm + delete a draft carousel (server path also cleans voice files). Throws on failure so the dialog stays open. */
+export function DeleteCarouselDialog({ compositionId, profileId, open, onOpenChange, onDeleted }: {
+  compositionId: string; profileId: string; open: boolean; onOpenChange: (v: boolean) => void; onDeleted?: () => void;
+}) {
+  const { t } = useTranslation("marketing");
+  const qc = useQueryClient();
+  const run = useServerFn(deleteComposition);
+  const confirm = async () => {
+    try { await run({ data: { compositionId } }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : String(e)); throw e; }
+    toast.success(t("carousel.deleted"));
+    qc.invalidateQueries({ queryKey: ["marketing-compositions", profileId] });
+    onDeleted?.();
+  };
+  return (
+    <DeleteExpenseDialog open={open} onOpenChange={onOpenChange} onConfirm={confirm}
+      title={t("carousel.delete")} description={t("carousel.deleteConfirm")}
+      confirmLabel={t("carousel.delete")} loadingLabel={t("carousel.deleting")} />
+  );
+}
+
 /** Project profile: list of carousels with status. */
 export function CarouselsCard({ profileId, canEdit }: { profileId: string; canEdit: boolean }) {
   const { t } = useTranslation("marketing");
+  const [toDelete, setToDelete] = useState<string | null>(null);
   const { data: rows = [] } = useQuery({
     queryKey: ["marketing-compositions", profileId],
     queryFn: async () => {
@@ -109,9 +135,22 @@ export function CarouselsCard({ profileId, canEdit }: { profileId: string; canEd
             <Link to="/marketing/carousels/$id" params={{ id: r.id }} className="font-medium hover:underline">{r.title}</Link>
             <span className="text-xs text-muted-foreground">{t("carousel.slideCount", { count: r.marketing_composition_slides?.[0]?.count ?? 0 })}</span>
             <Badge variant={r.status === "sent" ? "default" : "outline"} className="ml-auto">{t(`carousel.status.${r.status}`)}</Badge>
+            {canEdit && r.status === "draft" && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("carousel.rowMenu")}><MoreHorizontal className="h-4 w-4" /></Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setToDelete(r.id)}>
+                    <Trash2 className="mr-2 h-4 w-4" />{t("carousel.delete")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </li>
         ))}
       </ul>
+      {toDelete && <DeleteCarouselDialog compositionId={toDelete} profileId={profileId} open onOpenChange={(v) => !v && setToDelete(null)} onDeleted={() => setToDelete(null)} />}
     </Card>
   );
 }
