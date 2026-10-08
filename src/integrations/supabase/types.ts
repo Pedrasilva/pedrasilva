@@ -410,6 +410,9 @@ export type Database = {
           notes: string | null
           project_id: string | null
           reimbursable: boolean
+          spending_policy_override:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_id: string | null
           updated_at: string
         }
@@ -425,6 +428,9 @@ export type Database = {
           notes?: string | null
           project_id?: string | null
           reimbursable?: boolean
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_id?: string | null
           updated_at?: string
         }
@@ -440,6 +446,9 @@ export type Database = {
           notes?: string | null
           project_id?: string | null
           reimbursable?: boolean
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_id?: string | null
           updated_at?: string
         }
@@ -979,6 +988,9 @@ export type Database = {
           payment_account_id: string | null
           payment_source_label: string | null
           payment_source_type: string | null
+          spending_policy_override:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_company_id: string | null
           supplier_name_snapshot: string | null
           supplier_nif: string | null
@@ -1015,6 +1027,9 @@ export type Database = {
           payment_account_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string | null
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_company_id?: string | null
           supplier_name_snapshot?: string | null
           supplier_nif?: string | null
@@ -1051,6 +1066,9 @@ export type Database = {
           payment_account_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string | null
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_company_id?: string | null
           supplier_name_snapshot?: string | null
           supplier_nif?: string | null
@@ -1345,6 +1363,98 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classification_reclass_suggestions: {
+        Row: {
+          created_at: string
+          entity_id: string
+          id: string
+          model: string | null
+          reason: string | null
+          record_id: string
+          record_table: string
+          suggested_classification_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          id?: string
+          model?: string | null
+          reason?: string | null
+          record_id: string
+          record_table: string
+          suggested_classification_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          id?: string
+          model?: string | null
+          reason?: string | null
+          record_id?: string
+          record_table?: string
+          suggested_classification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classification_reclass_suggest_suggested_classification_id_fkey"
+            columns: ["suggested_classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classification_reclass_suggestions_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classification_remap_log: {
+        Row: {
+          at: string
+          changed_by: string | null
+          entity_id: string
+          id: string
+          new_code: string | null
+          old_code: string | null
+          reason: string
+          record_id: string
+          record_table: string
+        }
+        Insert: {
+          at?: string
+          changed_by?: string | null
+          entity_id: string
+          id?: string
+          new_code?: string | null
+          old_code?: string | null
+          reason?: string
+          record_id: string
+          record_table: string
+        }
+        Update: {
+          at?: string
+          changed_by?: string | null
+          entity_id?: string
+          id?: string
+          new_code?: string | null
+          old_code?: string | null
+          reason?: string
+          record_id?: string
+          record_table?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classification_remap_log_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
         ]
@@ -3015,6 +3125,35 @@ export type Database = {
           },
         ]
       }
+      finance_classification_code_map: {
+        Row: {
+          created_at: string
+          entity_id: string
+          new_code: string | null
+          old_code: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          new_code?: string | null
+          old_code: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          new_code?: string | null
+          old_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_classification_code_map_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_duplicate_decisions: {
         Row: {
           decided_at: string
@@ -3089,18 +3228,27 @@ export type Database = {
           entity_id: string
           linked_at: string
           linked_by: string | null
+          spending_policy_default:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
         }
         Insert: {
           company_id: string
           entity_id: string
           linked_at?: string
           linked_by?: string | null
+          spending_policy_default?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
         }
         Update: {
           company_id?: string
           entity_id?: string
           linked_at?: string
           linked_by?: string | null
+          spending_policy_default?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
         }
         Relationships: [
           {
@@ -4423,6 +4571,9 @@ export type Database = {
           source: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id: string | null
           source_ref_table: string | null
+          spending_policy_override:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           status: Database["public"]["Enums"]["financial_doc_status"]
           subtotal_ex_vat: number
           total_inc_vat: number
@@ -4479,6 +4630,9 @@ export type Database = {
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           status?: Database["public"]["Enums"]["financial_doc_status"]
           subtotal_ex_vat?: number
           total_inc_vat?: number
@@ -4535,6 +4689,9 @@ export type Database = {
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
+          spending_policy_override?:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           status?: Database["public"]["Enums"]["financial_doc_status"]
           subtotal_ex_vat?: number
           total_inc_vat?: number
@@ -14329,6 +14486,9 @@ export type Database = {
           payment_account_id: string | null
           payment_source_label: string | null
           payment_source_type: string | null
+          spending_policy_override:
+            | Database["public"]["Enums"]["financial_spending_policy"]
+            | null
           supplier_company_id: string | null
           supplier_name_snapshot: string | null
           supplier_nif: string | null
@@ -14391,7 +14551,17 @@ export type Database = {
         Args: { _quote_id: string }
         Returns: number
       }
+      fin_accept_reclass: {
+        Args: { _classification: string; _record: string; _table: string }
+        Returns: undefined
+      }
+      fin_benefit_pessoal_class: {
+        Args: { _category: string }
+        Returns: string
+      }
+      fin_class_in_use: { Args: { _id: string }; Returns: boolean }
       fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
+      fin_deactivate_if_unused: { Args: { _id: string }; Returns: undefined }
       fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
       fin_find_company_by_nif: {
         Args: { _nif: string }
@@ -14401,12 +14571,43 @@ export type Database = {
           nome: string
         }[]
       }
+      fin_is_pessoal_category: { Args: { _id: string }; Returns: boolean }
       fin_link_company_to_entity: {
         Args: { _company_id: string }
         Returns: string
       }
+      fin_psa_reclassify_v1: { Args: never; Returns: Json }
+      fin_reclass_list: {
+        Args: never
+        Returns: {
+          amount: number
+          counterparty: string
+          description: string
+          old_code: string
+          old_name: string
+          reason: string
+          record_date: string
+          record_id: string
+          record_table: string
+          suggested_code: string
+          suggested_group: string
+          suggested_id: string
+          suggested_name: string
+        }[]
+      }
       fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
+      fin_set_supplier_policy: {
+        Args: {
+          _company: string
+          _policy: Database["public"]["Enums"]["financial_spending_policy"]
+        }
+        Returns: undefined
+      }
       fin_storage_visible: { Args: { _name: string }; Returns: boolean }
+      fin_supplier_policy: {
+        Args: { _company: string }
+        Returns: Database["public"]["Enums"]["financial_spending_policy"]
+      }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
