@@ -702,6 +702,12 @@
     "stopRecording": "Parar ({{s}} s)",
     "transcribing": "A guardar e transcrever…",
     "mediaInUse_one": "Esta imagem é usada em {{count}} carrossel e não pode ser apagada.",
-    "mediaInUse_other": "Esta imagem é usada em {{count}} carrosséis e não pode ser apagada."
+    "mediaInUse_other": "Esta imagem é usada em {{count}} carrosséis e não pode ser apagada.",
+    "delete": "Apagar carrossel",
+    "deleteConfirm": "Apaga o carrossel, os comentários e as perguntas por responder. As respostas já dadas ficam no perfil do projeto.",
+    "deleting": "A apagar…",
+    "deleted": "Carrossel apagado",
+    "rowMenu": "Ações do carrossel",
+    "cancel": "Cancelar"
   }
 }

@@ -702,6 +702,12 @@
     "stopRecording": "Stop ({{s}} s)",
     "transcribing": "Saving and transcribing…",
     "mediaInUse_one": "This image is used in {{count}} carousel and can't be deleted.",
-    "mediaInUse_other": "This image is used in {{count}} carousels and can't be deleted."
+    "mediaInUse_other": "This image is used in {{count}} carousels and can't be deleted.",
+    "delete": "Delete carousel",
+    "deleteConfirm": "Deletes the carousel, its comments and unanswered questions. Answers already given stay on the project profile.",
+    "deleting": "Deleting…",
+    "deleted": "Carousel deleted",
+    "rowMenu": "Carousel actions",
+    "cancel": "Cancel"
   }
 }

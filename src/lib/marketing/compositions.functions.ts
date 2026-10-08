@@ -199,5 +199,9 @@ export const deleteComposition = createServerFn({ method: "POST" })
       const paths = (files ?? []).map((f: { name: string }) => `${id}/${f.name}`);
       if (paths.length) await db.storage.from("marketing-voice").remove(paths);
     }
+    const prefix = `compositions/${comp.id}`;
+    const { data: audio } = await db.storage.from("marketing-voice").list(prefix, { limit: 1000 });
+    const audioPaths = (audio ?? []).map((f: { name: string }) => `${prefix}/${f.name}`);
+    if (audioPaths.length) await db.storage.from("marketing-voice").remove(audioPaths);
     return { ok: true };
   });
