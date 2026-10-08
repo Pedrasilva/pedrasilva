@@ -126,6 +126,7 @@ import { Route as AppFinancePaymentsDuplicatesRouteImport } from './routes/_app.
 import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
 import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.finance.payments.outflows'
 import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
+import { Route as AppFinancePaymentsReclassifyRouteImport } from './routes/_app.finance.payments.reclassify'
 import { Route as AppFinancePaymentsReviewQueueRouteImport } from './routes/_app.finance.payments.review-queue'
 import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
@@ -780,6 +781,12 @@ const AppFinancePaymentsPurchasesRoute =
     path: '/payments/purchases',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinancePaymentsReclassifyRoute =
+  AppFinancePaymentsReclassifyRouteImport.update({
+    id: '/payments/reclassify',
+    path: '/payments/reclassify',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinancePaymentsReviewQueueRoute =
   AppFinancePaymentsReviewQueueRouteImport.update({
     id: '/payments/review-queue',
@@ -1121,6 +1128,7 @@ export interface FileRoutesByFullPath {
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
@@ -1270,6 +1278,7 @@ export interface FileRoutesByTo {
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
@@ -1429,6 +1438,7 @@ export interface FileRoutesById {
   '/_app/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
   '/_app/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
   '/_app/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
+  '/_app/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/_app/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
   '/_app/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
@@ -1588,6 +1598,7 @@ export interface FileRouteTypes {
     | '/finance/payments/expenses'
     | '/finance/payments/outflows'
     | '/finance/payments/purchases'
+    | '/finance/payments/reclassify'
     | '/finance/payments/review-queue'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
@@ -1737,6 +1748,7 @@ export interface FileRouteTypes {
     | '/finance/payments/expenses'
     | '/finance/payments/outflows'
     | '/finance/payments/purchases'
+    | '/finance/payments/reclassify'
     | '/finance/payments/review-queue'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
@@ -1895,6 +1907,7 @@ export interface FileRouteTypes {
     | '/_app/finance/payments/expenses'
     | '/_app/finance/payments/outflows'
     | '/_app/finance/payments/purchases'
+    | '/_app/finance/payments/reclassify'
     | '/_app/finance/payments/review-queue'
     | '/_app/finance/payments/suppliers'
     | '/_app/finance/reports/cashflow'
@@ -2787,6 +2800,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinancePaymentsPurchasesRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/payments/reclassify': {
+      id: '/_app/finance/payments/reclassify'
+      path: '/payments/reclassify'
+      fullPath: '/finance/payments/reclassify'
+      preLoaderRoute: typeof AppFinancePaymentsReclassifyRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/payments/review-queue': {
       id: '/_app/finance/payments/review-queue'
       path: '/payments/review-queue'
@@ -3148,6 +3168,7 @@ interface AppFinanceRouteChildren {
   AppFinancePaymentsExpensesRoute: typeof AppFinancePaymentsExpensesRoute
   AppFinancePaymentsOutflowsRoute: typeof AppFinancePaymentsOutflowsRoute
   AppFinancePaymentsPurchasesRoute: typeof AppFinancePaymentsPurchasesRoute
+  AppFinancePaymentsReclassifyRoute: typeof AppFinancePaymentsReclassifyRoute
   AppFinancePaymentsReviewQueueRoute: typeof AppFinancePaymentsReviewQueueRoute
   AppFinancePaymentsSuppliersRoute: typeof AppFinancePaymentsSuppliersRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
@@ -3188,6 +3209,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinancePaymentsExpensesRoute: AppFinancePaymentsExpensesRoute,
   AppFinancePaymentsOutflowsRoute: AppFinancePaymentsOutflowsRoute,
   AppFinancePaymentsPurchasesRoute: AppFinancePaymentsPurchasesRoute,
+  AppFinancePaymentsReclassifyRoute: AppFinancePaymentsReclassifyRoute,
   AppFinancePaymentsReviewQueueRoute: AppFinancePaymentsReviewQueueRoute,
   AppFinancePaymentsSuppliersRoute: AppFinancePaymentsSuppliersRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,

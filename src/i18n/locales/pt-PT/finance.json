@@ -1083,7 +1083,8 @@
       "statements": "Extratos",
       "intakeInbox": "Caixa de entrada",
       "purchaseDuplicates": "Possíveis duplicados",
-      "driveArchive": "Arquivo Drive"
+      "driveArchive": "Arquivo Drive",
+      "reclassify": "Por reclassificar"
     }
   },
   "purchases": {
@@ -2178,5 +2179,16 @@
     "mandatoryHint": "Tem de ser paga para a empresa funcionar",
     "discretionaryHint": "Pode ser cortada se a tesouraria apertar",
     "pass_throughHint": "É depois cobrada ao cliente ou inquilino"
+  },
+  "reclass": {
+    "title": "Por reclassificar",
+    "sub_one": "{{count}} registo ainda está num grupo. Escolha a categoria.",
+    "sub_other": "{{count}} registos ainda estão num grupo. Escolha a categoria.",
+    "empty": "Nada por reclassificar.",
+    "doc": "Documento",
+    "bank": "Linha bancária",
+    "suggested": "Sugestão",
+    "accept": "Aceitar",
+    "done": "Reclassificado"
   }
 }
