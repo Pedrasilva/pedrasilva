@@ -302,6 +302,13 @@
       "when": 1791498472873,
       "tag": "0042_part_c_staff_archived_and_entity_suppliers",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1791499695634,
+      "tag": "0043_finance_entity_supplier_links",
+      "breakpoints": true
     }
   ]
 }
