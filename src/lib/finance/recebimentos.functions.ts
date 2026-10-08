@@ -25,7 +25,8 @@ export const listClientOpenTargets = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertFinanceAccess(context.supabase, context.userId);
     const { openTargetsForClient } = await import("@/lib/finance/recebimentos.server");
-    return openTargetsForClient(data.companyId);
+    const { currentEntityId } = await import("@/lib/finance/current-entity");
+    return openTargetsForClient(data.companyId, await currentEntityId(context.supabase));
   });
 
 /** "Alterar": change the client (manual match) and recompute suggestions. */
@@ -63,6 +64,10 @@ export const confirmRecebimento = createServerFn({ method: "POST" })
     const { data: rec, error: rErr } = await supabaseAdmin.from("finance_recebimentos").select("*").eq("id", data.id).single();
     if (rErr) throw new Error(rErr.message);
     if (rec.status === "confirmed") throw new Error("Already confirmed");
+    // The caller must be able to see this recebimento (entity access + current entity).
+    const { data: visible } = await supabase.from("finance_recebimentos").select("id").eq("id", data.id).maybeSingle();
+    if (!visible) throw new Error("Not allowed");
+    const entityId = rec.entity_id as string;
     const now = new Date().toISOString();
     let remaining = Number(rec.amount);
     const projectIds = new Set<string>();
@@ -70,6 +75,23 @@ export const confirmRecebimento = createServerFn({ method: "POST" })
     const pmInv = data.targets.filter((t) => t.kind === "pm_invoice").map((t) => t.id);
     const sched = data.targets.filter((t) => t.kind === "schedule_item").map((t) => t.id);
     const docs = data.targets.filter((t) => t.kind === "issued_document").map((t) => t.id);
+
+    // Refuse before writing anything if any linked item belongs to another entity (or doesn't exist).
+    const foreign: string[] = [];
+    const checkEntity = async (table: string, ids: string[], label: string) => {
+      if (!ids.length) return;
+      const { data: rows, error } = await (supabaseAdmin as any).from(table).select("id, entity_id").in("id", ids);
+      if (error) throw new Error(error.message);
+      const ok = new Set((rows ?? []).filter((r: any) => r.entity_id === entityId).map((r: any) => r.id));
+      for (const id of ids) if (!ok.has(id)) foreign.push(`${label} ${id.slice(0, 8)}`);
+    };
+    await checkEntity("pm_invoices", pmInv, "invoice");
+    await checkEntity("pm_payment_schedule_items", sched, "schedule item");
+    await checkEntity("financial_documents", docs, "document");
+    await checkEntity("bank_transactions", data.bankTransactionIds, "bank line");
+    const { data: proofRows } = await supabaseAdmin.from("financial_document_review_queue").select("id, entity_id").eq("recebimento_id", data.id);
+    for (const p of proofRows ?? []) if (p.entity_id !== entityId) foreign.push(`proof ${p.id.slice(0, 8)}`);
+    if (foreign.length) throw new Error(`Refused: belongs to another entity (${foreign.join(", ")})`);
 
     if (pmInv.length) {
       const { data: rows } = await supabaseAdmin.from("pm_invoices").select("id, project_id, total").in("id", pmInv);
