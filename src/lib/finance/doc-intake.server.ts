@@ -222,10 +222,11 @@ function guessMime(path: string): string {
   }
 }
 
-export async function loadClassificationCatalog() {
+export async function loadClassificationCatalog(entityId: string = PSA_ENTITY_ID) {
   const { data } = await supabaseAdmin
     .from("financial_classifications")
     .select("id, code, name_en, name_pt, active")
+    .eq("entity_id", entityId)
     .eq("active", true)
     .order("code");
   return (data ?? []) as Array<{
@@ -297,7 +298,7 @@ export async function extractDocument(
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) return { ok: false, error: "LOVABLE_API_KEY missing" };
 
-  const catalog = await loadClassificationCatalog();
+  const catalog = await loadClassificationCatalog(entityId);
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
   const own = await getOwnCompanyVat();
 
@@ -374,14 +375,10 @@ export function sameVat(a: string | null | undefined, b: string | null | undefin
  * (same row the invoicing module and `own-company.functions.ts` read).
  * Never hard-code it here.
  */
-export async function getOwnCompanyVat(): Promise<{ vat: string | null; name: string | null }> {
-  const { data } = await supabaseAdmin
-    .from("pm_invoice_settings")
-    .select("company_nif, company_name, singleton")
-    .order("singleton", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return { vat: data?.company_nif ?? null, name: data?.company_name ?? null };
+export async function getOwnCompanyVat(entityId: string = PSA_ENTITY_ID): Promise<{ vat: string | null; name: string | null }> {
+  const { loadEntityIdentity } = await import("./recipient-rule.server");
+  const id = await loadEntityIdentity(entityId);
+  return { vat: id.vat, name: id.name };
 }
 
 export type DirectionResult = {
@@ -573,7 +570,7 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
  * previously APPROVED queue row roughly a month or more earlier.
  * Never auto-files — only flags and reuses the previous classification.
  */
-export async function detectRecurring(vat: string | null, amount: number | null): Promise<{
+export async function detectRecurring(vat: string | null, amount: number | null, entityId: string = PSA_ENTITY_ID): Promise<{
   is_recurring_candidate: boolean;
   reference_id: string | null;
   classification_id: string | null;
@@ -585,6 +582,7 @@ export async function detectRecurring(vat: string | null, amount: number | null)
   const { data } = await supabaseAdmin
     .from("financial_document_review_queue")
     .select("id, extracted_amount, extracted_supplier_vat, suggested_classification_id, extracted_date, status")
+    .eq("entity_id", entityId)
     .eq("status", "approved")
     .order("created_at", { ascending: false })
     .limit(200);
@@ -620,7 +618,7 @@ export async function detectRecurring(vat: string | null, amount: number | null)
 export async function resolveDocumentGroup(
   documentNumber: string | null,
   vat: string | null,
-  opts?: { amount?: number | null; date?: string | null; supplierName?: string | null },
+  opts?: { amount?: number | null; date?: string | null; supplierName?: string | null; entityId?: string },
 ): Promise<string | null> {
   const nv = normalizeVat(vat);
   const num = documentNumber?.trim() || null;
@@ -632,6 +630,7 @@ export async function resolveDocumentGroup(
     .select(
       "id, linked_document_group_id, extracted_document_number, extracted_supplier_vat, extracted_supplier_name, extracted_amount, extracted_date, doc_type",
     )
+    .eq("entity_id", opts?.entityId ?? PSA_ENTITY_ID)
     .neq("status", "rejected")
     .neq("doc_type", "bank_statement")
     .order("created_at", { ascending: false })
@@ -711,6 +710,8 @@ export async function ingestStoredDocument(opts: {
   splitOf?: { fileUrl: string; part: number; first: number; last: number } | null;
   /** Sender matched a "sempre processar" rule: an AI "ignored" route goes to triage. */
   forceProcess?: boolean;
+  /** Entity of the intake channel; defaults to PSA (the finance mailbox / Drive). */
+  entityId?: string;
   /** Email sender address (sender-scoped instructions and supplier hints). */
   senderAddress?: string | null;
 }): Promise<IngestOutcome> {
@@ -724,15 +725,18 @@ export async function ingestStoredDocument(opts: {
   let selfCreatedAt: string | null = null;
   let priorNif: string | null = null;
   let sender = opts.senderAddress?.toLowerCase() ?? null;
+  // Entity of the intake channel (email / Drive = PSA mailbox) until the recipient is read.
+  let channelEntity: string = opts.entityId ?? PSA_ENTITY_ID;
   if (replaceId) {
     const { data: prev } = await supabaseAdmin
       .from("financial_document_review_queue")
-      .select("created_at, extracted_supplier_vat, sender_address")
+      .select("created_at, extracted_supplier_vat, sender_address, entity_id")
       .eq("id", replaceId)
       .maybeSingle();
     selfCreatedAt = prev?.created_at ?? null;
     priorNif = prev?.extracted_supplier_vat ?? null;
     sender = sender ?? prev?.sender_address ?? null;
+    if (prev?.entity_id) channelEntity = prev.entity_id;
   }
 
   // A — same file: known hash → duplicate, never sent to the AI.
@@ -743,8 +747,12 @@ export async function ingestStoredDocument(opts: {
     const fd = await dups.findFileDuplicate({ hash, selfId: replaceId, storagePath: opts.storagePath, createdBefore: selfCreatedAt });
     if (fd) {
       const q = supabaseAdmin.from("financial_document_review_queue");
+      // A copy of a file belongs to the same entity as the original.
+      const { data: orig } = fd.queueItemId
+        ? await supabaseAdmin.from("financial_document_review_queue").select("entity_id").eq("id", fd.queueItemId).maybeSingle()
+        : { data: null };
       const values = {
-        entity_id: PSA_ENTITY_ID,
+        entity_id: orig?.entity_id ?? channelEntity,
         source_file_url: opts.storagePath,
         source_bucket: opts.bucket,
         original_filename: opts.originalFilename ?? null,
@@ -772,8 +780,8 @@ export async function ingestStoredDocument(opts: {
   }
 
   // B — studio rules, supplier pattern and recent corrections.
-  const hintNif = priorNif ?? (await learn.nifHintForSender(sender));
-  let learning = await learn.loadLearning({ nif: hintNif, sender, docId: replaceId });
+  const hintNif = priorNif ?? (await learn.nifHintForSender(sender, channelEntity));
+  let learning = await learn.loadLearning({ nif: hintNif, sender, docId: replaceId, entityId: channelEntity });
   const result = await intake.runDualExtraction(
     opts.bucket,
     opts.storagePath,
@@ -781,9 +789,10 @@ export async function ingestStoredDocument(opts: {
     opts.splitOf && opts.splitOf.part > 0 ? { first: opts.splitOf.first, last: opts.splitOf.last } : null,
     {
       preloaded: file,
+      entityId: channelEntity,
       claudeContext: learn.learningPrompt(learning),
       geminiContext: async (nif) => {
-        if (learn.nifKey(nif) && learn.nifKey(nif) !== learning.nif) learning = await learn.loadLearning({ nif, sender, docId: replaceId });
+        if (learn.nifKey(nif) && learn.nifKey(nif) !== learning.nif) learning = await learn.loadLearning({ nif, sender, docId: replaceId, entityId: channelEntity });
         return learn.learningPrompt(learning);
       },
     },
@@ -795,7 +804,7 @@ export async function ingestStoredDocument(opts: {
 
   const write = async (values: Record<string, unknown>) => {
     const q = supabaseAdmin.from("financial_document_review_queue");
-    if (!replaceId && values.entity_id == null) values = { entity_id: PSA_ENTITY_ID, ...values };
+    if (!replaceId && values.entity_id == null) values = { entity_id: channelEntity, ...values };
     return replaceId
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? q.update(values as any).eq("id", replaceId).select("id, linked_document_group_id").single()
@@ -856,10 +865,11 @@ export async function ingestStoredDocument(opts: {
 
   // Supplier pattern: the last 2+ approved documents of this supplier agree
   // on type and code → pre-fill them (a person's own type choice wins).
-  const ownEarly = await getOwnCompanyVat();
+  const rr = await import("./recipient-rule.server");
+  const identities = await rr.loadActiveIdentities();
   const readNifRaw = ex.seller_vat ?? ex.supplier_vat ?? null;
-  const readNif = readNifRaw && !(ownEarly.vat && sameVat(readNifRaw, ownEarly.vat)) ? readNifRaw : null;
-  if (learn.nifKey(readNif) !== learning.nif) learning = await learn.loadLearning({ nif: readNif, sender, docId: replaceId });
+  const readNif = readNifRaw && !identities.some((i) => i.vat && sameVat(readNifRaw, i.vat)) ? readNifRaw : null;
+  if (learn.nifKey(readNif) !== learning.nif) learning = await learn.loadLearning({ nif: readNif, sender, docId: replaceId, entityId: channelEntity });
   const aiType = ex.intake_type ?? null;
   const aiCode = ex.classification_code ?? null;
   let defaultsPrefilled = false;
@@ -878,10 +888,56 @@ export async function ingestStoredDocument(opts: {
   // accounting classification — they belong to the Banking import path.
   const isStatement = ex.doc_type === "bank_statement";
 
+  // Entity routing: the recipient / payer-beneficiary rule against EVERY
+  // active entity. One match → that entity; none → PSA (Eliminados/Triagem as
+  // before); several → PSA Triagem flagged "Duas entidades". A bank document
+  // whose account is registered goes to that account's entity.
+  const rcpCheck = (result.checks as Record<string, { status?: string; value?: unknown } | undefined>).recipient_vat;
+  const rcpVat = ((rcpCheck?.value as string | null | undefined) ?? ex.recipient_vat ?? ex.buyer_vat ?? null) || null;
+  const rcpName = ex.recipient_name ?? ex.buyer_name ?? null;
+  let keepFlag = false;
+  if (replaceId) {
+    const { data: k } = await supabaseAdmin.from("financial_document_review_queue").select("keep_despite_recipient").eq("id", replaceId).maybeSingle();
+    keepFlag = !!k?.keep_despite_recipient;
+  }
+  const sellerName = ex.seller_name ?? ex.supplier_name ?? null;
+  const sellerVat = ex.seller_vat ?? ex.supplier_vat ?? null;
+  const routeBase = {
+    name: rcpName, vat: rcpVat, type: ex.intake_type ?? null, sellerName, sellerVat,
+    forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify", keep: keepFlag,
+    parties: [
+      { name: ex.payer_name ?? null, vat: ex.payer_vat ?? null, iban: ex.payer_iban ?? null },
+      { name: ex.beneficiary_name ?? null, vat: ex.beneficiary_vat ?? null, iban: ex.beneficiary_iban ?? null },
+    ],
+  };
+  const dirFor = (id: { vat: string | null; name: string | null }) => (isStatement ? "received" : detectDirection(id, ex).direction);
+  const issuerIs = (id: import("./recipient-rule.server").EntityIdentity) =>
+    (!!sellerVat && !!id.vat && sameVat(sellerVat, id.vat)) || rr.isPsaName(sellerName, id);
+  let entityId = channelEntity;
+  let entityConflict: string[] | null = null;
+  let rcp: import("./recipient-rule.server").RecipientDecision;
+  const bankAcct = intake.routeForType(ex.intake_type ?? null, 1) === "bank"
+    ? await supabaseAdmin.from("bank_accounts").select("entity_id").eq("id", (await matchBankAccount(ex.iban ?? null, ex.account_number ?? null, null)) ?? "00000000-0000-0000-0000-000000000000").maybeSingle()
+    : { data: null };
+  if (keepFlag || opts.forcedType || !identities.length) {
+    // A person's decision (kept / type confirmed) keeps the item where it is.
+    const id = identities.find((i) => i.entityId === entityId) ?? (await rr.loadEntityIdentity(entityId));
+    rcp = rr.decideRecipient({ ...routeBase, psa: id, direction: dirFor(id) });
+  } else if (bankAcct.data?.entity_id) {
+    entityId = bankAcct.data.entity_id;
+    rcp = { kind: "psa" };
+  } else {
+    const route = rr.routeEntity(identities, routeBase, dirFor, issuerIs);
+    entityId = route.entityId;
+    if (route.kind === "both") { entityConflict = route.entityIds; rcp = { kind: "triage" }; }
+    else rcp = route.decision;
+  }
+  const ident = identities.find((i) => i.entityId === entityId) ?? (await rr.loadEntityIdentity(entityId));
+
   // Direction step: is this a document we RECEIVED (payable) or one we
   // ISSUED to a client (receivable)? Anchored on the firm's own VAT, its
   // registered name, and the issuer's legal footer block.
-  const own = await getOwnCompanyVat();
+  const own = { vat: ident.vat, name: ident.name };
   const dir: DirectionResult = isStatement
     ? {
         direction: "received",
@@ -911,13 +967,14 @@ export async function ingestStoredDocument(opts: {
     : await matchSupplierByVat(counterpartyVat);
   const recurring = isStatement || isIssued
     ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
-    : await detectRecurring(counterpartyVat, ex.total_amount);
+    : await detectRecurring(counterpartyVat, ex.total_amount, entityId);
   const groupId = isStatement
     ? null
     : await resolveDocumentGroup(ex.document_number, counterpartyVat, {
         amount: ex.total_amount,
         date: ex.issue_date,
         supplierName: counterpartyName,
+        entityId,
       });
 
   // IRS withheld at source, only when the document actually shows it.
@@ -942,6 +999,8 @@ export async function ingestStoredDocument(opts: {
 
   const payload: Record<string, unknown> = {
     ...base,
+    entity_id: entityId,
+    entity_conflict_ids: entityConflict,
     raw_extraction: { ...ex, _models: { claude: result.runs.claude.output ?? null, gemini: result.runs.gemini.output ?? null } } as object,
     doc_type: ex.doc_type ?? "unknown",
     doc_type_confidence: ex.doc_type_confidence ?? null,
@@ -1046,41 +1105,22 @@ export async function ingestStoredDocument(opts: {
     extracted_referenced_document_number: ex.referenced_document_number ?? null,
     // Bank documents keep their movement amount so the Banco list can show it.
     ...(type === "nota_lancamento" ? { extracted_amount: ex.total_amount ?? null } : {}),
-    matched_bank_account_id: isBank ? await matchBankAccount(ex.iban, ex.account_number) : null,
+    matched_bank_account_id: isBank ? await matchBankAccount(ex.iban, ex.account_number, entityId) : null,
     bank_period: isBank && periodSrc && /^\d{4}-\d{2}/.test(periodSrc) ? periodSrc.slice(0, 7) : null,
     credit_note_original_document_id:
-      type === "nota_credito" ? await matchOriginalInvoice(counterpartyVat, ex.referenced_document_number) : null,
+      type === "nota_credito" ? await matchOriginalInvoice(counterpartyVat, ex.referenced_document_number, entityId) : null,
     ...(route === "payments"
-      ? await matchPaymentCandidates(ex.seller_vat ?? counterpartyVat, ex.total_amount)
+      ? await matchPaymentCandidates(ex.seller_vat ?? counterpartyVat, ex.total_amount, entityId)
       : { payment_match_document_id: null, payment_match_candidates: null }),
   });
 
   payload.applied_learning = applied;
 
-  // Recipient rule: only PSA's documents stay. Clearly another recipient →
-  // removed (restorable 30 days); unreadable/missing → Triagem.
-  const rr = await import("./recipient-rule.server");
-  const rcpCheck = (checks as Record<string, { status?: string; value?: unknown } | undefined>).recipient_vat;
-  const rcpVat = ((rcpCheck?.value as string | null | undefined) ?? ex.recipient_vat ?? ex.buyer_vat ?? null) || null;
-  const rcpName = ex.recipient_name ?? ex.buyer_name ?? null;
-  let keepFlag = false;
-  if (replaceId) {
-    const { data: k } = await supabaseAdmin.from("financial_document_review_queue").select("keep_despite_recipient").eq("id", replaceId).maybeSingle();
-    keepFlag = !!k?.keep_despite_recipient;
-  }
-  const rcp = rr.decideRecipient({
-    psa: await rr.loadPsaIdentity(), name: rcpName, vat: rcpVat, direction: dir.direction, type,
-    sellerName: ex.seller_name ?? ex.supplier_name ?? null, sellerVat: ex.seller_vat ?? ex.supplier_vat ?? null,
-    forcedType: opts.forcedType ?? null, verify: rcpCheck?.status === "verify", keep: keepFlag,
-    parties: [
-      { name: ex.payer_name ?? null, vat: ex.payer_vat ?? null, iban: ex.payer_iban ?? null },
-      { name: ex.beneficiary_name ?? null, vat: ex.beneficiary_vat ?? null, iban: ex.beneficiary_iban ?? null },
-    ],
-  });
+  // Recipient rule (decided above, per entity).
   payload.extracted_recipient_name = rcpName;
   payload.extracted_recipient_vat = rcpVat;
   if (rcp.kind === "triage" && payload.intake_route !== "ignored") payload.intake_route = "triage";
-  const removalRule = keepFlag ? null : rr.matchRemovalRule(await rr.loadRemovalRules(), {
+  const removalRule = keepFlag ? null : rr.matchRemovalRule(await rr.loadRemovalRules(entityId), {
     recipientVat: rcpVat, supplierVat: counterpartyVat, sender,
   });
 
@@ -1100,6 +1140,7 @@ export async function ingestStoredDocument(opts: {
     accountNumber: ex.account_number ?? null,
     periodStart: ex.period_start ?? null,
     periodEnd: ex.period_end ?? null,
+    entityId,
   });
   Object.assign(payload, dups.duplicateColumns(dupRes));
   // Duplicate logic wins; otherwise apply the recipient rule / deletion rules.
@@ -1119,7 +1160,7 @@ export async function ingestStoredDocument(opts: {
       payer: { name: ex.payer_name ?? null, vat: ex.payer_vat ?? null, iban: ex.payer_iban ?? null },
       beneficiary: { name: ex.beneficiary_name ?? null, vat: ex.beneficiary_vat ?? null, iban: ex.beneficiary_iban ?? null },
       description: ex.payment_description ?? null,
-    }));
+    }, ident));
   }
 
   const { data: row, error } = await write(payload);
@@ -1219,11 +1260,14 @@ const digits = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");
 const alnum = (v: string | null | undefined) => (v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
 /** Bank account by IBAN, else by account number (digits contained in the IBAN/number). */
-export async function matchBankAccount(iban: string | null, accountNumber: string | null): Promise<string | null> {
-  const { data } = await supabaseAdmin
+export async function matchBankAccount(iban: string | null, accountNumber: string | null, entityId?: string | null): Promise<string | null> {
+  let q = supabaseAdmin
     .from("bank_accounts")
     .select("id, iban, account_number")
     .is("archived_at", null);
+  // entityId null → search every entity (used to route a bank document by its account).
+  if (entityId) q = q.eq("entity_id", entityId);
+  const { data } = await q;
   const rows = data ?? [];
   const ib = alnum(iban);
   if (ib.length >= 15) {
@@ -1249,13 +1293,14 @@ async function supplierIdsByVat(vat: string | null): Promise<string[]> {
 }
 
 /** Credit note → the supplier invoice it corrects (same supplier NIF + invoice number). */
-export async function matchOriginalInvoice(vat: string | null, refNumber: string | null): Promise<string | null> {
+export async function matchOriginalInvoice(vat: string | null, refNumber: string | null, entityId: string = PSA_ENTITY_ID): Promise<string | null> {
   if (!refNumber) return null;
   const ids = await supplierIdsByVat(vat);
   if (ids.length === 0) return null;
   const { data } = await supabaseAdmin
     .from("financial_documents")
     .select("id, document_number")
+    .eq("entity_id", entityId)
     .in("counterparty_supplier_id", ids)
     .eq("direction", "received");
   const want = alnum(refNumber);
@@ -1267,13 +1312,14 @@ export async function matchOriginalInvoice(vat: string | null, refNumber: string
 }
 
 /** Receipts / payment proofs → open purchases of the same supplier for that amount. */
-export async function matchPaymentCandidates(vat: string | null, amount: number | null) {
+export async function matchPaymentCandidates(vat: string | null, amount: number | null, entityId: string = PSA_ENTITY_ID) {
   const empty = { payment_match_document_id: null, payment_match_candidates: [] as unknown[] };
   const ids = await supplierIdsByVat(vat);
   if (ids.length === 0) return empty;
   const { data } = await supabaseAdmin
     .from("financial_documents")
     .select("id, document_number, issue_date, due_date, total_inc_vat, outstanding_amount, paid_amount, status, counterparty_name_snapshot")
+    .eq("entity_id", entityId)
     .in("counterparty_supplier_id", ids)
     .eq("direction", "received")
     .not("status", "in", "(paid,cancelled)")
