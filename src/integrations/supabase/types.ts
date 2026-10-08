@@ -14354,8 +14354,10 @@ export type Database = {
         Args: { _quote_id: string }
         Returns: number
       }
+      fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
       fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
       fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
+      fin_storage_visible: { Args: { _name: string }; Returns: boolean }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
@@ -14422,6 +14424,7 @@ export type Database = {
         Returns: Json
       }
       is_finance_user: { Args: { _uid: string }; Returns: boolean }
+      is_psa_staff: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       leave_apply_change: {
         Args: {
