@@ -298,7 +298,7 @@ export async function extractDocument(
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) return { ok: false, error: "LOVABLE_API_KEY missing" };
 
-  const catalog = await loadClassificationCatalog(entityId);
+  const catalog = await loadClassificationCatalog();
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
   const own = await getOwnCompanyVat();
 
