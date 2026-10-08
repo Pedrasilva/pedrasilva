@@ -137,7 +137,7 @@ export function ClassificationPicker({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("financial_classifications")
-        .select("id, level, parent_id, active, spending_policy, name_pt, name_en");
+        .select("id, level, parent_id, active, spending_policy, name_pt, name_en, sort_order");
       if (error) throw error;
       return data ?? [];
     },
@@ -173,7 +173,11 @@ export function ClassificationPicker({
   const filtered = useMemo(() => {
     const q = search.trim();
     if (!q) {
-      return [...options].sort((a, b) => a.code.localeCompare(b.code));
+      return [...options].sort((a, b) => {
+        const sa = meta.get(a.id)?.sort_order ?? 0;
+        const sb = meta.get(b.id)?.sort_order ?? 0;
+        return sa - sb || a.code.localeCompare(b.code);
+      });
     }
     return options
       .filter((c) => matches(q, c) || groupMatches(q, c))
