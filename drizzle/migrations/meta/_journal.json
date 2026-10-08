@@ -281,6 +281,13 @@
       "when": 1791456114493,
       "tag": "0039_finance_entities_stage3",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791457627353,
+      "tag": "0040_finance_cross_entity_guard",
+      "breakpoints": true
     }
   ]
 }
