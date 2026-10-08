@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
+import { NewCarouselButton } from "@/components/marketing/carousels-card";
 import { resolveDraftImages } from "@/lib/marketing/draft-images";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
@@ -286,7 +287,10 @@ function PostPlannerPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">{t("posts.title")}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-semibold">{t("posts.title")}</h1>
+          {canCurate && <div className="ml-auto"><NewCarouselButton /></div>}
+        </div>
         <p className="text-sm text-muted-foreground">{t("posts.subtitle")}</p>
       </div>
       <ModuleSubnav moduleId="marketing" />

@@ -141,7 +141,7 @@ export async function transcribe(bytes: Uint8Array, mime: string, filename: stri
   return json.text ?? "";
 }
 
-type NudgeRow = { id: string; capture_id: string | null; project_id: string | null; created_by: string; kind?: string; architect_user_id?: string };
+type NudgeRow = { id: string; capture_id: string | null; project_id: string | null; created_by: string; kind?: string; architect_user_id?: string; composition_id?: string | null };
 
 /** Build the STT hint (≤ ~200 chars). */
 export async function transcriptionHint(db: any, projectId: string | null): Promise<string> {
@@ -229,11 +229,19 @@ export async function applyNudgeAnswer(
   if (c && n.capture_id && !c.curator_notes?.trim()) {
     await db.from("marketing_captures").update({ curator_notes: text.slice(0, 4000) }).eq("id", n.capture_id);
   }
+  // Carousel questions: the answer also becomes a comment on that carousel.
+  if (n.composition_id) {
+    const { error: cErr } = await db.from("marketing_composition_comments").insert({
+      composition_id: n.composition_id, slide_id: null, author_user_id: n.architect_user_id ?? n.created_by,
+      text: text.slice(0, 8000), audio_path: audioPath, nudge_id: n.id,
+    });
+    if (cErr) console.warn("[nudges] composition comment failed:", cErr.message);
+  }
   await db.from("notifications").insert({
     user_id: n.created_by, kind: "marketing_nudge_answered", module: "marketing",
     entity_type: "marketing_nudge", entity_id: n.id,
     title: "Resposta recebida · Answer received", body: text.slice(0, 300),
-    link_path: n.capture_id ? `/marketing?capture=${n.capture_id}` : "/marketing/questions", dedupe_key: `marketing_nudge_answered:${n.id}`,
+    link_path: n.capture_id ? `/marketing?capture=${n.capture_id}` : n.composition_id ? `/marketing/carousels/${n.composition_id}` : "/marketing/questions", dedupe_key: `marketing_nudge_answered:${n.id}`,
   });
   return { hasProfile: !!profile };
 }

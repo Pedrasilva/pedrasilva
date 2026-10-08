@@ -88,7 +88,8 @@ const SCHEMA = {
   },
 };
 
-async function callClaude(system: string, content: unknown[]): Promise<{ ideas: Idea[]; stories?: Story[] }> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function callClaude(system: string, content: unknown[], schema: unknown = SCHEMA): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
   const res = await fetch(GATEWAY, {
@@ -97,7 +98,7 @@ async function callClaude(system: string, content: unknown[]): Promise<{ ideas: 
     body: JSON.stringify({
       model: POSTS_MODEL, max_tokens: 16000, stream: true, system,
       messages: [{ role: "user", content }],
-      output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
+      output_config: { effort: "medium", format: { type: "json_schema", schema } },
     }),
   });
   if (res.status === 429) throw new AiStopError("AI rate limit, try again in a few minutes");
@@ -211,7 +212,7 @@ export async function runPostRequest(requestId: string) {
       if (libProfById.size) {
         const { data: media } = await db.from("marketing_project_media")
           .select("id, profile_id, kind, caption, credit, last_used_at, storage_path, mime_type, position, created_at")
-          .eq("caption_status", "confirmed").in("profile_id", req.focus_profile_id ? [req.focus_profile_id] : [...libProfById.keys()]);
+          .eq("caption_status", "confirmed").neq("kind", "text_slide").in("profile_id", req.focus_profile_id ? [req.focus_profile_id] : [...libProfById.keys()]);
         const byProfile = new Map<string, LibImg[]>();
         for (const m of (media ?? []) as (LibImg & { profile_id: string })[]) {
           const list = byProfile.get(m.profile_id) ?? [];
@@ -425,7 +426,7 @@ ${JSON.stringify(bible.personas)}
 - Instagram: hook in the first line; 40–150 words; plain, warm and visual; 3–8 relevant hashtags returned separately (not in the copy); at most one emoji, or none.
 - LinkedIn: 120–250 words; reflective and specific, first person plural ("we"); a clear lesson or insight a prospective client would value; at most 3 hashtags returned separately; no emoji.`;
 
-    const out = await callClaude(system, content);
+    const out = (await callClaude(system, content)) as { ideas: Idea[]; stories?: Story[] };
 
     // ── Validation ──
     const pillarKeys = new Set(bible.pillars.map((p) => p.key));

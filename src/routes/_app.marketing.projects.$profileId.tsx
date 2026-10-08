@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { StorySuggestions } from "@/components/marketing/story-suggestions";
 import { BriefingsCard } from "@/components/marketing/briefings-card";
 import { PressKitCard } from "@/components/marketing/press-kit-card";
+import { CarouselsCard } from "@/components/marketing/carousels-card";
 import {
   CLEARANCE_BADGE,
   CLEARANCE_ORDER,
@@ -218,6 +219,8 @@ function ProfilePage() {
 
       <PressKitCard profileId={profile.id} canEdit={canEditStory} canCurate={canCurate} clearance={profile.clearance}
         onCleared={() => { qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] }); qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY }); }} />
+
+      <CarouselsCard profileId={profile.id} canEdit={canEditStory} />
 
       {canEditStory && <BriefingsCard profileId={profile.id} projectId={profile.project_id} canCurate={canCurate} />}
 

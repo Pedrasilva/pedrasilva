@@ -142,6 +142,7 @@ import { Route as AppInventoryAssetsIndexRouteImport } from './routes/_app.inven
 import { Route as AppInventoryAssetsAssetIdRouteImport } from './routes/_app.inventory.assets.$assetId'
 import { Route as AppMarketingActionsIndexRouteImport } from './routes/_app.marketing.actions.index'
 import { Route as AppMarketingActionsActionIdRouteImport } from './routes/_app.marketing.actions.$actionId'
+import { Route as AppMarketingCarouselsIdRouteImport } from './routes/_app.marketing.carousels.$id'
 import { Route as AppMarketingProjectsIndexRouteImport } from './routes/_app.marketing.projects.index'
 import { Route as AppMarketingProjectsProfileIdRouteImport } from './routes/_app.marketing.projects.$profileId'
 import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.products.project.$projectId'
@@ -872,6 +873,11 @@ const AppMarketingActionsActionIdRoute =
     path: '/marketing/actions/$actionId',
     getParentRoute: () => AppRoute,
   } as any)
+const AppMarketingCarouselsIdRoute = AppMarketingCarouselsIdRouteImport.update({
+  id: '/marketing/carousels/$id',
+  path: '/marketing/carousels/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMarketingProjectsIndexRoute =
   AppMarketingProjectsIndexRouteImport.update({
     id: '/marketing/projects/',
@@ -1128,6 +1134,7 @@ export interface FileRoutesByFullPath {
   '/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
+  '/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -1276,6 +1283,7 @@ export interface FileRoutesByTo {
   '/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
+  '/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -1434,6 +1442,7 @@ export interface FileRoutesById {
   '/_app/hr/trabalho-remoto/historico': typeof AppHrTrabalhoRemotoHistoricoRoute
   '/_app/inventory/assets/$assetId': typeof AppInventoryAssetsAssetIdRoute
   '/_app/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
+  '/_app/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/_app/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
   '/_app/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
@@ -1592,6 +1601,7 @@ export interface FileRouteTypes {
     | '/hr/trabalho-remoto/historico'
     | '/inventory/assets/$assetId'
     | '/marketing/actions/$actionId'
+    | '/marketing/carousels/$id'
     | '/marketing/projects/$profileId'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
@@ -1740,6 +1750,7 @@ export interface FileRouteTypes {
     | '/hr/trabalho-remoto/historico'
     | '/inventory/assets/$assetId'
     | '/marketing/actions/$actionId'
+    | '/marketing/carousels/$id'
     | '/marketing/projects/$profileId'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
@@ -1897,6 +1908,7 @@ export interface FileRouteTypes {
     | '/_app/hr/trabalho-remoto/historico'
     | '/_app/inventory/assets/$assetId'
     | '/_app/marketing/actions/$actionId'
+    | '/_app/marketing/carousels/$id'
     | '/_app/marketing/projects/$profileId'
     | '/_app/products/project/$projectId'
     | '/_app/projects/$projectId/allocations'
@@ -2887,6 +2899,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMarketingActionsActionIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/marketing/carousels/$id': {
+      id: '/_app/marketing/carousels/$id'
+      path: '/marketing/carousels/$id'
+      fullPath: '/marketing/carousels/$id'
+      preLoaderRoute: typeof AppMarketingCarouselsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/marketing/projects/': {
       id: '/_app/marketing/projects/'
       path: '/marketing/projects'
@@ -3356,6 +3375,7 @@ interface AppRouteChildren {
   AppProposalsIndexRoute: typeof AppProposalsIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
   AppMarketingActionsActionIdRoute: typeof AppMarketingActionsActionIdRoute
+  AppMarketingCarouselsIdRoute: typeof AppMarketingCarouselsIdRoute
   AppMarketingProjectsProfileIdRoute: typeof AppMarketingProjectsProfileIdRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
   AppMarketingActionsIndexRoute: typeof AppMarketingActionsIndexRoute
@@ -3409,6 +3429,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProposalsIndexRoute: AppProposalsIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,
   AppMarketingActionsActionIdRoute: AppMarketingActionsActionIdRoute,
+  AppMarketingCarouselsIdRoute: AppMarketingCarouselsIdRoute,
   AppMarketingProjectsProfileIdRoute: AppMarketingProjectsProfileIdRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
   AppMarketingActionsIndexRoute: AppMarketingActionsIndexRoute,

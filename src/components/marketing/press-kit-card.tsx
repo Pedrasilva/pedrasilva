@@ -56,7 +56,7 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
   const { data: media = [] } = useQuery({
     queryKey: mediaKey,
     queryFn: async () => {
-      const { data, error } = await db.from("marketing_project_media").select("*").eq("profile_id", profileId)
+      const { data, error } = await db.from("marketing_project_media").select("*").eq("profile_id", profileId).neq("kind", "text_slide")
         .order("position", { ascending: true, nullsFirst: false }).order("created_at");
       if (error) throw error;
       return (data ?? []) as Media[];
@@ -186,6 +186,7 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
     if (r.ok) { toast.success(t("pressKit.deleted")); qc.invalidateQueries({ queryKey: mediaKey }); return; }
     if (r.reason === "published") toast.error(t("pressKit.deletePublished"));
     else if (r.reason === "drafts") toast.error(t("pressKit.deleteDrafts", { count: r.count ?? 0 }));
+    else if (r.reason === "compositions") toast.error(t("carousel.mediaInUse", { count: r.count ?? 0 }));
     else toast.error(t("profiles.error"));
   };
   const [dragId, setDragId] = useState<string | null>(null);
