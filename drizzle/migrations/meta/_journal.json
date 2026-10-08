@@ -218,6 +218,13 @@
       "when": 1791326317182,
       "tag": "0030_crm_email_intake_hourly",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791448507581,
+      "tag": "0031_finance_entities_stage1",
+      "breakpoints": true
     }
   ]
 }

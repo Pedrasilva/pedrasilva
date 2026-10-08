@@ -78,6 +78,7 @@ export type Database = {
           bic: string | null
           created_at: string
           currency: string
+          entity_id: string
           iban: string | null
           id: string
           is_active: boolean
@@ -95,6 +96,7 @@ export type Database = {
           bic?: string | null
           created_at?: string
           currency?: string
+          entity_id?: string
           iban?: string | null
           id?: string
           is_active?: boolean
@@ -112,6 +114,7 @@ export type Database = {
           bic?: string | null
           created_at?: string
           currency?: string
+          entity_id?: string
           iban?: string | null
           id?: string
           is_active?: boolean
@@ -120,13 +123,22 @@ export type Database = {
           opening_balance_date?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bank_accounts_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bank_balance_snapshots: {
         Row: {
           balance: number
           bank_account_id: string
           created_at: string
+          entity_id: string
           id: string
           notes: string | null
           snapshot_date: string
@@ -136,6 +148,7 @@ export type Database = {
           balance: number
           bank_account_id: string
           created_at?: string
+          entity_id?: string
           id?: string
           notes?: string | null
           snapshot_date: string
@@ -145,6 +158,7 @@ export type Database = {
           balance?: number
           bank_account_id?: string
           created_at?: string
+          entity_id?: string
           id?: string
           notes?: string | null
           snapshot_date?: string
@@ -158,6 +172,13 @@ export type Database = {
             referencedRelation: "bank_accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bank_balance_snapshots_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bank_classification_rules: {
@@ -166,6 +187,7 @@ export type Database = {
           case_sensitive: boolean
           classification_id: string | null
           created_at: string
+          entity_id: string
           id: string
           match_type: Database["public"]["Enums"]["bank_rule_match_type"]
           name: string
@@ -179,6 +201,7 @@ export type Database = {
           case_sensitive?: boolean
           classification_id?: string | null
           created_at?: string
+          entity_id?: string
           id?: string
           match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
           name: string
@@ -192,6 +215,7 @@ export type Database = {
           case_sensitive?: boolean
           classification_id?: string | null
           created_at?: string
+          entity_id?: string
           id?: string
           match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
           name?: string
@@ -208,12 +232,20 @@ export type Database = {
             referencedRelation: "financial_classifications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bank_classification_rules_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bank_statement_imports: {
         Row: {
           bank_account_id: string
           created_at: string
+          entity_id: string
           exported_at: string | null
           file_checksum: string
           file_name: string
@@ -239,6 +271,7 @@ export type Database = {
         Insert: {
           bank_account_id: string
           created_at?: string
+          entity_id?: string
           exported_at?: string | null
           file_checksum: string
           file_name: string
@@ -264,6 +297,7 @@ export type Database = {
         Update: {
           bank_account_id?: string
           created_at?: string
+          entity_id?: string
           exported_at?: string | null
           file_checksum?: string
           file_name?: string
@@ -294,6 +328,13 @@ export type Database = {
             referencedRelation: "bank_accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bank_statement_imports_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bank_statement_periods: {
@@ -302,6 +343,7 @@ export type Database = {
           closing_balance: number
           created_at: string
           created_by: string | null
+          entity_id: string
           id: string
           notes: string | null
           opening_balance: number
@@ -315,6 +357,7 @@ export type Database = {
           closing_balance?: number
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           notes?: string | null
           opening_balance?: number
@@ -328,6 +371,7 @@ export type Database = {
           closing_balance?: number
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           notes?: string | null
           opening_balance?: number
@@ -342,6 +386,13 @@ export type Database = {
             columns: ["bank_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_statement_periods_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
         ]
@@ -453,6 +504,7 @@ export type Database = {
           created_at: string
           currency: string
           description: string
+          entity_id: string
           id: string
           ignored_reason: string | null
           notes: string | null
@@ -478,6 +530,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description: string
+          entity_id?: string
           id?: string
           ignored_reason?: string | null
           notes?: string | null
@@ -503,6 +556,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
+          entity_id?: string
           id?: string
           ignored_reason?: string | null
           notes?: string | null
@@ -526,6 +580,13 @@ export type Database = {
             columns: ["bank_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
           {
@@ -904,6 +965,7 @@ export type Database = {
           data_despesa: string
           descricao: string
           document_number: string | null
+          entity_id: string
           estado: Database["public"]["Enums"]["expense_status"]
           financial_document_id: string | null
           foto_path: string | null
@@ -939,6 +1001,7 @@ export type Database = {
           data_despesa: string
           descricao: string
           document_number?: string | null
+          entity_id?: string
           estado?: Database["public"]["Enums"]["expense_status"]
           financial_document_id?: string | null
           foto_path?: string | null
@@ -974,6 +1037,7 @@ export type Database = {
           data_despesa?: string
           descricao?: string
           document_number?: string | null
+          entity_id?: string
           estado?: Database["public"]["Enums"]["expense_status"]
           financial_document_id?: string | null
           foto_path?: string | null
@@ -1029,6 +1093,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
           {
@@ -1509,6 +1580,7 @@ export type Database = {
           cost_category_id: string | null
           created_at: string
           description: string
+          entity_id: string
           id: string
           incurred_at: string | null
           notes: string | null
@@ -1525,6 +1597,7 @@ export type Database = {
           cost_category_id?: string | null
           created_at?: string
           description: string
+          entity_id?: string
           id?: string
           incurred_at?: string | null
           notes?: string | null
@@ -1541,6 +1614,7 @@ export type Database = {
           cost_category_id?: string | null
           created_at?: string
           description?: string
+          entity_id?: string
           id?: string
           incurred_at?: string | null
           notes?: string | null
@@ -1557,6 +1631,13 @@ export type Database = {
             columns: ["cost_category_id"]
             isOneToOne: false
             referencedRelation: "cost_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_expenses_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
           {
@@ -1966,6 +2047,7 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          entity_id: string
           id: string
           is_default: boolean
           name: string
@@ -1976,6 +2058,7 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          entity_id?: string
           id?: string
           is_default?: boolean
           name: string
@@ -1986,6 +2069,7 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          entity_id?: string
           id?: string
           is_default?: boolean
           name?: string
@@ -1993,7 +2077,15 @@ export type Database = {
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cost_categories_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_accounts: {
         Row: {
@@ -2534,6 +2626,7 @@ export type Database = {
       expense_categories: {
         Row: {
           created_at: string
+          entity_id: string
           id: string
           is_active: boolean
           name: string
@@ -2543,6 +2636,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          entity_id?: string
           id?: string
           is_active?: boolean
           name: string
@@ -2552,6 +2646,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          entity_id?: string
           id?: string
           is_active?: boolean
           name?: string
@@ -2560,6 +2655,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "expense_categories_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expense_categories_parent_id_fkey"
             columns: ["parent_id"]
@@ -2918,6 +3020,7 @@ export type Database = {
           decided_at: string
           decided_by: string | null
           decision: string
+          entity_id: string
           id: string
           item_a: string
           item_b: string
@@ -2926,6 +3029,7 @@ export type Database = {
           decided_at?: string
           decided_by?: string | null
           decision: string
+          entity_id?: string
           id?: string
           item_a: string
           item_b: string
@@ -2934,9 +3038,48 @@ export type Database = {
           decided_at?: string
           decided_by?: string | null
           decision?: string
+          entity_id?: string
           id?: string
           item_a?: string
           item_b?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_duplicate_decisions_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_entities: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          invoicexpress_account: string | null
+          name: string
+          nif: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          invoicexpress_account?: string | null
+          name: string
+          nif: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          invoicexpress_account?: string | null
+          name?: string
+          nif?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2946,6 +3089,7 @@ export type Database = {
           corrected_by: string | null
           corrected_value: string | null
           created_at: string
+          entity_id: string
           field: string
           id: string
           queue_item_id: string | null
@@ -2956,6 +3100,7 @@ export type Database = {
           corrected_by?: string | null
           corrected_value?: string | null
           created_at?: string
+          entity_id?: string
           field: string
           id?: string
           queue_item_id?: string | null
@@ -2966,12 +3111,20 @@ export type Database = {
           corrected_by?: string | null
           corrected_value?: string | null
           created_at?: string
+          entity_id?: string
           field?: string
           id?: string
           queue_item_id?: string | null
           supplier_nif?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "finance_intake_corrections_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "finance_intake_corrections_queue_item_id_fkey"
             columns: ["queue_item_id"]
@@ -3017,6 +3170,7 @@ export type Database = {
           active: boolean
           created_at: string
           created_by: string | null
+          entity_id: string
           id: string
           scope_type: string
           scope_value: string | null
@@ -3028,6 +3182,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           scope_type?: string
           scope_value?: string | null
@@ -3039,34 +3194,54 @@ export type Database = {
           active?: boolean
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           scope_type?: string
           scope_value?: string | null
           text?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "finance_intake_instructions_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       finance_intake_settings: {
         Row: {
+          entity_id: string
           finance_address: string
           id: boolean
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          entity_id?: string
           finance_address?: string
           id?: boolean
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          entity_id?: string
           finance_address?: string
           id?: boolean
           updated_at?: string
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "finance_intake_settings_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       finance_other_entities: {
         Row: {
@@ -3112,6 +3287,7 @@ export type Database = {
           confirmed_by: string | null
           created_at: string
           description: string | null
+          entity_id: string
           financial_document_ids: string[]
           id: string
           payer_iban: string | null
@@ -3136,6 +3312,7 @@ export type Database = {
           confirmed_by?: string | null
           created_at?: string
           description?: string | null
+          entity_id?: string
           financial_document_ids?: string[]
           id?: string
           payer_iban?: string | null
@@ -3160,6 +3337,7 @@ export type Database = {
           confirmed_by?: string | null
           created_at?: string
           description?: string | null
+          entity_id?: string
           financial_document_ids?: string[]
           id?: string
           payer_iban?: string | null
@@ -3182,6 +3360,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "finance_recebimentos_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       finance_sender_rules: {
@@ -3189,6 +3374,7 @@ export type Database = {
           action: string
           created_at: string
           created_by: string | null
+          entity_id: string
           id: string
           pattern: string
         }
@@ -3196,6 +3382,7 @@ export type Database = {
           action: string
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           pattern: string
         }
@@ -3203,10 +3390,19 @@ export type Database = {
           action?: string
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           id?: string
           pattern?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "finance_sender_rules_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_classifications: {
         Row: {
@@ -3217,6 +3413,7 @@ export type Database = {
           collaborator_link_allowed: boolean
           cost_category_id: string | null
           created_at: string
+          entity_id: string
           financial_nature: Database["public"]["Enums"]["financial_nature"]
           id: string
           level: Database["public"]["Enums"]["financial_class_level"]
@@ -3239,6 +3436,7 @@ export type Database = {
           collaborator_link_allowed?: boolean
           cost_category_id?: string | null
           created_at?: string
+          entity_id?: string
           financial_nature: Database["public"]["Enums"]["financial_nature"]
           id?: string
           level?: Database["public"]["Enums"]["financial_class_level"]
@@ -3261,6 +3459,7 @@ export type Database = {
           collaborator_link_allowed?: boolean
           cost_category_id?: string | null
           created_at?: string
+          entity_id?: string
           financial_nature?: Database["public"]["Enums"]["financial_nature"]
           id?: string
           level?: Database["public"]["Enums"]["financial_class_level"]
@@ -3281,6 +3480,13 @@ export type Database = {
             columns: ["cost_category_id"]
             isOneToOne: false
             referencedRelation: "cost_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_classifications_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
           {
@@ -3362,6 +3568,7 @@ export type Database = {
           creditor_name: string
           description: string | null
           end_date: string | null
+          entity_id: string
           id: string
           notes: string | null
           original_amount: number
@@ -3375,6 +3582,7 @@ export type Database = {
           creditor_name: string
           description?: string | null
           end_date?: string | null
+          entity_id?: string
           id?: string
           notes?: string | null
           original_amount?: number
@@ -3388,6 +3596,7 @@ export type Database = {
           creditor_name?: string
           description?: string | null
           end_date?: string | null
+          entity_id?: string
           id?: string
           notes?: string | null
           original_amount?: number
@@ -3396,7 +3605,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["financial_debt_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_debts_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_document_lines: {
         Row: {
@@ -3570,6 +3787,7 @@ export type Database = {
           duplicate_of_document_id: string | null
           duplicate_of_id: string | null
           duplicate_reason: string | null
+          entity_id: string
           extracted_account_number: string | null
           extracted_amount: number | null
           extracted_balance_due: number | null
@@ -3699,6 +3917,7 @@ export type Database = {
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
           duplicate_reason?: string | null
+          entity_id?: string
           extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
@@ -3828,6 +4047,7 @@ export type Database = {
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
           duplicate_reason?: string | null
+          entity_id?: string
           extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
@@ -3987,6 +4207,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_document_review_queue_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_document_review_queue_matched_bank_account_id_fkey"
             columns: ["matched_bank_account_id"]
             isOneToOne: false
@@ -4068,6 +4295,7 @@ export type Database = {
           doc_type: Database["public"]["Enums"]["financial_doc_type"]
           document_number: string | null
           due_date: string | null
+          entity_id: string
           external_reference: string | null
           file_path: string | null
           id: string
@@ -4123,6 +4351,7 @@ export type Database = {
           doc_type: Database["public"]["Enums"]["financial_doc_type"]
           document_number?: string | null
           due_date?: string | null
+          entity_id?: string
           external_reference?: string | null
           file_path?: string | null
           id?: string
@@ -4178,6 +4407,7 @@ export type Database = {
           doc_type?: Database["public"]["Enums"]["financial_doc_type"]
           document_number?: string | null
           due_date?: string | null
+          entity_id?: string
           external_reference?: string | null
           file_path?: string | null
           id?: string
@@ -4247,6 +4477,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_documents_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_documents_paid_from_account_id_fkey"
             columns: ["paid_from_account_id"]
             isOneToOne: false
@@ -4272,6 +4509,7 @@ export type Database = {
       financial_drive_processed_files: {
         Row: {
           drive_file_id: string
+          entity_id: string
           error: string | null
           file_name: string | null
           id: string
@@ -4286,6 +4524,7 @@ export type Database = {
         }
         Insert: {
           drive_file_id: string
+          entity_id?: string
           error?: string | null
           file_name?: string | null
           id?: string
@@ -4300,6 +4539,7 @@ export type Database = {
         }
         Update: {
           drive_file_id?: string
+          entity_id?: string
           error?: string | null
           file_name?: string | null
           id?: string
@@ -4314,6 +4554,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "financial_drive_processed_files_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_drive_processed_files_queue_item_id_fkey"
             columns: ["queue_item_id"]
             isOneToOne: false
@@ -4326,6 +4573,7 @@ export type Database = {
         Row: {
           attachment_filename: string | null
           created_at: string
+          entity_id: string
           from_address: string | null
           id: string
           message_id: string | null
@@ -4336,6 +4584,7 @@ export type Database = {
         Insert: {
           attachment_filename?: string | null
           created_at?: string
+          entity_id?: string
           from_address?: string | null
           id?: string
           message_id?: string | null
@@ -4346,6 +4595,7 @@ export type Database = {
         Update: {
           attachment_filename?: string | null
           created_at?: string
+          entity_id?: string
           from_address?: string | null
           id?: string
           message_id?: string | null
@@ -4353,11 +4603,20 @@ export type Database = {
           reason?: string
           subject?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_email_ignored_items_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_email_processed_messages: {
         Row: {
           attachments_queued: number
+          entity_id: string
           from_address: string | null
           id: string
           message_id: string
@@ -4368,6 +4627,7 @@ export type Database = {
         }
         Insert: {
           attachments_queued?: number
+          entity_id?: string
           from_address?: string | null
           id?: string
           message_id: string
@@ -4378,6 +4638,7 @@ export type Database = {
         }
         Update: {
           attachments_queued?: number
+          entity_id?: string
           from_address?: string | null
           id?: string
           message_id?: string
@@ -4386,7 +4647,15 @@ export type Database = {
           subject?: string | null
           thread_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_email_processed_messages_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_expense_items: {
         Row: {
@@ -4399,6 +4668,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           due_date: string | null
+          entity_id: string
           expense_type: Database["public"]["Enums"]["financial_expense_type"]
           id: string
           notes: string | null
@@ -4422,6 +4692,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          entity_id?: string
           expense_type?: Database["public"]["Enums"]["financial_expense_type"]
           id?: string
           notes?: string | null
@@ -4445,6 +4716,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          entity_id?: string
           expense_type?: Database["public"]["Enums"]["financial_expense_type"]
           id?: string
           notes?: string | null
@@ -4471,6 +4743,13 @@ export type Database = {
             columns: ["cost_category_id"]
             isOneToOne: false
             referencedRelation: "cost_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
           {
@@ -4561,6 +4840,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          entity_id: string
           file_checksum: string | null
           file_name: string
           id: string
@@ -4580,6 +4860,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           file_checksum?: string | null
           file_name: string
           id?: string
@@ -4599,6 +4880,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          entity_id?: string
           file_checksum?: string | null
           file_name?: string
           id?: string
@@ -4615,7 +4897,15 @@ export type Database = {
           source_file_size_bytes?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_import_logs_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_income_items: {
         Row: {
@@ -4625,6 +4915,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          entity_id: string
           expected_payment_date: string | null
           id: string
           invoice_number: string | null
@@ -4647,6 +4938,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          entity_id?: string
           expected_payment_date?: string | null
           id?: string
           invoice_number?: string | null
@@ -4669,6 +4961,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          entity_id?: string
           expected_payment_date?: string | null
           id?: string
           invoice_number?: string | null
@@ -4693,6 +4986,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_income_items_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_income_items_period_id_fkey"
             columns: ["period_id"]
             isOneToOne: false
@@ -4714,6 +5014,7 @@ export type Database = {
           closed_by: string | null
           closing_balance: number
           created_at: string
+          entity_id: string
           id: string
           is_closed: boolean
           month: number
@@ -4729,6 +5030,7 @@ export type Database = {
           closed_by?: string | null
           closing_balance?: number
           created_at?: string
+          entity_id?: string
           id?: string
           is_closed?: boolean
           month: number
@@ -4744,6 +5046,7 @@ export type Database = {
           closed_by?: string | null
           closing_balance?: number
           created_at?: string
+          entity_id?: string
           id?: string
           is_closed?: boolean
           month?: number
@@ -4754,7 +5057,15 @@ export type Database = {
           updated_at?: string
           year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_periods_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       historical_time_entries: {
         Row: {
@@ -7535,6 +7846,7 @@ export type Database = {
           company_phone: string | null
           created_at: string
           default_notes: string | null
+          entity_id: string
           file_name: string | null
           iban: string | null
           id: string
@@ -7565,6 +7877,7 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_notes?: string | null
+          entity_id?: string
           file_name?: string | null
           iban?: string | null
           id?: string
@@ -7595,6 +7908,7 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_notes?: string | null
+          entity_id?: string
           file_name?: string | null
           iban?: string | null
           id?: string
@@ -7617,6 +7931,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "pm_invoice_settings_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pm_invoice_settings_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -7636,6 +7957,7 @@ export type Database = {
           contact_name: string | null
           created_at: string
           due_date: string | null
+          entity_id: string
           financial_document_id: string | null
           id: string
           invoice_number: string
@@ -7662,6 +7984,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           due_date?: string | null
+          entity_id?: string
           financial_document_id?: string | null
           id?: string
           invoice_number: string
@@ -7688,6 +8011,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           due_date?: string | null
+          entity_id?: string
           financial_document_id?: string | null
           id?: string
           invoice_number?: string
@@ -7705,6 +8029,13 @@ export type Database = {
           vat_amount?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_invoices_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_invoices_financial_document_id_fkey"
             columns: ["financial_document_id"]
@@ -7835,6 +8166,7 @@ export type Database = {
           billing_status: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at: string
           direction: string
+          entity_id: string
           expected_invoice_date: string | null
           expected_payment_date: string | null
           generator_source: string | null
@@ -7864,6 +8196,7 @@ export type Database = {
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at?: string
           direction?: string
+          entity_id?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
           generator_source?: string | null
@@ -7893,6 +8226,7 @@ export type Database = {
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at?: string
           direction?: string
+          entity_id?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
           generator_source?: string | null
@@ -7917,6 +8251,13 @@ export type Database = {
           vat_rate_override?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_payment_schedule_items_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_payment_schedule_items_linked_payment_item_id_fkey"
             columns: ["linked_payment_item_id"]
@@ -9355,6 +9696,7 @@ export type Database = {
           contact_name: string | null
           created_at: string
           email: string | null
+          entity_id: string
           id: string
           name: string
           notes: string | null
@@ -9367,6 +9709,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           email?: string | null
+          entity_id?: string
           id?: string
           name: string
           notes?: string | null
@@ -9379,6 +9722,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           email?: string | null
+          entity_id?: string
           id?: string
           name?: string
           notes?: string | null
@@ -9386,7 +9730,15 @@ export type Database = {
           tax_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pm_suppliers_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pm_tasks: {
         Row: {
@@ -12760,6 +13112,7 @@ export type Database = {
           created_at: string
           currency: string
           document_number: string | null
+          entity_id: string
           filed_at: string | null
           filed_by: string | null
           financial_document_id: string
@@ -12778,6 +13131,7 @@ export type Database = {
           created_at?: string
           currency?: string
           document_number?: string | null
+          entity_id?: string
           filed_at?: string | null
           filed_by?: string | null
           financial_document_id: string
@@ -12796,6 +13150,7 @@ export type Database = {
           created_at?: string
           currency?: string
           document_number?: string | null
+          entity_id?: string
           filed_at?: string | null
           filed_by?: string | null
           financial_document_id?: string
@@ -12810,6 +13165,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tax_withholdings_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tax_withholdings_financial_document_id_fkey"
             columns: ["financial_document_id"]
@@ -13670,6 +14032,7 @@ export type Database = {
           data_despesa: string
           descricao: string
           document_number: string | null
+          entity_id: string
           estado: Database["public"]["Enums"]["expense_status"]
           financial_document_id: string | null
           foto_path: string | null
