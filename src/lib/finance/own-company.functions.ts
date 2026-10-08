@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { normalizePortugueseNif } from "./nif";
 
 /**
@@ -19,15 +18,9 @@ import { normalizePortugueseNif } from "./nif";
 export const getOwnCompanyNif = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async (): Promise<{ nif: string | null; name: string | null }> => {
-    const { data, error } = await supabaseAdmin
-      .from("pm_invoice_settings")
-      .select("company_nif, company_name, singleton")
-      .order("singleton", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error || !data) return { nif: null, name: null };
-    return {
-      nif: normalizePortugueseNif(data.company_nif),
-      name: data.company_name ?? null,
-    };
+    // Staff receipts are PSA's (benefit claims): PSA's own settings row.
+    const { loadEntityIdentity } = await import("@/lib/finance/recipient-rule.server");
+    const { PSA_ENTITY_ID } = await import("@/lib/finance/entity");
+    const id = await loadEntityIdentity(PSA_ENTITY_ID);
+    return { nif: normalizePortugueseNif(id.vat), name: id.name };
   });

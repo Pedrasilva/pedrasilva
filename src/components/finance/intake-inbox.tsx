@@ -94,6 +94,8 @@ type InboxRow = QueueRow & {
   duplicate_of_id: string | null;
   duplicate_of_document_id: string | null;
   duplicate_kind: string | null;
+  entity_conflict_ids?: string[] | null;
+  historical?: boolean;
   duplicate_reason: string | null;
   possible_duplicates: DupCand[] | null;
   possible_duplicate_resolved: boolean;
@@ -370,6 +372,12 @@ function StatusBadges({ row }: { row: InboxRow }) {
       {row.possible_duplicates?.length && !row.possible_duplicate_resolved && status === "pending_review" ? (
         <Badge variant="destructive" className="text-[10px]">{t("finance:intakeInbox.dup.possibleBadge")}</Badge>
       ) : null}
+      {!!row.entity_conflict_ids?.length && (
+        <Badge variant="destructive" className="text-[10px]">{t("finance:intakeInbox.twoEntities")}</Badge>
+      )}
+      {row.historical && (
+        <Badge variant="secondary" className="text-[10px]">{t("finance:intakeInbox.historical")}</Badge>
+      )}
       {row.split_part != null && row.split_part > 0 && (
         <Badge variant="outline" className="text-[10px]">
           {t("finance:intakeInbox.splitPart", { n: row.split_part, first: row.split_page_first, last: row.split_page_last })}

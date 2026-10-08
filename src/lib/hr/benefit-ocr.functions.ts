@@ -289,13 +289,10 @@ export const extractBenefitReceipt = createServerFn({ method: "POST" })
       // should be, treat it as own-company and skip supplier matching.
       let ownCompanyNif: string | null = null;
       {
-        const { data: settings } = await supabaseAdmin
-          .from("pm_invoice_settings")
-          .select("company_nif")
-          .order("singleton", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        ownCompanyNif = normalizePortugueseNif(settings?.company_nif ?? null);
+        // Benefit claims belong to PSA: compare against PSA's own identity.
+        const { loadEntityIdentity } = await import("@/lib/finance/recipient-rule.server");
+        const { PSA_ENTITY_ID } = await import("@/lib/finance/entity");
+        ownCompanyNif = normalizePortugueseNif((await loadEntityIdentity(PSA_ENTITY_ID)).vat);
       }
       const supplierIsOwnCompany =
         !!ownCompanyNif &&

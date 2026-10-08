@@ -333,6 +333,7 @@ export const checkManualDuplicate = createServerFn({ method: "POST" })
       date: data.issueDate,
       total: data.total,
       bankAccountId: null, iban: null, accountNumber: null, periodStart: null, periodEnd: null,
+      entityId: await currentEntityId(supabase),
     });
     const all = [...(res.exact ? [res.exact] : []), ...res.probable]
       .filter((m) => !data.excludeDocumentId || m.documentId !== data.excludeDocumentId);

@@ -6,6 +6,7 @@
  * No document contents are stored here.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { normalizeVat } from "@/lib/finance/doc-intake.server";
 
 export const nifKey = (v: string | null | undefined) => normalizeVat(v)?.replace(/^PT/, "")?.toLowerCase() ?? null;
@@ -34,12 +35,13 @@ function senderMatches(scope: string, sender: string | null) {
   return domain === scope || domain.endsWith(`.${scope}`);
 }
 
-export async function supplierDefaults(nif: string | null): Promise<SupplierDefault | null> {
+export async function supplierDefaults(nif: string | null, entityId: string = PSA_ENTITY_ID): Promise<SupplierDefault | null> {
   const n = nifKey(nif);
   if (!n) return null;
   const { data } = await supabaseAdmin
     .from("financial_document_review_queue")
     .select("id, intake_type, suggested_classification_code, extracted_supplier_vat, reviewed_at")
+    .eq("entity_id", entityId)
     .eq("status", "approved")
     .not("intake_type", "is", null)
     .not("suggested_classification_code", "is", null)
@@ -52,12 +54,13 @@ export async function supplierDefaults(nif: string | null): Promise<SupplierDefa
   return { intake_type: a.intake_type!, classification_code: a.suggested_classification_code!, based_on: mine.map((r) => r.id) };
 }
 
-async function recentCorrections(nif: string | null): Promise<Correction[]> {
+async function recentCorrections(nif: string | null, entityId: string = PSA_ENTITY_ID): Promise<Correction[]> {
   const n = nifKey(nif);
   if (!n) return [];
   const { data } = await supabaseAdmin
     .from("finance_intake_corrections")
     .select("field, ai_value, corrected_value")
+    .eq("entity_id", entityId)
     .eq("supplier_nif", n)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -65,11 +68,12 @@ async function recentCorrections(nif: string | null): Promise<Correction[]> {
 }
 
 /** Best guess of the supplier before reading: the NIF last seen from this sender. */
-export async function nifHintForSender(sender: string | null): Promise<string | null> {
+export async function nifHintForSender(sender: string | null, entityId: string = PSA_ENTITY_ID): Promise<string | null> {
   if (!sender) return null;
   const { data } = await supabaseAdmin
     .from("financial_document_review_queue")
     .select("extracted_supplier_vat")
+    .eq("entity_id", entityId)
     .eq("sender_address", sender.toLowerCase())
     .not("extracted_supplier_vat", "is", null)
     .neq("status", "rejected")
@@ -84,16 +88,18 @@ export async function nifHintForSender(sender: string | null): Promise<string | 
   return best && best[1] >= 2 ? best[0] : null;
 }
 
-export async function loadLearning(opts: { nif: string | null; sender: string | null; docId?: string | null }): Promise<Learning> {
+export async function loadLearning(opts: { nif: string | null; sender: string | null; docId?: string | null; entityId?: string }): Promise<Learning> {
+  const entityId = opts.entityId ?? PSA_ENTITY_ID;
   const { data } = await supabaseAdmin
     .from("finance_intake_instructions")
     .select("id, text, scope_type, scope_value")
+    .eq("entity_id", entityId)
     .eq("active", true)
     .eq("action", "note")
     .order("created_at", { ascending: true });
   const all = (data ?? []) as Instruction[];
   const nif = nifKey(opts.nif);
-  const [defaults, examples] = await Promise.all([supplierDefaults(nif), recentCorrections(nif)]);
+  const [defaults, examples] = await Promise.all([supplierDefaults(nif, entityId), recentCorrections(nif, entityId)]);
   return {
     instructions: all.filter(
       (i) =>

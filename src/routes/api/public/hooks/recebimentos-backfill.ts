@@ -26,14 +26,19 @@ export const Route = createFileRoute("/api/public/hooks/recebimentos-backfill")(
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const rec = await import("@/lib/finance/recebimentos.server");
-        const { loadPsaIdentity } = await import("@/lib/finance/recipient-rule.server");
-        const psa = await loadPsaIdentity();
+        const { loadEntityIdentity } = await import("@/lib/finance/recipient-rule.server");
+        // Each item is judged against its own entity's identity.
+        const idCache = new Map<string, Awaited<ReturnType<typeof loadEntityIdentity>>>();
+        const identityOf = async (entityId: string) => {
+          if (!idCache.has(entityId)) idCache.set(entityId, await loadEntityIdentity(entityId));
+          return idCache.get(entityId)!;
+        };
 
         const results: Array<{ id: string; direction: string | null; read: boolean; recebimento?: string | null; joined?: boolean; error?: string }> = [];
         if (!body.group_only) {
           const { data: items } = await supabaseAdmin
             .from("financial_document_review_queue")
-            .select("id, intake_type, intake_route, intake_type_confidence, raw_extraction, source_bucket, source_file_url, split_page_first, split_page_last, split_of_file_url")
+            .select("id, intake_type, intake_route, intake_type_confidence, raw_extraction, source_bucket, source_file_url, split_page_first, split_page_last, split_of_file_url, entity_id")
             .eq("status", "pending_review")
             .in("intake_type", [...rec.PAYMENT_PROOF_TYPES])
             .is("payment_direction", null)
@@ -57,7 +62,7 @@ export const Route = createFileRoute("/api/public/hooks/recebimentos-backfill")(
                 });
               }
               if (!p) { results.push({ id: it.id, direction: null, read: false, error: "no read" }); continue; }
-              const cols = await rec.partiesColumns(p, psa);
+              const cols = await rec.partiesColumns(p, await identityOf(it.entity_id));
               const patch: Record<string, unknown> = { ...cols };
               // Mark read even when nothing was printed, so the item isn't re-read.
               if (!cols.payer_name && !cols.beneficiary_name) patch.payer_name = "";

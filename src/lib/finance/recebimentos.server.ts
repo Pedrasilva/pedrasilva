@@ -6,7 +6,7 @@
  * confirms (see confirmRecebimento in recebimentos.functions.ts).
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { isPsaParty, loadPsaIdentity, type Party, type PsaIdentity } from "@/lib/finance/recipient-rule.server";
+import { isPsaParty, loadEntityIdentity, type Party, type PsaIdentity } from "@/lib/finance/recipient-rule.server";
 import { sameVat } from "@/lib/finance/doc-intake.server";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
@@ -37,7 +37,7 @@ export type PaymentParties = {
   description: string | null;
 };
 
-/** PSA beneficiary → incoming; PSA payer → outgoing; otherwise unknown. */
+/** Entity beneficiary → incoming; PSA payer → outgoing; otherwise unknown. */
 export function paymentDirection(p: PaymentParties, psa: PsaIdentity): "incoming" | "outgoing" | null {
   const payerPsa = isPsaParty(p.payer, psa);
   const benPsa = isPsaParty(p.beneficiary, psa);
@@ -168,13 +168,15 @@ export async function refreshSuggestions(recId: string) {
   const amount = money(rec.amount);
   const date = rec.received_date as string;
 
-  // Bank: credit lines on PSA accounts, same amount, ±5 days, not yet reconciled.
+  // Bank: credit lines on THIS recebimento's entity's accounts only, same amount, ±5 days.
+  const entityId = rec.entity_id as string;
   const { data: tx } = await supabaseAdmin
     .from("bank_transactions")
     .select("id, transaction_date, amount, reconciled_at")
+    .eq("entity_id", entityId)
     .gte("amount", amount - AMOUNT_TOL).lte("amount", amount + AMOUNT_TOL)
     .gte("transaction_date", addDays(date, -DATE_TOL_DAYS)).lte("transaction_date", addDays(date, DATE_TOL_DAYS));
-  const { data: taken } = await supabaseAdmin.from("finance_recebimentos").select("id, bank_transaction_ids").eq("status", "confirmed");
+  const { data: taken } = await supabaseAdmin.from("finance_recebimentos").select("id, bank_transaction_ids").eq("entity_id", entityId).eq("status", "confirmed");
   const used = new Set((taken ?? []).flatMap((r) => r.bank_transaction_ids ?? []));
   const bankIds = (tx ?? [])
     .filter((t) => !used.has(t.id))
@@ -182,7 +184,7 @@ export async function refreshSuggestions(recId: string) {
     .sort((a, b) => (a.reconciled_at ? 1 : 0) - (b.reconciled_at ? 1 : 0) || dayDiff(a.transaction_date, date) - dayDiff(b.transaction_date, date))
     .map((t) => t.id);
 
-  const targets = await findTargets(rec.company_id, amount, date, rec.description);
+  const targets = await findTargets(rec.company_id, amount, date, rec.description, entityId);
   await supabaseAdmin
     .from("finance_recebimentos")
     .update({ suggested_bank_transaction_ids: bankIds, suggested_targets: targets as any, updated_at: new Date().toISOString() })
@@ -190,7 +192,7 @@ export async function refreshSuggestions(recId: string) {
 }
 
 /** Open things the client could be paying, gross (VAT included). */
-export async function openTargetsForClient(companyId: string): Promise<TargetItem[]> {
+export async function openTargetsForClient(companyId: string, entityId: string): Promise<TargetItem[]> {
   const { data: company } = await supabaseAdmin.from("companies").select("id, nif").eq("id", companyId).maybeSingle();
   const { data: projects } = await supabaseAdmin.from("pm_projects").select("id, name").eq("company_id", companyId);
   const pIds = (projects ?? []).map((p) => p.id);
@@ -198,7 +200,7 @@ export async function openTargetsForClient(companyId: string): Promise<TargetIte
   const out: TargetItem[] = [];
 
   let invQ = supabaseAdmin.from("pm_invoices").select("id, invoice_number, title, total, raised_date, due_date, project_id, status, client_nif")
-    .in("status", ["draft", "sent", "overdue"]);
+    .eq("entity_id", entityId).in("status", ["draft", "sent", "overdue"]);
   if (pIds.length) invQ = invQ.or(`project_id.in.(${pIds.join(",")})${company?.nif ? `,client_nif.eq.${company.nif}` : ""}`);
   else if (company?.nif) invQ = invQ.eq("client_nif", company.nif);
   else invQ = invQ.eq("id", "00000000-0000-0000-0000-000000000000");
@@ -209,7 +211,7 @@ export async function openTargetsForClient(companyId: string): Promise<TargetIte
   if (pIds.length) {
     const { data: sch } = await supabaseAdmin.from("pm_payment_schedule_items")
       .select("id, label, amount_type, amount_value, vat_rate, expected_payment_date, expected_invoice_date, project_id, billing_status, direction")
-      .in("project_id", pIds).eq("direction", "inflow").in("billing_status", ["planned", "issued"]).eq("amount_type", "fixed");
+      .eq("entity_id", entityId).in("project_id", pIds).eq("direction", "inflow").in("billing_status", ["planned", "issued"]).eq("amount_type", "fixed");
     for (const s of sch ?? []) {
       const rate = Number(s.vat_rate ?? 0);
       const gross = money(Number(s.amount_value ?? 0) * (1 + (rate > 1 ? rate / 100 : rate)));
@@ -218,7 +220,7 @@ export async function openTargetsForClient(companyId: string): Promise<TargetIte
   }
   const { data: docs } = await supabaseAdmin.from("financial_documents")
     .select("id, document_number, total_inc_vat, outstanding_amount, issue_date, due_date, project_id, status, doc_type")
-    .eq("direction", "issued").eq("counterparty_client_id", companyId).neq("status", "cancelled")
+    .eq("entity_id", entityId).eq("direction", "issued").eq("counterparty_client_id", companyId).neq("status", "cancelled")
     .in("doc_type", ["client_invoice"]).gt("outstanding_amount", 0);
   for (const d of docs ?? []) {
     out.push({ kind: "issued_document", id: d.id, label: d.document_number ?? "—", amount: money(d.outstanding_amount ?? d.total_inc_vat), date: d.due_date ?? d.issue_date, projectId: d.project_id, projectName: d.project_id ? pName.get(d.project_id) ?? null : null });
@@ -226,9 +228,9 @@ export async function openTargetsForClient(companyId: string): Promise<TargetIte
   return out;
 }
 
-async function findTargets(companyId: string | null, amount: number, date: string, description: string | null): Promise<TargetSuggestion[]> {
+async function findTargets(companyId: string | null, amount: number, date: string, description: string | null, entityId: string): Promise<TargetSuggestion[]> {
   if (!companyId) return [];
-  const all = (await openTargetsForClient(companyId)).filter((t) => !t.date || dayDiff(t.date, date) <= TARGET_WINDOW_DAYS);
+  const all = (await openTargetsForClient(companyId, entityId)).filter((t) => !t.date || dayDiff(t.date, date) <= TARGET_WINDOW_DAYS);
   const desc = nameKey(description);
   const hintOf = (items: TargetItem[]) => {
     if (!desc) return null;
@@ -258,7 +260,7 @@ async function findTargets(companyId: string | null, amount: number, date: strin
 
 /** Store parties + direction on a queue row from an extraction. */
 export async function partiesColumns(p: PaymentParties, psa?: PsaIdentity) {
-  const identity = psa ?? (await loadPsaIdentity());
+  const identity = psa ?? (await loadEntityIdentity(PSA_ENTITY_ID));
   return {
     payer_name: p.payer.name, payer_vat: p.payer.vat, payer_iban: p.payer.iban,
     beneficiary_name: p.beneficiary.name, beneficiary_vat: p.beneficiary.vat, beneficiary_iban: p.beneficiary.iban,

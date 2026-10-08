@@ -3842,6 +3842,7 @@ export type Database = {
           duplicate_of_document_id: string | null
           duplicate_of_id: string | null
           duplicate_reason: string | null
+          entity_conflict_ids: string[] | null
           entity_id: string
           extracted_account_number: string | null
           extracted_amount: number | null
@@ -3874,6 +3875,7 @@ export type Database = {
           forward_error: string | null
           forwarded_at: string | null
           forwarded_to: string | null
+          historical: boolean
           id: string
           intake_route: string | null
           intake_type: string | null
@@ -3902,6 +3904,7 @@ export type Database = {
           payment_status: string
           possible_duplicate_resolved: boolean
           possible_duplicates: Json | null
+          purge_exempt: boolean
           raw_extraction: Json | null
           recebimento_id: string | null
           recurring_reference_id: string | null
@@ -3972,6 +3975,7 @@ export type Database = {
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
           duplicate_reason?: string | null
+          entity_conflict_ids?: string[] | null
           entity_id: string
           extracted_account_number?: string | null
           extracted_amount?: number | null
@@ -4004,6 +4008,7 @@ export type Database = {
           forward_error?: string | null
           forwarded_at?: string | null
           forwarded_to?: string | null
+          historical?: boolean
           id?: string
           intake_route?: string | null
           intake_type?: string | null
@@ -4032,6 +4037,7 @@ export type Database = {
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
+          purge_exempt?: boolean
           raw_extraction?: Json | null
           recebimento_id?: string | null
           recurring_reference_id?: string | null
@@ -4102,6 +4108,7 @@ export type Database = {
           duplicate_of_document_id?: string | null
           duplicate_of_id?: string | null
           duplicate_reason?: string | null
+          entity_conflict_ids?: string[] | null
           entity_id?: string
           extracted_account_number?: string | null
           extracted_amount?: number | null
@@ -4134,6 +4141,7 @@ export type Database = {
           forward_error?: string | null
           forwarded_at?: string | null
           forwarded_to?: string | null
+          historical?: boolean
           id?: string
           intake_route?: string | null
           intake_type?: string | null
@@ -4162,6 +4170,7 @@ export type Database = {
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
+          purge_exempt?: boolean
           raw_extraction?: Json | null
           recebimento_id?: string | null
           recurring_reference_id?: string | null

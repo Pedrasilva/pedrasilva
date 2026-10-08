@@ -495,6 +495,8 @@ export async function runDualExtraction(
   /** Read only these pages (one document cut out of a multi-document PDF). */
   pages?: { first: number; last: number } | null,
   extra?: {
+    /** Entity whose identity + classification catalog the prompt uses (default PSA). */
+    entityId?: string;
     /** File already downloaded by the caller (hash check). */
     preloaded?: { b64: string; mime: string } | null;
     /** "Regras do estúdio", supplier pattern and examples for Claude. */
@@ -513,7 +515,7 @@ export async function runDualExtraction(
     return { ok: false, error: e instanceof Error ? e.message : String(e), retryLater: false };
   }
 
-  const [catalog, own] = await Promise.all([loadClassificationCatalog(), getOwnCompanyVat()]);
+  const [catalog, own] = await Promise.all([loadClassificationCatalog(extra?.entityId), getOwnCompanyVat(extra?.entityId)]);
   const catalogText = catalog.map((c) => `${c.code} — ${c.name_en}`).join("\n");
   const system = buildExtractionSystemPrompt(own, catalogText) + "\n" + INTAKE_RULES;
   const userText = forcedType
