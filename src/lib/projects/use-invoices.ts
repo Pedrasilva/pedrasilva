@@ -69,7 +69,7 @@ export function useCreateInvoice(projectId: string) {
     }) => {
       const { data: inv, error } = await supabase
         .from("pm_invoices")
-        .insert({ entity_id: PSA_ENTITY_ID, ...input.invoice, project_id: projectId })
+        .insert({ ...input.invoice, entity_id: input.invoice.entity_id ?? PSA_ENTITY_ID, project_id: projectId })
         .select("*")
         .single();
       if (error) throw error;

@@ -39,6 +39,7 @@ import {
   useStatementPeriodStatus,
   type StatementPeriod,
 } from "@/lib/finance/use-statement-periods";
+import { currentEntityId } from "@/lib/finance/current-entity";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("pt-PT", {
@@ -134,7 +135,7 @@ export function StatementPeriodsPanel({
           .from("bank_statement_periods")
           .update(payload)
           .eq("id", editing.id)
-      : await supabase.from("bank_statement_periods").insert(payload);
+      : await supabase.from("bank_statement_periods").insert({ ...payload, entity_id: await currentEntityId() });
     setSaving(false);
     if (error) {
       toast.error(error.message);

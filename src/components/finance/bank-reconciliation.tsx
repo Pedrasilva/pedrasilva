@@ -344,7 +344,9 @@ function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accou
 
       const selectedRows = preview.parse.rows.filter((_, i) => preview.rowSelection[i]);
       const ruleHits = preview.ruleHits.filter((_, i) => preview.rowSelection[i]);
+      const entityId = await currentEntityId();
       const inserts = selectedRows.map((r, i) => ({
+        entity_id: entityId,
         bank_account_id: accountId,
         statement_import_id: importLog.id,
         transaction_date: r.transaction_date,
