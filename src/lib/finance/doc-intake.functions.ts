@@ -24,7 +24,7 @@ async function assertFinanceAccess(supabase: any, userId: string) {
 
 /** BEN, BEN.FOOD, BEN.HEALTH, BEN.OTHER, BEN.PERS … — the staff-benefit group. */
 function isBenefitCode(code: string | null | undefined): boolean {
-  return !!code && (code === "BEN" || code.startsWith("BEN."));
+  return !!code && (code === "BEN" || code.startsWith("BEN.") || ["PES.FOOD", "PES.HEALTH", "PES.PERS", "PES.OTHER"].includes(code));
 }
 
 

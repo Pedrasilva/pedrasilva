@@ -845,7 +845,7 @@
       "reimbReceivedTooltip": "Estimated from document-level payments",
       "howCalculated": {
         "title": "How these numbers are calculated",
-        "cost": "Cost — sum of received documents, lines filtered by classifications PRD.*, OPS.REP.* and REIM.*. Excludes draft and cancelled documents.",
+        "cost": "Cost — sum of received documents, lines filtered by classifications PRO.*, DES.*, MOV.REIM (and the old PRD.*, OPS.REP.*, REIM.*). Excludes draft and cancelled documents.",
         "billed": "Billed — sum of issued documents (line subtotals, excluding VAT).",
         "received": "Received — sum of payments recorded against issued documents.",
         "paid": "Paid — sum of payments recorded against received documents.",
@@ -1083,7 +1083,8 @@
       "statements": "Statements",
       "intakeInbox": "Finance inbox",
       "purchaseDuplicates": "Suspected duplicates",
-      "driveArchive": "Drive archive"
+      "driveArchive": "Drive archive",
+      "reclassify": "To reclassify"
     }
   },
   "purchases": {
@@ -2170,5 +2171,24 @@
   },
   "entity": {
     "label": "Entity"
+  },
+  "policies": {
+    "mandatory": "Essential",
+    "discretionary": "Optional",
+    "pass_through": "Rebillable",
+    "mandatoryHint": "Must be paid for the company to run",
+    "discretionaryHint": "Can be cut if cash gets tight",
+    "pass_throughHint": "Is later charged to the client or tenant"
+  },
+  "reclass": {
+    "title": "To reclassify",
+    "sub_one": "{{count}} record is still on a group. Choose the category.",
+    "sub_other": "{{count}} records are still on a group. Choose the category.",
+    "empty": "Nothing to reclassify.",
+    "doc": "Document",
+    "bank": "Bank line",
+    "suggested": "Suggestion",
+    "accept": "Accept",
+    "done": "Reclassified"
   }
 }

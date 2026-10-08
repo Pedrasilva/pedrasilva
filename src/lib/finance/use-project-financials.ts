@@ -47,7 +47,8 @@ export type ProjectFinancialSummary = {
   reimbursable_unpaid: number;
 };
 
-const COST_PREFIXES = ["PRD.", "OPS.REP.", "REIM."] as const;
+// New tree (2026): PRO.* product, DES.* travel/representation, MOV.REIM reimbursable; old codes kept for history.
+const COST_PREFIXES = ["PRO.", "DES.", "MOV.REIM", "PRD.", "OPS.REP.", "REIM."] as const;
 
 function isProjectCostCode(code: string | null | undefined): boolean {
   if (!code) return false;

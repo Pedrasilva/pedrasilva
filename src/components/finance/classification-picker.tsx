@@ -15,6 +15,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { Check, ChevronsUpDown, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -107,7 +110,7 @@ function matches(query: string, c: ClassificationOption): boolean {
 export function ClassificationPicker({
   value,
   onChange,
-  options,
+  options: optionsProp,
   isPt = false,
   disabled,
   allowClear = false,
@@ -126,26 +129,65 @@ export function ClassificationPicker({
     if (open) setRecent(loadRecent());
   }, [open]);
 
-  const byId = useMemo(() => new Map(options.map((c) => [c.id, c])), [options]);
+  // Tree metadata for the current entity (RLS scopes it): only active categories
+  // can be chosen, shown as "Grupo › Categoria" with the category's default policy.
+  const metaQ = useQuery({
+    queryKey: ["classification-picker-meta"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_classifications")
+        .select("id, level, parent_id, active, spending_policy, name_pt, name_en, sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const meta = useMemo(() => new Map((metaQ.data ?? []).map((m) => [m.id, m])), [metaQ.data]);
+  const groupLabel = (c: ClassificationOption) => {
+    const m = meta.get(c.id);
+    const g = m?.parent_id ? meta.get(m.parent_id) : null;
+    return g ? (isPt ? g.name_pt : g.name_en) : null;
+  };
+  const policyOf = (id: string) => meta.get(id)?.spending_policy ?? null;
+  const allOptions = optionsProp;
+  const options = useMemo(
+    () =>
+      metaQ.data
+        ? allOptions.filter((c) => {
+            const m = meta.get(c.id);
+            return m ? m.level === "category" && m.active : false;
+          })
+        : allOptions,
+    [allOptions, meta, metaQ.data],
+  );
+
+  const byId = useMemo(() => new Map(allOptions.map((c) => [c.id, c])), [allOptions]);
 
   const selected = useMemo(
     () => (value ? byId.get(value) ?? null : null),
     [byId, value],
   );
 
+  const groupMatches = (q: string, c: ClassificationOption) =>
+    (groupLabel(c) ?? "").toLowerCase().includes(q.toLowerCase());
   const filtered = useMemo(() => {
     const q = search.trim();
     if (!q) {
-      return [...options].sort((a, b) => a.code.localeCompare(b.code));
+      return [...options].sort((a, b) => {
+        const sa = meta.get(a.id)?.sort_order ?? 0;
+        const sb = meta.get(b.id)?.sort_order ?? 0;
+        return sa - sb || a.code.localeCompare(b.code);
+      });
     }
     return options
-      .filter((c) => matches(q, c))
+      .filter((c) => matches(q, c) || groupMatches(q, c))
       .sort((a, b) => {
         const r = rank(q, a, isPt) - rank(q, b, isPt);
         if (r !== 0) return r;
         return a.code.localeCompare(b.code);
       });
-  }, [options, search, isPt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options, search, isPt, meta]);
 
   const isSearching = search.trim().length > 0;
   const suggestedItems = useMemo(() => {
@@ -155,7 +197,7 @@ export function ClassificationPicker({
     for (const id of suggestedIds) {
       if (seen.has(id)) continue;
       const c = byId.get(id);
-      if (c) {
+      if (c && options.includes(c)) {
         out.push(c);
         seen.add(id);
       }
@@ -170,13 +212,13 @@ export function ClassificationPicker({
     for (const id of recent) {
       if (skip.has(id)) continue;
       const c = byId.get(id);
-      if (c) out.push(c);
+      if (c && options.includes(c)) out.push(c);
     }
     return out;
   }, [isSearching, recent, suggestedItems, byId]);
 
   const triggerLabel = selected
-    ? `${selected.code} · ${isPt ? selected.name_pt : selected.name_en}`
+    ? `${groupLabel(selected) ? `${groupLabel(selected)} › ` : ""}${isPt ? selected.name_pt : selected.name_en}`
     : (placeholder ?? t("classificationPicker.placeholder"));
 
   function handleSelect(id: string) {
@@ -202,11 +244,17 @@ export function ClassificationPicker({
           )}
         />
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="font-semibold text-xs tracking-wide truncate">{c.code}</span>
-          <span className="text-xs text-muted-foreground truncate">
-            {isPt ? c.name_pt : c.name_en}
+          <span className="text-xs truncate">
+            {groupLabel(c) && <span className="text-muted-foreground">{groupLabel(c)} › </span>}
+            <span className="font-medium">{isPt ? c.name_pt : c.name_en}</span>
           </span>
+          <span className="text-[10px] text-muted-foreground tracking-wide truncate">{c.code}</span>
         </div>
+        {policyOf(c.id) && (
+          <Badge variant="outline" className="shrink-0 text-[10px] font-normal">
+            {t(`policies.${policyOf(c.id)}`)}
+          </Badge>
+        )}
       </CommandItem>
     );
   }
@@ -307,6 +355,11 @@ export function ClassificationPicker({
           </Command>
         </PopoverContent>
       </Popover>
+      {selected && policyOf(selected.id) && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {t(`policies.${policyOf(selected.id)}`)} — {t(`policies.${policyOf(selected.id)}Hint`)}
+        </p>
+      )}
       <ClassificationBrowser open={browserOpen} onOpenChange={setBrowserOpen} />
     </>
   );

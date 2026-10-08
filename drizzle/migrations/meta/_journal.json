@@ -309,6 +309,13 @@
       "when": 1791499695634,
       "tag": "0043_finance_entity_supplier_links",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791503110914,
+      "tag": "0044_finance_psa_tree_simplify",
+      "breakpoints": true
     }
   ]
 }

@@ -610,7 +610,7 @@ export function QueueItemCard({
 
   // Staff benefits (BEN.*) must be attributed to a person before approval.
   const selectedCode = classifications.find((c) => c.id === classificationId)?.code ?? null;
-  const isBenefit = !!selectedCode && (selectedCode === "BEN" || selectedCode.startsWith("BEN."));
+  const isBenefit = !!selectedCode && (selectedCode === "BEN" || selectedCode.startsWith("BEN.") || ["PES.FOOD", "PES.HEALTH", "PES.PERS", "PES.OTHER"].includes(selectedCode));
   const collaboratorsQ = useQuery({
     queryKey: ["collaborators-picker", "benefit-assign"],
     enabled: isBenefit,
