@@ -495,6 +495,8 @@ export async function runDualExtraction(
   /** Read only these pages (one document cut out of a multi-document PDF). */
   pages?: { first: number; last: number } | null,
   extra?: {
+    /** Entity whose identity + classification catalog the prompt uses (default PSA). */
+    entityId?: string;
     /** File already downloaded by the caller (hash check). */
     preloaded?: { b64: string; mime: string } | null;
     /** "Regras do estúdio", supplier pattern and examples for Claude. */
