@@ -247,8 +247,9 @@ export const resolvePossibleDuplicate = createServerFn({ method: "POST" })
       if (e2) throw new Error(e2.message);
     } else {
       if (ids.length) {
+        const entityId = await currentEntityId(supabase);
         await supabase.from("finance_duplicate_decisions").upsert(
-          ids.map((o) => ({ entity_id: await currentEntityId(supabase),  ...ordered(data.id, o), decision: "not_duplicate", decided_by: userId })),
+          ids.map((o) => ({ entity_id: entityId, ...ordered(data.id, o), decision: "not_duplicate", decided_by: userId })),
           { onConflict: "item_a,item_b" },
         );
       }
