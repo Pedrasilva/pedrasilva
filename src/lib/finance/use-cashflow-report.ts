@@ -520,7 +520,7 @@ export function buildCashFlowReport(
   for (const d of raw.receivedDocs) {
     const cls = d.classification_id ? clsById.get(d.classification_id) : null;
     // Transfers and income-coded rows are not operating costs.
-    if (cls && (cls.code.startsWith("TRF") || cls.code.startsWith("INC"))) {
+    if (cls && ((cls.code.startsWith("TRF") || cls.code.startsWith("INC") || cls.code.startsWith("MOV") || cls.code.startsWith("REC")))) {
       continue;
     }
     const ex = Number(d.subtotal_ex_vat ?? 0);

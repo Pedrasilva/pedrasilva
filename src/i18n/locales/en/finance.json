@@ -845,7 +845,7 @@
       "reimbReceivedTooltip": "Estimated from document-level payments",
       "howCalculated": {
         "title": "How these numbers are calculated",
-        "cost": "Cost — sum of received documents, lines filtered by classifications PRD.*, OPS.REP.* and REIM.*. Excludes draft and cancelled documents.",
+        "cost": "Cost — sum of received documents, lines filtered by classifications PRO.*, DES.*, MOV.REIM (and the old PRD.*, OPS.REP.*, REIM.*). Excludes draft and cancelled documents.",
         "billed": "Billed — sum of issued documents (line subtotals, excluding VAT).",
         "received": "Received — sum of payments recorded against issued documents.",
         "paid": "Paid — sum of payments recorded against received documents.",
@@ -2170,5 +2170,13 @@
   },
   "entity": {
     "label": "Entity"
+  },
+  "policies": {
+    "mandatory": "Essential",
+    "discretionary": "Optional",
+    "pass_through": "Rebillable",
+    "mandatoryHint": "Must be paid for the company to run",
+    "discretionaryHint": "Can be cut if cash gets tight",
+    "pass_throughHint": "Is later charged to the client or tenant"
   }
 }

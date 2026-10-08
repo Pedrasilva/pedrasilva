@@ -845,7 +845,7 @@
       "reimbReceivedTooltip": "Estimado a partir de pagamentos ao nível do documento",
       "howCalculated": {
         "title": "Como estes valores são calculados",
-        "cost": "Custo — soma dos documentos recebidos, linhas filtradas pelas classificações PRD.*, OPS.REP.* e REIM.*. Exclui documentos em rascunho ou cancelados.",
+        "cost": "Custo — soma dos documentos recebidos, linhas filtradas pelas classificações PRO.*, DES.*, MOV.REIM (e os antigos PRD.*, OPS.REP.*, REIM.*). Exclui documentos em rascunho ou cancelados.",
         "billed": "Facturado — soma dos documentos emitidos (subtotais de linha, sem IVA).",
         "received": "Recebido — soma dos pagamentos registados em documentos emitidos.",
         "paid": "Pago — soma dos pagamentos registados em documentos recebidos.",
@@ -2170,5 +2170,13 @@
   },
   "entity": {
     "label": "Entidade"
+  },
+  "policies": {
+    "mandatory": "Essencial",
+    "discretionary": "Opcional",
+    "pass_through": "Refaturável",
+    "mandatoryHint": "Tem de ser paga para a empresa funcionar",
+    "discretionaryHint": "Pode ser cortada se a tesouraria apertar",
+    "pass_throughHint": "É depois cobrada ao cliente ou inquilino"
   }
 }
