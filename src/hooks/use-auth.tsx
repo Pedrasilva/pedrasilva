@@ -11,6 +11,8 @@ type AuthCtx = {
   isRealAdmin: boolean;
   /** Whether the admin is currently viewing the app as a regular collaborator. */
   viewAsUser: boolean;
+  /** True for PSA staff (DB is_psa_staff). Non-staff (other entities' members) only get Finance. */
+  isPsaStaff: boolean;
   setViewAsUser: (v: boolean) => void;
   /** When in viewAsUser mode, the id of the collaborator being impersonated (if chosen). */
   viewAsCollaboratorId: string | null;
@@ -25,6 +27,7 @@ const Ctx = createContext<AuthCtx>({
   isAdmin: false,
   isRealAdmin: false,
   viewAsUser: false,
+  isPsaStaff: false,
   setViewAsUser: () => {},
   viewAsCollaboratorId: null,
   setViewAsCollaboratorId: () => {},
@@ -38,6 +41,7 @@ const VIEW_AS_ID_KEY = "psa.viewAsCollaboratorId";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isRealAdmin, setIsRealAdmin] = useState(false);
+  const [isPsaStaff, setIsPsaStaff] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [roleLoading, setRoleLoading] = useState(true);
   const [viewAsUser, setViewAsUserState] = useState<boolean>(() => {
@@ -88,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTimeout(() => fetchRole(s.user.id), 0);
       } else {
         setIsRealAdmin(false);
+        setIsPsaStaff(false);
         setRoleLoading(false);
         setViewAsUser(false);
       }
@@ -109,11 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchRole(userId: string) {
     try {
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
+      const [{ data }, staff] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId),
+        supabase.rpc("is_psa_staff"),
+      ]);
       setIsRealAdmin(!!data?.some((r) => r.role === "admin"));
+      setIsPsaStaff(staff.data === true);
     } finally {
       setRoleLoading(false);
     }
@@ -135,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         isRealAdmin,
         viewAsUser,
+        isPsaStaff,
         setViewAsUser,
         viewAsCollaboratorId,
         setViewAsCollaboratorId,

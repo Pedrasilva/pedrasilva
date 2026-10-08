@@ -87,15 +87,17 @@ export function moduleForPath(pathname: string): ModuleId | null {
 }
 
 export function useModuleAccess() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, isPsaStaff, loading: authLoading } = useAuth();
   const { permissions, loading: v1Loading } = useMyPermissions();
   const { can: canV2, loading: v2Loading } = useMyPermissionsV2();
   const { hasAccess: hasFinance, isLoading: finLoading } = useFinanceAccess();
 
-  const loading = authLoading || (!isAdmin && (v1Loading || v2Loading || finLoading));
+  const loading = authLoading || ((!isAdmin || !isPsaStaff) && (v1Loading || v2Loading || finLoading));
 
   const canAccess = useCallback(
     (id: ModuleId) => {
+      // People outside PSA (members of our other entities) only ever get Finance.
+      if (!isPsaStaff) return id === "finance" && hasFinance;
       if (isAdmin) return true;
       const r = MODULE_RULES[id];
       if (r.adminOnly) return false;
@@ -105,7 +107,7 @@ export function useModuleAccess() {
       if (r.v1Prefix && [...permissions].some((k) => k.startsWith(r.v1Prefix!))) return true;
       return false;
     },
-    [isAdmin, hasFinance, canV2, permissions],
+    [isAdmin, isPsaStaff, hasFinance, canV2, permissions],
   );
 
   return useMemo(() => ({ canAccess, moduleForPath, loading }), [canAccess, loading]);
