@@ -1587,10 +1587,12 @@ export type Database = {
           currency: string
           default_classification_id: string | null
           email: string | null
+          foreign_tax_id: string | null
           id: string
           industria: string | null
           is_active: boolean
           is_client: boolean
+          is_platform: boolean
           is_reimbursement_supplier: boolean
           is_supplier: boolean
           mobile: string | null
@@ -1619,10 +1621,12 @@ export type Database = {
           currency?: string
           default_classification_id?: string | null
           email?: string | null
+          foreign_tax_id?: string | null
           id?: string
           industria?: string | null
           is_active?: boolean
           is_client?: boolean
+          is_platform?: boolean
           is_reimbursement_supplier?: boolean
           is_supplier?: boolean
           mobile?: string | null
@@ -1651,10 +1655,12 @@ export type Database = {
           currency?: string
           default_classification_id?: string | null
           email?: string | null
+          foreign_tax_id?: string | null
           id?: string
           industria?: string | null
           is_active?: boolean
           is_client?: boolean
+          is_platform?: boolean
           is_reimbursement_supplier?: boolean
           is_supplier?: boolean
           mobile?: string | null
@@ -4067,6 +4073,10 @@ export type Database = {
           intake_type_reason: string | null
           intake_type_source: string
           is_recurring_candidate: boolean
+          issuer_foreign_tax_id: string | null
+          issuer_name: string | null
+          issuer_nif: string | null
+          issuer_tax_country: string | null
           keep_despite_recipient: boolean
           linked_document_group_id: string
           mark_for_inventory: boolean
@@ -4200,6 +4210,10 @@ export type Database = {
           intake_type_reason?: string | null
           intake_type_source?: string
           is_recurring_candidate?: boolean
+          issuer_foreign_tax_id?: string | null
+          issuer_name?: string | null
+          issuer_nif?: string | null
+          issuer_tax_country?: string | null
           keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
@@ -4333,6 +4347,10 @@ export type Database = {
           intake_type_reason?: string | null
           intake_type_source?: string
           is_recurring_candidate?: boolean
+          issuer_foreign_tax_id?: string | null
+          issuer_name?: string | null
+          issuer_nif?: string | null
+          issuer_tax_country?: string | null
           keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
@@ -4555,6 +4573,10 @@ export type Database = {
           invoicexpress_type: string | null
           issue_date: string
           issued_at: string | null
+          issuer_foreign_tax_id: string | null
+          issuer_name: string | null
+          issuer_nif: string | null
+          issuer_tax_country: string | null
           last_sync_at: string | null
           last_sync_error: string | null
           not_project_related: boolean
@@ -4614,6 +4636,10 @@ export type Database = {
           invoicexpress_type?: string | null
           issue_date: string
           issued_at?: string | null
+          issuer_foreign_tax_id?: string | null
+          issuer_name?: string | null
+          issuer_nif?: string | null
+          issuer_tax_country?: string | null
           last_sync_at?: string | null
           last_sync_error?: string | null
           not_project_related?: boolean
@@ -4673,6 +4699,10 @@ export type Database = {
           invoicexpress_type?: string | null
           issue_date?: string
           issued_at?: string | null
+          issuer_foreign_tax_id?: string | null
+          issuer_name?: string | null
+          issuer_nif?: string | null
+          issuer_tax_country?: string | null
           last_sync_at?: string | null
           last_sync_error?: string | null
           not_project_related?: boolean
@@ -13546,6 +13576,42 @@ export type Database = {
           },
         ]
       }
+      tax_number_change_log: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          field: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          reason: string | null
+          record_id: string
+          record_table: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          field: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reason?: string | null
+          record_id: string
+          record_table: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          field?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reason?: string | null
+          record_id?: string
+          record_table?: string
+        }
+        Relationships: []
+      }
       tax_withholdings: {
         Row: {
           amount: number
@@ -14576,7 +14642,9 @@ export type Database = {
         Args: { _company_id: string }
         Returns: string
       }
+      fin_nif_is_placeholder: { Args: { _nif: string }; Returns: boolean }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
+      fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
       fin_reclass_list: {
         Args: never
         Returns: {
@@ -14607,6 +14675,10 @@ export type Database = {
       fin_supplier_policy: {
         Args: { _company: string }
         Returns: Database["public"]["Enums"]["financial_spending_policy"]
+      }
+      fin_tax_log: {
+        Args: { _f: string; _id: string; _n: string; _o: string; _t: string }
+        Returns: undefined
       }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
