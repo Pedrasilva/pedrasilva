@@ -2211,7 +2211,12 @@
     "account": "Conta",
     "unknownCard": "Cartão desconhecido …{{last4}}",
     "suggestUsual": "Sugerir o cartão habitual do fornecedor: {{card}}",
-    "saved": "Origem do pagamento guardada"
+    "saved": "Origem do pagamento guardada",
+    "personalFlag": "Pago com cartão pessoal",
+    "personalDecision": "Decisão",
+    "decisionPending": "Decidir…",
+    "decisionPersonal": "Pessoal — retirar das contas da PSA",
+    "decisionPsa": "Despesa da PSA paga pelo titular (Sócio / A reembolsar)"
   },
   "enteredBy": {
     "label": "Introduzido por",
@@ -2251,6 +2256,10 @@
     "saved": "Cartão guardado",
     "empty": "Ainda não há cartões.",
     "settlementTitle": "Contas de cartão de crédito",
-    "settlementHint": "Escolha a conta à ordem que paga o saldo mensal de cada cartão de crédito."
+    "settlementHint": "Escolha a conta à ordem que paga o saldo mensal de cada cartão de crédito.",
+    "devices": "Números do dispositivo (Apple Pay / Google Pay)",
+    "devicesHint": "Separados por vírgulas, p. ex. 1742:iPhone, 4749:Relógio",
+    "isPersonal": "Cartão pessoal (não é da PSA; sem conta bancária)",
+    "personalBadge": "Pessoal"
   }
 }

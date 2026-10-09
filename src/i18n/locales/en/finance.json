@@ -2211,7 +2211,12 @@
     "account": "Account",
     "unknownCard": "Unknown card …{{last4}}",
     "suggestUsual": "Suggest supplier's usual card: {{card}}",
-    "saved": "Payment source saved"
+    "saved": "Payment source saved",
+    "personalFlag": "Paid with a personal card",
+    "personalDecision": "Decision",
+    "decisionPending": "Decide…",
+    "decisionPersonal": "Personal — remove from PSA books",
+    "decisionPsa": "PSA expense paid by the holder (Sócio / A reembolsar)"
   },
   "enteredBy": {
     "label": "Entered by",
@@ -2251,6 +2256,10 @@
     "saved": "Card saved",
     "empty": "No cards yet.",
     "settlementTitle": "Credit-card accounts",
-    "settlementHint": "Choose the current account that pays each credit card's monthly balance."
+    "settlementHint": "Choose the current account that pays each credit card's monthly balance.",
+    "devices": "Device numbers (Apple Pay / Google Pay)",
+    "devicesHint": "Comma-separated, e.g. 1742:iPhone, 4749:Watch",
+    "isPersonal": "Personal card (not PSA's; no bank account)",
+    "personalBadge": "Personal"
   }
 }
