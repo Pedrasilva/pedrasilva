@@ -2216,7 +2216,9 @@
     "personalDecision": "Decisão",
     "decisionPending": "Decidir…",
     "decisionPersonal": "Pessoal — retirar das contas da PSA",
-    "decisionPsa": "Despesa da PSA paga pelo titular (Sócio / A reembolsar)"
+    "decisionPsa": "Despesa da PSA paga pelo titular (Sócio / A reembolsar)",
+    "movedToRemoved": "Movido para Eliminados (motivo: Pessoal)",
+    "owedRecorded": "Registado como valor em dívida ao titular"
   },
   "enteredBy": {
     "label": "Introduzido por",
@@ -2261,5 +2263,24 @@
     "devicesHint": "Separados por vírgulas, p. ex. 1742:iPhone, 4749:Relógio",
     "isPersonal": "Cartão pessoal (não é da PSA; sem conta bancária)",
     "personalBadge": "Pessoal"
+  },
+  "holderReimb": {
+    "title": "A reembolsar",
+    "subtitle": "Despesas da PSA pagas com um cartão pessoal. Cada valor fica em dívida ao titular até ser marcado como reembolsado.",
+    "owedTo": "Em dívida a {{holder}}: {{amount}}",
+    "empty": "Nada em dívida a titulares de cartões.",
+    "document": "Documento",
+    "open": "Abrir",
+    "amount": "Valor",
+    "status": "Estado",
+    "st": {
+      "owed": "Em dívida",
+      "repaid": "Reembolsado",
+      "cancelled": "Anulado"
+    },
+    "markRepaid": "Marcar reembolsado",
+    "undoRepaid": "Desfazer reembolso",
+    "markedRepaid": "Marcado como reembolsado",
+    "markedOwed": "Voltou a ficar em dívida"
   }
 }
