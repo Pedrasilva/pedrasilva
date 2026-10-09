@@ -1180,6 +1180,7 @@ function TxDetailPanel({
                   </div>
                   <PolicyControl compact table="bank_transaction_classifications" recordId={s.id}
                     classificationId={s.classification_id} supplierId={s.supplier_id} />
+                  </div>
                 );
               })}
             </div>
