@@ -351,6 +351,13 @@
       "when": 1791555640082,
       "tag": "0049_payment_cards_devices_personal",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1791560272295,
+      "tag": "0050_personal_card_decisions_act",
+      "breakpoints": true
     }
   ]
 }
