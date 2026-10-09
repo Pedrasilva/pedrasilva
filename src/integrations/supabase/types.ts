@@ -4250,6 +4250,8 @@ export type Database = {
           other_entity_id: string | null
           paid_from_account_id: string | null
           paid_from_card_id: string | null
+          paid_method_unknown: boolean
+          paid_with_source: string | null
           payer_iban: string | null
           payer_name: string | null
           payer_vat: string | null
@@ -4389,6 +4391,8 @@ export type Database = {
           other_entity_id?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
+          paid_method_unknown?: boolean
+          paid_with_source?: string | null
           payer_iban?: string | null
           payer_name?: string | null
           payer_vat?: string | null
@@ -4528,6 +4532,8 @@ export type Database = {
           other_entity_id?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
+          paid_method_unknown?: boolean
+          paid_with_source?: string | null
           payer_iban?: string | null
           payer_name?: string | null
           payer_vat?: string | null
@@ -4759,6 +4765,8 @@ export type Database = {
           paid_amount: number
           paid_from_account_id: string | null
           paid_from_card_id: string | null
+          paid_method_unknown: boolean
+          paid_with_source: string | null
           payment_method_extracted: string | null
           payment_status: string
           permalink_pdf: string | null
@@ -4827,6 +4835,8 @@ export type Database = {
           paid_amount?: number
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
+          paid_method_unknown?: boolean
+          paid_with_source?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -4895,6 +4905,8 @@ export type Database = {
           paid_amount?: number
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
+          paid_method_unknown?: boolean
+          paid_with_source?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -14961,6 +14973,12 @@ export type Database = {
       }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
+      fin_queue_bank_paid_with: {
+        Args: {
+          r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
+        }
+        Returns: Record<string, unknown>
+      }
       fin_queue_blockers: {
         Args: {
           r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
@@ -14980,6 +14998,10 @@ export type Database = {
           id: string
           is_repeat: boolean
         }[]
+      }
+      fin_queue_set_paid_unknown: {
+        Args: { _id: string; _value: boolean }
+        Returns: undefined
       }
       fin_reclass_list: {
         Args: never
@@ -15008,6 +15030,10 @@ export type Database = {
         Returns: undefined
       }
       fin_storage_visible: { Args: { _name: string }; Returns: boolean }
+      fin_supplier_habit_paid_with: {
+        Args: { _entity: string; _supplier: string }
+        Returns: Record<string, unknown>
+      }
       fin_supplier_policy: {
         Args: { _company: string }
         Returns: Database["public"]["Enums"]["financial_spending_policy"]

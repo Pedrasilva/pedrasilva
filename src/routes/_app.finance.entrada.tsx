@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { IntakeInbox } from "@/components/finance/intake-inbox";
+import { PaidWithMissingList } from "@/components/finance/paid-with-missing-list";
 import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance/entrada")({
@@ -17,5 +18,14 @@ export const Route = createFileRoute("/_app/finance/entrada")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: IntakeInbox,
+  component: EntradaPage,
 });
+
+function EntradaPage() {
+  return (
+    <>
+      <PaidWithMissingList />
+      <IntakeInbox />
+    </>
+  );
+}

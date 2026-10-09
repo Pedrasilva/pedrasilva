@@ -740,6 +740,7 @@ const confirmEditsSchema = z
     paid_from_card_id: z.string().uuid().nullable().optional(),
     paid_from_account_id: z.string().uuid().nullable().optional(),
     marked_unpaid: z.boolean().optional(),
+    paid_method_unknown: z.boolean().optional(),
     classification_id: z.string().uuid().nullable().optional(),
     project_id: z.string().uuid().nullable().optional(),
     assigned_collaborator_id: z.string().uuid().nullable().optional(),
@@ -774,9 +775,15 @@ export const confirmQueueItem = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<ConfirmResult> => {
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
+    const { paid_method_unknown, ...edits } = data.edits;
+    if (paid_method_unknown !== undefined) {
+      // "Pago — meio por identificar" is saved first so the confirm transaction sees it.
+      const { error: pe } = await supabase.rpc("fin_queue_set_paid_unknown", { _id: data.id, _value: paid_method_unknown });
+      if (pe) return confirmFailure(pe.message);
+    }
     const { data: res, error } = await supabase.rpc("fin_confirm_queue_item", {
       _id: data.id,
-      _edits: data.edits as never,
+      _edits: edits as never,
     });
     if (error) return confirmFailure(error.message);
     return { ok: true, documentId: (res as { document_id: string }).document_id };
