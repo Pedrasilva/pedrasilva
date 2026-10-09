@@ -386,6 +386,13 @@
       "when": 1791564531609,
       "tag": "0054_finance_intake_confirm_fix_blockers_2",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1791570614940,
+      "tag": "0055_finance_paid_with_autofill",
+      "breakpoints": true
     }
   ]
 }
