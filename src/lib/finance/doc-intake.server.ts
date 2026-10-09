@@ -14,7 +14,8 @@
  * `financial_document_review_queue` for human approval.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { normalizePortugueseNif } from "@/lib/finance/nif";
+import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+import { detectPlatform, platformKeyOfName, issuerTaxColumns } from "@/lib/finance/platforms";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 const MODEL = "google/gemini-2.5-flash";
