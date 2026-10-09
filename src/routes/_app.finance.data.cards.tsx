@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderSection } from "@/components/finance/sections/legacy-sections";
+import { PaymentCardsList } from "@/components/finance/payment-cards-list";
 
 export const Route = createFileRoute("/_app/finance/data/cards")({
-  component: () => <PlaceholderSection titleKey="finance:sidebar.items.cards" />,
+  component: PaymentCardsList,
 });

@@ -330,6 +330,20 @@
       "when": 1791531002718,
       "tag": "0046_supplier_tax_numbers_platforms",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791533888651,
+      "tag": "0047_payment_cards",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1791534052771,
+      "tag": "0048_payment_cards_resolution",
+      "breakpoints": true
     }
   ]
 }

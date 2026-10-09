@@ -92,6 +92,7 @@ const GROUPS: Group[] = [
       { to: "/finance/banking/reconciliation", labelKey: "finance:sidebar.items.reconciliation", icon: RefreshCw },
       { to: "/finance/banking/transactions", labelKey: "finance:sidebar.items.transactions", icon: ListChecks },
       { to: "/finance/banking/statements", labelKey: "finance:sidebar.items.statements", icon: ScrollText },
+      { to: "/finance/banking/cards", labelKey: "finance:sidebar.items.cards", icon: CreditCard },
     ],
   },
   {
