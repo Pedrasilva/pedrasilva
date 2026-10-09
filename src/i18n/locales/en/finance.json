@@ -2190,5 +2190,18 @@
     "suggested": "Suggestion",
     "accept": "Accept",
     "done": "Reclassified"
+  },
+  "policyControl": {
+    "label": "Policy",
+    "saved": "Policy saved",
+    "followDefault": "Follow default",
+    "onlyThis": "{{policy}} — this record only",
+    "supplierNone": "No supplier default",
+    "supplierDefault": "Supplier default: {{policy}}",
+    "from": {
+      "document": "set on this record",
+      "supplier": "supplier default",
+      "category": "category default"
+    }
   }
 }
