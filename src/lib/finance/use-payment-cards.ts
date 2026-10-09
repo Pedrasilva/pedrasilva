@@ -42,7 +42,7 @@ export function usePaymentCards() {
         .order("active", { ascending: false })
         .order("holder_name");
       if (error) throw error;
-      return (data ?? []) as PaymentCard[];
+      return (data ?? []) as unknown as PaymentCard[];
     },
   });
 }
