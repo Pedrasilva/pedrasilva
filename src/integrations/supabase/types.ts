@@ -85,6 +85,7 @@ export type Database = {
           notes: string | null
           opening_balance: number | null
           opening_balance_date: string | null
+          settles_from_account_id: string | null
           updated_at: string
         }
         Insert: {
@@ -103,6 +104,7 @@ export type Database = {
           notes?: string | null
           opening_balance?: number | null
           opening_balance_date?: string | null
+          settles_from_account_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -121,6 +123,7 @@ export type Database = {
           notes?: string | null
           opening_balance?: number | null
           opening_balance_date?: string | null
+          settles_from_account_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -129,6 +132,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_accounts_settles_from_account_id_fkey"
+            columns: ["settles_from_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -1695,6 +1705,7 @@ export type Database = {
           category: Database["public"]["Enums"]["pm_expense_category"]
           cost_category_id: string | null
           created_at: string
+          created_by: string | null
           description: string
           entity_id: string
           id: string
@@ -1712,6 +1723,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["pm_expense_category"]
           cost_category_id?: string | null
           created_at?: string
+          created_by?: string | null
           description: string
           entity_id: string
           id?: string
@@ -1729,6 +1741,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["pm_expense_category"]
           cost_category_id?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string
           entity_id?: string
           id?: string
@@ -4088,6 +4101,7 @@ export type Database = {
           other_entity_action: string | null
           other_entity_id: string | null
           paid_from_account_id: string | null
+          paid_from_card_id: string | null
           payer_iban: string | null
           payer_name: string | null
           payer_vat: string | null
@@ -4225,6 +4239,7 @@ export type Database = {
           other_entity_action?: string | null
           other_entity_id?: string | null
           paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           payer_iban?: string | null
           payer_name?: string | null
           payer_vat?: string | null
@@ -4362,6 +4377,7 @@ export type Database = {
           other_entity_action?: string | null
           other_entity_id?: string | null
           paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           payer_iban?: string | null
           payer_name?: string | null
           payer_vat?: string | null
@@ -4515,6 +4531,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_document_review_queue_paid_from_card_id_fkey"
+            columns: ["paid_from_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_document_review_queue_payment_match_document_id_fkey"
             columns: ["payment_match_document_id"]
             isOneToOne: false
@@ -4585,6 +4608,7 @@ export type Database = {
           outstanding_amount: number | null
           paid_amount: number
           paid_from_account_id: string | null
+          paid_from_card_id: string | null
           payment_method_extracted: string | null
           payment_status: string
           permalink_pdf: string | null
@@ -4648,6 +4672,7 @@ export type Database = {
           outstanding_amount?: number | null
           paid_amount?: number
           paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -4711,6 +4736,7 @@ export type Database = {
           outstanding_amount?: number | null
           paid_amount?: number
           paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -4775,6 +4801,13 @@ export type Database = {
             columns: ["paid_from_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_paid_from_card_id_fkey"
+            columns: ["paid_from_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
             referencedColumns: ["id"]
           },
           {
@@ -4960,6 +4993,8 @@ export type Database = {
           id: string
           notes: string | null
           paid_date: string | null
+          paid_from_account_id: string | null
+          paid_from_card_id: string | null
           period_id: string | null
           source_ref_id: string | null
           source_ref_table: string | null
@@ -4984,6 +5019,8 @@ export type Database = {
           id?: string
           notes?: string | null
           paid_date?: string | null
+          paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           period_id?: string | null
           source_ref_id?: string | null
           source_ref_table?: string | null
@@ -5008,6 +5045,8 @@ export type Database = {
           id?: string
           notes?: string | null
           paid_date?: string | null
+          paid_from_account_id?: string | null
+          paid_from_card_id?: string | null
           period_id?: string | null
           source_ref_id?: string | null
           source_ref_table?: string | null
@@ -5037,6 +5076,20 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_paid_from_account_id_fkey"
+            columns: ["paid_from_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_paid_from_card_id_fkey"
+            columns: ["paid_from_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
             referencedColumns: ["id"]
           },
           {
@@ -7624,6 +7677,89 @@ export type Database = {
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_cards: {
+        Row: {
+          active: boolean
+          bank: string | null
+          bank_account_id: string | null
+          bank_refs: string[]
+          card_type: string
+          collaborator_id: string | null
+          created_at: string
+          created_by: string | null
+          entity_id: string
+          holder_name: string | null
+          id: string
+          last4: string | null
+          network: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          bank?: string | null
+          bank_account_id?: string | null
+          bank_refs?: string[]
+          card_type?: string
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          entity_id: string
+          holder_name?: string | null
+          id?: string
+          last4?: string | null
+          network?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          bank?: string | null
+          bank_account_id?: string | null
+          bank_refs?: string[]
+          card_type?: string
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string
+          holder_name?: string | null
+          id?: string
+          last4?: string | null
+          network?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_cards_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_cards_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_cards_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_cards_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
         ]
@@ -14680,6 +14816,7 @@ export type Database = {
         Args: { _f: string; _id: string; _n: string; _o: string; _t: string }
         Returns: undefined
       }
+      fin_user_display_name: { Args: { _user_id: string }; Returns: string }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
