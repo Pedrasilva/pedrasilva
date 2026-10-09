@@ -103,7 +103,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
         filePath: d.file_path,
       };
     };
-    const sup = (d: any) => nifKey(d.companies?.nif) ?? d.counterparty_supplier_id ?? null;
+    const sup = (d: any) => nifKey(d.issuer_nif) ?? nifKey(d.issuer_foreign_tax_id) ?? nifKey(d.companies?.nif) ?? d.counterparty_supplier_id ?? null;
     const groups: DupGroup[] = [];
       const byNum = new Map<string, any[]>();
     for (const d of docs) {
