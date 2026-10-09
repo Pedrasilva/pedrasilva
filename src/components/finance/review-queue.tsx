@@ -29,6 +29,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -54,12 +55,21 @@ import {
 } from "@/components/ui/select";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { isValidPortugueseNif } from "@/lib/finance/nif";
+
+/** Mirror of fin_tax_number_ok: a valid PT NIF, or a foreign number with a country prefix. */
+function taxNumberOk(raw: string | null | undefined): boolean {
+  const v = (raw ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (!v) return false;
+  if (/^PT\d{9}$/.test(v)) return isValidPortugueseNif(v.slice(2));
+  if (/^\d{9}$/.test(v)) return isValidPortugueseNif(v);
+  return /^[A-Z]{2}[A-Z0-9]{4,}$/.test(v);
+}
 import {
   ingestFinancialDocument,
-  approveQueueSupplier,
-  approveQueueClient,
-  approveQueueClassification,
-  finalizeQueueItem,
+  confirmQueueItem,
   rejectQueueItem,
   reprocessQueueItemFn,
 } from "@/lib/finance/doc-intake.functions";
@@ -529,7 +539,14 @@ export function QueueItemCard({
   classifications,
   suppliers,
   projects,
+  onConfirmed,
+  onSkip,
+  keyboard = false,
 }: {
+  onConfirmed?: () => void;
+  onSkip?: () => void;
+  /** Enter confirms, Esc skips — only for the one card that is open. */
+  keyboard?: boolean;
   row: QueueRow;
   isPt: boolean;
   classifications: Array<{ id: string; code: string; name_pt: string; name_en: string }>;
@@ -577,6 +594,7 @@ export function QueueItemCard({
     (row as { paid_from_card_id?: string | null }).paid_from_card_id ?? null,
   );
   const [rejectReason, setRejectReason] = useState("");
+  const [markedUnpaid, setMarkedUnpaid] = useState<boolean>(!!(row as { marked_unpaid?: boolean }).marked_unpaid);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Payment methods that are settled through an account we hold.
@@ -630,23 +648,6 @@ export function QueueItemCard({
   });
 
 
-  const approveSupplier = useServerFn(approveQueueSupplier);
-  // "Find by NIF": an existing supplier this entity can't see yet (name + NIF only).
-  const [nifMatch, setNifMatch] = useState<{ id: string; nome: string; nif: string } | null>(null);
-  const doLinkSupplier = useMutation({
-    mutationFn: async (id: string) => {
-      await approveSupplier({ data: { id: row.id, linkSupplierId: id } });
-    },
-    onSuccess: () => {
-      setNifMatch(null);
-      toast.success(t("finance:reviewQueue.supplierApproved"));
-      invalidate();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-  const approveClient = useServerFn(approveQueueClient);
-  const approveClassification = useServerFn(approveQueueClassification);
-  const finalize = useServerFn(finalizeQueueItem);
   const reject = useServerFn(rejectQueueItem);
   const reprocess = useServerFn(reprocessQueueItemFn);
 
@@ -749,81 +750,41 @@ export function QueueItemCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const doApproveSupplier = useMutation({
+  const confirmFn = useServerFn(confirmQueueItem);
+  const [serverBlockers, setServerBlockers] = useState<string[]>([]);
+  const doConfirm = useMutation({
     mutationFn: async () => {
-      if (isIssued) {
-        if (counterpartyId) {
-          await approveClient({ data: { id: row.id, clientId: counterpartyId } });
-        } else {
-          await approveClient({
-            data: {
-              id: row.id,
-              newClient: {
-                nome: fields.supplier_name || t("finance:reviewQueue.unknownClient"),
-                nif: fields.supplier_vat || null,
-              },
-            },
-          });
-        }
+      const edits = {
+        supplier_name: fields.supplier_name,
+        supplier_vat: fields.supplier_vat,
+        document_number: fields.document_number,
+        date: fields.date,
+        amount: fields.amount,
+        vat: fields.vat,
+        withholding: fields.withholding,
+        currency: normalizeCurrency(fields.currency),
+        payment_method: fields.payment_method,
+        card_last4: fields.card_last4,
+        paid_from_card_id: paidFromCardId,
+        paid_from_account_id: paidFromCardId ? null : paidFromAccountId,
+        marked_unpaid: markedUnpaid,
+        classification_id: classificationId,
+        project_id: projectId,
+        assigned_collaborator_id: isBenefit ? assignedCollaboratorId : null,
+        counterparty_id: counterpartyId,
+      };
+      return confirmFn({ data: { id: row.id, edits } });
+    },
+    onSuccess: (res) => {
+      if (!res.ok) {
+        setServerBlockers(res.blockers);
+        toast.error(res.error ?? res.blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · "));
         return;
       }
-      if (supplierId) {
-        await approveSupplier({ data: { id: row.id, supplierId } });
-      } else {
-        const res = await approveSupplier({
-          data: {
-            id: row.id,
-            newSupplier: {
-              nome: fields.supplier_name || t("finance:reviewQueue.unknownSupplier"),
-              nif: fields.supplier_vat || null,
-            },
-          },
-        });
-        if (res && "nifMatch" in res && res.nifMatch) {
-          setNifMatch(res.nifMatch);
-          return "nifMatch";
-        }
-      }
-    },
-    onSuccess: (r) => {
-      if (r === "nifMatch") return;
-      toast.success(
-        isIssued
-          ? t("finance:reviewQueue.clientApproved")
-          : t("finance:reviewQueue.supplierApproved"),
-      );
-      invalidate();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const doApproveClassification = useMutation({
-    mutationFn: async () => {
-      if (!classificationId) throw new Error(t("finance:reviewQueue.pickClassification"));
-      if (isBenefit && !assignedCollaboratorId)
-        throw new Error(t("finance:reviewQueue.pickCollaborator"));
-      await approveClassification({
-        data: {
-          id: row.id,
-          classificationId,
-          projectId: projectId ?? null,
-          assignedCollaboratorId: isBenefit ? assignedCollaboratorId : null,
-        },
-      });
-    },
-
-    onSuccess: () => {
-      toast.success(t("finance:reviewQueue.classificationApproved"));
-      invalidate();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const doFinalize = useMutation({
-    mutationFn: async () => finalize({ data: { id: row.id } }),
-    onSuccess: () => {
+      setServerBlockers([]);
       toast.success(t("finance:reviewQueue.finalized"));
       invalidate();
+      onConfirmed?.();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -850,8 +811,79 @@ export function QueueItemCard({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const bothApproved = !!row.supplier_approved_at && !!row.classification_approved_at;
-  const readOnly = row.status !== "pending_review";
+  const readOnlyEarly = row.status !== "pending_review";
+  // Same rules as the database (fin_queue_blockers), evaluated on the edits in progress.
+  const rx = row as QueueRow & {
+    intake_type?: string | null;
+    entity_conflict_ids?: string[] | null;
+    possible_duplicates?: unknown[] | null;
+    possible_duplicate_resolved?: boolean | null;
+    field_checks?: Record<string, { status?: string }> | null;
+  };
+  const selectedCls = classifications.find((c) => c.id === classificationId) as
+    | { level?: string | null } | undefined;
+  const clientBlockers: string[] = [];
+  if (rx.entity_conflict_ids && rx.entity_conflict_ids.length > 0) clientBlockers.push("two_entities");
+  if (!rx.intake_type || rx.intake_type === "desconhecido") clientBlockers.push("doc_type");
+  if (row.direction === "unclear") clientBlockers.push("direction");
+  if (!fields.date) clientBlockers.push("date");
+  if (fields.amount === "" || Number.isNaN(Number(fields.amount))) clientBlockers.push("total");
+  if (!counterpartyId && !taxNumberOk(fields.supplier_vat)) clientBlockers.push("counterparty");
+  if (!classificationId) clientBlockers.push("category");
+  else if (selectedCls?.level && selectedCls.level !== "category") clientBlockers.push("category_group");
+  if (isBenefit && !assignedCollaboratorId) clientBlockers.push("collaborator");
+  if (!paidFromCardId && !paidFromAccountId && !markedUnpaid)
+    clientBlockers.push(fields.card_last4.replace(/\D/g, "") ? "card_unknown" : "paid_with");
+  if (Array.isArray(rx.possible_duplicates) && rx.possible_duplicates.length > 0 && !rx.possible_duplicate_resolved)
+    clientBlockers.push("duplicate");
+  // Server-only findings (e.g. supplier tax number, platform issuer) until something changes.
+  const blockers = Array.from(new Set([...clientBlockers, ...serverBlockers.filter((b) => ["counterparty_tax", "platform_issuer"].includes(b))]));
+  const blockerText = blockers.length
+    ? `${t("finance:confirm.cannotYet")} ${blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · ")}`
+    : "";
+  const verifyKeys = new Set(
+    Object.entries(rx.field_checks ?? {}).filter(([, v]) => v?.status === "verify").map(([k]) => k),
+  );
+  /** Ring a field that is missing (blocker) or that the readers disagree on. */
+  const hl = (blocker: string, check?: string, alt?: string) =>
+    !readOnlyEarly && ((blocker && blockers.includes(blocker)) || (alt && blockers.includes(alt)) || (check && verifyKeys.has(check)))
+      ? "rounded-md ring-2 ring-amber-500/70"
+      : "";
+
+  const policyQ = useQuery({
+    queryKey: ["finance", "confirm-policy", classificationId, counterpartyId],
+    enabled: !!classificationId,
+    queryFn: async () => {
+      if (counterpartyId) {
+        const { data } = await supabase.rpc("fin_supplier_policy", { _company: counterpartyId });
+        if (data) return data as string;
+      }
+      const { data } = await supabase
+        .from("financial_classifications").select("spending_policy").eq("id", classificationId!).maybeSingle();
+      return (data?.spending_policy as string | null) ?? null;
+    },
+  });
+  const policy = policyQ.data ?? null;
+
+  // Keyboard: Enter confirms (and opens the next item), Esc skips.
+  useEffect(() => {
+    if (!keyboard || readOnlyEarly) return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "TEXTAREA" || el.tagName === "BUTTON" || el.getAttribute("role") === "combobox" || el.closest("[role=listbox],[role=dialog]"))) return;
+      if (e.key === "Enter" && blockers.length === 0 && !doConfirm.isPending) {
+        e.preventDefault();
+        doConfirm.mutate();
+      } else if (e.key === "Escape" && onSkip) {
+        e.preventDefault();
+        onSkip();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  const readOnly = readOnlyEarly;
   const isBankStatement = row.doc_type === "bank_statement";
   const isPdf =
     (row.original_filename ?? row.source_file_url).toLowerCase().endsWith(".pdf");
@@ -1027,311 +1059,191 @@ export function QueueItemCard({
 
 
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientName" : "finance:reviewQueue.fields.supplierName")}>
-                <Input
-                  value={fields.supplier_name}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, supplier_name: e.target.value }))}
-                />
-              </Field>
-              <Field label={t(isIssued ? "finance:reviewQueue.fields.clientVat" : "finance:reviewQueue.fields.supplierVat")}>
-                <Input
-                  value={fields.supplier_vat}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, supplier_vat: e.target.value }))}
-                />
-              </Field>
-              <Field label={t("finance:reviewQueue.fields.documentNumber")}>
-                <Input
-                  value={fields.document_number}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, document_number: e.target.value }))}
-                />
-              </Field>
-              <Field label={t("finance:reviewQueue.fields.date")}>
-                <Input
-                  type="date"
-                  value={fields.date}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, date: e.target.value }))}
-                />
-              </Field>
-              <Field label={t("finance:reviewQueue.fields.amount")}>
-                <Input
-                  inputMode="decimal"
-                  value={fields.amount}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, amount: e.target.value }))}
-                />
-              </Field>
-              <Field label={t("finance:reviewQueue.fields.vat")}>
-                <Input
-                  inputMode="decimal"
-                  value={fields.vat}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, vat: e.target.value }))}
-                />
-              </Field>
-              {/* IRS withheld at source — a liability towards AT, not VAT. */}
-              <Field label={t("finance:reviewQueue.fields.withholding")}>
-                <Input
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  value={fields.withholding}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, withholding: e.target.value }))}
-                />
-              </Field>
-
-              <Field label={t("finance:reviewQueue.fields.currency")}>
-                <Input
-                  value={fields.currency}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, currency: e.target.value }))}
-                />
-              </Field>
-              {/* Extra reconciliation signals — never required. */}
-              <Field label={t("finance:reviewQueue.fields.paymentMethod")}>
-                <Select
-                  value={fields.payment_method || "none"}
-                  disabled={readOnly}
-                  onValueChange={(v) =>
-                    setFields((f) => ({ ...f, payment_method: v === "none" ? "" : v }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["none", "card", "cash", "bank_transfer", "direct_debit", "not_stated"].map(
-                      (v) => (
-                        <SelectItem key={v} value={v}>
-                          {t(`finance:reviewQueue.paymentMethodValue.${v}`)}
-                        </SelectItem>
-                      ),
+            {/* Top: what matters, pre-filled. Missing / unsure fields are ringed. */}
+            {!isBankStatement && (
+              <div className="space-y-2">
+                <Field label={t(isIssued ? "finance:reviewQueue.clientPanel" : "finance:reviewQueue.supplierPanel")}>
+                  <div className={hl("counterparty")}>
+                    <Select
+                      value={supplierId ?? "__new__"}
+                      disabled={readOnly}
+                      onValueChange={(v) => setSupplierId(v === "__new__" ? null : v)}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__new__">{t(isIssued ? "finance:reviewQueue.createNewClient" : "finance:reviewQueue.createNewSupplier")}</SelectItem>
+                        {suppliers.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.nome}
+                            {s.nif ? ` · ${s.nif}` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </Field>
+                {!supplierId && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label={t(isIssued ? "finance:reviewQueue.fields.clientName" : "finance:reviewQueue.fields.supplierName")}>
+                      <Input value={fields.supplier_name} disabled={readOnly}
+                        onChange={(e) => setFields((f) => ({ ...f, supplier_name: e.target.value }))} />
+                    </Field>
+                    <Field label={t(isIssued ? "finance:reviewQueue.fields.clientVat" : "finance:reviewQueue.fields.supplierVat")}>
+                      <Input className={hl("counterparty", "supplier_vat")} value={fields.supplier_vat} disabled={readOnly}
+                        onChange={(e) => setFields((f) => ({ ...f, supplier_vat: e.target.value }))} />
+                    </Field>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label={t("finance:reviewQueue.fields.date")}>
+                    <Input type="date" className={hl("date", "issue_date")} value={fields.date} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, date: e.target.value }))} />
+                  </Field>
+                  <Field label={t("finance:reviewQueue.fields.amount")}>
+                    <Input inputMode="decimal" className={hl("total", "total_amount")} value={fields.amount} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, amount: e.target.value }))} />
+                  </Field>
+                </div>
+                <Field label={t("finance:reviewQueue.classificationPanel")}>
+                  <div className={`flex items-center gap-2 ${hl("category", "category_group")}`}>
+                    <ClassificationPicker
+                      value={classificationId}
+                      onChange={setClassificationId}
+                      options={classifications}
+                      isPt={isPt}
+                      disabled={readOnly}
+                      className="flex-1"
+                    />
+                    {policy && (
+                      <Badge variant="outline" className="text-[10px] whitespace-nowrap">
+                        {t(`finance:policies.${policy}`, { defaultValue: policy })}
+                      </Badge>
                     )}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field label={t("finance:reviewQueue.fields.cardLast4")}>
-                <Input
-                  value={fields.card_last4}
-                  inputMode="numeric"
-                  maxLength={4}
-                  disabled={readOnly}
-                  onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))}
-                />
-              </Field>
-              {needsPaidFrom && (
-                <Field
-                  label={t(
-                    fields.payment_method === "card"
-                      ? "finance:reviewQueue.fields.paidFromCard"
-                      : "finance:reviewQueue.fields.paidFromAccount",
-                  )}
-                >
-                  <PaidWithSelect
-                    value={{ cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
-                    onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); }}
-                    last4={fields.card_last4.replace(/\D/g, "").slice(-4) || null}
-                    supplierId={(row as { matched_supplier_id?: string | null }).matched_supplier_id ?? null}
-                    disabled={readOnly}
-                  />
+                  </div>
                 </Field>
-              )}
-              {row.extracted_balance_due != null && (
-                <Field label={t("finance:reviewQueue.fields.balanceDue")}>
-                  <Input
-                    value={fmtMoney(row.extracted_balance_due, row.extracted_currency)}
-                    readOnly
-                    disabled
-                  />
+                {isBenefit && (
+                  <Field label={t("finance:reviewQueue.pickCollaborator")}>
+                    <Select
+                      value={assignedCollaboratorId ?? "__none__"}
+                      disabled={readOnly}
+                      onValueChange={(v) => setAssignedCollaboratorId(v === "__none__" ? null : v)}
+                    >
+                      <SelectTrigger className={hl("collaborator")}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">{t("finance:reviewQueue.pickCollaborator")}</SelectItem>
+                        {(collaboratorsQ.data ?? []).map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+                <Field label={t("finance:confirm.paidWith")}>
+                  <div className={hl("paid_with", "card_unknown")}>
+                    <PaidWithSelect
+                      value={{ cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
+                      onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); if (v.cardId || v.accountId) setMarkedUnpaid(false); }}
+                      last4={fields.card_last4.replace(/\D/g, "").slice(-4) || null}
+                      supplierId={supplierId}
+                      disabled={readOnly || markedUnpaid}
+                    />
+                  </div>
+                  <label className="mt-1 flex items-center gap-2 text-xs">
+                    <Checkbox
+                      checked={markedUnpaid}
+                      disabled={readOnly}
+                      onCheckedChange={(v) => {
+                        const on = v === true;
+                        setMarkedUnpaid(on);
+                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); }
+                      }}
+                    />
+                    {t("finance:confirm.markUnpaid")}
+                  </label>
                 </Field>
-              )}
-            </div>
-            {!readOnly && (
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => saveFields.mutate()}
-                disabled={saveFields.isPending}
-              >
-                {t("finance:reviewQueue.saveFields")}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {!isBankStatement && <Separator />}
-
-        {/* Supplier checkpoint */}
-        {!isBankStatement && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{t(isIssued ? "finance:reviewQueue.clientPanel" : "finance:reviewQueue.supplierPanel")}</h3>
-            <Badge
-              variant={row.supplier_approved_at ? "default" : "outline"}
-              className="text-[10px]"
-            >
-              {row.supplier_approved_at
-                ? t("finance:reviewQueue.approvedBadge")
-                : t(`finance:reviewQueue.matchStatus.${isIssued ? row.client_match_status : row.supplier_match_status}`, {
-                    defaultValue: isIssued ? row.client_match_status : row.supplier_match_status,
-                  })}
-            </Badge>
-          </div>
-          {row.supplier_match_status === "ambiguous" && (
-            <p className="text-xs text-muted-foreground">
-              {t("finance:reviewQueue.ambiguousHint", {
-                count: row.ambiguous_supplier_ids?.length ?? 0,
-              })}
-            </p>
-          )}
-          {row.supplier_match_status === "no_match" && !supplierId && (
-            <p className="text-xs text-muted-foreground">
-              {t("finance:reviewQueue.noMatchHint")}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-2">
-            <Select
-              value={supplierId ?? "__new__"}
-              disabled={readOnly}
-              onValueChange={(v) => setSupplierId(v === "__new__" ? null : v)}
-            >
-              <SelectTrigger className="w-[320px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__new__">{t(isIssued ? "finance:reviewQueue.createNewClient" : "finance:reviewQueue.createNewSupplier")}</SelectItem>
-                {suppliers.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.nome}
-                    {s.nif ? ` · ${s.nif}` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              disabled={readOnly || !!row.supplier_approved_at || doApproveSupplier.isPending}
-              onClick={() => doApproveSupplier.mutate()}
-            >
-              <Check className="h-4 w-4 mr-1.5" />
-              {t(isIssued ? "finance:reviewQueue.approveClient" : "finance:reviewQueue.approveSupplier")}
-            </Button>
-            <AlertDialog open={!!nifMatch} onOpenChange={(o) => { if (!o) setNifMatch(null); }}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t("finance:reviewQueue.nifMatch.title")}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("finance:reviewQueue.nifMatch.body", { name: nifMatch?.nome ?? "", nif: nifMatch?.nif ?? "" })}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={doLinkSupplier.isPending}
-                    onClick={(e) => { e.preventDefault(); if (nifMatch) doLinkSupplier.mutate(nifMatch.id); }}
-                  >
-                    {t("finance:reviewQueue.nifMatch.link")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
-        )}
-
-        {!isBankStatement && <Separator />}
-
-        {/* Classification checkpoint */}
-        {!isBankStatement && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{t("finance:reviewQueue.classificationPanel")}</h3>
-            <div className="flex items-center gap-2">
-              {row.classification_confidence != null && (
-                <span className="text-[11px] text-muted-foreground">
-                  {t("finance:reviewQueue.confidence", {
-                    value: Math.round((row.classification_confidence ?? 0) * 100),
-                  })}
-                </span>
-              )}
-              <Badge
-                variant={row.classification_approved_at ? "default" : "outline"}
-                className="text-[10px]"
-              >
-                {row.classification_approved_at
-                  ? t("finance:reviewQueue.approvedBadge")
-                  : t("finance:reviewQueue.pendingBadge")}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <ClassificationPicker
-              value={classificationId}
-              onChange={setClassificationId}
-              options={classifications}
-              isPt={isPt}
-              disabled={readOnly}
-              className="w-[380px]"
-            />
-            <Select
-              value={projectId ?? "__none__"}
-              disabled={readOnly}
-              onValueChange={(v) => setProjectId(v === "__none__" ? null : v)}
-            >
-              <SelectTrigger className="w-[280px]">
-                <SelectValue placeholder={t("finance:reviewQueue.noProject")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">{t("finance:reviewQueue.noProject")}</SelectItem>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {isBenefit && (
-              <Select
-                value={assignedCollaboratorId ?? "__none__"}
-                disabled={readOnly}
-                onValueChange={(v) =>
-                  setAssignedCollaboratorId(v === "__none__" ? null : v)
-                }
-              >
-                <SelectTrigger className="w-[260px]">
-                  <SelectValue placeholder={t("finance:reviewQueue.pickCollaborator")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">
-                    {t("finance:reviewQueue.pickCollaborator")}
-                  </SelectItem>
-                  {(collaboratorsQ.data ?? []).map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              </div>
             )}
 
-            <Button
-              size="sm"
-              disabled={
-                readOnly || !!row.classification_approved_at || doApproveClassification.isPending
-              }
-              onClick={() => doApproveClassification.mutate()}
-            >
-              <Check className="h-4 w-4 mr-1.5" />
-              {t("finance:reviewQueue.approveClassification")}
-            </Button>
+            {/* Details: unsure ones first and open; the rest collapsed but editable. */}
+            {(() => {
+              const detail: Array<{ key: string; check?: string; node: React.ReactNode }> = [
+                { key: "document_number", check: "document_number", node: (
+                  <Field key="document_number" label={t("finance:reviewQueue.fields.documentNumber")}>
+                    <Input className={hl("", "document_number")} value={fields.document_number} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, document_number: e.target.value }))} />
+                  </Field>) },
+                { key: "vat", check: "vat_amount", node: (
+                  <Field key="vat" label={t("finance:reviewQueue.fields.vat")}>
+                    <Input inputMode="decimal" className={hl("", "vat_amount")} value={fields.vat} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, vat: e.target.value }))} />
+                  </Field>) },
+                { key: "withholding", node: (
+                  <Field key="withholding" label={t("finance:reviewQueue.fields.withholding")}>
+                    <Input inputMode="decimal" placeholder="0.00" value={fields.withholding} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, withholding: e.target.value }))} />
+                  </Field>) },
+                { key: "currency", node: (
+                  <Field key="currency" label={t("finance:reviewQueue.fields.currency")}>
+                    <Input value={fields.currency} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, currency: e.target.value }))} />
+                  </Field>) },
+                { key: "payment_method", node: (
+                  <Field key="payment_method" label={t("finance:reviewQueue.fields.paymentMethod")}>
+                    <Select value={fields.payment_method || "none"} disabled={readOnly}
+                      onValueChange={(v) => setFields((f) => ({ ...f, payment_method: v === "none" ? "" : v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {["none", "card", "cash", "bank_transfer", "direct_debit", "not_stated"].map((v) => (
+                          <SelectItem key={v} value={v}>{t(`finance:reviewQueue.paymentMethodValue.${v}`)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>) },
+                { key: "card_last4", node: (
+                  <Field key="card_last4" label={t("finance:reviewQueue.fields.cardLast4")}>
+                    <Input value={fields.card_last4} inputMode="numeric" maxLength={4} disabled={readOnly}
+                      onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))} />
+                  </Field>) },
+                { key: "project", node: (
+                  <Field key="project" label={t("finance:reviewQueue.noProject")}>
+                    <Select value={projectId ?? "__none__"} disabled={readOnly}
+                      onValueChange={(v) => setProjectId(v === "__none__" ? null : v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">{t("finance:reviewQueue.noProject")}</SelectItem>
+                        {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </Field>) },
+              ];
+              const unsure = detail.filter((d) => d.check && verifyKeys.has(d.check));
+              const rest = detail.filter((d) => !unsure.includes(d));
+              return (
+                <>
+                  {unsure.length > 0 && <div className="grid grid-cols-2 gap-2">{unsure.map((d) => d.node)}</div>}
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                        <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                        {t("finance:confirm.details")}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        {rest.map((d) => d.node)}
+                        {row.extracted_balance_due != null && (
+                          <Field label={t("finance:reviewQueue.fields.balanceDue")}>
+                            <Input value={fmtMoney(row.extracted_balance_due, row.extracted_currency)} readOnly disabled />
+                          </Field>
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </>
+              );
+            })()}
           </div>
         </div>
-        )}
 
         {!isBankStatement && (
           <>
@@ -1366,13 +1278,23 @@ export function QueueItemCard({
             </Button>
           </div>
           {!isBankStatement && (
-            <Button
-              size="sm"
-              disabled={readOnly || !bothApproved || doFinalize.isPending}
-              onClick={() => doFinalize.mutate()}
-            >
-              {t("finance:reviewQueue.finalize")}
-            </Button>
+            <div className="flex flex-col items-end gap-1">
+              <Button
+                size="sm"
+                disabled={readOnly || blockers.length > 0 || doConfirm.isPending}
+                onClick={() => doConfirm.mutate()}
+                title={blockers.length ? blockerText : undefined}
+              >
+                {doConfirm.isPending ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Check className="h-4 w-4 mr-1.5" />}
+                {t("finance:confirm.button")}
+              </Button>
+              {!readOnly && blockers.length > 0 && (
+                <p className="text-[11px] text-muted-foreground">{blockerText}</p>
+              )}
+              {!readOnly && blockers.length === 0 && (
+                <p className="text-[11px] text-muted-foreground">{t("finance:confirm.keysHint")}</p>
+              )}
+            </div>
           )}
         </div>
 

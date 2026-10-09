@@ -720,3 +720,85 @@ export const extractDocumentLines = createServerFn({ method: "POST" })
     if (insErr) throw new Error(insErr.message);
     return { ok: true, created: rows.length };
   });
+
+/* ------------------------------------------------------------------------ */
+/* Single "Confirmar"                                                        */
+/* ------------------------------------------------------------------------ */
+
+const confirmEditsSchema = z
+  .object({
+    supplier_name: z.string().max(200).optional(),
+    supplier_vat: z.string().max(40).optional(),
+    document_number: z.string().max(120).optional(),
+    date: z.string().max(10).optional(),
+    amount: z.string().max(40).optional(),
+    vat: z.string().max(40).optional(),
+    withholding: z.string().max(40).optional(),
+    currency: z.string().max(3).optional(),
+    payment_method: z.string().max(40).optional(),
+    card_last4: z.string().max(8).optional(),
+    paid_from_card_id: z.string().uuid().nullable().optional(),
+    paid_from_account_id: z.string().uuid().nullable().optional(),
+    marked_unpaid: z.boolean().optional(),
+    classification_id: z.string().uuid().nullable().optional(),
+    project_id: z.string().uuid().nullable().optional(),
+    assigned_collaborator_id: z.string().uuid().nullable().optional(),
+    counterparty_id: z.string().uuid().nullable().optional(),
+    link_counterparty_id: z.string().uuid().nullable().optional(),
+  })
+  .strict();
+
+export type ConfirmResult =
+  | { ok: true; documentId: string }
+  | { ok: false; blockers: string[]; error: string | null };
+
+/** Turns a database refusal into blocker codes (BLOCKED:a,b) or a plain message. */
+function confirmFailure(message: string): ConfirmResult {
+  const m = /BLOCKED:([a-z_,]+)/.exec(message);
+  if (m) return { ok: false, blockers: m[1].split(","), error: null };
+  return { ok: false, blockers: [], error: message };
+}
+
+/**
+ * One action for a review item: field edits → supplier/client (find by NIF,
+ * platform rules, create if new) → classification → "Paid with" → finalise.
+ * Runs in ONE database transaction (fin_confirm_queue_item); any failure
+ * leaves the item exactly as it was. Each sub-step is logged in
+ * finance_intake_confirm_log. The older step functions stay for internal use.
+ */
+export const confirmQueueItem = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), edits: confirmEditsSchema.default({}) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<ConfirmResult> => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const { data: res, error } = await supabase.rpc("fin_confirm_queue_item", {
+      _id: data.id,
+      _edits: data.edits as never,
+    });
+    if (error) return confirmFailure(error.message);
+    return { ok: true, documentId: (res as { document_id: string }).document_id };
+  });
+
+/** "Confirmar repetições": each item in its own transaction; returns per-item results. */
+export const confirmQueueItems = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ ids: z.array(z.string().uuid()).min(1).max(200) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const results: Array<{ id: string } & ConfirmResult> = [];
+    for (const id of data.ids) {
+      const { data: res, error } = await supabase.rpc("fin_confirm_queue_item", { _id: id, _edits: {} as never });
+      results.push(
+        error
+          ? { id, ...confirmFailure(error.message) }
+          : { id, ok: true, documentId: (res as { document_id: string }).document_id },
+      );
+    }
+    return { results };
+  });
