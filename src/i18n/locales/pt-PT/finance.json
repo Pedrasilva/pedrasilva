@@ -2203,5 +2203,54 @@
       "supplier": "padrão do fornecedor",
       "category": "padrão da categoria"
     }
+  },
+  "paidWith": {
+    "label": "Pago com",
+    "none": "Não definido",
+    "card": "Cartão",
+    "account": "Conta",
+    "unknownCard": "Cartão desconhecido …{{last4}}",
+    "suggestUsual": "Sugerir o cartão habitual do fornecedor: {{card}}",
+    "saved": "Origem do pagamento guardada"
+  },
+  "enteredBy": {
+    "label": "Introduzido por",
+    "automatic": "Automático (receção ou importação)"
+  },
+  "cards": {
+    "title": "Cartões de pagamento",
+    "subtitle": "Cartões da entidade atual. Só se guardam os últimos 4 dígitos, nunca o número completo.",
+    "add": "Adicionar cartão",
+    "edit": "Editar cartão",
+    "holder": "Titular",
+    "unknownHolder": "Titular desconhecido",
+    "last4": "Últimos 4 dígitos",
+    "last4Hint": "Apenas os últimos 4 dígitos — nunca escreva o número completo do cartão.",
+    "last4Missing": "Em falta",
+    "last4Invalid": "Indique exatamente 4 dígitos, ou deixe vazio.",
+    "type": "Tipo",
+    "networkLabel": "Rede",
+    "network": {
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "other": "Outra"
+    },
+    "cardType": {
+      "debit": "Débito",
+      "credit": "Crédito"
+    },
+    "bank": "Banco",
+    "account": "Conta",
+    "accountHint": "Débito: a conta à ordem de onde sai o dinheiro. Crédito: a sua conta de cartão de crédito.",
+    "settledBy": "Liquidado pela conta",
+    "bankRefs": "Referências do banco",
+    "bankRefsHint": "Texto separado por vírgulas que o banco imprime nos movimentos deste cartão, p. ex. MDB8022.",
+    "notes": "Notas",
+    "deactivate": "Desativar",
+    "reactivate": "Reativar",
+    "saved": "Cartão guardado",
+    "empty": "Ainda não há cartões.",
+    "settlementTitle": "Contas de cartão de crédito",
+    "settlementHint": "Escolha a conta à ordem que paga o saldo mensal de cada cartão de crédito."
   }
 }

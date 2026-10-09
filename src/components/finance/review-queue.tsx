@@ -9,6 +9,7 @@
  * Documents that share an invoice number are grouped (invoice + its receipt =
  * one transaction) and reviewed as a single unit.
  */
+import { PaidWithSelect } from "@/components/finance/paid-with-control";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -572,6 +573,9 @@ export function QueueItemCard({
   const [paidFromAccountId, setPaidFromAccountId] = useState<string | null>(
     row.paid_from_account_id ?? null,
   );
+  const [paidFromCardId, setPaidFromCardId] = useState<string | null>(
+    (row as { paid_from_card_id?: string | null }).paid_from_card_id ?? null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -715,7 +719,8 @@ export function QueueItemCard({
           extracted_currency: normalizeCurrency(fields.currency),
           extracted_payment_method: fields.payment_method || null,
           extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
-          paid_from_account_id: needsPaidFrom ? paidFromAccountId : null,
+          paid_from_account_id: needsPaidFrom && !paidFromCardId ? paidFromAccountId : null,
+          paid_from_card_id: needsPaidFrom ? paidFromCardId : null,
 
         })
         .eq("id", row.id);
@@ -1126,26 +1131,13 @@ export function QueueItemCard({
                       : "finance:reviewQueue.fields.paidFromAccount",
                   )}
                 >
-                  <Select
-                    value={paidFromAccountId ?? "none"}
+                  <PaidWithSelect
+                    value={{ cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
+                    onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); }}
+                    last4={fields.card_last4.replace(/\D/g, "").slice(-4) || null}
+                    supplierId={(row as { matched_supplier_id?: string | null }).matched_supplier_id ?? null}
                     disabled={readOnly}
-                    onValueChange={(v) => setPaidFromAccountId(v === "none" ? null : v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("finance:reviewQueue.fields.paidFromNone")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">
-                        {t("finance:reviewQueue.fields.paidFromNone")}
-                      </SelectItem>
-                      {paidFromOptions.map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          {a.account_name}
-                          {a.bank_name ? ` · ${a.bank_name}` : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </Field>
               )}
               {row.extracted_balance_due != null && (

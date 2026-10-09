@@ -2203,5 +2203,54 @@
       "supplier": "supplier default",
       "category": "category default"
     }
+  },
+  "paidWith": {
+    "label": "Paid with",
+    "none": "Not set",
+    "card": "Card",
+    "account": "Account",
+    "unknownCard": "Unknown card …{{last4}}",
+    "suggestUsual": "Suggest supplier's usual card: {{card}}",
+    "saved": "Payment source saved"
+  },
+  "enteredBy": {
+    "label": "Entered by",
+    "automatic": "Automatic (intake or import)"
+  },
+  "cards": {
+    "title": "Payment cards",
+    "subtitle": "Cards of the current entity. Only the last 4 digits are stored, never the full number.",
+    "add": "Add card",
+    "edit": "Edit card",
+    "holder": "Holder",
+    "unknownHolder": "Holder unknown",
+    "last4": "Last 4 digits",
+    "last4Hint": "Only the last 4 digits — never type the full card number.",
+    "last4Missing": "Missing",
+    "last4Invalid": "Enter exactly 4 digits, or leave it empty.",
+    "type": "Type",
+    "networkLabel": "Network",
+    "network": {
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "other": "Other"
+    },
+    "cardType": {
+      "debit": "Debit",
+      "credit": "Credit"
+    },
+    "bank": "Bank",
+    "account": "Account",
+    "accountHint": "Debit: the current account it draws from. Credit: its credit-card account.",
+    "settledBy": "Settled from",
+    "bankRefs": "Bank references",
+    "bankRefsHint": "Comma-separated text the bank prints on statement lines for this card, e.g. MDB8022.",
+    "notes": "Notes",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "saved": "Card saved",
+    "empty": "No cards yet.",
+    "settlementTitle": "Credit-card accounts",
+    "settlementHint": "Choose the current account that pays each credit card's monthly balance."
   }
 }
