@@ -595,6 +595,13 @@ export function QueueItemCard({
   );
   const [rejectReason, setRejectReason] = useState("");
   const [markedUnpaid, setMarkedUnpaid] = useState<boolean>(!!(row as { marked_unpaid?: boolean }).marked_unpaid);
+  const [paidUnknown, setPaidUnknown] = useState<boolean>(!!(row as { paid_method_unknown?: boolean }).paid_method_unknown);
+  const paidSource = (row as { paid_with_source?: string | null }).paid_with_source ?? null;
+  const [paidSourceTouched, setPaidSourceTouched] = useState(false);
+  // The database fills "Pago com" from a matching bank line at confirm; when it already
+  // sees one, the server readiness has no paid_with blocker.
+  const serverReady = !!(row as { readiness_blockers?: string[] }).readiness_blockers &&
+    !((row as { readiness_blockers?: string[] }).readiness_blockers ?? []).some((b) => b === "paid_with" || b === "card_unknown");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Payment methods that are settled through an account we hold.
@@ -768,6 +775,7 @@ export function QueueItemCard({
         paid_from_card_id: paidFromCardId,
         paid_from_account_id: paidFromCardId ? null : paidFromAccountId,
         marked_unpaid: markedUnpaid,
+        paid_method_unknown: paidUnknown,
         classification_id: classificationId,
         project_id: projectId,
         assigned_collaborator_id: isBenefit ? assignedCollaboratorId : null,
@@ -832,7 +840,7 @@ export function QueueItemCard({
   if (!classificationId) clientBlockers.push("category");
   else if (selectedCls?.level && selectedCls.level !== "category") clientBlockers.push("category_group");
   if (isBenefit && !assignedCollaboratorId) clientBlockers.push("collaborator");
-  if (!paidFromCardId && !paidFromAccountId && !markedUnpaid)
+  if (!paidFromCardId && !paidFromAccountId && !markedUnpaid && !paidUnknown && !serverReady)
     clientBlockers.push(fields.card_last4.replace(/\D/g, "") ? "card_unknown" : "paid_with");
   if (Array.isArray(rx.possible_duplicates) && rx.possible_duplicates.length > 0 && !rx.possible_duplicate_resolved)
     clientBlockers.push("duplicate");
@@ -1142,12 +1150,17 @@ export function QueueItemCard({
                   <div className={hl("paid_with", "card_unknown")}>
                     <PaidWithSelect
                       value={{ cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
-                      onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); if (v.cardId || v.accountId) setMarkedUnpaid(false); }}
+                      onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); setPaidSourceTouched(true); if (v.cardId || v.accountId) { setMarkedUnpaid(false); setPaidUnknown(false); } }}
                       last4={fields.card_last4.replace(/\D/g, "").slice(-4) || null}
                       supplierId={supplierId}
-                      disabled={readOnly || markedUnpaid}
+                      disabled={readOnly || markedUnpaid || paidUnknown}
                     />
                   </div>
+                  {paidSource && !paidSourceTouched && (paidFromCardId || paidFromAccountId) && (
+                    <Badge variant="secondary" className="mt-1 text-xs">
+                      {t(`finance:confirm.paidSource.${paidSource}`, { defaultValue: paidSource })}
+                    </Badge>
+                  )}
                   <label className="mt-1 flex items-center gap-2 text-xs">
                     <Checkbox
                       checked={markedUnpaid}
@@ -1155,10 +1168,22 @@ export function QueueItemCard({
                       onCheckedChange={(v) => {
                         const on = v === true;
                         setMarkedUnpaid(on);
-                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); }
+                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); setPaidUnknown(false); }
                       }}
                     />
                     {t("finance:confirm.markUnpaid")}
+                  </label>
+                  <label className="mt-1 flex items-center gap-2 text-xs">
+                    <Checkbox
+                      checked={paidUnknown}
+                      disabled={readOnly}
+                      onCheckedChange={(v) => {
+                        const on = v === true;
+                        setPaidUnknown(on);
+                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); setMarkedUnpaid(false); }
+                      }}
+                    />
+                    {t("finance:confirm.paidUnknown")}
                   </label>
                 </Field>
               </div>
