@@ -19,10 +19,31 @@ export function normalizePortugueseNif(value: string | null | undefined): string
 const VALID_FIRST_DIGITS = ["1", "2", "3", "5", "6", "8", "9"];
 const VALID_FIRST_TWO = ["45", "70", "71", "72", "74", "75", "77", "79", "90", "91", "98", "99"];
 
+/**
+ * Obvious placeholder numbers (all same digit, 123123123, 000000001,
+ * 500000002, 500500500, 112233445, 123456789…). Mirrors the database
+ * function fin_nif_is_placeholder.
+ */
+export function isPlaceholderNif(value: string | null | undefined): boolean {
+  const n = normalizePortugueseNif(value);
+  if (!n || !/^\d{9}$/.test(n)) return false;
+  return (
+    /^(\d)\1{8}$/.test(n) ||
+    /^(\d{2})\1{3}\d$/.test(n) ||
+    /^(\d{3})\1\1$/.test(n) ||
+    /(\d)\1{6}/.test(n) ||
+    n.startsWith("12345678") ||
+    n.startsWith("98765432") ||
+    /^(\d)\1(\d)\2(\d)\3(\d)\4/.test(n)
+  );
+}
+
+/** Check digit + valid first digits, and never a placeholder. */
 export function isValidPortugueseNif(value: string | null | undefined): boolean {
   const nif = normalizePortugueseNif(value);
   if (!nif || nif.length !== 9) return false;
   if (!/^\d{9}$/.test(nif)) return false;
+  if (isPlaceholderNif(nif)) return false;
 
   const first = nif[0];
   const firstTwo = nif.slice(0, 2);
