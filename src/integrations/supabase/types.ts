@@ -14761,6 +14761,10 @@ export type Database = {
         Args: { _category: string }
         Returns: string
       }
+      fin_card_by_last4: {
+        Args: { _entity: string; _last4: string }
+        Returns: string
+      }
       fin_class_in_use: { Args: { _id: string }; Returns: boolean }
       fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
       fin_deactivate_if_unused: { Args: { _id: string }; Returns: undefined }
@@ -14779,6 +14783,10 @@ export type Database = {
         Returns: string
       }
       fin_nif_is_placeholder: { Args: { _nif: string }; Returns: boolean }
+      fin_paid_from_of_bank_line: {
+        Args: { _tx: string }
+        Returns: Record<string, unknown>
+      }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
       fin_reclass_list: {
@@ -14812,6 +14820,7 @@ export type Database = {
         Args: { _company: string }
         Returns: Database["public"]["Enums"]["financial_spending_policy"]
       }
+      fin_supplier_usual_card: { Args: { _supplier: string }; Returns: string }
       fin_tax_log: {
         Args: { _f: string; _id: string; _n: string; _o: string; _t: string }
         Returns: undefined
