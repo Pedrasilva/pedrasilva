@@ -3341,6 +3341,76 @@ export type Database = {
           },
         ]
       }
+      finance_holder_reimbursements: {
+        Row: {
+          amount: number
+          card_id: string | null
+          collaborator_id: string | null
+          created_at: string
+          created_by: string | null
+          document_id: string
+          entity_id: string
+          holder_name: string | null
+          id: string
+          repaid_at: string | null
+          repaid_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          card_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          entity_id: string
+          holder_name?: string | null
+          id?: string
+          repaid_at?: string | null
+          repaid_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          card_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          entity_id?: string
+          holder_name?: string | null
+          id?: string
+          repaid_at?: string | null
+          repaid_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_holder_reimbursements_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_holder_reimbursements_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: true
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_holder_reimbursements_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_intake_corrections: {
         Row: {
           ai_value: string | null
@@ -3531,6 +3601,45 @@ export type Database = {
           name?: string
           nif?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      finance_personal_card_log: {
+        Row: {
+          action: string
+          actor: string | null
+          amount: number | null
+          created_at: string
+          document_id: string | null
+          entity_id: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          reimbursement_id: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          amount?: number | null
+          created_at?: string
+          document_id?: string | null
+          entity_id: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reimbursement_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          amount?: number | null
+          created_at?: string
+          document_id?: string | null
+          entity_id?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reimbursement_id?: string | null
         }
         Relationships: []
       }
@@ -4615,6 +4724,7 @@ export type Database = {
           personal_card_decided_at: string | null
           personal_card_decided_by: string | null
           personal_card_decision: string | null
+          personal_card_prev_status: string | null
           project_id: string | null
           series: string | null
           source: Database["public"]["Enums"]["financial_doc_source"]
@@ -4682,6 +4792,7 @@ export type Database = {
           personal_card_decided_at?: string | null
           personal_card_decided_by?: string | null
           personal_card_decision?: string | null
+          personal_card_prev_status?: string | null
           project_id?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
@@ -4749,6 +4860,7 @@ export type Database = {
           personal_card_decided_at?: string | null
           personal_card_decided_by?: string | null
           personal_card_decision?: string | null
+          personal_card_prev_status?: string | null
           project_id?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
