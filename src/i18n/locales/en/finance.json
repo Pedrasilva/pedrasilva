@@ -2282,5 +2282,39 @@
     "undoRepaid": "Undo repaid",
     "markedRepaid": "Marked as repaid",
     "markedOwed": "Marked as owed again"
+  },
+  "confirm": {
+    "button": "Confirm",
+    "paidWith": "Paid with",
+    "markUnpaid": "Not paid yet (\"Por pagar\")",
+    "details": "Details",
+    "cannotYet": "Can't confirm yet:",
+    "keysHint": "Enter confirms and opens the next item · Esc skips",
+    "repeat": "Repeat",
+    "historical": "Historical",
+    "repeatsButton": "Confirm repeats ({{count}})",
+    "repeatsTitle": "Confirm {{count}} repeats",
+    "repeatsConfirm": "Confirm {{count}}",
+    "repeatsDone": "{{count}} confirmed",
+    "repeatsFailed": "{{count}} could not be confirmed and stay in the queue",
+    "blockers": {
+      "status": "already handled",
+      "not_confirmable": "this type isn't confirmed here",
+      "two_entities": "belongs to two entities",
+      "entity": "no entity",
+      "doc_type": "document type missing",
+      "direction": "say whether it was received or issued",
+      "date": "date missing",
+      "total": "total missing",
+      "counterparty": "supplier/client needs a valid PT NIF or a foreign tax number",
+      "counterparty_tax": "the chosen supplier/client has no valid tax number",
+      "platform_issuer": "platform receipt without the issuer",
+      "category": "category missing",
+      "category_group": "choose a category, not a group",
+      "collaborator": "choose the staff member",
+      "paid_with": "choose \"Paid with\" or mark it not paid",
+      "card_unknown": "unknown card: add it or choose \"Paid with\"",
+      "duplicate": "resolve the duplicate warning first"
+    }
   }
 }
