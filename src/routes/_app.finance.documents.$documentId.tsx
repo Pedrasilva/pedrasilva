@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PolicyControl } from "@/components/finance/policy-control";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceInventoryAction } from "@/components/inventory/invoice-inventory-action";
 import { Badge } from "@/components/ui/badge";
@@ -660,6 +661,16 @@ function DocumentEditorPage() {
           </div>
         </CardContent>
       </Card>
+
+      {!isNew && docQ.data && (
+        <Card>
+          <CardContent className="pt-6">
+            <PolicyControl table="financial_documents" recordId={documentId}
+              classificationId={docQ.data.document.classification_id}
+              supplierId={docQ.data.document.counterparty_supplier_id} disabled={readOnly} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Lines */}
       <Card>
