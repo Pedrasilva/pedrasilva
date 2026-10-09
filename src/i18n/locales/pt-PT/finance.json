@@ -2315,6 +2315,18 @@
       "paid_with": "escolha \"Pago com\" ou marque Por pagar",
       "card_unknown": "cartão desconhecido: adicione-o ou escolha \"Pago com\"",
       "duplicate": "resolva primeiro o aviso de duplicado"
+    },
+    "paidUnknown": "Pago — meio por identificar",
+    "paidSource": {
+      "habitual": "habitual",
+      "bank": "do banco",
+      "manual": "escolhido à mão",
+      "card_print": "do recibo"
     }
+  },
+  "paidMissing": {
+    "title_one": "{{count}} documento confirmado sem \"Pago com\" há mais de 30 dias",
+    "title_other": "{{count}} documentos confirmados sem \"Pago com\" há mais de 30 dias",
+    "hint": "Marcados \"Pago — meio por identificar\". A reconciliação bancária preenche-o quando encontra o movimento."
   }
 }

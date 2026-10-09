@@ -2315,6 +2315,18 @@
       "paid_with": "choose \"Paid with\" or mark it not paid",
       "card_unknown": "unknown card: add it or choose \"Paid with\"",
       "duplicate": "resolve the duplicate warning first"
+    },
+    "paidUnknown": "Paid — method not identified yet",
+    "paidSource": {
+      "habitual": "habitual",
+      "bank": "from the bank",
+      "manual": "chosen by hand",
+      "card_print": "from the receipt"
     }
+  },
+  "paidMissing": {
+    "title_one": "{{count}} confirmed document without \"Paid with\" after 30 days",
+    "title_other": "{{count}} confirmed documents without \"Paid with\" after 30 days",
+    "hint": "Marked \"Paid — method not identified\". Bank reconciliation fills it when it matches the document."
   }
 }
