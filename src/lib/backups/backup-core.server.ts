@@ -96,7 +96,6 @@ export const BACKUP_TABLES: string[] = [
   "financial_debt_payments",
   "financial_import_logs",
   "company_expenses",
-  "expense_categories",
   "bank_accounts",
   "bank_transactions",
   "bank_balance_snapshots",

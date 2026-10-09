@@ -1513,21 +1513,6 @@ function useSuppliersMap() {
   });
 }
 
-function useCategoriesMap() {
-  return useQuery({
-    queryKey: ["finance", "categories-map"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("expense_categories")
-        .select("id, name");
-      if (error) throw error;
-      const m = new Map<string, string>();
-      for (const r of data ?? []) m.set(r.id, r.name);
-      return m;
-    },
-  });
-}
-
 function ExpenseStatusBadge({ status }: { status: string }) {
   const { t } = useTranslation(["finance"]);
   const tone =
@@ -1564,7 +1549,6 @@ export function ExpensesSection({
   const qc = useQueryClient();
   const expensesQ = useExpensesFull();
   const suppliersQ = useSuppliersMap();
-  const categoriesQ = useCategoriesMap();
   const periodsQ = usePeriodsMap();
   const [monthFilter, setMonthFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -1628,7 +1612,6 @@ export function ExpensesSection({
   if (
     expensesQ.isLoading ||
     suppliersQ.isLoading ||
-    categoriesQ.isLoading ||
     periodsQ.isLoading
   ) {
     return (
@@ -1714,7 +1697,7 @@ export function ExpensesSection({
             {rows.map((r) => {
               const period = r.period_id ? periodsQ.data?.get(r.period_id) : null;
               const supplier = r.supplier_id ? suppliersQ.data?.get(r.supplier_id) : null;
-              const category = r.category_id ? categoriesQ.data?.get(r.category_id) : null;
+              const category: string | null = null; // legacy expense_categories retired
               const amt = pickAmount(r.amount_ex_vat, r.amount_inc_vat, r.vat_amount, vatMode);
               const canMarkBenefitPaid =
                 isAdmin &&
