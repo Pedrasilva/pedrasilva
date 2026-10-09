@@ -2190,5 +2190,18 @@
     "suggested": "Sugestão",
     "accept": "Aceitar",
     "done": "Reclassificado"
+  },
+  "policyControl": {
+    "label": "Política",
+    "saved": "Política guardada",
+    "followDefault": "Seguir o padrão",
+    "onlyThis": "{{policy}} — só neste registo",
+    "supplierNone": "Sem padrão do fornecedor",
+    "supplierDefault": "Padrão do fornecedor: {{policy}}",
+    "from": {
+      "document": "definida neste registo",
+      "supplier": "padrão do fornecedor",
+      "category": "padrão da categoria"
+    }
   }
 }

@@ -1082,7 +1082,8 @@
       "mine": "Os meus benefícios",
       "approvals": "Aprovações",
       "overview": "Resumo",
-      "expenses": "Despesas"
+      "expenses": "Despesas",
+      "mapping": "Associação financeira"
     },
     "empty": {
       "noProfile": "Não conseguimos identificar o seu perfil de colaborador. Contacte o administrador.",
@@ -1398,6 +1399,13 @@
       "openingBalance": "Saldo inicial",
       "closingBalance": "Saldo restante",
       "noExpenses": "Sem despesas submetidas neste período."
+    },
+    "pessoalMap": {
+      "title": "Categoria financeira",
+      "sub": "Cada categoria de benefício é lançada numa única categoria de Pessoal.",
+      "col": "Categoria de benefício",
+      "pick": "Categoria de Pessoal",
+      "saved": "Associação guardada"
     }
   },
   "companySettings": {

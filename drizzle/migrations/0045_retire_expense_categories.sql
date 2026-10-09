@@ -1,0 +1,2 @@
+COMMENT ON TABLE public.expense_categories IS 'DEPRECATED: retired; no screen reads it. Drop once the live app is republished.';
+COMMENT ON COLUMN public.financial_expense_items.category_id IS 'DEPRECATED: expense_categories retired';

@@ -27,6 +27,7 @@ import {
 } from "@/lib/finance/bank-statement-parser";
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
 import { MatchBankTxToReimbursementDialog } from "@/components/finance/match-bank-tx-to-reimbursement";
+import { PolicyControl } from "@/components/finance/policy-control";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { BankImportsManager } from "@/components/finance/bank-imports-manager";
@@ -1073,7 +1074,7 @@ function TxDetailPanel({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("bank_transaction_classifications")
-        .select("id, amount, notes, classification_id, financial_classifications(code, name_pt, name_en)")
+        .select("id, amount, notes, classification_id, supplier_id, financial_classifications(code, name_pt, name_en)")
         .eq("bank_transaction_id", tx.id);
       if (error) throw error;
       return data ?? [];
@@ -1170,12 +1171,15 @@ function TxDetailPanel({
               {(splitsQ.data ?? []).map((s) => {
                 const fc = Array.isArray(s.financial_classifications) ? s.financial_classifications[0] : s.financial_classifications;
                 return (
-                  <div key={s.id} className="flex items-center justify-between text-xs border rounded px-2 py-1.5 bg-background">
+                  <div key={s.id} className="text-xs border rounded px-2 py-1.5 bg-background space-y-1.5"><div className="flex items-center justify-between">
                     <div className="min-w-0">
                       <div className="font-medium">{fc ? (isPt ? fc.name_pt : fc.name_en) : "—"}</div>
                       {s.notes && <div className="text-[11px] text-muted-foreground truncate">{s.notes}</div>}
                     </div>
                     <div className="tabular-nums">{fmtAmount(Number(s.amount), tx.currency)}</div>
+                  </div>
+                  <PolicyControl compact table="bank_transaction_classifications" recordId={s.id}
+                    classificationId={s.classification_id} supplierId={s.supplier_id} />
                   </div>
                 );
               })}

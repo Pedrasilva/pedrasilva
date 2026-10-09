@@ -316,6 +316,13 @@
       "when": 1791503110914,
       "tag": "0044_finance_psa_tree_simplify",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1791504461900,
+      "tag": "0045_retire_expense_categories",
+      "breakpoints": true
     }
   ]
 }

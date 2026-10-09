@@ -1082,7 +1082,8 @@
       "mine": "My benefits",
       "approvals": "Approvals",
       "overview": "Overview",
-      "expenses": "Expenses"
+      "expenses": "Expenses",
+      "mapping": "Finance mapping"
     },
     "empty": {
       "noProfile": "We could not identify your collaborator profile. Contact the administrator.",
@@ -1398,6 +1399,13 @@
       "openingBalance": "Opening balance",
       "closingBalance": "Remaining balance",
       "noExpenses": "No expenses submitted in this period."
+    },
+    "pessoalMap": {
+      "title": "Finance category",
+      "sub": "Each benefit category is booked in exactly one Pessoal category.",
+      "col": "Benefit category",
+      "pick": "Pessoal category",
+      "saved": "Mapping saved"
     }
   },
   "companySettings": {

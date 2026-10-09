@@ -107,6 +107,7 @@ function useBenefitCategories() {
 }
 
 import { PermissionGate } from "@/components/PermissionGate";
+import { BenefitPessoalMapping } from "@/components/hr/benefit-pessoal-mapping";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMyPermissions } from "@/hooks/use-permissions";
 
@@ -978,10 +979,15 @@ function AdminView() {
           <TabsTrigger value="overview">{t("hr:beneficios.tabs.overview")}</TabsTrigger>
           <TabsTrigger value="expenses">{t("hr:beneficios.tabs.expenses")}</TabsTrigger>
           <TabsTrigger value="mine">{t("hr:beneficios.tabs.mine")}</TabsTrigger>
+          <TabsTrigger value="mapping">{t("hr:beneficios.tabs.mapping")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="mine" className="space-y-6">
           <CollaboratorView />
+        </TabsContent>
+
+        <TabsContent value="mapping" className="space-y-6">
+          <BenefitPessoalMapping />
         </TabsContent>
 
 
