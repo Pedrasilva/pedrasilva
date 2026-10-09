@@ -92,7 +92,7 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
     queryFn: async () => {
       const { data, error } = await supabase
         .from("financial_documents")
-        .select("paid_from_card_id, paid_from_account_id, card_last4, counterparty_supplier_id, created_by")
+        .select("paid_from_card_id, paid_from_account_id, card_last4, counterparty_supplier_id, created_by, personal_card_decision")
         .eq("id", documentId)
         .single();
       if (error) throw error;
@@ -104,11 +104,23 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
       return { ...data, createdByName };
     },
   });
+  const cards = usePaymentCards();
   if (!q.data) return null;
+  const personal = !!q.data.paid_from_card_id && (cards.data ?? []).some((c) => c.id === q.data!.paid_from_card_id && c.is_personal);
   const save = async (v: PaidWith) => {
     const { error } = await supabase
       .from("financial_documents")
       .update({ paid_from_card_id: v.cardId, paid_from_account_id: v.accountId })
+      .eq("id", documentId);
+    if (error) return toast.error(error.message);
+    toast.success(t("finance:paidWith.saved"));
+    qc.invalidateQueries({ queryKey: ["finance", "doc-paid-with", documentId] });
+  };
+  const decide = async (d: string) => {
+    const { data: u } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from("financial_documents")
+      .update({ personal_card_decision: d, personal_card_decided_by: u.user?.id ?? null, personal_card_decided_at: new Date().toISOString() })
       .eq("id", documentId);
     if (error) return toast.error(error.message);
     toast.success(t("finance:paidWith.saved"));
@@ -125,6 +137,18 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
           supplierId={q.data.counterparty_supplier_id}
           disabled={disabled}
         />
+        {personal && (
+          <div className="space-y-1.5 pt-1">
+            <Badge variant="destructive" className="text-xs">{t("finance:paidWith.personalFlag")}</Badge>
+            <Select value={q.data.personal_card_decision ?? ""} onValueChange={decide} disabled={disabled}>
+              <SelectTrigger><SelectValue placeholder={t("finance:paidWith.decisionPending")} /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="personal">{t("finance:paidWith.decisionPersonal")}</SelectItem>
+                <SelectItem value="psa_paid_by_holder">{t("finance:paidWith.decisionPsa")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
       <div className="space-y-1.5">
         <div className="text-sm font-medium">{t("finance:enteredBy.label")}</div>

@@ -118,7 +118,10 @@ export function PaymentCardsList() {
                     <TableCell>{t(`finance:cards.network.${c.network}`)} · {t(`finance:cards.cardType.${c.card_type}`)}</TableCell>
                     <TableCell>{accName(c.bank_account_id)}</TableCell>
                     <TableCell>{c.card_type === "credit" ? accName(acc?.settles_from_account_id ?? null) : "—"}</TableCell>
-                    <TableCell className="text-xs">{c.bank_refs.join(", ") || "—"}</TableCell>
+                    <TableCell className="text-xs">
+                      {[c.bank_refs.join(", "), (c.device_last4 ?? []).map((d) => `…${d.last4}`).join(" ")].filter(Boolean).join(" · ") || "—"}
+                      {c.is_personal && <Badge variant="secondary" className="ml-2">{t("finance:cards.personalBadge")}</Badge>}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap text-right">
                       <Button variant="ghost" size="sm" onClick={() => open(c)}>{t("common:edit")}</Button>
                       <Button variant="ghost" size="sm" onClick={() => setActive(c, !c.active)}>
@@ -207,6 +210,15 @@ export function PaymentCardsList() {
                 <Input value={refsText} onChange={(e) => setRefsText(e.target.value)} placeholder="MDB8022" />
                 <p className="text-xs text-muted-foreground">{t("finance:cards.bankRefsHint")}</p>
               </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label>{t("finance:cards.devices")}</Label>
+                <Input value={devText} onChange={(e) => setDevText(e.target.value)} placeholder="1742:iPhone" />
+                <p className="text-xs text-muted-foreground">{t("finance:cards.devicesHint")}</p>
+              </div>
+              <label className="flex items-center gap-2 text-sm sm:col-span-2">
+                <Checkbox checked={draft.is_personal} onCheckedChange={(v) => setDraft({ ...draft, is_personal: !!v, bank_account_id: v ? null : draft.bank_account_id })} />
+                {t("finance:cards.isPersonal")}
+              </label>
               <div className="space-y-1 sm:col-span-2">
                 <Label>{t("finance:cards.notes")}</Label>
                 <Textarea value={draft.notes ?? ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
