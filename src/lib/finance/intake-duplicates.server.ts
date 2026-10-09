@@ -13,6 +13,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { normalizeVat } from "@/lib/finance/doc-intake.server";
+import { isValidPortugueseNif } from "@/lib/finance/nif";
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
   const d = await crypto.subtle.digest("SHA-256", bytes as Uint8Array<ArrayBuffer>);
@@ -36,7 +37,11 @@ export function normDocNumber(v: string | null | undefined): string | null {
   return a || null;
 }
 
-const nifKey = (v: string | null | undefined) => normalizeVat(v)?.replace(/^PT/, "") ?? null;
+const nifKey = (v: string | null | undefined) => {
+  const k = normalizeVat(v)?.replace(/^PT/, "") ?? null;
+  // An invalid Portuguese NIF or a placeholder never identifies anyone.
+  return k && /^\d{9}$/.test(k) && !isValidPortugueseNif(k) ? null : k;
+};
 
 export type DupMatch = {
   kind: "file" | "document" | "bank" | "probable";
@@ -234,6 +239,16 @@ export async function checkDocumentDuplicates(input: DupInput): Promise<{ exact:
         .neq("status", "cancelled");
       live.push(...((docs ?? []) as typeof live));
     }
+    // Platform receipts carry the real issuer's tax number on the document.
+    const { data: byIssuer } = await supabaseAdmin
+      .from("financial_documents")
+      .select("id, document_number, issue_date, total_inc_vat, counterparty_name_snapshot, created_at, status, issuer_nif, issuer_foreign_tax_id")
+      .eq("entity_id", input.entityId ?? PSA_ENTITY_ID)
+      .eq("direction", issued ? "issued" : "received")
+      .neq("status", "cancelled")
+      .or(`issuer_nif.eq.${nif},issuer_foreign_tax_id.ilike.%${nif}`);
+    const seen = new Set(live.map((d) => d.id));
+    for (const d of byIssuer ?? []) if (!seen.has(d.id)) live.push(d as (typeof live)[number]);
   }
   // Live payments: a proof of payment already recorded on a purchase of this supplier.
   const livePayments: Array<{ id: string; amount: number; payment_date: string; created_at: string; label: string }> = [];

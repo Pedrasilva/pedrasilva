@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { normalizePortugueseNif } from "./nif";
+import { normalizePortugueseNif, isValidPortugueseNif } from "./nif";
 
 export type CompanyNifMatch = {
   id: string;
@@ -14,7 +14,7 @@ export type CompanyNifMatch = {
  */
 export async function findCompanyByNif(rawNif: string | null | undefined): Promise<CompanyNifMatch | null> {
   const nif = normalizePortugueseNif(rawNif);
-  if (!nif) return null;
+  if (!nif || !isValidPortugueseNif(nif)) return null;
 
   const { data, error } = await supabase
     .from("companies")

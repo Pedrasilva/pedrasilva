@@ -14,7 +14,8 @@
  * `financial_document_review_queue` for human approval.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { normalizePortugueseNif } from "@/lib/finance/nif";
+import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+import { detectPlatform, platformKeyOfName, issuerTaxColumns } from "@/lib/finance/platforms";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 const MODEL = "google/gemini-2.5-flash";
@@ -563,6 +564,11 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
 }> {
   const vat = normalizeVat(rawVat);
   if (!vat) return { status: "no_match", matched_supplier_id: null, ambiguous_ids: [] };
+  // Never match by an invalid Portuguese NIF or a placeholder.
+  const ptLike = vat.replace(/^PT/, "");
+  if (/^\d{9}$/.test(ptLike) && !isValidPortugueseNif(ptLike)) {
+    return { status: "no_match", matched_supplier_id: null, ambiguous_ids: [] };
+  }
 
   const ptDigits = normalizePortugueseNif(rawVat);
   const candidates = new Set<string>([vat]);
@@ -571,13 +577,17 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
 
   const { data } = await supabaseAdmin
     .from("companies")
-    .select("id, nif")
-    .not("nif", "is", null);
+    .select("id, nif, foreign_tax_id")
+    .or("nif.not.is.null,foreign_tax_id.not.is.null");
 
-  const hits = ((data ?? []) as Array<{ id: string; nif: string | null }>).filter((c) => {
-    const n = normalizeVat(c.nif);
-    if (!n) return false;
-    return candidates.has(n) || (n.startsWith("PT") && candidates.has(n.slice(2)));
+  const hits = ((data ?? []) as Array<{ id: string; nif: string | null; foreign_tax_id: string | null }>).filter((c) => {
+    for (const raw of [c.nif, c.foreign_tax_id]) {
+      const n = normalizeVat(raw);
+      if (!n || n.length < 5) continue;
+      if (raw === c.nif && !isValidPortugueseNif(n)) continue;
+      if (candidates.has(n) || (/^[A-Z]{2}/.test(n) && candidates.has(n.slice(2)))) return true;
+    }
+    return false;
   });
 
   if (hits.length === 1) return { status: "matched", matched_supplier_id: hits[0].id, ambiguous_ids: [] };
@@ -984,9 +994,16 @@ export async function ingestStoredDocument(opts: {
   const counterpartyVat = isStatement ? null : dir.counterparty_vat;
   const counterpartyName = isStatement ? null : dir.counterparty_name;
 
-  const match = isStatement
-    ? { status: "no_match" as const, matched_supplier_id: null, ambiguous_ids: [] as string[] }
+  let match = isStatement
+    ? { status: "no_match" as "matched" | "no_match" | "ambiguous", matched_supplier_id: null as string | null, ambiguous_ids: [] as string[] }
     : await matchSupplierByVat(counterpartyVat);
+  // Platform receipts (Uber, Bolt, taxi apps, Amazon) group under the
+  // platform supplier; the real issuer stays on the document.
+  const platform = isStatement || isIssued ? null : await matchPlatformSupplier(counterpartyName, ex.supplier_name, ex.seller_name, base.original_filename as string | null | undefined);
+  if (platform) match = { status: "matched", matched_supplier_id: platform, ambiguous_ids: [] };
+  const issuerCols = platform
+    ? { issuer_name: counterpartyName ?? null, ...issuerTaxColumns(counterpartyVat, null) }
+    : { issuer_name: null, issuer_nif: null, issuer_tax_country: null, issuer_foreign_tax_id: null };
   const recurring = isStatement || isIssued
     ? { is_recurring_candidate: false, reference_id: null, classification_id: null }
     : await detectRecurring(counterpartyVat, ex.total_amount, entityId);
@@ -1043,6 +1060,7 @@ export async function ingestStoredDocument(opts: {
     // an issued client invoice can never leak into the suppliers workflow.
     extracted_supplier_name: isStatement || isIssued ? null : counterpartyName,
     extracted_supplier_vat: isStatement || isIssued ? null : counterpartyVat,
+    ...issuerCols,
     supplier_match_status: isIssued ? "no_match" : match.status,
     matched_supplier_id: isIssued ? null : match.matched_supplier_id,
     ambiguous_supplier_ids: isIssued ? [] : match.ambiguous_ids,
@@ -1307,9 +1325,19 @@ export async function matchBankAccount(iban: string | null, accountNumber: strin
   return null;
 }
 
+/** The platform supplier (companies.is_platform) a receipt belongs to, if any. */
+export async function matchPlatformSupplier(...texts: Array<string | null | undefined>): Promise<string | null> {
+  const key = detectPlatform(...texts);
+  if (!key) return null;
+  const { data } = await supabaseAdmin.from("companies").select("id, nome").eq("is_platform", true);
+  const hits = (data ?? []).filter((c) => platformKeyOfName(c.nome) === key);
+  return hits.length === 1 ? hits[0].id : null;
+}
+
 async function supplierIdsByVat(vat: string | null): Promise<string[]> {
   const n = normalizeVat(vat)?.replace(/^PT/, "");
   if (!n) return [];
+  if (/^\d{9}$/.test(n) && !isValidPortugueseNif(n)) return [];
   const { data } = await supabaseAdmin.from("companies").select("id, nif");
   return (data ?? []).filter((c) => normalizeVat(c.nif)?.replace(/^PT/, "") === n).map((c) => c.id);
 }

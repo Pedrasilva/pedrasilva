@@ -52,7 +52,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
     for (let from = 0; ; from += 1000) {
       const { data, error } = await supabase
         .from("financial_documents")
-        .select("id, document_number, issue_date, due_date, total_inc_vat, status, payment_status, paid_amount, created_by, created_at, source, file_path, counterparty_supplier_id, counterparty_name_snapshot, companies:counterparty_supplier_id(nome, nif)")
+        .select("id, document_number, issue_date, due_date, total_inc_vat, status, payment_status, paid_amount, created_by, created_at, source, file_path, counterparty_supplier_id, counterparty_name_snapshot, issuer_nif, issuer_foreign_tax_id, companies:counterparty_supplier_id(nome, nif)")
         .eq("doc_type", "supplier_invoice")
         .neq("status", "cancelled")
         .order("id")
@@ -103,7 +103,7 @@ export const listPurchaseDuplicates = createServerFn({ method: "POST" })
         filePath: d.file_path,
       };
     };
-    const sup = (d: any) => nifKey(d.companies?.nif) ?? d.counterparty_supplier_id ?? null;
+    const sup = (d: any) => nifKey(d.issuer_nif) ?? nifKey(d.issuer_foreign_tax_id) ?? nifKey(d.companies?.nif) ?? d.counterparty_supplier_id ?? null;
     const groups: DupGroup[] = [];
       const byNum = new Map<string, any[]>();
     for (const d of docs) {

@@ -1,3 +1,4 @@
+import { isValidPortugueseNif } from "@/lib/finance/nif";
 /**
  * D3 — Document classification core (server functions).
  *
@@ -100,6 +101,7 @@ export const approveQueueSupplier = createServerFn({ method: "POST" })
     }
     if (!supplierId && data.newSupplier) {
       const nif = (data.newSupplier.nif ?? "").replace(/\D/g, "") || null;
+      if (nif && !isValidPortugueseNif(nif)) throw new Error("Invalid Portuguese NIF (check digit or placeholder)");
 
       // A company with this NIF may already exist (client, supplier, or both).
       // Reuse it and flag it as a supplier instead of violating the unique NIF index.
@@ -199,6 +201,7 @@ export const approveQueueClient = createServerFn({ method: "POST" })
     let clientId = data.clientId ?? null;
     if (!clientId && data.newClient) {
       const nif = (data.newClient.nif ?? "").replace(/\D/g, "") || null;
+      if (nif && !isValidPortugueseNif(nif)) throw new Error("Invalid Portuguese NIF (check digit or placeholder)");
 
       let existingId: string | null = null;
       if (nif) {
@@ -401,6 +404,11 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
           due_date: row.extracted_due_date,
           counterparty_supplier_id: isIssued ? null : counterpartyId,
           counterparty_client_id: isIssued ? counterpartyId : null,
+          // Platform receipts: the real issuer read from the receipt.
+          issuer_name: (row as { issuer_name?: string | null }).issuer_name ?? null,
+          issuer_nif: (row as { issuer_nif?: string | null }).issuer_nif ?? null,
+          issuer_tax_country: (row as { issuer_tax_country?: string | null }).issuer_tax_country ?? null,
+          issuer_foreign_tax_id: (row as { issuer_foreign_tax_id?: string | null }).issuer_foreign_tax_id ?? null,
           counterparty_name_snapshot:
             counterparty?.nome ??
             (isIssued
