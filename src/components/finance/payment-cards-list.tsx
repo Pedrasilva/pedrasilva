@@ -17,13 +17,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PAYMENT_CARDS_KEY, useAccountsLite, usePaymentCards, type PaymentCard } from "@/lib/finance/use-payment-cards";
+import { PAYMENT_CARDS_KEY, devicesToText, textToDevices, useAccountsLite, usePaymentCards, type PaymentCard } from "@/lib/finance/use-payment-cards";
+import { Checkbox } from "@/components/ui/checkbox";
 import { currentEntityId } from "@/lib/finance/current-entity";
 
 type Draft = Omit<PaymentCard, "id" | "entity_id"> & { id?: string };
 const EMPTY: Draft = {
   holder_name: "", collaborator_id: null, last4: "", network: "mastercard", card_type: "debit",
-  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "",
+  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "", device_last4: [], is_personal: false,
 };
 
 export function PaymentCardsList() {
@@ -33,11 +34,13 @@ export function PaymentCardsList() {
   const accounts = useAccountsLite();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [refsText, setRefsText] = useState("");
+  const [devText, setDevText] = useState("");
   const accName = (id: string | null) => accounts.data?.find((a) => a.id === id)?.account_name ?? "—";
 
   const open = (c?: PaymentCard) => {
     setDraft(c ? { ...c } : { ...EMPTY });
     setRefsText((c?.bank_refs ?? []).join(", "));
+    setDevText(devicesToText(c?.device_last4 ?? []));
   };
 
   const save = async () => {
@@ -50,10 +53,12 @@ export function PaymentCardsList() {
       network: draft.network,
       card_type: draft.card_type,
       bank: draft.bank?.trim() || null,
-      bank_account_id: draft.bank_account_id,
+      bank_account_id: draft.is_personal ? null : draft.bank_account_id,
       bank_refs: refsText.split(",").map((s) => s.trim()).filter(Boolean),
       active: draft.active,
       notes: draft.notes?.trim() || null,
+      device_last4: textToDevices(devText),
+      is_personal: draft.is_personal,
     };
     const res = draft.id
       ? await supabase.from("payment_cards").update(row).eq("id", draft.id)
