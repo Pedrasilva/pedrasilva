@@ -17,13 +17,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PAYMENT_CARDS_KEY, useAccountsLite, usePaymentCards, type PaymentCard } from "@/lib/finance/use-payment-cards";
+import { PAYMENT_CARDS_KEY, devicesToText, textToDevices, useAccountsLite, usePaymentCards, type PaymentCard } from "@/lib/finance/use-payment-cards";
+import { Checkbox } from "@/components/ui/checkbox";
 import { currentEntityId } from "@/lib/finance/current-entity";
 
 type Draft = Omit<PaymentCard, "id" | "entity_id"> & { id?: string };
 const EMPTY: Draft = {
   holder_name: "", collaborator_id: null, last4: "", network: "mastercard", card_type: "debit",
-  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "",
+  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "", device_last4: [], is_personal: false,
 };
 
 export function PaymentCardsList() {
@@ -33,11 +34,13 @@ export function PaymentCardsList() {
   const accounts = useAccountsLite();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [refsText, setRefsText] = useState("");
+  const [devText, setDevText] = useState("");
   const accName = (id: string | null) => accounts.data?.find((a) => a.id === id)?.account_name ?? "—";
 
   const open = (c?: PaymentCard) => {
     setDraft(c ? { ...c } : { ...EMPTY });
     setRefsText((c?.bank_refs ?? []).join(", "));
+    setDevText(devicesToText(c?.device_last4 ?? []));
   };
 
   const save = async () => {
@@ -50,10 +53,12 @@ export function PaymentCardsList() {
       network: draft.network,
       card_type: draft.card_type,
       bank: draft.bank?.trim() || null,
-      bank_account_id: draft.bank_account_id,
+      bank_account_id: draft.is_personal ? null : draft.bank_account_id,
       bank_refs: refsText.split(",").map((s) => s.trim()).filter(Boolean),
       active: draft.active,
       notes: draft.notes?.trim() || null,
+      device_last4: textToDevices(devText),
+      is_personal: draft.is_personal,
     };
     const res = draft.id
       ? await supabase.from("payment_cards").update(row).eq("id", draft.id)
@@ -113,7 +118,10 @@ export function PaymentCardsList() {
                     <TableCell>{t(`finance:cards.network.${c.network}`)} · {t(`finance:cards.cardType.${c.card_type}`)}</TableCell>
                     <TableCell>{accName(c.bank_account_id)}</TableCell>
                     <TableCell>{c.card_type === "credit" ? accName(acc?.settles_from_account_id ?? null) : "—"}</TableCell>
-                    <TableCell className="text-xs">{c.bank_refs.join(", ") || "—"}</TableCell>
+                    <TableCell className="text-xs">
+                      {[c.bank_refs.join(", "), (c.device_last4 ?? []).map((d) => `…${d.last4}`).join(" ")].filter(Boolean).join(" · ") || "—"}
+                      {c.is_personal && <Badge variant="secondary" className="ml-2">{t("finance:cards.personalBadge")}</Badge>}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap text-right">
                       <Button variant="ghost" size="sm" onClick={() => open(c)}>{t("common:edit")}</Button>
                       <Button variant="ghost" size="sm" onClick={() => setActive(c, !c.active)}>
@@ -202,6 +210,15 @@ export function PaymentCardsList() {
                 <Input value={refsText} onChange={(e) => setRefsText(e.target.value)} placeholder="MDB8022" />
                 <p className="text-xs text-muted-foreground">{t("finance:cards.bankRefsHint")}</p>
               </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label>{t("finance:cards.devices")}</Label>
+                <Input value={devText} onChange={(e) => setDevText(e.target.value)} placeholder="1742:iPhone" />
+                <p className="text-xs text-muted-foreground">{t("finance:cards.devicesHint")}</p>
+              </div>
+              <label className="flex items-center gap-2 text-sm sm:col-span-2">
+                <Checkbox checked={draft.is_personal} onCheckedChange={(v) => setDraft({ ...draft, is_personal: !!v, bank_account_id: v ? null : draft.bank_account_id })} />
+                {t("finance:cards.isPersonal")}
+              </label>
               <div className="space-y-1 sm:col-span-2">
                 <Label>{t("finance:cards.notes")}</Label>
                 <Textarea value={draft.notes ?? ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />

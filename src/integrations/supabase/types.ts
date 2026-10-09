@@ -4612,6 +4612,9 @@ export type Database = {
           payment_method_extracted: string | null
           payment_status: string
           permalink_pdf: string | null
+          personal_card_decided_at: string | null
+          personal_card_decided_by: string | null
+          personal_card_decision: string | null
           project_id: string | null
           series: string | null
           source: Database["public"]["Enums"]["financial_doc_source"]
@@ -4676,6 +4679,9 @@ export type Database = {
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
+          personal_card_decided_at?: string | null
+          personal_card_decided_by?: string | null
+          personal_card_decision?: string | null
           project_id?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
@@ -4740,6 +4746,9 @@ export type Database = {
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
+          personal_card_decided_at?: string | null
+          personal_card_decided_by?: string | null
+          personal_card_decision?: string | null
           project_id?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
@@ -7691,9 +7700,11 @@ export type Database = {
           collaborator_id: string | null
           created_at: string
           created_by: string | null
+          device_last4: Json
           entity_id: string
           holder_name: string | null
           id: string
+          is_personal: boolean
           last4: string | null
           network: string
           notes: string | null
@@ -7708,9 +7719,11 @@ export type Database = {
           collaborator_id?: string | null
           created_at?: string
           created_by?: string | null
+          device_last4?: Json
           entity_id: string
           holder_name?: string | null
           id?: string
+          is_personal?: boolean
           last4?: string | null
           network?: string
           notes?: string | null
@@ -7725,9 +7738,11 @@ export type Database = {
           collaborator_id?: string | null
           created_at?: string
           created_by?: string | null
+          device_last4?: Json
           entity_id?: string
           holder_name?: string | null
           id?: string
+          is_personal?: boolean
           last4?: string | null
           network?: string
           notes?: string | null

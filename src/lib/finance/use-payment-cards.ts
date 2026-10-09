@@ -15,7 +15,20 @@ export type PaymentCard = {
   bank_refs: string[];
   active: boolean;
   notes: string | null;
+  device_last4: { last4: string; label?: string | null }[];
+  is_personal: boolean;
 };
+
+export function devicesToText(d: PaymentCard["device_last4"]) {
+  return (d ?? []).map((x) => (x.label ? `${x.last4}:${x.label}` : x.last4)).join(", ");
+}
+
+export function textToDevices(s: string): PaymentCard["device_last4"] {
+  return s.split(",").map((p) => p.trim()).filter(Boolean).map((p) => {
+    const [n, ...rest] = p.split(":");
+    return { last4: n.replace(/\D/g, "").slice(-4), label: rest.join(":").trim() || null };
+  }).filter((x) => x.last4.length === 4);
+}
 
 export const PAYMENT_CARDS_KEY = ["finance", "payment-cards"] as const;
 
@@ -29,7 +42,7 @@ export function usePaymentCards() {
         .order("active", { ascending: false })
         .order("holder_name");
       if (error) throw error;
-      return (data ?? []) as PaymentCard[];
+      return (data ?? []) as unknown as PaymentCard[];
     },
   });
 }
