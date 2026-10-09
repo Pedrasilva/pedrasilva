@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DocumentHolderReimbursement, HOLDER_REIMB_KEY } from "@/components/finance/holder-reimbursements";
 import { cardLabel, useAccountsLite, usePaymentCards } from "@/lib/finance/use-payment-cards";
 
 export type PaidWith = { cardId: string | null; accountId: string | null };
@@ -123,8 +124,10 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
       .update({ personal_card_decision: d, personal_card_decided_by: u.user?.id ?? null, personal_card_decided_at: new Date().toISOString() })
       .eq("id", documentId);
     if (error) return toast.error(error.message);
-    toast.success(t("finance:paidWith.saved"));
+    toast.success(t(d === "personal" ? "finance:paidWith.movedToRemoved" : "finance:paidWith.owedRecorded"));
     qc.invalidateQueries({ queryKey: ["finance", "doc-paid-with", documentId] });
+    qc.invalidateQueries({ queryKey: HOLDER_REIMB_KEY });
+    qc.invalidateQueries({ queryKey: ["finance"] });
   };
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -147,6 +150,7 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
                 <SelectItem value="psa_paid_by_holder">{t("finance:paidWith.decisionPsa")}</SelectItem>
               </SelectContent>
             </Select>
+            <DocumentHolderReimbursement documentId={documentId} />
           </div>
         )}
       </div>
