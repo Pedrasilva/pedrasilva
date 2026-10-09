@@ -2282,5 +2282,39 @@
     "undoRepaid": "Desfazer reembolso",
     "markedRepaid": "Marcado como reembolsado",
     "markedOwed": "Voltou a ficar em dívida"
+  },
+  "confirm": {
+    "button": "Confirmar",
+    "paidWith": "Pago com",
+    "markUnpaid": "Por pagar",
+    "details": "Detalhes",
+    "cannotYet": "Ainda não pode confirmar:",
+    "keysHint": "Enter confirma e abre o seguinte · Esc salta",
+    "repeat": "Repetição",
+    "historical": "Histórico",
+    "repeatsButton": "Confirmar repetições ({{count}})",
+    "repeatsTitle": "Confirmar {{count}} repetições",
+    "repeatsConfirm": "Confirmar {{count}}",
+    "repeatsDone": "{{count}} confirmados",
+    "repeatsFailed": "{{count}} não puderam ser confirmados e ficam na fila",
+    "blockers": {
+      "status": "já tratado",
+      "not_confirmable": "este tipo não se confirma aqui",
+      "two_entities": "pertence a duas entidades",
+      "entity": "sem entidade",
+      "doc_type": "falta o tipo de documento",
+      "direction": "indique se foi recebido ou emitido",
+      "date": "falta a data",
+      "total": "falta o total",
+      "counterparty": "fornecedor/cliente precisa de NIF português válido ou número fiscal estrangeiro",
+      "counterparty_tax": "o fornecedor/cliente escolhido não tem número fiscal válido",
+      "platform_issuer": "recibo de plataforma sem emitente",
+      "category": "falta a categoria",
+      "category_group": "escolha uma categoria, não um grupo",
+      "collaborator": "escolha o colaborador",
+      "paid_with": "escolha \"Pago com\" ou marque Por pagar",
+      "card_unknown": "cartão desconhecido: adicione-o ou escolha \"Pago com\"",
+      "duplicate": "resolva primeiro o aviso de duplicado"
+    }
   }
 }

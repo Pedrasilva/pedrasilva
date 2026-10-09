@@ -39,6 +39,9 @@ import {
   rereadItems,
   findRuleMatches,
 } from "@/lib/finance/intake-inbox.functions";
+import { confirmQueueItems } from "@/lib/finance/doc-intake.functions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RemoveButton, RemovedPanel } from "@/components/finance/intake-removal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { RecebimentosPanel } from "@/components/finance/recebimentos-panel";
@@ -165,7 +168,7 @@ export function IntakeInbox() {
     queryKey: ["finance", "classifications", "options"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_classifications").select("id, code, name_pt, name_en").eq("active", true).order("code");
+        .from("financial_classifications").select("id, code, name_pt, name_en, level").eq("active", true).order("code");
       if (error) throw error;
       return data ?? [];
     },
@@ -203,6 +206,27 @@ export function IntakeInbox() {
   };
   const openRule = (id: string) => { setRuleId(id); setTab("instructions"); };
   const active = list.find((r) => r.id === selected) ?? list[0] ?? null;
+  const goNext = () => {
+    if (!active) return;
+    const pending = list.filter((r) => r.status === "pending_review");
+    const i = pending.findIndex((r) => r.id === active.id);
+    const next = pending[i + 1] ?? pending.find((r) => r.id !== active.id) ?? null;
+    setSelected(next?.id ?? null);
+  };
+  const confirmableIds = useMemo(
+    () => [...byTab.purchases, ...byTab.issued].filter((r) => r.status === "pending_review").map((r) => r.id),
+    [byTab],
+  );
+  const readinessQ = useQuery({
+    queryKey: ["finance", "review-queue", "readiness", confirmableIds],
+    enabled: confirmableIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("fin_queue_readiness", { _ids: confirmableIds });
+      if (error) throw error;
+      return new Map((data ?? []).map((d) => [d.id, d] as const));
+    },
+  });
+  const repeats = list.filter((r) => readinessQ.data?.get(r.id)?.is_repeat && !(r as { historical?: boolean }).historical);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -275,6 +299,9 @@ export function IntakeInbox() {
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
+            {(tab === "purchases" || tab === "issued") && repeats.length > 0 && (
+              <ConfirmRepeatsButton rows={repeats} />
+            )}
             {rowsQ.isLoading && Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}
             {!rowsQ.isLoading && list.length === 0 && (
               <p className="text-sm text-muted-foreground">{t("finance:intakeInbox.empty")}</p>
@@ -296,6 +323,12 @@ export function IntakeInbox() {
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   <TypeBadge row={r} />
                   <StatusBadges row={r} />
+                  {readinessQ.data?.get(r.id)?.is_repeat && (
+                    <Badge variant="secondary" className="text-[10px]">{t("finance:confirm.repeat")}</Badge>
+                  )}
+                  {(r as { historical?: boolean }).historical && (
+                    <Badge variant="outline" className="text-[10px]">{t("finance:confirm.historical")}</Badge>
+                  )}
                   {r.payment_direction && <Badge variant="outline" className="text-[10px]">{t(`finance:recebimentos.direction.${r.payment_direction}`)}</Badge>}
                   <span className="text-[10px] text-muted-foreground">{r.extracted_date ?? "—"}</span>
                 </div>
@@ -316,6 +349,7 @@ export function IntakeInbox() {
               projects={projectsQ.data ?? []}
               onOpenItem={openItem}
               onOpenRule={openRule}
+              onNext={goNext}
             />
           ) : (
             <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">{t("finance:intakeInbox.selectItem")}</CardContent></Card>
@@ -402,9 +436,10 @@ function StatusBadges({ row }: { row: InboxRow }) {
 }
 
 function ItemDetail({
-  row, tab, isPt, classifications, suppliers, projects, onOpenItem, onOpenRule,
+  row, tab, isPt, classifications, suppliers, projects, onOpenItem, onOpenRule, onNext,
 }: {
   onOpenItem: (id: string) => void;
+  onNext?: () => void;
   onOpenRule: (id: string) => void;
   row: InboxRow;
   tab: Tab;
@@ -510,7 +545,7 @@ function ItemDetail({
                 : t("finance:intakeInbox.creditNoteNoMatch")}
             </p>
           )}
-          <QueueItemCard row={row} isPt={isPt} classifications={classifications} suppliers={suppliers} projects={projects} />
+          <QueueItemCard row={row} isPt={isPt} classifications={classifications} suppliers={suppliers} projects={projects} keyboard onConfirmed={onNext} onSkip={onNext} />
         </>
       ) : (
         <>
@@ -1033,5 +1068,63 @@ function LearningPanel({ row, onOpenRule, onOpenItem }: { row: InboxRow; onOpenR
         )}
       </CardContent>
     </Card>
+  );
+}
+
+
+/** "Confirmar repetições (N)": list, untick any, confirm the rest with one more click. */
+function ConfirmRepeatsButton({ rows }: { rows: InboxRow[] }) {
+  const { t } = useTranslation(["finance", "common"]);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [off, setOff] = useState<Set<string>>(new Set());
+  const run = useServerFn(confirmQueueItems);
+  const ids = rows.map((r) => r.id).filter((id) => !off.has(id));
+  const m = useMutation({
+    mutationFn: () => run({ data: { ids } }),
+    onSuccess: ({ results }) => {
+      const ok = results.filter((r) => r.ok).length;
+      const failed = results.length - ok;
+      if (ok) toast.success(t("finance:confirm.repeatsDone", { count: ok }));
+      if (failed) toast.error(t("finance:confirm.repeatsFailed", { count: failed }));
+      setOpen(false);
+      setOff(new Set());
+      qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <>
+      <Button size="sm" className="w-full mb-2" onClick={() => setOpen(true)}>
+        <Check className="h-4 w-4 mr-1.5" />
+        {t("finance:confirm.repeatsButton", { count: rows.length })}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>{t("finance:confirm.repeatsTitle", { count: rows.length })}</DialogTitle></DialogHeader>
+          <div className="max-h-[420px] overflow-auto divide-y text-sm">
+            {rows.map((r) => (
+              <label key={r.id} className="flex items-center gap-3 py-2">
+                <Checkbox
+                  checked={!off.has(r.id)}
+                  onCheckedChange={(v) => setOff((s) => { const n = new Set(s); if (v === true) n.delete(r.id); else n.add(r.id); return n; })}
+                />
+                <span className="flex-1 truncate font-medium">{r.extracted_seller_name ?? r.extracted_supplier_name ?? r.extracted_buyer_name ?? "—"}</span>
+                <span className="text-xs text-muted-foreground w-24">{r.extracted_date ?? "—"}</span>
+                <span className="text-xs tabular-nums w-24 text-right">{fmt(r.extracted_amount)}</span>
+                <span className="text-xs text-muted-foreground w-40 truncate">{r.suggested_classification_code ?? "—"}</span>
+              </label>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("common:cancel")}</Button>
+            <Button disabled={ids.length === 0 || m.isPending} onClick={() => m.mutate()}>
+              {m.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+              {t("finance:confirm.repeatsConfirm", { count: ids.length })}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

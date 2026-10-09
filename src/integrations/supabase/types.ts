@@ -3411,6 +3411,44 @@ export type Database = {
           },
         ]
       }
+      finance_intake_confirm_log: {
+        Row: {
+          actor: string | null
+          created_at: string
+          detail: Json
+          entity_id: string
+          id: string
+          queue_item_id: string
+          step: string
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          entity_id: string
+          id?: string
+          queue_item_id: string
+          step: string
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          entity_id?: string
+          id?: string
+          queue_item_id?: string
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_intake_confirm_log_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_intake_corrections: {
         Row: {
           ai_value: string | null
@@ -4202,6 +4240,7 @@ export type Database = {
           keep_despite_recipient: boolean
           linked_document_group_id: string
           mark_for_inventory: boolean
+          marked_unpaid: boolean
           matched_bank_account_id: string | null
           matched_client_id: string | null
           matched_supplier_id: string | null
@@ -4340,6 +4379,7 @@ export type Database = {
           keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
+          marked_unpaid?: boolean
           matched_bank_account_id?: string | null
           matched_client_id?: string | null
           matched_supplier_id?: string | null
@@ -4478,6 +4518,7 @@ export type Database = {
           keep_despite_recipient?: boolean
           linked_document_group_id?: string
           mark_for_inventory?: boolean
+          marked_unpaid?: boolean
           matched_bank_account_id?: string | null
           matched_client_id?: string | null
           matched_supplier_id?: string | null
@@ -14894,6 +14935,10 @@ export type Database = {
       }
       fin_class_in_use: { Args: { _id: string }; Returns: boolean }
       fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
+      fin_confirm_queue_item: {
+        Args: { _edits?: Json; _id: string }
+        Returns: Json
+      }
       fin_deactivate_if_unused: { Args: { _id: string }; Returns: undefined }
       fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
       fin_find_company_by_nif: {
@@ -14916,6 +14961,26 @@ export type Database = {
       }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
+      fin_queue_blockers: {
+        Args: {
+          r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
+        }
+        Returns: string[]
+      }
+      fin_queue_is_repeat: {
+        Args: {
+          r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
+        }
+        Returns: boolean
+      }
+      fin_queue_readiness: {
+        Args: { _ids: string[] }
+        Returns: {
+          blockers: string[]
+          id: string
+          is_repeat: boolean
+        }[]
+      }
       fin_reclass_list: {
         Args: never
         Returns: {
@@ -14952,6 +15017,7 @@ export type Database = {
         Args: { _f: string; _id: string; _n: string; _o: string; _t: string }
         Returns: undefined
       }
+      fin_tax_number_ok: { Args: { _raw: string }; Returns: boolean }
       fin_user_display_name: { Args: { _user_id: string }; Returns: string }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
