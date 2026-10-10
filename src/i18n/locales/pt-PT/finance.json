@@ -2218,7 +2218,22 @@
     "decisionPersonal": "Pessoal — retirar das contas da PSA",
     "decisionPsa": "Despesa da PSA paga pelo titular (Sócio / A reembolsar)",
     "movedToRemoved": "Movido para Eliminados (motivo: Pessoal)",
-    "owedRecorded": "Registado como valor em dívida ao titular"
+    "owedRecorded": "Registado como valor em dívida ao titular",
+    "howPaid": "Como foi pago?",
+    "method": {
+      "card": "Cartão",
+      "bank_transfer": "Transferência",
+      "direct_debit": "Débito direto",
+      "mbway": "MB WAY",
+      "cash": "Numerário",
+      "unknown": "Não sei (pago — meio por identificar)"
+    },
+    "holder": "Titular",
+    "personal": "pessoal",
+    "whichCardUnknown": "Não sei qual",
+    "whichAccountUnknown": "Não sei qual conta",
+    "receiptShows": "Recibo mostra …{{last4}}",
+    "device": "Dispositivo"
   },
   "enteredBy": {
     "label": "Introduzido por",
@@ -2262,7 +2277,10 @@
     "devices": "Números do dispositivo (Apple Pay / Google Pay)",
     "devicesHint": "Separados por vírgulas, p. ex. 1742:iPhone, 4749:Relógio",
     "isPersonal": "Cartão pessoal (não é da PSA; sem conta bancária)",
-    "personalBadge": "Pessoal"
+    "personalBadge": "Pessoal",
+    "nickname": "Nome do cartão",
+    "suggested": "Sugestão",
+    "useSuggestion": "Usar \"{{name}}\""
   },
   "holderReimb": {
     "title": "A reembolsar",
