@@ -17,6 +17,7 @@ export type PaymentCard = {
   notes: string | null;
   device_last4: { last4: string; label?: string | null }[];
   is_personal: boolean;
+  nickname: string | null;
 };
 
 export function devicesToText(d: PaymentCard["device_last4"]) {
