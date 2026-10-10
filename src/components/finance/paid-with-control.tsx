@@ -161,3 +161,98 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
     </div>
   );
 }
+
+export const PAY_METHODS = ["card", "bank_transfer", "direct_debit", "mbway", "cash", "unknown"] as const;
+export type PayMethod = (typeof PAY_METHODS)[number];
+export type GuidedPaidWithValue = { method: PayMethod | null; holder: string | null; cardId: string | null; accountId: string | null };
+
+/** Card shown by name: nickname · type · …last4, device numbers in small text. */
+export function CardName({ c }: { c: import("@/lib/finance/use-payment-cards").PaymentCard }) {
+  const { t } = useTranslation(["finance"]);
+  const devices = (c.device_last4 ?? []).map((d) => `${d.label ?? t("finance:paidWith.device")} …${d.last4}`).join(", ");
+  return (
+    <span>
+      {c.nickname || t(`finance:cards.network.${c.network}`)} · {t(`finance:cards.cardType.${c.card_type}`)} · {c.last4 ? `…${c.last4}` : "…????"}
+      {devices && <span className="ml-1 text-xs text-muted-foreground">({devices})</span>}
+    </span>
+  );
+}
+
+/**
+ * Guided "Pago com": how → (card) holder → card, or (transfer/debit) account.
+ * Every partial answer is valid; the receipt's printed digits show read-only.
+ */
+export function GuidedPaidWith({ value, onChange, receiptLast4, source, disabled }: {
+  value: GuidedPaidWithValue;
+  onChange: (v: GuidedPaidWithValue) => void;
+  receiptLast4?: string | null;
+  source?: string | null;
+  disabled?: boolean;
+}) {
+  const { t } = useTranslation(["finance"]);
+  const cards = usePaymentCards();
+  const accounts = useAccountsLite();
+  const active = (cards.data ?? []).filter((c) => c.active || c.id === value.cardId);
+  const holders = Array.from(new Set(active.map((c) => c.holder_name ?? ""))).sort();
+  const holderCards = active.filter((c) => (c.holder_name ?? "") === (value.holder ?? ""));
+  const holderIsPersonal = (h: string) => active.filter((c) => (c.holder_name ?? "") === h).every((c) => c.is_personal);
+  const accts = (accounts.data ?? []).filter((a) => (!a.archived_at && a.account_kind !== "credit_card") || a.id === value.accountId);
+  const setMethod = (m: string) =>
+    onChange({ method: m === "none" ? null : (m as PayMethod), holder: null, cardId: null, accountId: null });
+  const setHolder = (h: string) => {
+    const own = active.filter((c) => (c.holder_name ?? "") === h);
+    onChange({ method: "card", holder: h, cardId: own.length === 1 ? own[0].id : null, accountId: null });
+  };
+  return (
+    <div className="space-y-1.5">
+      <Select value={value.method ?? "none"} disabled={disabled} onValueChange={setMethod}>
+        <SelectTrigger><SelectValue placeholder={t("finance:paidWith.howPaid")} /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">{t("finance:paidWith.howPaid")}</SelectItem>
+          {PAY_METHODS.map((m) => <SelectItem key={m} value={m}>{t(`finance:paidWith.method.${m}`)}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      {value.method === "card" && (
+        <Select value={value.holder ?? "none"} disabled={disabled} onValueChange={(h) => h === "none" ? onChange({ ...value, holder: null, cardId: null }) : setHolder(h)}>
+          <SelectTrigger><SelectValue placeholder={t("finance:paidWith.holder")} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("finance:paidWith.holder")}</SelectItem>
+            {holders.map((h) => (
+              <SelectItem key={h} value={h}>
+                {h || t("finance:cards.unknownHolder")}{holderIsPersonal(h) ? ` (${t("finance:paidWith.personal")})` : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {value.method === "card" && value.holder !== null && (
+        <Select value={value.cardId ?? "none"} disabled={disabled} onValueChange={(v) => onChange({ ...value, cardId: v === "none" ? null : v })}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("finance:paidWith.whichCardUnknown")}</SelectItem>
+            {holderCards.map((c) => (
+              <SelectItem key={c.id} value={c.id}><CardName c={c} />{c.is_personal ? ` · ${t("finance:paidWith.personal")}` : ""}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {(value.method === "bank_transfer" || value.method === "direct_debit") && (
+        <Select value={value.accountId ?? "none"} disabled={disabled} onValueChange={(v) => onChange({ ...value, accountId: v === "none" ? null : v })}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("finance:paidWith.whichAccountUnknown")}</SelectItem>
+            {accts.map((a) => <SelectItem key={a.id} value={a.id}>{a.account_name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {source && (value.cardId || value.accountId) && (
+          <Badge variant="secondary" className="text-xs">{t(`finance:confirm.paidSource.${source}`, { defaultValue: source })}</Badge>
+        )}
+        {receiptLast4 && (
+          <span className="text-xs text-muted-foreground">{t("finance:paidWith.receiptShows", { last4: receiptLast4 })}</span>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -4248,6 +4248,7 @@ export type Database = {
           original_filename: string | null
           other_entity_action: string | null
           other_entity_id: string | null
+          paid_by_holder: string | null
           paid_from_account_id: string | null
           paid_from_card_id: string | null
           paid_method_unknown: boolean
@@ -4259,6 +4260,7 @@ export type Database = {
           payment_direction: string | null
           payment_match_candidates: Json | null
           payment_match_document_id: string | null
+          payment_method: string | null
           payment_status: string
           possible_duplicate_resolved: boolean
           possible_duplicates: Json | null
@@ -4389,6 +4391,7 @@ export type Database = {
           original_filename?: string | null
           other_entity_action?: string | null
           other_entity_id?: string | null
+          paid_by_holder?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
           paid_method_unknown?: boolean
@@ -4400,6 +4403,7 @@ export type Database = {
           payment_direction?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
+          payment_method?: string | null
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
@@ -4530,6 +4534,7 @@ export type Database = {
           original_filename?: string | null
           other_entity_action?: string | null
           other_entity_id?: string | null
+          paid_by_holder?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
           paid_method_unknown?: boolean
@@ -4541,6 +4546,7 @@ export type Database = {
           payment_direction?: string | null
           payment_match_candidates?: Json | null
           payment_match_document_id?: string | null
+          payment_method?: string | null
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
@@ -4763,10 +4769,12 @@ export type Database = {
           ocr_metadata: Json | null
           outstanding_amount: number | null
           paid_amount: number
+          paid_by_holder: string | null
           paid_from_account_id: string | null
           paid_from_card_id: string | null
           paid_method_unknown: boolean
           paid_with_source: string | null
+          payment_method: string | null
           payment_method_extracted: string | null
           payment_status: string
           permalink_pdf: string | null
@@ -4833,10 +4841,12 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          paid_by_holder?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
           paid_method_unknown?: boolean
           paid_with_source?: string | null
+          payment_method?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -4903,10 +4913,12 @@ export type Database = {
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          paid_by_holder?: string | null
           paid_from_account_id?: string | null
           paid_from_card_id?: string | null
           paid_method_unknown?: boolean
           paid_with_source?: string | null
+          payment_method?: string | null
           payment_method_extracted?: string | null
           payment_status?: string
           permalink_pdf?: string | null
@@ -7872,6 +7884,7 @@ export type Database = {
           is_personal: boolean
           last4: string | null
           network: string
+          nickname: string | null
           notes: string | null
           updated_at: string
         }
@@ -7891,6 +7904,7 @@ export type Database = {
           is_personal?: boolean
           last4?: string | null
           network?: string
+          nickname?: string | null
           notes?: string | null
           updated_at?: string
         }
@@ -7910,6 +7924,7 @@ export type Database = {
           is_personal?: boolean
           last4?: string | null
           network?: string
+          nickname?: string | null
           notes?: string | null
           updated_at?: string
         }
@@ -14971,6 +14986,15 @@ export type Database = {
         Args: { _tx: string }
         Returns: Record<string, unknown>
       }
+      fin_paid_with_fits: {
+        Args: {
+          _account: string
+          _card: string
+          _holder: string
+          _method: string
+        }
+        Returns: Record<string, unknown>
+      }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
       fin_queue_bank_paid_with: {
@@ -14998,6 +15022,10 @@ export type Database = {
           id: string
           is_repeat: boolean
         }[]
+      }
+      fin_queue_set_paid_how: {
+        Args: { _holder: string; _id: string; _method: string }
+        Returns: undefined
       }
       fin_queue_set_paid_unknown: {
         Args: { _id: string; _value: boolean }

@@ -24,7 +24,7 @@ import { currentEntityId } from "@/lib/finance/current-entity";
 type Draft = Omit<PaymentCard, "id" | "entity_id"> & { id?: string };
 const EMPTY: Draft = {
   holder_name: "", collaborator_id: null, last4: "", network: "mastercard", card_type: "debit",
-  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "", device_last4: [], is_personal: false,
+  bank: "", bank_account_id: null, bank_refs: [], active: true, notes: "", device_last4: [], is_personal: false, nickname: "",
 };
 
 export function PaymentCardsList() {
@@ -59,6 +59,7 @@ export function PaymentCardsList() {
       notes: draft.notes?.trim() || null,
       device_last4: textToDevices(devText),
       is_personal: draft.is_personal,
+      nickname: draft.nickname?.trim() || null,
     };
     const res = draft.id
       ? await supabase.from("payment_cards").update(row).eq("id", draft.id)
@@ -81,6 +82,13 @@ export function PaymentCardsList() {
     qc.invalidateQueries({ queryKey: ["finance", "accounts-lite"] });
   };
 
+  const netName = (n: string) => t(`finance:cards.network.${n}`);
+  const suggestNickname = (c: Pick<Draft, "network" | "card_type" | "is_personal" | "bank_account_id">) => {
+    const typ = t(`finance:cards.cardType.${c.card_type}`).toLowerCase();
+    const where = c.is_personal ? t("finance:paidWith.personal").toLowerCase() : c.bank_account_id ? accName(c.bank_account_id) : "";
+    return [c.network === "other" ? "" : netName(c.network), typ, where].filter(Boolean).join(" ");
+  };
+
   const creditAccounts = (accounts.data ?? []).filter((a) => a.account_kind === "credit_card" && !a.archived_at);
   const currentAccounts = (accounts.data ?? []).filter((a) => a.account_kind === "bank" && !a.archived_at);
 
@@ -96,6 +104,7 @@ export function PaymentCardsList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>{t("finance:cards.nickname")}</TableHead>
                 <TableHead>{t("finance:cards.holder")}</TableHead>
                 <TableHead>{t("finance:cards.last4")}</TableHead>
                 <TableHead>{t("finance:cards.type")}</TableHead>
@@ -107,12 +116,13 @@ export function PaymentCardsList() {
             </TableHeader>
             <TableBody>
               {(cards.data ?? []).length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-sm text-muted-foreground">{t("finance:cards.empty")}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-sm text-muted-foreground">{t("finance:cards.empty")}</TableCell></TableRow>
               )}
               {(cards.data ?? []).map((c) => {
                 const acc = accounts.data?.find((a) => a.id === c.bank_account_id);
                 return (
                   <TableRow key={c.id} className={c.active ? "" : "opacity-60"}>
+                    <TableCell>{c.nickname || <span className="text-xs text-muted-foreground">{t("finance:cards.suggested")}: {suggestNickname(c)}</span>}</TableCell>
                     <TableCell>{c.holder_name || <span className="text-muted-foreground">{t("finance:cards.unknownHolder")}</span>}</TableCell>
                     <TableCell className="tabular-nums">{c.last4 ? `…${c.last4}` : <Badge variant="outline">{t("finance:cards.last4Missing")}</Badge>}</TableCell>
                     <TableCell>{t(`finance:cards.network.${c.network}`)} · {t(`finance:cards.cardType.${c.card_type}`)}</TableCell>
@@ -162,6 +172,15 @@ export function PaymentCardsList() {
           <DialogHeader><DialogTitle>{draft?.id ? t("finance:cards.edit") : t("finance:cards.add")}</DialogTitle></DialogHeader>
           {draft && (
             <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1 sm:col-span-2">
+                <Label>{t("finance:cards.nickname")}</Label>
+                <Input value={draft.nickname ?? ""} placeholder={suggestNickname(draft)} onChange={(e) => setDraft({ ...draft, nickname: e.target.value })} />
+                {!draft.nickname && (
+                  <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setDraft({ ...draft, nickname: suggestNickname(draft) })}>
+                    {t("finance:cards.useSuggestion", { name: suggestNickname(draft) })}
+                  </Button>
+                )}
+              </div>
               <div className="space-y-1 sm:col-span-2">
                 <Label>{t("finance:cards.holder")}</Label>
                 <Input value={draft.holder_name ?? ""} onChange={(e) => setDraft({ ...draft, holder_name: e.target.value })} />

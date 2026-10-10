@@ -2218,7 +2218,22 @@
     "decisionPersonal": "Personal — remove from PSA books",
     "decisionPsa": "PSA expense paid by the holder (Sócio / A reembolsar)",
     "movedToRemoved": "Moved to Eliminados (reason: Pessoal)",
-    "owedRecorded": "Recorded as owed to the card holder"
+    "owedRecorded": "Recorded as owed to the card holder",
+    "howPaid": "How was it paid?",
+    "method": {
+      "card": "Card",
+      "bank_transfer": "Bank transfer",
+      "direct_debit": "Direct debit",
+      "mbway": "MB WAY",
+      "cash": "Cash",
+      "unknown": "Don't know (paid — method to identify)"
+    },
+    "holder": "Holder",
+    "personal": "personal",
+    "whichCardUnknown": "Don't know which card",
+    "whichAccountUnknown": "Don't know which account",
+    "receiptShows": "Receipt shows …{{last4}}",
+    "device": "Device"
   },
   "enteredBy": {
     "label": "Entered by",
@@ -2262,7 +2277,10 @@
     "devices": "Device numbers (Apple Pay / Google Pay)",
     "devicesHint": "Comma-separated, e.g. 1742:iPhone, 4749:Watch",
     "isPersonal": "Personal card (not PSA's; no bank account)",
-    "personalBadge": "Personal"
+    "personalBadge": "Personal",
+    "nickname": "Nickname",
+    "suggested": "Suggested",
+    "useSuggestion": "Use \"{{name}}\""
   },
   "holderReimb": {
     "title": "A reembolsar",
