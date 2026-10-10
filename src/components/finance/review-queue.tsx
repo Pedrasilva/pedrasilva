@@ -9,7 +9,7 @@
  * Documents that share an invoice number are grouped (invoice + its receipt =
  * one transaction) and reviewed as a single unit.
  */
-import { PaidWithSelect } from "@/components/finance/paid-with-control";
+import { GuidedPaidWith, type PayMethod } from "@/components/finance/paid-with-control";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -595,7 +595,13 @@ export function QueueItemCard({
   );
   const [rejectReason, setRejectReason] = useState("");
   const [markedUnpaid, setMarkedUnpaid] = useState<boolean>(!!(row as { marked_unpaid?: boolean }).marked_unpaid);
-  const [paidUnknown, setPaidUnknown] = useState<boolean>(!!(row as { paid_method_unknown?: boolean }).paid_method_unknown);
+  const [payMethod, setPayMethod] = useState<PayMethod | null>(
+    ((row as { payment_method?: string | null }).payment_method as PayMethod | null) ??
+      ((row as { paid_method_unknown?: boolean }).paid_method_unknown ? "unknown" : null),
+  );
+  const [payHolder, setPayHolder] = useState<string | null>((row as { paid_by_holder?: string | null }).paid_by_holder ?? null);
+  const paidUnknown = !!payMethod;
+  const receiptLast4 = row.extracted_card_last4?.replace(/\D/g, "").slice(-4) || null;
   const paidSource = (row as { paid_with_source?: string | null }).paid_with_source ?? null;
   const [paidSourceTouched, setPaidSourceTouched] = useState(false);
   // The database fills "Pago com" from a matching bank line at confirm; when it already
@@ -605,10 +611,7 @@ export function QueueItemCard({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Payment methods that are settled through an account we hold.
-  const needsPaidFrom =
-    fields.payment_method === "card" ||
-    fields.payment_method === "bank_transfer" ||
-    fields.payment_method === "direct_debit";
+  const needsPaidFrom = false;
   const accountsQ = useQuery({
     queryKey: ["bank-accounts-picker"],
     enabled: needsPaidFrom,
@@ -725,10 +728,10 @@ export function QueueItemCard({
             : null,
 
           extracted_currency: normalizeCurrency(fields.currency),
-          extracted_payment_method: fields.payment_method || null,
-          extracted_card_last4: fields.card_last4.replace(/\D/g, "").slice(-4) || null,
-          paid_from_account_id: needsPaidFrom && !paidFromCardId ? paidFromAccountId : null,
-          paid_from_card_id: needsPaidFrom ? paidFromCardId : null,
+          payment_method: markedUnpaid ? null : payMethod,
+          paid_by_holder: payMethod === "card" ? payHolder : null,
+          paid_from_account_id: paidFromCardId ? null : paidFromAccountId,
+          paid_from_card_id: paidFromCardId,
 
         })
         .eq("id", row.id);
@@ -770,12 +773,10 @@ export function QueueItemCard({
         vat: fields.vat,
         withholding: fields.withholding,
         currency: normalizeCurrency(fields.currency),
-        payment_method: fields.payment_method,
-        card_last4: fields.card_last4,
         paid_from_card_id: paidFromCardId,
         paid_from_account_id: paidFromCardId ? null : paidFromAccountId,
         marked_unpaid: markedUnpaid,
-        paid_method_unknown: paidUnknown,
+        paid_how: { method: markedUnpaid ? null : payMethod, holder: payMethod === "card" ? payHolder : null },
         classification_id: classificationId,
         project_id: projectId,
         assigned_collaborator_id: isBenefit ? assignedCollaboratorId : null,
@@ -841,7 +842,7 @@ export function QueueItemCard({
   else if (selectedCls?.level && selectedCls.level !== "category") clientBlockers.push("category_group");
   if (isBenefit && !assignedCollaboratorId) clientBlockers.push("collaborator");
   if (!paidFromCardId && !paidFromAccountId && !markedUnpaid && !paidUnknown && !serverReady)
-    clientBlockers.push(fields.card_last4.replace(/\D/g, "") ? "card_unknown" : "paid_with");
+    clientBlockers.push(receiptLast4 ? "card_unknown" : "paid_with");
   if (Array.isArray(rx.possible_duplicates) && rx.possible_duplicates.length > 0 && !rx.possible_duplicate_resolved)
     clientBlockers.push("duplicate");
   // Server-only findings (e.g. supplier tax number, platform issuer) until something changes.
@@ -1148,19 +1149,14 @@ export function QueueItemCard({
                 )}
                 <Field label={t("finance:confirm.paidWith")}>
                   <div className={hl("paid_with", "card_unknown")}>
-                    <PaidWithSelect
-                      value={{ cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
-                      onChange={(v) => { setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); setPaidSourceTouched(true); if (v.cardId || v.accountId) { setMarkedUnpaid(false); setPaidUnknown(false); } }}
-                      last4={fields.card_last4.replace(/\D/g, "").slice(-4) || null}
-                      supplierId={supplierId}
-                      disabled={readOnly || markedUnpaid || paidUnknown}
+                    <GuidedPaidWith
+                      value={{ method: payMethod, holder: payHolder, cardId: paidFromCardId, accountId: paidFromCardId ? null : paidFromAccountId }}
+                      onChange={(v) => { setPayMethod(v.method); setPayHolder(v.holder); setPaidFromCardId(v.cardId); setPaidFromAccountId(v.accountId); setPaidSourceTouched(true); if (v.method) setMarkedUnpaid(false); }}
+                      receiptLast4={receiptLast4}
+                      source={paidSourceTouched ? null : paidSource}
+                      disabled={readOnly || markedUnpaid}
                     />
                   </div>
-                  {paidSource && !paidSourceTouched && (paidFromCardId || paidFromAccountId) && (
-                    <Badge variant="secondary" className="mt-1 text-xs">
-                      {t(`finance:confirm.paidSource.${paidSource}`, { defaultValue: paidSource })}
-                    </Badge>
-                  )}
                   <label className="mt-1 flex items-center gap-2 text-xs">
                     <Checkbox
                       checked={markedUnpaid}
@@ -1168,22 +1164,10 @@ export function QueueItemCard({
                       onCheckedChange={(v) => {
                         const on = v === true;
                         setMarkedUnpaid(on);
-                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); setPaidUnknown(false); }
+                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); setPayMethod(null); setPayHolder(null); }
                       }}
                     />
                     {t("finance:confirm.markUnpaid")}
-                  </label>
-                  <label className="mt-1 flex items-center gap-2 text-xs">
-                    <Checkbox
-                      checked={paidUnknown}
-                      disabled={readOnly}
-                      onCheckedChange={(v) => {
-                        const on = v === true;
-                        setPaidUnknown(on);
-                        if (on) { setPaidFromCardId(null); setPaidFromAccountId(null); setMarkedUnpaid(false); }
-                      }}
-                    />
-                    {t("finance:confirm.paidUnknown")}
                   </label>
                 </Field>
               </div>
@@ -1211,23 +1195,6 @@ export function QueueItemCard({
                   <Field key="currency" label={t("finance:reviewQueue.fields.currency")}>
                     <Input value={fields.currency} disabled={readOnly}
                       onChange={(e) => setFields((f) => ({ ...f, currency: e.target.value }))} />
-                  </Field>) },
-                { key: "payment_method", node: (
-                  <Field key="payment_method" label={t("finance:reviewQueue.fields.paymentMethod")}>
-                    <Select value={fields.payment_method || "none"} disabled={readOnly}
-                      onValueChange={(v) => setFields((f) => ({ ...f, payment_method: v === "none" ? "" : v }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {["none", "card", "cash", "bank_transfer", "direct_debit", "not_stated"].map((v) => (
-                          <SelectItem key={v} value={v}>{t(`finance:reviewQueue.paymentMethodValue.${v}`)}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>) },
-                { key: "card_last4", node: (
-                  <Field key="card_last4" label={t("finance:reviewQueue.fields.cardLast4")}>
-                    <Input value={fields.card_last4} inputMode="numeric" maxLength={4} disabled={readOnly}
-                      onChange={(e) => setFields((f) => ({ ...f, card_last4: e.target.value }))} />
                   </Field>) },
                 { key: "project", node: (
                   <Field key="project" label={t("finance:reviewQueue.noProject")}>
