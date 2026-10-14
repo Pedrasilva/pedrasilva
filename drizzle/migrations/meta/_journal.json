@@ -414,6 +414,13 @@
       "when": 1792019773680,
       "tag": "0058_leave_baixa_medica",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1792020887912,
+      "tag": "0059_pm_expenses_invoiced",
+      "breakpoints": true
     }
   ]
 }

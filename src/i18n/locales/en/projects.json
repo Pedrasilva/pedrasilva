@@ -1323,7 +1323,12 @@
       "paymentSourceLabel": "Payment description (optional)",
       "reimbursable": "Reimburse the person",
       "reimbursableHint": "Paid personally: the amount is registered as owed back to the collaborator once approved.",
-      "reimburseCollaborator": "Who gets paid back"
+      "reimburseCollaborator": "Who gets paid back",
+      "receiptDrop": "Attach a receipt — we'll fill in the rest",
+      "receiptDropHint": "Drop a photo or PDF here, or click to choose",
+      "receiptAttachedName": "Receipt attached — {{name}}",
+      "receiptRemove": "Remove",
+      "cardUnrecognized": "Card …{{last4}} not recognized — confirm how this was paid."
     },
     "dialog": {
       "createTitle": "Add expense",
@@ -1359,7 +1364,24 @@
       "company_account": "Company account",
       "cash": "Cash",
       "unknown": "Not sure"
-    }
+    },
+    "readyToInvoice": "Ready to invoice",
+    "allExpenses": "All",
+    "markInvoiced": "Mark as invoiced",
+    "invoicedBadge": "Invoiced",
+    "invoicedBadgeRef": "Invoiced — {{ref}}",
+    "invoiceDialog": {
+      "title": "Mark as invoiced",
+      "description": "Record that “{{name}}” was billed to the client in the invoicing tool.",
+      "reference": "Invoice reference",
+      "referencePlaceholder": "e.g. INV-2026-0412",
+      "link": "Link to an existing invoice record (optional)",
+      "noLink": "No link",
+      "submit": "Mark as invoiced",
+      "cancel": "Cancel",
+      "done": "Expense marked as invoiced"
+    },
+    "readyEmpty": "No approved re-billable expenses waiting to be invoiced."
   },
   "approvals": {
     "title": "Approvals",

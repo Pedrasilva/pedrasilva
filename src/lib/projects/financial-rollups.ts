@@ -12,10 +12,13 @@
  *     revenue = sale_price * quantity
  *     profit  = revenue - cost
  *
- *   Expenses (pm_expenses): cost-only.
+ *   Expenses (pm_expenses): pass-through, no markup.
  *     cost    = purchase_price
- *     revenue = 0    // ALWAYS, regardless of `rebillable`
- *     profit  = -cost
+ *     revenue = (rebillable AND invoiced_at set) ? purchase_price : 0
+ *     profit  = revenue - cost
+ *     A rebillable expense still counts as a full cost until it is marked
+ *     invoiced; then it nets to zero. Non-rebillable expenses are always a
+ *     straight cost. Revenue from invoiced expenses also feeds `invoiced`.
  *
  *   Total = services + external_services + expenses
  */
@@ -38,7 +41,9 @@ export interface ExternalServiceLike {
 /** Minimal shape of a row in pm_expenses needed for rollups. */
 export interface ProjectExpenseLike {
   purchase_price?: number | string | null;
-  // intentionally NOT reading sale_price — expenses never produce revenue
+  rebillable?: boolean | null;
+  invoiced_at?: string | null;
+  // sale_price is never read — expenses are re-billed at cost
 }
 
 /** Coerce any value to a finite number, defaulting to 0. */
@@ -71,9 +76,11 @@ export function projectExpenseLine(row: ProjectExpenseLike): {
   profit: number;
 } {
   const cost = toNum(row.purchase_price);
-  // Avoid producing -0 when cost is 0 (strict-equal asserts treat -0 ≠ 0).
-  const profit = cost === 0 ? 0 : -cost;
-  return { cost, revenue: 0, profit };
+  const invoiced = Boolean(row.rebillable) && row.invoiced_at != null;
+  const revenue = invoiced ? cost : 0;
+  // Avoid producing -0 (strict-equal asserts treat -0 ≠ 0).
+  const profit = revenue - cost || 0;
+  return { cost, revenue, profit };
 }
 
 /** Aggregate a list of external services into a FinancialsRow. */
@@ -96,18 +103,21 @@ export function rollupExternalServices(rows: ExternalServiceLike[]): FinancialsR
   };
 }
 
-/** Aggregate a list of expenses into a FinancialsRow (always cost-only). */
+/** Aggregate a list of expenses into a FinancialsRow (revenue only from invoiced rebillables). */
 export function rollupExpenses(rows: ProjectExpenseLike[]): FinancialsRow {
   let cost = 0;
+  let revenue = 0;
   for (const row of rows) {
-    cost += projectExpenseLine(row).cost;
+    const line = projectExpenseLine(row);
+    cost += line.cost;
+    revenue += line.revenue;
   }
   return {
-    budget: 0,
-    value: 0,
+    budget: revenue,
+    value: revenue,
     cost,
-    profit: cost === 0 ? 0 : -cost,
-    invoiced: 0,
+    profit: revenue - cost || 0,
+    invoiced: revenue,
   };
 }
 

@@ -8305,6 +8305,9 @@ export type Database = {
           expense_date: string | null
           id: string
           incurred_at: string | null
+          invoice_reference: string | null
+          invoiced_at: string | null
+          invoiced_in_invoice_id: string | null
           notes: string | null
           paid_at: string | null
           payment_source_label: string | null
@@ -8334,6 +8337,9 @@ export type Database = {
           expense_date?: string | null
           id?: string
           incurred_at?: string | null
+          invoice_reference?: string | null
+          invoiced_at?: string | null
+          invoiced_in_invoice_id?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_source_label?: string | null
@@ -8363,6 +8369,9 @@ export type Database = {
           expense_date?: string | null
           id?: string
           incurred_at?: string | null
+          invoice_reference?: string | null
+          invoiced_at?: string | null
+          invoiced_in_invoice_id?: string | null
           notes?: string | null
           paid_at?: string | null
           payment_source_label?: string | null
@@ -8384,6 +8393,13 @@ export type Database = {
           vendor?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_expenses_invoiced_in_invoice_id_fkey"
+            columns: ["invoiced_in_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "pm_invoices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_expenses_project_id_fkey"
             columns: ["project_id"]

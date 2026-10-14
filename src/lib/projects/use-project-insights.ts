@@ -192,7 +192,7 @@ export function useProjectInsights(projectId: string) {
           .eq("project_id", projectId),
         supabase
           .from("pm_expenses")
-          .select("purchase_price")
+          .select("purchase_price, rebillable, invoiced_at")
           .eq("project_id", projectId),
         supabase
           .from("historical_time_entries")

@@ -1323,7 +1323,12 @@
       "paymentSourceLabel": "Descrição do pagamento (opcional)",
       "reimbursable": "Reembolsar o colaborador",
       "reimbursableHint": "Pago pelo próprio: o valor fica registado como devido ao colaborador após aprovação.",
-      "reimburseCollaborator": "Quem recebe o reembolso"
+      "reimburseCollaborator": "Quem recebe o reembolso",
+      "receiptDrop": "Anexe um recibo — preenchemos o resto",
+      "receiptDropHint": "Largue aqui uma foto ou PDF, ou clique para escolher",
+      "receiptAttachedName": "Recibo anexado — {{name}}",
+      "receiptRemove": "Remover",
+      "cardUnrecognized": "Cartão …{{last4}} não reconhecido — confirme como foi pago."
     },
     "dialog": {
       "createTitle": "Adicionar despesa",
@@ -1359,7 +1364,24 @@
       "company_account": "Conta da empresa",
       "cash": "Numerário",
       "unknown": "Não sei"
-    }
+    },
+    "readyToInvoice": "Por faturar",
+    "allExpenses": "Todas",
+    "markInvoiced": "Marcar como faturada",
+    "invoicedBadge": "Faturada",
+    "invoicedBadgeRef": "Faturada — {{ref}}",
+    "invoiceDialog": {
+      "title": "Marcar como faturada",
+      "description": "Registe que “{{name}}” foi faturada ao cliente na ferramenta de faturação.",
+      "reference": "Referência da fatura",
+      "referencePlaceholder": "ex. FT 2026/0412",
+      "link": "Associar a uma fatura existente (opcional)",
+      "noLink": "Sem associação",
+      "submit": "Marcar como faturada",
+      "cancel": "Cancelar",
+      "done": "Despesa marcada como faturada"
+    },
+    "readyEmpty": "Nenhuma despesa refaturável aprovada à espera de faturação."
   },
   "approvals": {
     "title": "Aprovações",

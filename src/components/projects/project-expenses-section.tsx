@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, FileCheck2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ProjectExpenseDialog } from "./project-expense-dialog";
+import { MarkExpenseInvoicedDialog } from "./mark-expense-invoiced-dialog";
 import {
   useDeleteProjectExpense,
   useProjectExpenses,
@@ -44,6 +45,13 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ProjectExpenseWithSupplier | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ProjectExpenseWithSupplier | null>(null);
+  const [markInvoiced, setMarkInvoiced] = useState<ProjectExpenseWithSupplier | null>(null);
+  const [view, setView] = useState<"all" | "ready">("all");
+
+  const isReady = (e: ProjectExpenseWithSupplier) =>
+    e.status === "approved" && !!e.rebillable && !e.invoiced_at;
+  const readyCount = items.filter(isReady).length;
+  const shown = view === "ready" ? items.filter(isReady) : items;
 
   const totals = items.reduce(
     (acc, e) => {
@@ -83,19 +91,37 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">{t("expenses.subtitle")}</p>
         </div>
+        <div className="flex items-center gap-2">
+        <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+          {(["all", "ready"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={
+                view === v
+                  ? "rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground"
+                  : "rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+              }
+            >
+              {v === "all" ? t("expenses.allExpenses") : `${t("expenses.readyToInvoice")} (${readyCount})`}
+            </button>
+          ))}
+        </div>
         {canEdit && (
           <Button size="sm" className="h-8" onClick={handleAdd}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             {t("expenses.addButton")}
           </Button>
         )}
+        </div>
       </div>
 
       {isLoading ? (
         <div className="px-4 py-6 text-center text-sm text-muted-foreground">…</div>
-      ) : items.length === 0 ? (
+      ) : shown.length === 0 ? (
         <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-          {t("expenses.empty")}
+          {view === "ready" ? t("expenses.readyEmpty") : t("expenses.empty")}
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -108,17 +134,24 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                 <TableHead>{t("expenses.cols.date")}</TableHead>
                 <TableHead>{t("expenses.cols.status")}</TableHead>
                 <TableHead className="text-right">{t("expenses.cols.amount")}</TableHead>
-                {canEdit && <TableHead className="w-20"></TableHead>}
+                {canEdit && <TableHead className="w-28"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((e) => (
+              {shown.map((e) => (
                 <TableRow key={e.id}>
                   <TableCell>
                     <div className="font-medium">{e.description}</div>
                     {e.rebillable && (
                       <Badge variant="secondary" className="mt-1 text-[10px]">
                         {t("expenses.rebillableTag")}
+                      </Badge>
+                    )}
+                    {e.invoiced_at && (
+                      <Badge variant="outline" className="ml-1 mt-1 text-[10px]">
+                        {e.invoice_reference
+                          ? t("expenses.invoicedBadgeRef", { ref: e.invoice_reference })
+                          : t("expenses.invoicedBadge")}
                       </Badge>
                     )}
                   </TableCell>
@@ -140,7 +173,18 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                     {euros(Number(e.purchase_price || 0))}
                   </TableCell>
                   {canEdit && (
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      {isReady(e) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={t("expenses.markInvoiced")}
+                          aria-label={t("expenses.markInvoiced")}
+                          onClick={() => setMarkInvoiced(e)}
+                        >
+                          <FileCheck2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(e)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -179,6 +223,12 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
         onOpenChange={setDialogOpen}
         projectId={projectId}
         initial={editing}
+      />
+
+      <MarkExpenseInvoicedDialog
+        projectId={projectId}
+        expense={markInvoiced}
+        onOpenChange={(o) => !o && setMarkInvoiced(null)}
       />
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
