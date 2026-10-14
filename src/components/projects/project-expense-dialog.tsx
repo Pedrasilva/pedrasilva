@@ -37,6 +37,49 @@ import type { Supplier } from "@/lib/projects/use-suppliers";
 import { supabase } from "@/integrations/supabase/client";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
+import { useServerFn } from "@tanstack/react-start";
+import { Sparkles, AlertTriangle, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
+import { routeProjectExpenseReceiptToQueue } from "@/lib/finance/project-expense-queue.functions";
+import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
+
+// Receipt reading — same behaviour and wording as the HR expense form.
+type OcrState = {
+  filled: Set<string>;
+  lowConfidence: Set<string>;
+  vatMismatch: boolean;
+  nifInvalid: boolean;
+  failed: boolean;
+  isOwnCompanyNif: boolean;
+};
+const newOcr = (): OcrState => ({
+  filled: new Set(),
+  lowConfidence: new Set(),
+  vatMismatch: false,
+  nifInvalid: false,
+  failed: false,
+  isOwnCompanyNif: false,
+});
+const LOW_CONF = 0.6;
+
+function OcrBadge({ t }: { t: (k: string) => string }) {
+  return (
+    <Badge variant="secondary" className="ml-1 gap-1 px-1.5 py-0 text-[10px]">
+      <Sparkles className="h-2.5 w-2.5" />
+      {t("hr:beneficios.submit.ocr.fieldBadge")}
+    </Badge>
+  );
+}
+
+function FieldHint({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1 text-[11px] text-amber-600">
+      <AlertTriangle className="h-3 w-3" />
+      {children}
+    </div>
+  );
+}
 
 type PaymentSourceType =
   | "personal"
@@ -61,7 +104,10 @@ interface Props {
 }
 
 export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }: Props) {
-  const { t } = useTranslation("projects");
+  const { t } = useTranslation(["projects", "hr"]);
+  const extractFn = useServerFn(extractBenefitReceipt);
+  const routeToQueueFn = useServerFn(routeProjectExpenseReceiptToQueue);
+  const [ocr, setOcr] = useState<OcrState>(newOcr());
   const upsert = useUpsertProjectExpense(projectId);
 
   const [description, setDescription] = useState("");
@@ -122,6 +168,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setRebillable(initial?.rebillable ?? false);
       setNotes(initial?.notes ?? "");
       setReceiptPath(ex.receipt_path ?? null);
+      setOcr(newOcr());
       setSupplierNif(ex.supplier_nif ?? "");
       setDocumentNumber(ex.document_number ?? "");
       setAmountExVat(ex.amount_ex_vat != null ? String(ex.amount_ex_vat) : "");
@@ -155,6 +202,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         .upload(path, file, { upsert: false });
       if (error) throw error;
       setReceiptPath(path);
+      setOcr(newOcr());
+      await readReceipt(path);
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -162,6 +211,72 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
     }
   }
 
+
+  // Pre-fills only fields still empty; everything stays editable.
+  async function readReceipt(path: string) {
+    try {
+      const result = await extractFn({ data: { storagePath: path } });
+      if (!result.ok || !result.extracted) {
+        setOcr((o) => ({ ...o, failed: true }));
+        toast.warning(t("hr:beneficios.submit.ocr.failed"));
+        return;
+      }
+      const ex = result.extracted;
+      const conf = (result.confidence ?? {}) as Record<string, number | undefined>;
+      const filled = new Set<string>();
+      const low = new Set<string>();
+      const mark = (k: string, c?: string) => {
+        filled.add(k);
+        if (c && (conf[c] ?? 0) < LOW_CONF) low.add(k);
+      };
+      let nif = "";
+      if (ex.supplier_nif && !supplierNif) {
+        nif = normalizePortugueseNif(ex.supplier_nif) ?? "";
+        if (nif) { setSupplierNif(nif); mark("supplier_nif", "supplier_nif"); }
+      }
+      if (ex.supplier_name && !supplierId && !vendor) {
+        setVendor(ex.supplier_name); mark("vendor", "supplier_name");
+      }
+      if (ex.document_number && !documentNumber) {
+        setDocumentNumber(ex.document_number); mark("document_number", "document_number");
+      }
+      if (ex.issue_date && !incurredAt) {
+        setIncurredAt(ex.issue_date); mark("incurred_at", "issue_date");
+      }
+      if (ex.total_amount != null && !amount) {
+        setAmount(String(ex.total_amount)); mark("amount", "total_amount");
+      }
+      if (ex.amount_ex_vat != null && !amountExVat) {
+        setAmountExVat(String(ex.amount_ex_vat)); mark("amount_ex_vat");
+      }
+      if (ex.vat_amount != null && !vatAmount) {
+        setVatAmount(String(ex.vat_amount)); mark("vat_amount", "vat_amount");
+      }
+      if (ex.vat_rate != null && !vatRate) {
+        setVatRate(String(ex.vat_rate)); mark("vat_rate");
+      }
+      if (!description.trim()) {
+        const desc = [ex.supplier_name, ex.document_number].filter(Boolean).join(" · ");
+        if (desc) { setDescription(desc); mark("description"); }
+      }
+      const tot = ex.total_amount, v = ex.vat_amount, x = ex.amount_ex_vat;
+      setOcr({
+        filled,
+        lowConfidence: low,
+        vatMismatch: tot != null && v != null && x != null && Math.abs(x + v - tot) > 0.02,
+        nifInvalid: !!nif && !isValidPortugueseNif(nif),
+        failed: false,
+        isOwnCompanyNif: Boolean(result.supplier_is_own_company),
+      });
+    } catch {
+      setOcr((o) => ({ ...o, failed: true }));
+      toast.warning(t("hr:beneficios.submit.ocr.failed"));
+    }
+  }
+
+  const has = (k: string) => ocr.filled.has(k);
+  const lowHint = (k: string) =>
+    ocr.lowConfidence.has(k) ? <FieldHint>{t("hr:beneficios.submit.ocr.lowConfidence")}</FieldHint> : null;
 
   function handleSupplierChange(id: string | null, supplier: Supplier | null) {
     setSupplierId(id);
@@ -221,7 +336,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
           paymentSourceType === "personal" && reimbursable ? reimburseCollaboratorId : null,
         ...(initial?.id ? { id: initial.id } : {}),
       };
-      await upsert.mutateAsync(payload as never);
+      const saved = (await upsert.mutateAsync(payload as never)) as { id?: string } | null;
+      // Receipt goes to Finance › Revisão as a project cost (PRJ.EXP).
+      if (saved?.id && receiptPath) {
+        void routeToQueueFn({ data: { expenseId: saved.id } }).catch(() => undefined);
+      }
       toast.success(
         initial?.id ? t("expenses.dialog.toast.updated") : t("expenses.dialog.toast.created"),
       );
@@ -242,7 +361,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         <form onSubmit={submit} className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="ex-desc">{t("expenses.fields.description")}</Label>
+              <Label htmlFor="ex-desc">{t("expenses.fields.description")}{has("description") && <OcrBadge t={t} />}</Label>
               <Input
                 id="ex-desc"
                 value={description}
@@ -270,7 +389,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               </Select>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>{t("expenses.fields.supplier")}</Label>
+              <Label>{t("expenses.fields.supplier")}{has("vendor") && <OcrBadge t={t} />}</Label>
               <SupplierPicker
                 value={supplierId}
                 legacyName={vendor}
@@ -284,7 +403,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ex-amt">{t("expenses.fields.amount")} (€)</Label>
+              <Label htmlFor="ex-amt">{t("expenses.fields.amount")} (€){has("amount") && <OcrBadge t={t} />}</Label>
               <Input
                 id="ex-amt"
                 type="number"
@@ -293,12 +412,13 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 onChange={(e) => setAmount(e.target.value)}
                 aria-invalid={!!errMsg("amount")}
               />
+              {lowHint("amount")}
               {errMsg("amount") && (
                 <p className="text-[11px] text-destructive">{errMsg("amount")}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ex-incurred">{t("expenses.fields.incurredAt")}</Label>
+              <Label htmlFor="ex-incurred">{t("expenses.fields.incurredAt")}{has("incurred_at") && <OcrBadge t={t} />}</Label>
               <Input
                 id="ex-incurred"
                 type="date"
@@ -306,6 +426,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 onChange={(e) => setIncurredAt(e.target.value)}
                 aria-invalid={!!errMsg("incurred_at")}
               />
+              {lowHint("incurred_at")}
               {errMsg("incurred_at") && (
                 <p className="text-[11px] text-destructive">{errMsg("incurred_at")}</p>
               )}
@@ -361,10 +482,12 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 onChange={(e) => handleReceiptUpload(e.target.files?.[0] ?? null)}
               />
               {uploading && (
-                <p className="text-[11px] text-muted-foreground">
-                  {t("expenses.fields.receiptUploading")}
+                <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  {t("hr:beneficios.submit.ocr.analyzing")}
                 </p>
               )}
+              {ocr.failed && <FieldHint>{t("hr:beneficios.submit.ocr.failed")}</FieldHint>}
               {receiptPath && !uploading && (
                 <p className="text-[11px] text-muted-foreground">
                   {t("expenses.fields.receiptAttached")}
@@ -374,28 +497,34 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
 
             {/* Invoice detail */}
             <div className="space-y-1.5">
-              <Label htmlFor="ex-nif">{t("expenses.fields.supplierNif")}</Label>
+              <Label htmlFor="ex-nif">{t("expenses.fields.supplierNif")}{has("supplier_nif") && <OcrBadge t={t} />}</Label>
               <Input
                 id="ex-nif"
                 value={supplierNif}
                 onChange={(e) => setSupplierNif(e.target.value)}
                 placeholder="9"
               />
+              {lowHint("supplier_nif")}
+              {ocr.nifInvalid && <FieldHint>{t("hr:beneficios.submit.ocr.nifInvalid")}</FieldHint>}
+              {ocr.isOwnCompanyNif && (
+                <FieldHint>{t("hr:beneficios.submit.ocr.ownCompanyNifHint")}</FieldHint>
+              )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ex-docnum">{t("expenses.fields.documentNumber")}</Label>
+              <Label htmlFor="ex-docnum">{t("expenses.fields.documentNumber")}{has("document_number") && <OcrBadge t={t} />}</Label>
               <Input
                 id="ex-docnum"
                 value={documentNumber}
                 onChange={(e) => setDocumentNumber(e.target.value)}
                 placeholder="FT 2026/12345"
               />
+              {lowHint("document_number")}
             </div>
 
             {/* VAT detail */}
             <div className="grid gap-3 rounded-md border border-border bg-muted/20 p-3 sm:col-span-2 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <Label htmlFor="ex-exvat">{t("expenses.fields.amountExVat")} (€)</Label>
+                <Label htmlFor="ex-exvat">{t("expenses.fields.amountExVat")} (€){has("amount_ex_vat") && <OcrBadge t={t} />}</Label>
                 <Input
                   id="ex-exvat"
                   type="number"
@@ -405,7 +534,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ex-vatamt">{t("expenses.fields.vatAmount")} (€)</Label>
+                <Label htmlFor="ex-vatamt">{t("expenses.fields.vatAmount")} (€){has("vat_amount") && <OcrBadge t={t} />}</Label>
                 <Input
                   id="ex-vatamt"
                   type="number"
@@ -415,7 +544,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ex-vatrate">{t("expenses.fields.vatRate")} (%)</Label>
+                <Label htmlFor="ex-vatrate">{t("expenses.fields.vatRate")} (%){has("vat_rate") && <OcrBadge t={t} />}</Label>
                 <Input
                   id="ex-vatrate"
                   type="number"
@@ -425,6 +554,12 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 />
               </div>
             </div>
+
+            {ocr.vatMismatch && (
+              <div className="sm:col-span-2">
+                <FieldHint>{t("hr:beneficios.submit.ocr.vatMismatch")}</FieldHint>
+              </div>
+            )}
 
             {/* Payment origin */}
             <div className="space-y-1.5">
