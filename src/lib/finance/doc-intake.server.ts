@@ -18,7 +18,7 @@ import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif"
 import { detectPlatform, platformKeyOfName, issuerTaxColumns } from "@/lib/finance/platforms";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
-const MODEL = "google/gemini-2.5-flash";
+const MODEL = "google/gemini-3.8-flash";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 export type IntakeDocType =

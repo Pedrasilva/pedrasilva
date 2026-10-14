@@ -4,8 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CHAT_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const STT_URL = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
-const CHAT_MODEL = "google/gemini-3.5-flash";
-const STT_MODEL = "openai/gpt-4o-mini-transcribe";
+const CHAT_MODEL = "google/gemini-3.8-flash";
+const STT_MODEL = "openai/gpt-transcribe";
 
 const CATEGORIES = [
   "client_request",

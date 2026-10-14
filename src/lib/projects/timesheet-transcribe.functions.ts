@@ -5,9 +5,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const STT_URL = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
-/** Switch to "openai/gpt-4o-transcribe" for higher accuracy (more expensive). */
-export const TIMESHEET_STT_MODEL: "openai/gpt-4o-mini-transcribe" | "openai/gpt-4o-transcribe" =
-  "openai/gpt-4o-mini-transcribe";
+export const TIMESHEET_STT_MODEL = "openai/gpt-transcribe";
 const HINT_MAX = 800;
 const FIXED_TERMS = ["angariação", "Pursuit", "propostas de honorários", "fee proposals", "reunião", "meetings", "avença"];
 

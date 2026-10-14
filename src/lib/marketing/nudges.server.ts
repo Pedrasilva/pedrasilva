@@ -7,7 +7,7 @@ import { ENRICH_MODEL } from "./enrich.server";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/messages";
 const STT_URL = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
 /** Same STT model as transcribeProjectNote (src/lib/projects/notes.functions.ts). */
-const STT_MODEL = "openai/gpt-4o-mini-transcribe";
+const STT_MODEL = "openai/gpt-transcribe";
 export const NUDGE_APP_URL = "https://pedrasilva.lovable.app";
 export const STORY_FIELDS = ["client_ambition", "central_idea", "challenges", "proud_of", "key_facts"] as const;
 const MODEL_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
