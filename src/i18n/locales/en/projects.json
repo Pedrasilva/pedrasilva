@@ -1328,7 +1328,10 @@
       "receiptDropHint": "Drop a photo or PDF here, or click to choose",
       "receiptAttachedName": "Receipt attached — {{name}}",
       "receiptRemove": "Remove",
-      "cardUnrecognized": "Card …{{last4}} not recognized — confirm how this was paid."
+      "cardUnrecognized": "Card …{{last4}} not recognized — confirm how this was paid.",
+      "methodUnrecognized": "Receipt says “{{method}}” — confirm how to record the payment.",
+      "paymentCard": "Card",
+      "paymentCardNone": "Choose a card"
     },
     "dialog": {
       "createTitle": "Add expense",

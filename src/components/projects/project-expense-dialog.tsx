@@ -55,6 +55,7 @@ type OcrState = {
   failed: boolean;
   isOwnCompanyNif: boolean;
   unknownCardLast4: string | null;
+  unrecognizedMethod: string | null;
 };
 const newOcr = (): OcrState => ({
   filled: new Set(),
@@ -64,8 +65,16 @@ const newOcr = (): OcrState => ({
   failed: false,
   isOwnCompanyNif: false,
   unknownCardLast4: null,
+  unrecognizedMethod: null,
 });
 const LOW_CONF = 0.6;
+const CATEGORY_GUESS_MAP: Record<string, ExpenseCategory> = {
+  "transporte": "transport", "transportes": "transport",
+  "deslocação": "transport", "deslocações": "transport",
+  "alojamento": "accommodation",
+  "alimentação": "food", "refeição": "food", "refeições": "food",
+  "impressão": "printing", "impressões": "printing",
+};
 
 function OcrBadge({ t }: { t: (k: string) => string }) {
   return (
@@ -119,6 +128,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("misc");
+  const [categoryTouched, setCategoryTouched] = useState(false);
+  const [paymentCardId, setPaymentCardId] = useState<string | null>(null);
   const [supplierId, setSupplierId] = useState<string | null>(null);
   // Legacy mirror — keeps free-text vendor name for old rows / exports.
   const [vendor, setVendor] = useState("");
@@ -166,6 +177,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       const ex = (initial ?? {}) as ExtraFields;
       setDescription(initial?.description ?? "");
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
+      setCategoryTouched(!!initial?.id);
+      setPaymentCardId((initial as { payment_card_id?: string | null } | undefined)?.payment_card_id ?? null);
       setSupplierId(initial?.supplier_id ?? null);
       setVendor(initial?.vendor ?? "");
       setAmount(initial?.purchase_price != null ? String(initial.purchase_price) : "");
@@ -271,6 +284,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       // Payment source from the receipt — match a registered company card by
       // its last 4 (or device number); never guess when nothing matches.
       let unknownCardLast4: string | null = null;
+      let unrecognizedMethod: string | null = null;
       const last4 = (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4);
       if (last4.length === 4) {
         const matches = (cardsQ.data ?? []).filter(
@@ -282,6 +296,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         if (matches.length === 1) {
           setPaymentSourceType("company_card");
           setPaymentSourceLabel(cardLabel(matches[0], "—"));
+          setPaymentCardId(matches[0].id);
           mark("payment_source", "card_last4");
         } else {
           unknownCardLast4 = last4;
@@ -289,10 +304,18 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       } else if ((ex.payment_method ?? "").toLowerCase() === "cash") {
         setPaymentSourceType("cash");
         mark("payment_source", "payment_method");
+      } else if (ex.payment_method || ex.payment_method_text) {
+        unrecognizedMethod = (ex.payment_method_text || ex.payment_method) ?? null;
+      }
+      const guess = (ex.category_guess ?? "").trim().toLowerCase();
+      const mapped = guess ? CATEGORY_GUESS_MAP[guess] : undefined;
+      if (mapped && !categoryTouched && category === "misc") {
+        setCategory(mapped); mark("category", "category_guess");
       }
       const tot = ex.total_amount, v = ex.vat_amount, x = ex.amount_ex_vat;
       setOcr({
         unknownCardLast4,
+        unrecognizedMethod,
         filled,
         lowConfidence: low,
         vatMismatch: tot != null && v != null && x != null && Math.abs(x + v - tot) > 0.02,
@@ -307,6 +330,12 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
   }
 
   const has = (k: string) => ocr.filled.has(k);
+  // Visibility scope only (RLS governs access): own cards + unassigned shared ones.
+  const myCards = (cardsQ.data ?? []).filter(
+    (c) =>
+      (c.active || c.id === paymentCardId) &&
+      (c.collaborator_id === null || c.collaborator_id === profile?.collaborator_id || c.id === paymentCardId),
+  );
   const lowHint = (k: string) =>
     ocr.lowConfidence.has(k) ? <FieldHint>{t("hr:beneficios.submit.ocr.lowConfidence")}</FieldHint> : null;
 
@@ -362,6 +391,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         vat_rate: vatRate === "" ? null : Number(vatRate),
         payment_source_type: paymentSourceType,
         payment_source_label: paymentSourceLabel.trim() || null,
+        payment_card_id: paymentSourceType === "company_card" ? paymentCardId : null,
         // Only a personally paid expense can be reimbursed.
         reimbursable: paymentSourceType === "personal" ? reimbursable : false,
         reimburse_collaborator_id:
@@ -465,8 +495,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ex-cat">{t("expenses.fields.category")}</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v as ExpenseCategory)}>
+              <Label htmlFor="ex-cat">{t("expenses.fields.category")}{has("category") && <OcrBadge t={t} />}</Label>
+              <Select value={category} onValueChange={(v) => { setCategory(v as ExpenseCategory); setCategoryTouched(true); }}>
                 <SelectTrigger id="ex-cat">
                   <SelectValue />
                 </SelectTrigger>
@@ -633,7 +663,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               <Label htmlFor="ex-paysrc">{t("expenses.fields.paymentSource")}{has("payment_source") && <OcrBadge t={t} />}</Label>
               <Select
                 value={paymentSourceType}
-                onValueChange={(v) => { setPaymentSourceType(v as PaymentSourceType); setOcr((o) => ({ ...o, unknownCardLast4: null })); }}
+                onValueChange={(v) => { setPaymentSourceType(v as PaymentSourceType); setOcr((o) => ({ ...o, unknownCardLast4: null, unrecognizedMethod: null })); }}
               >
                 <SelectTrigger id="ex-paysrc">
                   <SelectValue />
@@ -652,7 +682,33 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                   {t("expenses.fields.cardUnrecognized", { last4: ocr.unknownCardLast4 })}
                 </FieldHint>
               )}
+              {ocr.unrecognizedMethod && !ocr.unknownCardLast4 && (
+                <FieldHint>
+                  {t("expenses.fields.methodUnrecognized", { method: ocr.unrecognizedMethod })}
+                </FieldHint>
+              )}
             </div>
+            {paymentSourceType === "company_card" ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="ex-paycard">{t("expenses.fields.paymentCard")}{has("payment_source") && <OcrBadge t={t} />}</Label>
+                <Select
+                  value={paymentCardId ?? "none"}
+                  onValueChange={(v) => {
+                    const c = myCards.find((x) => x.id === v) ?? null;
+                    setPaymentCardId(c?.id ?? null);
+                    setPaymentSourceLabel(c ? cardLabel(c, "—") : "");
+                  }}
+                >
+                  <SelectTrigger id="ex-paycard"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("expenses.fields.paymentCardNone")}</SelectItem>
+                    {myCards.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{cardLabel(c, "—")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
             <div className="space-y-1.5">
               <Label htmlFor="ex-paylabel">{t("expenses.fields.paymentSourceLabel")}</Label>
               <Input
@@ -661,6 +717,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 onChange={(e) => setPaymentSourceLabel(e.target.value)}
               />
             </div>
+            )}
 
             {paymentSourceType === "personal" && (
               <>

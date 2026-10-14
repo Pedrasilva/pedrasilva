@@ -1328,7 +1328,10 @@
       "receiptDropHint": "Largue aqui uma foto ou PDF, ou clique para escolher",
       "receiptAttachedName": "Recibo anexado — {{name}}",
       "receiptRemove": "Remover",
-      "cardUnrecognized": "Cartão …{{last4}} não reconhecido — confirme como foi pago."
+      "cardUnrecognized": "Cartão …{{last4}} não reconhecido — confirme como foi pago.",
+      "methodUnrecognized": "Recibo indica “{{method}}” — confirme como registar o pagamento.",
+      "paymentCard": "Cart\u00e3o",
+      "paymentCardNone": "Escolher cart\u00e3o"
     },
     "dialog": {
       "createTitle": "Adicionar despesa",
