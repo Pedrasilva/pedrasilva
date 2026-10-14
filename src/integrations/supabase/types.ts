@@ -15697,6 +15697,7 @@ export type Database = {
         | "autorizada_paga"
         | "autorizada_nao_paga"
         | "consulta_medica"
+        | "baixa_medica"
       app_role: "admin" | "user"
       backup_status: "running" | "success" | "failed"
       backup_trigger: "daily" | "weekly" | "manual"
@@ -16179,6 +16180,7 @@ export const Constants = {
         "autorizada_paga",
         "autorizada_nao_paga",
         "consulta_medica",
+        "baixa_medica",
       ],
       app_role: ["admin", "user"],
       backup_status: ["running", "success", "failed"],

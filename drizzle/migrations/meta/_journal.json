@@ -407,6 +407,13 @@
       "when": 1792016941398,
       "tag": "0057_project_expense_receipts_to_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792019773680,
+      "tag": "0058_leave_baixa_medica",
+      "breakpoints": true
     }
   ]
 }
