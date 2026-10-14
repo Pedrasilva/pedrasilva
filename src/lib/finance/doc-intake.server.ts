@@ -728,8 +728,10 @@ export async function ingestStoredDocument(opts: {
   bucket: string;
   storagePath: string;
   originalFilename?: string | null;
-  source: "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit";
+  source: "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit" | "project_expense";
   createdBy?: string | null;
+  /** Origin-locked category (HR → its PES category, Project → PRJ.EXP); wins over every suggestion. Not a column. */
+  forcedClassificationId?: string | null;
   /** Extra queue columns written verbatim (e.g. HR benefit linkage). */
   extraFields?: Record<string, unknown>;
   /** When set, the existing pending queue row is re-extracted in place. */
@@ -1068,8 +1070,10 @@ export async function ingestStoredDocument(opts: {
     matched_client_id: isIssued ? match.matched_supplier_id : null,
     ambiguous_client_ids: isIssued ? match.ambiguous_ids : [],
     
-    suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
-    suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
+    suggested_classification_id: opts.forcedClassificationId ?? recurring.classification_id ?? suggested?.id ?? null,
+    suggested_classification_code: opts.forcedClassificationId
+      ? forcedCode
+      : suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
