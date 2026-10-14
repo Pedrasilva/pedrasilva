@@ -80,6 +80,8 @@ export function leaveLabelFor(tipo: string): string {
       return "Authorized (unpaid)";
     case "consulta_medica":
       return "Medical appointment (unpaid)";
+    case "baixa_medica":
+      return "Certified sick leave";
     default:
       return tipo;
   }

@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/table";
 import { CalendarDays, Plus, Check, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { notifyBaixaMedicaSubmitted } from "@/lib/hr/baixa-medica-notify.functions";
 import { countWeekdays } from "@/lib/dates";
 import type { Collaborator } from "@/lib/salary";
 import type { Holiday } from "@/lib/workdays";
@@ -89,7 +90,8 @@ type AbsenceType =
   | "doacao_sangue"
   | "autorizada_paga"
   | "autorizada_nao_paga"
-  | "consulta_medica";
+  | "consulta_medica"
+  | "baixa_medica";
 
 const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descontaFerias: boolean }[] = [
   { value: "ferias", label: "Férias", paga: true, descontaFerias: true },
@@ -102,6 +104,7 @@ const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descont
   { value: "autorizada_paga", label: "Outra ausência autorizada — paga", paga: true, descontaFerias: false },
   { value: "autorizada_nao_paga", label: "Outra ausência autorizada — não paga", paga: false, descontaFerias: false },
   { value: "consulta_medica", label: "Consulta médica — não paga", paga: false, descontaFerias: false },
+  { value: "baixa_medica", label: "Baixa médica — não paga", paga: false, descontaFerias: false },
 ];
 
 const absenceLabel = (t: AbsenceType) => ABSENCE_TYPES.find((x) => x.value === t)?.label ?? t;
@@ -294,13 +297,14 @@ function FeriasPage() {
             ? 4
             : null;
       let attachment_path: string | null = null;
-      if (newReq.tipo === "consulta_medica" && attachFile) {
+      if (newReq.tipo === "baixa_medica" && !attachFile) throw new Error(t("leaveChange.sickCertRequired"));
+      if ((newReq.tipo === "consulta_medica" || newReq.tipo === "baixa_medica") && attachFile) {
         const ext = attachFile.name.split(".").pop()?.toLowerCase() || "pdf";
         attachment_path = `${collab_id}/${crypto.randomUUID()}.${ext}`;
         const up = await supabase.storage.from("leave-attachments").upload(attachment_path, attachFile);
         if (up.error) throw up.error;
       }
-      const { error } = await supabase.from("vacation_requests").insert({
+      const { data: inserted, error } = await supabase.from("vacation_requests").insert({
         attachment_path,
         collaborator_id: collab_id,
         tipo: newReq.tipo,
@@ -311,8 +315,12 @@ function FeriasPage() {
         horas: horasNum,
         notas: newReq.notas || null,
         estado: "pendente",
-      } as never);
+      } as never).select("id").single();
       if (error) throw error;
+      const insertedId = (inserted as { id?: string } | null)?.id;
+      if (insertedId && newReq.tipo === "baixa_medica") {
+        void notifyBaixaMedicaSubmitted({ data: { requestId: insertedId } }).catch(() => undefined);
+      }
     },
     onSuccess: () => {
       toast.success("Pedido criado");
@@ -574,13 +582,15 @@ function FeriasPage() {
                   value={newReq.notas}
                   onChange={(e) => setNewReq((f) => ({ ...f, notas: e.target.value }))}
                 />
-                {newReq.tipo === "consulta_medica" && (
+                {(newReq.tipo === "consulta_medica" || newReq.tipo === "baixa_medica") && (
                   <p className="text-[11px] text-muted-foreground">{t("leaveChange.medicalHint")}</p>
                 )}
               </div>
-              {newReq.tipo === "consulta_medica" && (
+              {(newReq.tipo === "consulta_medica" || newReq.tipo === "baixa_medica") && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-xs text-muted-foreground">{t("leaveChange.attachment")}</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    {newReq.tipo === "baixa_medica" ? t("leaveChange.sickCert") : t("leaveChange.attachment")}
+                  </Label>
                   <Input
                     type="file"
                     accept="application/pdf,image/*"

@@ -1751,7 +1751,8 @@
       "doacao_sangue": "Blood donation",
       "autorizada_paga": "Authorised absence (paid)",
       "autorizada_nao_paga": "Authorised absence (unpaid)",
-      "consulta_medica": "Medical appointment — unpaid"
+      "consulta_medica": "Medical appointment — unpaid",
+      "baixa_medica": "Certified sick leave — unpaid"
     }
   },
   "annualCal": {
@@ -1856,6 +1857,8 @@
     "medicalHint": "Don't include medical details",
     "attachment": "Proof of attendance (optional)",
     "viewAttachment": "View proof",
-    "typeConsultaMedica": "Medical appointment — unpaid"
+    "typeConsultaMedica": "Medical appointment — unpaid",
+    "sickCert": "Medical certificate (required)",
+    "sickCertRequired": "Attach the medical certificate"
   }
 }

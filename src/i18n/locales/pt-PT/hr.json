@@ -1751,7 +1751,8 @@
       "doacao_sangue": "Dádiva de sangue",
       "autorizada_paga": "Ausência autorizada — paga",
       "autorizada_nao_paga": "Ausência autorizada — não paga",
-      "consulta_medica": "Consulta médica — não paga"
+      "consulta_medica": "Consulta médica — não paga",
+      "baixa_medica": "Baixa médica — não paga"
     }
   },
   "annualCal": {
@@ -1856,6 +1857,8 @@
     "medicalHint": "Não indique o motivo médico",
     "attachment": "Comprovativo de presença (opcional)",
     "viewAttachment": "Ver comprovativo",
-    "typeConsultaMedica": "Consulta médica — não paga"
+    "typeConsultaMedica": "Consulta médica — não paga",
+    "sickCert": "Certificado de incapacidade (obrigatório)",
+    "sickCertRequired": "Anexe o certificado de incapacidade"
   }
 }
