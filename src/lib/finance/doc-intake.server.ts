@@ -1250,7 +1250,7 @@ export async function reprocessQueueItem(
 ): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
   const { data: item, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last, sender_address")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last, sender_address, source_benefit_expense_id, source_project_expense_id, suggested_classification_id")
     .eq("id", queueItemId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
