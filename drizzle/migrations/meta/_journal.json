@@ -421,6 +421,13 @@
       "when": 1792020887912,
       "tag": "0059_pm_expenses_invoiced",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1792021880090,
+      "tag": "0060_pm_expenses_payment_card",
+      "breakpoints": true
     }
   ]
 }

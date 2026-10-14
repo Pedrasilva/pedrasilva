@@ -8310,6 +8310,7 @@ export type Database = {
           invoiced_in_invoice_id: string | null
           notes: string | null
           paid_at: string | null
+          payment_card_id: string | null
           payment_source_label: string | null
           payment_source_type: string
           project_id: string
@@ -8342,6 +8343,7 @@ export type Database = {
           invoiced_in_invoice_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_card_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string
           project_id: string
@@ -8374,6 +8376,7 @@ export type Database = {
           invoiced_in_invoice_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_card_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string
           project_id?: string
@@ -8398,6 +8401,13 @@ export type Database = {
             columns: ["invoiced_in_invoice_id"]
             isOneToOne: false
             referencedRelation: "pm_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_payment_card_id_fkey"
+            columns: ["payment_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
             referencedColumns: ["id"]
           },
           {
