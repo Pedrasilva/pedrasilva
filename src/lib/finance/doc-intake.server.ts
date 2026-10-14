@@ -728,8 +728,10 @@ export async function ingestStoredDocument(opts: {
   bucket: string;
   storagePath: string;
   originalFilename?: string | null;
-  source: "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit";
+  source: "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit" | "project_expense";
   createdBy?: string | null;
+  /** Origin-locked category (HR → its PES category, Project → PRJ.EXP); wins over every suggestion. Not a column. */
+  forcedClassificationId?: string | null;
   /** Extra queue columns written verbatim (e.g. HR benefit linkage). */
   extraFields?: Record<string, unknown>;
   /** When set, the existing pending queue row is re-extracted in place. */
@@ -1036,6 +1038,15 @@ export async function ingestStoredDocument(opts: {
       : payableWithWithholding ?? ex.balance_due ?? null;
 
 
+  let forcedCode: string | null = null;
+  if (opts.forcedClassificationId) {
+    const { data: fc } = await supabaseAdmin
+      .from("financial_classifications")
+      .select("code")
+      .eq("id", opts.forcedClassificationId)
+      .maybeSingle();
+    forcedCode = fc?.code ?? null;
+  }
   const payload: Record<string, unknown> = {
     ...base,
     entity_id: entityId,
@@ -1068,8 +1079,10 @@ export async function ingestStoredDocument(opts: {
     matched_client_id: isIssued ? match.matched_supplier_id : null,
     ambiguous_client_ids: isIssued ? match.ambiguous_ids : [],
     
-    suggested_classification_id: recurring.classification_id ?? suggested?.id ?? null,
-    suggested_classification_code: suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
+    suggested_classification_id: opts.forcedClassificationId ?? recurring.classification_id ?? suggested?.id ?? null,
+    suggested_classification_code: opts.forcedClassificationId
+      ? forcedCode
+      : suggested?.code ?? (isStatement ? null : ex.classification_code) ?? null,
     classification_confidence: isStatement ? null : ex.classification_confidence ?? null,
     is_recurring_candidate: recurring.is_recurring_candidate,
     recurring_reference_id: recurring.reference_id,
@@ -1237,7 +1250,7 @@ export async function reprocessQueueItem(
 ): Promise<{ ok: boolean; queueItemId?: string; error?: string }> {
   const { data: item, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last, sender_address")
+    .select("id, status, source, source_bucket, source_file_url, original_filename, created_by, intake_type, intake_type_source, retry_count, split_of_file_url, split_part, split_page_first, split_page_last, sender_address, source_benefit_expense_id, source_project_expense_id, suggested_classification_id")
     .eq("id", queueItemId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -1251,8 +1264,14 @@ export async function reprocessQueueItem(
     bucket: item.source_bucket ?? "financial-documents",
     storagePath: item.source_file_url,
     originalFilename: item.original_filename,
-    source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder") ?? "manual_upload",
+    source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit" | "project_expense") ?? "manual_upload",
     createdBy: item.created_by,
+    // HR / Project receipts keep their origin-locked category on re-reads.
+    forcedClassificationId:
+      (item as { source_benefit_expense_id?: string | null }).source_benefit_expense_id ||
+      (item as { source_project_expense_id?: string | null }).source_project_expense_id
+        ? (item as { suggested_classification_id?: string | null }).suggested_classification_id ?? null
+        : null,
     replaceQueueItemId: item.id,
     // A person's type choice survives automatic retries and re-runs.
     forcedType:

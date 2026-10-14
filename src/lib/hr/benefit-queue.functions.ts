@@ -30,7 +30,7 @@ export const routeBenefitReceiptToQueue = createServerFn({ method: "POST" })
     // see all. An invisible row simply yields no record.
     const { data: expense, error: readErr } = await supabase
       .from("benefit_expenses")
-      .select("id, foto_path, collaborator_id")
+      .select("id, foto_path, collaborator_id, classification_id")
       .eq("id", data.expenseId)
       .maybeSingle();
     if (readErr) return { ok: false, error: readErr.message };
@@ -54,6 +54,8 @@ export const routeBenefitReceiptToQueue = createServerFn({ method: "POST" })
       originalFilename: expense.foto_path.split("/").pop() ?? null,
       source: "hr_benefit",
       createdBy: userId,
+      // HR receipts are always personal: the benefit's own PES category wins.
+      forcedClassificationId: expense.classification_id ?? null,
       extraFields: {
         source_benefit_expense_id: expense.id,
         assigned_collaborator_id: expense.collaborator_id,

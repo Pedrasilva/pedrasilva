@@ -4287,6 +4287,7 @@ export type Database = {
           source_benefit_expense_id: string | null
           source_bucket: string
           source_file_url: string
+          source_project_expense_id: string | null
           split_of_file_url: string | null
           split_page_first: number | null
           split_page_last: number | null
@@ -4430,6 +4431,7 @@ export type Database = {
           source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url: string
+          source_project_expense_id?: string | null
           split_of_file_url?: string | null
           split_page_first?: number | null
           split_page_last?: number | null
@@ -4573,6 +4575,7 @@ export type Database = {
           source_benefit_expense_id?: string | null
           source_bucket?: string
           source_file_url?: string
+          source_project_expense_id?: string | null
           split_of_file_url?: string | null
           split_page_first?: number | null
           split_page_last?: number | null
@@ -4725,6 +4728,13 @@ export type Database = {
             columns: ["source_benefit_expense_id"]
             isOneToOne: false
             referencedRelation: "benefit_expenses_v"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_source_project_expense_id_fkey"
+            columns: ["source_project_expense_id"]
+            isOneToOne: false
+            referencedRelation: "pm_expenses"
             referencedColumns: ["id"]
           },
         ]
@@ -15753,6 +15763,7 @@ export type Database = {
         | "email_ingestion"
         | "drive_folder"
         | "hr_benefit"
+        | "project_expense"
       fdrq_status:
         | "pending_review"
         | "approved"
@@ -16237,6 +16248,7 @@ export const Constants = {
         "email_ingestion",
         "drive_folder",
         "hr_benefit",
+        "project_expense",
       ],
       fdrq_status: [
         "pending_review",
