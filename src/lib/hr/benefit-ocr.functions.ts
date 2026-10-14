@@ -15,6 +15,7 @@ type ExtractedFields = {
   amount_ex_vat: number | null;
   vat_rate: number | null;
   payment_method: string | null;
+  payment_method_text?: string | null;
   card_last4: string | null;
   payment_account_hint: string | null;
   category_guess: string | null;
@@ -67,6 +68,7 @@ const EXTRACTION_JSON_SCHEMA = {
           amount_ex_vat: { type: ["number", "null"] },
           vat_rate: { type: ["number", "null"] },
           payment_method: { type: ["string", "null"], description: "e.g. cash, card, mbway, transfer" },
+          payment_method_text: { type: ["string", "null"], description: "payment method wording exactly as printed" },
           card_last4: { type: ["string", "null"] },
           payment_account_hint: { type: ["string", "null"] },
           category_guess: { type: ["string", "null"] },
@@ -74,7 +76,7 @@ const EXTRACTION_JSON_SCHEMA = {
         required: [
           "supplier_name", "supplier_nif", "document_number", "issue_date",
           "total_amount", "vat_amount", "amount_ex_vat", "vat_rate",
-          "payment_method", "card_last4", "payment_account_hint", "category_guess",
+          "payment_method", "payment_method_text", "card_last4", "payment_account_hint", "category_guess",
         ],
       },
       confidence: {
@@ -106,6 +108,7 @@ Rules:
 - Amounts: use period as decimal separator, in EUR. Never include currency symbol.
 - vat_rate: percentage as a number (e.g. 23, 13, 6). Null if unknown.
 - payment_method: one of cash, card, mbway, transfer, multibanco, other, or null.
+- payment_method_text: the payment method wording exactly as printed on the receipt (e.g. "Carteira Electrónica", "MB WAY"), or null.
 - card_last4: last 4 digits of card if printed, else null.
 - category_guess: short Portuguese category like "alimentação", "saúde", "educação", "transporte", or null.
 - confidence values: 0..1, your honest confidence per field.

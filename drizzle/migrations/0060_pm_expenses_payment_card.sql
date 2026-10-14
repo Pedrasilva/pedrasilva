@@ -1,0 +1,1 @@
+ALTER TABLE public.pm_expenses ADD COLUMN IF NOT EXISTS payment_card_id uuid REFERENCES public.payment_cards(id) ON DELETE SET NULL;
