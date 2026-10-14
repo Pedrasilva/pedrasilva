@@ -44,6 +44,7 @@ import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { Badge } from "@/components/ui/badge";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
 import { routeProjectExpenseReceiptToQueue } from "@/lib/finance/project-expense-queue.functions";
+import { CATEGORY_GUESS_MAP, matchCardByLast4, receiptStoragePath } from "@/lib/projects/expense-from-receipt";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
 
 // Receipt reading — same behaviour and wording as the HR expense form.
@@ -68,13 +69,6 @@ const newOcr = (): OcrState => ({
   unrecognizedMethod: null,
 });
 const LOW_CONF = 0.6;
-const CATEGORY_GUESS_MAP: Record<string, ExpenseCategory> = {
-  "transporte": "transport", "transportes": "transport",
-  "deslocação": "transport", "deslocações": "transport",
-  "alojamento": "accommodation",
-  "alimentação": "food", "refeição": "food", "refeições": "food",
-  "impressão": "printing", "impressões": "printing",
-};
 
 function OcrBadge({ t }: { t: (k: string) => string }) {
   return (
@@ -216,8 +210,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() ?? "bin";
-      const path = `${folder}/project-expenses/${projectId}-${Date.now()}.${ext}`;
+      const path = receiptStoragePath(folder, projectId, file.name);
       const { error } = await supabase.storage
         .from("benefit-receipts")
         .upload(path, file, { upsert: false });
@@ -286,21 +279,14 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       let unknownCardLast4: string | null = null;
       let unrecognizedMethod: string | null = null;
       const last4 = (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4);
-      if (last4.length === 4) {
-        const matches = (cardsQ.data ?? []).filter(
-          (c) =>
-            c.active &&
-            c.entity_id === PSA_ENTITY_ID &&
-            (c.last4 === last4 || (c.device_last4 ?? []).some((d) => d.last4 === last4)),
-        );
-        if (matches.length === 1) {
-          setPaymentSourceType("company_card");
-          setPaymentSourceLabel(cardLabel(matches[0], "—"));
-          setPaymentCardId(matches[0].id);
-          mark("payment_source", "card_last4");
-        } else {
-          unknownCardLast4 = last4;
-        }
+      const matched = matchCardByLast4(cardsQ.data ?? [], ex.card_last4);
+      if (matched) {
+        setPaymentSourceType("company_card");
+        setPaymentSourceLabel(cardLabel(matched, "—"));
+        setPaymentCardId(matched.id);
+        mark("payment_source", "card_last4");
+      } else if (last4.length === 4) {
+        unknownCardLast4 = last4;
       } else if ((ex.payment_method ?? "").toLowerCase() === "cash") {
         setPaymentSourceType("cash");
         mark("payment_source", "payment_method");

@@ -1111,6 +1111,17 @@
       },
       "toast": {
         "deleted": "Expense deleted."
+      },
+      "drop": {
+        "emptyTitle": "No expenses yet — drag receipts here or click to add",
+        "emptyHint": "Each receipt becomes a draft expense filled in from the receipt.",
+        "release": "Drop receipts to add them as drafts",
+        "processing": "Reading receipt {{done}} of {{total}}…",
+        "added_one": "{{count}} receipt added as a draft",
+        "added_other": "{{count}} receipts added as drafts",
+        "unread_one": "{{count}} receipt couldn't be read — draft created with the receipt attached",
+        "unread_other": "{{count}} receipts couldn't be read — drafts created with the receipt attached",
+        "failed": "Couldn't add: {{names}}"
       }
     }
   },

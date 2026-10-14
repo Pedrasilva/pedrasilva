@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FileCheck2 } from "lucide-react";
+import { Plus, Pencil, Trash2, FileCheck2, Upload, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { usePaymentCards } from "@/lib/finance/use-payment-cards";
+import { createProjectExpenseFromReceipt } from "@/lib/projects/expense-from-receipt";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -47,6 +51,45 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   const [confirmDelete, setConfirmDelete] = useState<ProjectExpenseWithSupplier | null>(null);
   const [markInvoiced, setMarkInvoiced] = useState<ProjectExpenseWithSupplier | null>(null);
   const [view, setView] = useState<"all" | "ready">("all");
+  const [dragOver, setDragOver] = useState(false);
+  const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
+  const qc = useQueryClient();
+  const { profile } = useProjectsAuth();
+  const cardsQ = usePaymentCards();
+
+  // Files run one at a time (rate limits); a failed read still leaves a draft.
+  async function handleFiles(files: File[]) {
+    if (!canEdit || busy || files.length === 0) return;
+    const folder = profile?.collaborator_id;
+    if (!folder) { toast.error(t("expenses.fields.receiptNoProfile")); return; }
+    let ok = 0, unread = 0;
+    const failed: string[] = [];
+    setBusy({ done: 0, total: files.length });
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const r = await createProjectExpenseFromReceipt({ file: files[i], projectId, collaboratorId: folder, cards: cardsQ.data ?? [] });
+        ok++; if (!r.read) unread++;
+      } catch { failed.push(files[i].name); }
+      setBusy({ done: i + 1, total: files.length });
+      qc.invalidateQueries({ queryKey: ["project-expenses", projectId] });
+    }
+    setBusy(null);
+    qc.invalidateQueries({ queryKey: ["project-insights", projectId] });
+    if (ok) toast.success(t("expenses.drop.added", { count: ok }));
+    if (unread) toast.warning(t("expenses.drop.unread", { count: unread }));
+    if (failed.length) toast.error(t("expenses.drop.failed", { names: failed.join(", ") }));
+  }
+  const dropHandlers = canEdit ? {
+    onDragOver: (e: React.DragEvent) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } },
+    onDragLeave: (e: React.DragEvent) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); },
+    onDrop: (e: React.DragEvent) => { e.preventDefault(); setDragOver(false); void handleFiles(Array.from(e.dataTransfer.files)); },
+  } : {};
+  const pickFiles = () => {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.multiple = true; inp.accept = "image/*,application/pdf";
+    inp.onchange = () => void handleFiles(Array.from(inp.files ?? []));
+    inp.click();
+  };
 
   const isReady = (e: ProjectExpenseWithSupplier) =>
     e.status === "approved" && !!e.rebillable && !e.invoiced_at;
@@ -83,7 +126,12 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm">
+    <div {...dropHandlers} className={`relative rounded-xl border bg-card shadow-sm transition-colors ${dragOver ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
+      {(dragOver || busy) && items.length > 0 && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary">
+          {busy ? t("expenses.drop.processing", { done: busy.done, total: busy.total }) : t("expenses.drop.release")}
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-xl border-b border-border bg-gradient-to-r from-muted/40 to-transparent px-4 py-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
@@ -120,9 +168,26 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
       {isLoading ? (
         <div className="px-4 py-6 text-center text-sm text-muted-foreground">…</div>
       ) : shown.length === 0 ? (
+        view === "all" && canEdit ? (
+          <div className="p-4">
+            <button
+              type="button"
+              onClick={pickFiles}
+              disabled={!!busy}
+              className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:border-primary/60 hover:bg-muted/40"}`}
+            >
+              {busy ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
+              <span className="text-sm font-medium text-foreground">
+                {busy ? t("expenses.drop.processing", { done: busy.done, total: busy.total }) : t("expenses.drop.emptyTitle")}
+              </span>
+              <span className="text-xs text-muted-foreground">{t("expenses.drop.emptyHint")}</span>
+            </button>
+          </div>
+        ) : (
         <div className="px-4 py-8 text-center text-sm text-muted-foreground">
           {view === "ready" ? t("expenses.readyEmpty") : t("expenses.empty")}
         </div>
+        )
       ) : (
         <div className="overflow-x-auto">
           <Table>
