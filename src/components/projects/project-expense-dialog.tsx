@@ -38,7 +38,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 import { useServerFn } from "@tanstack/react-start";
-import { Sparkles, AlertTriangle, Loader2 } from "lucide-react";
+import { Sparkles, AlertTriangle, Loader2, Upload, Paperclip, X } from "lucide-react";
+import { usePaymentCards, cardLabel } from "@/lib/finance/use-payment-cards";
+import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { Badge } from "@/components/ui/badge";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
 import { routeProjectExpenseReceiptToQueue } from "@/lib/finance/project-expense-queue.functions";
@@ -52,6 +54,7 @@ type OcrState = {
   nifInvalid: boolean;
   failed: boolean;
   isOwnCompanyNif: boolean;
+  unknownCardLast4: string | null;
 };
 const newOcr = (): OcrState => ({
   filled: new Set(),
@@ -60,6 +63,7 @@ const newOcr = (): OcrState => ({
   nifInvalid: false,
   failed: false,
   isOwnCompanyNif: false,
+  unknownCardLast4: null,
 });
 const LOW_CONF = 0.6;
 
@@ -109,6 +113,9 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
   const routeToQueueFn = useServerFn(routeProjectExpenseReceiptToQueue);
   const [ocr, setOcr] = useState<OcrState>(newOcr());
   const upsert = useUpsertProjectExpense(projectId);
+  const cardsQ = usePaymentCards();
+  const [receiptName, setReceiptName] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("misc");
@@ -168,6 +175,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setRebillable(initial?.rebillable ?? false);
       setNotes(initial?.notes ?? "");
       setReceiptPath(ex.receipt_path ?? null);
+      setReceiptName(ex.receipt_path ? (ex.receipt_path.split("/").pop() ?? null) : null);
       setOcr(newOcr());
       setSupplierNif(ex.supplier_nif ?? "");
       setDocumentNumber(ex.document_number ?? "");
@@ -202,6 +210,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         .upload(path, file, { upsert: false });
       if (error) throw error;
       setReceiptPath(path);
+      setReceiptName(file.name);
       setOcr(newOcr());
       await readReceipt(path);
     } catch (err) {
@@ -259,8 +268,31 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         const desc = [ex.supplier_name, ex.document_number].filter(Boolean).join(" · ");
         if (desc) { setDescription(desc); mark("description"); }
       }
+      // Payment source from the receipt — match a registered company card by
+      // its last 4 (or device number); never guess when nothing matches.
+      let unknownCardLast4: string | null = null;
+      const last4 = (ex.card_last4 ?? "").replace(/\D/g, "").slice(-4);
+      if (last4.length === 4) {
+        const matches = (cardsQ.data ?? []).filter(
+          (c) =>
+            c.active &&
+            c.entity_id === PSA_ENTITY_ID &&
+            (c.last4 === last4 || (c.device_last4 ?? []).some((d) => d.last4 === last4)),
+        );
+        if (matches.length === 1) {
+          setPaymentSourceType("company_card");
+          setPaymentSourceLabel(cardLabel(matches[0], "—"));
+          mark("payment_source", "card_last4");
+        } else {
+          unknownCardLast4 = last4;
+        }
+      } else if ((ex.payment_method ?? "").toLowerCase() === "cash") {
+        setPaymentSourceType("cash");
+        mark("payment_source", "payment_method");
+      }
       const tot = ex.total_amount, v = ex.vat_amount, x = ex.amount_ex_vat;
       setOcr({
+        unknownCardLast4,
         filled,
         lowConfidence: low,
         vatMismatch: tot != null && v != null && x != null && Math.abs(x + v - tot) > 0.02,
@@ -360,6 +392,65 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
+            {/* Receipt — the starting point */}
+            <div className="space-y-1.5 sm:col-span-2">
+              {receiptPath && !uploading ? (
+                <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
+                  <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                    <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">
+                      {t("expenses.fields.receiptAttachedName", { name: receiptName ?? "" })}
+                    </span>
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => { setReceiptPath(null); setReceiptName(null); setOcr(newOcr()); }}
+                  >
+                    <X className="mr-1 h-3 w-3" />
+                    {t("expenses.fields.receiptRemove")}
+                  </Button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="ex-receipt"
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    void handleReceiptUpload(e.dataTransfer.files?.[0] ?? null);
+                  }}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:border-primary/60 hover:bg-muted/40"}`}
+                >
+                  {uploading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  ) : (
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium text-foreground">
+                    {uploading ? t("hr:beneficios.submit.ocr.analyzing") : t("expenses.fields.receiptDrop")}
+                  </span>
+                  {!uploading && (
+                    <span className="text-[11px] text-muted-foreground">
+                      {t("expenses.fields.receiptDropHint")}
+                    </span>
+                  )}
+                  <input
+                    id="ex-receipt"
+                    type="file"
+                    className="sr-only"
+                    accept="image/*,application/pdf"
+                    disabled={uploading}
+                    onChange={(e) => { void handleReceiptUpload(e.target.files?.[0] ?? null); e.target.value = ""; }}
+                  />
+                </label>
+              )}
+              {ocr.failed && <FieldHint>{t("hr:beneficios.submit.ocr.failed")}</FieldHint>}
+            </div>
+
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="ex-desc">{t("expenses.fields.description")}{has("description") && <OcrBadge t={t} />}</Label>
               <Input
@@ -471,30 +562,6 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
               <Switch id="ex-rebill" checked={rebillable} onCheckedChange={setRebillable} />
             </div>
 
-            {/* Receipt */}
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="ex-receipt">{t("expenses.fields.receipt")}</Label>
-              <Input
-                id="ex-receipt"
-                type="file"
-                accept="image/*,application/pdf"
-                disabled={uploading}
-                onChange={(e) => handleReceiptUpload(e.target.files?.[0] ?? null)}
-              />
-              {uploading && (
-                <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  {t("hr:beneficios.submit.ocr.analyzing")}
-                </p>
-              )}
-              {ocr.failed && <FieldHint>{t("hr:beneficios.submit.ocr.failed")}</FieldHint>}
-              {receiptPath && !uploading && (
-                <p className="text-[11px] text-muted-foreground">
-                  {t("expenses.fields.receiptAttached")}
-                </p>
-              )}
-            </div>
-
             {/* Invoice detail */}
             <div className="space-y-1.5">
               <Label htmlFor="ex-nif">{t("expenses.fields.supplierNif")}{has("supplier_nif") && <OcrBadge t={t} />}</Label>
@@ -563,10 +630,10 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
 
             {/* Payment origin */}
             <div className="space-y-1.5">
-              <Label htmlFor="ex-paysrc">{t("expenses.fields.paymentSource")}</Label>
+              <Label htmlFor="ex-paysrc">{t("expenses.fields.paymentSource")}{has("payment_source") && <OcrBadge t={t} />}</Label>
               <Select
                 value={paymentSourceType}
-                onValueChange={(v) => setPaymentSourceType(v as PaymentSourceType)}
+                onValueChange={(v) => { setPaymentSourceType(v as PaymentSourceType); setOcr((o) => ({ ...o, unknownCardLast4: null })); }}
               >
                 <SelectTrigger id="ex-paysrc">
                   <SelectValue />
@@ -579,6 +646,12 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                   ))}
                 </SelectContent>
               </Select>
+              {lowHint("payment_source")}
+              {ocr.unknownCardLast4 && (
+                <FieldHint>
+                  {t("expenses.fields.cardUnrecognized", { last4: ocr.unknownCardLast4 })}
+                </FieldHint>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-paylabel">{t("expenses.fields.paymentSourceLabel")}</Label>
