@@ -30,7 +30,8 @@ export type AbsenceType =
   | "doacao_sangue"
   | "autorizada_paga"
   | "autorizada_nao_paga"
-  | "consulta_medica";
+  | "consulta_medica"
+  | "baixa_medica";
 
 export type LeaveRow = {
   id: string;

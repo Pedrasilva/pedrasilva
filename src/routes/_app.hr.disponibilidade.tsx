@@ -208,6 +208,7 @@ function AvailabilityPage() {
                       "autorizada_paga",
                       "autorizada_nao_paga",
                       "consulta_medica",
+                      "baixa_medica",
                     ] as const
                   ).map((tp) => (
                     <SelectItem key={tp} value={`tipo:${tp}`}>
