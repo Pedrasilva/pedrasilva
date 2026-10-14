@@ -19,7 +19,7 @@ import {
 } from "@/lib/finance/doc-intake.server";
 
 export const CLAUDE_MODEL = "anthropic/claude-sonnet-5";
-export const GEMINI_MODEL = "google/gemini-3.6-flash";
+export const GEMINI_MODEL = "google/gemini-3.8-flash";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
 
 export const INTAKE_TYPES = [

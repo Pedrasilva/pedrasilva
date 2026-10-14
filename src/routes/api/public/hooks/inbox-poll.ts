@@ -24,7 +24,7 @@ import {
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3.6-flash";
+const MODEL = "google/gemini-3.8-flash";
 const MAX_MESSAGES = 25;
 /** First-run window when no history id is stored yet. */
 const INITIAL_WINDOW = "newer_than:1d";

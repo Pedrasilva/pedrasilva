@@ -47,7 +47,7 @@ export type ExtractPurchaseDocResult = {
   error?: string;
 };
 
-const MODEL = "google/gemini-2.5-flash";
+const MODEL = "google/gemini-3.8-flash";
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 const EXTRACTION_JSON_SCHEMA = {
