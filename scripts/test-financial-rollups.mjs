@@ -173,7 +173,7 @@ test("projectExpenseLine: null amount → zero contribution", () => {
   assert.equal(line.profit, 0);
 });
 
-test("rollupExpenses: rebillable flag does NOT change rollup", () => {
+test("rollupExpenses: un-invoiced rows produce no revenue", () => {
   // The helper only reads purchase_price; whether `rebillable` is true or
   // false should not produce any revenue.
   const r1 = rollupExpenses([
@@ -183,6 +183,18 @@ test("rollupExpenses: rebillable flag does NOT change rollup", () => {
   assert.equal(r1.cost, 150);
   assert.equal(r1.value, 0);
   assert.equal(r1.profit, -150);
+});
+
+test("rebillable + invoiced expense nets to zero, counts as invoiced", () => {
+  const r = rollupExpenses([
+    { purchase_price: 100, rebillable: true, invoiced_at: "2026-10-15T00:00:00Z" },
+    { purchase_price: 40, rebillable: true, invoiced_at: null },
+    { purchase_price: 30, rebillable: false, invoiced_at: "2026-10-15T00:00:00Z" },
+  ]);
+  assert.equal(r.cost, 170);
+  assert.equal(r.value, 100);
+  assert.equal(r.invoiced, 100);
+  assert.equal(r.profit, -70);
 });
 
 test("rollupExpenses: legacy rows missing new fields don't crash", () => {
