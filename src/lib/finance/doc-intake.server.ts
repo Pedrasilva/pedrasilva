@@ -1038,6 +1038,15 @@ export async function ingestStoredDocument(opts: {
       : payableWithWithholding ?? ex.balance_due ?? null;
 
 
+  let forcedCode: string | null = null;
+  if (opts.forcedClassificationId) {
+    const { data: fc } = await supabaseAdmin
+      .from("financial_classifications")
+      .select("code")
+      .eq("id", opts.forcedClassificationId)
+      .maybeSingle();
+    forcedCode = fc?.code ?? null;
+  }
   const payload: Record<string, unknown> = {
     ...base,
     entity_id: entityId,
@@ -1255,8 +1264,14 @@ export async function reprocessQueueItem(
     bucket: item.source_bucket ?? "financial-documents",
     storagePath: item.source_file_url,
     originalFilename: item.original_filename,
-    source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder") ?? "manual_upload",
+    source: (item.source as "manual_upload" | "email_ingestion" | "drive_folder" | "hr_benefit" | "project_expense") ?? "manual_upload",
     createdBy: item.created_by,
+    // HR / Project receipts keep their origin-locked category on re-reads.
+    forcedClassificationId:
+      (item as { source_benefit_expense_id?: string | null }).source_benefit_expense_id ||
+      (item as { source_project_expense_id?: string | null }).source_project_expense_id
+        ? (item as { suggested_classification_id?: string | null }).suggested_classification_id ?? null
+        : null,
     replaceQueueItemId: item.id,
     // A person's type choice survives automatic retries and re-runs.
     forcedType:
