@@ -1395,7 +1395,24 @@
       "cancel": "Cancel",
       "done": "Expense marked as invoiced"
     },
-    "readyEmpty": "No approved re-billable expenses waiting to be invoiced."
+    "readyEmpty": "No approved re-billable expenses waiting to be invoiced.",
+    "approval": {
+      "request": "Request approval from…",
+      "search": "Search a person",
+      "suggested": "Project manager",
+      "sent": "Request sent to {{name}}",
+      "sentNoAccount": "Request saved for {{name}} — no linked account, so no notification was sent",
+      "submittedBy": "Submitted by {{name}}",
+      "pending": "Awaiting approval — {{name}}",
+      "approvedBy": "Approved by {{name}}",
+      "rejected": "Rejected",
+      "rejectedNote": "Rejected: {{note}}",
+      "approve": "Approve",
+      "reject": "Reject",
+      "notePlaceholder": "Reason (optional)",
+      "approvedToast": "Expense approved",
+      "rejectedToast": "Expense rejected"
+    }
   },
   "approvals": {
     "title": "Approvals",

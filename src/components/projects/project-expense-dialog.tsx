@@ -27,6 +27,7 @@ import {
   type ExpenseCategory,
   type ExpenseStatus,
   type ProjectExpense,
+  canRequestApproval,
 } from "@/lib/projects/use-project-expenses";
 import {
   projectExpenseSchema,
@@ -108,9 +109,13 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   projectId: string;
   initial?: (ProjectExpense & { supplier_id?: string | null }) | null;
+  /** Admin / projects.view_financials: may set approved/paid directly. */
+  privileged?: boolean;
+  /** Opens the "Pedir aprovação a…" picker for the saved expense. */
+  onRequestApproval?: () => void;
 }
 
-export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }: Props) {
+export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial, privileged = false, onRequestApproval }: Props) {
   const { t } = useTranslation(["projects", "hr"]);
   const extractFn = useServerFn(extractBenefitReceipt);
   const routeToQueueFn = useServerFn(routeProjectExpenseReceiptToQueue);
@@ -545,7 +550,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {EXPENSE_STATUSES.map((s) => (
+                  {EXPENSE_STATUSES.filter((s) => privileged || s === "draft" || s === "submitted" || s === status).map((s) => (
                     <SelectItem key={s} value={s}>
                       {t(`expenses.status.${s}`)}
                     </SelectItem>
@@ -759,6 +764,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
           </div>
 
           <DialogFooter>
+            {initial?.id && onRequestApproval && canRequestApproval(initial) && (
+              <Button type="button" variant="outline" className="sm:mr-auto" onClick={onRequestApproval}>
+                {t("expenses.approval.request")}
+              </Button>
+            )}
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               {t("expenses.dialog.cancel")}
             </Button>

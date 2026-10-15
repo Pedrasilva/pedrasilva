@@ -8298,6 +8298,12 @@ export type Database = {
       pm_expenses: {
         Row: {
           amount_ex_vat: number | null
+          approval_decided_at: string | null
+          approval_decided_by: string | null
+          approval_note: string | null
+          approval_requested_at: string | null
+          approval_requested_from: string | null
+          approval_state: string
           category: Database["public"]["Enums"]["pm_expense_category"]
           created_at: string
           description: string
@@ -8321,6 +8327,8 @@ export type Database = {
           reimburse_collaborator_id: string | null
           sale_price: number
           status: Database["public"]["Enums"]["pm_expense_status"]
+          submitted_by: string | null
+          submitted_by_collaborator_id: string | null
           supplier_company_id: string | null
           supplier_id: string | null
           supplier_nif: string | null
@@ -8331,6 +8339,12 @@ export type Database = {
         }
         Insert: {
           amount_ex_vat?: number | null
+          approval_decided_at?: string | null
+          approval_decided_by?: string | null
+          approval_note?: string | null
+          approval_requested_at?: string | null
+          approval_requested_from?: string | null
+          approval_state?: string
           category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description: string
@@ -8354,6 +8368,8 @@ export type Database = {
           reimburse_collaborator_id?: string | null
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          submitted_by?: string | null
+          submitted_by_collaborator_id?: string | null
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_nif?: string | null
@@ -8364,6 +8380,12 @@ export type Database = {
         }
         Update: {
           amount_ex_vat?: number | null
+          approval_decided_at?: string | null
+          approval_decided_by?: string | null
+          approval_note?: string | null
+          approval_requested_at?: string | null
+          approval_requested_from?: string | null
+          approval_state?: string
           category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description?: string
@@ -8387,6 +8409,8 @@ export type Database = {
           reimburse_collaborator_id?: string | null
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          submitted_by?: string | null
+          submitted_by_collaborator_id?: string | null
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_nif?: string | null
@@ -8396,6 +8420,20 @@ export type Database = {
           vendor?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_expenses_approval_requested_from_fkey"
+            columns: ["approval_requested_from"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_approval_requested_from_fkey"
+            columns: ["approval_requested_from"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_expenses_invoiced_in_invoice_id_fkey"
             columns: ["invoiced_in_invoice_id"]
@@ -15501,9 +15539,17 @@ export type Database = {
         Args: { _task_id: string; _user_id: string }
         Returns: string
       }
+      pm_expense_decide_approval: {
+        Args: { p_approve: boolean; p_expense_id: string; p_note?: string }
+        Returns: Json
+      }
       pm_expense_link_reimbursement: {
         Args: { p_expense_id: string }
         Returns: string
+      }
+      pm_expense_request_approval: {
+        Args: { p_approver: string; p_expense_id: string }
+        Returns: Json
       }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_has_assigned_access: {

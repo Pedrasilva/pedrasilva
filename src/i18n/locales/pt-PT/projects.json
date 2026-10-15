@@ -1395,7 +1395,24 @@
       "cancel": "Cancelar",
       "done": "Despesa marcada como faturada"
     },
-    "readyEmpty": "Nenhuma despesa refaturável aprovada à espera de faturação."
+    "readyEmpty": "Nenhuma despesa refaturável aprovada à espera de faturação.",
+    "approval": {
+      "request": "Pedir aprovação a…",
+      "search": "Procurar pessoa",
+      "suggested": "Gestor do projeto",
+      "sent": "Pedido enviado a {{name}}",
+      "sentNoAccount": "Pedido guardado para {{name}} — sem conta associada, não foi enviada notificação",
+      "submittedBy": "Submetida por {{name}}",
+      "pending": "A aguardar aprovação — {{name}}",
+      "approvedBy": "Aprovada por {{name}}",
+      "rejected": "Rejeitada",
+      "rejectedNote": "Rejeitada: {{note}}",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "notePlaceholder": "Motivo (opcional)",
+      "approvedToast": "Despesa aprovada",
+      "rejectedToast": "Despesa rejeitada"
+    }
   },
   "approvals": {
     "title": "Aprovações",
