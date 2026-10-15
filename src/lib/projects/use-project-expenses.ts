@@ -112,3 +112,58 @@ export function useDeleteProjectExpense(projectId: string) {
     },
   });
 }
+
+// ---- Optional approval (pm_expense_request_approval / pm_expense_decide_approval) ----
+
+export type ApprovalState = "not_required" | "pending" | "approved" | "rejected";
+
+/** Billable rule: approval never required, but if requested it must be granted. Mirrors idx_pm_expenses_ready_to_invoice. */
+export function isReadyToInvoice(e: ProjectExpense): boolean {
+  const st = ((e as { approval_state?: string }).approval_state ?? "not_required") as ApprovalState;
+  return (
+    !!e.rebillable &&
+    !e.invoiced_at &&
+    (e.status === "submitted" || e.status === "approved" || e.status === "paid") &&
+    (st === "not_required" || st === "approved")
+  );
+}
+
+export function canRequestApproval(e: ProjectExpense): boolean {
+  const st = (e as { approval_state?: string }).approval_state;
+  return e.status !== "approved" && e.status !== "paid" && !e.invoiced_at && st !== "approved";
+}
+
+function invalidate(qc: ReturnType<typeof useQueryClient>, projectId: string) {
+  qc.invalidateQueries({ queryKey: ["project-expenses", projectId] });
+  qc.invalidateQueries({ queryKey: ["project-insights", projectId] });
+}
+
+export function useRequestExpenseApproval(projectId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { expenseId: string; approverId: string }) => {
+      const { data, error } = await db.rpc("pm_expense_request_approval", {
+        p_expense_id: v.expenseId,
+        p_approver: v.approverId,
+      });
+      if (error) throw error;
+      return data as { notified: boolean; approver_name: string };
+    },
+    onSuccess: () => invalidate(qc, projectId),
+  });
+}
+
+export function useDecideExpenseApproval(projectId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { expenseId: string; approve: boolean; note?: string }) => {
+      const { error } = await db.rpc("pm_expense_decide_approval", {
+        p_expense_id: v.expenseId,
+        p_approve: v.approve,
+        p_note: v.note ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc, projectId),
+  });
+}
