@@ -1069,7 +1069,11 @@ function ProjectDetail() {
 
             {tab === "expenses" && (
               <div className="mt-4">
-                <ProjectExpensesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
+                <ProjectExpensesSection
+                  projectId={projectId}
+                  canEdit={isAdmin || !!isAssignedToProject}
+                  privileged={isAdmin || canV2("projects.view_financials", "all")}
+                />
               </div>
             )}
 

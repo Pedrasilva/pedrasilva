@@ -63,7 +63,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
   const qc = useQueryClient();
-  const { profile } = useProjectsAuth();
+  const { profile, user } = useProjectsAuth();
   const cardsQ = usePaymentCards();
   const collabQ = useCollaboratorsList({ status: "all" });
   const nameOf = (id: string | null | undefined) =>
@@ -75,9 +75,9 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
   const isMyPending = (e: ProjectExpenseWithSupplier) =>
     e.approval_state === "pending" && !!myCollab && e.approval_requested_from === myCollab;
   const canEditRow = (e: ProjectExpenseWithSupplier) =>
-    canEdit && (privileged || (e.submitted_by === profile?.user_id_dummy ? false : true) &&
+    canEdit && (privileged || (e.submitted_by === user?.id &&
       (e.status === "draft" || e.status === "submitted") &&
-      (e.approval_state === "not_required" || e.approval_state === "rejected") && !e.invoiced_at);
+      (e.approval_state === "not_required" || e.approval_state === "rejected") && !e.invoiced_at));
   async function approve(e: ProjectExpenseWithSupplier) {
     try { await decide.mutateAsync({ expenseId: e.id, approve: true }); toast.success(t("expenses.approval.approvedToast")); }
     catch (err) { toast.error((err as Error).message); }
