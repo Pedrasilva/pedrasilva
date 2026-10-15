@@ -28,9 +28,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ProjectExpenseDialog } from "./project-expense-dialog";
 import { MarkExpenseInvoicedDialog } from "./mark-expense-invoiced-dialog";
+import { RequestApprovalDialog, RejectExpenseDialog } from "./expense-approval-dialogs";
+import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
+import { Check, X, Send } from "lucide-react";
 import {
   useDeleteProjectExpense,
   useProjectExpenses,
+  useDecideExpenseApproval,
+  isReadyToInvoice,
+  canRequestApproval,
   type ProjectExpenseWithSupplier,
 } from "@/lib/projects/use-project-expenses";
 import { resolveSupplierLabel } from "@/lib/projects/use-suppliers";
@@ -38,10 +44,13 @@ import { euros } from "@/lib/projects/gantt-utils";
 
 interface Props {
   projectId: string;
+  /** Can submit expenses: admin or assigned to this project. */
   canEdit: boolean;
+  /** Admin / projects.view_financials (all): sees totals, invoicing, every status. */
+  privileged?: boolean;
 }
 
-export function ProjectExpensesSection({ projectId, canEdit }: Props) {
+export function ProjectExpensesSection({ projectId, canEdit, privileged = false }: Props) {
   const { t } = useTranslation("projects");
   const { data: items = [], isLoading } = useProjectExpenses(projectId);
   const del = useDeleteProjectExpense(projectId);
@@ -56,6 +65,23 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   const qc = useQueryClient();
   const { profile } = useProjectsAuth();
   const cardsQ = usePaymentCards();
+  const collabQ = useCollaboratorsList({ status: "all" });
+  const nameOf = (id: string | null | undefined) =>
+    id ? (collabQ.data ?? []).find((c) => c.id === id)?.nome ?? null : null;
+  const decide = useDecideExpenseApproval(projectId);
+  const [requesting, setRequesting] = useState<ProjectExpenseWithSupplier | null>(null);
+  const [rejecting, setRejecting] = useState<ProjectExpenseWithSupplier | null>(null);
+  const myCollab = profile?.collaborator_id ?? null;
+  const isMyPending = (e: ProjectExpenseWithSupplier) =>
+    e.approval_state === "pending" && !!myCollab && e.approval_requested_from === myCollab;
+  const canEditRow = (e: ProjectExpenseWithSupplier) =>
+    canEdit && (privileged || (e.submitted_by === profile?.user_id_dummy ? false : true) &&
+      (e.status === "draft" || e.status === "submitted") &&
+      (e.approval_state === "not_required" || e.approval_state === "rejected") && !e.invoiced_at);
+  async function approve(e: ProjectExpenseWithSupplier) {
+    try { await decide.mutateAsync({ expenseId: e.id, approve: true }); toast.success(t("expenses.approval.approvedToast")); }
+    catch (err) { toast.error((err as Error).message); }
+  }
 
   // Files run one at a time (rate limits); a failed read still leaves a draft.
   async function handleFiles(files: File[]) {
@@ -91,8 +117,8 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
     inp.click();
   };
 
-  const isReady = (e: ProjectExpenseWithSupplier) =>
-    e.status === "approved" && !!e.rebillable && !e.invoiced_at;
+  const isReady = (e: ProjectExpenseWithSupplier) => isReadyToInvoice(e);
+  const showActions = canEdit || items.some(isMyPending);
   const readyCount = items.filter(isReady).length;
   const shown = view === "ready" ? items.filter(isReady) : items;
 
@@ -199,7 +225,7 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                 <TableHead>{t("expenses.cols.date")}</TableHead>
                 <TableHead>{t("expenses.cols.status")}</TableHead>
                 <TableHead className="text-right">{t("expenses.cols.amount")}</TableHead>
-                {canEdit && <TableHead className="w-28"></TableHead>}
+                {showActions && <TableHead className="w-32"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -210,6 +236,26 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                     {e.rebillable && (
                       <Badge variant="secondary" className="mt-1 text-[10px]">
                         {t("expenses.rebillableTag")}
+                      </Badge>
+                    )}
+                    {nameOf(e.submitted_by_collaborator_id) && (
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">
+                        {t("expenses.approval.submittedBy", { name: nameOf(e.submitted_by_collaborator_id) })}
+                      </div>
+                    )}
+                    {e.approval_state === "pending" && (
+                      <Badge variant="outline" className="mr-1 mt-1 border-warning/50 text-[10px]">
+                        {t("expenses.approval.pending", { name: nameOf(e.approval_requested_from) ?? "—" })}
+                      </Badge>
+                    )}
+                    {e.approval_state === "approved" && (
+                      <Badge variant="outline" className="mr-1 mt-1 text-[10px]">
+                        {t("expenses.approval.approvedBy", { name: nameOf(e.approval_requested_from) ?? "—" })}
+                      </Badge>
+                    )}
+                    {e.approval_state === "rejected" && (
+                      <Badge variant="destructive" className="mr-1 mt-1 text-[10px]" title={e.approval_note ?? undefined}>
+                        {e.approval_note ? t("expenses.approval.rejectedNote", { note: e.approval_note }) : t("expenses.approval.rejected")}
                       </Badge>
                     )}
                     {e.invoiced_at && (
@@ -237,9 +283,24 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                   <TableCell className="text-right font-mono text-sm tabular-nums">
                     {euros(Number(e.purchase_price || 0))}
                   </TableCell>
-                  {canEdit && (
+                  {showActions && (
                     <TableCell className="whitespace-nowrap text-right">
-                      {isReady(e) && (
+                      {isMyPending(e) && (
+                        <>
+                          <Button variant="ghost" size="icon" title={t("expenses.approval.approve")} aria-label={t("expenses.approval.approve")} disabled={decide.isPending} onClick={() => approve(e)}>
+                            <Check className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" title={t("expenses.approval.reject")} aria-label={t("expenses.approval.reject")} onClick={() => setRejecting(e)}>
+                            <X className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </>
+                      )}
+                      {canEditRow(e) && canRequestApproval(e) && e.approval_state !== "pending" && (
+                        <Button variant="ghost" size="icon" title={t("expenses.approval.request")} aria-label={t("expenses.approval.request")} onClick={() => setRequesting(e)}>
+                          <Send className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {privileged && isReady(e) && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -250,20 +311,25 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                           <FileCheck2 className="h-3.5 w-3.5" />
                         </Button>
                       )}
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(e)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setConfirmDelete(e)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                      {canEditRow(e) && (
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(e)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {canEdit && (privileged || e.status === "draft") && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setConfirmDelete(e)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        </Button>
+                      )}
                     </TableCell>
                   )}
                 </TableRow>
               ))}
+              {privileged && (
               <TableRow className="bg-muted/40 font-semibold">
                 <TableCell colSpan={5} className="text-xs uppercase tracking-wider text-muted-foreground">
                   {t("expenses.totals")}
@@ -276,8 +342,9 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                 <TableCell className="text-right font-mono tabular-nums">
                   {euros(totals.cost)}
                 </TableCell>
-                {canEdit && <TableCell />}
+                {showActions && <TableCell />}
               </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -288,7 +355,12 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
         onOpenChange={setDialogOpen}
         projectId={projectId}
         initial={editing}
+        privileged={privileged}
+        onRequestApproval={editing ? () => { setDialogOpen(false); setRequesting(editing); } : undefined}
       />
+
+      <RequestApprovalDialog projectId={projectId} expense={requesting} onOpenChange={(o) => !o && setRequesting(null)} />
+      <RejectExpenseDialog projectId={projectId} expense={rejecting} onOpenChange={(o) => !o && setRejecting(null)} />
 
       <MarkExpenseInvoicedDialog
         projectId={projectId}
