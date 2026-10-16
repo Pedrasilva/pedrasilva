@@ -456,6 +456,20 @@
       "when": 1792192765046,
       "tag": "0064_weekly_planning_stage_one",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1792193576211,
+      "tag": "0065_weekly_planning_stage_one_mirror",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1792193647139,
+      "tag": "0066_weekly_planning_stage_two",
+      "breakpoints": true
     }
   ]
 }

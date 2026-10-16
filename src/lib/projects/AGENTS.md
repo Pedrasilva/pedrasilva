@@ -1,6 +1,6 @@
 # Projects module rules
 
-- Weekly planning is a read-only projection via pm_week_board with explicit no-rates fields; week-board.ts owns half-day inference and PLAN_UTILISATION, and the board has no timesheet/planner mutations. Why: planning and actuals must remain separate and staff access must not expose financial data.
+- Weekly planning uses pm_week_board's explicit no-rates projection; week-board.ts owns half-day inference and PLAN_UTILISATION. Stage 2 saves only protected drafts through atomic pm_week_draft, merging changed slots under a row lock; never mutate allocations, stage dates or timesheets. Why: draft planning and actuals remain separate and staff cannot access drafts or financial data.
 
 - Timesheet assistant (src/lib/projects/timesheet-assistant.functions.ts) only drafts entries for the signed-in user; saving happens in the browser through useUpsertTimesheetCell/useEnsureStageRow with source "assistant". Why: rate snapshots and triggers apply exactly as for typed hours.
 - Google Calendar suggestions (src/lib/projects/calendar.server.ts) always run for the caller's own user id; refresh tokens are AES-GCM encrypted with CALENDAR_TOKEN_KEY in user_calendar_connections (service-role only), event data is never stored, saved events are tracked in pm_time_entries.calendar_event_ids. Why: per-person privacy; external_id is single-valued and reserved for imports.

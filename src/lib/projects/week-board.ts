@@ -7,8 +7,10 @@ export type BoardProject = { id: string; name: string; client: string | null; co
 export type BoardStage = { id: string; project_id: string; name: string; start_date: string; end_date: string; sort_order: number; parent_stage_id: string | null; stage_kind: string | null; is_milestone: boolean; is_self: boolean };
 export type BoardAllocation = { id: string; resource_id: string; stage_id: string; project_id: string; start_date: string; end_date: string; hours_per_day: number; day_part: "full" | DayPart | null; is_site_visit: boolean; status: string; is_locked: boolean; source: string | null };
 export type BoardLeave = { resource_id: string; day: string; kind: "leave" | "holiday"; name: string | null };
-export type BoardData = { resources: BoardResource[]; projects: BoardProject[]; stages: BoardStage[]; allocations: BoardAllocation[]; leave: BoardLeave[]; plan: { id: string; status: string; approved_by: string | null; approved_at: string | null } | null; draft_slots: unknown[]; my_collaborator_id: string | null };
-export type DerivedSlot = { projectId: string; stageId: string; isSiteVisit: boolean; inferred: boolean; status: string; allocationId: string };
+export type DraftSlot = { resource_id: string; day: string; part: DayPart; project_id: string; stage_id: string | null; is_site_visit: boolean };
+export type ExtensionNote = { project_id: string; stage_id: string; until: string };
+export type BoardData = { resources: BoardResource[]; projects: BoardProject[]; stages: BoardStage[]; allocations: BoardAllocation[]; leave: BoardLeave[]; plan: { id: string; status: string; approved_by: string | null; approved_at: string | null; updated_at: string; updated_by_name: string | null; notes: ExtensionNote[] } | null; draft_slots: DraftSlot[]; my_collaborator_id: string | null };
+export type DerivedSlot = { projectId: string; stageId: string | null; isSiteVisit: boolean; inferred: boolean; status: string; allocationId: string };
 export type DerivedDay = { am: DerivedSlot | null; pm: DerivedSlot | null; overload: DerivedSlot[]; otherHours: number; leave: BoardLeave | null };
 export type DerivedBoard = Record<string, Record<string, DerivedDay>>;
 
