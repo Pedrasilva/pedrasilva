@@ -71,7 +71,8 @@ function MobileLayout() {
   }
 
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name ?? user?.email ?? "";
-  const firstName = fullName.split(/[\s@]/)[0];
+  const rawFirst = fullName.split(/[\s@.]/)[0] ?? "";
+  const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1);
 
   return (
     <div

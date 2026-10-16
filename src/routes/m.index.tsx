@@ -45,8 +45,9 @@ function MobileHub() {
   const { canAccess, loading } = useModuleAccess();
   const [hoursOpen, setHoursOpen] = useState(false);
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
-  const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name ?? "";
-  const first = fullName.split(/\s+/)[0];
+  const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name ?? user?.email ?? "";
+  const raw = fullName.split(/[\s@.]/)[0] ?? "";
+  const first = raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "";
 
   return (
     <div className="flex flex-col gap-4">
