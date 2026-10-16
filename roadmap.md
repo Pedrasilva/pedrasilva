@@ -1,9 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — weekly planning Stage 1
-- [ ] Add additive allocation fields, protected week-plan tables and staff-only no-rates read RPC.
-- [ ] Build/test slot derivation and read-only person/project weekly board, navigation and EN/PT.
-- [ ] Verify live staff read, own-row highlight, draft isolation, no rates, leave and desktop/mobile layout; stop before Stage 2.
+- [x] Add additive allocation fields, protected week-plan tables and staff-only no-rates read RPC.
+- [x] Build/test slot derivation and read-only person/project weekly board, navigation and EN/PT.
+- [x] Signed-in board tested with real June allocations: both views, own-row highlight, leave denominator, no-rates response, colour controls, week navigation and 390px scroll; 13 rules, 7 pursuit tests, financial tests, translations and preview pass. All 94 allocations untouched. Stop before Stage 2.
+- [ ] Non-planner signed-in page and direct draft RLS test: blocked by unavailable selected collaborator session; sandbox cannot assume the authenticated role. Planner-session checks do not verify non-planner access.
 
 ## Current request — pursuit follow-up
 - [x] Align calendar assignment choices and assistant wording with available pursuit leads; transcription had no outdated phrasing.
