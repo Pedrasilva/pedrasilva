@@ -1476,6 +1476,18 @@
       "engineering": "Engenharia",
       "status": "Estado",
       "other": "Outro"
+    },
+    "quick": {
+      "capWarn": "Faltam 30 segundos — a gravação para aos 5:00",
+      "capReached": "Chegou aos 5:00 — gravação parada",
+      "tapToRecord": "Toque para gravar (máx. 5 min)",
+      "retry": "Tentar de novo",
+      "retrySave": "Tentar guardar de novo",
+      "save": "Guardar nota",
+      "transcriptPlaceholder": "A transcrição aparece aqui — pode editá-la.",
+      "category": "Categoria",
+      "micDeniedTitle": "Microfone bloqueado",
+      "micDeniedBody": "Permita o acesso ao microfone para este site nas definições do navegador (iPhone: Definições → Safari → Microfone; Android: toque no cadeado na barra de endereço → Permissões) e tente de novo."
     }
   },
   "timesheetWeek": {

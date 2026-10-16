@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Mic, Square, Loader2, Sparkles, Lock } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Lock, RotateCcw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +26,17 @@ const CATEGORIES: NoteCategory[] = [
 
 interface Props {
   projectId: string;
+  /** "quick" = phone capture page (/m/note); "full" (default) = desktop Notes tab, unchanged. */
+  variant?: "full" | "quick";
+  /** Quick variant: called after a note is saved. */
+  onSaved?: () => void;
 }
 
-export function NoteComposer({ projectId }: Props) {
+/** Quick variant recording cap (seconds) and warning point. */
+const QUICK_MAX_S = 300;
+const QUICK_WARN_S = 270;
+
+export function NoteComposer({ projectId, variant = "full", onSaved }: Props) {
   const { t } = useTranslation("projects");
   const [text, setText] = useState("");
   const [recording, setRecording] = useState(false);
@@ -39,6 +47,13 @@ export function NoteComposer({ projectId }: Props) {
   const [category, setCategory] = useState<NoteCategory>("other");
   const [confidential, setConfidential] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [micDenied, setMicDenied] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [transcribeFailed, setTranscribeFailed] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const quick = variant === "quick";
+  const stopRef = useRef<() => void>(() => {});
 
   const ctxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -64,8 +79,12 @@ export function NoteComposer({ projectId }: Props) {
       };
       source.connect(processor);
       processor.connect(ctx.destination);
+      setMicDenied(false);
+      setElapsed(0);
       setRecording(true);
     } catch (err) {
+      const name = (err as { name?: string })?.name ?? "";
+      if (name === "NotAllowedError" || name === "PermissionDeniedError" || name === "SecurityError") setMicDenied(true);
       toast.error(t("notes.micError", "Microphone access denied"));
       console.error(err);
     }
@@ -96,7 +115,13 @@ export function NoteComposer({ projectId }: Props) {
       return;
     }
     setAudioBlob(wav);
+    await transcribeWav(wav);
+  }
+
+  /** Transcribe (and classify) a recording; on failure the recording stays in memory for retry. */
+  async function transcribeWav(wav: Blob) {
     setTranscribing(true);
+    setTranscribeFailed(false);
     try {
       const b64 = await blobToBase64(wav);
       const { text: transcript } = await transcribeProjectNote({
@@ -105,11 +130,28 @@ export function NoteComposer({ projectId }: Props) {
       setText((prev) => (prev ? `${prev}\n${transcript}` : transcript));
       if (transcript.trim()) await runClassify(transcript);
     } catch (err) {
+      setTranscribeFailed(true);
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setTranscribing(false);
     }
   }
+
+  stopRef.current = () => { void stopRecording(); };
+
+  // Quick variant: elapsed counter, warning at 4:30, auto-stop at 5:00.
+  useEffect(() => {
+    if (!quick || !recording) return;
+    const started = Date.now();
+    let warned = false;
+    const id = window.setInterval(() => {
+      const s = Math.floor((Date.now() - started) / 1000);
+      setElapsed(s);
+      if (s >= QUICK_WARN_S && !warned) { warned = true; toast.warning(t("notes.quick.capWarn")); }
+      if (s >= QUICK_MAX_S) { window.clearInterval(id); toast.info(t("notes.quick.capReached")); stopRef.current(); }
+    }, 500);
+    return () => window.clearInterval(id);
+  }, [quick, recording, t]);
 
   async function runClassify(input: string) {
     setClassifying(true);
@@ -128,6 +170,7 @@ export function NoteComposer({ projectId }: Props) {
   async function save() {
     if (!text.trim()) return;
     setSaving(true);
+    setSaveFailed(false);
     try {
       // Ensure we have a classification
       let final = suggestion;
@@ -168,11 +211,99 @@ export function NoteComposer({ projectId }: Props) {
       setSuggestion(null);
       setCategory("other");
       setConfidential(false);
+      setTranscribeFailed(false);
+      onSaved?.();
     } catch (err) {
+      setSaveFailed(true);
       toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSaving(false);
     }
+  }
+
+  if (quick) {
+    const mm = Math.floor(elapsed / 60);
+    const ss = String(elapsed % 60).padStart(2, "0");
+    const busy = transcribing || classifying;
+    return (
+      <div className="flex flex-col gap-5">
+        {micDenied && (
+          <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            <p className="font-medium">{t("notes.quick.micDeniedTitle")}</p>
+            <p className="mt-1">{t("notes.quick.micDeniedBody")}</p>
+          </div>
+        )}
+        <div className="flex flex-col items-center gap-3 py-2">
+          <button
+            type="button"
+            onClick={recording ? () => void stopRecording() : startRecording}
+            disabled={busy || saving}
+            aria-label={recording ? t("notes.stop", "Stop") : t("notes.record", "Record")}
+            className={cn(
+              "flex h-32 w-32 items-center justify-center rounded-full shadow-lg transition-transform active:scale-95 disabled:opacity-50",
+              recording ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground",
+            )}
+          >
+            {busy ? <Loader2 className="h-12 w-12 animate-spin" /> : recording ? <Square className="h-12 w-12" /> : <Mic className="h-12 w-12" />}
+          </button>
+          <div className="text-center text-sm text-muted-foreground" aria-live="polite">
+            {recording ? (
+              <span className="font-mono text-lg text-foreground">{mm}:{ss} <span className="text-xs text-muted-foreground">/ 5:00</span></span>
+            ) : transcribing ? t("notes.transcribing", "Transcribing…")
+              : classifying ? t("notes.aiThinking", "AI classifying…")
+              : t("notes.quick.tapToRecord")}
+          </div>
+          {transcribeFailed && audioBlob && !recording && (
+            <Button variant="outline" className="min-h-12 gap-2" onClick={() => void transcribeWav(audioBlob)} disabled={transcribing}>
+              <RotateCcw className="h-4 w-4" />{t("notes.quick.retry")}
+            </Button>
+          )}
+        </div>
+
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => { if (text.trim() && !suggestion && !classifying) runClassify(text); }}
+          placeholder={t("notes.quick.transcriptPlaceholder")}
+          rows={5}
+          className="resize-none text-base"
+        />
+
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">{t("notes.quick.category")}</span>
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="flex min-h-12 items-center justify-between rounded-full border border-primary bg-primary px-4 text-sm text-primary-foreground"
+          >
+            {t(`notes.category.${category}`)}
+            <ChevronDown className={cn("h-4 w-4 transition-transform", showMore && "rotate-180")} />
+          </button>
+          {showMore && (
+            <div className="grid grid-cols-2 gap-2">
+              {CATEGORIES.filter((c) => c !== category).map((c) => (
+                <button key={c} type="button" onClick={() => { setCategory(c); setShowMore(false); }}
+                  className="min-h-12 rounded-full border border-border bg-background px-3 text-sm text-foreground">
+                  {t(`notes.category.${c}`)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex min-h-12 items-center justify-between rounded-lg border border-border px-4">
+          <Label htmlFor="quick-note-confidential" className="flex items-center gap-2 text-sm">
+            <Lock className="h-4 w-4" />{t("notes.confidential", "Confidential")}
+          </Label>
+          <Switch id="quick-note-confidential" checked={confidential} onCheckedChange={setConfidential} />
+        </div>
+
+        <Button onClick={save} disabled={saving || !text.trim() || recording || busy} className="min-h-14 w-full text-base">
+          {saving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : saveFailed ? <RotateCcw className="mr-2 h-5 w-5" /> : null}
+          {saveFailed ? t("notes.quick.retrySave") : t("notes.quick.save")}
+        </Button>
+      </div>
+    );
   }
 
   return (

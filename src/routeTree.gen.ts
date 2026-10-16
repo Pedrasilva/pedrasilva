@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MRouteImport } from './routes/m'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -24,6 +25,9 @@ import { Route as AppPortfolioRouteImport } from './routes/_app.portfolio'
 import { Route as AppProductsRouteImport } from './routes/_app.products'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as ApiNotifyRemoteWorkLateRouteImport } from './routes/api.notify-remote-work-late'
+import { Route as MIndexRouteImport } from './routes/m.index'
+import { Route as MMarketingRouteImport } from './routes/m.marketing'
+import { Route as MNoteRouteImport } from './routes/m.note'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
@@ -177,6 +181,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MRoute = MRouteImport.update({
+  id: '/m',
+  path: '/m',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -243,6 +252,21 @@ const ApiNotifyRemoteWorkLateRoute = ApiNotifyRemoteWorkLateRouteImport.update({
   id: '/api/notify-remote-work-late',
   path: '/api/notify-remote-work-late',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MIndexRoute = MIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MRoute,
+} as any)
+const MMarketingRoute = MMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
+  getParentRoute: () => MRoute,
+} as any)
+const MNoteRoute = MNoteRouteImport.update({
+  id: '/note',
+  path: '/note',
+  getParentRoute: () => MRoute,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
@@ -1023,6 +1047,7 @@ const AppProposalsProposalIdRevisionsRevisionIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/m': typeof MRouteWithChildren
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -1035,6 +1060,9 @@ export interface FileRoutesByFullPath {
   '/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
+  '/m/marketing': typeof MMarketingRoute
+  '/m/note': typeof MNoteRoute
+  '/m/': typeof MIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/access': typeof AppAdminAccessRoute
@@ -1187,7 +1215,10 @@ export interface FileRoutesByTo {
   '/portfolio': typeof AppPortfolioRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
+  '/m/marketing': typeof MMarketingRoute
+  '/m/note': typeof MNoteRoute
   '/': typeof AppIndexRoute
+  '/m': typeof MIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/access': typeof AppAdminAccessRoute
@@ -1334,6 +1365,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/m': typeof MRouteWithChildren
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -1346,7 +1378,10 @@ export interface FileRoutesById {
   '/_app/products': typeof AppProductsRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/api/notify-remote-work-late': typeof ApiNotifyRemoteWorkLateRoute
+  '/m/marketing': typeof MMarketingRoute
+  '/m/note': typeof MNoteRoute
   '/_app/': typeof AppIndexRoute
+  '/m/': typeof MIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/admin/access': typeof AppAdminAccessRoute
@@ -1496,6 +1531,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/m'
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -1508,6 +1544,9 @@ export interface FileRouteTypes {
     | '/products'
     | '/api/notify-expense'
     | '/api/notify-remote-work-late'
+    | '/m/marketing'
+    | '/m/note'
+    | '/m/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/access'
@@ -1660,7 +1699,10 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/api/notify-expense'
     | '/api/notify-remote-work-late'
+    | '/m/marketing'
+    | '/m/note'
     | '/'
+    | '/m'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/access'
@@ -1806,6 +1848,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/login'
+    | '/m'
     | '/mcp'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -1818,7 +1861,10 @@ export interface FileRouteTypes {
     | '/_app/products'
     | '/api/notify-expense'
     | '/api/notify-remote-work-late'
+    | '/m/marketing'
+    | '/m/note'
     | '/_app/'
+    | '/m/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_app/admin/access'
@@ -1967,6 +2013,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MRoute: typeof MRouteWithChildren
   McpRoute: typeof McpRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -2005,6 +2052,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m': {
+      id: '/m'
+      path: '/m'
+      fullPath: '/m'
+      preLoaderRoute: typeof MRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -2097,6 +2151,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/notify-remote-work-late'
       preLoaderRoute: typeof ApiNotifyRemoteWorkLateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/m/': {
+      id: '/m/'
+      path: '/'
+      fullPath: '/m/'
+      preLoaderRoute: typeof MIndexRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/marketing': {
+      id: '/m/marketing'
+      path: '/marketing'
+      fullPath: '/m/marketing'
+      preLoaderRoute: typeof MMarketingRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/note': {
+      id: '/m/note'
+      path: '/note'
+      fullPath: '/m/note'
+      preLoaderRoute: typeof MNoteRouteImport
+      parentRoute: typeof MRoute
     }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
@@ -3483,9 +3558,24 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface MRouteChildren {
+  MMarketingRoute: typeof MMarketingRoute
+  MNoteRoute: typeof MNoteRoute
+  MIndexRoute: typeof MIndexRoute
+}
+
+const MRouteChildren: MRouteChildren = {
+  MMarketingRoute: MMarketingRoute,
+  MNoteRoute: MNoteRoute,
+  MIndexRoute: MIndexRoute,
+}
+
+const MRouteWithChildren = MRoute._addFileChildren(MRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  MRoute: MRouteWithChildren,
   McpRoute: McpRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

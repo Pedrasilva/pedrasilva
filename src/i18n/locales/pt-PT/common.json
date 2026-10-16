@@ -474,5 +474,31 @@
       "Silent": "Não ouvimos nada — verifique o microfone.",
       "Unknown": "Não foi possível iniciar o microfone."
     }
+  },
+  "mobile": {
+    "menuEntry": "Captura rápida (telemóvel)",
+    "openFullApp": "Abrir app completa",
+    "greeting": "Olá, {{name}}",
+    "greetingAnon": "Olá",
+    "hours": "Horas",
+    "hoursSub": "Dite as horas desta semana",
+    "note": "Nota de projeto",
+    "noteSub": "Grave uma nota de voz num projeto",
+    "marketing": "Marketing",
+    "marketingSub": "Responda às perguntas pendentes",
+    "noQuestions": "Sem perguntas por responder",
+    "back": "Voltar",
+    "change": "Mudar",
+    "recent": "Recentes",
+    "myProjects": "Os meus projetos",
+    "noMyProjects": "Sem projetos atribuídos — use a pesquisa.",
+    "noProjects": "Nenhum projeto encontrado",
+    "searchProjects": "Pesquisar projeto ou cliente",
+    "savedIn": "Guardada em {{project}}",
+    "anotherNote": "Outra nota neste projeto",
+    "backHome": "Voltar ao início",
+    "installIos": "Instalar: Partilhar → Adicionar ao ecrã principal",
+    "installAndroid": "Instalar: Menu → Instalar app",
+    "dismiss": "Fechar"
   }
 }
