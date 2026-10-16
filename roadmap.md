@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — pursuit follow-up
+- [ ] Align calendar assignment choices and assistant wording with available pursuit leads.
+- [ ] Export current live pursuit objects into an idempotent migration, retaining behavior and grants.
+- [ ] Verify calendar choices, assistant drafts, migration equivalence and unchanged lost-deal guard.
+
 ## Current request — pursuit choices
 - [x] Add log-hours flag, compatible directory eligibility and allow won hours while blocking lost; 3 open deals backfilled.
 - [x] Update timesheet/voice choices and CRM controls with EN/PT translations.
