@@ -1476,6 +1476,18 @@
       "engineering": "Engineering",
       "status": "Status",
       "other": "Other"
+    },
+    "quick": {
+      "capWarn": "30 seconds left — recording stops at 5:00",
+      "capReached": "Reached 5:00 — recording stopped",
+      "tapToRecord": "Tap to record (max. 5 min)",
+      "retry": "Try again",
+      "retrySave": "Try saving again",
+      "save": "Save note",
+      "transcriptPlaceholder": "The transcript appears here — you can edit it.",
+      "category": "Category",
+      "micDeniedTitle": "Microphone blocked",
+      "micDeniedBody": "Allow microphone access for this site in your browser settings (iPhone: Settings → Safari → Microphone; Android: tap the lock icon in the address bar → Permissions), then try again."
     }
   },
   "timesheetWeek": {

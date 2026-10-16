@@ -19,7 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, Smartphone } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
 import { ModuleTopNav } from "@/components/ModuleTopNav";
@@ -165,6 +165,14 @@ function AppLayout() {
                     </>
                   )}
                   <DropdownMenuSeparator />
+                  {isPsaStaff && (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/m">
+                        <Smartphone className="h-4 w-4 mr-2" />
+                        {t("mobile.menuEntry")}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
                     <LogOut className="h-4 w-4 mr-2" />
                     {t("signOut")}
@@ -222,6 +230,12 @@ function AppLayout() {
                     })}
                     <div className="my-3 border-t" />
                     {isRealAdmin && <ViewAsPicker variant="mobile" />}
+                    {isPsaStaff && (
+                      <Link to="/m" className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+                        <Smartphone className="h-4 w-4" />
+                        {t("mobile.menuEntry")}
+                      </Link>
+                    )}
                     <button
                       onClick={() => signOut()}
                       className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"

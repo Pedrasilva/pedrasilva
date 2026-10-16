@@ -474,5 +474,31 @@
       "Silent": "We didn't hear anything — check the microphone.",
       "Unknown": "Couldn't start the microphone."
     }
+  },
+  "mobile": {
+    "menuEntry": "Quick capture (phone)",
+    "openFullApp": "Open full app",
+    "greeting": "Hi, {{name}}",
+    "greetingAnon": "Hi",
+    "hours": "Hours",
+    "hoursSub": "Dictate this week's hours",
+    "note": "Project note",
+    "noteSub": "Record a voice note on a project",
+    "marketing": "Marketing",
+    "marketingSub": "Answer your pending questions",
+    "noQuestions": "No questions to answer",
+    "back": "Back",
+    "change": "Change",
+    "recent": "Recent",
+    "myProjects": "My projects",
+    "noMyProjects": "No assigned projects — use the search.",
+    "noProjects": "No projects found",
+    "searchProjects": "Search project or client",
+    "savedIn": "Saved in {{project}}",
+    "anotherNote": "Another note on this project",
+    "backHome": "Back to start",
+    "installIos": "Install: Share → Add to Home Screen",
+    "installAndroid": "Install: Menu → Install app",
+    "dismiss": "Dismiss"
   }
 }
