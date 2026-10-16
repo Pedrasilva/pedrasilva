@@ -129,7 +129,8 @@
       "contactName": "Contact name",
       "contactEmail": "Email",
       "contactPhone": "Phone",
-      "pursuitHours": "Pursuit hours"
+      "pursuitHours": "Pursuit hours",
+      "logHoursHint": "Appears in the timesheet. Won proposals without an active project appear automatically."
     },
     "activity": {
       "title": "Activity",

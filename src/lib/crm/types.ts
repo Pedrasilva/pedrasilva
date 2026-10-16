@@ -197,6 +197,7 @@ export type CrmOpportunity = {
   company_id: string | null;
   primary_contact_id: string | null;
   stage: OpportunityStage;
+  log_hours: boolean;
   estimated_fee: number;
   probability: number;
   expected_start_date: string | null;

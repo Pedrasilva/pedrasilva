@@ -43,6 +43,7 @@ import {
 } from "@/lib/projects/use-timesheet";
 import { useInternalCategories } from "@/lib/projects/use-internal-categories";
 import { PURSUIT_CATEGORY, useLeadsDirectory } from "@/lib/projects/use-pursuit";
+import { pursuitChoices, canEditPursuit } from "@/lib/projects/pursuit-choices";
 import { useWorkProfile, workProfileLayout } from "@/lib/hr/use-work-profile";
 import {
   ChevronLeft,
@@ -74,6 +75,14 @@ import {
 
 
 export const Route = createFileRoute("/_app/projects/timesheet")({
+  head: () => ({ meta: [
+    { title: "Timesheet | PSA Hub" },
+    { name: "description", content: "Log and review weekly project, pursuit and internal hours in PSA Hub." },
+    { property: "og:title", content: "Timesheet | PSA Hub" },
+    { property: "og:description", content: "Log and review weekly project, pursuit and internal hours in PSA Hub." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   // ?week=YYYY-MM-DD opens that week (used by notification links).
   validateSearch: (s: Record<string, unknown>): { week?: string } =>
     typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {},
@@ -291,14 +300,13 @@ function TimesheetPage() {
     const byId = new Map(leads.map((l) => [l.id, l]));
     return Array.from(ids).map(
       (id) =>
-        byId.get(id) ?? { id, name: t("projects:pursuit.unknownLead"), company_name: null, stage: "", is_open: false },
+        byId.get(id) ?? { id, name: t("projects:pursuit.unknownLead"), company_name: null, stage: "", is_open: false, can_log_hours: false },
     );
   }, [entries, extraLeadIds, leads, t]);
   const leadMatches = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return leads
-      .filter((l) => l.is_open)
+    return pursuitChoices(leads)
       .filter((l) => l.name.toLowerCase().includes(q) || (l.company_name ?? "").toLowerCase().includes(q))
       .slice(0, 10);
   }, [leads, searchQuery]);
@@ -846,7 +854,8 @@ function TimesheetPage() {
                   <ProjectStageLeadPicker
                     autoFocus
                     projects={projectsVisible ? searchResults : []}
-                    leads={leads.filter((l) => l.is_open).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
+                    leads={pursuitChoices(leads).map((l) => ({ id: l.id, name: leadLabel(l), client: null }))}
+                    emptyLeadsHint={t("projects:pursuit.emptyChoicesHint")}
                     categories={activeInternalCategories.map((c) => c.name).filter((n) => n !== PURSUIT_CATEGORY)}
                     refDate={weekStart}
                     searching={searching}
@@ -1076,7 +1085,7 @@ function TimesheetPage() {
                       key={`pursuit-${lead.id}`}
                       label={`${t("projects:pursuit.categoryLabel")} · ${lead.name}`}
                       sub={
-                        lead.is_open
+                        canEditPursuit(lead)
                           ? [lead.stage ? t(`projects:pursuit.stage.${lead.stage}`, { defaultValue: lead.stage }) : null, lead.company_name]
                               .filter(Boolean)
                               .join(" · ") || t("projects:pursuit.rowSub")
@@ -1087,9 +1096,9 @@ function TimesheetPage() {
                       entryMap={entryMap}
                       keyFn={() => pursuitKey(lead.id)}
                       pending={upsert.isPending}
-                      readOnly={readOnly || !lead.is_open}
+                      readOnly={readOnly || !canEditPursuit(lead)}
                       rowTotal={rowTotalFor(pursuitKey(lead.id))}
-                      renderHint={lead.is_open ? (dateStr) => leadHint(lead.id, `${t("projects:pursuit.categoryLabel")} · ${lead.name}`, dateStr) : undefined}
+                      renderHint={canEditPursuit(lead) ? (dateStr) => leadHint(lead.id, `${t("projects:pursuit.categoryLabel")} · ${lead.name}`, dateStr) : undefined}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {

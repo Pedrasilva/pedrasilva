@@ -2509,6 +2509,7 @@ export type Database = {
           expected_start_date: string | null
           id: string
           last_activity_at: string | null
+          log_hours: boolean
           lost_at: string | null
           lost_reason_code: string | null
           lost_reason_notes: string | null
@@ -2535,6 +2536,7 @@ export type Database = {
           expected_start_date?: string | null
           id?: string
           last_activity_at?: string | null
+          log_hours?: boolean
           lost_at?: string | null
           lost_reason_code?: string | null
           lost_reason_notes?: string | null
@@ -2561,6 +2563,7 @@ export type Database = {
           expected_start_date?: string | null
           id?: string
           last_activity_at?: string | null
+          log_hours?: boolean
           lost_at?: string | null
           lost_reason_code?: string | null
           lost_reason_notes?: string | null
@@ -14996,6 +14999,7 @@ export type Database = {
       crm_leads_directory: {
         Args: never
         Returns: {
+          can_log_hours: boolean
           company_name: string
           id: string
           is_open: boolean

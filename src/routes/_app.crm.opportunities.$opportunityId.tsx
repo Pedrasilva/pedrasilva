@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useCan } from "@/hooks/use-permissions-v2";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -39,6 +41,14 @@ import { Briefcase, Clock, Repeat2 } from "lucide-react";
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
+  head: () => ({ meta: [
+    { title: "Opportunity details | PSA Hub" },
+    { name: "description", content: "Manage opportunity progress, proposals and pursuit logging in PSA Hub." },
+    { property: "og:title", content: "Opportunity details | PSA Hub" },
+    { property: "og:description", content: "Manage opportunity progress, proposals and pursuit logging in PSA Hub." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OpportunityDetail,
 });
 
@@ -51,6 +61,7 @@ type SentRevision = {
 
 function OpportunityDetail() {
   const { t } = useTranslation("crm");
+  const { allowed: canEditPipeline, loading: permissionsLoading } = useCan("crm.pipeline.edit");
   const { opportunityId } = Route.useParams();
   const { data: pursuitHours } = useOpportunityPursuitHours(opportunityId);
   const navigate = useNavigate();
@@ -197,6 +208,7 @@ function OpportunityDetail() {
       setLostDialogOpen(false);
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      qc.invalidateQueries({ queryKey: ["crm-leads-directory"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -248,6 +260,7 @@ function OpportunityDetail() {
       probability: number;
       company_id: string | null;
       primary_contact_id: string | null;
+      log_hours: boolean;
     }>) => {
       const { error } = await supabase
         .from("crm_opportunities").update(patch).eq("id", opportunityId);
@@ -256,6 +269,7 @@ function OpportunityDetail() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      qc.invalidateQueries({ queryKey: ["crm-leads-directory"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -400,6 +414,17 @@ function OpportunityDetail() {
               <CardTitle className="text-sm">{t("opportunities.detail.summary")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
+              {opp.stage !== "won" && opp.stage !== "lost" && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="opportunity-log-hours">{t("common:logHours")}</Label>
+                    <Switch id="opportunity-log-hours" checked={opp.log_hours}
+                      disabled={!canEditPipeline || permissionsLoading || updateField.isPending}
+                      onCheckedChange={(log_hours) => updateField.mutate({ log_hours })} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t("opportunities.detail.logHoursHint")}</p>
+                </div>
+              )}
               {pursuitHours != null && pursuitHours > 0 && (
                 <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-2 py-1.5 text-xs">
                   <span className="text-muted-foreground">{t("opportunities.detail.pursuitHours")}</span>

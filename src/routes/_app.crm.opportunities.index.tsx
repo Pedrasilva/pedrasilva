@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -44,6 +45,14 @@ import { resolveOpportunityValue } from "@/lib/crm/opportunity-value";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 
 export const Route = createFileRoute("/_app/crm/opportunities/")({
+  head: () => ({ meta: [
+    { title: "Opportunities | PSA Hub" },
+    { name: "description", content: "Review the CRM pipeline and opportunities enabled for pursuit hours in PSA Hub." },
+    { property: "og:title", content: "Opportunities | PSA Hub" },
+    { property: "og:description", content: "Review the CRM pipeline and opportunities enabled for pursuit hours in PSA Hub." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OpportunitiesPage,
 });
 
@@ -316,6 +325,7 @@ function OpportunitiesPage() {
                         className="relative rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
                       >
                         <div className="font-medium line-clamp-2 hover:underline">{o.name}</div>
+                        {o.log_hours && <Badge variant="secondary" className="mt-1 gap-1"><Clock className="h-3 w-3" />{t("common:logHours")}</Badge>}
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
                           {o.company?.nome ?? t("opportunities.card.noCompany")}
                         </div>
@@ -468,6 +478,7 @@ function OpportunitiesPage() {
                         >
                           {o.name}
                         </Link>
+                        {o.log_hours && <Badge variant="secondary" className="ml-2 gap-1"><Clock className="h-3 w-3" />{t("common:logHours")}</Badge>}
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">{o.company?.nome ?? "—"}</td>
                       <td className="px-3 py-2 text-muted-foreground">
