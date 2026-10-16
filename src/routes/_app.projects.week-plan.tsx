@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mondayOf } from "@/lib/projects/week-board";
 import { weekBoardQuery } from "@/lib/projects/week-board-query";
-import { WeekPlanningBoard } from "@/components/projects/week-planning-board";
+import { WeekDraftEditor } from "@/components/projects/week-draft-editor";
 
 export const Route = createFileRoute("/_app/projects/week-plan")({
   validateSearch: (search: Record<string, unknown>): { week?: string } => {
@@ -51,5 +51,5 @@ function WeekPlanPage() {
 }
 function WeekPlanContent({ week }: { week:string }) {
   const { data } = useSuspenseQuery(weekBoardQuery(week));
-  return <WeekPlanningBoard data={data} week={week} />;
+  return <WeekDraftEditor data={data} week={week} />;
 }
