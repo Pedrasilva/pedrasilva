@@ -1764,6 +1764,7 @@
     "dayNote": "{{day}} já tem {{logged}} h registadas; com estas fica com {{total}} h."
   },
   "pursuit": {
+    "emptyChoicesHint": "Só aparecem propostas marcadas “Registar horas” e propostas ganhas sem projeto ativo.",
     "title": "Pré-contrato (angariação)",
     "linkedTo": "Do lead: {{name}}",
     "noLead": "Sem lead do CRM ligado",

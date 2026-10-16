@@ -3,6 +3,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { pursuitChoices } from "./pursuit-choices";
 
 const STT_URL = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
 export const TIMESHEET_STT_MODEL = "openai/gpt-transcribe";
@@ -39,7 +40,7 @@ export async function buildTimesheetVocabularyHint(db: any, userId: string): Pro
   };
   // Used projects (with client) first, then the rest, interleaved with the other lists by priority.
   for (const p of ranked.filter((p) => used.has(p.id))) { add(p.name); add(p.client); }
-  for (const l of ((leadRes.data ?? []) as Array<{ name: string; company_name: string; is_open: boolean }>).filter((l) => l.is_open)) { add(l.name); add(l.company_name); }
+  for (const l of pursuitChoices((leadRes.data ?? []) as Array<{ name: string; company_name: string; stage: string; can_log_hours: boolean }>)) { add(l.name); add(l.company_name); }
   for (const c of (catRes.data ?? []) as Array<{ name: string }>) add(c.name);
   for (const f of FIXED_TERMS) add(f);
   for (const p of (peopleRes.data ?? []) as Array<{ nome: string | null }>) add((p.nome ?? "").split(" ")[0]);

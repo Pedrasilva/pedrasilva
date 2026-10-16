@@ -1764,6 +1764,7 @@
     "dayNote": "{{day}} already has {{logged}} h logged; with these it will have {{total}} h."
   },
   "pursuit": {
+    "emptyChoicesHint": "Only deals marked “Log hours” and won deals without an active project appear here.",
     "title": "Pre-contract (pursuit)",
     "linkedTo": "From lead: {{name}}",
     "noLead": "No CRM lead linked",

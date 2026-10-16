@@ -19,6 +19,7 @@ export type LeadDirectoryRow = {
   company_name: string | null;
   stage: string;
   is_open: boolean;
+  can_log_hours: boolean;
 };
 
 export function useLeadsDirectory(enabled = true) {

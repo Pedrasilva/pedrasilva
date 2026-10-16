@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { pursuitChoices } from "./pursuit-choices";
 
 export type AssistantStage = { id: string; name: string; start_date: string; end_date: string };
 export type AssistantProject = { id: string; name: string; client: string | null; aliases?: string[]; stages: AssistantStage[] };
@@ -218,8 +219,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       .filter((c) => !c.visible_to_profiles?.length || c.visible_to_profiles.includes(workProfile))
       .map((c) => c.name)
       .filter((n) => n !== "Pursuit");
-    const leads = ((leadRes.data ?? []) as Array<{ id: string; name: string; company_name: string | null; is_open: boolean }>)
-      .filter((l) => l.is_open)
+    const leads = pursuitChoices(leadRes.data ?? [])
       .map((l) => ({ id: l.id, name: l.name, client: l.company_name }));
     const leadIds = new Set(leads.map((l) => l.id));
 

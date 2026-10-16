@@ -129,7 +129,8 @@
       "contactName": "Nome do contacto",
       "contactEmail": "Email",
       "contactPhone": "Telefone",
-      "pursuitHours": "Horas de angariação"
+      "pursuitHours": "Horas de angariação",
+      "logHoursHint": "Aparece na folha de horas. Propostas ganhas sem projeto ativo aparecem automaticamente."
     },
     "activity": {
       "title": "Actividade",

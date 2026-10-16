@@ -47,6 +47,7 @@ type Props = {
   onQueryChange?: (q: string) => void;
   /** Shown when there is no query and no project to list (timesheet searches the server). */
   emptyProjectsHint?: string;
+  emptyLeadsHint?: string;
   searching?: boolean;
   busy?: boolean;
   autoFocus?: boolean;
@@ -223,6 +224,9 @@ export function ProjectStageLeadPicker(props: Props) {
               </button>
             ))}
           </div>
+        )}
+        {leads.length === 0 && props.emptyLeadsHint && (
+          <p className="px-3 py-2 text-xs text-muted-foreground">{props.emptyLeadsHint}</p>
         )}
         {categories.length > 0 && (
           <div>
