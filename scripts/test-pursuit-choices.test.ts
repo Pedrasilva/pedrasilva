@@ -23,3 +23,10 @@ test("won rows accept new hours", () => {
 test("lost rows remain read-only even with prior hours", () => {
   assert.equal(canEditPursuit({ stage: "lost", can_log_hours: true }), false);
 });
+test("calendar assignment uses availability rather than open status", () => {
+  const leads = [
+    { id: "unflagged", stage: "proposal", is_open: true, can_log_hours: false },
+    { id: "wonNotActive", stage: "won", is_open: false, can_log_hours: true },
+  ];
+  assert.deepEqual(pursuitChoices(leads).map((lead) => lead.id), ["wonNotActive"]);
+});
