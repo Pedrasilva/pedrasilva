@@ -449,6 +449,13 @@
       "when": 1792191850315,
       "tag": "0063_pursuit_live_objects_snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1792192765046,
+      "tag": "0064_weekly_planning_stage_one",
+      "breakpoints": true
     }
   ]
 }

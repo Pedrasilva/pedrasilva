@@ -61,6 +61,14 @@ const MODULE_TEXTURE: Record<string, string> = {
 
 
 export const Route = createFileRoute("/_app/")({
+  head: () => ({ meta: [
+    { title: "PSA Hub | Pedra Silva Architects" },
+    { name: "description", content: "Portal de operações da Pedra Silva Architects." },
+    { property: "og:title", content: "PSA Hub | Pedra Silva Architects" },
+    { property: "og:description", content: "Portal de operações da Pedra Silva Architects." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: HubPage,
 });
 

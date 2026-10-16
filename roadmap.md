@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — weekly planning Stage 1
+- [ ] Add additive allocation fields, protected week-plan tables and staff-only no-rates read RPC.
+- [ ] Build/test slot derivation and read-only person/project weekly board, navigation and EN/PT.
+- [ ] Verify live staff read, own-row highlight, draft isolation, no rates, leave and desktop/mobile layout; stop before Stage 2.
+
 ## Current request — pursuit follow-up
 - [x] Align calendar assignment choices and assistant wording with available pursuit leads; transcription had no outdated phrasing.
 - [x] Export seven current live pursuit functions, trigger, column/backfill, FK and index; apply and mirror the migration with live grants retained.
