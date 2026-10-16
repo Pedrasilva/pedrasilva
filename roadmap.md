@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — weekly planning Stage 2
+- [ ] Mirror Stage 1 database objects and verify non-planner/non-staff access.
+- [ ] Add atomic draft creation/discard and planner-only slot autosave with conflict handling.
+- [ ] Build painting, stage resolution, undo/redo, comparison, notices and EN/PT.
+- [ ] Verify draft flows and unchanged allocations; stop before Stage 3.
+
 ## Current request — weekly planning Stage 1
 - [x] Add additive allocation fields, protected week-plan tables and staff-only no-rates read RPC.
 - [x] Build/test slot derivation and read-only person/project weekly board, navigation and EN/PT.
