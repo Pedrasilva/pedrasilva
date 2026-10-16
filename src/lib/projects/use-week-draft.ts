@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { type BoardData, type DraftSlot, type ExtensionNote } from "./week-board";
-import { sameSlot, slotChanges, slotKey } from "./week-draft";
+import { slotChanges, slotKey } from "./week-draft";
 
 type SaveResult = { board:BoardData; conflicts:number; created?:boolean };
 export function useWeekDraft(data: BoardData, week: string) {
   const qc = useQueryClient();
+  const { t } = useTranslation("projects");
   const [slots, setSlots] = useState<DraftSlot[]>(data.draft_slots);
   const [notes, setNotes] = useState<ExtensionNote[]>(data.plan?.notes ?? []);
   const [status, setStatus] = useState<"saved" | "saving" | "error">("saved");
@@ -22,7 +24,7 @@ export function useWeekDraft(data: BoardData, week: string) {
   useEffect(() => {
     if (!dirty && !busy.current) { baseline.current=data.draft_slots; baselineNotes.current=data.plan?.notes ?? []; setSlots(data.draft_slots); setNotes(data.plan?.notes ?? []); }
   }, [data]); // Incoming refetches must not overwrite unsaved local edits.
-  useBlocker({ shouldBlockFn:() => dirty || busy.current, enableBeforeUnload:dirty || status === "saving" });
+  useBlocker({ shouldBlockFn:() => (dirty || busy.current) && !window.confirm(t("weekPlan.unsavedConfirm")), enableBeforeUnload:dirty || status === "saving" });
   const request = useCallback(async (action:"create" | "save" | "discard", changes:ReturnType<typeof slotChanges>, extraNotes:ExtensionNote[] | null = null) => {
     const { data:result, error } = await supabase.rpc("pm_week_draft", { _week_start:week, _action:action, _changes:changes, _expected_updated_at:data.plan?.updated_at, _notes:extraNotes });
     if (error) throw error;
