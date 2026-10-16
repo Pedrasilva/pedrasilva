@@ -11025,8 +11025,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          notes: Json
           status: string
           updated_at: string
+          updated_by: string | null
+          updated_by_name: string | null
           week_start: string
         }
         Insert: {
@@ -11035,8 +11038,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          notes?: Json
           status?: string
           updated_at?: string
+          updated_by?: string | null
+          updated_by_name?: string | null
           week_start: string
         }
         Update: {
@@ -11045,8 +11051,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          notes?: Json
           status?: string
           updated_at?: string
+          updated_by?: string | null
+          updated_by_name?: string | null
           week_start?: string
         }
         Relationships: []
@@ -15771,6 +15780,16 @@ export type Database = {
       pm_week_can_self_approve: {
         Args: { _target_user_id: string }
         Returns: boolean
+      }
+      pm_week_draft: {
+        Args: {
+          _action: string
+          _changes?: Json
+          _expected_updated_at?: string
+          _notes?: Json
+          _week_start: string
+        }
+        Returns: Json
       }
       pm_write_cost_snapshots: {
         Args: { _rows: Json; _source: string }
