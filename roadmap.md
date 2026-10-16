@@ -1,9 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — pursuit choices
-- [ ] Add log-hours flag, compatible directory eligibility and allow won hours while blocking lost.
-- [ ] Update timesheet/voice choices and CRM controls with EN/PT translations.
-- [ ] Verify eligibility, preserved consumers and authenticated logging flow.
+- [x] Add log-hours flag, compatible directory eligibility and allow won hours while blocking lost; 3 open deals backfilled.
+- [x] Update timesheet/voice choices and CRM controls with EN/PT translations.
+- [x] Verify switch persistence, on/off search, won save/read-back and active-linked exclusion; 6 rule tests and i18n pass. Temporary time entry audited and removed. Existing cost RPC and calendar/report consumers unchanged; no live project relinking or voice recording performed.
 
 ## Done
 - Schema: `pm_timesheet_weeks`, `pm_hours_bank_entries` (RLS, audit fields, lock trigger, one additional-hours row per week).
