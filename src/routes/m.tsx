@@ -57,7 +57,7 @@ function MobileLayout() {
   const loc = useLocation();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !(loc.pathname === "/m" || loc.pathname.startsWith("/m/"))) return;
     if (!session) navigate({ to: "/login", search: { next: loc.pathname }, replace: true });
     else if (!isPsaStaff) navigate({ to: "/finance", replace: true });
   }, [loading, session, isPsaStaff, loc.pathname, navigate]);
