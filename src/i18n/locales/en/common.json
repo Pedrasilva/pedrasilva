@@ -1,4 +1,12 @@
 {
+  "previousWeek": "Previous week",
+  "nextWeek": "Next week",
+  "byPerson": "By person",
+  "byProject": "By project",
+  "morning": "Morning",
+  "afternoon": "Afternoon",
+  "morningShort": "AM",
+  "afternoonShort": "PM",
   "logHours": "Log hours",
   "loading": "Loading…",
   "refresh": "Refresh",

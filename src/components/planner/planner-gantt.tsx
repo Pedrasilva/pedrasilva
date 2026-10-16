@@ -352,6 +352,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         start_date: a.start_date,
         end_date: a.end_date,
         hours_per_day: a.hours_per_day,
+        day_part: null,
+        is_site_visit: false,
         // Quote allocations have no committed/tentative status — present as
         // 'committed' to satisfy the type and let the bar render normally.
         status: "committed",

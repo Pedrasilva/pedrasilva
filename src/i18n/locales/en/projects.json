@@ -1,4 +1,20 @@
 {
+  "weekPlan": {
+    "title": "Weekly planning",
+    "view": "Planning view",
+    "colourStyle": "Project colours",
+    "colourStripe": "Colour stripe",
+    "colourFull": "Full colour",
+    "siteVisit": "Site visit",
+    "inferredHint": "Estimated from the Gantt",
+    "overload": "Overlapping bookings",
+    "slotCount": "{{booked}}/{{available}} · {{free}} free",
+    "halfDays_one": "{{count}} half-day",
+    "halfDays_other": "{{count}} half-days",
+    "otherHours": "{{hours}}h other",
+    "emptyBookings": "No project bookings this week.",
+    "emptyPeople": "No active collaborators."
+  },
   "module": {
     "title": "Projects",
     "subtitle": "Studio",

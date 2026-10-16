@@ -1,4 +1,20 @@
 {
+  "weekPlan": {
+    "title": "Planeamento semanal",
+    "view": "Vista do planeamento",
+    "colourStyle": "Cores dos projectos",
+    "colourStripe": "Faixa de cor",
+    "colourFull": "Cor cheia",
+    "siteVisit": "Visita de obra",
+    "inferredHint": "Estimado a partir do Gantt",
+    "overload": "Alocações sobrepostas",
+    "slotCount": "{{booked}}/{{available}} · {{free}} livres",
+    "halfDays_one": "{{count}} meio-dia",
+    "halfDays_other": "{{count}} meios-dias",
+    "otherHours": "{{hours}}h outras",
+    "emptyBookings": "Sem alocações de projectos nesta semana.",
+    "emptyPeople": "Sem colaboradores activos."
+  },
   "module": {
     "title": "Projectos",
     "subtitle": "Estúdio",

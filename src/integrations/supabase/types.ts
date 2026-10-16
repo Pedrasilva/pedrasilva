@@ -8121,11 +8121,13 @@ export type Database = {
         Row: {
           allocation_percentage: number | null
           created_at: string
+          day_part: string | null
           end_date: string
           external_id: string | null
           hours_per_day: number
           id: string
           is_locked: boolean
+          is_site_visit: boolean
           resource_id: string
           source: string | null
           source_quote_allocation_id: string | null
@@ -8139,11 +8141,13 @@ export type Database = {
         Insert: {
           allocation_percentage?: number | null
           created_at?: string
+          day_part?: string | null
           end_date: string
           external_id?: string | null
           hours_per_day?: number
           id?: string
           is_locked?: boolean
+          is_site_visit?: boolean
           resource_id: string
           source?: string | null
           source_quote_allocation_id?: string | null
@@ -8157,11 +8161,13 @@ export type Database = {
         Update: {
           allocation_percentage?: number | null
           created_at?: string
+          day_part?: string | null
           end_date?: string
           external_id?: string | null
           hours_per_day?: number
           id?: string
           is_locked?: boolean
+          is_site_visit?: boolean
           resource_id?: string
           source?: string | null
           source_quote_allocation_id?: string | null
@@ -10942,6 +10948,108 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pm_week_plan_slots: {
+        Row: {
+          day: string
+          id: string
+          is_site_visit: boolean
+          part: string
+          plan_id: string
+          project_id: string
+          resource_id: string
+          stage_id: string | null
+        }
+        Insert: {
+          day: string
+          id?: string
+          is_site_visit?: boolean
+          part: string
+          plan_id: string
+          project_id: string
+          resource_id: string
+          stage_id?: string | null
+        }
+        Update: {
+          day?: string
+          id?: string
+          is_site_visit?: boolean
+          part?: string
+          plan_id?: string
+          project_id?: string
+          resource_id?: string
+          stage_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_week_plan_slots_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pm_week_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_week_plan_slots_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_week_plan_slots_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_week_plan_slots_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_week_plan_slots_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_week_plans: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          status: string
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: []
       }
       product_categories: {
         Row: {
@@ -15659,6 +15767,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_week_board: { Args: { _week_start: string }; Returns: Json }
       pm_week_can_self_approve: {
         Args: { _target_user_id: string }
         Returns: boolean

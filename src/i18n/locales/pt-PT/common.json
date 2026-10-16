@@ -1,4 +1,12 @@
 {
+  "previousWeek": "Semana anterior",
+  "nextWeek": "Semana seguinte",
+  "byPerson": "Por pessoa",
+  "byProject": "Por projecto",
+  "morning": "Manhã",
+  "afternoon": "Tarde",
+  "morningShort": "M",
+  "afternoonShort": "T",
   "logHours": "Registar horas",
   "loading": "A carregar…",
   "refresh": "Atualizar",

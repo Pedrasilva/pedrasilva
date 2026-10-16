@@ -1,5 +1,7 @@
 # Projects module rules
 
+- Weekly planning is a read-only projection via pm_week_board with explicit no-rates fields; week-board.ts owns half-day inference and PLAN_UTILISATION, and the board has no timesheet/planner mutations. Why: planning and actuals must remain separate and staff access must not expose financial data.
+
 - Timesheet assistant (src/lib/projects/timesheet-assistant.functions.ts) only drafts entries for the signed-in user; saving happens in the browser through useUpsertTimesheetCell/useEnsureStageRow with source "assistant". Why: rate snapshots and triggers apply exactly as for typed hours.
 - Google Calendar suggestions (src/lib/projects/calendar.server.ts) always run for the caller's own user id; refresh tokens are AES-GCM encrypted with CALENDAR_TOKEN_KEY in user_calendar_connections (service-role only), event data is never stored, saved events are tracked in pm_time_entries.calendar_event_ids. Why: per-person privacy; external_id is single-valued and reserved for imports.
 - Project expenses (pm_expenses): approval is optional (approval_state, default not_required); team members on the project submit and see only their own rows plus ones sent to them; approval/invoicing columns and approved/paid status change only via pm_expense_request_approval / pm_expense_decide_approval or by admins / projects.view_financials (guard trigger pm_expenses_guard); "Por faturar" = isReadyToInvoice (mirrors idx_pm_expenses_ready_to_invoice). Why: most expenses need no approval, but financial data stays confidential.

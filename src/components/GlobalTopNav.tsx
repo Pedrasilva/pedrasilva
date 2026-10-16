@@ -52,7 +52,7 @@ type Sheet =
 export function GlobalTopNav() {
   const { t } = useTranslation("projects");
   const [sheet, setSheet] = useState<Sheet>(null);
-  const { isAdmin } = useAuth();
+  const { isAdmin, isPsaStaff } = useAuth();
   const { permissions } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
   const loc = useLocation();
@@ -67,7 +67,7 @@ export function GlobalTopNav() {
     canV2("timesheets.approve", "team") ||
     canV2("timesheets.approve", "own");
   const canTasks = can("projects.my-tasks");
-  const canSchedule = can("projects.resources") || can("projects.gantt");
+  const canSchedule = isPsaStaff || can("projects.resources") || can("projects.gantt");
   const canCreateTask = canTasks;
   // Project creation follows v2 planning rights, not the parked legacy key.
   const canCreateProject =
@@ -83,7 +83,8 @@ export function GlobalTopNav() {
   const tasksActive = loc.pathname.startsWith("/projects/my-tasks");
   const scheduleActive =
     loc.pathname.startsWith("/projects/resources") ||
-    loc.pathname.startsWith("/projects/gantt");
+    loc.pathname.startsWith("/projects/gantt") ||
+    loc.pathname.startsWith("/projects/week-plan");
 
   const hubClass = (active: boolean) =>
     cn(
@@ -224,6 +225,11 @@ export function GlobalTopNav() {
               <GanttChartSquare className="h-4 w-4 text-muted-foreground" /> {t("topNav.globalGantt")}
             </Link>
           </DropdownMenuItem>
+          {isPsaStaff && <DropdownMenuItem asChild>
+            <Link to="/projects/week-plan" className="flex w-full cursor-pointer items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" /> {t("weekPlan.title")}
+            </Link>
+          </DropdownMenuItem>}
         </DropdownMenuContent>
       </DropdownMenu>
       )}

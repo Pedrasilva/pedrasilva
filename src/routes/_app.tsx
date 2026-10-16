@@ -266,6 +266,8 @@ function AppLayout() {
             ) : (
               <RestrictedCard />
             )
+          ) : loc.pathname === "/projects/week-plan" && isPsaStaff ? (
+            <Outlet />
           ) : !currentModule ? (
             <Outlet />
           ) : accessLoading ? (
