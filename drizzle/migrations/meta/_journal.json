@@ -442,6 +442,13 @@
       "when": 1792191143839,
       "tag": "0062_pursuit_logging_choices",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1792191850315,
+      "tag": "0063_pursuit_live_objects_snapshot",
+      "breakpoints": true
     }
   ]
 }

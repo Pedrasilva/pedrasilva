@@ -697,7 +697,7 @@ function TimesheetPage() {
         category: sg.internal_category ?? undefined,
       }))}
       projects={searchResults}
-      leads={leads.filter((l) => l.is_open).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
+      leads={pursuitChoices(leads).map((l) => ({ id: l.id, name: l.name, client: l.company_name }))}
       categories={activeInternalCategories.map((c) => c.name).filter((n) => n !== PURSUIT_CATEGORY)}
       refDate={ev.date}
       searching={searching}

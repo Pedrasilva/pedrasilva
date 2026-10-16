@@ -33,7 +33,7 @@ export type AssistantDraft = {
   project_id: string | null;
   stage_id: string | null;
   internal_category: string | null;
-  /** Pursuit drafts only (internal_category = "Pursuit"): the open CRM lead. */
+  /** Pursuit drafts only (internal_category = "Pursuit"): the lead available for pursuit time. */
   opportunity_id: string | null;
   note: string;
   confidence: "high" | "low";
@@ -61,7 +61,7 @@ export type AssistantResult = {
   dailyHours: number;
   projects: AssistantProject[];
   categories: string[];
-  /** Open CRM leads (names only) the person can log Pursuit time against. */
+  /** Leads available for pursuit time (names only). */
   leads: { id: string; name: string; client: string | null }[];
   existing: AssistantExisting[];
   entries: AssistantDraft[];
@@ -94,10 +94,10 @@ The text may be Portuguese, English or a mix. Reply with ONE JSON object only, n
 Rules:
 - Every entry gets a unique ref ("d1","d2",...). quote = the exact, verbatim span of the person's text that this entry comes from (copy characters exactly, no paraphrase), or null for calendar-only drafts.
 - Current drafts (listed with refs "c1","c2",...) were already prepared from earlier dictations and are not saved yet. NEVER recreate them. Only return NEW activities from this text, or corrections the person states explicitly ("actually that was 2 hours", "afinal foram duas horas"). A correction is ONE entry with updates = the current draft's ref and the full corrected values; it replaces that draft. updates is null for every new entry.
-- Explicit leads: if the person says the time was on a lead, a proposal, pursuit, a pitch, not signed, "proposta", "angariação", "ainda não assinado" or similar (fee proposals as an internal category "propostas de honorários" are NOT this), the entry MUST be entry_type "internal", internal_category "Pursuit" with the matching open lead's opportunity_id — never a project stage, even if a project with a similar name exists. If no open lead matches, still return it as Pursuit with opportunity_id null, confidence "low", and lead_hint = the name they used (e.g. "Mastercard"). lead_hint is null otherwise.
+- Explicit leads: if the person says the time was on a lead, a proposal, pursuit, a pitch, not signed, "proposta", "angariação", "ainda não assinado" or similar (fee proposals as an internal category "propostas de honorários" are NOT this), the entry MUST be entry_type "internal", internal_category "Pursuit" with the matching available lead's opportunity_id — never a project stage, even if a project with a similar name exists. If no available lead matches, still return it as Pursuit with opportunity_id null, confidence "low", and lead_hint = the name they used (e.g. "Mastercard"). lead_hint is null otherwise.
 - Every question MUST say what it is about: source "calendar" when it is about calendar events (list them in event_ids, and the drafts made from them in draft_ids), "dictation" when about dictated items (draft_ids of those entries), "hours" when about a day's total (date = that day, draft_ids/event_ids may be empty).
 - Options must be exact names from the lists (project names, stage names of the referenced project, category names, lead names) or exactly "That's all", "Add it", "No". Nothing else. Do not add a "don't log" or "other" option; the app adds those.
-- Leads as candidates: when an item doesn't clearly match a project, also consider the open leads; offer matching lead names as options next to project names.
+- Leads as candidates: when an item doesn't clearly match a project, also consider the leads available for pursuit time; offer matching lead names as options next to project names.
 - An answer "Don't log" / "Não registar" means: create no entry for that item and don't ask about it again.
 - Create one entry for EVERY activity the person mentions (meetings included), even if something similar is already logged; saving adds to existing hours. "Already logged" only counts towards day totals.
 - Write questions in the language of the person's own text (English text → English questions).
@@ -108,7 +108,7 @@ Rules:
 - entry_type "project" needs a project_id from the projects list; pick stage_id from THAT project's stages. If the project has exactly one stage use it. If the stage is unclear, set stage_id null, confidence "low", and ask which stage (options = stage names).
 - Each project's stages list contains ONLY its active stages. If the person names a stage that is not listed (finished, paused or planned), never pick another stage silently: set stage_id null, confidence "low", and ask which of the listed stages to use (options = those stage names).
 - entry_type "internal" needs internal_category copied EXACTLY from the categories list (meetings, training, admin, etc. map to the closest category). If no category clearly fits, set internal_category null and confidence "low" — never invent one. project_id and stage_id must be null.
-- Pursuit: time spent on an open CRM lead (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Only use "Pursuit" without an opportunity_id for explicit leads with no matching open lead (see above).
+- Pursuit: time spent on a lead available for pursuit time (a proposal, competition, pitch or client not yet a project) is entry_type "internal", internal_category "Pursuit" and opportunity_id = the lead's id from the leads list. opportunity_id is null for every other entry. If a lead and a project both match, or two leads match, set confidence "low" and ask (options = names). Only use "Pursuit" without an opportunity_id for explicit leads with no matching available lead (see above).
 - Match projects by name, client, number or alias, tolerating misspellings and accents. NEVER invent a project, stage or category not in the lists. If nothing matches or two are plausible, still add the entry with project_id null (or your best guess with confidence "low") and ask, with the candidate names as options.
 - note: a short note in the person's own words and language (e.g. "layouts and test fits"). No times in the note.
 - confidence "low" whenever you guessed anything.
@@ -355,7 +355,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
       `Leave / public holidays this week (already handled, never create): ${[...leaveByDate].map(([d, l]) => `${d} ${l.label} ${l.hours}h`).join("; ") || "none"}`,
       `Already logged this week: ${existing.filter((e) => e.entry_type !== "non_working").map((e) => `${e.date} ${e.label} ${e.hours}h`).join("; ") || "nothing"}`,
       `Internal categories: ${JSON.stringify(categories)}`,
-      `Open CRM leads for Pursuit (id | name | client): ${leads.length ? "" : "none"}`,
+      `Leads available for pursuit time (id | name | client): ${leads.length ? "" : "none"}`,
       ...leads.map((l) => `${l.id} | ${l.name} | ${l.client ?? ""}`),
       `Projects (id | name | client | aliases | stages id:name):`,
       ...projects.map((p) => `${p.id} | ${p.name} | ${p.client ?? ""} | ${(aliasMap.get(p.id) ?? []).join(", ")} | ${p.stages.map((s) => `${s.id}:${s.name}`).join("; ")}`),
@@ -606,7 +606,7 @@ export const parseTimesheetDictation = createServerFn({ method: "POST" })
         context: e.quote ? `«${e.quote}» · ${shortDate(e.date)}` : shortDate(e.date),
       });
     }
-    // Explicit lead with no matching open lead: ask which one.
+    // Explicit lead with no matching available lead: ask which one.
     for (const p of pursuitAsk) {
       if (covered.has(p.id)) continue;
       const e = entryById.get(p.id);
