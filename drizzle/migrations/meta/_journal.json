@@ -575,6 +575,13 @@
       "when": 1792236731719,
       "tag": "0081_weekly_preview_record_alias_safety",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1792236749713,
+      "tag": "0082_weekly_preview_explicit_variable_resolution",
+      "breakpoints": true
     }
   ]
 }
