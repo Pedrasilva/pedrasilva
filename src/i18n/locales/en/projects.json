@@ -688,6 +688,7 @@
       "startWeek": "Start week",
       "durationWeeks": "Duration (weeks)",
       "convertStart": "Project start date",
+      "
       "convertPreview": "Calendar conversion preview",
       "required": "Initialize the relative timeline in an editable revision before converting.",
       "approvedRequired": "The proposal must be approved.",
