@@ -335,13 +335,19 @@ export function reflowForCalendar(state: ScheduleState, oldHolidays: Iterable<st
     return {...d, lag_days: gap};
   });
   const stretched = state.stages.map(s => {
-    if (skip(s)) return s;
+    if (skip(s) || cal.duration(s.start_date, s.end_date) === oldCal.duration(s.start_date, s.end_date)) return s;
     const start_date = cal.snap(s.start_date);
     return {...s, start_date, end_date: cal.shift(start_date, oldCal.duration(s.start_date, s.end_date) - 1)};
   });
   const temp = {...state, stages: stretched};
   const linked = recomputeSchedule({...temp, allocations: []}, links, [], stretched.map(s => s.id));
-  const finalStages = stretched.map(s => ({...s, ...linked.stages.find(v => v.id === s.id)}));
+  // Ignore pure weekend-snapping differences: a stage only moves when it
+  // lands on different working days.
+  const finalStages = stretched.map(s => {
+    const n = {...s, ...linked.stages.find(v => v.id === s.id)};
+    const o = state.stages.find(v => v.id === s.id)!;
+    return cal.offset(o.start_date, n.start_date) === 0 && cal.offset(o.end_date, n.end_date) === 0 ? o : n;
+  });
   const rolled = summaryBounds(finalStages);
   const stages = finalStages.flatMap(s => {
     const o = state.stages.find(v => v.id === s.id)!; const b = rolled.get(s.id) ?? s;
