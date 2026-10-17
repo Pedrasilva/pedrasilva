@@ -149,7 +149,11 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
       affected.add(d.successor_id); changed = true;
     }
   }
-  const durations = new Map(stages.map(s => [s.id, calendar.duration(s.start_date, s.end_date)]));
+  const initialSummary=summaryBounds(stages);
+  const durations = new Map(stages.map(s => {
+    const bounds=initialSummary.get(s.id) ?? s;
+    return [s.id, calendar.duration(bounds.start_date, bounds.end_date)];
+  }));
   const explicit = new Set(edits.map(s => s.id));
   for (let pass = 0; pass <= stages.length; pass++) {
     let changed = false;

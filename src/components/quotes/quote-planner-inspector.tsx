@@ -961,7 +961,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                 <Label className="text-xs">
                   {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
                 </Label>
-                {relative ? <RelativeStageFields disabled={datesDisabled} start={stage.start_date} end={stage.start_date} onChange={(start_date)=>{
+                {relative ? <RelativeStageFields disabled={false} start={stage.start_date} end={stage.start_date} onChange={(start_date)=>{
                   updateStageCascade.mutateAsync({id:stage.id,start_date,end_date:start_date}).catch(e=>toast.error(t(e.message)));
                 }}/> : <Input
                   type="date"

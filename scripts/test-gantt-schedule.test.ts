@@ -17,6 +17,11 @@ describe("Gantt scheduling rules",()=>{
     const reviewed=reviewScheduleLinks(s.stages,s.dependencies);
     expect(reviewed.rejected).toEqual([link]);expect(reviewed.accepted).toEqual([]);expect(s.dependencies).toEqual([link]);
   });
+  it("moves a summary using its child duration rather than stale parent dates",()=>{
+    const s=base();s.stages.push(stage("parent","2026-10-01","2026-12-31"));s.stages[1].parent_stage_id="parent";
+    const link={id:"ap",predecessor_id:"a",successor_id:"parent",type:"FS" as const,lag_days:0};
+    expect(recomputeSchedule(s,[link],[],["parent"]).stages.find(v=>v.id==="parent")).toEqual(stage("parent","2026-10-26","2026-10-30"));
+  });
   it("shrinks every resource to the edited stage bounds",()=>{
     const result=recomputeSchedule(base(),[],[stage("a","2026-10-19","2026-10-21")]);
     expect(result.allocations).toEqual([{id:"resource",start_date:"2026-10-19",end_date:"2026-10-21"}]);
