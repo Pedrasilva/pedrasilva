@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Completed request — attendance reconciliation
+- [x] Add service-only audited admin correction safeguard preserving every timesheet row; pending sick leave can lack attachment, approval cannot.
+- [x] Apply exactly six corrections in one transaction; four days skipped because logged hours meet/exceed expected hours.
+- [x] Rollback fixture, certificate guard and non-admin rejection verified; all 1,410 timesheet rows and unrelated leave/bank rows unchanged. No affected approved weeks or weekly ledger movements exist, so no bank recalculation applies.
+- [x] Exact migration mirrored under supabase/migrations; read-back verified. Patricia's certificate upload and later approval remain pending her certificate.
+
 ## Current request — approved Stage 3 implementation
 - [x] Luis accepted decisions 1–8 and Tatiana-first sequencing.
 - [x] Complete and verify Tatiana's isolated costing milestone first.
