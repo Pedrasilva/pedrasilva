@@ -16,6 +16,7 @@
  * the last visible row as the anchor; when the tree is empty it calls
  * onAppendRoot (if provided).
  */
+import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 import {useTranslation} from "react-i18next";
 import {Input} from "@/components/ui/input";
 import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
@@ -225,7 +226,8 @@ export function GanttOutlineColumn({
             else if (chevronMode === "resources") onToggleResourcesCollapse?.(stage.id);
           };
           const zebra = i % 2 === 1 ? "bg-muted/20" : "";
-          const dur = relative ? scheduleCalendar().duration(stage.start_date,stage.end_date) : durDays(stage.start_date, stage.end_date);
+          const liveCal = scheduleCalendar(getWorkingCalendarHolidays());
+          const dur = relative ? scheduleCalendar().duration(stage.start_date,stage.end_date) : (stage.start_date && stage.end_date ? liveCal.duration(stage.start_date, stage.end_date) : 0);
           const dep = dependencyLabels?.get(stage.id);
           const editable = !!onUpdateStageBounds;
           const projectId = (stage as { projectId: string }).projectId;
@@ -347,7 +349,7 @@ export function GanttOutlineColumn({
                       onCommit={async (n) => {
                         if (!stage.start_date) return;
                         const start = parseISO(stage.start_date);
-                        const end = relative ? parseISO(scheduleCalendar().shift(stage.start_date,Math.max(0,n-1))) : addDays(start, Math.max(0, n - 1));
+                        const end = parseISO((relative ? scheduleCalendar() : liveCal).shift(relative ? stage.start_date : liveCal.snap(stage.start_date), Math.max(0, n - 1)));
                         await commitBounds({
                           start_date: stage.start_date,
                           end_date: format(end, "yyyy-MM-dd"),
@@ -376,8 +378,8 @@ export function GanttOutlineColumn({
                           await onShiftSubtree(stage.id, days);
                           return;
                         }
-                        const a = parseISO(next);
-                        const end = addDays(a, Math.max(0, dur - 1));
+                        // Keep the working-day duration when moving the start.
+                        const end = parseISO(liveCal.shift(liveCal.snap(next), Math.max(0, dur - 1)));
                         await commitBounds({
                           start_date: next,
                           end_date: format(end, "yyyy-MM-dd"),

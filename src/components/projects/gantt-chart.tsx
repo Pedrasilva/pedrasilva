@@ -1293,13 +1293,13 @@ export function GanttChart({
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, isOverride),
-              });
+              }, relative ? NO_HOLIDAYS : undefined);
               totalSale += allocationCost({
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
-              });
+              }, relative ? NO_HOLIDAYS : undefined);
               plannedHours += workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day);
             }
             const budget = Number(stage.budget);
@@ -1671,7 +1671,7 @@ export function GanttChart({
                     end_date: aE,
                     hours_per_day: Number(a.hours_per_day),
                     hourly_rate: costRate,
-                  });
+                  }, relative ? NO_HOLIDAYS : undefined);
                   const top = STAGE_ROW_H + idx * (ALLOC_ROW_H + 4);
                   const r = resourceMap.get(a.resource_id);
                   const color = r?.color ?? a.resource.color;
