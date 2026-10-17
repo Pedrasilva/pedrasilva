@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Stage 2 hardening
+- [ ] Narrow weekly-table grants, staff RLS boundary, immutable approved rows, slot audit trigger, validated private notes and stage dates; mirror exact migration.
+- [ ] Fix deliberate brushes, error/reload actions, per-day stage choices, whole-stroke undo, extension ranges/merge, stage differences and permanent dropped bookings.
+- [ ] Run rollback access/guard/RPC tests, unit tests and signed-in editor flows; report grant/tooling origins and verification limits. Stage 3 and allocations remain untouched.
+
 ## Current request — targeted operational fixes
 - [x] Weekly bell events verified in rollback; labeled 10-minute-old notification sent through real email path. Inbox receipt not independently confirmed.
 - [x] Retainer missing-cost helper tests and real Telheiras totals verified; no missing retainer snapshots, no rebuild required.

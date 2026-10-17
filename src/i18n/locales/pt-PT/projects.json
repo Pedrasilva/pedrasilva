@@ -38,13 +38,17 @@
     "changeCount_one": "{{count}} alteração face ao Gantt",
     "changeCount_other": "{{count}} alterações face ao Gantt",
     "outsideStages": "Fora das datas das fases de {{project}}",
-    "requestExtension": "Pedir extensão da fase {{stage}} até {{date}}",
-    "extensionRecorded": "Pedido de extensão registado: {{stage}} até {{date}}",
+    "requestExtension": "Pedir extensão: {{stage}} de {{from}} até {{until}}",
+    "extensionRecorded": "Pedido de extensão registado: {{stage}} de {{from}} até {{until}}",
     "overloadsDropped_one": "{{count}} alocação sobreposta não copiada:",
     "overloadsDropped_other": "{{count}} alocações sobrepostas não copiadas:",
-    "unbookedProjects": "Fases nesta semana, sem alocações: {{projects}}",
+    "unbookedProjects": "Projeto sem ninguém esta semana: {{projects}}",
     "chooseStage": "Escolher fase",
-    "unsavedConfirm": "Sair com alterações do rascunho por guardar?"
+    "unsavedConfirm": "Sair com alterações do rascunho por guardar?",
+    "brushHint": "Escolha um projeto ou Apagar",
+    "discardUnsaved": "Descartar alterações não guardadas",
+    "stageChange": "Mudança de fase",
+    "droppedBookings": "Reservas do Gantt que este rascunho não representa"
   },
   "module": {
     "title": "Projectos",

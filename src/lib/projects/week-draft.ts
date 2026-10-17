@@ -1,9 +1,11 @@
 import { addDays, format, parseISO } from "date-fns";
-import { deriveSlots, type BoardData, type BoardStage, type DerivedBoard, type DraftSlot, type DayPart } from "./week-board";
+import { dailyHours, deriveSlots, PLAN_UTILISATION, type BoardData, type BoardStage, type DerivedBoard, type DraftSlot, type DayPart, type ExtensionNote } from "./week-board";
 
 export const slotKey = (s: Pick<DraftSlot, "resource_id" | "day" | "part">) => `${s.resource_id}/${s.day}/${s.part}`;
 export const slotValue = (s: DraftSlot | undefined) => s ? { project_id: s.project_id, stage_id: s.stage_id, is_site_visit: s.is_site_visit } : null;
 export const sameSlot = (a: DraftSlot | undefined, b: DraftSlot | undefined) => JSON.stringify(slotValue(a)) === JSON.stringify(slotValue(b));
+export const extensionKey = (n: ExtensionNote) => [n.project_id,n.stage_id,n.resource_id ?? "",n.from ?? "",n.until].join("/");
+export const mergeExtensionNotes = (notes: ExtensionNote[]) => [...new Map(notes.map(n => [extensionKey(n),n])).values()];
 export function explicitSlots(board: DerivedBoard): DraftSlot[] {
   return Object.entries(board).flatMap(([resource_id, days]) => Object.entries(days).flatMap(([day, cell]) => (["am", "pm"] as DayPart[]).flatMap(part => {
     const s = cell[part]; return !cell.leave && s ? [{ resource_id, day, part, project_id:s.projectId, stage_id:s.stageId, is_site_visit:s.isSiteVisit }] : [];
@@ -26,6 +28,33 @@ export function coveringStages(stages: BoardStage[], project: string, day: strin
 export function nearestStage(stages: BoardStage[], project: string, day: string) {
   const distance = (s: BoardStage) => Math.min(Math.abs(Date.parse(s.start_date) - Date.parse(day)), Math.abs(Date.parse(s.end_date) - Date.parse(day)));
   return stages.filter(s => s.project_id === project).sort((a,b) => distance(a) - distance(b))[0];
+}
+/** Resolve only the days covered by the chosen stage; keep the rest pending. */
+export function resolveStageCells(stages: BoardStage[], project: string, cells: Pick<DraftSlot,"resource_id"|"day"|"part">[], chosen: string) {
+  const resolved = cells.filter(c => coveringStages(stages,project,c.day).some(s => s.id===chosen));
+  const pending = cells.filter(c => !resolved.includes(c));
+  return { resolved, pending, candidates: pending[0] ? coveringStages(stages,project,pending[0].day) : [] };
+}
+export function extensionRange(stage: BoardStage, days: string[], resource_id?: string): ExtensionNote | null {
+  if (!days.length) return null;
+  const sorted=[...days].sort(); const from=sorted[0]<stage.start_date ? sorted[0] : stage.start_date;
+  const until=sorted[sorted.length-1]>stage.end_date ? sorted[sorted.length-1] : stage.end_date;
+  return from===stage.start_date && until===stage.end_date ? null : {project_id:stage.project_id,stage_id:stage.id,...(resource_id ? {resource_id} : {}),from,until};
+}
+/** Attribute omitted hours to their allocation, including partially represented overlaps. */
+export function unrepresentedBookings(data: BoardData, board: DerivedBoard) {
+  return Object.entries(board).flatMap(([resource_id,days]) => Object.entries(days).flatMap(([day,cell]) => {
+    if(cell.leave) return [];
+    const half=dailyHours(data.resources.find(r => r.id===resource_id) ?? {weekly_capacity:null})*PLAN_UTILISATION/2;
+    return data.allocations.filter(a => a.resource_id===resource_id && a.start_date<=day && a.end_date>=day).flatMap(a => {
+      const represented=Number(cell.am?.allocationId===a.id)+Number(cell.pm?.allocationId===a.id);
+      const overloaded=cell.overload.some(s => s.allocationId===a.id);
+      const subHalf=a.day_part===null && a.hours_per_day<half/2;
+      if(!overloaded && !subHalf) return [];
+      const hours=Math.max(0,Number(a.hours_per_day)-represented*half);
+      return hours>0 ? [{resource_id,day,project_id:a.project_id,stage_id:a.stage_id,hours,allocation_id:a.id}] : [];
+    });
+  }));
 }
 export function slotChanges(before: DraftSlot[], after: DraftSlot[]) {
   const a = new Map(before.map(s => [slotKey(s), s])); const b = new Map(after.map(s => [slotKey(s), s]));

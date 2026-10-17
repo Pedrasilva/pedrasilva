@@ -498,6 +498,13 @@
       "when": 1792225874654,
       "tag": "0070_confirm_bank_paid_with_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1792228892067,
+      "tag": "0071_weekly_planning_stage_two_hardening",
+      "breakpoints": true
     }
   ]
 }
