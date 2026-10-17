@@ -1,0 +1,11 @@
+CREATE OR REPLACE FUNCTION public.pm_weekday_shift(_date date,_days integer) RETURNS date LANGUAGE plpgsql IMMUTABLE SET search_path=public AS $$ DECLARE d date:=_date; n integer:=abs(_days); dir integer:=CASE WHEN _days<0 THEN -1 ELSE 1 END; BEGIN IF _date IS NULL OR abs(_days)>36600 THEN RAISE EXCEPTION 'gantt.schedule.invalidRange'; END IF; WHILE extract(isodow FROM d)>5 LOOP d:=d+dir; END LOOP; WHILE n>0 LOOP d:=d+dir; IF extract(isodow FROM d)<6 THEN n:=n-1; END IF; END LOOP; RETURN d; END $$;
+CREATE OR REPLACE FUNCTION public.pm_quote_conversion_stage_summary(_quote uuid,_start date,_dates jsonb) RETURNS jsonb LANGUAGE sql STABLE SET search_path=public AS $$
+SELECT coalesce(jsonb_agg(d.value||jsonb_build_object(
+ 'baseline_start_date',pm_weekday_shift(_start,pm_relative_offset(s.start_date)),
+ 'baseline_end_date',pm_weekday_shift(_start,pm_relative_offset(s.end_date)),
+ 'working_days',pm_relative_offset(s.end_date)-pm_relative_offset(s.start_date)+1,
+ 'hours',coalesce((SELECT sum((pm_relative_offset(a.end_date)-pm_relative_offset(a.start_date)+1)*a.hours_per_day*CASE WHEN s.stage_kind='retainer_monthly' THEN greatest(1,coalesce(s.retainer_months,1)) ELSE 1 END) FROM quote_allocations a WHERE a.stage_id=s.id),0),
+ 'fee',pm_quote_stage_billing_fee(s.id)) ORDER BY d.ordinality),'[]'::jsonb)
+FROM jsonb_array_elements(_dates) WITH ORDINALITY d JOIN quote_stages s ON s.id=(d.value->>'id')::uuid AND s.quote_id=_quote $$;
+REVOKE ALL ON FUNCTION public.pm_weekday_shift(date,integer),public.pm_quote_conversion_stage_summary(uuid,date,jsonb) FROM PUBLIC,anon,authenticated;
+DO $migration$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.pm_quote_conversion_preview(uuid,date)'::regprocedure) INTO definition; IF strpos(definition,'RETURN jsonb_build_object(''start_date'',start_day,''stages'',dates,')=0 THEN RAISE EXCEPTION 'Unexpected preview definition'; END IF; definition:=replace(definition,'RETURN jsonb_build_object(''start_date'',start_day,''stages'',dates,','RETURN jsonb_build_object(''start_date'',start_day,''stages'',pm_quote_conversion_stage_summary(_quote,start_day,dates),'); EXECUTE definition; END $migration$;

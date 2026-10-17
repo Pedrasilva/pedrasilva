@@ -15953,6 +15953,10 @@ export type Database = {
         Args: { _quote: string; _start: string }
         Returns: Json
       }
+      pm_quote_conversion_stage_summary: {
+        Args: { _dates: Json; _quote: string; _start: string }
+        Returns: Json
+      }
       pm_quote_conversion_totals: { Args: { _quote: string }; Returns: Json }
       pm_quote_external_fee: { Args: { _quote: string }; Returns: number }
       pm_quote_external_line_fee: { Args: { _item: string }; Returns: number }
@@ -16046,6 +16050,10 @@ export type Database = {
         Returns: Json
       }
       pm_week_revision: { Args: { _plan_id: string }; Returns: string }
+      pm_weekday_shift: {
+        Args: { _date: string; _days: number }
+        Returns: string
+      }
       pm_write_cost_snapshots: {
         Args: { _rows: Json; _source: string }
         Returns: number
