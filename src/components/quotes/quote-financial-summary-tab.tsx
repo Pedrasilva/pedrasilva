@@ -23,7 +23,7 @@ import { useQuoteAllocations, type QuoteAllocationWithResource } from "@/lib/quo
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
-import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine, quoteLeafFee } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggle";
@@ -230,6 +230,8 @@ export function QuoteFinancialSummaryTab({
       <ArchitectureStagesCard
         stages={stages}
         allocations={allocations}
+        feeSourceMode={feeSourceMode}
+        pricingMultiplier={liveMultiplier}
         avgSaleRate={avgSaleRate}
         avgCostRate={avgCostRate}
       />
@@ -315,6 +317,7 @@ type ArchNode = {
   children: ArchNode[];
   /** Planned hours from allocations attached to this stage (leaf only). */
   ownHours: number;
+  ownFee: number;
   /** Resource breakdown for leaf allocations (label → hours). */
   ownByResource: Map<string, number>;
 };
@@ -322,6 +325,8 @@ type ArchNode = {
 function buildArchTree(
   stages: QuoteStage[],
   allocations: QuoteAllocationWithResource[],
+  feeSourceMode: "allocation" | "budget",
+  pricingMultiplier: number,
 ): ArchNode[] {
   const archStages = stages.filter(
     (s) => s.is_self === true || s.stage_role === "architecture",
@@ -351,6 +356,7 @@ function buildArchTree(
       stage: s,
       children: [],
       ownHours: total,
+      ownFee: quoteLeafFee(s,allocs,feeSourceMode,pricingMultiplier),
       ownByResource: byRes,
     });
   }
@@ -385,7 +391,7 @@ function rollupNode(node: ArchNode): {
 } {
   if (node.children.length === 0) {
     return {
-      fee: Number(node.stage.budget ?? 0) || 0,
+      fee: node.ownFee,
       hours: node.ownHours,
       hasChildren: false,
     };
@@ -397,9 +403,6 @@ function rollupNode(node: ArchNode): {
     fee += r.fee;
     hours += r.hours;
   }
-  // If the parent has its own budget AND no children with budgets, fall back
-  // to its own value (covers groups where budget lives on the parent row).
-  if (fee === 0) fee = Number(node.stage.budget ?? 0) || 0;
   return { fee, hours, hasChildren: true };
 }
 
@@ -409,15 +412,19 @@ export function ArchitectureStagesCard({
   avgSaleRate,
   avgCostRate,
   showMarginSlider = false,
+  feeSourceMode = "allocation",
+  pricingMultiplier = 1,
 }: {
   stages: QuoteStage[];
   allocations: QuoteAllocationWithResource[];
   avgSaleRate: number;
   avgCostRate: number;
   showMarginSlider?: boolean;
+  feeSourceMode?: "allocation" | "budget";
+  pricingMultiplier?: number;
 }) {
   const { t } = useTranslation("crm");
-  const roots = buildArchTree(stages, allocations);
+  const roots = buildArchTree(stages, allocations,feeSourceMode,pricingMultiplier);
 
   // Mean markup-on-cost from HR pricing (matches the "Margem" pill).
   const meanMarginPct = useMemo(() => {
@@ -686,10 +693,16 @@ export function ArchitectureFinancialBreakdown({ quoteId }: { quoteId: string })
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const { data: teamAvg } = useTeamPricingAverages();
+  const pricingQ=useQuery({queryKey:["quote-gantt-pricing",quoteId],queryFn:async()=>{
+    const {data,error}=await supabase.from("fee_proposals").select("fee_source_mode,pricing_multiplier").eq("id",quoteId).single();
+    if(error)throw error;return data;
+  }});
   return (
     <ArchitectureStagesCard
       stages={stagesQ.data ?? []}
       allocations={allocsQ.data ?? []}
+      feeSourceMode={pricingQ.data?.fee_source_mode === "budget" ? "budget" : "allocation"}
+      pricingMultiplier={Number(pricingQ.data?.pricing_multiplier ?? 1)}
       avgSaleRate={teamAvg?.avgSalePerHour ?? 0}
       avgCostRate={teamAvg?.avgCostPerHour ?? 0}
       showMarginSlider

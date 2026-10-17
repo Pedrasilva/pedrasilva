@@ -582,7 +582,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     }
 
     return { mappedStages: mapped, hierarchy: hier };
-  }, [stages, allocations, allocByStage, quoteId, t]);
+  }, [stages, allocations, allocByStage, quoteId, t, pricingQ.data]);
 
 
   // Local collapse state for the outline. Persisted in sessionStorage per quote.
