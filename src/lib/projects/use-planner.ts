@@ -212,15 +212,17 @@ export function useUpdateStageWithCascade() {
       end_date,
       projectId: _projectId,
       shiftAllocations = true,
+      move = false,
     }: {
       id: string;
       start_date: string;
       end_date: string;
       projectId: string;
       shiftAllocations?: boolean;
+      move?: boolean;
     }): Promise<{ updatedIds: string[]; shiftedAllocations: number; dependentCount: number }> => {
       void shiftAllocations;
-      return changeGanttStage("project", _projectId, id, start_date, end_date);
+      return changeGanttStage("project", _projectId, id, start_date, end_date, move);
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });

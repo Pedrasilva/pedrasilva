@@ -10,7 +10,7 @@
  * affordances that would always fail.
  */
 import { useQueryClient } from "@tanstack/react-query";
-import { changeGanttDependency,projectScopeForDependency,changeGanttAllocationDates } from "./gantt-schedule";
+import { changeGanttDependency,projectScopeForDependency,changeGanttAllocationDates,changeGanttStages,shiftGanttProjectStart } from "./gantt-schedule";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -57,6 +57,9 @@ export function useProjectPlannerAdapter(
   const { data: defaultRates } = useDefaultResourceRates();
 
   const readOnly = !!opts.readOnly;
+  const invalidateSchedule = async () => {
+    for (const key of ["pm-project","pm-stages-all","pm-stage-dependencies","pm-allocations-all"]) await qc.invalidateQueries({queryKey:[key]});
+  };
 
   // Single shared denial path — toast once, return a resolved no-op so the
   // optimistic-update sites in GanttChart don't enter an error branch.
@@ -126,6 +129,16 @@ export function useProjectPlannerAdapter(
       await qc.invalidateQueries({queryKey:["pm-project"]});
       await qc.invalidateQueries({queryKey:["pm-stages-all"]});
       return result;
+    },
+    moveStages: readOnly ? async () => { await deny(); } : async (projectId, edits) => {
+      const res = await changeGanttStages("project", projectId, edits);
+      await invalidateSchedule();
+      return res;
+    },
+    shiftProjectStart: readOnly ? async () => { await deny(); return {days:0,locked:0,moved:0}; } : async (projectId, newStart) => {
+      const res = await shiftGanttProjectStart("project", projectId, newStart);
+      await invalidateSchedule();
+      return res;
     },
     pending: {
       stage: updateStageCascade.isPending || deleteStage.isPending,
