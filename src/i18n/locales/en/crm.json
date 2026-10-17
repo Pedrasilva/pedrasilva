@@ -63,7 +63,7 @@
     "required": "*"
   },
   "opportunities": {
-    "countAndFee": "{{count}} opportunities · {{fee}} estimated",
+    "countAndFee": "{{count}} opportunities · {{fee}}",
     "newOpportunity": "New opportunity",
     "viewPipeline": "Pipeline",
     "viewList": "List",
@@ -193,6 +193,26 @@
         "not_a_fit": "Not a fit",
         "other": "Other"
       }
+    },
+    "showClosed": "Show closed",
+    "valueQuoted": "Quoted",
+    "valueEstimated": "Estimated",
+    "convertToProject": "Convert to project",
+    "openProject": "Open project",
+    "converted": "Project",
+    "contactPicker": {
+      "search": "Search contact…",
+      "empty": "No contacts found",
+      "newContact": "+ New contact",
+      "newContactTitle": "New contact",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "create": "Create",
+      "created": "Contact created",
+      "saveAsContact": "Save as contact",
+      "nameRequired": "Name is required"
     }
   },
   "accounts": {
