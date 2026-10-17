@@ -47,7 +47,7 @@ const IMAGE_SIZE_TO_CLASS: Record<string, string> = {
   "full": "proposal-image-full",
 };
 
-function ProposalImageBlock({ block }: { block: PsaProposalBlock }) {
+function ProposalImageBlock({ block, lang }: { block: PsaProposalBlock; lang: ProposalLang }) {
   const cr = (block.content_rich ?? {}) as Record<string, unknown>;
   const imageId = (cr.image_id as string | undefined) ?? null;
   const size = (cr.size as string | undefined) ?? "1/2";
@@ -1515,7 +1515,7 @@ export function BlockBody({
       );
 
     case "image":
-      return <ProposalImageBlock block={block} />;
+      return <ProposalImageBlock block={block} lang={lang} />;
 
 
 
