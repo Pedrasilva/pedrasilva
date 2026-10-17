@@ -46,3 +46,12 @@ describe("Gantt stage moves",()=>{
     expect(back.stages.find(v=>v.id==="c")?.start_date).toBe("2026-11-02");
   });
 });
+describe("imported summary-to-child links",()=>{
+  it("are ignored for scheduling so moves are not blocked as circular",()=>{
+    const s=base();s.stages.push(st("p","2026-10-19","2026-11-06"));s.stages[0].parent_stage_id="p";
+    s.dependencies.push({id:"pa",predecessor_id:"p",successor_id:"a",type:"FS",lag_days:0});
+    const p=moveStagesPatch(s,[{id:"c",start_date:"2026-11-09",end_date:"2026-11-13",move:true}]);
+    expect(p.stages.find(v=>v.id==="c")?.start_date).toBe("2026-11-09");
+    expect(p.dependencies.find(d=>d.id==="pa")?.lag_days).toBe(0);
+  });
+});

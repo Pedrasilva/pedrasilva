@@ -73,7 +73,21 @@ export function summaryBounds(stages: ScheduleStage[]): Map<string, {start_date:
   return bounds;
 }
 
-export function validateScheduleGraph(stages: ScheduleStage[], deps: StageDependency[]): void {
+/** A link between a summary and one of its own descendants (common in
+ * imported plans). The child already sits inside the parent, so the link
+ * carries no schedule meaning; it is kept as data but ignored when scheduling. */
+export function isNestedLink(stages: ScheduleStage[], d: {predecessor_id: string; successor_id: string}): boolean {
+  const parent = new Map(stages.map(s => [s.id, s.parent_stage_id ?? null]));
+  const under = (id: string, root: string) => {
+    for (let p = parent.get(id), i = 0; p && i < 1000; p = parent.get(p), i++) if (p === root) return true;
+    return false;
+  };
+  return under(d.successor_id, d.predecessor_id) || under(d.predecessor_id, d.successor_id);
+}
+export function schedulingLinks(stages: ScheduleStage[], deps: StageDependency[]) {
+  return deps.filter(d => !isNestedLink(stages, d));
+}
+export function validateScheduleGraph(stages: ScheduleStage[], deps: StageDependency[], strict = false): void {
   const ids = new Set(stages.map(s => s.id));
   const edges = new Map<string, string[]>();
   const linkIds = new Set<string>();
@@ -83,7 +97,7 @@ export function validateScheduleGraph(stages: ScheduleStage[], deps: StageDepend
     if (!ids.has(d.predecessor_id) || !ids.has(d.successor_id) || !["FS","SS","FF","SF"].includes(d.type)
       || !Number.isInteger(d.lag_days) || Math.abs(d.lag_days)>36600 || linkIds.has(d.id) || pairs.has(`${d.predecessor_id}:${d.successor_id}`)) throw new Error("gantt.schedule.invalidLink");
     linkIds.add(d.id); pairs.add(`${d.predecessor_id}:${d.successor_id}`);
-    edges.set(d.predecessor_id, [...(edges.get(d.predecessor_id) ?? []), d.successor_id]);
+    if (strict || !isNestedLink(stages, d)) edges.set(d.predecessor_id, [...(edges.get(d.predecessor_id) ?? []), d.successor_id]);
   }
   const visited = new Set<string>();
   const active = new Set<string>();
@@ -115,7 +129,7 @@ export function reviewScheduleLinks(stages: ScheduleStage[], deps: StageDependen
   const rejected: StageDependency[] = [];
   for (const dep of deps) {
     try {
-      validateScheduleGraph(stages, [...accepted, dep]);
+      validateScheduleGraph(stages, [...accepted, dep], true);
       accepted.push(dep);
     } catch (error) {
       if (!(error instanceof Error) || !["gantt.schedule.cycle", "gantt.schedule.invalidLink"].includes(error.message)) throw error;
@@ -128,6 +142,8 @@ export function reviewScheduleLinks(stages: ScheduleStage[], deps: StageDependen
 export function recomputeSchedule(state: ScheduleState, deps = state.dependencies,
   edits: Array<{id: string; start_date: string; end_date: string}> = [], roots?: string[]): SchedulePatch {
   validateScheduleGraph(state.stages, deps);
+  const allDeps = deps;
+  deps = schedulingLinks(state.stages, deps);
   const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
   const stages = state.stages.map(s => ({...s}));
   const byId = new Map(stages.map(s => [s.id, s]));
@@ -210,7 +226,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
     if (a.is_locked || a.external_id || ["import","imported_accelo"].includes(a.source ?? "")) throw new Error("gantt.schedule.lockedAllocation");
     return [{id:a.id, ...stage}];
   });
-  return { stages:updates, allocations, dependencies:deps };
+  return { stages:updates, allocations, dependencies:allDeps };
 }
 
 export function dependencySlack(pred: ScheduleStage, succ: ScheduleStage, dep: StageDependency,
@@ -249,7 +265,7 @@ export function moveStagesPatch(state: ScheduleState, edits: StageEdit[], retime
     const bounds = summaryBounds(temp);
     const retime = new Set(normalized.flatMap(e => [e.id, ...ancestorsOf(temp, e.id)]));
     deps = deps.map(d => {
-      if (!retime.has(d.successor_id)) return d;
+      if (!retime.has(d.successor_id) || isNestedLink(temp, d)) return d;
       const pred = {...temp.find(s => s.id === d.predecessor_id)!, ...bounds.get(d.predecessor_id)};
       const succ = bounds.get(d.successor_id)!;
       const req = constraintBounds(pred, d.type, 0, calendar.duration(succ.start_date, succ.end_date), calendar);
@@ -266,7 +282,7 @@ export function moveStagesPatch(state: ScheduleState, edits: StageEdit[], retime
 export function shiftProjectStartPatch(state: ScheduleState, newStart: string) {
   const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
   const parentIds = new Set(state.stages.map(s => s.parent_stage_id).filter(Boolean));
-  const linked = new Set(state.dependencies.map(d => d.successor_id));
+  const linked = new Set(schedulingLinks(state.stages, state.dependencies).map(d => d.successor_id));
   const retainer = new Set(state.stages.filter(s => s.stage_kind === "retainer_monthly").map(s => s.id));
   const regular = state.stages.filter(s => !retainer.has(s.id) && !ancestorsOf(state.stages, s.id).some(a => retainer.has(a)));
   if (!regular.length) return {patch: {stages: [], allocations: [], dependencies: state.dependencies}, days: 0, locked: 0};
