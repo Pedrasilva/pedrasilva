@@ -15893,6 +15893,8 @@ export type Database = {
         Args: { _quote: string; _start: string }
         Returns: Json
       }
+      pm_quote_external_fee: { Args: { _quote: string }; Returns: number }
+      pm_quote_internal_fee: { Args: { _quote: string }; Returns: number }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
         Returns: number
