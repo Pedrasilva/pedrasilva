@@ -22,6 +22,14 @@ import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 export const Route = createFileRoute("/_app/inventory/assignments")({
   component: AssignmentsPage,
+  head: () => ({ meta: [
+    { title: "Equipment assignments · PSA Hub" },
+    { name: "description", content: "Current studio equipment assignments and return history." },
+    { property: "og:title", content: "Equipment assignments · PSA Hub" },
+    { property: "og:description", content: "Current studio equipment assignments and return history." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function AssignmentsPage() {

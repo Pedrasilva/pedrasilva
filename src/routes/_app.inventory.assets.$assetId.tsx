@@ -25,6 +25,14 @@ import {
 
 export const Route = createFileRoute("/_app/inventory/assets/$assetId")({
   component: AssetDetail,
+  head: () => ({ meta: [
+    { title: "Asset details · PSA Hub" },
+    { name: "description", content: "Equipment details, custody history and lifecycle records." },
+    { property: "og:title", content: "Asset details · PSA Hub" },
+    { property: "og:description", content: "Equipment details, custody history and lifecycle records." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 const eur = (v: number | null | undefined) =>
@@ -244,8 +252,8 @@ function AssetDetail() {
         </Card>
       </div>
 
-      <AssetFormDialog open={editOpen} onOpenChange={setEditOpen} asset={asset} />
-      <AssignAssetDialog asset={asset} open={assignOpen} onOpenChange={setAssignOpen} />
+      {canEdit && <AssetFormDialog open={editOpen} onOpenChange={setEditOpen} asset={asset} />}
+      {canEdit && <AssignAssetDialog asset={asset} open={assignOpen} onOpenChange={setAssignOpen} />}
     </div>
   );
 }

@@ -28,6 +28,14 @@ import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 export const Route = createFileRoute("/_app/inventory/assets/")({
   component: AssetRegister,
+  head: () => ({ meta: [
+    { title: "Asset register · PSA Hub" },
+    { name: "description", content: "Studio equipment, custody and indicative asset values." },
+    { property: "og:title", content: "Asset register · PSA Hub" },
+    { property: "og:description", content: "Studio equipment, custody and indicative asset values." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 const eur = (v: number | null | undefined) =>
@@ -174,7 +182,7 @@ function AssetRegister() {
         </Table>
       </Card>
 
-      <AssetFormDialog open={createOpen} onOpenChange={setCreateOpen} />
+      {canEdit && <AssetFormDialog open={createOpen} onOpenChange={setCreateOpen} />}
     </div>
   );
 }
