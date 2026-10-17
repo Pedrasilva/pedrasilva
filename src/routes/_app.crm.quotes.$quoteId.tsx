@@ -80,6 +80,7 @@ import { parseISO, format as fmtDate, max as maxDate, min as minDate } from "dat
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
+  head:()=>({meta:[{title:"Proposal planning | PSA Hub"},{name:"description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:title",content:"Proposal planning | PSA Hub"},{property:"og:description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),
   component: QuoteDetail,
 });
 
