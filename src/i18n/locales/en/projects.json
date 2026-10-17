@@ -671,7 +671,9 @@
       "locked": "A locked stage cannot be moved.",
       "lockedAllocation": "A protected resource allocation cannot be resized.",
       "slack": "{{days}}d extra gap",
-      "crossProject": "This cross-project dependency needs review before editing."
+      "crossProject": "This cross-project dependency needs review before editing.",
+      "lockedSkipped": "{{count}} locked stage(s) kept in place.",
+      "nothingMoved": "Nothing to move: every stage is linked or locked."
     },
     "relative": {
       "week": "Week {{number}}",

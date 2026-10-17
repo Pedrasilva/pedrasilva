@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { recomputeSchedule, scheduleCalendar, RELATIVE_ORIGIN, type ScheduleState, type SchedulePatch } from "./schedule-engine";
+import { recomputeSchedule, moveStagesPatch, shiftProjectStartPatch, type StageEdit, scheduleCalendar, RELATIVE_ORIGIN, type ScheduleState, type SchedulePatch } from "./schedule-engine";
 import type { StageDependency } from "./dependencies";
 
 type Mode = "quote" | "project";
@@ -23,12 +23,22 @@ export async function saveGanttSchedule(mode: Mode, scope: string, state: Schedu
   }
   return result;
 }
-export async function changeGanttStage(mode: Mode, scope: string, id: string, start_date: string, end_date: string) {
+export async function changeGanttStage(mode: Mode, scope: string, id: string, start_date: string, end_date: string, move = false) {
+  return changeGanttStages(mode,scope,[{id,start_date,end_date,move}]);
+}
+export async function changeGanttStages(mode: Mode, scope: string, edits: StageEdit[]) {
   const state = await readGanttSchedule(mode,scope);
-  const patch = recomputeSchedule(state,state.dependencies,[{id,start_date,end_date}]);
+  const patch = moveStagesPatch(state,edits);
   await saveGanttSchedule(mode,scope,state,patch);
+  const ids=new Set(edits.map(e=>e.id));
   return {updatedIds:patch.stages.map(s=>s.id), shiftedAllocations:patch.allocations.length,
-    dependentCount:patch.stages.filter(s=>s.id!==id).length};
+    dependentCount:patch.stages.filter(s=>!ids.has(s.id)).length};
+}
+export async function shiftGanttProjectStart(mode: Mode, scope: string, newStart: string) {
+  const state = await readGanttSchedule(mode,scope);
+  const {patch,days,locked} = shiftProjectStartPatch(state,newStart);
+  if (patch.stages.length) await saveGanttSchedule(mode,scope,state,patch);
+  return {days,locked,moved:patch.stages.length};
 }
 export async function changeGanttAllocationDates(mode: Mode, scope: string, id: string, dates: {start_date?:string;end_date?:string}) {
   const state=await readGanttSchedule(mode,scope);

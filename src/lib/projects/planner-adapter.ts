@@ -47,6 +47,8 @@ export interface PlannerStageUpdateArgs {
   projectId: string;
   start_date: string;
   end_date: string;
+  /** Drag move: keep working-day duration and re-time incoming links. */
+  move?: boolean;
 }
 
 export interface PlannerStageDeleteArgs {
@@ -130,6 +132,10 @@ export interface PlannerAdapter {
   updateDependency?: (args: PlannerDependencyUpdateArgs) => Promise<unknown>;
   deleteDependency: (id: string) => Promise<unknown>;
   replaceDependency?: (args: PlannerDependencyCreateArgs & {id:string}) => Promise<unknown>;
+  /** Atomic multi-stage move (summary drag). */
+  moveStages?: (projectId: string, edits: Array<{id:string;start_date:string;end_date:string;move?:boolean}>) => Promise<unknown>;
+  /** Shift unlinked stages to a new project start; linked stages follow. */
+  shiftProjectStart?: (projectId: string, newStart: string) => Promise<{days:number;locked:number;moved:number}>;
 
   pending: PlannerPending;
   features: PlannerFeatures;

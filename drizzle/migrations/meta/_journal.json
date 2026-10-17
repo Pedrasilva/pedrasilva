@@ -701,6 +701,13 @@
       "when": 1792254034682,
       "tag": "0099_relative_retainer_payment_and_monthly_terms",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1792256124156,
+      "tag": "0100_gantt_ignore_nested_links_in_cycle_check",
+      "breakpoints": true
     }
   ]
 }

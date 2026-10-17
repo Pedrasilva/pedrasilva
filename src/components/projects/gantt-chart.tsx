@@ -704,23 +704,22 @@ export function GanttChart({
           // delta. Persisted parent dates will roll up from descendants on
           // the next read.
           const days = differenceInCalendarDays(new Date(draft.start), new Date(dragState.origStart));
-          for (const d of descendants) {
-            if (hierarchy?.get(d.id)?.isSummary) continue;
-            await adapter.updateStage({
-              id: d.id,
-              projectId: d.projectId,
-              start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
-              end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
-            });
-          }
+          const edits = descendants.filter((d) => !hierarchy?.get(d.id)?.isSummary && d.start_date && d.end_date).map((d) => ({
+            id: d.id,
+            start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+            end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+            move: true,
+          }));
+          if (adapter.moveStages) await adapter.moveStages(dragState.projectId, edits);
+          else for (const e of edits) await adapter.updateStage({ ...e, projectId: dragState.projectId });
         } else {
           await adapter.updateStage({
             id: dragState.id,
             projectId: dragState.projectId,
             start_date: draft.start,
             end_date: draft.end,
+            move: dragState.type === "stage-move",
           });
-
         }
       } else {
         await adapter.updateAllocation({
@@ -828,17 +827,25 @@ export function GanttChart({
     );
     if (real.length === 0) return;
     try {
-      for (const d of real) {
-        await adapter.updateStage({
-          id: d.id,
-          projectId: d.projectId,
-          start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
-          end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
-        });
+      if (!self && adapter.shiftProjectStart && real[0]) {
+        const first = real.reduce((m, d) => (d.start_date < m ? d.start_date : m), real[0].start_date);
+        const res = await adapter.shiftProjectStart(real[0].projectId, format(addDays(new Date(first), days), "yyyy-MM-dd"));
+        if (res.locked) toast.warning(t("gantt.schedule.lockedSkipped", { count: res.locked }));
+        else if (!res.moved) toast.info(t("gantt.schedule.nothingMoved"));
+        return;
       }
-      toast.success(`${real.length} stage(s) shifted by ${days} day(s)`);
+      const edits = real.filter((d) => !hierarchy?.get(d.id)?.isSummary).map((d) => ({
+        id: d.id,
+        start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+        end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+        move: true,
+      }));
+      if (adapter.moveStages && real[0]) await adapter.moveStages(real[0].projectId, edits);
+      else for (const e of edits) await adapter.updateStage({ ...e, projectId: real[0].projectId });
+      toast.success(`${edits.length} stage(s) shifted by ${days} day(s)`);
     } catch (err) {
-      toast.error((err as Error).message);
+      const msg = (err as Error).message;
+      toast.error(t(msg, { defaultValue: msg }));
     }
   }
 
