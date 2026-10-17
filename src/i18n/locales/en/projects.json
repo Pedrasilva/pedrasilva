@@ -518,6 +518,7 @@
     "rateSuggestionFootnote": "* Rate is auto-suggested from the HR comparative summary (sale @ 50%) when the resource has no rate set. Edit the resource to fix a value."
   },
   "gantt": {
+    "wdShort": "wd",
     "title": "Global Gantt",
     "subtitle": "All {{filter}} projects in a single Gantt. Drag resources from the side pool onto any stage, or grab an existing allocation by the left handle to move it between stages or projects.",
     "filterLabels": {

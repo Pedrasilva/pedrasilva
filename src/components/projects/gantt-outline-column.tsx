@@ -190,7 +190,7 @@ export function GanttOutlineColumn({
         >
           <span style={{ width: COL.num }} className="text-center">#</span>
           <span style={{ width: nameWidth }} className="truncate">Milestones &amp; Tasks</span>
-          {showDur && <span style={{ width: COL.dur }} className="text-right tabular-nums">Dur.</span>}
+          {showDur && <span style={{ width: COL.dur }} className="text-right tabular-nums">{relative ? "Dur." : t("gantt.wdShort")}</span>}
           {showStart && <span style={{ width: COL.start }} className="text-right">Start</span>}
           {showDue && <span style={{ width: COL.due }} className="text-right">Due</span>}
           {showBudget && <span style={{ width: COL.budget }} className="text-right">Budget</span>}
@@ -348,7 +348,6 @@ export function GanttOutlineColumn({
                       suffix=""
                       onCommit={async (n) => {
                         if (!stage.start_date) return;
-                        const start = parseISO(stage.start_date);
                         const end = parseISO((relative ? scheduleCalendar() : liveCal).shift(relative ? stage.start_date : liveCal.snap(stage.start_date), Math.max(0, n - 1)));
                         await commitBounds({
                           start_date: stage.start_date,

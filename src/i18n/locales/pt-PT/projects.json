@@ -518,6 +518,7 @@
     "rateSuggestionFootnote": "* Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o recurso ainda não tem rate definido. Edita o recurso para fixar um valor."
   },
   "gantt": {
+    "wdShort": "d.ú.",
     "title": "Gantt Global",
     "subtitle": "Todos os projectos {{filter}} num só Gantt. Arrasta recursos do painel lateral para qualquer fase, ou agarra uma alocação existente pelo ícone à esquerda para a mover entre fases ou projectos.",
     "filterLabels": {
