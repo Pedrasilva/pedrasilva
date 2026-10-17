@@ -8128,6 +8128,7 @@ export type Database = {
           id: string
           is_locked: boolean
           is_site_visit: boolean
+          planning_removed_at: string | null
           resource_id: string
           source: string | null
           source_quote_allocation_id: string | null
@@ -8148,6 +8149,7 @@ export type Database = {
           id?: string
           is_locked?: boolean
           is_site_visit?: boolean
+          planning_removed_at?: string | null
           resource_id: string
           source?: string | null
           source_quote_allocation_id?: string | null
@@ -8168,6 +8170,7 @@ export type Database = {
           id?: string
           is_locked?: boolean
           is_site_visit?: boolean
+          planning_removed_at?: string | null
           resource_id?: string
           source?: string | null
           source_quote_allocation_id?: string | null
@@ -11059,6 +11062,47 @@ export type Database = {
           week_start?: string
         }
         Relationships: []
+      }
+      pm_week_publications: {
+        Row: {
+          approved_at: string
+          approved_by: string
+          id: string
+          plan_id: string
+          preview_token: string
+          published_slots: Json
+          summary: Json
+          week_start: string
+        }
+        Insert: {
+          approved_at?: string
+          approved_by: string
+          id?: string
+          plan_id: string
+          preview_token: string
+          published_slots: Json
+          summary: Json
+          week_start: string
+        }
+        Update: {
+          approved_at?: string
+          approved_by?: string
+          id?: string
+          plan_id?: string
+          preview_token?: string
+          published_slots?: Json
+          summary?: Json
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_week_publications_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pm_week_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_categories: {
         Row: {
@@ -15642,6 +15686,17 @@ export type Database = {
         }
         Returns: string
       }
+      pm_apply_week_plan: {
+        Args: {
+          _ack_baseline?: boolean
+          _ack_overlap?: boolean
+          _extensions?: Json
+          _plan_id: string
+          _preview_token?: string
+          _publication_id?: string
+        }
+        Returns: Json
+      }
       pm_assigned_project_ids: {
         Args: { _user_id: string }
         Returns: {
@@ -15732,6 +15787,10 @@ export type Database = {
         Args: { _date: string; _user_id: string }
         Returns: string
       }
+      pm_preview_week_plan: {
+        Args: { _extensions?: Json; _plan_id: string }
+        Returns: Json
+      }
       pm_project_has_retainer: {
         Args: { _project_id: string }
         Returns: boolean
@@ -15789,6 +15848,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_revise_week_plan: {
+        Args: { _expected_updated_at: string; _plan_id: string; _slots: Json }
+        Returns: Json
+      }
       pm_team_resource_ids: {
         Args: { _user_id: string }
         Returns: {
@@ -15823,6 +15886,7 @@ export type Database = {
         }
         Returns: Json
       }
+      pm_week_revision: { Args: { _plan_id: string }; Returns: string }
       pm_write_cost_snapshots: {
         Args: { _rows: Json; _source: string }
         Returns: number
