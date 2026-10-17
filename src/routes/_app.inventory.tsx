@@ -36,9 +36,10 @@ function InventoryLayout() {
           <h1 className="text-xl font-semibold tracking-tight">{t("inventory:module.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("inventory:module.subtitle")}</p>
         </header>
-        {access.isLoading ? <p>{t("common:loading")}</p> : access.data !== true ? (
+        {!access.isLoading && access.data !== true && (
           <p role="status" className="text-sm text-muted-foreground">{t("common:access.inventoryDenied")}</p>
-        ) : <Outlet />}
+        )}
+        <Outlet />
       </main>
     </div>
   );

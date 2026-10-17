@@ -127,7 +127,7 @@ export function InvoiceInventoryDialog({
   );
 
   const confirm = async () => {
-    if (!invoice) return;
+    if (!canEdit || !invoice) return;
     const plans: LineAssetPlan[] = [];
     for (const line of invoice.lines) {
       const d = drafts[line.id];
@@ -167,7 +167,7 @@ export function InvoiceInventoryDialog({
         {!canEdit && <p role="status" className="text-sm text-muted-foreground">{t("common:access.inventoryDenied")}</p>}
 
         {isLoading && <p className="text-sm text-muted-foreground">{t("common:loading")}</p>}
-        {!isLoading && invoice && invoice.lines.length === 0 && (
+        {canEdit && !isLoading && invoice && invoice.lines.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("inventory:invoice.noLines")}</p>
             <Button
@@ -194,7 +194,7 @@ export function InvoiceInventoryDialog({
           </div>
         )}
 
-        {invoice && invoice.lines.length > 0 && (
+        {canEdit && invoice && invoice.lines.length > 0 && (
           <Table>
             <TableHeader>
               <TableRow>
