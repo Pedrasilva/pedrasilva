@@ -688,7 +688,9 @@
       "startWeek": "Semana de início",
       "durationWeeks": "Duração (semanas)",
       "convertStart": "Data de início do projecto",
-      "
+      "previewBaseline": "Datas da proposta",
+      "previewLive": "Datas em obra",
+      "previewShift": "+{{count}} dias de calendário (feriados/fechos)",
       "convertPreview": "Pré-visualização da conversão para datas",
       "required": "Inicialize a cronologia relativa numa revisão editável antes de converter.",
       "approvedRequired": "A proposta tem de estar aprovada.",
