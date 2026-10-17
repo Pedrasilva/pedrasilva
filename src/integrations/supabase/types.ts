@@ -15387,6 +15387,10 @@ export type Database = {
       is_non_psa_entity_member: { Args: never; Returns: boolean }
       is_psa_staff: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      leave_admin_reconcile_preserving_timesheets: {
+        Args: { _actor: string; _changes: Json; _reason: string }
+        Returns: Json
+      }
       leave_apply_change: {
         Args: {
           _dias: number
