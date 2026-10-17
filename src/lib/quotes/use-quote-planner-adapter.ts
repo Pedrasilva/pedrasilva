@@ -27,7 +27,7 @@ import type { Resource } from "@/lib/projects/types";
 import type { StageDependency, DepType } from "@/lib/projects/dependencies";
 import { QUOTE_FEATURES, type PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
-import { changeGanttDependency } from "@/lib/projects/gantt-schedule";
+import { changeGanttDependency,changeGanttAllocationDates } from "@/lib/projects/gantt-schedule";
 import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,6 +84,10 @@ export function useQuotePlannerAdapter(
         allocation_percentage?: number | null;
       };
     }) => {
+      if ((patch.start_date || patch.end_date) && !patch.stage_id && patch.hours_per_day===undefined && patch.allocation_percentage===undefined) {
+        await changeGanttAllocationDates("quote",quoteId,id,patch);
+        return null;
+      }
       const { data, error } = await db
         .from("quote_allocations")
         .update(patch)

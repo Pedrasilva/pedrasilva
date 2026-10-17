@@ -30,6 +30,17 @@ export async function changeGanttStage(mode: Mode, scope: string, id: string, st
   return {updatedIds:patch.stages.map(s=>s.id), shiftedAllocations:patch.allocations.length,
     dependentCount:patch.stages.filter(s=>s.id!==id).length};
 }
+export async function changeGanttAllocationDates(mode: Mode, scope: string, id: string, dates: {start_date?:string;end_date?:string}) {
+  const state=await readGanttSchedule(mode,scope);
+  const allocation=state.allocations.find(a=>a.id===id);
+  if (!allocation) throw new Error("gantt.schedule.stale");
+  if (allocation.is_locked || allocation.external_id || ["import","imported_accelo"].includes(allocation.source ?? "")) throw new Error("gantt.schedule.lockedAllocation");
+  const calendar=scheduleCalendar(state.relative?[]:state.holidays);
+  const start_date=calendar.snap(dates.start_date ?? allocation.start_date);
+  const end_date=calendar.snap(dates.end_date ?? allocation.end_date,-1);
+  if (end_date<start_date) throw new Error("gantt.schedule.invalidRange");
+  return saveGanttSchedule(mode,scope,state,{stages:[],allocations:[{id,start_date,end_date}],dependencies:state.dependencies});
+}
 export async function changeGanttDependency(mode: Mode, scope: string, action: "create" | "update" | "delete",
   input: Partial<StageDependency> & {id?: string; replaces?: string}) {
   const state = await readGanttSchedule(mode,scope);

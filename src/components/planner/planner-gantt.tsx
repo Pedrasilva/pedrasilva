@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GanttHistoryControls } from "./gantt-history-controls";
 import { RelativeScheduleControls } from "@/components/quotes/relative-schedule-controls";
-import { RELATIVE_ORIGIN } from "@/lib/projects/schedule-engine";
+import { RELATIVE_ORIGIN,scheduleCalendar } from "@/lib/projects/schedule-engine";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import {quoteAllocationLine} from "@/lib/quotes/financial-rollups";
 import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
@@ -867,6 +867,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
       }
 
+      if (relative) {
+        const calendar=scheduleCalendar();
+        start=parseISO(calendar.snap(fmtDate(start)));
+        if (where !== "child") end=parseISO(calendar.shift(fmtDate(start),where === "milestone"?0:4));
+      }
       const name =
         where === "milestone"
           ? t("workspace.planning.newMilestone", { defaultValue: "Milestone" })
@@ -908,7 +913,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         }
       }
     },
-    [stages, upsertStage, quoteId, t, createQuoteDep, blockIfLocked],
+    [stages, upsertStage, quoteId, t, createQuoteDep, blockIfLocked,relative],
   );
 
   const handleDelete = useCallback(
