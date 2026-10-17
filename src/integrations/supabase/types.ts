@@ -15889,6 +15889,10 @@ export type Database = {
           unsnap_hours: number
         }[]
       }
+      pm_quote_calendar_allocations: {
+        Args: { _quote: string; _start: string }
+        Returns: Json
+      }
       pm_quote_conversion_preview: {
         Args: { _quote: string; _start: string }
         Returns: Json
