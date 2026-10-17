@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Tatiana absence corrections and weekly approval
+- [ ] Audit and remove only Tatiana's 8h on July 22 and 16h on August 19; record both as approved full-day unpaid absences.
+- [ ] Approve/reconcile only her weeks June 1–October 12 in one transaction, preserving other people and all rates; verify each absence contributes 8h owed.
+- [ ] Report removed activity costs, bank before/after, approved weeks and any blockers.
+
 ## Completed request — attendance reconciliation
 - [x] Add service-only audited admin correction safeguard preserving every timesheet row; pending sick leave can lack attachment, approval cannot.
 - [x] Apply exactly six corrections in one transaction; four days skipped because logged hours meet/exceed expected hours.
