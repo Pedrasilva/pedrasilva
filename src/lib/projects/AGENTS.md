@@ -1,6 +1,7 @@
 # Projects module rules
 
 - Cost-period rebuilds use pm_replace_cost_periods for atomic replacement and queue acknowledgement; admin and scheduled paths share an advisory lock and revision check. Why: failed or stale concurrent runs must preserve periods and pending work.
+- Internal Backoffice snapshots use pm_backoffice_salary_cost and overhead_salary without modifying cost periods or the Projecto overhead pool; reporting displays them as overhead analysis and excludes them from overhead-loaded business totals. Why: the same salary must not be counted twice.
 - Retainer actuals use only saved positive snapshots for task/direct/detail paths, independently of shared budget estimates. Why: missing costs must suppress totals and margins, not become team-rate estimates.
 
 - Weekly planning uses pm_week_board's explicit no-rates projection; week-board.ts owns half-day inference and PLAN_UTILISATION. Stage 2 saves only protected drafts through atomic pm_week_draft, merging changed slots under a row lock; never mutate allocations, stage dates or timesheets. Why: draft planning and actuals remain separate and staff cannot access drafts or financial data.

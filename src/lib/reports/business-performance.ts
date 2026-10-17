@@ -25,6 +25,7 @@ export interface BPEntry {
   billable: boolean;
   entry_type: "project" | "internal" | "non_working" | string;
   cost_rate_snapshot: number | null;
+  cost_rate_source?: string | null;
 }
 
 export interface BPRates {
@@ -77,7 +78,7 @@ export function computeBusinessPerformance(input: {
     const f = entryFigures(e, input.ratesFor(e));
     if (!f) continue;
     revenue += f.revenue;
-    cost += f.cost;
+    if (e.cost_rate_source !== "overhead_salary") cost += f.cost;
     totalLogged += f.hours;
     billableHours += f.billableHours;
   }

@@ -591,7 +591,7 @@ function LossesTable({ rows, people }: { rows: LossRow[]; people: Health["lossPe
   );
   const anyOverhead = rows.some((r) => (people[r.key] ?? []).some((p) => p.overhead));
   const weekLabel = (w: string) => new Date(w + "T00:00:00").toLocaleDateString(i18n.language, { day: "numeric", month: "short" });
-  const money = (cost: number, ovh: boolean) => (ovh ? <span className="text-xs text-muted-foreground">{t("health.losses.inStructure")}</span> : eur(cost));
+  const money = (cost: number, ovh: boolean) => (ovh ? <span className="text-xs text-muted-foreground">{cost>0 ? `${eur(cost)} · ` : ""}{t("health.losses.inStructure")}</span> : eur(cost));
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -653,7 +653,7 @@ function LossesTable({ rows, people }: { rows: LossRow[]; people: Health["lossPe
             <>
               <SheetHeader>
                 <SheetTitle>{detail.person.name}</SheetTitle>
-                <SheetDescription>{detail.row.label} · {h(detail.person.hours)} · {detail.person.overhead ? t("health.losses.inStructure") : eur(detail.person.cost)}</SheetDescription>
+                <SheetDescription>{detail.row.label} · {h(detail.person.hours)} · {detail.person.overhead ? `${eur(detail.person.cost)} · ${t("health.losses.inStructure")}` : eur(detail.person.cost)}</SheetDescription>
               </SheetHeader>
               <Table className="mt-4">
                 <TableHeader><TableRow><TableHead>{t("health.losses.week")}</TableHead><TableHead className="text-right">h</TableHead><TableHead className="text-right">€</TableHead><TableHead /></TableRow></TableHeader>

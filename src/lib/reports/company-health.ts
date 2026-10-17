@@ -153,12 +153,12 @@ export function computeCompanyHealth(i: HealthInput): Health {
     lp.set(key, m);
     const r = m.get(userId) ?? { userId, name: nameOf.get(userId) ?? "—", hours: 0, cost: 0, overhead: true, weeks: [], wk: new Map() };
     r.hours += hours;
-    r.cost += overhead ? 0 : cost;
+    r.cost += cost;
     if (!overhead) r.overhead = false;
     if (pctNotLogged !== undefined) r.pctNotLogged = pctNotLogged;
     const w = r.wk.get(week) ?? { hours: 0, cost: 0 };
     w.hours += hours;
-    w.cost += overhead ? 0 : cost;
+    w.cost += cost;
     r.wk.set(week, w);
     m.set(userId, r);
   };
@@ -172,11 +172,11 @@ export function computeCompanyHealth(i: HealthInput): Health {
     if (!f) continue;
     value += f.revenue;
     billableHours += f.billableHours;
-    const ovh = !!bo.get(e.user_id) || e.cost_rate_source === "overhead";
+    const ovh = !!bo.get(e.user_id) || e.cost_rate_source === "overhead" || e.cost_rate_source === "overhead_salary";
     const wk = mondayOf(e.entry_date);
     if (e.entry_type === "internal" && e.opportunity_id && i.lostLeads.has(e.opportunity_id)) {
-      pursuitLost += f.cost;
-      addLoss("pursuitLost", e.user_id, f.hours, f.cost, wk, false);
+      if (!ovh) pursuitLost += f.cost;
+      addLoss("pursuitLost", e.user_id, f.hours, f.cost, wk, ovh);
     }
     if (e.entry_type === "project" && f.billableHours <= 0) addLoss("nonBillable", e.user_id, f.hours, f.cost, wk, ovh);
     if (e.entry_type === "project" && i.isOwnWork(e)) {
@@ -197,7 +197,7 @@ export function computeCompanyHealth(i: HealthInput): Health {
       cat.set(k, c);
       addLoss(`i:${k}`, e.user_id, f.hours, f.cost, wk, ovh);
     }
-    if (bo.get(e.user_id)) continue;
+    if (ovh) continue;
     if (f.billableHours > 0) blocks.billable += f.cost;
     else if (e.entry_type === "project") blocks.nonBillable += f.cost;
     else blocks.internal += f.cost;
