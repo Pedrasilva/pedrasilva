@@ -961,16 +961,18 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                 <Label className="text-xs">
                   {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
                 </Label>
-                <Input
+                {relative ? <RelativeStageFields disabled={false} start={stage.start_date} end={stage.start_date} onChange={(start_date)=>{
+                  updateStageCascade.mutateAsync({id:stage.id,start_date,end_date:start_date}).catch(e=>toast.error(t(e.message)));
+                }}/> : <Input
                   type="date"
                   key={`ms-${stage.id}-${stage.start_date}`}
                   defaultValue={stage.start_date}
                   onBlur={(e) => {
                     const v = e.target.value;
                     if (v && v !== stage.start_date)
-                      upsertStage.mutate({ id: stage.id, start_date: v, end_date: v });
+                      updateStageCascade.mutate({ id: stage.id, start_date: v, end_date: v });
                   }}
-                />
+                />}
               </div>
               <Button
                 variant="outline"
@@ -1000,8 +1002,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                   const b = next?.sort_order ?? a + 20;
                   let baseSort = Math.floor((a + b) / 2);
                   if (baseSort === a || baseSort === b) baseSort = a + 5;
-                  const start = addDays(parseISO(anchor.end_date), 1);
-                  const end = addDays(start, 5);
+                  const start = relative ? parseISO(scheduleCalendar().shift(anchor.end_date,1)) : addDays(parseISO(anchor.end_date), 1);
+                  const end = relative ? parseISO(scheduleCalendar().shift(format(start,"yyyy-MM-dd"),4)) : addDays(start, 5);
                   const fmtDate = (d: Date) => format(d, "yyyy-MM-dd");
                   upsertStage.mutate({
                     quote_id: quoteId,

@@ -38,6 +38,21 @@ Preview normalization before initializing an existing editable proposal, retain 
 
 At explicit live-project creation, require a real start date, snap it forward to a working day and preview the complete calendar conversion. Preserve hierarchy, durations, resources, hours/day, snapshots, dependencies, lags, commercial schedules and integration links. Create all related records in one authorized, idempotent transaction; retries must not create duplicates, and linked live projects must never be re-dated.
 
+## Current implementation and remaining gaps
+
+Partial scheduling and conversion work exists, but this request is not complete. Before enabling or claiming completion:
+
+- Resolve the relative-preview failure on the South Perth proposal. Its existing summary-to-descendant link is detected as circular; show a clear blocking message and offer an explicit correction preview, never silently remove a live link.
+- Verify undo/redo across several consecutive changes and fix history revisions if they prevent earlier actions being restored.
+- Verify relative initialization, new-stage insertion and every editor actually use offsets; existing uninitialized proposals currently still show calendar dates.
+- Complete exact commercial parity for conversion, including saved monthly-estimate fallback, supplier markups, percentage payments, retainer month effort, generated versus fixed payment dates, and previewed copied records.
+- Verify holiday-aware dependency positions after conversion, rather than assuming mapping both endpoints always preserves signed lags.
+- Validate retainer conversion with a fixture satisfying the existing retainer field requirements; the last fixture stopped at that validation before conversion.
+
+**Verified so far:** 24 scheduling unit tests and 17 weekly-board regression tests; rolled-back basic conversion with a €600 fee and a 30% payment resolved to €180; idempotent retry; signed-in proposal rendering. Full-row hashes still match the original 94 allocations, 107 stages, 1,411 timesheet entries and 37 cost periods. Database changes made so far have source-controlled mirrors.
+
+**Not verified:** complete browser save/undo flows on an isolated copy, the relative preview on the existing proposal, retainer conversion, full commercial/integration parity, and concurrent browser edits. No real proposal conversion or live schedule save was performed during these checks.
+
 ## Technical safeguards
 
 - Reuse the shared Gantt, existing permission helpers, quote locks, financial calculations, WBS helpers and EN/PT translations; add no packages.

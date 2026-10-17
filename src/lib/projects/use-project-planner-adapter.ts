@@ -10,7 +10,7 @@
  * affordances that would always fail.
  */
 import { useQueryClient } from "@tanstack/react-query";
-import { changeGanttDependency,projectScopeForDependency } from "./gantt-schedule";
+import { changeGanttDependency,projectScopeForDependency,changeGanttAllocationDates } from "./gantt-schedule";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -96,7 +96,15 @@ export function useProjectPlannerAdapter(
     // (needed for timesheet self-staffing and editing % / hours per day).
     // Cross-resource edits fail at the DB and surface as an error toast.
     createAllocation: (a) => createAlloc.mutateAsync(a),
-    updateAllocation: (a) => updateAlloc.mutateAsync(a),
+    updateAllocation: async (a) => {
+      if ((a.patch.start_date || a.patch.end_date) && !a.patch.stage_id && a.patch.hours_per_day===undefined && a.patch.allocation_percentage===undefined) {
+        await changeGanttAllocationDates("project",a.projectId,a.id,a.patch);
+        await qc.invalidateQueries({queryKey:["pm-project"]});
+        await qc.invalidateQueries({queryKey:["pm-allocations-all"]});
+        return null;
+      }
+      return updateAlloc.mutateAsync(a);
+    },
     deleteAllocation: (a) => deleteAlloc.mutateAsync(a),
     setAllocationStatus: (a) => setStatusMut.mutateAsync(a),
 

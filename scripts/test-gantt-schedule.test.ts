@@ -1,9 +1,27 @@
 import {describe,it,expect} from "vitest";
-import {recomputeSchedule,scheduleCalendar,dependencySlack,type ScheduleState} from "../src/lib/projects/schedule-engine";
+import {recomputeSchedule,scheduleCalendar,dependencySlack,reviewScheduleLinks,type ScheduleState} from "../src/lib/projects/schedule-engine";
 const stage=(id:string,start_date:string,end_date:string)=>({id,start_date,end_date});
 const base=():ScheduleState=>({stages:[stage("a","2026-10-19","2026-10-23"),stage("b","2026-11-02","2026-11-06")],
   allocations:[{id:"resource",stage_id:"a",start_date:"2026-10-20",end_date:"2026-10-22"}],dependencies:[],holidays:[],relative:false,revision:"test"});
 describe("Gantt scheduling rules",()=>{
+  it("allows sibling dependencies under a summary",()=>{
+    const s=base();s.stages.push(stage("parent","2026-10-01","2026-12-31"));
+    s.stages[0].parent_stage_id="parent";s.stages[1].parent_stage_id="parent";
+    const links=[{id:"ab",predecessor_id:"a",successor_id:"b",type:"FS" as const,lag_days:0}];
+    expect(reviewScheduleLinks(s.stages,links).rejected).toEqual([]);
+    expect(recomputeSchedule(s,links,[],["b"]).stages.find(v=>v.id==="b")?.start_date).toBe("2026-10-26");
+  });
+  it("reviews a summary-to-descendant circular link without modifying the original",()=>{
+    const s=base();s.stages.push(stage("parent","2026-10-01","2026-12-31"));s.stages[1].parent_stage_id="parent";
+    const link={id:"parent-child",predecessor_id:"parent",successor_id:"b",type:"FS" as const,lag_days:0};s.dependencies=[link];
+    const reviewed=reviewScheduleLinks(s.stages,s.dependencies);
+    expect(reviewed.rejected).toEqual([link]);expect(reviewed.accepted).toEqual([]);expect(s.dependencies).toEqual([link]);
+  });
+  it("moves a summary using its child duration rather than stale parent dates",()=>{
+    const s=base();s.stages.push(stage("parent","2026-10-01","2026-12-31"));s.stages[1].parent_stage_id="parent";
+    const link={id:"ap",predecessor_id:"a",successor_id:"parent",type:"FS" as const,lag_days:0};
+    expect(recomputeSchedule(s,[link],[],["parent"]).stages.find(v=>v.id==="parent")).toEqual(stage("parent","2026-10-26","2026-10-30"));
+  });
   it("shrinks every resource to the edited stage bounds",()=>{
     const result=recomputeSchedule(base(),[],[stage("a","2026-10-19","2026-10-21")]);
     expect(result.allocations).toEqual([{id:"resource",start_date:"2026-10-19",end_date:"2026-10-21"}]);

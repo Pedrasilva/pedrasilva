@@ -15893,11 +15893,17 @@ export type Database = {
         Args: { _quote: string; _start: string }
         Returns: Json
       }
+      pm_quote_calendar_stages: {
+        Args: { _quote: string; _start: string }
+        Returns: Json
+      }
       pm_quote_conversion_preview: {
         Args: { _quote: string; _start: string }
         Returns: Json
       }
+      pm_quote_conversion_totals: { Args: { _quote: string }; Returns: Json }
       pm_quote_external_fee: { Args: { _quote: string }; Returns: number }
+      pm_quote_external_line_fee: { Args: { _item: string }; Returns: number }
       pm_quote_internal_fee: { Args: { _quote: string }; Returns: number }
       pm_quote_payment_amount: {
         Args: { _item: string; _quote: string; _total: number }
@@ -15912,6 +15918,17 @@ export type Database = {
         }
         Returns: string
       }
+      pm_quote_preview_payment_date: {
+        Args: {
+          _item: string
+          _payment?: boolean
+          _quote: string
+          _stages: Json
+          _start: string
+        }
+        Returns: string
+      }
+      pm_quote_stage_billing_fee: { Args: { _stage: string }; Returns: number }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
         Returns: number

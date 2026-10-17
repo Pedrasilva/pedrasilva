@@ -30,6 +30,17 @@ export async function changeGanttStage(mode: Mode, scope: string, id: string, st
   return {updatedIds:patch.stages.map(s=>s.id), shiftedAllocations:patch.allocations.length,
     dependentCount:patch.stages.filter(s=>s.id!==id).length};
 }
+export async function changeGanttAllocationDates(mode: Mode, scope: string, id: string, dates: {start_date?:string;end_date?:string}) {
+  const state=await readGanttSchedule(mode,scope);
+  const allocation=state.allocations.find(a=>a.id===id);
+  if (!allocation) throw new Error("gantt.schedule.stale");
+  if (allocation.is_locked || allocation.external_id || ["import","imported_accelo"].includes(allocation.source ?? "")) throw new Error("gantt.schedule.lockedAllocation");
+  const calendar=scheduleCalendar(state.relative?[]:state.holidays);
+  const start_date=calendar.snap(dates.start_date ?? allocation.start_date);
+  const end_date=calendar.snap(dates.end_date ?? allocation.end_date,-1);
+  if (end_date<start_date) throw new Error("gantt.schedule.invalidRange");
+  return saveGanttSchedule(mode,scope,state,{stages:[],allocations:[{id,start_date,end_date}],dependencies:state.dependencies});
+}
 export async function changeGanttDependency(mode: Mode, scope: string, action: "create" | "update" | "delete",
   input: Partial<StageDependency> & {id?: string; replaces?: string}) {
   const state = await readGanttSchedule(mode,scope);
@@ -85,14 +96,21 @@ export async function undoGanttSchedule(mode: Mode, scope: string, redo = false)
   }).map(a=>a.id));
   const result = await saveGanttSchedule(mode,scope,current,{stages:target.stages.filter(s=>changedStages.has(s.id)),
     allocations:target.allocations.filter(a=>changedAllocs.has(a.id)),dependencies:target.dependencies},false,false);
-  if (redo) {stack.redo.pop(); stack.undo.push({before:item.before,after:result.after});}
-  else {stack.undo.pop(); stack.redo.push({before:result.after,after:item.after});}
+  if (redo) {
+    stack.redo.pop(); stack.undo.push({before:result.before,after:result.after});
+    const next = stack.redo.at(-1);
+    if (next) next.before = {...next.before,revision:result.after.revision};
+  } else {
+    stack.undo.pop(); stack.redo.push({before:result.after,after:item.after});
+    const previous = stack.undo.at(-1);
+    if (previous) previous.after = {...previous.after,revision:result.after.revision};
+  }
 }
-export function relativeInitialization(state: ScheduleState): SchedulePatch {
+export function relativeInitialization(state: ScheduleState, dependencies = state.dependencies): SchedulePatch {
   const calendar = scheduleCalendar();
   const first = state.stages.reduce((s,v)=>v.start_date<s ? v.start_date:s,state.stages[0]?.start_date ?? RELATIVE_ORIGIN);
   const map = (date: string) => calendar.shift(RELATIVE_ORIGIN,calendar.offset(calendar.snap(first),calendar.snap(date)));
-  const normalized = {...state,relative:true,stages:state.stages.map(s=>({...s,start_date:map(s.start_date),
+  const normalized = {...state,dependencies,relative:true,stages:state.stages.map(s=>({...s,start_date:map(s.start_date),
     end_date:calendar.shift(map(s.start_date),calendar.duration(s.start_date,s.end_date)-1)})),
     allocations:state.allocations.map(a=>({...a,start_date:map(a.start_date),end_date:map(a.end_date)}))};
   const computed = recomputeSchedule(normalized,normalized.dependencies,[],normalized.stages.map(s=>s.id));

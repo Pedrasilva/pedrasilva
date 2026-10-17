@@ -666,6 +666,34 @@
       "when": 1792251754271,
       "tag": "0094_relative_payment_original_anchor",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1792253188640,
+      "tag": "0095_relative_conversion_canonical_fees_and_payment_dates",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1792253259145,
+      "tag": "0096_relative_calendar_dependency_resolution",
+      "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1792253345554,
+      "tag": "0097_relative_conversion_function_alias_resolution",
+      "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1792253398525,
+      "tag": "0098_relative_conversion_retainer_and_supplier_fee_parity",
+      "breakpoints": true
     }
   ]
 }
