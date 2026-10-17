@@ -26,7 +26,7 @@ export function useCapacityForecastData(start: string, end: string) {
         fetchAll<CfAllocation>((a, b) =>
           supabase.from("pm_allocations")
             .select("id, resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage")
-            .order("id").range(a, b) as never,
+            .is("planning_removed_at", null).order("id").range(a, b) as never,
         ),
         fetchAll<StageRow>((a, b) =>
           supabase.from("pm_stages")

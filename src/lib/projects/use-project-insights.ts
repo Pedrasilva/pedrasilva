@@ -73,7 +73,7 @@ export function useProjectInsights(projectId: string) {
       const { data: stages, error: sErr } = await supabase
         .from("pm_stages")
         .select(
-          "id, budget, allocations:pm_allocations(id, hours_per_day, start_date, end_date, resource:pm_resources(id, name, color, hourly_rate, cost_rate), tasks:pm_tasks(id))",
+          "id, budget, allocations:pm_allocations(id, planning_removed_at, hours_per_day, start_date, end_date, resource:pm_resources(id, name, color, hourly_rate, cost_rate), tasks:pm_tasks(id))",
         )
         .eq("project_id", projectId);
       if (sErr) throw sErr;
@@ -82,6 +82,7 @@ export function useProjectInsights(projectId: string) {
       type AllocLite = {
         id: string;
         hours_per_day: number;
+        planning_removed_at: string | null;
         start_date: string;
         end_date: string;
         resource: {
@@ -109,7 +110,7 @@ export function useProjectInsights(projectId: string) {
             taskToAlloc.set(t.id, a);
           }
           const wd = workingDaysBetween(a.start_date, a.end_date);
-          plannedHours += wd * Number(a.hours_per_day);
+          if (!a.planning_removed_at) plannedHours += wd * Number(a.hours_per_day);
           const r = a.resource;
           if (!resourceTotals.has(r.id)) {
             resourceTotals.set(r.id, {

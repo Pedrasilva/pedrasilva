@@ -66,7 +66,7 @@ export function useProjectForecastEnvelope(projectId: string | null | undefined)
     queryFn: async () => {
       const { data, error } = await db
         .from("pm_allocations")
-        .select("*")
+        .select("*").is("planning_removed_at", null)
         .in("stage_id", stageIds);
       if (error) throw new Error(error.message);
       return (data ?? []) as AllocationRow[];
