@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — CRM zero-quote fallback and atomic milestones
+- [ ] Use estimated fee labelled Estimated when the active quoted total is zero or empty, consistently across cards and totals.
+- [ ] Confirm milestone-change scope, then make the affected Gantt actions atomic and undoable using the existing scheduler.
+- [ ] Run focused unit tests and one check on an isolated copy; delete the copy afterwards.
+
 ## Current request — preserve quoted effort and fees on conversion
 - [x] Inspect current rules: ordinary stages/allocations extend around the live calendar; quoted commercial totals are copied.
 - [x] Approval checkpoint: add explicit conversion date shifts and effort/fee comparisons; Christmas-closure unit and rollback tests.
