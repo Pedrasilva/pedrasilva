@@ -174,6 +174,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
     return [s.id, calendar.duration(bounds.start_date, bounds.end_date)];
   }));
   const explicit = new Set(edits.map(s => s.id));
+  const linkedIds = new Set(deps.map(d => d.successor_id));
   for (let pass = 0; pass <= stages.length; pass++) {
     let changed = false;
     const summary = summaryBounds(stages);
@@ -190,17 +191,22 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
       }
       if (!best) continue; // Last link removed: retain current explicit position.
       const before = summary.get(stage.id) ?? stage;
-      if (before.start_date === best.start_date && before.end_date === best.end_date) continue;
       if (parentIds.has(stage.id)) {
-        const shift = calendar.offset(before.start_date, best.start_date);
-        const descendants = new Set([stage.id]);
-        for (let grow = true; grow;) {
-          grow = false;
-          for (const child of stages) if (child.parent_stage_id && descendants.has(child.parent_stage_id) && !descendants.has(child.id)) {
-            descendants.add(child.id); grow = true;
-          }
-        }
-        for (const child of stages) if (descendants.has(child.id) && !parentIds.has(child.id)) {
+        // A linked summary positions only its "free" leaves: descendants with
+        // no link of their own (nor on an intermediate summary) and not
+        // explicitly placed. Linked children follow their own links, so the
+        // summary and its children can never fight each other.
+        const free = stages.filter(child => {
+          if (parentIds.has(child.id) || explicit.has(child.id)) return false;
+          const chain = [child.id];
+          for (let p = child.parent_stage_id; p && p !== stage.id; p = byId.get(p)?.parent_stage_id) chain.push(p);
+          return chain.length && ancestorsOf(stages, child.id).includes(stage.id) && !chain.some(id => linkedIds.has(id));
+        });
+        if (!free.length) continue;
+        const freeStart = free.reduce((m, c) => c.start_date < m ? c.start_date : m, free[0].start_date);
+        const shift = calendar.offset(freeStart, best.start_date);
+        if (!shift) continue;
+        for (const child of free) {
           if (child.is_locked) throw new Error("gantt.schedule.locked");
           child.start_date = calendar.shift(child.start_date, shift);
           child.end_date = calendar.shift(child.start_date, (durations.get(child.id) ?? 1) - 1);
@@ -263,7 +269,9 @@ export function moveStagesPatch(state: ScheduleState, edits: StageEdit[], retime
   if (retimeLinks) {
     const temp = state.stages.map(s => ({...s, ...normalized.find(e => e.id === s.id)}));
     const bounds = summaryBounds(temp);
-    const retime = new Set(normalized.flatMap(e => [e.id, ...ancestorsOf(temp, e.id)]));
+    const editedIds = new Set(normalized.map(e => e.id));
+    const leavesUnder = (id: string) => temp.filter(c => !parentIds.has(c.id) && ancestorsOf(temp, c.id).includes(id));
+    const retime = new Set(normalized.flatMap(e => [e.id, ...ancestorsOf(temp, e.id).filter(a => leavesUnder(a).every(c => editedIds.has(c.id)))]));
     deps = deps.map(d => {
       if (!retime.has(d.successor_id) || isNestedLink(temp, d)) return d;
       const pred = {...temp.find(s => s.id === d.predecessor_id)!, ...bounds.get(d.predecessor_id)};
