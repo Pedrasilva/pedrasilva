@@ -15893,6 +15893,10 @@ export type Database = {
         Args: { _quote: string; _start: string }
         Returns: Json
       }
+      pm_quote_calendar_stages: {
+        Args: { _quote: string; _start: string }
+        Returns: Json
+      }
       pm_quote_conversion_preview: {
         Args: { _quote: string; _start: string }
         Returns: Json

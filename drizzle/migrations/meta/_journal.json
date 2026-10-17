@@ -673,6 +673,13 @@
       "when": 1792253188640,
       "tag": "0095_relative_conversion_canonical_fees_and_payment_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1792253259145,
+      "tag": "0096_relative_calendar_dependency_resolution",
+      "breakpoints": true
     }
   ]
 }
