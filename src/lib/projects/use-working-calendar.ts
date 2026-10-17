@@ -6,9 +6,10 @@ import { setWorkingCalendarHolidays } from "./gantt-utils";
  * Loads the shared working-day calendar (holidays + office closures) into
  * gantt-utils. Returns true once loaded (or failed — never blocks the app).
  */
-export function useWorkingCalendar(): boolean {
+export function useWorkingCalendar(enabled = true): boolean {
   const q = useQuery({
     queryKey: ["working-calendar-holidays"],
+    enabled,
     staleTime: 10 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("holidays").select("data");

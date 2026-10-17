@@ -1,3 +1,4 @@
+import { useWorkingCalendar } from "@/lib/projects/use-working-calendar";
 import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -42,6 +43,8 @@ function AppLayout() {
   const { session, loading, isPsaStaff, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
   const { canAccess, loading: accessLoading } = useModuleAccess();
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Project day/hour counts need the shared holiday calendar first.
+  const calendarReady = useWorkingCalendar(!!session);
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
@@ -260,7 +263,9 @@ function AppLayout() {
 
           )}
         >
-          {!loading && !isPsaStaff && !loc.pathname.startsWith("/finance") ? (
+          {session && !calendarReady ? (
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
+          ) : !loading && !isPsaStaff && !loc.pathname.startsWith("/finance") ? (
             accessLoading || canAccess("finance") ? (
               <div className="text-sm text-muted-foreground">{t("loading")}</div>
             ) : (
