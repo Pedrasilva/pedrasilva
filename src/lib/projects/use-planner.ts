@@ -808,6 +808,7 @@ export function useUpdateAllocation() {
       const { data, error } = await supabase
         .from("pm_allocations")
         .update(patch as never)
+        .is("planning_removed_at", null)
         .eq("id", id)
         .select()
         .single();
@@ -842,6 +843,7 @@ export function useSetAllocationStatus() {
       const { data, error } = await supabase
         .from("pm_allocations")
         .update({ status } as never)
+        .is("planning_removed_at", null)
         .eq("id", id)
         .select()
         .single();

@@ -1974,6 +1974,7 @@
     "balanceEstimated": "Alocado ~{{allocated}} (estimado) · registado {{logged}} · restam {{left}}"
   },
   "weekPublish": {
+    "bellTitle": "Plano da semana publicado",
     "approve": "Aprovar e publicar",
     "title": "Confirmar alterações às alocações da semana",
     "replaces": "Substitui o planeamento Gantt de segunda-feira a domingo para todos os colaboradores ativos do quadro, incluindo linhas vazias. As horas registadas não são alteradas.",

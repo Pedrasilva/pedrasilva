@@ -582,6 +582,20 @@
       "when": 1792236749713,
       "tag": "0082_weekly_preview_explicit_variable_resolution",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1792236974110,
+      "tag": "0083_weekly_publication_private_history_and_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1792237074328,
+      "tag": "0084_weekly_publication_validation_regressions",
+      "breakpoints": true
     }
   ]
 }
