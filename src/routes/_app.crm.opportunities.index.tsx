@@ -41,7 +41,9 @@ import {
   contactFullName, type Contact,
   defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
-import { resolveOpportunityValue } from "@/lib/crm/opportunity-value";
+import { resolveOpportunityValue, resolveOpportunityValueWithSource } from "@/lib/crm/opportunity-value";
+import { boardColumns, visibleOpportunities, shownTotal } from "@/lib/crm/pipeline-board";
+import { Switch } from "@/components/ui/switch";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 
 export const Route = createFileRoute("/_app/crm/opportunities/")({
@@ -71,6 +73,16 @@ function OpportunitiesPage() {
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
   const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
+  const [showClosed, setShowClosed] = useState(false);
+  const { data: projectByOpp = new Map<string, string>() } = useQuery({
+    queryKey: ["crm_opportunity_projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("pm_projects").select("id, opportunity_id").not("opportunity_id", "is", null);
+      if (error) throw error;
+      return new Map((data ?? []).map((p) => [p.opportunity_id as string, p.id as string]));
+    },
+  });
+  const convertedIds = new Set(projectByOpp.keys());
   
 
   const { data: opps = [], isLoading } = useQuery({
@@ -233,31 +245,26 @@ function OpportunitiesPage() {
     navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
   };
 
-  const hasSentQuote = (o: CrmOpportunity & { quotes?: QuoteRef[] }) =>
-    (o.quotes ?? []).some((q) => q.quote_status === "sent" && !q.deleted_at && !q.archived_at);
-
-  const byStage = OPPORTUNITY_STAGES.map((s) => ({
-    ...s,
-    label: t(`stage.${s.value}`),
-    items: opps.filter((o) => {
-      if (o.stage === s.value) return true;
-      // Mirror opportunities with a sent quote into the Negotiation column,
-      // in addition to their own stage column.
-      if (s.value === "negotiation" && o.stage !== "negotiation" && hasSentQuote(o)) return true;
-      return false;
-    }),
-  }));
+  const shownOpps = visibleOpportunities(opps, convertedIds, showClosed);
+  const byStage = boardColumns(OPPORTUNITY_STAGES.map((s) => s.value), opps, convertedIds, showClosed).map((c) => {
+    const s = OPPORTUNITY_STAGES.find((x) => x.value === c.stage)!;
+    return { ...s, label: t(`stage.${s.value}`), items: c.items, total: c.total };
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="text-xs text-muted-foreground">
           {t("opportunities.countAndFee", {
-            count: opps.length,
-            fee: formatEUR(opps.reduce((s, o) => s + resolveOpportunityValue(o), 0)),
+            count: shownOpps.length,
+            fee: formatEUR(shownTotal(shownOpps)),
           })}
         </div>
         <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Switch checked={showClosed} onCheckedChange={setShowClosed} aria-label={t("opportunities.showClosed")} />
+            {t("opportunities.showClosed")}
+          </label>
           <div className="inline-flex rounded-md border">
             <Button
               variant={view === "pipeline" ? "secondary" : "ghost"}
@@ -293,9 +300,9 @@ function OpportunitiesPage() {
           </CardContent>
         </Card>
       ) : view === "pipeline" ? (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+        <div className={`grid gap-3 md:grid-cols-2 ${showClosed ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
           {byStage.map((col) => {
-            const totalCol = col.items.reduce((s, p) => s + resolveOpportunityValue(p), 0);
+            const totalCol = col.total;
             return (
               <div key={col.value} className="rounded-md border bg-muted/20 p-2 min-h-[200px]">
                 <div className="flex items-center justify-between px-1 pb-2">
@@ -331,7 +338,11 @@ function OpportunitiesPage() {
                         </div>
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">{o.probability}%</span>
-                          <span className="font-semibold">{formatEUR(resolveOpportunityValue(o))}</span>
+                          {(() => { const v = resolveOpportunityValueWithSource(o); return (
+                            <span className="text-right">
+                              <span className="block text-[10px] text-muted-foreground">{t(v.source === "quoted" ? "opportunities.valueQuoted" : "opportunities.valueEstimated")}</span>
+                              <span className="font-semibold">{formatEUR(v.value)}</span>
+                            </span>); })()}
                         </div>
                         {(() => {
                           const nad = (o as unknown as { next_action_date: string | null }).next_action_date;
@@ -366,6 +377,16 @@ function OpportunitiesPage() {
                             : t("opportunities.card.noQuotes")}
                         </div>
                         <div className="mt-2 flex items-center justify-end gap-1">
+                          {o.stage === "won" && !projectByOpp.has(o.id) && (
+                            <Button size="sm" variant="secondary" className="h-6 px-2 text-xs" onClick={(e) => handleQuoteAction(e, o)}>
+                              {t("opportunities.convertToProject")}
+                            </Button>
+                          )}
+                          {projectByOpp.has(o.id) && (
+                            <Button asChild size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={(e) => e.stopPropagation()}>
+                              <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id)! }}>{t("opportunities.openProject")}</Link>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -465,7 +486,7 @@ function OpportunitiesPage() {
                 </tr>
               </thead>
               <tbody>
-                {opps.map((o) => {
+                {shownOpps.map((o) => {
                   const stage = OPPORTUNITY_STAGES.find((s) => s.value === o.stage);
                   const quoteCount = o.quotes?.length ?? 0;
                   return (
@@ -489,8 +510,13 @@ function OpportunitiesPage() {
                           <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
                           {stage ? t(`stage.${stage.value}`) : ""}
                         </span>
+                        {projectByOpp.has(o.id) && (
+                          <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id)! }} className="ml-2 text-xs text-primary hover:underline">
+                            {t("opportunities.converted")} →
+                          </Link>
+                        )}
                       </td>
-                      <td className="px-3 py-2 text-right font-medium">{formatEUR(resolveOpportunityValue(o))}</td>
+                      <td className="px-3 py-2 text-right font-medium">{formatEUR(resolveOpportunityValue(o))} <span className="text-[10px] text-muted-foreground">{t(resolveOpportunityValueWithSource(o).source === "quoted" ? "opportunities.valueQuoted" : "opportunities.valueEstimated")}</span></td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{o.probability}%</td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{quoteCount}</td>
                     </tr>

@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Plus, FileText, Send, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User, Copy, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { ContactPicker, NewContactDialog } from "@/components/crm/contact-picker";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { AccountSuggestField } from "@/components/crm/account-suggest-field";
 import { OpportunityDocumentsCard } from "@/components/crm/opportunity-documents-card";
@@ -233,6 +234,7 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [saveAsContactOpen, setSaveAsContactOpen] = useState(false);
   const updateContact = useMutation({
     mutationFn: async (primary_contact_id: string | null) => {
       const { error } = await supabase
@@ -623,27 +625,28 @@ function OpportunityDetail() {
 
               <div>
                 <Label className="text-xs text-muted-foreground">{t("opportunities.detail.contact")}</Label>
-                <Select
-                  value={opp.primary_contact_id ?? "none"}
-                  disabled={!opp.company_id}
-                  onValueChange={(v) => updateContact.mutate(v === "none" ? null : v)}
-                >
-                  <SelectTrigger className="h-8 mt-1">
-                    <SelectValue placeholder="—" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">—</SelectItem>
-                    {contacts.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{contactFullName(c)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {opp.company_id && contacts.length === 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("opportunities.detail.noContactsForCompany", "No contacts for this company yet")}
-                  </p>
-                )}
+                <ContactPicker
+                  value={opp.primary_contact_id}
+                  companyId={opp.company_id}
+                  initial={{ name: opp.contact_name ?? "", email: opp.contact_email ?? "", phone: opp.contact_phone ?? "" }}
+                  onChange={(contactId, companyId) => {
+                    if (companyId && companyId !== opp.company_id) updateField.mutate({ company_id: companyId, primary_contact_id: contactId });
+                    else updateContact.mutate(contactId);
+                  }}
+                />
               </div>
+
+              {!opp.primary_contact_id && (opp.contact_name || opp.contact_email) && (
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSaveAsContactOpen(true)}>
+                  {t("opportunities.contactPicker.saveAsContact")}
+                </Button>
+              )}
+              <NewContactDialog
+                open={saveAsContactOpen}
+                onClose={() => setSaveAsContactOpen(false)}
+                initial={{ name: opp.contact_name ?? "", email: opp.contact_email ?? "", phone: opp.contact_phone ?? "", companyId: opp.company_id }}
+                onCreated={(contactId, companyId) => updateField.mutate({ primary_contact_id: contactId, ...(companyId && !opp.company_id ? { company_id: companyId } : {}) })}
+              />
 
               {!opp.primary_contact_id && (
                 <div className="space-y-2 border-t pt-2">

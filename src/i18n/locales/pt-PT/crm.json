@@ -63,7 +63,7 @@
     "required": "*"
   },
   "opportunities": {
-    "countAndFee": "{{count}} oportunidades · {{fee}} estimado",
+    "countAndFee": "{{count}} oportunidades · {{fee}}",
     "newOpportunity": "Nova oportunidade",
     "viewPipeline": "Pipeline",
     "viewList": "Lista",
@@ -193,6 +193,26 @@
         "not_a_fit": "Não adequado",
         "other": "Outro"
       }
+    },
+    "showClosed": "Mostrar fechadas",
+    "valueQuoted": "Orçado",
+    "valueEstimated": "Estimado",
+    "convertToProject": "Converter em projeto",
+    "openProject": "Abrir projeto",
+    "converted": "Projeto",
+    "contactPicker": {
+      "search": "Procurar contacto…",
+      "empty": "Nenhum contacto encontrado",
+      "newContact": "+ Novo contacto",
+      "newContactTitle": "Novo contacto",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "company": "Empresa",
+      "create": "Criar",
+      "created": "Contacto criado",
+      "saveAsContact": "Guardar como contacto",
+      "nameRequired": "O nome é obrigatório"
     }
   },
   "accounts": {
