@@ -11,13 +11,32 @@ export function dayCount(start: string | Date, end: string | Date): number {
   return Math.max(1, differenceInCalendarDays(toDate(end), toDate(start)) + 1);
 }
 
-export function workingDays(start: string | Date, end: string | Date): number {
+/** Weekdays only — for CRM/quote estimates, which ignore holidays until live. */
+export const NO_HOLIDAYS: ReadonlySet<string> = new Set();
+
+// Shared working-day calendar (public holidays + office closures, both stored
+// in the holidays table). Loaded once by useWorkingCalendar before app pages
+// render, so every project day/hour/cost count matches the Gantt shading.
+let calendarHolidays: ReadonlySet<string> = NO_HOLIDAYS;
+export function setWorkingCalendarHolidays(dates: Iterable<string>): void {
+  calendarHolidays = new Set(dates);
+}
+export function getWorkingCalendarHolidays(): ReadonlySet<string> {
+  return calendarHolidays;
+}
+
+/** Working days (Mon–Fri minus holidays/closures), inclusive. */
+export function workingDays(
+  start: string | Date,
+  end: string | Date,
+  holidays: ReadonlySet<string> = calendarHolidays,
+): number {
   const s = startOfDay(toDate(start));
   const e = startOfDay(toDate(end));
   let count = 0;
   let d = s;
   while (d <= e) {
-    if (!isWeekend(d)) count++;
+    if (!isWeekend(d) && !holidays.has(format(d, "yyyy-MM-dd"))) count++;
     d = addDays(d, 1);
   }
   return Math.max(0, count);

@@ -19,7 +19,7 @@ import {
   toNum,
   type FinancialsRow,
 } from "@/lib/projects/financial-rollups";
-import { workingDays } from "@/lib/projects/gantt-utils";
+import { NO_HOLIDAYS, workingDays } from "@/lib/projects/gantt-utils";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import {
@@ -38,7 +38,7 @@ export function quoteAllocationLine(a: QuoteAllocationWithResource): {
   revenue: number;
   profit: number;
 } {
-  const days = workingDays(a.start_date, a.end_date);
+  const days = workingDays(a.start_date, a.end_date, NO_HOLIDAYS);
   const hpd = toNum(a.hours_per_day, 8);
   const hours = days * hpd;
   const cost = hours * toNum(a.cost_rate_snapshot);

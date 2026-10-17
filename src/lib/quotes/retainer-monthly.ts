@@ -12,7 +12,7 @@
  * produces the right per-month hours.
  */
 import { addDays, addMonths, endOfMonth, startOfMonth, parseISO, format } from "date-fns";
-import { workingDays } from "@/lib/projects/gantt-utils";
+import { NO_HOLIDAYS, workingDays } from "@/lib/projects/gantt-utils";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 
 export const DEFAULT_RETAINER_CAPACITY_HPM = 160;
@@ -41,7 +41,7 @@ export function defaultAnchorMonth(): string {
 export function monthWorkingDays(anchor: string): number {
   const start = anchorMonthStart(anchor);
   const end = anchorMonthEnd(anchor);
-  return Math.max(1, workingDays(start, end));
+  return Math.max(1, workingDays(start, end, NO_HOLIDAYS));
 }
 
 /** % allocation → hours per month, given monthly capacity. */
@@ -65,7 +65,7 @@ export function hoursPerMonthToHpd(hpm: number, anchor: string): number {
 
 /** Allocation row monthly hours, derived from working_days × hours_per_day. */
 export function allocationMonthlyHours(a: QuoteAllocationWithResource): number {
-  return workingDays(a.start_date, a.end_date) * Number(a.hours_per_day || 0);
+  return workingDays(a.start_date, a.end_date, NO_HOLIDAYS) * Number(a.hours_per_day || 0);
 }
 
 /** Σ monthly hours across all allocations on this retainer stage. */
