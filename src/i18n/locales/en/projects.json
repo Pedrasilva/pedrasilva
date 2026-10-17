@@ -38,13 +38,17 @@
     "changeCount_one": "{{count}} change from Gantt",
     "changeCount_other": "{{count}} changes from Gantt",
     "outsideStages": "Outside the stage dates for {{project}}",
-    "requestExtension": "Request extension of {{stage}} until {{date}}",
-    "extensionRecorded": "Extension request recorded: {{stage}} until {{date}}",
+    "requestExtension": "Request extension: {{stage}} from {{from}} to {{until}}",
+    "extensionRecorded": "Extension request recorded: {{stage}} from {{from}} to {{until}}",
     "overloadsDropped_one": "{{count}} overlapping booking not copied:",
     "overloadsDropped_other": "{{count}} overlapping bookings not copied:",
-    "unbookedProjects": "Stages this week, no bookings: {{projects}}",
+    "unbookedProjects": "Projects with nobody this week: {{projects}}",
     "chooseStage": "Choose a stage",
-    "unsavedConfirm": "Leave with unsaved draft changes?"
+    "unsavedConfirm": "Leave with unsaved draft changes?",
+    "brushHint": "Choose a project or Erase",
+    "discardUnsaved": "Discard unsaved changes",
+    "stageChange": "Stage change",
+    "droppedBookings": "Gantt bookings not represented by this draft"
   },
   "module": {
     "title": "Projects",

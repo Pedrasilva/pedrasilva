@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Stage 2 hardening
+- [x] Narrow weekly-table grants, staff RLS boundary, immutable approved rows, slot audit trigger, validated private notes and stage dates; exact migration mirrored.
+- [x] Deliberate brushes, banner errors/saved-draft reload, per-day stage choices, whole-stroke undo, extension ranges/server merge/deduplication, stage-only details and permanent dropped bookings.
+- [x] Rollback access/guard/RPC tests and distinct approved-leave check passed; 26 unit tests, i18n and signed-in Gantt/empty/previous sources, painting/undo/recovery/extensions/details passed. No test drafts remain. Grant origin is live global postgres default privileges; sandbox_exec is platform sandbox tooling, unchanged. No Stage 3, allocation, stage-date, timesheet or cost writes.
+- Verification limits: no genuine non-planner/nonstaff browser session; database checks use their real identities under authenticated role. Mixed candidate-day behavior unit-tested; no two-planner browser race or Stage 3 approval tested.
+
 ## Current request — targeted operational fixes
 - [x] Weekly bell events verified in rollback; labeled 10-minute-old notification sent through real email path. Inbox receipt not independently confirmed.
 - [x] Retainer missing-cost helper tests and real Telheiras totals verified; no missing retainer snapshots, no rebuild required.
