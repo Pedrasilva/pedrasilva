@@ -15659,6 +15659,7 @@ export type Database = {
         Returns: boolean
       }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_cost_period_revision: { Args: never; Returns: string }
       pm_cost_rate_at: {
         Args: { _date: string; _resource_id: string }
         Returns: number
@@ -15761,6 +15762,15 @@ export type Database = {
       }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
+        Returns: number
+      }
+      pm_replace_cost_periods: {
+        Args: {
+          _expected_revision: string
+          _from: string
+          _periods: Json
+          _queue_ids?: string[]
+        }
         Returns: number
       }
       pm_resource_id_for_user: { Args: { _user_id: string }; Returns: string }
