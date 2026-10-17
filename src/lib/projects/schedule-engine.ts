@@ -104,6 +104,24 @@ export function constraintBounds(pred: ScheduleStage, type: DepType, lag: number
   return {start_date: calendar.shift(end_date, -(duration - 1)), end_date};
 }
 
+/** Read-only proposal for repairing an invalid legacy graph. Nothing is
+ * removed until the user confirms the complete relative initialization. */
+export function reviewScheduleLinks(stages: ScheduleStage[], deps: StageDependency[]) {
+  validateScheduleGraph(stages, []);
+  const accepted: StageDependency[] = [];
+  const rejected: StageDependency[] = [];
+  for (const dep of deps) {
+    try {
+      validateScheduleGraph(stages, [...accepted, dep]);
+      accepted.push(dep);
+    } catch (error) {
+      if (!(error instanceof Error) || !["gantt.schedule.cycle", "gantt.schedule.invalidLink"].includes(error.message)) throw error;
+      rejected.push(dep);
+    }
+  }
+  return {accepted,rejected};
+}
+
 export function recomputeSchedule(state: ScheduleState, deps = state.dependencies,
   edits: Array<{id: string; start_date: string; end_date: string}> = [], roots?: string[]): SchedulePatch {
   validateScheduleGraph(state.stages, deps);

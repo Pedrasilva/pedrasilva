@@ -85,14 +85,21 @@ export async function undoGanttSchedule(mode: Mode, scope: string, redo = false)
   }).map(a=>a.id));
   const result = await saveGanttSchedule(mode,scope,current,{stages:target.stages.filter(s=>changedStages.has(s.id)),
     allocations:target.allocations.filter(a=>changedAllocs.has(a.id)),dependencies:target.dependencies},false,false);
-  if (redo) {stack.redo.pop(); stack.undo.push({before:item.before,after:result.after});}
-  else {stack.undo.pop(); stack.redo.push({before:result.after,after:item.after});}
+  if (redo) {
+    stack.redo.pop(); stack.undo.push({before:result.before,after:result.after});
+    const next = stack.redo.at(-1);
+    if (next) next.before = {...next.before,revision:result.after.revision};
+  } else {
+    stack.undo.pop(); stack.redo.push({before:result.after,after:item.after});
+    const previous = stack.undo.at(-1);
+    if (previous) previous.after = {...previous.after,revision:result.after.revision};
+  }
 }
-export function relativeInitialization(state: ScheduleState): SchedulePatch {
+export function relativeInitialization(state: ScheduleState, dependencies = state.dependencies): SchedulePatch {
   const calendar = scheduleCalendar();
   const first = state.stages.reduce((s,v)=>v.start_date<s ? v.start_date:s,state.stages[0]?.start_date ?? RELATIVE_ORIGIN);
   const map = (date: string) => calendar.shift(RELATIVE_ORIGIN,calendar.offset(calendar.snap(first),calendar.snap(date)));
-  const normalized = {...state,relative:true,stages:state.stages.map(s=>({...s,start_date:map(s.start_date),
+  const normalized = {...state,dependencies,relative:true,stages:state.stages.map(s=>({...s,start_date:map(s.start_date),
     end_date:calendar.shift(map(s.start_date),calendar.duration(s.start_date,s.end_date)-1)})),
     allocations:state.allocations.map(a=>({...a,start_date:map(a.start_date),end_date:map(a.end_date)}))};
   const computed = recomputeSchedule(normalized,normalized.dependencies,[],normalized.stages.map(s=>s.id));
