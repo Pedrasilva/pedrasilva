@@ -5,7 +5,7 @@
 - [ ] Await Luis’s approval of the renewed plan before further code or database changes.
 - [ ] After approval only: complete retainer-percentage and monthly-payment date corrections, then finish isolated drag/dependency/conversion parity verification; preserve live records and weekly-board behaviour.
 - [ ] Report fixed / verified / not verified; mirror every database change under supabase/migrations.
-- Verified partial work: 27 scheduler tests, 17 weekly regressions, signed-in isolated two-save/two-undo/two-redo read-back; rollback regular/retainer conversion and monthly-estimate fallback. All test copies removed; live allocation/stage/time-entry/cost-period hashes unchanged. Exact migration mirrors checked. Re-uploaded plan-first brief renews the approval checkpoint.
+- Verified partial work: 29 scheduler tests, 5 leaf-fee tests and 17 weekly regressions; earlier signed-in isolated two-save/two-undo/two-redo read-back. Fresh rollback checks confirm €2,160 retainer payment and 2026-10-31 monthly collection preview/copy. Earlier regular/retainer conversion and fallback passed; fresh final live-record hashes and complete browser verification remain pending. Re-uploaded plan-first brief renews the approval checkpoint.
 
 ## Completed request — Tatiana absence corrections and weekly approval
 - [x] Audited and removed Tatiana's 8h July 22 and 16h August 19; both recorded as approved full-day unpaid absences. Luis also authorized removing stale Vacation August 17–18 and adding Vacation August 24–27; working rows retained.
