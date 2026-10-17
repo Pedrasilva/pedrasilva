@@ -129,6 +129,7 @@ export interface PlannerAdapter {
   createDependency: (args: PlannerDependencyCreateArgs) => Promise<unknown>;
   updateDependency?: (args: PlannerDependencyUpdateArgs) => Promise<unknown>;
   deleteDependency: (id: string) => Promise<unknown>;
+  replaceDependency?: (args: PlannerDependencyCreateArgs & {id:string}) => Promise<unknown>;
 
   pending: PlannerPending;
   features: PlannerFeatures;

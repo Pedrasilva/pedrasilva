@@ -588,29 +588,8 @@ export function GanttChart({
       if (drag.type === "stage-resize-l" || drag.type === "stage-resize-r") {
         const stageObj = stages.find((s) => s.id === drag.id);
         if (stageObj && stageObj.allocations.length > 0) {
-          const origStartMs = new Date(drag.origStart).getTime();
-          const origEndMs = new Date(drag.origEnd).getTime();
-          const newStartMs = new Date(newStart).getTime();
-          const newEndMs = new Date(newEnd).getTime();
-          const origSpan = Math.max(1, origEndMs - origStartMs);
-          const newSpan = Math.max(0, newEndMs - newStartMs);
-          const scale = newSpan / origSpan;
-          const DAY_MS = 86400000;
           for (const a of stageObj.allocations) {
-            const aS = new Date(a.start_date).getTime();
-            const aE = new Date(a.end_date).getTime();
-            let ns = newStartMs + (aS - origStartMs) * scale;
-            let ne = newStartMs + (aE - origStartMs) * scale;
-            // Snap to day, clamp within new stage bounds
-            ns = Math.round(ns / DAY_MS) * DAY_MS;
-            ne = Math.round(ne / DAY_MS) * DAY_MS;
-            if (ns < newStartMs) ns = newStartMs;
-            if (ne > newEndMs) ne = newEndMs;
-            if (ne < ns) ne = ns;
-            next.set(a.id, {
-              start: format(new Date(ns), "yyyy-MM-dd"),
-              end: format(new Date(ne), "yyyy-MM-dd"),
-            });
+            next.set(a.id, {start:newStart,end:newEnd});
           }
         }
       }
@@ -676,10 +655,9 @@ export function GanttChart({
         .createDependency({ predecessor_id, successor_id, type, lag_days: 0 })
         .then(() => toast.success(t("gantt.toasts.linkCreated")))
         .catch((err: unknown) => toast.error((err as Error).message));
-    if (replaces && adapter.deleteDependency) {
+    if (replaces && adapter.replaceDependency) {
       adapter
-        .deleteDependency(replaces)
-        .then(create)
+        .replaceDependency({id:replaces,predecessor_id,successor_id,type,lag_days:0})
         .catch((err: unknown) => toast.error((err as Error).message));
     } else {
       create();
@@ -737,15 +715,7 @@ export function GanttChart({
             start_date: draft.start,
             end_date: draft.end,
           });
-          // Persist proportionally-scaled child allocations so they stay
-          // within the resized stage window.
-          for (const a of scaledAllocs) {
-            await adapter.updateAllocation({
-              id: a.id,
-              projectId: a.projectId,
-              patch: { start_date: a.start, end_date: a.end },
-            });
-          }
+
         }
       } else {
         await adapter.updateAllocation({

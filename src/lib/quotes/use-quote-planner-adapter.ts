@@ -27,6 +27,7 @@ import type { Resource } from "@/lib/projects/types";
 import type { StageDependency, DepType } from "@/lib/projects/dependencies";
 import { QUOTE_FEATURES, type PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
+import { changeGanttDependency } from "@/lib/projects/gantt-schedule";
 import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,6 +168,13 @@ export function useQuotePlannerAdapter(
       }),
     updateDependency: (a) => updateDep.mutateAsync(a),
     deleteDependency: (id) => deleteDep.mutateAsync(id),
+    replaceDependency: async ({id,...input}) => {
+      const result=await changeGanttDependency("quote",quoteId,"create",{...input,replaces:id});
+      await qc.invalidateQueries({queryKey:["quote-dependencies",quoteId]});
+      await qc.invalidateQueries({queryKey:["quote-stages",quoteId]});
+      await qc.invalidateQueries({queryKey:["quote-allocations",quoteId]});
+      return result;
+    },
 
     pending: {
       stage: updateStageCascade.isPending || upsertStage.isPending || deleteStage.isPending,
