@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Gantt fixes and CRM relative timeline (plan first)
+- [ ] Investigate allocation resizing, dependency rescheduling, parent summaries and CRM conversion; present root causes and a plan for Luis's approval.
+- [ ] After approval only: implement approved changes and verify on an isolated test copy, preserving live allocations/timesheets and weekly-board behaviour.
+- [ ] Report fixed / verified / not verified; mirror every database change under supabase/migrations.
+
 ## Completed request — Tatiana absence corrections and weekly approval
 - [x] Audited and removed Tatiana's 8h July 22 and 16h August 19; both recorded as approved full-day unpaid absences. Luis also authorized removing stale Vacation August 17–18 and adding Vacation August 24–27; working rows retained.
 - [x] Approved all 20 Monday-start weeks June 1–October 12 and reconciled bank in one transaction, after rollback verification. Bank 0h → −40h: June 22 −4h, July 20 −8h, August 17 −8h, October 12 −20h. Each new absence contributes exactly 8h owed.
