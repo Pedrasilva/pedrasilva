@@ -78,6 +78,13 @@ import {
 import { useSupplierStages } from "@/lib/reports/use-supplier-stages";
 
 export const Route = createFileRoute("/_app/projects/")({
+  head: () => ({meta:[
+    {title:"Projects — PSA Hub"},
+    {name:"description",content:"Project delivery, logged hours and locked actual costs for Pedra Silva Architects."},
+    {property:"og:title",content:"Projects — PSA Hub"},
+    {property:"og:description",content:"Project delivery, logged hours and locked actual costs for Pedra Silva Architects."},
+    {property:"og:type",content:"website"}, {name:"twitter:card",content:"summary"},
+  ]}),
   component: DashboardPage,
 });
 
