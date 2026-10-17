@@ -16,7 +16,14 @@ import {
 } from "@/lib/projects/cost-rates.functions";
 
 export const Route = createFileRoute("/_app/admin/cost-rates")({
-  head: () => ({ meta: [{ title: "Cost rates · PSA Hub" }] }),
+  head: () => ({ meta: [
+    { title: "Cost rates · PSA Hub" },
+    { name: "description", content: "Administer dated cost rates and locked time-entry costs in PSA Hub." },
+    { property: "og:title", content: "Cost rates · PSA Hub" },
+    { property: "og:description", content: "Administer dated cost rates and locked time-entry costs in PSA Hub." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: () => (
     <AdminOnly>
       <CostRatesPage />

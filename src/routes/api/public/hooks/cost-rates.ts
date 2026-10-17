@@ -24,10 +24,10 @@ export const Route = createFileRoute("/api/public/hooks/cost-rates")({
         if (!provided || !safeEqual(provided, expected)) return new Response("Unauthorized", { status: 401 });
         const body = (await request.json().catch(() => ({}))) as { full?: boolean };
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { processQueue, rebuildPeriods } = await import("@/lib/projects/cost-rates.server");
+        const { processQueue } = await import("@/lib/projects/cost-rates.server");
         try {
-          const queued = await processQueue(supabaseAdmin);
-          const full = body.full ? await rebuildPeriods(supabaseAdmin) : null;
+          const queued = await processQueue(supabaseAdmin, !!body.full);
+          const full = body.full ? queued : null;
           return Response.json({ ok: true, queued, full });
         } catch (e) {
           console.error("cost-rates hook", e);

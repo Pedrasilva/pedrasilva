@@ -1,5 +1,8 @@
 # Projects module rules
 
+- Cost-period rebuilds use pm_replace_cost_periods for atomic replacement and queue acknowledgement; admin and scheduled paths share an advisory lock and revision check. Why: failed or stale concurrent runs must preserve periods and pending work.
+- Retainer actuals use only saved positive snapshots for task/direct/detail paths, independently of shared budget estimates. Why: missing costs must suppress totals and margins, not become team-rate estimates.
+
 - Weekly planning uses pm_week_board's explicit no-rates projection; week-board.ts owns half-day inference and PLAN_UTILISATION. Stage 2 saves only protected drafts through atomic pm_week_draft, merging changed slots under a row lock; never mutate allocations, stage dates or timesheets. Why: draft planning and actuals remain separate and staff cannot access drafts or financial data.
 - Weekly draft stage labels use the complete per-project stage_tree for WBS numbering, while stage choices use only eligible leaves; undo/redo applies stroke deltas instead of replacing the whole week. Why: numbering matches Gantt and other planners' unrelated edits survive undo.
 - Weekly slots touch their parent audit timestamp through database triggers; approved rows require the transaction-local apply guard, and validated notes are planner-private. Resolve ambiguous strokes per covered day and derive omitted Gantt bookings from live allocations, without new storage. Why: direct writes cannot bypass safeguards and reload preserves review evidence.

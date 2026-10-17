@@ -47,9 +47,9 @@ export const rebuildCostRatePeriods = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await assertAdmin(context as never);
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
-    const { rebuildPeriods, processQueue } = await import("./cost-rates.server");
-    await processQueue(db);
-    return rebuildPeriods(db);
+    const { processQueue } = await import("./cost-rates.server");
+    const result = await processQueue(db, true);
+    return { periods: result.periods ?? 0 };
   });
 
 export const backfillCostSnapshots = createServerFn({ method: "POST" })
