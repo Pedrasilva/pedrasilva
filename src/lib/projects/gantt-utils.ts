@@ -77,10 +77,10 @@ export interface AllocationLite {
   hourly_rate: number;
 }
 
-export function allocationCost(a: AllocationLite): number {
-  return workingDays(a.start_date, a.end_date) * a.hours_per_day * a.hourly_rate;
+export function allocationCost(a: AllocationLite, holidays?: ReadonlySet<string>): number {
+  return workingDays(a.start_date, a.end_date, holidays) * a.hours_per_day * a.hourly_rate;
 }
 
-export function allocationHours(a: Pick<AllocationLite, "start_date" | "end_date" | "hours_per_day">): number {
-  return workingDays(a.start_date, a.end_date) * a.hours_per_day;
+export function allocationHours(a: Pick<AllocationLite, "start_date" | "end_date" | "hours_per_day">, holidays?: ReadonlySet<string>): number {
+  return workingDays(a.start_date, a.end_date, holidays) * a.hours_per_day;
 }
