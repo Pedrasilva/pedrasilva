@@ -589,6 +589,13 @@
       "when": 1792236974110,
       "tag": "0083_weekly_publication_private_history_and_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1792237074328,
+      "tag": "0084_weekly_publication_validation_regressions",
+      "breakpoints": true
     }
   ]
 }
