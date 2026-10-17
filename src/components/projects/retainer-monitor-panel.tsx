@@ -28,7 +28,7 @@ import { LogRetainerHoursDialog } from "@/components/projects/log-retainer-hours
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
-import { retainerCostRate } from "@/lib/projects/retainer-cost";
+import { retainerCostRate, retainerCostAmount } from "@/lib/projects/retainer-cost";
 
 function retainerEuros(value: number): string {
   return Number.isFinite(value) ? euros(value) : "—";
@@ -57,11 +57,12 @@ function useDirectRetainerEntries(childIds: string[]) {
     queryKey: ["retainer-direct-entries", [...childIds].sort().join(",")],
     enabled: childIds.length > 0,
     queryFn: async (): Promise<Map<string, DirectStageAgg>> => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("pm_time_entries")
         .select("pm_stage_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
         .in("pm_stage_id", childIds)
         .is("task_id", null);
+      if (error) throw error;
       const m = new Map<string, DirectStageAgg>();
       for (const e of (data ?? []) as Array<{
         pm_stage_id: string;
@@ -75,9 +76,28 @@ function useDirectRetainerEntries(childIds: string[]) {
         const sr = Number(e.sale_rate_snapshot ?? 0);
         const cur = m.get(e.pm_stage_id) ?? { hours: 0, cost: 0, sale: 0 };
         cur.hours += h;
-        cur.cost += h * cr;
+        cur.cost += retainerCostAmount(h, cr);
         if (e.billable) cur.sale += h * sr;
         m.set(e.pm_stage_id, cur);
+      }
+      // Shared project budget controls can estimate unsnapshotted task hours.
+      // Retainers instead read those activities' saved snapshots directly.
+      const { data: tasks, error: taskError } = await supabase
+        .from("pm_time_entries")
+        .select("hours, cost_rate_snapshot, pm_tasks!inner(pm_allocations!inner(stage_id))")
+        .in("pm_tasks.pm_allocations.stage_id", childIds)
+        .not("task_id", "is", null);
+      if (taskError) throw taskError;
+      for (const e of (tasks ?? []) as Array<{
+        hours: number | string;
+        cost_rate_snapshot: number | string | null;
+        pm_tasks: { pm_allocations: { stage_id: string } } | null;
+      }>) {
+        const stageId = e.pm_tasks?.pm_allocations.stage_id;
+        if (!stageId) continue;
+        const cur = m.get(stageId) ?? { hours: 0, cost: 0, sale: 0 };
+        cur.cost += retainerCostAmount(Number(e.hours), e.cost_rate_snapshot);
+        m.set(stageId, cur);
       }
       return m;
     },
@@ -238,7 +258,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         const ctrl = byStage?.get(c.id);
         const direct = directByStage?.get(c.id) ?? { hours: 0, cost: 0, sale: 0 };
         const usedHours = Number(ctrl?.actual_hours_logged ?? 0) + direct.hours;
-        const cost = Number(ctrl?.actual_cost_consumed ?? 0) + direct.cost;
+        const cost = directByStage ? direct.cost : (usedHours > 0 ? NaN : 0);
         const sale = Number(ctrl?.actual_value_generated ?? 0) + direct.sale;
         return {
           childId: c.id,
@@ -274,7 +294,6 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       }>;
       let plannedHoursSum = 0;
       let plannedSaleSum = 0;
-      let plannedCostSum = 0;
       for (const a of allocs) {
         const s = parseISO(a.start_date);
         const e = parseISO(a.end_date);
@@ -289,17 +308,13 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         const canonical = resourcePricing?.get(a.resource.id);
         const eff = {
           sale: canonical?.salePerHour ?? Number(a.resource.hourly_rate ?? 0),
-          cost: canonical?.costPerHour ?? Number(a.resource.cost_rate ?? 0),
         };
         const hrs = wd * hpd;
         plannedHoursSum += hrs;
         plannedSaleSum += hrs * eff.sale;
-        plannedCostSum += hrs * eff.cost;
       }
       const plannedBlendedRate =
         plannedHoursSum > 0 ? plannedSaleSum / plannedHoursSum : 0;
-      const plannedBlendedCost =
-        plannedHoursSum > 0 ? plannedCostSum / plannedHoursSum : 0;
 
       // Retainer allocations intentionally carry 0 planned hours: they
       // identify who may deliver the monthly service rather than reserving
@@ -308,22 +323,18 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       // one vote per distinct resource only if no actuals exist yet.
       const distinctResourceIds = [...new Set(allocs.map((a) => a.resource.id))];
       let actualWeightedSaleRate = 0;
-      let actualWeightedCostRate = 0;
       if (actualHoursByResource && actualHoursByResource.size > 0) {
         let hSum = 0;
         let saleSum = 0;
-        let costSum = 0;
         for (const rid of distinctResourceIds) {
           const h = actualHoursByResource.get(rid) ?? 0;
           const rate = resourcePricing?.get(rid);
           if (h <= 0 || !rate) continue;
           hSum += h;
           saleSum += h * rate.salePerHour;
-          costSum += h * rate.costPerHour;
         }
         if (hSum > 0) {
           actualWeightedSaleRate = saleSum / hSum;
-          actualWeightedCostRate = costSum / hSum;
         }
       }
 
@@ -333,11 +344,6 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       const unweightedSaleRate =
         unweightedRates.length > 0
           ? unweightedRates.reduce((sum, rate) => sum + rate.salePerHour, 0) /
-            unweightedRates.length
-          : 0;
-      const unweightedCostRate =
-        unweightedRates.length > 0
-          ? unweightedRates.reduce((sum, rate) => sum + rate.costPerHour, 0) /
             unweightedRates.length
           : 0;
 
@@ -356,19 +362,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
             : unweightedSaleRate > 0
               ? unweightedSaleRate
               : actualBlendedRate;
-      const blendedCostRate =
-        plannedBlendedCost > 0
-          ? plannedBlendedCost
-          : actualWeightedCostRate > 0
-            ? actualWeightedCostRate
-            : unweightedCostRate;
-
-      // Backfill month cost/sale when the underlying entries carry no rate
-      // snapshot (common for retainer stages logged before rates existed).
+      // Sale estimates remain separate; actual costs are never estimated.
       for (const r of base) {
-        if (r.usedHours > 0 && r.cost === 0 && blendedCostRate > 0) {
-          r.cost = r.usedHours * blendedCostRate;
-        }
         if (r.usedHours > 0 && r.sale === 0 && blendedSaleRate > 0) {
           r.sale = r.usedHours * blendedSaleRate;
         }
@@ -856,7 +851,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
             const info = allocInfo.get(allocId);
             if (!info) continue;
             const h = Number(e.hours);
-            const costRate = retainerCostRate(e.cost_rate_snapshot, info.cost);
+            const costRate = retainerCostRate(e.cost_rate_snapshot);
             const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
             upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
           }
@@ -904,7 +899,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
           const info = userToResource.get(e.user_id);
           if (!info) continue;
           const h = Number(e.hours);
-          const costRate = retainerCostRate(e.cost_rate_snapshot, info.cost);
+          const costRate = retainerCostRate(e.cost_rate_snapshot);
           const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
           upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
         }
