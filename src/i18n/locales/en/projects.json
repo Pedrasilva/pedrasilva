@@ -658,6 +658,30 @@
       "addResource": "Add resource",
       "resourceAdded": "Resource added.",
       "pickResource": "Pick a resource first."
+    },
+    "schedule": {
+      "undo": "Undo Gantt change",
+      "redo": "Redo Gantt change",
+      "stale": "The plan changed. Reload before saving or undoing.",
+      "busy": "Another planner is saving this plan. Try again.",
+      "invalidRange": "Invalid scheduling range.",
+      "invalidLink": "This dependency cannot be scheduled.",
+      "cycle": "Circular dependencies are not allowed.",
+      "summaryReadOnly": "Parent dates are calculated from their children.",
+      "locked": "A locked stage cannot be moved.",
+      "lockedAllocation": "A protected resource allocation cannot be resized.",
+      "slack": "{{days}}d extra gap"
+    },
+    "relative": {
+      "week": "Week {{number}}",
+      "month": "Month {{number}}",
+      "monthHint": "Planning month: four weeks / 20 working days",
+      "initialize": "Use relative timeline",
+      "preview": "Relative schedule preview",
+      "startWeek": "Start week",
+      "durationWeeks": "Duration (weeks)",
+      "convertStart": "Project start date",
+      "convertPreview": "Calendar conversion preview"
     }
   },
   "kpi": {

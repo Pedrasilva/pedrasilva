@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
+import {dependencySlack,scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { GanttOutlineColumn, type GanttHierarchyNode } from "@/components/projects/gantt-outline-column";
@@ -52,6 +53,7 @@ import type {
 } from "@/lib/projects/use-stage-budget-control";
 
 interface Props {
+  relative?:boolean;
   /**
    * `projectId` is kept for backwards compatibility with callers that pass
    * it; the Gantt component itself never reads it. The scoping ID lives on
@@ -164,6 +166,7 @@ interface LinkDragState {
 }
 
 export function GanttChart({
+  relative=false,
   stages: stagesAll,
   origin,
   totalDays,
@@ -195,6 +198,8 @@ export function GanttChart({
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
+  const relativeWeek=(date:string)=>t("gantt.relative.week",{number:Math.floor(scheduleCalendar().offset(RELATIVE_ORIGIN,date)/5)+1});
+  const displayDate=(date:string)=>relative ? relativeWeek(date) : fmt(date);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [draftDates, setDraftDates] = useState<Map<string, { start: string; end: string }>>(new Map());
@@ -303,7 +308,7 @@ export function GanttChart({
   });
   const { data: holidaySet } = useQuery({
     queryKey: ["gantt-holidays"],
-    enabled: features.holidayShading || features.leave,
+    enabled: !relative,
     queryFn: async (): Promise<Set<string>> => {
       const { data } = await supabase.from("holidays").select("data");
       return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
@@ -525,7 +530,7 @@ export function GanttChart({
     // next working day (so a Saturday drop lands on Monday); end dates snap
     // BACKWARD so a stage never ends on a non-working day either.
     if (drag.type === "move" || drag.type === "stage-move") {
-      const snappedStart = snapToWorkdayForward(newStart, holidaySet);
+      const snappedStart = snapToWorkdayForward(newStart, relative ? undefined : holidaySet);
       const delta = differenceInCalendarDays(parseISO(snappedStart), parseISO(newStart));
       if (delta !== 0) {
         newStart = snappedStart;
@@ -534,12 +539,12 @@ export function GanttChart({
       }
       // Also pull the end back off a non-working day (rare when durations
       // straddle a holiday), keeping the whole window in workdays.
-      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+      newEnd = snapToWorkdayBackward(newEnd, relative ? undefined : holidaySet);
     } else if (drag.type === "resize-l" || drag.type === "stage-resize-l") {
-      newStart = snapToWorkdayForward(newStart, holidaySet);
+      newStart = snapToWorkdayForward(newStart, relative ? undefined : holidaySet);
       if (newStart > newEnd) newStart = newEnd;
     } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
-      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+      newEnd = snapToWorkdayBackward(newEnd, relative ? undefined : holidaySet);
       if (newEnd < newStart) newEnd = newStart;
     }
 
@@ -842,6 +847,7 @@ export function GanttChart({
     <div className="flex" style={{ width: outlineWidth + (onResizeOutline ? 6 : 0) + totalDays * dayWidth }}>
       {outlineWidth > 0 && hierarchy && onToggleCollapse && (
         <GanttOutlineColumn
+          relative={relative}
           visibleStages={stages}
           hierarchy={hierarchy}
           collapsed={collapsed ?? new Set()}
@@ -907,7 +913,8 @@ export function GanttChart({
       <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         {(() => {
           // Top tier cells (aggregated) — always readable, never crammed.
-          const topCells =
+          const relativeGroups = Array.from({length:Math.ceil(totalDays/28)},(_,i)=>({label:t("gantt.relative.month",{number:i+1}),days:Math.min(28,totalDays-i*28),startIdx:i*28,title:t("gantt.relative.monthHint")}));
+          const topCells = relative ? relativeGroups :
             headerTier === "monthDay"
               ? months.map((m) => {
                   const d = addDays(origin, m.startIdx);
@@ -947,7 +954,8 @@ export function GanttChart({
             </div>
           );
         })()}
-        {headerTier === "monthDay" && (
+        {relative && <div className="flex h-9">{Array.from({length:Math.ceil(totalDays/7)},(_,i)=><div key={i} className="flex items-center justify-center border-l border-border text-[10px] text-muted-foreground" style={{width:Math.min(7,totalDays-i*7)*dayWidth,minWidth:Math.min(7,totalDays-i*7)*dayWidth}}>{t("gantt.relative.week",{number:i+1})}</div>)}</div>}
+        {!relative && headerTier === "monthDay" && (
           <div className="flex h-9">
             {Array.from({ length: totalDays }).map((_, i) => {
               const d = addDays(origin, i);
@@ -985,7 +993,7 @@ export function GanttChart({
             })}
           </div>
         )}
-        {headerTier === "quarterMonth" && (
+        {!relative && headerTier === "quarterMonth" && (
           <div className="flex h-5">
             {months.map((m, i) => {
               const cellW = m.days * dayWidth;
@@ -1011,7 +1019,7 @@ export function GanttChart({
             })}
           </div>
         )}
-        {headerTier === "yearQuarter" && (
+        {!relative && headerTier === "yearQuarter" && (
           <div className="flex h-5">
             {quarters.map((q, i) => {
               const cellW = q.days * dayWidth;
@@ -1028,7 +1036,7 @@ export function GanttChart({
             })}
           </div>
         )}
-        {todayInRange && (
+        {!relative && todayInRange && (
           <div
             className="pointer-events-none absolute bottom-0 z-10 h-full w-px bg-primary/60"
             style={{ left: todayX }}
@@ -1124,7 +1132,7 @@ export function GanttChart({
           );
         })}
 
-        {todayInRange && (
+        {!relative && todayInRange && (
           <div className="pointer-events-none absolute top-0 z-10 h-full w-px bg-primary" style={{ left: todayX }}>
             <div className="absolute -top-6 -translate-x-1/2 rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
               today
@@ -1168,7 +1176,7 @@ export function GanttChart({
                   key={stage.id}
                   className="relative group"
                   style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
-                  title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                  title={`${stage.name} · ${displayDate(sStart)} → ${displayDate(sEnd)}`}
                   onMouseEnter={() => setHoveredStage(stage.id)}
                   onMouseLeave={() => setHoveredStage((s) => (s === stage.id ? null : s))}
                 >
@@ -1847,7 +1855,7 @@ export function GanttChart({
                                 <span className="text-muted-foreground">{t("gantt.tooltip.stage")}</span>
                                 <span className="font-medium">{stage.name}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.period")}</span>
-                                <span className="font-mono">{fmt(aS)} → {fmt(aE)}</span>
+                                <span className="font-mono">{displayDate(aS)} → {displayDate(aE)}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.duration")}</span>
                                 <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
@@ -1918,8 +1926,9 @@ export function GanttChart({
             </marker>
           </defs>
           {visibleDeps.map((d) => {
-            const p = stageLayouts.get(d.predecessor_id)!;
-            const s = stageLayouts.get(d.successor_id)!;
+            const p = stageLayouts.get(d.predecessor_id);
+            const s = stageLayouts.get(d.successor_id);
+            if(!p || !s)return null;
             const fromX = d.type === "FS" || d.type === "FF" ? p.x + p.w : p.x;
             const toX = d.type === "FS" || d.type === "SS" ? s.x : s.x + s.w;
             const fromY = p.anchorY;
@@ -1953,7 +1962,10 @@ export function GanttChart({
               d.lag_days === 0
                 ? ""
                 : ` ${d.lag_days > 0 ? "+" : "−"}${Math.abs(d.lag_days)}d`;
-            const label = `${d.type}${lagText}`;
+            const predecessor=stages.find(v=>v.id===d.predecessor_id);
+            const successor=stages.find(v=>v.id===d.successor_id);
+            const slack=predecessor&&successor ? dependencySlack(predecessor,successor,d,relative ? [] : holidaySet??[]) : 0;
+            const label = `${d.type}${lagText}${slack ? ` · ${t("gantt.schedule.slack",{days:slack})}` : ""}`;
             const labelWidth = 14 + label.length * 6;
             const beginEndpointDrag = (e: React.PointerEvent, which: "from" | "to") => {
               e.stopPropagation();

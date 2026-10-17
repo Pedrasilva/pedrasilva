@@ -36,7 +36,7 @@ export function useCreateQuoteDependency(quoteId: string) {
       return await changeGanttDependency("quote",quoteId,"create",{
         predecessor_id:input.predecessor_stage_id,successor_id:input.successor_stage_id,
         type:input.type,lag_days:input.lag_days,
-      }) as QuoteStageDependency;
+      }) as unknown as QuoteStageDependency;
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });

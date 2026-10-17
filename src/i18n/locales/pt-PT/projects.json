@@ -658,6 +658,30 @@
       "addResource": "Adicionar recurso",
       "resourceAdded": "Recurso adicionado.",
       "pickResource": "Escolhe primeiro um recurso."
+    },
+    "schedule": {
+      "undo": "Desfazer alteração do Gantt",
+      "redo": "Refazer alteração do Gantt",
+      "stale": "O plano mudou. Recarregue antes de guardar ou desfazer.",
+      "busy": "Outro planeador está a guardar este plano. Tente novamente.",
+      "invalidRange": "Intervalo de planeamento inválido.",
+      "invalidLink": "Não é possível planear esta dependência.",
+      "cycle": "Não são permitidas dependências circulares.",
+      "summaryReadOnly": "As datas da fase principal são calculadas pelas subfases.",
+      "locked": "Uma fase bloqueada não pode ser deslocada.",
+      "lockedAllocation": "Uma alocação protegida não pode ser redimensionada.",
+      "slack": "{{days}}d de intervalo adicional"
+    },
+    "relative": {
+      "week": "Semana {{number}}",
+      "month": "Mês {{number}}",
+      "monthHint": "Mês de planeamento: quatro semanas / 20 dias úteis",
+      "initialize": "Usar cronologia relativa",
+      "preview": "Pré-visualização do plano relativo",
+      "startWeek": "Semana de início",
+      "durationWeeks": "Duração (semanas)",
+      "convertStart": "Data de início do projecto",
+      "convertPreview": "Pré-visualização da conversão para datas"
     }
   },
   "kpi": {
