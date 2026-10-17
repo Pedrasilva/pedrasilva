@@ -1,7 +1,7 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — Gantt fixes and CRM relative timeline (plan first)
-- [ ] Investigate allocation resizing, dependency rescheduling, parent summaries and CRM conversion; present root causes and a plan for Luis's approval.
+- [x] Review the re-uploaded brief and present root causes, fixes and verification boundaries; wait for renewed plan approval before further code/data changes.
 - [ ] After approval only: implement approved changes and verify on an isolated test copy, preserving live allocations/timesheets and weekly-board behaviour.
 - [ ] Report fixed / verified / not verified; mirror every database change under supabase/migrations.
 
