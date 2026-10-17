@@ -1,6 +1,7 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — Gantt fixes and CRM relative timeline (plan first)
+- [x] Luis's 16:25 UTC instruction: stop after the current run; report done / remaining issues / recommendation in at most eight lines. No new work, re-planning or extra verification until he replies.
 - [x] Review the latest re-uploaded brief; present root causes, partial implementation status and remaining verification gaps.
 - [ ] Await Luis’s approval of the renewed plan before further code or database changes.
 - [ ] After approval only: complete retainer-percentage and monthly-payment date corrections, then finish isolated drag/dependency/conversion parity verification; preserve live records and weekly-board behaviour.
