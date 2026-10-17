@@ -1974,6 +1974,7 @@
     "balanceEstimated": "Allocated ~{{allocated}} (estimated) · logged {{logged}} · {{left}} left"
   },
   "weekPublish": {
+    "bellTitle": "Weekly plan published",
     "approve": "Approve and publish",
     "title": "Confirm weekly allocation changes",
     "replaces": "Replaces Monday–Sunday Gantt planning for every active board collaborator, including empty rows. Logged hours remain unchanged.",

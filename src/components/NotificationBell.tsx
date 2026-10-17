@@ -81,7 +81,7 @@ export function NotificationBell() {
               >
                 <div className="flex w-full items-center gap-2">
                   {!n.read_at && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />}
-                  <span className="truncate text-sm font-medium">{n.title}</span>
+                  <span className="truncate text-sm font-medium">{n.kind === "week_plan_published" ? t("projects:weekPublish.bellTitle") : n.title}</span>
                 </div>
                 {n.body && (
                   <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>
