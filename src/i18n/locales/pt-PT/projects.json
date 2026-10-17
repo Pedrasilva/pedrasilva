@@ -1972,5 +1972,36 @@
       "rejected": "Rejeitada"
     },
     "balanceEstimated": "Alocado ~{{allocated}} (estimado) · registado {{logged}} · restam {{left}}"
+  },
+  "weekPublish": {
+    "approve": "Aprovar e publicar",
+    "title": "Confirmar alterações às alocações da semana",
+    "replaces": "Substitui o planeamento Gantt de segunda-feira a domingo para todos os colaboradores ativos do quadro, incluindo linhas vazias. As horas registadas não são alteradas.",
+    "extensions": "Confirmar extensões de etapas",
+    "quoteLink": "Ligação à proposta",
+    "fullDay": "Dia completo",
+    "error": "O planeamento mudou ou a publicação falhou. Atualize a pré-visualização e confirme novamente. Nada é publicado parcialmente.",
+    "past": "Esta semana já passou. A publicação altera apenas o planeamento, nunca as horas registadas.",
+    "skipped": "Protegida — sem alterações",
+    "unchanged": "Alocações sem alterações: {{count}}",
+    "replaceAck": "Confirmo a substituição do planeamento desta semana para todos os colaboradores ativos, incluindo alocações omitidas e linhas vazias.",
+    "overlapAck": "Reconheço {{count}} alocações protegidas sobrepostas a este rascunho; serão mantidas e poderão criar sobrecarga.",
+    "baselineAck": "Confirmo a alteração das datas de planeamento em bases bloqueadas. As bases comerciais e outras etapas não serão alteradas.",
+    "refresh": "Atualizar pré-visualização",
+    "confirm": "Confirmar e publicar",
+    "publishedBy": "Publicado por {{name}} · {{date}}",
+    "revise": "Rever a partir do Gantt atual",
+    "actions": {
+      "create": "Criar alocação",
+      "change": "Alterar datas",
+      "split": "Dividir alocação fora da semana",
+      "remove": "Remover do planeamento — manter histórico de tarefas/horas"
+    },
+    "blocks": {
+      "invalidExtension": "A extensão da etapa já não é elegível",
+      "extensionScheduling": "Resolva primeiro a etapa bloqueada, as datas da etapa-mãe ou as dependências no Gantt",
+      "invalidSlot": "Célula com etapa, capacidade ou ausência inválida ou por resolver",
+      "inactiveProject": "Alocação de projeto suspenso/arquivado não visível: resolva primeiro no Gantt"
+    }
   }
 }
