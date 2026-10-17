@@ -182,6 +182,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     if(error)throw error;return !!data;
   }});
   const relative=relativeQ.data ?? false;
+  const pricingQ=useQuery({queryKey:["quote-gantt-pricing",quoteId],queryFn:async()=>{
+    const {data,error}=await supabase.from("fee_proposals").select("fee_source_mode,pricing_multiplier").eq("id",quoteId).single();
+    if(error)throw error;return data;
+  }});
 
   // Derived project start = earliest start across non-retainer stages.
   const projectStartIso = useMemo(() => {
@@ -463,8 +467,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       const kids = childrenByParent.get(node.id) ?? [];
       if (kids.length === 0) {
         const rows=allocations.filter(a=>a.stage_id===node.id);
-        const source=(node as {sale_source?:string}).sale_source;
-        const fee=source==="budget" || !rows.length ? Number(node.budget??0) : rows.reduce((v,a)=>v+quoteAllocationLine(a).revenue,0);
+        const override=(node as {sale_source?:string}).sale_source;
+        const source=override==="budget" || override==="allocation" ? override : pricingQ.data?.fee_source_mode;
+        const multiplier=Number(pricingQ.data?.pricing_multiplier ?? 1);
+        const fee=(source==="budget" ? Number(node.budget??0) : rows.reduce((v,a)=>v+quoteAllocationLine(a).revenue,0))*(multiplier>0?multiplier:1);
         return {start:node.start_date,end:node.end_date,budget:fee};
       }
       let minStart = "";
@@ -885,6 +891,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         sort_order: baseSort,
         parent_stage_id: parentId,
         stage_role: role,
+        is_milestone: where === "milestone",
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
       if (created?.id) {
         setSelectedStageId(created.id);

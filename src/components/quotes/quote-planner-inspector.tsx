@@ -434,13 +434,12 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
             <input
               type="checkbox"
               checked={!!(stage as { is_milestone?: boolean }).is_milestone}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const on = e.target.checked;
-                upsertStage.mutate({
-                  id: stage.id,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  ...(on ? { is_milestone: true, end_date: stage.start_date } : { is_milestone: false }),
-                } as any);
+                try {
+                  if(on) await updateStageCascade.mutateAsync({id:stage.id,start_date:stage.start_date,end_date:stage.start_date});
+                  await upsertStage.mutateAsync({id:stage.id,is_milestone:on} as Parameters<typeof upsertStage.mutateAsync>[0]);
+                } catch(error) { toast.error(t((error as Error).message)); }
               }}
               className="h-4 w-4"
             />

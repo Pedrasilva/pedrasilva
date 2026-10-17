@@ -76,10 +76,13 @@ export function summaryBounds(stages: ScheduleStage[]): Map<string, {start_date:
 export function validateScheduleGraph(stages: ScheduleStage[], deps: StageDependency[]): void {
   const ids = new Set(stages.map(s => s.id));
   const edges = new Map<string, string[]>();
+  const linkIds = new Set<string>();
+  const pairs = new Set<string>();
   for (const s of stages) if (s.parent_stage_id) edges.set(s.id, [...(edges.get(s.id) ?? []), s.parent_stage_id]);
   for (const d of deps) {
     if (!ids.has(d.predecessor_id) || !ids.has(d.successor_id) || !["FS","SS","FF","SF"].includes(d.type)
-      || !Number.isInteger(d.lag_days)) throw new Error("gantt.schedule.invalidLink");
+      || !Number.isInteger(d.lag_days) || Math.abs(d.lag_days)>36600 || linkIds.has(d.id) || pairs.has(`${d.predecessor_id}:${d.successor_id}`)) throw new Error("gantt.schedule.invalidLink");
+    linkIds.add(d.id); pairs.add(`${d.predecessor_id}:${d.successor_id}`);
     edges.set(d.predecessor_id, [...(edges.get(d.predecessor_id) ?? []), d.successor_id]);
   }
   const visited = new Set<string>();

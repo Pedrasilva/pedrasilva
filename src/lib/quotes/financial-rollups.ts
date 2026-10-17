@@ -46,6 +46,13 @@ export function quoteAllocationLine(a: QuoteAllocationWithResource): {
   return { hours, cost, revenue, profit: revenue - cost };
 }
 
+/** Shared allocation-derived leaf fee; summaries sum these values, never stale parent budgets. */
+export function quoteLeafFee(stage: {budget?: number | null; sale_source?: string | null}, allocations: QuoteAllocationWithResource[], feeSourceMode: "allocation" | "budget" = "allocation", pricingMultiplier = 1): number {
+  const source = stage.sale_source === "budget" || stage.sale_source === "allocation" ? stage.sale_source : feeSourceMode;
+  const fee = source === "budget" ? Number(stage.budget ?? 0) : allocations.reduce((sum,a)=>sum+quoteAllocationLine(a).revenue,0);
+  return fee * (pricingMultiplier > 0 ? pricingMultiplier : 1);
+}
+
 export function rollupQuoteAllocations(
   rows: QuoteAllocationWithResource[],
 ): FinancialsRow & { hours: number } {
