@@ -328,8 +328,13 @@ export function reflowForCalendar(state: ScheduleState, oldHolidays: Iterable<st
   const oldBounds = summaryBounds(state.stages);
   const links = state.dependencies.map(d => {
     if (isNestedLink(state.stages, d)) return d;
-    const pred = {...state.stages.find(s => s.id === d.predecessor_id)!, ...oldBounds.get(d.predecessor_id)};
-    const succ = oldBounds.get(d.successor_id)!;
+    // Measure on working days (imported plans often start/end on weekends).
+    const norm = (b: {start_date: string; end_date: string}) => {
+      const start_date = oldCal.snap(b.start_date); const end_date = oldCal.snap(b.end_date, -1);
+      return {start_date, end_date: end_date < start_date ? start_date : end_date};
+    };
+    const pred = {...state.stages.find(s => s.id === d.predecessor_id)!, ...norm(oldBounds.get(d.predecessor_id)!)};
+    const succ = norm(oldBounds.get(d.successor_id)!);
     const req = constraintBounds(pred, d.type, 0, oldCal.duration(succ.start_date, succ.end_date), oldCal);
     const gap = d.type === "FS" || d.type === "SS" ? oldCal.offset(req.start_date, succ.start_date) : oldCal.offset(req.end_date, succ.end_date);
     return {...d, lag_days: gap};
