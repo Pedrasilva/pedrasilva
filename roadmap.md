@@ -1,16 +1,16 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — weekly planning Stage 2
-- [ ] Mirror Stage 1 database objects and verify non-planner/non-staff access.
-- [ ] Add atomic draft creation/discard and planner-only slot autosave with conflict handling.
-- [ ] Build painting, stage resolution, undo/redo, comparison, notices and EN/PT.
-- [ ] Verify draft flows and unchanged allocations; stop before Stage 3.
+- [x] Mirror Stage 1 database objects and verify non-planner/non-staff access.
+- [x] Add atomic draft creation/discard and planner-only slot autosave with conflict handling.
+- [x] Build painting, stage resolution, undo/redo, comparison, notices and EN/PT.
+- [x] Signed-in draft sources, painting, drag, whole week, erase, site visits, undo/redo, stage choice, null-stage notices, extension intentions, reload, comparison and discard verified; concurrency, leave/weekend rejection and failed-save retry verified. Test drafts removed. Stage 3 untouched.
 
 ## Current request — weekly planning Stage 1
 - [x] Add additive allocation fields, protected week-plan tables and staff-only no-rates read RPC.
 - [x] Build/test slot derivation and read-only person/project weekly board, navigation and EN/PT.
 - [x] Signed-in board tested with real June allocations: both views, own-row highlight, leave denominator, no-rates response, colour controls, week navigation and 390px scroll; 13 rules, 7 pursuit tests, financial tests, translations and preview pass. All 94 allocations untouched. Stop before Stage 2.
-- [ ] Non-planner signed-in page and direct draft RLS test: blocked by unavailable selected collaborator session; sandbox cannot assume the authenticated role. Planner-session checks do not verify non-planner access.
+- [x] Non-planner staff board and direct draft RLS verified in Stage 2: no drafts/brush, no financial fields; non-staff board refused and draft table reads return no rows.
 
 ## Current request — pursuit follow-up
 - [x] Align calendar assignment choices and assistant wording with available pursuit leads; transcription had no outdated phrasing.
