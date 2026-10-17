@@ -610,6 +610,13 @@
       "when": 1792250320877,
       "tag": "0086_gantt_atomic_schedule_relative_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1792251121650,
+      "tag": "0087_gantt_schedule_authorization_and_atomic_guards",
+      "breakpoints": true
     }
   ]
 }
