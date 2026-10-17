@@ -15895,6 +15895,19 @@ export type Database = {
       }
       pm_quote_external_fee: { Args: { _quote: string }; Returns: number }
       pm_quote_internal_fee: { Args: { _quote: string }; Returns: number }
+      pm_quote_payment_amount: {
+        Args: { _item: string; _quote: string; _total: number }
+        Returns: number
+      }
+      pm_quote_payment_date: {
+        Args: {
+          _manual: boolean
+          _quote: string
+          _start: string
+          _value: string
+        }
+        Returns: string
+      }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
         Returns: number
