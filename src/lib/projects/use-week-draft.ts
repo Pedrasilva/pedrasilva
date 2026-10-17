@@ -4,7 +4,7 @@ import { useBlocker } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { type BoardData, type DraftSlot, type ExtensionNote } from "./week-board";
-import { slotChanges, slotKey } from "./week-draft";
+import { applySlotChanges, slotChanges, slotKey } from "./week-draft";
 
 type SaveResult = { board:BoardData; conflicts:number; created?:boolean };
 export function useWeekDraft(data: BoardData, week: string) {
@@ -49,8 +49,8 @@ export function useWeekDraft(data: BoardData, week: string) {
   const startStroke=() => { if (!stroke.current) stroke.current=live.current; };
   const endStroke=() => { const before=stroke.current; stroke.current=null; if (before && slotChanges(before,live.current).length) { setHistory(h => [...h,{before,after:live.current}].slice(-20)); setFuture([]); } };
   const change=(next:DraftSlot[]) => { live.current=next; setSlots(next); if(status==="error") setStatus("saved"); };
-  const undo=() => { const h=history.at(-1); if(h) { change(h.before); setHistory(v => v.slice(0,-1)); setFuture(v => [...v,h]); } };
-  const redo=() => { const h=future.at(-1); if(h) { change(h.after); setFuture(v => v.slice(0,-1)); setHistory(v => [...v,h]); } };
+  const undo=() => { const h=history.at(-1); if(h) { change(applySlotChanges(live.current,h.after,h.before)); setHistory(v => v.slice(0,-1)); setFuture(v => [...v,h]); } };
+  const redo=() => { const h=future.at(-1); if(h) { change(applySlotChanges(live.current,h.before,h.after)); setFuture(v => v.slice(0,-1)); setHistory(v => [...v,h]); } };
   return { slots, notes, status, dirty, conflict, startStroke,endStroke,change,undo,redo,canUndo:!!history.length,canRedo:!!future.length,retry:save,
     addNote:(n:ExtensionNote) => setNotes(old => [...old,n]),
     create:async (initial:DraftSlot[]) => { const r=await request("create",slotChanges([],initial)); baseline.current=r.board.draft_slots; setSlots(r.board.draft_slots); qc.setQueryData(["pm-week-board",week],r.board); return r; },
