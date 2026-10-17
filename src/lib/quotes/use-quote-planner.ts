@@ -17,14 +17,16 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
       start_date,
       end_date,
       shiftAllocations = true,
+      move = false,
     }: {
       id: string;
       start_date: string;
       end_date: string;
       shiftAllocations?: boolean;
+      move?: boolean;
     }) => {
       void shiftAllocations;
-      return changeGanttStage("quote",quoteId,id,start_date,end_date);
+      return changeGanttStage("quote",quoteId,id,start_date,end_date,move);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
