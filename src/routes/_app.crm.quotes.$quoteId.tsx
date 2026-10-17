@@ -78,6 +78,7 @@ import {
 } from "@/lib/quotes/retainer-monthly";
 import { parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
+import { numberStages, formatStageLabel } from "@/lib/quotes/stage-numbering";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   head:()=>({meta:[{title:"Proposal planning | PSA Hub"},{name:"description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:title",content:"Proposal planning | PSA Hub"},{property:"og:description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),
@@ -309,7 +310,7 @@ function QuoteDetail() {
   // side-effect of approving or any other status transition.
   const [convertOpen, setConvertOpen] = useState(false);
   const [conversionStart,setConversionStart]=useState("");
-  const [conversionPreview,setConversionPreview]=useState<{revision:string;start_date:string;stages:Array<{id:string;name:string;start_date:string;end_date:string}>;allocations:Array<{id:string;resource_name:string;hours_per_day:number;start_date:string;end_date:string}>;payments:Array<{id:string;label:string;expected_invoice_date:string|null;expected_payment_date:string|null}>}|null>(null);
+  const [conversionPreview,setConversionPreview]=useState<{revision:string;start_date:string;commercial:{total_fee:number};stages:Array<{id:string;name:string;parent_stage_id:string|null;sort_order:number;start_date:string;end_date:string}>;allocations:Array<{id:string;resource_name:string;hours_per_day:number;start_date:string;end_date:string}>;payments:Array<{id:string;label:string;amount:number;expected_invoice_date:string|null;expected_payment_date:string|null}>}|null>(null);
   const [conversionPreviewPending,setConversionPreviewPending]=useState(false);
   const previewConversion=async()=>{
     if(!conversionStart)return;setConversionPreviewPending(true);
@@ -876,7 +877,7 @@ function QuoteDetail() {
             <Label htmlFor="conversion-start">{t("projects:gantt.relative.convertStart")}</Label>
             <Input id="conversion-start" type="date" value={conversionStart} onChange={e=>{setConversionStart(e.target.value);setConversionPreview(null);}}/>
             <Button variant="outline" onClick={previewConversion} disabled={!conversionStart||conversionPreviewPending}>{t("projects:gantt.relative.convertPreview")}</Button>
-            {conversionPreview && <div className="max-h-72 overflow-auto text-xs"><div className="font-medium">{conversionPreview.start_date}</div>{conversionPreview.stages.map(s=><div key={s.id} className="flex flex-wrap justify-between gap-2 border-b border-border py-2"><span>{s.name}</span><span>{s.start_date} → {s.end_date}</span></div>)}{conversionPreview.allocations.map((a,i)=><div key={`${a.id}:${i}`} className="flex flex-wrap justify-between gap-2 py-1"><span>{a.resource_name} · {a.hours_per_day}h</span><span>{a.start_date} → {a.end_date}</span></div>)}{conversionPreview.payments?.map(p=><div key={p.id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1"><span>{p.label}</span><span>{p.expected_invoice_date} → {p.expected_payment_date}</span></div>)}</div>}
+            {conversionPreview && <div className="max-h-72 overflow-auto text-xs"><div className="flex flex-wrap justify-between gap-2 font-medium"><span>{conversionPreview.start_date}</span><span>{t("glossary:financial.fee")} · {new Intl.NumberFormat(undefined,{style:"currency",currency:"EUR"}).format(conversionPreview.commercial.total_fee)}</span></div>{numberStages(conversionPreview.stages).map(({stage:s,number})=><div key={s.id} className="flex flex-wrap justify-between gap-2 border-b border-border py-2"><span>{formatStageLabel(s,number)}</span><span>{s.start_date} → {s.end_date}</span></div>)}{conversionPreview.allocations.map((a,i)=><div key={`${a.id}:${i}`} className="flex flex-wrap justify-between gap-2 py-1"><span>{a.resource_name} · {new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(a.hours_per_day)} {t("common:hours")}</span><span>{a.start_date} → {a.end_date}</span></div>)}{conversionPreview.payments?.map(p=><div key={p.id} className="flex flex-wrap justify-between gap-2 border-t border-border py-1"><span>{p.label} · {new Intl.NumberFormat(undefined,{style:"currency",currency:"EUR"}).format(p.amount)}</span><span>{p.expected_invoice_date} → {p.expected_payment_date}</span></div>)}</div>}
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
