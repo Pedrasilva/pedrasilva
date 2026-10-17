@@ -1,25 +1,14 @@
-# Conversion: preserve quoted days, hours and fees
+# CRM value fallback and milestone date changes
 
-## Current findings
-- Ordinary stages and resource allocations already map quoted weekday offsets onto the live public-holiday/office-closure calendar. End dates extend instead of losing working days.
-- Conversion copies quoted commercial totals into the project's sold fee and contract baseline rather than recalculating a reduced fee.
-- Retainers preserve monthly effort by adjusting hours per working day; keep their existing month-based scheduling.
-- The preview shows resulting dates and total fee, but does not explicitly compare calendar-caused date shifts or preserved effort. Full per-stage fee parity still needs a focused regression.
+## Changes
+1. Use a positive active quoted total when available; otherwise show the estimated fee labelled Estimated. Reuse the shared value resolver for cards, column/header totals and CRM Overview.
+2. Limit milestone work to dates and dragging, as selected. Ensure dragging uses the existing atomic multi-stage save and Undo path, including dependent stages and resource dates. Keep creation, deletion, names and ordering unchanged.
 
-## Changes after approval
-1. Show each stage's dates without holidays/closures → live dates in the existing conversion preview, retaining WBS labels and sorting.
-2. Show quoted working days, total resource hours and stage fees alongside the existing total fee. Keep authored stage names unchanged.
-3. Add a Christmas regression: a five-working-day stage starting 21 December 2026 with 24–25 December closed moves its end from 25 to 29 December, retaining 20 hours and €600 at 4 hours/day and €30/hour.
-4. Verify actual preview and conversion on rollback-only fixtures, including stage/project fees, public holidays, office closures, dependency lag and retainer effort. Correct any demonstrated mismatch; leave already-correct scheduling alone.
-
-## Safety boundaries
-- No existing live project, allocation, timesheet or weekly-plan changes.
-- Roll back every test record and test closure date; 2027 holidays remain unconfirmed and unsaved.
-- Keep explicit preview/confirm and stale-preview safeguards.
+## Light verification
+- Focused unit tests for zero/empty quote fallback and totals, plus milestone move/save/Undo and failed-save behavior.
+- One signed-in check on a temporary copy, then delete it. Never test changes on real projects or proposals.
+- Report results and any verification limit in no more than four lines.
 
 ## Technical details
-- Extend pm_quote_conversion_preview with baseline dates and quoted effort/fee fields; preserve authorization and revision binding. Mirror the exact database change under supabase/migrations.
-- Update the existing conversion dialog in src/routes/_app.crm.quotes.$quoteId.tsx; add matching EN/PT keys using existing shared terminology.
-- Keep quote fee calculations weekday-only and reuse existing live calendar mapping; no new packages or framework changes.
-- Add focused unit and rollback SQL tests next to existing conversion tests; run focused Gantt and weekly regressions.
-- Verify the preview on screen without converting a real proposal; report remaining verification limits in at most three lines.
+- Keep the existing scheduler, revision guards and save history; milestone date changes already reach the atomic save through stage hooks, so no new database function is planned.
+- No new packages, access changes or unrelated refactors.
