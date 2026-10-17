@@ -519,6 +519,13 @@
       "when": 1792235980068,
       "tag": "0073_backoffice_salary_only_internal_cost",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1792236094973,
+      "tag": "0074_verify_isolated_backoffice_backfill",
+      "breakpoints": true
     }
   ]
 }
