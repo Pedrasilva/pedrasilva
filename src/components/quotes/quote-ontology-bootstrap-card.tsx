@@ -33,7 +33,7 @@ import {
   type ApplyBootstrapResult,
 } from "@/lib/proposal-ontology/bootstrap";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => "2000-01-03";
 
 interface Props {
   quoteId: string;
@@ -221,14 +221,7 @@ export function QuoteOntologyBootstrapCard({
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label className="text-xs">{t("ontology.projectStart")}</Label>
-            <Input
-              type="date"
-              value={projectStart}
-              onChange={(e) => setProjectStart(e.target.value)}
-            />
-          </div>
+
         </div>
 
         {/* Delivery mode (auto from preset) */}

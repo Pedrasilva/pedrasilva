@@ -783,7 +783,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
       let parentId: string | null = null;
       let role: string = "architecture";
-      let start = new Date();
+      let start = relative ? parseISO(RELATIVE_ORIGIN) : new Date();
       let end = addDays(start, 5);
       let baseSort = 10;
 

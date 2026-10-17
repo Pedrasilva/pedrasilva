@@ -670,7 +670,8 @@
       "summaryReadOnly": "Parent dates are calculated from their children.",
       "locked": "A locked stage cannot be moved.",
       "lockedAllocation": "A protected resource allocation cannot be resized.",
-      "slack": "{{days}}d extra gap"
+      "slack": "{{days}}d extra gap",
+      "crossProject": "This cross-project dependency needs review before editing."
     },
     "relative": {
       "week": "Week {{number}}",
@@ -681,7 +682,10 @@
       "startWeek": "Start week",
       "durationWeeks": "Duration (weeks)",
       "convertStart": "Project start date",
-      "convertPreview": "Calendar conversion preview"
+      "convertPreview": "Calendar conversion preview",
+      "required": "Initialize the relative timeline in an editable revision before converting.",
+      "approvedRequired": "The proposal must be approved.",
+      "previewRequired": "Preview the dates before converting."
     }
   },
   "kpi": {

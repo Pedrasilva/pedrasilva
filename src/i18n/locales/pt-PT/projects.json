@@ -670,7 +670,8 @@
       "summaryReadOnly": "As datas da fase principal são calculadas pelas subfases.",
       "locked": "Uma fase bloqueada não pode ser deslocada.",
       "lockedAllocation": "Uma alocação protegida não pode ser redimensionada.",
-      "slack": "{{days}}d de intervalo adicional"
+      "slack": "{{days}}d de intervalo adicional",
+      "crossProject": "Esta ligação entre projectos requer revisão antes de editar."
     },
     "relative": {
       "week": "Semana {{number}}",
@@ -681,7 +682,10 @@
       "startWeek": "Semana de início",
       "durationWeeks": "Duração (semanas)",
       "convertStart": "Data de início do projecto",
-      "convertPreview": "Pré-visualização da conversão para datas"
+      "convertPreview": "Pré-visualização da conversão para datas",
+      "required": "Inicialize a cronologia relativa numa revisão editável antes de converter.",
+      "approvedRequired": "A proposta tem de estar aprovada.",
+      "previewRequired": "Pré-visualize as datas antes de converter."
     }
   },
   "kpi": {

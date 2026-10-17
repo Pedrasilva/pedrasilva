@@ -215,6 +215,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
   };
 
   const handleAddAlloc = async () => {
+    if(allStages.some(s=>s.parent_stage_id===stageId)){toast.error(t("projects:gantt.schedule.summaryReadOnly"));return;}
     if (!newAlloc.resource_id) {
       toast.error(t("workspace.planning.pickResourceFirst", { defaultValue: "Pick a resource first." }));
       return;
@@ -1228,7 +1229,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
             )}
           </ul>
 
-          {poolResources.length > 0 && (
+          {poolResources.length > 0 && !allStages.some(s=>s.parent_stage_id===stageId) && (
             <div className="space-y-2 border-t border-border pt-3">
               <div>
                 <Label className="text-xs">{t("workspace.planning.resource", { defaultValue: "Resource" })}</Label>

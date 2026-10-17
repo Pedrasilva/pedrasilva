@@ -182,7 +182,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
     if (!changedIds.has(a.stage_id) || parentIds.has(a.stage_id)) return [];
     const stage = rolled.get(a.stage_id);
     if (!stage || (a.start_date === stage.start_date && a.end_date === stage.end_date)) return [];
-    if (a.is_locked || a.external_id || a.source === "import") throw new Error("gantt.schedule.lockedAllocation");
+    if (a.is_locked || a.external_id || ["import","imported_accelo"].includes(a.source ?? "")) throw new Error("gantt.schedule.lockedAllocation");
     return [{id:a.id, ...stage}];
   });
   return { stages:updates, allocations, dependencies:deps };

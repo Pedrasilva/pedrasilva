@@ -45,6 +45,21 @@ describe("Gantt scheduling rules",()=>{
     const s=base();s.allocations[0].is_locked=true;
     expect(()=>recomputeSchedule(s,[],[stage("a","2026-10-19","2026-10-21")])).toThrow("gantt.schedule.lockedAllocation");
   });
+  it("keeps the latest incoming rule and exposes the other gap",()=>{
+    const s=base();s.stages.push(stage("c","2026-11-09","2026-11-13"));
+    const links=[{id:"ab",predecessor_id:"a",successor_id:"b",type:"SS" as const,lag_days:0},{id:"cb",predecessor_id:"c",successor_id:"b",type:"SS" as const,lag_days:0}];
+    const b=recomputeSchedule(s,links,[],["b"]).stages.find(v=>v.id==="b");
+    expect(b?.start_date).toBe("2026-11-09");if(b)expect(dependencySlack(s.stages[0],b,links[0])).toBe(15);
+  });
+  it("normalizes Technical Design ending Sunday 7 March 2027 backwards",()=>{
+    expect(recomputeSchedule(base(),[],[stage("a","2027-03-01","2027-03-07")]).allocations[0]?.end_date).toBe("2027-03-05");
+  });
+  it("keeps resource effort and snapshots while deriving the changed hours and fee",()=>{
+    const s=base();s.allocations[0]={...s.allocations[0],hours_per_day:4,cost_rate_snapshot:20,sale_rate_snapshot:30} as typeof s.allocations[0];
+    const allocation={...s.allocations[0],...recomputeSchedule(s,[],[stage("a","2026-10-19","2026-10-21")]).allocations[0]} as typeof s.allocations[0]&{hours_per_day:number;cost_rate_snapshot:number;sale_rate_snapshot:number};
+    const hours=scheduleCalendar().duration(allocation.start_date,allocation.end_date)*allocation.hours_per_day;
+    expect(hours).toBe(12);expect(hours*allocation.cost_rate_snapshot).toBe(240);expect(hours*allocation.sale_rate_snapshot).toBe(360);
+  });
   it("rolls up parent bounds from children",()=>{
     const s=base();s.stages.push({...stage("parent","2026-10-01","2026-12-31")});
     s.stages[0].parent_stage_id="parent";s.stages[1].parent_stage_id="parent";
