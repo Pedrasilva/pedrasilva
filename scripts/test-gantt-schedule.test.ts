@@ -1,0 +1,53 @@
+import {describe,it,expect} from "vitest";
+import {recomputeSchedule,scheduleCalendar,dependencySlack,type ScheduleState} from "../src/lib/projects/schedule-engine";
+const stage=(id:string,start_date:string,end_date:string)=>({id,start_date,end_date});
+const base=():ScheduleState=>({stages:[stage("a","2026-10-19","2026-10-23"),stage("b","2026-11-02","2026-11-06")],
+  allocations:[{id:"resource",stage_id:"a",start_date:"2026-10-20",end_date:"2026-10-22"}],dependencies:[],holidays:[],relative:false,revision:"test"});
+describe("Gantt scheduling rules",()=>{
+  it("shrinks every resource to the edited stage bounds",()=>{
+    const result=recomputeSchedule(base(),[],[stage("a","2026-10-19","2026-10-21")]);
+    expect(result.allocations).toEqual([{id:"resource",start_date:"2026-10-19",end_date:"2026-10-21"}]);
+  });
+  it("extends every resource to the edited stage bounds",()=>{
+    expect(recomputeSchedule(base(),[],[stage("a","2026-10-19","2026-10-28")]).allocations[0]?.end_date).toBe("2026-10-28");
+  });
+  for(const type of ["FS","SS","FF","SF"] as const) for(const lag_days of [-2,0,2]) {
+    it(`${type} uses signed working-day lag ${lag_days}`,()=>{
+      const s=base(); const dep={id:"link",predecessor_id:"a",successor_id:"b",type,lag_days};
+      const result=recomputeSchedule(s,[dep],[],["b"]);
+      const b=result.stages.find(s=>s.id==="b");
+      expect(b).toBeDefined();
+      if(!b) return;
+      expect(dependencySlack(s.stages[0],b,dep)).toBe(0);
+      expect(scheduleCalendar().duration(b.start_date,b.end_date)).toBe(5);
+    });
+  }
+  it("deletion recomputes remaining rules and retains position with no rule",()=>{
+    const s=base(); expect(recomputeSchedule(s,[],[],["b"]).stages).toEqual([]);
+    expect(recomputeSchedule(s,[{id:"ss",predecessor_id:"a",successor_id:"b",type:"SS",lag_days:0}],[],["b"]).stages[0]?.start_date).toBe("2026-10-19");
+  });
+  it("skips public holidays in live calendars",()=>{
+    const s=base();s.holidays=["2026-10-26"];
+    expect(recomputeSchedule(s,[{id:"fs",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:0}],[],["b"]).stages[0]?.start_date).toBe("2026-10-27");
+  });
+  it("ignores actual public holidays in CRM relative mode",()=>{
+    const s=base();s.holidays=["2026-10-26"];s.relative=true;
+    expect(recomputeSchedule(s,[{id:"fs",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:0}],[],["b"]).stages[0]?.start_date).toBe("2026-10-26");
+  });
+  it("rejects circular links",()=>expect(()=>recomputeSchedule(base(),[
+    {id:"ab",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:0},
+    {id:"ba",predecessor_id:"b",successor_id:"a",type:"FF",lag_days:0}])).toThrow("gantt.schedule.cycle"));
+  it("preserves locked successors",()=>{
+    const s=base();s.stages[1]={...s.stages[1],is_locked:true};
+    expect(recomputeSchedule(s,[{id:"ab",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:0}],[],["b"]).stages).toEqual([]);
+  });
+  it("rejects resizing imported allocations",()=>{
+    const s=base();s.allocations[0].is_locked=true;
+    expect(()=>recomputeSchedule(s,[],[stage("a","2026-10-19","2026-10-21")])).toThrow("gantt.schedule.lockedAllocation");
+  });
+  it("rolls up parent bounds from children",()=>{
+    const s=base();s.stages.push({...stage("parent","2026-10-01","2026-12-31")});
+    s.stages[0].parent_stage_id="parent";s.stages[1].parent_stage_id="parent";
+    expect(recomputeSchedule(s).stages.find(v=>v.id==="parent")).toEqual(stage("parent","2026-10-19","2026-11-06"));
+  });
+});

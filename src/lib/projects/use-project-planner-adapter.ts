@@ -9,6 +9,8 @@
  * RLS on the server; this is a UX guard so non-admins don't see edit
  * affordances that would always fail.
  */
+import { useQueryClient } from "@tanstack/react-query";
+import { changeGanttDependency,projectScopeForDependency } from "./gantt-schedule";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -41,6 +43,7 @@ export function useProjectPlannerAdapter(
   opts: ProjectPlannerAdapterOptions = {},
 ): PlannerAdapter {
   const { t } = useTranslation(["projects"]);
+  const qc=useQueryClient();
   const updateAlloc = useUpdateAllocation();
   const createAlloc = useCreateAllocation();
   const deleteAlloc = useDeleteAllocation();
@@ -108,6 +111,14 @@ export function useProjectPlannerAdapter(
           }),
     updateDependency: readOnly ? deny : (a) => updateDep.mutateAsync(a),
     deleteDependency: readOnly ? deny : (id) => deleteDep.mutateAsync(id),
+    replaceDependency: readOnly ? deny : async ({id,...input}) => {
+      const scope=await projectScopeForDependency(input);
+      const result=await changeGanttDependency("project",scope,"create",{...input,replaces:id});
+      await qc.invalidateQueries({queryKey:["pm-stage-dependencies"]});
+      await qc.invalidateQueries({queryKey:["pm-project"]});
+      await qc.invalidateQueries({queryKey:["pm-stages-all"]});
+      return result;
+    },
     pending: {
       stage: updateStageCascade.isPending || deleteStage.isPending,
       allocation: updateAlloc.isPending || createAlloc.isPending || deleteAlloc.isPending,

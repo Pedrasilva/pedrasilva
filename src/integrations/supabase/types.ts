@@ -12833,6 +12833,42 @@ export type Database = {
           },
         ]
       }
+      quote_relative_schedules: {
+        Row: {
+          created_at: string
+          created_by: string
+          original_dates: Json
+          quote_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          original_dates: Json
+          quote_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          original_dates?: Json
+          quote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_relative_schedules_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_relative_schedules_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_site_trips: {
         Row: {
           created_at: string
@@ -15753,6 +15789,17 @@ export type Database = {
         Args: { p_approver: string; p_expense_id: string }
         Returns: Json
       }
+      pm_gantt_save: {
+        Args: {
+          _initialize?: boolean
+          _mode: string
+          _patch: Json
+          _revision: string
+          _scope: string
+        }
+        Returns: Json
+      }
+      pm_gantt_state: { Args: { _mode: string; _scope: string }; Returns: Json }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_has_assigned_access: {
         Args: { _project_id: string; _user_id: string }

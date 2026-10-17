@@ -17,7 +17,7 @@
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { PanelRightClose, PanelRightOpen, Plus, Minus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { GanttPrintButton } from "@/components/planner/gantt-print-button";
@@ -25,7 +25,11 @@ import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GanttHistoryControls } from "./gantt-history-controls";
+import { RelativeScheduleControls } from "@/components/quotes/relative-schedule-controls";
+import { RELATIVE_ORIGIN } from "@/lib/projects/schedule-engine";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
+import {quoteAllocationLine} from "@/lib/quotes/financial-rollups";
 import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
@@ -173,6 +177,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
+  const relativeQ=useQuery({queryKey:["quote-relative",quoteId],queryFn:async()=>{
+    const {data,error}=await supabase.from("quote_relative_schedules").select("quote_id").eq("quote_id",quoteId).maybeSingle();
+    if(error)throw error;return !!data;
+  }});
+  const relative=relativeQ.data ?? false;
 
   // Derived project start = earliest start across non-retainer stages.
   const projectStartIso = useMemo(() => {
@@ -453,7 +462,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     const computeRollup = (node: S): { start: string; end: string; budget: number } => {
       const kids = childrenByParent.get(node.id) ?? [];
       if (kids.length === 0) {
-        return { start: node.start_date, end: node.end_date, budget: Number(node.budget ?? 0) || 0 };
+        const rows=allocations.filter(a=>a.stage_id===node.id);
+        const source=(node as {sale_source?:string}).sale_source;
+        const fee=source==="budget" || !rows.length ? Number(node.budget??0) : rows.reduce((v,a)=>v+quoteAllocationLine(a).revenue,0);
+        return {start:node.start_date,end:node.end_date,budget:fee};
       }
       let minStart = "";
       let maxEnd = "";
@@ -466,11 +478,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         sumBudget += r.budget;
         if (isSupplierRole(k)) supplierChildrenBudget += r.budget;
       }
-      const mode = ((node as { budget_mode?: string | null }).budget_mode ?? "calculated") as string;
-      const ownBudget = Number(node.budget ?? 0) || 0;
-      const effectiveBudget = mode === "fixed"
-        ? (isSupplierRole(node) ? ownBudget : ownBudget + supplierChildrenBudget)
-        : (!isSupplierRole(node) && kids.some(isSupplierRole) ? ownBudget + sumBudget : sumBudget);
+      const effectiveBudget = sumBudget;
       // Parent bars always roll up the descendant span — a manually stored
       // start/end on a parent row is never used once it has children.
       const start = minStart || node.start_date;
@@ -568,7 +576,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     }
 
     return { mappedStages: mapped, hierarchy: hier };
-  }, [stages, allocByStage, quoteId, t]);
+  }, [stages, allocations, allocByStage, quoteId, t]);
 
 
   // Local collapse state for the outline. Persisted in sessionStorage per quote.
@@ -652,10 +660,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       if (sd < minD) minD = sd;
       if (ed > maxD) maxD = ed;
     }
-    const o = addDays(minD, -7);
+    const o = relative ? parseISO(RELATIVE_ORIGIN) : addDays(minD, -7);
     const days = Math.max(60, differenceInCalendarDays(maxD, o) + 21);
     return { origin: o, totalDays: days };
-  }, [mappedStages]);
+  }, [mappedStages,relative]);
 
   // Payment milestones — resolve each schedule item to a concrete date and €
   // amount using current stage dates and the sum of stage budgets as the
@@ -1143,23 +1151,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               })}
             </Button>
           )}
-          {projectStartIso && (
-            <div className="ml-2 flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-0.5">
-              <span className="text-xs text-muted-foreground">
-                {t("workspace.planning.projectStart", { defaultValue: "Project start" })}
-              </span>
-              <Input
-                type="date"
-                value={projectStartIso}
-                onChange={(e) => handleShiftProjectStart(e.target.value)}
-                disabled={shifting || isLocked}
-                className="h-6 w-[140px] border-0 bg-transparent p-0 text-xs focus-visible:ring-0"
-                title={t("workspace.planning.projectStartHint", {
-                  defaultValue: "Changing this shifts every stage and allocation by the same number of days.",
-                })}
-              />
-            </div>
-          )}
+          <GanttHistoryControls mode="quote" scope={quoteId} disabled={isLocked}/>
+          {!relative && <RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}
         </div>
 
         {dayWidthProp === undefined && (
@@ -1276,6 +1269,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
           <GanttChart
             projectId={quoteId}
+            relative={relative}
             stages={mappedStages}
             origin={origin}
             totalDays={totalDays}
@@ -1317,6 +1311,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
           <QuotePlannerInspector
             quoteId={quoteId}
             stageId={selectedStageId}
+            relative={relative}
             onClose={() => setSelectedStageId(null)}
           />
         )}
@@ -1841,6 +1836,7 @@ export function ProjectGantt({
               </Button>
             </>
           )}
+          <GanttHistoryControls mode="project" scope={projectId} disabled={!canEdit}/>
           {!canEdit && (
             <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
               {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}

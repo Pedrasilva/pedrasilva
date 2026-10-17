@@ -9,6 +9,8 @@
  * This replaces the old in-tab Stages/Dependencies/Allocations tables and
  * the standalone Consultants panel.
  */
+import {RelativeStageFields} from "@/components/planner/relative-stage-fields";
+import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import { useMemo, useState } from "react";
 import { addDays, addWeeks, addMonths, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -45,12 +47,13 @@ import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
 import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 
 interface Props {
+  relative?:boolean;
   quoteId: string;
   stageId: string;
   onClose: () => void;
 }
 
-export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
+export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=false }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
@@ -254,7 +257,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             {stage.name}
           </div>
           <div className="font-mono text-[10px] text-muted-foreground">
-            {stage.start_date} → {stage.end_date}
+            {relative ? t("projects:gantt.relative.week",{number:Math.floor(scheduleCalendar().offset(RELATIVE_ORIGIN,stage.start_date)/5)+1}) : `${stage.start_date} → ${stage.end_date}`}
           </div>
         </div>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
@@ -520,7 +523,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             const datesDisabled = isParentStage;
             return (
             <>
-              <div className="grid grid-cols-2 gap-2">
+              {relative ? <RelativeStageFields start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">
                     {t("workspace.planning.startDate", { defaultValue: "Start" })}
@@ -577,7 +580,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     }}
                   />
                 </div>
-              </div>
+              </div>}
               {datesDisabled && (
                 <p className="text-[10px] text-muted-foreground -mt-1">
                   {t("workspace.planning.dateCalculatedHint", {
@@ -585,7 +588,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                   })}
                 </p>
               )}
-              {!isParentStage && (
+              {!isParentStage && !relative && (
                 <p className="text-[10px] text-muted-foreground -mt-1">
                   {t("workspace.planning.moveHint", {
                     defaultValue:
@@ -593,7 +596,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                   })}
                 </p>
               )}
-              {!isParentStage && (
+              {!isParentStage && !relative && (
                 <DurationField
                   stageId={stage.id}
                   startDate={stage.start_date}

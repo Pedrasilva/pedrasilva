@@ -57,7 +57,8 @@ export function buildQuoteWarnings({
   } else {
     // Per-stage check — list stages with zero allocations.
     const stagesWithAllocs = new Set(allocations.map((a) => a.stage_id));
-    const orphanStages = stages.filter((s) => !stagesWithAllocs.has(s.id));
+    const parentIds = new Set(stages.map(s => s.parent_stage_id).filter(Boolean));
+    const orphanStages = stages.filter((s) => !parentIds.has(s.id) && !stagesWithAllocs.has(s.id));
     if (orphanStages.length > 0) {
       out.push({
         id: "stageWithoutAllocation",

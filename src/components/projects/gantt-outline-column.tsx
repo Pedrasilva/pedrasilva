@@ -16,6 +16,9 @@
  * the last visible row as the anchor; when the tree is empty it calls
  * onAppendRoot (if provided).
  */
+import {useTranslation} from "react-i18next";
+import {Input} from "@/components/ui/input";
+import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp, UserCheck } from "lucide-react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
@@ -48,6 +51,7 @@ export interface StageBoundsUpdate {
 }
 
 interface Props {
+  relative?:boolean;
   visibleStages: StageWithProject[];
   hierarchy: Map<string, GanttHierarchyNode>;
   collapsed: Set<string>;
@@ -121,6 +125,7 @@ function durDays(start?: string | null, end?: string | null): number {
 }
 
 export function GanttOutlineColumn({
+  relative=false,
   visibleStages,
   hierarchy,
   collapsed,
@@ -144,6 +149,7 @@ export function GanttOutlineColumn({
   dependencyLabels,
   onAppendRoot,
 }: Props) {
+  const {t}=useTranslation("projects");
   const last = visibleStages[visibleStages.length - 1];
   const showInsertRow = !!(onInsertStage || onAppendRoot);
 
@@ -219,7 +225,7 @@ export function GanttOutlineColumn({
             else if (chevronMode === "resources") onToggleResourcesCollapse?.(stage.id);
           };
           const zebra = i % 2 === 1 ? "bg-muted/20" : "";
-          const dur = durDays(stage.start_date, stage.end_date);
+          const dur = relative ? scheduleCalendar().duration(stage.start_date,stage.end_date) : durDays(stage.start_date, stage.end_date);
           const dep = dependencyLabels?.get(stage.id);
           const editable = !!onUpdateStageBounds;
           const projectId = (stage as { projectId: string }).projectId;
@@ -341,7 +347,7 @@ export function GanttOutlineColumn({
                       onCommit={async (n) => {
                         if (!stage.start_date) return;
                         const start = parseISO(stage.start_date);
-                        const end = addDays(start, Math.max(0, n - 1));
+                        const end = relative ? parseISO(scheduleCalendar().shift(stage.start_date,Math.max(0,n-1))) : addDays(start, Math.max(0, n - 1));
                         await commitBounds({
                           start_date: stage.start_date,
                           end_date: format(end, "yyyy-MM-dd"),
@@ -354,7 +360,7 @@ export function GanttOutlineColumn({
                 {/* Start */}
                 {showStart && (
                   <div style={{ width: COL.start }} className="shrink-0 text-right">
-                    <DateCell
+                    {relative ? <Input type="number" step="0.2" min="1" className="h-6 text-xs" aria-label={t("gantt.relative.startWeek")} key={stage.start_date} defaultValue={scheduleCalendar().offset(RELATIVE_ORIGIN,stage.start_date)/5+1} disabled={!editable||isSummary} onBlur={async e=>{const n=Number(e.target.value);if(!Number.isFinite(n)||n<1)return;const start=scheduleCalendar().shift(RELATIVE_ORIGIN,Math.round((n-1)*5));await commitBounds({start_date:start,end_date:scheduleCalendar().shift(start,dur-1)});}}/> : <DateCell
                       value={stage.start_date}
                       editable={isSummary ? !!onShiftSubtree : editable}
                       onCommit={async (next) => {
@@ -377,14 +383,14 @@ export function GanttOutlineColumn({
                           end_date: format(end, "yyyy-MM-dd"),
                         });
                       }}
-                    />
+                    />}
                   </div>
                 )}
 
                 {/* Due */}
                 {showDue && (
                   <div style={{ width: COL.due }} className="shrink-0 text-right">
-                    <DateCell
+                    {relative ? <span className="font-mono text-xs">{t("gantt.relative.week",{number:Math.floor(scheduleCalendar().offset(RELATIVE_ORIGIN,stage.end_date)/5)+1})}</span> : <DateCell
                       value={stage.end_date}
                       editable={editable && !isSummary}
                       onCommit={async (next) => {
@@ -393,7 +399,7 @@ export function GanttOutlineColumn({
                           end_date: next,
                         });
                       }}
-                    />
+                    />}
                   </div>
                 )}
 
