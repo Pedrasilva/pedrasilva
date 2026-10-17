@@ -1,7 +1,7 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — Stage 3 planning only
-- [ ] Recover original weekly-board and Stage 2 briefs; restate settled Stage 3 scope and list unresolved decisions with recommended defaults.
+- [x] Recovered all three original briefs; prepared settled Stage 3 scope and unresolved decisions with recommended defaults.
 - [ ] Await Luis's answers before Stage 3 code or database changes; subsequent tests must roll back and preserve all 94 existing allocations.
 
 ## Pending authorized request — Tatiana internal costing
