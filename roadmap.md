@@ -1,9 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
-## Current request — Tatiana absence corrections and weekly approval
-- [ ] Audit and remove only Tatiana's 8h on July 22 and 16h on August 19; record both as approved full-day unpaid absences.
-- [ ] Approve/reconcile only her weeks June 1–October 12 in one transaction, preserving other people and all rates; verify each absence contributes 8h owed. Blocked on permission to synchronize her stale August vacation timesheet rows: August 17–18 still contain Vacation, while approved August 24–27 have no Vacation rows; August 19's 16h consists of 8h Admin plus 8h Vacation. No live corrections or approvals applied yet.
-- [ ] Report removed activity costs, bank before/after, approved weeks and any blockers.
+## Completed request — Tatiana absence corrections and weekly approval
+- [x] Audited and removed Tatiana's 8h July 22 and 16h August 19; both recorded as approved full-day unpaid absences. Luis also authorized removing stale Vacation August 17–18 and adding Vacation August 24–27; working rows retained.
+- [x] Approved all 20 Monday-start weeks June 1–October 12 and reconciled bank in one transaction, after rollback verification. Bank 0h → −40h: June 22 −4h, July 20 −8h, August 17 −8h, October 12 −20h. Each new absence contributes exactly 8h owed.
+- [x] Five full removed rows audited as Luis with exact reason, 2026-10-17 14:59:44 UTC; costs removed €226.88 (two working entries), Vacation rows had no cost snapshot. Committed read-back confirms approvals, absences, audit and balance. Full-row comparison preserved unrelated entries/weeks/leave/banks, all resource rates, 37 cost periods and 94 allocations; no schema change or full rebuild/recalculate. Browser display/email delivery not verified.
 
 ## Completed request — attendance reconciliation
 - [x] Add service-only audited admin correction safeguard preserving every timesheet row; pending sick leave can lack attachment, approval cannot.
