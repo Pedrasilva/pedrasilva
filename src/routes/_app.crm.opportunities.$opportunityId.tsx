@@ -234,6 +234,7 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [saveAsContactOpen, setSaveAsContactOpen] = useState(false);
   const updateContact = useMutation({
     mutationFn: async (primary_contact_id: string | null) => {
       const { error } = await supabase

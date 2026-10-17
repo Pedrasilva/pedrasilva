@@ -42,7 +42,7 @@ import {
   defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
 import { resolveOpportunityValue, resolveOpportunityValueWithSource } from "@/lib/crm/opportunity-value";
-import { boardColumns, visibleOpportunities, shownTotal, isClosedOpportunity } from "@/lib/crm/pipeline-board";
+import { boardColumns, visibleOpportunities, shownTotal } from "@/lib/crm/pipeline-board";
 import { Switch } from "@/components/ui/switch";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 
