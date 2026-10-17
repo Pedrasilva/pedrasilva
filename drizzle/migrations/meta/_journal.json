@@ -533,6 +533,13 @@
       "when": 1792236141540,
       "tag": "0075_allow_salary_overhead_snapshot_source",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1792236366286,
+      "tag": "0076_scope_backoffice_salary_to_tatiana",
+      "breakpoints": true
     }
   ]
 }
