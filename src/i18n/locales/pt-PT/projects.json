@@ -2037,5 +2037,63 @@
       "invalidSlot": "Célula com etapa, capacidade ou ausência inválida ou por resolver",
       "inactiveProject": "Alocação de projeto suspenso/arquivado não visível: resolva primeiro no Gantt"
     }
+  },
+  "officeCalendar": {
+    "title": "Calendário do atelier",
+    "subtitle": "Feriados e fechos do atelier. Com os fins de semana formam o único calendário de dias úteis usado no Gantt, no planeamento semanal e nas folhas de horas.",
+    "holidays": {
+      "title": "Feriados",
+      "sub": "Feriados nacionais e de Lisboa do ano selecionado.",
+      "empty": "Sem feriados neste ano."
+    },
+    "closures": {
+      "title": "Fecho do atelier",
+      "sub": "Os dias de fecho são férias obrigatórias. As alterações são pré-visualizadas antes de descontar ou devolver dias.",
+      "yearly": "Repetir todos os anos"
+    },
+    "entitled": {
+      "title": "Direito a férias",
+      "sub": "Desligue para estagiários curriculares: os dias de fecho ficam não úteis sem desconto de férias."
+    },
+    "kind": {
+      "nacional": "Nacional",
+      "municipal_lisboa": "Lisboa",
+      "fecho_atelier": "Fecho do atelier"
+    },
+    "name": "Nome",
+    "save": "Guardar",
+    "edit": "Editar",
+    "remove": "Remover",
+    "cancel": "Cancelar",
+    "preview": "Pré-visualizar descontos",
+    "applied": "Calendário do atelier atualizado.",
+    "plan": {
+      "title": "Férias do fecho do atelier",
+      "days": "Dias de fecho adicionados: {{add}} · removidos: {{remove}}",
+      "nothing": "Nada a alterar.",
+      "person": "Pessoa",
+      "deduct": "Descontado",
+      "refund": "Devolvido",
+      "skipped": "Não descontado",
+      "insufficient": "Saldo insuficiente",
+      "daysUnit": "d",
+      "skip_intern": "sem direito",
+      "skip_sick": "baixa",
+      "skip_booked": "já marcado",
+      "apply": "Aplicar"
+    },
+    "live": {
+      "title": "Projetos ativos afetados",
+      "sub": "Ainda nada foi deslocado. As fases mantêm os dias úteis e as ligações mantêm o desfasamento.",
+      "loading": "A verificar projetos ativos…",
+      "none": "Nenhuma fase de projetos ativos precisa de mudar.",
+      "blocked_one": "{{count}} alocação protegida teria de mudar. Este projeto fica inalterado.",
+      "blocked_other": "{{count}} alocações protegidas teriam de mudar. Este projeto fica inalterado.",
+      "move": "início {{start}} d · fim {{end}} d (dias úteis)",
+      "keep": "Manter projetos como estão",
+      "apply": "Deslocar estas fases",
+      "applied_one": "{{count}} projeto replaneado.",
+      "applied_other": "{{count}} projetos replaneados."
+    }
   }
 }

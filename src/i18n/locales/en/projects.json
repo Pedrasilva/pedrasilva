@@ -2037,5 +2037,63 @@
       "invalidSlot": "Unresolved or invalid stage / capacity / leave slot",
       "inactiveProject": "Unseen paused/archived project booking: resolve in Gantt first"
     }
+  },
+  "officeCalendar": {
+    "title": "Office calendar",
+    "subtitle": "Public holidays and office closures. Together with weekends they form the one working-day calendar used by the Gantt, weekly planning and timesheets.",
+    "holidays": {
+      "title": "Public holidays",
+      "sub": "National and Lisbon holidays for the selected year.",
+      "empty": "No holidays for this year."
+    },
+    "closures": {
+      "title": "Office closures",
+      "sub": "Closure days are mandatory annual leave. Changes are previewed before anything is deducted or refunded.",
+      "yearly": "Repeat every year"
+    },
+    "entitled": {
+      "title": "Entitled to annual leave",
+      "sub": "Turn off for curricular interns: closure days stay non-working with no annual-leave deduction."
+    },
+    "kind": {
+      "nacional": "National",
+      "municipal_lisboa": "Lisbon",
+      "fecho_atelier": "Office closure"
+    },
+    "name": "Name",
+    "save": "Save",
+    "edit": "Edit",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "preview": "Preview deductions",
+    "applied": "Office calendar updated.",
+    "plan": {
+      "title": "Annual leave from office closures",
+      "days": "Closure days added: {{add}} · removed: {{remove}}",
+      "nothing": "Nothing to change.",
+      "person": "Person",
+      "deduct": "Deducted",
+      "refund": "Refunded",
+      "skipped": "Not deducted",
+      "insufficient": "Not enough balance",
+      "daysUnit": "d",
+      "skip_intern": "no entitlement",
+      "skip_sick": "sick leave",
+      "skip_booked": "already booked",
+      "apply": "Apply"
+    },
+    "live": {
+      "title": "Live projects affected",
+      "sub": "Nothing has moved yet. Stages keep their working days and links keep their lag.",
+      "loading": "Checking live projects…",
+      "none": "No live project stage needs to move.",
+      "blocked_one": "{{count}} protected resource booking would have to move. This project stays unchanged.",
+      "blocked_other": "{{count}} protected resource bookings would have to move. This project stays unchanged.",
+      "move": "start {{start}} d · end {{end}} d (working days)",
+      "keep": "Keep projects as they are",
+      "apply": "Move these stages",
+      "applied_one": "{{count}} project re-scheduled.",
+      "applied_other": "{{count}} projects re-scheduled."
+    }
   }
 }

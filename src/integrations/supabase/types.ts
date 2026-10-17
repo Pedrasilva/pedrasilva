@@ -1488,6 +1488,7 @@ export type Database = {
           dias_ferias_extra: number
           email: string | null
           estado_civil: string
+          ferias_entitled: boolean
           foto_path: string | null
           id: string
           include_in_planning: boolean
@@ -1526,6 +1527,7 @@ export type Database = {
           dias_ferias_extra?: number
           email?: string | null
           estado_civil?: string
+          ferias_entitled?: boolean
           foto_path?: string | null
           id?: string
           include_in_planning?: boolean
@@ -1564,6 +1566,7 @@ export type Database = {
           dias_ferias_extra?: number
           email?: string | null
           estado_civil?: string
+          ferias_entitled?: boolean
           foto_path?: string | null
           id?: string
           include_in_planning?: boolean
@@ -5759,6 +5762,7 @@ export type Database = {
           data: string
           id: string
           nome: string
+          office_closure_id: string | null
           tipo: string
           updated_at: string
         }
@@ -5767,6 +5771,7 @@ export type Database = {
           data: string
           id?: string
           nome: string
+          office_closure_id?: string | null
           tipo?: string
           updated_at?: string
         }
@@ -5775,6 +5780,7 @@ export type Database = {
           data?: string
           id?: string
           nome?: string
+          office_closure_id?: string | null
           tipo?: string
           updated_at?: string
         }
@@ -7844,6 +7850,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      office_closures: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string
+          id: string
+          name: string
+          repeats_yearly: boolean
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          id?: string
+          name: string
+          repeats_yearly?: boolean
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          repeats_yearly?: boolean
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       opportunity_activities: {
         Row: {
@@ -14557,6 +14596,7 @@ export type Database = {
           horas: number | null
           id: string
           notas: string | null
+          office_closure_id: string | null
           periodo: string
           tipo: Database["public"]["Enums"]["absence_type"]
           updated_at: string
@@ -14574,6 +14614,7 @@ export type Database = {
           horas?: number | null
           id?: string
           notas?: string | null
+          office_closure_id?: string | null
           periodo?: string
           tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
@@ -14591,6 +14632,7 @@ export type Database = {
           horas?: number | null
           id?: string
           notas?: string | null
+          office_closure_id?: string | null
           periodo?: string
           tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
@@ -15851,6 +15893,16 @@ export type Database = {
       pm_non_working_day_reason: {
         Args: { _date: string; _user_id: string }
         Returns: string
+      }
+      pm_office_calendar_apply: { Args: { _token: string }; Returns: Json }
+      pm_office_calendar_plan: { Args: never; Returns: Json }
+      pm_office_closure_days: {
+        Args: { _to: string }
+        Returns: {
+          closure_id: string
+          day: string
+          name: string
+        }[]
       }
       pm_preview_week_plan: {
         Args: { _extensions?: Json; _plan_id: string }
