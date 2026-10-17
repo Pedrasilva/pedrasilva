@@ -43,7 +43,7 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
   const activeDraft=data.plan?.status==="draft";
   const label=(id:string | undefined) => data.projects.find(p => p.id===id)?.name ?? "—";
   const numbered=data.projects.flatMap(p => numberStages((data.stage_tree ?? data.stages).filter(s => s.project_id===p.id))).flatMap(n => { const stage=data.stages.find(s => s.id===n.stage.id); return stage ? [{...n,stage}] : []; }); const stageLabel=(s:BoardStage) => formatStageLabel(s,numbered.find(n => n.stage.id===s.id)?.number);
-  const stageById=(id:string | null | undefined) => { const stage=data.stages.find(s => s.id===id); return stage ? stageLabel(stage) : t("weekPlan.noStage"); };
+  const stageById=(id:string | null | undefined) => { const stage=data.stages.find(s => s.id===id); if(stage) return stageLabel(stage); const historical=data.stage_tree?.find(s => s.id===id); const number=historical ? numberStages((data.stage_tree ?? []).filter(s => s.project_id===historical.project_id)).find(n => n.stage.id===id)?.number : undefined; return historical ? formatStageLabel(historical,number) : t("weekPlan.noStage"); };
   useEffect(() => { try { const v=JSON.parse(localStorage.getItem("psa-week-recent-projects") ?? "[]"); if(Array.isArray(v)) setRecent(v.filter(x => typeof x==="string").slice(0,5)); } catch {} },[]);
   const selectBrush=(id:string) => { setBrush(id); setBrushHint(false); setPicker(false); const ids=[id,...recent.filter(v => v!==id)].slice(0,5); setRecent(ids); try { localStorage.setItem("psa-week-recent-projects",JSON.stringify(ids)); } catch {} };
   const pending=useRef<Pick<DraftSlot,"resource_id"|"day"|"part">[]>([]);
