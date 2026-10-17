@@ -44,6 +44,7 @@ interface DirectStageAgg {
   hours: number;
   cost: number;
   sale: number;
+  taskHours?: number;
 }
 
 /**
@@ -97,6 +98,7 @@ function useDirectRetainerEntries(childIds: string[]) {
         if (!stageId) continue;
         const cur = m.get(stageId) ?? { hours: 0, cost: 0, sale: 0 };
         cur.cost += retainerCostAmount(Number(e.hours), e.cost_rate_snapshot);
+        cur.taskHours = (cur.taskHours ?? 0) + Number(e.hours);
         m.set(stageId, cur);
       }
       return m;
@@ -258,7 +260,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         const ctrl = byStage?.get(c.id);
         const direct = directByStage?.get(c.id) ?? { hours: 0, cost: 0, sale: 0 };
         const usedHours = Number(ctrl?.actual_hours_logged ?? 0) + direct.hours;
-        const cost = directByStage ? direct.cost : (usedHours > 0 ? NaN : 0);
+        const unmatchedHours = Number(ctrl?.actual_hours_logged ?? 0) - (direct.taskHours ?? 0);
+        const cost = directByStage && unmatchedHours <= 0.000001 ? direct.cost : (usedHours > 0 ? NaN : 0);
         const sale = Number(ctrl?.actual_value_generated ?? 0) + direct.sale;
         return {
           childId: c.id,
