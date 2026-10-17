@@ -4,6 +4,13 @@ const stage=(id:string,start_date:string,end_date:string)=>({id,start_date,end_d
 const base=():ScheduleState=>({stages:[stage("a","2026-10-19","2026-10-23"),stage("b","2026-11-02","2026-11-06")],
   allocations:[{id:"resource",stage_id:"a",start_date:"2026-10-20",end_date:"2026-10-22"}],dependencies:[],holidays:[],relative:false,revision:"test"});
 describe("Gantt scheduling rules",()=>{
+  it("rejects duplicate dependency pairs",()=>{
+    const link={id:"one",predecessor_id:"a",successor_id:"b",type:"FS" as const,lag_days:0};
+    expect(()=>recomputeSchedule(base(),[link,{...link,id:"two"}])).toThrow("gantt.schedule.invalidLink");
+  });
+  it("rejects dependency lag beyond the server limit",()=>{
+    expect(()=>recomputeSchedule(base(),[{id:"one",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:36601}])).toThrow("gantt.schedule.invalidLink");
+  });
   it("allows sibling dependencies under a summary",()=>{
     const s=base();s.stages.push(stage("parent","2026-10-01","2026-12-31"));
     s.stages[0].parent_stage_id="parent";s.stages[1].parent_stage_id="parent";
