@@ -16,3 +16,16 @@ describe("proposal system headings follow the proposal language",()=>{
     expect(resolveBlockTitle("stage_list","Organização do Projeto","en")).toBe("Organização do Projeto");
   });
 });
+import {canResetBlockTitle,standardBlockTitleForStorage} from "../src/lib/psa-proposal/system-titles";
+describe("reset to standard heading",()=>{
+  it("offered only on customised headings",()=>{
+    expect(canResetBlockTitle("stage_list","Organização do Projeto e Fases")).toBe(false);
+    expect(canResetBlockTitle("stage_list","Project Organization & Stages")).toBe(false);
+    expect(canResetBlockTitle("stage_list","Our approach")).toBe(true);
+  });
+  it("after reset the heading follows the proposal language again",()=>{
+    const saved=standardBlockTitleForStorage("stage_list")!;
+    expect(resolveBlockTitle("stage_list",saved,"en")).toBe("Project Organization & Stages");
+    expect(resolveBlockTitle("stage_list",saved,"pt-PT")).toBe("Organização do Projeto e Fases");
+  });
+});

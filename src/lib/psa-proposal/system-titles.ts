@@ -64,3 +64,13 @@ export function resolveBlockTitle(kind: string, title: string | null | undefined
   if (!pair || !isSystemBlockTitle(kind, title)) return title ?? "";
   return lang === "en" ? pair.en : pair.pt;
 }
+
+/** Value saved when a heading is reset: the stored PT default, which resolves per language. */
+export function standardBlockTitleForStorage(kind: string): string | null {
+  return SYSTEM_BLOCK_TITLES[kind]?.pt ?? null;
+}
+
+/** Customised headings on block kinds that have a standard one can be reset. */
+export function canResetBlockTitle(kind: string, title: string | null | undefined): boolean {
+  return Boolean(SYSTEM_BLOCK_TITLES[kind]) && !isSystemBlockTitle(kind, title);
+}

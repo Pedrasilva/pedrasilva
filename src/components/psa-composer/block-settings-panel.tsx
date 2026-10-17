@@ -6,6 +6,8 @@
  * stage selection for the Individual Stage block and a deliverables list.
  */
 import { useEffect, useRef, useState } from "react";
+import { canResetBlockTitle, resolveBlockTitle, standardBlockTitleForStorage } from "@/lib/psa-proposal/system-titles";
+import { resolveProposalLang } from "@/lib/psa-proposal/live-data";
 import { Copy, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,17 +89,21 @@ export function BlockSettingsPanel({
   const del = useDeleteBlock(proposalId);
   const dup = useDuplicateBlock(proposalId);
 
-  const [title, setTitle] = useState(block?.title ?? "");
+  const lang = resolveProposalLang(proposal.language);
+  // Standard headings are shown in the proposal language; saving only
+  // happens when the user actually types something different.
+  const shownTitle = block ? resolveBlockTitle(block.block_type, block.title, lang) : "";
+  const [title, setTitle] = useState(shownTitle);
   const titleDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setTitle(block?.title ?? "");
-  }, [block?.id, block?.title]);
+    setTitle(shownTitle);
+  }, [block?.id, shownTitle]);
 
   // Debounced autosave for the title so a refresh mid-edit doesn't lose it.
   useEffect(() => {
     if (!block) return;
-    if (title === block.title) return;
+    if (title === shownTitle) return;
     if (titleDebounce.current) clearTimeout(titleDebounce.current);
     titleDebounce.current = setTimeout(() => {
       update.mutate({ id: block.id, patch: { title } });
@@ -176,10 +182,25 @@ export function BlockSettingsPanel({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() =>
-            title !== block.title &&
+            title !== shownTitle &&
             update.mutate({ id: block.id, patch: { title } })
           }
         />
+        {canResetBlockTitle(block.block_type, block.title) && (
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="h-auto px-0 text-[11px]"
+            onClick={() => {
+              const std = standardBlockTitleForStorage(block.block_type);
+              if (titleDebounce.current) clearTimeout(titleDebounce.current);
+              if (std) update.mutate({ id: block.id, patch: { title: std } });
+            }}
+          >
+            {lang === "en" ? "Reset to standard" : "Repor título padrão"}
+          </Button>
+        )}
       </div>
 
       <div className="space-y-1">
