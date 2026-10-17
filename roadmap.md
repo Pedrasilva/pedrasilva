@@ -2,8 +2,9 @@
 
 ## Current request — preserve quoted effort and fees on conversion
 - [x] Inspect current rules: ordinary stages/allocations extend around the live calendar; quoted commercial totals are copied.
-- [ ] Approval checkpoint: add explicit conversion date shifts and effort/fee comparisons; Christmas-closure unit and rollback tests.
-- [ ] After approval, correct demonstrated gaps only; preserve live records and unconfirmed 2027 holidays.
+- [x] Approval checkpoint: add explicit conversion date shifts and effort/fee comparisons; Christmas-closure unit and rollback tests.
+- [x] Approved: preview baseline vs live dates, working days, hours, stage fees; Christmas unit + rollback SQL test; one on-screen check.
+- [x] Save confirmed 2027 holidays (no Carnaval).
 
 ## Current request — Gantt fixes and CRM relative timeline (plan first)
 - [x] Luis's 16:25 UTC instruction: stop after the current run; report done / remaining issues / recommendation in at most eight lines. No new work, re-planning or extra verification until he replies.
@@ -126,5 +127,5 @@
 - [x] Closure → approved férias with preview/confirm; interns without entitlement skipped; sick leave days skipped; part-time pro rata; insufficient balance flagged; refunds
 - [x] Shared calendar (Gantt, weekly board, timesheet expected hours); Gantt shading
 - [x] Live-project re-schedule preview/apply, propagating links with lags
-- [ ] 2027 holidays — waiting for Luis to confirm the list
+- [x] 2027 holidays — confirmed and saved (14, no Carnaval)
 - [x] Tests incl. hours bank closure week = 0 owed (full-time + part-time)
