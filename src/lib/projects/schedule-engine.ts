@@ -219,3 +219,66 @@ export function dependencySlack(pred: ScheduleStage, succ: ScheduleStage, dep: S
   const required = constraintBounds(pred, dep.type, dep.lag_days, calendar.duration(succ.start_date, succ.end_date), calendar);
   return calendar.offset(required.start_date, succ.start_date);
 }
+export type StageEdit = {id: string; start_date: string; end_date: string; move?: boolean};
+const ancestorsOf = (stages: ScheduleStage[], id: string) => {
+  const byId = new Map(stages.map(s => [s.id, s])); const out: string[] = [];
+  for (let p = byId.get(id)?.parent_stage_id; p && !out.includes(p); p = byId.get(p)?.parent_stage_id) out.push(p);
+  return out;
+};
+/** Moves stages to where the planner dropped them. `move` edits keep their
+ * working-day duration. Incoming links of moved stages (and their summaries)
+ * are re-timed to the new gap, so a stage is never snapped back; negative
+ * gaps become leads. Successors follow through recomputeSchedule. */
+export function moveStagesPatch(state: ScheduleState, edits: StageEdit[], retimeLinks = true): SchedulePatch {
+  validateScheduleGraph(state.stages, state.dependencies);
+  const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
+  const byId = new Map(state.stages.map(s => [s.id, s]));
+  const parentIds = new Set(state.stages.map(s => s.parent_stage_id).filter(Boolean));
+  const normalized = edits.map(e => {
+    const stage = byId.get(e.id);
+    if (!stage || parentIds.has(e.id)) throw new Error("gantt.schedule.summaryReadOnly");
+    if (stage.is_locked) throw new Error("gantt.schedule.locked");
+    const start_date = calendar.snap(e.start_date);
+    const end_date = e.move ? calendar.shift(start_date, calendar.duration(stage.start_date, stage.end_date) - 1)
+      : calendar.snap(e.end_date, -1);
+    return {id: e.id, start_date, end_date: end_date < start_date ? start_date : end_date};
+  });
+  let deps = state.dependencies;
+  if (retimeLinks) {
+    const temp = state.stages.map(s => ({...s, ...normalized.find(e => e.id === s.id)}));
+    const bounds = summaryBounds(temp);
+    const retime = new Set(normalized.flatMap(e => [e.id, ...ancestorsOf(temp, e.id)]));
+    deps = deps.map(d => {
+      if (!retime.has(d.successor_id)) return d;
+      const pred = {...temp.find(s => s.id === d.predecessor_id)!, ...bounds.get(d.predecessor_id)};
+      const succ = bounds.get(d.successor_id)!;
+      const req = constraintBounds(pred, d.type, 0, calendar.duration(succ.start_date, succ.end_date), calendar);
+      const lag_days = d.type === "FS" || d.type === "SS" ? calendar.offset(req.start_date, succ.start_date)
+        : calendar.offset(req.end_date, succ.end_date);
+      return lag_days === d.lag_days ? d : {...d, lag_days};
+    });
+  }
+  return recomputeSchedule(state, deps, normalized);
+}
+/** Shifts the project start: every stage with no predecessor (on itself or a
+ * summary above it) moves by the same number of working days; linked stages
+ * follow. Locked roots stay in place and are reported. */
+export function shiftProjectStartPatch(state: ScheduleState, newStart: string) {
+  const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
+  const parentIds = new Set(state.stages.map(s => s.parent_stage_id).filter(Boolean));
+  const linked = new Set(state.dependencies.map(d => d.successor_id));
+  const retainer = new Set(state.stages.filter(s => s.stage_kind === "retainer_monthly").map(s => s.id));
+  const regular = state.stages.filter(s => !retainer.has(s.id) && !ancestorsOf(state.stages, s.id).some(a => retainer.has(a)));
+  if (!regular.length) return {patch: {stages: [], allocations: [], dependencies: state.dependencies}, days: 0, locked: 0};
+  const first = calendar.snap(regular.reduce((m, s) => s.start_date < m ? s.start_date : m, regular[0].start_date));
+  const days = calendar.offset(first, calendar.snap(newStart));
+  const roots = regular.filter(s => !parentIds.has(s.id) && ![s.id, ...ancestorsOf(state.stages, s.id)].some(id => linked.has(id)));
+  const locked = roots.filter(s => s.is_locked).length;
+  if (!days) return {patch: {stages: [], allocations: [], dependencies: state.dependencies}, days, locked: 0};
+  const edits = roots.filter(s => !s.is_locked).map(s => {
+    const start_date = calendar.shift(calendar.snap(s.start_date), days);
+    return {id: s.id, start_date, end_date: calendar.shift(start_date, calendar.duration(s.start_date, s.end_date) - 1)};
+  });
+  if (!edits.length && locked) throw new Error("gantt.schedule.locked");
+  return {patch: recomputeSchedule(state, state.dependencies, edits), days, locked};
+}
