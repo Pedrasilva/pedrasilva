@@ -351,7 +351,7 @@ export function reflowForCalendar(state: ScheduleState, oldHolidays: Iterable<st
   const finalStages = stretched.map(s => {
     const n = {...s, ...linked.stages.find(v => v.id === s.id)};
     const o = state.stages.find(v => v.id === s.id)!;
-    return cal.offset(o.start_date, n.start_date) === 0 && cal.offset(o.end_date, n.end_date) === 0 ? o : n;
+    return cal.offset(cal.snap(o.start_date), n.start_date) === 0 && cal.offset(cal.snap(o.end_date, -1), n.end_date) === 0 ? o : n;
   });
   const rolled = summaryBounds(finalStages);
   const stages = finalStages.flatMap(s => {
@@ -369,7 +369,7 @@ export function reflowForCalendar(state: ScheduleState, oldHolidays: Iterable<st
   });
   const moves = stages.filter(s => !parentIds.has(s.id)).map(s => {
     const o = state.stages.find(v => v.id === s.id)!;
-    return {id: s.id, name: o.name ?? "", startShift: cal.offset(o.start_date, s.start_date) , endShift: cal.offset(o.end_date, s.end_date)};
+    return {id: s.id, name: o.name ?? "", startShift: cal.offset(cal.snap(o.start_date), s.start_date), endShift: cal.offset(cal.snap(o.end_date, -1), s.end_date)};
   });
   return {patch: {stages, allocations, dependencies: state.dependencies} as SchedulePatch, moves, blocked};
 }
