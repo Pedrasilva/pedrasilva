@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
 import { AssignAssetDialog } from "@/components/inventory/assign-asset-dialog";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 import {
   useAssetAssignments,
   useAssetEvents,
@@ -42,6 +43,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 function AssetDetail() {
   const { assetId } = useParams({ from: "/_app/inventory/assets/$assetId" });
   const { t } = useTranslation(["inventory", "common"]);
+  const { data: canEdit = false } = useInventoryEditAccess();
   const { data: asset, isLoading } = useInventoryAsset(assetId);
   const { data: categories = [] } = useInventoryCategories();
   const { data: assignments = [] } = useAssetAssignments(assetId);
@@ -63,7 +65,7 @@ function AssetDetail() {
   }
 
   const doReturn = async () => {
-    if (!openAssignment) return;
+    if (!canEdit || !openAssignment) return;
     try {
       await returnAsset.mutateAsync({ assignmentId: openAssignment.id });
       toast.success(t("inventory:assign.returned"));
@@ -81,7 +83,7 @@ function AssetDetail() {
         </div>
         <Badge variant="secondary">{t(`inventory:status.${asset.status}`)}</Badge>
         <Badge variant="outline">{t(`inventory:tracking.${asset.tracking_level}`)}</Badge>
-        <div className="ml-auto flex gap-2">
+        {canEdit && <div className="ml-auto flex gap-2">
           {openAssignment && (
             <Button size="sm" variant="outline" onClick={doReturn} disabled={returnAsset.isPending}>
               {t("inventory:assign.return")}
@@ -93,7 +95,7 @@ function AssetDetail() {
           <Button size="sm" onClick={() => setEditOpen(true)}>
             {t("common:edit")}
           </Button>
-        </div>
+        </div>}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

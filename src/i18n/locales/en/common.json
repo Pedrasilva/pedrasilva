@@ -1,4 +1,6 @@
 {
+  "costIncomplete": "Cost pending — missing cost rate",
+  "costIncompleteHint": "Some logged hours have no cost rate. Cost and margin are incomplete until those entries have a valid cost rate.",
   "previousWeek": "Previous week",
   "nextWeek": "Next week",
   "byPerson": "By person",
@@ -466,7 +468,8 @@
     }
   },
   "access": {
-    "financeDenied": "You don't have access to Finance."
+    "financeDenied": "You don't have access to Finance.",
+    "inventoryDenied": "No access to manage Inventory."
   },
   "voice": {
     "starting": "Starting microphone…",

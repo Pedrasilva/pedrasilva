@@ -16,23 +16,23 @@ export const sendWeekWorkflowEmails = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ weekId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     // Caller must be able to see the week (owner or approver, via RLS).
-    const { data: week } = await context.supabase
+    const { data: week, error: weekError } = await context.supabase
       .from("pm_timesheet_weeks")
       .select("id")
       .eq("id", data.weekId)
       .maybeSingle();
-    if (!week) return { sent: 0 };
+    if (weekError) throw weekError;
+    if (!week) throw new Error("Forbidden: week access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    const since = new Date(Date.now() - 3 * 60 * 1000).toISOString();
-    const { data: rows } = await supabaseAdmin
+    const { data: rows, error: notificationError } = await supabaseAdmin
       .from("notifications")
       .select("id, user_id, title, body, link_path")
       .eq("entity_type", "pm_timesheet_week")
       .eq("entity_id", data.weekId)
-      .like("kind", "timesheet_week_%")
-      .gte("created_at", since);
+      .like("kind", "timesheet_week_%");
+    if (notificationError) throw notificationError;
     const list = rows ?? [];
     if (!list.length) return { sent: 0 };
 
@@ -50,11 +50,11 @@ export const sendWeekWorkflowEmails = createServerFn({ method: "POST" })
         const { data: u } = await supabaseAdmin.auth.admin.getUserById(n.user_id);
         const email = u?.user?.email;
         if (!email) continue;
-        await sendTemplateEmail("timesheet-week-update", email, {
+        const result = await sendTemplateEmail("timesheet-week-update", email, {
           idempotencyKey: `tsw-email-${n.id}`,
           templateData: { title: n.title, body: n.body, url: `${SITE}${n.link_path ?? "/projects/timesheet"}` },
         });
-        sent += 1;
+        if (result.sent) sent += 1;
       } catch (e) {
         console.error("[timesheet-week-email]", (e as Error)?.message);
       }

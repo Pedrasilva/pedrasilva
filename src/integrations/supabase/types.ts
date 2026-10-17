@@ -15198,6 +15198,12 @@ export type Database = {
         }
         Returns: Record<string, unknown>
       }
+      fin_queue_bank_paid_with_raw: {
+        Args: {
+          r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
+        }
+        Returns: Record<string, unknown>
+      }
       fin_queue_blockers: {
         Args: {
           r: Database["public"]["Tables"]["financial_document_review_queue"]["Row"]
@@ -15543,6 +15549,16 @@ export type Database = {
       marketing_composition_is_draft: {
         Args: { _composition_id: string }
         Returns: boolean
+      }
+      marketing_compute_asset_draft_readiness: {
+        Args: {
+          _asset_ids: string[]
+          _capture_ids: string[]
+          _copy: string
+          _hashtags: string[]
+          _project_id: string
+        }
+        Returns: Record<string, unknown>
       }
       marketing_compute_draft_readiness: {
         Args: {

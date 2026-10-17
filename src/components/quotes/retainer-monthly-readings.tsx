@@ -175,7 +175,7 @@ export function RetainerMonthlyReadings({
                     {b.hours.toFixed(1)}
                   </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
-                    {formatEUR(b.cost)}
+                    {Number.isFinite(b.cost) ? formatEUR(b.cost) : t("common:costIncomplete")}
                   </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
                     {formatEUR(b.value)}
@@ -189,8 +189,8 @@ export function RetainerMonthlyReadings({
                           : "bg-red-500/15 text-red-700 dark:text-red-400",
                       )}
                     >
-                      {marginPos ? "+" : ""}
-                      {formatEUR(b.marginDelta)}
+                      {Number.isFinite(b.marginDelta) && marginPos ? "+" : ""}
+                      {Number.isFinite(b.marginDelta) ? formatEUR(b.marginDelta) : "—"}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -223,7 +223,7 @@ export function RetainerMonthlyReadings({
                   {data.totals.hours.toFixed(1)}
                 </TableCell>
                 <TableCell className="text-right text-xs tabular-nums">
-                  {formatEUR(data.totals.cost)}
+                  {Number.isFinite(data.totals.cost) ? formatEUR(data.totals.cost) : t("common:costIncomplete")}
                 </TableCell>
                 <TableCell className="text-right text-xs tabular-nums">
                   {formatEUR(data.totals.value)}
@@ -234,7 +234,7 @@ export function RetainerMonthlyReadings({
                     data.totals.marginDelta >= 0 ? "text-emerald-600" : "text-red-600",
                   )}
                 >
-                  {formatEUR(data.totals.marginDelta)}
+                  {Number.isFinite(data.totals.marginDelta) ? formatEUR(data.totals.marginDelta) : "—"}
                 </TableCell>
                 <TableCell
                   className={cn(

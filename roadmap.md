@@ -1,5 +1,13 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — targeted operational fixes
+- [ ] Fix and verify weekly workflow notification delivery.
+- [ ] Fix and verify missing retainer cost rates; assess rebuild need.
+- [ ] Fix and verify press-kit approval clearance/name rules.
+- [ ] Fix and verify bank-derived paid-with at confirmation.
+- [ ] Report inventory access-list origin/current people without changing access; hide forbidden actions and show no-access messages.
+- [ ] Inventory AI model usage and proposed replacements only; report verification limits.
+
 ## Current request — weekly planning Stage 2
 - [x] Mirror Stage 1 database objects and verify non-planner/non-staff access.
 - [x] Add atomic draft creation/discard and planner-only slot autosave with conflict handling.

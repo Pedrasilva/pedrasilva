@@ -28,6 +28,11 @@ import { LogRetainerHoursDialog } from "@/components/projects/log-retainer-hours
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
+import { retainerCostRate } from "@/lib/projects/retainer-cost";
+
+function retainerEuros(value: number): string {
+  return Number.isFinite(value) ? euros(value) : "—";
+}
 
 interface Props {
   stages: StageWithAllocations[];
@@ -66,7 +71,7 @@ function useDirectRetainerEntries(childIds: string[]) {
         sale_rate_snapshot: number | string | null;
       }>) {
         const h = Number(e.hours);
-        const cr = Number(e.cost_rate_snapshot ?? 0);
+        const cr = retainerCostRate(e.cost_rate_snapshot);
         const sr = Number(e.sale_rate_snapshot ?? 0);
         const cur = m.get(e.pm_stage_id) ?? { hours: 0, cost: 0, sale: 0 };
         cur.hours += h;
@@ -440,6 +445,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
   return (
     <section className="space-y-4">
+      {groups.some((g) => !Number.isFinite(g.totals.cost)) && (
+        <p role="status" className="text-sm text-destructive">{t("common:costIncompleteHint")}</p>
+      )}
       {groups.map((g) => {
         const cumulativeVarianceTone =
           g.totals.variance > 0
@@ -510,7 +518,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 </span>
                 <span>
                   {t("detail.retainerMonitor.costTotal")}:{" "}
-                  <span className="font-mono text-foreground">{euros(g.totals.cost)}</span>
+                  <span className="font-mono text-foreground">{retainerEuros(g.totals.cost)}</span>
                 </span>
                 <span>
                   {t("detail.retainerMonitor.saleTotal")}:{" "}
@@ -658,10 +666,10 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                           {Math.round(r.usedHours)}h / {Math.round(r.includedHours)}h
                         </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                          {r.isFuture ? "—" : euros(r.cost)}
+                          {r.isFuture ? "—" : retainerEuros(r.cost)}
                         </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
-                          {cumCostForRow == null ? "—" : euros(cumCostForRow)}
+                          {cumCostForRow == null ? "—" : retainerEuros(cumCostForRow)}
                         </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
                           {r.isFuture ? "—" : euros(r.sale)}
@@ -706,10 +714,10 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                      {euros(g.totals.cost)}
+                      {retainerEuros(g.totals.cost)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
-                      {euros(g.totals.cost)}
+                      {retainerEuros(g.totals.cost)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
                       {euros(g.totals.sale)}
@@ -848,7 +856,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
             const info = allocInfo.get(allocId);
             if (!info) continue;
             const h = Number(e.hours);
-            const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
+            const costRate = retainerCostRate(e.cost_rate_snapshot, info.cost);
             const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
             upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
           }
@@ -896,7 +904,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
           const info = userToResource.get(e.user_id);
           if (!info) continue;
           const h = Number(e.hours);
-          const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
+          const costRate = retainerCostRate(e.cost_rate_snapshot, info.cost);
           const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
           upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
         }
@@ -954,14 +962,14 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                     {Math.round(r.hours)}h
                   </td>
                   <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                    {euros(r.cost)}
+                    {retainerEuros(r.cost)}
                   </td>
                   <td className="px-2 py-2 text-right font-mono tabular-nums">
                     {euros(r.sale)}
                   </td>
                   <td className={cn("px-2 py-2 text-right font-mono tabular-nums", tone)}>
-                    {euros(margin)}{" "}
-                    <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>
+                    {retainerEuros(margin)}{" "}
+                    {Number.isFinite(pct) && <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>}
                   </td>
                 </tr>
               );
@@ -974,7 +982,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                 {Math.round(totals.hours)}h
               </td>
               <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                {euros(totals.cost)}
+                {retainerEuros(totals.cost)}
               </td>
               <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(totals.sale)}</td>
               <td
@@ -987,8 +995,8 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                       : "text-muted-foreground",
                 )}
               >
-                {euros(totalMargin)}{" "}
-                <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>
+                {retainerEuros(totalMargin)}{" "}
+                {Number.isFinite(totalPct) && <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>}
               </td>
             </tr>
           </tfoot>
