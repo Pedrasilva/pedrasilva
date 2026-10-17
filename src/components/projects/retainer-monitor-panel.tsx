@@ -818,7 +818,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
         };
         cur.hours += h;
         if (billable) cur.billableHours += h;
-        cur.cost += h * costRate;
+        cur.cost += retainerCostAmount(h, costRate);
         if (billable) cur.sale += h * saleRate;
         byRes.set(resourceId, cur);
       };
@@ -929,6 +929,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
       <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t("detail.retainerMonitor.byResourceTitle")}
       </h4>
+      {!Number.isFinite(totals.cost) && <p role="status" className="mb-2 text-sm text-destructive">{t("common:costIncomplete")}</p>}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -964,7 +965,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                   </td>
                   <td className={cn("px-2 py-2 text-right font-mono tabular-nums", tone)}>
                     {retainerEuros(margin)}{" "}
-                    {Number.isFinite(pct) && <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>}
+                    {Number.isFinite(margin) && Number.isFinite(pct) && <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>}
                   </td>
                 </tr>
               );
@@ -991,7 +992,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                 )}
               >
                 {retainerEuros(totalMargin)}{" "}
-                {Number.isFinite(totalPct) && <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>}
+                {Number.isFinite(totalMargin) && Number.isFinite(totalPct) && <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>}
               </td>
             </tr>
           </tfoot>
