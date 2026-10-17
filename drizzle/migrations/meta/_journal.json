@@ -554,6 +554,13 @@
       "when": 1792236485218,
       "tag": "0078_weekly_publication_board_revision_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1792236654421,
+      "tag": "0079_verify_week_publication_rollback",
+      "breakpoints": true
     }
   ]
 }
