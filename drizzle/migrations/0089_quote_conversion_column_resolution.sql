@@ -1,0 +1,1 @@
+DO $migration$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.pm_convert_relative_quote(uuid,date,text)'::regprocedure) INTO definition; definition:=replace(definition,'DECLARE q fee_proposals;','#variable_conflict use_column'||chr(10)||'DECLARE q fee_proposals;'); EXECUTE definition; END $migration$;

@@ -624,6 +624,13 @@
       "when": 1792251212821,
       "tag": "0088_relative_offsets_and_atomic_quote_conversion",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1792251333585,
+      "tag": "0089_quote_conversion_column_resolution",
+      "breakpoints": true
     }
   ]
 }
