@@ -2,7 +2,7 @@
 
 ## Current request — Tatiana absence corrections and weekly approval
 - [ ] Audit and remove only Tatiana's 8h on July 22 and 16h on August 19; record both as approved full-day unpaid absences.
-- [ ] Approve/reconcile only her weeks June 1–October 12 in one transaction, preserving other people and all rates; verify each absence contributes 8h owed.
+- [ ] Approve/reconcile only her weeks June 1–October 12 in one transaction, preserving other people and all rates; verify each absence contributes 8h owed. Blocked on permission to synchronize her stale August vacation timesheet rows: August 17–18 still contain Vacation, while approved August 24–27 have no Vacation rows; August 19's 16h consists of 8h Admin plus 8h Vacation. No live corrections or approvals applied yet.
 - [ ] Report removed activity costs, bank before/after, approved weeks and any blockers.
 
 ## Completed request — attendance reconciliation
