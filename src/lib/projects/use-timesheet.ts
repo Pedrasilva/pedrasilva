@@ -83,7 +83,7 @@ export function useTimesheetRows(opts: {
       const { data: allTasks, error } = await supabase
         .from("pm_tasks")
         .select(
-          "id, name, allocation_id, allocation:pm_allocations!inner(id, start_date, end_date, hours_per_day, resource_id, stage:pm_stages(id, name, color, status, project:pm_projects(id, name, client, color)))",
+          "id, name, allocation_id, allocation:pm_allocations!inner(id, planning_removed_at, start_date, end_date, hours_per_day, resource_id, stage:pm_stages(id, name, color, status, project:pm_projects(id, name, client, color)))",
         )
         .eq("allocation.resource_id", opts.resourceId);
       if (error) throw error;
@@ -97,6 +97,7 @@ export function useTimesheetRows(opts: {
           start_date: string;
           end_date: string;
           hours_per_day: number;
+          planning_removed_at: string | null;
           resource_id: string;
           stage: {
             id: string;
@@ -126,7 +127,7 @@ export function useTimesheetRows(opts: {
 
       const filtered = rows.filter((r) => {
         const overlaps =
-          r.allocation.start_date <= opts.weekEnd && r.allocation.end_date >= opts.weekStart;
+          !r.allocation.planning_removed_at && r.allocation.start_date <= opts.weekEnd && r.allocation.end_date >= opts.weekStart;
         return overlaps || taskIdsWithEntries.has(r.id) || extras.has(r.id);
       });
 
@@ -522,7 +523,7 @@ export function useStageAllocationBalance(opts: { resourceId: string | null; use
     queryFn: async () => {
       const today = toLocalISODate(new Date());
       const [{ data: allocs, error: ae }, { data: tasks, error: te }] = await Promise.all([
-        supabase.from("pm_allocations").select("stage_id, start_date, end_date, hours_per_day").eq("resource_id", opts.resourceId!).in("stage_id", ids),
+        supabase.from("pm_allocations").select("stage_id, start_date, end_date, hours_per_day").is("planning_removed_at", null).eq("resource_id", opts.resourceId!).in("stage_id", ids),
         supabase.from("pm_tasks").select("id, pm_allocations!inner(stage_id, resource_id)").in("pm_allocations.stage_id", ids),
       ]);
       if (ae) throw ae;

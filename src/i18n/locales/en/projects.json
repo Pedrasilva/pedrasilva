@@ -1972,5 +1972,36 @@
       "rejected": "Rejected"
     },
     "balanceEstimated": "Allocated ~{{allocated}} (estimated) · logged {{logged}} · {{left}} left"
+  },
+  "weekPublish": {
+    "approve": "Approve and publish",
+    "title": "Confirm weekly allocation changes",
+    "replaces": "Replaces Monday–Sunday Gantt planning for every active board collaborator, including empty rows. Logged hours remain unchanged.",
+    "extensions": "Confirm stage extensions",
+    "quoteLink": "Quote-linked",
+    "fullDay": "Full day",
+    "error": "Planning changed or publication failed. Refresh the preview and confirm again. Nothing is partially published.",
+    "past": "This is a past week. Publication changes planning only, never logged hours.",
+    "skipped": "Protected — unchanged",
+    "unchanged": "Unchanged allocations: {{count}}",
+    "replaceAck": "I confirm replacing this week’s planning for all active collaborators, including omitted bookings and empty rows.",
+    "overlapAck": "I acknowledge {{count}} protected bookings overlapping this draft; they remain and may create overbooking.",
+    "baselineAck": "I confirm changing scheduling dates on locked baselines. Commercial baselines and other stages remain unchanged.",
+    "refresh": "Refresh preview",
+    "confirm": "Confirm and publish",
+    "publishedBy": "Published by {{name}} · {{date}}",
+    "revise": "Revise from current Gantt",
+    "actions": {
+      "create": "Create allocation",
+      "change": "Change dates",
+      "split": "Split outside-week allocation",
+      "remove": "Remove from planning — keep task/hour history"
+    },
+    "blocks": {
+      "invalidExtension": "Stage extension is no longer eligible",
+      "extensionScheduling": "Resolve locked stage, parent dates or dependencies in the Gantt first",
+      "invalidSlot": "Unresolved or invalid stage / capacity / leave slot",
+      "inactiveProject": "Unseen paused/archived project booking: resolve in Gantt first"
+    }
   }
 }

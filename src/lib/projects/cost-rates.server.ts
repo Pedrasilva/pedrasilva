@@ -217,12 +217,13 @@ export async function backfillMissing(db: Db, runBy: string | null) {
   for (const e of rows) {
     if (!e.resource_id) { skip("no_resource"); continue; }
     const r = resById.get(e.resource_id);
+    const c = r?.collaborator_id ? collabById.get(r.collaborator_id) : undefined;
+    if (c?.departamento === "Backoffice") { skip("backoffice_requires_scoped_backfill"); continue; }
     const manual = !!r?.hourly_rate_is_override && Number(r.cost_rate ?? 0) > 0;
     if (manual && e.entry_date >= (r.rate_effective_from ?? FAR_PAST)) {
       updates.push({ id: e.id, rate: Number(r.cost_rate) });
       continue;
     }
-    const c = r?.collaborator_id ? collabById.get(r.collaborator_id) : undefined;
     if (!c) { skip("resource_without_collaborator"); continue; }
     if (c.departamento !== "Projecto") { skip("not_projecto_department"); continue; }
     const hr = hrRate(inp, c, e.entry_date, bo);

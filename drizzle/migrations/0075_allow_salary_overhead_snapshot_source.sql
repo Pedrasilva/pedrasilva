@@ -1,0 +1,3 @@
+ALTER TABLE public.pm_time_entries DROP CONSTRAINT pm_time_entries_cost_rate_source_check;
+ALTER TABLE public.pm_time_entries ADD CONSTRAINT pm_time_entries_cost_rate_source_check CHECK (cost_rate_source IN ('live','backfill','recalc','fallback','overhead_salary'));
+COMMENT ON CONSTRAINT pm_time_entries_cost_rate_source_check ON public.pm_time_entries IS 'overhead_salary is salary-only internal Backoffice analysis, excluded from overhead-loaded project totals.';

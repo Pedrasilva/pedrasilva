@@ -45,6 +45,7 @@ export function useEstimateVsActualData() {
                 .select(
                   "id, project_id, parent_stage_id, name, sort_order, status, is_self, start_date, end_date, baseline_start_date, baseline_end_date, baseline_budget, baseline_target_hours, baseline_locked_at, budget, billing_model, source_quote_stage_id, pm_allocations(resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage)",
                 )
+                .is("pm_allocations.planning_removed_at", null)
                 .in("project_id", ids)
                 .is("archived_at", null)
                 .order("id")

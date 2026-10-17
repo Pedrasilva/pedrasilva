@@ -512,6 +512,76 @@
       "when": 1792233730508,
       "tag": "0072_atomic_cost_rate_period_rebuild",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1792235980068,
+      "tag": "0073_backoffice_salary_only_internal_cost",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1792236094973,
+      "tag": "0074_verify_isolated_backoffice_backfill",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1792236141540,
+      "tag": "0075_allow_salary_overhead_snapshot_source",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1792236366286,
+      "tag": "0076_scope_backoffice_salary_to_tatiana",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1792236426803,
+      "tag": "0077_weekly_planning_publication",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1792236485218,
+      "tag": "0078_weekly_publication_board_revision_visibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1792236654421,
+      "tag": "0079_verify_week_publication_rollback",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1792236705283,
+      "tag": "0080_verify_week_fixture_existing_task",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1792236731719,
+      "tag": "0081_weekly_preview_record_alias_safety",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1792236749713,
+      "tag": "0082_weekly_preview_explicit_variable_resolution",
+      "breakpoints": true
     }
   ]
 }

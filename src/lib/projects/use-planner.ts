@@ -107,7 +107,7 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
       // detail page (which assumes resource is present) can still render.
       const sanitized = rows.map((s) => ({
         ...s,
-        allocations: (s.allocations ?? []).filter((a) => !!a?.resource),
+        allocations: (s.allocations ?? []).filter((a) => !!a?.resource && !a.planning_removed_at),
       }));
       const filtered = includeCancelled
         ? sanitized
@@ -131,7 +131,7 @@ export function useAllStages(opts?: { includeCancelled?: boolean }) {
       const rows = (data ?? []) as unknown as StageWithAllocations[];
       const sanitized = rows.map((s) => ({
         ...s,
-        allocations: (s.allocations ?? []).filter((a) => !!a?.resource),
+        allocations: (s.allocations ?? []).filter((a) => !!a?.resource && !a.planning_removed_at),
       }));
       return includeCancelled
         ? sanitized
@@ -276,7 +276,7 @@ export function useUpdateStageWithCascade() {
         if (stageDeltas.size > 0) {
           const { data: allocs, error: aErr } = await supabase
             .from("pm_allocations")
-            .select("id, stage_id, start_date, end_date")
+            .select("id, stage_id, start_date, end_date").is("planning_removed_at", null)
             .in("stage_id", Array.from(stageDeltas.keys()));
           if (aErr) throw aErr;
           const shiftDay = (iso: string, delta: number): string => {
@@ -453,7 +453,7 @@ async function cascadeProjectFromPredecessor(predecessorId: string) {
   if (stageDeltas.size === 0) return;
   const { data: allocs, error: aErr } = await supabase
     .from("pm_allocations")
-    .select("id, stage_id, start_date, end_date")
+    .select("id, stage_id, start_date, end_date").is("planning_removed_at", null)
     .in("stage_id", Array.from(stageDeltas.keys()));
   if (aErr) throw aErr;
   const shiftDay = (iso: string, delta: number): string => {
@@ -753,7 +753,7 @@ export function useAllAllocations() {
     queryFn: async (): Promise<AllocationFull[]> => {
       const { data, error } = await supabase
         .from("pm_allocations")
-        .select("*, stage:pm_stages(*, project:pm_projects(*)), resource:pm_resources(*)");
+        .select("*, stage:pm_stages(*, project:pm_projects(*)), resource:pm_resources(*)").is("planning_removed_at", null);
       if (error) throw error;
       return (data ?? []) as unknown as AllocationFull[];
     },

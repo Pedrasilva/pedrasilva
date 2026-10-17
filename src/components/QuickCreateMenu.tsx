@@ -499,7 +499,7 @@ export function TaskDialog({ open, onClose }: { open: boolean; onClose: () => vo
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_allocations")
-        .select("id, stage_id, resource_id, pm_stages(name, project_id, pm_projects(name)), pm_resources(name)")
+        .select("id, stage_id, resource_id, pm_stages(name, project_id, pm_projects(name)), pm_resources(name)").is("planning_removed_at", null)
         .order("start_date", { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -824,7 +824,7 @@ function useAllocations(open: boolean) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_allocations")
-        .select("id, pm_stages(name, pm_projects(name)), pm_resources(name)")
+        .select("id, pm_stages(name, pm_projects(name)), pm_resources(name)").is("planning_removed_at", null)
         .order("start_date", { ascending: false })
         .limit(100);
       if (error) throw error;

@@ -23,12 +23,12 @@ export const getMyStageLoadEstimates = createServerFn({ method: "POST" })
     if (!myRes) return [];
     const { data: allocs, error: ae } = await supabaseAdmin
       .from("pm_allocations")
-      .select("id, resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage")
+      .select("id, planning_removed_at, resource_id, stage_id, start_date, end_date, hours_per_day, allocation_percentage")
       .in("stage_id", data.stageIds);
     if (ae) throw ae;
-    const all = (allocs ?? []) as (LoadAlloc & { id: string })[];
+    const all = (allocs ?? []) as (LoadAlloc & { id: string; planning_removed_at: string | null })[];
     // Only stages where the caller has an assignment without explicit hours.
-    const target = [...new Set(all.filter((a) => a.resource_id === myRes && isImplicitAllocation(a)).map((a) => a.stage_id))];
+    const target = [...new Set(all.filter((a) => !a.planning_removed_at && a.resource_id === myRes && isImplicitAllocation(a)).map((a) => a.stage_id))];
     if (!target.length) return [];
     const today = new Date().toISOString().slice(0, 10);
     const [stagesRes, tasksRes, holRes, collabRes, snapRes, boRes, allCollabRes] = await Promise.all([
@@ -73,7 +73,7 @@ export const getMyStageLoadEstimates = createServerFn({ method: "POST" })
     const holidays = new Set((holRes.data ?? []).map((h) => h.data as string));
     const out: MyStageEstimate[] = [];
     for (const s of (stagesRes.data ?? []) as { id: string; budget: number | null; start_date: string | null; end_date: string | null }[]) {
-      const sa = all.filter((a) => a.stage_id === s.id);
+      const sa = all.filter((a) => !a.planning_removed_at && a.stage_id === s.id);
       const est = estimateStageLoad({
         stageId: s.id,
         planned: stagePlannedHours({ allocations: sa, budget: s.budget, avgSaleRate: avg }),

@@ -79,6 +79,7 @@ interface AllocLite {
   start_date: string;
   end_date: string;
   hours_per_day: number;
+  planning_removed_at?: string | null;
   resource_id: string;
   cost_rate: number;
   sale_rate: number;
@@ -100,6 +101,7 @@ function todayIso(): string {
  * Gantt budget bars; never includes past dates.
  */
 function futureHours(a: AllocLite, today: string): number {
+  if (a.planning_removed_at) return 0;
   if (a.end_date < today) return 0;
   const start = a.start_date < today ? today : a.start_date;
   return allocationHours({
@@ -110,6 +112,7 @@ function futureHours(a: AllocLite, today: string): number {
 }
 
 function plannedHours(a: AllocLite): number {
+  if (a.planning_removed_at) return 0;
   return allocationHours({
     start_date: a.start_date,
     end_date: a.end_date,
@@ -354,7 +357,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         supabase
           .from("pm_stages")
           .select(
-            "id, budget, allocations:pm_allocations(id, start_date, end_date, hours_per_day, resource:pm_resources(id, hourly_rate, cost_rate))",
+            "id, budget, allocations:pm_allocations(id, planning_removed_at, start_date, end_date, hours_per_day, resource:pm_resources(id, hourly_rate, cost_rate))",
           )
           .eq("project_id", projectId),
         supabase
@@ -369,6 +372,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         start_date: string;
         end_date: string;
         hours_per_day: number | string;
+        planning_removed_at: string | null;
         resource: { id: string; hourly_rate: number | string; cost_rate: number | string; hourly_rate_is_override?: boolean | null };
       };
       type RawStage = { id: string; budget: number | string; allocations: RawAlloc[] };
@@ -381,6 +385,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
           start_date: a.start_date,
           end_date: a.end_date,
           hours_per_day: Number(a.hours_per_day),
+          planning_removed_at: a.planning_removed_at,
           resource_id: a.resource.id,
           cost_rate: effectiveCostRate(
             Number(a.resource.cost_rate),
