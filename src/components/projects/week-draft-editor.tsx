@@ -40,7 +40,7 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
   const changed=new Set(differences.map(slotKey)); const missing=draft.slots.filter(s => !s.stage_id);
   const activeDraft=data.plan?.status==="draft";
   const label=(id:string | undefined) => data.projects.find(p => p.id===id)?.name ?? "—";
-  const numbered=numberStages(data.stages); const stageLabel=(s:BoardStage) => formatStageLabel(s,numbered.find(n => n.stage.id===s.id)?.number);
+  const numbered=data.projects.flatMap(p => numberStages((data.stage_tree ?? data.stages).filter(s => s.project_id===p.id))).flatMap(n => { const stage=data.stages.find(s => s.id===n.stage.id); return stage ? [{...n,stage}] : []; }); const stageLabel=(s:BoardStage) => formatStageLabel(s,numbered.find(n => n.stage.id===s.id)?.number);
   useEffect(() => { try { const v=JSON.parse(localStorage.getItem("psa-week-recent-projects") ?? "[]"); if(Array.isArray(v)) setRecent(v.filter(x => typeof x==="string").slice(0,5)); } catch {} },[]);
   const selectBrush=(id:string) => { setBrush(id); setPicker(false); const ids=[id,...recent.filter(v => v!==id)].slice(0,5); setRecent(ids); try { localStorage.setItem("psa-week-recent-projects",JSON.stringify(ids)); } catch {} };
   const finish=() => { down.current=false; draft.endStroke(); };
