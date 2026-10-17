@@ -211,7 +211,10 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
           child.start_date = calendar.shift(child.start_date, shift);
           child.end_date = calendar.shift(child.start_date, (durations.get(child.id) ?? 1) - 1);
         }
-      } else Object.assign(stage, best);
+      } else {
+        if (before.start_date === best.start_date && before.end_date === best.end_date) continue;
+        Object.assign(stage, best);
+      }
       changed = true;
     }
     if (!changed) break;
