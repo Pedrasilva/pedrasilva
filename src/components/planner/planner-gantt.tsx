@@ -346,6 +346,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         hourly_rate_is_override: true,
       };
       const mapped: AllocationWithResource = {
+        planning_removed_at: null,
         id: a.id,
         stage_id: a.stage_id,
         resource_id: a.resource_id,
