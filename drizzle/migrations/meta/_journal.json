@@ -631,6 +631,13 @@
       "when": 1792251333585,
       "tag": "0089_quote_conversion_column_resolution",
       "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1792251480236,
+      "tag": "0090_gantt_quote_authority_and_relative_cleanup",
+      "breakpoints": true
     }
   ]
 }
