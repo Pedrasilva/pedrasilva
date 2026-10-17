@@ -3,8 +3,9 @@
 ## Current request — Gantt fixes and CRM relative timeline (plan first)
 - [x] Review the latest re-uploaded brief; present root causes, partial implementation status and remaining verification gaps.
 - [ ] Await Luis’s approval of the renewed plan before further code or database changes.
-- [ ] After approval only: implement approved changes and verify on an isolated test copy, preserving live allocations/timesheets and weekly-board behaviour.
+- [ ] After approval only: complete retainer-percentage and monthly-payment date corrections, then finish isolated drag/dependency/conversion parity verification; preserve live records and weekly-board behaviour.
 - [ ] Report fixed / verified / not verified; mirror every database change under supabase/migrations.
+- Verified partial work: 27 scheduler tests, 17 weekly regressions, signed-in isolated two-save/two-undo/two-redo read-back; rollback regular/retainer conversion and monthly-estimate fallback. All test copies removed; live allocation/stage/time-entry/cost-period hashes unchanged. Exact migration mirrors checked. Re-uploaded plan-first brief renews the approval checkpoint.
 
 ## Completed request — Tatiana absence corrections and weekly approval
 - [x] Audited and removed Tatiana's 8h July 22 and 16h August 19; both recorded as approved full-day unpaid absences. Luis also authorized removing stale Vacation August 17–18 and adding Vacation August 24–27; working rows retained.
