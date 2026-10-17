@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
-import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
+import { NO_HOLIDAYS, allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
@@ -1293,14 +1293,14 @@ export function GanttChart({
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, isOverride),
-              });
+              }, relative ? NO_HOLIDAYS : undefined);
               totalSale += allocationCost({
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
-              });
-              plannedHours += workingDays(aS, aE) * Number(a.hours_per_day);
+              }, relative ? NO_HOLIDAYS : undefined);
+              plannedHours += workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day);
             }
             const budget = Number(stage.budget);
             // Implied hours: when a stage has no resource allocations but a
@@ -1474,7 +1474,7 @@ export function GanttChart({
                         <div className="flex min-w-0 items-center gap-1.5">
                           <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
                           <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
-                            {workingDays(sStart, sEnd)}d
+                            {workingDays(sStart, sEnd, relative ? NO_HOLIDAYS : undefined)}{" "}{t("gantt.wdShort")}
                           </span>
                           {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
                             <span className="ml-auto shrink-0 rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
@@ -1671,7 +1671,7 @@ export function GanttChart({
                     end_date: aE,
                     hours_per_day: Number(a.hours_per_day),
                     hourly_rate: costRate,
-                  });
+                  }, relative ? NO_HOLIDAYS : undefined);
                   const top = STAGE_ROW_H + idx * (ALLOC_ROW_H + 4);
                   const r = resourceMap.get(a.resource_id);
                   const color = r?.color ?? a.resource.color;
@@ -1697,7 +1697,7 @@ export function GanttChart({
                     resourceDailyHours,
                   );
                   const hasLeave = allocLeaveHours > 0;
-                  const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
+                  const allocTotalHours = workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day);
                   const reducedCapacity = Math.max(0, allocTotalHours - allocLeaveHours);
                   const isImported = a.is_locked === true || a.source === "imported_accelo";
 
@@ -1864,9 +1864,9 @@ export function GanttChart({
                                 <span className="text-muted-foreground">{t("gantt.tooltip.period")}</span>
                                 <span className="font-mono">{displayDate(aS)} → {displayDate(aE)}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.duration")}</span>
-                                <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE) })}</span>
+                                <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
-                                <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE) * Number(a.hours_per_day) })}</span>
+                                <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
                                 <span className="font-mono">{euros(costRate)}/h</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>

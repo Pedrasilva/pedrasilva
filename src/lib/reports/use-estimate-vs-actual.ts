@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAll } from "./use-hours-logged";
-import { workingDays } from "@/lib/projects/gantt-utils";
+import { NO_HOLIDAYS, workingDays } from "@/lib/projects/gantt-utils";
 
 export interface EvaStage {
   id: string;
@@ -87,7 +87,7 @@ export function useEstimateVsActualData() {
           .in("stage_id", qIds.slice(i, i + 200));
         if (error) throw error;
         for (const a of qa ?? []) {
-          const days = a.start_date && a.end_date ? workingDays(a.start_date, a.end_date) : 0;
+          const days = a.start_date && a.end_date ? workingDays(a.start_date, a.end_date, NO_HOLIDAYS) : 0;
           const hpd = Number(a.hours_per_day) > 0 ? Number(a.hours_per_day) : ((Number(a.allocation_percentage) || 0) / 100) * 8;
           quoteHours.set(a.stage_id, (quoteHours.get(a.stage_id) ?? 0) + days * hpd);
         }
