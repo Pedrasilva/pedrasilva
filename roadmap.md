@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — preserve quoted effort and fees on conversion
+- [x] Inspect current rules: ordinary stages/allocations extend around the live calendar; quoted commercial totals are copied.
+- [ ] Approval checkpoint: add explicit conversion date shifts and effort/fee comparisons; Christmas-closure unit and rollback tests.
+- [ ] After approval, correct demonstrated gaps only; preserve live records and unconfirmed 2027 holidays.
+
 ## Current request — Gantt fixes and CRM relative timeline (plan first)
 - [x] Luis's 16:25 UTC instruction: stop after the current run; report done / remaining issues / recommendation in at most eight lines. No new work, re-planning or extra verification until he replies.
 - [x] Review the latest re-uploaded brief; present root causes, partial implementation status and remaining verification gaps.
