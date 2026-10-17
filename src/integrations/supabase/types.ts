@@ -12835,22 +12835,28 @@ export type Database = {
       }
       quote_relative_schedules: {
         Row: {
+          allocation_offsets: Json
           created_at: string
           created_by: string
           original_dates: Json
           quote_id: string
+          stage_offsets: Json
         }
         Insert: {
+          allocation_offsets?: Json
           created_at?: string
           created_by?: string
           original_dates: Json
           quote_id: string
+          stage_offsets?: Json
         }
         Update: {
+          allocation_offsets?: Json
           created_at?: string
           created_by?: string
           original_dates?: Json
           quote_id?: string
+          stage_offsets?: Json
         }
         Relationships: [
           {
@@ -15748,6 +15754,10 @@ export type Database = {
         Args: { _date: string; _user_id: string }
         Returns: number
       }
+      pm_calendar_shift: {
+        Args: { _date: string; _days: number }
+        Returns: string
+      }
       pm_can_approve_hours:
         | { Args: { _user_id: string }; Returns: boolean }
         | {
@@ -15759,6 +15769,10 @@ export type Database = {
         Returns: boolean
       }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_convert_relative_quote: {
+        Args: { _quote: string; _revision: string; _start: string }
+        Returns: Json
+      }
       pm_cost_period_revision: { Args: never; Returns: string }
       pm_cost_rate_at: {
         Args: { _date: string; _resource_id: string }
@@ -15875,10 +15889,15 @@ export type Database = {
           unsnap_hours: number
         }[]
       }
+      pm_quote_conversion_preview: {
+        Args: { _quote: string; _start: string }
+        Returns: Json
+      }
       pm_recalc_cost_snapshots: {
         Args: { _from: string; _resource_id?: string }
         Returns: number
       }
+      pm_relative_offset: { Args: { _date: string }; Returns: number }
       pm_replace_cost_periods: {
         Args: {
           _expected_revision: string
