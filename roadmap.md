@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — retainer actuals and safe cost rebuild
+- [x] Removed retainer cost estimates across task/direct/resource-detail paths; signed-in 0410B shows 335h / €11,569 and 0434 shows 20h (20.25 exact) / €750. Browser-only missing-snapshot responses show dashes and red warnings; no page errors. Seven regression tests passed.
+- [x] Atomic service-only replacement and queue acknowledgement with shared transaction lock/revision; interrupted insert and successful forced rollback preserve full 37-row hash and entries/queue; a second session's attempt was rejected under a held lock. Exact migration mirrored. No committed rebuild/backfill/recalculate or timesheet/rate changes.
+- [x] Tatiana proposal only: manual override or own-salary-only Backoffice rates with internal costs excluded from overhead-loaded project totals. Read-only hypothetical 108-entry / 720h backfill: 7 entries (56h) at €12.53, 101 (664h) at €14.18; €10,117.20. Current implementation skips all 108. No Tatiana data changed.
+- Verification limits: no real rebuild button or scheduled endpoint invoked; interruption tested as insertion failure after deletion, not worker/network termination. Source computation happens before the atomic locked write; stale period revisions are rejected. Tatiana costing/report aggregation changes await Luis's choice.
+
 ## Current request — Stage 2 hardening
 - [x] Narrow weekly-table grants, staff RLS boundary, immutable approved rows, slot audit trigger, validated private notes and stage dates; exact migration mirrored.
 - [x] Deliberate brushes, banner errors/saved-draft reload, per-day stage choices, whole-stroke undo, extension ranges/server merge/deduplication, stage-only details and permanent dropped bookings.

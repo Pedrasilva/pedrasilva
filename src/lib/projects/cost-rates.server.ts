@@ -10,6 +10,7 @@
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
+import type { Json } from "@/integrations/supabase/types";
 
 type Db = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -163,44 +164,37 @@ export function computePeriods(inp: Inputs): Period[] {
   return out;
 }
 
-/** Rebuild periods from `fromDate` forward. Earlier periods are kept as they are. */
-export async function rebuildPeriods(db: Db, fromDate: string = FAR_PAST) {
+/** Compute without writes; replace periods and acknowledge work atomically. */
+export async function rebuildPeriods(db: Db, fromDate: string = FAR_PAST, queueIds: string[] = []) {
+  const { data: revision, error: revisionError } = await db.rpc("pm_cost_period_revision");
+  if (revisionError) throw revisionError;
+  if (typeof revision !== "string") throw new Error("Cost-period revision unavailable");
   const inp = await loadInputs(db);
   const all = computePeriods(inp);
-  const now = new Date().toISOString();
   const fresh = all
     .filter((p) => p.valid_to == null || p.valid_to > fromDate)
-    .map((p) => ({ ...p, valid_from: p.valid_from < fromDate ? fromDate : p.valid_from, computed_at: now }));
-  const del = await db.from("pm_cost_rate_periods").delete().gte("valid_from", fromDate);
-  if (del.error) throw del.error;
-  const clip = await db
-    .from("pm_cost_rate_periods")
-    .update({ valid_to: fromDate })
-    .lt("valid_from", fromDate)
-    .or(`valid_to.is.null,valid_to.gt.${fromDate}`);
-  if (clip.error) throw clip.error;
-  for (let i = 0; i < fresh.length; i += 500) {
-    const ins = await db.from("pm_cost_rate_periods").insert(fresh.slice(i, i + 500) as never);
-    if (ins.error) throw ins.error;
-  }
-  return { periods: fresh.length, from: fromDate };
+    .map((p) => ({ ...p, valid_from: p.valid_from < fromDate ? fromDate : p.valid_from }));
+  const { data: count, error } = await db.rpc("pm_replace_cost_periods", {
+    _from: fromDate,
+    _periods: JSON.parse(JSON.stringify(fresh)) as Json,
+    _expected_revision: revision,
+    _queue_ids: queueIds,
+  });
+  if (error) throw error;
+  return { periods: Number(count), from: fromDate };
 }
 
 /** Drain the change queue: rebuild from the earliest pending date. */
-export async function processQueue(db: Db) {
+export async function processQueue(db: Db, full = false): Promise<{ processed: number; periods?: number; from?: string }> {
   const { data, error } = await db
     .from("pm_cost_rate_rebuild_queue")
     .select("id, from_date")
     .is("processed_at", null);
   if (error) throw error;
   const rows = (data ?? []) as { id: string; from_date: string }[];
-  if (rows.length === 0) return { processed: 0 };
-  const from = rows.map((r) => r.from_date).sort()[0];
-  const res = await rebuildPeriods(db, from);
-  await db
-    .from("pm_cost_rate_rebuild_queue")
-    .update({ processed_at: new Date().toISOString() })
-    .in("id", rows.map((r) => r.id));
+  if (rows.length === 0 && !full) return { processed: 0 };
+  const from = full ? FAR_PAST : rows.map((r) => r.from_date).sort()[0];
+  const res = await rebuildPeriods(db, from, rows.map((r) => r.id));
   return { processed: rows.length, ...res };
 }
 
@@ -222,7 +216,7 @@ export async function backfillMissing(db: Db, runBy: string | null) {
   const skip = (k: string) => (reasons[k] = (reasons[k] ?? 0) + 1);
   for (const e of rows) {
     if (!e.resource_id) { skip("no_resource"); continue; }
-    const r = resById.get(e.resource_id)!;
+    const r = resById.get(e.resource_id);
     const manual = !!r?.hourly_rate_is_override && Number(r.cost_rate ?? 0) > 0;
     if (manual && e.entry_date >= (r.rate_effective_from ?? FAR_PAST)) {
       updates.push({ id: e.id, rate: Number(r.cost_rate) });

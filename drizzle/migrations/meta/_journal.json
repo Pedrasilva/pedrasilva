@@ -505,6 +505,13 @@
       "when": 1792228892067,
       "tag": "0071_weekly_planning_stage_two_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1792233730508,
+      "tag": "0072_atomic_cost_rate_period_rebuild",
+      "breakpoints": true
     }
   ]
 }
