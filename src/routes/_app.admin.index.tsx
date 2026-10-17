@@ -91,6 +91,12 @@ const GROUPS: AdminGroup[] = [
     title: "Configuração HR",
     links: [
       {
+        to: "/admin/calendar",
+        label: "Calendário do atelier",
+        description: "Feriados, fecho do atelier (férias obrigatórias) e replaneamento de projetos ativos.",
+        icon: CalendarCheck,
+      },
+      {
         to: "/hr/dias-uteis",
         label: "Dias úteis",
         description: "Calendário de dias úteis e feriados usado pelo cálculo salarial.",

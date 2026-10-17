@@ -33,6 +33,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppAdminAccessRouteImport } from './routes/_app.admin.access'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
+import { Route as AppAdminCalendarRouteImport } from './routes/_app.admin.calendar'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppAdminCostRatesRouteImport } from './routes/_app.admin.cost-rates'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
@@ -293,6 +294,11 @@ const AppAdminAccessRoute = AppAdminAccessRouteImport.update({
 const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
   id: '/admin/backups',
   path: '/admin/backups',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminCalendarRoute = AppAdminCalendarRouteImport.update({
+  id: '/admin/calendar',
+  path: '/admin/calendar',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
@@ -1073,6 +1079,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
+  '/admin/calendar': typeof AppAdminCalendarRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
@@ -1230,6 +1237,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/access': typeof AppAdminAccessRoute
   '/admin/backups': typeof AppAdminBackupsRoute
+  '/admin/calendar': typeof AppAdminCalendarRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/admin/imports': typeof AppAdminImportsRoute
@@ -1394,6 +1402,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/admin/access': typeof AppAdminAccessRoute
   '/_app/admin/backups': typeof AppAdminBackupsRoute
+  '/_app/admin/calendar': typeof AppAdminCalendarRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/cost-rates': typeof AppAdminCostRatesRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
@@ -1560,6 +1569,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/admin/access'
     | '/admin/backups'
+    | '/admin/calendar'
     | '/admin/company-settings'
     | '/admin/cost-rates'
     | '/admin/imports'
@@ -1717,6 +1727,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/admin/access'
     | '/admin/backups'
+    | '/admin/calendar'
     | '/admin/company-settings'
     | '/admin/cost-rates'
     | '/admin/imports'
@@ -1880,6 +1891,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_app/admin/access'
     | '/_app/admin/backups'
+    | '/_app/admin/calendar'
     | '/_app/admin/company-settings'
     | '/_app/admin/cost-rates'
     | '/_app/admin/imports'
@@ -2218,6 +2230,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/backups'
       fullPath: '/admin/backups'
       preLoaderRoute: typeof AppAdminBackupsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/calendar': {
+      id: '/_app/admin/calendar'
+      path: '/admin/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AppAdminCalendarRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/company-settings': {
@@ -3477,6 +3496,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAccessRoute: typeof AppAdminAccessRoute
   AppAdminBackupsRoute: typeof AppAdminBackupsRoute
+  AppAdminCalendarRoute: typeof AppAdminCalendarRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminCostRatesRoute: typeof AppAdminCostRatesRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
@@ -3532,6 +3552,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAccessRoute: AppAdminAccessRoute,
   AppAdminBackupsRoute: AppAdminBackupsRoute,
+  AppAdminCalendarRoute: AppAdminCalendarRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminCostRatesRoute: AppAdminCostRatesRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,

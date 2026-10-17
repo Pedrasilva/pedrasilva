@@ -247,77 +247,99 @@ export function useNonWorkingPrefill(opts: {
         (collabRes.data as { daily_hours: number } | null)?.daily_hours ?? 8,
       );
 
-      const byType = new Map<string, Map<string, number>>();
-      const ensure = (k: string) => {
-        let m = byType.get(k);
-        if (!m) {
-          m = new Map();
-          byType.set(k, m);
-        }
-        return m;
-      };
-
-      // Iterate weekdays inside week
-      const dayList: string[] = [];
-      const start = new Date(opts.weekStart + "T00:00:00");
-      const end = new Date(opts.weekEnd + "T00:00:00");
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dayList.push(toLocalISODate(d));
-      }
-
-      // Public holiday dates in this week. A holiday always wins over leave:
-      // the day is already non-working, so it must not also be counted
-      // against the collaborator's leave (and must not double the day total).
-      const holidayDates = new Set(
-        ((holRes.data ?? []) as Array<{ data: string }>).map((h) => h.data),
-      );
-
-      // Vacations: each approved request fills its weekday range. Full-day
-      // requests use the contractual daily hours; half-day requests (manhã /
-      // tarde) use half of it; hour-based requests use exactly the approved
-      // hours, so a 1h authorised absence never blocks a whole day.
-      for (const v of (vacRes.data ?? []) as Array<{
-        data_inicio: string;
-        data_fim: string;
-        tipo: string;
-        periodo: string | null;
-        horas: number | null;
-      }>) {
-        const label = leaveLabelFor(v.tipo);
-        const m = ensure(label);
-        const periodo = v.periodo ?? "dia_inteiro";
-        const hoursForDay =
-          periodo === "horas"
-            ? Math.min(Number(v.horas ?? 0), dailyHours)
-            : periodo === "manha" || periodo === "tarde" || periodo === "meio_dia"
-              ? dailyHours / 2
-              : dailyHours;
-        if (hoursForDay <= 0) continue;
-        for (const iso of dayList) {
-          if (iso >= v.data_inicio && iso <= v.data_fim) {
-            const dow = new Date(iso + "T00:00:00").getDay();
-            if (dow === 0 || dow === 6) continue; // skip weekends
-            if (holidayDates.has(iso)) continue; // public holiday takes over
-            m.set(iso, hoursForDay);
-          }
-        }
-      }
-
-      // Public holidays — also valued at the user's daily contract hours.
-      for (const h of (holRes.data ?? []) as Array<{ data: string; nome: string }>) {
-        const dow = new Date(h.data + "T00:00:00").getDay();
-        if (dow === 0 || dow === 6) continue;
-        const m = ensure(`Public holiday — ${h.nome}`);
-        m.set(h.data, dailyHours);
-      }
-
-      return Array.from(byType, ([leave_type, autoHoursByDate]) => ({
-        key: leave_type,
-        leave_type,
-        autoHoursByDate,
-      }));
+      return buildNonWorkingPrefill({
+        weekStart: opts.weekStart,
+        weekEnd: opts.weekEnd,
+        dailyHours,
+        vacations: (vacRes.data ?? []) as PrefillVacation[],
+        holidays: (holRes.data ?? []) as Array<{ data: string; nome: string }>,
+      });
     },
   });
+}
+
+
+export type PrefillVacation = { data_inicio: string; data_fim: string; tipo: string; periodo: string | null; horas: number | null };
+/** Pure prefill rule: approved leave and holiday-list days (public holidays
+ * and office closures) valued at the contract's daily hours. A holiday-list
+ * day always wins over leave, so a closure day covered by closure férias is
+ * counted once. */
+export function buildNonWorkingPrefill(opts: {
+  weekStart: string; weekEnd: string; dailyHours: number;
+  vacations: PrefillVacation[]; holidays: Array<{ data: string; nome: string }>;
+}): NonWorkingRow[] {
+  const dailyHours = opts.dailyHours;
+  const vacRes = { data: opts.vacations };
+  const holRes = { data: opts.holidays };
+      const byType = new Map<string, Map<string, number>>();
+  const ensure = (k: string) => {
+    let m = byType.get(k);
+    if (!m) {
+      m = new Map();
+      byType.set(k, m);
+    }
+    return m;
+  };
+
+  // Iterate weekdays inside week
+  const dayList: string[] = [];
+  const start = new Date(opts.weekStart + "T00:00:00");
+  const end = new Date(opts.weekEnd + "T00:00:00");
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    dayList.push(toLocalISODate(d));
+  }
+
+  // Public holiday dates in this week. A holiday always wins over leave:
+  // the day is already non-working, so it must not also be counted
+  // against the collaborator's leave (and must not double the day total).
+  const holidayDates = new Set(
+    ((holRes.data ?? []) as Array<{ data: string }>).map((h) => h.data),
+  );
+
+  // Vacations: each approved request fills its weekday range. Full-day
+  // requests use the contractual daily hours; half-day requests (manhã /
+  // tarde) use half of it; hour-based requests use exactly the approved
+  // hours, so a 1h authorised absence never blocks a whole day.
+  for (const v of (vacRes.data ?? []) as Array<{
+    data_inicio: string;
+    data_fim: string;
+    tipo: string;
+    periodo: string | null;
+    horas: number | null;
+  }>) {
+    const label = leaveLabelFor(v.tipo);
+    const m = ensure(label);
+    const periodo = v.periodo ?? "dia_inteiro";
+    const hoursForDay =
+      periodo === "horas"
+        ? Math.min(Number(v.horas ?? 0), dailyHours)
+        : periodo === "manha" || periodo === "tarde" || periodo === "meio_dia"
+          ? dailyHours / 2
+          : dailyHours;
+    if (hoursForDay <= 0) continue;
+    for (const iso of dayList) {
+      if (iso >= v.data_inicio && iso <= v.data_fim) {
+        const dow = new Date(iso + "T00:00:00").getDay();
+        if (dow === 0 || dow === 6) continue; // skip weekends
+        if (holidayDates.has(iso)) continue; // public holiday takes over
+        m.set(iso, hoursForDay);
+      }
+    }
+  }
+
+  // Public holidays — also valued at the user's daily contract hours.
+  for (const h of (holRes.data ?? []) as Array<{ data: string; nome: string }>) {
+    const dow = new Date(h.data + "T00:00:00").getDay();
+    if (dow === 0 || dow === 6) continue;
+    const m = ensure(`Public holiday — ${h.nome}`);
+    m.set(h.data, dailyHours);
+  }
+
+  return Array.from(byType, ([leave_type, autoHoursByDate]) => ({
+    key: leave_type,
+    leave_type,
+    autoHoursByDate,
+  }));
 }
 
 export function useUpsertTimesheetCell() {

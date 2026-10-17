@@ -115,3 +115,11 @@
 - Planned vs Actual comparison view intentionally not built yet.
 - [x] Work from home: half days (full/morning/afternoon) + approval vs notification-only mode — verified in preview (declared entries bypass the queue, half day = 0.5 in analytics, hours derived from daily_hours)
 - [x] Marketing: 500MB bucket, TUS uploads >6MB with progress, server-side sender
+
+## Office calendar (holidays + closures)
+- [ ] Admin "Calendário do atelier": holidays per year + closures (yearly repeat)
+- [ ] Closure → approved férias with preview/confirm; interns without entitlement skipped; sick leave days skipped; part-time pro rata; insufficient balance flagged; refunds
+- [ ] Shared calendar (Gantt, weekly board, timesheet expected hours); Gantt shading
+- [ ] Live-project re-schedule preview/apply, propagating links with lags
+- [ ] 2027 holidays — waiting for Luis to confirm the list
+- [ ] Tests incl. hours bank closure week = 0 owed (full-time + part-time)

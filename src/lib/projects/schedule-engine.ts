@@ -309,3 +309,56 @@ export function shiftProjectStartPatch(state: ScheduleState, newStart: string) {
   if (!edits.length && locked) throw new Error("gantt.schedule.locked");
   return {patch: recomputeSchedule(state, state.dependencies, edits), days, locked};
 }
+
+/** Re-schedules a live plan after the office calendar changed (holidays or
+ * closures). Every stage keeps the working-day duration it had under the old
+ * calendar (so it stretches over a new closure); unlinked stages keep their
+ * start; linked stages are re-placed through their links with each link's
+ * lag and existing gap preserved, so only stages the change affects move.
+ * Locked stages stay put. Returns the patch plus protected allocations that
+ * would have to move (the caller reports the project as blocked). */
+export function reflowForCalendar(state: ScheduleState, oldHolidays: Iterable<string>) {
+  const oldCal = scheduleCalendar(oldHolidays);
+  const cal = scheduleCalendar(state.holidays);
+  const parentIds = new Set(state.stages.map(s => s.parent_stage_id).filter(Boolean));
+  const retainer = new Set(state.stages.filter(s => s.stage_kind === "retainer_monthly").map(s => s.id));
+  const skip = (s: ScheduleStage) => parentIds.has(s.id) || s.is_locked || retainer.has(s.id)
+    || ancestorsOf(state.stages, s.id).some(a => retainer.has(a));
+  // Exact current gap of every link, measured on the old calendar.
+  const oldBounds = summaryBounds(state.stages);
+  const links = state.dependencies.map(d => {
+    if (isNestedLink(state.stages, d)) return d;
+    const pred = {...state.stages.find(s => s.id === d.predecessor_id)!, ...oldBounds.get(d.predecessor_id)};
+    const succ = oldBounds.get(d.successor_id)!;
+    const req = constraintBounds(pred, d.type, 0, oldCal.duration(succ.start_date, succ.end_date), oldCal);
+    const gap = d.type === "FS" || d.type === "SS" ? oldCal.offset(req.start_date, succ.start_date) : oldCal.offset(req.end_date, succ.end_date);
+    return {...d, lag_days: gap};
+  });
+  const stretched = state.stages.map(s => {
+    if (skip(s)) return s;
+    const start_date = cal.snap(s.start_date);
+    return {...s, start_date, end_date: cal.shift(start_date, oldCal.duration(s.start_date, s.end_date) - 1)};
+  });
+  const temp = {...state, stages: stretched};
+  const linked = recomputeSchedule({...temp, allocations: []}, links, [], stretched.map(s => s.id));
+  const finalStages = stretched.map(s => ({...s, ...linked.stages.find(v => v.id === s.id)}));
+  const rolled = summaryBounds(finalStages);
+  const stages = finalStages.flatMap(s => {
+    const o = state.stages.find(v => v.id === s.id)!; const b = rolled.get(s.id) ?? s;
+    return b.start_date !== o.start_date || b.end_date !== o.end_date ? [{id: s.id, start_date: b.start_date, end_date: b.end_date}] : [];
+  });
+  const changed = new Set(stages.map(s => s.id));
+  const blocked: string[] = [];
+  const allocations = state.allocations.flatMap(a => {
+    if (!changed.has(a.stage_id) || parentIds.has(a.stage_id)) return [];
+    const b = rolled.get(a.stage_id)!;
+    if (a.start_date === b.start_date && a.end_date === b.end_date) return [];
+    if (a.is_locked || a.external_id || ["import","imported_accelo"].includes(a.source ?? "")) { blocked.push(a.id); return []; }
+    return [{id: a.id, start_date: b.start_date, end_date: b.end_date}];
+  });
+  const moves = stages.filter(s => !parentIds.has(s.id)).map(s => {
+    const o = state.stages.find(v => v.id === s.id)!;
+    return {id: s.id, name: o.name ?? "", startShift: cal.offset(o.start_date, s.start_date) , endShift: cal.offset(o.end_date, s.end_date)};
+  });
+  return {patch: {stages, allocations, dependencies: state.dependencies} as SchedulePatch, moves, blocked};
+}

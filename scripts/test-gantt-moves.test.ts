@@ -55,3 +55,39 @@ describe("imported summary-to-child links",()=>{
     expect(p.dependencies.find(d=>d.id==="pa")?.lag_days).toBe(0);
   });
 });
+import {reflowForCalendar,scheduleCalendar} from "../src/lib/projects/schedule-engine";
+// Christmas closure 2026: 24, 28, 29, 30, 31 Dec (25 Dec is a holiday; 1 Jan a holiday).
+const XMAS=["2026-12-24","2026-12-28","2026-12-29","2026-12-30","2026-12-31"];
+const HOL=["2026-12-25","2027-01-01"];
+describe("office calendar",()=>{
+  it("a stage across a public holiday skips it",()=>{
+    expect(scheduleCalendar(["2026-12-08"]).shift("2026-12-07",1)).toBe("2026-12-09");
+  });
+  it("a 10-day stage across the closure ends later and keeps 10 working days",()=>{
+    const s:ScheduleState={stages:[st("a","2026-12-21","2027-01-05")],allocations:[{id:"r",stage_id:"a",start_date:"2026-12-21",end_date:"2027-01-05"}],
+      dependencies:[],holidays:[...HOL,...XMAS],relative:false,revision:"r"};
+    expect(scheduleCalendar(HOL).duration("2026-12-21","2027-01-05")).toBe(10);
+    const {patch}=reflowForCalendar(s,HOL);
+    expect(patch.stages).toEqual([st("a","2026-12-21","2027-01-12")]);
+    expect(scheduleCalendar(s.holidays).duration("2026-12-21","2027-01-12")).toBe(10);
+    expect(patch.allocations[0]?.end_date).toBe("2027-01-12");
+  });
+  it("a lag across the closure keeps its working-day lag and successors follow",()=>{
+    const s:ScheduleState={stages:[st("a","2026-12-14","2026-12-18"),st("b","2026-12-28","2027-01-04")],allocations:[],
+      dependencies:[{id:"ab",predecessor_id:"a",successor_id:"b",type:"FS",lag_days:3}],holidays:HOL,relative:false,revision:"r"};
+    // Old calendar: FS+3 from 18 Dec → 24 Dec, b actually starts 28 Dec = 1 extra working day of gap.
+    const {patch}=reflowForCalendar({...s,holidays:[...HOL,...XMAS]},HOL);
+    const b=patch.stages.find(v=>v.id==="b");
+    const cal=scheduleCalendar([...HOL,...XMAS]);
+    expect(b?.start_date).toBe(cal.shift("2026-12-18",3+1+1));
+    expect(patch.dependencies[0]?.lag_days).toBe(3);
+  });
+  it("stages untouched by the change do not move, even with existing gaps",()=>{
+    const s=base();s.dependencies[0]={...s.dependencies[0],lag_days:0};s.stages[1]={...s.stages[1],start_date:"2026-11-02",end_date:"2026-11-06"};
+    expect(reflowForCalendar({...s,holidays:XMAS},[]).patch.stages).toEqual([]);
+  });
+  it("locked stages stay in place",()=>{
+    const s:ScheduleState={stages:[st("a","2026-12-21","2027-01-04",{is_locked:true})],allocations:[],dependencies:[],holidays:[...HOL,...XMAS],relative:false,revision:"r"};
+    expect(reflowForCalendar(s,HOL).patch.stages).toEqual([]);
+  });
+});
