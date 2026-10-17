@@ -100,7 +100,7 @@ export function useProjectPlannerAdapter(
       if ((a.patch.start_date || a.patch.end_date) && !a.patch.stage_id && a.patch.hours_per_day===undefined && a.patch.allocation_percentage===undefined) {
         await changeGanttAllocationDates("project",a.projectId,a.id,a.patch);
         await qc.invalidateQueries({queryKey:["pm-project"]});
-        await qc.invalidateQueries({queryKey:["pm-allocations"]});
+        await qc.invalidateQueries({queryKey:["pm-allocations-all"]});
         return null;
       }
       return updateAlloc.mutateAsync(a);
