@@ -1,5 +1,13 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Stage 3 planning only
+- [ ] Recover original weekly-board and Stage 2 briefs; restate settled Stage 3 scope and list unresolved decisions with recommended defaults.
+- [ ] Await Luis's answers before Stage 3 code or database changes; subsequent tests must roll back and preserve all 94 existing allocations.
+
+## Pending authorized request — Tatiana internal costing
+- [ ] Implement salary-derived Backoffice cost without Backoffice share; retain her salary in Projecto overhead and report internal costs only as overhead analysis.
+- [ ] Backfill only Tatiana's 108 internal entries (720h, expected €10,117.20), verify before/after and unchanged 37 periods/all other entries. Deferred while the latest Stage 3 instruction requires planning only, no code/data changes.
+
 ## Current request — retainer actuals and safe cost rebuild
 - [x] Removed retainer cost estimates across task/direct/resource-detail paths; signed-in 0410B shows 335h / €11,569 and 0434 shows 20h (20.25 exact) / €750. Browser-only missing-snapshot responses show dashes and red warnings; no page errors. Seven regression tests passed.
 - [x] Atomic service-only replacement and queue acknowledgement with shared transaction lock/revision; interrupted insert and successful forced rollback preserve full 37-row hash and entries/queue; a second session's attempt was rejected under a held lock. Exact migration mirrored. No committed rebuild/backfill/recalculate or timesheet/rate changes.
