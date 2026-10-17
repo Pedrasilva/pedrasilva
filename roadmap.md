@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — retainer actuals and safe cost rebuild
+- [ ] Remove retainer cost estimates across task/direct/detail paths; verify 0410B and 0434 in the signed-in browser and missing-cost regression tests.
+- [ ] Replace multi-request period writes with locked atomic replacement; verify interrupted and concurrent attempts in rollback, preserve the 37 live periods, and mirror migration exactly.
+- [ ] Propose Tatiana internal costing and overhead treatment; calculate hypothetical 108-entry backfill without changing her data.
+
 ## Current request — Stage 2 hardening
 - [x] Narrow weekly-table grants, staff RLS boundary, immutable approved rows, slot audit trigger, validated private notes and stage dates; exact migration mirrored.
 - [x] Deliberate brushes, banner errors/saved-draft reload, per-day stage choices, whole-stroke undo, extension ranges/server merge/deduplication, stage-only details and permanent dropped bookings.
