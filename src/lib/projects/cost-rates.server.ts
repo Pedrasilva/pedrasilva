@@ -10,6 +10,7 @@
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
+import type { Json } from "@/integrations/supabase/types";
 
 type Db = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -175,7 +176,7 @@ export async function rebuildPeriods(db: Db, fromDate: string = FAR_PAST, queueI
     .map((p) => ({ ...p, valid_from: p.valid_from < fromDate ? fromDate : p.valid_from }));
   const { data: count, error } = await db.rpc("pm_replace_cost_periods", {
     _from: fromDate,
-    _periods: fresh,
+    _periods: JSON.parse(JSON.stringify(fresh)) as Json,
     _expected_revision: revision,
     _queue_ids: queueIds,
   });
@@ -184,7 +185,7 @@ export async function rebuildPeriods(db: Db, fromDate: string = FAR_PAST, queueI
 }
 
 /** Drain the change queue: rebuild from the earliest pending date. */
-export async function processQueue(db: Db, full = false) {
+export async function processQueue(db: Db, full = false): Promise<{ processed: number; periods?: number; from?: string }> {
   const { data, error } = await db
     .from("pm_cost_rate_rebuild_queue")
     .select("id, from_date")
