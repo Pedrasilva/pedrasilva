@@ -15648,6 +15648,11 @@ export type Database = {
           project_id: string
         }[]
       }
+      pm_backfill_tatiana_internal: { Args: never; Returns: Json }
+      pm_backoffice_salary_cost: {
+        Args: { _date: string; _user_id: string }
+        Returns: number
+      }
       pm_can_approve_hours:
         | { Args: { _user_id: string }; Returns: boolean }
         | {

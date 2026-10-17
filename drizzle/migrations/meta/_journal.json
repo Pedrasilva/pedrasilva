@@ -512,6 +512,13 @@
       "when": 1792233730508,
       "tag": "0072_atomic_cost_rate_period_rebuild",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1792235980068,
+      "tag": "0073_backoffice_salary_only_internal_cost",
+      "breakpoints": true
     }
   ]
 }
