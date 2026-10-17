@@ -38,6 +38,7 @@ import {
   type LineAssetPlan,
 } from "@/lib/inventory/use-inventory";
 import { TRACKING_LEVELS, suggestCategoryCode, type TrackingLevel } from "@/lib/inventory/types";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 type LineDraft = {
   create: boolean;
@@ -69,7 +70,8 @@ export function InvoiceInventoryDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { t } = useTranslation(["inventory", "common"]);
-  const { data: invoice, isLoading } = useInvoiceForInventory(open ? documentId : undefined);
+  const { data: canEdit = false } = useInventoryEditAccess();
+  const { data: invoice, isLoading } = useInvoiceForInventory(open && canEdit ? documentId : undefined);
   const { data: categories = [] } = useInventoryCategories();
   const createAssets = useCreateAssetsFromInvoice();
   const setSkipped = useSetLineSkipped();
@@ -125,7 +127,7 @@ export function InvoiceInventoryDialog({
   );
 
   const confirm = async () => {
-    if (!invoice) return;
+    if (!canEdit || !invoice) return;
     const plans: LineAssetPlan[] = [];
     for (const line of invoice.lines) {
       const d = drafts[line.id];
@@ -162,9 +164,10 @@ export function InvoiceInventoryDialog({
           <DialogTitle>{t("inventory:invoice.reviewTitle")}</DialogTitle>
           <DialogDescription>{t("inventory:invoice.reviewIntro")}</DialogDescription>
         </DialogHeader>
+        {!canEdit && <p role="status" className="text-sm text-muted-foreground">{t("common:access.inventoryDenied")}</p>}
 
         {isLoading && <p className="text-sm text-muted-foreground">{t("common:loading")}</p>}
-        {!isLoading && invoice && invoice.lines.length === 0 && (
+        {canEdit && !isLoading && invoice && invoice.lines.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("inventory:invoice.noLines")}</p>
             <Button
@@ -191,7 +194,7 @@ export function InvoiceInventoryDialog({
           </div>
         )}
 
-        {invoice && invoice.lines.length > 0 && (
+        {canEdit && invoice && invoice.lines.length > 0 && (
           <Table>
             <TableHeader>
               <TableRow>
@@ -323,9 +326,9 @@ export function InvoiceInventoryDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("common:cancel")}
           </Button>
-          <Button onClick={confirm} disabled={createAssets.isPending || totalToCreate === 0}>
+          {canEdit && <Button onClick={confirm} disabled={createAssets.isPending || totalToCreate === 0}>
             {t("inventory:invoice.confirm")} ({totalToCreate})
-          </Button>
+          </Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>

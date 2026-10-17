@@ -8,6 +8,7 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { retainerCostRate } from "@/lib/projects/retainer-cost";
 
 export interface RetainerMonthBucket {
   month: string; // YYYY-MM
@@ -140,7 +141,7 @@ export function useRetainerMonthlyActuals(args: {
         billable: !!e.billable,
         notes: e.notes,
         user_id: e.user_id,
-        cost_rate: Number(e.cost_rate_snapshot ?? 0),
+        cost_rate: retainerCostRate(e.cost_rate_snapshot),
         sale_rate: Number(e.sale_rate_snapshot ?? 0),
       }));
 

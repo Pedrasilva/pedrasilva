@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { InvoiceInventoryDialog } from "@/components/inventory/invoice-inventory-dialog";
 import { useInventoryIntakeQueue } from "@/lib/inventory/use-inventory";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 export const Route = createFileRoute("/_app/inventory/intake")({
   component: IntakePage,
@@ -44,6 +45,7 @@ const eur = (v: number | null | undefined) =>
 function IntakePage() {
   const { t } = useTranslation(["inventory", "common"]);
   const { data = [], isLoading } = useInventoryIntakeQueue();
+  const { data: canEdit = false } = useInventoryEditAccess();
   const [openDoc, setOpenDoc] = useState<string | null>(null);
 
   return (
@@ -91,9 +93,9 @@ function IntakePage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline" onClick={() => setOpenDoc(row.id)}>
+                    {canEdit && <Button size="sm" variant="outline" onClick={() => setOpenDoc(row.id)}>
                       {t("inventory:dashboard.review")}
-                    </Button>
+                    </Button>}
                   </TableCell>
                 </TableRow>
               ))}
@@ -102,7 +104,7 @@ function IntakePage() {
         )}
       </CardContent>
 
-      {openDoc && (
+      {canEdit && openDoc && (
         <InvoiceInventoryDialog
           documentId={openDoc}
           open={!!openDoc}

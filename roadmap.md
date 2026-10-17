@@ -1,5 +1,13 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — targeted operational fixes
+- [x] Weekly bell events verified in rollback; labeled 10-minute-old notification sent through real email path. Inbox receipt not independently confirmed.
+- [x] Retainer missing-cost helper tests and real Telheiras totals verified; no missing retainer snapshots, no rebuild required.
+- [x] Press-kit client-approval/internal-only/never-name checks and approval rejection verified in rollback.
+- [x] Bank-derived confirmation persists matching account on queue/document in rollback; finance browser route redirects, so UI end-to-end remains unverified.
+- [x] Inventory rules unchanged; all write entry points hidden. Editor screen and simulated no-edit screen verified; genuine non-editor session unverified.
+- [x] Model usage/catalog reviewed without replacements; current in-use IDs are not marked deprecated. Report verification limits.
+
 ## Current request — weekly planning Stage 2
 - [x] Mirror Stage 1 database objects and verify non-planner/non-staff access.
 - [x] Add atomic draft creation/discard and planner-only slot autosave with conflict handling.

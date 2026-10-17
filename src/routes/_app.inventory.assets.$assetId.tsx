@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
 import { AssignAssetDialog } from "@/components/inventory/assign-asset-dialog";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 import {
   useAssetAssignments,
   useAssetEvents,
@@ -24,6 +25,14 @@ import {
 
 export const Route = createFileRoute("/_app/inventory/assets/$assetId")({
   component: AssetDetail,
+  head: () => ({ meta: [
+    { title: "Asset details · PSA Hub" },
+    { name: "description", content: "Equipment details, custody history and lifecycle records." },
+    { property: "og:title", content: "Asset details · PSA Hub" },
+    { property: "og:description", content: "Equipment details, custody history and lifecycle records." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 const eur = (v: number | null | undefined) =>
@@ -42,6 +51,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 function AssetDetail() {
   const { assetId } = useParams({ from: "/_app/inventory/assets/$assetId" });
   const { t } = useTranslation(["inventory", "common"]);
+  const { data: canEdit = false } = useInventoryEditAccess();
   const { data: asset, isLoading } = useInventoryAsset(assetId);
   const { data: categories = [] } = useInventoryCategories();
   const { data: assignments = [] } = useAssetAssignments(assetId);
@@ -63,7 +73,7 @@ function AssetDetail() {
   }
 
   const doReturn = async () => {
-    if (!openAssignment) return;
+    if (!canEdit || !openAssignment) return;
     try {
       await returnAsset.mutateAsync({ assignmentId: openAssignment.id });
       toast.success(t("inventory:assign.returned"));
@@ -81,7 +91,7 @@ function AssetDetail() {
         </div>
         <Badge variant="secondary">{t(`inventory:status.${asset.status}`)}</Badge>
         <Badge variant="outline">{t(`inventory:tracking.${asset.tracking_level}`)}</Badge>
-        <div className="ml-auto flex gap-2">
+        {canEdit && <div className="ml-auto flex gap-2">
           {openAssignment && (
             <Button size="sm" variant="outline" onClick={doReturn} disabled={returnAsset.isPending}>
               {t("inventory:assign.return")}
@@ -93,7 +103,7 @@ function AssetDetail() {
           <Button size="sm" onClick={() => setEditOpen(true)}>
             {t("common:edit")}
           </Button>
-        </div>
+        </div>}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -242,8 +252,8 @@ function AssetDetail() {
         </Card>
       </div>
 
-      <AssetFormDialog open={editOpen} onOpenChange={setEditOpen} asset={asset} />
-      <AssignAssetDialog asset={asset} open={assignOpen} onOpenChange={setAssignOpen} />
+      {canEdit && <AssetFormDialog open={editOpen} onOpenChange={setEditOpen} asset={asset} />}
+      {canEdit && <AssignAssetDialog asset={asset} open={assignOpen} onOpenChange={setAssignOpen} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InvoiceInventoryDialog } from "./invoice-inventory-dialog";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 import {
   useInvoiceForInventory,
   useMarkInvoiceForInventory,
@@ -17,6 +18,7 @@ import {
  */
 export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
   const { t } = useTranslation(["inventory"]);
+  const { data: canEdit = false } = useInventoryEditAccess();
   const [open, setOpen] = useState(false);
   const { data: invoice } = useInvoiceForInventory(documentId);
   const mark = useMarkInvoiceForInventory();
@@ -24,6 +26,7 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
   const status = invoice?.inventory_status ?? null;
 
   const start = async () => {
+    if (!canEdit) return;
     if (!status) {
       try {
         await mark.mutateAsync({ documentId, status: "pending" });
@@ -46,10 +49,10 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
               : t("inventory:invoice.statusPending")}
         </Badge>
       )}
-      <Button size="sm" variant="outline" onClick={start} disabled={mark.isPending}>
+      {canEdit && <Button size="sm" variant="outline" onClick={start} disabled={mark.isPending}>
         <Boxes className="mr-1 h-4 w-4" />
         {t("inventory:invoice.sendToInventory")}
-      </Button>
+      </Button>}
       <InvoiceInventoryDialog documentId={documentId} open={open} onOpenChange={setOpen} />
     </div>
   );

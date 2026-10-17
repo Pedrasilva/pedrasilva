@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { InventoryTopNav } from "@/components/inventory/inventory-top-nav";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 export const Route = createFileRoute("/_app/inventory")({
   component: InventoryLayout,
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_app/inventory")({
 
 function InventoryLayout() {
   const { t } = useTranslation(["inventory"]);
+  const access = useInventoryEditAccess();
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] w-full flex-col">
       <InventoryTopNav />
@@ -34,6 +36,9 @@ function InventoryLayout() {
           <h1 className="text-xl font-semibold tracking-tight">{t("inventory:module.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("inventory:module.subtitle")}</p>
         </header>
+        {!access.isLoading && access.data !== true && (
+          <p role="status" className="text-sm text-muted-foreground">{t("common:access.inventoryDenied")}</p>
+        )}
         <Outlet />
       </main>
     </div>

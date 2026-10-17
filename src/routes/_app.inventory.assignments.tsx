@@ -18,13 +18,23 @@ import {
   useReturnAsset,
 } from "@/lib/inventory/use-inventory";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 export const Route = createFileRoute("/_app/inventory/assignments")({
   component: AssignmentsPage,
+  head: () => ({ meta: [
+    { title: "Equipment assignments · PSA Hub" },
+    { name: "description", content: "Current studio equipment assignments and return history." },
+    { property: "og:title", content: "Equipment assignments · PSA Hub" },
+    { property: "og:description", content: "Current studio equipment assignments and return history." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function AssignmentsPage() {
   const { t } = useTranslation(["inventory", "common"]);
+  const { data: canEdit = false } = useInventoryEditAccess();
   const { data: assignments = [] } = useOpenAssignments();
   const { data: assets = [] } = useInventoryAssets();
   const { data: collaborators = [] } = useCollaboratorsList({ status: "all" });
@@ -37,6 +47,7 @@ function AssignmentsPage() {
   );
 
   const doReturn = async (id: string) => {
+    if (!canEdit) return;
     try {
       await returnAsset.mutateAsync({ assignmentId: id });
       toast.success(t("inventory:assign.returned"));
@@ -82,14 +93,14 @@ function AssignmentsPage() {
                 </TableCell>
                 <TableCell className="text-sm">{a.assigned_on?.slice(0, 10)}</TableCell>
                 <TableCell className="text-right">
-                  <Button
+                  {canEdit && <Button
                     size="sm"
                     variant="outline"
                     onClick={() => doReturn(a.id)}
                     disabled={returnAsset.isPending}
                   >
                     {t("inventory:assign.return")}
-                  </Button>
+                  </Button>}
                 </TableCell>
               </TableRow>
             );

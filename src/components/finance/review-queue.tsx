@@ -606,8 +606,17 @@ export function QueueItemCard({
   const [paidSourceTouched, setPaidSourceTouched] = useState(false);
   // The database fills "Pago com" from a matching bank line at confirm; when it already
   // sees one, the server readiness has no paid_with blocker.
-  const serverReady = !!(row as { readiness_blockers?: string[] }).readiness_blockers &&
-    !((row as { readiness_blockers?: string[] }).readiness_blockers ?? []).some((b) => b === "paid_with" || b === "card_unknown");
+  const paymentReadiness = useQuery({
+    queryKey: ["finance", "review-queue", "payment-readiness", row.id, fields.date, fields.amount],
+    enabled: row.status === "pending_review",
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("fin_queue_readiness", { _ids: [row.id] });
+      if (error) throw error;
+      return data?.[0]?.blockers ?? [];
+    },
+  });
+  const serverReady = fields.date === (row.extracted_date ?? "") && fields.amount === String(row.extracted_amount ?? "") &&
+    paymentReadiness.data != null && !paymentReadiness.data.some((b: string) => b === "paid_with" || b === "card_unknown");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Payment methods that are settled through an account we hold.

@@ -1,4 +1,6 @@
 {
+  "costIncomplete": "Custo pendente — custo/h em falta",
+  "costIncompleteHint": "Algumas horas registadas não têm custo/h. O custo e a margem estão incompletos até essas atividades terem um custo/h válido.",
   "previousWeek": "Semana anterior",
   "nextWeek": "Semana seguinte",
   "byPerson": "Por pessoa",
@@ -466,7 +468,8 @@
     }
   },
   "access": {
-    "financeDenied": "Não tem acesso ao módulo Financeiro."
+    "financeDenied": "Não tem acesso ao módulo Financeiro.",
+    "inventoryDenied": "Sem acesso à gestão do Inventário."
   },
   "voice": {
     "starting": "A ligar o microfone…",

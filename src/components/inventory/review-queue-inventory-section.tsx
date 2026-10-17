@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InvoiceInventoryDialog } from "./invoice-inventory-dialog";
 import { useInvoiceForInventory } from "@/lib/inventory/use-inventory";
+import { useInventoryEditAccess } from "@/lib/inventory/use-inventory-access";
 
 /**
  * Inventory marker shown inside the Finance review queue.
@@ -28,6 +29,7 @@ export function ReviewQueueInventorySection({
 }) {
   const { t } = useTranslation(["inventory"]);
   const qc = useQueryClient();
+  const { data: canEdit = false } = useInventoryEditAccess();
   const [open, setOpen] = useState(false);
   const { data: invoice } = useInvoiceForInventory(documentId ?? undefined);
 
@@ -76,7 +78,7 @@ export function ReviewQueueInventorySection({
                   : t("inventory:invoice.statusPending")}
             </Badge>
           )}
-          {documentId && (
+          {canEdit && documentId && (
             <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
               {t("inventory:queue.openIntake")}
             </Button>
@@ -84,7 +86,8 @@ export function ReviewQueueInventorySection({
         </div>
       </div>
 
-      {documentId && (
+      {documentId && !canEdit && <p role="status" className="mt-2 text-sm text-muted-foreground">{t("common:access.inventoryDenied")}</p>}
+      {canEdit && documentId && (
         <InvoiceInventoryDialog documentId={documentId} open={open} onOpenChange={setOpen} />
       )}
     </div>
