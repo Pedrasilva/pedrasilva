@@ -284,7 +284,7 @@ export function GanttChart({
   // opt-in (project mode); quote mode never reads it.
   const { data: leaveByResource } = useQuery({
     queryKey: ["gantt-leave"],
-    enabled: features.leave,
+    enabled: features.leave && !relative,
     queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
       const { data: rs } = await supabase.from("pm_resources_public").select("id, collaborator_id");
       const collabToRes = new Map<string, string>();

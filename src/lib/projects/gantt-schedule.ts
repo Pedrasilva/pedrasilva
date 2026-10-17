@@ -49,7 +49,11 @@ export async function changeGanttDependency(mode: Mode, scope: string, action: "
   const root = next?.successor_id ?? old?.successor_id;
   const patch = recomputeSchedule(state,deps,[],root ? [root] : []);
   await saveGanttSchedule(mode,scope,state,patch);
-  return mode === "quote" && next ? {...next,quote_id:scope,predecessor_stage_id:next.predecessor_id,successor_stage_id:next.successor_id} : next;
+  if(mode==="quote" && next && action!=="delete") {
+    const {data,error}=await supabase.from("quote_stage_dependencies").select("*").eq("id",next.id).single();
+    if(error)throw error;return data;
+  }
+  return next;
 }
 export async function projectScopeForDependency(input: {id?: string; predecessor_id?: string}): Promise<string> {
   let stageId = input.predecessor_id;
