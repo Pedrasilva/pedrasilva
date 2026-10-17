@@ -27,7 +27,7 @@ import type { Resource } from "@/lib/projects/types";
 import type { StageDependency, DepType } from "@/lib/projects/dependencies";
 import { QUOTE_FEATURES, type PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
-import { changeGanttDependency,changeGanttAllocationDates } from "@/lib/projects/gantt-schedule";
+import { changeGanttDependency,changeGanttAllocationDates,changeGanttStages,shiftGanttProjectStart } from "@/lib/projects/gantt-schedule";
 import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,6 +103,10 @@ export function useQuotePlannerAdapter(
     },
   });
 
+  const invalidateQuoteSchedule = async () => {
+    for (const key of ["quote-stages","quote-allocations","quote-dependencies","quote-financials","psa-live-quote"]) await qc.invalidateQueries({queryKey:[key,quoteId]});
+  };
+
   // Normalize quote dependency rows into the canonical shape Gantt expects.
   const normalizedDeps: StageDependency[] = (depsQ.data ?? []).map((d) => ({
     id: d.id,
@@ -123,6 +127,7 @@ export function useQuotePlannerAdapter(
         id: a.id,
         start_date: a.start_date,
         end_date: a.end_date,
+        move: a.move,
       });
       if (res?.dependentCount > 0) {
         toast.success(
@@ -178,6 +183,19 @@ export function useQuotePlannerAdapter(
       await qc.invalidateQueries({queryKey:["quote-stages",quoteId]});
       await qc.invalidateQueries({queryKey:["quote-allocations",quoteId]});
       return result;
+    },
+
+    // Same atomic scheduler as live projects: one save, working-day shifts,
+    // lags re-timed on drop, successors and resources follow, undoable.
+    moveStages: async (_scope, edits) => {
+      const res = await changeGanttStages("quote", quoteId, edits);
+      await invalidateQuoteSchedule();
+      return res;
+    },
+    shiftProjectStart: async (_scope, newStart) => {
+      const res = await shiftGanttProjectStart("quote", quoteId, newStart);
+      await invalidateQuoteSchedule();
+      return res;
     },
 
     pending: {

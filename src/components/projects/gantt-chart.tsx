@@ -729,7 +729,8 @@ export function GanttChart({
         });
       }
     } catch (err) {
-      toast.error((err as Error).message);
+      const msg = (err as Error).message;
+      toast.error(t(msg, { defaultValue: msg }));
     }
   }
 
