@@ -11,6 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
+import { resolveBlockTitle } from "@/lib/psa-proposal/system-titles";
 import { useMemo } from "react";
 import {
   DndContext,
@@ -215,7 +216,7 @@ function SortableRow({
 
 export function ComposerCanvas({
   proposalId,
-  blocks,
+  blocks: rawBlocks,
   selectedId,
   onSelect,
   onReorder,
@@ -235,6 +236,11 @@ export function ComposerCanvas({
   previewMode?: boolean;
 }) {
   const lang = resolveProposalLang(language);
+  // System headings follow the proposal language; user-written ones stay.
+  const blocks = useMemo(
+    () => rawBlocks.map((b) => ({ ...b, title: resolveBlockTitle(b.block_type, b.title, lang) })),
+    [rawBlocks, lang],
+  );
   const update = useUpdateBlock(proposalId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),

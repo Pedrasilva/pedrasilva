@@ -60,7 +60,7 @@ function ProposalImageBlock({ block }: { block: PsaProposalBlock }) {
   if (!entry) {
     return (
       <div className={`proposal-image-block ${sizeClass} flex items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-xs italic text-zinc-400 print:hidden`}>
-        Seleccione uma imagem no painel de definições
+        {lang === "en" ? "Select an image in the settings panel" : "Seleccione uma imagem no painel de definições"}
       </div>
     );
   }
@@ -343,7 +343,7 @@ export function BlockBody({
           (text ? `<p>${text.split("\n\n").join("</p><p>")}</p>` : "")
         }
         onChange={({ html: h, text: t }) => onPatchContent({ html: h, text: t })}
-        placeholder="Escreva o conteúdo deste bloco..."
+        placeholder={lang === "en" ? "Write this block's content..." : "Escreva o conteúdo deste bloco..."}
         tokenEntries={tokenEntries}
         paragraphSpacing={paragraphSpacing}
         lineHeight={lineHeight}
@@ -1350,7 +1350,7 @@ export function BlockBody({
               <RichContent html={optScopeHtml} text={optScopeText} tokenMap={tokenMap} />
             ) : (
               <p className="text-sm italic text-zinc-400">
-                Adicione o âmbito incluído nas definições do bloco.
+                {lang === "en" ? "Add the included scope in the block settings." : "Adicione o âmbito incluído nas definições do bloco."}
               </p>
             )}
           </div>
@@ -2300,7 +2300,7 @@ export function BlockBody({
                 <RichContent html={cScopeHtml} text={cScopeText} tokenMap={tokenMap} />
               ) : (
                 <p className="text-sm italic text-zinc-400">
-                  Adicione o âmbito incluído nas definições do bloco.
+                  {lang === "en" ? "Add the included scope in the block settings." : "Adicione o âmbito incluído nas definições do bloco."}
                 </p>
               )}
             </div>
