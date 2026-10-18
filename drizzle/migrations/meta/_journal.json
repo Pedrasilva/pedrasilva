@@ -729,6 +729,13 @@
       "when": 1792276862174,
       "tag": "0103_conversion_preview_baseline_comparison",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1792315625502,
+      "tag": "0104_financial_read_boundaries",
+      "breakpoints": true
     }
   ]
 }
