@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
+import { AllocationRemoveDialog } from "./allocation-remove-dialog";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 import { useDefaultResourceRates, effectiveSaleRate, effectiveCostRate } from "@/lib/projects/use-default-rates";
@@ -236,7 +237,9 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
     }
   }
 
+  const [removing, setRemoving] = useState(false);
   async function remove() {
+    if (adapter.mode === "project") { setRemoving(true); return; }
     if (!confirm(`Remover alocação de ${allocation.resource.name}?`)) return;
     try {
       await adapter.deleteAllocation({ id: allocation.id, projectId });
@@ -248,6 +251,8 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
   }
 
   return (
+    <>
+    {adapter.mode === "project" && <AllocationRemoveDialog open={removing} onOpenChange={setRemoving} allocationId={allocation.id} name={allocation.resource.name} onRemove={async (mode) => { await adapter.deleteAllocation({ id: allocation.id, projectId, mode }); setOpen(false); }} />}
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button

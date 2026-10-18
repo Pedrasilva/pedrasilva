@@ -26,6 +26,7 @@ import {
   useUpdateStage,
 } from "@/lib/projects/use-planner";
 import { cn } from "@/lib/utils";
+import { AllocationRemoveDialog } from "./allocation-remove-dialog";
 
 
 export type StageStatus = "planned" | "active" | "done" | "cancelled";
@@ -271,14 +272,17 @@ export function AllocationRowActions({
   projectId,
   onEdit,
   onEditTask,
+  resourceName,
 }: {
   allocationId: string;
   projectId: string;
   onEdit?: () => void;
   /** Opens the task dialog in edit mode (same form as Add task). */
   onEditTask?: () => void;
+  resourceName?: string;
 }) {
   const deleteAllocation = useDeleteAllocation();
+  const [removing, setRemoving] = useState(false);
   const { t } = useTranslation("projects");
 
   return (
@@ -315,20 +319,13 @@ export function AllocationRowActions({
           <DropdownMenuItem
             className="text-xs text-destructive focus:text-destructive"
             disabled={deleteAllocation.isPending}
-            onSelect={() =>
-              deleteAllocation.mutate(
-                { id: allocationId, projectId },
-                {
-                  onSuccess: () => toast.success(t("historySafety.retired")),
-                  onError: (e: unknown) => toast.error((e as Error).message),
-                },
-              )
-            }
+            onSelect={() => setRemoving(true)}
           >
-            <Trash2 className="mr-2 h-3.5 w-3.5" /> {t("historySafety.retire")}
+            <Trash2 className="mr-2 h-3.5 w-3.5" /> {t("historySafety.delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <AllocationRemoveDialog open={removing} onOpenChange={setRemoving} allocationId={allocationId} name={resourceName ?? ""} onRemove={(mode) => deleteAllocation.mutateAsync({ id: allocationId, projectId, mode })} />
     </div>
   );
 }
