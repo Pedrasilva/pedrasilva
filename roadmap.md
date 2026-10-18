@@ -1,9 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — homepage and menu weekly planning
-- [ ] Compact personal approved Mon–Fri AM/PM plan, HR/calendar days and current-week team link for all PSA staff.
-- [ ] Planner-only next-week status/action and staff-visible Projects weekly-planning menu; preserve all existing access gates.
-- [ ] Focused unit tests and one disposable-copy browser check; no live project or plan changes.
+- [x] Compact personal approved Mon–Fri AM/PM plan, numbered stages, HR/calendar days and current-week team link for all PSA staff; private revision drafts never shown as personal planning.
+- [x] Planner-only next-week status/action and staff-visible Projects weekly-planning menu across rail, tabs and mobile; existing Projects access gates unchanged.
+- [x] 48 unit/regression tests and EN/PT parity passed. Signed-in browser verified a disposable in-memory copy of real June project/board data: ten AM/PM slots, calendar days, unapproved empty state, both week links and View As read-only menu/tools. No database writes or real approvals. Card fits 390px; unrelated existing whole-homepage overflow remains outside scope. Genuine non-planner account not impersonated; existing View As mode checked.
 
 ## Current request — first real weekly use prerequisites
 - [x] Rita Costa was already archived in HR since 16 May; deactivated her still-active planning resource, preserving HR history and bookings. Board read-back excludes her.
