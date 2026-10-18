@@ -77,6 +77,8 @@ function CrmOverview() {
         .from("fee_proposals")
         .select("*, company:companies(id, nome), opportunity:crm_opportunities(id, name)")
         .in("quote_status", ["draft", "sent"])
+        .is("archived_at", null)
+        .is("deleted_at", null)
         .order("updated_at", { ascending: false })
         .limit(6);
       if (error) throw error;
