@@ -18,6 +18,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useFrozenQuoteSnapshot } from "./revision-context";
 import { supabase } from "@/integrations/supabase/client";
+import { computeStageFees, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { effectiveBillingAmount, rolledUpBillableFees } from "@/lib/quotes/stage-billing";
+import type { QuoteStage } from "@/lib/quotes/types";
+import type { QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
+import type { QuoteExternalServiceWithSupplier } from "@/lib/quotes/use-quote-external-services";
 
 import {
   resolveSupplierMarkupPct,
@@ -385,7 +390,7 @@ export async function fetchLiveQuoteSnapshot(
       const { data: stages } = await supabase
         .from("quote_stages")
         .select(
-          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,is_optional,stage_role,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
+          "*",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
@@ -397,7 +402,7 @@ export async function fetchLiveQuoteSnapshot(
       const { data: allocs } = await supabase
         .from("quote_allocations")
         .select(
-          "stage_id,start_date,end_date,hours_per_day,resource:pm_resources(proposal_role,billing_role,role,name)",
+          "*,resource:pm_resources(proposal_role,billing_role,role,name)",
         )
         .eq("quote_id", quoteId!);
 
@@ -442,7 +447,7 @@ export async function fetchLiveQuoteSnapshot(
       const { data: ext } = await supabase
         .from("quote_external_services")
         .select(
-          "id,description,sale_price,supplier_company_id,supplier_id",
+          "*",
         )
         .eq("quote_id", quoteId!);
 
@@ -631,25 +636,25 @@ export async function fetchLiveQuoteSnapshot(
       if (!pay?.length) missing.push("paymentSchedule");
 
       // ── Build client invoice list (mirrors the Incoming tab logic) ──
-      const defaultVatRate = Number(q.default_vat_rate ?? 23) || 23;
+      const defaultVatRate = Number(q.default_vat_rate ?? 23);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const stageArr = (stages ?? []) as any[];
       const stageById = new Map<string, { id: string; name: string; start_date: string | null; end_date: string | null; budget: number | null; parent_stage_id: string | null }>(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stageArr.map((s: any) => [s.id, s]),
       );
-      const totalFeeForPay =
-        q.valor && Number(q.valor) > 0
-          ? Number(q.valor)
-          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            stageArr
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .filter((s: any) => s.is_self !== false)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .reduce((sum: number, s: any) => sum + (Number(s.budget) || 0), 0);
-      const stageFees: Record<string, number> = {};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      stageArr.forEach((s: any) => { stageFees[s.id] = Number(s.budget) || 0; });
+      const feeStages = stageArr as QuoteStage[];
+      const leafFees = computeStageFees(
+        feeStages,
+        (allocs ?? []) as unknown as QuoteAllocationWithResource[],
+        (ext ?? []) as unknown as QuoteExternalServiceWithSupplier[],
+        Number(q.pricing_multiplier ?? 1),
+        q.fee_source_mode === "budget" ? "budget" : "allocation",
+      );
+      const billableFees = rolledUpBillableFees(feeStages, leafFees);
+      const stageFees = { ...leafFees, ...billableFees };
+      const totalFeeForPay = Object.values(billableFees).reduce((sum, fee) => sum + fee, 0)
+        || Number(q.valor ?? 0);
 
       const rootOf = (stageId: string | null | undefined) => {
         if (!stageId) return null;
@@ -667,12 +672,7 @@ export async function fetchLiveQuoteSnapshot(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resolveAmount = (p: any): number => {
-        const value = Number(p.amount_value ?? 0);
-        if (p.amount_type === "fixed") return value;
-        if ((p.trigger_type === "stage_start" || p.trigger_type === "stage_end") && p.stage_id && stageFees[p.stage_id] != null) {
-          return (stageFees[p.stage_id] * value) / 100;
-        }
-        return (totalFeeForPay * value) / 100;
+        return resolveScheduleItemAmount(p, totalFeeForPay, stageFees);
       };
 
       const fmtDate = (iso?: string | null) => {
@@ -736,7 +736,7 @@ export async function fetchLiveQuoteSnapshot(
       };
       const dpDisabled =
         buildSettings.downPaymentEnabled === false ||
-        Number(buildSettings.downPaymentPercent ?? 0) === 0;
+        Number(buildSettings.downPaymentPercent ?? 10) === 0;
       const vatExempt = buildSettings.vatEnabled === false;
       // Client-approval stages have no financial impact — filter their
       // payment rows out entirely (they show as €0 lines otherwise).
@@ -986,12 +986,7 @@ export async function fetchLiveQuoteSnapshot(
         projectDescription: q.proposal_description ?? null,
         vatStatus:
           q.default_vat_rate != null ? `IVA ${q.default_vat_rate}%` : null,
-        totalArchitectureFee:
-          q.valor && Number(q.valor) > 0
-            ? Number(q.valor)
-            : ((stages ?? []) as Array<{ is_self?: boolean; budget?: number | null }>)
-                .filter((s) => s.is_self !== false)
-                .reduce((sum, s) => sum + (Number(s.budget) || 0), 0) || null,
+        totalArchitectureFee: totalFeeForPay || null,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stages: (() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1039,7 +1034,7 @@ export async function fetchLiveQuoteSnapshot(
               const calendarDays = Math.floor(ms / (24 * 60 * 60 * 1000)) + 1;
               days = Math.max(1, calendarDays);
             }
-            const rawFee = s.budget ?? null;
+            const rawFee = effectiveBillingAmount(s, feeStages, leafFees);
             // Only supplier stages (non-self) receive the admin markup.
             const pct = s.is_self === false ? markupForStage(s) : 0;
             const fee =

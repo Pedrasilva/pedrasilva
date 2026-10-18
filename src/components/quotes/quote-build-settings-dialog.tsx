@@ -126,6 +126,7 @@ export function QuoteBuildSettingsDialog({
       qc.invalidateQueries({ queryKey: ["quote-build-settings-raw", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
 
       toast.success("Settings saved");
       setOpen(false);

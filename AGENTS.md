@@ -1,4 +1,5 @@
 # Agent rules
+- Draft composer reuses planner fee/payment helpers; billing edits invalidate its cache. Why: totals must agree.
 
 - Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.
 
