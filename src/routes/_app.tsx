@@ -20,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { LogOut, Menu, Smartphone } from "lucide-react";
+import { LogOut, Menu, Smartphone, CalendarDays } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
 import { ModuleTopNav } from "@/components/ModuleTopNav";
