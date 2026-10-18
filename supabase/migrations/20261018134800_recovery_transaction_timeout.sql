@@ -1,0 +1,1 @@
+ALTER FUNCTION public.pm_recover_20261018(jsonb) SET statement_timeout = '120s'; ALTER FUNCTION public.pm_recover_20261018(jsonb) SET lock_timeout = '10s';
