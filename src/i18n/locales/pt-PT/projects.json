@@ -713,7 +713,8 @@
       "required": "Inicialize a cronologia relativa numa revisão editável antes de converter.",
       "approvedRequired": "A proposta tem de estar aprovada.",
       "previewRequired": "Pré-visualize as datas antes de converter."
-    }
+    },
+    "leaveDays": "Férias {{days}} d"
   },
   "kpi": {
     "businessPerformance": "Desempenho do negócio",

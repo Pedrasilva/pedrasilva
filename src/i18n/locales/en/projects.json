@@ -713,7 +713,8 @@
       "required": "Initialize the relative timeline in an editable revision before converting.",
       "approvedRequired": "The proposal must be approved.",
       "previewRequired": "Preview the dates before converting."
-    }
+    },
+    "leaveDays": "Leave {{days}} d"
   },
   "kpi": {
     "businessPerformance": "Business performance",
