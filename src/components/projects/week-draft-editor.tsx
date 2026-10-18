@@ -51,7 +51,8 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
   useEffect(() => { try { const v=JSON.parse(localStorage.getItem("psa-week-recent-projects") ?? "[]"); if(Array.isArray(v)) setRecent(v.filter(x => typeof x==="string").slice(0,5)); } catch {} },[]);
   const selectBrush=(id:string) => { setBrush(id); setStageBrush(defaultStage(data.stages,id,weekDays(week)) ?? "auto"); setSelected(new Set()); setBrushHint(false); setPicker(false); const ids=[id,...recent.filter(v => v!==id)].slice(0,5); setRecent(ids); try { localStorage.setItem("psa-week-recent-projects",JSON.stringify(ids)); } catch {} };
   const pending=useRef<Pick<DraftSlot,"resource_id"|"day"|"part">[]>([]);
-  const finish=() => { down.current=false; if(!pending.current.length) draft.endStroke(); };
+  const active=useRef(false);
+  const finish=() => { down.current=false; if(!active.current) return; if(!pending.current.length) { active.current=false; draft.endStroke(); } };
   useEffect(() => { const stop=() => finish(); window.addEventListener("pointerup",stop); window.addEventListener("pointercancel",stop); window.addEventListener("blur",stop); return () => { window.removeEventListener("pointerup",stop); window.removeEventListener("pointercancel",stop); window.removeEventListener("blur",stop); }; });
   useEffect(() => { const key=(e:KeyboardEvent) => { if(!activeDraft || compare || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase()!=="z" || (e.target instanceof HTMLElement && (e.target.matches("input,textarea") || e.target.isContentEditable))) return; e.preventDefault(); if(e.shiftKey) draft.redo(); else draft.undo(); }; window.addEventListener("keydown",key); return () => window.removeEventListener("keydown",key); });
   function apply(cells:Pick<DraftSlot,"resource_id"|"day"|"part">[], project:string | null, stage:string | null) {
@@ -60,6 +61,7 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
     current.current=[...values.values()]; draft.change(current.current);
   }
   function paint(resource_id:string,day:string,part:DayPart) {
+    if(!active.current) return; // Only cells under the pointer during an accepted stroke are painted.
     const c={resource_id,day,part}; const key=slotKey(c); if(visited.current.has(key)) return; visited.current.add(key);
     if(brush===null) { if(current.current.some(s => slotKey(s)===key)) setSelected(old => { const n=new Set(old); if(n.has(key)) n.delete(key); else n.add(key); return n; }); else setBrushHint(true); return; }
     if(brush==="erase") { apply([c],null,null); return; }
@@ -77,7 +79,7 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
   const selectedSlots=draft.slots.filter(s => selected.has(slotKey(s))); const selectedProjects=[...new Set(selectedSlots.map(s => s.project_id))];
   const outside=new Set(draft.slots.filter(s => isOutsideStage(data.stages,s)).map(slotKey));
   const projectStages=(id:string) => numbered.filter(n => n.stage.project_id===id);
-  const start=() => { if(draft.saving || choice) return; if(!down.current && !pending.current.length) { down.current=true; visited.current=new Set(); draft.startStroke(); } };
+  const start=() => { if(draft.saving || choice) return; if(!down.current && !pending.current.length) { down.current=true; active.current=true; visited.current=new Set(); draft.startStroke(); } };
   function wholeWeek(resource:string) { start(); for(const day of weekDays(week)) if(!data.leave.some(l => l.resource_id===resource && l.day===day)) for(const p of ["am","pm"] as DayPart[]) paint(resource,day,p); finish(); }
   async function create() {
     setCreating(true); setError(false);
