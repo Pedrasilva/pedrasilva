@@ -9,7 +9,7 @@ import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
-import { Trash2, GripVertical, AlertTriangle, CalendarOff, Info } from "lucide-react";
+import { Trash2, GripVertical, AlertTriangle, CalendarOff, CalendarDays, Info } from "lucide-react";
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
@@ -1793,11 +1793,11 @@ export function GanttChart({
                                   )}
                                   {hasLeave && (
                                     <span
-                                      className="flex shrink-0 items-center gap-0.5 rounded bg-amber-500/20 px-1 py-px text-[10px] font-semibold text-amber-700 dark:text-amber-300"
+                                      className="flex shrink-0 items-center gap-0.5 rounded bg-muted px-1 py-px text-[10px] font-medium text-muted-foreground"
                                       title={t("gantt.tooltip.leaveOverlap", { hours: allocLeaveHours })}
                                     >
-                                      <CalendarOff className="h-2.5 w-2.5" />
-                                      −{allocLeaveHours}h
+                                      <CalendarDays className="h-2.5 w-2.5" />
+                                      {t("gantt.leaveDays", { days: Math.round(allocLeaveHours / (resourceDailyHours || 8) * 10) / 10 })}
                                     </span>
                                   )}
                                 </div>
