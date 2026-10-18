@@ -19,3 +19,4 @@
 - Phone capture lives at /m (src/routes/m*.tsx), a sibling of _app with its own guard; reuses NoteComposer variant="quick", TimesheetAssistantSheet and listMyPendingNudges; there is a manifest but no service worker. Why: phone flows must not change desktop behaviour or preview caching.
 - Homepage weekly planning derives only the caller's personal approved allocation slots from weekBoardQuery, never draft_slots; navigation exposes the weekly board to PSA staff without widening Projects module access. Why: private drafts, existing project permissions and no-rates projection must stay intact.
 
+- Unlinked proposals are relative by default (trigger pm_relative_normalize_dates keeps Mon–Fri counts; <2010 dates print as weeks). Why: quote hours/fees stay identical.
