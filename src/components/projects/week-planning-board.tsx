@@ -1,3 +1,4 @@
+import { weekProjectColours } from "@/lib/projects/week-project-colours";
 import { useMemo, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
@@ -26,7 +27,8 @@ export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardD
   function marker(a: AssignmentMarker) {
     return <div key={a.allocationId} data-testid="assignment-marker" className="mt-1 flex items-start gap-1 border-l-2 border-border px-2 py-1 text-[10px] text-muted-foreground" title={stageLabel(a.stageId)}><span className="min-w-0 break-words">{projects.get(a.projectId)?.name} · {a.hoursPerDay === 0 ? t('weekPlan.assignedNoHours') : `${a.hoursPerDay}h/d`}{a.parentStage && <span className="block">{stageLabel(a.stageId)}</span>}</span>{a.parentStage && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t('weekPlan.parentStageWarning')} />}</div>;
   }
-  const projectColour = (id: string) => ({ "--week-project-color": projects.get(id)?.color || "var(--chart-2)" }) as CSSProperties;
+  const boardColours = useMemo(() => weekProjectColours(data.projects), [data.projects]);
+  const projectColour = (id: string) => ({ "--week-project-color": boardColours.get(id) || "var(--chart-2)" }) as CSSProperties;
   function booking(slot: DerivedSlot | null, key?: string) {
     if (!slot) return <span className="text-muted-foreground/40">—</span>;
     const outside = !!key && !!editing?.outside?.has(key);
