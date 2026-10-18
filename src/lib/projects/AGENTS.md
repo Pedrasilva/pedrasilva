@@ -1,5 +1,7 @@
 # Projects module rules
 
+- Gantt actuals use gantt-actuals.ts pure per-person/week aggregation and use-gantt-actuals.ts RLS reads with privacy-safe stage-summary reconciliation; snapshot-only costs and child-fee rollups never mutate planning or timesheets. Why: real attribution, missing-cost warnings and financial access must remain separate from planned-rate estimates.
+
 - Cost-period rebuilds use pm_replace_cost_periods for atomic replacement and queue acknowledgement; admin and scheduled paths share an advisory lock and revision check. Why: failed or stale concurrent runs must preserve periods and pending work.
 - Authorized internal Backoffice snapshots use pm_backoffice_salary_cost and overhead_salary without modifying cost periods or the Projecto overhead pool; reporting displays them as overhead analysis and excludes them from overhead-loaded business totals. Why: the same salary must not be counted twice.
 - Retainer actuals use only saved positive snapshots for task/direct/detail paths, independently of shared budget estimates. Why: missing costs must suppress totals and margins, not become team-rate estimates.
