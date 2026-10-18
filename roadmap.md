@@ -1,9 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — visible assignments and safe first approval
-- [ ] Show zero-hour assignments and parent-stage warnings on board/Gantt without changing existing bookings.
-- [ ] List every removed/changed allocation and enforce extra approval acknowledgement; block new parent-stage bookings.
-- [ ] Run focused tests and one isolated-copy browser check; delete fixtures and mirror any database change.
+- [x] Show zero-hour assignments and parent-stage warnings on board/Gantt without changing existing bookings.
+- [x] List every removed/changed allocation and enforce extra approval acknowledgement in UI and locked database apply; block new parent-stage bookings while preserving legacy assignments and outside-week splits.
+- [x] 37 focused tests and 11 rollback safeguard assertions passed; signed-in Rita/Mastercard copy showed five daily markers and the red changed-booking preview with extra confirmation. Copy and draft deleted; 16 original zero-hour bookings preserved; exact migration mirrored and preview build OK. No real week approved.
 
 ## Current request — approved financial security fixes
 - [x] Address security-test review: PASS is inside DO after all assertions, both creator roles checked, shared company master data explained; disposable fixture rerun fails correctly on supabase_admin defaults, no PASS emitted.
