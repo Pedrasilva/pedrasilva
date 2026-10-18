@@ -4,7 +4,7 @@ DO $$
 DECLARE admin uuid; staff uuid; q uuid; s uuid; resource uuid; o uuid; project uuid; preview jsonb; n public.pm_week_project_notes; seen integer; ok boolean;
 BEGIN
 SELECT user_id INTO admin FROM user_roles WHERE role='admin' LIMIT 1;
-SELECT u.id INTO staff FROM auth.users u JOIN collaborators c ON lower(c.email)=lower(u.email) WHERE c.archived_at IS NULL AND NOT has_role(u.id,'admin') AND NOT has_module_permission(u.id,'projects.edit_week_notes','all') LIMIT 1;
+SELECT u.id INTO staff FROM auth.users u JOIN collaborators c ON lower(c.email)=lower(u.email) WHERE c.archived_at IS NULL AND NOT has_role(u.id,'admin') AND NOT has_module_permission(u.id,'projects.edit_week_notes','all') AND NOT has_module_permission(u.id,'projects.edit_planning','all') LIMIT 1;
 IF staff IS NULL THEN RAISE EXCEPTION 'No non-editor staff available'; END IF;
 PERFORM set_config('request.jwt.claim.sub',admin::text,true); PERFORM set_config('request.jwt.claim.role','authenticated',true); SET LOCAL ROLE authenticated;
 INSERT INTO crm_opportunities(name) VALUES('__WEEK_NOTES_ROLLBACK__') RETURNING id INTO o;

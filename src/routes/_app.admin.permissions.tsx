@@ -46,6 +46,13 @@ import {
 } from "@/lib/permissions-v2";
 
 export const Route = createFileRoute("/_app/admin/permissions")({
+  head: () => ({ meta: [
+    { title: "Permissões da equipa | PSA Hub" },
+    { name: "description", content: "Gerir permissões e autorizações individuais da equipa PSA Hub." },
+    { property: "og:title", content: "Permissões da equipa | PSA Hub" },
+    { property: "og:description", content: "Gerir permissões e autorizações individuais da equipa PSA Hub." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: AdminPermissionsPage,
 });
 
