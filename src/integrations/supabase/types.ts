@@ -15822,6 +15822,10 @@ export type Database = {
         }
         Returns: string
       }
+      pm_allocation_logged_hours: {
+        Args: { _allocation_id: string }
+        Returns: number
+      }
       pm_apply_planning_cutoff: {
         Args: { _confirm?: boolean; _snapshot_id: string }
         Returns: Json

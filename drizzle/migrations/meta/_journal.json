@@ -827,6 +827,13 @@
       "when": 1792337089258,
       "tag": "0117_week_draft_stage_outside_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1792337141749,
+      "tag": "0118_allocation_logged_hours",
+      "breakpoints": true
     }
   ]
 }
