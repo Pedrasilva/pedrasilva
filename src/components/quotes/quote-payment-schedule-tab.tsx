@@ -61,6 +61,7 @@ import {
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
 import { PaymentScheduleProposalView } from "./payment-schedule-proposal-view";
+import { InvoiceGroupingControl } from "./invoice-grouping-control";
 import { PaymentScheduleReconciliation } from "./payment-schedule-reconciliation";
 
 function AutoTextarea({
@@ -691,6 +692,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           <CardTitle className="text-sm">Predefinições de faturação</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <InvoiceGroupingControl kind="quote" id={quoteId} />
           <div className="grid gap-3 md:grid-cols-3">
             <div>
               <Label className="text-xs">IVA padrão (%)</Label>

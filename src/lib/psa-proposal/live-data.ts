@@ -600,7 +600,7 @@ export async function fetchLiveQuoteSnapshot(
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
         .select(
-          "id,label,trigger_type,amount_type,amount_value,expected_invoice_date,sort_order,stage_id,direction,vat_rate,supplier_company_id,supplier_id,supplier_label,payment_terms",
+          "id,label,trigger_type,amount_type,amount_value,expected_invoice_date,sort_order,stage_id,direction,vat_rate,supplier_company_id,supplier_id,supplier_label,payment_terms,invoice_group_id",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
@@ -770,9 +770,11 @@ export async function fetchLiveQuoteSnapshot(
         // previously merged e.g. "end of Stage 1" with "start of Stage 2" when
         // both fell in the same month, hiding the child-level billing choices.
         const isDownpayment = isAdjudicacaoRow(it);
-        const key = isDownpayment
-          ? `dp:${d}`
-          : `t:${it.trigger_type ?? "x"}:${d}`;
+        const key = it.invoice_group_id
+          ? `g:${it.invoice_group_id}`
+          : isDownpayment
+            ? `dp:${d}`
+            : `t:${it.trigger_type ?? "x"}:${d}`;
         let inv = invoiceMap.get(key);
         if (!inv) {
           inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };

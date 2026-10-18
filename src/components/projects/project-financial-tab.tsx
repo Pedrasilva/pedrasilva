@@ -8,6 +8,7 @@
  * Grouped per calendar month into a single invoice (one row per supplier
  * + Architecture line), matching the layout used on the CRM side.
  */
+import { InvoiceGroupingControl } from "@/components/quotes/invoice-grouping-control";
 
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -204,6 +205,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
           <div className="text-xs text-muted-foreground">
             Plano de faturação ao cliente — herdado do orçamento aprovado e editável aqui.
           </div>
+          <div className="pt-2"><InvoiceGroupingControl kind="project" id={projectId} /></div>
         </CardHeader>
         <CardContent>
           {grouped.length === 0 ? (
