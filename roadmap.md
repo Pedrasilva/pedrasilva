@@ -5,7 +5,7 @@
 - [x] Compare current and proposed financial reads for every account: only Teresa loses PSA tax-history access; no PSA collaborator loses access.
 - [x] Tighten the three approved SELECT policies while preserving intended PSA access and administrator oversight; exact migration mirrored.
 - [x] Public-table TRUNCATE and postgres defaults revoked; Luis accepted leaving platform-owned supabase_admin defaults unchanged. Every future public-table creation must revoke client TRUNCATE explicitly; test checks all public tables regardless of creator and postgres defaults.
-- [x] Disposable fixtures passed 15 admin/PSA-finance/non-PSA row checks and existing-table/postgres-default assertions before the expected supabase_admin-default failure; transaction rolled back. No real project/proposal writes.
+- [x] Revised test rerun passed all 15 admin/PSA-finance/non-PSA row checks, no public-table client TRUNCATE grants and postgres-default assertions; platform-owned defaults excluded as accepted. All disposable fixtures rolled back; no real project/proposal writes.
 
 ## Current request — CRM zero-quote fallback and atomic milestones
 - [x] Use estimated fee labelled Estimated when the active quoted total is zero or empty, consistently across cards and totals.
