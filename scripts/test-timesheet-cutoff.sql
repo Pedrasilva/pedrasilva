@@ -30,7 +30,7 @@ BEGIN
  SELECT to_jsonb(e) INTO before_entry FROM pm_time_entries e WHERE id=entry_id;
  SELECT allocation_id INTO a1 FROM pm_tasks WHERE id=task1;
  -- A ended allocation, plus multiple other allocations, must reuse task1 unchanged.
- UPDATE pm_allocations SET planning_removed_at=NULL,end_date='2026-10-16',is_locked=true WHERE id=a1;
+ UPDATE pm_allocations SET created_at='2026-01-01',planning_removed_at=NULL,end_date='2026-10-16',is_locked=true WHERE id=a1;
  INSERT INTO pm_allocations(stage_id,resource_id,start_date,end_date,hours_per_day) VALUES(sid,rid,'2026-10-19','2026-10-23',3) RETURNING id INTO a2;
  SELECT jsonb_agg(to_jsonb(a) ORDER BY a.id) INTO before_alloc FROM pm_allocations a WHERE stage_id=sid;
  SET LOCAL ROLE authenticated;
