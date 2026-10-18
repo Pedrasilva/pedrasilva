@@ -444,7 +444,7 @@ export function GanttOutlineColumn({
                   {allocs.map((a) => (
                     <li
                       key={a.id}
-                      style={actuals?{height:32+ACTUAL_ROW_HEIGHT}:undefined}
+                      style={actuals?{height:32+ACTUAL_ROW_HEIGHT,alignItems:"flex-start",paddingTop:8}:undefined}
                       className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
                     >
                       <span

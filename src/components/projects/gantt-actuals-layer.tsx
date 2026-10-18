@@ -56,7 +56,7 @@ export function GanttActualTrail({person,origin,dayWidth,maxHours,top}:{person:A
         <strong>{person.name||t("gantt.actuals.unattributed")}</strong><div>{week.start} → {end}</div>
         <div>{t("glossary:time.loggedHours")}: {number(week.logged)}h</div>
         <div>{t("glossary:time.plannedHours")}: {number(week.planned)}h</div>
-        <div>{t("common:delta")}: {week.difference>0?"+":""}{number(week.difference)}h</div>
+        <div>{t("gantt.actuals.difference")}: {week.difference>0?"+":""}{number(week.difference)}h</div>
         {week.outside>0 && <div className="text-destructive">{t("gantt.actuals.outsideDates",{hours:number(week.outside)})}</div>}
         {week.imported>0 && <div>{t("gantt.actuals.importedHours",{hours:number(week.imported)})}</div>}
       </TooltipContent></Tooltip>;

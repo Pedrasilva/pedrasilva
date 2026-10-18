@@ -106,10 +106,12 @@ export function buildGanttActuals(input: {
       const list = grouped.get(entry.personId) ?? [];
       list.push(entry); grouped.set(entry.personId, list);
     }
+    for (const plan of stage.plans.filter(p=>!p.removed)) {
+      if (!grouped.has(plan.resourceId)) grouped.set(plan.resourceId,[]);
+    }
     const rows: ActualPerson[] = [];
     for (const [id, entries] of grouped) {
-      const first = entries[0];
-      if (!first) continue;
+      const first = entries[0] ?? {resourceId:id,name:""};
       const plans = stage.plans.filter(p => !p.removed && first.resourceId != null && p.resourceId === first.resourceId);
       const weeks = new Map<string, ActualWeek>();
       for (const entry of entries) {
@@ -183,7 +185,20 @@ export function buildGanttActuals(input: {
   const elapsed = scheduleElapsedPct(dates[0]??null,dates.at(-1)??null,input.asOf);
   const consumed = cost != null && budget>0 ? cost/budget*100 : null;
   totals.set(input.summaryId,{budget,cost,elapsed,consumed,remaining:cost==null?null:budget-cost,planned:rootTotals.reduce((n,c)=>n+c.planned,0),logged:rootTotals.reduce((n,c)=>n+c.logged,0)+orphan.reduce((n,a)=>n+a.hours,0),band:actualBudgetBand(cost,budget,consumed,elapsed),missingHours:rootTotals.reduce((n,c)=>n+c.missingHours,0)+orphan.filter(a=>a.cost==null).reduce((n,a)=>n+a.hours,0),importedHours:activities.filter(a=>a.imported).reduce((n,a)=>n+a.hours,0)});
-  if (orphan.length) people.set(input.summaryId,[{id:"__unattributed__",resourceId:null,name:"",unplanned:true,weeks:[]}]);
+  if (orphan.length) {
+    const grouped = new Map<string,ActualActivity[]>();
+    for (const entry of orphan) grouped.set(entry.personId,[...(grouped.get(entry.personId)??[]),entry]);
+    people.set(input.summaryId,[...grouped].map(([id,entries])=>{
+      const weeks=new Map<string,ActualWeek>();
+      for(const entry of entries) {
+        const start=actualMonday(entry.date);
+        const w=weeks.get(start)??{start,logged:0,planned:0,difference:0,outside:0,imported:0};
+        w.logged+=entry.hours;w.difference=w.logged;w.outside+=entry.hours;if(entry.imported) w.imported+=entry.hours;
+        maxWeekHours=Math.max(maxWeekHours,w.logged);weeks.set(start,w);
+      }
+      return {id,resourceId:entries[0]?.resourceId??null,name:entries[0]?.name??"",unplanned:true,weeks:[...weeks.values()].sort((a,b)=>a.start.localeCompare(b.start))};
+    }));
+  }
   const actualDates = activities.map(a=>a.date).sort();
   return {totals,people,firstDate:actualDates[0]??null,lastDate:actualDates.at(-1)??null,maxWeekHours,limited:input.limited??false};
 }

@@ -6,7 +6,7 @@ import { getWorkingCalendarHolidays } from "./gantt-utils";
 import { buildGanttActuals, type ActualActivity, type ActualStage, type StageActualAggregate } from "./gantt-actuals";
 import { PROJECT_SUMMARY_ID } from "./build-project-gantt-tree";
 
-type RawEntry = { id: string; user_id: string; entry_date: string; hours: number; cost_rate_snapshot?: number | null; task_id: string | null; pm_stage_id: string | null; quote_stage_id: string | null };
+type RawEntry = { id: string; user_id: string; entry_date: string; hours: number; cost_rate_snapshot?: number | null; task_id: string | null; pm_stage_id: string | null; quote_stage_id: string | null; entry_type: string };
 type RawStage = { id: string; parent_stage_id: string | null; budget: number; start_date: string; end_date: string; source_quote_stage_id: string | null; stage_kind: string | null };
 
 /** Existing RLS protects activity detail; privacy-safe RPCs reconcile older full months. */
@@ -21,7 +21,7 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
       const stageIds = stagesRaw.map(s=>s.id);
       if (!stageIds.length) return buildGanttActuals({stages:[],activities:[],asOf:today,holidays:getWorkingCalendarHolidays(),summaryId:PROJECT_SUMMARY_ID});
       const [allocations, historical, summary, locked] = await Promise.all([
-        fetchAll<{id:string;stage_id:string;resource_id:string;start_date:string;end_date:string;hours_per_day:number;allocation_percentage:number|null;planning_removed_at:string|null;tasks:{id:string}[]}>(
+        fetchAll<{id:string;stage_id:string;resource_id:string;start_date:string;end_date:string;hours_per_day:number;allocation_percentage:number|null;planning_removed_at:string|null;tasks:{id:string}[]|{id:string}|null}>(
           (a,b)=>supabase.from("pm_allocations").select("id,stage_id,resource_id,start_date,end_date,hours_per_day,allocation_percentage,planning_removed_at,tasks:pm_tasks(id)").in("stage_id",stageIds).order("id").range(a,b) as never),
         fetchAll<{id:string;entry_date:string;stage_id:string|null;resource_id:string|null;collaborator_id:string|null;billable_hours:number|null;non_billable_hours:number|null;cost?:number|null}>(
           (a,b)=>supabase.from("historical_time_entries").select(`id,entry_date,stage_id,resource_id,collaborator_id,billable_hours,non_billable_hours${financials?",cost":""}`).eq("project_id",projectId).lte("entry_date",today).order("id").range(a,b) as never),
@@ -31,15 +31,15 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
       if (summary.error) throw summary.error;
       if (locked.error) throw locked.error;
       const taskStage = new Map<string,string>();
-      allocations.forEach(a=>(a.tasks??[]).forEach(t=>taskStage.set(t.id,a.stage_id)));
+      allocations.forEach(a=>(Array.isArray(a.tasks)?a.tasks:a.tasks?[a.tasks]:[]).forEach(t=>taskStage.set(t.id,a.stage_id)));
       const quoteStage = new Map(stagesRaw.filter(s=>s.source_quote_stage_id && s.stage_kind!=="retainer_month").map(s=>[s.source_quote_stage_id,s.id]));
       const clauses = [`pm_stage_id.in.(${stageIds.join(",")})`];
       if(taskStage.size) clauses.push(`task_id.in.(${[...taskStage.keys()].join(",")})`);
       if(quoteStage.size) clauses.push(`quote_stage_id.in.(${[...quoteStage.keys()].join(",")})`);
-      const select = `id,user_id,entry_date,hours,task_id,pm_stage_id,quote_stage_id${financials?",cost_rate_snapshot":""}`;
+      const select = `id,user_id,entry_date,hours,task_id,pm_stage_id,quote_stage_id,entry_type${financials?",cost_rate_snapshot":""}`;
       const entries = await fetchAll<RawEntry>((a,b)=>supabase.from("pm_time_entries").select(select).or(clauses.join(",")).lte("entry_date",today).order("id").range(a,b) as never);
       const users = [...new Set(entries.map(e=>e.user_id))];
-      const mapping = users.length ? await supabase.rpc("pm_resource_map_for_users",{_user_ids:users}) : {data:[],error:null};
+      const mapping = users.length ? await supabase.rpc("pm_list_user_resource_map") : {data:[],error:null};
       if(mapping.error) throw mapping.error;
       const identities = new Map((mapping.data??[]).map(m=>[m.user_id,{resourceId:m.resource_id,name:m.name??""}]));
       const [resources, schedules] = await Promise.all([
@@ -70,7 +70,8 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
       // For complete past months, replace only missing RLS coverage, not snapshot-safe raw sums.
       for(const row of summary.data??[]) {
         if(row.month>today.slice(0,7)) continue;
-        const raw = activities.filter(a=>!a.imported && a.stageId===row.stage_id && a.date.slice(0,7)===row.month);
+        const projectEntryIds=new Set(entries.filter(e=>e.entry_type==="project").map(e=>e.id));
+        const raw = activities.filter(a=>projectEntryIds.has(a.id) && a.stageId===row.stage_id && a.date.slice(0,7)===row.month);
         const rawHours = raw.reduce((n,a)=>n+a.hours,0);
         if(Math.abs(rawHours-Number(row.hours))<0.005) continue;
         limited = true;

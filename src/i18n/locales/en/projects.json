@@ -522,6 +522,9 @@
   },
   "gantt": {
     "actuals": {
+      "difference": "Difference",
+      "estimate": "Estimated effort",
+      "authorizedDetail": "Activity trails show only the entries you are authorized to see.",
       "show": "Show logged hours",
       "costToDate": "Cost to date",
       "consumed": "Budget consumed",

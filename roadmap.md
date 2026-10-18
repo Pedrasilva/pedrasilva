@@ -3,7 +3,8 @@
 ## Current request — Gantt planned vs actual (plan first)
 - [x] Read-only BCG screen and stored-data inspection: explain planned cost/fee/hours, leave badges, implied hours and planned-cost line.
 - [x] Prepare weekly per-person actuals and stage-budget proposal; identify reused/replaced figures and double-counting risks.
-- [ ] Await Luis's approval before any implementation; all application code, timesheets, costs and planning remain unchanged.
+- [x] Plan approved; implement opt-in read-only actuals layer without changing stored hours, costs or planning.
+- [ ] Verify copied signed-in Gantt, tooltips, totals, zoom and narrow view; run regression tests.
 
 ## Current request — homepage and menu weekly planning
 - [x] Compact personal approved Mon–Fri AM/PM plan, numbered stages, HR/calendar days and current-week team link for all PSA staff; private revision drafts never shown as personal planning.

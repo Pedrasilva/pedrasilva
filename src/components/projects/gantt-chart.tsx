@@ -1218,7 +1218,7 @@ export function GanttChart({
                       strokeLinejoin="round"
                     />
                   </svg>
-                  {actuals?.totals.get(stage.id) && <div className="absolute overflow-hidden" style={{left:stageX,top:32,maxWidth:Math.max(120,w)}}><GanttActualMetrics totals={actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals} financials={!!showFinancials} /></div>}
+                  {actuals?.totals.get(stage.id) && <div className="absolute overflow-hidden" style={{left:stageX,top:SUMMARY_ROW_H,maxWidth:Math.max(120,w)}}><GanttActualMetrics totals={actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals} financials={!!showFinancials} /></div>}
                   {actuals && !(resourcesCollapsed?.has(stage.id)) && extraPeopleFor(stage).map((person,index)=><GanttActualTrail key={person.id} person={person} origin={origin} dayWidth={dayWidth} maxHours={actuals.maxWeekHours} top={SUMMARY_ROW_H+ACTUAL_METRIC_HEIGHT+index*ACTUAL_ROW_HEIGHT} />)}
                   {/* Drag-to-move overlay: shifts every descendant by the same delta. */}
                   <div
@@ -1497,6 +1497,7 @@ export function GanttChart({
                         </div>
 
 
+                        {actuals && hoursAreImplied && displayHours>0 && <span className="text-[10px] text-muted-foreground">≈{Math.round(displayHours)}h · {t("gantt.actuals.estimate")}</span>}
                         {!actuals && !isSupplierBar && !isClientBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>

@@ -1926,6 +1926,7 @@ export function ProjectGantt({
       </div>
       {showActuals && actualsQ.isPending && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
       {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
+      {actuals && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.authorizedDetail")}</p>}
       {actuals?.limited && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.limited")}</p>}
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div

@@ -522,6 +522,9 @@
   },
   "gantt": {
     "actuals": {
+      "difference": "Diferença",
+      "estimate": "Esforço estimado",
+      "authorizedDetail": "As faixas mostram apenas as actividades que tem autorização para consultar.",
       "show": "Mostrar horas registadas",
       "costToDate": "Custo até à data",
       "consumed": "Orçamento consumido",
