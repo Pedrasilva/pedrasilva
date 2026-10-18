@@ -1,9 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — conflicting proposal fees
-- [ ] Trace architecture, Financial and composer payment totals against saved rows.
-- [ ] Correct shared calculations without changing agreed fees or historical invoices; verify on an isolated copy and clean up.
-- [ ] Explain the differences and report verification.
+- [x] Traced €109,000 agreed fees, €119,900 additive advance, older €114,620 composer payments and inconsistent VAT exemption.
+- [x] Corrected 2675's nine planned rows to €109,000 (advance €10,900 + 90% stage invoices), VAT zero, deduction enabled; all stage rows/hours/dates/statuses and unrelated quote fields verified unchanged. Shared composer amount/fee helpers and cache invalidation aligned; 14 tests and build pass.
+- [x] Signed-in write-blocked browser copy showed matching Financial and document totals, then read back corrected saved rows; no persisted test copy. Explain differences in final response.
+- Source audit: docs/2675-proportional-advance-data.sql records the scoped correction; platform rejects direct migration-file creation for data-only corrections (no schema migration applied).
 
 ## Current request — planning cut-off approved and applied
 - [x] Implement deterministic own-task provisioning with existing access, retired 0h missing links and no merging; copy-only database cases passed including non-planner 19 October logging, month/lock/cost preservation and cutoff/undo.
