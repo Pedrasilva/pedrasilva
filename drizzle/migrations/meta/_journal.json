@@ -876,6 +876,13 @@
       "when": 1792354984810,
       "tag": "0124_invoice_grouping_conversion_real_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1792355549061,
+      "tag": "0125_quote_stage_payment_dates_follow_stages",
+      "breakpoints": true
     }
   ]
 }
