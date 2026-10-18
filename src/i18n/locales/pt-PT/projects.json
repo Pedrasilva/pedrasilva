@@ -2120,5 +2120,10 @@
       "applied_one": "{{count}} projeto replaneado.",
       "applied_other": "{{count}} projetos replaneados."
     }
+  },
+  "historySafety": {
+    "retire": "Retirar alocação",
+    "retired": "Alocação retirada; tarefa e horas registadas preservadas.",
+    "blocked": "Existem horas registadas. Retire a alocação ou encerre a fase em vez de a eliminar."
   }
 }

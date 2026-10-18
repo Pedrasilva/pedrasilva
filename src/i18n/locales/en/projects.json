@@ -2120,5 +2120,10 @@
       "applied_one": "{{count}} project re-scheduled.",
       "applied_other": "{{count}} projects re-scheduled."
     }
+  },
+  "historySafety": {
+    "retire": "Retire allocation",
+    "retired": "Allocation retired; task and logged hours preserved.",
+    "blocked": "Logged hours exist. Retire the allocation or close the stage instead of deleting it."
   }
 }
