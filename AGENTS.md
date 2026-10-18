@@ -1,5 +1,6 @@
 # Agent rules
 
+- Every migration creating a public table must explicitly revoke TRUNCATE from anon and authenticated on that table, preserving all other privileges; leave platform-owned supabase_admin defaults unchanged and verify postgres public-table defaults plus all existing public-table grants. Why: new tables must remain protected regardless of their creator.
 - Read module AGENTS.md before edits: src/lib/{marketing,reports,finance,hr,projects,crm}. Why: module rules stay local.
 - Project-financial SELECT requires PSA staff and scoped financial permission, with administrator oversight; non-admin tax history is scoped to authorized companies/documents. Why: entity isolation must hold in database reads, not only navigation.
 - Retainer actuals use retainerCostRate; missing costs suppress totals/margins. Why: missing snapshots must not imply free labour.
