@@ -15833,6 +15833,10 @@ export type Database = {
         Returns: number
       }
       pm_cost_rate_fallback: { Args: { _resource_id: string }; Returns: number }
+      pm_ensure_timesheet_task: {
+        Args: { _resource_id: string; _stage_id: string }
+        Returns: string
+      }
       pm_entries_missing_cost: {
         Args: never
         Returns: {
