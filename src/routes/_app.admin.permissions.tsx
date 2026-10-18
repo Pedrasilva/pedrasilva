@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -82,6 +83,7 @@ const SCOPE_LABEL: Record<PermissionScope, string> = {
 };
 
 function AdminPermissionsPage() {
+  const { t } = useTranslation("projects");
   return (
     <AdminOnly>
       <div className="space-y-6 p-6">
@@ -330,7 +332,7 @@ function UsersTab() {
                           </div>
                           {PERMISSION_CATALOGUE.filter((p) => p.module === m).map((p) => (
                             <SelectItem key={p.key} value={p.key}>
-                              {p.label}
+                              {p.key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : p.label}
                             </SelectItem>
                           ))}
                         </div>
@@ -398,7 +400,7 @@ function UsersTab() {
                         return (
                           <TableRow key={o.id}>
                             <TableCell>
-                              <div className="font-medium">{def?.label ?? o.permission_key}</div>
+                              <div className="font-medium">{o.permission_key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : def?.label ?? o.permission_key}</div>
                               <div className="text-xs text-muted-foreground">
                                 {o.permission_key}
                                 {!def && " · legado"}
@@ -460,7 +462,7 @@ function UsersTab() {
                       return (
                         <TableRow key={`${e.key}|${e.scope}`}>
                           <TableCell>
-                            <div className="font-medium">{def?.label ?? e.key}</div>
+                            <div className="font-medium">{e.key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : def?.label ?? e.key}</div>
                             <div className="text-xs text-muted-foreground">{e.key}</div>
                           </TableCell>
                           <TableCell>
@@ -493,6 +495,7 @@ function UsersTab() {
 }
 
 function RolesTab() {
+  const { t } = useTranslation("projects");
   const rolePerms = useRolePermissions();
   const rows = rolePerms.data ?? [];
 
@@ -524,7 +527,7 @@ function RolesTab() {
                     key={`${p.permission_key}|${p.scope}`}
                     className="flex items-center justify-between gap-2 text-sm"
                   >
-                    <span>{def?.label ?? p.permission_key}</span>
+                    <span>{p.permission_key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : def?.label ?? p.permission_key}</span>
                     <Badge variant="outline">
                       {SCOPE_LABEL[p.scope as PermissionScope] ?? p.scope}
                     </Badge>

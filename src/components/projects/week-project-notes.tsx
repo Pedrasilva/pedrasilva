@@ -59,7 +59,8 @@ function NoteBox({ box, row, week, edit, names }: { box: Box; row?: WeekNote; we
     if(!edit || busy.current || blocked.current || JSON.stringify(latest.current)===persisted.current) return;
     busy.current=true; if(mounted.current) setState('saving');
     const sent=latest.current;
-    const result=await supabase.rpc('pm_week_note_save',{_week:week,_kind:box.kind,_project:box.project_id ?? undefined,_opportunity:box.opportunity_id ?? undefined,_value:sent,_revision:revision.current});
+    // Nullable RPC parameters are sent as JSON null (not omitted).
+    const result=await supabase.rpc('pm_week_note_save',{_week:week,_kind:box.kind,_project:box.project_id as string,_opportunity:box.opportunity_id as string,_value:{...sent,status:sent.status || null},_revision:revision.current});
     busy.current=false;
     if(result.error) { blocked.current=true; if(mounted.current) setState(result.error.code==='40001'?'conflict':'error'); return; }
     const next=result.data as unknown as WeekNote; revision.current=next.revision; persisted.current=JSON.stringify(sent);
