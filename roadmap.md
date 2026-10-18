@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — first real weekly use prerequisites
+- [x] Rita Costa was already archived in HR since 16 May; deactivated her still-active planning resource, preserving HR history and bookings. Board read-back excludes her.
+- [x] Approved Ricardo Conceição's 27 October leave through the existing HR approval button; weekly board read-back shows Tuesday leave and reduced capacity.
+- [ ] Weekly draft, preview and approval await Luis's person/project/day assignments; do not invent the plan.
+
 ## Current request — visible assignments and safe first approval
 - [x] Show zero-hour assignments and parent-stage warnings on board/Gantt without changing existing bookings.
 - [x] List every removed/changed allocation and enforce extra approval acknowledgement in UI and locked database apply; block new parent-stage bookings while preserving legacy assignments and outside-week splits.
