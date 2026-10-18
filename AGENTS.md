@@ -1,6 +1,7 @@
 # Agent rules
 
 - Read module AGENTS.md before edits: src/lib/{marketing,reports,finance,hr,projects,crm}. Why: module rules stay local.
+- Project-financial SELECT requires PSA staff and scoped financial permission, with administrator oversight; non-admin tax history is scoped to authorized companies/documents. Why: entity isolation must hold in database reads, not only navigation.
 - Retainer actuals use retainerCostRate; missing costs suppress totals/margins. Why: missing snapshots must not imply free labour.
 - Inventory controls use useInventoryEditAccess mirroring can_manage_inventory. Why: view permission is not edit permission.
 - Pursuit hours: internal + "Pursuit" + opportunity_id; pm_time_entry_pursuit_guard blocks new hours only on lost deals. All picker/voice choices use crm_leads_directory.can_log_hours through pursuitChoices; calendar suggestions/report retain is_open. Project totals reuse pm_project_pursuit_totals and pm_projects.opportunity_id. Why: protects CRM and preserves costs.
