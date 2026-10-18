@@ -1293,8 +1293,8 @@ export function relativeWeekLabel(d: string, lang: ProposalLang = "pt-PT"): stri
 }
 
 /** Normalize legacy snapshot descriptions without rewriting saved revisions. */
-export function formatPaymentDescription(description: string, plannedDate: string, lang: ProposalLang): string {
-  if (!relativeWeekLabel(plannedDate, lang)) return description;
+export function formatPaymentDescription(description: string, plannedDate: string | null, lang: ProposalLang): string {
+  if (!plannedDate || !relativeWeekLabel(plannedDate, lang)) return description;
   return description.replace(/\((\d{2})\/(\d{2})\/(\d{4})\)/g, (original, day: string, month: string, year: string) => {
     const relative = relativeWeekLabel(`${year}-${month}-${day}`, lang);
     return relative ? `(${relative})` : original;
