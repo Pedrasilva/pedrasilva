@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — homepage and menu weekly planning
+- [ ] Compact personal approved Mon–Fri AM/PM plan, HR/calendar days and current-week team link for all PSA staff.
+- [ ] Planner-only next-week status/action and staff-visible Projects weekly-planning menu; preserve all existing access gates.
+- [ ] Focused unit tests and one disposable-copy browser check; no live project or plan changes.
+
 ## Current request — first real weekly use prerequisites
 - [x] Rita Costa was already archived in HR since 16 May; deactivated her still-active planning resource, preserving HR history and bookings. Board read-back excludes her.
 - [x] Approved Ricardo Conceição's 27 October leave through the existing HR approval button; weekly board read-back shows Tuesday leave and reduced capacity.

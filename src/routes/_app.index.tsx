@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import { TodayStrip } from "@/components/home/today-strip";
 import { MyActionsCard } from "@/components/home/my-actions-card";
+import { ThisWeekCard } from "@/components/home/this-week-card";
 import { RecentlyVisited } from "@/components/home/recently-visited";
 import { QuestionsForYou } from "@/components/home/questions-for-you";
 import { LogHoursCard } from "@/components/projects/timesheet-assistant-sheet";
@@ -67,6 +68,8 @@ export const Route = createFileRoute("/_app/")({
     { property: "og:title", content: "PSA Hub | Pedra Silva Architects" },
     { property: "og:description", content: "Portal de operações da Pedra Silva Architects." },
     { property: "og:type", content: "website" },
+    { property: "og:image", content: homeBanner.url },
+    { name: "twitter:image", content: homeBanner.url },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: HubPage,
@@ -285,7 +288,7 @@ function heroLineOfTheDay(quote: DailyQuote) {
 
 function HubPage() {
   const { t, i18n } = useTranslation(["home", "common", "hr", "crm", "projects", "finance", "inbox", "inventory"]);
-  const { isAdmin, loading: authLoading, user } = useAuth();
+  const { isAdmin, isPsaStaff, loading: authLoading, user } = useAuth();
   const { can: canV2 } = useMyPermissionsV2();
   // Non-curators open Marketing on the Post planner.
   const tileTo = (to: ModuleDef["to"]) =>
@@ -353,7 +356,7 @@ function HubPage() {
     );
   }
 
-  if (visible.length === 0) {
+  if (visible.length === 0 && !isPsaStaff) {
     return (
       <div className="mx-auto max-w-md py-16 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
@@ -443,6 +446,8 @@ function HubPage() {
         </div>
       </section>
 
+
+      {isPsaStaff && <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6"><ThisWeekCard /></section>}
 
       {canAccess("time") && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">

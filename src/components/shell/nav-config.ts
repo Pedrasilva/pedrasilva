@@ -121,7 +121,10 @@ export const RAIL_ITEMS: RailItem[] = [
       },
       {
         titleKey: "shortcuts",
-        links: [{ to: "/projects/gantt", labelKey: "projects.gantt" }],
+        links: [
+          { to: "/projects/gantt", labelKey: "projects.gantt" },
+          { to: "/projects/week-plan", labelKey: "projects.weekPlan" },
+        ],
       },
 
       {
