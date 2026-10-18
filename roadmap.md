@@ -177,3 +177,9 @@
 - [x] Live-project re-schedule preview/apply, propagating links with lags
 - [x] 2027 holidays — confirmed and saved (14, no Carnaval)
 - [x] Tests incl. hours bank closure week = 0 owed (full-time + part-time)
+
+## Current request — weekly project and private week notes
+- [x] Independent notes storage, PSA project reads and editor-only HR topics; dedicated permission in existing permissions screen, no grant made to Irene without selection.
+- [x] Latest earlier carry-over and opportunity-history relink within existing quote conversion; original conversion body otherwise unchanged.
+- [x] Below-grid autosaving boxes, slot participants, existing project/opportunity picker, revision conflicts and audit labels; EN/PT parity verified.
+- [x] 18 unit/regression checks passed; rollback security checks cover team/private reads, dedicated grant, conflicts and conversion. Signed-in January 2099 project copy verified status/text autosave after reload, skipped-week carry-over and independent history. Test notes/project/stages/bookings/tasks deleted; zero fixtures remain. Migrations 0119/0120 mirrored byte-for-byte; preview build OK.

@@ -1,0 +1,45 @@
+-- Far-future isolated checks; every fixture is rolled back.
+BEGIN;
+DO $$
+DECLARE admin uuid; staff uuid; q uuid; s uuid; resource uuid; o uuid; project uuid; preview jsonb; n public.pm_week_project_notes; seen integer; ok boolean;
+BEGIN
+SELECT user_id INTO admin FROM user_roles WHERE role='admin' LIMIT 1;
+SELECT u.id INTO staff FROM auth.users u JOIN collaborators c ON lower(c.email)=lower(u.email) WHERE c.archived_at IS NULL AND NOT has_role(u.id,'admin') AND NOT has_module_permission(u.id,'projects.edit_week_notes','all') AND NOT has_module_permission(u.id,'projects.edit_planning','all') LIMIT 1;
+IF staff IS NULL THEN RAISE EXCEPTION 'No non-editor staff available'; END IF;
+PERFORM set_config('request.jwt.claim.sub',admin::text,true); PERFORM set_config('request.jwt.claim.role','authenticated',true); SET LOCAL ROLE authenticated;
+INSERT INTO crm_opportunities(name) VALUES('__WEEK_NOTES_ROLLBACK__') RETURNING id INTO o;
+n:=pm_week_note_save('2099-01-05','opportunity',NULL,o,'{"status":"a_arrancar","notes":"Opportunity history"}',0);
+n:=pm_week_note_save('2099-01-05','week',NULL,NULL,'{"week_topics":{"humanResources":"Private"}}',0);
+IF n.revision<>1 OR n.updated_by<>admin THEN RAISE EXCEPTION 'Stamp failed'; END IF;
+BEGIN PERFORM pm_week_note_save('2099-01-05','week',NULL,NULL,'{"week_topics":{}}',0); RAISE EXCEPTION 'Conflict missed'; EXCEPTION WHEN serialization_failure THEN NULL; END;
+SELECT count(*) INTO seen FROM jsonb_array_elements(pm_week_notes_read('2099-01-19')) x WHERE x->>'week_start'='2099-01-05';
+IF seen<>2 THEN RAISE EXCEPTION 'Latest earlier carry-over failed'; END IF;
+RESET ROLE;
+PERFORM set_config('request.jwt.claim.sub',staff::text,true); SET LOCAL ROLE authenticated;
+SELECT count(*) INTO seen FROM pm_week_project_notes WHERE week_start='2099-01-05' AND kind='week';
+IF seen<>0 THEN RAISE EXCEPTION 'Staff saw private week notes'; END IF;
+SELECT count(*) INTO seen FROM pm_week_project_notes WHERE week_start='2099-01-05' AND kind='opportunity';
+IF seen<>1 THEN RAISE EXCEPTION 'Staff could not read project/opportunity notes'; END IF;
+BEGIN PERFORM pm_week_note_save('2099-01-12','opportunity',NULL,o,'{}',0); RAISE EXCEPTION 'Staff edit allowed'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+RESET ROLE;
+INSERT INTO user_permissions(user_id,permission_key,scope,granted) VALUES(staff,'projects.edit_week_notes','all',true);
+SET LOCAL ROLE authenticated;
+SELECT count(*) INTO seen FROM pm_week_project_notes WHERE week_start='2099-01-05' AND kind='week';
+IF seen<>1 OR has_role(staff,'admin') OR has_module_permission(staff,'projects.edit_planning','all') THEN RAISE EXCEPTION 'Dedicated grant failed or widened access'; END IF;
+RESET ROLE;
+PERFORM set_config('request.jwt.claim.sub',admin::text,true);
+SELECT id INTO resource FROM pm_resources LIMIT 1;
+INSERT INTO fee_proposals(titulo,quote_status,opportunity_id) VALUES('__WEEK_NOTES_CONVERSION__','draft',o) RETURNING id INTO q;
+INSERT INTO quote_stages(quote_id,name,start_date,end_date) VALUES(q,'Design','2000-01-03','2000-01-07') RETURNING id INTO s;
+INSERT INTO quote_allocations(quote_id,stage_id,resource_id,start_date,end_date,hours_per_day,cost_rate_snapshot,sale_rate_snapshot) VALUES(q,s,resource,'2000-01-03','2000-01-07',4,20,30);
+INSERT INTO quote_relative_schedules(quote_id,original_dates) VALUES(q,pm_gantt_state('quote',q));
+UPDATE fee_proposals SET quote_status='approved' WHERE id=q;
+preview:=pm_quote_conversion_preview(q,'2099-01-05');
+SET LOCAL ROLE authenticated;
+project:=(pm_convert_relative_quote(q,'2099-01-05',preview->>'revision')->>'id')::uuid;
+RESET ROLE;
+SELECT count(*) INTO seen FROM pm_week_project_notes WHERE project_id=project AND kind='project' AND opportunity_id IS NULL AND notes='Opportunity history';
+IF seen<>1 THEN RAISE EXCEPTION 'Conversion relink failed'; END IF;
+RAISE NOTICE 'PASS weekly notes: private topics, team reads, dedicated grant, carry-over, revision, conversion relink';
+END $$;
+ROLLBACK;

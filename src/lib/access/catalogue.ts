@@ -61,6 +61,10 @@ export const ACCESS_SECTIONS: AccessSection[] = [
 ];
 
 export const ACCESS_CATALOGUE: AccessItem[] = [
+  {
+    id: "projects.weekNotes", section: "projects", tier: "confidential", levels: ["edit"],
+    legacy: [v2("projects.edit_week_notes", "edit", { all: "edit" })],
+  },
   // ---------- STANDARD ----------
   {
     id: "projects.work", section: "projects", tier: "standard", levels: ["view"], defaultLevel: "view",

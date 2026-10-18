@@ -1,5 +1,7 @@
 # Agent rules
 
+- Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.
+
 - Live-project Gantt actuals are an opt-in read-only layer; src/lib/projects/AGENTS.md defines its attribution and totals boundary. Why: quote scheduling, weekly planning and immutable cost snapshots remain independent.
 
 - Every migration creating a public table must explicitly revoke TRUNCATE from anon and authenticated on that table, preserving all other privileges; leave platform-owned supabase_admin defaults unchanged and verify postgres public-table defaults plus all existing public-table grants. Why: new tables must remain protected regardless of their creator.

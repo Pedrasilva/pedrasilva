@@ -155,6 +155,10 @@
     "crm_leads": {
       "label": "See leads",
       "description": "See lead names and clients, and log pursuit hours."
+    },
+    "projects_weekNotes": {
+      "label": "Edit weekly notes",
+      "description": "Edit project notes and read/edit private week topics; no planning or financial access."
     }
   }
 }

@@ -155,6 +155,10 @@
     "crm_leads": {
       "label": "Ver leads",
       "description": "Ver nomes dos leads e clientes, e registar horas de angariação."
+    },
+    "projects_weekNotes": {
+      "label": "Editar notas da semana",
+      "description": "Editar notas dos projetos e ler/editar temas privados da semana; sem acesso ao planeamento ou valores financeiros."
     }
   }
 }

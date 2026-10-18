@@ -42,6 +42,7 @@ export type V2PermissionKey =
   // Projects (operational)
   | "projects.view"
   | "projects.edit_planning"
+  | "projects.edit_week_notes"
   | "projects.edit_stages"
   // Projects (financial visibility)
   | "projects.view_financials"
@@ -122,6 +123,13 @@ export const SCOPE_RANK: Record<PermissionScope, number> = {
 };
 
 export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
+  {
+    key: "projects.edit_week_notes",
+    module: "Projects",
+    label: "Edit weekly notes",
+    description: "Edit project notes and read/edit confidential week notes; no planning or financial access.",
+    scopes: ["all"],
+  },
   // Projects — operational
   {
     key: "projects.view",

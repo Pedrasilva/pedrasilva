@@ -20,10 +20,11 @@ import { WeekPublicationDialog } from "./week-publication-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { WeekPlanningBoard } from "./week-planning-board";
+import { WeekProjectNotes } from "./week-project-notes";
 
 export function WeekDraftEditor({ data, week }: { data:BoardData; week:string }) {
   const permissions=useMyPermissionsV2();
-  if (permissions.loading || !(permissions.isAdmin || permissions.can("projects.edit_planning","all"))) return <WeekPlanningBoard data={data} week={week} />;
+  if (permissions.loading || !(permissions.isAdmin || permissions.can("projects.edit_planning","all"))) return <><WeekPlanningBoard data={data} week={week} /><WeekProjectNotes data={data} week={week} slots={explicitSlots(deriveSlots(data.allocations,week,Object.fromEntries(data.resources.map(r => [r.id,dailyHours(r)])),data.leave,data.stage_tree ?? data.stages))} /></>;
   return <PlannerDraft key={week} data={data} week={week} />;
 }
 function PlannerDraft({ data:raw, week }: { data:BoardData; week:string }) {
@@ -116,6 +117,7 @@ function PlannerDraft({ data:raw, week }: { data:BoardData; week:string }) {
     </div>}
     {activeDraft && compare && <div className="mt-8"><h2 className="mb-4 text-lg font-medium">{t("weekPlan.currentGantt")}</h2><WeekPlanningBoard data={data} week={week} /></div>}
     {activeDraft && unbooked.length>0 && <p className="mt-5 text-xs text-muted-foreground">{t("weekPlan.unbookedProjects",{projects:unbooked.map(p => p.name).join(", ")})}</p>}
+    <WeekProjectNotes data={data} week={week} slots={activeDraft ? draft.slots : ganttSlots} />
     <Popover open={!!choice} onOpenChange={v => { if(!v) { setChoice(null); pending.current=[]; active.current=false; draft.endStroke(); } }}><PopoverTrigger asChild><span className="fixed left-1/2 top-1/3 h-0 w-0" /></PopoverTrigger><PopoverContent className="w-80" onOpenAutoFocus={e => e.preventDefault()} onCloseAutoFocus={e => e.preventDefault()}><p className="mb-3 text-sm font-medium">{t("weekPlan.chooseStage")}</p>{numbered.filter(n => choice?.stages.some(s => s.id===n.stage.id)).map(n => <Button key={n.stage.id} variant="ghost" className="mb-1 h-auto w-full justify-start whitespace-normal text-left" onClick={() => { if(!choice) return; remembered.current.set(choice.project,n.stage.id); const result=resolveStageCells(data.stages,choice.project,choice.cells,n.stage.id); apply(result.resolved,choice.project,n.stage.id); pending.current=result.pending; if(result.pending.length) setChoice({...choice,cells:result.pending,stages:result.candidates}); else {setChoice(null); active.current=false; draft.endStroke();} }}><span>{formatStageLabel(n.stage,n.number)}<span className="block text-xs text-muted-foreground">{n.stage.start_date} – {n.stage.end_date}</span></span></Button>)}</PopoverContent></Popover>
     <AlertDialog open={discard} onOpenChange={setDiscard}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>{t("weekPlan.discardConfirm")}</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel><AlertDialogAction onClick={async () => { try { await draft.discard(); setCompare(false); } catch { setError(true); } }}>{t("weekPlan.discardDraft")}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
   </>;
