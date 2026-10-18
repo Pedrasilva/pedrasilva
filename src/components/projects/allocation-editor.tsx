@@ -512,5 +512,6 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
         </div>
       </PopoverContent>
     </Popover>
+    </>
   );
 }
