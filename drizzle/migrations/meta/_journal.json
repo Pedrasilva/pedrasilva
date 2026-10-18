@@ -813,6 +813,13 @@
       "when": 1792335080757,
       "tag": "0115_timesheet_task_variable_disambiguation",
       "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1792335227927,
+      "tag": "0116_timesheet_task_access_and_cutoff_snapshot_lock",
+      "breakpoints": true
     }
   ]
 }
