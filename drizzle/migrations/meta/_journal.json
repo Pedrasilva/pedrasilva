@@ -736,6 +736,13 @@
       "when": 1792315625502,
       "tag": "0104_financial_read_boundaries",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1792315676685,
+      "tag": "0105_revoke_client_truncate",
+      "breakpoints": true
     }
   ]
 }
