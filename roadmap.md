@@ -1,8 +1,8 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — first real weekly use prerequisites
-- [ ] Deactivate Rita Costa as confirmed by Luis (left before June; no invented departure date).
-- [ ] Approve Ricardo's pending 27 October leave through the existing HR decision flow.
+- [x] Rita Costa was already archived in HR since 16 May; deactivated her still-active planning resource, preserving HR history and bookings. Board read-back excludes her.
+- [x] Approved Ricardo Conceição's 27 October leave through the existing HR approval button; weekly board read-back shows Tuesday leave and reduced capacity.
 - [ ] Weekly draft, preview and approval await Luis's person/project/day assignments; do not invent the plan.
 
 ## Current request — visible assignments and safe first approval
