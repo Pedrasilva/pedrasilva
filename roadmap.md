@@ -4,7 +4,8 @@
 - [x] Read-only BCG screen and stored-data inspection: explain planned cost/fee/hours, leave badges, implied hours and planned-cost line.
 - [x] Prepare weekly per-person actuals and stage-budget proposal; identify reused/replaced figures and double-counting risks.
 - [x] Plan approved; implement opt-in read-only actuals layer without changing stored hours, costs or planning.
-- [ ] Verify copied signed-in Gantt, tooltips, totals, zoom and narrow view; run regression tests.
+- [x] 93 tests and EN/PT parity pass; signed-in disposable browser-copy verified F3 144h / 362.68h / €12,219.68, F5 direct-parent 29h and child-only €20,291 fee, weekly outside-date tooltip, 60 trails, zoom and off/on. No data writes.
+- Verification limits: copy was browser-only, not persisted; full permission-matrix and a real retainer copy were not tested. Narrow project shell retains existing limitations; no unrelated shell changes.
 
 ## Current request — homepage and menu weekly planning
 - [x] Compact personal approved Mon–Fri AM/PM plan, numbered stages, HR/calendar days and current-week team link for all PSA staff; private revision drafts never shown as personal planning.

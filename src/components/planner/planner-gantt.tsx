@@ -1815,9 +1815,9 @@ export function ProjectGantt({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <div className="min-w-0 max-w-full space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {canEdit && (
             <>
               <Button
@@ -1931,7 +1931,7 @@ export function ProjectGantt({
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div
           ref={chartRef}
-          className="flex-1 overflow-auto resize-y"
+          className="min-w-0 flex-1 overflow-auto resize-y"
           style={{ height: "70vh", minHeight: 320, maxHeight: "85vh" }}
         >
           <GanttChart
