@@ -51,7 +51,7 @@ export function useWeekDraft(data: BoardData, week: string) {
     } catch (e) { setStatus("error"); setError(e instanceof Error ? e.message : String((e as {message?:string})?.message ?? e)); }
     finally { busy.current=false; setVersion(v => v+1); }
   }, [data.plan,dirty,notes,request,qc,week]);
-  useEffect(() => { if (dirty && status !== "error") { const timer=setTimeout(save,600); return () => clearTimeout(timer); } }, [dirty,slots,notes,version,status,save]);
+  useEffect(() => { if (dirty && status !== "error") { const timer=setTimeout(save,1500); return () => clearTimeout(timer); } }, [dirty,slots,notes,version,status,save]);
   const startStroke=() => { if (!stroke.current) stroke.current=live.current; };
   const endStroke=() => { const before=stroke.current; stroke.current=null; if (before && slotChanges(before,live.current).length) { setHistory(h => [...h,{before,after:live.current}].slice(-20)); setFuture([]); } setVersion(v => v+1); };
   const change=(next:DraftSlot[]) => { live.current=next; setSlots(next); if(status==="error") setStatus("saved"); };
