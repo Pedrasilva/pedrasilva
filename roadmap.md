@@ -1,11 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
-## Current request — planning cut-off awaiting final approval
+## Current request — planning cut-off approved and applied
 - [x] Implement deterministic own-task provisioning with existing access, retired 0h missing links and no merging; copy-only database cases passed including non-planner 19 October logging, month/lock/cost preservation and cutoff/undo.
 - [x] Browser save/read after reload on persisted disposable copy as Luis: 1h15 on 19 October, retired 0h link, pending approval and snapshot verified; copy/activity removed. Non-planner check used database claims, not another person's browser session.
 - [x] 60 focused regressions passed; clean preview build; migrations mirrored.
 - [x] Prepared durable snapshot c34e66f5-5b87-4e19-b10d-8267cedd831c, 15 trim / 0 retire / 79 untouched, all removed planned hours 0; 3 October retainer links included, 7 CTT exceptions listed.
-- [ ] Apply cutoff only after Luis's separate final confirmation; no real cutoff or week approval performed.
+- [x] Final plan approval received; atomically shortened exactly 15 allocations to 16 October. Verified all other fields except audit timestamp unchanged and reconstructed full revision matches pre-cutoff across all allocations/stages/tasks/linked entries/holidays/publications. 79 allocations including 7 CTT exceptions untouched; no week approved. Snapshot remains available for guarded one-step undo.
 
 ## Current request — approved selective recovery and deletion safety
 - [x] Compared 04:00 backup with all FK references and relevant columns: forecast/activity dependents were empty in backup and live; no additional lost rows.
