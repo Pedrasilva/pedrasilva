@@ -33,16 +33,16 @@ export function activeQuotesTotal(quotes: OpportunityQuoteValue[] | null | undef
 export type OpportunityValueSource = "quoted" | "estimated";
 
 /**
- * Resolved opportunity value: the quoted total when an active quote exists,
- * otherwise the estimated fee. Cards, column and header totals all use this.
+ * Resolved opportunity value: a positive active quoted total, otherwise the
+ * estimated fee. Cards, column, header and Overview totals all use this.
  */
 export function resolveOpportunityValueWithSource(
   opp: { estimated_fee: number | string | null } & {
     quotes?: OpportunityQuoteValue[] | null;
   },
 ): { value: number; source: OpportunityValueSource } {
-  const hasQuote = (opp.quotes ?? []).some((q) => !q.archived_at && !q.deleted_at);
-  if (hasQuote) return { value: activeQuotesTotal(opp.quotes), source: "quoted" };
+  const quotedTotal = activeQuotesTotal(opp.quotes);
+  if (quotedTotal > 0) return { value: quotedTotal, source: "quoted" };
   return { value: Number(opp.estimated_fee) || 0, source: "estimated" };
 }
 

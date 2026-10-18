@@ -713,13 +713,14 @@ export function GanttChart({
           if (adapter.moveStages) await adapter.moveStages(dragState.projectId, edits);
           else for (const e of edits) await adapter.updateStage({ ...e, projectId: dragState.projectId });
         } else {
-          await adapter.updateStage({
+          const edit = {
             id: dragState.id,
-            projectId: dragState.projectId,
             start_date: draft.start,
             end_date: draft.end,
             move: dragState.type === "stage-move",
-          });
+          };
+          if (adapter.moveStages) await adapter.moveStages(dragState.projectId, [edit]);
+          else await adapter.updateStage({ ...edit, projectId: dragState.projectId });
         }
       } else {
         await adapter.updateAllocation({
