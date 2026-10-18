@@ -104,3 +104,5 @@ export function outsideExtensionNotes(stages: BoardStage[], slots: DraftSlot[], 
   }
   return next;
 }
+/** Stages PSA staff may plan or log on: supplier/consultant stages (is_self=false) are excluded. */
+export const bookableStages = <T extends { is_self?: boolean | null }>(stages: T[]) => stages.filter(s => s.is_self !== false);

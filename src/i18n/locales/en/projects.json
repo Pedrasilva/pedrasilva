@@ -63,7 +63,8 @@
     "clearSelection": "Clear selection",
     "selectSlots": "Select these slots",
     "selectHint": "Click painted slots to select them, then choose a stage.",
-    "mixedProjects": "Select slots from one project to change their stage."
+    "mixedProjects": "Select slots from one project to change their stage.",
+    "supplierStageBlocked": "Supplier/consultant stage: PSA staff cannot be booked here."
   },
   "module": {
     "title": "Projects",

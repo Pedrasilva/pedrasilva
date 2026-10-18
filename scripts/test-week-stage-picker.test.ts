@@ -14,3 +14,7 @@ describe("weekly stage picker",()=>{
   it("assigns a stage to selected slots in one go, leaving others",()=>{const s=[slot("2026-10-19",null),slot("2026-10-20",null)]; const r=setSlotStage(s,new Set([slotKey(s[0])]),"a"); assert.equal(r[0].stage_id,"a"); assert.equal(r[1].stage_id,null);});
   it("allocations with logged hours are retired, empty ones deleted",()=>{assert.equal(removalMode(0),"delete"); assert.equal(removalMode(0.25),"retire");});
 });
+import { bookableStages } from "../src/lib/projects/week-draft";
+describe("supplier stages",()=>{
+  it("are never offered to PSA staff; unmarked stages stay bookable",()=>{assert.deepEqual(bookableStages([{id:"own",is_self:true},{id:"me",is_self:false},{id:"legacy",is_self:null}]).map(s=>s.id),["own","legacy"]);});
+});

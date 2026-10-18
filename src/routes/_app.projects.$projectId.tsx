@@ -2080,6 +2080,7 @@ function MilestonesTable({
                           stageName={s.name}
                           assignedResourceIds={s.allocations.map((a) => a.resource.id)}
                           stage={dialogStage(s)}
+                          isSupplier={(s as { is_self?: boolean | null }).is_self === false}
 
                           onEdit={onEditPlan}
                         />
