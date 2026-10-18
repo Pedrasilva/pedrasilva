@@ -1,11 +1,21 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { deriveSlots, dailyHours, PLAN_UTILISATION, resourceSlotCounts, type BoardAllocation } from "../src/lib/projects/week-board";
+import { deriveSlots, dailyHours, PLAN_UTILISATION, resourceSlotCounts, parentStageIds, type BoardAllocation } from "../src/lib/projects/week-board";
+import { explicitSlots } from "../src/lib/projects/week-draft";
 
 const week = "2026-10-19";
 const allocation = (patch: Partial<BoardAllocation> = {}): BoardAllocation => ({ id: "a", resource_id: "r", stage_id: "s", project_id: "Mastercard", start_date: week, end_date: "2026-10-23", hours_per_day: 6, day_part: null, is_site_visit: false, status: "committed", is_locked: false, source: null, ...patch });
 const derive = (rows: BoardAllocation[]) => deriveSlots(rows, week, { r: 8 }, [] ).r;
 describe("weekly planning rules", () => {
+  it("keeps zero-hour assignments on all five days without filling halves, even on leave", () => {
+    const d=deriveSlots([allocation({hours_per_day:0,day_part:'full'})],week,{r:8},[{resource_id:'r',day:week,kind:'leave',name:null}]).r;
+    assert.equal(Object.values(d).filter(c=>c.assignments[0]?.allocationId==='a').length,5); assert.equal(resourceSlotCounts(d).booked,0); assert.equal(d[week].assignments[0].hoursPerDay,0); assert.equal(explicitSlots({r:d}).length,0);
+  });
+  it("flags parent assignments from the full tree without changing their dates/hours",()=>{
+    const a=allocation({stage_id:'parent',hours_per_day:0}); const tree=[{parent_stage_id:'parent'}];
+    const d=deriveSlots([a],week,{r:8},[],tree).r; assert.equal(d[week].assignments[0].parentStage,true); assert.equal(parentStageIds(tree).has('parent'),true); assert.equal(a.hours_per_day,0); assert.equal(a.start_date,week);
+  });
+  it("never copies parent-stage booked halves into new draft slots",()=>{const d=deriveSlots([allocation({stage_id:'parent'})],week,{r:8},[],[{parent_stage_id:'parent'}]); assert.equal(explicitSlots(d).length,0);});
   it("uses 75% utilisation and capacity / 5 with 8h fallback", () => { assert.equal(PLAN_UTILISATION, 0.75); assert.equal(dailyHours({ weekly_capacity: 20 }), 4); assert.equal(dailyHours({ weekly_capacity: null }), 8); });
   it("fills ten inferred slots from a full-week legacy 6h allocation", () => { const d = derive([allocation()]); assert.equal(resourceSlotCounts(d).booked, 10); assert.equal(d[week].am?.inferred, true); });
   it("derives Ricardo's exact five-day project sequence", () => {

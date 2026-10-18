@@ -10,6 +10,7 @@ import type {
 } from "@/lib/projects/types";
 import { type StageDependency, type DepType } from "@/lib/projects/dependencies";
 import { changeGanttStage, changeGanttDependency, projectScopeForDependency } from "./gantt-schedule";
+import i18n from '@/i18n';
 
 // ---------- PROJECTS ----------
 
@@ -611,6 +612,9 @@ export function useCreateAllocation() {
       allocation_percentage?: number | null;
     }): Promise<AllocationWithResource> => {
       const { projectId: _ignore, ...payload } = input;
+      const children = await supabase.from('pm_stages').select('id').eq('parent_stage_id', input.stage_id).limit(1);
+      if (children.error) throw children.error;
+      if (children.data?.length) throw new Error(i18n.t('projects:weekPlan.parentStageBlocked'));
       const { data, error } = await supabase
         .from("pm_allocations")
         .insert(payload)

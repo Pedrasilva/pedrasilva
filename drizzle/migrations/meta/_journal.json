@@ -743,6 +743,13 @@
       "when": 1792315676685,
       "tag": "0105_revoke_client_truncate",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1792321388149,
+      "tag": "0106_weekly_assignment_visibility_and_confirmation",
+      "breakpoints": true
     }
   ]
 }

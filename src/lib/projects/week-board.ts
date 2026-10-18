@@ -10,8 +10,9 @@ export type BoardLeave = { resource_id: string; day: string; kind: "leave" | "ho
 export type DraftSlot = { resource_id: string; day: string; part: DayPart; project_id: string; stage_id: string | null; is_site_visit: boolean };
 export type ExtensionNote = { project_id: string; stage_id: string; resource_id?: string; from?: string; until: string };
 export type BoardData = { resources: BoardResource[]; projects: BoardProject[]; stages: BoardStage[]; stage_tree?:Pick<BoardStage,"id"|"name"|"project_id"|"parent_stage_id"|"sort_order">[]; allocations: BoardAllocation[]; leave: BoardLeave[]; plan: { id: string; status: string; approved_by: string | null; approved_by_name?: string | null; approved_at: string | null; updated_at: string; updated_by_name: string | null; notes: ExtensionNote[] } | null; draft_slots: DraftSlot[]; my_collaborator_id: string | null };
-export type DerivedSlot = { projectId: string; stageId: string | null; isSiteVisit: boolean; inferred: boolean; status: string; allocationId: string };
-export type DerivedDay = { am: DerivedSlot | null; pm: DerivedSlot | null; overload: DerivedSlot[]; otherHours: number; leave: BoardLeave | null };
+export type DerivedSlot = { projectId: string; stageId: string | null; isSiteVisit: boolean; inferred: boolean; status: string; allocationId: string; parentStage?: boolean };
+export type AssignmentMarker = DerivedSlot & { hoursPerDay: number };
+export type DerivedDay = { am: DerivedSlot | null; pm: DerivedSlot | null; overload: DerivedSlot[]; assignments: AssignmentMarker[]; otherHours: number; leave: BoardLeave | null };
 export type DerivedBoard = Record<string, Record<string, DerivedDay>>;
 
 export function mondayOf(date: Date | string): string {
@@ -25,19 +26,24 @@ export function dailyHours(resource: Pick<BoardResource, "weekly_capacity">): nu
 }
 
 /** Explicit halves first; legacy rows fill remaining halves largest-first. No writes. */
-export function deriveSlots(allocations: BoardAllocation[], week: string, dailyHoursByResource: Record<string, number>, leave: BoardLeave[]): DerivedBoard {
+export function parentStageIds(stages: Pick<BoardStage, "parent_stage_id">[]): Set<string> {
+  return new Set(stages.flatMap(s => s.parent_stage_id ? [s.parent_stage_id] : []));
+}
+export function deriveSlots(allocations: BoardAllocation[], week: string, dailyHoursByResource: Record<string, number>, leave: BoardLeave[], stages: Pick<BoardStage, "parent_stage_id">[] = []): DerivedBoard {
   const result: DerivedBoard = {};
+  const parents = parentStageIds(stages);
   const days = weekDays(week);
   for (const resourceId of Object.keys(dailyHoursByResource)) {
     result[resourceId] = {};
     for (const day of days) {
-      const cell: DerivedDay = { am: null, pm: null, overload: [], otherHours: 0, leave: leave.find(l => l.resource_id === resourceId && l.day === day) ?? null };
+      const cell: DerivedDay = { am: null, pm: null, overload: [], assignments: [], otherHours: 0, leave: leave.find(l => l.resource_id === resourceId && l.day === day) ?? null };
       result[resourceId][day] = cell;
-      if (cell.leave) continue;
       const rows = allocations.filter(a => a.resource_id === resourceId && a.start_date <= day && a.end_date >= day)
         .sort((a, b) => Number(b.day_part !== null) - Number(a.day_part !== null) || Number(b.hours_per_day) - Number(a.hours_per_day) || a.id.localeCompare(b.id));
       for (const a of rows) {
-        const slot: DerivedSlot = { projectId: a.project_id, stageId: a.stage_id, isSiteVisit: a.is_site_visit, inferred: a.day_part === null, status: a.status, allocationId: a.id };
+        const slot: DerivedSlot = { projectId: a.project_id, stageId: a.stage_id, isSiteVisit: a.is_site_visit, inferred: a.day_part === null, status: a.status, allocationId: a.id, parentStage: parents.has(a.stage_id) };
+        if (!(Number(a.hours_per_day) > 0)) { cell.assignments.push({ ...slot, hoursPerDay: 0 }); continue; }
+        if (cell.leave) continue;
         let parts: DayPart[];
         if (a.day_part === "full") parts = ["am", "pm"];
         else if (a.day_part) parts = [a.day_part];

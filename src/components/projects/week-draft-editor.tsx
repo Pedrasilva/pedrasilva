@@ -35,7 +35,7 @@ function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
   const [choice,setChoice]=useState<{project:string; cells:Pick<DraftSlot,"resource_id"|"day"|"part">[]; stages:BoardStage[]} | null>(null);
   const down=useRef(false); const visited=useRef(new Set<string>()); const remembered=useRef(new Map<string,string>());
   const current=useRef(draft.slots); current.current=draft.slots;
-  const derived=useMemo(() => deriveSlots(data.allocations,week,Object.fromEntries(data.resources.map(r => [r.id,dailyHours(r)])),data.leave),[data,week]);
+  const derived=useMemo(() => deriveSlots(data.allocations,week,Object.fromEntries(data.resources.map(r => [r.id,dailyHours(r)])),data.leave,data.stage_tree ?? data.stages),[data,week]);
   const ganttSlots=useMemo(() => explicitSlots(derived),[derived]);
   const board=useMemo(() => draftBoard(data,week,draft.slots),[data,week,draft.slots]);
   const allDifferences=slotChanges(ganttSlots,draft.slots);
