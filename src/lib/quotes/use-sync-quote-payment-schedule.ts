@@ -149,7 +149,8 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
       const feeSourceMode: "allocation" | "budget" =
         quoteQ.data?.fee_source_mode === "budget" ? "budget" : "allocation";
       const paymentDefaults: PaymentDefaults = {
-        vatRate: Number(quoteQ.data?.default_vat_rate ?? 23) || 23,
+        vatRate: quoteQ.data?.quote_build_settings?.vatEnabled === false
+          ? 0 : Number(quoteQ.data?.default_vat_rate ?? 23),
         defaultTerms: quoteQ.data?.default_payment_terms ?? "30 (trinta) dias de calendário",
         firstPaymentTerms: quoteQ.data?.first_payment_terms ?? "Pronto pagamento",
       };

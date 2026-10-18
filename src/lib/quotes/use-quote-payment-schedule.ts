@@ -83,6 +83,7 @@ export function useUpsertQuotePaymentItem(quoteId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
@@ -99,6 +100,7 @@ export function useDeleteQuotePaymentItem(quoteId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
@@ -171,6 +173,7 @@ export function useApplyPaymentGenerator(quoteId: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }

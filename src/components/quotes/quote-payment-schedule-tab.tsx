@@ -193,20 +193,25 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   // Only the generated down payment ("Adjudicação") is hidden when the down
   // payment is switched off. Project-level billing rows also fire at
   // project_start (e.g. "50% — Início de Projeto") and must stay visible.
-  const visibleItems = downPaymentDisabled
+  const enabledItems = downPaymentDisabled
     ? items.filter(
         (item) =>
           item.trigger_type !== "project_start" ||
           !(item.label ?? "").toLowerCase().startsWith("adjudicação"),
       )
     : items;
+  const visibleItems = quoteQ.data?.quote_build_settings?.vatEnabled === false
+    ? enabledItems.map((item) => item.billing_status === "planned" || !item.billing_status
+      ? { ...item, vat_rate: 0 } : item)
+    : enabledItems;
   const stages = stagesQ.data ?? [];
   const allocations = allocationsQ.data ?? [];
   const externals = externalsQ.data ?? [];
   const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
   const feeSourceMode: "allocation" | "budget" =
     quoteQ.data?.fee_source_mode === "budget" ? "budget" : "allocation";
-  const defaultVatRate = Number(quoteQ.data?.default_vat_rate ?? 23) || 23;
+  const defaultVatRate = quoteQ.data?.quote_build_settings?.vatEnabled === false
+    ? 0 : Number(quoteQ.data?.default_vat_rate ?? 23);
   const paymentDefaults: PaymentDefaults = {
     vatRate: defaultVatRate,
     defaultTerms: quoteQ.data?.default_payment_terms ?? "30 (trinta) dias de calendário",
