@@ -841,6 +841,13 @@
       "when": 1792341290077,
       "tag": "0119_weekly_project_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1792341498172,
+      "tag": "0120_weekly_note_display_names",
+      "breakpoints": true
     }
   ]
 }
