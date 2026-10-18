@@ -38,13 +38,13 @@ BEGIN
     PERFORM set_config('request.jwt.claims',jsonb_build_object('sub',uid,'role','authenticated')::text,true);
     SET LOCAL ROLE authenticated;
     SELECT count(*) INTO n FROM public.pm_invoices WHERE id=invoice_id;
-    IF n<>CASE WHEN uid=outsider_id THEN 0 ELSE 1 END THEN RAISE EXCEPTION 'Invoice boundary failed'; END IF;
+    IF n<>(CASE WHEN uid=outsider_id THEN 0 ELSE 1 END) THEN RAISE EXCEPTION 'Invoice boundary failed'; END IF;
     SELECT count(*) INTO n FROM public.pm_payment_schedule_items WHERE id=payment_id;
-    IF n<>CASE WHEN uid=outsider_id THEN 0 ELSE 1 END THEN RAISE EXCEPTION 'Schedule boundary failed'; END IF;
+    IF n<>(CASE WHEN uid=outsider_id THEN 0 ELSE 1 END) THEN RAISE EXCEPTION 'Schedule boundary failed'; END IF;
     SELECT count(*) INTO n FROM public.tax_number_change_log WHERE id=log_psa;
-    IF n<>CASE WHEN uid=outsider_id THEN 0 ELSE 1 END THEN RAISE EXCEPTION 'PSA tax history boundary failed'; END IF;
+    IF n<>(CASE WHEN uid=outsider_id THEN 0 ELSE 1 END) THEN RAISE EXCEPTION 'PSA tax history boundary failed'; END IF;
     SELECT count(*) INTO n FROM public.tax_number_change_log WHERE id=log_other;
-    IF n<>CASE WHEN uid=staff_id THEN 0 ELSE 1 END THEN RAISE EXCEPTION 'Other-entity tax history boundary failed'; END IF;
+    IF n<>(CASE WHEN uid=staff_id THEN 0 ELSE 1 END) THEN RAISE EXCEPTION 'Other-entity tax history boundary failed'; END IF;
     SELECT count(*) INTO n FROM public.tax_number_change_log WHERE id=log_company;
     IF n<>1 THEN RAISE EXCEPTION 'Authorized company history lost'; END IF;
     RESET ROLE;
