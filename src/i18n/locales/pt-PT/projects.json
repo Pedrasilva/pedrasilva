@@ -847,7 +847,31 @@
     "noTimeLogged": "Sem horas registadas neste período.",
     "splitTooltip": "Facturável {{billable}}h • Interno {{internal}}h • Não trabalhado {{nonWorking}}h",
     "unknownUser": "Utilizador desconhecido",
-    "you": "Tu"
+    "you": "Tu",
+    "untilToday": "Até hoje",
+    "wholePeriod": "Mês inteiro",
+    "openBreakdown": "Abrir detalhe",
+    "drill": {
+      "range": "{{period}} · {{from}}–{{to}}",
+      "capacity": "Capacidade",
+      "gross": "{{days}} dias úteis × {{hours}}h",
+      "holidays": "Feriados",
+      "closures": "Fechos do atelier",
+      "leave": "Ausências aprovadas",
+      "net": "Capacidade líquida",
+      "logged": "Horas registadas",
+      "byProject": "Horas registadas por projeto e fase",
+      "perWeek": "Horas por semana",
+      "missingDays_one": "{{count}} dia sem registo",
+      "missingDays_other": "{{count}} dias sem registo",
+      "noMissing": "Todos os dias úteis têm horas registadas.",
+      "openTimesheet": "Abrir timesheet",
+      "billable": "Faturável",
+      "internal": "Interno",
+      "noStage": "Sem fase",
+      "uncategorised": "Sem categoria",
+      "unknownProject": "Projeto desconhecido"
+    }
   },
   "timesheet": {
     "title": "Folha de Horas Semanal",
