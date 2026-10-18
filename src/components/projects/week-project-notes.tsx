@@ -37,8 +37,8 @@ function NotesContent({ data, slots, week }: { data: BoardData; slots: DraftSlot
   // Active projects preserve exactly the toolbar ordering. Saved/manual projects follow it.
   const ordered = [...data.projects, ...(choices.data?.projects ?? []).filter(p => !data.projects.some(d => d.id === p.id))];
   const boxes: Box[] = ordered.filter(p => projectIds.has(p.id)).map(p => ({kind:'project',project_id:p.id,opportunity_id:null,name:p.name,participants:noteParticipants(data,slots,p.id)}));
-  for (const n of rows.filter(n => n.kind === 'project')) if(n.project_id && !boxes.some(b => b.project_id === n.project_id)) boxes.push({kind:'project',project_id:n.project_id,opportunity_id:null,name: n.project_id,participants:noteParticipants(data,slots,n.project_id)});
-  for (const n of rows.filter(n => n.kind === 'opportunity')) boxes.push({kind:'opportunity',project_id:null,opportunity_id:n.opportunity_id,name: choices.data?.opportunities.find(o => o.id === n.opportunity_id)?.name ?? t('weekNotes.opportunity'),participants:[]});
+  for (const n of rows.filter(n => n.kind === 'project')) if(n.project_id && !boxes.some(b => b.project_id === n.project_id)) boxes.push({kind:'project',project_id:n.project_id,opportunity_id:null,name: n.subject_name ?? '—',participants:noteParticipants(data,slots,n.project_id)});
+  for (const n of rows.filter(n => n.kind === 'opportunity')) boxes.push({kind:'opportunity',project_id:null,opportunity_id:n.opportunity_id,name: n.subject_name ?? choices.data?.opportunities.find(o => o.id === n.opportunity_id)?.name ?? t('weekNotes.opportunity'),participants:[]});
   for (const n of added) if(!boxes.some(b => noteKey(b) === noteKey(n))) boxes.push(n);
   const choose = (p: Choice,kind: 'project'|'opportunity') => { setAdded(a => [...a,{ kind,project_id:kind==='project'?p.id:null,opportunity_id:kind==='opportunity'?p.id:null,name:p.name,participants:[],manual:true }]); setOpen(false); };
   return <>

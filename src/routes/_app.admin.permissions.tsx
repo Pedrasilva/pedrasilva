@@ -83,7 +83,6 @@ const SCOPE_LABEL: Record<PermissionScope, string> = {
 };
 
 function AdminPermissionsPage() {
-  const { t } = useTranslation("projects");
   return (
     <AdminOnly>
       <div className="space-y-6 p-6">
@@ -127,6 +126,7 @@ function useRolePermissions() {
 }
 
 function UsersTab() {
+  const { t } = useTranslation("projects");
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");

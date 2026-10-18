@@ -1,7 +1,7 @@
 import type { BoardData, DraftSlot } from './week-board';
 export type NoteKind = 'project' | 'opportunity' | 'week';
 export type WeekNote = {
-  id: string; week_start: string; kind: NoteKind; project_id: string | null; opportunity_id: string | null;
+  id: string; week_start: string; kind: NoteKind; project_id: string | null; opportunity_id: string | null; subject_name?: string;
   status: string | null; notes: string; target_text: string; flag: string;
   week_topics: Record<string, string>; added_manually: boolean; carried_from_week: string | null;
   revision: number; updated_by: string; updated_at: string;
