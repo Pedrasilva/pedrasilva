@@ -5,7 +5,7 @@ DECLARE actor uuid; rid uuid; admin_id uuid; pid uuid:=gen_random_uuid(); sid uu
 BEGIN
  SELECT user_id INTO admin_id FROM user_roles WHERE role='admin' LIMIT 1;
  FOR actor,rid IN SELECT u.id,r.id FROM auth.users u JOIN collaborators c ON lower(c.email)=lower(u.email) JOIN pm_resources r ON r.collaborator_id=c.id WHERE c.archived_at IS NULL LOOP
-  IF NOT has_role(actor,'admin') AND NOT has_module_permission(actor,'projects.edit_planning','all') AND NOT has_module_permission(actor,'projects.edit_planning','assigned') AND NOT pm_can_approve_hours(actor) THEN EXIT; END IF; actor:=NULL;
+  IF NOT has_role(actor,'admin') AND NOT has_module_permission(actor,'projects.edit_planning','all') AND NOT has_module_permission(actor,'projects.edit_planning','assigned') AND NOT pm_can_approve_hours(actor) AND (has_module_permission(actor,'projects.view','assigned') OR has_module_permission(actor,'projects.view','all')) THEN EXIT; END IF; actor:=NULL;
  END LOOP;
  IF actor IS NULL THEN RAISE EXCEPTION 'No staff fixture without planning/approval rights'; END IF;
  SELECT * INTO STRICT original_project FROM pm_projects WHERE status='active' ORDER BY id LIMIT 1;
@@ -13,6 +13,7 @@ BEGIN
  SELECT * INTO STRICT original_entry FROM pm_time_entries WHERE entry_type='project' ORDER BY id LIMIT 1;
  INSERT INTO pm_projects SELECT * FROM jsonb_populate_record(NULL::pm_projects,to_jsonb(original_project)||jsonb_build_object('id',pid,'name','CUT-OFF TEST COPY','quote_id',NULL,'source_contract_id',NULL,'bootstrap_run_id',NULL,'external_id',NULL,'opportunity_id',NULL));
  INSERT INTO pm_stages SELECT * FROM jsonb_populate_record(NULL::pm_stages,to_jsonb(original_stage)||jsonb_build_object('id',sid,'project_id',pid,'parent_stage_id',NULL,'name','Active copy','status','active','stage_kind','regular','start_date','2026-10-01','end_date','2026-11-30','is_self',true,'is_locked',false,'archived_at',NULL,'external_id',NULL,'source_quote_stage_id',NULL,'source_contract_id',NULL,'bootstrap_run_id',NULL));
+ INSERT INTO pm_project_team(project_id,resource_id,role) VALUES(pid,rid,'support');
  PERFORM set_config('request.jwt.claim.sub',actor::text,true);
  PERFORM set_config('request.jwt.claims',jsonb_build_object('sub',actor,'role','authenticated')::text,true);
  SET LOCAL ROLE authenticated;
