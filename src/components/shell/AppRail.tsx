@@ -48,7 +48,7 @@ import {
  */
 export function AppRail() {
   const loc = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isPsaStaff } = useAuth();
   const { permissions } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
   const { hasAccess: hasFinance } = useFinanceAccess();
@@ -56,13 +56,14 @@ export function AppRail() {
   // Flyout links may additionally require a v2 (module + scope) permission,
   // so we never surface a page that would answer with "access denied".
   const canLink = (l: FlyoutLink) =>
+    (!l.to.startsWith("/projects") || l.to === "/projects/week-plan" || canAccess("projects")) &&
     (!l.requiresFinance || hasFinance) &&
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
   const { canAccess, loading: accessLoading } = useModuleAccess();
   // While loading, show no module entries rather than all of them.
-  const visible = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId));
+  const visible = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId) || (i.id === "projects" && isPsaStaff));
   const top = visible.filter((i) => !i.pinBottom);
   const bottom = visible.filter((i) => i.pinBottom);
 
@@ -205,6 +206,8 @@ function RailButton({
 export function useRailDestination(item: RailItem) {
   const { isAdmin } = useAuth();
   const { can: canV2 } = useMyPermissionsV2();
+  const { canAccess } = useModuleAccess();
+  if (item.id === "projects" && !canAccess("projects")) return "/projects/week-plan";
   if (!item.altTo || isAdmin || canV2(item.altTo.unlessPermV2, item.altTo.unlessScope)) return item.to;
   return item.altTo.to;
 }
