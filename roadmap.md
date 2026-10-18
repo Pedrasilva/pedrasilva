@@ -1,9 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — CRM zero-quote fallback and atomic milestones
-- [ ] Use estimated fee labelled Estimated when the active quoted total is zero or empty, consistently across cards and totals.
-- [ ] Confirm milestone-change scope, then make the affected Gantt actions atomic and undoable using the existing scheduler.
-- [ ] Run focused unit tests and one check on an isolated copy; delete the copy afterwards.
+- [x] Use estimated fee labelled Estimated when the active quoted total is zero or empty, consistently across cards and totals.
+- [x] Scope confirmed: milestone dates/dragging only. Single-stage drags now explicitly use the same atomic moveStages save as multi-stage moves; typed dates retain the existing atomic cascade.
+- [x] 23 focused unit tests passed. Signed-in temporary copy verified one atomic milestone/successor save and Undo read-back, then deleted; no database function changes.
+- Verification limit: drag gesture/Undo button not exercised because the minimal project copy's Architecture view requires a linked quote; actual shared save/Undo tested from the signed-in browser instead.
 
 ## Current request — preserve quoted effort and fees on conversion
 - [x] Inspect current rules: ordinary stages/allocations extend around the live calendar; quoted commercial totals are copied.

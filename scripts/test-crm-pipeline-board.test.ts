@@ -39,4 +39,10 @@ describe("CRM pipeline board", () => {
     expect(splitContactName(" Kent  Tan ")).toEqual({ primeiro_nome: "Kent", apelido: "Tan" });
     expect(splitContactName("Kent")).toEqual({ primeiro_nome: "Kent", apelido: null });
   });
+  for (const amount of [0, null, ""] as const) it(`falls back to Estimated for active quote total ${String(amount)}`, () => {
+    const item = { id: "fallback", stage: "negotiation", estimated_fee: 5000, quotes: [{ valor: amount, resolved_value: amount }] };
+    expect(resolveOpportunityValueWithSource(item)).toEqual({ value: 5000, source: "estimated" });
+    expect(shownTotal([item])).toBe(5000);
+    expect(boardColumns(STAGES, [item], new Set(), false).find(c => c.stage === "negotiation")?.total).toBe(5000);
+  });
 });
