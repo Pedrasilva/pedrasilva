@@ -2168,5 +2168,33 @@
     "retireBecause": "Cannot be deleted: it has {{hours}} h logged. Retiring keeps the task and hours.",
     "retireConfirm": "Retire {{name}}'s allocation?",
     "checking": "Checking logged hours…"
+  },
+  "weekNotes": {
+    "projectTitle": "Project notes",
+    "weekTitle": "Week notes",
+    "addProject": "Add project note",
+    "projects": "Projects",
+    "opportunities": "Opportunities",
+    "opportunity": "Opportunity",
+    "notes": "Notes",
+    "target": "Target date (optional)",
+    "flag": "Flag (optional)",
+    "newContacts": "New contacts",
+    "humanResources": "Human resources",
+    "timesheets": "Timesheets",
+    "otherTopics": "Other topics",
+    "carried": "From last week · {{date}}",
+    "edited": "Edited by {{name}} · {{date}}",
+    "editor": "Collaborator",
+    "error": "Could not save this note.",
+    "conflict": "Someone changed this note. Reload before editing again.",
+    "reload": "Reload",
+    "editPermission": "Edit weekly notes",
+    "status": {
+      "a_decorrer": "In progress",
+      "obra": "Construction",
+      "stand_by": "Stand by",
+      "a_arrancar": "Starting"
+    }
   }
 }

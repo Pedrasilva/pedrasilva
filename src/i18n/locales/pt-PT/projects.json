@@ -2168,5 +2168,33 @@
     "retireBecause": "Não pode ser eliminada: tem {{hours}} h registadas. Retirar preserva a tarefa e as horas.",
     "retireConfirm": "Retirar a alocação de {{name}}?",
     "checking": "A verificar horas registadas…"
+  },
+  "weekNotes": {
+    "projectTitle": "Notas dos projetos",
+    "weekTitle": "Notas da semana",
+    "addProject": "Adicionar nota de projeto",
+    "projects": "Projetos",
+    "opportunities": "Oportunidades",
+    "opportunity": "Oportunidade",
+    "notes": "Notas",
+    "target": "Data alvo (opcional)",
+    "flag": "Sinal (opcional)",
+    "newContacts": "Novos contactos",
+    "humanResources": "Recursos humanos",
+    "timesheets": "Registos de horas",
+    "otherTopics": "Outros temas",
+    "carried": "Da semana passada · {{date}}",
+    "edited": "Editado por {{name}} · {{date}}",
+    "editor": "Colaborador",
+    "error": "Não foi possível guardar esta nota.",
+    "conflict": "Outra pessoa alterou esta nota. Recarregue antes de editar novamente.",
+    "reload": "Recarregar",
+    "editPermission": "Editar notas da semana",
+    "status": {
+      "a_decorrer": "A decorrer",
+      "obra": "Obra",
+      "stand_by": "Stand by",
+      "a_arrancar": "A arrancar"
+    }
   }
 }
