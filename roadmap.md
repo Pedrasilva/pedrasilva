@@ -1,7 +1,7 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — relative payment descriptions
-- [ ] Normalize dates in saved/frozen descriptions in both payment block renderers; verify an old-description snapshot displays only relative weeks.
+- [x] Both payment block renderers normalize legacy snapshot descriptions without saving changes; browser checks passed for old EN/PT descriptions and unchanged calendar-mode text. No browser errors; build OK.
 - [x] Replaced placeholder calendar dates in all generated payment descriptions (including grouped invoices) with relative week labels. Signed-in, write-blocked browser check and screenshot confirmed Week 1–25 without calendar dates; no saved dates or amounts changed, no browser errors, build OK.
 
 ## Current request — conflicting proposal fees
