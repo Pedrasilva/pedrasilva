@@ -14,6 +14,7 @@ import {
   type ProposalLang,
   formatCurrencyEUR,
   formatDatePT,
+  formatPaymentDescription,
   formatDurationHuman,
   formatDurationCompact,
   formatMonthShort,
@@ -1420,7 +1421,7 @@ export function BlockBody({
                       >
                         <td className="py-1 align-top text-xs font-semibold">{li === 0 ? inv.label : ""}</td>
                         <td className="py-1 align-top tabular-nums text-xs">{li === 0 ? formatDatePT(inv.plannedDate, lang) : ""}</td>
-                        <td className="py-1">{ln.description}</td>
+                        <td className="py-1">{formatPaymentDescription(ln.description, inv.plannedDate, lang)}</td>
                         <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(ln.net, lang)}</td>
                         <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(ln.vat, lang)}</td>
                         <td className="py-1 text-right tabular-nums font-medium">{formatCurrencyEUR(ln.net + ln.vat, lang)}</td>
@@ -1847,7 +1848,7 @@ export function BlockBody({
                       <tr key={`${inv.key}:${li}`} className={li === 0 ? "border-t border-zinc-200" : ""}>
                         <td className="py-1 align-top text-xs font-semibold">{li === 0 ? inv.label : ""}</td>
                         <td className="py-1 align-top tabular-nums text-xs">{li === 0 ? formatDatePT(inv.plannedDate, lang) : ""}</td>
-                        <td className="py-1">{ln.description}</td>
+                        <td className="py-1">{formatPaymentDescription(ln.description, inv.plannedDate, lang)}</td>
                         <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(ln.net, lang)}</td>
                         <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(ln.vat, lang)}</td>
                         <td className="py-1 text-right tabular-nums font-medium">{formatCurrencyEUR(ln.net + ln.vat, lang)}</td>
