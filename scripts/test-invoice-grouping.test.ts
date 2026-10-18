@@ -46,3 +46,22 @@ describe("invoice grouping", () => {
     expect(g).toHaveLength(2);
   });
 });
+
+describe("2675 copy and conversion dates", () => {
+  const T = "30 (trinta) dias de calendário";
+  const rows = [["a","2026-10-17","Pronto pagamento",11170],["b","2026-11-06",T,6700],["c","2026-11-09",T,23000],["d","2026-12-20",T,23000],["e","2026-12-21",T,11500],["f","2027-01-17",T,11500],["g","2027-01-18",T,16500],["h","2027-03-07",T,16500],["i","2027-04-11",T,3000]] as const;
+  const items = rows.map(([id, d, p, amount]) => ({ id, expected_invoice_date: d, payment_terms: p, vat_rate: 23, amount }));
+  it("9 → 6 invoices, same 122,870 € total", () => {
+    const g = groupInvoices(items, 7);
+    expect(g.length).toBe(6);
+    expect(g.map((x) => x.date)).toEqual(["2026-10-17","2026-11-09","2026-12-21","2027-01-18","2027-03-07","2027-04-11"]);
+    const byId = new Map(items.map((i) => [i.id, i.amount]));
+    expect(g.flatMap((x) => x.ids).reduce((s, id) => s + byId.get(id)!, 0)).toBe(122870);
+  });
+  it("relative weeks group, real dates after a Christmas closure can split", () => {
+    const rel = [{ id: "x", expected_invoice_date: "2000-03-06", payment_terms: T, vat_rate: 23 }, { id: "y", expected_invoice_date: "2000-03-10", payment_terms: T, vat_rate: 23 }];
+    expect(groupInvoices(rel, 7).length).toBe(1);
+    const real = [{ ...rel[0], expected_invoice_date: "2026-12-18" }, { ...rel[1], expected_invoice_date: "2027-01-04" }];
+    expect(groupInvoices(real, 7).length).toBe(2);
+  });
+});
