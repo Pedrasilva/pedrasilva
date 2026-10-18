@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — approved selective recovery and deletion safety
+- [ ] Compare 04:00 backup with live allocations/tasks/entries and every referencing table; report additional lost rows before restoring.
+- [ ] Restore only approved missing rows atomically with original fields/IDs, suppress side effects and validate unrelated data unchanged.
+- [ ] Verify 34 allocations, 34 tasks, 380 entries, 1,786.24h and project/person totals; refresh affected derived calculations only.
+- [ ] Immediately block destructive allocation/task/stage deletion and use retirement; copy-only regression verification.
+
 ## Current request — Gantt planned vs actual (plan first)
 - [x] Read-only BCG screen and stored-data inspection: explain planned cost/fee/hours, leave badges, implied hours and planned-cost line.
 - [x] Prepare weekly per-person actuals and stage-budget proposal; identify reused/replaced figures and double-counting risks.
