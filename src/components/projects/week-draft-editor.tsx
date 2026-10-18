@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { dailyHours, deriveSlots, weekDays, type BoardData, type DraftSlot, type DayPart, type BoardStage } from "@/lib/projects/week-board";
-import { coveringStages, draftBoard, explicitSlots, nearestStage, shiftSlots, slotChanges, slotKey, resolveStageCells, extensionRange, unrepresentedBookings, isOutsideStage, defaultStage, setSlotStage, outsideExtensionNotes } from "@/lib/projects/week-draft";
+import { coveringStages, draftBoard, explicitSlots, nearestStage, shiftSlots, slotChanges, slotKey, resolveStageCells, extensionRange, unrepresentedBookings, isOutsideStage, defaultStage, bookableStages, setSlotStage, outsideExtensionNotes } from "@/lib/projects/week-draft";
 import { useWeekDraft } from "@/lib/projects/use-week-draft";
 import { weekBoardQuery } from "@/lib/projects/week-board-query";
 import { numberStages, formatStageLabel } from "@/lib/quotes/stage-numbering";
@@ -26,7 +26,9 @@ export function WeekDraftEditor({ data, week }: { data:BoardData; week:string })
   if (permissions.loading || !(permissions.isAdmin || permissions.can("projects.edit_planning","all"))) return <WeekPlanningBoard data={data} week={week} />;
   return <PlannerDraft key={week} data={data} week={week} />;
 }
-function PlannerDraft({ data, week }: { data:BoardData; week:string }) {
+function PlannerDraft({ data:raw, week }: { data:BoardData; week:string }) {
+  // Supplier/consultant stages (is_self=false) are never offered for PSA staff planning.
+  const data=useMemo(() => ({...raw,stages:bookableStages(raw.stages)}),[raw]);
   const { t }=useTranslation("projects"); const qc=useQueryClient();
   const draft=useWeekDraft(data,week);
   const [source,setSource]=useState("gantt"); const [creating,setCreating]=useState(false); const [error,setError]=useState(false);
