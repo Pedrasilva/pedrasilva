@@ -183,7 +183,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     const {data,error}=await supabase.from("quote_relative_schedules").select("quote_id").eq("quote_id",quoteId).maybeSingle();
     if(error)throw error;return !!data;
   }});
-  const relative=relativeQ.data ?? false;
+  // Dates before 2010 are relative-scale placeholders (origin 2000-01-03); never show them as calendar dates.
+  const relativeDates=stages.length>0&&stages.every(s=>!s.start_date||s.start_date<"2010-01-01");
+  const relative=(relativeQ.data ?? false)||relativeDates;
   const pricingQ=useQuery({queryKey:["quote-gantt-pricing",quoteId],queryFn:async()=>{
     const {data,error}=await supabase.from("fee_proposals").select("fee_source_mode,pricing_multiplier").eq("id",quoteId).single();
     if(error)throw error;return data;
