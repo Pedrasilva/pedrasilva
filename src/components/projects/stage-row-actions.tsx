@@ -127,6 +127,7 @@ export function StageRowActions({
   stage,
   assignedResourceIds,
   onEdit,
+  isSupplier = false,
 }: {
   stageId: string;
   projectId: string;
@@ -138,6 +139,8 @@ export function StageRowActions({
   stage?: StageTaskDialogStage;
   assignedResourceIds: string[];
   onEdit?: () => void;
+  /** Supplier/consultant stage: PSA staff cannot be assigned. */
+  isSupplier?: boolean;
 }) {
   const { data: resources } = useResources();
   const createAllocation = useCreateAllocation();
@@ -186,7 +189,7 @@ export function StageRowActions({
         <Pencil className="h-3.5 w-3.5" />
       </button>
 
-      <DropdownMenu>
+      {!isSupplier && <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
@@ -220,7 +223,7 @@ export function StageRowActions({
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu>}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

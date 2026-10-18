@@ -777,6 +777,7 @@ export function GanttChart({
     }
 
     if (stagesAll.some(s => s.parent_stage_id === stage.id)) { toast.error(t('weekPlan.parentStageBlocked')); return; }
+    if (adapter.mode === "project" && (stagesAll.find(s => s.id === stage.id) as { is_self?: boolean | null } | undefined)?.is_self === false) { toast.error(t('weekPlan.supplierStageBlocked')); return; }
     // New resource drop — span the full stage so the user doesn't have to
     // stretch the allocation after placement. Default to 75% allocation
     // (6h/day on an 8h HR-recoverable capacity) so a fresh resource starts

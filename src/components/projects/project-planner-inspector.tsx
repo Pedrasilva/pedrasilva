@@ -685,7 +685,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             )}
           </ul>
 
-          {resources.length > 0 && (
+          {resources.length > 0 && (stage as { is_self?: boolean | null } | undefined)?.is_self !== false && (
             <div className="space-y-2 border-t border-border pt-3">
               <div>
                 <Label className="text-xs">{t("projects:gantt.inspector.resource", { defaultValue: "Resource" })}</Label>

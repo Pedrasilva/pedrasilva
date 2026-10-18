@@ -63,7 +63,8 @@
     "clearSelection": "Limpar seleção",
     "selectSlots": "Selecionar estes meios-dias",
     "selectHint": "Clique nos meios-dias pintados para os selecionar e escolha uma fase.",
-    "mixedProjects": "Selecione meios-dias de um só projeto para mudar a fase."
+    "mixedProjects": "Selecione meios-dias de um só projeto para mudar a fase.",
+    "supplierStageBlocked": "Fase de fornecedor/consultor: não é possível alocar equipa PSA."
   },
   "module": {
     "title": "Projectos",
