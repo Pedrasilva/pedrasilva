@@ -1,12 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
-## Current request — planning cut-off preview, no live changes
-- [ ] Implement approved shared timesheet provisioning: deterministic task reuse, retired 0h technical links when missing, no merging or planning markers; validate all copy-only cases including staff without planning rights logging 19 October.
-- [ ] Prepare durable cutoff snapshot/atomic apply/guarded one-step undo without applying live cutoff; include three October retainer allocations and list seven Banco CTT exceptions as to review.
-- [ ] Refresh preview after verification and await separate final cutoff confirmation.
-- [x] Read-only preview: 94 allocations; 12 eligible zero-hour markers trimmed / 0 retired / 82 untouched, including 3 monthly-retainer pending, 5 protected and 2 future with 24.75h; all removed planned hours 0.
-- [x] Read current picker/provisioning, live RLS/triggers and monthly retainers: future planning is recreated by zero-hour self-allocation and multiple allocations break single-row lookup; propose correction first, monthly cutoff choice and durable guarded snapshot/undo.
-- [ ] Present preview and wait for Luis's approval; no cut-off or logging fix applied before approval.
+## Current request — planning cut-off awaiting final approval
+- [x] Implement deterministic own-task provisioning with existing access, retired 0h missing links and no merging; copy-only database cases passed including non-planner 19 October logging, month/lock/cost preservation and cutoff/undo.
+- [x] Browser save/read after reload on persisted disposable copy as Luis: 1h15 on 19 October, retired 0h link, pending approval and snapshot verified; copy/activity removed. Non-planner check used database claims, not another person's browser session.
+- [x] 60 focused regressions passed; clean preview build; migrations mirrored.
+- [x] Prepared durable snapshot c34e66f5-5b87-4e19-b10d-8267cedd831c, 15 trim / 0 retire / 79 untouched, all removed planned hours 0; 3 October retainer links included, 7 CTT exceptions listed.
+- [ ] Apply cutoff only after Luis's separate final confirmation; no real cutoff or week approval performed.
 
 ## Current request — approved selective recovery and deletion safety
 - [x] Compared 04:00 backup with all FK references and relevant columns: forecast/activity dependents were empty in backup and live; no additional lost rows.
