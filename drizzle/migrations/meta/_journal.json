@@ -799,6 +799,13 @@
       "when": 1792334880681,
       "tag": "0113_timesheet_task_without_future_planning",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1792334996732,
+      "tag": "0114_planning_cutoff_snapshot_and_guarded_undo",
+      "breakpoints": true
     }
   ]
 }
