@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — planning cut-off preview, no live changes
+- [ ] Read-only preview per-project allocation trim/retire/untouched counts and removed planned hours per person from 19 October 2026; list future allocations with logged history.
+- [ ] Confirm allocation-independent timesheet logging, identify monthly-retainer exceptions, and propose protected atomic snapshot/undo.
+- [ ] Present preview and wait for Luis's approval; no cut-off or logging fix applied before approval.
+
 ## Current request — approved selective recovery and deletion safety
 - [x] Compared 04:00 backup with all FK references and relevant columns: forecast/activity dependents were empty in backup and live; no additional lost rows.
 - [x] Restored 448 exact rows atomically through one-shot admin function; existing triggers restored, FK constraints retained, full row equality and unchanged non-target hashes across 219 public tables confirmed. Recovery function disabled afterwards; all migrations mirrored.
