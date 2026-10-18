@@ -490,39 +490,16 @@ export function useEnsureStageRow() {
       stage_start: string;
       stage_end: string;
     }): Promise<string> => {
-      const { data: existingAlloc } = await supabase
-        .from("pm_allocations")
-        .select("id")
-        .eq("resource_id", input.resource_id)
-        .eq("stage_id", input.stage_id)
-        .maybeSingle();
-
-      let allocationId = existingAlloc?.id;
-
-      if (!allocationId) {
-        const { data: newAlloc, error: aErr } = await supabase
-          .from("pm_allocations")
-          .insert({
-            resource_id: input.resource_id,
-            stage_id: input.stage_id,
-            start_date: input.stage_start,
-            end_date: input.stage_end,
-            hours_per_day: 0,
-          } as never)
-          .select("id")
-          .single();
-        if (aErr) throw aErr;
-        allocationId = newAlloc.id;
-      }
-
-      const { data: task, error: tErr } = await supabase
-        .from("pm_tasks")
-        .select("id")
-        .eq("allocation_id", allocationId!)
-        .maybeSingle();
-      if (tErr) throw tErr;
-      if (!task) throw new Error("Task not created for allocation");
-      return task.id;
+      // The database verifies the caller and stage, serialises preparation,
+      // and reuses tasks across all allocations (including retired history).
+      // Missing technical links are already retired: logging creates no plan.
+      const { data: taskId, error } = await supabase.rpc("pm_ensure_timesheet_task", {
+        _resource_id: input.resource_id,
+        _stage_id: input.stage_id,
+      });
+      if (error) throw error;
+      if (!taskId) throw new Error("Task not created for allocation");
+      return taskId;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["pm-timesheet-rows"] });
