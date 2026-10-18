@@ -16146,6 +16146,16 @@ export type Database = {
         Returns: number
       }
       pm_recover_20261018: { Args: { p_payload: Json }; Returns: Json }
+      pm_relative_bulk_initialize: {
+        Args: { _actor: string; _quote: string }
+        Returns: Json
+      }
+      pm_relative_bulk_revert: { Args: { _quote: string }; Returns: undefined }
+      pm_relative_date: { Args: { _n: number }; Returns: string }
+      pm_relative_from_calendar: {
+        Args: { _anchor: string; _d: string; _forward: boolean }
+        Returns: string
+      }
       pm_relative_offset: { Args: { _date: string }; Returns: number }
       pm_replace_cost_periods: {
         Args: {
@@ -16251,6 +16261,10 @@ export type Database = {
       pm_week_revision: { Args: { _plan_id: string }; Returns: string }
       pm_weekday_shift: {
         Args: { _date: string; _days: number }
+        Returns: string
+      }
+      pm_weekday_snap: {
+        Args: { _d: string; _forward: boolean }
         Returns: string
       }
       pm_write_cost_snapshots: {
