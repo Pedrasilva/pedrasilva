@@ -1,6 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — planning cut-off preview, no live changes
+- [ ] Implement approved shared timesheet provisioning: deterministic task reuse, retired 0h technical links when missing, no merging or planning markers; validate all copy-only cases including staff without planning rights logging 19 October.
+- [ ] Prepare durable cutoff snapshot/atomic apply/guarded one-step undo without applying live cutoff; include three October retainer allocations and list seven Banco CTT exceptions as to review.
+- [ ] Refresh preview after verification and await separate final cutoff confirmation.
 - [x] Read-only preview: 94 allocations; 12 eligible zero-hour markers trimmed / 0 retired / 82 untouched, including 3 monthly-retainer pending, 5 protected and 2 future with 24.75h; all removed planned hours 0.
 - [x] Read current picker/provisioning, live RLS/triggers and monthly retainers: future planning is recreated by zero-hour self-allocation and multiple allocations break single-row lookup; propose correction first, monthly cutoff choice and durable guarded snapshot/undo.
 - [ ] Present preview and wait for Luis's approval; no cut-off or logging fix applied before approval.
