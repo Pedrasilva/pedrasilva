@@ -7,7 +7,7 @@ DECLARE
   payment_id uuid := gen_random_uuid(); company_id uuid := gen_random_uuid();
   doc_psa uuid := gen_random_uuid(); doc_other uuid := gen_random_uuid();
   log_psa uuid := gen_random_uuid(); log_other uuid := gen_random_uuid(); log_company uuid := gen_random_uuid();
-  uid uuid; n integer;
+  uid uuid; n integer; creator text;
 BEGIN
   SELECT user_id INTO admin_id FROM public.user_roles WHERE role='admin' LIMIT 1;
   SELECT u.id INTO staff_id FROM auth.users u JOIN public.collaborators c ON lower(c.email)=lower(u.email)
@@ -54,10 +54,14 @@ BEGIN
     AND a.grantee IN ('anon'::regrole,'authenticated'::regrole) AND a.privilege_type='TRUNCATE') THEN
     RAISE EXCEPTION 'Client table TRUNCATE remains';
   END IF;
-  IF EXISTS(SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) a
-    WHERE d.defaclrole='postgres'::regrole AND d.defaclnamespace='public'::regnamespace
-    AND d.defaclobjtype='r' AND a.grantee IN ('anon'::regrole,'authenticated'::regrole)
-    AND a.privilege_type='TRUNCATE') THEN RAISE EXCEPTION 'Postgres default TRUNCATE remains'; END IF;
+  FOREACH creator IN ARRAY ARRAY['postgres','supabase_admin'] LOOP
+    IF EXISTS(SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) a
+      WHERE d.defaclrole=creator::regrole AND d.defaclnamespace='public'::regnamespace
+      AND d.defaclobjtype='r' AND a.grantee IN ('anon'::regrole,'authenticated'::regrole)
+      AND a.privilege_type='TRUNCATE') THEN
+      RAISE EXCEPTION '% public-table default TRUNCATE remains', creator;
+    END IF;
+  END LOOP;
+  RAISE NOTICE 'PASS: 15 identity/row checks, table TRUNCATE and both creator defaults; fixtures will roll back';
 END $test$;
 ROLLBACK;
-SELECT 'PASS: 15 identity/row checks, existing-table and postgres-default TRUNCATE; all fixtures rolled back' AS result;
