@@ -177,3 +177,9 @@
 - [x] Live-project re-schedule preview/apply, propagating links with lags
 - [x] 2027 holidays — confirmed and saved (14, no Carnaval)
 - [x] Tests incl. hours bank closure week = 0 owed (full-time + part-time)
+
+## Current request — weekly project and private week notes
+- [ ] Add independent weekly notes storage, staff project reads, editor-only HR week notes and dedicated Irene permission.
+- [ ] Carry forward latest earlier saved note; relink opportunity history inside existing conversion.
+- [ ] Add autosaving below-grid section with slot participants and existing project/opportunity choices.
+- [ ] Unit/security tests and far-future isolated check; clean up; report migration and Irene permission steps.
