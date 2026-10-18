@@ -7,6 +7,8 @@ type SortKey = "name" | "utilization" | "billable";
 
 export interface TeamRow {
   resourceId: string;
+  /** Auth user id — used to open the drill-down. */
+  userId?: string | null;
   name: string;
   capacityHours: number;
   billableHours: number;
@@ -24,7 +26,13 @@ export function TeamPerformance({
   title,
   subtitle,
   showSort = true,
+  untilToday,
+  onUntilTodayChange,
+  onSelect,
 }: {
+  untilToday?: boolean;
+  onUntilTodayChange?: (v: boolean) => void;
+  onSelect?: (row: TeamRow) => void;
   rows: TeamRow[];
   loading?: boolean;
   periodLabel: string;
@@ -64,6 +72,23 @@ export function TeamPerformance({
           </h2>
           <p className="text-[11px] text-muted-foreground">{resolvedSubtitle}</p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+        {onUntilTodayChange && (
+          <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
+            {[true, false].map((v) => (
+              <button
+                key={String(v)}
+                onClick={() => onUntilTodayChange(v)}
+                className={cn(
+                  "rounded px-2.5 py-1 text-[11px] font-medium",
+                  untilToday === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {v ? t("team.untilToday") : t("team.wholePeriod")}
+              </button>
+            ))}
+          </div>
+        )}
         {showSort && (
           <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
             {(
@@ -88,6 +113,7 @@ export function TeamPerformance({
             ))}
           </div>
         )}
+        </div>
       </header>
 
       <div className="overflow-x-auto">
@@ -117,7 +143,12 @@ export function TeamPerformance({
               </tr>
             )}
             {sorted.map((r) => (
-              <tr key={r.resourceId} className="hover:bg-accent/30">
+              <tr
+                key={r.resourceId}
+                className={cn("hover:bg-accent/30", onSelect && "cursor-pointer")}
+                onClick={onSelect ? () => onSelect(r) : undefined}
+                title={onSelect ? t("team.openBreakdown") : undefined}
+              >
                 <td className="px-5 py-2.5 text-sm text-foreground">
                   <div className="flex items-center gap-2.5">
                     <CollaboratorAvatar

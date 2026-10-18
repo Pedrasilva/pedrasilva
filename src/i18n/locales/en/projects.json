@@ -847,7 +847,31 @@
     "noTimeLogged": "No time logged in this period.",
     "splitTooltip": "Billable {{billable}}h • Internal {{internal}}h • Non-working {{nonWorking}}h",
     "unknownUser": "Unknown user",
-    "you": "You"
+    "you": "You",
+    "untilToday": "Up to today",
+    "wholePeriod": "Whole period",
+    "openBreakdown": "Open breakdown",
+    "drill": {
+      "range": "{{period}} · {{from}}–{{to}}",
+      "capacity": "Capacity",
+      "gross": "{{days}} working days × {{hours}}h",
+      "holidays": "Public holidays",
+      "closures": "Office closures",
+      "leave": "Approved leave",
+      "net": "Net capacity",
+      "logged": "Logged hours",
+      "byProject": "Logged hours by project and stage",
+      "perWeek": "Hours per week",
+      "missingDays_one": "{{count}} day with no hours logged",
+      "missingDays_other": "{{count}} days with no hours logged",
+      "noMissing": "Every working day has hours logged.",
+      "openTimesheet": "Open timesheet",
+      "billable": "Billable",
+      "internal": "Internal",
+      "noStage": "No stage",
+      "uncategorised": "Uncategorised",
+      "unknownProject": "Unknown project"
+    }
   },
   "timesheet": {
     "title": "Weekly Timesheet",

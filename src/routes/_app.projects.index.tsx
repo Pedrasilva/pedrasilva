@@ -40,6 +40,14 @@ import {
   TeamPerformance,
   type TeamRow,
 } from "@/components/projects/dashboard/team-performance";
+import { TeamMemberPanel } from "@/components/projects/dashboard/team-member-panel";
+import {
+  capacityCutoff,
+  computeCapacity,
+  type CalendarDay,
+  type DrillEntry,
+} from "@/lib/projects/team-drilldown";
+import { buildStageNumberMap, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import {
   useProjects,
   useAllStages,
@@ -108,6 +116,9 @@ interface TimeEntryRow {
   entry_type: "project" | "internal" | "non_working";
   cost_rate_snapshot: number | null;
   cost_rate_source?: string | null;
+  internal_category?: string | null;
+  leave_type?: string | null;
+  pm_stage_id?: string | null;
 }
 
 function useMonthEntries(periodStart: string, periodEnd: string) {
@@ -116,7 +127,7 @@ function useMonthEntries(periodStart: string, periodEnd: string) {
     queryFn: async (): Promise<TimeEntryRow[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source")
+        .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id")
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
@@ -125,6 +136,25 @@ function useMonthEntries(periodStart: string, periodEnd: string) {
         hours: Number(r.hours ?? 0),
         cost_rate_snapshot: r.cost_rate_snapshot == null ? null : Number(r.cost_rate_snapshot),
       })) as TimeEntryRow[];
+    },
+  });
+}
+
+/** Public holidays and office closures in the period, with names. */
+function usePeriodCalendar(periodStart: string, periodEnd: string) {
+  return useQuery({
+    queryKey: ["pm-dashboard-calendar", periodStart, periodEnd],
+    staleTime: 10 * 60_000,
+    queryFn: async (): Promise<CalendarDay[]> => {
+      const { data, error } = await supabase
+        .from("holidays")
+        .select("data, nome, tipo, office_closure_id")
+        .gte("data", periodStart)
+        .lte("data", periodEnd);
+      if (error) throw error;
+      return ((data ?? []) as Array<{ data: string; nome: string; tipo: string | null; office_closure_id: string | null }>).map(
+        (h) => ({ date: h.data, name: h.nome, closure: !!h.office_closure_id || h.tipo === "fecho_atelier" }),
+      );
     },
   });
 }
@@ -249,6 +279,12 @@ function DashboardPage() {
   const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
   const { data: taskToStage } = useTaskMap();
   const { data: identityMap } = useUserIdentityMap();
+  const { data: periodCalendar } = usePeriodCalendar(periodStartISO, periodEndISO);
+  // Team performance compares logged hours with capacity up to today by default.
+  const [untilToday, setUntilToday] = useState(true);
+  const [selectedMember, setSelectedMember] = useState<string | null>(null);
+  const todayISO = format(today, "yyyy-MM-dd");
+  const teamCutoff = capacityCutoff(periodStartISO, periodEndISO, todayISO, untilToday);
 
   // ---------- group stages and entries ----------
   const stagesByProject = useMemo(() => {
@@ -685,38 +721,52 @@ function DashboardPage() {
   }, [entries, allStages, resources, periodStart, periodEnd, periodStartISO, periodEndISO]);
 
   // ---------- Team performance rows ----------
+  const dailyHoursFor = (userId: string) => {
+    const identity = identityMap?.get(userId) ?? null;
+    const res = identity?.resourceId
+      ? resources?.find((r) => r.id === identity.resourceId)
+      : resources?.find((r) => r.id === userId);
+    return { identity, res, daily: res ? (Number(res.weekly_capacity) || 40) / 5 : 8 };
+  };
   const teamRows: TeamRow[] = useMemo(() => {
-    const wd = workingDays(periodStartISO, periodEndISO);
-    type Acc = { billable: number; internal: number; nonWorking: number };
+    type Acc = { billable: number; internal: number; nonWorking: number; leave: TimeEntryRow[] };
     const byUser = new Map<string, Acc>();
     for (const e of entries ?? []) {
-      const cur = byUser.get(e.user_id) ?? { billable: 0, internal: 0, nonWorking: 0 };
-      if (e.entry_type === "non_working") cur.nonWorking += e.hours;
-      else if (e.entry_type === "internal" || !e.billable) cur.internal += e.hours;
-      else cur.billable += e.hours;
+      const cur = byUser.get(e.user_id) ?? { billable: 0, internal: 0, nonWorking: 0, leave: [] };
+      if (e.entry_type === "non_working") cur.leave.push(e);
+      if (e.entry_date <= teamCutoff) {
+        if (e.entry_type === "non_working") cur.nonWorking += e.hours;
+        else if (e.entry_type === "internal" || !e.billable) cur.internal += e.hours;
+        else cur.billable += e.hours;
+      }
       byUser.set(e.user_id, cur);
     }
     const rows: TeamRow[] = [];
     for (const [userId, acc] of byUser) {
-      const identity = identityMap?.get(userId) ?? null;
-      const res = identity?.resourceId
-        ? resources?.find((r) => r.id === identity.resourceId)
-        : resources?.find((r) => r.id === userId);
-      const dailyCap = res ? (Number(res.weekly_capacity) || 40) / 5 : 8;
+      const { identity, res, daily } = dailyHoursFor(userId);
+      const cap = computeCapacity({
+        start: periodStartISO,
+        end: teamCutoff,
+        dailyHours: daily,
+        calendar: periodCalendar ?? [],
+        leaveEntries: acc.leave,
+      });
       rows.push({
         resourceId: identity?.resourceId ?? userId,
+        userId,
         name: identity?.name ?? res?.name ?? t("team.unknownUser"),
         collaboratorId: identity?.collaboratorId ?? null,
         fotoPath: identity?.fotoPath ?? null,
         color: identity?.color ?? res?.color ?? null,
-        capacityHours: dailyCap * wd,
+        capacityHours: cap.net,
         billableHours: acc.billable,
         internalHours: acc.internal,
         nonWorkingHours: acc.nonWorking,
       });
     }
     return rows;
-  }, [entries, resources, identityMap, periodStartISO, periodEndISO, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries, resources, identityMap, periodStartISO, teamCutoff, periodCalendar, t]);
 
   /**
    * Visible team rows: full team if the user has resource visibility, otherwise
@@ -725,7 +775,6 @@ function DashboardPage() {
    */
   const visibleTeamRows: TeamRow[] = useMemo(() => {
     if (canSeeTeam) return teamRows;
-    const wd = workingDays(periodStartISO, periodEndISO);
     const myMappedResourceId = myAuthId ? identityMap?.get(myAuthId)?.resourceId ?? null : null;
     const meRow =
       (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
@@ -743,13 +792,59 @@ function DashboardPage() {
         collaboratorId: myIdentity?.collaboratorId ?? null,
         fotoPath: myIdentity?.fotoPath ?? null,
         color: myIdentity?.color ?? myRes?.color ?? null,
-        capacityHours: dailyCap * wd,
+        userId: myAuthId,
+        capacityHours: computeCapacity({ start: periodStartISO, end: teamCutoff, dailyHours: dailyCap, calendar: periodCalendar ?? [], leaveEntries: [] }).net,
         billableHours: 0,
         internalHours: 0,
         nonWorkingHours: 0,
       },
     ];
-  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO, t]);
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, teamCutoff, periodCalendar, t]);
+
+  // ---------- Team member drill-down (selected row only) ----------
+  const memberDetail = useMemo(() => {
+    if (!selectedMember) return null;
+    const row = visibleTeamRows.find((r) => (r.userId ?? r.resourceId) === selectedMember);
+    if (!row) return null;
+    const userId = row.userId ?? null;
+    const mine = (entries ?? []).filter((e) => userId && e.user_id === userId);
+    const projectName = new Map((projects ?? []).map((p) => [p.id, p.name]));
+    const numberMaps = new Map<string, Map<string, string>>();
+    const drill: DrillEntry[] = mine.map((e) => {
+      const stageId = (e.task_id && taskToStage?.get(e.task_id)) || e.pm_stage_id || null;
+      const stage = stageId ? stageById.get(stageId) : undefined;
+      let label: string | null = null;
+      if (stage) {
+        let nm = numberMaps.get(stage.project_id);
+        if (!nm) {
+          nm = buildStageNumberMap(stagesByProject.get(stage.project_id) ?? []);
+          numberMaps.set(stage.project_id, nm);
+        }
+        label = formatStageLabel(stage, nm.get(stage.id));
+      }
+      return {
+        entry_date: e.entry_date,
+        hours: e.hours,
+        billable: e.billable,
+        entry_type: e.entry_type,
+        internal_category: e.internal_category ?? null,
+        projectId: stage?.project_id ?? null,
+        projectName: stage ? projectName.get(stage.project_id) ?? null : null,
+        stageId,
+        stageLabel: label,
+      };
+    });
+    const { daily } = dailyHoursFor(userId ?? "");
+    const capacity = computeCapacity({
+      start: periodStartISO,
+      end: teamCutoff,
+      dailyHours: daily,
+      calendar: periodCalendar ?? [],
+      leaveEntries: mine.filter((e) => e.entry_type === "non_working"),
+    });
+    return { row, entries: drill.filter((e) => e.entry_date <= teamCutoff), capacity };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMember, visibleTeamRows, entries, projects, taskToStage, stageById, stagesByProject, periodStartISO, teamCutoff, periodCalendar]);
 
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
@@ -977,6 +1072,23 @@ function DashboardPage() {
                   : t("dashboard.subtitleSelf", { period: periodLabel })
               }
               showSort={canSeeTeam}
+              untilToday={untilToday}
+              onUntilTodayChange={setUntilToday}
+              onSelect={(r) => setSelectedMember(r.userId ?? r.resourceId)}
+            />
+            <TeamMemberPanel
+              open={!!memberDetail}
+              onOpenChange={(o) => !o && setSelectedMember(null)}
+              detail={memberDetail}
+              periodStart={periodStartISO}
+              cutoff={teamCutoff}
+              periodLabel={periodLabel}
+              canOpenTimesheet={
+                !!memberDetail &&
+                (memberDetail.row.userId === myAuthId || (isAdmin && !!memberDetail.row.collaboratorId))
+              }
+              isSelf={!!memberDetail && memberDetail.row.userId === myAuthId}
+              onOpenProject={(id) => navigate({ to: "/projects/$projectId", params: { projectId: id } })}
             />
           </div>
           <div className="order-1 min-w-0 lg:relative lg:order-2 lg:min-h-[320px]">
