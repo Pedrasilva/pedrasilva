@@ -4,6 +4,7 @@
  * assigning a responsible resource to a stage, and removing allocations.
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MoreVertical, Pencil, UserPlus, Trash2, Check, ListPlus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -278,6 +279,7 @@ export function AllocationRowActions({
   onEditTask?: () => void;
 }) {
   const deleteAllocation = useDeleteAllocation();
+  const { t } = useTranslation("projects");
 
   return (
     <div className="inline-flex items-center gap-1 text-muted-foreground">
@@ -317,13 +319,13 @@ export function AllocationRowActions({
               deleteAllocation.mutate(
                 { id: allocationId, projectId },
                 {
-                  onSuccess: () => toast.success("Allocation removed"),
+                  onSuccess: () => toast.success(t("historySafety.retired")),
                   onError: (e: unknown) => toast.error((e as Error).message),
                 },
               )
             }
           >
-            <Trash2 className="mr-2 h-3.5 w-3.5" /> Remove allocation
+            <Trash2 className="mr-2 h-3.5 w-3.5" /> {t("historySafety.retire")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

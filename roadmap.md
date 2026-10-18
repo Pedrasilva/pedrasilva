@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — approved selective recovery and deletion safety
+- [x] Compared 04:00 backup with all FK references and relevant columns: forecast/activity dependents were empty in backup and live; no additional lost rows.
+- [x] Restored 448 exact rows atomically through one-shot admin function; existing triggers restored, FK constraints retained, full row equality and unchanged non-target hashes across 219 public tables confirmed. Recovery function disabled afterwards; all migrations mirrored.
+- [x] Signed-in browser read-back verified 34 allocations,34 tasks,380 entries,1786.24h and 23 person/project totals. Project costs/hours derive live from restored rows; approved hours-bank movements and week snapshots remained unchanged, so no re-approval or ledger rewrite was needed.
+- [x] Database guards block task/allocation/stage/project deletion with history regardless of caller visibility; allocation removal retires. Rollback-only disposable-copy tests passed four blocked deletes, retirement preservation and empty deletes; no copies remained.
+
 ## Current request — Gantt planned vs actual (plan first)
 - [x] Read-only BCG screen and stored-data inspection: explain planned cost/fee/hours, leave badges, implied hours and planned-cost line.
 - [x] Prepare weekly per-person actuals and stage-budget proposal; identify reused/replaced figures and double-counting risks.

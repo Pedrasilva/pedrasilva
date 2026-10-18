@@ -16001,6 +16001,7 @@ export type Database = {
         Args: { _from: string; _resource_id?: string }
         Returns: number
       }
+      pm_recover_20261018: { Args: { p_payload: Json }; Returns: Json }
       pm_relative_offset: { Args: { _date: string }; Returns: number }
       pm_replace_cost_periods: {
         Args: {
