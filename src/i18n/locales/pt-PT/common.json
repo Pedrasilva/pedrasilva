@@ -50,6 +50,8 @@
   "ofTotal": "{{shown}} de {{total}}",
   "page": "Página {{current}} de {{total}}",
   "proposalComposer": {
+    "reference": "Proposta {{number}}",
+    "revisionReference": "Proposta {{number}} rev. {{revision}}",
     "pagination": {
       "loading": "A compor as páginas da proposta…",
       "error": "Não foi possível gerar as páginas da proposta. Tente atualizar a pré-visualização.",

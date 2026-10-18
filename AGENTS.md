@@ -3,7 +3,7 @@
 
 - Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.
 
-- Live-project Gantt actuals are an opt-in read-only layer; src/lib/projects/AGENTS.md defines its attribution and totals boundary. Why: quote scheduling, weekly planning and immutable cost snapshots remain independent.
+- Read-only Gantt actuals: src/lib/projects/AGENTS.md. Why: no planning/cost writes.
 
 - Every migration creating a public table must explicitly revoke TRUNCATE from anon and authenticated on that table, preserving all other privileges; leave platform-owned supabase_admin defaults unchanged and verify postgres public-table defaults plus all existing public-table grants. Why: new tables must remain protected regardless of their creator.
 - Read module AGENTS.md before edits: src/lib/{marketing,reports,finance,hr,projects,crm}. Why: module rules stay local.
@@ -20,4 +20,5 @@
 - Phone capture lives at /m (src/routes/m*.tsx), a sibling of _app with its own guard; reuses NoteComposer variant="quick", TimesheetAssistantSheet and listMyPendingNudges; there is a manifest but no service worker. Why: phone flows must not change desktop behaviour or preview caching.
 - Homepage weekly planning derives only the caller's personal approved allocation slots from weekBoardQuery, never draft_slots; navigation exposes the weekly board to PSA staff without widening Projects module access. Why: private drafts, existing project permissions and no-rates projection must stay intact.
 
-- Unlinked proposals are relative by default (trigger pm_relative_normalize_dates keeps Mon–Fri counts; <2010 dates print as weeks). Why: quote hours/fees stay identical.
+- Unlinked quotes default relative; pm_relative_normalize_dates keeps weekdays, <2010 prints weeks. Why: unchanged hours/fees.
+- Quote revisions lock root, retain source number and print stored revision minus one; unique number/revision. Why: new work alone consumes annual numbers.

@@ -7,6 +7,7 @@
  * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
 import React from "react";
+import { useTranslation } from "react-i18next";
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
@@ -327,6 +328,7 @@ export function BlockBody({
   siblings?: PsaProposalBlock[];
 }) {
   const L = getProposalLabels(lang);
+  const { t } = useTranslation("common");
 
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
@@ -394,7 +396,10 @@ export function BlockBody({
             <div className="mt-1 text-sm text-zinc-500">{live.location}</div>
           )}
           <div className="mt-10 text-xs text-zinc-500">
-            {live?.projectNumber ? `${L.refPrefix} ${live.projectNumber} · ` : ""}
+            {live?.projectNumber ? `${t(
+              (live.proposalRevision ?? 0) > 0 ? "proposalComposer.revisionReference" : "proposalComposer.reference",
+              { lng: lang, number: live.projectNumber, revision: live.proposalRevision ?? 0 },
+            )} · ` : ""}
             {formatDatePT(
               live?.revision && !live.revision.isDraft
                 ? live.revision.sentAt
