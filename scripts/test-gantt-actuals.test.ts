@@ -45,6 +45,13 @@ describe("Gantt actuals read-only calculations",()=>{
     const r=buildGanttActuals({stages:[stage()],activities:[entry()],asOf:"2026-10-18",holidays:new Set(),summaryId:"project",aggregates:new Map([["s",{logged:20,cost:600,missingHours:0}]]),limited:true});assert.equal(r.totals.get("s")?.logged,20);assert.equal(r.people.get("s")?.[0]?.weeks[0].logged,8);assert.equal(r.limited,true);
   });
   it("calculations never mutate activities, plans or costs",()=>{const stages=[stage()],activities=[entry()];const before=JSON.stringify({stages,activities});calculate(stages,activities);assert.equal(JSON.stringify({stages,activities}),before);});
+  it("planned-only people retain a zero-logged weekly delta",()=>{const r=calculate([stage()],[]);assert.equal(r.people.get("s")?.[0]?.weeks[0]?.logged,0);assert.equal(r.people.get("s")?.[0]?.weeks[0]?.difference,-6);});
+  it("hidden retainer month trails appear once under the visible parent",()=>{
+    const parent={...stage(),id:"retainer",plans:[],budget:99};
+    const child={...stage(),parentId:"retainer",trailParentId:"retainer",budget:100};
+    const r=calculate([parent,child]);assert.equal(r.people.get("retainer")?.[0]?.weeks[0]?.logged,8);assert.equal(r.people.has("s"),false);assert.equal(r.totals.get("retainer")?.cost,240);assert.equal(r.totals.get("retainer")?.budget,100);
+  });
+  it("project-only imports keep weekly dates and person attribution",()=>{const r=calculate([stage()],[entry({stageId:null,imported:true})]);assert.equal(r.people.get("project")?.[0]?.id,"r");assert.equal(r.people.get("project")?.[0]?.weeks[0]?.logged,8);assert.equal(r.people.get("project")?.[0]?.weeks[0]?.imported,8);});
 });
 describe("approved exact budget warning thresholds",()=>{
   it("exactly 10 points ahead is green",()=>assert.equal(actualBudgetBand(50,100,50,40),"normal"));

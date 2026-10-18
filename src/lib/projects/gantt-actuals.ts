@@ -26,6 +26,8 @@ export interface ActualPlan {
 export interface ActualStage {
   id: string;
   parentId: string | null;
+  /** Hidden retainer month activities render under the visible retainer band. */
+  trailParentId?: string | null;
   budget: number;
   start: string;
   end: string;
@@ -100,19 +102,23 @@ export function buildGanttActuals(input: {
   const people = new Map<string, ActualPerson[]>();
   let maxWeekHours = 1;
   for (const stage of input.stages) {
+    if (stage.trailParentId) continue;
+    const trailStages = input.stages.filter(s=>s.id===stage.id || s.trailParentId===stage.id);
+    const trailIds = new Set(trailStages.map(s=>s.id));
+    const trailPlans = trailStages.flatMap(s=>s.plans);
     const grouped = new Map<string, ActualActivity[]>();
     for (const entry of activities) {
-      if (entry.stageId !== stage.id) continue;
+      if (!entry.stageId || !trailIds.has(entry.stageId)) continue;
       const list = grouped.get(entry.personId) ?? [];
       list.push(entry); grouped.set(entry.personId, list);
     }
-    for (const plan of stage.plans.filter(p=>!p.removed)) {
+    for (const plan of trailPlans.filter(p=>!p.removed)) {
       if (!grouped.has(plan.resourceId)) grouped.set(plan.resourceId,[]);
     }
     const rows: ActualPerson[] = [];
     for (const [id, entries] of grouped) {
       const first = entries[0] ?? {resourceId:id,name:""};
-      const plans = stage.plans.filter(p => !p.removed && first.resourceId != null && p.resourceId === first.resourceId);
+      const plans = trailPlans.filter(p => !p.removed && first.resourceId != null && p.resourceId === first.resourceId);
       const weeks = new Map<string, ActualWeek>();
       for (const entry of entries) {
         const start = actualMonday(entry.date);

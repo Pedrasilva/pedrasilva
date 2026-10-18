@@ -5,6 +5,7 @@ import { toLocalISODate } from "@/lib/dates";
 import { getWorkingCalendarHolidays } from "./gantt-utils";
 import { buildGanttActuals, type ActualActivity, type ActualStage, type StageActualAggregate } from "./gantt-actuals";
 import { PROJECT_SUMMARY_ID } from "./build-project-gantt-tree";
+import { useAuth } from "@/hooks/use-auth";
 
 type RawEntry = { id: string; user_id: string; entry_date: string; hours: number; cost_rate_snapshot?: number | null; task_id: string | null; pm_stage_id: string | null; quote_stage_id: string | null; entry_type: string };
 type RawStage = { id: string; parent_stage_id: string | null; budget: number; start_date: string; end_date: string; source_quote_stage_id: string | null; stage_kind: string | null };
@@ -12,8 +13,9 @@ type RawStage = { id: string; parent_stage_id: string | null; budget: number; st
 /** Existing RLS protects activity detail; privacy-safe RPCs reconcile older full months. */
 export function useGanttActuals(projectId: string, enabled: boolean, financials: boolean) {
   const today = toLocalISODate(new Date());
+  const { user, viewAsUser, viewAsCollaboratorId } = useAuth();
   return useQuery({
-    queryKey: ["gantt-actuals", projectId, today, financials],
+    queryKey: ["gantt-actuals", projectId, today, financials, user?.id, viewAsUser, viewAsCollaboratorId],
     enabled: enabled && !!projectId,
     staleTime: 30_000,
     queryFn: async () => {
@@ -62,7 +64,7 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
         const r = h.resource_id?byResource.get(h.resource_id):h.collaborator_id?byCollaborator.get(h.collaborator_id):undefined;
         activities.push({id:`historical:${h.id}`,stageId:h.stage_id,personId:r?.id??`unattributed:${h.collaborator_id??"unknown"}`,name:r?.name??"",resourceId:r?.id??null,date:h.entry_date,hours:Number(h.billable_hours??0)+Number(h.non_billable_hours??0),cost:h.cost==null?null:Number(h.cost),imported:true});
       });
-      const stages: ActualStage[] = stagesRaw.map(s=>({id:s.id,parentId:s.parent_stage_id,budget:Number(s.budget)||0,start:s.start_date,end:s.end_date,plans:allocations.filter(a=>a.stage_id===s.id).map(a=>({id:a.id,resourceId:a.resource_id,start:a.start_date,end:a.end_date,hoursPerDay:Number(a.hours_per_day)||0,percentage:a.allocation_percentage,removed:!!a.planning_removed_at,dailyHours:daily.get(byResource.get(a.resource_id)?.collaborator_id??"")??8}))}));
+      const stages: ActualStage[] = stagesRaw.map(s=>({id:s.id,parentId:s.parent_stage_id,trailParentId:s.stage_kind==="retainer_month"?s.parent_stage_id:null,budget:Number(s.budget)||0,start:s.start_date,end:s.end_date,plans:allocations.filter(a=>a.stage_id===s.id).map(a=>({id:a.id,resourceId:a.resource_id,start:a.start_date,end:a.end_date,hoursPerDay:Number(a.hours_per_day)||0,percentage:a.allocation_percentage,removed:!!a.planning_removed_at,dailyHours:daily.get(byResource.get(a.resource_id)?.collaborator_id??"")??8}))}));
       const lockedBy = new Map((locked.data??[]).map(l=>[`${l.stage_id}:${l.month}`,{cost:Number(l.snap_cost),missing:Number(l.unsnap_hours)}]));
       const aggregates = new Map<string,StageActualAggregate>();
       let limited = false;
