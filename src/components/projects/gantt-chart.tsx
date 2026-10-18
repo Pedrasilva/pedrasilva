@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
+import type { GanttActuals } from "@/lib/projects/gantt-actuals";
+import { GanttActualMetrics, GanttActualTrail, ACTUAL_ROW_HEIGHT, ACTUAL_METRIC_HEIGHT, actualBandClass } from "@/components/projects/gantt-actuals-layer";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import {dependencySlack,scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import type { DepType } from "@/lib/projects/dependencies";
@@ -81,6 +83,7 @@ interface Props {
   budgetByStage?: Map<string, StageBudgetControl>;
   budgetByAllocation?: Map<string, AllocationActuals>;
   showFinancials?: boolean;
+  actuals?: GanttActuals;
   /** Optional avg sale-per-hour used to derive *implied* hours for stages
    *  that have a budget but no resource allocations. Lets non-admin users
    *  see roughly how much effort a fixed-fee stage represents. */
@@ -176,6 +179,7 @@ export function GanttChart({
   budgetByStage,
   budgetByAllocation,
   showFinancials,
+  actuals,
   impliedHourRate,
   impliedCostRate,
   milestones,
@@ -260,15 +264,19 @@ export function GanttChart({
     return out;
   };
 
-  // Per-stage row height (matches the bar canvas and the outline column).
+  const actualPeopleFor = (id: string) => actuals?.people.get(id) ?? [];
+  const extraPeopleFor = (stage: StageWithProject) => actualPeopleFor(stage.id).filter(person =>
+    hierarchy?.get(stage.id)?.isSummary || !stage.allocations.some(a => a.resource_id === person.resourceId));
+  const allocationRowStep = actuals ? ALLOC_ROW_H + ACTUAL_ROW_HEIGHT + 4 : ALLOC_ROW_H + 4;
   const rowHeightFor = (stageId: string): number => {
-    const stage = stages.find((s) => s.id === stageId);
+    const stage = stages.find(s => s.id === stageId);
     if (!stage) return STAGE_ROW_H + STAGE_GAP;
-    const isSummary = hierarchy?.get(stageId)?.isSummary ?? false;
-    if (isSummary) return SUMMARY_ROW_H + STAGE_GAP;
-    const resHidden = resourcesCollapsed?.has(stageId) ?? false;
-    const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
-    return STAGE_ROW_H + allocRows * (ALLOC_ROW_H + 4) + STAGE_GAP;
+    const summary = hierarchy?.get(stageId)?.isSummary ?? false;
+    const base = summary ? SUMMARY_ROW_H : STAGE_ROW_H;
+    const hidden = resourcesCollapsed?.has(stageId) ?? false;
+    const allocations = summary || hidden ? 0 : stage.allocations.length;
+    const extra = actuals && !hidden ? extraPeopleFor(stage).length * ACTUAL_ROW_HEIGHT : 0;
+    return base + (actuals ? ACTUAL_METRIC_HEIGHT : 0) + allocations * allocationRowStep + extra + STAGE_GAP;
   };
 
   // All planner mutations + dependency reads come from the adapter — there is
@@ -424,15 +432,13 @@ export function GanttChart({
       const w = isSummary ? Math.max(40, rawW) : rawW;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
-      const height = isSummary
-        ? SUMMARY_ROW_H + STAGE_GAP
-        : STAGE_ROW_H + allocCount * (ALLOC_ROW_H + 4) + STAGE_GAP;
+      const height = rowHeightFor(stage.id);
       if (i > 0) cursor += 16;
       out.set(stage.id, { top: cursor, height, x, w, anchorY: cursor + (isSummary ? 18 : STAGE_ROW_H / 2) });
       cursor += height;
     });
     return out;
-  }, [stages, draftDates, origin, dayWidth, hierarchy, resourcesCollapsed]);
+  }, [stages, draftDates, origin, dayWidth, hierarchy, resourcesCollapsed, actuals]);
 
   // Real content height — sum of the positioned rows. Used to size the
   // canvas so we don't render an oversized empty area below the last stage.
@@ -858,6 +864,8 @@ export function GanttChart({
       {outlineWidth > 0 && hierarchy && onToggleCollapse && (
         <GanttOutlineColumn
           relative={relative}
+          actuals={actuals}
+          actualFinancials={!!showFinancials}
           visibleStages={stages}
           hierarchy={hierarchy}
           collapsed={collapsed ?? new Set()}
@@ -1185,7 +1193,7 @@ export function GanttChart({
                 <div
                   key={stage.id}
                   className="relative group"
-                  style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
+                  style={{ height: rowHeightFor(stage.id) }}
                   title={`${stage.name} · ${displayDate(sStart)} → ${displayDate(sEnd)}`}
                   onMouseEnter={() => setHoveredStage(stage.id)}
                   onMouseLeave={() => setHoveredStage((s) => (s === stage.id ? null : s))}
@@ -1210,6 +1218,8 @@ export function GanttChart({
                       strokeLinejoin="round"
                     />
                   </svg>
+                  {actuals?.totals.get(stage.id) && <div className="absolute overflow-hidden" style={{left:stageX,top:32,maxWidth:Math.max(120,w)}}><GanttActualMetrics totals={actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals} financials={!!showFinancials} /></div>}
+                  {actuals && !(resourcesCollapsed?.has(stage.id)) && extraPeopleFor(stage).map((person,index)=><GanttActualTrail key={person.id} person={person} origin={origin} dayWidth={dayWidth} maxHours={actuals.maxWeekHours} top={SUMMARY_ROW_H+ACTUAL_METRIC_HEIGHT+index*ACTUAL_ROW_HEIGHT} />)}
                   {/* Drag-to-move overlay: shifts every descendant by the same delta. */}
                   <div
                     className="absolute z-20 cursor-grab active:cursor-grabbing"
@@ -1339,7 +1349,7 @@ export function GanttChart({
               <div
                 key={stage.id}
                 className="relative"
-                style={{ height: STAGE_ROW_H + rowsHeight + STAGE_GAP }}
+                style={{ height: rowHeightFor(stage.id) }}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setHoveredStage(stage.id);
@@ -1426,7 +1436,7 @@ export function GanttChart({
                     : undefined;
                   return (
                   <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
-                  {!isSupplierBar && !isClientBar && (
+                  {!actuals && !isSupplierBar && !isClientBar && (
                     <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                       <div
                         className="h-full transition-all"
@@ -1487,7 +1497,7 @@ export function GanttChart({
                         </div>
 
 
-                        {!isSupplierBar && !isClientBar && (
+                        {!actuals && !isSupplierBar && !isClientBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
@@ -1662,6 +1672,11 @@ export function GanttChart({
                   />
                 )}
 
+                {actuals?.totals.get(stage.id) && <div className="absolute overflow-hidden" style={{left:stageX,top:STAGE_ROW_H,maxWidth:Math.max(120,stageW)}}>
+                  {showFinancials && <div className={`h-1 ${actualBandClass((actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals).band)}`} style={{width:`${Math.min(100,actuals.totals.get(stage.id)?.consumed??0)}%`}} />}
+                  <GanttActualMetrics totals={actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals} financials={!!showFinancials} />
+                </div>}
+                {actuals && !resHidden && extraPeopleFor(stage).map((person,index)=><GanttActualTrail key={person.id} person={person} origin={origin} dayWidth={dayWidth} maxHours={actuals.maxWeekHours} top={STAGE_ROW_H+ACTUAL_METRIC_HEIGHT+stage.allocations.length*allocationRowStep+index*ACTUAL_ROW_HEIGHT} />)}
                 {!resHidden && stage.allocations.map((a, idx) => {
                   const aDraft = draftDates.get(a.id);
                   const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
@@ -1675,7 +1690,7 @@ export function GanttChart({
                     hours_per_day: Number(a.hours_per_day),
                     hourly_rate: costRate,
                   }, relative ? NO_HOLIDAYS : undefined);
-                  const top = STAGE_ROW_H + idx * (ALLOC_ROW_H + 4);
+                  const top = STAGE_ROW_H + (actuals ? ACTUAL_METRIC_HEIGHT : 0) + idx * allocationRowStep;
                   const r = resourceMap.get(a.resource_id);
                   const color = r?.color ?? a.resource.color;
                   const durationDays = dayCount(a.start_date, a.end_date);
@@ -1705,7 +1720,9 @@ export function GanttChart({
                   const isImported = a.is_locked === true || a.source === "imported_accelo";
 
                   return (
-                    <div key={a.id} className="absolute group" style={{ left: aX, width: aW, top, height: ALLOC_ROW_H }}>
+                    <div key={a.id} className="absolute left-0 right-0" style={{top,height:allocationRowStep}}>
+                      {actuals && stage.allocations.findIndex(other=>other.resource_id===a.resource_id)===idx && actualPeopleFor(stage.id).filter(person=>person.resourceId===a.resource_id).map(person=><GanttActualTrail key={person.id} person={person} origin={origin} dayWidth={dayWidth} maxHours={actuals.maxWeekHours} top={ALLOC_ROW_H} />)}
+                    <div className="absolute group" style={{ left: aX, width: aW, top:0, height: ALLOC_ROW_H }}>
                       <TooltipProvider delayDuration={120}>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -1908,6 +1925,7 @@ export function GanttChart({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                    </div>
                     </div>
                   );
                 })}

@@ -59,6 +59,8 @@ import { buildProjectGanttTree, PROJECT_SUMMARY_ID as PROJECT_MODE_SUMMARY_ID } 
 import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource, StageWithAllocations } from "@/lib/projects/types";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
 import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
@@ -1258,6 +1260,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
           </div>
         )}
       </div>
+      {showActuals && actualsQ.isPending && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
+      {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
+      {actuals?.limited && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.limited")}</p>}
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div
           ref={chartRef}
@@ -1357,6 +1362,7 @@ interface ProjectGanttProps {
   showCancelled?: boolean;
   dayWidth?: number;
   canEdit?: boolean;
+  canSeeFinancials?: boolean;
 }
 
 export function ProjectGantt({
@@ -1364,8 +1370,12 @@ export function ProjectGantt({
   showCancelled = false,
   dayWidth: dayWidthProp,
   canEdit = false,
+  canSeeFinancials = false,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
+  const [showActuals,setShowActuals] = useState(false);
+  const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
+  const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const { data: allResourcesData } = useProjectResources();
   const allResources = useMemo(
@@ -1428,10 +1438,12 @@ export function ProjectGantt({
       if (sd < minD) minD = sd;
       if (ed > maxD) maxD = ed;
     }
+    if(actuals?.firstDate && parseISO(actuals.firstDate)<minD) minD=parseISO(actuals.firstDate);
+    if(actuals?.lastDate && parseISO(actuals.lastDate)>maxD) maxD=parseISO(actuals.lastDate);
     const o = addDays(minD, -7);
     const days = Math.max(60, differenceInCalendarDays(maxD, o) + 21);
     return { origin: o, totalDays: days };
-  }, [mappedStages]);
+  }, [mappedStages,actuals]);
 
   const collapseKey = `project-gantt-collapsed:${projectId}`;
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
@@ -1849,6 +1861,7 @@ export function ProjectGantt({
             </>
           )}
           <GanttHistoryControls mode="project" scope={projectId} disabled={!canEdit}/>
+          <label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")} />{t("projects:gantt.actuals.show")}</label>
           {!canEdit && (
             <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
               {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
@@ -1914,6 +1927,9 @@ export function ProjectGantt({
           </div>
         )}
       </div>
+      {showActuals && actualsQ.isPending && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
+      {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
+      {actuals?.limited && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.limited")}</p>}
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div
           ref={chartRef}
@@ -1946,6 +1962,8 @@ export function ProjectGantt({
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
             onUpdateStageBudget={canEdit ? handleUpdateBudget : undefined}
             onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
+            actuals={actuals}
+            showFinancials={canSeeFinancials}
             impliedHourRate={projectImpliedHourRate}
             impliedCostRate={projectImpliedCostRate}
           />

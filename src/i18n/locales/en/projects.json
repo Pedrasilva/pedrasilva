@@ -521,6 +521,18 @@
     "rateSuggestionFootnote": "* Rate is auto-suggested from the HR comparative summary (sale @ 50%) when the resource has no rate set. Edit the resource to fix a value."
   },
   "gantt": {
+    "actuals": {
+      "show": "Show logged hours",
+      "costToDate": "Cost to date",
+      "consumed": "Budget consumed",
+      "unplanned": "Unplanned",
+      "unattributed": "Unattributed",
+      "incompleteCost": "Cost incomplete: {{hours}}h without a valid saved cost.",
+      "outsideDates": "{{hours}}h outside planned dates",
+      "importedHours": "Imported: {{hours}}h (stored import cost)",
+      "loadFailed": "Could not load logged hours.",
+      "limited": "Only authorized activity detail is shown. Completed-month totals use project summaries; current-month totals may be incomplete."
+    },
     "wdShort": "wd",
     "title": "Global Gantt",
     "subtitle": "All {{filter}} projects in a single Gantt. Drag resources from the side pool onto any stage, or grab an existing allocation by the left handle to move it between stages or projects.",
