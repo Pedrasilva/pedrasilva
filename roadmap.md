@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — planning cut-off preview, no live changes
+- [x] Read-only preview: 94 allocations; 12 eligible zero-hour markers trimmed / 0 retired / 82 untouched, including 3 monthly-retainer pending, 5 protected and 2 future with 24.75h; all removed planned hours 0.
+- [x] Read current picker/provisioning, live RLS/triggers and monthly retainers: future planning is recreated by zero-hour self-allocation and multiple allocations break single-row lookup; propose correction first, monthly cutoff choice and durable guarded snapshot/undo.
+- [ ] Present preview and wait for Luis's approval; no cut-off or logging fix applied before approval.
+
 ## Current request — approved selective recovery and deletion safety
 - [x] Compared 04:00 backup with all FK references and relevant columns: forecast/activity dependents were empty in backup and live; no additional lost rows.
 - [x] Restored 448 exact rows atomically through one-shot admin function; existing triggers restored, FK constraints retained, full row equality and unchanged non-target hashes across 219 public tables confirmed. Recovery function disabled afterwards; all migrations mirrored.
