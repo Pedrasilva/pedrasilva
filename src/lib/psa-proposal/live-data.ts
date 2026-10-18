@@ -1282,8 +1282,21 @@ export function formatCurrencyEUR(n: number | null | undefined, lang: ProposalLa
   }).format(n);
 }
 
+/** Dates before 2010 are relative-timeline dates (Week 1 = 2000-01-03). */
+export function relativeWeekLabel(d: string, lang: ProposalLang = "pt-PT"): string | null {
+  if (d.slice(0, 10) >= "2010-01-01") return null;
+  const origin = Date.UTC(2000, 0, 3);
+  const [y, m, day] = d.slice(0, 10).split("-").map(Number);
+  const days = Math.round((Date.UTC(y, m - 1, day) - origin) / 86400000);
+  const weekdays = Math.floor(days / 7) * 5 + Math.min(((days % 7) + 7) % 7, 4);
+  const n = Math.floor(weekdays / 5) + 1;
+  return lang === "pt-PT" ? `Semana ${n}` : `Week ${n}`;
+}
+
 export function formatDatePT(d: string | null | undefined, lang: ProposalLang = "pt-PT"): string {
   if (!d) return "—";
+  const rel = relativeWeekLabel(d, lang);
+  if (rel) return rel;
   try {
     return new Intl.DateTimeFormat(lang, { dateStyle: "medium" }).format(
       new Date(d),
