@@ -1,5 +1,8 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — relative payment descriptions
+- [ ] Replace placeholder calendar dates in payment descriptions with relative week labels; preserve saved dates and amounts, and check the document.
+
 ## Current request — conflicting proposal fees
 - [x] Traced €109,000 agreed fees, €119,900 additive advance, older €114,620 composer payments and inconsistent VAT exemption.
 - [x] Corrected 2675's nine planned rows to €109,000 (advance €10,900 + 90% stage invoices), VAT zero, deduction enabled; all stage rows/hours/dates/statuses and unrelated quote fields verified unchanged. Shared composer amount/fee helpers and cache invalidation aligned; 14 tests and build pass.

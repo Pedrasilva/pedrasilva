@@ -677,6 +677,8 @@ export async function fetchLiveQuoteSnapshot(
 
       const fmtDate = (iso?: string | null) => {
         if (!iso) return "";
+        const relative = relativeWeekLabel(iso, lang);
+        if (relative) return relative;
         const [y, m, d] = iso.split("-");
         return y && m && d ? `${d}/${m}/${y}` : iso;
       };
