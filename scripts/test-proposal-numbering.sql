@@ -24,6 +24,9 @@ BEGIN
  IF result<>'9899' THEN RAISE EXCEPTION 'Expected 9899, got %',result; END IF;
  result:=public.allocate_proposal_number('2098-01-01');
  IF result<>'98100' THEN RAISE EXCEPTION 'Expected 98100, got %',result; END IF;
+ UPDATE public.fee_proposal_number_counters SET last_seq=99 WHERE year_prefix='26';
+ result:=public.allocate_proposal_number('2026-01-01');
+ IF result<>'26100' THEN RAISE EXCEPTION 'Expected 26100 after 2699, got %',result; END IF;
  DELETE FROM public.fee_proposal_number_counters WHERE year_prefix='97';
  result:=public.allocate_proposal_number('2097-01-01');
  IF result<>'9701' THEN RAISE EXCEPTION 'Annual reset failed: %',result; END IF;
