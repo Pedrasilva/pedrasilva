@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — approved financial security fixes
+- [ ] Compare current and proposed financial reads for every account; stop before applying if any PSA account loses access.
+- [ ] Tighten the three approved SELECT policies while preserving intended PSA access and administrator oversight.
+- [ ] Revoke only TRUNCATE for anon/authenticated on public tables and both creator-role public-table defaults; mirror every migration exactly.
+- [ ] Verify security on temporary copies and check privileges; no real project/proposal test writes.
+
 ## Current request — CRM zero-quote fallback and atomic milestones
 - [x] Use estimated fee labelled Estimated when the active quoted total is zero or empty, consistently across cards and totals.
 - [x] Scope confirmed: milestone dates/dragging only. Single-stage drags now explicitly use the same atomic moveStages save as multi-stage moves; typed dates retain the existing atomic cascade.
