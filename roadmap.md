@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — conflicting proposal fees
+- [ ] Trace architecture, Financial and composer payment totals against saved rows.
+- [ ] Correct shared calculations without changing agreed fees or historical invoices; verify on an isolated copy and clean up.
+- [ ] Explain the differences and report verification.
+
 ## Current request — planning cut-off approved and applied
 - [x] Implement deterministic own-task provisioning with existing access, retired 0h missing links and no merging; copy-only database cases passed including non-planner 19 October logging, month/lock/cost preservation and cutoff/undo.
 - [x] Browser save/read after reload on persisted disposable copy as Luis: 1h15 on 19 October, retired 0h link, pending approval and snapshot verified; copy/activity removed. Non-planner check used database claims, not another person's browser session.
