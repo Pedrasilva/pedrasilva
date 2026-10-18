@@ -11150,6 +11150,81 @@ export type Database = {
         }
         Relationships: []
       }
+      pm_week_project_notes: {
+        Row: {
+          added_manually: boolean
+          carried_from_week: string | null
+          created_at: string
+          created_by: string
+          flag: string
+          id: string
+          kind: string
+          notes: string
+          opportunity_id: string | null
+          project_id: string | null
+          revision: number
+          status: string | null
+          target_text: string
+          updated_at: string
+          updated_by: string
+          week_start: string
+          week_topics: Json
+        }
+        Insert: {
+          added_manually?: boolean
+          carried_from_week?: string | null
+          created_at?: string
+          created_by?: string
+          flag?: string
+          id?: string
+          kind: string
+          notes?: string
+          opportunity_id?: string | null
+          project_id?: string | null
+          revision?: number
+          status?: string | null
+          target_text?: string
+          updated_at?: string
+          updated_by?: string
+          week_start: string
+          week_topics?: Json
+        }
+        Update: {
+          added_manually?: boolean
+          carried_from_week?: string | null
+          created_at?: string
+          created_by?: string
+          flag?: string
+          id?: string
+          kind?: string
+          notes?: string
+          opportunity_id?: string | null
+          project_id?: string | null
+          revision?: number
+          status?: string | null
+          target_text?: string
+          updated_at?: string
+          updated_by?: string
+          week_start?: string
+          week_topics?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_week_project_notes_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_week_project_notes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_week_publications: {
         Row: {
           approved_at: string
@@ -15874,6 +15949,7 @@ export type Database = {
             Args: { _target_user_id: string; _user_id: string }
             Returns: boolean
           }
+      pm_can_edit_week_notes: { Args: never; Returns: boolean }
       pm_can_see_project_financials: {
         Args: { _uid: string }
         Returns: boolean
@@ -16134,6 +16210,44 @@ export type Database = {
         }
         Returns: Json
       }
+      pm_week_note_choices: { Args: never; Returns: Json }
+      pm_week_note_editor_names: { Args: never; Returns: Json }
+      pm_week_note_save: {
+        Args: {
+          _kind: string
+          _opportunity: string
+          _project: string
+          _revision?: number
+          _value: Json
+          _week: string
+        }
+        Returns: {
+          added_manually: boolean
+          carried_from_week: string | null
+          created_at: string
+          created_by: string
+          flag: string
+          id: string
+          kind: string
+          notes: string
+          opportunity_id: string | null
+          project_id: string | null
+          revision: number
+          status: string | null
+          target_text: string
+          updated_at: string
+          updated_by: string
+          week_start: string
+          week_topics: Json
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pm_week_project_notes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pm_week_notes_read: { Args: { _week: string }; Returns: Json }
       pm_week_revision: { Args: { _plan_id: string }; Returns: string }
       pm_weekday_shift: {
         Args: { _date: string; _days: number }
