@@ -704,7 +704,7 @@ export function useDeleteAllocation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id }: { id: string; projectId: string }) => {
-      const { error } = await supabase.from("pm_allocations").delete().eq("id", id);
+      const { error } = await supabase.from("pm_allocations").update({ planning_removed_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {

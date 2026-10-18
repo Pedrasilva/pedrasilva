@@ -778,6 +778,13 @@
       "when": 1792330914921,
       "tag": "0110_recovery_transaction_timeout",
       "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "7",
+      "when": 1792330958541,
+      "tag": "0111_block_cascade_loss_of_logged_hours",
+      "breakpoints": true
     }
   ]
 }

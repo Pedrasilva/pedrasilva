@@ -1,5 +1,7 @@
 # Projects module rules
 
+- Allocation removal retires via planning_removed_at; database guards reject task/allocation/stage/project deletion with logged or imported history, including descendant stages. Why: planning edits must never cascade-delete timesheet history.
+
 - Gantt actuals use gantt-actuals.ts pure per-person/week aggregation and use-gantt-actuals.ts RLS reads with privacy-safe stage-summary reconciliation; snapshot-only costs and child-fee rollups never mutate planning or timesheets. Why: real attribution, missing-cost warnings and financial access must remain separate from planned-rate estimates.
 
 - Cost-period rebuilds use pm_replace_cost_periods for atomic replacement and queue acknowledgement; admin and scheduled paths share an advisory lock and revision check. Why: failed or stale concurrent runs must preserve periods and pending work.
