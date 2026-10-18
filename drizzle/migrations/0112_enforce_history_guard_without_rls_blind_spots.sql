@@ -1,0 +1,1 @@
+ALTER FUNCTION public.pm_guard_logged_history_delete() SECURITY DEFINER;

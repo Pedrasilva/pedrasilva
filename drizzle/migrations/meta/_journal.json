@@ -785,6 +785,13 @@
       "when": 1792330958541,
       "tag": "0111_block_cascade_loss_of_logged_hours",
       "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "7",
+      "when": 1792331002049,
+      "tag": "0112_enforce_history_guard_without_rls_blind_spots",
+      "breakpoints": true
     }
   ]
 }
