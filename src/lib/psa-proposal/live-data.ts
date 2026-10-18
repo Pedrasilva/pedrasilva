@@ -1638,6 +1638,10 @@ export function formatMonthShort(d: Date, lang: ProposalLang): string {
     .replace(".", "");
 }
 
+/** Relative-timeline month header ("Mês 1" / "Month 1"). */
+export function relativeMonthLabel(n: number, lang: ProposalLang): string {
+  return lang === "pt-PT" ? `Mês ${n}` : `Month ${n}`;
+}
 /**
  * Single-unit duration formatter used across all proposal blocks.
  * Rule:
