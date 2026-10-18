@@ -17,6 +17,7 @@ import {
   formatDurationHuman,
   formatDurationCompact,
   formatMonthShort,
+  relativeMonthLabel,
   getProposalLabels,
 } from "@/lib/psa-proposal/live-data";
 import {
@@ -848,7 +849,9 @@ export function BlockBody({
         const left = ((cursor.getTime() - headStart.getTime()) / span) * 100;
         const width = ((next.getTime() - cursor.getTime()) / span) * 100;
         months.push({
-          label: formatMonthShort(cursor, lang).charAt(0).toUpperCase(),
+          label: headStart.getFullYear() < 2010
+            ? relativeMonthLabel(months.length + 1, lang)
+            : formatMonthShort(cursor, lang).charAt(0).toUpperCase(),
           left,
           width,
         });
@@ -1997,7 +2000,7 @@ export function BlockBody({
         while (cursor.getTime() <= maxTs) {
           pcts.push({
             ts: cursor.getTime(),
-            label: formatMonthShort(new Date(cursor), lang),
+            label: start.getFullYear() < 2010 ? relativeMonthLabel(pcts.length + 1, lang) : formatMonthShort(new Date(cursor), lang),
             year: cursor.getFullYear(),
           });
           cursor.setMonth(cursor.getMonth() + 1);
@@ -2017,7 +2020,7 @@ export function BlockBody({
           else b.end = p.ts;
         }
         // Include end of range to close the last year band
-        const sortedYears = Array.from(yearsSeen.keys()).sort((a, b) => a - b);
+        const sortedYears = start.getFullYear() < 2010 ? [] : Array.from(yearsSeen.keys()).sort((a, b) => a - b);
         for (let i = 0; i < sortedYears.length; i++) {
           const y = sortedYears[i];
           const band = yearsSeen.get(y)!;
