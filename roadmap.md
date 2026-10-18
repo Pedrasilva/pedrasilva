@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — Gantt planned vs actual (plan first)
+- [x] Read-only BCG screen and stored-data inspection: explain planned cost/fee/hours, leave badges, implied hours and planned-cost line.
+- [x] Prepare weekly per-person actuals and stage-budget proposal; identify reused/replaced figures and double-counting risks.
+- [ ] Await Luis's approval before any implementation; all application code, timesheets, costs and planning remain unchanged.
+
 ## Current request — homepage and menu weekly planning
 - [x] Compact personal approved Mon–Fri AM/PM plan, numbered stages, HR/calendar days and current-week team link for all PSA staff; private revision drafts never shown as personal planning.
 - [x] Planner-only next-week status/action and staff-visible Projects weekly-planning menu across rail, tabs and mobile; existing Projects access gates unchanged.
