@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useModuleAccess } from "@/lib/module-access";
+import { useAuth } from "@/hooks/use-auth";
 import { RAIL_ITEMS, isRailItemActive } from "./nav-config";
 
 /** Modules surfaced as tabs in the global header, in display order. */
@@ -16,11 +17,12 @@ export function ModuleTabs() {
   const loc = useLocation();
   const { t } = useTranslation("common");
   const { canAccess, loading } = useModuleAccess();
+  const { isPsaStaff } = useAuth();
 
   const items = loading
     ? []
     : TAB_IDS.map((id) => RAIL_ITEMS.find((r) => r.id === id)).filter(
-        (i): i is (typeof RAIL_ITEMS)[number] => !!i && canAccess(i.moduleId),
+        (i): i is (typeof RAIL_ITEMS)[number] => !!i && (canAccess(i.moduleId) || (i.id === "projects" && isPsaStaff)),
       );
 
   if (items.length === 0) return null;
@@ -32,7 +34,7 @@ export function ModuleTabs() {
         return (
           <Link
             key={it.id}
-            to={it.to as never}
+            to={(it.id === "projects" && !canAccess("projects") ? "/projects/week-plan" : it.to) as never}
             aria-current={active ? "page" : undefined}
             className={cn(
               "rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",

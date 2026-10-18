@@ -88,7 +88,7 @@ function AppLayout() {
     loc.pathname.startsWith("/finance");
 
   // Items for mobile sheet — flatten rail config.
-  const mobileItems = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId));
+  const mobileItems = accessLoading ? [] : RAIL_ITEMS.filter((i) => canAccess(i.moduleId) || (i.id === "projects" && isPsaStaff));
 
   // Route protection in one place: the module owning the current path.
   const currentModule = moduleForPath(loc.pathname);
@@ -210,7 +210,7 @@ function AppLayout() {
                       return (
                         <Link
                           key={it.id}
-                          to={it.to as never}
+                          to={(it.id === "projects" && !canAccess("projects") ? "/projects/week-plan" : it.to) as never}
                           aria-current={active ? "page" : undefined}
                           className={cn(
                             "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
@@ -231,6 +231,7 @@ function AppLayout() {
                         </Link>
                       );
                     })}
+                    {isPsaStaff && <Link to="/projects/week-plan" className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"><CalendarDays className="h-4 w-4" />{t("shell.link.projects.weekPlan")}</Link>}
                     <div className="my-3 border-t" />
                     {isRealAdmin && <ViewAsPicker variant="mobile" />}
                     {isPsaStaff && (

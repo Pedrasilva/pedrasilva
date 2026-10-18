@@ -7,6 +7,7 @@ import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { RAIL_ITEMS, type FlyoutLink } from "./nav-config";
+import { useModuleAccess } from "@/lib/module-access";
 import { useMyOpenActions, usePendingQuestions } from "./AppRail";
 
 /**
@@ -21,10 +22,12 @@ export function ModuleSubnav({ moduleId }: { moduleId: string }) {
   const { permissions } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
   const { hasAccess: hasFinance } = useFinanceAccess();
+  const { canAccess } = useModuleAccess();
   const item = RAIL_ITEMS.find((i) => i.moduleId === moduleId);
   if (!item) return null;
   const can = (key?: PermissionKey) => !key || isAdmin || permissions.has(key);
   const canLink = (l: FlyoutLink) =>
+    (moduleId !== "projects" || l.to === "/projects/week-plan" || canAccess("projects")) &&
     (!l.requiresFinance || hasFinance) &&
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
