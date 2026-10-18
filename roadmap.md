@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — proposal family numbering
+- [ ] Archive only VURAL tests 2665/2667/2668 and PSA QA tests 2608/2609; verify exclusion from pipeline.
+- [ ] Read-only identity/history check of 2616; leave all Premium Fitness records unchanged pending confirmation.
+- [ ] Preserve number for new revisions, ensure atomic number/revision uniqueness and annual sequences beyond 99; align PDF identity without renumbering existing records.
+- [ ] Test disposable copies, clean up, mirror migration and report results.
+
 ## Current request — relative payment descriptions
 - [x] Both payment block renderers normalize legacy snapshot descriptions without saving changes; browser checks passed for old EN/PT descriptions and unchanged calendar-mode text. No browser errors; build OK.
 - [x] Replaced placeholder calendar dates in all generated payment descriptions (including grouped invoices) with relative week labels. Signed-in, write-blocked browser check and screenshot confirmed Week 1–25 without calendar dates; no saved dates or amounts changed, no browser errors, build OK.
