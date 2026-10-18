@@ -51,7 +51,19 @@
     "brushHint": "Choose a project or Erase",
     "discardUnsaved": "Discard unsaved changes",
     "stageChange": "Stage change",
-    "droppedBookings": "Gantt bookings not represented by this draft"
+    "droppedBookings": "Gantt bookings not represented by this draft",
+    "selectStage": "Select stage",
+    "stageAuto": "Automatic by date",
+    "outsideStageDates": "outside the stage dates",
+    "extendStageUntil": "Extend stage until {{until}}",
+    "removeSlot": "Remove",
+    "selectedCount_one": "{{count}} slot selected",
+    "selectedCount_other": "{{count}} slots selected",
+    "assignStage": "Assign stage",
+    "clearSelection": "Clear selection",
+    "selectSlots": "Select these slots",
+    "selectHint": "Click painted slots to select them, then choose a stage.",
+    "mixedProjects": "Select slots from one project to change their stage."
   },
   "module": {
     "title": "Projects",
@@ -2124,6 +2136,12 @@
   "historySafety": {
     "retire": "Retire allocation",
     "retired": "Allocation retired; task and logged hours preserved.",
-    "blocked": "Logged hours exist. Retire the allocation or close the stage instead of deleting it."
+    "blocked": "Logged hours exist. Retire the allocation or close the stage instead of deleting it.",
+    "delete": "Delete allocation",
+    "deleteConfirm": "Delete {{name}}'s allocation? It has no logged hours.",
+    "deleted": "Allocation deleted.",
+    "retireBecause": "Cannot be deleted: it has {{hours}} h logged. Retiring keeps the task and hours.",
+    "retireConfirm": "Retire {{name}}'s allocation?",
+    "checking": "Checking logged hours…"
   }
 }

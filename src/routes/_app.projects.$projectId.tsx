@@ -2159,6 +2159,7 @@ function MilestonesTable({
                               <AllocationRowActions
                                 allocationId={a.id}
                                 projectId={projectId}
+                                resourceName={a.resource?.name}
                                 onEdit={onEditPlan}
                                 onEditTask={() =>
                                   setEditingTask({ allocationId: a.id, stageId: s.id })

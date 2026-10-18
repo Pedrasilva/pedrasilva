@@ -82,6 +82,8 @@ export interface PlannerAllocationUpdateArgs {
 export interface PlannerAllocationDeleteArgs {
   id: string;
   projectId: string;
+  /** Project mode: "delete" only when no hours are logged; defaults to retire. */
+  mode?: "delete" | "retire";
 }
 
 export interface PlannerAllocationStatusArgs {

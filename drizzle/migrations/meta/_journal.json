@@ -820,6 +820,20 @@
       "when": 1792335227927,
       "tag": "0116_timesheet_task_access_and_cutoff_snapshot_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "7",
+      "when": 1792337089258,
+      "tag": "0117_week_draft_stage_outside_dates",
+      "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1792337141749,
+      "tag": "0118_allocation_logged_hours",
+      "breakpoints": true
     }
   ]
 }

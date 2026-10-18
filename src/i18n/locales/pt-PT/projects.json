@@ -51,7 +51,19 @@
     "brushHint": "Escolha um projeto ou Apagar",
     "discardUnsaved": "Descartar alterações não guardadas",
     "stageChange": "Mudança de fase",
-    "droppedBookings": "Reservas do Gantt que este rascunho não representa"
+    "droppedBookings": "Reservas do Gantt que este rascunho não representa",
+    "selectStage": "Selecionar fase",
+    "stageAuto": "Automática pela data",
+    "outsideStageDates": "fora das datas da fase",
+    "extendStageUntil": "Prolongar fase até {{until}}",
+    "removeSlot": "Remover",
+    "selectedCount_one": "{{count}} meio-dia selecionado",
+    "selectedCount_other": "{{count}} meios-dias selecionados",
+    "assignStage": "Atribuir fase",
+    "clearSelection": "Limpar seleção",
+    "selectSlots": "Selecionar estes meios-dias",
+    "selectHint": "Clique nos meios-dias pintados para os selecionar e escolha uma fase.",
+    "mixedProjects": "Selecione meios-dias de um só projeto para mudar a fase."
   },
   "module": {
     "title": "Projectos",
@@ -2124,6 +2136,12 @@
   "historySafety": {
     "retire": "Retirar alocação",
     "retired": "Alocação retirada; tarefa e horas registadas preservadas.",
-    "blocked": "Existem horas registadas. Retire a alocação ou encerre a fase em vez de a eliminar."
+    "blocked": "Existem horas registadas. Retire a alocação ou encerre a fase em vez de a eliminar.",
+    "delete": "Eliminar alocação",
+    "deleteConfirm": "Eliminar a alocação de {{name}}? Não tem horas registadas.",
+    "deleted": "Alocação eliminada.",
+    "retireBecause": "Não pode ser eliminada: tem {{hours}} h registadas. Retirar preserva a tarefa e as horas.",
+    "retireConfirm": "Retirar a alocação de {{name}}?",
+    "checking": "A verificar horas registadas…"
   }
 }

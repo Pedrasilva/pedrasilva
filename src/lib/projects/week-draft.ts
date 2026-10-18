@@ -75,4 +75,32 @@ export function applySlotChanges(current:DraftSlot[], before:DraftSlot[], after:
   const values=new Map(current.map(s => [slotKey(s),s]));
   for(const c of slotChanges(before,after)) { if(c.after) values.set(slotKey(c),{resource_id:c.resource_id,day:c.day,part:c.part,...c.after}); else values.delete(slotKey(c)); }
   return [...values.values()];
+}/** A slot whose chosen stage does not cover its day (kept, flagged amber, needs an explicit extension). */
+export function isOutsideStage(stages: BoardStage[], s: Pick<DraftSlot,"day"|"stage_id">) {
+  const stage = s.stage_id ? stages.find(x => x.id === s.stage_id) : undefined;
+  return !!stage && (s.day < stage.start_date || s.day > stage.end_date);
+}
+/** Default stage for a project brush: the single bookable stage overlapping the given days, else null. */
+export function defaultStage(stages: BoardStage[], project: string, days: string[]) {
+  const sorted=[...days].sort(); if(!sorted.length) return null;
+  const hits = stages.filter(s => s.project_id === project && s.start_date <= sorted[sorted.length-1] && s.end_date >= sorted[0]);
+  return hits.length === 1 ? hits[0].id : null;
+}
+/** Change only the stage of the given painted slots, keeping project and site visit. */
+export function setSlotStage(slots: DraftSlot[], keys: Set<string>, stageId: string | null) {
+  return slots.map(s => keys.has(slotKey(s)) ? { ...s, stage_id: stageId } : s);
+}
+/** One extension proposal per stage covering every outside-date slot; existing wider proposals are kept. Never applied until ticked at approval. */
+export function outsideExtensionNotes(stages: BoardStage[], slots: DraftSlot[], notes: ExtensionNote[]) {
+  const byStage = new Map<string,string[]>();
+  for (const s of slots) if (isOutsideStage(stages,s)) byStage.set(s.stage_id!, [...(byStage.get(s.stage_id!) ?? []), s.day]);
+  let next = [...notes];
+  for (const [id, days] of byStage) {
+    const stage = stages.find(s => s.id === id)!; const own = next.filter(n => n.stage_id === id && !n.resource_id);
+    const from = [stage.start_date, ...days, ...own.map(n => n.from ?? stage.start_date)].sort()[0];
+    const until = [stage.end_date, ...days, ...own.map(n => n.until)].sort().at(-1)!;
+    if (own.length === 1 && (own[0].from ?? stage.start_date) === from && own[0].until === until) continue;
+    next = [...next.filter(n => !(n.stage_id === id && !n.resource_id)), { project_id: stage.project_id, stage_id: id, from, until }];
+  }
+  return next;
 }
