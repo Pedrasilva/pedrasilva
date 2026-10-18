@@ -50,6 +50,8 @@
   "ofTotal": "{{shown}} of {{total}}",
   "page": "Page {{current}} of {{total}}",
   "proposalComposer": {
+    "reference": "Proposal {{number}}",
+    "revisionReference": "Proposal {{number}} rev. {{revision}}",
     "pagination": {
       "loading": "Laying out proposal pages…",
       "error": "The proposal pages could not be generated. Try refreshing the preview.",

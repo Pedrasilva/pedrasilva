@@ -69,6 +69,8 @@ export interface LiveStage {
 export interface LiveQuoteSnapshot {
   quoteId: string;
   projectNumber: string | null;
+  /** Initial quote is stored as revision 1 and printed without a suffix. */
+  proposalRevision?: number;
   projectName: string | null;
   client: string | null;
   location: string | null;
@@ -981,6 +983,7 @@ export async function fetchLiveQuoteSnapshot(
       return {
         quoteId: quoteId!,
         projectNumber: q.proposal_number ? String(q.proposal_number) : null,
+        proposalRevision: Math.max(0, Number(q.revision_number ?? 1) - 1),
         projectName: q.titulo ?? null,
         client: clientName,
         location: null,

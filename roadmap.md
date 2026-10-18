@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — proposal family numbering
+- [x] Archived only VURAL tests 2665/2667/2668 and PSA QA tests 2608/2609; pipeline/open queries exclude archived rows, none deleted.
+- [x] Read-only 2616 check: opportunity/title Hotel Alqueva uses proposal 2660, no client; Premium Fitness root 2661 remains unchanged. Family reassignment waits for Luis confirmation.
+- [x] Migration 0127 preserves source numbers for revisions, root-locks revision allocation, unique number/revision and counter beyond 99; PDF cover uses translated number/revision without renumbering existing records.
+- [x] Rollback-only copies passed numbering/uniqueness/fee/year assertions; signed-in browser created a same-number revision and read it after reload, no errors. Persisted browser copies deleted; migration mirrored; 9 regressions and i18n parity passed. PDF cover itself not visually tested.
+
 ## Current request — relative payment descriptions
 - [x] Both payment block renderers normalize legacy snapshot descriptions without saving changes; browser checks passed for old EN/PT descriptions and unchanged calendar-mode text. No browser errors; build OK.
 - [x] Replaced placeholder calendar dates in all generated payment descriptions (including grouped invoices) with relative week labels. Signed-in, write-blocked browser check and screenshot confirmed Week 1–25 without calendar dates; no saved dates or amounts changed, no browser errors, build OK.

@@ -890,6 +890,13 @@
       "when": 1792356236608,
       "tag": "0126_fix_proposal_snapshot_document_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1792363713626,
+      "tag": "0127_proposal_family_numbering",
+      "breakpoints": true
     }
   ]
 }
