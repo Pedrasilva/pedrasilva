@@ -883,6 +883,13 @@
       "when": 1792355549061,
       "tag": "0125_quote_stage_payment_dates_follow_stages",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1792356236608,
+      "tag": "0126_fix_proposal_snapshot_document_blocks",
+      "breakpoints": true
     }
   ]
 }
