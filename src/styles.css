@@ -251,8 +251,9 @@
 
 /* Projects module — Gantt canvas grid background */
 .week-booking {
-  border-left: 3px solid var(--week-project-color, var(--chart-2));
+  border-left: 4px solid var(--week-project-color, var(--chart-2));
   border-radius: 2px;
+  background: color-mix(in oklch, var(--week-project-color, var(--chart-2)) 14%, var(--background));
 }
 .week-booking-full {
   background: color-mix(in oklch, var(--week-project-color, var(--chart-2)) 30%, var(--background));
