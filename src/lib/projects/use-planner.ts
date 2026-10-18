@@ -313,6 +313,7 @@ export function useDeleteStage() {
   return useMutation({
     mutationFn: async ({ id }: { id: string; projectId: string }) => {
       const { error } = await supabase.from("pm_stages").delete().eq("id", id);
+      if (error?.message.includes("logged_history_delete_blocked")) throw new Error(i18n.t("projects:historySafety.blocked"));
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
