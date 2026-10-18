@@ -16,6 +16,8 @@
  * the last visible row as the anchor; when the tree is empty it calls
  * onAppendRoot (if provided).
  */
+import type { GanttActuals } from "@/lib/projects/gantt-actuals";
+import { GanttActualMetrics, ACTUAL_METRIC_HEIGHT, ACTUAL_ROW_HEIGHT } from "./gantt-actuals-layer";
 import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 import {useTranslation} from "react-i18next";
 import {Input} from "@/components/ui/input";
@@ -53,6 +55,8 @@ export interface StageBoundsUpdate {
 
 interface Props {
   relative?:boolean;
+  actuals?: GanttActuals;
+  actualFinancials?: boolean;
   visibleStages: StageWithProject[];
   hierarchy: Map<string, GanttHierarchyNode>;
   collapsed: Set<string>;
@@ -127,6 +131,8 @@ function durDays(start?: string | null, end?: string | null): number {
 
 export function GanttOutlineColumn({
   relative=false,
+  actuals,
+  actualFinancials=false,
   visibleStages,
   hierarchy,
   collapsed,
@@ -427,15 +433,18 @@ export function GanttOutlineColumn({
 
               </div>
 
+              {actuals?.totals.get(stage.id) && <div className="absolute left-9 right-2 overflow-hidden" style={{top:isSummary?40:56,height:ACTUAL_METRIC_HEIGHT}}><GanttActualMetrics totals={actuals.totals.get(stage.id) as import("@/lib/projects/gantt-actuals").ActualTotals} financials={actualFinancials} compact /></div>}
+              {actuals && !resCollapsed && <div className="absolute left-10 right-2" style={{top:(isSummary?40:56)+ACTUAL_METRIC_HEIGHT+(isSummary?0:allocs.length*(32+ACTUAL_ROW_HEIGHT+4))}}>{(actuals.people.get(stage.id)??[]).filter(person=>isSummary || !allocs.some(a=>a.resource_id===person.resourceId)).map(person=><div key={person.id} className="truncate text-[10px] text-muted-foreground" style={{height:ACTUAL_ROW_HEIGHT}}>{person.name||t("gantt.actuals.unattributed")} · {t("gantt.actuals.unplanned")}</div>)}</div>}
               {/* Resource sub-list (unchanged behaviour) */}
               {chevronMode === "resources" && !resCollapsed && (
                 <ul
                   className="absolute left-0 right-0 mt-7 space-y-1 pr-3"
-                  style={{ paddingLeft: COL.num + 16 + depth * 12 + 24, top: 0 }}
+                  style={{ paddingLeft: COL.num + 16 + depth * 12 + 24, top: actuals ? 56+ACTUAL_METRIC_HEIGHT-28 : 0 }}
                 >
                   {allocs.map((a) => (
                     <li
                       key={a.id}
+                      style={actuals?{height:32+ACTUAL_ROW_HEIGHT,alignItems:"flex-start",paddingTop:8}:undefined}
                       className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
                     >
                       <span

@@ -144,6 +144,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
+  head: () => ({meta:[{title:"Project planning | Pedra Silva Hub"},{name:"description",content:"Project stages, planning and logged hours in Pedra Silva Hub."},{property:"og:title",content:"Project planning | Pedra Silva Hub"},{property:"og:description",content:"Project stages, planning and logged hours in Pedra Silva Hub."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),
   component: ProjectDetail,
   validateSearch: (search: Record<string, unknown>): { tab?: string } => {
     const tab = typeof search.tab === "string" ? search.tab : undefined;
@@ -1181,6 +1182,7 @@ function ProjectDetail() {
                       projectId={project.id}
                       showCancelled={showCancelled}
                       canEdit={canEditPlanning}
+                      canSeeFinancials={canSeeFinancials}
                     />
                   </>
                 )}

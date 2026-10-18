@@ -116,6 +116,7 @@
   --color-budget: var(--budget);
   --color-budget-spent: var(--budget-spent);
   --color-budget-over: var(--budget-over);
+  --color-budget-warning: var(--budget-warning);
   --font-display: "Signifier", "Fraunces", "Times New Roman", serif;
   --font-sans: "The Future", "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -178,6 +179,7 @@
   --budget: oklch(0.93 0.06 100);
   --budget-spent: oklch(0.62 0.16 145);
   --budget-over: oklch(0.58 0.22 25);
+  --budget-warning: oklch(0.72 0.16 75);
   /* HR module — Scandinavian Oak warm palette */
   --hr-bg: oklch(0.965 0.012 80);
   --hr-accent: oklch(0.58 0.11 55);
@@ -240,6 +242,7 @@
   --budget: oklch(0.32 0.04 100);
   --budget-spent: oklch(0.62 0.16 145);
   --budget-over: oklch(0.62 0.22 25);
+  --budget-warning: oklch(0.78 0.16 75);
   /* HR module (dark) */
   --hr-bg: oklch(0.17 0.012 80);
   --hr-accent: oklch(0.72 0.12 55);
