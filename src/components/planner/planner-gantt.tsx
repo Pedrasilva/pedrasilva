@@ -1260,9 +1260,6 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
           </div>
         )}
       </div>
-      {showActuals && actualsQ.isPending && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
-      {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
-      {actuals?.limited && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.limited")}</p>}
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div
           ref={chartRef}
