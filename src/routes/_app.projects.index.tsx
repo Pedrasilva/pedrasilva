@@ -775,7 +775,6 @@ function DashboardPage() {
    */
   const visibleTeamRows: TeamRow[] = useMemo(() => {
     if (canSeeTeam) return teamRows;
-    const wd = 0;
     const myMappedResourceId = myAuthId ? identityMap?.get(myAuthId)?.resourceId ?? null : null;
     const meRow =
       (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
@@ -793,9 +792,8 @@ function DashboardPage() {
         collaboratorId: myIdentity?.collaboratorId ?? null,
         fotoPath: myIdentity?.fotoPath ?? null,
         color: myIdentity?.color ?? myRes?.color ?? null,
-        capacityHours:
-          wd +
-          computeCapacity({ start: periodStartISO, end: teamCutoff, dailyHours: dailyCap, calendar: periodCalendar ?? [], leaveEntries: [] }).net,
+        userId: myAuthId,
+        capacityHours: computeCapacity({ start: periodStartISO, end: teamCutoff, dailyHours: dailyCap, calendar: periodCalendar ?? [], leaveEntries: [] }).net,
         billableHours: 0,
         internalHours: 0,
         nonWorkingHours: 0,
