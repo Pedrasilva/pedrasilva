@@ -15785,6 +15785,18 @@ export type Database = {
         }
         Returns: Json
       }
+      pm_apply_week_plan_confirmed: {
+        Args: {
+          _ack_baseline?: boolean
+          _ack_changes?: boolean
+          _ack_overlap?: boolean
+          _extensions?: Json
+          _plan_id: string
+          _preview_token?: string
+          _publication_id?: string
+        }
+        Returns: Json
+      }
       pm_assigned_project_ids: {
         Args: { _user_id: string }
         Returns: {

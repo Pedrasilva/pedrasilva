@@ -8,11 +8,18 @@ export const extensionKey = (n: ExtensionNote) => [n.project_id,n.stage_id,n.res
 export const mergeExtensionNotes = (notes: ExtensionNote[]) => [...new Map(notes.map(n => [extensionKey(n),n])).values()];
 export function explicitSlots(board: DerivedBoard): DraftSlot[] {
   return Object.entries(board).flatMap(([resource_id, days]) => Object.entries(days).flatMap(([day, cell]) => (["am", "pm"] as DayPart[]).flatMap(part => {
-    const s = cell[part]; return !cell.leave && s ? [{ resource_id, day, part, project_id:s.projectId, stage_id:s.stageId, is_site_visit:s.isSiteVisit }] : [];
+    const s = cell[part]; return !cell.leave && s && !s.parentStage ? [{ resource_id, day, part, project_id:s.projectId, stage_id:s.stageId, is_site_visit:s.isSiteVisit }] : [];
   })));
 }
 export function draftBoard(data: BoardData, week: string, slots: DraftSlot[]): DerivedBoard {
   const board = deriveSlots([], week, Object.fromEntries(data.resources.map(r => [r.id, 8])), data.leave);
+  const original = deriveSlots(data.allocations, week, Object.fromEntries(data.resources.map(r => [r.id, dailyHours(r)])), data.leave, data.stage_tree ?? data.stages);
+  for (const [resource, days] of Object.entries(board)) for (const [day, cell] of Object.entries(days)) {
+    cell.assignments = [...original[resource][day].assignments];
+    for (const slot of [original[resource][day].am, original[resource][day].pm, ...original[resource][day].overload]) {
+      if (slot?.parentStage && !cell.assignments.some(a => a.allocationId === slot.allocationId)) cell.assignments.push({ ...slot, hoursPerDay: Number(data.allocations.find(a => a.id === slot.allocationId)?.hours_per_day) });
+    }
+  }
   for (const s of slots) {
     const cell = board[s.resource_id]?.[s.day];
     if (cell && !cell.leave) cell[s.part] = { projectId:s.project_id, stageId:s.stage_id, isSiteVisit:s.is_site_visit, inferred:false, status:"draft", allocationId:slotKey(s) };

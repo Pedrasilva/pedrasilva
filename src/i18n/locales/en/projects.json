@@ -1,5 +1,8 @@
 {
   "weekPlan": {
+    "assignedNoHours": "Assigned, no hours",
+    "parentStageWarning": "Assignment on a parent stage",
+    "parentStageBlocked": "New bookings must use a leaf stage, not a parent stage.",
     "title": "Weekly planning",
     "view": "Planning view",
     "colourStyle": "Project colours",
@@ -2011,6 +2014,8 @@
     "balanceEstimated": "Allocated ~{{allocated}} (estimated) · logged {{logged}} · {{left}} left"
   },
   "weekPublish": {
+    "removedChanged": "Will be removed / changed",
+    "changesAck": "I explicitly confirm every booking removal or change listed above, including assignments with no hours.",
     "bellTitle": "Weekly plan published",
     "approve": "Approve and publish",
     "title": "Confirm weekly allocation changes",

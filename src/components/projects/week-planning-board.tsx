@@ -7,7 +7,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { dailyHours, deriveSlots, resourceSlotCounts, weekDays, type BoardData, type DerivedSlot, type DerivedBoard, type DayPart } from "@/lib/projects/week-board";
+import { dailyHours, deriveSlots, resourceSlotCounts, weekDays, type BoardData, type DerivedSlot, type DerivedBoard, type DayPart, type AssignmentMarker } from "@/lib/projects/week-board";
+import { numberStages, formatStageLabel } from "@/lib/quotes/stage-numbering";
 
 type Editing = { paint:(resource:string,day:string,part:DayPart) => void; start:() => void; finish:() => void; wholeWeek:(resource:string) => void; isDown:() => boolean; changed:Set<string> };
 export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardData; week: string; board?:DerivedBoard; editing?:Editing }) {
@@ -16,9 +17,15 @@ export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardD
   const [colour, setColour] = useState("stripe");
   const days = weekDays(week);
   const projects = new Map(data.projects.map(p => [p.id, p]));
-  const derived = useMemo(() => deriveSlots(data.allocations, week, Object.fromEntries(data.resources.map(r => [r.id, dailyHours(r)])), data.leave), [data, week]);
+  const derived = useMemo(() => deriveSlots(data.allocations, week, Object.fromEntries(data.resources.map(r => [r.id, dailyHours(r)])), data.leave, data.stage_tree ?? data.stages), [data, week]);
   const slots = board ?? derived;
-  const projectIds = new Set(Object.values(slots).flatMap(row => Object.values(row).flatMap(d => [d.am, d.pm, ...d.overload].filter((s): s is DerivedSlot => !!s).map(s => s.projectId))));
+  const projectIds = new Set(Object.values(slots).flatMap(row => Object.values(row).flatMap(d => [d.am, d.pm, ...d.overload, ...d.assignments].filter((s): s is DerivedSlot => !!s).map(s => s.projectId))));
+  const tree = data.stage_tree ?? data.stages;
+  const numbered = data.projects.flatMap(p => numberStages(tree.filter(s => s.project_id === p.id)));
+  const stageLabel = (id: string | null) => { const n = numbered.find(s => s.stage.id === id); return n ? formatStageLabel(n.stage, n.number) : t('weekPlan.noStage'); };
+  function marker(a: AssignmentMarker) {
+    return <div key={a.allocationId} data-testid="assignment-marker" className="mt-1 flex items-start gap-1 border-l-2 border-border px-2 py-1 text-[10px] text-muted-foreground" title={stageLabel(a.stageId)}><span className="min-w-0 break-words">{projects.get(a.projectId)?.name} · {a.hoursPerDay === 0 ? t('weekPlan.assignedNoHours') : `${a.hoursPerDay}h/d`}{a.parentStage && <span className="block">{stageLabel(a.stageId)}</span>}</span>{a.parentStage && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t('weekPlan.parentStageWarning')} />}</div>;
+  }
   const projectColour = (id: string) => ({ "--week-project-color": projects.get(id)?.color || "var(--chart-2)" }) as CSSProperties;
   function booking(slot: DerivedSlot | null) {
     if (!slot) return <span className="text-muted-foreground/40">—</span>;
@@ -26,6 +33,7 @@ export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardD
       <span className="min-w-0 flex-1 break-words">{projects.get(slot.projectId)?.name}</span>
       {slot.isSiteVisit && <MapPin className="h-3.5 w-3.5 shrink-0" aria-label={t("weekPlan.siteVisit")} />}
       {!slot.stageId && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" aria-label={t("weekPlan.noStage")} />}
+      {slot.parentStage && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" aria-label={t('weekPlan.parentStageWarning')} />}
       {slot.inferred && <span title={t("weekPlan.inferredHint")} className="text-sm text-muted-foreground">~</span>}
     </div>;
   }
@@ -65,6 +73,7 @@ export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardD
                     {part === "am" && cell.overload.length > 0 && <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon" className="absolute -right-1 -top-1 h-6 w-6 text-destructive" aria-label={t("weekPlan.overload")} title={cell.overload.map(s => projects.get(s.projectId)?.name).join(", ")}><AlertTriangle className="h-3.5 w-3.5" /></Button></PopoverTrigger><PopoverContent><p className="mb-2 text-sm font-medium text-destructive">{t("weekPlan.overload")}</p>{cell.overload.map(s => <p key={s.allocationId} className="text-sm">{projects.get(s.projectId)?.name}</p>)}</PopoverContent></Popover>}
                     {part === "pm" && cell.otherHours > 0 && <span className="block px-2 text-[10px] text-muted-foreground">{t("weekPlan.otherHours", { hours:cell.otherHours })}</span>}
                   </div>}
+                  {part === 'am' && cell.assignments.map(marker)}
                 </td>;
               })}
             </tr>);
@@ -75,12 +84,13 @@ export function WeekPlanningBoard({ data, week, board, editing }: { data: BoardD
               const am = cell.am?.projectId === p.id; const pm = cell.pm?.projectId === p.id;
               total += Number(am) + Number(pm);
               const overflow = cell.overload.some(s => s.projectId === p.id);
-              if (!am && !pm && !overflow) return [];
-              return [{ id:r.id, name:r.name, am, pm, overflow, site:(am && cell.am?.isSiteVisit) || (pm && cell.pm?.isSiteVisit) }];
+              const assignments = cell.assignments.filter(a => a.projectId === p.id);
+              if (!am && !pm && !overflow && !assignments.length) return [];
+              return [{ id:r.id, name:r.name, am, pm, overflow, assignments, site:(am && cell.am?.isSiteVisit) || (pm && cell.pm?.isSiteVisit) }];
             }));
             return <tr key={p.id} className="border-b border-border">
               <th colSpan={2} className="sticky left-0 z-10 border-r border-border bg-background px-4 py-4 text-left font-normal"><div className="week-booking px-2 py-1" style={projectColour(p.id)}><p className="break-words font-medium">{p.name}</p><p className="mt-1 text-xs text-muted-foreground">{t("weekPlan.halfDays", { count:total })}</p></div></th>
-              {bookings.map((people, i) => <td key={days[i]} className="px-3 py-3 align-top">{people.map(person => <p key={person.id} className="mb-1 flex items-center gap-1 text-xs"><span className="break-words">{person.name}{person.am !== person.pm ? ` · ${t(`common:${person.am ? "morningShort" : "afternoonShort"}`)}` : ""}</span>{person.site && <MapPin className="h-3 w-3 shrink-0" />}{person.overflow && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t("weekPlan.overload")} />}</p>)}</td>)}
+              {bookings.map((people, i) => <td key={days[i]} className="px-3 py-3 align-top">{people.map(person => <div key={person.id} className="mb-1 text-xs"><p className="flex items-center gap-1"><span className="break-words">{person.name}{person.am !== person.pm ? ` · ${t(`common:${person.am ? "morningShort" : "afternoonShort"}`)}` : ""}</span>{person.site && <MapPin className="h-3 w-3 shrink-0" />}{person.overflow && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t("weekPlan.overload")} />}</p>{person.assignments.map(marker)}</div>)}</td>)}
             </tr>;
           })}
         </tbody>

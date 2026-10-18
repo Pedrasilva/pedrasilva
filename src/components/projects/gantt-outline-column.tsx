@@ -21,7 +21,7 @@ import {useTranslation} from "react-i18next";
 import {Input} from "@/components/ui/input";
 import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp, UserCheck } from "lucide-react";
+import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp, UserCheck, AlertTriangle } from "lucide-react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ContextMenu,
@@ -443,6 +443,7 @@ export function GanttOutlineColumn({
                         style={{ background: a.resource?.color ?? "#a78bfa" }}
                       />
                       <span className="flex-1 truncate italic">{a.resource?.name ?? "—"}</span>
+                      {Number(a.hours_per_day) === 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t('weekPlan.assignedNoHours')}  />}
                       {a.allocation_percentage != null && (
                         <span className="tabular-nums">{a.allocation_percentage}%</span>
                       )}

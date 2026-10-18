@@ -770,6 +770,7 @@ export function GanttChart({
       return;
     }
 
+    if (stagesAll.some(s => s.parent_stage_id === stage.id)) { toast.error(t('weekPlan.parentStageBlocked')); return; }
     // New resource drop — span the full stage so the user doesn't have to
     // stretch the allocation after placement. Default to 75% allocation
     // (6h/day on an 8h HR-recoverable capacity) so a fresh resource starts
@@ -1765,6 +1766,7 @@ export function GanttChart({
                                   <span className="shrink-0 text-[10px] text-muted-foreground">
                                     {Number(a.hours_per_day)}h/d
                                   </span>
+                                  {Number(a.hours_per_day) === 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t('weekPlan.assignedNoHours')} />}
                                   {isOver && (
                                     <span className="flex shrink-0 items-center gap-0.5 rounded bg-destructive px-1 py-px text-[10px] font-semibold text-destructive-foreground">
                                       <AlertTriangle className="h-2.5 w-2.5" />

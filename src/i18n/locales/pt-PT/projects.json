@@ -1,5 +1,8 @@
 {
   "weekPlan": {
+    "assignedNoHours": "Atribuído, sem horas",
+    "parentStageWarning": "Atribuição numa fase-mãe",
+    "parentStageBlocked": "As novas alocações devem usar uma fase final, não uma fase-mãe.",
     "title": "Planeamento semanal",
     "view": "Vista do planeamento",
     "colourStyle": "Cores dos projectos",
@@ -2011,6 +2014,8 @@
     "balanceEstimated": "Alocado ~{{allocated}} (estimado) · registado {{logged}} · restam {{left}}"
   },
   "weekPublish": {
+    "removedChanged": "Será removido / alterado",
+    "changesAck": "Confirmo expressamente todas as remoções ou alterações de alocações acima, incluindo atribuições sem horas.",
     "bellTitle": "Plano da semana publicado",
     "approve": "Aprovar e publicar",
     "title": "Confirmar alterações às alocações da semana",
