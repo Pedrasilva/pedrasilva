@@ -84,8 +84,11 @@ export const Route = createFileRoute("/_app/projects/timesheet")({
     { name: "twitter:card", content: "summary" },
   ] }),
   // ?week=YYYY-MM-DD opens that week (used by notification links).
-  validateSearch: (s: Record<string, unknown>): { week?: string } =>
-    typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {},
+  // ?person=<collaborator id> preselects admin "view as" (team drill-down link).
+  validateSearch: (s: Record<string, unknown>): { week?: string; person?: string } => ({
+    ...(typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {}),
+    ...(typeof s.person === "string" && /^[0-9a-f-]{36}$/i.test(s.person) ? { person: s.person } : {}),
+  }),
   component: TimesheetPage,
 });
 
@@ -109,7 +112,7 @@ type CellInfo = {
 function TimesheetPage() {
   const { profile: selfProfile, user } = useProjectsAuth();
   const { isRealAdmin, viewAsUser } = useAuth();
-  const { week: weekParam } = Route.useSearch();
+  const { week: weekParam, person: personParam } = Route.useSearch();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
     weekParam ? new Date(`${weekParam}T12:00:00`) : new Date(),
   );
@@ -126,7 +129,7 @@ function TimesheetPage() {
 
   // Admin "view as" selection — defaults to the logged-in user. Non-admins
   // only ever see their own timesheet.
-  const [viewedCollaboratorId, setViewedCollaboratorId] = useState<string | null>(null);
+  const [viewedCollaboratorId, setViewedCollaboratorId] = useState<string | null>(personParam ?? null);
 
   // Resolve viewed collaborator → resource_id, user_id (auth) when admin
   // is impersonating someone else.
