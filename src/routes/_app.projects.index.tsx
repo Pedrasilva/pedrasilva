@@ -801,6 +801,51 @@ function DashboardPage() {
     ];
   }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, teamCutoff, periodCalendar, t]);
 
+  // ---------- Team member drill-down (selected row only) ----------
+  const memberDetail = useMemo(() => {
+    if (!selectedMember) return null;
+    const row = visibleTeamRows.find((r) => (r.userId ?? r.resourceId) === selectedMember);
+    if (!row) return null;
+    const userId = row.userId ?? null;
+    const mine = (entries ?? []).filter((e) => userId && e.user_id === userId);
+    const projectName = new Map((projects ?? []).map((p) => [p.id, p.name]));
+    const numberMaps = new Map<string, Map<string, string>>();
+    const drill: DrillEntry[] = mine.map((e) => {
+      const stageId = (e.task_id && taskToStage?.get(e.task_id)) || e.pm_stage_id || null;
+      const stage = stageId ? stageById.get(stageId) : undefined;
+      let label: string | null = null;
+      if (stage) {
+        let nm = numberMaps.get(stage.project_id);
+        if (!nm) {
+          nm = buildStageNumberMap(stagesByProject.get(stage.project_id) ?? []);
+          numberMaps.set(stage.project_id, nm);
+        }
+        label = formatStageLabel(stage, nm.get(stage.id));
+      }
+      return {
+        entry_date: e.entry_date,
+        hours: e.hours,
+        billable: e.billable,
+        entry_type: e.entry_type,
+        internal_category: e.internal_category ?? null,
+        projectId: stage?.project_id ?? null,
+        projectName: stage ? projectName.get(stage.project_id) ?? null : null,
+        stageId,
+        stageLabel: label,
+      };
+    });
+    const { daily } = dailyHoursFor(userId ?? "");
+    const capacity = computeCapacity({
+      start: periodStartISO,
+      end: teamCutoff,
+      dailyHours: daily,
+      calendar: periodCalendar ?? [],
+      leaveEntries: mine.filter((e) => e.entry_type === "non_working"),
+    });
+    return { row, entries: drill.filter((e) => e.entry_date <= teamCutoff), capacity };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMember, visibleTeamRows, entries, projects, taskToStage, stageById, stagesByProject, periodStartISO, teamCutoff, periodCalendar]);
+
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
     const list: AlertItem[] = [];
@@ -1027,6 +1072,23 @@ function DashboardPage() {
                   : t("dashboard.subtitleSelf", { period: periodLabel })
               }
               showSort={canSeeTeam}
+              untilToday={untilToday}
+              onUntilTodayChange={setUntilToday}
+              onSelect={(r) => setSelectedMember(r.userId ?? r.resourceId)}
+            />
+            <TeamMemberPanel
+              open={!!memberDetail}
+              onOpenChange={(o) => !o && setSelectedMember(null)}
+              detail={memberDetail}
+              periodStart={periodStartISO}
+              cutoff={teamCutoff}
+              periodLabel={periodLabel}
+              canOpenTimesheet={
+                !!memberDetail &&
+                (memberDetail.row.userId === myAuthId || (isAdmin && !!memberDetail.row.collaboratorId))
+              }
+              isSelf={!!memberDetail && memberDetail.row.userId === myAuthId}
+              onOpenProject={(id) => navigate({ to: "/projects/$projectId", params: { projectId: id } })}
             />
           </div>
           <div className="order-1 min-w-0 lg:relative lg:order-2 lg:min-h-[320px]">
