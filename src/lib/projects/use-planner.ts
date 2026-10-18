@@ -704,8 +704,11 @@ export function useSetAllocationStatus() {
 export function useDeleteAllocation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id }: { id: string; projectId: string }) => {
-      const { error } = await supabase.from("pm_allocations").update({ planning_removed_at: new Date().toISOString() }).eq("id", id);
+    mutationFn: async ({ id, mode = "retire" }: { id: string; projectId: string; mode?: "retire" | "delete" }) => {
+      // Real deletion only for allocations without logged hours; the database history guard rejects it otherwise.
+      const { error } = mode === "delete"
+        ? await supabase.from("pm_allocations").delete().eq("id", id)
+        : await supabase.from("pm_allocations").update({ planning_removed_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
@@ -714,4 +717,11 @@ export function useDeleteAllocation() {
       qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
+}
+
+/** Logged hours behind one allocation (hours only), used to choose delete vs retire. */
+export async function allocationLoggedHours(id: string) {
+  const { data, error } = await supabase.rpc("pm_allocation_logged_hours", { _allocation_id: id });
+  if (error) throw error;
+  return Number(data) || 0;
 }
