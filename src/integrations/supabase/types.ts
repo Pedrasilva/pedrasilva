@@ -9228,6 +9228,54 @@ export type Database = {
           },
         ]
       }
+      pm_planning_cutoffs: {
+        Row: {
+          after_rows: Json | null
+          applied_at: string | null
+          before_rows: Json
+          created_at: string
+          created_by: string
+          cutoff_date: string
+          id: string
+          preview: Json
+          publication_revision: string | null
+          revision: string
+          status: string
+          trim_end: string
+          undone_at: string | null
+        }
+        Insert: {
+          after_rows?: Json | null
+          applied_at?: string | null
+          before_rows: Json
+          created_at?: string
+          created_by: string
+          cutoff_date: string
+          id?: string
+          preview: Json
+          publication_revision?: string | null
+          revision: string
+          status?: string
+          trim_end: string
+          undone_at?: string | null
+        }
+        Update: {
+          after_rows?: Json | null
+          applied_at?: string | null
+          before_rows?: Json
+          created_at?: string
+          created_by?: string
+          cutoff_date?: string
+          id?: string
+          preview?: Json
+          publication_revision?: string | null
+          revision?: string
+          status?: string
+          trim_end?: string
+          undone_at?: string | null
+        }
+        Relationships: []
+      }
       pm_project_commercial_baselines: {
         Row: {
           baseline_json: Json
@@ -15774,6 +15822,10 @@ export type Database = {
         }
         Returns: string
       }
+      pm_apply_planning_cutoff: {
+        Args: { _confirm?: boolean; _snapshot_id: string }
+        Returns: Json
+      }
       pm_apply_week_plan: {
         Args: {
           _ack_baseline?: boolean
@@ -15833,6 +15885,10 @@ export type Database = {
         Returns: number
       }
       pm_cost_rate_fallback: { Args: { _resource_id: string }; Returns: number }
+      pm_ensure_timesheet_task: {
+        Args: { _resource_id: string; _stage_id: string }
+        Returns: string
+      }
       pm_entries_missing_cost: {
         Args: never
         Returns: {
@@ -15915,6 +15971,14 @@ export type Database = {
           day: string
           name: string
         }[]
+      }
+      pm_planning_cutoff_preview: {
+        Args: { _cutoff?: string; _project_ids?: string[]; _trim_end?: string }
+        Returns: Json
+      }
+      pm_prepare_planning_cutoff: {
+        Args: { _project_ids?: string[]; _revision: string }
+        Returns: string
       }
       pm_preview_week_plan: {
         Args: { _extensions?: Json; _plan_id: string }
@@ -16038,6 +16102,10 @@ export type Database = {
         Returns: {
           user_id: string
         }[]
+      }
+      pm_undo_planning_cutoff: {
+        Args: { _confirm?: boolean; _snapshot_id: string }
+        Returns: Json
       }
       pm_verify_tatiana_backfill: { Args: never; Returns: Json }
       pm_verify_week_publication: { Args: never; Returns: Json }

@@ -1,0 +1,1 @@
+DO $$ DECLARE definition text; BEGIN SELECT pg_get_functiondef(oid) INTO definition FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname='pm_ensure_timesheet_task'; definition:=replace(definition,'DECLARE me uuid;','#variable_conflict use_variable'||chr(10)||'DECLARE me uuid;'); EXECUTE definition; END $$;
