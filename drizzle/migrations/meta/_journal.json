@@ -757,6 +757,13 @@
       "when": 1792330811895,
       "tag": "0107_admin_exact_timesheet_recovery",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1792330842751,
+      "tag": "0108_validate_recovery_integrity_checks",
+      "breakpoints": true
     }
   ]
 }
