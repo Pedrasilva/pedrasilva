@@ -750,6 +750,13 @@
       "when": 1792321388149,
       "tag": "0106_weekly_assignment_visibility_and_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1792330811895,
+      "tag": "0107_admin_exact_timesheet_recovery",
+      "breakpoints": true
     }
   ]
 }
