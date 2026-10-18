@@ -2881,6 +2881,8 @@ export type Database = {
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms: string
           id: string
+          invoice_grouping_days: number
+          invoice_grouping_enabled: boolean
           is_locked: boolean
           locked_at: string | null
           locked_project_id: string | null
@@ -2940,6 +2942,8 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
+          invoice_grouping_days?: number
+          invoice_grouping_enabled?: boolean
           is_locked?: boolean
           locked_at?: string | null
           locked_project_id?: string | null
@@ -2999,6 +3003,8 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
+          invoice_grouping_days?: number
+          invoice_grouping_enabled?: boolean
           is_locked?: boolean
           locked_at?: string | null
           locked_project_id?: string | null
@@ -9102,6 +9108,7 @@ export type Database = {
           linked_payment_item_id: string | null
           manual_override: boolean
           notes: string | null
+          original_invoice_date: string | null
           payment_offset_days: number
           payment_terms: string | null
           project_id: string
@@ -9132,6 +9139,7 @@ export type Database = {
           linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
           project_id: string
@@ -9162,6 +9170,7 @@ export type Database = {
           linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
           project_id?: string
@@ -9786,6 +9795,8 @@ export type Database = {
           created_at: string
           external_id: string | null
           id: string
+          invoice_grouping_days: number
+          invoice_grouping_enabled: boolean | null
           last_synced_at: string | null
           name: string
           notes: string | null
@@ -9812,6 +9823,8 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          invoice_grouping_days?: number
+          invoice_grouping_enabled?: boolean | null
           last_synced_at?: string | null
           name: string
           notes?: string | null
@@ -9838,6 +9851,8 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          invoice_grouping_days?: number
+          invoice_grouping_enabled?: boolean | null
           last_synced_at?: string | null
           name?: string
           notes?: string | null
@@ -12745,6 +12760,7 @@ export type Database = {
           linked_payment_item_id: string | null
           manual_override: boolean
           notes: string | null
+          original_invoice_date: string | null
           payment_offset_days: number
           payment_terms: string | null
           quote_id: string
@@ -12773,6 +12789,7 @@ export type Database = {
           linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
           quote_id: string
@@ -12801,6 +12818,7 @@ export type Database = {
           linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
           quote_id?: string
@@ -16012,6 +16030,21 @@ export type Database = {
       pm_has_team_access: {
         Args: { _target_user_id: string; _user_id: string }
         Returns: boolean
+      }
+      pm_invoice_apply_group: {
+        Args: {
+          _bases: string[]
+          _curs: string[]
+          _enabled: boolean
+          _gids: string[]
+          _ids: string[]
+          _tbl: string
+        }
+        Returns: undefined
+      }
+      pm_invoice_regroup: {
+        Args: { _scope: string; _tbl: string }
+        Returns: undefined
       }
       pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
       pm_link_project_opportunity: {

@@ -855,6 +855,20 @@
       "when": 1792350321325,
       "tag": "0121_relative_timeline_default",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1792354712428,
+      "tag": "0122_invoice_grouping",
+      "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1792354768958,
+      "tag": "0123_invoice_grouping_clear_singletons",
+      "breakpoints": true
     }
   ]
 }

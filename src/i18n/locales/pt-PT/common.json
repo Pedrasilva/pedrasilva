@@ -513,5 +513,13 @@
     "installIos": "Instalar: Partilhar → Adicionar ao ecrã principal",
     "installAndroid": "Instalar: Menu → Instalar app",
     "dismiss": "Fechar"
+  },
+  "invoiceGrouping": {
+    "toggle": "Agrupar faturas próximas",
+    "days": "Janela (dias)",
+    "hint": "Faturas planeadas a {{days}} dias ou menos da primeira de um grupo juntam-se numa só, com a data do último marco. Os totais nunca mudam.",
+    "previewTitle": "Agrupar faturas próximas?",
+    "previewBody": "{{before}} faturas planeadas passam a {{after}}. Os totais mantêm-se em {{total}}. Faturas emitidas ou pagas não mudam.",
+    "confirm": "Aplicar"
   }
 }

@@ -513,5 +513,13 @@
     "installIos": "Install: Share → Add to Home Screen",
     "installAndroid": "Install: Menu → Install app",
     "dismiss": "Dismiss"
+  },
+  "invoiceGrouping": {
+    "toggle": "Group nearby invoices",
+    "days": "Window (days)",
+    "hint": "Planned invoices within {{days}} days of the first one in a group become one invoice, dated on the latest milestone. Totals never change.",
+    "previewTitle": "Group nearby invoices?",
+    "previewBody": "{{before}} planned invoices become {{after}}. Totals stay {{total}}. Issued or paid invoices do not change.",
+    "confirm": "Apply"
   }
 }

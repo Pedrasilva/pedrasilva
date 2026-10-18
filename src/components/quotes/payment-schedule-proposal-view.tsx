@@ -914,9 +914,12 @@ export function PaymentScheduleProposalView({
           // same date (e.g. architecture + supplier on the same milestone)
           // still land in one invoice via the shared date+trigger key.
           const isDownpayment = it.trigger_type === "project_start";
-          const key = isDownpayment
-            ? `dp:${d}`
-            : `t:${it.trigger_type}:${d}`;
+          const groupId = (it as { invoice_group_id?: string | null }).invoice_group_id;
+          const key = groupId
+            ? `g:${groupId}`
+            : isDownpayment
+              ? `dp:${d}`
+              : `t:${it.trigger_type}:${d}`;
           let inv = invoiceMap.get(key);
           if (!inv) {
             inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
