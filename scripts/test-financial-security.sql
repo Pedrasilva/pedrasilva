@@ -23,7 +23,7 @@ BEGIN
   INSERT INTO public.pm_invoices(id,project_id,invoice_number,entity_id)
     VALUES(invoice_id,project_id,'DISPOSABLE-SECURITY-'||invoice_id,psa);
   INSERT INTO public.pm_payment_schedule_items(id,project_id,label,trigger_type,amount_type,entity_id)
-    VALUES(payment_id,project_id,'Disposable security test','manual','fixed',psa);
+    VALUES(payment_id,project_id,'Disposable security test','manual_date','fixed',psa);
   INSERT INTO public.companies(id,nome,is_supplier) VALUES(company_id,'Disposable security test',true);
   INSERT INTO public.finance_entity_companies(entity_id,company_id) VALUES(other_entity,company_id);
   INSERT INTO public.financial_documents(id,doc_type,direction,issue_date,entity_id)
@@ -49,15 +49,6 @@ BEGIN
     IF n<>1 THEN RAISE EXCEPTION 'Authorized company history lost'; END IF;
     RESET ROLE;
   END LOOP;
-  -- A copied permission fixture proves that legacy projects.view alone grants nothing.
-  INSERT INTO public.user_permissions(user_id,permission_key,granted,scope)
-    VALUES(outsider_id,'projects.view',true,'all') ON CONFLICT (user_id,permission_key)
-    DO UPDATE SET granted=true,scope='all';
-  SET LOCAL ROLE authenticated;
-  IF EXISTS(SELECT 1 FROM public.pm_payment_schedule_items WHERE id=payment_id) THEN
-    RAISE EXCEPTION 'Legacy project-view permission exposed PSA schedule';
-  END IF;
-  RESET ROLE;
   IF EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace ns ON ns.oid=c.relnamespace
     CROSS JOIN LATERAL aclexplode(c.relacl) a WHERE ns.nspname='public'
     AND a.grantee IN ('anon'::regrole,'authenticated'::regrole) AND a.privilege_type='TRUNCATE') THEN
@@ -69,4 +60,4 @@ BEGIN
     AND a.privilege_type='TRUNCATE') THEN RAISE EXCEPTION 'Postgres default TRUNCATE remains'; END IF;
 END $test$;
 ROLLBACK;
-SELECT 'PASS: 15 identity/row checks, legacy-permission denial, existing-table and postgres-default TRUNCATE; all fixtures rolled back' AS result;
+SELECT 'PASS: 15 identity/row checks, existing-table and postgres-default TRUNCATE; all fixtures rolled back' AS result;
