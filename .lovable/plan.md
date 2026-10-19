@@ -30,4 +30,4 @@
 - Verificar no ecrã registo → lista → leitura após recarregar; importação → associação → milestone/totais. Confirmar integridade dos dados existentes antes/depois.
 
 ## Limite desta fase
-Este é o plano antes de construir. Não foram criadas faturas, alteradas permissões, importados ficheiros ou ativada a API InvoiceXpress.
+Plano aprovado, com auditoria antes de unicidade e associação dos documentos sem projeto em Finance. Auditoria apresentada: 39 documentos de direção emitida incluem recibos; 7 cópias anuladas de FT Nº12/2026; 3 FT 2026/23 (1 pago, 2 anulados); possível correspondência divergente FT 2026/12 vs FT Nº12/2026; 7 números em falta, 39 séries separadas vazias; 15 sem projeto no cabeçalho e nas linhas. Não contar recibos como faturação adicional. A unicidade aguarda confirmação explícita; não foram criadas faturas, alteradas permissões, importados ficheiros ou ativada a API InvoiceXpress.

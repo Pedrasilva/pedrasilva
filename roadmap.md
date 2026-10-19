@@ -1,7 +1,8 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — provisional invoicing (analysis before implementation)
-- [ ] Approved with checkpoints: show collision audit across 39 issued documents and wait for Luis before applying uniqueness; list documents with no project and provide association from Finance.
+- [x] Presented audit and Finance links for all 15 without any project: 39 issued-direction records include receipts; 7 cancelled FT Nº12/2026 copies, 1 paid + 2 cancelled FT 2026/23 copies, possible conflicting FT 2026/12, 7 missing numbers and 39 missing separate series. No data changed.
+- [ ] Uniqueness application waits for Luis's explicit confirmation after audit; preserve historical duplicates and incomplete identities, never count receipts as new invoicing. Remaining approved implementation follows this checkpoint.
 - [x] Inspected issued documents, legacy project invoices, payments, docs@ direction, private PDFs, Finance permissions and existing InvoiceXpress code; no SAF-T parser or evidenced PHC sales import.
 - [x] Prepared reuse-first plan for review; implementation awaits approval, with no application or database changes.
 
