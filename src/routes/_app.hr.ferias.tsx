@@ -304,6 +304,8 @@ function FeriasPage() {
     onSuccess: () => {
       toast.success("Pedido criado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
+      qc.invalidateQueries({ queryKey: ["leave-balances"] });
+      qc.invalidateQueries({ queryKey: ["availability"] });
       setNewOpen(false);
       setAttachFile(null);
       setNewReq({
@@ -327,6 +329,8 @@ function FeriasPage() {
     onSuccess: () => {
       toast.success("Pedido eliminado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
+      qc.invalidateQueries({ queryKey: ["leave-balances"] });
+      qc.invalidateQueries({ queryKey: ["availability"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
