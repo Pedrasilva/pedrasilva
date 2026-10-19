@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { currentEntityId } from './current-entity';
+import { isConfirmableIssuedPdf } from './issued-pdf';
 
 export const extractIssuedPdf = createServerFn({method:'POST'})
   .middleware([requireSupabaseAuth])
@@ -22,6 +23,6 @@ export const extractIssuedPdf = createServerFn({method:'POST'})
     if(!result.ok || !result.queueItemId)return {ok:false as const,error:'extractionFailed'};
     const q=await supabase.from('financial_document_review_queue').select('id,direction,doc_type,intake_type,status,entity_id,extracted_document_number,extracted_date,extracted_due_date,extracted_amount,extracted_vat_amount,extracted_buyer_name,extracted_buyer_vat,matched_client_id,raw_extraction,source_file_url').eq('id',result.queueItemId).eq('entity_id',entityId).single();
     if(q.error || !q.data)return {ok:false as const,error:'extractionFailed'};
-    if(q.data.direction!=='issued' || !['fatura','nota_credito'].includes(q.data.intake_type??'') || q.data.status!=='pending_review')return {ok:false as const,error:q.data.direction==='received'?'purchaseRefused':'notIssuedInvoice'};
+    if(!isConfirmableIssuedPdf(q.data))return {ok:false as const,error:q.data.direction==='received'?'purchaseRefused':'notIssuedInvoice'};
     return {ok:true as const,queue:q.data};
   });
