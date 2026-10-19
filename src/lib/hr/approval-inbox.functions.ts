@@ -13,7 +13,7 @@ export const getApprovalInbox = createServerFn({method: "POST"})
     const [{data: leaveAccess}, {data: ownId}, peopleResult, changesResult] = await Promise.all([
       db.rpc("can_approve_leave", {_uid: context.userId}), db.rpc("get_my_collaborator_id"),
       db.from("collaborators").select("id,nome,email,dias_ferias_anuais,saldo_ferias_anterior,dias_ferias_extra"),
-      db.from("vacation_change_requests").select("*").eq("recipient_id", context.userId),
+      db.from("vacation_change_requests").select("*"),
     ]);
     if (peopleResult.error) throw peopleResult.error;
     if (changesResult.error) throw changesResult.error;
@@ -24,8 +24,8 @@ export const getApprovalInbox = createServerFn({method: "POST"})
       if (error) throw error;
       if (allowed) remoteAllowed.add(p.id);
     }));
-    const changes = (changesResult.data ?? []).filter(c => c.requested_by !== context.userId);
-    const allowed = !!leaveAccess || remoteAllowed.size > 0 || changes.length > 0;
+    const changes = (changesResult.data ?? []).filter(c => leaveAccess || c.recipient_id === context.userId);
+    const allowed = !!leaveAccess || remoteAllowed.size > 0 || changes.some(c => c.recipient_id === context.userId && c.requested_by !== context.userId);
     if (!allowed) return {allowed: false, rows: [] as ApprovalRow[], focused: null as ApprovalRow | null};
     const leavesQuery = db.from("vacation_requests").select("*");
     const leavesResult = leaveAccess ? await leavesQuery : changes.length ? await leavesQuery.in("id", changes.map(c => c.request_id)) : {data: [], error: null};
@@ -40,14 +40,17 @@ export const getApprovalInbox = createServerFn({method: "POST"})
       return p && leaveAccess ? leaveBalance(p, leaves.filter(r => r.collaborator_id === id), new Date().getFullYear()) : null;
     };
     if (leaveAccess) for (const r of leaves) {
-      const own = r.collaborator_id === ownId || personMap.get(r.collaborator_id)?.email?.toLowerCase() === context.claims.email?.toString().toLowerCase();
+      const email = context.claims.email?.toString().toLowerCase();
+      const own = r.collaborator_id === ownId || (!!email && personMap.get(r.collaborator_id)?.email?.toLowerCase() === email);
       const missing = r.tipo === "baixa_medica" && !r.attachment_path;
       rows.push({id:r.id, requestId:r.id, kind:"leave", collaboratorId:r.collaborator_id, collaborator:personMap.get(r.collaborator_id)?.nome ?? "—", type:r.tipo,start:r.data_inicio,end:r.data_fim,days:r.dias_uteis,notes:r.notas,attachment:r.attachment_path,submitted:r.created_at,status:r.estado,canDecide:!own,canApprove:!own && !missing,blockReason:own ? "own_request" : missing ? "certificate" : null,balance:balance(r.collaborator_id),decidedAt:r.aprovado_em,decidedBy:null,period:r.periodo});
     }
     for (const c of changes) {
       const r = leaves.find(v => v.id === c.request_id);
       if (!r) continue;
-      rows.push({id:c.id,requestId:r.id,kind:"change",collaboratorId:r.collaborator_id,collaborator:personMap.get(r.collaborator_id)?.nome ?? "—",type:c.new_tipo ?? r.tipo,start:c.new_data_inicio ?? r.data_inicio,end:c.new_data_fim ?? r.data_fim,days:c.new_dias_uteis ?? r.dias_uteis,notes:c.explanation,attachment:r.attachment_path,submitted:c.created_at,status:c.status,canDecide:true,canApprove:!(c.new_tipo === "baixa_medica" && !r.attachment_path),blockReason:c.new_tipo === "baixa_medica" && !r.attachment_path ? "certificate" : null,balance:balance(r.collaborator_id),decidedAt:c.decided_at,decidedBy:null,changeKind:c.kind,period:c.new_periodo ?? r.periodo});
+      const canDecide = c.recipient_id === context.userId && c.requested_by !== context.userId;
+      const missing = (c.new_tipo ?? r.tipo) === "baixa_medica" && !r.attachment_path && c.kind !== "cancel";
+      rows.push({id:c.id,requestId:r.id,kind:"change",collaboratorId:r.collaborator_id,collaborator:personMap.get(r.collaborator_id)?.nome ?? "—",type:c.new_tipo ?? r.tipo,start:c.new_data_inicio ?? r.data_inicio,end:c.new_data_fim ?? r.data_fim,days:c.new_dias_uteis ?? r.dias_uteis,notes:c.explanation,attachment:r.attachment_path,submitted:c.created_at,status:c.status,canDecide,canApprove:canDecide && !missing,blockReason:!canDecide ? "not_recipient" : missing ? "certificate" : null,balance:balance(r.collaborator_id),decidedAt:c.decided_at,decidedBy:null,changeKind:c.kind,period:c.new_periodo ?? r.periodo});
     }
     for (const r of remoteResult.data ?? []) rows.push({id:r.id,requestId:r.id,kind:"remote",collaboratorId:r.collaborator_id,collaborator:personMap.get(r.collaborator_id)?.nome ?? "—",type:"remote",start:r.data,end:r.data,days:r.day_part === "full_day" ? 1 : .5,notes:[r.notas,r.location_detail,r.late_reason].filter(Boolean).join(" · ") || null,attachment:null,submitted:r.created_at,status:r.estado,canDecide:true,canApprove:true,blockReason:null,balance:balance(r.collaborator_id),decidedAt:r.aprovado_em,decidedBy:null,period:r.day_part});
     const focused = rows.find(r => r.id === data.pedido) ?? null;
