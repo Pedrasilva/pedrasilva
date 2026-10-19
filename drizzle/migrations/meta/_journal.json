@@ -988,6 +988,13 @@
       "when": 1792447793011,
       "tag": "0140_issued_pdf_intake_type_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 141,
+      "version": "7",
+      "when": 1792448307699,
+      "tag": "0141_issued_pdf_sale_type_and_filing",
+      "breakpoints": true
     }
   ]
 }
