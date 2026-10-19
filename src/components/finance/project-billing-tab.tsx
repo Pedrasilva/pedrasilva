@@ -37,7 +37,7 @@ type FinDocStatus = FinDoc["status"];
 
 import { isBilledDocument, billedSign } from '@/lib/finance/provisional-invoicing';
 import { InvoiceEditorDialog } from './invoice-editor-dialog';
-import { IntakeUploadButton } from './intake-upload-button';
+import { IssuedPdfUpload } from './issued-pdf-upload';
 import { useCan } from '@/hooks/use-permissions-v2';
 import { useHasPermission } from '@/hooks/use-permissions';
 import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
@@ -307,7 +307,7 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 
   // TODO: when /finance/documents/$documentId supports a `project_id` search param
   // for prefill, switch this CTA to pass `search={{ project_id: projectId }}`.
-  const newDocLink = <div className="flex flex-wrap gap-2">{(edit.allowed || legacy.allowed) && <><IntakeUploadButton/><Button size="sm" onClick={()=>setEditorOpen(true)}><Plus className="mr-1.5 size-4"/>{t('finance:projectBilling.cta.createInFinance')}</Button></>}<InvoiceEditorDialog open={editorOpen} documentId={null} initialProjectId={projectId} onClose={()=>setEditorOpen(false)}/></div>;
+  const newDocLink = <div className="flex flex-wrap gap-2">{(edit.allowed || legacy.allowed) && <><IssuedPdfUpload projectId={projectId}/><Button size="sm" onClick={()=>setEditorOpen(true)}><Plus className="mr-1.5 size-4"/>{t('finance:projectBilling.cta.createInFinance')}</Button></>}<InvoiceEditorDialog open={editorOpen} documentId={null} initialProjectId={projectId} onClose={()=>setEditorOpen(false)}/></div>;
 
   if (isLoading) {
     return (

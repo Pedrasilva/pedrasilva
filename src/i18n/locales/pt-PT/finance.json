@@ -2391,6 +2391,12 @@
     "confirmProjectAssignment": "Associar este documento ao projeto escolhido? Os valores e o estado de pagamento mantêm-se.",
     "assignmentFailed": "Não foi possível guardar a associação; verifique o documento e as permissões.",
     "confirmReceiptLink": "Confirmar a ligação à fatura sugerida? Não confirma pagamentos nem o código fiscal do recibo.",
-    "confirmReceiptAssociation": "Confirmar ligação à fatura"
+    "confirmReceiptAssociation": "Confirmar ligação à fatura",
+    "registerPdf": "Registar fatura por PDF",
+    "pdfRequired": "Escolha uma fatura em PDF.",
+    "extractionFailed": "Não foi possível extrair a fatura. Nenhuma fatura registada.",
+    "purchaseRefused": "PDF de compra recusado: esta ação só regista faturas emitidas pelo atelier.",
+    "notIssuedInvoice": "Este PDF não é uma fatura emitida pronta para confirmação.",
+    "duplicateInvoice": "Esta série e número fiscal já estão registados. Abra a fatura existente; não foi criado duplicado."
   }
 }

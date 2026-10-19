@@ -974,6 +974,20 @@
       "when": 1792447246610,
       "tag": "0138_provisional_invoice_final_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 139,
+      "version": "7",
+      "when": 1792447713013,
+      "tag": "0139_issued_pdf_confirmation_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 140,
+      "version": "7",
+      "when": 1792447793011,
+      "tag": "0140_issued_pdf_intake_type_validation",
+      "breakpoints": true
     }
   ]
 }
