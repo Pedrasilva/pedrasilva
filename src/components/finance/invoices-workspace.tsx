@@ -48,6 +48,9 @@ import { IntakeUploadButton } from './intake-upload-button';
 import { useCan } from '@/hooks/use-permissions-v2';
 import { useHasPermission } from '@/hooks/use-permissions';
 import { isBilledDocument, billedSign } from '@/lib/finance/provisional-invoicing';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const STATUS_LIST: FinDocStatus[] = [
   "draft",
@@ -74,6 +77,13 @@ export function InvoicesWorkspace() {
   const editAccess = useCan('finance.documents.edit','all');
   const legacyAccess = useHasPermission('finance.dashboard');
   const canEdit = editAccess.allowed || legacyAccess.allowed;
+  const qc = useQueryClient();
+  async function assignProject(documentId:string,projectId:string) {
+    if(!window.confirm(t('finance:provisional.confirmProjectAssignment')))return;
+    const r=await supabase.rpc('fin_assign_invoice_project',{_id:documentId,_project_id:projectId});
+    if(r.error)toast.error(t('finance:provisional.assignmentFailed'));
+    else {void qc.invalidateQueries({queryKey:['fin-docs']});void qc.invalidateQueries({queryKey:['project-billing']});}
+  }
 
   const clientsQ = useFinClients();
   const projectsQ = useFinProjects();
@@ -280,7 +290,7 @@ export function InvoicesWorkspace() {
                         <TableCell className="text-sm text-muted-foreground font-mono">
                           {d.document_number ?? "—"}
                           <FiscalReviewBadges document={d}/>
-                          <span className="block text-xs">{d.fiscal_type} {d.fiscal_series}/{d.fiscal_number} · {d.registration_origin ?? d.source}</span>
+                          <span className="block text-xs">{d.fiscal_type} {d.fiscal_series && d.fiscal_number ? `${d.fiscal_series}/${d.fiscal_number}` : '—'} · {d.registration_origin ?? d.source}</span>
                           {d.external_reference ? (
                             <span className="ml-1 text-xs">
                               · {d.external_reference}
@@ -290,7 +300,7 @@ export function InvoicesWorkspace() {
                         <TableCell className="text-sm text-muted-foreground">
                           {d.project_id
                             ? projectName.get(d.project_id) ?? "—"
-                            : "—"}
+                            : canEdit ? <Select onValueChange={v=>void assignProject(d.id,v)}><SelectTrigger onClick={e=>e.stopPropagation()}><SelectValue placeholder={t('finance:provisional.unassigned')}/></SelectTrigger><SelectContent>{(projectsQ.data??[]).map(p=><SelectItem key={p.id} value={p.id} onClick={e=>e.stopPropagation()}>{p.name}</SelectItem>)}</SelectContent></Select> : "—"}
                         </TableCell>
                         <TableCell className="text-sm tabular-nums">
                           {d.due_date ? (
