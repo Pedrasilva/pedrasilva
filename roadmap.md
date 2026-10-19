@@ -1,5 +1,11 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — HR approvals inbox
+- [x] Read-only request storage, approver checks and Patricia pending-balance diagnosis; mandatory leave rejection reason confirmed.
+- [ ] Present plan before implementation; preserve all approval and balance rules.
+- [ ] After approval: unified inbox/menu badge, filters, decisions/bulk selection and deep links; leave-map request counts and PT action labels.
+- [ ] Verify server permissions and copy-only approval/refresh/deep-link flows; remove fixtures.
+
 ## Current request — proposal family numbering
 - [x] Archived only VURAL tests 2665/2667/2668 and PSA QA tests 2608/2609; pipeline/open queries exclude archived rows, none deleted.
 - [x] Read-only 2616 check: opportunity/title Hotel Alqueva uses proposal 2660, no client; Premium Fitness root 2661 remains unchanged. Family reassignment waits for Luis confirmation.
