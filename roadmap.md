@@ -1,5 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — provisional invoicing (analysis before implementation)
+- [ ] Inspect existing issued/sales/PHC/current-account records, docs@ direction detection, PDF storage and permissions.
+- [ ] Present reuse-first plan for project billing, manual/PDF registration, SAF-T matching and milestone billed comparison; do not implement before approval.
+
 ## Current request — June 2026 vacation opening balances
 - [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
 - [x] Luis approved; nine openings saved. Migration 0131 mirrored; leave map/calendar, availability, inbox and personal sheet share calculations; audited correction editor verified by save/reload. 2027 carry-over and 14 balance checks + 8 approval regressions passed; disposable fixtures deleted. Exact hashes of all 60 requests, 13 collaborators and 1550 timesheet entries unchanged.
