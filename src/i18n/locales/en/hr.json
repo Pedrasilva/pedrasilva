@@ -1,4 +1,16 @@
 {
+  "leaveOpening": {
+    "title": "Vacation opening balance · {{year}}",
+    "reference": "Reference date",
+    "adjustment": "Opening adjustment",
+    "previous": "Previous balance",
+    "asOf": "as of {{date}}",
+    "total": "Total available",
+    "usedPending": "Approved / pending",
+    "balanceSub": "Annual entitlement and opening balance, less approved and pending vacation from the reference date.",
+    "loadError": "Vacation balances could not be loaded.",
+    "saveError": "The opening balance could not be saved. Check the reference year and your permissions."
+  },
   "approvalInbox": {
   "type": "Type",
   "days": "Days",

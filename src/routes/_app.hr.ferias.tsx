@@ -55,6 +55,7 @@ import type { Holiday } from "@/lib/workdays";
 import { PermissionGate } from "@/components/PermissionGate";
 import { YearLeaveCalendar } from "@/components/hr/year-leave-calendar";
 import { useApprovalInbox } from "@/lib/hr/use-approval-inbox";
+import { useLeaveBalances } from "@/lib/hr/use-leave-balances";
 import { useTranslation } from "react-i18next";
 import {
   useLeaveApproval,
@@ -199,42 +200,17 @@ function FeriasPage() {
   const initialScope = Route.useSearch().scope ?? "meus";
   const [adminScope, setAdminScope] = useState<"meus" | "colaborador" | "calendario">(initialScope);
   const [calendarYear, setCalendarYear] = useState<number>(currentYear);
+  const balances = useLeaveBalances(currentYear);
   const focusCollab =
     isAdmin && adminScope === "colaborador"
       ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
       : myCollab;
 
-  const usedThisYear = useMemo(() => {
-    if (!focusCollab) return 0;
-    return requests
-      .filter(
-        (r) =>
-          r.collaborator_id === focusCollab.id &&
-          r.estado === "aprovada" &&
-          r.tipo === "ferias" &&
-          new Date(r.data_inicio).getFullYear() === currentYear,
-      )
-      .reduce((sum, r) => sum + (r.dias_uteis || 0), 0);
-  }, [requests, focusCollab, currentYear]);
-
-  const pendingThisYear = useMemo(() => {
-    if (!focusCollab) return 0;
-    return requests
-      .filter(
-        (r) =>
-          r.collaborator_id === focusCollab.id &&
-          r.estado === "pendente" &&
-          r.tipo === "ferias" &&
-          new Date(r.data_inicio).getFullYear() === currentYear,
-      )
-      .reduce((sum, r) => sum + (r.dias_uteis || 0), 0);
-  }, [requests, focusCollab, currentYear]);
-
-  const totalDisponivel =
-    (focusCollab?.dias_ferias_anuais ?? 0) +
-    (focusCollab?.saldo_ferias_anterior ?? 0) +
-    (focusCollab?.dias_ferias_extra ?? 0);
-  const saldoAtual = totalDisponivel - usedThisYear - pendingThisYear;
+  const leaveBalance = balances.data?.find(b => b.collaborator_id === focusCollab?.id);
+  const usedThisYear = leaveBalance?.approved ?? "—";
+  const pendingThisYear = leaveBalance?.pending ?? "—";
+  const totalDisponivel = leaveBalance?.total ?? "—";
+  const saldoAtual = leaveBalance?.balance ?? "—";
 
   // Novo pedido
   const [newOpen, setNewOpen] = useState(false);
@@ -664,7 +640,7 @@ function FeriasPage() {
               Saldo de férias — {focusCollab.nome} · {currentYear}
             </CardTitle>
             <CardDescription>
-              Direito anual + saldo do ano anterior, descontando aprovadas e pendentes.
+              {t("leaveOpening.balanceSub")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -686,12 +662,13 @@ function FeriasPage() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <Stat label="Anuais" value={focusCollab.dias_ferias_anuais} />
-              <Stat label="Saldo anterior" value={focusCollab.saldo_ferias_anterior} />
-              <Stat label="Disponível total" value={totalDisponivel} highlight />
-              <Stat label="Usados / pendentes" value={`${usedThisYear} / ${pendingThisYear}`} />
-              <Stat label="Saldo actual" value={saldoAtual} highlight />
+              <Stat label={t("availability.balance.allowance")} value={leaveBalance?.allowance ?? "—"} />
+              <Stat label={t("leaveOpening.previous")} value={leaveBalance?.carry_over ?? "—"} sub={leaveBalance?.reference_date ? t("leaveOpening.asOf", { date: format(new Date(leaveBalance.reference_date + "T00:00:00"), "d/M/yyyy") }) : undefined} />
+              <Stat label={t("leaveOpening.total")} value={totalDisponivel} highlight />
+              <Stat label={t("leaveOpening.usedPending")} value={`${usedThisYear} / ${pendingThisYear}`} />
+              <Stat label={t("approvalInbox.balance")} value={saldoAtual} highlight />
             </div>
+            {balances.isError && <p role="alert" className="mt-2 text-sm text-destructive">{t("leaveOpening.loadError")}</p>}
           </CardContent>
         </Card>
       )}
@@ -898,11 +875,12 @@ function FeriasPage() {
   );
 }
 
-function Stat({ label, value, highlight }: { label: string; value: number | string; highlight?: boolean }) {
+function Stat({ label, value, highlight, sub }: { label: string; value: number | string; highlight?: boolean; sub?: string }) {
   return (
     <div className={`rounded-md border p-3 ${highlight ? "bg-primary/5 border-primary/30" : ""}`}>
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="text-xl font-semibold tabular-nums">{value}</div>
+      {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
     </div>
   );
 }

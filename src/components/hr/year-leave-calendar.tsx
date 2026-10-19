@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useLeaveBalances } from "@/lib/hr/use-leave-balances";
 
 type Estado = "pendente" | "aprovada" | "rejeitada" | "cancelada";
 export type CalRequest = { id: string; collaborator_id: string; tipo: string; data_inicio: string; data_fim: string; estado: Estado; dias_uteis: number | null };
@@ -53,6 +54,7 @@ export function YearLeaveCalendar({
   const { t, i18n } = useTranslation("hr");
   const k = (s: string) => `annualCal.${s}`;
   const locale = i18n.language?.startsWith("pt") ? pt : enGB;
+  const balances = useLeaveBalances(year);
 
   // Stable distinct colour per person (alphabetical order of everyone the page shows).
   const colorOf = useMemo(() => {
@@ -111,17 +113,7 @@ export function YearLeaveCalendar({
 
   // Totals when exactly one person is selected — same formula as "Saldo de férias".
   const one = selected.length === 1 ? collaborators.find((c) => c.id === selected[0]) ?? null : null;
-  const totals = useMemo(() => {
-    if (!one) return null;
-    const sum = (estado: Estado) =>
-      requests
-        .filter((r) => r.collaborator_id === one.id && r.estado === estado && r.tipo === "ferias" && new Date(r.data_inicio).getFullYear() === year)
-        .reduce((a, r) => a + (r.dias_uteis || 0), 0);
-    const approved = sum("aprovada");
-    const pending = sum("pendente");
-    const total = (one.dias_ferias_anuais ?? 0) + (one.saldo_ferias_anterior ?? 0) + (one.dias_ferias_extra ?? 0);
-    return { approved, pending, balance: total - approved - pending };
-  }, [one, requests, year]);
+  const totals = balances.data?.find(b => b.collaborator_id === one?.id) ?? null;
 
   const statusLabel = (e: Estado) => t(k(`status.${e}`));
   const kindLabel = (tipo: string) => (tipo === "ferias" ? t(k("kind.vacation")) : t(k("kind.other"), { type: typeLabel(tipo) }));

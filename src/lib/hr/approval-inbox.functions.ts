@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { leaveBalance, pendingApprovals, type ApprovalRow } from "./approval-inbox";
+import { pendingApprovals, type ApprovalRow } from "./approval-inbox";
 
 export const getApprovalInbox = createServerFn({method: "POST"})
   .middleware([requireSupabaseAuth])
@@ -35,9 +35,10 @@ export const getApprovalInbox = createServerFn({method: "POST"})
     if (remoteResult.error) throw remoteResult.error;
     const personMap = new Map(people.map(p => [p.id,p]));
     const rows: ApprovalRow[] = [];
+    const balancesResult = leaveAccess ? await db.rpc("hr_leave_balances", { _year: new Date().getFullYear() }) : { data: [], error: null };
+    if (balancesResult.error) throw balancesResult.error;
     const balance = (id: string) => {
-      const p = personMap.get(id);
-      return p && leaveAccess ? leaveBalance(p, leaves.filter(r => r.collaborator_id === id), new Date().getFullYear()) : null;
+      return balancesResult.data?.find(b => b.collaborator_id === id)?.balance ?? null;
     };
     if (leaveAccess) for (const r of leaves) {
       const email = context.claims.email?.toString().toLowerCase();

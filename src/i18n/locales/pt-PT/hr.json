@@ -1,4 +1,16 @@
 {
+  "leaveOpening": {
+    "title": "Saldo inicial de férias · {{year}}",
+    "reference": "Data de referência",
+    "adjustment": "Ajuste inicial",
+    "previous": "Saldo anterior",
+    "asOf": "a {{date}}",
+    "total": "Disponível total",
+    "usedPending": "Aprovadas / pendentes",
+    "balanceSub": "Direito anual e saldo inicial, descontando férias aprovadas e pendentes desde a data de referência.",
+    "loadError": "Não foi possível carregar os saldos de férias.",
+    "saveError": "Não foi possível guardar o saldo inicial. Verifique o ano de referência e as suas permissões."
+  },
   "approvalInbox": {
   "type": "Tipo",
   "days": "Dias",
