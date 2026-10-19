@@ -1,12 +1,12 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
-## Current request — provisional invoicing (analysis before implementation)
-- [x] Presented audit and Finance links for all 15 without any project: 39 issued-direction records include receipts; 7 cancelled FT Nº12/2026 copies, 1 paid + 2 cancelled FT 2026/23 copies, possible conflicting FT 2026/12, 7 missing numbers and 39 missing separate series. No data changed.
-- [ ] Luis approved partial uniqueness for non-cancelled documents; first present all 39 proposed SAF-T normalizations before any write, flag unparseable identities and CTT divergence, preserve receipts separately and leave all 15 project assignments to Luis.
-- [ ] Apply confirmed normalization with incomplete/CTT/FT 2026/2024 flags and partial uniqueness; implement registration, SAF-T preflight/reconciliation, receipt suggestions, milestone billed totals, access checks and tests. Preserve all existing values/statuses/project links.
-- [x] Read all 39 current identities: 26 invoices and 13 already-classified receipts. Prepared normalization preview; bare numbers do not establish fiscal series, receipt fiscal codes remain unconfirmed. Found three candidate receipt/invoice matches by client/date/value, not verified links.
-- [x] Inspected issued documents, legacy project invoices, payments, docs@ direction, private PDFs, Finance permissions and existing InvoiceXpress code; no SAF-T parser or evidenced PHC sales import.
-- [x] Prepared reuse-first plan for review; implementation awaits approval, with no application or database changes.
+## Current request — provisional invoicing
+- [x] Audit/normalization explicitly approved; migrations 0132–0138 mirrored byte-for-byte. Original text, 39 records, €605,785.15 net/€116,423.07 VAT/€722,208.22 gross and all 15 unassigned documents preserved; 0 confirmed receipt codes/links, 3 suggestions.
+- [x] Incomplete identification, CTT and FT 2026/2024 flags displayed; Finance project association and receipt link require explicit confirmation. No real project or receipt association performed.
+- [x] Existing invoice editor supports series, original credit invoice and per-line milestone; atomic registration/edit, Finance permission and entity checks. Project billed totals exclude receipts/drafts/cancelled, subtract credits; earned remains unchanged, added billed/difference by stage.
+- [x] SAF-T XML preview checks issuer, totals, exact identity and incomplete/flagged candidates before creation; existing completion needs selection/confirmation and retains original values/status/text/project/flags. Unsupported receipt fiscal codes remain pending. XML source/hash retained in document import metadata; private PDF extraction reuses existing intake.
+- [x] 14 unit/regression tests passed; browser imported €100+€23 test invoice to disposable project, showed Already registered on repeat, read back after reload; XML, invoice/lines and test project deleted. Preview build OK.
+- [ ] Actual customer SAF-T file and PDF confirmation, manual/credit/partial-payment/multi-milestone screen flows, full permission/concurrency matrix await representative fixtures/validation; not claimed verified. Actual SAF-T receipt-code reconciliation requires concrete fiscal evidence, never guessing.
 
 ## Current request — June 2026 vacation opening balances
 - [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
