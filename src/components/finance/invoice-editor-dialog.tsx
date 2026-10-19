@@ -67,6 +67,7 @@ import { useHasPermission } from '@/hooks/use-permissions';
 import { supabase } from '@/integrations/supabase/client';
 
 type Props = {
+  initialPdfDraft?: IssuedPdfDraft;
   initialProjectId?: string;
   open: boolean;
   documentId: string | null;
@@ -74,6 +75,7 @@ type Props = {
 };
 
 type EditorLine = DocumentInputLine & { _key: string };
+export type IssuedPdfDraft = {queueId:string;filePath:string;docType:FinDocType;clientId:string|null;number:string;date:string;dueDate:string;lines:DocumentInputLine[]};
 
 const newLine = (): EditorLine => ({
   _key: crypto.randomUUID(),
@@ -93,7 +95,7 @@ const fmt = (n: number) =>
     currency: "EUR",
   }).format(n);
 
-export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectId }: Props) {
+export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectId,initialPdfDraft }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
 
@@ -144,6 +146,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       setClassificationId(null);
       setNotes("");
       setLines([newLine()]);
+      if(initialPdfDraft){setDocType(initialPdfDraft.docType);setClientId(initialPdfDraft.clientId);setDocumentNumber(initialPdfDraft.number);setIssueDate(initialPdfDraft.date);setDueDate(initialPdfDraft.dueDate);setLines(initialPdfDraft.lines.map(l=>({...l,_key:crypto.randomUUID()})));}
       return;
     }
     const full = existing.data;
@@ -175,7 +178,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
           }))
         : [newLine()],
     );
-  }, [open, documentId, existing.data, initialProjectId]);
+  }, [open, documentId, existing.data, initialProjectId,initialPdfDraft]);
 
   const totals = useMemo(() => computeDocTotals(lines), [lines]);
   const status = existing.data?.document.status ?? "draft";
@@ -240,7 +243,9 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       notes: notes.trim() || null,
       series: series || null,
       original_document_id: originalId,
-      registration_origin: existing.data?.document.registration_origin ?? 'manual',
+      registration_origin: initialPdfDraft?'upload':existing.data?.document.registration_origin ?? 'manual',
+      file_path: initialPdfDraft?.filePath ?? existing.data?.document.file_path ?? null,
+      queue_item_id:initialPdfDraft?.queueId,
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
@@ -269,7 +274,8 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       }
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      const error=e as {code?:string;message?:string};
+      toast.error(error.code==='23505' ? t('finance:provisional.duplicateInvoice') : error.message?.includes('Fiscal document already exists') ? t('finance:provisional.duplicateInvoice') : error.message??t('finance:provisional.assignmentFailed'));
     }
   }
 

@@ -2391,6 +2391,12 @@
     "confirmProjectAssignment": "Associate this document with the selected project? Amounts and payment status stay unchanged.",
     "assignmentFailed": "Association could not be saved; check the document and permissions.",
     "confirmReceiptLink": "Confirm the suggested invoice link? This does not confirm a payment or the receipt fiscal code.",
-    "confirmReceiptAssociation": "Confirm invoice link"
+    "confirmReceiptAssociation": "Confirm invoice link",
+    "registerPdf": "Register invoice from PDF",
+    "pdfRequired": "Choose a PDF invoice.",
+    "extractionFailed": "Could not extract this invoice. No invoice registered.",
+    "purchaseRefused": "Purchase PDF refused: this action only registers invoices issued by the atelier.",
+    "notIssuedInvoice": "This PDF is not an issued invoice ready for confirmation.",
+    "duplicateInvoice": "This fiscal series and number are already registered. Open the existing invoice; no duplicate was created."
   }
 }

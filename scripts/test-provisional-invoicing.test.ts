@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { fiscalIdentity, isBilledDocument, billedSign, parseSaft } from '../src/lib/finance/provisional-invoicing';
+import { isConfirmableIssuedPdf } from '../src/lib/finance/issued-pdf';
 describe('approved fiscal identity rules', () => {
+  it('permits extracted issued invoices only while awaiting human confirmation',()=>{
+    expect(isConfirmableIssuedPdf({direction:'issued',intake_type:'fatura_emitida',status:'pending_review'})).toBe(true);
+    expect(isConfirmableIssuedPdf({direction:'issued',intake_type:'fatura_emitida',status:'duplicate'})).toBe(false);
+    expect(isConfirmableIssuedPdf({direction:'issued',intake_type:'fatura_emitida',status:'filed'})).toBe(false);
+  });
+  it('refuses purchase PDFs from issued-invoice confirmation',()=>{
+    expect(isConfirmableIssuedPdf({direction:'received',intake_type:'fatura_compra',status:'pending_review'})).toBe(false);
+    expect(isConfirmableIssuedPdf({direction:'received',intake_type:'nota_credito',status:'pending_review'})).toBe(false);
+  });
   it('rejects XML entity definitions before parsing',()=>{
     expect(()=>parseSaft('<!DOCTYPE AuditFile [<!ENTITY external SYSTEM "file:///secret">]><AuditFile/>')).toThrow('unsafeXml');
   });

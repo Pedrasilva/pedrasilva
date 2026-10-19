@@ -1,0 +1,1 @@
+DO $patch$ DECLARE s text; BEGIN s:=pg_get_functiondef('public.fin_register_issued_document(jsonb,jsonb,uuid)'::regprocedure);s:=replace(s,'doc_type IN (''fatura'',''nota_credito'')','intake_type IN (''fatura'',''nota_credito'')');EXECUTE s;END $patch$;

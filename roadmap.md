@@ -1,5 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — invoicing screen verification
+- [ ] Test disposable PDF sale/purchase, manual/duplicate, credit/original status, partial payment, two milestone lines, Finance denial UI/server; correct discovered failures.
+- [ ] Compare original 39 totals/count/received before versus after 0132–0138; remove all disposable records/files and report precise verification limits.
+
 ## Current request — provisional invoicing
 - [x] Audit/normalization explicitly approved; migrations 0132–0138 mirrored byte-for-byte. Original text, 39 records, €605,785.15 net/€116,423.07 VAT/€722,208.22 gross and all 15 unassigned documents preserved; 0 confirmed receipt codes/links, 3 suggestions.
 - [x] Incomplete identification, CTT and FT 2026/2024 flags displayed; Finance project association and receipt link require explicit confirmation. No real project or receipt association performed.

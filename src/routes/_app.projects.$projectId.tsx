@@ -178,6 +178,7 @@ type TabKey =
 
 function ProjectDetail() {
   const { t } = useTranslation();
+  const projectFinanceAccess = useFinanceAccess();
   const { projectId } = Route.useParams();
   const [showCancelled, setShowCancelled] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
@@ -736,6 +737,7 @@ function ProjectDetail() {
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
+            {projectFinanceAccess.hasAccess && <TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
             <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
             <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
             <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
@@ -1091,7 +1093,7 @@ function ProjectDetail() {
               </div>
             )}
 
-            {tab === "billing" && (
+            {tab === "billing" && projectFinanceAccess.hasAccess && (
               <div className="mt-4">
                 <ProjectBillingTab projectId={projectId} />
               </div>
