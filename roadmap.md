@@ -1,8 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — invoicing screen verification
-- [ ] Test disposable PDF sale/purchase, manual/duplicate, credit/original status, partial payment, two milestone lines, Finance denial UI/server; correct discovered failures.
-- [ ] Compare original 39 totals/count/received before versus after 0132–0138; remove all disposable records/files and report precise verification limits.
+- [x] All six screen flows passed with disposable fixtures: PDF extraction/confirmation/milestone/reload, purchase refusal, manual registration/duplicate message, credit net reduction/original partial status, payment 100 received/269 outstanding, two milestones 100/200, Bernardo UI denial and server 42501. Fixed hidden project Billing tab and missing project PDF confirmation; migrations 0139–0141 mirrored. Ten regression tests and preview build passed.
+- [x] Removed three test invoices, payment, queue rows, project/stage/two milestones and five PDF files; all cleanup counts zero. Original 39 document row hash unchanged during this verification; net 605785.15/VAT 116423.07/gross 722208.22 match prior approved audit. Current billed net 235310.87 and received 548873.19 (26 payments) preserved during tests.
+- [ ] Historical pre-0132 billed/received comparison blocked: no pre-migration snapshot of those two metrics found; do not infer it from unchanged source or current totals.
 
 ## Current request — provisional invoicing
 - [x] Audit/normalization explicitly approved; migrations 0132–0138 mirrored byte-for-byte. Original text, 39 records, €605,785.15 net/€116,423.07 VAT/€722,208.22 gross and all 15 unassigned documents preserved; 0 confirmed receipt codes/links, 3 suggestions.
@@ -10,7 +11,7 @@
 - [x] Existing invoice editor supports series, original credit invoice and per-line milestone; atomic registration/edit, Finance permission and entity checks. Project billed totals exclude receipts/drafts/cancelled, subtract credits; earned remains unchanged, added billed/difference by stage.
 - [x] SAF-T XML preview checks issuer, totals, exact identity and incomplete/flagged candidates before creation; existing completion needs selection/confirmation and retains original values/status/text/project/flags. Unsupported receipt fiscal codes remain pending. XML source/hash retained in document import metadata; private PDF extraction reuses existing intake.
 - [x] 14 unit/regression tests passed; browser imported €100+€23 test invoice to disposable project, showed Already registered on repeat, read back after reload; XML, invoice/lines and test project deleted. Preview build OK.
-- [ ] Actual customer SAF-T file and PDF confirmation, manual/credit/partial-payment/multi-milestone screen flows, full permission/concurrency matrix await representative fixtures/validation; not claimed verified. Actual SAF-T receipt-code reconciliation requires concrete fiscal evidence, never guessing.
+- [ ] Actual customer SAF-T and broader concurrency/permission matrix await representative fixtures/validation. Six requested invoice screen flows and no-Finance server denial now verified; actual receipt-code reconciliation still requires fiscal evidence, never guessing.
 
 ## Current request — June 2026 vacation opening balances
 - [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
