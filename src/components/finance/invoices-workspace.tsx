@@ -42,6 +42,12 @@ import {
 } from "@/lib/finance/use-documents";
 import { InvoiceEditorDialog } from "./invoice-editor-dialog";
 import { cn } from "@/lib/utils";
+import { FiscalReviewBadges } from './fiscal-review-badges';
+import { SaftImportDialog } from './saft-import-dialog';
+import { IntakeUploadButton } from './intake-upload-button';
+import { useCan } from '@/hooks/use-permissions-v2';
+import { useHasPermission } from '@/hooks/use-permissions';
+import { isBilledDocument, billedSign } from '@/lib/finance/provisional-invoicing';
 
 const STATUS_LIST: FinDocStatus[] = [
   "draft",
@@ -64,6 +70,10 @@ export function InvoicesWorkspace() {
   const [clientFilter, setClientFilter] = useState<string | "all">("all");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [reviewFilter,setReviewFilter] = useState('all');
+  const editAccess = useCan('finance.documents.edit','all');
+  const legacyAccess = useHasPermission('finance.dashboard');
+  const canEdit = editAccess.allowed || legacyAccess.allowed;
 
   const clientsQ = useFinClients();
   const projectsQ = useFinProjects();
@@ -85,6 +95,7 @@ export function InvoicesWorkspace() {
     for (const p of projectsQ.data ?? []) map.set(p.id, p.name);
     return map;
   }, [projectsQ.data]);
+  const displayed = (docsQ.data ?? []).filter(d=>reviewFilter==='all' || reviewFilter==='unassigned' && !d.project_id || reviewFilter==='review' && (d.fiscal_review_reasons.length>0 || !d.fiscal_series || !d.fiscal_number || d.receipt_invoice_candidates.length>0));
 
   const summary = useMemo(() => {
     const rows = docsQ.data ?? [];
@@ -94,7 +105,7 @@ export function InvoicesWorkspace() {
     const today = new Date().toISOString().slice(0, 10);
     for (const r of rows) {
       if (r.status === "cancelled") continue;
-      total += Number(r.total_inc_vat);
+      if (isBilledDocument(r)) total += billedSign(r)*Number(r.total_inc_vat);
       outstanding += Number(r.outstanding_amount ?? 0);
       if (
         r.due_date &&
@@ -148,13 +159,14 @@ export function InvoicesWorkspace() {
               {t("finance:invoices.subtitle")}
             </CardDescription>
           </div>
-          <Button onClick={() => openEditor(null)} size="sm">
+          {canEdit && <div className="flex flex-wrap gap-2"><SaftImportDialog/><IntakeUploadButton/><Button onClick={() => openEditor(null)} size="sm">
             <Plus className="size-4 mr-1" />
             {t("finance:invoices.new")}
-          </Button>
+          </Button></div>}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center gap-2">
+            <Select value={reviewFilter} onValueChange={setReviewFilter}><SelectTrigger className="w-full md:w-48"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">{t('common:all')}</SelectItem><SelectItem value="review">{t('finance:provisional.reviewDocuments')}</SelectItem><SelectItem value="unassigned">{t('finance:provisional.unassigned')}</SelectItem></SelectContent></Select>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -240,7 +252,7 @@ export function InvoicesWorkspace() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(docsQ.data ?? []).map((d) => {
+                  {displayed.map((d) => {
                     const today = new Date().toISOString().slice(0, 10);
                     const isOverdue =
                       d.due_date &&
@@ -267,6 +279,8 @@ export function InvoicesWorkspace() {
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground font-mono">
                           {d.document_number ?? "—"}
+                          <FiscalReviewBadges document={d}/>
+                          <span className="block text-xs">{d.fiscal_type} {d.fiscal_series}/{d.fiscal_number} · {d.registration_origin ?? d.source}</span>
                           {d.external_reference ? (
                             <span className="ml-1 text-xs">
                               · {d.external_reference}

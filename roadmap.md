@@ -3,6 +3,7 @@
 ## Current request — provisional invoicing (analysis before implementation)
 - [x] Presented audit and Finance links for all 15 without any project: 39 issued-direction records include receipts; 7 cancelled FT Nº12/2026 copies, 1 paid + 2 cancelled FT 2026/23 copies, possible conflicting FT 2026/12, 7 missing numbers and 39 missing separate series. No data changed.
 - [ ] Luis approved partial uniqueness for non-cancelled documents; first present all 39 proposed SAF-T normalizations before any write, flag unparseable identities and CTT divergence, preserve receipts separately and leave all 15 project assignments to Luis.
+- [ ] Apply confirmed normalization with incomplete/CTT/FT 2026/2024 flags and partial uniqueness; implement registration, SAF-T preflight/reconciliation, receipt suggestions, milestone billed totals, access checks and tests. Preserve all existing values/statuses/project links.
 - [x] Read all 39 current identities: 26 invoices and 13 already-classified receipts. Prepared normalization preview; bare numbers do not establish fiscal series, receipt fiscal codes remain unconfirmed. Found three candidate receipt/invoice matches by client/date/value, not verified links.
 - [x] Inspected issued documents, legacy project invoices, payments, docs@ direction, private PDFs, Finance permissions and existing InvoiceXpress code; no SAF-T parser or evidenced PHC sales import.
 - [x] Prepared reuse-first plan for review; implementation awaits approval, with no application or database changes.

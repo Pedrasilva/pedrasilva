@@ -11,7 +11,7 @@
  * The single CTA navigates to Finance to create a new document.
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -34,6 +34,13 @@ type FinDoc = Database["public"]["Tables"]["financial_documents"]["Row"];
 type FinDocLine = Database["public"]["Tables"]["financial_document_lines"]["Row"];
 type FinDocPayment = Database["public"]["Tables"]["financial_document_payments"]["Row"];
 type FinDocStatus = FinDoc["status"];
+
+import { isBilledDocument, billedSign } from '@/lib/finance/provisional-invoicing';
+import { InvoiceEditorDialog } from './invoice-editor-dialog';
+import { IntakeUploadButton } from './intake-upload-button';
+import { useCan } from '@/hooks/use-permissions-v2';
+import { useHasPermission } from '@/hooks/use-permissions';
+import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
 
 const DASH = "—";
 
@@ -210,6 +217,10 @@ function SummaryCard({
 export function ProjectBillingTab({ projectId }: { projectId: string }) {
   const { t } = useTranslation(["finance", "projects", "common"]);
   const { data, isLoading, error } = useProjectFinanceDocuments(projectId);
+  const [editorOpen,setEditorOpen] = useState(false);
+  const edit = useCan('finance.documents.edit','all');
+  const legacy = useHasPermission('finance.dashboard');
+  const milestones = useInvoiceMilestones(projectId);
 
   const issued = useMemo(
     () => (data?.documents ?? []).filter((d) => d.direction === "issued"),
@@ -236,11 +247,11 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
     const docs = data?.documents ?? [];
     const payments = data?.payments ?? [];
 
-    const issuedDocs = docs.filter((d) => d.direction === "issued");
+    const issuedDocs = docs.filter(isBilledDocument);
     const receivedDocs = docs.filter((d) => d.direction === "received");
 
     const totalInvoiced = issuedDocs.reduce(
-      (a, d) => a + (projectLineNetByDoc.get(d.id) ?? Number(d.subtotal_ex_vat ?? 0)),
+      (a, d) => a + billedSign(d)*(projectLineNetByDoc.get(d.id) ?? Number(d.subtotal_ex_vat ?? 0)),
       0,
     );
     const supplierCosts = receivedDocs.reduce(
@@ -269,7 +280,8 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
     const totalReceived = issuedDocs.reduce((a, d) => a + paidFor(d.id), 0);
     const supplierPaid = receivedDocs.reduce((a, d) => a + paidFor(d.id), 0);
 
-    const outstandingClient = Math.max(0, totalInvoiced - totalReceived);
+    const clientGross = issuedDocs.reduce((a,d)=>a+billedSign(d)*Number(d.total_inc_vat)*(projectLineNetByDoc.get(d.id) == null ? 1 : Number(d.subtotal_ex_vat) ? Number(projectLineNetByDoc.get(d.id))/Number(d.subtotal_ex_vat) : 0),0);
+    const outstandingClient = Math.max(0, clientGross - totalReceived);
     const supplierOutstanding = Math.max(0, supplierCosts - supplierPaid);
     const netPosition = totalInvoiced - supplierCosts;
 
@@ -295,17 +307,7 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 
   // TODO: when /finance/documents/$documentId supports a `project_id` search param
   // for prefill, switch this CTA to pass `search={{ project_id: projectId }}`.
-  const newDocLink = (
-    <Button asChild size="sm">
-      <Link
-        to="/finance/documents/$documentId"
-        params={{ documentId: "new" }}
-      >
-        <Plus className="mr-1.5 h-3.5 w-3.5" />
-        {t("finance:projectBilling.cta.createInFinance")}
-      </Link>
-    </Button>
-  );
+  const newDocLink = <div className="flex flex-wrap gap-2">{(edit.allowed || legacy.allowed) && <><IntakeUploadButton/><Button size="sm" onClick={()=>setEditorOpen(true)}><Plus className="mr-1.5 size-4"/>{t('finance:projectBilling.cta.createInFinance')}</Button></>}<InvoiceEditorDialog open={editorOpen} documentId={null} initialProjectId={projectId} onClose={()=>setEditorOpen(false)}/></div>;
 
   if (isLoading) {
     return (
@@ -372,6 +374,7 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
           {newDocLink}
         </CardHeader>
         <CardContent>
+          {(milestones.data??[]).length>0 && <div className="overflow-x-auto mb-4"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-2">{t('finance:provisional.invoiceMilestone')}</th><th className="text-right">{t('finance:provisional.billedNet')}</th></tr></thead><tbody>{(milestones.data??[]).map(m=>{const value=(data?.lines??[]).filter(l=>l.payment_schedule_item_id===m.id && l.project_id===projectId).reduce((sum,l)=>{const d=data?.documents.find(d=>d.id===l.document_id);return sum+(d && isBilledDocument(d)?billedSign(d)*Number(l.amount_ex_vat):0);},0);return <tr key={m.id} className="border-b"><td className="py-2">{m.stageLabel} · {m.label}</td><td className="text-right tabular-nums">{fmtEUR(value)}</td></tr>;})}</tbody></table></div>}
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-7">
             <SummaryCard
               label={t("finance:projectBilling.summary.invoiced")}
