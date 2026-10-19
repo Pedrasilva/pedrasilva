@@ -21,12 +21,14 @@ import { balanceByCategory, type BenefitBalance, type BenefitExpense, type Benef
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
 import { CalendarConnection } from "@/components/projects/calendar-connection";
+import { useLeaveBalances } from "@/lib/hr/use-leave-balances";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
 
 export const Route = createFileRoute("/_app/hr/minha-ficha")({
+  head: () => ({ meta: [{ title: "A minha ficha | PSA Hub" }, { name: "description", content: "Ficha pessoal, férias e benefícios no PSA Hub." }, { property: "og:title", content: "A minha ficha | PSA Hub" }, { property: "og:description", content: "Ficha pessoal, férias e benefícios." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: MinhaFichaPage,
 });
 
@@ -197,25 +199,9 @@ function QuickLinks({ collaborator }: { collaborator: Collaborator }) {
   const { t } = useTranslation(["hr"]);
   const year = new Date().getFullYear();
 
-  const { data: vacationDays = 0 } = useQuery({
-    queryKey: ["my-vacation-days", collaborator.id, year],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("vacation_requests")
-        .select("dias_uteis, tipo, estado, data_inicio")
-        .eq("collaborator_id", collaborator.id)
-        .in("estado", ["pendente", "aprovada"])
-        .gte("data_inicio", `${year}-01-01`)
-        .lte("data_inicio", `${year}-12-31`);
-      if (error) throw error;
-      return (data ?? [])
-        .filter((r: { tipo: string }) => r.tipo === "ferias")
-        .reduce(
-          (sum: number, r: { dias_uteis: number }) => sum + (Number(r.dias_uteis) || 0),
-          0,
-        );
-    },
-  });
+  const balances = useLeaveBalances(year);
+  const balance = balances.data?.find(b => b.collaborator_id === collaborator.id);
+  const vacationDays = balance ? balance.approved + balance.pending : "—";
 
   const { data: benefitsAvailable = 0 } = useQuery({
     queryKey: ["my-benefits-available", collaborator.id],

@@ -5792,6 +5792,54 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_vacation_opening_balances: {
+        Row: {
+          adjustment: number
+          base_days: number
+          collaborator_id: string
+          history: Json
+          reference_date: string
+          updated_at: string
+          updated_by: string | null
+          year: number
+        }
+        Insert: {
+          adjustment?: number
+          base_days?: number
+          collaborator_id: string
+          history?: Json
+          reference_date: string
+          updated_at?: string
+          updated_by?: string | null
+          year: number
+        }
+        Update: {
+          adjustment?: number
+          base_days?: number
+          collaborator_id?: string
+          history?: Json
+          reference_date?: string
+          updated_at?: string
+          updated_by?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_vacation_opening_balances_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_vacation_opening_balances_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_identity_mappings: {
         Row: {
           active: boolean
@@ -15598,6 +15646,20 @@ export type Database = {
       hr_inbox_remote_decide: {
         Args: { _approve: boolean; _id: string; _reason: string }
         Returns: undefined
+      }
+      hr_leave_balances: {
+        Args: { _year: number }
+        Returns: {
+          allowance: number
+          approved: number
+          balance: number
+          carry_over: number
+          collaborator_id: string
+          extra: number
+          pending: number
+          reference_date: string
+          total: number
+        }[]
       }
       import_financial_data: {
         Args: {

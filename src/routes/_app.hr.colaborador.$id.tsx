@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CollaboratorAssetsCard } from "@/components/inventory/collaborator-assets-card";
 import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
+import { VacationOpeningEditor } from "@/components/hr/vacation-opening-editor";
 
 import { WfhProfileCard } from "@/components/hr/wfh/wfh-profile-card";
 
@@ -111,6 +112,7 @@ import { OfferSummarySheet } from "@/components/hr/offer-summary-sheet";
 
 
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
+  head: () => ({ meta: [{ title: "Colaborador | PSA Hub" }, { name: "description", content: "Dados e saldos do colaborador no PSA Hub." }, { property: "og:title", content: "Colaborador | PSA Hub" }, { property: "og:description", content: "Ficha e dados do colaborador." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.colaborador.view">
       <CollaboratorPage />
@@ -709,6 +711,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
                   />
                 </Field>
+                <VacationOpeningEditor collaboratorId={id} canEdit={isAdmin} />
                 <Field label={t("hr:collaborator.fields.dailyHours")}>
                   <Input
                     type="number"

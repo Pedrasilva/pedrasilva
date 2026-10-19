@@ -18,5 +18,5 @@ export function useInboxDecision() {
   return useMutation({mutationFn:async ({row,approve,reason=""}:{row:ApprovalRow;approve:boolean;reason?:string}) => {
     await decide({data:{id:row.id,kind:row.kind,approve,reason}});
     if(row.kind !== "remote") void email({data:{requestId:row.requestId}}).catch(() => {});
-  },onSuccess:async () => {await Promise.all(["hr-approval-inbox","vacation_requests","vacation_change_requests","vacation_request_history","remote_work_requests","home","notifications"].map(key => qc.invalidateQueries({queryKey:[key]})));}});
+  },onSuccess:async () => {await Promise.all(["leave-balances","availability","hr-approval-inbox","vacation_requests","vacation_change_requests","vacation_request_history","remote_work_requests","home","notifications"].map(key => qc.invalidateQueries({queryKey:[key]})));}});
 }
