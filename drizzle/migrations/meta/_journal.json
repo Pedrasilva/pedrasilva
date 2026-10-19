@@ -967,6 +967,13 @@
       "when": 1792447145074,
       "tag": "0137_provisional_invoice_explicit_associations",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1792447246610,
+      "tag": "0138_provisional_invoice_final_validation",
+      "breakpoints": true
     }
   ]
 }
