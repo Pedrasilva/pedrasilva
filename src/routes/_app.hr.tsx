@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useApprovalInbox } from "@/lib/hr/use-approval-inbox";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import type { PermissionKey } from "@/lib/permissions";
 import {
@@ -13,6 +14,7 @@ import {
   User as UserIcon,
   Utensils,
   Laptop,
+  Inbox,
   CalendarRange,
   PanelLeftClose,
   PanelLeftOpen,
@@ -29,6 +31,7 @@ type NavItem = {
   icon: LucideIcon;
   match: (p: string) => boolean;
   show: boolean;
+  count?: number;
 };
 
 type NavGroup = {
@@ -42,6 +45,7 @@ function HrLayout() {
   const loc = useLocation();
   const { isAdmin, isRealAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const approvalInbox = useApprovalInbox();
   const [collapsed, setCollapsed] = useState(false);
 
   const can = (key: PermissionKey) => isAdmin || permissions.has(key);
@@ -78,6 +82,10 @@ function HrLayout() {
             icon: CalendarDays,
             match: (p) => p.startsWith("/hr/ferias"),
             show: canOwn("hr.ferias.own"),
+          },
+          {
+            to: "/hr/aprovacoes", label: t("common:shell.link.hr.approvals"), icon: Inbox,
+            match: (p) => p.startsWith("/hr/aprovacoes"), show: approvalInbox.allowed, count: approvalInbox.rows.length,
           },
           {
             to: "/hr/trabalho-remoto",
@@ -124,7 +132,7 @@ function HrLayout() {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isAdmin, isRealAdmin, permissions, t],
+    [isAdmin, isRealAdmin, permissions, t, approvalInbox.allowed, approvalInbox.rows.length],
   );
 
   const visibleGroups = groups
@@ -208,6 +216,7 @@ function HrLayout() {
                           {!collapsed && (
                             <span className="truncate">{item.label}</span>
                           )}
+                          {item.count !== undefined && !collapsed && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{item.count}</span>}
                         </Link>
                       </li>
                     );
@@ -238,6 +247,7 @@ function HrLayout() {
               >
                 <Icon className="h-3.5 w-3.5" />
                 {item.label}
+                {item.count !== undefined && <span className="text-xs tabular-nums">{item.count}</span>}
               </Link>
             );
           })}

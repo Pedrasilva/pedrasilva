@@ -40,7 +40,8 @@ export type FlyoutLink = {
   /** Requires finance access (useFinanceAccess — same check as the /finance guard). */
   requiresFinance?: boolean;
   /** Optional live count shown next to the label. */
-  badge?: "marketingQuestions" | "marketingActions";
+  badge?: "marketingQuestions" | "marketingActions" | "hrApprovals";
+  requiresHrApproval?: boolean;
 };
 
 export type FlyoutSection = {
@@ -152,6 +153,7 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/hr/minha-ficha", labelKey: "hr.mySheet" },
           { to: "/hr/ferias", labelKey: "hr.vacation" },
+          { to: "/hr/aprovacoes", labelKey: "hr.approvals", requiresHrApproval: true, badge: "hrApprovals" },
           { to: "/hr/beneficios", labelKey: "hr.benefits" },
         ],
       },
