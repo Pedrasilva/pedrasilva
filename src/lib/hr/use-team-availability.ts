@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toLocalISODate } from "@/lib/dates";
 import { computeCollaboratorFte } from "@/lib/hr/fte";
+import { useLeaveBalances } from "./use-leave-balances";
 import {
   ACTIVE_REMOTE_STATES,
   type RemoteWorkDayPart,
@@ -141,6 +142,7 @@ function eachDayOfMonth(year: number, month: number): Date[] {
 }
 
 export function useTeamAvailability(year: number, month: number): TeamAvailability {
+  const balances = useLeaveBalances(year);
   const collabsQ = useQuery({
     queryKey: ["availability", "collaborators"],
     staleTime: 5 * 60 * 1000,
@@ -260,16 +262,7 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
     const leave = leaveQ.data ?? [];
 
     const people: AvailabilityPerson[] = (collabsQ.data ?? []).map((c) => {
-      const mine = leave.filter(
-        (l) =>
-          l.collaborator_id === c.id &&
-          l.tipo === "ferias" &&
-          new Date(l.data_inicio).getFullYear() === year,
-      );
-      const sum = (state: LeaveRow["estado"]) =>
-        mine
-          .filter((l) => l.estado === state)
-          .reduce((s, l) => s + (Number(l.dias_uteis) || 0), 0);
+      const balance = balances.data?.find(b => b.collaborator_id === c.id);
       return {
         id: c.id as string,
         nome: c.nome as string,
@@ -280,11 +273,11 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
         daysPerWeek: (c.days_per_week as number | null) ?? null,
         admissionDate: ((c as { data_admissao?: string | null }).data_admissao ?? null) || null,
         projectIds: projectsByCollab.get(c.id as string) ?? [],
-        allowance: Number(c.dias_ferias_anuais) || 0,
-        extra: Number(c.dias_ferias_extra) || 0,
-        carryOver: Number(c.saldo_ferias_anterior) || 0,
-        taken: sum("aprovada"),
-        booked: sum("pendente"),
+        allowance: balance?.allowance ?? 0,
+        extra: balance?.extra ?? 0,
+        carryOver: balance?.carry_over ?? 0,
+        taken: balance?.approved ?? 0,
+        booked: balance?.pending ?? 0,
       };
     });
 
@@ -395,10 +388,12 @@ export function useTeamAvailability(year: number, month: number): TeamAvailabili
       departments,
       partTimeScheduleUnknown: pool.some((p) => (p.daysPerWeek ?? 5) < 5),
       loading:
-        collabsQ.isLoading || leaveQ.isLoading || remoteQ.isLoading || holidaysQ.isLoading,
+        balances.isLoading || collabsQ.isLoading || leaveQ.isLoading || remoteQ.isLoading || holidaysQ.isLoading,
     };
   }, [
     year,
+    balances.data,
+    balances.isLoading,
     month,
     collabsQ.data,
     collabsQ.isLoading,

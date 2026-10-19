@@ -81,6 +81,8 @@ function useInvalidate() {
   const qc = useQueryClient();
   return () => {
     qc.invalidateQueries({ queryKey: ["vacation_requests"] });
+    qc.invalidateQueries({ queryKey: ["leave-balances"] });
+    qc.invalidateQueries({ queryKey: ["availability"] });
     qc.invalidateQueries({ queryKey: ["vacation_change_requests"] });
     qc.invalidateQueries({ queryKey: ["vacation_request_history"] });
   };
