@@ -39,7 +39,7 @@ export function SaftImportDialog() {
     const projects = (preview.data?.projects ?? []).filter(p=>p.company_id===client?.id);
     const project = assignments[d.number] ?? (projects.length===1 ? projects[0]?.id : '') ?? '';
     const state = exact ? divergent ? 'divergent' : 'existing' : candidates.length ? 'completion' : !client ? 'missingClient' : d.fiscalType==='NC' && !original ? 'missingOriginal' : 'newDocument';
-    const canComplete = !!complete[d.number] && candidates.some(c=>c.id===complete[d.number] && Math.abs(Number(c.subtotal_ex_vat)-d.net)<=.01 && Math.abs(Number(c.vat_amount)-d.vat)<=.01 && (c.doc_type==='client_invoice' || c.doc_type==='client_credit_note' || (c.doc_type==='receipt' && d.fiscalType==='FR')));
+    const canComplete = !!complete[d.number] && candidates.some(c=>c.id===complete[d.number] && Math.abs(Number(c.subtotal_ex_vat)-d.net)<=.01 && Math.abs(Number(c.vat_amount)-d.vat)<=.01 && (c.doc_type=== (d.fiscalType==='NC'?'client_credit_note':'client_invoice')));
     const allowed = !!client && (!exact) && (state==='newDocument' && !!project || state==='completion' && canComplete);
     return { d,client,exact,candidates,original,project,state,allowed };
   }),[parsed,preview.data,assignments,complete]);

@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { fiscalIdentity, isBilledDocument, billedSign } from '../src/lib/finance/provisional-invoicing';
+import { fiscalIdentity, isBilledDocument, billedSign, parseSaft } from '../src/lib/finance/provisional-invoicing';
 describe('approved fiscal identity rules', () => {
+  it('rejects XML entity definitions before parsing',()=>{
+    expect(()=>parseSaft('<!DOCTYPE AuditFile [<!ENTITY external SYSTEM "file:///secret">]><AuditFile/>')).toThrow('unsafeXml');
+  });
   it('normalizes the approved reversed FT without changing the sequence', () => {
     expect(fiscalIdentity('client_invoice','FT Nº12/2026')).toEqual({type:'FT',series:'2026',number:'12'});
   });
