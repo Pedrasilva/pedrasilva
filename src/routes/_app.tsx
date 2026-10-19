@@ -47,7 +47,7 @@ function AppLayout() {
   const calendarReady = useWorkingCalendar(!!session);
 
   useEffect(() => {
-    if (!loading && !session) navigate({ to: "/login", search: loc.pathname === "/hr/aprovacoes" ? {next: loc.href} : {} });
+    if (!loading && !session && loc.pathname !== "/login") navigate({ to: "/login", search: loc.pathname === "/hr/aprovacoes" ? {next: loc.href} : {}, replace: true });
   }, [loading, session, navigate, loc.href, loc.pathname]);
 
   // Non-staff (other entities' members) only see Finance: send every other link there.
