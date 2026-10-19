@@ -1,6 +1,7 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — provisional invoicing (analysis before implementation)
+- [ ] Approved with checkpoints: show collision audit across 39 issued documents and wait for Luis before applying uniqueness; list documents with no project and provide association from Finance.
 - [x] Inspected issued documents, legacy project invoices, payments, docs@ direction, private PDFs, Finance permissions and existing InvoiceXpress code; no SAF-T parser or evidenced PHC sales import.
 - [x] Prepared reuse-first plan for review; implementation awaits approval, with no application or database changes.
 
