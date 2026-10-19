@@ -911,6 +911,13 @@
       "when": 1792441952830,
       "tag": "0129_hr_approval_inbox_authorized_helpers",
       "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "7",
+      "when": 1792442367301,
+      "tag": "0130_hr_approval_change_actor_scope",
+      "breakpoints": true
     }
   ]
 }
