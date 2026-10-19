@@ -2387,6 +2387,10 @@
       "unsupportedDiscounts": "Totais das linhas ou descontos precisam de revisão; nada importado.",
       "tooManyDocuments": "Máximo de 500 documentos por ficheiro.",
       "fileTooLarge": "Tamanho máximo do XML: 20 MB."
-    }
+    },
+    "confirmProjectAssignment": "Associar este documento ao projeto escolhido? Os valores e o estado de pagamento mantêm-se.",
+    "assignmentFailed": "Não foi possível guardar a associação; verifique o documento e as permissões.",
+    "confirmReceiptLink": "Confirmar a ligação à fatura sugerida? Não confirma pagamentos nem o código fiscal do recibo.",
+    "confirmReceiptAssociation": "Confirmar ligação à fatura"
   }
 }

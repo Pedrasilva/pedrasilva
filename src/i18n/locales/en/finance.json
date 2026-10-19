@@ -2387,6 +2387,10 @@
       "unsupportedDiscounts": "Line totals or discounts require review; nothing imported.",
       "tooManyDocuments": "Maximum 500 documents per file.",
       "fileTooLarge": "Maximum XML size: 20 MB."
-    }
+    },
+    "confirmProjectAssignment": "Associate this document with the selected project? Amounts and payment status stay unchanged.",
+    "assignmentFailed": "Association could not be saved; check the document and permissions.",
+    "confirmReceiptLink": "Confirm the suggested invoice link? This does not confirm a payment or the receipt fiscal code.",
+    "confirmReceiptAssociation": "Confirm invoice link"
   }
 }
