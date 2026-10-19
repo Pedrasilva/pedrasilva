@@ -1,5 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — real issued document project association
+- [ ] Audit all unassigned sales documents against client/NIF, project/proposal dates and payment schedules; apply only unique clear matches and exact unique milestone amounts, preserving receipt suggestions and all financial fields/payments.
+- [ ] Verify immutable totals/payment fingerprints and report every document/reason plus project billed totals before/after.
+
 ## Current request — invoicing screen verification
 - [x] All six screen flows passed with disposable fixtures: PDF extraction/confirmation/milestone/reload, purchase refusal, manual registration/duplicate message, credit net reduction/original partial status, payment 100 received/269 outstanding, two milestones 100/200, Bernardo UI denial and server 42501. Fixed hidden project Billing tab and missing project PDF confirmation; migrations 0139–0141 mirrored. Ten regression tests and preview build passed.
 - [x] Removed three test invoices, payment, queue rows, project/stage/two milestones and five PDF files; all cleanup counts zero. Original 39 document row hash unchanged during this verification; net 605785.15/VAT 116423.07/gross 722208.22 match prior approved audit. Current billed net 235310.87 and received 548873.19 (26 payments) preserved during tests.
