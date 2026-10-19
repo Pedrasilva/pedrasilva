@@ -1,8 +1,8 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — provisional invoicing (analysis before implementation)
-- [ ] Inspect existing issued/sales/PHC/current-account records, docs@ direction detection, PDF storage and permissions.
-- [ ] Present reuse-first plan for project billing, manual/PDF registration, SAF-T matching and milestone billed comparison; do not implement before approval.
+- [x] Inspected issued documents, legacy project invoices, payments, docs@ direction, private PDFs, Finance permissions and existing InvoiceXpress code; no SAF-T parser or evidenced PHC sales import.
+- [x] Prepared reuse-first plan for review; implementation awaits approval, with no application or database changes.
 
 ## Current request — June 2026 vacation opening balances
 - [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
