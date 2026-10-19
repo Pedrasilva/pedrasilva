@@ -154,6 +154,7 @@ function useCashFlowRaw(year: number) {
              total_inc_vat, paid_amount, outstanding_amount`,
           )
           .eq("direction", "issued")
+          .eq("sales_excluded", false)
           .neq("status", "cancelled")
           .gte("issue_date", from)
           .lte("issue_date", to),

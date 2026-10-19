@@ -492,6 +492,7 @@ export function useFinSettlements(filters: SettlementFilters) {
         q = q.eq(col, filters.counterpartyId);
       }
 
+      if (filters.direction === "issued") q = q.eq("financial_documents.sales_excluded", false);
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as unknown as SettlementRow[];

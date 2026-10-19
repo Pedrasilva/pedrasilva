@@ -21,6 +21,7 @@ export function useProjects() {
       const { data, error } = await supabase
         .from("pm_projects")
         .select("*")
+        .eq("finance_only", false)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -94,7 +95,7 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
     queryKey: ["pm-project", projectId, includeCancelled],
     queryFn: async (): Promise<{ project: Project; stages: StageWithAllocations[] }> => {
       const [{ data: project, error: pErr }, { data: stages, error: sErr }] = await Promise.all([
-        supabase.from("pm_projects").select("*").eq("id", projectId).single(),
+        supabase.from("pm_projects").select("*").eq("finance_only", false).eq("id", projectId).single(),
         supabase
           .from("pm_stages")
           .select("*, allocations:pm_allocations(*, resource:pm_resources(*))")
@@ -114,7 +115,8 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
       const filtered = includeCancelled
         ? sanitized
         : sanitized.filter((s) => (s as { status?: string }).status !== "cancelled");
-      return { project: project!, stages: filtered };
+      if (!project) throw new Error('Project not found');
+      return { project, stages: filtered };
     },
     enabled: !!projectId,
   });

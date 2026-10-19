@@ -22,3 +22,7 @@
 
 - Unlinked quotes default relative; pm_relative_normalize_dates keeps weekdays, <2010 prints weeks. Why: unchanged hours/fees.
 - Quote revisions lock root, retain source number and print stored revision minus one; unique number/revision. Why: new work alone consumes annual numbers.
+
+<!-- LOVABLE:BEGIN -->
+- Historical document containers use archived finance_only projects without stages or quotes; operational lists exclude them. Sales exclusions preserve payments and link shareholder financing to financial_debts. Why: history must not create planning or treat financing as sales.
+<!-- LOVABLE:END -->

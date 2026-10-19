@@ -4823,7 +4823,10 @@ export type Database = {
           project_id: string | null
           receipt_invoice_candidates: string[]
           registration_origin: string | null
+          sales_excluded: boolean
+          sales_exclusion_reason: string | null
           series: string | null
+          shareholder_debt_id: string | null
           source: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id: string | null
           source_ref_table: string | null
@@ -4903,7 +4906,10 @@ export type Database = {
           project_id?: string | null
           receipt_invoice_candidates?: string[]
           registration_origin?: string | null
+          sales_excluded?: boolean
+          sales_exclusion_reason?: string | null
           series?: string | null
+          shareholder_debt_id?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
@@ -4983,7 +4989,10 @@ export type Database = {
           project_id?: string | null
           receipt_invoice_candidates?: string[]
           registration_origin?: string | null
+          sales_excluded?: boolean
+          sales_exclusion_reason?: string | null
           series?: string | null
+          shareholder_debt_id?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
@@ -5064,6 +5073,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_shareholder_debt_id_fkey"
+            columns: ["shareholder_debt_id"]
+            isOneToOne: false
+            referencedRelation: "financial_debts"
             referencedColumns: ["id"]
           },
           {
@@ -9883,6 +9899,7 @@ export type Database = {
           company_id: string | null
           created_at: string
           external_id: string | null
+          finance_only: boolean
           id: string
           invoice_grouping_days: number
           invoice_grouping_enabled: boolean | null
@@ -9911,6 +9928,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           external_id?: string | null
+          finance_only?: boolean
           id?: string
           invoice_grouping_days?: number
           invoice_grouping_enabled?: boolean | null
@@ -9939,6 +9957,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           external_id?: string | null
+          finance_only?: boolean
           id?: string
           invoice_grouping_days?: number
           invoice_grouping_enabled?: boolean | null

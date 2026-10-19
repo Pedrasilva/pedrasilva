@@ -47,6 +47,7 @@ export function FinanceSnapshotBlock() {
         .from("financial_documents")
         .select("total_inc_vat, subtotal_ex_vat, vat_amount")
         .eq("direction", "issued")
+        .eq("sales_excluded", false)
         .neq("status", "cancelled")
         .neq("status", "draft")
         .gte("issue_date", from)

@@ -105,10 +105,10 @@ export function InvoicesWorkspace() {
     for (const p of projectsQ.data ?? []) map.set(p.id, p.name);
     return map;
   }, [projectsQ.data]);
-  const displayed = (docsQ.data ?? []).filter(d=>reviewFilter==='all' || reviewFilter==='unassigned' && !d.project_id || reviewFilter==='review' && (d.fiscal_review_reasons.length>0 || !d.fiscal_series || !d.fiscal_number || d.receipt_invoice_candidates.length>0));
+  const displayed = (docsQ.data ?? []).filter(d=>!d.sales_excluded).filter(d=>reviewFilter==='all' || reviewFilter==='unassigned' && !d.project_id || reviewFilter==='review' && (d.fiscal_review_reasons.length>0 || !d.fiscal_series || !d.fiscal_number || d.receipt_invoice_candidates.length>0));
 
   const summary = useMemo(() => {
-    const rows = docsQ.data ?? [];
+    const rows = (docsQ.data ?? []).filter(d=>!d.sales_excluded);
     let total = 0;
     let outstanding = 0;
     let overdue = 0;

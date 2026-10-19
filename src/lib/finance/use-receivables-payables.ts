@@ -142,6 +142,7 @@ function useReceivablesPayablesRaw() {
             .from("financial_documents")
             .select(DOC_COLS)
             .eq("direction", "issued")
+            .eq("sales_excluded", false)
             .eq("payment_status", "awaiting_payment")
             .neq("status", "cancelled")
             .gt("outstanding_amount", 0),
@@ -161,6 +162,7 @@ function useReceivablesPayablesRaw() {
                paid_amount, outstanding_amount`,
             )
             .eq("direction", "issued")
+            .eq("sales_excluded", false)
             .neq("status", "cancelled")
             .lte("outstanding_amount", 0),
           supabase.from("pm_projects").select("id, name"),

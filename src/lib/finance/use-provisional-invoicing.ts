@@ -27,7 +27,7 @@ export function useStageBilled(projectId:string, enabled:boolean) {
   return useQuery({queryKey:['project-billing','stage-billed',projectId],enabled,queryFn:async()=>{
     const e = await currentEntityId();
     const [docs,lines,milestones] = await Promise.all([
-      supabase.from('financial_documents').select('id,doc_type,status,direction').eq('entity_id',e).eq('direction','issued'),
+      supabase.from('financial_documents').select('id,doc_type,status,direction').eq('entity_id',e).eq('direction','issued').eq('sales_excluded',false),
       supabase.from('financial_document_lines').select('document_id,payment_schedule_item_id,amount_ex_vat').eq('project_id',projectId),
       supabase.from('pm_payment_schedule_items').select('id,stage_id').eq('project_id',projectId),
     ]);
