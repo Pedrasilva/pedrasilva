@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — June 2026 vacation opening balances
+- [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
+- [ ] Await Luis approval of comparison and plan before application, storage or balance-calculation changes.
+- [ ] After approval: opening-balance storage/editing, unified reference-date calculations, 2027 carry-over and isolated tests; preserve requests/approvals.
+
 ## Current request — HR approvals inbox
 - [x] Read-only request storage, approver checks and Patricia pending-balance diagnosis; mandatory leave rejection reason confirmed.
 - [x] Approved plan implemented without changing approval and balance rules.
