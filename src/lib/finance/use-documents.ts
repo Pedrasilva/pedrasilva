@@ -173,6 +173,7 @@ function round2(n: number): number {
 // ---------------------------------------------------------------------------
 
 export type DocumentInputLine = {
+  payment_schedule_item_id?: string | null;
   description: string;
   quantity: number;
   unit_price_ex_vat: number;
@@ -186,6 +187,9 @@ export type DocumentInputLine = {
 };
 
 export type DocumentInput = {
+  original_document_id?: string | null;
+  registration_origin?: string | null;
+  series?: string | null;
   doc_type: FinDocType;
   direction: FinDocDirection;
   status?: FinDocStatus;

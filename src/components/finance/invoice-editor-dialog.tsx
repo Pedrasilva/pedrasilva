@@ -59,8 +59,15 @@ import { ClassificationPicker } from "@/components/finance/classification-picker
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import { DocumentSettlementSection } from "@/components/finance/document-settlement-section";
 import { cn } from "@/lib/utils";
+import { useIssuedRegistration, useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
+import { FiscalReviewBadges } from './fiscal-review-badges';
+import { useFinDocuments } from '@/lib/finance/use-documents';
+import { useCan } from '@/hooks/use-permissions-v2';
+import { useHasPermission } from '@/hooks/use-permissions';
+import { supabase } from '@/integrations/supabase/client';
 
 type Props = {
+  initialProjectId?: string;
   open: boolean;
   documentId: string | null;
   onClose: () => void;
@@ -86,7 +93,7 @@ const fmt = (n: number) =>
     currency: "EUR",
   }).format(n);
 
-export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
+export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectId }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
 
@@ -95,6 +102,14 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
   const update = useUpdateFinDocument();
   const cancelDoc = useCancelFinDocument();
   const issueDoc = useIssueFinDocument();
+  const registration = useIssuedRegistration();
+  const atomicEdit = useIssuedRegistration(true);
+  const editAccess = useCan('finance.documents.edit','all');
+  const legacyAccess = useHasPermission('finance.dashboard');
+  const canEdit = editAccess.allowed || legacyAccess.allowed;
+  const issuedDocs = useFinDocuments({direction:'issued',docType:'client_invoice'});
+  const [originalId,setOriginalId] = useState<string|null>(null);
+  const [series,setSeries] = useState('');
 
   const clientsQ = useFinClients();
   const projectsQ = useFinProjects();
@@ -109,6 +124,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
   );
   const [dueDate, setDueDate] = useState<string>("");
   const [projectId, setProjectId] = useState<string | null>(null);
+  const milestones = useInvoiceMilestones(projectId);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<EditorLine[]>([newLine()]);
@@ -123,7 +139,8 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
       setExternalReference("");
       setIssueDate(new Date().toISOString().slice(0, 10));
       setDueDate("");
-      setProjectId(null);
+      setProjectId(initialProjectId ?? null);
+      setOriginalId(null);setSeries('');
       setClassificationId(null);
       setNotes("");
       setLines([newLine()]);
@@ -138,6 +155,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
     setIssueDate(full.document.issue_date);
     setDueDate(full.document.due_date ?? "");
     setProjectId(full.document.project_id);
+    setOriginalId(full.document.original_document_id);setSeries(full.document.series ?? '');
     setClassificationId(full.document.classification_id);
     setNotes(full.document.notes ?? "");
     setLines(
@@ -151,16 +169,17 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
             vat_code: l.vat_code,
             classification_id: l.classification_id,
             project_id: l.project_id,
+            payment_schedule_item_id:l.payment_schedule_item_id,
             reimbursable: l.reimbursable,
             notes: l.notes,
           }))
         : [newLine()],
     );
-  }, [open, documentId, existing.data]);
+  }, [open, documentId, existing.data, initialProjectId]);
 
   const totals = useMemo(() => computeDocTotals(lines), [lines]);
   const status = existing.data?.document.status ?? "draft";
-  const isReadOnly = status === "cancelled" || status === "paid";
+  const isReadOnly = status === "cancelled" || status === "paid" || !canEdit;
   const isExisting = !!documentId;
 
   function updateLine(key: string, patch: Partial<EditorLine>) {
@@ -194,6 +213,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
   }
 
   async function handleSave(nextStatus?: "draft" | "issued") {
+    if (!canEdit) return;
     const err = validate();
     if (err) {
       toast.error(err);
@@ -218,6 +238,9 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
       classification_id: classificationId,
       currency: "EUR",
       notes: notes.trim() || null,
+      series: series || null,
+      original_document_id: originalId,
+      registration_origin: existing.data?.document.registration_origin ?? 'manual',
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
@@ -231,18 +254,17 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
       reimbursable: !!l.reimbursable,
       notes: l.notes ?? null,
       sort_order: i,
+      payment_schedule_item_id:l.payment_schedule_item_id ?? null,
     }));
 
     try {
       if (isExisting && documentId) {
-        await update.mutateAsync({
-          id: documentId,
-          header,
-          lines: payloadLines,
-        });
+        await atomicEdit.mutateAsync({existingId:documentId,header,lines:payloadLines.map(l=>({...l}))});
         toast.success(t("finance:invoices.saved"));
       } else {
-        await create.mutateAsync({ header, lines: payloadLines });
+        if (nextStatus==='issued' && ['client_invoice','client_credit_note','receipt'].includes(docType)) {
+          await registration.mutateAsync({header,lines:payloadLines.map(l=>({...l}))});
+        } else await create.mutateAsync({ header, lines: payloadLines });
         toast.success(t("finance:invoices.created"));
       }
       onClose();
@@ -257,13 +279,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
       return;
     }
     if (isExisting && documentId) {
-      try {
-        await issueDoc.mutateAsync(documentId);
-        toast.success(t("finance:invoices.confirmed"));
-        onClose();
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : String(e));
-      }
+      await handleSave();
     } else {
       await handleSave("issued");
     }
@@ -324,6 +340,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
     update.isPending ||
     cancelDoc.isPending ||
     issueDoc.isPending;
+  const saving = busy || registration.isPending || atomicEdit.isPending;
 
   return (
     <>
@@ -374,6 +391,8 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
               <DialogDescription className="text-xs">
                 {t("finance:invoices.editorSubtitle")}
               </DialogDescription>
+              {existing.data && <FiscalReviewBadges document={existing.data.document}/>}
+              {existing.data?.document.file_path && <Button size="sm" variant="outline" onClick={async()=>{const r=await supabase.storage.from('financial-documents').createSignedUrl(existing.data?.document.file_path ?? '',300);if(r.data)window.open(r.data.signedUrl,'_blank','noopener');}}>{t('finance:invoices.fiscal.viewPdf')}</Button>}
             </DialogHeader>
           </div>
 
@@ -456,6 +475,8 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div><Label>{t('finance:provisional.fiscalSeries')}</Label><Input value={series} onChange={e=>setSeries(e.target.value)} disabled={isReadOnly}/></div>
+                  {docType==='client_credit_note' && <div><Label>{t('finance:provisional.originalInvoice')}</Label><Select value={originalId??'none'} onValueChange={v=>setOriginalId(v==='none'?null:v)} disabled={isReadOnly}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">—</SelectItem>{(issuedDocs.data??[]).filter(d=>d.counterparty_client_id===clientId && d.id!==documentId && d.status!=='cancelled').map(d=><SelectItem key={d.id} value={d.id}>{d.document_number??'—'}</SelectItem>)}</SelectContent></Select></div>}
                   <div>
                     <Label className="text-xs">
                       {t("finance:invoices.documentNumber")}
@@ -521,7 +542,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     <Select
                       value={projectId ?? "__none"}
                       onValueChange={(v) =>
-                        setProjectId(v === "__none" ? null : v)
+                        {setProjectId(v === "__none" ? null : v);setLines(ls=>ls.map(l=>({...l,project_id:v==='__none'?null:v,payment_schedule_item_id:null})));}
                       }
                       disabled={isReadOnly}
                     >
@@ -663,6 +684,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                             />
                           </div>
                         </div>
+                        <Select value={line.payment_schedule_item_id??'none'} disabled={isReadOnly || !projectId} onValueChange={v=>updateLine(line._key,{payment_schedule_item_id:v==='none'?null:v,project_id:projectId})}><SelectTrigger><SelectValue placeholder={t('finance:provisional.invoiceMilestone')}/></SelectTrigger><SelectContent><SelectItem value="none">{t('finance:provisional.noMilestone')}</SelectItem>{(milestones.data??[]).map(m=><SelectItem key={m.id} value={m.id}>{m.stageLabel ? `${m.stageLabel} · ` : ''}{m.label}</SelectItem>)}</SelectContent></Select>
                       </div>
                     );
                   })}
@@ -749,7 +771,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                         {t("finance:invoices.saveDraft")}
                       </Button>
                     )}
-                    <Button size="sm" onClick={handleConfirm} disabled={busy}>
+                    <Button size="sm" onClick={handleConfirm} disabled={saving}>
                       {busy ? (
                         <Loader2 className="size-4 animate-spin" />
                       ) : (
@@ -761,7 +783,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     </Button>
                   </>
                 )}
-                {isExisting && !ixId && status !== "cancelled" && (
+                {isExisting && !ixId && status === "draft" && canEdit && (
                   <Button
                     size="sm"
                     variant="default"

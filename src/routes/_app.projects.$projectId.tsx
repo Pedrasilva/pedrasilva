@@ -21,6 +21,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+import { useStageBilled } from '@/lib/finance/use-provisional-invoicing';
+import { useFinanceAccess } from '@/hooks/use-finance-access';
 
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import { ProjectNotesTab } from "@/components/projects/notes/project-notes-tab";
@@ -1692,6 +1694,8 @@ function MilestonesTable({
     () => new Set(stages?.map((s) => s.id) ?? []),
   );
   const { t } = useTranslation("projects");
+  const finance = useFinanceAccess();
+  const billed = useStageBilled(projectId,finance.hasAccess && canSeeFinancials);
   const allocKey = `psa.resumo.allocOpen.${projectId}`;
   const [allocOpen, setAllocOpen] = useState<Set<string>>(new Set());
   useEffect(() => {
@@ -1879,6 +1883,7 @@ function MilestonesTable({
                   >
                     Revenue (earned)
                   </th>
+                  {finance.hasAccess && <><th className="px-4 py-2.5 text-right font-semibold">{t('finance:provisional.billedNet')}</th><th className="px-4 py-2.5 text-right font-semibold">{t('finance:provisional.earnedDifference')}</th></>}
                   <th
                     className="px-4 py-2.5 text-right font-semibold"
                     title="Profit = revenue − cost. Margin shown only when revenue > 0."
@@ -2056,6 +2061,7 @@ function MilestonesTable({
                           <td className="px-4 py-3 min-w-[140px] w-[13%] text-right">
                             <RevenueEarnedCell revenue={revenue} />
                           </td>
+                          {finance.hasAccess && <><td className="px-4 py-3 text-right tabular-nums">{billed.isError || !billed.data ? '—' : fmtEur([s.id,...descendantsOf(s.id).map(d=>d.id)].reduce((sum,id)=>sum+(billed.data?.get(id)??0),0))}</td><td className="px-4 py-3 text-right tabular-nums">{billed.isError || !billed.data ? '—' : fmtEur(revenue-[s.id,...descendantsOf(s.id).map(d=>d.id)].reduce((sum,id)=>sum+(billed.data?.get(id)??0),0))}</td></>}
                           <td className="px-4 py-3 min-w-[140px] w-[13%] text-right">
                             <ProfitMarginCell revenue={revenue} cost={cost} />
                           </td>
@@ -2142,6 +2148,7 @@ function MilestonesTable({
                                 <td className="px-4 py-1 text-right min-w-[160px]" title="Planned revenue (allocation × sale rate)">
                                   <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
                                 </td>
+                                {finance.hasAccess && <><td className="px-4 py-1 text-right">—</td><td className="px-4 py-1 text-right">—</td></>}
                                 <td className="px-4 py-1 text-right min-w-[160px]" title="Planned profit = planned revenue − planned cost">
                                   <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
                                 </td>

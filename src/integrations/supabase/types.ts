@@ -4042,6 +4042,7 @@ export type Database = {
           document_id: string
           id: string
           notes: string | null
+          payment_schedule_item_id: string | null
           project_id: string | null
           quantity: number
           reimbursable: boolean
@@ -4061,6 +4062,7 @@ export type Database = {
           document_id: string
           id?: string
           notes?: string | null
+          payment_schedule_item_id?: string | null
           project_id?: string | null
           quantity?: number
           reimbursable?: boolean
@@ -4080,6 +4082,7 @@ export type Database = {
           document_id?: string
           id?: string
           notes?: string | null
+          payment_schedule_item_id?: string | null
           project_id?: string | null
           quantity?: number
           reimbursable?: boolean
@@ -4103,6 +4106,13 @@ export type Database = {
             columns: ["document_id"]
             isOneToOne: false
             referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_lines_payment_schedule_item_id_fkey"
+            columns: ["payment_schedule_item_id"]
+            isOneToOne: false
+            referencedRelation: "pm_payment_schedule_items"
             referencedColumns: ["id"]
           },
           {
@@ -4771,7 +4781,12 @@ export type Database = {
           entity_id: string
           external_reference: string | null
           file_path: string | null
+          fiscal_number: string | null
+          fiscal_review_reasons: string[]
+          fiscal_series: string | null
+          fiscal_type: string | null
           id: string
+          import_metadata: Json | null
           inventory_status:
             | Database["public"]["Enums"]["inventory_workflow_status"]
             | null
@@ -4789,6 +4804,7 @@ export type Database = {
           not_project_related: boolean
           notes: string | null
           ocr_metadata: Json | null
+          original_document_id: string | null
           outstanding_amount: number | null
           paid_amount: number
           paid_by_holder: string | null
@@ -4805,6 +4821,8 @@ export type Database = {
           personal_card_decision: string | null
           personal_card_prev_status: string | null
           project_id: string | null
+          receipt_invoice_candidates: string[]
+          registration_origin: string | null
           series: string | null
           source: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id: string | null
@@ -4843,7 +4861,12 @@ export type Database = {
           entity_id: string
           external_reference?: string | null
           file_path?: string | null
+          fiscal_number?: string | null
+          fiscal_review_reasons?: string[]
+          fiscal_series?: string | null
+          fiscal_type?: string | null
           id?: string
+          import_metadata?: Json | null
           inventory_status?:
             | Database["public"]["Enums"]["inventory_workflow_status"]
             | null
@@ -4861,6 +4884,7 @@ export type Database = {
           not_project_related?: boolean
           notes?: string | null
           ocr_metadata?: Json | null
+          original_document_id?: string | null
           outstanding_amount?: number | null
           paid_amount?: number
           paid_by_holder?: string | null
@@ -4877,6 +4901,8 @@ export type Database = {
           personal_card_decision?: string | null
           personal_card_prev_status?: string | null
           project_id?: string | null
+          receipt_invoice_candidates?: string[]
+          registration_origin?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
@@ -4915,7 +4941,12 @@ export type Database = {
           entity_id?: string
           external_reference?: string | null
           file_path?: string | null
+          fiscal_number?: string | null
+          fiscal_review_reasons?: string[]
+          fiscal_series?: string | null
+          fiscal_type?: string | null
           id?: string
+          import_metadata?: Json | null
           inventory_status?:
             | Database["public"]["Enums"]["inventory_workflow_status"]
             | null
@@ -4933,6 +4964,7 @@ export type Database = {
           not_project_related?: boolean
           notes?: string | null
           ocr_metadata?: Json | null
+          original_document_id?: string | null
           outstanding_amount?: number | null
           paid_amount?: number
           paid_by_holder?: string | null
@@ -4949,6 +4981,8 @@ export type Database = {
           personal_card_decision?: string | null
           personal_card_prev_status?: string | null
           project_id?: string | null
+          receipt_invoice_candidates?: string[]
+          registration_origin?: string | null
           series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
@@ -5002,6 +5036,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_original_document_id_fkey"
+            columns: ["original_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
             referencedColumns: ["id"]
           },
           {
@@ -15464,6 +15505,10 @@ export type Database = {
         Args: { _classification: string; _record: string; _table: string }
         Returns: undefined
       }
+      fin_assign_invoice_project: {
+        Args: { _id: string; _project_id: string }
+        Returns: string
+      }
       fin_benefit_pessoal_class: {
         Args: { _category: string }
         Returns: string
@@ -15478,7 +15523,15 @@ export type Database = {
         Args: { _edits?: Json; _id: string }
         Returns: Json
       }
+      fin_confirm_receipt_invoice_link: {
+        Args: { _id: string; _invoice_id: string }
+        Returns: string
+      }
       fin_deactivate_if_unused: { Args: { _id: string }; Returns: undefined }
+      fin_edit_issued_document: {
+        Args: { _header: Json; _id: string; _lines: Json }
+        Returns: string
+      }
       fin_entity_of: { Args: { _id: string; _table: string }; Returns: string }
       fin_find_company_by_nif: {
         Args: { _nif: string }
@@ -15487,6 +15540,10 @@ export type Database = {
           nif: string
           nome: string
         }[]
+      }
+      fin_fiscal_identity: {
+        Args: { _number: string; _series?: string; _type: string }
+        Returns: Json
       }
       fin_is_pessoal_category: { Args: { _id: string }; Returns: boolean }
       fin_link_company_to_entity: {
@@ -15566,6 +15623,10 @@ export type Database = {
           suggested_id: string
           suggested_name: string
         }[]
+      }
+      fin_register_issued_document: {
+        Args: { _existing_id?: string; _header: Json; _lines: Json }
+        Returns: string
       }
       fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
       fin_set_supplier_policy: {

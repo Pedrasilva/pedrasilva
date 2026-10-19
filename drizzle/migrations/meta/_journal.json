@@ -925,6 +925,55 @@
       "when": 1792444766931,
       "tag": "0131_hr_vacation_opening_balances",
       "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1792446077176,
+      "tag": "0132_provisional_invoice_identity_and_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1792446215542,
+      "tag": "0133_provisional_invoice_atomic_registration",
+      "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1792446316973,
+      "tag": "0134_provisional_invoice_registration_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1792446344577,
+      "tag": "0135_provisional_invoice_permission_alignment",
+      "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1792446820703,
+      "tag": "0136_provisional_invoice_atomic_edit",
+      "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "7",
+      "when": 1792447145074,
+      "tag": "0137_provisional_invoice_explicit_associations",
+      "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1792447246610,
+      "tag": "0138_provisional_invoice_final_validation",
+      "breakpoints": true
     }
   ]
 }

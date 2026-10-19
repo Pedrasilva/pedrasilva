@@ -44,6 +44,7 @@ import {
 } from "@/lib/finance/use-documents";
 
 const DASH = "—";
+import { FiscalReviewBadges } from './fiscal-review-badges';
 
 const fmtEUR2 = (v: number | null | undefined) =>
   new Intl.NumberFormat("pt-PT", {
@@ -380,6 +381,7 @@ export function DocumentsList({
                         className="hover:underline"
                       >
                         {d.document_number || d.external_reference || DASH}
+                        <FiscalReviewBadges document={d}/>
                       </Link>
                     </TableCell>
                     <TableCell className="text-xs">{t(`finance:documents.type.${d.doc_type}`)}</TableCell>
