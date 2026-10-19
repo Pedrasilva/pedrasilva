@@ -54,6 +54,7 @@ import type { Holiday } from "@/lib/workdays";
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { YearLeaveCalendar } from "@/components/hr/year-leave-calendar";
+import { useApprovalInbox } from "@/lib/hr/use-approval-inbox";
 import { useTranslation } from "react-i18next";
 import {
   useLeaveApproval,
@@ -137,6 +138,7 @@ function FeriasPage() {
   const { canApprove, pendingByRequest } = useLeaveApproval(user?.id ?? null);
   // Leave approvers (hr.leave.approve · All) get the team views; admins keep everything else.
   const isAdmin = isAdminRole || canApprove;
+  const approvalInbox = useApprovalInbox(undefined, isAdmin);
   const [changeTarget, setChangeTarget] = useState<{ row: VacationRequest; mode: "request" | "direct" } | null>(null);
   const typeOptions = ABSENCE_TYPES.map((x) => ({ value: x.value, label: x.label }));
   const currentYear = new Date().getFullYear();
@@ -675,7 +677,7 @@ function FeriasPage() {
                   <SelectContent>
                     {collaborators.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.nome}
+                        {c.nome} · {t("approvalInbox.pendingCount", {count: approvalInbox.counts[c.id] ?? 0})}
                       </SelectItem>
                     ))}
                   </SelectContent>

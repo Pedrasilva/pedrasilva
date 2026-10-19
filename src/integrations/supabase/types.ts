@@ -15590,7 +15590,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      hr_approval_actor_name: {
+        Args: { _id: string; _kind: string }
+        Returns: string
+      }
       hr_dashboard_alerts_finance: { Args: never; Returns: Json }
+      hr_inbox_remote_decide: {
+        Args: { _approve: boolean; _id: string; _reason: string }
+        Returns: undefined
+      }
       import_financial_data: {
         Args: {
           p_bank_accounts?: Json

@@ -53,6 +53,7 @@ import { Route as AppFinanceEntradaRouteImport } from './routes/_app.finance.ent
 import { Route as AppFinanceInboxRouteImport } from './routes/_app.finance.inbox'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
+import { Route as AppHrAprovacoesRouteImport } from './routes/_app.hr.aprovacoes'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
 import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
@@ -394,6 +395,11 @@ const AppHrIndexRoute = AppHrIndexRouteImport.update({
 const AppHrAdminRoute = AppHrAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrAprovacoesRoute = AppHrAprovacoesRouteImport.update({
+  id: '/aprovacoes',
+  path: '/aprovacoes',
   getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
@@ -1096,6 +1102,7 @@ export interface FileRoutesByFullPath {
   '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
+  '/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -1253,6 +1260,7 @@ export interface FileRoutesByTo {
   '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
   '/hr/admin': typeof AppHrAdminRoute
+  '/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -1419,6 +1427,7 @@ export interface FileRoutesById {
   '/_app/finance/entrada': typeof AppFinanceEntradaRoute
   '/_app/finance/inbox': typeof AppFinanceInboxRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
+  '/_app/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
   '/_app/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/_app/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -1586,6 +1595,7 @@ export interface FileRouteTypes {
     | '/finance/entrada'
     | '/finance/inbox'
     | '/hr/admin'
+    | '/hr/aprovacoes'
     | '/hr/beneficios'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
@@ -1743,6 +1753,7 @@ export interface FileRouteTypes {
     | '/finance/entrada'
     | '/finance/inbox'
     | '/hr/admin'
+    | '/hr/aprovacoes'
     | '/hr/beneficios'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
@@ -1908,6 +1919,7 @@ export interface FileRouteTypes {
     | '/_app/finance/entrada'
     | '/_app/finance/inbox'
     | '/_app/hr/admin'
+    | '/_app/hr/aprovacoes'
     | '/_app/hr/beneficios'
     | '/_app/hr/colaboradores'
     | '/_app/hr/dias-uteis'
@@ -2370,6 +2382,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/hr/admin'
       preLoaderRoute: typeof AppHrAdminRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/aprovacoes': {
+      id: '/_app/hr/aprovacoes'
+      path: '/aprovacoes'
+      fullPath: '/hr/aprovacoes'
+      preLoaderRoute: typeof AppHrAprovacoesRouteImport
       parentRoute: typeof AppHrRoute
     }
     '/_app/hr/beneficios': {
@@ -3377,6 +3396,7 @@ const AppHrTrabalhoRemotoRouteWithChildren =
 
 interface AppHrRouteChildren {
   AppHrAdminRoute: typeof AppHrAdminRoute
+  AppHrAprovacoesRoute: typeof AppHrAprovacoesRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
   AppHrColaboradoresRoute: typeof AppHrColaboradoresRoute
   AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
@@ -3393,6 +3413,7 @@ interface AppHrRouteChildren {
 
 const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrAdminRoute: AppHrAdminRoute,
+  AppHrAprovacoesRoute: AppHrAprovacoesRoute,
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
   AppHrColaboradoresRoute: AppHrColaboradoresRoute,
   AppHrDiasUteisRoute: AppHrDiasUteisRoute,

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+import { useApprovalInbox } from "@/lib/hr/use-approval-inbox";
 import { useFinanceAccess } from "@/hooks/use-finance-access";
 import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
@@ -52,12 +53,14 @@ export function AppRail() {
   const { permissions } = useMyPermissions();
   const { can: canV2 } = useMyPermissionsV2();
   const { hasAccess: hasFinance } = useFinanceAccess();
+  const approvalInbox = useApprovalInbox();
   const can = (key?: PermissionKey) => !key || isAdmin || permissions.has(key);
   // Flyout links may additionally require a v2 (module + scope) permission,
   // so we never surface a page that would answer with "access denied".
   const canLink = (l: FlyoutLink) =>
     (!l.to.startsWith("/projects") || l.to === "/projects/week-plan" || canAccess("projects")) &&
     (!l.requiresFinance || hasFinance) &&
+    (!l.requiresHrApproval || approvalInbox.allowed) &&
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
 
@@ -248,7 +251,8 @@ function FlyoutLinkRow({ link, active }: { link: FlyoutLink; active: boolean }) 
   const { t } = useTranslation("common");
   const { data: pendingQ = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
   const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
-  const pending = link.badge === "marketingActions" ? pendingA : pendingQ;
+  const approvalInbox = useApprovalInbox(undefined, link.badge === "hrApprovals");
+  const pending = link.badge === "hrApprovals" ? approvalInbox.rows.length : link.badge === "marketingActions" ? pendingA : pendingQ;
   return (
     <Link
       to={link.to as never}
