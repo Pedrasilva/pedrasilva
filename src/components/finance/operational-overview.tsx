@@ -40,6 +40,7 @@ import {
 type DocRow = {
   id: string;
   direction: "issued" | "received";
+  sales_excluded: boolean;
   status: string;
   outstanding_amount: number | null;
   total_inc_vat: number | null;
@@ -52,7 +53,7 @@ type PaymentRow = {
   amount: number;
   payment_date: string;
   document_id: string;
-  document: { direction: "issued" | "received" } | null;
+  document: { direction: "issued" | "received"; sales_excluded: boolean } | null;
 };
 
 type ActiveAccount = { id: string };
@@ -106,7 +107,7 @@ export function OperationalOverview() {
       const { data, error } = await supabase
         .from("financial_documents")
         .select(
-          "id, direction, status, outstanding_amount, total_inc_vat, due_date, document_number",
+          "id, direction, sales_excluded, status, outstanding_amount, total_inc_vat, due_date, document_number",
         )
         .neq("status", "cancelled")
         .gt("outstanding_amount", 0);
@@ -123,7 +124,7 @@ export function OperationalOverview() {
       const { data, error } = await supabase
         .from("financial_document_payments")
         .select(
-          "id, amount, payment_date, document_id, document:financial_documents(direction)",
+          "id, amount, payment_date, document_id, document:financial_documents(direction,sales_excluded)",
         )
         .gte("payment_date", monthStart)
         .lte("payment_date", monthEnd);
@@ -159,7 +160,7 @@ export function OperationalOverview() {
     const bankBalance = sumCalculatedBalances(balancesQ.byAccount, activeIds);
 
     const docs = openDocsQ.data ?? [];
-    const receivables = docs.filter((d) => d.direction === "issued");
+    const receivables = docs.filter((d) => d.direction === "issued" && !d.sales_excluded);
     const payables = docs.filter((d) => d.direction === "received");
 
     const sum = (rows: DocRow[]) =>
@@ -184,7 +185,7 @@ export function OperationalOverview() {
     let moneyOut = 0;
     for (const p of payments) {
       const amt = Number(p.amount || 0);
-      if (p.document?.direction === "issued") moneyIn += amt;
+      if (p.document?.direction === "issued" && !p.document.sales_excluded) moneyIn += amt;
       else if (p.document?.direction === "received") moneyOut += amt;
     }
     const netActual = moneyIn - moneyOut;

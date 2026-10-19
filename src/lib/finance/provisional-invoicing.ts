@@ -11,8 +11,8 @@ export function fiscalIdentity(docType: string, text: string | null, series?: st
   return { type, series: series?.trim().toUpperCase() || null, number: receipt?.[2] ?? (/^\d+$/.test(s) ? s : null) };
 }
 
-export function isBilledDocument(d: { direction: string; doc_type: string; status: string }) {
-  return d.direction === 'issued' && ['client_invoice', 'client_credit_note'].includes(d.doc_type) && !['draft', 'cancelled'].includes(d.status);
+export function isBilledDocument(d: { direction: string; doc_type: string; status: string; sales_excluded?: boolean }) {
+  return d.direction === 'issued' && !d.sales_excluded && ['client_invoice', 'client_credit_note'].includes(d.doc_type) && !['draft', 'cancelled'].includes(d.status);
 }
 export function billedSign(d: { doc_type: string }) { return d.doc_type === 'client_credit_note' ? -1 : 1; }
 

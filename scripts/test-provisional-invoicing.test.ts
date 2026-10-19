@@ -30,6 +30,9 @@ describe('approved fiscal identity rules', () => {
   it('receipts never count as billed', () => {
     expect(isBilledDocument({direction:'issued',doc_type:'receipt',status:'paid'})).toBe(false);
   });
+  it('excluded non-sales invoices do not count as billed', () => {
+    expect(isBilledDocument({direction:'issued',doc_type:'client_invoice',status:'issued',sales_excluded:true})).toBe(false);
+  });
   it('cancelled and draft invoices never count as billed', () => {
     for (const status of ['cancelled','draft']) expect(isBilledDocument({direction:'issued',doc_type:'client_invoice',status})).toBe(false);
     expect(isBilledDocument({direction:'issued',doc_type:'client_invoice',status:'issued'})).toBe(true);

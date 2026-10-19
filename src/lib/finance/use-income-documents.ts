@@ -97,6 +97,7 @@ export function useIncomeDocuments(year: number) {
            subtotal_ex_vat, vat_amount, total_inc_vat, paid_amount, outstanding_amount`,
         )
         .eq("direction", "issued")
+        .eq("sales_excluded", false)
         .gte("issue_date", `${year}-01-01`)
         .lte("issue_date", `${year}-12-31`)
         .order("issue_date", { ascending: true });
