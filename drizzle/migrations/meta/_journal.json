@@ -897,6 +897,13 @@
       "when": 1792363713626,
       "tag": "0127_proposal_family_numbering",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1792397843563,
+      "tag": "0128_crm_close_reminders_on_closed_opportunities",
+      "breakpoints": true
     }
   ]
 }
