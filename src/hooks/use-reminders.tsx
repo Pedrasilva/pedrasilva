@@ -81,7 +81,17 @@ export function useMyReminders({ windowDays = 7 }: { windowDays?: number } = {})
         .order("due_date", { ascending: true, nullsFirst: false })
         .limit(50);
       if (error) throw error;
-      return (data ?? []) as Reminder[];
+      const rows = (data ?? []) as Reminder[];
+      // CRM actions only count while their opportunity exists and is still open.
+      const oppIds = rows.filter((r) => r.entity_type === "crm_opportunity" && r.entity_id).map((r) => r.entity_id as string);
+      if (oppIds.length === 0) return rows;
+      const { data: opps, error: oppErr } = await supabase
+        .from("crm_opportunities")
+        .select("id, stage")
+        .in("id", oppIds);
+      if (oppErr) throw oppErr;
+      const active = new Set((opps ?? []).filter((o) => o.stage !== "won" && o.stage !== "lost").map((o) => o.id));
+      return rows.filter((r) => r.entity_type !== "crm_opportunity" || (r.entity_id && active.has(r.entity_id)));
     },
   });
 }
