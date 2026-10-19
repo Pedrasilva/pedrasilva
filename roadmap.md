@@ -1,9 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — historical documents, shareholder loans and duplicate preview
-- [ ] Search existing project/CRM/quote evidence; apply authorized unique associations and create finance-only closed historical projects safely. Show Dmitri/ATB evidence; preserve documents and numbering.
-- [ ] Exclude non-monetary 000 only after checking links; reclassify Luis's two transfers as shareholder loans retaining banking evidence.
-- [ ] Prepare, do not apply, five duplicate group corrections and report document table, historical projects and billed/received before/after. Verify preservation and disposable tests.
+- [x] Six associations applied: four archived finance-only historical containers and Quelhas invoice/receipt; Quelhas client filled only if empty, receipt 14 link explicitly confirmed. No stages/quotes/counter changes. Dmitri/Bolshaya and ATB evidence shown in updated report without attribution.
+- [x] Luis's two bank-backed transfers excluded from sales and linked to one 30000 shareholder debt plus existing MOV.OWNER category; original documents and payments untouched. 000 remains intact because its notes reference a 500 internal bank transfer, shown before altering.
+- [x] Five duplicate groups previewed only (179774.35 reduction); proposed bank-backed payment allocations and non-deleted supersession need approval. Updated report in Files: sales received 548873.19 → 518873.19 after B; B+C hypothetical 339098.84. Eleven regression tests and disposable activation/stage/quote guards passed; fixture removed. Real document values/dates/numbers/status hash and all 379 payments preserved, Finance UI readback passed via navigation.
+- [ ] Await Luis: confirm Dmitri/Bolshaya identity, clarify ATB, authorize 000 exclusion after bank evidence, approve or revise C's five groups. No correction of C is running or scheduled.
 
 ## Current request — revised issued-document associations and received audit
 - [x] Associated Clínica Mulher January invoice, Groovesnore receipt 9 → Telheiras (historical invoice absent), Magnificent Fields invoice → Alcanena (existing receipt attribution + exact unique 2305 schedule milestone). Filled only empty company fields in Telheiras/Alcanena and empty displayed client names in those plus Clínica Mulher. Source-controlled data corrections 0142/0143 mirrored; 11 remain without demonstrable candidates across company/NIF, quote, opportunity, project names and available snapshots/contracts. No receipt invoice suggestions confirmed.
