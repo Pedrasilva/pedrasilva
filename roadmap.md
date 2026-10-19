@@ -1,5 +1,10 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — historical documents, shareholder loans and duplicate preview
+- [ ] Search existing project/CRM/quote evidence; apply authorized unique associations and create finance-only closed historical projects safely. Show Dmitri/ATB evidence; preserve documents and numbering.
+- [ ] Exclude non-monetary 000 only after checking links; reclassify Luis's two transfers as shareholder loans retaining banking evidence.
+- [ ] Prepare, do not apply, five duplicate group corrections and report document table, historical projects and billed/received before/after. Verify preservation and disposable tests.
+
 ## Current request — revised issued-document associations and received audit
 - [x] Associated Clínica Mulher January invoice, Groovesnore receipt 9 → Telheiras (historical invoice absent), Magnificent Fields invoice → Alcanena (existing receipt attribution + exact unique 2305 schedule milestone). Filled only empty company fields in Telheiras/Alcanena and empty displayed client names in those plus Clínica Mulher. Source-controlled data corrections 0142/0143 mirrored; 11 remain without demonstrable candidates across company/NIF, quote, opportunity, project names and available snapshots/contracts. No receipt invoice suggestions confirmed.
 - [x] Read-only breakdown: 548873.19 = invoice payments 203819.99 + receipt payments 345053.20. Five strong overlap groups sum 179774.35 (ANSCA, CTT, BCG, Groovesnore, Magnificent); bank references themselves each used once, but manual invoice payments duplicate receipt-linked banking evidence. Includes 30000 transfers from Luis/suprimentos, not demonstrated sales. 11 finance_recebimentos are suggestions only, including two BCG suggestions for same bank line; excluded from 548873.19. Preserved exact 39-document immutable hash and all-payment hash; SQL guards preserved line values/all other project fields. Three project Billing readbacks passed after reload; Alcanena milestone 2305 and receipt excluded from billed. Ten regression tests passed; full report in Files. No received/payment correction made.
