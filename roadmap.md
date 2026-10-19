@@ -2,9 +2,9 @@
 
 ## Current request — HR approvals inbox
 - [x] Read-only request storage, approver checks and Patricia pending-balance diagnosis; mandatory leave rejection reason confirmed.
-- [ ] Present plan before implementation; preserve all approval and balance rules.
-- [ ] After approval: unified inbox/menu badge, filters, decisions/bulk selection and deep links; leave-map request counts and PT action labels.
-- [ ] Verify server permissions and copy-only approval/refresh/deep-link flows; remove fixtures.
+- [x] Approved plan implemented without changing approval and balance rules.
+- [x] Unified inbox/menu badge, filters, decisions/bulk selection and deep links; leave-map request counts and PT action labels.
+- [x] Server permission/certificate/reason checks passed with rolled-back fixtures; browser individual/bulk/reject/reload flows passed on disposable remote requests, all fixtures removed. Login preserves request link; Patricia counter is 1.
 
 ## Current request — proposal family numbering
 - [x] Archived only VURAL tests 2665/2667/2668 and PSA QA tests 2608/2609; pipeline/open queries exclude archived rows, none deleted.

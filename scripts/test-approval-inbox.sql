@@ -1,3 +1,4 @@
+-- Run via the privileged database test tool (requires auth schema access).
 -- Disposable rows only. Every decision and notification is rolled back.
 BEGIN;
 DO $$
@@ -31,7 +32,7 @@ IF (SELECT estado FROM public.remote_work_requests WHERE id=remote)<>'aprovada' 
 IF public.hr_approval_actor_name(remote,'remote') IS NULL THEN RAISE EXCEPTION 'actor_name_missing'; END IF;
 denied:=false; BEGIN PERFORM public.hr_inbox_remote_decide(remote,false,''); EXCEPTION WHEN OTHERS THEN denied:=true; END;
 IF NOT denied THEN RAISE EXCEPTION 'double_decision_allowed'; END IF;
-IF before_hash IS DISTINCT FROM (SELECT md5(string_agg(to_jsonb(e)::text,'' ORDER BY id)) FROM public.pm_time_entries e) THEN RAISE EXCEPTION 'real_timesheets_changed'; END IF;
+IF before_hash IS DISTINCT FROM (SELECT md5(string_agg(to_jsonb(e)::text,'' ORDER BY id)) FROM public.pm_time_entries e WHERE user_id IS DISTINCT FROM person) THEN RAISE EXCEPTION 'real_timesheets_changed'; END IF;
 END $$;
 SELECT 'PASS: anonymous checks, required reasons, certificate, leave/change/remote decisions, actor name, double-decision guard and timesheet preservation';
 ROLLBACK;

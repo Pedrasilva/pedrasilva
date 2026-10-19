@@ -69,6 +69,7 @@ import {
 type FeriasSearch = { scope?: "meus" | "colaborador" | "calendario" };
 
 export const Route = createFileRoute("/_app/hr/ferias")({
+  head: () => ({meta:[{title:"Mapa de férias | PSA Hub"},{name:"description",content:"Mapa de ausências, pedidos e saldos de férias da equipa."},{property:"og:title",content:"Mapa de férias | PSA Hub"},{property:"og:description",content:"Consulta dos pedidos de ausência e saldos de férias."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),
   validateSearch: (search: Record<string, unknown>): FeriasSearch => {
     const s = search.scope;
     if (s === "colaborador" || s === "calendario" || s === "meus") return { scope: s };
