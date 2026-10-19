@@ -1,5 +1,9 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
+## Current request — revised issued-document associations and received audit
+- [ ] Associate the unique Clínica Mulher candidate without excluding portal adoption dates; audit all remaining documents through company/NIF, quote, CRM and names; fill empty project clients only with unique evidence and associate eligible historical receipts without confirming invoice suggestions.
+- [ ] Read-only breakdown of 548873.19 received versus 235310.87 billed net, including payment/bank/receipt duplication evidence; verify immutable totals and report every document plus project totals before/after.
+
 ## Current request — real issued document project association
 - [x] Audited 15 unassigned issued documents and all 16 portal projects. Assigned only paid Banco CTT FT 2026/12 (9c4c0219-4588-4917-87b1-abcf04401565) to 2522 (936b3ca5-6736-40ef-90f3-5381375beb7d) using existing authenticated fin_assign_invoice_project RPC: unique normalized client name across duplicate company rows; issue 09 Jun lies after project start and in June stage. No project/proposal schedule exists, so no line/milestone updates. Clínica Mulher issue 28 Jan predates project 01 Jun: left for confirmation; other invoices have no verified portal client-project link; nine receipts lack confirmed invoice links. Three suggestions unchanged.
 - [x] Readback in project Billing shows FT 2026/12 and billed net 22103.68 (before 11904.68). Remaining 14 unassigned, zero unassigned cancelled. Only header project_id/updated_at changed: immutable document hash 7fc5c744591f6adbbb848068841d0bdc, payments hash 7bde048f1e5e8000a46e79babdfeda54 and all-lines hash 15f147094a8656aa5745e6a2b6e7aac3 unchanged; 39 docs/net 605785.15/gross 722208.22/received 548873.19 unchanged. Report covers all 15 and before/after billed net for five projects plus unassigned.
