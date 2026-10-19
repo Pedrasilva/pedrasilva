@@ -1,8 +1,8 @@
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — real issued document project association
-- [ ] Audit all unassigned sales documents against client/NIF, project/proposal dates and payment schedules; apply only unique clear matches and exact unique milestone amounts, preserving receipt suggestions and all financial fields/payments.
-- [ ] Verify immutable totals/payment fingerprints and report every document/reason plus project billed totals before/after.
+- [x] Audited 15 unassigned issued documents and all 16 portal projects. Assigned only paid Banco CTT FT 2026/12 (9c4c0219-4588-4917-87b1-abcf04401565) to 2522 (936b3ca5-6736-40ef-90f3-5381375beb7d) using existing authenticated fin_assign_invoice_project RPC: unique normalized client name across duplicate company rows; issue 09 Jun lies after project start and in June stage. No project/proposal schedule exists, so no line/milestone updates. Clínica Mulher issue 28 Jan predates project 01 Jun: left for confirmation; other invoices have no verified portal client-project link; nine receipts lack confirmed invoice links. Three suggestions unchanged.
+- [x] Readback in project Billing shows FT 2026/12 and billed net 22103.68 (before 11904.68). Remaining 14 unassigned, zero unassigned cancelled. Only header project_id/updated_at changed: immutable document hash 7fc5c744591f6adbbb848068841d0bdc, payments hash 7bde048f1e5e8000a46e79babdfeda54 and all-lines hash 15f147094a8656aa5745e6a2b6e7aac3 unchanged; 39 docs/net 605785.15/gross 722208.22/received 548873.19 unchanged. Report covers all 15 and before/after billed net for five projects plus unassigned.
 
 ## Current request — invoicing screen verification
 - [x] All six screen flows passed with disposable fixtures: PDF extraction/confirmation/milestone/reload, purchase refusal, manual registration/duplicate message, credit net reduction/original partial status, payment 100 received/269 outstanding, two milestones 100/200, Bernardo UI denial and server 42501. Fixed hidden project Billing tab and missing project PDF confirmation; migrations 0139–0141 mirrored. Ten regression tests and preview build passed.
