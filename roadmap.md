@@ -2,8 +2,7 @@
 
 ## Current request — June 2026 vacation opening balances
 - [x] Read-only current/proposed comparison for nine named people and unchanged balances for three excluded people; future approved requests included, Luis −8 and Ricardo Conceição −5 highlighted.
-- [ ] Await Luis approval of comparison and plan before application, storage or balance-calculation changes.
-- [ ] After approval: opening-balance storage/editing, unified reference-date calculations, 2027 carry-over and isolated tests; preserve requests/approvals.
+- [x] Luis approved; nine openings saved. Migration 0131 mirrored; leave map/calendar, availability, inbox and personal sheet share calculations; audited correction editor verified by save/reload. 2027 carry-over and 14 balance checks + 8 approval regressions passed; disposable fixtures deleted. Exact hashes of all 60 requests, 13 collaborators and 1550 timesheet entries unchanged.
 
 ## Current request — HR approvals inbox
 - [x] Read-only request storage, approver checks and Patricia pending-balance diagnosis; mandatory leave rejection reason confirmed.

@@ -41,7 +41,7 @@ describe("approved June 2026 opening totals", () => {
   });
 });
 
-describe("disposable reference-date fixture", () => {
+describe.skipIf(process.env.LEAVE_OPENING_FIXTURE !== "enabled")("disposable reference-date fixture", () => {
   it("whole pre-reference request is excluded; June boundary and approved/pending vacation count; sick/unpaid do not", async () => {
     const row = (await balances(2099)).find(b => b.collaborator_id === "eeeeeeee-0001-4000-8000-000000000001");
     expect(row?.total).toBe(18); expect(row?.approved).toBe(3); expect(row?.pending).toBe(2); expect(row?.balance).toBe(13);
