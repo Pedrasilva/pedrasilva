@@ -13,8 +13,17 @@ import {
 } from "@/lib/crm/types";
 import { resolveOpportunityValue, quoteValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
+import { opportunityOverview } from "@/lib/crm/pipeline-board";
 
 export const Route = createFileRoute("/_app/crm/")({
+  head: () => ({ meta: [
+    { title: "CRM Overview | PSA Hub" },
+    { name: "description", content: "Commercial opportunities, wins and open pipeline in PSA Hub." },
+    { property: "og:title", content: "CRM Overview | PSA Hub" },
+    { property: "og:description", content: "Commercial opportunities, wins and open pipeline in PSA Hub." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: CrmOverview,
 });
 
@@ -88,19 +97,16 @@ function CrmOverview() {
 
   // Value comes from the shared resolver so this rollup can never disagree
   // with the Opportunities kanban/list.
-  const openOpps = opportunities.filter((o) => o.stage !== "won" && o.stage !== "lost");
-  const weightedPipeline = openOpps.reduce(
-    (s, o) => s + resolveOpportunityValue(o) * (Number(o.probability) / 100),
-    0,
-  );
-  const totalOpen = openOpps.reduce((s, o) => s + resolveOpportunityValue(o), 0);
+  const summary = opportunityOverview(opportunities);
+  const openOpps = summary.open;
+  const { weightedPipeline, totalOpen } = summary;
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     stage: s.value,
     color: s.color,
     label: t(`stage.${s.value}`),
-    count: opportunities.filter((o) => o.stage === s.value).length,
-    total: opportunities
+    count: summary.unique.filter((o) => o.stage === s.value).length,
+    total: summary.unique
       .filter((o) => o.stage === s.value)
       .reduce((sum, o) => sum + resolveOpportunityValue(o), 0),
   }));

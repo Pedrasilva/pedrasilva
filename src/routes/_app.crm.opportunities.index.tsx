@@ -45,6 +45,8 @@ import { resolveOpportunityValue, resolveOpportunityValueWithSource } from "@/li
 import { boardColumns, visibleOpportunities, shownTotal } from "@/lib/crm/pipeline-board";
 import { Switch } from "@/components/ui/switch";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
+import { useOpportunityProjects } from "@/lib/crm/use-opportunity-projects";
+import { activeProjectOpportunities, canConvertOpportunity, type OpportunityProject } from "@/lib/crm/opportunity-projects";
 
 export const Route = createFileRoute("/_app/crm/opportunities/")({
   head: () => ({ meta: [
@@ -70,18 +72,14 @@ function OpportunitiesPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"pipeline" | "list">("pipeline");
+  const [view, setView] = useState<"pipeline" | "list" | "projects">("pipeline");
+  const [conversionOpp, setConversionOpp] = useState<Row | null>(null);
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
   const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
   const [showClosed, setShowClosed] = useState(false);
-  const { data: projectByOpp = new Map<string, string>() } = useQuery({
-    queryKey: ["crm_opportunity_projects"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("pm_projects").select("id, opportunity_id").not("opportunity_id", "is", null);
-      if (error) throw error;
-      return new Map((data ?? []).map((p) => [p.opportunity_id as string, p.id as string]));
-    },
-  });
+  const projectsQ = useOpportunityProjects();
+  const projectsByOpp = projectsQ.data ?? new Map<string, OpportunityProject[]>();
+  const projectByOpp = new Map<string, string>([...projectsByOpp].flatMap(([id, projects]) => projects[0] ? [[id, projects[0].id] as [string, string]] : []));
   const convertedIds = new Set(projectByOpp.keys());
   
 
@@ -245,9 +243,18 @@ function OpportunitiesPage() {
     navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
   };
 
-  const shownOpps = visibleOpportunities(opps, convertedIds, showClosed);
+  const openConversion = (opp: Row) => {
+    if (!canConvertOpportunity(opp, convertedIds)) return;
+    if (opp.quotes.length === 1) {
+      const quote = opp.quotes[0];
+      if (quote) navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: quote.id }, search: { step: "publish" } });
+    } else setConversionOpp(opp);
+  };
+  const shownOpps = view === "projects"
+    ? activeProjectOpportunities(opps, projectsByOpp)
+    : visibleOpportunities(opps, convertedIds, showClosed);
   const byStage = boardColumns(OPPORTUNITY_STAGES.map((s) => s.value), opps, convertedIds, showClosed).map((c) => {
-    const s = OPPORTUNITY_STAGES.find((x) => x.value === c.stage)!;
+    const s = OPPORTUNITY_STAGES.find((x) => x.value === c.stage) ?? OPPORTUNITY_STAGES[0];
     return { ...s, label: t(`stage.${s.value}`), items: c.items, total: c.total };
   });
 
@@ -278,9 +285,12 @@ function OpportunitiesPage() {
               variant={view === "list" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setView("list")}
-              className="rounded-l-none"
+              className="rounded-none"
             >
               <List className="h-4 w-4 mr-1" /> {t("opportunities.viewList")}
+            </Button>
+            <Button variant={view === "projects" ? "secondary" : "ghost"} size="sm" onClick={() => setView("projects")} className="rounded-l-none">
+              <Briefcase className="h-4 w-4 mr-1" /> {t("opportunities.activeProjects")}
             </Button>
           </div>
           <Button size="sm" onClick={() => setOpen(true)}>
@@ -289,8 +299,10 @@ function OpportunitiesPage() {
         </div>
       </div>
 
-      {isLoading ? (
+      {isLoading || projectsQ.isPending ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+      ) : projectsQ.isError ? (
+        <p className="text-sm text-destructive">{t("opportunities.projectLinksError")}</p>
       ) : opps.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-2 p-10 text-sm text-muted-foreground">
@@ -300,7 +312,7 @@ function OpportunitiesPage() {
           </CardContent>
         </Card>
       ) : view === "pipeline" ? (
-        <div className={`grid gap-3 md:grid-cols-2 ${showClosed ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+        <div className={`grid gap-3 md:grid-cols-2 ${showClosed ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
           {byStage.map((col) => {
             const totalCol = col.total;
             return (
@@ -377,14 +389,14 @@ function OpportunitiesPage() {
                             : t("opportunities.card.noQuotes")}
                         </div>
                         <div className="mt-2 flex items-center justify-end gap-1">
-                          {o.stage === "won" && !projectByOpp.has(o.id) && (
-                            <Button size="sm" variant="secondary" className="h-6 px-2 text-xs" onClick={(e) => handleQuoteAction(e, o)}>
+                          {canConvertOpportunity(o, convertedIds) && (
+                            <Button size="sm" variant="secondary" className="h-6 px-2 text-xs" onClick={(e) => { e.stopPropagation(); openConversion(o); }}>
                               {t("opportunities.convertToProject")}
                             </Button>
                           )}
-                          {projectByOpp.has(o.id) && (
+                          {projectByOpp.get(o.id) && (
                             <Button asChild size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={(e) => e.stopPropagation()}>
-                              <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id)! }}>{t("opportunities.openProject")}</Link>
+                              <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id) ?? "" }}>{t("opportunities.openProject")}</Link>
                             </Button>
                           )}
                           <Button
@@ -470,6 +482,22 @@ function OpportunitiesPage() {
             );
           })}
         </div>
+      ) : view === "projects" ? (
+        <div className="divide-y border-y">
+          {shownOpps.length === 0 && <p className="py-6 text-sm text-muted-foreground">{t("opportunities.noActiveProjects")}</p>}
+          {shownOpps.map(o => {
+            const projects = (projectsByOpp.get(o.id) ?? []).filter(p => p.status === "active" || p.status === "paused");
+            return <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <Link to="/crm/opportunities/$opportunityId" params={{ opportunityId: o.id }} className="font-medium text-sm hover:underline">{o.name}</Link>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  {projects.length === 0 ? <Badge variant="outline">{t("opportunities.notYetConverted")}</Badge> : projects.map(p => <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }} className="text-xs text-primary hover:underline">{p.name} · {t(`common:${p.status}`)}</Link>)}
+                </div>
+              </div>
+              {projects.length === 0 && canConvertOpportunity(o, convertedIds) && <Button size="sm" variant="secondary" onClick={() => openConversion(o)}>{t("opportunities.convertToProject")}</Button>}
+            </div>;
+          })}
+        </div>
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -511,7 +539,7 @@ function OpportunitiesPage() {
                           {stage ? t(`stage.${stage.value}`) : ""}
                         </span>
                         {projectByOpp.has(o.id) && (
-                          <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id)! }} className="ml-2 text-xs text-primary hover:underline">
+                          <Link to="/projects/$projectId" params={{ projectId: projectByOpp.get(o.id) ?? "" }} className="ml-2 text-xs text-primary hover:underline">
                             {t("opportunities.converted")} →
                           </Link>
                         )}
@@ -529,6 +557,19 @@ function OpportunitiesPage() {
       )}
 
       <NewOpportunityDialog open={open} onClose={() => setOpen(false)} />
+      <Dialog open={!!conversionOpp} onOpenChange={value => { if (!value) setConversionOpp(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("opportunities.chooseConversionQuote")}</DialogTitle>
+            <DialogDescription>{conversionOpp?.name}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            {conversionOpp?.quotes.map(q => <Button key={q.id} variant="outline" className="h-auto justify-between whitespace-normal gap-3 py-3 text-left" onClick={() => { setConversionOpp(null); navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: q.id }, search: { step: "publish" } }); }}>
+              <span>{q.titulo ?? q.id}</span><span className="shrink-0">{formatEUR(Number(q.resolved_value ?? q.valor) || 0)}</span>
+            </Button>)}
+          </div>
+        </DialogContent>
+      </Dialog>
       <QuoteCategoryChooserDialog
         opp={chooserOpp}
         onClose={() => setChooserOpp(null)}

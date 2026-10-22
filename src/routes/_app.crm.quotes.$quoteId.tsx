@@ -82,6 +82,7 @@ import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { numberStages, formatStageLabel } from "@/lib/quotes/stage-numbering";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
+  validateSearch: (search: Record<string, unknown>): { step?: "publish" } => ({ step: search.step === "publish" ? "publish" : undefined }),
   head:()=>({meta:[{title:"Proposal planning | PSA Hub"},{name:"description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:title",content:"Proposal planning | PSA Hub"},{property:"og:description",content:"Proposal schedules, commercial terms and project conversion in PSA Hub."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),
   component: QuoteDetail,
 });
@@ -112,6 +113,7 @@ function readSavedQuoteStep(quoteId: string): QuoteStep {
 function QuoteDetail() {
   const { t } = useTranslation("crm");
   const { quoteId } = Route.useParams();
+  const { step: requestedStep } = Route.useSearch();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { isAdmin } = useAuth();
@@ -293,6 +295,9 @@ function QuoteDetail() {
       }
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity_projects"] });
+      qc.invalidateQueries({ queryKey: ["crm-opportunities-overview"] });
       // Land on the allocations page so the PM can assign resources to
       // stages right after activation. They can skip and do it later by
       // navigating to the project overview.
@@ -349,12 +354,12 @@ function QuoteDetail() {
   // Linear workflow state — orchestration only. All underlying tabs and
   // components below are preserved unchanged; the stepper just filters
   // which secondary tabs are surfaced per step.
-  const [step, setStep] = useState<QuoteStep>(() => readSavedQuoteStep(quoteId));
+  const [step, setStep] = useState<QuoteStep>(() => requestedStep ?? readSavedQuoteStep(quoteId));
   const [activeTab, setActiveTab] = useState<string>("overview");
 
   useEffect(() => {
-    setStep(readSavedQuoteStep(quoteId));
-  }, [quoteId]);
+    setStep(requestedStep ?? readSavedQuoteStep(quoteId));
+  }, [quoteId, requestedStep]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

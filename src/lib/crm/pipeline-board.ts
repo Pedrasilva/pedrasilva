@@ -1,7 +1,7 @@
 /**
  * Pure rules for the CRM opportunities board / list.
  * - One opportunity = one card, in the column of its own stage (never mirrored).
- * - Won opportunities that already became a project leave the pipeline.
+ * - All Won opportunities leave the board (unconverted ones live in Active projects).
  * - Lost and converted opportunities only show with "Show closed".
  * - Totals only count what is shown.
  */
@@ -23,7 +23,7 @@ export function isClosedOpportunity(o: BoardOpp, convertedIds: ReadonlySet<strin
 export function visibleOpportunities<T extends BoardOpp>(
   opps: T[], convertedIds: ReadonlySet<string>, showClosed: boolean,
 ): T[] {
-  return showClosed ? opps : opps.filter((o) => !isClosedOpportunity(o, convertedIds));
+  return showClosed ? opps : opps.filter((o) => o.stage !== "won" && !isClosedOpportunity(o, convertedIds));
 }
 
 export function boardColumns<T extends BoardOpp>(
@@ -31,7 +31,7 @@ export function boardColumns<T extends BoardOpp>(
 ) {
   const shown = visibleOpportunities(opps, convertedIds, showClosed);
   return stages
-    .filter((s) => showClosed || s !== "lost")
+    .filter((s) => s !== "won" && (showClosed || s !== "lost"))
     .map((stage) => {
       const items = shown.filter((o) => o.stage === stage);
       return { stage, items, total: items.reduce((s, o) => s + resolveOpportunityValueWithSource(o).value, 0) };
@@ -40,4 +40,13 @@ export function boardColumns<T extends BoardOpp>(
 
 export function shownTotal(opps: BoardOpp[]): number {
   return opps.reduce((s, o) => s + resolveOpportunityValueWithSource(o).value, 0);
+}
+
+/** Overview measures wins once per opportunity, independently of project links. */
+export function opportunityOverview<T extends BoardOpp & { probability: number }>(opps: T[]) {
+  const unique = [...new Map(opps.map(o => [o.id, o])).values()];
+  const open = unique.filter(o => o.stage !== "won" && o.stage !== "lost");
+  const won = unique.filter(o => o.stage === "won");
+  return { unique, open, wonCount: won.length, wonValue: shownTotal(won), totalOpen: shownTotal(open),
+    weightedPipeline: open.reduce((sum, o) => sum + resolveOpportunityValueWithSource(o).value * Number(o.probability) / 100, 0) };
 }
