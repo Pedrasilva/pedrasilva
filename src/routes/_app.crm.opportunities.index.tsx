@@ -46,7 +46,7 @@ import { boardColumns, visibleOpportunities, shownTotal } from "@/lib/crm/pipeli
 import { Switch } from "@/components/ui/switch";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 import { useOpportunityProjects } from "@/lib/crm/use-opportunity-projects";
-import { activeProjectOpportunities, canConvertOpportunity } from "@/lib/crm/opportunity-projects";
+import { activeProjectOpportunities, canConvertOpportunity, type OpportunityProject } from "@/lib/crm/opportunity-projects";
 
 export const Route = createFileRoute("/_app/crm/opportunities/")({
   head: () => ({ meta: [
@@ -78,7 +78,7 @@ function OpportunitiesPage() {
   const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
   const [showClosed, setShowClosed] = useState(false);
   const projectsQ = useOpportunityProjects();
-  const projectsByOpp = projectsQ.data ?? new Map();
+  const projectsByOpp = projectsQ.data ?? new Map<string, OpportunityProject[]>();
   const projectByOpp = new Map<string, string>([...projectsByOpp].flatMap(([id, projects]) => projects[0] ? [[id, projects[0].id] as [string, string]] : []));
   const convertedIds = new Set(projectByOpp.keys());
   

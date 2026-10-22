@@ -41,3 +41,12 @@ export function boardColumns<T extends BoardOpp>(
 export function shownTotal(opps: BoardOpp[]): number {
   return opps.reduce((s, o) => s + resolveOpportunityValueWithSource(o).value, 0);
 }
+
+/** Overview measures wins once per opportunity, independently of project links. */
+export function opportunityOverview<T extends BoardOpp & { probability: number }>(opps: T[]) {
+  const unique = [...new Map(opps.map(o => [o.id, o])).values()];
+  const open = unique.filter(o => o.stage !== "won" && o.stage !== "lost");
+  const won = unique.filter(o => o.stage === "won");
+  return { unique, open, wonCount: won.length, wonValue: shownTotal(won), totalOpen: shownTotal(open),
+    weightedPipeline: open.reduce((sum, o) => sum + resolveOpportunityValueWithSource(o).value * Number(o.probability) / 100, 0) };
+}
