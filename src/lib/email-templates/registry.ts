@@ -4,6 +4,7 @@ import { template as remoteWorkLateTemplate } from './remote-work-late'
 import { template as timesheetReminderTemplate } from './timesheet-reminder'
 import { template as marketingNudgeTemplate } from './marketing-nudge'
 import { template as marketingActionTemplate } from './marketing-action'
+import { template as marketingPostApprovalTemplate } from './marketing-post-approval'
 import { template as timesheetWeekUpdateTemplate } from './timesheet-week-update'
 import { template as financeForwardTemplate } from './finance-forward'
 import { template as leaveChangeTemplate } from './leave-change'
@@ -33,6 +34,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'timesheet-reminder': timesheetReminderTemplate,
   'marketing-nudge': marketingNudgeTemplate,
   'marketing-action': marketingActionTemplate,
+  'marketing-post-approval': marketingPostApprovalTemplate,
   'timesheet-week-update': timesheetWeekUpdateTemplate,
   'finance-forward': financeForwardTemplate,
   'leave-change': leaveChangeTemplate,
