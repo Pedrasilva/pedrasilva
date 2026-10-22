@@ -7,8 +7,9 @@ DECLARE
   colleague uuid; p uuid; req uuid; d uuid; aid uuid; st text; h text; ed boolean; log text := ''; n int; dr public.marketing_post_drafts;
   anonymous_project uuid; anonymous_draft uuid; sample record; reason text; checks int := 0;
 BEGIN
-  SELECT user_id INTO colleague FROM public.user_roles WHERE role = 'admin' AND user_id <> curator ORDER BY user_id LIMIT 1;
-  IF curator IS NULL OR colleague IS NULL THEN RAISE EXCEPTION 'Test requires two existing Marketing administrators'; END IF;
+  SELECT id INTO colleague FROM auth.users WHERE id <> curator ORDER BY created_at LIMIT 1;
+  IF curator IS NULL OR colleague IS NULL THEN RAISE EXCEPTION 'Test requires two existing identities'; END IF;
+  INSERT INTO public.user_roles (user_id, role) VALUES (colleague, 'admin') ON CONFLICT DO NOTHING;
   INSERT INTO public.pm_projects (name) VALUES ('TESTE descartável marketing') RETURNING id INTO p;
   INSERT INTO public.marketing_project_profiles (project_id, name_rule, location, sector, clearance) VALUES (p, 'describe_only', 'Moscovo, Rússia', 'hospitality', 'cleared');
   PERFORM set_config('request.jwt.claims', json_build_object('sub', curator, 'role', 'authenticated')::text, true);
@@ -163,6 +164,6 @@ BEGIN
   END;
   log := log || E'\nL separate internal_only blocks readiness/pending/approved/scheduled (ok)';
   IF position('FAIL' IN log) > 0 THEN RAISE EXCEPTION 'REGRESSION FAILED:%', log; END IF;
-  -- Intentional exception rolls back fixtures and all notifications; existing roles never change.
+  -- Intentional exception rolls back fixtures, temporary role and all notifications.
   RAISE EXCEPTION 'RESULTS (ALL CHECKS PASSED; ROLLBACK):%', log;
 END $$;
