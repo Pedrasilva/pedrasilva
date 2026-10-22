@@ -1,6 +1,6 @@
 ## Current request — invoice PDF draft save only
-- [ ] Reuse the existing queue/document relationship; preserve extracted fields, entity and assignment-before-validation.
-- [ ] Save and reopen disposable drafts, verify preservation and remove fixtures; report files and root cause.
+- [x] Migration 0146 adds only an invoker transaction using queue.created_expense_id; explicit entity assignment before existing validation, extraction retained on original queue. RPC-only queue ID no longer enters document inserts; reopened PDF drafts reuse the link.
+- [x] Real authenticated editor saved/reopened/resaved PSA copy; deferred confirmation issued the same document and filed the same queue. Pedra Rioja copy saved through the same RPC and reopened/resaved in the real editor. PDF/lines/raw extraction/entity/link preserved; 15 regressions and preview build passed. Two queue/two document/one project copies removed (all counts zero), original PDF/queue untouched, no payments/bank writes. Migration mirrored at supabase/migrations/20261022235500_issued_pdf_draft_queue_link.sql.
 
 ## Current request — anonymous Marketing approvals
 - [x] Migration 0145 removes never_mention readiness blanket block; independent internal_only and pending/approved/scheduled trigger gates preserved.
