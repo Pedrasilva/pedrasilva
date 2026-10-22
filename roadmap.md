@@ -1,3 +1,8 @@
+## Current request — anonymous Marketing approvals
+- [ ] Remove never_mention readiness blanket block; retain independent internal_only and trigger gates for pending/approved/scheduled.
+- [ ] Extend rolled-back SQL regression with clean/unsafe captions, tags and frames; verify live functions, unchanged real drafts and mirrored migration.
+- [ ] Explain current Project monitoring findings; do not fix unrelated issues.
+
 ## Current request — Meta connection verification
 - [x] Token securely stored; authenticated server RPC checks has_role as caller before secret/Meta access. Graph v26.0 batch GET requests use POST bodies to prevent token-bearing URLs; only non-secret metadata returned/stored. No publishing.
 - [x] marketing_settings migration 0143 applied and mirrored exactly in supabase/migrations/20261022221000_marketing_meta_connection_settings.sql. Marketing staff read, admin-only writes, no anonymous read/TRUNCATE; all public client TRUNCATE grants remain zero.
