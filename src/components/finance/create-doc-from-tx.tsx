@@ -271,7 +271,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
       onCreated?.();
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e));
     }
   }
 
