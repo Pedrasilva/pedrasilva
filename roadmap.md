@@ -1,3 +1,8 @@
+## Current request — Meta connection verification
+- [ ] Store the system-user token securely and implement admin-only server verification without publishing.
+- [ ] Add non-secret Marketing settings with permission-scoped reads and admin-only writes; mirror migration.
+- [ ] Add Marketing settings screen; verify actual connection, permissions, persistence and denied access.
+
 ## Current request — CRM pipeline and active projects
 - [x] Share direct/quote project linkage, deduplicated per project; all Won removed from board and retained through closed List.
 - [x] Active/paused projects tab excludes archived projects, flags unconverted Won and offers conversion; multiple quotes require explicit choice and enter existing Sign & Convert workflow.
