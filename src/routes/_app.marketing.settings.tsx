@@ -68,7 +68,7 @@ function MarketingSettingsPage() {
           <p className={settings?.connection_ok ? "text-success" : "text-warning"}>{t(settings ? settings.connection_ok ? "meta.connected" : "meta.needsAttention" : "meta.notTested")}</p>
           <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <div><dt className="text-muted-foreground">{t("meta.page")}</dt><dd className="break-words font-medium">{settings?.meta_page_name ?? "—"}</dd><dd className="break-all text-xs text-muted-foreground">{settings?.meta_page_id}</dd></div>
-            <div><dt className="text-muted-foreground">Instagram</dt><dd className="break-words font-medium">{settings?.instagram_username ? `@${settings.instagram_username}` : "—"}</dd><dd className="break-all text-xs text-muted-foreground">{settings?.instagram_account_id}</dd></div>
+            <div><dt className="text-muted-foreground">{t("posts.platform.instagram")}</dt><dd className="break-words font-medium">{settings?.instagram_username ? `@${settings.instagram_username}` : "—"}</dd><dd className="break-all text-xs text-muted-foreground">{settings?.instagram_account_id}</dd></div>
             <div><dt className="text-muted-foreground">{t("meta.expiry")}</dt><dd>{settings?.token_never_expires ? t("meta.neverExpires") : date(settings?.token_expires_at)}</dd></div>
             <div><dt className="text-muted-foreground">{t("meta.dataExpiry")}</dt><dd>{date(settings?.data_access_expires_at)}</dd></div>
             <div><dt className="text-muted-foreground">{t("meta.lastTest")}</dt><dd>{date(settings?.last_tested_at)}</dd></div>
