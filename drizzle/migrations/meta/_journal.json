@@ -1009,6 +1009,13 @@
       "when": 1792706837841,
       "tag": "0143_marketing_meta_connection_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1792709501319,
+      "tag": "0144_marketing_editorial_calendar_approvals",
+      "breakpoints": true
     }
   ]
 }
