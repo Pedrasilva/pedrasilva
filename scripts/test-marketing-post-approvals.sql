@@ -8,7 +8,7 @@ BEGIN
   SELECT id INTO colleague FROM auth.users WHERE id <> curator ORDER BY created_at LIMIT 1;
   INSERT INTO public.user_roles (user_id, role) VALUES (colleague, 'admin') ON CONFLICT DO NOTHING;
   INSERT INTO public.pm_projects (name) VALUES ('TESTE descartável marketing') RETURNING id INTO p;
-  INSERT INTO public.marketing_project_profiles (project_id, name_rule, location, sector) VALUES (p, 'never_mention', 'Moscovo, Rússia', 'hospitality');
+  INSERT INTO public.marketing_project_profiles (project_id, name_rule, location, sector, clearance) VALUES (p, 'never_mention', 'Moscovo, Rússia', 'hospitality', 'cleared');
   PERFORM set_config('request.jwt.claims', json_build_object('sub', curator, 'role', 'authenticated')::text, true);
   INSERT INTO public.marketing_post_requests (period_start, period_end, idea_count, requested_by) VALUES (current_date, current_date + 7, 1, curator) RETURNING id INTO req;
   INSERT INTO public.marketing_post_drafts (request_id, idea_id, platform, capture_ids, asset_ids, project_id, ai_copy, ai_hashtags, rationale, readiness, bible_version, model, format)
