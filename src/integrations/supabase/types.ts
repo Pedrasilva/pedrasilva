@@ -7852,6 +7852,60 @@ export type Database = {
           },
         ]
       }
+      marketing_settings: {
+        Row: {
+          connected_at: string | null
+          connection_ok: boolean
+          data_access_expires_at: string | null
+          granted_permissions: string[]
+          graph_api_version: string
+          id: boolean
+          instagram_account_id: string | null
+          instagram_username: string | null
+          last_error_code: string | null
+          last_tested_at: string
+          meta_page_id: string | null
+          meta_page_name: string | null
+          token_expires_at: string | null
+          token_never_expires: boolean
+          token_valid: boolean | null
+        }
+        Insert: {
+          connected_at?: string | null
+          connection_ok?: boolean
+          data_access_expires_at?: string | null
+          granted_permissions?: string[]
+          graph_api_version?: string
+          id?: boolean
+          instagram_account_id?: string | null
+          instagram_username?: string | null
+          last_error_code?: string | null
+          last_tested_at?: string
+          meta_page_id?: string | null
+          meta_page_name?: string | null
+          token_expires_at?: string | null
+          token_never_expires?: boolean
+          token_valid?: boolean | null
+        }
+        Update: {
+          connected_at?: string | null
+          connection_ok?: boolean
+          data_access_expires_at?: string | null
+          granted_permissions?: string[]
+          graph_api_version?: string
+          id?: boolean
+          instagram_account_id?: string | null
+          instagram_username?: string | null
+          last_error_code?: string | null
+          last_tested_at?: string
+          meta_page_id?: string | null
+          meta_page_name?: string | null
+          token_expires_at?: string | null
+          token_never_expires?: boolean
+          token_valid?: boolean | null
+        }
+        Relationships: []
+      }
       meal_allowance_rates: {
         Row: {
           ano: number
