@@ -1,3 +1,7 @@
+## Current request — invoice PDF draft save only
+- [ ] Reuse the existing queue/document relationship; preserve extracted fields, entity and assignment-before-validation.
+- [ ] Save and reopen disposable drafts, verify preservation and remove fixtures; report files and root cause.
+
 ## Current request — anonymous Marketing approvals
 - [x] Migration 0145 removes never_mention readiness blanket block; independent internal_only and pending/approved/scheduled trigger gates preserved.
 - [x] Extended SQL regression passed with expected full rollback: clean colleague approval/scheduling, 15 exact-reason unsafe-content rejections and internal_only gates; nine calendar tests passed, live function definitions verified and mirror identical.
