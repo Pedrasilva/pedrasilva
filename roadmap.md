@@ -1,3 +1,8 @@
+## Current request — CRM pipeline and active projects
+- [ ] Share direct/quote project linkage; remove Won from board and retain closed List access.
+- [ ] Active/paused projects tab and unconverted Won flags; explicit multiple-quote conversion choice.
+- [ ] Verify Overview deduplication, regression tests and disposable browser fixtures; no commercial data writes.
+
 ## Current request — shared project financial calculations
 - [x] Introduce common planning, author-based saved-entry valuation, completeness and unrounded value-minus-cost profit primitives.
 - [x] Align project detail, dashboards/reports, forecasts and fiscal project summary without changing stored data; retain distinct contract, earned, billed and cash scopes.
