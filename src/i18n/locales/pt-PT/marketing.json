@@ -336,7 +336,10 @@
       "suggested": "Sugerido",
       "approved": "Aprovado",
       "rejected": "Rejeitado",
-      "published": "Publicado"
+      "published": "Publicado",
+      "pending_approval": "A aguardar aprovação",
+      "scheduled": "Agendado",
+      "failed": "Falhou"
     },
     "requestStatus": {
       "running": "Em curso",
@@ -740,5 +743,70 @@
     "deleted": "Carrossel apagado",
     "rowMenu": "Ações do carrossel",
     "cancel": "Cancelar"
+  },
+  "calendar": {
+    "title": "Calendário editorial",
+    "tab": "Calendário",
+    "prev": "Anterior",
+    "next": "Seguinte",
+    "today": "Hoje",
+    "view": {
+      "week": "Semana",
+      "month": "Mês"
+    },
+    "tzHint": "Horas em hora de Lisboa (Europe/Lisbon).",
+    "approvedList": "Aprovadas, por colocar",
+    "dragHint": "Arraste uma publicação para um dia e defina a hora.",
+    "readOnly": "Só os curadores podem colocar publicações.",
+    "noApproved": "Não há publicações aprovadas à espera.",
+    "setTime": "Definir data e hora",
+    "date": "Data",
+    "time": "Hora",
+    "place": "Colocar no calendário",
+    "scheduledToast": "Publicação colocada no calendário",
+    "unschedule": "Retirar do calendário",
+    "scheduledFor": "Prevista para {{when}} (Lisboa)",
+    "schedulePublish": "Agendar publicação",
+    "schedulePublishSoon": "Publicação automática em breve",
+    "field": {
+      "pillar": "pilar",
+      "persona": "persona",
+      "project": "projeto"
+    },
+    "warn": {
+      "lowWeek": "Semana de {{week}}: {{count}} de {{target}} publicações",
+      "consecutive": "Mesmo {{field}} que a publicação anterior ({{value}})",
+      "window": "{{field}} {{value}} mais de duas vezes em 7 dias"
+    },
+    "grid": {
+      "tab": "Grelha Instagram",
+      "open": "Abrir publicação",
+      "empty": "Ainda não há publicações Instagram aprovadas ou agendadas.",
+      "livePlaceholder": "Feed atual (disponível após ligar o Instagram)",
+      "preview": "Pré-visualização"
+    }
+  },
+  "approval": {
+    "ask": "Pedir aprovação",
+    "askAgain": "Pedir novamente",
+    "colleague": "Colega",
+    "pickColleague": "Escolha um colega com acesso a Marketing",
+    "comment": "Comentário",
+    "send": "Enviar pedido",
+    "requested": "Aprovação pedida; o colega foi notificado e recebeu email",
+    "requestedNoEmail": "Aprovação pedida; notificado no sino (email não enviado)",
+    "waiting": "A aguardar aprovação de {{name}}",
+    "changesBy": "{{name}} pediu alterações",
+    "approve": "Aprovar",
+    "requestChanges": "Pedir alterações",
+    "confirm": "Confirmar",
+    "approvedToast": "Publicação aprovada",
+    "changesToast": "Alterações pedidas",
+    "inboxTitle_one": "Aprovação de publicação ({{count}})",
+    "inboxTitle_other": "Aprovações de publicações ({{count}})",
+    "requester": "Pedido por",
+    "post": "Publicação",
+    "requestedOn": "Pedido em",
+    "review": "Rever"
   }
 }

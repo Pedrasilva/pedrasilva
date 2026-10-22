@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { RestrictedCard } from "@/components/PermissionGate";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { cn } from "@/lib/utils";
+import { PostApprovalsSection } from "@/components/marketing/post-approvals-section";
+import { useMyPostApprovals } from "@/lib/marketing/use-post-approvals";
 
 export const Route = createFileRoute("/_app/hr/aprovacoes")({
   validateSearch:(s:Record<string,unknown>) => ({pedido:typeof s.pedido === "string" && /^[0-9a-f-]{36}$/i.test(s.pedido) ? s.pedido : undefined,tipo:typeof s.tipo === "string" ? s.tipo : "all",colaborador:typeof s.colaborador === "string" ? s.colaborador : "all"}),
@@ -29,6 +31,7 @@ function ApprovalInboxPage() {
   const navigate = useNavigate({from:Route.fullPath});
   const inbox = useApprovalInbox(search.pedido);
   const decide = useInboxDecision();
+  const postApprovals = useMyPostApprovals();
   const locale = useDateLocale();
   const [selected,setSelected] = useState<Set<string>>(new Set());
   const [reject,setReject] = useState<ApprovalRow|null>(null);
@@ -54,10 +57,11 @@ function ApprovalInboxPage() {
   async function proof(path:string) {const {data,error}=await supabase.storage.from("leave-attachments").createSignedUrl(path,300);if(error || !data){toast.error(error?.message ?? t("common:errorTitle"));return;}window.open(data.signedUrl,"_blank","noopener");}
   if(inbox.isPending) return <p className="text-sm text-muted-foreground">{t("common:loading")}</p>;
   if(inbox.error) return <div role="alert" className="text-destructive">{errorText(inbox.error)}</div>;
-  if(!inbox.allowed) return <RestrictedCard/>;
+  if(!inbox.allowed) return postApprovals.rows.length ? <div className="space-y-5"><h1 className="text-2xl font-semibold">{t("common:shell.link.hr.approvals")}</h1><PostApprovalsSection/></div> : <RestrictedCard/>;
   const focused=inbox.data?.focused;
   return <div className="space-y-5">
     <header className="flex items-center justify-between gap-3"><h1 className="text-2xl font-semibold">{t("common:shell.link.hr.approvals")}</h1><span className="text-sm text-muted-foreground">{t("hr:approvalInbox.pendingCount",{count:inbox.rows.length})}</span></header>
+    <PostApprovalsSection/>
     <div className="flex flex-wrap items-end gap-3">
       <div className="w-56"><Label>{t("hr:approvalInbox.type")}</Label><Select value={search.tipo} onValueChange={tipo=>navigate({search:s=>({...s,tipo})})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">{t("common:all")}</SelectItem>{[...new Set(inbox.rows.map(r=>r.kind === "leave" ? r.type : r.kind))].map(k=><SelectItem key={k} value={k}>{k === "remote" ? t("hr:approvalInbox.remote") : k === "change" ? t("hr:approvalInbox.change") : t(`hr:approvalInbox.types.${k}`)}</SelectItem>)}</SelectContent></Select></div>
       <div className="w-64"><Label>{t("glossary:hr.employee")}</Label><Select value={search.colaborador} onValueChange={colaborador=>navigate({search:s=>({...s,colaborador})})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">{t("common:all")}</SelectItem>{[...new Map(inbox.rows.map(r=>[r.collaboratorId,r.collaborator])).entries()].sort((a,b)=>a[1].localeCompare(b[1])).map(([id,name])=><SelectItem key={id} value={id}>{name}</SelectItem>)}</SelectContent></Select></div>

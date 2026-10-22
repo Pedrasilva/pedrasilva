@@ -7372,11 +7372,59 @@ export type Database = {
           },
         ]
       }
+      marketing_post_approvals: {
+        Row: {
+          approver_id: string
+          comment: string | null
+          content_hash: string
+          created_at: string
+          decided_at: string | null
+          decision: string
+          draft_id: string
+          id: string
+          requested_by: string
+          voided_at: string | null
+        }
+        Insert: {
+          approver_id: string
+          comment?: string | null
+          content_hash: string
+          created_at?: string
+          decided_at?: string | null
+          decision?: string
+          draft_id: string
+          id?: string
+          requested_by: string
+          voided_at?: string | null
+        }
+        Update: {
+          approver_id?: string
+          comment?: string | null
+          content_hash?: string
+          created_at?: string
+          decided_at?: string | null
+          decision?: string
+          draft_id?: string
+          id?: string
+          requested_by?: string
+          voided_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_approvals_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_post_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_post_drafts: {
         Row: {
           ai_copy: string
           ai_hashtags: string[]
           ai_story_frames: Json | null
+          approved_content_hash: string | null
           asset_ids: string[]
           bible_version: number
           brief_item: string | null
@@ -7392,6 +7440,7 @@ export type Database = {
           format: string
           id: string
           idea_id: string
+          location_tag: string | null
           model: string
           persona: string | null
           pillar: string | null
@@ -7404,12 +7453,14 @@ export type Database = {
           readiness_note: string | null
           request_id: string
           safety_flags: string[]
+          scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
         }
         Insert: {
           ai_copy: string
           ai_hashtags?: string[]
           ai_story_frames?: Json | null
+          approved_content_hash?: string | null
           asset_ids?: string[]
           bible_version: number
           brief_item?: string | null
@@ -7425,6 +7476,7 @@ export type Database = {
           format?: string
           id?: string
           idea_id: string
+          location_tag?: string | null
           model: string
           persona?: string | null
           pillar?: string | null
@@ -7437,12 +7489,14 @@ export type Database = {
           readiness_note?: string | null
           request_id: string
           safety_flags?: string[]
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
         }
         Update: {
           ai_copy?: string
           ai_hashtags?: string[]
           ai_story_frames?: Json | null
+          approved_content_hash?: string | null
           asset_ids?: string[]
           bible_version?: number
           brief_item?: string | null
@@ -7458,6 +7512,7 @@ export type Database = {
           format?: string
           id?: string
           idea_id?: string
+          location_tag?: string | null
           model?: string
           persona?: string | null
           pillar?: string | null
@@ -7470,6 +7525,7 @@ export type Database = {
           readiness_note?: string | null
           request_id?: string
           safety_flags?: string[]
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
         }
         Relationships: [
@@ -16047,15 +16103,31 @@ export type Database = {
         Returns: Record<string, unknown>
       }
       marketing_curator_user_ids: { Args: never; Returns: string[] }
+      marketing_decide_post_approval: {
+        Args: { _approval: string; _comment?: string; _decision: string }
+        Returns: string
+      }
       marketing_delete_capture_rows: {
         Args: { _capture_id: string }
         Returns: string[]
+      }
+      marketing_draft_hash: {
+        Args: {
+          d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
+        }
+        Returns: string
       }
       marketing_draft_library_project: {
         Args: {
           _asset_ids: string[]
           _capture_ids: string[]
           _project_id: string
+        }
+        Returns: string
+      }
+      marketing_draft_name_rule_violation: {
+        Args: {
+          d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
         }
         Returns: string
       }
@@ -16067,6 +16139,7 @@ export type Database = {
         Args: { p_secret: string }
         Returns: boolean
       }
+      marketing_fold: { Args: { _t: string }; Returns: string }
       marketing_intake_secret_matches: {
         Args: { p_secret: string }
         Returns: boolean
@@ -16083,6 +16156,20 @@ export type Database = {
         Args: { _media_id: string }
         Returns: string
       }
+      marketing_name_rule_terms: {
+        Args: { _location: string; _sector: string }
+        Returns: string[]
+      }
+      marketing_post_content_hash: {
+        Args: {
+          _caption: string
+          _format: string
+          _frames: Json
+          _hashtags: string[]
+          _media: string[]
+        }
+        Returns: string
+      }
       marketing_recheck_draft_readiness: {
         Args: { _draft_id: string }
         Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
@@ -16090,6 +16177,10 @@ export type Database = {
       marketing_reorder_capture_assets: {
         Args: { _asset_ids: string[]; _capture_id: string }
         Returns: undefined
+      }
+      marketing_request_post_approval: {
+        Args: { _approver: string; _comment?: string; _draft: string }
+        Returns: string
       }
       marketing_resolve_action: { Args: { _id: string }; Returns: string }
       marketing_set_capture_format: {
@@ -16807,6 +16898,9 @@ export type Database = {
         | "approved"
         | "rejected"
         | "published"
+        | "pending_approval"
+        | "scheduled"
+        | "failed"
       marketing_name_rule: "name" | "describe_only" | "never_mention"
       marketing_platform: "instagram" | "linkedin"
       marketing_sector:
@@ -17309,6 +17403,9 @@ export const Constants = {
         "approved",
         "rejected",
         "published",
+        "pending_approval",
+        "scheduled",
+        "failed",
       ],
       marketing_name_rule: ["name", "describe_only", "never_mention"],
       marketing_platform: ["instagram", "linkedin"],

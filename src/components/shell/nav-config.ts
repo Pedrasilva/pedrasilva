@@ -305,6 +305,7 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/marketing", labelKey: "marketing.inbox" },
           { to: "/marketing/posts", labelKey: "marketing.posts", permV2: "marketing.view", permV2Scope: "all" },
+          { to: "/marketing/calendar", labelKey: "marketing.calendar", permV2: "marketing.view", permV2Scope: "all" },
           { to: "/marketing/questions", labelKey: "marketing.questions", permV2: "marketing.curate", permV2Scope: "all", badge: "marketingQuestions" },
           { to: "/marketing/actions", labelKey: "marketing.actions", badge: "marketingActions" },
         ],

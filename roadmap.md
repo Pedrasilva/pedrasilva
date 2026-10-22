@@ -253,3 +253,10 @@
 - [x] Below-grid autosaving boxes, slot participants, existing project/opportunity picker, revision conflicts and audit labels; EN/PT parity verified.
 - [x] 18 unit/regression checks passed; rollback security checks cover team/private reads, dedicated grant, conflicts and conversion. Signed-in January 2099 project copy verified status/text autosave after reload, skipped-week carry-over and independent history. Test notes/project/stages/bookings/tasks deleted; zero fixtures remain. Migrations 0119/0120 mirrored byte-for-byte; preview build OK.
 - [x] Relative timeline by default for open proposals (18 moved; 2608/2609 live and 2670 sent/locked kept dates)
+
+## Current request — Marketing stage 1 (calendar, grid, colleague approval)
+- [x] Drafts extended (scheduled_at, location tag, approval hash, new statuses); approvals table + RPCs + triggers; migration 0144 mirrored.
+- [x] Calendar week/month with drag-to-day, warnings; Instagram grid; approval request/decision with bell + email; approvals page section; disabled publish button.
+- [x] 9 calendar rule tests; rolled-back database scenario (A–I) passed; pages open signed-in without errors.
+- [ ] Await Luis: existing readiness check treats every never_mention project as internal-only, so such posts can never be approved today; confirm whether to relax it to the new location/sector rule.
+- [ ] Drag-and-drop not exercised on screen (no approved drafts exist); real approval email not sent in tests.
