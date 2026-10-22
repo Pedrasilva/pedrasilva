@@ -425,6 +425,7 @@
       "inbox.triage": "Inbox",
       "inbox.settings": "Settings",
       "marketing.inbox": "Marketing Inbox",
+      "marketing.settings": "Settings",
       "marketing.bible": "Marketing Bible",
       "marketing.projects": "Project profiles",
       "marketing.posts": "Post planner",
@@ -446,6 +447,7 @@
       "marketing.projects": "Profiles",
       "marketing.questions": "Questions",
       "marketing.actions": "Actions",
+      "marketing.settings": "Settings",
       "marketing.bible": "Bible"
     },
     "subnavLabel": "Section pages"

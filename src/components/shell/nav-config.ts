@@ -314,6 +314,7 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/marketing/projects", labelKey: "marketing.projects" },
           { to: "/marketing/bible", labelKey: "marketing.bible" },
+          { to: "/marketing/settings", labelKey: "marketing.settings", permV2: "marketing.view", permV2Scope: "own" },
         ],
       },
     ],

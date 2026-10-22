@@ -1,4 +1,35 @@
 {
+  "meta": {
+    "title": "Ligação Meta",
+    "test": "Testar ligação",
+    "testing": "A testar…",
+    "connected": "Ligação confirmada",
+    "needsAttention": "Ligação requer atenção",
+    "notTested": "Ainda não testada",
+    "page": "Página Facebook",
+    "expiry": "Validade do token",
+    "neverExpires": "Sem expiração",
+    "dataExpiry": "Validade do acesso a dados",
+    "lastTest": "Último teste",
+    "connectedAt": "Ligada desde",
+    "permissions": "Permissões Meta",
+    "granted": "Concedida",
+    "missing": "Em falta",
+    "noAccess": "Não tem acesso às definições de Marketing.",
+    "errors": {
+      "identityFailed": "A Meta não conseguiu verificar o utilizador de sistema. Verifique o token e os ativos atribuídos.",
+      "debugFailed": "Não foi possível verificar os metadados do token. A Meta poderá exigir um token de acesso da aplicação para esta consulta.",
+      "accountsFailed": "Não foi possível obter todas as páginas Meta. Verifique a atribuição da página e as permissões.",
+      "ambiguousPage": "Existe mais de uma página ligada à conta Instagram esperada. Não foi selecionada nenhuma ligação.",
+      "pageNotFound": "Nenhuma página acessível está ligada a @pedrasilva_arquitectos. Verifique os ativos Página e Instagram atribuídos ao utilizador de sistema.",
+      "invalidToken": "A Meta indica que o token é inválido.",
+      "missingPermissions": "Faltam uma ou mais permissões Meta esperadas.",
+      "secretMissing": "O token do utilizador de sistema Meta não está configurado no servidor.",
+      "saveFailed": "Não foi possível guardar o resultado da ligação.",
+      "requestFailed": "Não foi possível concluir o teste. A sua conta tem de ser administradora.",
+      "loadFailed": "Não foi possível carregar as definições da ligação."
+    }
+  },
   "inbox": {
     "title": "Caixa de Marketing",
     "subtitle": "Material de toda a equipa, pronto a ser curado em publicações.",
