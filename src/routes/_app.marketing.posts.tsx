@@ -23,10 +23,13 @@ import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
 import { resolveDraftImages } from "@/lib/marketing/draft-images";
+import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
-  validateSearch: (s: Record<string, unknown>): { request?: string } =>
-    typeof s.request === "string" ? { request: s.request } : {},
+  validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string } => ({
+    ...(typeof s.request === "string" ? { request: s.request } : {}),
+    ...(typeof s.draft === "string" && /^[0-9a-f-]{36}$/i.test(s.draft) ? { draft: s.draft } : {}),
+  }),
   component: () => (
     <V2PermissionGate permission="marketing.view" scope="all">
       <PostPlannerPage />
@@ -45,7 +48,7 @@ export const Route = createFileRoute("/_app/marketing/posts")({
 });
 
 const BUCKET = "marketing-assets";
-const STATUSES = ["suggested", "approved", "rejected", "published"] as const;
+const STATUSES = ["suggested", "pending_approval", "approved", "scheduled", "rejected", "published", "failed"] as const;
 type Platform = "instagram" | "linkedin";
 type Draft = {
   id: string; request_id: string; idea_id: string; platform: Platform; capture_ids: string[]; asset_ids: string[];
@@ -53,7 +56,7 @@ type Draft = {
   final_copy: string | null; final_hashtags: string[] | null; rationale: string;
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
-  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null;
+  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
@@ -204,7 +207,7 @@ async function recheckDrafts(ids: string[]) {
 function PostPlannerPage() {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
-  const { request: focusRequest } = Route.useSearch();
+  const { request: requestParam, draft: focusDraft } = Route.useSearch();
   const generate = useServerFn(generatePostSuggestions);
   const [defStart, defEnd] = nextWeek();
   const [brief, setBrief] = useState("");
@@ -229,6 +232,10 @@ function PostPlannerPage() {
   const [statusFilter, setStatusFilter] = useState("active");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = usePlannerData();
+  const focusRequest = requestParam ?? (focusDraft ? data?.drafts.find((d) => d.id === focusDraft)?.request_id : undefined);
+  useEffect(() => {
+    if (focusDraft && data) setTimeout(() => document.getElementById(`draft-${focusDraft}`)?.scrollIntoView({ block: "center" }), 300);
+  }, [focusDraft, data]);
   const { data: bible } = useActiveBible();
   const rechecked = useRef(new Set<string>());
   useEffect(() => {
@@ -564,7 +571,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" id={`draft-${draft.id}`}>
       {isStory ? (
         <div className="space-y-2">
           {(showOriginal ? draft.ai_story_frames ?? [] : frames).map((f, i) => (
@@ -646,6 +653,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
       {canCurate && draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}
+      {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
+      <PostApprovalControls draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
