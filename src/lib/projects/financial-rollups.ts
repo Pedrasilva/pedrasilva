@@ -123,13 +123,16 @@ export function rollupExpenses(rows: ProjectExpenseLike[]): FinancialsRow {
 
 /** Sum any number of FinancialsRows component-wise. */
 export function sumFinancialsRows(...rows: FinancialsRow[]): FinancialsRow {
+  // Null legacy fields remain zero; an explicit non-finite valuation means
+  // incomplete and must survive aggregation rather than imply free labour.
+  const valuation = (v: unknown) => typeof v === "number" && !Number.isFinite(v) ? NaN : toNum(v);
   return rows.reduce<FinancialsRow>(
     (acc, r) => ({
-      budget: acc.budget + r.budget,
-      value: acc.value + r.value,
-      cost: acc.cost + r.cost,
-      profit: acc.profit + r.profit,
-      invoiced: acc.invoiced + r.invoiced,
+      budget: acc.budget + toNum(r.budget),
+      value: acc.value + valuation(r.value),
+      cost: acc.cost + valuation(r.cost),
+      profit: acc.profit + valuation(r.profit),
+      invoiced: acc.invoiced + toNum(r.invoiced),
     }),
     { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
   );
