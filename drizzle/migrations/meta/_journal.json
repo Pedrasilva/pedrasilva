@@ -1016,6 +1016,13 @@
       "when": 1792709501319,
       "tag": "0144_marketing_editorial_calendar_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1792712225806,
+      "tag": "0145_marketing_anonymous_readiness_gate",
+      "breakpoints": true
     }
   ]
 }
