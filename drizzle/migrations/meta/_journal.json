@@ -1002,6 +1002,13 @@
       "when": 1792450437159,
       "tag": "0142_finance_only_history_and_sales_exclusion",
       "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "7",
+      "when": 1792706837841,
+      "tag": "0143_marketing_meta_connection_settings",
+      "breakpoints": true
     }
   ]
 }

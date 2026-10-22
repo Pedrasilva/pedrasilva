@@ -425,6 +425,7 @@
       "inbox.triage": "Caixa de entrada",
       "inbox.settings": "Definições",
       "marketing.inbox": "Caixa de Marketing",
+      "marketing.settings": "Definições",
       "marketing.bible": "Bíblia de Marketing",
       "marketing.projects": "Perfis de projeto",
       "marketing.posts": "Planeador de publicações",
@@ -446,6 +447,7 @@
       "marketing.projects": "Perfis",
       "marketing.questions": "Perguntas",
       "marketing.actions": "Ações",
+      "marketing.settings": "Definições",
       "marketing.bible": "Bíblia"
     },
     "subnavLabel": "Páginas da secção"

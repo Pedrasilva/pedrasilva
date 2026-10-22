@@ -1,4 +1,35 @@
 {
+  "meta": {
+    "title": "Meta connection",
+    "test": "Test connection",
+    "testing": "Testing…",
+    "connected": "Connected",
+    "needsAttention": "Connection needs attention",
+    "notTested": "Not tested yet",
+    "page": "Facebook Page",
+    "expiry": "Token expiry",
+    "neverExpires": "No expiry",
+    "dataExpiry": "Data access expiry",
+    "lastTest": "Last test",
+    "connectedAt": "Connected since",
+    "permissions": "Meta permissions",
+    "granted": "Granted",
+    "missing": "Missing",
+    "noAccess": "You do not have access to Marketing settings.",
+    "errors": {
+      "identityFailed": "Meta could not verify the system user. Check the token and assigned assets.",
+      "debugFailed": "Token metadata could not be verified. Meta may require an app access token for inspection.",
+      "accountsFailed": "Meta Pages could not be fully retrieved. Check Page asset assignment and permissions.",
+      "ambiguousPage": "More than one Page is linked to the expected Instagram account. No connection was selected.",
+      "pageNotFound": "No accessible Page is linked to @pedrasilva_arquitectos. Check the system user’s assigned Page and Instagram assets.",
+      "invalidToken": "Meta reports that the token is invalid.",
+      "missingPermissions": "One or more expected Meta permissions are missing.",
+      "secretMissing": "The Meta system-user token is not configured on the server.",
+      "saveFailed": "The connection result could not be saved.",
+      "requestFailed": "The test could not be completed. Your account must be an administrator.",
+      "loadFailed": "Connection settings could not be loaded."
+    }
+  },
   "inbox": {
     "title": "Marketing Inbox",
     "subtitle": "Material from the whole team, ready to be curated into posts.",

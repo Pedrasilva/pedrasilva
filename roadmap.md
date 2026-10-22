@@ -1,3 +1,9 @@
+## Current request — Meta connection verification
+- [x] Token securely stored; authenticated server RPC checks has_role as caller before secret/Meta access. Graph v26.0 batch GET requests use POST bodies to prevent token-bearing URLs; only non-secret metadata returned/stored. No publishing.
+- [x] marketing_settings migration 0143 applied and mirrored exactly in supabase/migrations/20261022221000_marketing_meta_connection_settings.sql. Marketing staff read, admin-only writes, no anonymous read/TRUNCATE; all public client TRUNCATE grants remain zero.
+- [x] Real signed-in admin UI test and reload verified Page 1371527442865746, Instagram 17841400001084338 / pedrasilva_arquitectos, valid token with expires_at=0. Eight isolated unit tests and EN/PT parity passed; preview build OK. Server non-admin rejection tested with isolated handler, not a genuine second account browser session.
+- [ ] Full permission checklist awaits Luis: token lacks business_management; other six requested permissions granted. No publishing or automated retry scheduled.
+
 ## Current request — CRM pipeline and active projects
 - [x] Share direct/quote project linkage, deduplicated per project; all Won removed from board and retained through closed List.
 - [x] Active/paused projects tab excludes archived projects, flags unconverted Won and offers conversion; multiple quotes require explicit choice and enter existing Sign & Convert workflow.
