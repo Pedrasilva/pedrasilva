@@ -15758,6 +15758,15 @@ export type Database = {
         Returns: string
       }
       fin_row_visible: { Args: { _entity_id: string }; Returns: boolean }
+      fin_save_issued_pdf_draft: {
+        Args: {
+          _document_id?: string
+          _header: Json
+          _lines: Json
+          _queue_id: string
+        }
+        Returns: string
+      }
       fin_set_supplier_policy: {
         Args: {
           _company: string
