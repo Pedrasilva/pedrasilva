@@ -1,3 +1,4 @@
+import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 /**
  * Stage 6C — React hook that computes the full project forecast envelope
  * on-the-fly from existing PM data + Stage 6B baselines.
@@ -44,6 +45,7 @@ export interface ProjectForecastEnvelope {
 }
 
 export function useProjectForecastEnvelope(projectId: string | null | undefined) {
+  const { data: defaultRates, isLoading: ratesLoading } = useDefaultResourceRates();
   // Fetch stages + allocations + resources + baselines + placeholders.
   const stagesQ = useQuery<StageRow[]>({
     enabled: !!projectId,
@@ -153,7 +155,7 @@ export function useProjectForecastEnvelope(projectId: string | null | undefined)
       computeStageCoverage(s.id, baselineByStageId.get(s.id), placeholders, allocByStage),
     );
     const stageRecoverabilities = stages.map((s) =>
-      computeStageRecoverability(s, baselineByStageId.get(s.id), allocs, resourcesById),
+      computeStageRecoverability(s, baselineByStageId.get(s.id), allocs, resourcesById, defaultRates),
     );
 
     // Compute capacity over the smallest enclosing window of all allocations.
@@ -167,8 +169,8 @@ export function useProjectForecastEnvelope(projectId: string | null | undefined)
       winStart && winEnd
         ? resources.map((r) =>
             computeResourceCapacity(r, allocByResource.get(r.id) ?? 0, {
-              start: winStart!,
-              end: winEnd!,
+              start: winStart ?? "",
+              end: winEnd ?? "",
             }),
           )
         : [];
@@ -199,12 +201,13 @@ export function useProjectForecastEnvelope(projectId: string | null | undefined)
     projBaselineQ.data,
     stageBaselinesQ.data,
     placeholdersQ.data,
+    defaultRates,
   ]);
 
   return {
     envelope,
     isLoading:
-      stagesQ.isLoading ||
+      ratesLoading || stagesQ.isLoading ||
       allocsQ.isLoading ||
       resourcesQ.isLoading ||
       stageBaselinesQ.isLoading ||

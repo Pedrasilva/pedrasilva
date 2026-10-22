@@ -1,3 +1,8 @@
+## Current request — shared project financial calculations
+- [ ] Introduce common planning, entry valuation, completeness and profit primitives.
+- [ ] Align project detail, dashboards/reports, forecasts and fiscal project summary without changing stored data.
+- [ ] Run reconciliation/regression tests and disposable browser verification; retain explicit accounting/retainer/quote scopes.
+
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — historical documents, shareholder loans and duplicate preview

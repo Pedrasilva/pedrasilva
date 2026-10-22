@@ -52,11 +52,11 @@ export function useEstimateVsActualData() {
                 .range(a, b) as never,
             )
           : Promise.resolve([] as EvaStage[]),
-        fetchAll<{ task_id: string | null; hours: number; billable: boolean; cost_rate_snapshot: number | null }>((a, b) =>
+        fetchAll<{ id: string; user_id: string; pm_stage_id: string | null; sale_rate_snapshot: number | null; task_id: string | null; hours: number; billable: boolean; cost_rate_snapshot: number | null }>((a, b) =>
           supabase
             .from("pm_time_entries")
-            .select("task_id, hours, billable, cost_rate_snapshot")
-            .not("task_id", "is", null)
+            .select("id, user_id, pm_stage_id, sale_rate_snapshot, task_id, hours, billable, cost_rate_snapshot")
+            .eq("entry_type", "project")
             .order("id")
             .range(a, b) as never,
         ),

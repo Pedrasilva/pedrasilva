@@ -1,3 +1,5 @@
+import { plannedAllocationFigures } from "@/lib/projects/financial-calculation";
+import { effectiveRates } from "@/lib/projects/use-default-rates";
 import { useMemo, useState } from "react";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { Project, Resource, StageWithAllocations } from "@/lib/projects/types";
@@ -56,12 +58,8 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
           s.allocations.reduce(
             (a, al) =>
               a +
-              allocationCost({
-                start_date: al.start_date,
-                end_date: al.end_date,
-                hours_per_day: Number(al.hours_per_day),
-                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates, !!al.resource.hourly_rate_is_override),
-              }),
+              plannedAllocationFigures(al,effectiveRates(al.resource,defaultRates)).cost,
+
             0,
           ),
         0,

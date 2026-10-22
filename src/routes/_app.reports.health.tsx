@@ -1,3 +1,4 @@
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useMemo, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -61,6 +62,7 @@ function useHealth(start: string, end: string, dept: string, team: string) {
   const { data: stages } = useAllStages();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: userToResource } = useFinancialIdentities();
   const roster = data?.roster ?? [];
   const people = roster.filter((p) => (dept === "all" || p.department === dept) && (team === "all" || p.team === team));
   const filtered = dept !== "all" || team !== "all";
@@ -72,6 +74,7 @@ function useHealth(start: string, end: string, dept: string, team: string) {
     if (!data || !cost.data || !stages) return null;
     const stageById = new Map(stages.map((s) => [s.id, s]));
     const resolver = makeRateResolver({
+        userToResource,
       taskToStage: data.taskToStage,
       stageRepResource: (sid) => stageById.get(sid)?.allocations[0]?.resource_id ?? null,
       resources,
@@ -86,7 +89,7 @@ function useHealth(start: string, end: string, dept: string, team: string) {
       const r = resById.get(rid);
       return effectiveCostRate(r?.cost_rate, rid, defaultRates, !!r?.hourly_rate_is_override);
     };
-    const stageOf = (e: HealthEntry) => (e.task_id ? stageById.get(data.taskToStage.get(e.task_id) ?? "") : undefined);
+    const stageOf = (e: HealthEntry) => stageById.get(e.pm_stage_id ?? (e.task_id ? data.taskToStage.get(e.task_id) : undefined) ?? "");
     const targetOf = (p: RosterPerson) => (p.resourceId ? schedules?.get(p.resourceId)?.targetChargeabilityPct ?? null : null);
     const base = {
       roster: people,
@@ -107,7 +110,7 @@ function useHealth(start: string, end: string, dept: string, team: string) {
       return { key: m.key, cost: c, health: computeCompanyHealth({ ...base, start: m.start, end: m.end, fullCost: c?.total ?? 0 }) };
     });
     return { total, monthly };
-  }, [data, cost.data, stages, resources, defaultRates, schedules, people, start, end, months]);
+  }, [data, cost.data, stages, resources, defaultRates, userToResource, schedules, people, start, end, months]);
 
   return { data, result, cost: cost.data, isLoading: isLoading || cost.isLoading, error: error ?? cost.error, roster, noAccess: cost.data === null };
 }

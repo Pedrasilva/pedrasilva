@@ -1,3 +1,6 @@
+import { loggedEntryFigures } from "./financial-calculation";
+import { useDefaultResourceRates, effectiveRates } from "./use-default-rates";
+import { workingDays } from "./gantt-utils";
 import { lockedCostRate } from "@/lib/projects/use-default-rates";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,8 +69,9 @@ export interface ProjectInsights {
 }
 
 export function useProjectInsights(projectId: string) {
+  const {data:defaults} = useDefaultResourceRates();
   return useQuery({
-    queryKey: ["pm-project-insights", projectId],
+    queryKey: ["pm-project-insights", projectId, defaults],
     enabled: !!projectId,
     queryFn: async (): Promise<ProjectInsights> => {
       const { data: stages, error: sErr } = await supabase
@@ -92,7 +96,7 @@ export function useProjectInsights(projectId: string) {
           hourly_rate: number;
           cost_rate: number;
         };
-        tasks: { id: string }[];
+        tasks: { id: string }[] | { id: string };
       };
       const taskToAlloc = new Map<string, AllocLite>();
       const resourceTotals = new Map<string, ResourceWorkRow>();
@@ -105,7 +109,7 @@ export function useProjectInsights(projectId: string) {
       }>) {
         budgetTotal += Number(s.budget);
         for (const a of s.allocations) {
-          for (const t of a.tasks ?? []) {
+          for (const t of (Array.isArray(a.tasks) ? a.tasks : a.tasks ? [a.tasks] : [])) {
             allTaskIds.push(t.id);
             taskToAlloc.set(t.id, a);
           }
@@ -128,17 +132,22 @@ export function useProjectInsights(projectId: string) {
         }
       }
 
-      let entries: { task_id: string; entry_date: string; hours: number; billable: boolean; cost_rate_snapshot: number | null }[] = [];
+      let entries: { user_id: string; sale_rate_snapshot: number | null; task_id: string; entry_date: string; hours: number; billable: boolean; cost_rate_snapshot: number | null }[] = [];
       if (allTaskIds.length > 0) {
         const { data: tData, error: tErr } = await supabase
           .from("pm_time_entries")
-          .select("task_id, entry_date, hours, billable, cost_rate_snapshot")
+          .select("user_id, sale_rate_snapshot, task_id, entry_date, hours, billable, cost_rate_snapshot")
           .eq("entry_type", "project")
           .in("task_id", allTaskIds);
         if (tErr) throw tErr;
         entries = (tData ?? []) as typeof entries;
       }
 
+      const [mapping,resourceResult] = await Promise.all([supabase.rpc("pm_list_user_resource_map"),supabase.from("pm_resources").select("*")]);
+      if(mapping.error) throw mapping.error;
+      if(resourceResult.error) throw resourceResult.error;
+      const identity = new Map((mapping.data ?? []).map(r=>[r.user_id,r.resource_id]));
+      const resourceMap = new Map((resourceResult.data ?? []).map(r=>[r.id,r]));
       const monthMap = new Map<string, MonthlyPoint>();
       let loggedHours = 0;
       let billableHoursTotal = 0;
@@ -152,10 +161,11 @@ export function useProjectInsights(projectId: string) {
         const isBillable = !!e.billable;
         loggedHours += hours;
 
-        const rate = Number(alloc.resource.hourly_rate);
-        const costRate = Number(alloc.resource.cost_rate);
-        const sale = isBillable ? hours * rate : 0;
-        const cost = hours * lockedCostRate(e.cost_rate_snapshot, costRate);
+        const resourceId = identity.get(e.user_id);
+        const resource = resourceId ? resourceMap.get(resourceId) : undefined;
+        const figures = loggedEntryFigures(e,resource ? effectiveRates(resource,defaults) : {cost:NaN,sale:NaN});
+        const sale = figures.value;
+        const cost = figures.cost;
         if (isBillable) {
           billableHoursTotal += hours;
           earnedValue += sale;
@@ -164,7 +174,7 @@ export function useProjectInsights(projectId: string) {
         }
         servicesCost += cost;
 
-        const row = resourceTotals.get(alloc.resource.id);
+        const row = resourceId ? resourceTotals.get(resourceId) : undefined;
         if (row) {
           row.hours += hours;
           if (isBillable) row.billableHours += hours;
@@ -316,15 +326,4 @@ export function useProjectInsights(projectId: string) {
   });
 }
 
-function workingDaysBetween(start: string, end: string): number {
-  const s = parseISO(start);
-  const e = parseISO(end);
-  let count = 0;
-  const d = new Date(s);
-  while (d <= e) {
-    const day = d.getDay();
-    if (day !== 0 && day !== 6) count++;
-    d.setDate(d.getDate() + 1);
-  }
-  return Math.max(0, count);
-}
+function workingDaysBetween(start: string,end: string) { return workingDays(start,end); }

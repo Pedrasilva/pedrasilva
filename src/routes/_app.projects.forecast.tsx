@@ -1,3 +1,5 @@
+import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -63,11 +65,12 @@ function weightForMode(prob: ProjectProbability, mode: ForecastMode): number {
 }
 
 export const Route = createFileRoute("/_app/projects/forecast")({
+  head: () => ({meta:[{title:"Project forecast — PSA Hub"},{name:"description",content:"Planned project capacity, sale value and costs."},{property:"og:title",content:"Project forecast — PSA Hub"},{property:"og:description",content:"Planned project capacity, sale value and costs."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),
   component: ForecastPage,
 });
 
 const euros = (n: number) =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(
+  !Number.isFinite(n) ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(
     Number.isFinite(n) ? n : 0,
   );
 const hoursFmt = (n: number) =>
@@ -146,7 +149,7 @@ function useActualByMonth(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, cost_rate_snapshot")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, pm_stage_id, sale_rate_snapshot, cost_rate_snapshot")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
@@ -158,6 +161,8 @@ function useActualByMonth(monthStartISO: string, monthEndISO: string) {
         hours: number;
         entry_date: string;
         task_id: string | null;
+        pm_stage_id: string | null;
+        sale_rate_snapshot: number | null;
         cost_rate_snapshot: number | null;
       }>;
 
@@ -214,6 +219,7 @@ function ForecastPage() {
   const { data: stages } = useAllStages();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: identities } = useFinancialIdentities();
   const { data: leaveByResource } = useLeaveByResource();
   const { data: holidays } = useHolidays();
   const { data: projects } = useProjectsLite();
@@ -523,19 +529,23 @@ function ForecastPage() {
     for (const e of actual.entries) {
       if (e.entry_type !== "project") continue;
       const meta = e.task_id ? actual.taskMeta.get(e.task_id) : undefined;
-      if (!meta) continue;
-      const resource = resourceMap.get(meta.resource_id);
-      const cost = lockedCostRate(e.cost_rate_snapshot, effectiveCostRate(resource?.cost_rate ?? meta.cost_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override));
-      const sale = effectiveSaleRate(resource?.hourly_rate ?? meta.sale_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override);
+      const directStage = e.pm_stage_id ? stages?.find(s=>s.id===e.pm_stage_id) : undefined;
+      const projectId = directStage?.project_id ?? meta?.project_id;
+      if (!projectId) continue;
+      const resourceId = identities?.get(e.user_id);
+      const resource = resourceId ? resourceMap.get(resourceId) : undefined;
+      const figures = loggedEntryFigures(e, {cost: resource ? effectiveCostRate(resource.cost_rate,resource.id,defaultRates,!!resource.hourly_rate_is_override) : NaN,sale:resource ? effectiveSaleRate(resource.hourly_rate,resource.id,defaultRates,!!resource.hourly_rate_is_override) : NaN},directStage?.stage_kind?.startsWith("retainer") ?? false);
+      const cost = Number(e.hours) ? figures.cost / Number(e.hours) : 0;
+      const sale = figures.billableHours ? figures.value / figures.billableHours : 0;
 
-      const cur = m.get(meta.project_id) ?? { hours: 0, revenue: 0, cost: 0, billableHours: 0 };
+      const cur = m.get(projectId) ?? { hours: 0, revenue: 0, cost: 0, billableHours: 0 };
       cur.hours += Number(e.hours);
       cur.cost += Number(e.hours) * cost;
       if (e.billable) {
         cur.billableHours += Number(e.hours);
         cur.revenue += Number(e.hours) * sale;
       }
-      m.set(meta.project_id, cur);
+      m.set(projectId, cur);
 
       totalH += Number(e.hours);
       totalCost += Number(e.hours) * cost;
@@ -546,7 +556,7 @@ function ForecastPage() {
     }
 
     return { byProject: m, totalH, totalBillH, totalRev, totalCost };
-  }, [actual, resourceMap, defaultRates]);
+  }, [actual, resourceMap, defaultRates, identities, stages]);
 
   // 6-month forecast trend (current month + next 5). Each project's revenue
   // and cost in each month are weighted by the same probability rule used in

@@ -13,7 +13,7 @@ export function useBillableSplitData(start: string, end: string) {
         fetchAll<SplitEntry>((a, b) =>
           supabase
             .from("pm_time_entries")
-            .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, internal_category")
+            .select("id, pm_stage_id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, internal_category")
             .gte("entry_date", start)
             .lte("entry_date", end)
             .order("id")

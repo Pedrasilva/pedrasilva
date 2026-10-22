@@ -1,3 +1,4 @@
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -58,6 +59,7 @@ function EstimatesPage() {
   const { data, isLoading, error } = useEstimateVsActualData();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: userToResource } = useFinancialIdentities();
   const [status, setStatus] = useState("all");
   const [client, setClient] = useState("all");
   const [ptype, setPtype] = useState("all");
@@ -83,6 +85,7 @@ function EstimatesPage() {
     for (const list of byProject.values()) for (const [k, v] of buildStageNumberMap(list as never)) numbers.set(k, v);
     const stageById = new Map(own.map((s) => [s.id, { id: s.id, project_id: s.project_id, billing_model: s.billing_model, allocations: s.pm_allocations ?? [] } as StageLite]));
     const actuals = stageActuals({
+      userToResource,
       entries: data.entries,
       taskToStage: data.taskToStage,
       stageById,
@@ -149,7 +152,7 @@ function EstimatesPage() {
         };
       });
     return rows;
-  }, [data, resById, defaultRates, avgSale]);
+  }, [data, resById, defaultRates, userToResource, avgSale]);
 
   const clients = useMemo(() => [...new Set((base ?? []).map((r) => r.client).filter(Boolean))].sort(), [base]);
 

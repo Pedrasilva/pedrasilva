@@ -9,10 +9,11 @@ export function useBudgetConsumptionData(upTo: string) {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const [entries, tasks, mats, exps, team, roster] = await Promise.all([
-        fetchAll<{ task_id: string | null; hours: number; billable: boolean; cost_rate_snapshot: number | null }>((a, b) =>
+        fetchAll<{ id: string; user_id: string; pm_stage_id: string | null; sale_rate_snapshot: number | null; task_id: string | null; hours: number; billable: boolean; cost_rate_snapshot: number | null }>((a, b) =>
           supabase
             .from("pm_time_entries")
-            .select("task_id, hours, billable, cost_rate_snapshot")
+            .select("id, user_id, pm_stage_id, sale_rate_snapshot, task_id, hours, billable, cost_rate_snapshot")
+            .eq("entry_type", "project")
             .lte("entry_date", upTo)
             .order("id")
             .range(a, b) as never,

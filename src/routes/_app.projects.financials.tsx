@@ -1,3 +1,4 @@
+import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -68,15 +69,16 @@ import {
 } from "@/lib/projects/non-working-sync";
 
 export const Route = createFileRoute("/_app/projects/financials")({
+  head: () => ({meta:[{title:"Financial performance — PSA Hub"},{name:"description",content:"Earned revenue, locked costs and profitability by collaborator."},{property:"og:title",content:"Financial performance — PSA Hub"},{property:"og:description",content:"Earned revenue, locked costs and profitability by collaborator."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),
   component: FinancialsPage,
 });
 
 const euros = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  !Number.isFinite(n) ? "—" : new Intl.NumberFormat("pt-PT", {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
-  }).format(Number.isFinite(n) ? n : 0);
+  }).format(n);
 
 const hours = (n: number) =>
   `${(Number.isFinite(n) ? n : 0).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} h`;
@@ -104,6 +106,7 @@ type EntryLite = {
   task_id: string | null;
   internal_category: string | null;
   cost_rate_snapshot?: number | string | null;
+  sale_rate_snapshot?: number | null;
 };
 
 // Fixed list of internal cost centers (kept in sync with use-timesheet.ts).
@@ -225,7 +228,7 @@ function useMonthEntries(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category, cost_rate_snapshot")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category, cost_rate_snapshot, sale_rate_snapshot")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
@@ -271,38 +274,9 @@ function useUserToResource(monthStartISO: string) {
   return useQuery({
     queryKey: ["fin-user-resource", monthStartISO],
     queryFn: async (): Promise<Map<string, string>> => {
-      // Pull all project-typed entries from the last 6 months to build mapping
-      const sixMonthsAgo = format(subMonths(parseISO(monthStartISO), 6), "yyyy-MM-dd");
-      const { data, error } = await supabase
-        .from("pm_time_entries")
-        .select("user_id, task_id")
-        .eq("entry_type", "project")
-        .gte("entry_date", sixMonthsAgo)
-        .not("task_id", "is", null);
-      if (error) throw error;
-      const rows = (data ?? []) as { user_id: string; task_id: string | null }[];
-      const taskIds = Array.from(new Set(rows.map((r) => r.task_id!).filter(Boolean)));
-      if (taskIds.length === 0) return new Map();
-
-      const { data: tdata, error: tErr } = await supabase
-        .from("pm_tasks")
-        .select("id, allocation:pm_allocations(resource_id)")
-        .in("id", taskIds);
-      if (tErr) throw tErr;
-      const taskToRes = new Map<string, string>();
-      for (const t of (tdata ?? []) as Array<{
-        id: string;
-        allocation: { resource_id: string } | null;
-      }>) {
-        if (t.allocation?.resource_id) taskToRes.set(t.id, t.allocation.resource_id);
-      }
-
-      const userToRes = new Map<string, string>();
-      for (const r of rows) {
-        if (!r.task_id) continue;
-        const res = taskToRes.get(r.task_id);
-        if (res && !userToRes.has(r.user_id)) userToRes.set(r.user_id, res);
-      }
+      const {data,error} = await supabase.rpc("pm_list_user_resource_map");
+      if(error) throw error;
+      const userToRes = new Map((data ?? []).filter(r=>r.resource_id).map(r=>[r.user_id,r.resource_id as string]));
       return userToRes;
     },
   });
@@ -417,13 +391,7 @@ function FinancialsPage() {
     const entries = monthData?.entries ?? [];
     const taskMap = monthData?.taskMap ?? new Map<string, TaskMeta>();
     return entries.map((e) => {
-      let resourceId: string | null = null;
-      if (e.entry_type === "project" && e.task_id) {
-        resourceId = taskMap.get(e.task_id)?.resource_id ?? null;
-      }
-      if (!resourceId) {
-        resourceId = userToRes?.get(e.user_id) ?? null;
-      }
+      const resourceId = userToRes?.get(e.user_id) ?? null;
       return { ...e, resource_id: resourceId };
     });
   }, [monthData, userToRes]);
@@ -453,12 +421,9 @@ function FinancialsPage() {
     for (const e of filteredEntries) {
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
-      const saleRate = res
-        ? (e.entry_type === "project" && monthData?.taskMap.get(e.task_id ?? "")?.sale_rate
-            ? Number(monthData.taskMap.get(e.task_id ?? "")?.sale_rate)
-            : effectiveSaleRate(res.hourly_rate, res.id, defaults, !!res.hourly_rate_is_override))
-        : 0;
+      const figures = loggedEntryFigures(e, { cost: res ? effectiveCostRate(res.cost_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN, sale: res ? effectiveSaleRate(res.hourly_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN });
+      const costRate = Number(e.hours) ? figures.cost / Number(e.hours) : 0;
+      const saleRate = figures.billableHours ? figures.value / figures.billableHours : 0;
 
       const entryCost = h * costRate;
       cost += entryCost;
@@ -589,7 +554,8 @@ function FinancialsPage() {
       const cat = (e.internal_category ?? "").trim() || "Uncategorised";
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
+      const figures = loggedEntryFigures(e, { cost: res ? effectiveCostRate(res.cost_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN, sale: res ? effectiveSaleRate(res.hourly_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN });
+      const costRate = Number(e.hours) ? figures.cost / Number(e.hours) : 0;
       const cur = map.get(cat) ?? { category: cat, hours: 0, cost: 0 };
       cur.hours += h;
       cur.cost += h * costRate;
@@ -1278,7 +1244,7 @@ function useTrailingTrend(
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("user_id, entry_type, billable, hours, entry_date, task_id, cost_rate_snapshot")
+        .select("user_id, entry_type, billable, hours, entry_date, task_id, cost_rate_snapshot, sale_rate_snapshot")
         .gte("entry_date", start)
         .lte("entry_date", end);
       if (error) throw error;
@@ -1312,14 +1278,9 @@ function useTrailingTrend(
         );
       }
 
-      // user -> resource fallback (same as main hook)
-      const userToRes = new Map<string, string>();
-      for (const e of list) {
-        if (e.entry_type === "project" && e.task_id) {
-          const r = taskMap.get(e.task_id)?.resource_id;
-          if (r && !userToRes.has(e.user_id)) userToRes.set(e.user_id, r);
-        }
-      }
+      const mapping = await supabase.rpc("pm_list_user_resource_map");
+      if(mapping.error) throw mapping.error;
+      const userToRes = new Map((mapping.data ?? []).filter(r=>r.resource_id).map(r=>[r.user_id,r.resource_id as string]));
 
       // Build 12 buckets
       const buckets = new Map<string, { revenue: number; cost: number; profit: number; label: string }>();
@@ -1330,23 +1291,16 @@ function useTrailingTrend(
       }
 
       for (const e of list) {
-        let resourceId: string | null = null;
-        if (e.entry_type === "project" && e.task_id) {
-          resourceId = taskMap.get(e.task_id)?.resource_id ?? null;
-        }
-        if (!resourceId) resourceId = userToRes.get(e.user_id) ?? null;
+        const resourceId = userToRes.get(e.user_id) ?? null;
 
         if (filteredResourceIds.size > 0) {
           if (!resourceId || !filteredResourceIds.has(resourceId)) continue;
         }
 
         const res = resourceId ? resourceMap.get(resourceId) : null;
-        const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
-        const saleRate = res
-          ? (e.entry_type === "project" && taskMap.get(e.task_id ?? "")?.sale_rate
-              ? Number(taskMap.get(e.task_id ?? "")?.sale_rate)
-              : effectiveSaleRate(res.hourly_rate, res.id, defaults, !!res.hourly_rate_is_override))
-          : 0;
+        const figures = loggedEntryFigures(e, { cost: res ? effectiveCostRate(res.cost_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN, sale: res ? effectiveSaleRate(res.hourly_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN });
+      const costRate = Number(e.hours) ? figures.cost / Number(e.hours) : 0;
+        const saleRate = figures.billableHours ? figures.value / figures.billableHours : 0;
         const h = Number(e.hours) || 0;
         const monthKey = e.entry_date.slice(0, 7);
         const b = buckets.get(monthKey);
@@ -1978,35 +1932,9 @@ function useBusinessDevReport(
       if (eErr) throw eErr;
       const bdList = (bdEntries ?? []) as EntryLite[];
 
-      // Map user_id -> resource_id (best-effort, via any project entry)
-      const { data: anyProj } = await supabase
-        .from("pm_time_entries")
-        .select("user_id, task_id")
-        .eq("entry_type", "project")
-        .not("task_id", "is", null)
-        .limit(500);
-
-      const projRows = (anyProj ?? []) as { user_id: string; task_id: string | null }[];
-      const taskIds = Array.from(new Set(projRows.map((r) => r.task_id!).filter(Boolean)));
-      const taskToRes = new Map<string, string>();
-      if (taskIds.length > 0) {
-        const { data: tdata } = await supabase
-          .from("pm_tasks")
-          .select("id, allocation:pm_allocations(resource_id)")
-          .in("id", taskIds);
-        for (const t of (tdata ?? []) as Array<{
-          id: string;
-          allocation: { resource_id: string } | null;
-        }>) {
-          if (t.allocation?.resource_id) taskToRes.set(t.id, t.allocation.resource_id);
-        }
-      }
-      const userToRes = new Map<string, string>();
-      for (const r of projRows) {
-        if (!r.task_id) continue;
-        const res = taskToRes.get(r.task_id);
-        if (res && !userToRes.has(r.user_id)) userToRes.set(r.user_id, res);
-      }
+      const mapping = await supabase.rpc("pm_list_user_resource_map");
+      if(mapping.error) throw mapping.error;
+      const userToRes = new Map((mapping.data ?? []).filter(r=>r.resource_id).map(r=>[r.user_id,r.resource_id as string]));
 
       let bdHours = 0;
       let bdCost = 0;
@@ -2015,7 +1943,8 @@ function useBusinessDevReport(
         bdHours += h;
         const resId = userToRes.get(e.user_id) ?? null;
         const res = resId ? resourceMap.get(resId) : null;
-        const costRate = lockedCostRate(e.cost_rate_snapshot, res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0);
+        const figures = loggedEntryFigures(e, { cost: res ? effectiveCostRate(res.cost_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN, sale: res ? effectiveSaleRate(res.hourly_rate,res.id,defaults,!!res.hourly_rate_is_override) : NaN });
+      const costRate = Number(e.hours) ? figures.cost / Number(e.hours) : 0;
         bdCost += h * costRate;
       }
 

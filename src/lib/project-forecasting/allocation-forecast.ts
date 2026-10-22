@@ -1,3 +1,4 @@
+import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 /**
  * Stage 6C — Daily allocation forecast distribution.
  *
@@ -28,6 +29,8 @@ export function distributeAllocationToDaily(
   resource: ResourceRow | undefined,
   opts: DistributeOptions = {},
 ): DailyForecastPoint[] {
+  if (alloc.planning_removed_at) return [];
+  const holidays = getWorkingCalendarHolidays();
   const excludeWeekends = opts.excludeWeekends !== false;
 
   const start = parseISO(alloc.start_date);
@@ -37,12 +40,12 @@ export function distributeAllocationToDaily(
 
   if (end < start) return [];
 
-  const hoursPerDay = Number(alloc.hours_per_day) || 0;
+  const hoursPerDay = Number(alloc.hours_per_day) || (Number(alloc.allocation_percentage) || 0) / 100 * ((Number(resource?.weekly_capacity) || 40) / 5);
   if (hoursPerDay <= 0) return [];
 
   const out: DailyForecastPoint[] = [];
   for (let d = start; d <= end; d = addDays(d, 1)) {
-    if (excludeWeekends && isWeekend(d)) continue;
+    if (excludeWeekends && (isWeekend(d) || holidays.has(format(d,"yyyy-MM-dd")))) continue;
     if (winStart && d < winStart) continue;
     if (winEnd && d > winEnd) continue;
 

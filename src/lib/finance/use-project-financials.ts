@@ -1,3 +1,7 @@
+import { billedProjectAmounts, documentProjectAmounts } from "./project-document-figures";
+import { isBilledDocument, billedSign } from "./provisional-invoicing";
+import { fetchAll } from "@/lib/reports/use-hours-logged";
+import { financialResult } from "@/lib/projects/financial-calculation";
 /**
  * Project ↔ Finance integration (read-only aggregation).
  *
@@ -66,6 +70,8 @@ type LineRow = {
 type DocRow = {
   id: string;
   direction: "issued" | "received";
+  doc_type: string;
+  sales_excluded: boolean;
   status: string;
   project_id: string | null;
   subtotal_ex_vat: number | null;
@@ -85,38 +91,19 @@ export function useProjectFinancialSummary(projectId?: string | null) {
     queryKey: ["project-financial-summary", projectId ?? "all"],
     queryFn: async (): Promise<ProjectFinancialSummary[]> => {
       // 1. Documents (header-level project link, billed totals, status filter)
-      let docsQ = supabase
-        .from("financial_documents")
-        .select("id, direction, status, project_id, subtotal_ex_vat")
-        .not("status", "in", "(draft,cancelled)");
-      if (projectId) docsQ = docsQ.eq("project_id", projectId);
-      const docsRes = await docsQ;
-      if (docsRes.error) throw docsRes.error;
-      const docs = (docsRes.data ?? []) as DocRow[];
-
-      // 2. Lines for those documents (cost attribution + reimbursable split)
-      const docIds = docs.map((d) => d.id);
-      let lines: LineRow[] = [];
-      if (docIds.length > 0) {
-        const { data, error } = await supabase
-          .from("financial_document_lines")
-          .select(
-            "document_id, project_id, amount_ex_vat, reimbursable, classification:financial_classifications(code)",
-          )
-          .in("document_id", docIds);
-        if (error) throw error;
-        lines = (data ?? []) as unknown as LineRow[];
-      }
-
-      // 3. Payments for those documents (cash truth)
-      let payments: PaymentRow[] = [];
-      if (docIds.length > 0) {
-        const { data, error } = await supabase
-          .from("financial_document_payments")
-          .select("document_id, amount")
-          .in("document_id", docIds);
-        if (error) throw error;
-        payments = (data ?? []) as PaymentRow[];
+      // RLS retains entity/permission boundaries. Load lines before filtering
+      // projects: multi-project documents may have an unrelated header.
+      const docs = await fetchAll<DocRow>((a,b) => supabase.from("financial_documents").select("id,direction,doc_type,sales_excluded,status,project_id,subtotal_ex_vat").not("status","in","(draft,cancelled)").order("id").range(a,b) as never);
+      const docIds = docs.map(d=>d.id);
+      const lines: LineRow[] = [];
+      const payments: PaymentRow[] = [];
+      for(let i=0;i<docIds.length;i+=200) {
+        const ids=docIds.slice(i,i+200);
+        const [ls,ps]=await Promise.all([
+          fetchAll<LineRow>((a,b)=>supabase.from("financial_document_lines").select("document_id,project_id,amount_ex_vat,reimbursable,classification:financial_classifications(code)").in("document_id",ids).order("id").range(a,b) as never),
+          fetchAll<PaymentRow>((a,b)=>supabase.from("financial_document_payments").select("document_id,amount").in("document_id",ids).order("id").range(a,b) as never),
+        ]);
+        lines.push(...ls); payments.push(...ps);
       }
 
       // 4. Project names
@@ -178,12 +165,9 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         if (l.reimbursable) row.reimbursable_cost += amt;
       }
 
-      // 7. Billed totals from issued doc headers
-      for (const d of docs) {
-        if (d.direction !== "issued") continue;
-        if (!d.project_id) continue;
-        const row = ensure(d.project_id);
-        row.total_billed += Number(d.subtotal_ex_vat ?? 0);
+      // Same canonical fiscal definition as Project Billing.
+      for (const d of docs) for(const [pid, amount] of billedProjectAmounts(d,lines)) {
+        if(!projectId || pid===projectId) ensure(pid).total_billed += amount;
       }
 
       // 7b. Reimbursable billed: sum issued lines flagged reimbursable
@@ -191,12 +175,12 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         if (!l.reimbursable) continue;
         const doc = docsById.get(l.document_id);
         if (!doc) continue;
-        if (doc.direction !== "issued") continue;
+        if (!isBilledDocument(doc)) continue;
         const pid = l.project_id ?? doc.project_id;
         if (!pid) continue;
         if (projectId && pid !== projectId) continue;
         const row = ensure(pid);
-        row.reimbursable_billed += Number(l.amount_ex_vat ?? 0);
+        row.reimbursable_billed += billedSign(doc) * Number(l.amount_ex_vat ?? 0);
       }
 
       // 8. Cash from payments — split by direction of the parent doc.
@@ -211,24 +195,26 @@ export function useProjectFinancialSummary(projectId?: string | null) {
 
       for (const p of payments) {
         const doc = docsById.get(p.document_id);
-        if (!doc || !doc.project_id) continue;
-        const row = ensure(doc.project_id);
-        const amt = Number(p.amount ?? 0);
-        if (doc.direction === "issued") {
-          row.total_received += amt;
-          const reimb = reimbShareByDoc.get(doc.id) ?? 0;
-          const sub = Number(doc.subtotal_ex_vat ?? 0);
-          if (reimb > 0 && sub > 0) {
-            row.reimbursable_received += amt * (reimb / sub);
-          }
-        } else {
-          row.total_paid += amt;
+        if (!doc || doc.sales_excluded) continue;
+        const amounts = documentProjectAmounts(doc, lines);
+        const denominator = [...amounts.values()].reduce((n,a)=>n+a,0);
+        for(const [pid, net] of amounts) {
+          if(projectId && pid!==projectId) continue;
+          // Existing payment rows are the only cash source. Do not add bank
+          // evidence or merge the historical duplicates awaiting approval.
+          const amt = Number(p.amount ?? 0) * (denominator !== 0 ? net/denominator : amounts.size===1 ? 1 : 0);
+          const row = ensure(pid);
+          if (doc.direction === "issued") {
+            row.total_received += amt;
+            const reimb = lines.filter(l=>l.document_id===doc.id && l.reimbursable && (l.project_id ?? doc.project_id)===pid).reduce((n,l)=>n+Number(l.amount_ex_vat ?? 0),0);
+            if(net>0) row.reimbursable_received += amt*reimb/net;
+          } else row.total_paid += amt;
         }
       }
 
       // 9. Derived totals
       for (const row of acc.values()) {
-        row.margin = row.total_billed - row.total_cost;
+        row.margin = financialResult(row.total_billed,row.total_cost).profit;
         row.cash_position = row.total_received - row.total_paid;
         row.reimbursable_unbilled =
           row.reimbursable_cost - row.reimbursable_billed;

@@ -1,3 +1,4 @@
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -98,6 +99,7 @@ function BudgetPage() {
   const { data: stages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: userToResource } = useFinancialIdentities();
   const { data: pursuitRows } = usePursuitTotals(null, true);
   const { data: sup, isLoading: supLoading } = useSupplierStages();
 
@@ -123,6 +125,7 @@ function BudgetPage() {
     if (!data || !projects || !stages || !sup) return [];
     const otherSplit = splitOtherCosts(sup.items, sup.keysByProject);
     const byStage = stageActuals({
+      userToResource,
       entries: data.entries,
       taskToStage: data.taskToStage,
       stageById,
@@ -187,7 +190,7 @@ function BudgetPage() {
         _client: p.client ?? "",
       } as Row & { _status: string; _client: string };
     });
-  }, [data, projects, stages, stageById, resById, defaultRates, pursuit, asOf, sup]);
+  }, [data, projects, stages, stageById, resById, defaultRates, userToResource, pursuit, asOf, sup]);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();

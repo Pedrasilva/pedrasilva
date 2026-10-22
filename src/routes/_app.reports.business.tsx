@@ -1,3 +1,4 @@
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -91,6 +92,7 @@ function BusinessPage() {
   const { data: projects } = useProjects();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: userToResource } = useFinancialIdentities();
   const { data: schedules } = useResourceSchedules();
 
   const stageById = useMemo(() => new Map((stages ?? []).map((s) => [s.id, s])), [stages]);
@@ -98,15 +100,16 @@ function BusinessPage() {
   const ratesFor = useMemo(
     () =>
       makeRateResolver({
+        userToResource,
         taskToStage: data?.taskToStage,
         stageRepResource: (sid) => stageById.get(sid)?.allocations[0]?.resource_id ?? null,
         resources,
         defaultRates,
       }),
-    [data, stageById, resources, defaultRates],
+    [data, stageById, resources, defaultRates, userToResource],
   );
   const projectOf = (e: BPEntry) => {
-    const sid = e.task_id ? data?.taskToStage.get(e.task_id) : undefined;
+    const sid = e.pm_stage_id ?? (e.task_id ? data?.taskToStage.get(e.task_id) : undefined);
     return sid ? stageById.get(sid)?.project_id ?? null : null;
   };
 

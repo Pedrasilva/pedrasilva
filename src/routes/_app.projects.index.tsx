@@ -1,3 +1,5 @@
+import { financialResult } from "@/lib/projects/financial-calculation";
+import { fetchAll } from "@/lib/reports/use-hours-logged";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -108,6 +110,7 @@ const STATUS_FILTER_KEYS: { key: "active" | "paused" | "closing" | "archived" | 
 type Period = "week" | "month";
 
 interface TimeEntryRow {
+  sale_rate_snapshot?: number | null;
   user_id: string;
   task_id: string | null;
   entry_date: string;
@@ -127,7 +130,7 @@ function useMonthEntries(periodStart: string, periodEnd: string) {
     queryFn: async (): Promise<TimeEntryRow[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id")
+        .select("id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id")
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
@@ -333,12 +336,9 @@ function DashboardPage() {
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pm_time_entries")
-        .select("task_id, hours, billable, cost_rate_snapshot")
-        .eq("entry_type", "project");
-      if (error) throw error;
+      const data = await fetchAll<{id:string;user_id:string;pm_stage_id:string|null;sale_rate_snapshot:number|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null}>((a,b) => supabase.from("pm_time_entries").select("id,user_id,pm_stage_id,sale_rate_snapshot,task_id,hours,billable,cost_rate_snapshot").eq("entry_type","project").order("id").range(a,b) as never);
       return (data ?? []).map((r) => ({
+        ...r,
         task_id: r.task_id as string | null,
         hours: Number(r.hours ?? 0),
         billable: r.billable,
@@ -414,6 +414,7 @@ function DashboardPage() {
       loggedHours: number;
       /** Revenue earned on time-and-materials (hourly) stages: billable hours × sale rate. */
       tmRevenue: number;
+      earnedRevenue: number;
       /** Hours logged to the project that are not chargeable to the client (cost only). */
       nonBillableHours: number;
     };
@@ -429,6 +430,7 @@ function DashboardPage() {
           expensesCost: 0,
           loggedHours: 0,
           tmRevenue: 0,
+          earnedRevenue: 0,
           nonBillableHours: 0,
         };
         m.set(pid, cur);
@@ -438,6 +440,7 @@ function DashboardPage() {
     if (allEntries && taskToStage) {
       const resById = new Map((resources ?? []).map((r) => [r.id, r]));
       const byStage = stageActuals({
+        userToResource: new Map([...(identityMap ?? new Map()).values()].filter(i=>i.resourceId).map(i=>[i.userId,i.resourceId as string])),
         entries: allEntries,
         taskToStage,
         stageById: stageById as unknown as Map<string, StageLite>,
@@ -456,6 +459,7 @@ function DashboardPage() {
         cur.nonBillableHours += a.nonBillableHours;
         cur.laborCost += a.laborCost;
         cur.tmRevenue += a.tmRevenue;
+        cur.earnedRevenue += a.earnedRevenue;
       }
     }
 
@@ -473,7 +477,7 @@ function DashboardPage() {
       }
     }
     return m;
-  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraByProject, invoicedByProject]);
+  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraByProject, invoicedByProject, identityMap]);
 
   // Planned hours per project = Σ allocationHours across stages.
   const projectPlannedHours = useMemo(() => {
@@ -491,8 +495,7 @@ function DashboardPage() {
     const loggedByStage = new Map<string, number>();
     if (allEntries && taskToStage) {
       for (const e of allEntries) {
-        if (!e.task_id) continue;
-        const stageId = taskToStage.get(e.task_id);
+        const stageId = e.pm_stage_id ?? (e.task_id ? taskToStage.get(e.task_id) : undefined);
         if (!stageId) continue;
         loggedByStage.set(stageId, (loggedByStage.get(stageId) ?? 0) + e.hours);
       }
@@ -551,28 +554,20 @@ function DashboardPage() {
         expensesCost: 0,
         loggedHours: 0,
         tmRevenue: 0,
+        earnedRevenue: 0,
         nonBillableHours: 0,
       };
       const pursuit = pursuitMap.get(p.id) ?? { hours: 0, cost: 0 };
       // Pre-contract (pursuit) cost counts as labour on the won project.
       const laborCost = actual.laborCost + pursuit.cost;
-      const isTM =
-        actual.tmRevenue > 0 ||
-        ps.some((s) => (s as { billing_model?: string | null }).billing_model === "hourly");
-      // Actual Revenue column = invoiced-to-date (sent/paid/overdue invoices).
-      // Time-and-materials work that hasn't been invoiced yet still counts as
-      // earned revenue, so it fills in when no invoice exists.
-      const actualRevenue = actual.invoicedRevenue > 0 ? actual.invoicedRevenue : actual.tmRevenue;
-      // Actual Cost column = true burn: labour + materials + expenses (purchase).
-      // Payments to supplier-stage suppliers are excluded from actual cost.
-      const actualCost = laborCost + actual.materialsCost + actual.expensesCost - extPaid;
-      // Profit = (Budget + T&M earned + materials.sale_price) − (labour + expenses).
-      // Materials sit on the revenue side (charged on top of budget); expenses
-      // and hours are pure cost. Hourly stages carry no budget, so their
-      // revenue comes from billable hours × sale rate instead.
-      const totalRevenueBase = budget + actual.tmRevenue + actual.materialsSale;
-      const profit = totalRevenueBase - laborCost - Math.max(0, actual.expensesCost - extPaid);
-      const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
+      // Same operational basis as project Insights: earned labour + sold
+      // external services, never replaced by invoices or contract budget.
+      const actualRevenue = actual.earnedRevenue + actual.materialsSale;
+      const actualCost = laborCost + actual.materialsCost + actual.expensesCost;
+      const result = financialResult(actualRevenue, actualCost);
+      const profit = result.profit;
+      const marginPct = result.marginPct ?? 0;
+      const isTM = ps.some(s=>s.billing_model === "hourly");
 
       let status: HealthRow["status"] = "ok";
       let statusReason = "Healthy";
@@ -584,16 +579,16 @@ function DashboardPage() {
       } else if (budget > 0 && actualCost > budget) {
         status = "bad";
         statusReason = `Over budget (${Math.round((actualCost / budget) * 100)}%)`;
-      } else if (totalRevenueBase > 0 && marginPct < 0) {
+      } else if (actualRevenue > 0 && marginPct < 0) {
         status = "bad";
         statusReason = `Negative margin`;
       } else if (budget > 0 && actualCost / budget > 0.85) {
         status = "warn";
         statusReason = `Approaching budget (${Math.round((actualCost / budget) * 100)}%)`;
-      } else if (totalRevenueBase > 0 && marginPct < 15) {
+      } else if (actualRevenue > 0 && marginPct < 15) {
         status = "warn";
         statusReason = `Low margin`;
-      } else if (isTM && totalRevenueBase > 0) {
+      } else if (isTM && actualRevenue > 0) {
         statusReason = "T&M — billed by the hour";
       }
 
@@ -662,6 +657,7 @@ function DashboardPage() {
   const kpi: FinancialKpiData = useMemo(() => {
     const ratesFor = makeRateResolver({
       taskToStage,
+      userToResource: new Map([...(identityMap ?? new Map()).values()].filter(i=>i.resourceId).map(i=>[i.userId,i.resourceId as string])),
       stageRepResource: (sid) => stageById.get(sid)?.allocations[0]?.resource_id ?? null,
       resources,
       defaultRates,
@@ -671,7 +667,7 @@ function DashboardPage() {
       ratesFor,
       capacityHours: studioCapacityHours(resources ?? [], workingDays(periodStartISO, periodEndISO)),
     });
-  }, [entries, taskToStage, stageById, resources, defaultRates, periodStartISO, periodEndISO]);
+  }, [entries, taskToStage, stageById, resources, defaultRates, identityMap, periodStartISO, periodEndISO]);
 
   // ---------- Hours-only KPI (period-scoped) ----------
   const hoursKpi: HoursKpiData = useMemo(() => {

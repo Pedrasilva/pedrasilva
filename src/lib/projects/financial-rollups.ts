@@ -125,11 +125,11 @@ export function rollupExpenses(rows: ProjectExpenseLike[]): FinancialsRow {
 export function sumFinancialsRows(...rows: FinancialsRow[]): FinancialsRow {
   return rows.reduce<FinancialsRow>(
     (acc, r) => ({
-      budget: acc.budget + toNum(r.budget),
-      value: acc.value + toNum(r.value),
-      cost: acc.cost + toNum(r.cost),
-      profit: acc.profit + toNum(r.profit),
-      invoiced: acc.invoiced + toNum(r.invoiced),
+      budget: acc.budget + r.budget,
+      value: acc.value + r.value,
+      cost: acc.cost + r.cost,
+      profit: acc.profit + r.profit,
+      invoiced: acc.invoiced + r.invoiced,
     }),
     { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
   );
