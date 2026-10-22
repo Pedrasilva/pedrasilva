@@ -3,8 +3,7 @@
 DO $$
 DECLARE
   curator uuid := (SELECT user_id FROM public.user_roles WHERE role = 'admin' ORDER BY user_id LIMIT 1);
-  colleague uuid; p uuid; req uuid; d uuid; aid uuid; st text; h text; log text := ''; n int;
-  PROCEDURE_DUMMY int;
+  colleague uuid; p uuid; req uuid; d uuid; aid uuid; st text; h text; ed boolean; log text := ''; n int;
 BEGIN
   SELECT id INTO colleague FROM auth.users WHERE id <> curator ORDER BY created_at LIMIT 1;
   INSERT INTO public.user_roles (user_id, role) VALUES (colleague, 'admin') ON CONFLICT DO NOTHING;
@@ -45,7 +44,21 @@ BEGIN
   EXCEPTION WHEN others THEN log := log || E'\n6 ok location tag refused: ' || SQLERRM; END;
   -- 7. editing the caption voids the approval and returns to suggested
   UPDATE public.marketing_post_drafts SET final_copy = 'Um novo projeto de interiores, revisto.' WHERE id = d;
-  SELECT status, approved_content_hash, edited_after_approval::text INTO st, h, log FROM (SELECT status::text, approved_content_hash, edited_after_approval, log AS l FROM public.marketing_post_drafts WHERE id = d) x;
+  SELECT status::text, approved_content_hash, edited_after_approval INTO st, h, ed FROM public.marketing_post_drafts WHERE id = d;
   SELECT count(*) INTO n FROM public.marketing_post_approvals WHERE draft_id = d AND voided_at IS NULL AND decision = 'approved';
-  RAISE EXCEPTION 'RESULTS:% | 7 status=% hash_cleared=% edited_after_approval=% valid_approvals=%', '', st, (h IS NULL), log, n;
+  log := log || E'\n7 status=' || st || ' hash_cleared=' || (h IS NULL) || ' edited_after_approval=' || ed || ' valid_approvals=' || n;
+  -- 8. cannot schedule without a fresh approval
+  BEGIN UPDATE public.marketing_post_drafts SET status = 'scheduled' WHERE id = d; log := log || E'\n8 FAIL';
+  EXCEPTION WHEN others THEN log := log || E'\n8 ok schedule refused: ' || SQLERRM; END;
+  -- 9. direct curator approval, then a media change voids it
+  BEGIN UPDATE public.marketing_post_drafts SET status = 'approved' WHERE id = d;
+    SELECT count(*) INTO n FROM public.marketing_post_approvals WHERE draft_id = d AND voided_at IS NULL AND decision = 'approved';
+    UPDATE public.marketing_post_drafts SET asset_ids = ARRAY[gen_random_uuid()] WHERE id = d;
+    SELECT status::text INTO st FROM public.marketing_post_drafts WHERE id = d;
+    log := log || E'\n9 approval rows after direct approve=' || n || ', status after media change=' || st;
+  EXCEPTION WHEN others THEN log := log || E'\n9 direct approve failed: ' || SQLERRM; END;
+  -- 10. city in a story frame / hashtag is caught too
+  BEGIN UPDATE public.marketing_post_drafts SET final_hashtags = ARRAY['russia'] WHERE id = d; UPDATE public.marketing_post_drafts SET status = 'approved' WHERE id = d; log := log || E'\n10 FAIL';
+  EXCEPTION WHEN others THEN log := log || E'\n10 ok hashtag refused: ' || SQLERRM; END;
+  RAISE EXCEPTION 'RESULTS:%', log;
 END $$;
