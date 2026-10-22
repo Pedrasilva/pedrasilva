@@ -93,6 +93,8 @@ export type FinDocFull = {
   document: FinDoc;
   lines: FinDocLine[];
   payments: FinDocPayment[];
+  /** Existing intake relationship points from queue.created_expense_id to this document. */
+  issuedPdfQueueId?: string;
 };
 
 export function useFinDocument(documentId: string | null) {
@@ -121,10 +123,20 @@ export function useFinDocument(documentId: string | null) {
       if (docRes.error) throw docRes.error;
       if (linesRes.error) throw linesRes.error;
       if (paymentsRes.error) throw paymentsRes.error;
+      let issuedPdfQueueId: string | undefined;
+      if (docRes.data.registration_origin === 'upload' && docRes.data.status === 'draft') {
+        const queue = await supabase.from('financial_document_review_queue')
+          .select('id').eq('created_expense_id', documentId)
+          .eq('entity_id', docRes.data.entity_id).eq('direction', 'issued')
+          .eq('status', 'pending_review').maybeSingle();
+        if (queue.error) throw queue.error;
+        issuedPdfQueueId = queue.data?.id;
+      }
       return {
         document: docRes.data as FinDoc,
         lines: (linesRes.data ?? []) as FinDocLine[],
         payments: (paymentsRes.data ?? []) as FinDocPayment[],
+        issuedPdfQueueId,
       };
     },
   });

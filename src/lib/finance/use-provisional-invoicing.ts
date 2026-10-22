@@ -7,8 +7,10 @@ import { numberStages } from '@/lib/quotes/stage-numbering';
 export function useIssuedRegistration(edit = false) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ header, lines, existingId }: { header: Record<string, unknown>; lines: Record<string, unknown>[]; existingId?: string }) => {
-      const result = edit && existingId ? await supabase.rpc('fin_edit_issued_document',{_id:existingId,_header:header as Json,_lines:lines as Json}) : await supabase.rpc('fin_register_issued_document', {
+    mutationFn: async ({ header, lines, existingId, draftQueueId }: { header: Record<string, unknown>; lines: Record<string, unknown>[]; existingId?: string; draftQueueId?: string }) => {
+      const result = draftQueueId ? await supabase.rpc('fin_save_issued_pdf_draft', {
+        _queue_id: draftQueueId, _header: header as Json, _lines: lines as Json, _document_id: existingId,
+      }) : edit && existingId ? await supabase.rpc('fin_edit_issued_document',{_id:existingId,_header:header as Json,_lines:lines as Json}) : await supabase.rpc('fin_register_issued_document', {
         _header: header as Json, _lines: lines as Json, _existing_id: existingId ?? undefined,
       });
       const { data,error } = result;
@@ -19,6 +21,7 @@ export function useIssuedRegistration(edit = false) {
       void qc.invalidateQueries({ queryKey: ['fin-docs'] });
       void qc.invalidateQueries({ queryKey: ['project-billing'] });
       void qc.invalidateQueries({ queryKey: ['issued-import-preview'] });
+      void qc.invalidateQueries({ queryKey: ['fin-review-queue'] });
     },
   });
 }

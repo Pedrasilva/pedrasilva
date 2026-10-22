@@ -245,7 +245,6 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       original_document_id: originalId,
       registration_origin: initialPdfDraft?'upload':existing.data?.document.registration_origin ?? 'manual',
       file_path: initialPdfDraft?.filePath ?? existing.data?.document.file_path ?? null,
-      queue_item_id:initialPdfDraft?.queueId,
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
@@ -264,11 +263,13 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
 
     try {
       if (isExisting && documentId) {
-        await atomicEdit.mutateAsync({existingId:documentId,header,lines:payloadLines.map(l=>({...l}))});
+        await atomicEdit.mutateAsync({existingId:documentId,header,lines:payloadLines.map(l=>({...l})),draftQueueId:existing.data?.issuedPdfQueueId});
         toast.success(t("finance:invoices.saved"));
       } else {
         if (nextStatus==='issued' && ['client_invoice','client_credit_note','receipt'].includes(docType)) {
-          await registration.mutateAsync({header,lines:payloadLines.map(l=>({...l}))});
+          await registration.mutateAsync({header:{...header,queue_item_id:initialPdfDraft?.queueId},lines:payloadLines.map(l=>({...l}))});
+        } else if (initialPdfDraft) {
+          await registration.mutateAsync({header,lines:payloadLines.map(l=>({...l})),draftQueueId:initialPdfDraft.queueId});
         } else await create.mutateAsync({ header, lines: payloadLines });
         toast.success(t("finance:invoices.created"));
       }
