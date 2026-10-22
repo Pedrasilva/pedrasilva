@@ -1,7 +1,7 @@
 ## Current request — anonymous Marketing approvals
-- [ ] Remove never_mention readiness blanket block; retain independent internal_only and trigger gates for pending/approved/scheduled.
-- [ ] Extend rolled-back SQL regression with clean/unsafe captions, tags and frames; verify live functions, unchanged real drafts and mirrored migration.
-- [ ] Explain current Project monitoring findings; do not fix unrelated issues.
+- [x] Migration 0145 removes never_mention readiness blanket block; independent internal_only and pending/approved/scheduled trigger gates preserved.
+- [x] Extended SQL regression passed with expected full rollback: clean colleague approval/scheduling, 15 exact-reason unsafe-content rejections and internal_only gates; nine calendar tests passed, live function definitions verified and mirror identical.
+- [x] Current Project monitoring returns three findings: capture deletion media loss, Finance PDF draft queue_item_id and dated proposal Gantt holiday mismatch; unrelated to Marketing stage 1, left untouched.
 
 ## Current request — Meta connection verification
 - [x] Token securely stored; authenticated server RPC checks has_role as caller before secret/Meta access. Graph v26.0 batch GET requests use POST bodies to prevent token-bearing URLs; only non-secret metadata returned/stored. No publishing.
