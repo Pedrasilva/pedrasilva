@@ -336,7 +336,10 @@
       "suggested": "Suggested",
       "approved": "Approved",
       "rejected": "Rejected",
-      "published": "Published"
+      "published": "Published",
+      "pending_approval": "Awaiting approval",
+      "scheduled": "Scheduled",
+      "failed": "Failed"
     },
     "requestStatus": {
       "running": "Running",
@@ -740,5 +743,70 @@
     "deleted": "Carousel deleted",
     "rowMenu": "Carousel actions",
     "cancel": "Cancel"
+  },
+  "calendar": {
+    "title": "Editorial calendar",
+    "tab": "Calendar",
+    "prev": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "view": {
+      "week": "Week",
+      "month": "Month"
+    },
+    "tzHint": "Times are Lisbon time (Europe/Lisbon).",
+    "approvedList": "Approved, not yet placed",
+    "dragHint": "Drag a post onto a day, then set the time.",
+    "readOnly": "Only curators can place posts.",
+    "noApproved": "No approved posts waiting.",
+    "setTime": "Set date and time",
+    "date": "Date",
+    "time": "Time",
+    "place": "Place in calendar",
+    "scheduledToast": "Post placed in the calendar",
+    "unschedule": "Remove from calendar",
+    "scheduledFor": "Planned for {{when}} (Lisbon)",
+    "schedulePublish": "Schedule publishing",
+    "schedulePublishSoon": "Automatic publishing coming soon",
+    "field": {
+      "pillar": "pillar",
+      "persona": "persona",
+      "project": "project"
+    },
+    "warn": {
+      "lowWeek": "Week of {{week}}: {{count}} of {{target}} posts",
+      "consecutive": "Same {{field}} as the previous post ({{value}})",
+      "window": "{{field}} {{value}} more than twice in 7 days"
+    },
+    "grid": {
+      "tab": "Instagram grid",
+      "open": "Open post",
+      "empty": "No approved or scheduled Instagram posts yet.",
+      "livePlaceholder": "Current feed (available after connecting Instagram)",
+      "preview": "Preview"
+    }
+  },
+  "approval": {
+    "ask": "Request approval",
+    "askAgain": "Request again",
+    "colleague": "Colleague",
+    "pickColleague": "Choose a colleague with Marketing access",
+    "comment": "Comment",
+    "send": "Send request",
+    "requested": "Approval requested; your colleague was notified and emailed",
+    "requestedNoEmail": "Approval requested; notified in the bell (email not sent)",
+    "waiting": "Awaiting approval from {{name}}",
+    "changesBy": "{{name}} requested changes",
+    "approve": "Approve",
+    "requestChanges": "Request changes",
+    "confirm": "Confirm",
+    "approvedToast": "Post approved",
+    "changesToast": "Changes requested",
+    "inboxTitle_one": "Post approval ({{count}})",
+    "inboxTitle_other": "Post approvals ({{count}})",
+    "requester": "Requested by",
+    "post": "Post",
+    "requestedOn": "Requested on",
+    "review": "Review"
   }
 }
