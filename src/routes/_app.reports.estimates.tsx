@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { euros } from "@/lib/projects/gantt-utils";
 import { useResources } from "@/lib/projects/use-planner";
-import { effectiveCostRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
+import { effectiveCostRate, effectiveSaleRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { buildStageNumberMap } from "@/lib/quotes/stage-numbering";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { stagePlannedHours } from "@/lib/projects/stage-load-estimate";
