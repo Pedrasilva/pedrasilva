@@ -1,3 +1,4 @@
+import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { euros } from "@/lib/projects/gantt-utils";
 import { useResources } from "@/lib/projects/use-planner";
-import { effectiveCostRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
+import { effectiveCostRate, effectiveSaleRate, useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { buildStageNumberMap } from "@/lib/quotes/stage-numbering";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { stagePlannedHours } from "@/lib/projects/stage-load-estimate";
@@ -58,6 +59,7 @@ function EstimatesPage() {
   const { data, isLoading, error } = useEstimateVsActualData();
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: userToResource } = useFinancialIdentities();
   const [status, setStatus] = useState("all");
   const [client, setClient] = useState("all");
   const [ptype, setPtype] = useState("all");
@@ -83,6 +85,7 @@ function EstimatesPage() {
     for (const list of byProject.values()) for (const [k, v] of buildStageNumberMap(list as never)) numbers.set(k, v);
     const stageById = new Map(own.map((s) => [s.id, { id: s.id, project_id: s.project_id, billing_model: s.billing_model, allocations: s.pm_allocations ?? [] } as StageLite]));
     const actuals = stageActuals({
+      userToResource,
       entries: data.entries,
       taskToStage: data.taskToStage,
       stageById,
@@ -90,7 +93,10 @@ function EstimatesPage() {
         const r = resById.get(rid);
         return effectiveCostRate(r?.cost_rate, rid, defaultRates, !!r?.hourly_rate_is_override);
       },
-      saleRateFor: () => 0,
+      saleRateFor: (rid) => {
+        const r = resById.get(rid);
+        return effectiveSaleRate(r?.hourly_rate, rid, defaultRates, !!r?.hourly_rate_is_override);
+      },
     });
     const typeOf = (s: EvaStage): PhaseType | null =>
       resolvePhaseType(s, (x) => (x.parent_stage_id ? byId.get(x.parent_stage_id) : undefined));
@@ -137,7 +143,7 @@ function EstimatesPage() {
             source: est.source,
             actualHours: a?.loggedHours ?? 0,
             actualCost: a?.laborCost ?? 0,
-            actualValue: (a?.loggedHours ?? 0) * avgSale,
+            actualValue: a?.earnedRevenue ?? 0,
             baselineStart: s.baseline_start_date,
             baselineEnd: s.baseline_end_date,
             start: s.start_date,
@@ -149,7 +155,7 @@ function EstimatesPage() {
         };
       });
     return rows;
-  }, [data, resById, defaultRates, avgSale]);
+  }, [data, resById, defaultRates, userToResource, avgSale]);
 
   const clients = useMemo(() => [...new Set((base ?? []).map((r) => r.client).filter(Boolean))].sort(), [base]);
 

@@ -1,3 +1,5 @@
+import { plannedAllocationFigures } from "@/lib/projects/financial-calculation";
+import { effectiveRates } from "@/lib/projects/use-default-rates";
 import { useMemo, useState } from "react";
 import { addMonths, format, isSameMonth, parseISO, startOfMonth } from "date-fns";
 import type { Project, StageWithAllocations } from "@/lib/projects/types";
@@ -42,17 +44,9 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
         if (!earliest || sd < earliest) earliest = sd;
         if (!latest || ed > latest) latest = ed;
         for (const a of s.allocations) {
-          value += allocationCost({
-            start_date: a.start_date,
-            end_date: a.end_date,
-            hours_per_day: Number(a.hours_per_day),
-            hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
-          });
-          hours += allocationHours({
-            start_date: a.start_date,
-            end_date: a.end_date,
-            hours_per_day: Number(a.hours_per_day),
-          });
+          const figures = plannedAllocationFigures(a,effectiveRates(a.resource,defaultRates));
+          value += figures.value;
+          hours += figures.hours;
         }
       }
       return {

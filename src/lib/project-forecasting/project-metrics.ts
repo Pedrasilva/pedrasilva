@@ -45,7 +45,7 @@ export function computeProjectForecastMetrics(input: {
     Number(baseline?.target_gross_margin_pct ?? NaN);
   const forecastMargin = forecastFee - forecastCost;
   const forecastMarginPct =
-    forecastFee > 0 ? +((forecastMargin / forecastFee) * 100).toFixed(1) : null;
+    Number.isFinite(forecastCost) && forecastFee > 0 ? +((forecastMargin / forecastFee) * 100).toFixed(1) : null;
 
   const allocatedHours = stageCoverages.reduce(
     (a, s) => a + s.allocated_hours,

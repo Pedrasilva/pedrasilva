@@ -1,3 +1,6 @@
+import { financialResult, completionForecast, plannedAllocationFigures } from "@/lib/projects/financial-calculation";
+import { useProjectEntryFigures } from "@/lib/projects/use-project-entry-figures";
+import { rollupExternalServices, rollupExpenses, sumFinancialsRows } from "@/lib/projects/financial-rollups";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
@@ -216,6 +219,7 @@ function ProjectDetail() {
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
   const { data: teamAvg } = useTeamPricingAverages();
   const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
+  const entryFiguresQ = useProjectEntryFigures(projectId, data?.stages, resources, defaultRates, canSeeFinancials);
 
   useRecordRecentlyViewed({
     module: "projects",
@@ -467,7 +471,7 @@ function ProjectDetail() {
   const stageCost = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
     if (!s) return 0;
-    return s.allocations.reduce(
+    return s.allocations.filter(a => !a.planning_removed_at).reduce(
       (acc, a) =>
         acc +
         allocationCost({
@@ -478,6 +482,7 @@ function ProjectDetail() {
             a.resource.cost_rate,
             a.resource.id,
             defaultRates,
+            !!a.resource.hourly_rate_is_override,
           ),
         }),
       0,
@@ -486,7 +491,7 @@ function ProjectDetail() {
   const stagePlannedHours = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
     if (!s) return 0;
-    const fromAllocs = s.allocations.reduce(
+    const fromAllocs = s.allocations.filter(a => !a.planning_removed_at).reduce(
       (acc, a) =>
         acc +
         allocationHours({
@@ -511,51 +516,18 @@ function ProjectDetail() {
   const stageNonBillableHours = (stageId: string) =>
     timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.nonBillableHours : 0), 0) ?? 0;
 
-  // ---- Single source of truth: Actuals --------------------------------
-  // Distribute a stage's logged hours across allocations proportionally to
-  // planned hours, then apply each resource's cost/sale rate.
-  //   Actual Cost     = Σ ALL logged hours × cost rate     (billable + non-billable)
-  //   Actual Revenue  = Σ billable hours × sale rate
-  //   Actual Profit   = Actual Revenue − Actual Cost
+  // Actuals follow the author, independently of bookings. Reconcile restricted
+  // RLS coverage with existing privacy-safe totals; do not invent sale rates.
   const stageActuals = (stageId: string) => {
-    const s = stages.find((x) => x.id === stageId);
-    if (!s) return { revenue: 0, cost: 0, profit: 0 };
+    const entries = (entryFiguresQ.data ?? []).filter(e => e.stageId === stageId);
     const logged = stageLoggedHours(stageId);
-    const billable = stageBillableHours(stageId);
-    const snapCost =
-      timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.snapCost : 0), 0) ?? 0;
-    const unsnap =
-      timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.unsnapHours : 0), 0) ?? 0;
-    if (logged <= 0 && billable <= 0) return { revenue: 0, cost: 0, profit: 0 };
-    const planned = s.allocations.map((a) => ({
-      h: allocationHours({
-        start_date: a.start_date,
-        end_date: a.end_date,
-        hours_per_day: Number(a.hours_per_day),
-      }),
-      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
-      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
-    }));
-    const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    let cost = snapCost;
-    let revenue = 0;
-    if (totPlan > 0) {
-      for (const p of planned) {
-        const w = p.h / totPlan;
-        cost += w * unsnap * p.costRate;
-        revenue += w * billable * p.saleRate;
-      }
-    } else if (planned.length > 0) {
-      // Retainer / zero-planned stages: split logged hours evenly across the
-      // stage's allocations so cost/revenue reflect the blended rate of the
-      // resources assigned, instead of collapsing to €0.
-      const w = 1 / planned.length;
-      for (const p of planned) {
-        cost += w * unsnap * p.costRate;
-        revenue += w * billable * p.saleRate;
-      }
-    }
-    return { revenue, cost, profit: revenue - cost };
+    const rawHours = entries.reduce((n,e) => n + e.hours, 0);
+    const complete = Math.abs(logged - rawHours) < 0.005;
+    const snapCost = timeRows?.reduce((n,r) => n + (r.stage_id === stageId ? r.snapCost : 0), 0) ?? 0;
+    const missing = timeRows?.reduce((n,r) => n + (r.stage_id === stageId ? r.unsnapHours : 0), 0) ?? 0;
+    const cost = complete ? entries.reduce((n,e) => n + e.cost,0) : missing === 0 ? snapCost : NaN;
+    const revenue = complete ? entries.reduce((n,e) => n + e.value,0) : NaN;
+    return { revenue, cost, profit: financialResult(revenue,cost).profit };
   };
   const stageActualRevenue = (stageId: string) => stageActuals(stageId).revenue;
   const stageActualCost = (stageId: string) => stageActuals(stageId).cost;
@@ -592,7 +564,7 @@ function ProjectDetail() {
   // Invoiced total (excluding cancelled). This is a separate concept from
   // revenue — it's what has been BILLED to the client, not what has been earned.
   const invoicedTotal = (invoices ?? [])
-    .filter((i) => i.status !== "cancelled")
+    .filter((i) => ["sent", "paid", "overdue"].includes(i.status))
     .reduce((s, i) => s + Number(i.total ?? 0), 0);
   const invoicedPct = totalBudget > 0 ? invoicedTotal / totalBudget : 0;
 
@@ -1241,6 +1213,7 @@ function ProjectDetail() {
                 defaultRates={defaultRates}
                 activities={activities ?? []}
                 timeRows={timeRows ?? []}
+                      entryFigures={entryFiguresQ.data ?? []}
                 historical={hist}
                 initialScopeStageId={insightsScopeStageId}
               />
@@ -2098,8 +2071,7 @@ function MilestonesTable({
                     {allocsOpen && !hasChildren &&
                       s.allocations.map((a) => {
                         const aHours =
-                          Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
-                          Number(a.hours_per_day);
+                          allocationHours(a);
                         const aPlannedCost =
                           aHours *
                           effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
@@ -2341,6 +2313,7 @@ function InsightsPanel({
   defaultRates,
   activities,
   timeRows,
+  entryFigures,
   historical,
   initialScopeStageId,
 }: {
@@ -2365,9 +2338,11 @@ function InsightsPanel({
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
   timeRows: { stage_id: string; month: string; hours: number }[];
+  entryFigures: NonNullable<ReturnType<typeof useProjectEntryFigures>["data"]>;
   historical: HistoricalProjectTotals;
   initialScopeStageId?: string | null;
 }) {
+  const { t } = useTranslation("projects");
   // ---- Scope selector: whole project vs individual stage (+ descendants) ----
   const [scopeStageId, setScopeStageId] = useState<string | null>(initialScopeStageId ?? null);
   useEffect(() => {
@@ -2526,7 +2501,7 @@ function InsightsPanel({
   };
   const byRes = new Map<string, ResAgg>();
   for (const s of scopedStages) {
-    for (const a of s.allocations) {
+    for (const a of s.allocations.filter(a => !a.planning_removed_at)) {
       const key = a.resource.id;
       const existing =
         byRes.get(key) ??
@@ -2550,11 +2525,13 @@ function InsightsPanel({
         a.resource.cost_rate,
         a.resource.id,
         defaultRates,
+        !!a.resource.hourly_rate_is_override,
       );
       const saleRate = effectiveSaleRate(
         a.resource.hourly_rate,
         a.resource.id,
         defaultRates,
+        !!a.resource.hourly_rate_is_override,
       );
       existing.plannedHours += hours;
       existing.plannedCost += hours * costRate;
@@ -2568,45 +2545,16 @@ function InsightsPanel({
   const loggedCostByRes = new Map<string, number>();
   const billableValueByRes = new Map<string, number>();
   const billableHoursByRes = new Map<string, number>();
-  for (const s of scopedStages) {
-    const planned = s.allocations.map((a) => ({
-      id: a.resource.id,
-      h: allocationHours({
-        start_date: a.start_date,
-        end_date: a.end_date,
-        hours_per_day: Number(a.hours_per_day),
-      }),
-      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
-      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
-    }));
-    const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    const logged = stageLoggedHours(s.id);
-    const billable = stageBillableHours(s.id);
-    if (logged <= 0 && billable <= 0) continue;
-    if (planned.length === 0) continue;
-    for (const p of planned) {
-      const agg = byRes.get(p.id);
-      if (!agg) continue;
-      // Weight by planned hours when available, otherwise split evenly across
-      // the stage's allocations (retainer / zero-planned stages).
-      const w = totPlan > 0 ? p.h / totPlan : 1 / planned.length;
-      if (logged > 0) {
-        const share = w * logged;
-        agg.loggedHours += share;
-        loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
-      }
-      if (billable > 0) {
-        const billableShare = w * billable;
-        billableHoursByRes.set(
-          p.id,
-          (billableHoursByRes.get(p.id) ?? 0) + billableShare,
-        );
-        billableValueByRes.set(
-          p.id,
-          (billableValueByRes.get(p.id) ?? 0) + billableShare * p.saleRate,
-        );
-      }
-    }
+  for (const e of entryFigures) {
+    if (!e.stageId || !scopedStages.some(s => s.id === e.stageId)) continue;
+    const r = e.resource;
+    if (!r) continue;
+    const agg = byRes.get(r.id) ?? { id:r.id, name:r.name, color:r.color, collaborator_id:r.collaborator_id, plannedHours:0, plannedCost:0, plannedSale:0, loggedHours:0 };
+    agg.loggedHours += e.hours;
+    byRes.set(r.id,agg);
+    loggedCostByRes.set(r.id,(loggedCostByRes.get(r.id) ?? 0)+e.cost);
+    billableHoursByRes.set(r.id,(billableHoursByRes.get(r.id) ?? 0)+e.billableHours);
+    billableValueByRes.set(r.id,(billableValueByRes.get(r.id) ?? 0)+e.value);
   }
   const resources = Array.from(byRes.values()).sort(
     (a, b) => b.plannedHours - a.plannedHours,
@@ -2634,22 +2582,31 @@ function InsightsPanel({
   // Planned (forecast) sale value from allocations — used as the upper bound
   // for the "Forecast Value" bar.
   const plannedRevenue = resources.reduce((a, r) => a + r.plannedSale, 0);
-  const forecastValue = plannedRevenue > 0 ? plannedRevenue : earnedValue;
+  const forecastValue = Number.isFinite(plannedRevenue) ? (plannedRevenue > 0 ? plannedRevenue : earnedValue) : NaN;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
   // Profitability — actual vs forecast (using planned revenue & planned cost)
   const profitCurrent = actualProfit;
-  const profitForecast = forecastValue - totalPlannedCost;
+  const conclusion = scopedStages.reduce((acc,s) => {
+    const plan = s.allocations.reduce((p,a) => {
+      const figures = plannedAllocationFigures(a, { cost: effectiveCostRate(a.resource.cost_rate,a.resource.id,defaultRates,!!a.resource.hourly_rate_is_override), sale: effectiveSaleRate(a.resource.hourly_rate,a.resource.id,defaultRates,!!a.resource.hourly_rate_is_override) });
+      return { hours:p.hours+figures.hours,cost:p.cost+figures.cost,value:p.value+figures.value };
+    },{hours:0,cost:0,value:0});
+    const actual = stageActuals(s.id);
+    const f = completionForecast({ plannedHours:plan.hours, plannedCost:plan.cost, plannedValue:plan.value, loggedHours:stageLoggedHours(s.id), actualCost:actual.cost, earnedValue:actual.revenue, done: s.status === 'done' || s.status === 'cancelled' });
+    return { value:acc.value+f.value,cost:acc.cost+f.cost,remaining:acc.remaining+f.remainingHours };
+  },{value:historical.amount,cost:historical.cost,remaining:0});
+  const profitForecast = financialResult(conclusion.value, conclusion.cost + (actualCost - scopedStages.reduce((n,s)=>n+stageActuals(s.id).cost,0) - historical.cost)).profit;
   const profitMarginCurrent =
-    earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
+    Number.isFinite(profitCurrent) && earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : NaN;
   const profitMarginForecast =
-    forecastValue > 0 ? Math.round((profitForecast / forecastValue) * 100) : 0;
+    Number.isFinite(profitForecast) && conclusion.value > 0 ? Math.round((profitForecast / conclusion.value) * 100) : NaN;
 
-  const wipHours = Math.max(0, totalPlannedHours - totalLoggedHours);
+  const wipHours = conclusion.remaining;
   const workDonePct =
     totalPlannedHours > 0
-      ? Math.min(1, totalLoggedHours / totalPlannedHours)
+      ? displayedLoggedHours / totalPlannedHours
       : 0;
   const forecastDonePct = workDonePct;
 
@@ -2693,10 +2650,7 @@ function InsightsPanel({
   const maxAct = Math.max(1, ...months.map((m) => m.activities));
   const maxHours = Math.max(1, ...months.map((m) => m.hours));
 
-  // Financials box — Profit rule (locked):
-  //   Profit = Budget (incoming / contracted fee) − Costs
-  // The "Value" row is the hypothetical sale value of resources at sale rate
-  // and is intentionally NOT used in the profit calculation.
+  // Financials use earned value minus actual cost. Contract budget stays separate.
   // Pull totals from the immutable contract baseline so the Insights box
   // matches the Suppliers tab numbers exactly:
   //   Suppliers (Materials column) budget = total_external_fee
@@ -2742,42 +2696,21 @@ function InsightsPanel({
       : stageTotals.internal > 0
         ? stageTotals.internal
         : Math.max(0, totalBudget - suppliersBudget);
-  const externalRow = {
-    budget: suppliersBudget,
-    value: suppliersBudget,
-    cost: fallbackExt.cost,
-    profit: suppliersBudget - fallbackExt.cost,
-    invoiced: 0,
-  };
+  const externalItemsQ = useExternalServices(projectId);
+  const externalRow = scopeStageIds ? { budget:0,value:0,cost:0,profit:0,invoiced:0 } : { ...rollupExternalServices(externalItemsQ.data ?? []), budget:suppliersBudget };
 
   const services = {
     budget: architectureBudget,
     value: earnedValue,
     cost: loggedCost,
-    profit: architectureBudget - loggedCost,
+    profit: financialResult(earnedValue, loggedCost).profit,
     invoiced: invoicedTotal,
   };
 
   const projectExpensesQuery = useProjectExpenses(projectId);
   const expItems = projectExpensesQuery.data ?? [];
-  const expensesRow = expItems.reduce(
-    (acc, e) => {
-      const cost = Number(e.purchase_price || 0);
-      acc.cost += cost;
-      return acc;
-    },
-    { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
-  );
-  expensesRow.profit = expensesRow.budget - expensesRow.cost;
-  const totalRow = {
-    budget: services.budget + externalRow.budget + expensesRow.budget,
-    value: services.value + externalRow.value + expensesRow.value,
-    cost: services.cost + externalRow.cost + expensesRow.cost,
-    profit: 0, // set below: Budget − Costs
-    invoiced: services.invoiced,
-  };
-  totalRow.profit = totalRow.budget - totalRow.cost;
-
+  const expensesRow = scopeStageIds ? {budget:0,value:0,cost:0,profit:0,invoiced:0} : rollupExpenses(expItems);
+  const totalRow = sumFinancialsRows(services, externalRow, expensesRow);
 
   return (
     <div className="mt-4 space-y-4">
@@ -2819,7 +2752,7 @@ function InsightsPanel({
             />
             <UnapprovedPill projectId={projectId} />
             <BarRow
-              label="Planned Value (forecast):"
+              label={t("insightsFinance.plannedValue")}
               value={forecastValue}
               pct={forecastPct}
               over={forecastValue < totalPlannedCost}
@@ -2831,10 +2764,12 @@ function InsightsPanel({
         </InsightCard>
       </div>
 
+      {(!Number.isFinite(earnedValue) || !Number.isFinite(loggedCost)) && <p role="status" className="text-sm text-destructive">{t("insightsFinance.incomplete")}</p>}
+      {entryFigures.some(e=>e.estimatedValue) && <p className="text-xs text-muted-foreground">{t("insightsFinance.estimated")}</p>}
       <InsightCard title="Profitability">
         <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
           <GaugeStat label="Current margin:" money={profitCurrent} pct={profitMarginCurrent} />
-          <GaugeStat label="Forecast margin:" money={profitForecast} pct={profitMarginForecast} />
+          <GaugeStat label={t("insightsFinance.conclusionMargin")} money={profitForecast} pct={profitMarginForecast} />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
           <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
@@ -2868,7 +2803,7 @@ function InsightsPanel({
           <div className="grid grid-cols-2 gap-4 px-2 py-2">
             <div className="flex flex-col items-center">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Work in progress
+                {t("insightsFinance.remainingPlan")}
               </div>
               <Gauge value={wipHours} formatter={(v) => `${Math.round(v)}h`} pct={0} muted />
               <button className="mt-2 rounded-md border border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground">
@@ -2877,20 +2812,12 @@ function InsightsPanel({
             </div>
             <div className="flex flex-col items-center">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Work Done
+                {t("insightsFinance.hoursConsumed")}
               </div>
               <Gauge
                 value={workDonePct * 100}
                 formatter={(v) => `${Math.round(v)}%`}
                 pct={workDonePct}
-              />
-              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                Forecast
-              </div>
-              <Gauge
-                value={forecastDonePct * 100}
-                formatter={(v) => `${Math.round(v)}%`}
-                pct={forecastDonePct}
               />
             </div>
           </div>
@@ -2924,11 +2851,7 @@ function InsightsPanel({
         </InsightCard>
       </div>
 
-      {invoices.length === 0 && (
-        <div className="text-[10px] text-muted-foreground">
-          Sem faturas — Earned Value usa apenas custos imputados.
-        </div>
-      )}
+
 
     </div>
   );
@@ -3067,7 +2990,7 @@ function BarRow({
     <div>
       <div className="text-xs text-foreground">
         {label} <span className="font-mono font-semibold">{euros(value)}</span>{" "}
-        <span className="text-muted-foreground">({Math.round(pct * 100)}%)</span>
+        <span className="text-muted-foreground">({Number.isFinite(pct) ? `${Math.round(pct * 100)}%` : "—"})</span>
       </div>
       <div className="mt-1 h-2 w-full overflow-hidden rounded bg-muted">
         <div
@@ -3097,7 +3020,7 @@ function Gauge({
 }) {
   const radius = 28;
   const circ = 2 * Math.PI * radius;
-  const dash = Math.max(0, Math.min(1, Math.abs(pct))) * circ;
+  const dash = Number.isFinite(pct) ? Math.max(0, Math.min(1, Math.abs(pct))) * circ : 0;
   const negative = pct < 0;
   const stroke = muted
     ? "var(--muted-foreground)"
@@ -3120,7 +3043,7 @@ function Gauge({
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular-nums">
-        {formatter(value)}
+        {Number.isFinite(value) ? formatter(value) : "—"}
       </div>
     </div>
   );

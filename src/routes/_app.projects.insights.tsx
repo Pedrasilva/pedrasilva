@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/insights")({
+  head: () => ({meta:[{title:"Project insights — PSA Hub"},{name:"description",content:"Project planned hours, sale value and resource performance."},{property:"og:title",content:"Project insights — PSA Hub"},{property:"og:description",content:"Project planned hours, sale value and resource performance."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),
   component: InsightsPage,
 });
 

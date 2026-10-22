@@ -1,4 +1,12 @@
 {
+  "insightsFinance": {
+    "conclusionMargin": "Estimated margin at completion:",
+    "remainingPlan": "Remaining plan",
+    "hoursConsumed": "Hours consumed",
+    "plannedValue": "Planned sale value:",
+    "incomplete": "Incomplete valuation — missing costs or sale prices",
+    "estimated": "Earned value includes current sale prices where no saved price exists"
+  },
   "weekPlan": {
     "assignedNoHours": "Assigned, no hours",
     "parentStageWarning": "Assignment on a parent stage",

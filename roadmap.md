@@ -1,3 +1,8 @@
+## Current request — shared project financial calculations
+- [x] Introduce common planning, author-based saved-entry valuation, completeness and unrounded value-minus-cost profit primitives.
+- [x] Align project detail, dashboards/reports, forecasts and fiscal project summary without changing stored data; retain distinct contract, earned, billed and cash scopes.
+- [x] 76 regression checks passed, EN/PT parity and preview build OK. Browser-only disposable copy of 2506 reconciles 51.2 planned hours, €1667 planned cost/€2917 sale, €277 actual cost/€484 earned/€208 profit across Overview and Insights; five other financial/report pages opened without runtime errors. No database fixtures or real writes; isolated browser context destroyed. Full real multi-project fiscal/RLS matrix not re-exercised in this task.
+
 # Weekly Timesheet Approval, Week Closure & Hours Bank
 
 ## Current request — historical documents, shareholder loans and duplicate preview

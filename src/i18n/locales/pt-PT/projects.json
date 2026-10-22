@@ -1,4 +1,12 @@
 {
+  "insightsFinance": {
+    "conclusionMargin": "Margem estimada na conclusão:",
+    "remainingPlan": "Saldo do plano",
+    "hoursConsumed": "Horas consumidas",
+    "plannedValue": "Valor de venda planeado:",
+    "incomplete": "Valorização incompleta — faltam custos ou preços de venda",
+    "estimated": "O valor ganho inclui preços de venda atuais quando não existe preço guardado"
+  },
   "weekPlan": {
     "assignedNoHours": "Atribuído, sem horas",
     "parentStageWarning": "Atribuição numa fase-mãe",

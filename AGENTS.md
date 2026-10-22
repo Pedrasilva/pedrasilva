@@ -26,3 +26,5 @@
 <!-- LOVABLE:BEGIN -->
 - Historical document containers use archived finance_only projects without stages or quotes; operational lists exclude them. Sales exclusions preserve payments and link shareholder financing to financial_debts. Why: history must not create planning or treat financing as sales.
 <!-- LOVABLE:END -->
+
+- Project financial views share financial-calculation.ts for exact working-calendar plans, author-based saved-entry valuation, incomplete-cost propagation and unrounded value-minus-cost profit; accounting retains canonical fiscal signs and cash scope, quotes keep NO_HOLIDAYS and retainers never estimate missing actual costs. Why: identical economic scopes must reconcile without changing historical records.

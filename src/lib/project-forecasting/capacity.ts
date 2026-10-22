@@ -10,7 +10,7 @@
  *
  * Pure: no DB writes.
  */
-import { differenceInBusinessDays, parseISO } from "date-fns";
+import { workingDays } from "@/lib/projects/gantt-utils";
 import type { CollaboratorCapacity, ResourceRow } from "./types";
 
 export interface CapacityWindow {
@@ -25,9 +25,7 @@ export function computeResourceCapacity(
   allocatedHours: number,
   window: CapacityWindow,
 ): CollaboratorCapacity {
-  const start = parseISO(window.start);
-  const end = parseISO(window.end);
-  const businessDays = Math.max(0, differenceInBusinessDays(end, start) + 1);
+  const businessDays = workingDays(window.start,window.end);
   const fte = (Number(resource.weekly_capacity) || 40) / 40;
   const chargeability = window.targetChargeability ?? 0.75;
   const capacity = +(businessDays * 8 * fte * chargeability).toFixed(2);

@@ -63,6 +63,7 @@ export function fmtMonth(d: string | Date): string {
 }
 
 export function euros(n: number): string {
+  if (!Number.isFinite(n)) return "—";
   return new Intl.NumberFormat("en-EU", {
     style: "currency",
     currency: "EUR",
@@ -75,12 +76,15 @@ export interface AllocationLite {
   end_date: string;
   hours_per_day: number;
   hourly_rate: number;
+  planning_removed_at?: string | null;
+  allocation_percentage?: number | null;
 }
 
 export function allocationCost(a: AllocationLite, holidays?: ReadonlySet<string>): number {
-  return workingDays(a.start_date, a.end_date, holidays) * a.hours_per_day * a.hourly_rate;
+  return allocationHours(a, holidays) * a.hourly_rate;
 }
 
-export function allocationHours(a: Pick<AllocationLite, "start_date" | "end_date" | "hours_per_day">, holidays?: ReadonlySet<string>): number {
-  return workingDays(a.start_date, a.end_date, holidays) * a.hours_per_day;
+export function allocationHours(a: Pick<AllocationLite, "start_date" | "end_date" | "hours_per_day" | "planning_removed_at" | "allocation_percentage">, holidays?: ReadonlySet<string>): number {
+  if (a.planning_removed_at) return 0;
+  return workingDays(a.start_date, a.end_date, holidays) * (Number(a.hours_per_day) || (Number(a.allocation_percentage) || 0) / 100 * 8);
 }

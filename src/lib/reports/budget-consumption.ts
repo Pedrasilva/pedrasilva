@@ -9,9 +9,14 @@
  *                 cost rate of the stage's first allocation resource)
  *               + pre-contract pursuit cost + materials purchase + expenses
  */
-import { lockedCostRate } from "@/lib/projects/use-default-rates";
+import { entryStageId, loggedEntryFigures } from "@/lib/projects/financial-calculation";
 
 export interface CostEntry {
+  id?: string;
+  user_id?: string;
+  pm_stage_id?: string | null;
+  sale_rate_snapshot?: number | null;
+  entry_type?: string;
   task_id: string | null;
   hours: number;
   billable: boolean;
@@ -22,6 +27,7 @@ export interface StageLite {
   id: string;
   project_id: string;
   billing_model?: string | null;
+  stage_kind?: string | null;
   allocations: { resource_id: string }[];
 }
 
@@ -31,9 +37,10 @@ export interface StageActual {
   nonBillableHours: number;
   /** Billable hours × sale rate on hourly (time-and-materials) stages. */
   tmRevenue: number;
+  earnedRevenue: number;
 }
 
-const emptyActual = (): StageActual => ({ laborCost: 0, loggedHours: 0, nonBillableHours: 0, tmRevenue: 0 });
+const emptyActual = (): StageActual => ({ laborCost: 0, loggedHours: 0, nonBillableHours: 0, tmRevenue: 0, earnedRevenue: 0 });
 
 /** Labour actuals per stage, using the dashboard's rate rules. */
 export function stageActuals(input: {
@@ -42,22 +49,29 @@ export function stageActuals(input: {
   stageById: Map<string, StageLite>;
   costRateFor: (resourceId: string) => number;
   saleRateFor: (resourceId: string) => number;
+  userToResource?: ReadonlyMap<string, string>;
 }): Map<string, StageActual> {
   const out = new Map<string, StageActual>();
+  const seen = new Set<string>();
   for (const e of input.entries) {
-    if (!e.task_id) continue;
-    const stageId = input.taskToStage.get(e.task_id);
+    if (e.id && seen.has(e.id)) continue;
+    if (e.id) seen.add(e.id);
+    if (e.entry_type && e.entry_type !== "project") continue;
+    const stageId = entryStageId(e, input.taskToStage);
     if (!stageId) continue;
     const stage = input.stageById.get(stageId);
     if (!stage) continue;
     const cur = out.get(stageId) ?? emptyActual();
     cur.loggedHours += e.hours;
     if (!e.billable) cur.nonBillableHours += e.hours;
-    const resourceId = stage.allocations[0]?.resource_id;
-    if (resourceId) {
-      cur.laborCost += e.hours * lockedCostRate(e.cost_rate_snapshot, input.costRateFor(resourceId));
-      if (stage.billing_model === "hourly" && e.billable) cur.tmRevenue += e.hours * input.saleRateFor(resourceId);
-    }
+    const resourceId = e.user_id ? input.userToResource?.get(e.user_id) : undefined;
+    const figures = loggedEntryFigures(e, {
+      cost: resourceId ? input.costRateFor(resourceId) : NaN,
+      sale: resourceId ? input.saleRateFor(resourceId) : NaN,
+    }, stage.stage_kind?.startsWith("retainer") ?? false);
+    cur.laborCost += figures.cost;
+    cur.earnedRevenue += figures.value;
+    if (stage.billing_model === "hourly") cur.tmRevenue += figures.value;
     out.set(stageId, cur);
   }
   return out;
@@ -77,6 +91,7 @@ export function projectActualsFromStages(
     cur.loggedHours += a.loggedHours;
     cur.nonBillableHours += a.nonBillableHours;
     cur.tmRevenue += a.tmRevenue;
+    cur.earnedRevenue += a.earnedRevenue;
     out.set(pid, cur);
   }
   return out;

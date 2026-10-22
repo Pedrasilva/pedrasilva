@@ -17,7 +17,12 @@ import {
   type DefaultRateInfo,
 } from "@/lib/projects/use-default-rates";
 
+import { loggedEntryFigures, financialResult } from "@/lib/projects/financial-calculation";
+
 export interface BPEntry {
+  id?: string;
+  pm_stage_id?: string | null;
+  sale_rate_snapshot?: number | null;
   user_id: string;
   task_id: string | null;
   entry_date: string;
@@ -51,18 +56,14 @@ export interface BPResourceLike {
   hourly_rate?: number | null;
   cost_rate?: number | null;
   hourly_rate_is_override?: boolean | null;
+  collaborator_id?: string | null;
 }
 
 /** Per-entry figures. Non-working rows return null (never counted). */
 export function entryFigures(e: BPEntry, rates: BPRates) {
   if (e.entry_type === "non_working") return null;
-  const billable = !!e.billable && e.entry_type === "project";
-  return {
-    hours: e.hours,
-    billableHours: billable ? e.hours : 0,
-    revenue: billable ? e.hours * rates.saleRate : 0,
-    cost: e.hours * lockedCostRate(e.cost_rate_snapshot, rates.costRate),
-  };
+  const f = loggedEntryFigures(e, { cost: rates.costRate, sale: rates.saleRate });
+  return { ...f, revenue: f.value };
 }
 
 export function computeBusinessPerformance(input: {
@@ -120,14 +121,11 @@ export function makeRateResolver(input: {
   stageRepResource: (stageId: string) => string | null;
   resources: BPResourceLike[] | undefined;
   defaultRates: Map<string, DefaultRateInfo> | undefined;
+  userToResource?: ReadonlyMap<string, string>;
 }): (e: BPEntry) => BPRates {
   const byId = new Map((input.resources ?? []).map((r) => [r.id, r]));
   return (e) => {
-    let resourceId: string | null = null;
-    if (e.task_id && input.taskToStage) {
-      const stageId = input.taskToStage.get(e.task_id);
-      if (stageId) resourceId = input.stageRepResource(stageId);
-    }
+    const resourceId = input.userToResource?.get(e.user_id) ?? (byId.has(e.user_id) ? e.user_id : null);
     const res = resourceId ? byId.get(resourceId) : undefined;
     return {
       saleRate: effectiveSaleRate(res?.hourly_rate, resourceId ?? "", input.defaultRates, !!res?.hourly_rate_is_override),
