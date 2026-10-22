@@ -18,7 +18,7 @@ async function requireCurator(context: Ctx) {
 export type ActionPerson = { userId: string; name: string };
 
 /** Staff who can be given an action (active pm_resources matched to sign-in accounts by email). */
-export async function staffPeople(): Promise<ActionPerson[]> {
+async function staffPeople(): Promise<ActionPerson[]> {
   const { admin } = await import("./nudges.server");
   const db = await admin();
   const { data: res } = await db.from("pm_resources").select("name, email, active").not("email", "is", null);
