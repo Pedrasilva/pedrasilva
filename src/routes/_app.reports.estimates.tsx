@@ -93,7 +93,10 @@ function EstimatesPage() {
         const r = resById.get(rid);
         return effectiveCostRate(r?.cost_rate, rid, defaultRates, !!r?.hourly_rate_is_override);
       },
-      saleRateFor: () => 0,
+      saleRateFor: (rid) => {
+        const r = resById.get(rid);
+        return effectiveSaleRate(r?.hourly_rate, rid, defaultRates, !!r?.hourly_rate_is_override);
+      },
     });
     const typeOf = (s: EvaStage): PhaseType | null =>
       resolvePhaseType(s, (x) => (x.parent_stage_id ? byId.get(x.parent_stage_id) : undefined));
@@ -140,7 +143,7 @@ function EstimatesPage() {
             source: est.source,
             actualHours: a?.loggedHours ?? 0,
             actualCost: a?.laborCost ?? 0,
-            actualValue: (a?.loggedHours ?? 0) * avgSale,
+            actualValue: a?.earnedRevenue ?? 0,
             baselineStart: s.baseline_start_date,
             baselineEnd: s.baseline_end_date,
             start: s.start_date,

@@ -2819,14 +2819,6 @@ function InsightsPanel({
                 formatter={(v) => `${Math.round(v)}%`}
                 pct={workDonePct}
               />
-              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                {t("insightsFinance.hoursConsumed")}
-              </div>
-              <Gauge
-                value={forecastDonePct * 100}
-                formatter={(v) => `${Math.round(v)}%`}
-                pct={forecastDonePct}
-              />
             </div>
           </div>
         </InsightCard>

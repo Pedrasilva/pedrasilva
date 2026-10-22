@@ -5,6 +5,7 @@ vi.mock('../src/lib/projects/use-default-rates', () => ({
 import { plannedAllocationFigures, loggedEntryFigures, financialResult, completionForecast } from '../src/lib/projects/financial-calculation';
 import { stageActuals } from '../src/lib/reports/budget-consumption';
 import { billedProjectAmounts, documentProjectAmounts } from '../src/lib/finance/project-document-figures';
+import { sumFinancialsRows } from '../src/lib/projects/financial-rollups';
 
 describe('common project financial calculation', () => {
   const allocation = {start_date:'2026-06-01',end_date:'2026-08-31',hours_per_day:0.8};
@@ -39,6 +40,12 @@ describe('common project financial calculation', () => {
   it('unknown costs and retainer missing snapshots cannot produce numeric profit', () => {
     expect(loggedEntryFigures({hours:2,billable:true},{cost:0,sale:50}).profit).toBeNaN();
     expect(loggedEntryFigures({hours:2,billable:true},{cost:30,sale:50},true).cost).toBeNaN();
+  });
+  it('financial table totals preserve incomplete cost and profit', () => {
+    const totals=sumFinancialsRows({budget:100,value:100,cost:NaN,profit:NaN,invoiced:0},{budget:50,value:50,cost:20,profit:30,invoiced:0});
+    expect(totals.value).toBe(150);
+    expect(totals.cost).toBeNaN();
+    expect(totals.profit).toBeNaN();
   });
   it('nonbillable hours are cost only and leave is not labour cost', () => {
     expect(loggedEntryFigures({hours:2,billable:false,cost_rate_snapshot:30},{cost:30,sale:50}).profit).toBe(-60);
