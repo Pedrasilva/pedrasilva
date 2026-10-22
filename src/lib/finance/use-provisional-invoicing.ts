@@ -21,7 +21,7 @@ export function useIssuedRegistration(edit = false) {
       void qc.invalidateQueries({ queryKey: ['fin-docs'] });
       void qc.invalidateQueries({ queryKey: ['project-billing'] });
       void qc.invalidateQueries({ queryKey: ['issued-import-preview'] });
-      void qc.invalidateQueries({ queryKey: ['fin-review-queue'] });
+      void qc.invalidateQueries({ queryKey: ['finance', 'review-queue'] });
     },
   });
 }
