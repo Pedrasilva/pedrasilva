@@ -1,11 +1,11 @@
 -- Disposable, fully rolled-back check of marketing post approvals, content-hash invalidation and the never_mention rule.
 -- Everything is created inside this block and undone by the final RAISE; no real project or draft is touched.
--- Note: the existing readiness check already blocks approval of any draft whose project is never_mention,
--- so the approval flow runs on a describe_only project and the profile is switched to never_mention afterwards.
+-- The anonymous-project cases below exercise actual status writes and RPCs, not just the helper.
 DO $$
 DECLARE
   curator uuid := (SELECT user_id FROM public.user_roles WHERE role = 'admin' ORDER BY user_id LIMIT 1);
   colleague uuid; p uuid; req uuid; d uuid; aid uuid; st text; h text; ed boolean; log text := ''; n int; dr public.marketing_post_drafts;
+  anonymous_project uuid; anonymous_draft uuid; sample record; reason text; checks int := 0;
 BEGIN
   SELECT id INTO colleague FROM auth.users WHERE id <> curator ORDER BY created_at LIMIT 1;
   INSERT INTO public.user_roles (user_id, role) VALUES (colleague, 'admin') ON CONFLICT DO NOTHING;
@@ -76,5 +76,93 @@ BEGIN
   UPDATE public.marketing_post_drafts SET asset_ids = ARRAY[gen_random_uuid()] WHERE id = d;
   SELECT status::text INTO st FROM public.marketing_post_drafts WHERE id = d;
   log := log || E'\nI direct approval rows=' || n || ', status after media change=' || st;
-  RAISE EXCEPTION 'RESULTS:%', log;
+  -- J. A separate disposable never_mention project: anonymity is not internal_only.
+  INSERT INTO public.pm_projects (name) VALUES ('TEST anonymous marketing approvals') RETURNING id INTO anonymous_project;
+  INSERT INTO public.marketing_project_profiles (project_id, name_rule, location, sector, clearance)
+    VALUES (anonymous_project, 'never_mention', 'Moscovo, Rússia', 'hospitality', 'cleared');
+  INSERT INTO public.marketing_post_drafts (request_id, idea_id, platform, capture_ids, asset_ids, project_id, ai_copy, ai_hashtags, rationale, readiness, bible_version, model, format)
+    VALUES (req, gen_random_uuid(), 'instagram', '{}', '{}', anonymous_project, 'Um interior calmo.', '{}', 'isolated anonymity check', 'blocked', 1, 'test', 'single') RETURNING id INTO anonymous_draft;
+  IF public.marketing_recheck_draft_readiness(anonymous_draft) <> 'ready' THEN RAISE EXCEPTION 'FAIL clean anonymous readiness'; END IF;
+  aid := public.marketing_request_post_approval(anonymous_draft, colleague, NULL);
+  SELECT status::text INTO st FROM public.marketing_post_drafts WHERE id = anonymous_draft;
+  IF st <> 'pending_approval' THEN RAISE EXCEPTION 'FAIL clean anonymous pending approval'; END IF;
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', colleague, 'role', 'authenticated')::text, true);
+  PERFORM public.marketing_decide_post_approval(aid, 'approved', NULL);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', curator, 'role', 'authenticated')::text, true);
+  UPDATE public.marketing_post_drafts SET status = 'scheduled', scheduled_at = now() + interval '3 days' WHERE id = anonymous_draft;
+  SELECT status::text INTO st FROM public.marketing_post_drafts WHERE id = anonymous_draft;
+  IF st <> 'scheduled' THEN RAISE EXCEPTION 'FAIL clean anonymous scheduled'; END IF;
+  log := log || E'\nJ clean never_mention: ready → pending_approval → approved → scheduled (ok)';
+
+  -- K. Every unsafe field must give its specific reason at all three gates.
+  FOR sample IN SELECT * FROM (VALUES
+    ('city', 'Um interior em Moscovo.', '{}'::text[], NULL::text, NULL::jsonb, 'moscovo'),
+    ('sector', 'Um novo Hotel.', '{}'::text[], NULL::text, NULL::jsonb, 'hotel'),
+    ('location_tag', 'Um interior calmo.', '{}'::text[], 'Moscovo', NULL::jsonb, 'etiqueta de localização'),
+    ('hashtag', 'Um interior calmo.', ARRAY['russia'], NULL::text, NULL::jsonb, 'russia'),
+    ('story_frame', 'Um interior calmo.', '{}'::text[], NULL::text, '[{"text":"Um interior","line":"Moscovo","sticker":{"type":"none","text":""}}]'::jsonb, 'moscovo')
+  ) AS cases(label, caption, tags, location_tag, frames, expected_reason) LOOP
+    UPDATE public.marketing_post_drafts SET status = 'suggested', final_copy = sample.caption,
+      final_hashtags = sample.tags, location_tag = sample.location_tag, final_story_frames = sample.frames WHERE id = anonymous_draft;
+    PERFORM public.marketing_recheck_draft_readiness(anonymous_draft);
+    BEGIN
+      PERFORM public.marketing_request_post_approval(anonymous_draft, colleague, NULL);
+      RAISE EXCEPTION 'FAIL unsafe pending approval: %', sample.label;
+    EXCEPTION WHEN others THEN
+      GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+      IF position(sample.expected_reason IN lower(reason)) = 0 THEN RAISE EXCEPTION 'FAIL pending % reason: %', sample.label, reason; END IF;
+      checks := checks + 1;
+    END;
+    BEGIN
+      UPDATE public.marketing_post_drafts SET status = 'approved' WHERE id = anonymous_draft;
+      RAISE EXCEPTION 'FAIL unsafe approval: %', sample.label;
+    EXCEPTION WHEN others THEN
+      GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+      IF position(sample.expected_reason IN lower(reason)) = 0 THEN RAISE EXCEPTION 'FAIL approved % reason: %', sample.label, reason; END IF;
+      checks := checks + 1;
+    END;
+    UPDATE public.marketing_post_drafts SET final_copy = 'Um interior calmo.', final_hashtags = '{}', location_tag = NULL, final_story_frames = NULL WHERE id = anonymous_draft;
+    UPDATE public.marketing_post_drafts SET status = 'approved' WHERE id = anonymous_draft;
+    BEGIN
+      UPDATE public.marketing_post_drafts SET status = 'scheduled', scheduled_at = now() + interval '3 days',
+        final_copy = sample.caption, final_hashtags = sample.tags, location_tag = sample.location_tag, final_story_frames = sample.frames WHERE id = anonymous_draft;
+      RAISE EXCEPTION 'FAIL unsafe scheduling: %', sample.label;
+    EXCEPTION WHEN others THEN
+      GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+      IF position(sample.expected_reason IN lower(reason)) = 0 THEN RAISE EXCEPTION 'FAIL scheduled % reason: %', sample.label, reason; END IF;
+      checks := checks + 1;
+    END;
+    log := log || format(E'\nK %s rejected at pending/approved/scheduled with reason «%s» (ok)', sample.label, sample.expected_reason);
+  END LOOP;
+  IF checks <> 15 THEN RAISE EXCEPTION 'FAIL expected 15 unsafe-content rejections, got %', checks; END IF;
+
+  -- L. Independent internal_only clearance still blocks safe anonymous content.
+  UPDATE public.marketing_project_profiles SET clearance = 'internal_only' WHERE project_id = anonymous_project;
+  IF public.marketing_recheck_draft_readiness(anonymous_draft) <> 'blocked' THEN RAISE EXCEPTION 'FAIL internal_only readiness'; END IF;
+  BEGIN
+    UPDATE public.marketing_post_drafts SET status = 'scheduled', scheduled_at = now() + interval '3 days' WHERE id = anonymous_draft;
+    RAISE EXCEPTION 'FAIL internal_only scheduling';
+  EXCEPTION WHEN others THEN
+    GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+    IF position('internal-only' IN reason) = 0 THEN RAISE EXCEPTION 'FAIL internal_only reason: %', reason; END IF;
+  END;
+  UPDATE public.marketing_post_drafts SET status = 'suggested' WHERE id = anonymous_draft;
+  BEGIN
+    UPDATE public.marketing_post_drafts SET status = 'approved' WHERE id = anonymous_draft;
+    RAISE EXCEPTION 'FAIL internal_only approval';
+  EXCEPTION WHEN others THEN
+    GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+    IF position('internal-only' IN reason) = 0 THEN RAISE EXCEPTION 'FAIL internal_only approval reason: %', reason; END IF;
+  END;
+  BEGIN
+    PERFORM public.marketing_request_post_approval(anonymous_draft, colleague, NULL);
+    RAISE EXCEPTION 'FAIL internal_only pending';
+  EXCEPTION WHEN others THEN
+    GET STACKED DIAGNOSTICS reason = MESSAGE_TEXT;
+    IF position('internal-only' IN reason) = 0 THEN RAISE EXCEPTION 'FAIL internal_only pending reason: %', reason; END IF;
+  END;
+  log := log || E'\nL separate internal_only blocks readiness/pending/approved/scheduled (ok)';
+  IF position('FAIL' IN log) > 0 THEN RAISE EXCEPTION 'REGRESSION FAILED:%', log; END IF;
+  -- Intentional exception rolls back fixtures, temporary roles and all notifications.
+  RAISE EXCEPTION 'RESULTS (ALL CHECKS PASSED; ROLLBACK):%', log;
 END $$;
