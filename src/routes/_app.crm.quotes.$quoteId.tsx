@@ -359,7 +359,7 @@ function QuoteDetail() {
 
   useEffect(() => {
     setStep(requestedStep ?? readSavedQuoteStep(quoteId));
-  }, [quoteId]);
+  }, [quoteId, requestedStep]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
