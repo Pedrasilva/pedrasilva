@@ -28,20 +28,20 @@ BEGIN
 
     -- Open documents (received).
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat, classification_id)
-    VALUES (ent, 'received', 'invoice', '2026-07-29', 'ZQX-1001', 'Zebratest Labs Inc', 300, cls) RETURNING id INTO d_exact;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-07-29', 'ZQX-1001', 'Zebratest Labs Inc', 300, cls) RETURNING id INTO d_exact;
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat)
-    VALUES (ent, 'received', 'invoice', '2026-09-01', 'OTH-77', 'Outra Empresa Teste', 300) RETURNING id INTO d_other;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-09-01', 'OTH-77', 'Outra Empresa Teste', 300) RETURNING id INTO d_other;
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat)
-    VALUES (ent, 'received', 'invoice', '2026-09-05', 'FEE-55', 'Feecorp Teste', 101.50) RETURNING id INTO d_fee;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-09-05', 'FEE-55', 'Feecorp Teste', 101.50) RETURNING id INTO d_fee;
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat)
-    VALUES (ent, 'received', 'invoice', '2026-09-02', 'BIG-9', 'Bigpay Teste', 1000) RETURNING id INTO d_big;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-09-02', 'BIG-9', 'Bigpay Teste', 1000) RETURNING id INTO d_big;
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat)
-    VALUES (ent, 'received', 'invoice', '2026-09-03', 'SPL-1', 'Splitco Teste', 120) RETURNING id INTO d_a;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-09-03', 'SPL-1', 'Splitco Teste', 120) RETURNING id INTO d_a;
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat)
-    VALUES (ent, 'received', 'invoice', '2026-09-03', 'SPL-2', 'Splitco Teste', 80) RETURNING id INTO d_b;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-09-03', 'SPL-2', 'Splitco Teste', 80) RETURNING id INTO d_b;
     -- A past Zebratest bill already paid from a "ZEBRATEST" movement (gives "past matches").
     INSERT INTO public.financial_documents(entity_id, direction, doc_type, issue_date, document_number, counterparty_name_snapshot, total_inc_vat, classification_id)
-    VALUES (ent, 'received', 'invoice', '2026-06-29', 'ZQX-0999', 'Zebratest Labs Inc', 300, cls) RETURNING id INTO d_past;
+    VALUES (ent, 'received', 'supplier_invoice', '2026-06-29', 'ZQX-0999', 'Zebratest Labs Inc', 300, cls) RETURNING id INTO d_past;
 
     INSERT INTO public.bank_transactions(entity_id, bank_account_id, transaction_date, value_date, description, amount, currency, row_checksum, status) VALUES
       (ent, acc, '2026-07-01', '2026-07-01', 'MDB1234 ZEBRATEST 300.00EUR', -300, 'EUR', 'test-sug-' || gen_random_uuid(), 'unclassified') RETURNING id INTO t_past;
