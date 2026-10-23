@@ -291,3 +291,11 @@
 - [ ] Verify stages B/C on screen (17/09 LOVABLE 300 EUR -> 29/07 invoice first, no match)
 - [ ] Stage D: two-way audit log with links, searchable 'Registo de reconciliações', possible duplicate suppliers/purchases with merge only after confirmation (old names kept as aliases, never delete documents)
 - [ ] Intake failure alerts (3 failed runs / 48h nothing on working day) for docs@, Drive, ideas@
+
+## Current request — docs@ copies, idempotent catch-up, stage D start
+- [x] Six docs@ second copies removed from Entrada (originals and shared files kept), logged with approver/time/full rows; 16 docs@ items remain.
+- [x] Email catch-up skips an attachment already queued from the same message with the same file hash.
+- [x] Suggestions: one copy per Entrada document; per-movement cache + background refresh + period warm-up; on screen 0,83 s for 17/09 LOVABLE, 2467-9126 first at 87%, not matched.
+- [x] 29/07 invoice present in the candidates list.
+- [ ] Stage D proper: two-way audit log, searchable "Registo de reconciliações", supplier/purchase duplicate merge with aliases.
+- [ ] Intake source failure alerts (docs@, Drive, ideas@).
