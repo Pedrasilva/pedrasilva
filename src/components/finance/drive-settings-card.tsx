@@ -28,8 +28,8 @@ export function DriveSettingsCard() {
 
   useEffect(() => {
     if (!q.data) return;
-    setForm(Object.fromEntries(FIELDS.map((f) => [f, (q.data as Record<string, string | null>)[f] ?? ""])) as Form);
-    setSteps((q.data.last_test as AccessStep[] | null) ?? null);
+    setForm(Object.fromEntries(FIELDS.map((f) => [f, (q.data as unknown as Record<string, string | null>)[f] ?? ""])) as Form);
+    setSteps((q.data.last_test as unknown as AccessStep[] | null) ?? null);
   }, [q.data]);
 
   const onSave = async () => {
