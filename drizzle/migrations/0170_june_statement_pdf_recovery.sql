@@ -19,7 +19,7 @@ WITH recovered AS (
  RETURNING q.id,q.entity_id
 )
 INSERT INTO public.finance_intake_corrections(entity_id,queue_item_id,field,ai_value,corrected_value,corrected_by)
-SELECT entity_id,id,'june_statement_recovery','rejected; previous rejection retained in row',
+SELECT entity_id,id,'intake_type','rejected; previous rejection retained in row',
 'Luis authorized re-read: Claude and Gemini 48548.51 -> 28984.38; IBAN verified; PDF linked to existing MBCP 06/2026; no movements or matches changed.',
 'ab5a48c0-939b-4502-bd3b-db7801f0f8b8' FROM recovered;
 COMMIT;
