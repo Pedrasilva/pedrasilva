@@ -14,9 +14,9 @@ BEGIN
   INSERT INTO companies (nome, nif, is_supplier) VALUES ('ZZ Teste Stage D Lda', NULL, true) RETURNING id INTO ca;
   INSERT INTO companies (nome, nif, is_supplier) VALUES ('ZZ TESTE STAGE D, LDA.', NULL, true) RETURNING id INTO cb;
   INSERT INTO financial_documents (doc_type, direction, issue_date, entity_id, counterparty_supplier_id, document_number, total_inc_vat)
-    VALUES ('invoice', 'in', '2026-06-10', psa, ca, 'ZZ-STAGE-D-1', 100) RETURNING id INTO d1;
+    VALUES ('supplier_invoice', 'received', '2026-06-10', psa, ca, 'ZZ-STAGE-D-1', 100) RETURNING id INTO d1;
   INSERT INTO financial_documents (doc_type, direction, issue_date, entity_id, counterparty_supplier_id, document_number, total_inc_vat)
-    VALUES ('invoice', 'in', '2026-06-11', psa, cb, 'ZZ-STAGE-D-2', 50) RETURNING id INTO d2;
+    VALUES ('supplier_invoice', 'received', '2026-06-11', psa, cb, 'ZZ-STAGE-D-2', 50) RETURNING id INTO d2;
   INSERT INTO bank_transactions (bank_account_id, transaction_date, description, amount, row_checksum, entity_id)
     VALUES (acct, '2026-10-20', 'ZZ STAGE D TEST', -100, 'zz-stage-d-' || gen_random_uuid(), psa) RETURNING id INTO tx;
 
