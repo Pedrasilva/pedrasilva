@@ -16330,6 +16330,7 @@ export type Database = {
         Returns: string
       }
       fin_class_in_use: { Args: { _id: string }; Returns: boolean }
+      fin_company_dup_key: { Args: { _n: string }; Returns: string }
       fin_company_not_duplicate: {
         Args: { _a: string; _b: string }
         Returns: undefined
