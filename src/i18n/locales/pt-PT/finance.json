@@ -2702,13 +2702,15 @@
   "supplierDups": {
     "tabPurchases": "Compras",
     "tabSuppliers": "Fornecedores",
-    "subtitle": "Fornecedores que podem ser a mesma empresa (mesmo NIF ou mesmo nome). Nada muda até escolher qual manter e confirmar. O outro nunca é apagado: fica inativo e o nome e o NIF ficam como aliases.",
-    "none": "Não há fornecedores possivelmente duplicados.",
-    "count_one": "{{count}} possível duplicado",
-    "count_other": "{{count}} possíveis duplicados",
+    "subtitle": "Fornecedores que podem ser a mesma empresa, agrupados: mesmo NIF/IVA, mesmo nome sem acentos, pontuação e terminações legais (Lda, SA, Inc, Ltd…), nomes muito parecidos, ou a mesma descrição bancária em conciliações anteriores. Nada muda até escolher qual manter e confirmar. Os outros nunca são apagados: ficam inativos e os nomes e NIF ficam como aliases.",
+    "none": "Sem fornecedores possivelmente duplicados.",
+    "count_one": "{{count}} grupo",
+    "count_other": "{{count}} grupos",
     "reason": {
       "same_nif": "Mesmo NIF",
-      "same_name": "Mesmo nome"
+      "same_name": "Mesmo nome",
+      "similar_name": "Nome muito parecido",
+      "bank_pattern": "Mesma descrição bancária"
     },
     "documents": "Documentos",
     "total": "Total",
@@ -2720,6 +2722,15 @@
     "cancel": "Cancelar",
     "confirm": "Fundir",
     "merged": "{{merged}} fundido em {{keep}}.",
-    "remembered": "Marcado como não duplicado."
+    "remembered": "Marcado como não duplicado.",
+    "confidence": "{{value}}% de confiança",
+    "why": "Porquê",
+    "keepThis": "Manter este",
+    "notDupAll": "Não são duplicados",
+    "confirmDescMany": "Manter {{keep}}. Todos os documentos e registos de {{merge}} ({{docs}} documentos) passam para este; ficam inativos e os nomes e NIF passam a aliases. Nenhum documento é apagado.",
+    "purchasePairs": "Compras possivelmente duplicadas (mesmo valor, datas até 3 dias)",
+    "noPairs": "Sem compras repetidas neste grupo.",
+    "entityPsa": "PSA",
+    "entityOther": "Pedra Rioja"
   }
 }
