@@ -1156,6 +1156,13 @@
       "when": 1792770094108,
       "tag": "0164_supplier_duplicate_strict_name",
       "breakpoints": true
+    },
+    {
+      "idx": 165,
+      "version": "7",
+      "when": 1792770182672,
+      "tag": "0165_supplier_duplicate_same_name_any_nif",
+      "breakpoints": true
     }
   ]
 }
