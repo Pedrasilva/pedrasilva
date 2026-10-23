@@ -93,20 +93,15 @@ export function BankReconciliationTab() {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   useEffect(() => { setSelectedPeriodId(null); }, [selectedAccount]);
-  // Deep link from the reconciliation register: ?tx=<movement id> opens that movement's account.
-  useEffect(() => {
-    const tx = deepLinkTx();
-    if (!tx) return;
-    void supabase.from("bank_transactions").select("bank_account_id").eq("id", tx).maybeSingle().then(({ data }) => {
-      if (data?.bank_account_id) setSelectedAccount(data.bank_account_id);
-      else if (accountsQ.data?.[0]) setSelectedAccount(accountsQ.data[0].id);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
   useEffect(() => {
     if (!selectedAccount && accountsQ.data && accountsQ.data.length > 0) {
-      if (deepLinkTx()) return; // the linked movement decides the account
-      setSelectedAccount(accountsQ.data[0].id);
+      const first = accountsQ.data[0].id;
+      const tx = deepLinkTx();
+      if (!tx) { setSelectedAccount(first); return; }
+      // Deep link from the reconciliation register: ?tx=<movement id> opens that movement's account.
+      void supabase.from("bank_transactions").select("bank_account_id").eq("id", tx).maybeSingle()
+        .then(({ data }) => setSelectedAccount(data?.bank_account_id ?? first));
     }
   }, [accountsQ.data, selectedAccount]);
 
