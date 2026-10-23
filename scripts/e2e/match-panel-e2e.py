@@ -21,7 +21,7 @@ def check(name, ok, info=""):
 
 async def guard(route, req):
     url, m = req.url, req.method
-    write = m in ("POST", "PATCH", "PUT", "DELETE") and ("/rest/v1/" in url or "/_serverFn/" in url or "/storage/v1/object/" in url and m != "POST")
+    write = m in ("POST", "PATCH", "PUT", "DELETE") and ("/rest/v1/" in url or "/storage/v1/object/" in url and m != "POST")
     if "/storage/v1/object/sign/" in url or ("/rest/v1/rpc/" in url and READ_RPC.search(url)):
         write = False
     if write:
