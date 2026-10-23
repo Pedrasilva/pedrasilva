@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAddFinDocPayment, type FinDoc } from "@/lib/finance/use-documents";
 import { useAuth } from "@/hooks/use-auth";
+import { fetchTxOpenBalance, learnFromMatch } from "@/lib/finance/reconcile-suggestions";
 
 type BankTxLite = {
   id: string;
@@ -116,6 +117,10 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }:
 
   const [docSearch, setDocSearch] = useState("");
 
+  // Split payments: part of the movement may already be allocated to other documents.
+  const openQ = useQuery({ queryKey: ["finance", "reconcile-suggestions", "open", tx.id], queryFn: () => fetchTxOpenBalance(tx.id) });
+  const txOpen = openQ.data ?? Math.abs(tx.amount);
+
   /**
    * Ranking: same-card matches first (strongest signal when both sides carry
    * a card), then closest issue date to the bank movement's date.
@@ -162,10 +167,9 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }:
   useEffect(() => {
     if (selectedDoc) {
       const outstanding = Number(selectedDoc.outstanding_amount ?? 0);
-      const txAbs = Math.abs(tx.amount);
-      setAmount(Math.min(outstanding, txAbs).toFixed(2));
+      setAmount(Math.min(outstanding, txOpen).toFixed(2));
     }
-  }, [selectedDoc, tx.amount]);
+  }, [selectedDoc, txOpen]);
 
   const addPayment = useAddFinDocPayment();
 
@@ -181,6 +185,10 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }:
       toast.error(t("finance:documents.payments.exceedsOutstanding"));
       return;
     }
+    if (amt > txOpen + 0.005) {
+      toast.error(t("finance:reconSuggest.exceedsTxOpen", { open: fmtEUR(txOpen) }));
+      return;
+    }
     try {
       await addPayment.mutateAsync({
         document_id: selectedDoc.id,
@@ -190,6 +198,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }:
         method: "bank_transfer",
         created_by: user?.id ?? null,
       });
+      await learnFromMatch(tx.id, selectedDoc.id);
       toast.success(t("finance:documents.bankMatch.matched"));
       onMatched?.();
       onClose();
@@ -292,7 +301,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }:
                   variant="ghost"
                   size="sm"
                   onClick={() =>
-                    setAmount(Math.abs(tx.amount).toFixed(2))
+                    setAmount(txOpen.toFixed(2))
                   }
                 >
                   {t("finance:documents.bankMatch.useAmount")}

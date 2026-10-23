@@ -387,7 +387,8 @@ export type RuleMatch = {
 };
 
 export function applyRules(description: string, rules: RuleRow[]): RuleMatch | null {
-  const sorted = [...rules].filter((r) => r.active).sort((a, b) => a.priority - b.priority);
+  // Rules without a category (supplier-only, learned from matches) only rank suggestions.
+  const sorted = [...rules].filter((r) => r.active && r.classification_id).sort((a, b) => a.priority - b.priority);
   for (const r of sorted) {
     const target = r.case_sensitive ? description : description.toLowerCase();
     const pat = r.case_sensitive ? r.pattern : r.pattern.toLowerCase();
