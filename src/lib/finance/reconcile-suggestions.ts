@@ -28,9 +28,37 @@ export type Suggestion = {
 
 export const suggestionsKey = (txId: string) => ["finance", "reconcile-suggestions", txId] as const;
 
+/**
+ * Instant read: the per-movement cache (re-checked against current open amounts in the
+ * database); computes and stores it when the movement has no cache yet.
+ */
 export async function fetchSuggestions(txId: string): Promise<Suggestion[]> {
-  const { data, error } = await supabase.rpc("fin_reconcile_suggestions", { _tx_id: txId });
+  const { data, error } = await supabase.rpc("fin_reconcile_suggestions_cached", { _tx_id: txId });
   if (error) throw error;
+  const rows = (data as { rows?: unknown } | null)?.rows;
+  return rows ? normalize(rows) : refreshSuggestions(txId);
+}
+
+/** Full recompute (stores the result). Used for background refresh and period warm-up. */
+export async function refreshSuggestions(txId: string): Promise<Suggestion[]> {
+  const { data, error } = await supabase.rpc("fin_reconcile_suggestions_refresh", { _tx_id: txId });
+  if (error) throw error;
+  return normalize(data);
+}
+
+/** Precompute suggestions for movements that have none cached yet, one at a time, in the background. */
+export async function warmSuggestions(txIds: string[], isCancelled: () => boolean): Promise<void> {
+  if (txIds.length === 0) return;
+  const { data } = await supabase.from("fin_reconcile_suggestion_cache").select("tx_id").in("tx_id", txIds.slice(0, 500));
+  const have = new Set((data ?? []).map((r) => r.tx_id));
+  for (const id of txIds) {
+    if (isCancelled()) return;
+    if (have.has(id)) continue;
+    try { await refreshSuggestions(id); } catch { /* best-effort warm-up */ }
+  }
+}
+
+function normalize(data: unknown): Suggestion[] {
   return ((data ?? []) as unknown as Suggestion[]).map((s) => ({
     ...s,
     outstanding: s.outstanding == null ? null : Number(s.outstanding),
