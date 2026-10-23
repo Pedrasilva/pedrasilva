@@ -56,7 +56,7 @@ function useInsights() {
       const pids = [...new Set((d.data ?? []).map((x: any) => x.project_id).filter(Boolean))] as string[];
       const p = pids.length ? await sb.from("pm_projects").select("id,name").in("id", pids) : { data: [] };
       const pname = new Map((p.data ?? []).map((x: any) => [x.id, x.name as string]));
-      const meta = new Map((d.data ?? []).map((x: any) => [x.id, { project: x.project_id ? pname.get(x.project_id) ?? "—" : "—", pillar: x.pillar ?? "—" }]));
+      const meta = new Map<string, { project: string; pillar: string }>((d.data ?? []).map((x: any) => [x.id, { project: x.project_id ? pname.get(x.project_id) ?? "—" : "—", pillar: x.pillar ?? "—" }]));
       return { rows, account: a.data ?? [], analyses: (an.data ?? []) as Analysis[], settings: s.data, meta };
     },
   });
@@ -90,9 +90,10 @@ function InsightsPage() {
   const metaOf = (p: PostRow) => (p.draft_id ? data?.meta.get(p.draft_id) : undefined) ?? { project: "—", pillar: "—" };
   const reachSeries = useMemo(() => {
     const byDay = new Map<string, number>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const r of data?.rows ?? []) byDay.set(r.captured_on, (byDay.get(r.captured_on) ?? 0) + (r.metrics.reach ?? 0));
-    const acc = new Map((data?.account ?? []).map((a: any) => [a.captured_on, a]));
-    return [...new Set([...byDay.keys(), ...acc.keys()])].sort().map((d) => ({ day: d.slice(5), postsReach: byDay.get(d) ?? null, followers: (acc.get(d) as any)?.followers ?? null, accountReach: (acc.get(d) as any)?.metrics?.reach ?? null }));
+    const acc = new Map<string, any>((data?.account ?? []).map((a: any) => [a.captured_on as string, a]));
+    return [...new Set<string>([...byDay.keys(), ...(acc.keys() as IterableIterator<string>)])].sort().map((d) => ({ day: d.slice(5), postsReach: byDay.get(d) ?? null, followers: (acc.get(d) as any)?.followers ?? null, accountReach: (acc.get(d) as any)?.metrics?.reach ?? null }));
   }, [data]);
 
   const doSync = async () => {
