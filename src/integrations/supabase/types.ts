@@ -347,6 +347,44 @@ export type Database = {
           },
         ]
       }
+      bank_statement_period_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          entity_id: string | null
+          id: string
+          period_id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          period_id: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          period_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_statement_period_log_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "bank_statement_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_statement_periods: {
         Row: {
           bank_account_id: string
@@ -16033,6 +16071,10 @@ export type Database = {
         Returns: Json
       }
       fin_bank_statement_sync_period: { Args: { _id: string }; Returns: string }
+      fin_bank_tx_in_locked_period: {
+        Args: { _account: string; _date: string; _period: string }
+        Returns: boolean
+      }
       fin_benefit_pessoal_class: {
         Args: { _category: string }
         Returns: string
@@ -16088,6 +16130,12 @@ export type Database = {
         }
         Returns: Record<string, unknown>
       }
+      fin_period_lock: { Args: { _period_id: string }; Returns: undefined }
+      fin_period_reopen: {
+        Args: { _period_id: string; _reason: string }
+        Returns: undefined
+      }
+      fin_period_window: { Args: { _period_id: string }; Returns: Json }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
       fin_queue_bank_paid_with: {
@@ -16146,6 +16194,19 @@ export type Database = {
           suggested_group: string
           suggested_id: string
           suggested_name: string
+        }[]
+      }
+      fin_reconcile_candidates: {
+        Args: { _search?: string; _tx_id: string }
+        Returns: {
+          amount: number
+          counterparty: string
+          detail: string
+          doc_date: string
+          kind: string
+          label: string
+          outstanding: number
+          ref_id: string
         }[]
       }
       fin_register_issued_document: {

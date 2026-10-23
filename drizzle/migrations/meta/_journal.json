@@ -1079,6 +1079,13 @@
       "when": 1792753294639,
       "tag": "0153_bank_statement_registry",
       "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "7",
+      "when": 1792754599769,
+      "tag": "0154_bank_period_window",
+      "breakpoints": true
     }
   ]
 }
