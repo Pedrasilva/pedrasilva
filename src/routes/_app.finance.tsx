@@ -20,7 +20,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { financeAccessQueryOptions } from "@/hooks/use-finance-access";
 
 export const Route = createFileRoute("/_app/finance")({
+  // The access check needs the browser session. Run on the server it never
+  // saw one and sent every hard load (reload, pasted or opened link) to "/".
+  ssr: false,
   beforeLoad: async ({ context }) => {
+    if (typeof window === "undefined") return; // checked again in the browser
     let allowed = false;
     try {
       const { data } = await supabase.auth.getSession();
