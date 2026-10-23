@@ -199,11 +199,15 @@ export type Database = {
           created_at: string
           entity_id: string
           id: string
+          last_learned_at: string | null
+          learned_count: number
           match_type: Database["public"]["Enums"]["bank_rule_match_type"]
           name: string
           needs_review: boolean
           pattern: string
           priority: number
+          source: string
+          supplier_id: string | null
           updated_at: string
         }
         Insert: {
@@ -213,11 +217,15 @@ export type Database = {
           created_at?: string
           entity_id: string
           id?: string
+          last_learned_at?: string | null
+          learned_count?: number
           match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
           name: string
           needs_review?: boolean
           pattern: string
           priority?: number
+          source?: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -227,11 +235,15 @@ export type Database = {
           created_at?: string
           entity_id?: string
           id?: string
+          last_learned_at?: string | null
+          learned_count?: number
           match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
           name?: string
           needs_review?: boolean
           pattern?: string
           priority?: number
+          source?: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -247,6 +259,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_classification_rules_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -16094,6 +16113,7 @@ export type Database = {
         Returns: string
       }
       fin_deactivate_if_unused: { Args: { _id: string }; Returns: undefined }
+      fin_desc_key: { Args: { _d: string }; Returns: string }
       fin_edit_issued_document: {
         Args: { _header: Json; _id: string; _lines: Json }
         Returns: string
@@ -16112,10 +16132,15 @@ export type Database = {
         Returns: Json
       }
       fin_is_pessoal_category: { Args: { _id: string }; Returns: boolean }
+      fin_learn_match_rule: {
+        Args: { _doc_id: string; _tx_id: string }
+        Returns: string
+      }
       fin_link_company_to_entity: {
         Args: { _company_id: string }
         Returns: string
       }
+      fin_name_key: { Args: { _n: string }; Returns: string }
       fin_nif_is_placeholder: { Args: { _nif: string }; Returns: boolean }
       fin_paid_from_of_bank_line: {
         Args: { _tx: string }
@@ -16213,6 +16238,22 @@ export type Database = {
           ref_id: string
         }[]
       }
+      fin_reconcile_suggestions: {
+        Args: { _tx_id: string }
+        Returns: {
+          amount: number
+          confidence: number
+          counterparty: string
+          doc_date: string
+          kind: string
+          label: string
+          outstanding: number
+          reasons: Json
+          ref_id: string
+          suggested_amount: number
+          tx_open: number
+        }[]
+      }
       fin_register_issued_document: {
         Args: { _existing_id?: string; _header: Json; _lines: Json }
         Returns: string
@@ -16249,6 +16290,7 @@ export type Database = {
         Returns: undefined
       }
       fin_tax_number_ok: { Args: { _raw: string }; Returns: boolean }
+      fin_tx_open_balance: { Args: { _tx_id: string }; Returns: number }
       fin_user_display_name: { Args: { _user_id: string }; Returns: string }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
