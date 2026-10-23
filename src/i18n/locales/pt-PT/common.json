@@ -425,6 +425,7 @@
       "inbox.triage": "Caixa de entrada",
       "inbox.settings": "Definições",
       "marketing.inbox": "Caixa de Marketing",
+      "marketing.comments": "Comentários Instagram",
       "marketing.settings": "Definições",
       "marketing.bible": "Bíblia de Marketing",
       "marketing.projects": "Perfis de projeto",
@@ -444,6 +445,7 @@
     },
     "tab": {
       "marketing.inbox": "Caixa",
+      "marketing.comments": "Comentários Instagram",
       "marketing.posts": "Planeador",
       "marketing.projects": "Perfis",
       "marketing.questions": "Perguntas",

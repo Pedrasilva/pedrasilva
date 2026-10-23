@@ -168,6 +168,7 @@ import { Route as ApiPublicHooksDocusignConnectRouteImport } from './routes/api/
 import { Route as ApiPublicHooksDriveIntakeRouteImport } from './routes/api/public/hooks/drive-intake'
 import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/public/hooks/gmail-intake'
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
+import { Route as ApiPublicHooksMarketingCommentsRouteImport } from './routes/api/public/hooks/marketing-comments'
 import { Route as ApiPublicHooksMarketingEnrichRouteImport } from './routes/api/public/hooks/marketing-enrich'
 import { Route as ApiPublicHooksMarketingIntakeRouteImport } from './routes/api/public/hooks/marketing-intake'
 import { Route as ApiPublicHooksMarketingPublishRouteImport } from './routes/api/public/hooks/marketing-publish'
@@ -1028,6 +1029,12 @@ const ApiPublicHooksInboxPollRoute = ApiPublicHooksInboxPollRouteImport.update({
   path: '/api/public/hooks/inbox-poll',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksMarketingCommentsRoute =
+  ApiPublicHooksMarketingCommentsRouteImport.update({
+    id: '/api/public/hooks/marketing-comments',
+    path: '/api/public/hooks/marketing-comments',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMarketingEnrichRoute =
   ApiPublicHooksMarketingEnrichRouteImport.update({
     id: '/api/public/hooks/marketing-enrich',
@@ -1233,6 +1240,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-comments': typeof ApiPublicHooksMarketingCommentsRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
@@ -1393,6 +1401,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-comments': typeof ApiPublicHooksMarketingCommentsRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
@@ -1564,6 +1573,7 @@ export interface FileRoutesById {
   '/api/public/hooks/drive-intake': typeof ApiPublicHooksDriveIntakeRoute
   '/api/public/hooks/gmail-intake': typeof ApiPublicHooksGmailIntakeRoute
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
+  '/api/public/hooks/marketing-comments': typeof ApiPublicHooksMarketingCommentsRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
   '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
@@ -1735,6 +1745,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-comments'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/marketing-publish'
@@ -1895,6 +1906,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-comments'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/marketing-publish'
@@ -2065,6 +2077,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/drive-intake'
     | '/api/public/hooks/gmail-intake'
     | '/api/public/hooks/inbox-poll'
+    | '/api/public/hooks/marketing-comments'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
     | '/api/public/hooks/marketing-publish'
@@ -2102,6 +2115,7 @@ export interface RootRouteChildren {
   ApiPublicHooksDriveIntakeRoute: typeof ApiPublicHooksDriveIntakeRoute
   ApiPublicHooksGmailIntakeRoute: typeof ApiPublicHooksGmailIntakeRoute
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
+  ApiPublicHooksMarketingCommentsRoute: typeof ApiPublicHooksMarketingCommentsRoute
   ApiPublicHooksMarketingEnrichRoute: typeof ApiPublicHooksMarketingEnrichRoute
   ApiPublicHooksMarketingIntakeRoute: typeof ApiPublicHooksMarketingIntakeRoute
   ApiPublicHooksMarketingPublishRoute: typeof ApiPublicHooksMarketingPublishRoute
@@ -3227,6 +3241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksInboxPollRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/marketing-comments': {
+      id: '/api/public/hooks/marketing-comments'
+      path: '/api/public/hooks/marketing-comments'
+      fullPath: '/api/public/hooks/marketing-comments'
+      preLoaderRoute: typeof ApiPublicHooksMarketingCommentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/marketing-enrich': {
       id: '/api/public/hooks/marketing-enrich'
       path: '/api/public/hooks/marketing-enrich'
@@ -3718,6 +3739,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksDriveIntakeRoute: ApiPublicHooksDriveIntakeRoute,
   ApiPublicHooksGmailIntakeRoute: ApiPublicHooksGmailIntakeRoute,
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
+  ApiPublicHooksMarketingCommentsRoute: ApiPublicHooksMarketingCommentsRoute,
   ApiPublicHooksMarketingEnrichRoute: ApiPublicHooksMarketingEnrichRoute,
   ApiPublicHooksMarketingIntakeRoute: ApiPublicHooksMarketingIntakeRoute,
   ApiPublicHooksMarketingPublishRoute: ApiPublicHooksMarketingPublishRoute,

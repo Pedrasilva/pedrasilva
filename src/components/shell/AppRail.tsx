@@ -217,6 +217,20 @@ export function useRailDestination(item: RailItem) {
   return item.altTo.to;
 }
 
+/** Unread Instagram comments (not ours, not yet opened). */
+export function useUnreadComments(enabled: boolean) {
+  return useQuery({
+    queryKey: ["marketing-comments-unread"],
+    enabled,
+    staleTime: 60_000,
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count } = await (supabase as any).from("marketing_ig_comments").select("id", { count: "exact", head: true }).is("read_at", null).eq("from_us", false);
+      return count ?? 0;
+    },
+  });
+}
+
 export function usePendingQuestions(enabled: boolean) {
   return useQuery({
     queryKey: ["marketing-questions-pending"],
@@ -255,7 +269,8 @@ function FlyoutLinkRow({ link, active }: { link: FlyoutLink; active: boolean }) 
   const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
   const approvalInbox = useApprovalInbox(undefined, link.badge === "hrApprovals");
   const postApprovals = useMyPostApprovals(link.badge === "hrApprovals");
-  const pending = link.badge === "hrApprovals" ? approvalInbox.rows.length + postApprovals.rows.length : link.badge === "marketingActions" ? pendingA : pendingQ;
+  const { data: unreadC = 0 } = useUnreadComments(link.badge === "marketingComments");
+  const pending = link.badge === "marketingComments" ? unreadC : link.badge === "hrApprovals" ? approvalInbox.rows.length + postApprovals.rows.length : link.badge === "marketingActions" ? pendingA : pendingQ;
   return (
     <Link
       to={link.to as never}

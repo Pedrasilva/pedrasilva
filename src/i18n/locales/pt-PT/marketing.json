@@ -833,5 +833,43 @@
     "confirm": "Confirmar agendamento",
     "tab": "Grelha",
     "listTab": "Lista"
+  },
+  "comments": {
+    "title": "Comentários Instagram",
+    "subtitle": "Comentários e respostas nos nossos posts publicados, mais recentes primeiro. Atualizados a cada 15 minutos.",
+    "refresh": "Atualizar agora",
+    "lastSync": "Última atualização: {{when}}",
+    "never": "Ainda não atualizado",
+    "empty": "Ainda não há comentários.",
+    "new": "Novo",
+    "hidden": "Oculto",
+    "ours": "A nossa resposta",
+    "openPost": "Abrir post",
+    "reply": "Responder",
+    "replyPlaceholder": "Escreva uma resposta…",
+    "suggest": "Sugerir com IA",
+    "suggestHint": "Rascunho da IA — reveja e edite antes de enviar. Nada é enviado automaticamente.",
+    "send": "Enviar resposta",
+    "sending": "A enviar…",
+    "sent": "Resposta enviada",
+    "hide": "Ocultar",
+    "unhide": "Mostrar",
+    "hideTitle": "Ocultar este comentário?",
+    "unhideTitle": "Voltar a mostrar este comentário?",
+    "hideBody": "Os comentários ocultos continuam visíveis para o autor e os seus seguidores, mas não para mais ninguém.",
+    "unhideBody": "O comentário volta a ficar visível para todos.",
+    "confirm": "Confirmar",
+    "done": "Atualizado",
+    "history": "Histórico",
+    "historyItem": "{{action}} por {{who}} · {{when}}",
+    "act": {
+      "reply": "Respondeu",
+      "hide": "Ocultou",
+      "unhide": "Mostrou"
+    },
+    "failed": "Falhou",
+    "filterUnread": "Só novos",
+    "commentsPartial": "Alguns posts não puderam ser atualizados.",
+    "connectionUnavailable": "Ligação ao Instagram indisponível."
   }
 }
