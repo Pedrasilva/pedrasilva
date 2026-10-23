@@ -1897,6 +1897,11 @@
         "same_payment_live": "Já está registado um pagamento com o mesmo valor e data próxima numa compra deste fornecedor."
       },
       "uploadWarn": "{{file}}: já existe ({{label}}, registado em {{date}}).",
+      "discard": "Descartar",
+      "discardAll": "Descartar todos os duplicados",
+      "discarded_one": "{{count}} duplicado descartado",
+      "discarded_other": "{{count}} duplicados descartados",
+      "pendingTitle": "Duplicados encontrados",
       "keepAnyway": "Guardar mesmo assim",
       "manualTitle": "Esta fatura pode já existir",
       "manualExists": "Já existe a fatura {{number}} do fornecedor {{supplier}}, registada em {{date}}.",

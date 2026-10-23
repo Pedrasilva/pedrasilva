@@ -595,3 +595,60 @@ export const restoreRemovedItem = createServerFn({ method: "POST" })
     if (e2) throw new Error(e2.message);
     return { ok: true };
   });
+
+/**
+ * Discards just-uploaded files that matched an existing document. Only the new
+ * queue rows (manual uploads by the caller, never filed/confirmed) and their own
+ * stored file are removed; the matched document/queue item is never touched.
+ * Each discard is logged in finance_intake_deletion_log.
+ */
+export const discardUploadedDuplicates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(50) }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId, claims } = context as any;
+    await assertFinanceAccess(supabase, userId);
+    const { data: rows, error } = await supabase
+      .from("financial_document_review_queue")
+      .select("id, status, source, created_by, created_expense_id, original_filename, source_bucket, source_file_url, duplicate_of_id, duplicate_of_document_id, possible_duplicates, created_at")
+      .in("id", data.ids);
+    if (error) throw new Error(error.message);
+    const ok = (rows ?? []).filter((r: any) =>
+      r.source === "manual_upload" && r.created_by === userId && !r.created_expense_id &&
+      (r.status === "duplicate" || r.status === "pending_review"));
+    if (ok.length === 0) return { discarded: 0 };
+    const ids = ok.map((r: any) => r.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Never remove a file still referenced by another queue row or document.
+    const paths = [...new Set(ok.map((r: any) => r.source_file_url).filter(Boolean))] as string[];
+    const shared = new Set<string>();
+    if (paths.length) {
+      const [{ data: q }, { data: d }] = await Promise.all([
+        supabaseAdmin.from("financial_document_review_queue").select("source_file_url").in("source_file_url", paths).not("id", "in", `(${ids.join(",")})`),
+        supabaseAdmin.from("financial_documents").select("source_file_url").in("source_file_url", paths),
+      ]);
+      for (const r of [...(q ?? []), ...(d ?? [])] as any[]) shared.add(r.source_file_url);
+    }
+    const { error: delErr } = await supabaseAdmin.from("financial_document_review_queue").delete().in("id", ids);
+    if (delErr) throw new Error(delErr.message);
+    const byBucket = new Map<string, string[]>();
+    for (const r of ok as any[]) {
+      if (!r.source_file_url || shared.has(r.source_file_url)) continue;
+      const b = r.source_bucket ?? "financial-documents";
+      byBucket.set(b, [...new Set([...(byBucket.get(b) ?? []), r.source_file_url])]);
+    }
+    for (const [b, p] of byBucket) await supabaseAdmin.storage.from(b).remove(p);
+    await supabaseAdmin.from("finance_intake_deletion_log").insert({
+      deleted_count: ids.length,
+      criteria: { kind: "discarded_upload_duplicate" },
+      deleted_items: ok.map((r: any) => ({
+        id: r.id, filename: r.original_filename, uploaded_at: r.created_at,
+        matched_queue_id: r.duplicate_of_id ?? r.possible_duplicates?.[0]?.queueItemId ?? null,
+        matched_document_id: r.duplicate_of_document_id ?? r.possible_duplicates?.[0]?.documentId ?? null,
+        matched_label: r.possible_duplicates?.[0]?.label ?? null,
+      })),
+      deleted_by: userId,
+      deleted_by_label: claims?.email ?? null,
+    });
+    return { discarded: ids.length };
+  });
