@@ -57,7 +57,7 @@ async def main():
         b = await p.chromium.launch(headless=True)
         c = await b.new_context(viewport={"width": 1280, "height": 1800}); pg = await c.new_page()
         errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
-        await c.route("**/*", guard)
+        await c.route("**/rest/v1/**", guard)
         await login(c, pg)
         await pg.goto(BASE + "/finance/banking/reconciliation"); await pg.wait_for_timeout(9000)
 
