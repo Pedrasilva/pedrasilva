@@ -820,5 +820,18 @@
     "connectionUnavailable": "Instagram connection unavailable.",
     "feedUnavailable": "Instagram feed could not be refreshed.",
     "feedEmpty": "No posts in the Instagram feed."
+  },
+  "grid": {
+    "carousel": "Carousel",
+    "reel": "Reel",
+    "readOnly": "Published on Instagram (read-only)",
+    "dragHint": "Drag undated drafts to reorder or drop them between scheduled posts",
+    "proposeTitle": "Propose publication time",
+    "proposeBody": "Schedule this post for {{when}} (Lisbon)? Nothing changes until you confirm.",
+    "noGap": "There is no free time between these neighbours. Drop it elsewhere.",
+    "needsApproval": "This draft is still pending approval. It can only be scheduled after a valid approval.",
+    "confirm": "Confirm schedule",
+    "tab": "Grid",
+    "listTab": "List"
   }
 }

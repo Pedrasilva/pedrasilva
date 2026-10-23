@@ -25,6 +25,7 @@ import { NewCarouselButton } from "@/components/marketing/carousels-card";
 import { resolveDraftImages } from "@/lib/marketing/draft-images";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
+import { PlannerGrid } from "@/components/marketing/planner-grid";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
   validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string } => ({
@@ -232,6 +233,7 @@ function PostPlannerPage() {
   const focusName = (id: string | null | undefined) => (id ? focusOptions.find((o) => o.id === id)?.name ?? null : null);
   const [busy, setBusy] = useState(false);
   const [statusFilter, setStatusFilter] = useState("active");
+  const [plannerView, setPlannerView] = useState<"list" | "grid">("list");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = usePlannerData();
   const focusRequest = requestParam ?? (focusDraft ? data?.drafts.find((d) => d.id === focusDraft)?.request_id : undefined);
@@ -363,7 +365,12 @@ function PostPlannerPage() {
         )}
       </Card>
 
-      <div className="flex items-center gap-2">
+      <div className="flex gap-1">
+        {(["list", "grid"] as const).map((v) => <Button key={v} size="sm" variant={plannerView === v ? "default" : "outline"} onClick={() => setPlannerView(v)}>{t(v === "grid" ? "grid.tab" : "grid.listTab")}</Button>)}
+      </div>
+      {plannerView === "grid" && <PlannerGrid />}
+
+      {plannerView === "list" && <div className="flex items-center gap-2">
         <Label className="text-sm">{t("filters.status")}</Label>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
@@ -373,12 +380,12 @@ function PostPlannerPage() {
             {STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`posts.status.${s}`)}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
+      </div>}
 
-      {isLoading && <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>}
-      {!isLoading && !groups.length && <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>}
+      {plannerView === "list" && isLoading && <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>}
+      {plannerView === "list" && !isLoading && !groups.length && <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>}
 
-      {groups.map(({ req, ideas }) => (
+      {plannerView === "list" && groups.map(({ req, ideas }) => (
         <section key={req.id} className="space-y-3">
           <div className="flex flex-wrap items-baseline gap-2 border-b pb-1">
             <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
