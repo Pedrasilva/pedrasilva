@@ -13,7 +13,7 @@ from playwright.async_api import async_playwright
 
 BASE = "http://localhost:8080"
 OUT = Path("/tmp/browser/e2e-match"); OUT.mkdir(parents=True, exist_ok=True)
-READ_RPC = re.compile(r"/rpc/(fin_reconcile_|fin_tx_open_balance|current_finance_entity|fin_period_window|bank_|fin_row_visible|has_|get_|fin_bank_document_registry|fin_queue_blockers|fin_entity_of|fin_company_visible)")
+WRITE_RPC = re.compile(r"/rpc/(fin_learn_match_rule|fin_confirm_|fin_queue_bank_paid_with|bank_tx_unreconcile|fin_payment_set_paid_from|fin_period_lock|fin_period_reopen|bank_import_undo|fin_accept_reclass)")
 blocked, leaked, results = [], [], []
 
 def check(name, ok, info=""):
@@ -21,9 +21,11 @@ def check(name, ok, info=""):
 
 async def guard(route, req):
     url, m = req.url, req.method
-    write = m in ("POST", "PATCH", "PUT", "DELETE") and ("/rest/v1/" in url or "/storage/v1/object/" in url and m != "POST")
-    if "/storage/v1/object/sign/" in url or ("/rest/v1/rpc/" in url and READ_RPC.search(url)):
-        write = False
+    if "/rest/v1/rpc/" in url:
+        # Read RPCs pass; any RPC that saves a match, rule or confirmation is faked.
+        write = bool(WRITE_RPC.search(url))
+    else:
+        write = m in ("POST", "PATCH", "PUT", "DELETE") and "/rest/v1/" in url
     if write:
         body = req.post_data or ""
         blocked.append((m, url.split("?")[0].split("/")[-1], body[:200]))
