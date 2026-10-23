@@ -7271,6 +7271,102 @@ export type Database = {
           },
         ]
       }
+      marketing_ig_comment_actions: {
+        Row: {
+          action: string
+          actor_id: string
+          ai_suggested: boolean
+          body: string | null
+          comment_id: string
+          created_at: string
+          id: string
+          meta_error_code: string | null
+          meta_error_message: string | null
+          meta_result_id: string | null
+          success: boolean
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          ai_suggested?: boolean
+          body?: string | null
+          comment_id: string
+          created_at?: string
+          id?: string
+          meta_error_code?: string | null
+          meta_error_message?: string | null
+          meta_result_id?: string | null
+          success: boolean
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          ai_suggested?: boolean
+          body?: string | null
+          comment_id?: string
+          created_at?: string
+          id?: string
+          meta_error_code?: string | null
+          meta_error_message?: string | null
+          meta_result_id?: string | null
+          success?: boolean
+        }
+        Relationships: []
+      }
+      marketing_ig_comments: {
+        Row: {
+          body: string
+          commented_at: string | null
+          first_seen_at: string
+          from_us: boolean
+          hidden: boolean
+          id: string
+          media_caption: string | null
+          media_id: string
+          media_permalink: string | null
+          media_thumbnail: string | null
+          parent_id: string | null
+          read_at: string | null
+          read_by: string | null
+          synced_at: string
+          username: string | null
+        }
+        Insert: {
+          body?: string
+          commented_at?: string | null
+          first_seen_at?: string
+          from_us?: boolean
+          hidden?: boolean
+          id: string
+          media_caption?: string | null
+          media_id: string
+          media_permalink?: string | null
+          media_thumbnail?: string | null
+          parent_id?: string | null
+          read_at?: string | null
+          read_by?: string | null
+          synced_at?: string
+          username?: string | null
+        }
+        Update: {
+          body?: string
+          commented_at?: string | null
+          first_seen_at?: string
+          from_us?: boolean
+          hidden?: boolean
+          id?: string
+          media_caption?: string | null
+          media_id?: string
+          media_permalink?: string | null
+          media_thumbnail?: string | null
+          parent_id?: string | null
+          read_at?: string | null
+          read_by?: string | null
+          synced_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       marketing_nudges: {
         Row: {
           ai_suggested_question: string
@@ -7985,6 +8081,8 @@ export type Database = {
           graph_api_version: string
           id: boolean
           instagram_account_id: string | null
+          instagram_comments_error: string | null
+          instagram_comments_synced_at: string | null
           instagram_feed: Json
           instagram_feed_at: string | null
           instagram_feed_error: string | null
@@ -8005,6 +8103,8 @@ export type Database = {
           graph_api_version?: string
           id?: boolean
           instagram_account_id?: string | null
+          instagram_comments_error?: string | null
+          instagram_comments_synced_at?: string | null
           instagram_feed?: Json
           instagram_feed_at?: string | null
           instagram_feed_error?: string | null
@@ -8025,6 +8125,8 @@ export type Database = {
           graph_api_version?: string
           id?: boolean
           instagram_account_id?: string | null
+          instagram_comments_error?: string | null
+          instagram_comments_synced_at?: string | null
           instagram_feed?: Json
           instagram_feed_at?: string | null
           instagram_feed_error?: string | null
@@ -16292,6 +16394,10 @@ export type Database = {
       marketing_is_project_team_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      marketing_mark_comments_read: {
+        Args: { _ids: string[] }
+        Returns: number
       }
       marketing_media_delete_block: {
         Args: { _media_id: string }
