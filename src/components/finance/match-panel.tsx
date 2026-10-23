@@ -235,6 +235,15 @@ export function MatchPanel({
           <span className="text-xs font-medium">{t("finance:matchPanel.title")}</span>
           <span className="text-[10px] text-muted-foreground ml-auto">{t("finance:matchPanel.keys")} · {t("finance:reconSuggest.neverAuto")}</span>
         </div>
+        {partnerQ.data && (
+          <div className="p-2 border-b text-xs flex items-center gap-2">
+            <Badge variant="outline">{t("finance:knownBank.partnerTransfer")}</Badge>
+            <span>{partnerQ.data.holder} · {partnerQ.data.bank}</span>
+            <Button size="sm" variant="outline" className="ml-auto" onClick={onMarkTransfer}>
+              {t("finance:knownBank.reviewTransfer")}
+            </Button>
+          </div>
+        )}
         {partial && (
           <p className="px-2 py-1 text-[11px] bg-muted/50">{t("finance:reconSuggest.txOpen", { open: fmt(txOpen), total: fmt(Math.abs(tx.amount)) })}</p>
         )}
