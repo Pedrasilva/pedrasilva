@@ -203,6 +203,8 @@ export function GanttChart({
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const relativeWeek=(date:string)=>t("gantt.relative.week",{number:Math.floor(scheduleCalendar().offset(RELATIVE_ORIGIN,date)/5)+1});
+  // Proposal fees/hours are agreed per weekday and never reduced by holidays/closures; those only move dates.
+  const effortHolidays = relative || adapter.mode === "quote" ? NO_HOLIDAYS : undefined;
   const displayDate=(date:string)=>relative ? relativeWeek(date) : fmt(date);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -1307,14 +1309,14 @@ export function GanttChart({
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, isOverride),
-              }, relative ? NO_HOLIDAYS : undefined);
+              }, effortHolidays);
               totalSale += allocationCost({
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
-              }, relative ? NO_HOLIDAYS : undefined);
-              plannedHours += workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day);
+              }, effortHolidays);
+              plannedHours += workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day);
             }
             const budget = Number(stage.budget);
             // Implied hours: when a stage has no resource allocations but a
@@ -1691,7 +1693,7 @@ export function GanttChart({
                     end_date: aE,
                     hours_per_day: Number(a.hours_per_day),
                     hourly_rate: costRate,
-                  }, relative ? NO_HOLIDAYS : undefined);
+                  }, effortHolidays);
                   const top = STAGE_ROW_H + (actuals ? ACTUAL_METRIC_HEIGHT : 0) + idx * allocationRowStep;
                   const r = resourceMap.get(a.resource_id);
                   const color = r?.color ?? a.resource.color;
@@ -1717,7 +1719,7 @@ export function GanttChart({
                     resourceDailyHours,
                   );
                   const hasLeave = allocLeaveHours > 0;
-                  const allocTotalHours = workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day);
+                  const allocTotalHours = workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day);
                   const reducedCapacity = Math.max(0, allocTotalHours - allocLeaveHours);
                   const isImported = a.is_locked === true || a.source === "imported_accelo";
 
@@ -1889,7 +1891,7 @@ export function GanttChart({
                                 <span className="text-muted-foreground">{t("gantt.tooltip.duration")}</span>
                                 <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
-                                <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) * Number(a.hours_per_day) })}</span>
+                                <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
                                 <span className="font-mono">{euros(costRate)}/h</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>
