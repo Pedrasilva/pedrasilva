@@ -2702,13 +2702,15 @@
   "supplierDups": {
     "tabPurchases": "Purchases",
     "tabSuppliers": "Suppliers",
-    "subtitle": "Suppliers that may be the same company (same NIF or same name). Nothing changes until you choose which to keep and confirm. The other one is never deleted: it becomes inactive and its name and NIF are kept as aliases.",
+    "subtitle": "Suppliers that may be the same company, grouped together: same NIF/VAT, same name after removing accents, punctuation and legal endings (Lda, SA, Inc, Ltd…), very similar names, or the same bank description in past matches. Nothing changes until you choose which to keep and confirm. The others are never deleted: they become inactive and their names and NIFs are kept as aliases.",
     "none": "No possible duplicate suppliers.",
-    "count_one": "{{count}} possible duplicate",
-    "count_other": "{{count}} possible duplicates",
+    "count_one": "{{count}} group",
+    "count_other": "{{count}} groups",
     "reason": {
       "same_nif": "Same NIF",
-      "same_name": "Same name"
+      "same_name": "Same name",
+      "similar_name": "Very similar name",
+      "bank_pattern": "Same bank description"
     },
     "documents": "Documents",
     "total": "Total",
@@ -2720,6 +2722,15 @@
     "cancel": "Cancel",
     "confirm": "Merge",
     "merged": "{{merged}} merged into {{keep}}.",
-    "remembered": "Marked as not a duplicate."
+    "remembered": "Marked as not a duplicate.",
+    "confidence": "{{value}}% confidence",
+    "why": "Why",
+    "keepThis": "Keep this one",
+    "notDupAll": "Not duplicates",
+    "confirmDescMany": "Keep {{keep}}. Every document and record of {{merge}} ({{docs}} documents) moves to it; they stay inactive and their names and NIFs become aliases. No document is deleted.",
+    "purchasePairs": "Possible duplicate purchases (same amount, dates within 3 days)",
+    "noPairs": "No repeated purchases in this group.",
+    "entityPsa": "PSA",
+    "entityOther": "Pedra Rioja"
   }
 }
