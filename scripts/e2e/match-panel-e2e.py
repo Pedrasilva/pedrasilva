@@ -46,7 +46,7 @@ async def login(c, pg):
     await pg.goto(BASE); await pg.evaluate("([k,v])=>localStorage.setItem(k,v)", [k, s])
 
 async def open_movement(pg, text, amount):
-    s = pg.get_by_placeholder("Pesquisar").first
+    s = pg.get_by_placeholder(re.compile("Search description|Pesquisar descri")).first
     await s.fill(text); await pg.wait_for_timeout(2500)
     row = pg.get_by_text(text, exact=False).filter(has_text=amount).first
     if not await row.count(): row = pg.get_by_text(text, exact=False).first
@@ -84,16 +84,16 @@ async def main():
         await pg.screenshot(path=str(OUT / "1_preview.png"))
 
         # 3. Split selection: tick two documents, running total and remainder
-        boxes = pg.get_by_role("checkbox", name="Selecionar para pagamento dividido")
+        boxes = pg.get_by_role("checkbox", name=re.compile("Select for split payment|Selecionar para pagamento dividido"))
         await boxes.nth(0).click(); await boxes.nth(1).click(); await pg.wait_for_timeout(500)
-        bar = pg.get_by_text("Selecionado", exact=False).locator("xpath=..")
+        bar = pg.get_by_text(re.compile("^(Selected|Selecionado):")).locator("xpath=..")
         txt = await bar.inner_text()
-        check("split bar shows running total and remainder", "Diferença" in txt and "/" in txt, txt.replace("\n", " ")[:120])
+        check("split bar shows running total and remainder", ("Remainder" in txt or "Diferença" in txt) and "/" in txt, txt.replace("\n", " ")[:120])
         before_blocked = len(blocked)
 
         # 4. Match selected (intercepted) → advances to next movement
         header_before = await pg.get_by_role("option").first.inner_text()
-        await pg.get_by_role("button", name="Conciliar selecionados").click(); await pg.wait_for_timeout(4000)
+        await pg.get_by_role("button", name=re.compile("Match selected|Conciliar selecionados")).click(); await pg.wait_for_timeout(4000)
         pays = [x for x in blocked[before_blocked:] if "financial_document_payments" in x[1]]
         check("split match sends two payments (intercepted, not saved)", len(pays) == 2, f"{len(pays)} intercepted")
         header_after = await pg.get_by_role("option").first.inner_text() if await pg.get_by_role("option").count() else ""
@@ -111,7 +111,7 @@ async def main():
         await open_movement(pg, "APPLE", "23,49")
         await pg.get_by_text("678182247840").first.wait_for(timeout=20000)
         n0 = len(blocked)
-        await pg.get_by_role("button", name=re.compile("Confirmar e conciliar")).first.click(); await pg.wait_for_timeout(3000)
+        await pg.get_by_role("button", name=re.compile("Confirm and match|Confirmar e conciliar")).first.click(); await pg.wait_for_timeout(3000)
         dlg = pg.get_by_role("dialog")
         check("Confirm-and-match panel opens for Entrada item", await dlg.count() > 0)
         await pg.screenshot(path=str(OUT / "3_confirm.png"))
