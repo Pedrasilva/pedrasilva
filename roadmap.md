@@ -281,6 +281,6 @@
 - [x] Stage A discovery reported; proposed queue statement fields + period→document/card link.
 - [x] Stage A build (OK received): migration 0153 mirrored; intake reads kind/number/balances/totals/card fields with two-model check on balances; editable corrections with AI value + who/when; filing creates/updates linked period; registry with filters, grouping, duplicates, gaps, continuity, signed PDF, printed vs Hub green/red; Extratos uses statement balances or says none. 5 rule tests + rolled-back DB test (PSA+PR, account+card) passed; registry and ledger opened signed-in without errors.
 - [ ] Existing 97 bank items were read before this change: they show 'Sem tipo' until re-read (not done automatically). Includes: printed opening/closing vs Hub opening+movements=computed closing and difference (green/red) in registry and statement view; Extratos uses statement balances when a statement exists, else says none.
-- [ ] Stage B (period window, one candidate pool, search, cards) — after A; Lovable 17/09 300 € case diagnosed (200-row limit), not matched.
+- [x] Stage B: period window, lock/reopen with reason, one candidate pool searched in the database, card payment check. Entrada confirm-and-match in one step still opens Entrada (pending).
 - [ ] Stage C (ranking, split/partial, learned rules, review mode) — after B.
 - [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — after C.
