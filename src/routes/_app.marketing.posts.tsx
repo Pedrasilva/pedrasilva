@@ -410,16 +410,13 @@ function PostPlannerPage() {
   );
 }
 
-function useSigned(paths: string[]) {
+/** ~400px WebP previews for list cards (videos stay original); URLs are reused for most of their hour. */
+function useSigned(items: { path: string; video: boolean }[]) {
   return useQuery({
-    queryKey: ["marketing-post-urls", paths],
-    enabled: paths.length > 0,
-    queryFn: async () => {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrls(paths, 3600);
-      const m: Record<string, string> = {};
-      for (const d of data ?? []) if (d.path && d.signedUrl) m[d.path] = d.signedUrl;
-      return m;
-    },
+    queryKey: ["marketing-post-urls", items.map((i) => i.path)],
+    enabled: items.length > 0,
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () => Object.fromEntries(await signPaths(supabase, items, 3600, PREVIEW.tile)) as Record<string, string>,
   });
 }
 
@@ -431,7 +428,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
   const first = drafts[0];
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
   const textFrame = first.format === "story" ? (first.final_story_frames ?? first.ai_story_frames ?? []).find((f) => f.kind === "text") ?? null : null;
-  const { data: urls = {} } = useSigned(assets.map((a) => a.storage_path));
+  const { data: urls = {} } = useSigned(assets.map((a) => ({ path: a.storage_path, video: a.mime_type.startsWith("video/") })));
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
   const qc = useQueryClient();
   const [rechecking, setRechecking] = useState(false);
@@ -452,9 +449,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
             <div key={a.storage_path} className="relative shrink-0 snap-start">
               {urls[a.storage_path]
                 ? (a.mime_type.startsWith("video/")
-                  ? <video src={urls[a.storage_path]} controls className="h-48 rounded" />
-                  : <img src={urls[a.storage_path]} alt={a.file_name} className={cn("rounded object-cover", first.format === "story" ? "h-64 w-36" : "h-48")} />)
-                : <div className="h-48 w-48 rounded bg-muted" />}
+                  ? <video src={urls[a.storage_path]} controls preload="metadata" className="h-48 rounded" />
+                  : <img src={urls[a.storage_path]} alt={a.file_name} loading="lazy" decoding="async" className={cn("rounded bg-muted object-cover", first.format === "story" ? "h-64 w-36" : "h-48 w-48")} />)
+                : <div className={cn("animate-pulse rounded bg-muted", first.format === "story" ? "h-64 w-36" : "h-48 w-48")} />}
               {(assets.length > 1 || textFrame) && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1 + (textFrame ? 1 : 0)}</span>}
             </div>
           ))}
