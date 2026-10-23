@@ -303,6 +303,22 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
                 }
 
                 const path = `intake/email/${id}-${safe}`;
+                // Idempotent catch-up: same message id + same attachment hash = skip,
+                // so an interrupted run can be repeated without creating copies.
+                const sha = Buffer.from(
+                  await crypto.subtle.digest("SHA-256", new Uint8Array(buf)),
+                ).toString("hex");
+                const { data: already } = await supabaseAdmin
+                  .from("financial_document_review_queue")
+                  .select("id")
+                  .eq("source_file_url", path)
+                  .eq("file_sha256", sha)
+                  .limit(1);
+                if (already && already.length > 0) {
+                  queued++;
+                  summary.duplicates++;
+                  continue;
+                }
                 const { error: upErr } = await supabaseAdmin.storage
                   .from(BUCKET)
                   .upload(path, buf, { contentType: "application/pdf", upsert: true });
