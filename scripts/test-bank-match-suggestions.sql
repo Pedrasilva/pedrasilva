@@ -17,7 +17,7 @@ BEGIN
   FOR ent, nm IN SELECT * FROM (VALUES ('00000000-0000-4000-a000-000000000001'::uuid, 'PSA'), ('e0b3ac8e-97a5-4fb1-a2b0-53f65125d114'::uuid, 'Pedra Rioja')) x LOOP
     INSERT INTO public.finance_entity_preferences(user_id, entity_id) VALUES (auth.uid(), ent)
       ON CONFLICT (user_id) DO UPDATE SET entity_id = ent;
-    SELECT id INTO cls FROM public.financial_classifications WHERE entity_id = ent AND active ORDER BY code LIMIT 1;
+    SELECT id INTO cls FROM public.financial_classifications WHERE entity_id = ent AND active AND level::text = 'category' ORDER BY code LIMIT 1;
 
     INSERT INTO public.bank_accounts(entity_id, account_name, bank_name, currency, is_active, account_kind)
       VALUES (ent, 'TEST-SUG conta', 'TESTBANK', 'EUR', true, 'bank') RETURNING id INTO acc;
