@@ -18,3 +18,13 @@ RETURNING id,entity_id,removed_reason)
 INSERT INTO public.finance_intake_corrections(entity_id,queue_item_id,field,ai_value,corrected_value,corrected_by)
 SELECT entity_id,id,'removal','Previous extraction retained',removed_reason||'; exact identity confirmed by Luis; permanent preservation; no periods, movements or matches changed','ab5a48c0-939b-4502-bd3b-db7801f0f8b8' FROM changed;
 COMMIT;
+-- Personal card account identity inferred from the existing personal 7305 card
+-- and the identical printed account number in both Platinum statements.
+BEGIN;
+INSERT INTO finance_known_bank_identities(bank_name,holder,account_number,ownership,created_by)
+SELECT 'Millennium BCP','Luis Pedra Silva — cartão pessoal 7305','434736-0106408-00-0','personal','ab5a48c0-939b-4502-bd3b-db7801f0f8b8'
+WHERE EXISTS(SELECT 1 FROM payment_cards WHERE id='002d0a6a-b216-4d63-ab68-9561c6b1af07' AND is_personal AND last4='7305') AND NOT EXISTS(SELECT 1 FROM finance_known_bank_identities WHERE account_number='434736-0106408-00-0');
+WITH changed AS (UPDATE financial_document_review_queue SET reviewed_by='ab5a48c0-939b-4502-bd3b-db7801f0f8b8',reviewed_at=now() WHERE id IN ('080e1efe-55df-4632-a669-0941a6a998b4','44d2be80-e073-4bee-88bf-e2938b8646c8') RETURNING id,entity_id,removed_reason)
+INSERT INTO finance_intake_corrections(entity_id,queue_item_id,field,ai_value,corrected_value,corrected_by) SELECT entity_id,id,'removal','Personal card 7305 already registered; same printed account 434736-0106408-00-0',removed_reason,'ab5a48c0-939b-4502-bd3b-db7801f0f8b8' FROM changed;
+UPDATE financial_document_review_queue SET raw_extraction=coalesce(raw_extraction,'{}'::jsonb)||jsonb_build_object('_known_paying_account',CASE WHEN extracted_account_number='45344866160' THEN '03 MBCP Associados' ELSE '01 MBCP' END),reviewed_by='ab5a48c0-939b-4502-bd3b-db7801f0f8b8',reviewed_at=now() WHERE id IN ('aca28de3-0fa7-4379-8179-7087f1c95f4c','36f451e4-44cf-4f6c-a429-0724d6a5b5e4');
+COMMIT;
