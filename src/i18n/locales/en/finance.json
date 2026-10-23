@@ -2548,7 +2548,9 @@
       "period_difference_not_zero": "The difference with matched movements is not zero.",
       "reason_required": "A reason is required.",
       "forbidden": "Only administrators can do this.",
-      "period_locked": "This period is locked. Reopen it with a reason first."
+      "period_locked": "This period is locked. Reopen it with a reason first.",
+      "period_difference_not_one": "The difference with matched movements is not zero.",
+      "period_difference_not_other": "The difference with matched movements is not zero."
     }
   },
   "candidatePool": {

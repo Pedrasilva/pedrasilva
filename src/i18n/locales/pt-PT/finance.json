@@ -2548,7 +2548,9 @@
       "period_difference_not_zero": "A diferença com movimentos conciliados não é zero.",
       "reason_required": "O motivo é obrigatório.",
       "forbidden": "Só administradores podem fazer isto.",
-      "period_locked": "Este período está bloqueado. Reabra-o com um motivo primeiro."
+      "period_locked": "Este período está bloqueado. Reabra-o com um motivo primeiro.",
+      "period_difference_not_one": "A diferença com movimentos conciliados não é zero.",
+      "period_difference_not_other": "A diferença com movimentos conciliados não é zero."
     }
   },
   "candidatePool": {
