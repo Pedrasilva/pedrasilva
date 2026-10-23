@@ -1740,7 +1740,17 @@
     }
   },
   "intakeInbox": {
-    "sort": {"label": "Sort", "doc_desc": "Document date (newest)", "doc_asc": "Document date (oldest)", "arrived_desc": "Arrival date (newest)", "arrived_asc": "Arrival date (oldest)", "name_asc": "Name / supplier A–Z", "name_desc": "Name / supplier Z–A", "amount_desc": "Amount (highest)", "amount_asc": "Amount (lowest)"},
+    "sort": {
+      "label": "Sort",
+      "doc_desc": "Document date (newest)",
+      "doc_asc": "Document date (oldest)",
+      "arrived_desc": "Arrival date (newest)",
+      "arrived_asc": "Arrival date (oldest)",
+      "name_asc": "Name / supplier A–Z",
+      "name_desc": "Name / supplier Z–A",
+      "amount_desc": "Amount (highest)",
+      "amount_asc": "Amount (lowest)"
+    },
     "title": "Finance inbox",
     "subtitle": "Every incoming document, sorted by type. Two AI models read each one; nothing is approved without you.",
     "tabs": {
@@ -2570,6 +2580,60 @@
       "too_large": "File larger than 25 MB. Scan at 200–300 dpi in grey or split the PDF, then upload again.",
       "network": "Connection lost during upload. Please try again.",
       "not signed in": "Your session expired. Sign in again and retry."
+    }
+  },
+  "reconSuggest": {
+    "title": "Suggestions (top 5)",
+    "neverAuto": "Nothing is matched automatically",
+    "none": "No suggestions for this movement.",
+    "open": "open",
+    "txOpen": "Still to match on this movement: {{open}} of {{total}}",
+    "confirmAndMatch": "Confirm and match",
+    "confirm": "Confirm match",
+    "skip": "Skip",
+    "sheetTitle": "Confirm document and match movement",
+    "sheetHint": "Check and correct the fields read by AI, choose the company, then confirm. The document is matched to this movement right after. Cancel changes nothing.",
+    "company": "Company",
+    "notPending": "This document is no longer pending in Entrada.",
+    "confirmedMatched": "Document confirmed and matched ({{amount}}).",
+    "matchFailed": "The document was confirmed, but matching to the movement failed.",
+    "nothingOpen": "Nothing left to match on the movement or document.",
+    "exceedsTxOpen": "The amount exceeds what is still open on the movement ({{open}}).",
+    "amountInvalid": "Amount must be above zero and within the open balance of both the document and the movement.",
+    "partialHint": "A smaller amount leaves the rest open on both sides.",
+    "reviewButton": "Review suggestions",
+    "reviewTitle": "Review suggestions for this period",
+    "progress": "Movement {{n}} of {{total}}",
+    "reviewDone": "Done: {{confirmed}} confirmed, {{skipped}} skipped.",
+    "reason": {
+      "amount_exact": "Same amount",
+      "amount_fee": "Amount within fee tolerance ({{diff}})",
+      "partial_doc": "Partial payment of the document",
+      "split_tx": "Part of a split payment",
+      "rule": "Description rule",
+      "past": "Past matches with this supplier",
+      "name": "Supplier named in description",
+      "reference": "Document number in description",
+      "recurring": "Recurring amount for this supplier",
+      "days_one": "{{count}} day before",
+      "days_other": "{{count}} days before",
+      "daysAfter_one": "{{count}} day after",
+      "daysAfter_other": "{{count}} days after"
+    },
+    "rules": {
+      "title": "Description rules",
+      "show": "Show",
+      "hide": "Hide",
+      "hint": "Rules link a bank description to a supplier and/or category. Learned rules come from confirmed matches; only rules with a category classify imports, supplier-only rules only rank suggestions.",
+      "empty": "No rules yet.",
+      "supplier": "Supplier",
+      "noSupplier": "No supplier",
+      "category": "Category",
+      "noCategory": "No category",
+      "learned_one": "Learned ×{{count}}",
+      "learned_other": "Learned ×{{count}}",
+      "manual": "Manual",
+      "saved": "Rule saved"
     }
   }
 }
