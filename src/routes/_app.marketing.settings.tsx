@@ -77,8 +77,9 @@ function MarketingSettingsPage() {
           <div className="space-y-2 border-t pt-4">
             <h3 className="text-sm font-semibold">{t("meta.permissions")}</h3>
             {permissionChecks(settings?.granted_permissions ?? []).map((item) => <div key={item.permission} className="flex items-center gap-2 text-sm">
-              {item.granted ? <CheckCircle2 aria-label={t("meta.granted")} className="h-4 w-4 shrink-0 text-success" /> : <XCircle aria-label={t("meta.missing")} className="h-4 w-4 shrink-0 text-destructive" />}
+              {item.granted ? <CheckCircle2 aria-label={t("meta.granted")} className="h-4 w-4 shrink-0 text-success" /> : item.required ? <XCircle aria-label={t("meta.missing")} className="h-4 w-4 shrink-0 text-destructive" /> : <span aria-hidden="true" className="h-4 w-4 shrink-0" />}
               <span className="min-w-0 break-all font-mono text-xs">{item.permission}</span>
+              {!item.required && <span className="text-xs text-muted-foreground">{t("meta.permissionOptional")}</span>}
             </div>)}
             {(settings?.granted_permissions ?? []).filter((s) => !permissionChecks([]).some((p) => p.permission === s)).map((scope) => <div key={scope} className="break-all font-mono text-xs text-success">{scope}</div>)}
           </div>
