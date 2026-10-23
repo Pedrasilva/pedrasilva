@@ -92,10 +92,14 @@ async def main():
         before_blocked = len(blocked)
 
         # 4. Match selected (intercepted) → advances to next movement
+        # Clear the movement-list search so a "next movement" exists.
+        await pg.get_by_placeholder(re.compile("Search description|Pesquisar descri")).first.fill(""); await pg.wait_for_timeout(3000)
         header_before = await pg.get_by_role("option").first.inner_text()
         await pg.get_by_role("button", name=re.compile("Match selected|Conciliar selecionados")).click(); await pg.wait_for_timeout(4000)
         pays = [x for x in blocked[before_blocked:] if "financial_document_payments" in x[1]]
-        check("split match sends two payments (intercepted, not saved)", len(pays) == 2, f"{len(pays)} intercepted")
+        amts = [float(json.loads(x[2]).get("amount", 0)) if x[2].startswith("{") else 0 for x in pays]
+        # Allocation never exceeds what is open on the movement (300 €): first doc takes 300, second gets 0 → skipped.
+        check("split match never allocates more than the movement (intercepted, not saved)", len(pays) >= 1 and abs(sum(amts) - 300) < 0.01, f"{len(pays)} payment(s), {sum(amts):.2f} €")
         header_after = await pg.get_by_role("option").first.inner_text() if await pg.get_by_role("option").count() else ""
         check("panel moved to the next movement after the match", header_after != header_before)
         await pg.screenshot(path=str(OUT / "2_after_match.png"))
