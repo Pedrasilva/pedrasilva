@@ -40,3 +40,24 @@ export const setCommentVisibility = createServerFn({ method: "POST" }).middlewar
     const { setCommentHidden } = await import("./instagram-comments.server");
     return setCommentHidden({ ...data, actorId: context.userId });
   });
+
+/**
+ * Names for the comment action log. Uses the existing HR link (auth email = collaborators.email);
+ * only returns name and photo path for actors who appear in the Marketing action log.
+ */
+export const commentActorNames = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireMarketing(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: acts } = await supabaseAdmin.from("marketing_ig_comment_actions" as never).select("actor_id").limit(2000);
+    const ids = [...new Set(((acts ?? []) as Array<{ actor_id: string }>).map((a) => a.actor_id).filter(Boolean))];
+    const out: Record<string, { name: string | null; fotoPath: string | null }> = {};
+    const emails = new Map<string, string>();
+    await Promise.all(ids.map(async (id) => { const { data } = await supabaseAdmin.auth.admin.getUserById(id); if (data?.user?.email) emails.set(id, data.user.email.toLowerCase()); }));
+    if (emails.size) {
+      const { data: cols } = await supabaseAdmin.from("collaborators").select("nome,email,foto_path").not("email", "is", null);
+      const byEmail = new Map((cols ?? []).map((c) => [String(c.email).toLowerCase(), c]));
+      for (const [id, e] of emails) { const c = byEmail.get(e); out[id] = { name: c?.nome ?? null, fotoPath: c?.foto_path ?? null }; }
+    }
+    return out;
+  });

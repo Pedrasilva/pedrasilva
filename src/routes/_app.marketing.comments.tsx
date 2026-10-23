@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { isUnread, MAX_REPLY } from "@/lib/marketing/instagram-comments";
-import { sendCommentReply, setCommentVisibility, suggestReply, syncCommentsNow } from "@/lib/marketing/instagram-comments.functions";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
+import { commentActorNames, sendCommentReply, setCommentVisibility, suggestReply, syncCommentsNow } from "@/lib/marketing/instagram-comments.functions";
 
 export const Route = createFileRoute("/_app/marketing/comments")({
   component: () => (
@@ -128,6 +129,8 @@ function CommentsPage() {
 function CommentLine({ c, isNew, actions, onToggleHide }: { c: Comment; isNew: boolean; actions: Action[]; onToggleHide?: () => void }) {
   const { t } = useTranslation("marketing");
   const { user } = useAuth();
+  const namesFn = useServerFn(commentActorNames);
+  const { data: names } = useQuery({ queryKey: ["marketing-comment-actor-names", actions.length], queryFn: () => namesFn(), staleTime: 10 * 60_000, enabled: actions.length > 0 });
   const log = actions.filter((a) => a.comment_id === c.id);
   return (
     <div className={cn("space-y-1", c.hidden && "opacity-60")} data-comment={c.id}>
@@ -141,7 +144,7 @@ function CommentLine({ c, isNew, actions, onToggleHide }: { c: Comment; isNew: b
       </div>
       <p className="whitespace-pre-wrap text-sm">{c.body}</p>
       {log.length > 0 && <ul className="space-y-0.5 text-[11px] text-muted-foreground">{log.map((a) => (
-        <li key={a.id} className={cn(!a.success && "text-destructive")}>{t("comments.historyItem", { action: t(`comments.act.${a.action}`), who: a.actor_id === user?.id ? "✓" : a.actor_id.slice(0, 8), when: when(a.created_at) })}{!a.success && ` · ${t("comments.failed")}: ${a.meta_error_message ?? ""}`}</li>
+        <li key={a.id} className={cn("flex items-center gap-1", !a.success && "text-destructive")}>{a.actor_id !== user?.id && names?.[a.actor_id]?.name && <CollaboratorAvatar fotoPath={names[a.actor_id].fotoPath} name={names[a.actor_id].name} size={16} />}<span>{t("comments.historyItem", { action: t(`comments.act.${a.action}`), who: a.actor_id === user?.id ? "✓" : names?.[a.actor_id]?.name ?? a.actor_id.slice(0, 8), when: when(a.created_at) })}{!a.success && ` · ${t("comments.failed")}: ${a.meta_error_message ?? ""}`}</span></li>
       ))}</ul>}
     </div>
   );

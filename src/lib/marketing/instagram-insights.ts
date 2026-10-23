@@ -131,3 +131,13 @@ export function parseAnalysis(text: string): AnalysisResult {
   if (out.recommendations.length < 3) throw new Error("Analysis incomplete");
   return out;
 }
+
+/** Stories live 24 h. Read once at 20–23 h ("mid") and a final time at 23–24 h; null when nothing is due. */
+export function storyReadDue(postedAt: string | null, lastCapturedAt: string | null, now: Date): "mid" | "final" | null {
+  if (!postedAt) return null;
+  const H = 3600_000, t0 = Date.parse(postedAt), age = now.getTime() - t0;
+  const lastAge = lastCapturedAt ? Date.parse(lastCapturedAt) - t0 : -Infinity;
+  if (age >= 20 * H && age < 23 * H && lastAge < 20 * H) return "mid";
+  if (age >= 23 * H && age < 24 * H && lastAge < 23 * H) return "final";
+  return null;
+}
