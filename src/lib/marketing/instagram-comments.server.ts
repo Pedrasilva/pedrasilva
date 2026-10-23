@@ -1,6 +1,6 @@
 import { instagramGraph, InstagramError } from "./instagram-graph.server";
 import { COMMENT_FIELDS, hideRequest, normalizeComments, replyRequest, type MediaLite } from "./instagram-comments";
-import { EXPECTED_INSTAGRAM_USERNAME } from "./meta-connection";
+import { META_EXPECTED_USERNAME } from "./meta-connection";
 
 type Graph = ReturnType<typeof instagramGraph>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,7 +24,7 @@ export async function syncInstagramComments(opts: { graph?: Graph; db?: Db } = {
   for (const m of media.slice(0, 30)) {
     try {
       const r = await graph(`${m.id}/comments?fields=${encodeURIComponent(COMMENT_FIELDS)}&limit=50`);
-      const rows = normalizeComments(m, Array.isArray(r.data) ? r.data : [], { id: s.instagram_account_id, username: EXPECTED_INSTAGRAM_USERNAME });
+      const rows = normalizeComments(m, Array.isArray(r.data) ? r.data : [], { id: s.instagram_account_id, username: META_EXPECTED_USERNAME });
       if (rows.length) {
         const now = new Date().toISOString();
         // first_seen_at/read_at are preserved on conflict because they are not in the payload.
@@ -52,7 +52,7 @@ export async function replyToComment(input: { commentId: string; message: string
   try {
     const r = await graph(req.path, req.fields);
     await logAction(db, { comment_id: input.commentId, action: "reply", actor_id: input.actorId, body: req.fields.message, ai_suggested: input.aiSuggested, meta_result_id: r.id ?? null, success: true });
-    if (r.id) await db.from("marketing_ig_comments").upsert({ id: String(r.id), media_id: c.media_id, parent_id: c.parent_id ?? c.id, username: EXPECTED_INSTAGRAM_USERNAME, body: req.fields.message, commented_at: new Date().toISOString(), from_us: true, media_thumbnail: c.media_thumbnail, media_permalink: c.media_permalink, media_caption: c.media_caption, read_at: new Date().toISOString() }, { onConflict: "id" });
+    if (r.id) await db.from("marketing_ig_comments").upsert({ id: String(r.id), media_id: c.media_id, parent_id: c.parent_id ?? c.id, username: META_EXPECTED_USERNAME, body: req.fields.message, commented_at: new Date().toISOString(), from_us: true, media_thumbnail: c.media_thumbnail, media_permalink: c.media_permalink, media_caption: c.media_caption, read_at: new Date().toISOString() }, { onConflict: "id" });
     return { ok: true as const, id: r.id ?? null };
   } catch (e) {
     const err = e instanceof InstagramError ? e : new InstagramError("Instagram reply failed", "unknown");
@@ -86,7 +86,7 @@ export async function suggestCommentReply(commentId: string, ask: (system: strin
   if (!c) throw new Error("Comment not found");
   const { getActiveMarketingBible } = await import("./bible.server");
   const bible = await getActiveMarketingBible();
-  const system = `You draft short Instagram comment replies for Pedra Silva Arquitectos (@${EXPECTED_INSTAGRAM_USERNAME}). Follow this Marketing Bible tone:\n${(bible?.content_md ?? "").slice(0, 6000)}\n\nRules: reply in Portuguese (European) if the comment is written in Portuguese, otherwise in English. 1–2 sentences, warm and precise, no hashtags, no emojis unless the comment uses them, never mention clients, cities, sectors or project details not already in the post caption, never promise anything. Output only the reply text.`;
+  const system = `You draft short Instagram comment replies for Pedra Silva Arquitectos (@${META_EXPECTED_USERNAME}). Follow this Marketing Bible tone:\n${(bible?.content_md ?? "").slice(0, 6000)}\n\nRules: reply in Portuguese (European) if the comment is written in Portuguese, otherwise in English. 1–2 sentences, warm and precise, no hashtags, no emojis unless the comment uses them, never mention clients, cities, sectors or project details not already in the post caption, never promise anything. Output only the reply text.`;
   const user = `Post caption: ${c.media_caption ?? "(none)"}\nComment by @${c.username ?? "user"}: ${c.body}`;
   return (await ask(system, user)).trim().slice(0, 600);
 }
