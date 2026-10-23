@@ -90,7 +90,7 @@ export function PlannerGrid() {
     setBusy(false);
   };
 
-  const Tile = ({ item, index }: { item: Item; index: number }) => {
+  const renderTile = (item: Item, index: number) => {
     const isDraft = item.kind === "draft";
     const movable = isDraft && canCurate && item.zone === "unscheduled";
     const kind = isDraft ? (item.draft.format === "reel" ? "reel" : item.draft.format === "carousel" || item.draft.asset_ids.length > 1 ? "carousel" : "single")
@@ -114,7 +114,7 @@ export function PlannerGrid() {
       </>
     );
     return (
-      <div data-grid-tile={isDraft ? item.draft.id : item.live.id} draggable={movable}
+      <div key={isDraft ? item.draft.id : item.live.id} data-grid-tile={isDraft ? item.draft.id : item.live.id} draggable={movable}
         onDragStart={(e) => { if (isDraft) { setDragId(item.draft.id); e.dataTransfer.setData("text/plain", item.draft.id); } }}
         onDragOver={(e) => { if (dragId && canCurate) e.preventDefault(); }} onDrop={(e) => { e.preventDefault(); onDrop(index); }}
         className={cn("relative aspect-[3/4] overflow-hidden bg-muted", movable && "cursor-grab", isDraft && "ring-1 ring-inset ring-primary/40")}
@@ -132,7 +132,7 @@ export function PlannerGrid() {
       {feed.isError && <p role="status" className="text-xs text-warning">{t("publishing.feedUnavailable")}</p>}
       {(drafts.isLoading || feed.isLoading) && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
       <div className="grid grid-cols-3 gap-0.5" onDragOver={(e) => dragId && e.preventDefault()} onDrop={(e) => { if (e.target === e.currentTarget) { e.preventDefault(); onDrop(items.length); } }}>
-        {items.map((item, i) => <Tile key={item.kind === "draft" ? item.draft.id : item.live.id} item={item} index={i} />)}
+        {items.map((item, i) => renderTile(item, i))}
       </div>
       {!items.length && !drafts.isLoading && <p className="py-6 text-center text-sm text-muted-foreground">{t("calendar.grid.empty")}</p>}
 
