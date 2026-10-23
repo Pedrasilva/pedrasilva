@@ -10,6 +10,8 @@ export const Route=createFileRoute('/api/public/hooks/marketing-publish')({serve
   try{const {runInstagramPublishing}=await import('@/lib/marketing/instagram-publish.server');const published=await runInstagramPublishing();
     // Same 15-minute job also refreshes comments (read-only) when the last refresh is older than 14 minutes.
     let comments:unknown=null;try{const {syncInstagramCommentsIfStale}=await import('@/lib/marketing/instagram-comments.server');comments=await syncInstagramCommentsIfStale();}catch{comments={error:'commentsUnavailable'};}
-    return Response.json({...published,comments});}
+    // ...and insight snapshots (read-only) once a day.
+    let insights:unknown=null;try{const {syncInstagramInsightsIfStale}=await import('@/lib/marketing/instagram-insights.server');insights=await syncInstagramInsightsIfStale();}catch{insights={error:'insightsUnavailable'};}
+    return Response.json({...published,comments,insights});}
   catch{return Response.json({error:'Publishing job unavailable'},{status:503});}
 }}}});
