@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { AllocationRemoveDialog } from "./allocation-remove-dialog";
-import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
+import { allocationCost, allocationHours, effortHolidays, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 import { useDefaultResourceRates, effectiveSaleRate, effectiveCostRate } from "@/lib/projects/use-default-rates";
 
@@ -135,12 +135,13 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
   const derivedHours = round1((pct / 100) * recoverableHoursPerDay);
   const effectiveHours = hours;
 
-  const wd = workingDays(start, end);
+  const effortCal = effortHolidays(adapter.mode);
+  const wd = workingDays(start, end, effortCal);
   const totalH = allocationHours({
     start_date: start,
     end_date: end,
     hours_per_day: effectiveHours,
-  });
+  }, effortCal);
   const effectiveCost = effectiveCostRate(
     (allocation.resource as typeof allocation.resource & { cost_rate?: number | null }).cost_rate,
     allocation.resource.id,
@@ -152,13 +153,13 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
     end_date: end,
     hours_per_day: effectiveHours,
     hourly_rate: effectiveSale,
-  });
+  }, effortCal);
   const cost = allocationCost({
     start_date: start,
     end_date: end,
     hours_per_day: effectiveHours,
     hourly_rate: effectiveCost,
-  });
+  }, effortCal);
   const margin = revenue - cost;
 
   function applyPct(nextPct: number) {

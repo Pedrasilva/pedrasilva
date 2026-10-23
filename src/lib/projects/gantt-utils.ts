@@ -14,6 +14,11 @@ export function dayCount(start: string | Date, end: string | Date): number {
 /** Weekdays only — for CRM/quote estimates, which ignore holidays until live. */
 export const NO_HOLIDAYS: ReadonlySet<string> = new Set();
 
+/** Calendar for hours/cost: proposals (any quote) never lose effort to holidays/closures; live projects use the shared calendar. */
+export function effortHolidays(mode: string): ReadonlySet<string> | undefined {
+  return mode === "quote" ? NO_HOLIDAYS : undefined;
+}
+
 // Shared working-day calendar (public holidays + office closures, both stored
 // in the holidays table). Loaded once by useWorkingCalendar before app pages
 // render, so every project day/hour/cost count matches the Gantt shading.
