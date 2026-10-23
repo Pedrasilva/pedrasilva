@@ -123,7 +123,32 @@ export function StatementView({
   };
 
   const statementQ = useStatement(entityType, selectedId, from, to);
-  const st = statementQ.data;
+  const rawSt = statementQ.data;
+
+  // Bank account ledger: when a statement covers exactly this range, its printed
+  // opening/closing balances are used; otherwise say there is no statement.
+  const ledgerPeriodsQ = useStatementPeriods(
+    !locked && !periodMode && entityType === "bank_account" ? selectedId : null,
+  );
+  const ledgerPeriods = ledgerPeriodsQ.data ?? [];
+  const exactPeriod =
+    ledgerPeriods.find((p) => p.period_start_date === from && p.period_end_date === to) ?? null;
+  const overlapPeriod = exactPeriod
+    ? null
+    : (ledgerPeriods.find((p) => p.period_start_date <= to && p.period_end_date >= from) ?? null);
+  const st = useMemo(() => {
+    if (!rawSt || !exactPeriod) return rawSt;
+    const delta = Number(exactPeriod.opening_balance) - rawSt.openingBalance;
+    return {
+      ...rawSt,
+      openingBalance: Number(exactPeriod.opening_balance),
+      closingBalance: rawSt.closingBalance + delta,
+      entries: rawSt.entries.map((e) => ({ ...e, running: e.running + delta })),
+    };
+  }, [rawSt, exactPeriod]);
+  const printedClosing = exactPeriod ? Number(exactPeriod.closing_balance) : null;
+  const ledgerDiff =
+    st && printedClosing != null ? Math.round((printedClosing - st.closingBalance) * 100) / 100 : null;
 
 
   const currency = st?.currency || "EUR";
@@ -381,6 +406,43 @@ export function StatementView({
         </Card>
       )}
 
+
+      {!locked && !periodMode && entityType === "bank_account" && selectedId && ledgerPeriodsQ.isSuccess && (
+        <Card>
+          <CardContent className="p-4 text-sm space-y-1">
+            {exactPeriod ? (
+              <>
+                <div className="font-medium">{t("finance:bankDocs.ledger.statementFor", { number: exactPeriod.statement_number })}</div>
+                <div className="text-muted-foreground">{t("finance:bankDocs.ledger.usingStatement")}</div>
+                <div className="flex flex-wrap gap-4 tabular-nums">
+                  <span>{t("finance:bankDocs.compare.opening")}: {fmt(Number(exactPeriod.opening_balance))}</span>
+                  <span>{t("finance:bankDocs.compare.closing")} ({t("finance:bankDocs.compare.printed")}): {fmt(printedClosing ?? 0)}</span>
+                  <span>{t("finance:bankDocs.compare.computed")}: {fmt(st?.closingBalance ?? 0)}</span>
+                  <span className={"font-semibold " + (ledgerDiff != null && Math.abs(ledgerDiff) <= 0.005 ? "text-success" : "text-destructive")}>
+                    {t("finance:bankDocs.compare.difference")}: {fmt(ledgerDiff ?? 0)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-warning">{t("finance:bankDocs.ledger.noStatement")}</div>
+                {overlapPeriod && (
+                  <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
+                    {t("finance:bankDocs.ledger.overlap", {
+                      number: overlapPeriod.statement_number,
+                      from: fmtDate(overlapPeriod.period_start_date),
+                      to: fmtDate(overlapPeriod.period_end_date),
+                    })}
+                    <Button size="sm" variant="outline" onClick={() => { setFrom(overlapPeriod.period_start_date); setTo(overlapPeriod.period_end_date); }}>
+                      {t("finance:bankDocs.ledger.useStatementDates")}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {statementQ.isError && (
         <Card>

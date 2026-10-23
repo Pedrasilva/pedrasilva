@@ -2398,5 +2398,103 @@
     "purchaseRefused": "PDF de compra recusado: esta ação só regista faturas emitidas pelo atelier.",
     "notIssuedInvoice": "Este PDF não é uma fatura emitida pronta para confirmação.",
     "duplicateInvoice": "Esta série e número fiscal já estão registados. Abra a fatura existente; não foi criado duplicado."
+  },
+  "bankDocs": {
+    "title": "Documentos bancários",
+    "subtitle": "Uma linha por extrato ou documento bancário, agrupados por conta e por mês.",
+    "tabRegistry": "Documentos bancários",
+    "tabLedger": "Extrato do Hub",
+    "filters": {
+      "bank": "Banco",
+      "account": "Conta ou cartão",
+      "kind": "Tipo",
+      "year": "Ano",
+      "month": "Mês",
+      "status": "Estado",
+      "all": "Todos",
+      "company": "Empresa",
+      "companyHint": "A mostrar {{name}}. Mude de empresa no seletor de entidade."
+    },
+    "kind": {
+      "account_statement": "Extrato de conta",
+      "card_statement": "Extrato de cartão",
+      "bank_export": "Exportação MT940/CSV",
+      "other_bank": "Outro documento bancário",
+      "none": "Sem tipo"
+    },
+    "status": {
+      "pending_review": "Por confirmar",
+      "filed": "Confirmado",
+      "duplicate": "Duplicado"
+    },
+    "cols": {
+      "period": "Período",
+      "number": "N.º",
+      "printedOpening": "Saldo inicial (extrato)",
+      "printedClosing": "Saldo final (extrato)",
+      "hubMovements": "Movimentos no Hub",
+      "computedClosing": "Saldo final calculado",
+      "difference": "Diferença",
+      "pdf": "PDF",
+      "reconciled": "Conciliação"
+    },
+    "reconciled": "Conciliado",
+    "notReconciled": "Por conciliar",
+    "noPeriod": "Sem período de extrato",
+    "reconciledCount": "{{done}} de {{total}} movimentos conciliados",
+    "unknownAccount": "Conta desconhecida — adicione ou escolha",
+    "unknownCard": "Cartão desconhecido — adicione ou escolha",
+    "cardWithoutAccount": "O cartão não tem conta de cartão no Hub",
+    "duplicateBadge": "Período duplicado",
+    "gap": "Falta extrato: {{months}}",
+    "continuity": "Saldo inicial {{opening}} ≠ saldo final anterior {{previous}} (diferença {{diff}})",
+    "empty": "Sem documentos bancários para estes filtros.",
+    "openPdf": "Abrir PDF",
+    "noPdf": "Sem ficheiro",
+    "docs_one": "{{count}} documento",
+    "docs_other": "{{count}} documentos",
+    "fields": {
+      "kind": "Tipo de documento",
+      "account": "Conta",
+      "card": "Cartão",
+      "number": "N.º do extrato",
+      "start": "Início do período",
+      "end": "Fim do período",
+      "opening": "Saldo inicial",
+      "closing": "Saldo final",
+      "debits": "Total a débito",
+      "credits": "Total a crédito",
+      "dueDate": "Data limite de pagamento do cartão",
+      "toDebit": "Montante a debitar na conta à ordem",
+      "pick": "Escolher…",
+      "none": "Nenhum"
+    },
+    "aiValue": "Lido pela IA: {{value}}",
+    "correctedByYou": "Corrigido por si em {{date}}",
+    "correctedByOther": "Corrigido por outro utilizador em {{date}}",
+    "save": "Guardar correções",
+    "saved": "Correções guardadas",
+    "locked": "O período deste extrato está fechado. Reabra-o com um motivo antes de editar.",
+    "compare": {
+      "title": "Extrato vs Hub",
+      "printed": "No extrato",
+      "hub": "No Hub",
+      "opening": "Saldo inicial",
+      "movements": "Movimentos importados",
+      "computed": "Saldo final calculado",
+      "closing": "Saldo final",
+      "difference": "Diferença",
+      "matches": "Bate certo",
+      "differs": "Não bate certo",
+      "incomplete": "Preencha saldos inicial/final, conta e período para comparar."
+    },
+    "saveBeforeFiling": "Guarde as correções antes de confirmar.",
+    "ledger": {
+      "statementFor": "Extrato {{number}}",
+      "noStatement": "Não há extrato bancário registado para este período.",
+      "overlap": "O extrato {{number}} cobre {{from}} – {{to}}.",
+      "useStatementDates": "Usar datas do extrato",
+      "usingStatement": "Os saldos inicial e final abaixo vêm do extrato."
+    }
   }
 }

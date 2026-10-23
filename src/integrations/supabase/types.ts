@@ -355,10 +355,14 @@ export type Database = {
           created_by: string | null
           entity_id: string
           id: string
+          locked_at: string | null
+          locked_by: string | null
           notes: string | null
           opening_balance: number
+          payment_card_id: string | null
           period_end_date: string
           period_start_date: string
+          source_queue_item_id: string | null
           statement_number: string
           updated_at: string
         }
@@ -369,10 +373,14 @@ export type Database = {
           created_by?: string | null
           entity_id: string
           id?: string
+          locked_at?: string | null
+          locked_by?: string | null
           notes?: string | null
           opening_balance?: number
+          payment_card_id?: string | null
           period_end_date: string
           period_start_date: string
+          source_queue_item_id?: string | null
           statement_number: string
           updated_at?: string
         }
@@ -383,10 +391,14 @@ export type Database = {
           created_by?: string | null
           entity_id?: string
           id?: string
+          locked_at?: string | null
+          locked_by?: string | null
           notes?: string | null
           opening_balance?: number
+          payment_card_id?: string | null
           period_end_date?: string
           period_start_date?: string
+          source_queue_item_id?: string | null
           statement_number?: string
           updated_at?: string
         }
@@ -403,6 +415,20 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_statement_periods_payment_card_id_fkey"
+            columns: ["payment_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_statement_periods_source_queue_item_id_fkey"
+            columns: ["source_queue_item_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_review_queue"
             referencedColumns: ["id"]
           },
         ]
@@ -4184,6 +4210,10 @@ export type Database = {
           ambiguous_supplier_ids: string[]
           applied_learning: Json | null
           assigned_collaborator_id: string | null
+          bank_ai_values: Json
+          bank_doc_kind: string | null
+          bank_field_overrides: Json
+          bank_identity_flag: string | null
           bank_period: string | null
           beneficiary_iban: string | null
           beneficiary_name: string | null
@@ -4219,15 +4249,20 @@ export type Database = {
           extracted_account_number: string | null
           extracted_amount: number | null
           extracted_balance_due: number | null
+          extracted_bank_name: string | null
           extracted_base_amount: number | null
           extracted_buyer_name: string | null
           extracted_buyer_vat: string | null
+          extracted_card_amount_to_debit: number | null
+          extracted_card_due_date: string | null
           extracted_card_last4: string | null
+          extracted_closing_balance: number | null
           extracted_currency: string | null
           extracted_date: string | null
           extracted_document_number: string | null
           extracted_due_date: string | null
           extracted_iban: string | null
+          extracted_opening_balance: number | null
           extracted_payment_method: string | null
           extracted_period_end: string | null
           extracted_period_start: string | null
@@ -4236,8 +4271,12 @@ export type Database = {
           extracted_referenced_document_number: string | null
           extracted_seller_name: string | null
           extracted_seller_vat: string | null
+          extracted_statement_card_last4: string | null
+          extracted_statement_number: string | null
           extracted_supplier_name: string | null
           extracted_supplier_vat: string | null
+          extracted_total_credits: number | null
+          extracted_total_debits: number | null
           extracted_vat_amount: number | null
           extracted_withholding_amount: number | null
           extraction_error: string | null
@@ -4265,6 +4304,7 @@ export type Database = {
           marked_unpaid: boolean
           matched_bank_account_id: string | null
           matched_client_id: string | null
+          matched_payment_card_id: string | null
           matched_supplier_id: string | null
           model_runs: Json | null
           original_filename: string | null
@@ -4314,6 +4354,7 @@ export type Database = {
           split_page_first: number | null
           split_page_last: number | null
           split_part: number | null
+          statement_period_id: string | null
           status: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code: string | null
           suggested_classification_id: string | null
@@ -4328,6 +4369,10 @@ export type Database = {
           ambiguous_supplier_ids?: string[]
           applied_learning?: Json | null
           assigned_collaborator_id?: string | null
+          bank_ai_values?: Json
+          bank_doc_kind?: string | null
+          bank_field_overrides?: Json
+          bank_identity_flag?: string | null
           bank_period?: string | null
           beneficiary_iban?: string | null
           beneficiary_name?: string | null
@@ -4363,15 +4408,20 @@ export type Database = {
           extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
+          extracted_bank_name?: string | null
           extracted_base_amount?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
+          extracted_card_amount_to_debit?: number | null
+          extracted_card_due_date?: string | null
           extracted_card_last4?: string | null
+          extracted_closing_balance?: number | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
           extracted_iban?: string | null
+          extracted_opening_balance?: number | null
           extracted_payment_method?: string | null
           extracted_period_end?: string | null
           extracted_period_start?: string | null
@@ -4380,8 +4430,12 @@ export type Database = {
           extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
+          extracted_statement_card_last4?: string | null
+          extracted_statement_number?: string | null
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
+          extracted_total_credits?: number | null
+          extracted_total_debits?: number | null
           extracted_vat_amount?: number | null
           extracted_withholding_amount?: number | null
           extraction_error?: string | null
@@ -4409,6 +4463,7 @@ export type Database = {
           marked_unpaid?: boolean
           matched_bank_account_id?: string | null
           matched_client_id?: string | null
+          matched_payment_card_id?: string | null
           matched_supplier_id?: string | null
           model_runs?: Json | null
           original_filename?: string | null
@@ -4458,6 +4513,7 @@ export type Database = {
           split_page_first?: number | null
           split_page_last?: number | null
           split_part?: number | null
+          statement_period_id?: string | null
           status?: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code?: string | null
           suggested_classification_id?: string | null
@@ -4472,6 +4528,10 @@ export type Database = {
           ambiguous_supplier_ids?: string[]
           applied_learning?: Json | null
           assigned_collaborator_id?: string | null
+          bank_ai_values?: Json
+          bank_doc_kind?: string | null
+          bank_field_overrides?: Json
+          bank_identity_flag?: string | null
           bank_period?: string | null
           beneficiary_iban?: string | null
           beneficiary_name?: string | null
@@ -4507,15 +4567,20 @@ export type Database = {
           extracted_account_number?: string | null
           extracted_amount?: number | null
           extracted_balance_due?: number | null
+          extracted_bank_name?: string | null
           extracted_base_amount?: number | null
           extracted_buyer_name?: string | null
           extracted_buyer_vat?: string | null
+          extracted_card_amount_to_debit?: number | null
+          extracted_card_due_date?: string | null
           extracted_card_last4?: string | null
+          extracted_closing_balance?: number | null
           extracted_currency?: string | null
           extracted_date?: string | null
           extracted_document_number?: string | null
           extracted_due_date?: string | null
           extracted_iban?: string | null
+          extracted_opening_balance?: number | null
           extracted_payment_method?: string | null
           extracted_period_end?: string | null
           extracted_period_start?: string | null
@@ -4524,8 +4589,12 @@ export type Database = {
           extracted_referenced_document_number?: string | null
           extracted_seller_name?: string | null
           extracted_seller_vat?: string | null
+          extracted_statement_card_last4?: string | null
+          extracted_statement_number?: string | null
           extracted_supplier_name?: string | null
           extracted_supplier_vat?: string | null
+          extracted_total_credits?: number | null
+          extracted_total_debits?: number | null
           extracted_vat_amount?: number | null
           extracted_withholding_amount?: number | null
           extraction_error?: string | null
@@ -4553,6 +4622,7 @@ export type Database = {
           marked_unpaid?: boolean
           matched_bank_account_id?: string | null
           matched_client_id?: string | null
+          matched_payment_card_id?: string | null
           matched_supplier_id?: string | null
           model_runs?: Json | null
           original_filename?: string | null
@@ -4602,6 +4672,7 @@ export type Database = {
           split_page_first?: number | null
           split_page_last?: number | null
           split_part?: number | null
+          statement_period_id?: string | null
           status?: Database["public"]["Enums"]["fdrq_status"]
           suggested_classification_code?: string | null
           suggested_classification_id?: string | null
@@ -4697,6 +4768,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_document_review_queue_matched_payment_card_id_fkey"
+            columns: ["matched_payment_card_id"]
+            isOneToOne: false
+            referencedRelation: "payment_cards"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_document_review_queue_matched_supplier_id_fkey"
             columns: ["matched_supplier_id"]
             isOneToOne: false
@@ -4757,6 +4835,13 @@ export type Database = {
             columns: ["source_project_expense_id"]
             isOneToOne: false
             referencedRelation: "pm_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_statement_period_id_fkey"
+            columns: ["statement_period_id"]
+            isOneToOne: false
+            referencedRelation: "bank_statement_periods"
             referencedColumns: ["id"]
           },
         ]
@@ -15931,6 +16016,23 @@ export type Database = {
         Args: { _id: string; _project_id: string }
         Returns: string
       }
+      fin_bank_document_registry: {
+        Args: { _queue_item_id?: string }
+        Returns: {
+          first_tx: string
+          hub_count: number
+          hub_reconciled_count: number
+          hub_total: number
+          last_tx: string
+          period_locked_at: string
+          queue_item_id: string
+        }[]
+      }
+      fin_bank_statement_save: {
+        Args: { _fields: Json; _id: string }
+        Returns: Json
+      }
+      fin_bank_statement_sync_period: { Args: { _id: string }; Returns: string }
       fin_benefit_pessoal_class: {
         Args: { _category: string }
         Returns: string
