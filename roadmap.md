@@ -1,7 +1,8 @@
 ## Current request — confirmed June opening balances
-- [ ] Apply audited openings with 31 May cut-off; correct CGD debit date and move Bernardo purchases with before/after evidence.
-- [ ] Keep Coverflex benefits-only, opening from June PDF and meal allowance suggestions; preserve Joana archive.
-- [ ] Verify UI totals before/after and June reconciliation scope; propose central settlement accounts without creating them.
+- [x] Apply 11 audited openings with 31 May cut-off and CGD date; exact other-field equality verified, 14 audit rows.
+- [x] Keep Coverflex benefits-only, June opening 1870.75 and read-only meal allowance suggestions; preserve Joana archive. Four unit tests and disposable cut-off rollback passed.
+- [x] Verify PSA/PR UI totals after reload and June full-vs-reconciled scope; central settlement proposal only. Report docs/june-opening-balances-report.md.
+- [ ] Bernardo move blocked by existing identical-checksum copies in target card; await approval to mark misplaced positive copies duplicate without deletion. No amount/checksum/status changes made.
 
 ## Current request — official bank identities
 - [x] Verify/correct five company accounts and three card paying links without balance/movement changes.
