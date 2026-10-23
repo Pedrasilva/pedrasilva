@@ -16,12 +16,19 @@ export async function findCompanyByNif(rawNif: string | null | undefined): Promi
   const nif = normalizePortugueseNif(rawNif);
   if (!nif || !isValidPortugueseNif(nif)) return null;
 
+  // Merged suppliers stay inactive with their NIF; the active company wins.
   const { data, error } = await supabase
     .from("companies")
     .select("id, nome, nif, is_supplier")
     .eq("nif", nif)
+    .eq("is_active", true)
+    .limit(1)
     .maybeSingle();
 
   if (error) throw error;
-  return (data as CompanyNifMatch | null) ?? null;
+  if (data) return data as CompanyNifMatch;
+  const { data: al } = await supabase.from("company_aliases").select("company_id").eq("alias_nif", nif).limit(1).maybeSingle();
+  if (!al) return null;
+  const { data: target } = await supabase.from("companies").select("id, nome, nif, is_supplier").eq("id", al.company_id).maybeSingle();
+  return (target as CompanyNifMatch | null) ?? null;
 }

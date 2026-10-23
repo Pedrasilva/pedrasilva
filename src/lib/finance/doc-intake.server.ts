@@ -578,6 +578,7 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
   const { data } = await supabaseAdmin
     .from("companies")
     .select("id, nif, foreign_tax_id")
+    .eq("is_active", true)
     .or("nif.not.is.null,foreign_tax_id.not.is.null");
 
   const hits = ((data ?? []) as Array<{ id: string; nif: string | null; foreign_tax_id: string | null }>).filter((c) => {
@@ -593,6 +594,12 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
   if (hits.length === 1) return { status: "matched", matched_supplier_id: hits[0].id, ambiguous_ids: [] };
   if (hits.length > 1) {
     return { status: "ambiguous", matched_supplier_id: null, ambiguous_ids: hits.map((h) => h.id) };
+  }
+  // A merged supplier's old NIF is kept as an alias of the company it was merged into.
+  if (ptDigits && isValidPortugueseNif(ptDigits)) {
+    const { data: al } = await supabaseAdmin.from("company_aliases").select("company_id").eq("alias_nif", ptDigits);
+    const ids = [...new Set((al ?? []).map((a) => a.company_id))];
+    if (ids.length === 1) return { status: "matched", matched_supplier_id: ids[0], ambiguous_ids: [] };
   }
   return { status: "no_match", matched_supplier_id: null, ambiguous_ids: [] };
 }
