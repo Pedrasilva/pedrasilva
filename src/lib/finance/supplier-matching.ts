@@ -16,19 +16,22 @@ export async function findCompanyByNif(rawNif: string | null | undefined): Promi
   const nif = normalizePortugueseNif(rawNif);
   if (!nif || !isValidPortugueseNif(nif)) return null;
 
-  // Merged suppliers stay inactive with their NIF; the active company wins.
+  // Merged suppliers stay inactive with their NIF; an active company with the same NIF wins,
+  // and a merged one resolves to the company it was merged into.
   const { data, error } = await supabase
     .from("companies")
-    .select("id, nome, nif, is_supplier")
+    .select("id, nome, nif, is_supplier, is_active")
     .eq("nif", nif)
-    .eq("is_active", true)
+    .order("is_active", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   if (error) throw error;
-  if (data) return data as CompanyNifMatch;
-  const { data: al } = await supabase.from("company_aliases").select("company_id").eq("alias_nif", nif).limit(1).maybeSingle();
-  if (!al) return null;
+  if (!data) return null;
+  const { is_active, ...hit } = data as CompanyNifMatch & { is_active: boolean };
+  if (is_active) return hit;
+  const { data: al } = await supabase.from("company_aliases").select("company_id").eq("source_company_id", hit.id).limit(1).maybeSingle();
+  if (!al) return hit;
   const { data: target } = await supabase.from("companies").select("id, nome, nif, is_supplier").eq("id", al.company_id).maybeSingle();
-  return (target as CompanyNifMatch | null) ?? null;
+  return (target as CompanyNifMatch | null) ?? hit;
 }
