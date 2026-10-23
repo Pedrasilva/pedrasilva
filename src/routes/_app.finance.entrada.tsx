@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { IntakeInbox } from "@/components/finance/intake-inbox";
 import { PaidWithMissingList } from "@/components/finance/paid-with-missing-list";
+import { DriveFetchNowButton } from "@/components/finance/drive-fetch-now-button";
 import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance/entrada")({
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/_app/finance/entrada")({
 function EntradaPage() {
   return (
     <>
+      <div className="flex justify-end px-4 pt-3"><DriveFetchNowButton /></div>
       <PaidWithMissingList />
       <IntakeInbox />
     </>

@@ -39,7 +39,16 @@ export const Route = createFileRoute("/api/public/hooks/drive-intake")({
         const { runDriveFolderIntake } = await import("@/lib/finance/drive-intake.server");
         try {
           const summary = await runDriveFolderIntake();
-          return Response.json({ ok: true, ...summary });
+          // One-way mirror to Contabilidade + reports for locked periods (small batches per run).
+          let accounting: unknown = null;
+          try {
+            const { runAccountingExport } = await import("@/lib/finance/contabilidade-export.server");
+            const { runReconciliationReports } = await import("@/lib/finance/reconciliation-report.server");
+            accounting = { export: await runAccountingExport({ limit: 20 }), reports: await runReconciliationReports({ limit: 2 }) };
+          } catch (e) {
+            accounting = { error: e instanceof Error ? e.message : String(e) };
+          }
+          return Response.json({ ok: true, ...summary, accounting });
         } catch (err) {
           return Response.json(
             { ok: false, error: err instanceof Error ? err.message : String(err) },

@@ -350,6 +350,10 @@ export function IntakeInbox() {
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   <TypeBadge row={r} />
+                  {(r as { drive_intake_link?: string | null }).drive_intake_link && (
+                    <a className="text-xs underline text-muted-foreground" href={(r as { drive_intake_link?: string | null }).drive_intake_link!}
+                      target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>Drive</a>
+                  )}
                   <StatusBadges row={r} />
                   {readinessQ.data?.get(r.id)?.is_repeat && (
                     <Badge variant="secondary" className="text-[10px]">{t("finance:confirm.repeat")}</Badge>

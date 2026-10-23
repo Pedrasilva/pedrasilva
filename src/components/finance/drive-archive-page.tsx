@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DriveFetchNowButton } from "@/components/finance/drive-fetch-now-button";
 import { DriveSettingsCard } from "@/components/finance/drive-settings-card";
 import { getDriveArchiveStatus, retryDriveCopies } from "@/lib/finance/drive-archive.functions";
 
@@ -36,6 +37,7 @@ export function DriveArchivePage() {
         <h1 className="text-2xl font-semibold">{k("title")}</h1>
         <p className="text-sm text-muted-foreground">{k("subtitle")}</p>
       </header>
+      <div className="flex justify-end"><DriveFetchNowButton /></div>
       <DriveSettingsCard />
       {q.isLoading || !d ? (
         <div className="space-y-3"><Skeleton className="h-24 w-full" /><Skeleton className="h-48 w-full" /></div>

@@ -26,3 +26,17 @@ export const getDriveIntakeFolder = createServerFn({ method: "GET" })
       return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
   });
+
+/** "Buscar agora": runs the Drive pickup immediately (admin or finance). */
+export const fetchDriveIntakeNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const [{ data: isAdmin }, { data: hasFinance }] = await Promise.all([
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+      context.supabase.rpc("has_permission", { _user_id: context.userId, _key: "finance.dashboard" }),
+    ]);
+    if (!isAdmin && !hasFinance) throw new Response("Forbidden", { status: 403 });
+    const { runDriveFolderIntake } = await import("@/lib/finance/drive-intake.server");
+    const s = await runDriveFolderIntake({ maxFiles: 15 });
+    return { scanned: s.scanned, queued: s.queued, skipped: s.skipped, failed: s.failed, errors: s.errors.slice(0, 5) };
+  });

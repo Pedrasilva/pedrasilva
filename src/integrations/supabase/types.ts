@@ -3406,6 +3406,66 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_accounting_exports: {
+        Row: {
+          drive_file_id: string | null
+          drive_folder_id: string | null
+          drive_link: string | null
+          entity_id: string
+          exported_at: string
+          file_name: string
+          folder_path: string
+          id: string
+          last_error: string | null
+          period: string
+          source_id: string
+          source_kind: string
+          source_stamp: string | null
+          status: string
+          subfolder: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          drive_file_id?: string | null
+          drive_folder_id?: string | null
+          drive_link?: string | null
+          entity_id: string
+          exported_at?: string
+          file_name: string
+          folder_path: string
+          id?: string
+          last_error?: string | null
+          period: string
+          source_id: string
+          source_kind: string
+          source_stamp?: string | null
+          status?: string
+          subfolder: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          drive_file_id?: string | null
+          drive_folder_id?: string | null
+          drive_link?: string | null
+          entity_id?: string
+          exported_at?: string
+          file_name?: string
+          folder_path?: string
+          id?: string
+          last_error?: string | null
+          period?: string
+          source_id?: string
+          source_kind?: string
+          source_stamp?: string | null
+          status?: string
+          subfolder?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       finance_classification_code_map: {
         Row: {
           created_at: string
@@ -4504,6 +4564,7 @@ export type Database = {
           drive_copy_error: string | null
           drive_copy_status: string | null
           drive_file_id: string | null
+          drive_intake_link: string | null
           drive_next_retry_at: string | null
           drive_web_link: string | null
           duplicate_kind: string | null
@@ -4663,6 +4724,7 @@ export type Database = {
           drive_copy_error?: string | null
           drive_copy_status?: string | null
           drive_file_id?: string | null
+          drive_intake_link?: string | null
           drive_next_retry_at?: string | null
           drive_web_link?: string | null
           duplicate_kind?: string | null
@@ -4822,6 +4884,7 @@ export type Database = {
           drive_copy_error?: string | null
           drive_copy_status?: string | null
           drive_file_id?: string | null
+          drive_intake_link?: string | null
           drive_next_retry_at?: string | null
           drive_web_link?: string | null
           duplicate_kind?: string | null
@@ -5445,6 +5508,7 @@ export type Database = {
       financial_drive_processed_files: {
         Row: {
           drive_file_id: string
+          drive_link: string | null
           entity_id: string
           error: string | null
           file_name: string | null
@@ -5452,14 +5516,17 @@ export type Database = {
           mime_type: string | null
           moved_to: string | null
           processed_at: string
+          processed_name: string | null
           queue_item_id: string | null
           reason: string | null
           size_bytes: number | null
           status: string
           storage_path: string | null
+          trashed_at: string | null
         }
         Insert: {
           drive_file_id: string
+          drive_link?: string | null
           entity_id: string
           error?: string | null
           file_name?: string | null
@@ -5467,14 +5534,17 @@ export type Database = {
           mime_type?: string | null
           moved_to?: string | null
           processed_at?: string
+          processed_name?: string | null
           queue_item_id?: string | null
           reason?: string | null
           size_bytes?: number | null
           status?: string
           storage_path?: string | null
+          trashed_at?: string | null
         }
         Update: {
           drive_file_id?: string
+          drive_link?: string | null
           entity_id?: string
           error?: string | null
           file_name?: string | null
@@ -5482,11 +5552,13 @@ export type Database = {
           mime_type?: string | null
           moved_to?: string | null
           processed_at?: string
+          processed_name?: string | null
           queue_item_id?: string | null
           reason?: string | null
           size_bytes?: number | null
           status?: string
           storage_path?: string | null
+          trashed_at?: string | null
         }
         Relationships: [
           {

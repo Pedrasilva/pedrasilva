@@ -1170,6 +1170,13 @@
       "when": 1792772024999,
       "tag": "0166_finance_drive_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 167,
+      "version": "7",
+      "when": 1792772681212,
+      "tag": "0167_finance_drive_rebuild",
+      "breakpoints": true
     }
   ]
 }

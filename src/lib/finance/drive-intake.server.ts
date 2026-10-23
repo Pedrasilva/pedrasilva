@@ -134,7 +134,7 @@ type DriveFile = { id: string; name: string; mimeType: string; size?: string };
 
 async function listInbox(folderId: string, driveId?: string | null): Promise<DriveFile[]> {
   const url = driveUrl("/drive/v3/files", {
-    q: `'${folderId}' in parents and trashed = false`, pageSize: String(MAX_FILES), orderBy: "createdTime",
+    q: `'${folderId}' in parents and trashed = false`, pageSize: "200", orderBy: "createdTime",
     fields: "files(id,name,mimeType,size)",
   }, { list: true, driveId });
   const json = (await drive(url.slice(GATEWAY_BASE.length))) as { files?: DriveFile[] };
@@ -152,12 +152,24 @@ async function downloadFile(fileId: string): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
-async function moveFile(fileId: string, from: string, to: string) {
-  await drive(
+/** Moves (and optionally renames / describes) a file; returns its Drive link. */
+async function moveFile(fileId: string, from: string, to: string, meta: { name?: string; description?: string } = {}) {
+  const j = (await drive(
     `/drive/v3/files/${fileId}?addParents=${to}&removeParents=${from}` +
-      `&supportsAllDrives=true&fields=id,parents`,
-    { method: "PATCH", headers: { "Content-Type": "application/json" }, body: "{}" },
-  );
+      `&supportsAllDrives=true&fields=id,parents,webViewLink`,
+    { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(meta) },
+  )) as { id: string; webViewLink?: string };
+  return j.webViewLink ?? `https://drive.google.com/file/d/${fileId}/view`;
+}
+
+/** Entrada reference shown in the Hub and used in Processed names. */
+export const entradaRef = (queueItemId: string) => `E-${queueItemId.slice(0, 8).toUpperCase()}`;
+
+const lisbonDate = (d = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Lisbon" }).format(d);
+
+export function processedName(queueItemId: string, original: string, date = new Date()) {
+  const clean = original.replace(/[\\/:*?"<>|]+/g, "-").trim();
+  return `${lisbonDate(date)}_${entradaRef(queueItemId)}_${clean}`.slice(0, 200);
 }
 
 function resolveMime(file: DriveFile): string {
@@ -175,26 +187,47 @@ export type DriveIntakeSummary = {
   inboxFolderId?: string;
 };
 
-export async function runDriveFolderIntake(): Promise<DriveIntakeSummary> {
+export async function runDriveFolderIntake(opts: { maxFiles?: number } = {}): Promise<DriveIntakeSummary> {
   const summary: DriveIntakeSummary = { scanned: 0, queued: 0, skipped: 0, failed: 0, errors: [] };
 
   const folders = await ensureIntakeFolders();
   summary.inboxFolderId = folders.inbox;
 
+  // Pickup is ONLY from the intake folder ("Entrada"), never from its parent.
   const files = await listInbox(folders.inbox, folders.driveId);
-  if (files.length === 0) return summary;
+  const max = opts.maxFiles ?? MAX_FILES;
+  if (files.length === 0) {
+    await trashOldProcessed(folders.processed, folders.driveId);
+    return summary;
+  }
 
+  // A file still in Entrada with a final log row (queued/skipped) is skipped; earlier
+  // failures (e.g. the move was refused) are retried, reusing the queue item already created.
   const { data: seen } = await supabaseAdmin
     .from("financial_drive_processed_files")
-    .select("drive_file_id")
+    .select("drive_file_id, status, queue_item_id")
     .in("drive_file_id", files.map((f) => f.id));
-  const seenSet = new Set((seen ?? []).map((r) => r.drive_file_id));
+  const seenMap = new Map((seen ?? []).map((r) => [r.drive_file_id, r]));
 
   for (const file of files) {
-    if (seenSet.has(file.id)) continue;
+    const prev = seenMap.get(file.id);
+    if (prev && prev.status !== "failed") {
+      // Logged as done but still in Entrada (an older run could not move it): move it now.
+      if (prev.queue_item_id) {
+        try {
+          const name = processedName(prev.queue_item_id, file.name);
+          const link = await moveFile(file.id, folders.inbox, folders.processed, { name });
+          await supabaseAdmin.from("financial_drive_processed_files").update({ moved_to: "Processed", processed_name: name, drive_link: link }).eq("drive_file_id", file.id);
+          await supabaseAdmin.from("financial_document_review_queue").update({ drive_intake_link: link }).eq("id", prev.queue_item_id);
+        } catch (e) { summary.errors.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`); }
+      }
+      continue;
+    }
+    if (summary.scanned >= max) break;
     summary.scanned++;
     const mime = resolveMime(file);
     const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const storagePath = `intake/drive/${file.id}-${safe}`;
 
     const log = async (values: Record<string, unknown>) => {
       await supabaseAdmin.from("financial_drive_processed_files").upsert(
@@ -204,77 +237,105 @@ export async function runDriveFolderIntake(): Promise<DriveIntakeSummary> {
           file_name: file.name,
           mime_type: mime,
           size_bytes: file.size ? Number(file.size) : null,
+          processed_at: new Date().toISOString(),
           ...values,
         },
         { onConflict: "drive_file_id" },
       );
     };
+    const toFailed = async (reason: string, extra: Record<string, unknown> = {}) => {
+      let link: string | null = null;
+      try {
+        link = await moveFile(file.id, folders.inbox, folders.failed, { description: `PSA Hub: ${reason}`.slice(0, 1000) });
+      } catch (e) {
+        summary.errors.push(`${file.name}: move to Failed: ${e instanceof Error ? e.message : String(e)}`);
+      }
+      await log({ status: "failed", error: reason.slice(0, 1000), moved_to: link ? "Failed" : null, drive_link: link, ...extra });
+    };
 
     try {
-      // Non-document files are never silently dropped: they are logged and
-      // moved to Failed so the inbox stays clean.
       if (!SUPPORTED_MIME.has(mime)) {
-        await moveFile(file.id, folders.inbox, folders.failed);
-        await log({
-          status: "skipped",
-          reason:
-            mime === "image/tiff"
-              ? "unsupported_format_tiff (save the scan as PDF, JPEG or PNG)"
-              : `unsupported_format:${mime}`,
-          moved_to: "Failed",
-        });
+        const reason = mime === "image/tiff"
+          ? "unsupported_format_tiff (save the scan as PDF, JPEG or PNG)"
+          : `unsupported_format:${mime}`;
+        const link = await moveFile(file.id, folders.inbox, folders.failed, { description: `PSA Hub: ${reason}` });
+        await log({ status: "skipped", reason, moved_to: "Failed", drive_link: link });
         summary.skipped++;
         continue;
       }
 
-      const bytes = await downloadFile(file.id);
-      const storagePath = `intake/drive/${file.id}-${safe}`;
-      const { error: upErr } = await supabaseAdmin.storage
-        .from(BUCKET)
-        .upload(storagePath, bytes, { contentType: mime, upsert: true });
-      if (upErr) throw new Error(`upload: ${upErr.message}`);
+      // Reuse a queue item created by an earlier run whose move failed.
+      let queueItemId: string | null = prev?.queue_item_id ?? null;
+      let ok = true;
+      let error: string | undefined;
+      let dupLabel: string | null = null;
+      if (!queueItemId) {
+        const { data: existing } = await supabaseAdmin.from("financial_document_review_queue")
+          .select("id, duplicate_of_id, duplicate_of_document_id").eq("source_file_url", storagePath).is("removed_at", null).limit(1).maybeSingle();
+        if (existing) {
+          queueItemId = existing.id;
+          if (existing.duplicate_of_id) dupLabel = entradaRef(existing.duplicate_of_id);
+          else if (existing.duplicate_of_document_id) dupLabel = existing.duplicate_of_document_id.slice(0, 8).toUpperCase();
+        }
+      }
+      if (!queueItemId) {
+        const bytes = await downloadFile(file.id);
+        const { error: upErr } = await supabaseAdmin.storage
+          .from(BUCKET)
+          .upload(storagePath, bytes, { contentType: mime, upsert: true });
+        if (upErr) throw new Error(`upload: ${upErr.message}`);
+        const res = await ingestStoredDocument({ bucket: BUCKET, storagePath, originalFilename: file.name, source: "drive_folder" });
+        queueItemId = res.queueItemId ?? null;
+        ok = res.ok;
+        error = res.error;
+        if (res.duplicate) {
+          dupLabel = res.duplicate.queueItemId ? entradaRef(res.duplicate.queueItemId) : (res.duplicate.label || res.duplicate.documentId?.slice(0, 8) || "?");
+        }
+      }
 
-      const res = await ingestStoredDocument({
-        bucket: BUCKET,
-        storagePath,
-        originalFilename: file.name,
-        source: "drive_folder",
-      });
-
-      if (res.queueItemId && res.ok) {
-        await moveFile(file.id, folders.inbox, folders.processed);
+      if (queueItemId && ok) {
+        const name = processedName(queueItemId, file.name);
+        const link = await moveFile(file.id, folders.inbox, folders.processed, {
+          name,
+          ...(dupLabel ? { description: `DUPLICADO de ${dupLabel}` } : {}),
+        });
+        await supabaseAdmin.from("financial_document_review_queue").update({ drive_intake_link: link }).eq("id", queueItemId);
         await log({
-          status: "queued",
-          queue_item_id: res.queueItemId,
-          storage_path: storagePath,
-          moved_to: "Processed",
+          status: "queued", queue_item_id: queueItemId, storage_path: storagePath, moved_to: "Processed",
+          processed_name: name, drive_link: link, error: null, reason: dupLabel ? `DUPLICADO de ${dupLabel}` : null,
         });
         summary.queued++;
       } else {
-        // Extraction failed — a queue row may still exist with the error.
-        await moveFile(file.id, folders.inbox, folders.failed);
-        await log({
-          status: "failed",
-          queue_item_id: res.queueItemId ?? null,
-          storage_path: storagePath,
-          moved_to: "Failed",
-          error: (res.error ?? "extraction failed").slice(0, 1000),
-        });
+        const reason = error ?? "extraction failed";
+        await toFailed(reason, { queue_item_id: queueItemId, storage_path: storagePath });
         summary.failed++;
-        summary.errors.push(`${file.name}: ${res.error ?? "extraction failed"}`);
+        summary.errors.push(`${file.name}: ${reason}`);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       summary.failed++;
       summary.errors.push(`${file.name}: ${msg}`);
-      try {
-        await moveFile(file.id, folders.inbox, folders.failed);
-      } catch {
-        /* leave in place if the move itself fails; the log row prevents retries */
-      }
-      await log({ status: "failed", error: msg.slice(0, 1000), moved_to: "Failed" });
+      await toFailed(msg);
     }
   }
 
+  await trashOldProcessed(folders.processed, folders.driveId);
   return summary;
+}
+
+/** Files in Processed older than 90 days go to Drive trash (never permanently deleted). */
+async function trashOldProcessed(processed: string, driveId?: string | null) {
+  const cutoff = new Date(Date.now() - 90 * 86_400_000).toISOString();
+  try {
+    const url = driveUrl("/drive/v3/files", {
+      q: `'${processed}' in parents and trashed = false and modifiedTime < '${cutoff}'`, pageSize: "50", fields: "files(id)",
+    }, { list: true, driveId });
+    const j = (await drive(url.slice(GATEWAY_BASE.length))) as { files?: { id: string }[] };
+    for (const f of j.files ?? []) {
+      await drive(`/drive/v3/files/${f.id}?supportsAllDrives=true&fields=id`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trashed: true }),
+      });
+      await supabaseAdmin.from("financial_drive_processed_files").update({ trashed_at: new Date().toISOString() }).eq("drive_file_id", f.id);
+    }
+  } catch { /* retention is best-effort; pickup results stand */ }
 }
