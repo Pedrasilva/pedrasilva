@@ -1,3 +1,4 @@
+import { ReconcileHistory } from "@/components/finance/reconcile-audit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,6 +48,13 @@ type Supplier = { id: string; name: string };
 type Client = { id: string; name: string };
 type Project = { id: string; name: string };
 
+/** Movement id from ?tx= (links from the reconciliation register), browser only. */
+function deepLinkTx(): string | null {
+  if (typeof window === "undefined") return null;
+  const v = new URLSearchParams(window.location.search).get("tx");
+  return v && /^[0-9a-f-]{36}$/i.test(v) ? v : null;
+}
+
 export function BankReconciliationTab() {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
@@ -85,9 +93,15 @@ export function BankReconciliationTab() {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   useEffect(() => { setSelectedPeriodId(null); }, [selectedAccount]);
+
   useEffect(() => {
     if (!selectedAccount && accountsQ.data && accountsQ.data.length > 0) {
-      setSelectedAccount(accountsQ.data[0].id);
+      const first = accountsQ.data[0].id;
+      const tx = deepLinkTx();
+      if (!tx) { setSelectedAccount(first); return; }
+      // Deep link from the reconciliation register: ?tx=<movement id> opens that movement's account.
+      void supabase.from("bank_transactions").select("bank_account_id").eq("id", tx).maybeSingle()
+        .then(({ data }) => setSelectedAccount(data?.bank_account_id ?? first));
     }
   }, [accountsQ.data, selectedAccount]);
 
@@ -556,7 +570,8 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
   // Filters
   const qc = useQueryClient();
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("unclassified");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(() => (deepLinkTx() ? "all" : "unclassified"));
+  const pendingTx = useRef<string | null>(deepLinkTx());
   const [dirFilter, setDirFilter] = useState<DirFilter>("all");
   const [linkFilter, setLinkFilter] = useState<LinkFilter>("all");
   const [search, setSearch] = useState("");
@@ -680,6 +695,11 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   // Auto-select first row when filters change
   useEffect(() => {
     if (filtered.length === 0) { setSelectedId(null); return; }
+    if (pendingTx.current && filtered.some((r) => r.id === pendingTx.current)) {
+      setSelectedId(pendingTx.current);
+      pendingTx.current = null;
+      return;
+    }
     if (!selectedId || !filtered.some((r) => r.id === selectedId)) {
       setSelectedId(filtered[0].id);
     }
@@ -1040,6 +1060,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     onNext={() => goNextUnmatched(selectedTx.id)}
                   />
                 )}
+                {selectedTx && <ReconcileHistory txId={selectedTx.id} />}
                 {entradaConfirm && (
                   <EntradaConfirmMatchSheet
                     queueId={entradaConfirm.queueId}

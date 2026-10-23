@@ -2,6 +2,7 @@
  * Drive folder intake poller — polled by pg_cron on the same cadence as the
  * Gmail intake hook. Secured with the same shared-secret gate.
  */
+import { withIntakeHealth } from "@/lib/finance/intake-health";
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "node:crypto";
 
@@ -15,7 +16,7 @@ function safeEqual(a: string, b: string) {
 export const Route = createFileRoute("/api/public/hooks/drive-intake")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: withIntakeHealth("drive", async ({ request }) => {
         const expected =
           process.env.DRIVE_INTAKE_SECRET ?? process.env.GMAIL_INTAKE_SECRET ?? "";
         if (!expected) return new Response("Intake hook secret not configured", { status: 503 });
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/api/public/hooks/drive-intake")({
             { status: 500 },
           );
         }
-      },
+      }),
     },
   },
 });

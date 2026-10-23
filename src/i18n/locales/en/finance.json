@@ -1084,7 +1084,9 @@
       "intakeInbox": "Finance inbox",
       "purchaseDuplicates": "Suspected duplicates",
       "driveArchive": "Drive archive",
-      "reclassify": "To reclassify"
+      "reclassify": "To reclassify",
+      "reconciliationLog": "Reconciliation register",
+      "duplicates": "Duplicates"
     }
   },
   "purchases": {
@@ -2665,5 +2667,59 @@
       "hr": "HR",
       "transfer": "Transfer"
     }
+  },
+  "reconAudit": {
+    "title": "Reconciliation register",
+    "subtitle": "Every match, unmatch and status change on bank movements, with who and when. Each entry links to the movement and the document.",
+    "historyTitle": "Reconciliation history",
+    "openRegister": "Open register",
+    "empty": "No reconciliation changes recorded yet.",
+    "system": "automatic",
+    "search": "Search description, document number, supplier, amount or person",
+    "from": "From",
+    "to": "To",
+    "count_one": "{{count}} entry",
+    "count_other": "{{count}} entries",
+    "statusFromTo": "{{from}} → {{to}}",
+    "amountFromTo": "{{from}} → {{to}}",
+    "col": {
+      "when": "When",
+      "action": "Change",
+      "detail": "Detail",
+      "movement": "Movement",
+      "document": "Document",
+      "who": "Who"
+    },
+    "action": {
+      "match": "Matched",
+      "unmatch": "Unmatched",
+      "amount_change": "Amount changed",
+      "reconciled": "Reconciled",
+      "unreconciled": "Reconciliation undone",
+      "status_change": "Status changed"
+    }
+  },
+  "supplierDups": {
+    "tabPurchases": "Purchases",
+    "tabSuppliers": "Suppliers",
+    "subtitle": "Suppliers that may be the same company (same NIF or same name). Nothing changes until you choose which to keep and confirm. The other one is never deleted: it becomes inactive and its name and NIF are kept as aliases.",
+    "none": "No possible duplicate suppliers.",
+    "count_one": "{{count}} possible duplicate",
+    "count_other": "{{count}} possible duplicates",
+    "reason": {
+      "same_nif": "Same NIF",
+      "same_name": "Same name"
+    },
+    "documents": "Documents",
+    "total": "Total",
+    "keep": "Keep {{keep}}, merge {{merge}}",
+    "notDup": "Not a duplicate",
+    "confirmTitle": "Merge suppliers",
+    "confirmDesc": "Keep {{keep}}. Every document and record of {{merge}} ({{docs}} documents) moves to it; {{merge}} stays inactive and its name and NIF become aliases. No document is deleted.",
+    "reasonPh": "Reason (required)",
+    "cancel": "Cancel",
+    "confirm": "Merge",
+    "merged": "{{merged}} merged into {{keep}}.",
+    "remembered": "Marked as not a duplicate."
   }
 }

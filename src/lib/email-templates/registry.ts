@@ -10,6 +10,7 @@ import { template as timesheetWeekUpdateTemplate } from './timesheet-week-update
 import { template as financeForwardTemplate } from './finance-forward'
 import { template as leaveChangeTemplate } from './leave-change'
 import { template as baixaMedicaSubmittedTemplate } from './baixa-medica-submitted'
+import { template as intakeSourceAlertTemplate } from './intake-source-alert'
 
 
 export interface TemplateEntry {
@@ -41,5 +42,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'finance-forward': financeForwardTemplate,
   'leave-change': leaveChangeTemplate,
   'baixa-medica-submitted': baixaMedicaSubmittedTemplate,
+  'intake-source-alert': intakeSourceAlertTemplate,
 }
 

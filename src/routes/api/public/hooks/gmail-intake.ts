@@ -15,6 +15,7 @@
  *    `financial_email_processed_messages`.
  *  - Email BODIES are never parsed for financial data (out of scope).
  */
+import { withIntakeHealth } from "@/lib/finance/intake-health";
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "node:crypto";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
@@ -88,7 +89,7 @@ async function findMailboxKey(address: string, lovableKey: string): Promise<stri
 export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: withIntakeHealth("docs", async ({ request }) => {
         // Shared-secret gate: only the scheduled pg_cron job knows this value.
         // The Supabase anon key is NOT a secret (it ships in the client bundle),
         // so it is deliberately not accepted here.
@@ -371,7 +372,7 @@ export const Route = createFileRoute("/api/public/hooks/gmail-intake")({
             { status: 500 },
           );
         }
-      },
+      }),
     },
   },
 });

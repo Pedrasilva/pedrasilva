@@ -10,6 +10,7 @@
  * The service role bypasses RLS and storage policies, so the extension
  * allow-list is enforced here. ideas@ is NOT registered in email_sync_state.
  */
+import { withIntakeHealth } from "@/lib/finance/intake-health";
 import { createFileRoute } from "@tanstack/react-router";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -124,7 +125,7 @@ async function gmail(path: string, connKey: string, lovableKey: string) {
 export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: withIntakeHealth("ideas", async ({ request }) => {
         const provided =
           request.headers.get("x-intake-secret") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
@@ -356,7 +357,7 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
             { status: 500 },
           );
         }
-      },
+      }),
     },
   },
 });

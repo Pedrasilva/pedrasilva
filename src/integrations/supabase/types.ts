@@ -1785,6 +1785,71 @@ export type Database = {
           },
         ]
       }
+      company_aliases: {
+        Row: {
+          alias: string
+          alias_nif: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          source_company_id: string | null
+        }
+        Insert: {
+          alias: string
+          alias_nif?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          source_company_id?: string | null
+        }
+        Update: {
+          alias?: string
+          alias_nif?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          source_company_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_aliases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_duplicate_decisions: {
+        Row: {
+          company_a: string
+          company_b: string
+          decided_at: string
+          decided_by: string | null
+          decision: string
+          id: string
+        }
+        Insert: {
+          company_a: string
+          company_b: string
+          decided_at?: string
+          decided_by?: string | null
+          decision?: string
+          id?: string
+        }
+        Update: {
+          company_a?: string
+          company_b?: string
+          decided_at?: string
+          decided_by?: string | null
+          decision?: string
+          id?: string
+        }
+        Relationships: []
+      }
       company_expenses: {
         Row: {
           amount: number
@@ -1919,6 +1984,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      company_merge_log: {
+        Row: {
+          id: string
+          keep_company_id: string
+          left_in_place: Json
+          merged_at: string
+          merged_by: string | null
+          merged_by_email: string | null
+          merged_company_id: string
+          merged_snapshot: Json
+          moved: Json
+          reason: string
+        }
+        Insert: {
+          id?: string
+          keep_company_id: string
+          left_in_place?: Json
+          merged_at?: string
+          merged_by?: string | null
+          merged_by_email?: string | null
+          merged_company_id: string
+          merged_snapshot: Json
+          moved?: Json
+          reason: string
+        }
+        Update: {
+          id?: string
+          keep_company_id?: string
+          left_in_place?: Json
+          merged_at?: string
+          merged_by?: string | null
+          merged_by_email?: string | null
+          merged_company_id?: string
+          merged_snapshot?: Json
+          moved?: Json
+          reason?: string
+        }
+        Relationships: []
       }
       contacts: {
         Row: {
@@ -3238,6 +3342,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fin_reconcile_audit: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          amount: number | null
+          bank_transaction_id: string | null
+          created_at: string
+          detail: Json
+          document_id: string | null
+          entity_id: string | null
+          id: string
+          payment_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          amount?: number | null
+          bank_transaction_id?: string | null
+          created_at?: string
+          detail?: Json
+          document_id?: string | null
+          entity_id?: string | null
+          id?: string
+          payment_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          amount?: number | null
+          bank_transaction_id?: string | null
+          created_at?: string
+          detail?: Json
+          document_id?: string | null
+          entity_id?: string | null
+          id?: string
+          payment_id?: string | null
+        }
+        Relationships: []
       }
       fin_reconcile_suggestion_cache: {
         Row: {
@@ -6229,6 +6375,66 @@ export type Database = {
           status?: Database["public"]["Enums"]["import_job_status"]
           storage_path?: string | null
           warning_count?: number
+        }
+        Relationships: []
+      }
+      intake_source_alerts: {
+        Row: {
+          alert_day: string
+          created_at: string
+          email_error: string | null
+          emailed: boolean
+          id: string
+          kind: string
+          message: string
+          source: string
+        }
+        Insert: {
+          alert_day: string
+          created_at?: string
+          email_error?: string | null
+          emailed?: boolean
+          id?: string
+          kind: string
+          message: string
+          source: string
+        }
+        Update: {
+          alert_day?: string
+          created_at?: string
+          email_error?: string | null
+          emailed?: boolean
+          id?: string
+          kind?: string
+          message?: string
+          source?: string
+        }
+        Relationships: []
+      }
+      intake_source_runs: {
+        Row: {
+          error: string | null
+          id: string
+          items: number
+          ok: boolean
+          ran_at: string
+          source: string
+        }
+        Insert: {
+          error?: string | null
+          id?: string
+          items?: number
+          ok: boolean
+          ran_at?: string
+          source: string
+        }
+        Update: {
+          error?: string | null
+          id?: string
+          items?: number
+          ok?: boolean
+          ran_at?: string
+          source?: string
         }
         Relationships: []
       }
@@ -16124,6 +16330,11 @@ export type Database = {
         Returns: string
       }
       fin_class_in_use: { Args: { _id: string }; Returns: boolean }
+      fin_company_dup_key: { Args: { _n: string }; Returns: string }
+      fin_company_not_duplicate: {
+        Args: { _a: string; _b: string }
+        Returns: undefined
+      }
       fin_company_visible: { Args: { _company_id: string }; Returns: boolean }
       fin_confirm_queue_item: {
         Args: { _edits?: Json; _id: string }
@@ -16160,6 +16371,10 @@ export type Database = {
       fin_link_company_to_entity: {
         Args: { _company_id: string }
         Returns: string
+      }
+      fin_merge_companies: {
+        Args: { _keep: string; _merge: string; _reason: string }
+        Returns: Json
       }
       fin_name_key: { Args: { _n: string }; Returns: string }
       fin_nif_is_placeholder: { Args: { _nif: string }; Returns: boolean }
@@ -16246,6 +16461,44 @@ export type Database = {
           suggested_name: string
         }[]
       }
+      fin_reconcile_audit_search: {
+        Args: {
+          _doc?: string
+          _from?: string
+          _limit?: number
+          _q?: string
+          _to?: string
+          _tx?: string
+        }
+        Returns: {
+          action: string
+          actor_email: string
+          amount: number
+          bank_account_id: string
+          bank_transaction_id: string
+          counterparty: string
+          created_at: string
+          detail: Json
+          document_id: string
+          document_number: string
+          document_total: number
+          id: string
+          tx_amount: number
+          tx_date: string
+          tx_description: string
+        }[]
+      }
+      fin_reconcile_audit_write: {
+        Args: {
+          _action: string
+          _amount: number
+          _detail: Json
+          _doc: string
+          _pay: string
+          _tx: string
+        }
+        Returns: undefined
+      }
       fin_reconcile_candidates: {
         Args: { _search?: string; _tx_id: string }
         Returns: {
@@ -16306,6 +16559,22 @@ export type Database = {
         Returns: undefined
       }
       fin_storage_visible: { Args: { _name: string }; Returns: boolean }
+      fin_supplier_duplicate_candidates: {
+        Args: never
+        Returns: {
+          company_a: string
+          company_b: string
+          docs_a: number
+          docs_b: number
+          name_a: string
+          name_b: string
+          nif_a: string
+          nif_b: string
+          reason: string
+          total_a: number
+          total_b: number
+        }[]
+      }
       fin_supplier_habit_paid_with: {
         Args: { _entity: string; _supplier: string }
         Returns: Record<string, unknown>

@@ -1,4 +1,6 @@
 import {
+  History,
+  CopyCheck,
   LayoutDashboard,
   Receipt,
   CreditCard,
@@ -64,6 +66,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
       { to: "/finance/payments/expenses", labelKey: "finance:sidebar.items.expenses", icon: Wallet },
       { to: "/finance/payments/outflows", labelKey: "finance:sidebar.items.outflows", icon: ArrowDownToLine },
       { to: "/finance/payments/cards", labelKey: "finance:sidebar.items.cards", icon: CreditCard },
+      { to: "/finance/payments/duplicates", labelKey: "finance:sidebar.items.duplicates", icon: CopyCheck },
     ],
   },
   {
@@ -85,6 +88,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
       { to: "/finance/banking/reconciliation", labelKey: "finance:sidebar.items.reconciliation", icon: RefreshCw },
       { to: "/finance/banking/transactions", labelKey: "finance:sidebar.items.transactions", icon: ListChecks },
       { to: "/finance/banking/statements", labelKey: "finance:sidebar.items.statements", icon: ScrollText },
+      { to: "/finance/banking/reconciliation-log", labelKey: "finance:sidebar.items.reconciliationLog", icon: History },
     ],
   },
   {

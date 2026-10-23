@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Upload, FileText, X } from "lucide-react";
 import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
+import { ReconcileHistory } from "@/components/finance/reconcile-audit";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -915,6 +916,9 @@ function DocumentEditorPage() {
 
       {!isNew && docQ.data && (
         <PaymentsSection documentId={documentId} doc={docQ.data.document} />
+      )}
+      {!isNew && docQ.data && (
+        <div className="mt-4"><ReconcileHistory docId={documentId} /></div>
       )}
     </div>
   );
