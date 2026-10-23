@@ -15,9 +15,9 @@ describe("intake source alerts", () => {
   it("no silence alert before 48 working hours of history", () =>
     expect(decideAlerts(wed, [run(true)], "2026-10-20T12:00:00Z", 0)).toEqual([]));
   it("48 working hours from Monday 10:00 reach back over the weekend to Thursday 10:00", () => {
-    const mon = new Date("2026-10-26T10:00:00Z");
+    const mon = new Date("2026-11-09T10:00:00Z");
     expect(isWorkingDay(mon)).toBe(true);
-    expect(workingHoursBefore(mon, 48).toISOString()).toBe("2026-10-22T10:00:00.000Z");
+    expect(workingHoursBefore(mon, 48).toISOString()).toBe("2026-11-05T10:00:00.000Z");
   });
   it("items found per source", () => {
     expect(itemsFound("docs", { queued: 2, mt940Imported: 1, duplicates: 5 })).toBe(3);
