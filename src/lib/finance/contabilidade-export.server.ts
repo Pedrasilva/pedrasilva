@@ -245,9 +245,13 @@ export async function runAccountingExport(opts: { limit?: number; since?: string
       const msg = e instanceof Error ? e.message : String(e);
       sum.failed++;
       sum.errors.push(`${t.name}: ${msg}`.slice(0, 300));
+      if (row?.status === "exported") {
+        await supabaseAdmin.from("finance_accounting_exports").update({ last_error: msg.slice(0, 1000), updated_at: new Date().toISOString() }).eq("id", row.id);
+        continue;
+      }
       await supabaseAdmin.from("finance_accounting_exports").upsert({
         entity_id: t.entityId, source_kind: t.kind, source_id: t.sourceId, version: 1, subfolder: t.sub, period: t.period,
-        folder_path: folderPath, file_name: t.name, status: row?.status === "exported" ? "exported" : "failed",
+        folder_path: folderPath, file_name: t.name, status: "failed",
         drive_file_id: row?.drive_file_id ?? null, last_error: msg.slice(0, 1000), updated_at: new Date().toISOString(),
       }, { onConflict: "source_kind,source_id,version" });
     }
