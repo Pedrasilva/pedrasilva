@@ -998,7 +998,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
                   />
                 ) : null}
-                {selectedTx && !(linksQ.data?.has(selectedTx.id)) && selectedTx.reconciled_at == null && (
+                {selectedTx && !(linksQ.data?.has(selectedTx.id)) && selectedTx.status === "unclassified" && (
                   <CandidatePool
                     txId={selectedTx.id}
                     txAmount={Number(selectedTx.amount)}

@@ -2496,5 +2496,58 @@
       "useStatementDates": "Usar datas do extrato",
       "usingStatement": "Os saldos inicial e final abaixo vêm do extrato."
     }
+  },
+  "periodWindow": {
+    "title": "Extrato {{number}}",
+    "opening": "Saldo inicial do extrato",
+    "movements_one": "{{count}} movimento importado",
+    "movements_other": "{{count}} movimentos importados",
+    "expectedClosing": "Saldo final esperado (inicial + movimentos)",
+    "statementClosing": "Saldo final do extrato",
+    "difference": "Diferença",
+    "continuity": "O saldo inicial difere do saldo final anterior {{previous}} em {{diff}}.",
+    "progress": "Conciliados",
+    "progressValue": "{{matched}} de {{total}}",
+    "unmatchedAmount": "Montante por conciliar",
+    "matchedDifference": "Diferença só com movimentos conciliados",
+    "explanations": "Possíveis explicações",
+    "gap": "Sem movimentos importados de {{from}} a {{to}}",
+    "duplicate": "{{count}} movimentos iguais em {{date}}: {{amount}} · {{description}}",
+    "outside": "Fora do período: {{date}} {{amount}} · {{description}}",
+    "noExplanation": "Sem causa evidente; verifique importações em falta ou saldos errados.",
+    "cardPayment": "Pagamento do cartão",
+    "cardDue": "{{amount}} a debitar em {{date}}",
+    "cardNoDebit": "Não foi encontrado o débito correspondente na conta de pagamento.",
+    "reconciled": "conciliado",
+    "lock": "Marcar conciliado e bloquear",
+    "lockHint": "Todos os movimentos têm de estar resolvidos e a diferença com movimentos conciliados tem de ser zero.",
+    "lockedBadge": "Conciliado · bloqueado",
+    "locked": "Período conciliado e bloqueado.",
+    "reopen": "Reabrir",
+    "reopenTitle": "Reabrir período do extrato",
+    "reasonPlaceholder": "Motivo da reabertura (obrigatório)",
+    "reopened": "Período reaberto.",
+    "errors": {
+      "period_has_unmatched": "Ainda há movimentos por conciliar.",
+      "period_difference_not_zero": "A diferença com movimentos conciliados não é zero.",
+      "reason_required": "O motivo é obrigatório.",
+      "forbidden": "Só administradores podem fazer isto.",
+      "period_locked": "Este período está bloqueado. Reabra-o com um motivo primeiro."
+    }
+  },
+  "candidatePool": {
+    "title": "Candidatos",
+    "search": "Pesquisar fornecedor, número ou valor",
+    "empty": "Sem candidatos.",
+    "match": "Conciliar",
+    "markTransfer": "Marcar transferência",
+    "openEntrada": "Abrir na Entrada",
+    "kind": {
+      "purchase": "Compra",
+      "sale": "Venda",
+      "entrada": "Entrada",
+      "reimbursement": "Reembolso",
+      "transfer": "Transferência"
+    }
   }
 }
