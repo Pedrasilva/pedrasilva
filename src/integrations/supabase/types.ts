@@ -3997,6 +3997,39 @@ export type Database = {
           },
         ]
       }
+      finance_known_bank_identities: {
+        Row: {
+          account_number: string | null
+          bank_name: string
+          created_at: string
+          created_by: string | null
+          holder: string
+          iban: string | null
+          id: string
+          ownership: string
+        }
+        Insert: {
+          account_number?: string | null
+          bank_name: string
+          created_at?: string
+          created_by?: string | null
+          holder: string
+          iban?: string | null
+          id?: string
+          ownership: string
+        }
+        Update: {
+          account_number?: string | null
+          bank_name?: string
+          created_at?: string
+          created_by?: string | null
+          holder?: string
+          iban?: string | null
+          id?: string
+          ownership?: string
+        }
+        Relationships: []
+      }
       finance_other_entities: {
         Row: {
           action: string
@@ -4564,6 +4597,7 @@ export type Database = {
           bank_doc_kind: string | null
           bank_field_overrides: Json
           bank_identity_flag: string | null
+          bank_ownership: string | null
           bank_period: string | null
           beneficiary_iban: string | null
           beneficiary_name: string | null
@@ -4650,6 +4684,7 @@ export type Database = {
           issuer_nif: string | null
           issuer_tax_country: string | null
           keep_despite_recipient: boolean
+          known_bank_identity_id: string | null
           linked_document_group_id: string
           mark_for_inventory: boolean
           marked_unpaid: boolean
@@ -4724,6 +4759,7 @@ export type Database = {
           bank_doc_kind?: string | null
           bank_field_overrides?: Json
           bank_identity_flag?: string | null
+          bank_ownership?: string | null
           bank_period?: string | null
           beneficiary_iban?: string | null
           beneficiary_name?: string | null
@@ -4810,6 +4846,7 @@ export type Database = {
           issuer_nif?: string | null
           issuer_tax_country?: string | null
           keep_despite_recipient?: boolean
+          known_bank_identity_id?: string | null
           linked_document_group_id?: string
           mark_for_inventory?: boolean
           marked_unpaid?: boolean
@@ -4884,6 +4921,7 @@ export type Database = {
           bank_doc_kind?: string | null
           bank_field_overrides?: Json
           bank_identity_flag?: string | null
+          bank_ownership?: string | null
           bank_period?: string | null
           beneficiary_iban?: string | null
           beneficiary_name?: string | null
@@ -4970,6 +5008,7 @@ export type Database = {
           issuer_nif?: string | null
           issuer_tax_country?: string | null
           keep_despite_recipient?: boolean
+          known_bank_identity_id?: string | null
           linked_document_group_id?: string
           mark_for_inventory?: boolean
           marked_unpaid?: boolean
@@ -5104,6 +5143,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_review_queue_known_bank_identity_id_fkey"
+            columns: ["known_bank_identity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_known_bank_identities"
             referencedColumns: ["id"]
           },
           {
@@ -16502,6 +16548,10 @@ export type Database = {
         Returns: Json
       }
       fin_is_pessoal_category: { Args: { _id: string }; Returns: boolean }
+      fin_known_bank_identity: {
+        Args: { _account: string; _iban: string }
+        Returns: string
+      }
       fin_learn_match_rule: {
         Args: { _doc_id: string; _tx_id: string }
         Returns: string
@@ -16529,6 +16579,7 @@ export type Database = {
         }
         Returns: Record<string, unknown>
       }
+      fin_partner_transfer_hint: { Args: { _tx_id: string }; Returns: Json }
       fin_period_lock: { Args: { _period_id: string }; Returns: undefined }
       fin_period_log_write: {
         Args: { _action: string; _period_id: string; _reason: string }

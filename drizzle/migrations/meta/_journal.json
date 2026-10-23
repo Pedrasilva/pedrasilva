@@ -1191,6 +1191,13 @@
       "when": 1792780784598,
       "tag": "0169_statement_id_spaced",
       "breakpoints": true
+    },
+    {
+      "idx": 170,
+      "version": "7",
+      "when": 1792788259454,
+      "tag": "0170_known_noncompany_bank_identities",
+      "breakpoints": true
     }
   ]
 }
