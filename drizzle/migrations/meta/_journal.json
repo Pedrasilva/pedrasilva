@@ -1086,6 +1086,13 @@
       "when": 1792754599769,
       "tag": "0154_bank_period_window",
       "breakpoints": true
+    },
+    {
+      "idx": 155,
+      "version": "7",
+      "when": 1792754811560,
+      "tag": "0155_bank_period_log_writer",
+      "breakpoints": true
     }
   ]
 }

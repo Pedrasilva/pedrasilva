@@ -16131,6 +16131,10 @@ export type Database = {
         Returns: Record<string, unknown>
       }
       fin_period_lock: { Args: { _period_id: string }; Returns: undefined }
+      fin_period_log_write: {
+        Args: { _action: string; _period_id: string; _reason: string }
+        Returns: undefined
+      }
       fin_period_reopen: {
         Args: { _period_id: string; _reason: string }
         Returns: undefined
