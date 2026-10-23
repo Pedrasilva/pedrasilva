@@ -686,6 +686,18 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
   const selectedTx = useMemo(() => filtered.find((r) => r.id === selectedId) ?? null, [filtered, selectedId]);
 
+  // Precompute suggestions for the period's unmatched movements in the background, so each opens instantly.
+  const warmKey = useMemo(
+    () => filtered.filter((r) => r.status === "unclassified" && !linksQ.data?.has(r.id)).map((r) => r.id).join(","),
+    [filtered, linksQ.data],
+  );
+  useEffect(() => {
+    if (!warmKey) return;
+    let off = false;
+    const h = setTimeout(() => { void warmSuggestions(warmKey.split(","), () => off); }, 1500);
+    return () => { off = true; clearTimeout(h); };
+  }, [warmKey]);
+
   /** Moves to the next movement in the current list (period) that still has nothing matched; wraps around. */
   function goNextUnmatched(fromId: string) {
     const links = linksQ.data;
