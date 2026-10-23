@@ -58,10 +58,9 @@ BEGIN
        AND (q.extracted_date IS NULL OR q.extracted_date BETWEEN t.transaction_date - 180 AND t.transaction_date + 30)
   ), hist AS MATERIALIZED (
     SELECT round(h.total_inc_vat, 2) AS amt, COALESCE(h.counterparty_supplier_id, h.counterparty_client_id) AS party,
-           public.fin_name_key(h.counterparty_name_snapshot) AS nk, count(*) AS n, array_agg(h.id) AS ref_ids
+           public.fin_name_key(h.counterparty_name_snapshot) AS nk, h.id
       FROM public.financial_documents h
      WHERE h.entity_id = t.entity_id AND h.status::text = 'paid'
-     GROUP BY 1, 2, 3
   ), scored AS (
     SELECT b.*,
       abs(b.outstanding - v_open) AS diff,
@@ -79,8 +78,8 @@ BEGIN
       ((s.party IS NOT NULL AND s.party = ANY(COALESCE(v_past_sup, '{}'))) OR (s.nk IS NOT NULL AND s.nk = ANY(COALESCE(v_past_names, '{}')))) AS by_past,
       (s.nk IS NOT NULL AND v_key IS NOT NULL AND (' ' || v_key || ' ') LIKE '% ' || s.nk || ' %') AS by_name,
       (s.docref IS NOT NULL AND length(s.docref) >= 4 AND position(s.docref IN v_ref) > 0) AS by_ref,
-      EXISTS (SELECT 1 FROM hist h WHERE h.amt = round(s.amount, 2) AND h.n >= 2 AND h.ref_ids <> ARRAY[s.ref_id]
-         AND ((s.party IS NOT NULL AND h.party = s.party) OR (s.nk IS NOT NULL AND h.nk = s.nk))) AS by_recurring
+      ((SELECT count(*) FROM hist h WHERE h.amt = round(s.amount, 2) AND h.id <> s.ref_id
+         AND ((s.party IS NOT NULL AND h.party = s.party) OR (s.nk IS NOT NULL AND h.nk = s.nk))) >= 2) AS by_recurring
       FROM scored s
   ), total AS (
     SELECT g.*,
