@@ -20,3 +20,20 @@ describe("dated proposals: closures move dates, never fee or hours",()=>{
     expect(scheduleCalendar(CLOSURE).shift("2026-12-21",4)).toBe("2026-12-29");
   });
 });
+
+import {effortHolidays} from "../src/lib/projects/gantt-utils";
+describe("AllocationEditor in a quote uses the same effort as the Financial Summary",()=>{
+  beforeEach(()=>setWorkingCalendarHolidays(CLOSURE));
+  it("editing to 21–29 Dec at 4h/day: editor = summary (28h, €1260 sale, €840 cost)",()=>{
+    const edited={...(alloc as object),end_date:"2026-12-29"} as never;
+    const line=quoteAllocationLine(edited);
+    const cal=effortHolidays("quote");
+    expect(allocationHours(edited,cal)).toBe(line.hours);
+    expect(line.hours).toBe(28);
+    expect(allocationCost({...(edited as object),hourly_rate:45} as never,cal)).toBe(line.revenue);
+    expect(allocationCost({...(edited as object),hourly_rate:30} as never,cal)).toBe(line.cost);
+  });
+  it("live projects still subtract the closure",()=>{
+    expect(allocationHours({start_date:"2026-12-21",end_date:"2026-12-29",hours_per_day:4},effortHolidays("project"))).toBe(20);
+  });
+});
