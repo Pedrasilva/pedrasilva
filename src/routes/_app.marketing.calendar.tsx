@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
-import { resolveDraftImages } from "@/lib/marketing/draft-images";
+import { PREVIEW, resolveDraftImages } from "@/lib/marketing/draft-images";
 import { gridOrder, lisbonParts, lisbonToUtcIso, lowWeeks, mondayOf, repetitionWarnings, WEEKLY_TARGET, type CalendarPost } from "@/lib/marketing/calendar";
 import { InstagramGrid, type GridPost } from "@/components/marketing/instagram-grid";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
@@ -63,7 +63,7 @@ function useCalendarData() {
       const rows = (data ?? []) as Row[];
       const pids = [...new Set(rows.map((r) => r.project_id).filter(Boolean))] as string[];
       const [images, { data: projects }] = await Promise.all([
-        resolveDraftImages(sb, [...new Set(rows.flatMap((r) => r.asset_ids))]),
+        resolveDraftImages(sb, [...new Set(rows.flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
         pids.length ? sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] },
       ]);
       const urls = new Map(images.map((i) => [i.id, i.url]));

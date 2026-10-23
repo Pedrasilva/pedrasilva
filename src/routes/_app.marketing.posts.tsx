@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
-import { resolveDraftImages } from "@/lib/marketing/draft-images";
+import { PREVIEW, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
@@ -187,7 +187,7 @@ function usePlannerData() {
       const assetIds = [...new Set(ds.flatMap((d) => d.asset_ids))];
       const projectIds = [...new Set(ds.map((d) => d.project_id).filter(Boolean))] as string[];
       const [assets, { data: projects }] = await Promise.all([
-        resolveDraftImages(sb, assetIds),
+        resolveDraftImages(sb, assetIds, 3600, { sign: false }),
         projectIds.length ? sb.from("pm_projects").select("id, name").in("id", projectIds) : { data: [] },
       ]);
       const assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }> = {};
