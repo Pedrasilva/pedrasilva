@@ -1,3 +1,10 @@
+## Current request — official bank identities
+- [x] Verify/correct five company accounts and three card paying links without balance/movement changes.
+- [x] Persist exact personal/condominium recognition, non-deletion and register/export exclusions; partner-transfer suggestions only.
+- [x] Re-match eleven statements, test disposable rules, report each outcome.
+
+- Aggregate Silver Empresas statements remain pending: paying accounts known, no unique card ID; no period invented. Detailed outcomes: docs/official-bank-identities-report.md.
+
 ## Current request — Instagram publishing stage 2
 - [x] Service-only claims/checkpoints, hash/anonymity/clearance rechecks, private URLs, attempt log and durable feed; migrations 0147–0150 mirrored exactly.
 - [x] Instagram containers, bounded validation, persistent send evidence, pre-send transient retry, bell/per-event emails and Vault-gated five-minute cron (288 checks/day); ambiguous sends blocked, no real test post.

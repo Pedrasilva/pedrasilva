@@ -1,4 +1,8 @@
 {
+  "knownBank": {
+    "partnerTransfer": "Suggested partner transfer",
+    "reviewTransfer": "Review classification"
+  },
   "classificationPicker": {
     "placeholder": "Select category…",
     "searchPlaceholder": "Search by code or name…",

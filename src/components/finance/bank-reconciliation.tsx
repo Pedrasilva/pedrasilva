@@ -1055,7 +1055,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
                     onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
                     onMatchReimb={() => setMatchReimbTx(selectedTx)}
-                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                    onMarkTransfer={() => setClassifyTx(selectedTx)}
                     onMatched={() => { goNextUnmatched(selectedTx.id); txQ.refetch(); linksQ.refetch(); counts.refetch(); }}
                     onNext={() => goNextUnmatched(selectedTx.id)}
                   />

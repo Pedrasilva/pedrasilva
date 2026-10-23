@@ -1,4 +1,8 @@
 {
+  "knownBank": {
+    "partnerTransfer": "Sugestão de transferência do/para o sócio",
+    "reviewTransfer": "Rever classificação"
+  },
   "classificationPicker": {
     "placeholder": "Selecionar categoria…",
     "searchPlaceholder": "Pesquisar por código ou nome…",

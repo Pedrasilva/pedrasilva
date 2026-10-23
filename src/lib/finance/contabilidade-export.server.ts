@@ -149,7 +149,7 @@ export async function collectTargets(since = BACKFILL_FROM): Promise<Target[]> {
     pageAll((f) => supabaseAdmin.from("finance_holder_reimbursements").select("document_id").order("id").range(f, f + 999)),
     pageAll((f) => supabaseAdmin.from("financial_document_review_queue")
       .select("id, entity_id, intake_type, bank_period, source_bucket, source_file_url, matched_bank_account_id, matched_payment_card_id, extracted_statement_number, drive_file_id")
-      .eq("status", "filed").eq("intake_route", "bank").gte("bank_period", since.slice(0, 7)).order("id").range(f, f + 999)),
+      .eq("status", "filed").is("bank_ownership", null).eq("intake_route", "bank").gte("bank_period", since.slice(0, 7)).order("id").range(f, f + 999)),
     pageAll((f) => supabaseAdmin.from("bank_accounts").select("id, bank_name, account_name").range(f, f + 999)),
     pageAll((f) => supabaseAdmin.from("payment_cards").select("id, nickname, bank, last4").range(f, f + 999)),
   ]);
