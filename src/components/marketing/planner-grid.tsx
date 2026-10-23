@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { resolveDraftImages } from "@/lib/marketing/draft-images";
+import { PREVIEW, resolveDraftImages } from "@/lib/marketing/draft-images";
 import { instagramFeed, scheduleInstagram } from "@/lib/marketing/instagram.functions";
 import { buildGrid, neighboursAt, proposeBetween, reorder, UPCOMING, type GridItem } from "@/lib/marketing/grid-preview";
 
@@ -33,8 +33,8 @@ function useGridDrafts() {
       if (error) throw error;
       // Stories never appear on the profile grid.
       const rows = ((data ?? []) as Draft[]).filter((d) => d.format !== "story");
-      // Short-lived (15 min) signed URLs for the cover only; the bucket stays private.
-      const covers = await resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 900);
+      // Signed ~400px WebP previews of the cover only (reused for most of their hour); the bucket stays private.
+      const covers = await resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 3600, { preview: PREVIEW.tile });
       return { rows, covers: new Map(covers.map((c) => [c.id, c])) };
     },
   });
@@ -101,7 +101,7 @@ export function PlannerGrid() {
     const label = isDraft ? caption(item.draft) : item.live.caption;
     const body = (
       <>
-        {src ? (video ? <video src={src} muted preload="metadata" className="h-full w-full object-cover" /> : <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />)
+        {src ? (video ? <video src={src} muted preload="metadata" className="h-full w-full object-cover" /> : <img src={src} alt="" loading="lazy" decoding="async" width={400} height={533} className="h-full w-full object-cover" />)
           : <span className="flex h-full w-full items-center justify-center p-2 text-center text-[10px] text-muted-foreground">{label.slice(0, 60)}</span>}
         {kind === "carousel" && <Layers className="absolute right-1.5 top-1.5 h-4 w-4 text-background drop-shadow" aria-label={t("grid.carousel")} />}
         {kind === "reel" && <Clapperboard className="absolute right-1.5 top-1.5 h-4 w-4 text-background drop-shadow" aria-label={t("grid.reel")} />}
