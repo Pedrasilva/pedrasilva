@@ -38,6 +38,13 @@ export async function syncInstagramComments(opts: { graph?: Graph; db?: Db } = {
   return { media: media.length, comments, error: failed ? "commentsPartial" : null };
 }
 
+export async function syncInstagramCommentsIfStale() {
+  const db = await admin();
+  const { data: s } = await db.from("marketing_settings").select("instagram_comments_synced_at").eq("id", true).single();
+  if (s?.instagram_comments_synced_at && Date.now() - Date.parse(s.instagram_comments_synced_at) < 14 * 60_000) return { skipped: true };
+  return syncInstagramComments({ db });
+}
+
 async function logAction(db: Db, row: Record<string, unknown>) {
   await db.from("marketing_ig_comment_actions").insert(row);
 }
