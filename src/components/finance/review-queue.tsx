@@ -542,8 +542,14 @@ export function QueueItemCard({
   onConfirmed,
   onSkip,
   keyboard = false,
+  beforeConfirm,
+  onConfirmFailed,
 }: {
-  onConfirmed?: () => void;
+  onConfirmed?: (documentId?: string) => void;
+  /** Runs right before the confirm call (e.g. company assignment); throwing cancels it. */
+  beforeConfirm?: () => Promise<void>;
+  /** Called when confirmation was refused, so callers can undo beforeConfirm. */
+  onConfirmFailed?: () => void;
   onSkip?: () => void;
   /** Enter confirms, Esc skips — only for the one card that is open. */
   keyboard?: boolean;
@@ -791,20 +797,22 @@ export function QueueItemCard({
         assigned_collaborator_id: isBenefit ? assignedCollaboratorId : null,
         counterparty_id: counterpartyId,
       };
+      if (beforeConfirm) await beforeConfirm();
       return confirmFn({ data: { id: row.id, edits } });
     },
     onSuccess: (res) => {
       if (!res.ok) {
         setServerBlockers(res.blockers);
         toast.error(res.error ?? res.blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · "));
+        onConfirmFailed?.();
         return;
       }
       setServerBlockers([]);
       toast.success(t("finance:reviewQueue.finalized"));
       invalidate();
-      onConfirmed?.();
+      onConfirmed?.(res.documentId);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { toast.error(e.message); onConfirmFailed?.(); },
   });
 
   const doReject = useMutation({

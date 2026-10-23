@@ -190,8 +190,10 @@ export type Candidate = {
 };
 
 export function CandidatePool({
-  txId, txAmount, onMatchDoc, onMatchReimb, onMarkTransfer,
+  txId, txAmount, onMatchDoc, onMatchReimb, onMarkTransfer, onConfirmEntrada,
 }: {
+  /** Confirm the pending Entrada item and match it in one step (side panel). */
+  onConfirmEntrada?: (queueId: string) => void;
   txId: string;
   txAmount: number;
   onMatchDoc: (docId: string) => void;
@@ -241,6 +243,8 @@ export function CandidatePool({
                 <Button size="sm" variant="outline" className="h-6 text-[11px]" onClick={onMatchReimb}>{t("finance:candidatePool.match")}</Button>
               ) : c.kind === "transfer" ? (
                 <Button size="sm" variant="outline" className="h-6 text-[11px]" onClick={onMarkTransfer}>{t("finance:candidatePool.markTransfer")}</Button>
+              ) : onConfirmEntrada ? (
+                <Button size="sm" variant="outline" className="h-6 text-[11px]" onClick={() => onConfirmEntrada(c.ref_id)}>{t("finance:reconSuggest.confirmAndMatch")}</Button>
               ) : (
                 <Button asChild size="sm" variant="outline" className="h-6 text-[11px]"><Link to="/finance/entrada">{t("finance:candidatePool.openEntrada")}</Link></Button>
               )}

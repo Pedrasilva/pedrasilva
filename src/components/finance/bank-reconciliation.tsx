@@ -37,6 +37,7 @@ import { StatementPeriodsPanel, PeriodStatusBadge } from "@/components/finance/s
 import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } from "@/lib/finance/use-statement-periods";
 import { currentEntityId } from "@/lib/finance/current-entity";
 import { PeriodWindowCard, CandidatePool } from "@/components/finance/bank-period-window";
+import { TxSuggestions, EntradaConfirmMatchSheet, ReviewSuggestionsDialog, MatchRulesPanel } from "@/components/finance/reconcile-suggestions";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -574,6 +575,8 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
   const [matchDocInitial, setMatchDocInitial] = useState<string | undefined>(undefined);
+  const [entradaConfirm, setEntradaConfirm] = useState<{ queueId: string; tx: BankTx } | null>(null);
+  const [reviewPeriod, setReviewPeriod] = useState<string | null>(null);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
   const [matchReimbTx, setMatchReimbTx] = useState<BankTx | null>(null);
 
@@ -808,6 +811,15 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
     <div className="space-y-4">
       <InconsistencyWarningCard />
       {selectedPeriodId && <PeriodWindowCard periodId={selectedPeriodId} />}
+      {selectedPeriodId && (
+        <div className="flex justify-end">
+          <Button size="sm" variant="outline" onClick={() => setReviewPeriod(selectedPeriodId)}>
+            {t("finance:reconSuggest.reviewButton")}
+          </Button>
+        </div>
+      )}
+      {reviewPeriod && <ReviewSuggestionsDialog periodId={reviewPeriod} onClose={() => { setReviewPeriod(null); txQ.refetch(); linksQ.refetch(); }} />}
+      <MatchRulesPanel classifications={classifications} isPt={isPt} />
 
       <Card>
         <CardHeader className="pb-3">
@@ -998,13 +1010,30 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
                   />
                 ) : null}
-                {selectedTx && !(linksQ.data?.has(selectedTx.id)) && selectedTx.status === "unclassified" && (
-                  <CandidatePool
-                    txId={selectedTx.id}
-                    txAmount={Number(selectedTx.amount)}
-                    onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
-                    onMatchReimb={() => setMatchReimbTx(selectedTx)}
-                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                {selectedTx && ((!(linksQ.data?.has(selectedTx.id)) && selectedTx.status === "unclassified") ||
+                  (linksQ.data?.has(selectedTx.id) && (linksQ.data.get(selectedTx.id)?.amount ?? 0) < Math.abs(Number(selectedTx.amount)) - 0.005)) && (
+                  <>
+                    <TxSuggestions
+                      tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
+                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
+                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
+                    />
+                    <CandidatePool
+                      txId={selectedTx.id}
+                      txAmount={Number(selectedTx.amount)}
+                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
+                      onMatchReimb={() => setMatchReimbTx(selectedTx)}
+                      onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
+                    />
+                  </>
+                )}
+                {entradaConfirm && (
+                  <EntradaConfirmMatchSheet
+                    queueId={entradaConfirm.queueId}
+                    tx={{ id: entradaConfirm.tx.id, transaction_date: entradaConfirm.tx.transaction_date, description: entradaConfirm.tx.description, amount: Number(entradaConfirm.tx.amount) }}
+                    onClose={() => setEntradaConfirm(null)}
+                    onDone={() => { txQ.refetch(); linksQ.refetch(); }}
                   />
                 )}
                 {!selectedTx && (
