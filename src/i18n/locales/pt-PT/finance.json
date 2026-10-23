@@ -2549,5 +2549,21 @@
       "reimbursement": "Reembolso",
       "transfer": "Transferência"
     }
+  },
+  "intakeUpload": {
+    "title": "Carregamentos",
+    "uploading": "A carregar… {{progress}}%",
+    "reading": "Carregado. A ler com IA… {{seconds}} s (extratos digitalizados podem demorar até um minuto; pode continuar a trabalhar)",
+    "done": "Concluído em {{seconds}} s.",
+    "open": "Abrir",
+    "dismiss": "Fechar",
+    "doneToast": "{{file}} lido e adicionado à Entrada",
+    "failed": "Falhou: {{reason}}",
+    "large": "Ficheiro grande: a leitura pode demorar mais.",
+    "errors": {
+      "too_large": "Ficheiro com mais de 25 MB. Digitalize a 200–300 ppp em cinzentos ou divida o PDF e carregue de novo.",
+      "network": "A ligação caiu durante o carregamento. Tente de novo.",
+      "not signed in": "A sessão expirou. Entre de novo e repita."
+    }
   }
 }

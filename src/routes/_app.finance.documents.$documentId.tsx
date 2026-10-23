@@ -97,7 +97,11 @@ const fmtDate = (s: string | null | undefined) => {
 import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance/documents/$documentId")({
+  // Access check needs the browser session; on the server it always failed and sent
+  // hard loads (reload, pasted link) to the Homepage.
+  ssr: false,
   beforeLoad: async () => {
+    if (typeof window === "undefined") return; // checked again in the browser
     const ok = await checkFinanceAccess();
     if (!ok) throw redirect({ to: "/" });
   },

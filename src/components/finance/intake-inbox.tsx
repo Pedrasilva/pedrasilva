@@ -12,7 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AlertTriangle, Check, ChevronDown, Clock, Loader2, RefreshCw, Settings } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { IntakeUploadButton } from "@/components/finance/intake-upload-button";
+import { IntakeUploadButton, OPEN_INTAKE_ITEM_EVENT } from "@/components/finance/intake-upload-button";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -206,6 +206,15 @@ export function IntakeInbox() {
     const r = rows.find((x) => x.id === id);
     if (r) { setTab(tabOf(r)); setSelected(id); }
   };
+  // Opening an item from an upload notification stays inside the app.
+  useEffect(() => {
+    const h = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      void qc.refetchQueries({ queryKey: ["finance", "review-queue", "inbox"] }).then(() => openItem(id));
+    };
+    window.addEventListener(OPEN_INTAKE_ITEM_EVENT, h);
+    return () => window.removeEventListener(OPEN_INTAKE_ITEM_EVENT, h);
+  });
   const openRule = (id: string) => { setRuleId(id); setTab("instructions"); };
   const active = list.find((r) => r.id === selected) ?? list[0] ?? null;
   const goNext = () => {
