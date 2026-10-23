@@ -299,3 +299,5 @@
 - [x] 29/07 invoice present in the candidates list.
 - [ ] Stage D proper: two-way audit log, searchable "Registo de reconciliações", supplier/purchase duplicate merge with aliases.
 - [ ] Intake source failure alerts (docs@, Drive, ideas@).
+- [x] End-to-end match-panel checks (scripts/e2e/match-panel-e2e.py): 12/12, all saves intercepted, 381 payments unchanged.
+- [x] Read-only diagnosis of MBCP 006/2026 reported; no fixes applied (awaiting Luis).
