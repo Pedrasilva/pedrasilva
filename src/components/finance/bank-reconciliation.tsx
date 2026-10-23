@@ -1469,6 +1469,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
                       isPt={isPt}
                       placeholder={t("finance:bankRec.selectClassification")}
                       matchText={tx.description}
+                      bankAccountId={tx.bank_account_id}
                       suggestedIds={s.supplier_id && supplierClassQ.data?.[s.supplier_id] ? [supplierClassQ.data[s.supplier_id]] : []}
                     />
                   </div>

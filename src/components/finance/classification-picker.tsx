@@ -37,6 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ClassificationBrowser } from "./classification-browser";
 import { learnedClassificationIds, type LearnedRule } from "@/lib/finance/classification-rank";
+import { benefitAccountSuggestions } from "@/lib/finance/benefit-account-suggestions";
 
 export type ClassificationOption = {
   id: string;
@@ -58,6 +59,7 @@ interface Props {
   suggestedIds?: string[];
   /** Movement description / supplier text: categories from learned bank rules that match it rank first. */
   matchText?: string | null;
+  bankAccountId?: string;
 }
 
 const RECENT_KEY = "lovable.finance.recentClassifications";
@@ -121,6 +123,7 @@ export function ClassificationPicker({
   className,
   suggestedIds: suggestedIdsProp,
   matchText,
+  bankAccountId,
 }: Props) {
   const { t } = useTranslation("finance");
   const [open, setOpen] = useState(false);
@@ -159,10 +162,22 @@ export function ClassificationPicker({
       return (data ?? []) as LearnedRule[];
     },
   });
+  const accountQ = useQuery({
+    queryKey: ["classification-picker-account", bankAccountId],
+    enabled: !!bankAccountId,
+    queryFn: async () => {
+      if (!bankAccountId) return null;
+      const { data, error } = await supabase.from("bank_accounts")
+        .select("account_kind, account_name, bank_name").eq("id", bankAccountId).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
   const suggestedIds = useMemo(() => {
     const learned = learnedClassificationIds(matchText, rulesQ.data ?? []);
-    return [...new Set([...(suggestedIdsProp ?? []), ...learned])];
-  }, [suggestedIdsProp, matchText, rulesQ.data]);
+    const benefit = benefitAccountSuggestions(accountQ.data, optionsProp);
+    return [...new Set([...benefit, ...(suggestedIdsProp ?? []), ...learned])];
+  }, [suggestedIdsProp, matchText, rulesQ.data, accountQ.data, optionsProp]);
   const meta = useMemo(() => new Map((metaQ.data ?? []).map((m) => [m.id, m])), [metaQ.data]);
   const groupLabel = (c: ClassificationOption) => {
     const m = meta.get(c.id);
