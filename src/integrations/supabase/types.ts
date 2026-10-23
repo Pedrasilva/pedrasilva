@@ -3239,6 +3239,27 @@ export type Database = {
           },
         ]
       }
+      fin_reconcile_suggestion_cache: {
+        Row: {
+          computed_at: string
+          entity_id: string
+          rows: Json
+          tx_id: string
+        }
+        Insert: {
+          computed_at?: string
+          entity_id: string
+          rows?: Json
+          tx_id: string
+        }
+        Update: {
+          computed_at?: string
+          entity_id?: string
+          rows?: Json
+          tx_id?: string
+        }
+        Relationships: []
+      }
       finance_classification_code_map: {
         Row: {
           created_at: string
@@ -16254,6 +16275,14 @@ export type Database = {
           suggested_amount: number
           tx_open: number
         }[]
+      }
+      fin_reconcile_suggestions_cached: {
+        Args: { _tx_id: string }
+        Returns: Json
+      }
+      fin_reconcile_suggestions_refresh: {
+        Args: { _tx_id: string }
+        Returns: Json
       }
       fin_register_issued_document: {
         Args: { _existing_id?: string; _header: Json; _lines: Json }
