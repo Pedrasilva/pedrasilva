@@ -61,6 +61,7 @@ async def main():
         await login(c, pg)
         await pg.goto(BASE + "/finance/banking/reconciliation"); await pg.wait_for_timeout(9000)
 
+        await pg.screenshot(path=str(OUT / "0_start.png")); print("url", pg.url)
         # 1. Suggestions + search (LOVABLE 300 €, 17/09)
         await open_movement(pg, "LOVABLE", "300")
         t0 = time.time(); await pg.get_by_text("2467-9126").first.wait_for(timeout=20000)
