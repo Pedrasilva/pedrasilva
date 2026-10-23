@@ -283,5 +283,4 @@
 - [ ] Existing 97 bank items were read before this change: they show 'Sem tipo' until re-read (not done automatically). Includes: printed opening/closing vs Hub opening+movements=computed closing and difference (green/red) in registry and statement view; Extratos uses statement balances when a statement exists, else says none.
 - [x] Stage B: period window, lock/reopen with reason, one candidate pool searched in the database, card payment check. Entrada confirm-and-match in one step still opens Entrada (pending).
 - [x] Stage C (ranking, split/partial, learned rules, review mode) + stage B one-step Entrada confirm-and-match.
-- [ ] Stage D — waits for Luis's go.
-- [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — after C.
+- [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — waits for Luis's go.
