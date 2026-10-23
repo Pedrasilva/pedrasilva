@@ -12,6 +12,8 @@ export const Route=createFileRoute('/api/public/hooks/marketing-publish')({serve
     let comments:unknown=null;try{const {syncInstagramCommentsIfStale}=await import('@/lib/marketing/instagram-comments.server');comments=await syncInstagramCommentsIfStale();}catch{comments={error:'commentsUnavailable'};}
     // ...and insight snapshots (read-only) once a day.
     let insights:unknown=null;try{const {syncInstagramInsightsIfStale}=await import('@/lib/marketing/instagram-insights.server');insights=await syncInstagramInsightsIfStale();}catch{insights={error:'insightsUnavailable'};}
-    return Response.json({...published,comments,insights});}
+    // ...and live Stories (read-only) at ~20–23 h and before expiry.
+    let stories:unknown=null;try{const {syncStoryInsightsIfDue}=await import('@/lib/marketing/instagram-insights.server');stories=await syncStoryInsightsIfDue();}catch{stories={error:'storyInsightsUnavailable'};}
+    return Response.json({...published,comments,insights,stories});}
   catch{return Response.json({error:'Publishing job unavailable'},{status:503});}
 }}}});
