@@ -78,12 +78,13 @@ export async function testFinanceDriveAccess(cfg: FinanceDriveConfig): Promise<{
       return null;
     }
   };
-  const missing = (["sharedDriveId", "intake", "processed", "failed", "contabilidade"] as const).filter((k) => !cfg[k]);
+  // My Drive is allowed for now (no shared drive yet); shared-drive checks apply only when set.
+  const missing = (["intake", "processed", "failed", "contabilidade"] as const).filter((k) => !cfg[k]);
   if (missing.length) {
     steps.push({ step: "config", ok: false, ms: 0, detail: `missing: ${missing.join(", ")}` });
     return { ok: false, steps };
   }
-  const drv = await run("drive", async () => {
+  const drv = !cfg.sharedDriveId ? true : await run("drive", async () => {
     const d = await driveJson(driveUrl(`/drive/v3/drives/${cfg.sharedDriveId}`, { fields: "id,name" }));
     return { v: d, detail: d.name };
   });
@@ -91,9 +92,11 @@ export async function testFinanceDriveAccess(cfg: FinanceDriveConfig): Promise<{
   for (const [label, id] of [["intake", cfg.intake], ["processed", cfg.processed], ["failed", cfg.failed], ["contabilidade", cfg.contabilidade]] as const) {
     const f = await run(`folder:${label}`, async () => {
       const m = await driveJson(driveUrl(`/drive/v3/files/${id}`, { fields: "id,name,driveId,capabilities(canAddChildren,canMoveChildrenWithinDrive,canDeleteChildren,canTrashChildren)" }));
-      if (m.driveId !== cfg.sharedDriveId) throw new Error(`"${m.name}" is not in the shared drive`);
       const c = m.capabilities ?? {};
-      if (!c.canAddChildren || !c.canMoveChildrenWithinDrive) throw new Error(`"${m.name}": role too low (needs Content manager)`);
+      if (cfg.sharedDriveId) {
+        if (m.driveId !== cfg.sharedDriveId) throw new Error(`"${m.name}" is not in the shared drive`);
+        if (!c.canAddChildren || !c.canMoveChildrenWithinDrive) throw new Error(`"${m.name}": role too low (needs Content manager)`);
+      } else if (!c.canAddChildren) throw new Error(`"${m.name}": no permission to add files`);
       return { v: m, detail: m.name };
     });
     if (!f) return { ok: false, steps };
