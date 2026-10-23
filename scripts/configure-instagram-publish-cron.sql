@@ -1,2 +1,6 @@
 -- Source-controlled configuration; no secret value appears here. Production callback becomes available only after app publication.
 SELECT cron.schedule('marketing-instagram-publish-every-5-min','3-59/15 * * * *', $job$ SELECT net.http_post(url:='https://project--945f60ba-be65-42ad-a5a3-dc640ed8b1b3.lovable.app/api/public/hooks/marketing-publish',headers:=jsonb_build_object('Content-Type','application/json','x-publish-secret',(SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name='marketing_enrich_secret' LIMIT 1)),body:='{}'::jsonb,timeout_milliseconds:=120000) WHERE EXISTS(SELECT 1 FROM public.marketing_post_drafts WHERE platform='instagram' AND ig_media_id IS NULL AND ((status::text='scheduled' AND scheduled_at<=now()) OR (status::text='failed' AND publish_retry_at<=now() AND publish_attempts<2 AND publish_sent_at IS NULL) OR (status::text='publishing' AND publish_locked_at<now()-interval '4 minutes'))) $job$);
+
+-- Stage 3b (applied via cron.alter_job(17, command := ...)): same SQL, with an extra trigger condition
+-- OR EXISTS(SELECT 1 FROM public.marketing_settings WHERE id AND instagram_account_id IS NOT NULL AND (instagram_comments_synced_at IS NULL OR instagram_comments_synced_at<now()-interval '14 minutes'))
+-- so the job also refreshes Instagram comments (read-only) at most every 15 minutes.
