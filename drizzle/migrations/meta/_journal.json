@@ -1114,6 +1114,13 @@
       "when": 1792761357744,
       "tag": "0158_bank_match_suggestions_rank",
       "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "7",
+      "when": 1792761677231,
+      "tag": "0159_bank_period_window_card_settle",
+      "breakpoints": true
     }
   ]
 }
