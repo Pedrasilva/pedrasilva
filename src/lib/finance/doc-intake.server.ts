@@ -757,6 +757,8 @@ export async function ingestStoredDocument(opts: {
   // Existing row (re-reads): keep its age (the oldest copy is the original),
   // its sender and the supplier NIF read last time.
   let selfCreatedAt: string | null = null;
+  // Corrections a person made to bank statement fields survive re-reads.
+  let priorBankOverrides: Record<string, { value: unknown }> = {};
   let priorNif: string | null = null;
   let sender = opts.senderAddress?.toLowerCase() ?? null;
   // Entity of the intake channel (email / Drive = PSA mailbox) until the recipient is read.
@@ -764,10 +766,11 @@ export async function ingestStoredDocument(opts: {
   if (replaceId) {
     const { data: prev } = await supabaseAdmin
       .from("financial_document_review_queue")
-      .select("created_at, extracted_supplier_vat, sender_address, entity_id")
+      .select("created_at, extracted_supplier_vat, sender_address, entity_id, bank_field_overrides")
       .eq("id", replaceId)
       .maybeSingle();
     selfCreatedAt = prev?.created_at ?? null;
+    priorBankOverrides = (prev?.bank_field_overrides as Record<string, { value: unknown }> | null) ?? {};
     priorNif = prev?.extracted_supplier_vat ?? null;
     sender = sender ?? prev?.sender_address ?? null;
     if (prev?.entity_id) channelEntity = prev.entity_id;
@@ -1160,6 +1163,7 @@ export async function ingestStoredDocument(opts: {
     ...(type === "nota_lancamento" ? { extracted_amount: ex.total_amount ?? null } : {}),
     matched_bank_account_id: isBank ? await matchBankAccount(ex.iban, ex.account_number, entityId) : null,
     bank_period: isBank && periodSrc && /^\d{4}-\d{2}/.test(periodSrc) ? periodSrc.slice(0, 7) : null,
+    ...(isBank ? await bankStatementColumns(ex as unknown as Record<string, unknown>, entityId) : {}),
     credit_note_original_document_id:
       type === "nota_credito" ? await matchOriginalInvoice(counterpartyVat, ex.referenced_document_number, entityId) : null,
     ...(route === "payments"
@@ -1167,6 +1171,11 @@ export async function ingestStoredDocument(opts: {
       : { payment_match_document_id: null, payment_match_candidates: null }),
   });
 
+  if (isBank && payload.bank_doc_kind !== "card_statement") {
+    const ai = (payload.bank_ai_values ?? {}) as Record<string, unknown>;
+    payload.bank_ai_values = { ...ai, matched_bank_account_id: payload.matched_bank_account_id ?? null } as never;
+    if (payload.bank_doc_kind === "account_statement" && !payload.matched_bank_account_id) payload.bank_identity_flag = "unknown_account";
+  }
   payload.applied_learning = applied;
 
   // Recipient rule (decided above, per entity).
@@ -1176,6 +1185,13 @@ export async function ingestStoredDocument(opts: {
   const removalRule = keepFlag ? null : rr.matchRemovalRule(await rr.loadRemovalRules(entityId), {
     recipientVat: rcpVat, supplierVat: counterpartyVat, sender,
   });
+
+  if (isBank) {
+    for (const [k, o] of Object.entries(priorBankOverrides)) {
+      if (o && typeof o === "object" && "value" in o) payload[k] = o.value as never;
+    }
+    if (Object.keys(priorBankOverrides).length) payload.bank_field_overrides = priorBankOverrides;
+  }
 
   // A — same document / bank movement / probable duplicate.
   const dupRes = await dups.checkDocumentDuplicates({
@@ -1317,6 +1333,65 @@ async function splitAndIngest(
 
 const digits = (v: string | null | undefined) => (v ?? "").replace(/\D/g, "");
 const alnum = (v: string | null | undefined) => (v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+const BANK_KINDS = ["account_statement", "card_statement", "bank_export", "other_bank"] as const;
+const num = (v: unknown) => (v == null || v === "" || !Number.isFinite(Number(v)) ? null : Math.round(Number(v) * 100) / 100);
+const isoDate = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+
+/**
+ * Statement figures, AI values snapshot and account/card identity for a bank document.
+ * Cards and accounts are only matched to existing records (never created); unknown → flag.
+ */
+async function bankStatementColumns(ex: Record<string, unknown>, entityId: string) {
+  const rawKind = typeof ex.bank_doc_kind === "string" ? ex.bank_doc_kind : null;
+  const kind = (BANK_KINDS as readonly string[]).includes(rawKind ?? "")
+    ? rawKind
+    : ex.intake_type === "extrato_bancario" ? "account_statement" : "other_bank";
+  const last4 = parseCardLast4(ex.statement_card_last4 as string | null) ?? null;
+  let cardId: string | null = null;
+  let cardAccountId: string | null = null;
+  let flag: string | null = null;
+  if (kind === "card_statement") {
+    if (last4) {
+      const { data: cards } = await supabaseAdmin
+        .from("payment_cards")
+        .select("id, bank_account_id")
+        .eq("entity_id", entityId)
+        .eq("last4", last4);
+      if ((cards ?? []).length === 1) {
+        cardId = cards![0].id;
+        if (cards![0].bank_account_id) {
+          const { data: acc } = await supabaseAdmin
+            .from("bank_accounts").select("id, account_kind").eq("id", cards![0].bank_account_id).maybeSingle();
+          if (acc?.account_kind === "credit_card") cardAccountId = acc.id;
+        }
+      }
+    }
+    flag = !cardId ? "unknown_card" : !cardAccountId ? "card_without_card_account" : null;
+  }
+  const values = {
+    bank_doc_kind: kind,
+    extracted_bank_name: (ex.bank_name as string | null) ?? null,
+    extracted_statement_number: (ex.statement_number as string | null)?.toString().trim() || null,
+    extracted_opening_balance: num(ex.opening_balance),
+    extracted_closing_balance: num(ex.closing_balance),
+    extracted_total_debits: num(ex.total_debits),
+    extracted_total_credits: num(ex.total_credits),
+    extracted_statement_card_last4: last4,
+    extracted_card_due_date: isoDate(ex.card_payment_due_date),
+    extracted_card_amount_to_debit: num(ex.card_amount_to_debit),
+    matched_payment_card_id: cardId,
+  };
+  const out: Record<string, unknown> = { ...values, bank_identity_flag: flag };
+  if (kind === "card_statement") out.matched_bank_account_id = cardAccountId;
+  out.bank_ai_values = {
+    ...values,
+    extracted_period_start: isoDate(ex.period_start),
+    extracted_period_end: isoDate(ex.period_end),
+    ...(kind === "card_statement" ? { matched_bank_account_id: cardAccountId } : {}),
+  };
+  return out;
+}
 
 /** Bank account by IBAN, else by account number (digits contained in the IBAN/number). */
 export async function matchBankAccount(iban: string | null, accountNumber: string | null, entityId?: string | null): Promise<string | null> {

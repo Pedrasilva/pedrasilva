@@ -144,6 +144,18 @@ export const fileBankDocument = createServerFn({ method: "POST" })
       .single();
     if (aErr) throw new Error(aErr.message);
 
+    // Statements (account or card): create/update their statement period first, from the
+    // corrected values. Errors (incomplete, duplicate period, locked) stop the filing.
+    const { data: kindRow } = await supabase
+      .from("financial_document_review_queue")
+      .select("bank_doc_kind")
+      .eq("id", data.id)
+      .single();
+    if (kindRow?.bank_doc_kind === "account_statement" || kindRow?.bank_doc_kind === "card_statement") {
+      const { error: sErr } = await supabase.rpc("fin_bank_statement_sync_period", { _id: data.id });
+      if (sErr) throw new Error(sErr.message);
+    }
+
     const { error } = await supabase
       .from("financial_document_review_queue")
       .update({

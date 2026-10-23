@@ -2398,5 +2398,103 @@
     "purchaseRefused": "Purchase PDF refused: this action only registers invoices issued by the atelier.",
     "notIssuedInvoice": "This PDF is not an issued invoice ready for confirmation.",
     "duplicateInvoice": "This fiscal series and number are already registered. Open the existing invoice; no duplicate was created."
+  },
+  "bankDocs": {
+    "title": "Bank documents",
+    "subtitle": "One row per statement or bank document, grouped by account and month.",
+    "tabRegistry": "Bank documents",
+    "tabLedger": "Hub ledger",
+    "filters": {
+      "bank": "Bank",
+      "account": "Account or card",
+      "kind": "Type",
+      "year": "Year",
+      "month": "Month",
+      "status": "Status",
+      "all": "All",
+      "company": "Company",
+      "companyHint": "Showing {{name}}. Switch company with the entity selector."
+    },
+    "kind": {
+      "account_statement": "Account statement",
+      "card_statement": "Card statement",
+      "bank_export": "MT940/CSV export",
+      "other_bank": "Other bank document",
+      "none": "Not classified"
+    },
+    "status": {
+      "pending_review": "To confirm",
+      "filed": "Confirmed",
+      "duplicate": "Duplicate"
+    },
+    "cols": {
+      "period": "Period",
+      "number": "No.",
+      "printedOpening": "Opening (statement)",
+      "printedClosing": "Closing (statement)",
+      "hubMovements": "Hub movements",
+      "computedClosing": "Computed closing",
+      "difference": "Difference",
+      "pdf": "PDF",
+      "reconciled": "Reconciliation"
+    },
+    "reconciled": "Reconciled",
+    "notReconciled": "Not reconciled",
+    "noPeriod": "No statement period",
+    "reconciledCount": "{{done}} of {{total}} movements reconciled",
+    "unknownAccount": "Unknown account — add or pick it",
+    "unknownCard": "Unknown card — add or pick it",
+    "cardWithoutAccount": "Card has no card account in the Hub",
+    "duplicateBadge": "Duplicate period",
+    "gap": "Missing statement: {{months}}",
+    "continuity": "Opening {{opening}} ≠ previous closing {{previous}} (difference {{diff}})",
+    "empty": "No bank documents for these filters.",
+    "openPdf": "Open PDF",
+    "noPdf": "No file",
+    "docs_one": "{{count}} document",
+    "docs_other": "{{count}} documents",
+    "fields": {
+      "kind": "Document type",
+      "account": "Account",
+      "card": "Card",
+      "number": "Statement number",
+      "start": "Period start",
+      "end": "Period end",
+      "opening": "Opening balance",
+      "closing": "Closing balance",
+      "debits": "Total debits",
+      "credits": "Total credits",
+      "dueDate": "Card payment due date",
+      "toDebit": "Amount to debit from current account",
+      "pick": "Pick…",
+      "none": "None"
+    },
+    "aiValue": "AI read: {{value}}",
+    "correctedByYou": "Corrected by you on {{date}}",
+    "correctedByOther": "Corrected by another user on {{date}}",
+    "save": "Save corrections",
+    "saved": "Corrections saved",
+    "locked": "This statement's period is locked. Reopen it with a reason before editing.",
+    "compare": {
+      "title": "Statement vs Hub",
+      "printed": "On the statement",
+      "hub": "In the Hub",
+      "opening": "Opening balance",
+      "movements": "Movements imported",
+      "computed": "Computed closing",
+      "closing": "Closing balance",
+      "difference": "Difference",
+      "matches": "Matches",
+      "differs": "Does not match",
+      "incomplete": "Fill opening/closing balance, account and period to compare."
+    },
+    "saveBeforeFiling": "Save the corrections before confirming.",
+    "ledger": {
+      "statementFor": "Statement {{number}}",
+      "noStatement": "No bank statement registered for this period.",
+      "overlap": "Statement {{number}} covers {{from}} – {{to}}.",
+      "useStatementDates": "Use statement dates",
+      "usingStatement": "Opening and closing balances below come from the statement."
+    }
   }
 }

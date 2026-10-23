@@ -1072,6 +1072,13 @@
       "when": 1792747332764,
       "tag": "0152_instagram_insights",
       "breakpoints": true
+    },
+    {
+      "idx": 153,
+      "version": "7",
+      "when": 1792753294639,
+      "tag": "0153_bank_statement_registry",
+      "breakpoints": true
     }
   ]
 }

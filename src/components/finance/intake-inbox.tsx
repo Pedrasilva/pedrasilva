@@ -3,6 +3,8 @@
  * destination its type routes to. Nothing here is automatic: each tab only
  * offers suggestions that a person confirms.
  */
+import { StatementFieldsEditor, useBankDocRow, useRegistryFigures, REGISTRY_KEY } from "@/components/finance/bank-statement-editor";
+import { isStatementKind } from "@/lib/finance/bank-statements";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -703,6 +705,9 @@ function BankPanel({ row }: { row: InboxRow }) {
   const { t } = useTranslation(["finance"]);
   const qc = useQueryClient();
   const file = useServerFn(fileBankDocument);
+  const docQ = useBankDocRow(row.id);
+  const figQ = useRegistryFigures(row.id);
+  const [dirty, setDirty] = useState(false);
   const accountsQ = useQuery({
     queryKey: ["finance", "bank-accounts", "inbox"],
     queryFn: async () => {
@@ -714,12 +719,18 @@ function BankPanel({ row }: { row: InboxRow }) {
   });
   const [accountId, setAccountId] = useState<string | null>(row.matched_bank_account_id);
   const [period, setPeriod] = useState(row.bank_period ?? "");
+  const doc = docQ.data;
+  const statement = isStatementKind(doc?.bank_doc_kind);
+  // Statements file under the (corrected) account and the month of the period end.
+  const effAccount = statement ? doc?.matched_bank_account_id ?? null : accountId;
+  const effPeriod = statement ? (doc?.extracted_period_end ?? "").slice(0, 7) : period;
   const m = useMutation({
-    mutationFn: () => file({ data: { id: row.id, bankAccountId: accountId!, period } }),
+    mutationFn: () => file({ data: { id: row.id, bankAccountId: effAccount!, period: effPeriod } }),
     onSuccess: (res) => {
       if (res.driveCopied) toast.success(t("finance:intakeInbox.bank.filedDrive"));
       else toast.warning(t("finance:intakeInbox.bank.filedNoDrive", { error: res.driveError ?? "" }));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
+      qc.invalidateQueries({ queryKey: REGISTRY_KEY });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
@@ -730,25 +741,29 @@ function BankPanel({ row }: { row: InboxRow }) {
         <p className="text-xs text-muted-foreground">
           {row.matched_bank_account_id ? t("finance:intakeInbox.bank.matched") : t("finance:intakeInbox.bank.noMatch")}
         </p>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs">{t("finance:intakeInbox.bank.account")}</Label>
-            <Select value={accountId ?? ""} onValueChange={setAccountId}>
-              <SelectTrigger><SelectValue placeholder={t("finance:intakeInbox.bank.pickAccount")} /></SelectTrigger>
-              <SelectContent>
-                {(accountsQ.data ?? []).map((a) => (
-                  <SelectItem key={a.id} value={a.id}>{[a.bank_name, a.account_name].filter(Boolean).join(" · ")}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {doc && <StatementFieldsEditor row={doc} figures={figQ.data?.get(row.id)} onDirtyChange={setDirty} />}
+        {!statement && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">{t("finance:intakeInbox.bank.account")}</Label>
+              <Select value={accountId ?? ""} onValueChange={setAccountId}>
+                <SelectTrigger><SelectValue placeholder={t("finance:intakeInbox.bank.pickAccount")} /></SelectTrigger>
+                <SelectContent>
+                  {(accountsQ.data ?? []).map((a) => (
+                    <SelectItem key={a.id} value={a.id}>{[a.bank_name, a.account_name].filter(Boolean).join(" · ")}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">{t("finance:intakeInbox.bank.period")}</Label>
+              <Input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} />
+            </div>
           </div>
-          <div>
-            <Label className="text-xs">{t("finance:intakeInbox.bank.period")}</Label>
-            <Input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} />
-          </div>
-        </div>
+        )}
         <p className="text-xs text-muted-foreground">{t("finance:intakeInbox.bank.importHint")}</p>
-        <Button size="sm" disabled={!accountId || !/^\d{4}-\d{2}$/.test(period) || m.isPending} onClick={() => m.mutate()}>
+        {dirty && <p className="text-xs text-warning">{t("finance:bankDocs.saveBeforeFiling")}</p>}
+        <Button size="sm" disabled={dirty || !effAccount || !/^\d{4}-\d{2}$/.test(effPeriod) || m.isPending} onClick={() => m.mutate()}>
           {m.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
           {t("finance:intakeInbox.bank.file")}
         </Button>

@@ -102,6 +102,16 @@ export type DualExtraction = IntakeExtraction & {
   beneficiary_vat?: string | null;
   beneficiary_iban?: string | null;
   payment_description?: string | null;
+  bank_doc_kind?: string | null;
+  bank_name?: string | null;
+  statement_number?: string | null;
+  opening_balance?: number | null;
+  closing_balance?: number | null;
+  total_debits?: number | null;
+  total_credits?: number | null;
+  statement_card_last4?: string | null;
+  card_payment_due_date?: string | null;
+  card_amount_to_debit?: number | null;
 };
 
 /** Shared field list: the existing schema plus the intake-routing fields. */
@@ -128,6 +138,16 @@ const SHARED_SCHEMA = (() => {
     beneficiary_vat: { type: ["string", "null"] },
     beneficiary_iban: { type: ["string", "null"] },
     payment_description: { type: ["string", "null"] },
+    bank_doc_kind: { type: ["string", "null"] },
+    bank_name: { type: ["string", "null"] },
+    statement_number: { type: ["string", "null"] },
+    opening_balance: { type: ["number", "null"] },
+    closing_balance: { type: ["number", "null"] },
+    total_debits: { type: ["number", "null"] },
+    total_credits: { type: ["number", "null"] },
+    statement_card_last4: { type: ["string", "null"] },
+    card_payment_due_date: { type: ["string", "null"] },
+    card_amount_to_debit: { type: ["number", "null"] },
   };
   return {
     ...base,
@@ -156,6 +176,8 @@ PAYER / BENEFICIARY (comprovativo_pagamento, bank transfer confirmations, recibo
 intake_type_confidence 0..1, honest. intake_type_reason: one short sentence saying why (no amounts, no personal data).
 Keep doc_type consistent with intake_type (fatura_compra/nota_credito/fatura_emitida → "invoice", recibo → "receipt", comprovativo_pagamento → "proof_of_payment", extrato_bancario/nota_lancamento → "bank_statement", others → "unknown").
 BANK FIELDS (bank documents only, null otherwise): iban exactly as printed (no spaces needed); account_number = the bank account number ("N.º conta", "Conta") as printed; period_start / period_end ISO dates of the statement period (for a nota de lançamento use the movement date for both). For a nota de lançamento also fill total_amount with the movement amount.
+BANK DOCUMENT KIND (bank documents only, null otherwise): bank_doc_kind = "account_statement" (current/savings account statement, "extrato de conta à ordem", "extrato combinado"), "card_statement" (credit-card statement, "extrato de cartão de crédito"), "bank_export" (an MT940/CSV/Excel export of movements, not a printed statement), or "other_bank" (bank letters, fee/commission notices, notas de lançamento, transfer or payment receipts). bank_name = the bank as printed (e.g. "Millennium BCP", "CGD").
+STATEMENT FIGURES (account_statement / card_statement only, null otherwise; numbers exactly as printed, never computed): statement_number = the statement number ("Extrato n.º", "N.º extrato", e.g. "006/2026"); opening_balance = "Saldo inicial" / "Saldo anterior"; closing_balance = "Saldo final" / "Saldo atual"; total_debits / total_credits = the printed totals of debits and credits ("Total a débito", "Total a crédito") as positive numbers. For a card statement: statement_card_last4 = the last 4 digits of the card number; card_payment_due_date = ISO payment due date ("Data limite de pagamento"); card_amount_to_debit = the amount that will be debited from the current account ("Montante a debitar", "Pagamento mínimo/total" as stated to be debited). For a card statement the opening/closing balance is the amount owed: write it as a negative number when it is a debt.
 For every type, amount_ex_vat is the base amount before VAT (null if not printed).`;
 
 /** Types that get a second reading (Gemini) for the cross-check. */
@@ -389,6 +411,8 @@ export const CHECKED_FIELDS = [
   "iban",
   "account_number",
   "recipient_vat",
+  "opening_balance",
+  "closing_balance",
 ] as const;
 export type CheckedField = (typeof CHECKED_FIELDS)[number];
 
@@ -411,7 +435,7 @@ function pick(o: DualExtraction | undefined, f: CheckedField): string | number |
 
 function norm(f: CheckedField, v: string | number | null): string {
   if (v == null) return "";
-  if (["amount_ex_vat", "vat_amount", "total_amount"].includes(f)) {
+  if (["amount_ex_vat", "vat_amount", "total_amount", "opening_balance", "closing_balance"].includes(f)) {
     const n = Number(v);
     return Number.isFinite(n) ? n.toFixed(2) : String(v);
   }
@@ -437,7 +461,7 @@ export function crossCheck(
   const out = {} as Record<CheckedField, FieldCheck>;
   for (const f of CHECKED_FIELDS) {
     // IBAN / account number only matter for bank documents.
-    if (!bankDoc && (f === "iban" || f === "account_number")) {
+    if (!bankDoc && (f === "iban" || f === "account_number" || f === "opening_balance" || f === "closing_balance")) {
       out[f] = { status: "ok", value: null, reasons: [] };
       continue;
     }
@@ -560,6 +584,8 @@ export async function runDualExtraction(
     total_amount: checks.total_amount.value == null ? null : Number(checks.total_amount.value),
     iban: (checks.iban.value as string | null) ?? null,
     account_number: (checks.account_number.value as string | null) ?? null,
+    opening_balance: checks.opening_balance.value == null ? null : Number(checks.opening_balance.value),
+    closing_balance: checks.closing_balance.value == null ? null : Number(checks.closing_balance.value),
     recipient_vat: (checks.recipient_vat.value as string | null) ?? primary.recipient_vat ?? null,
     // Type + classification come from Claude (Gemini only as a fallback).
     classification_code: primary.classification_code,
