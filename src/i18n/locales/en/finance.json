@@ -2549,5 +2549,21 @@
       "reimbursement": "Reimbursement",
       "transfer": "Transfer"
     }
+  },
+  "intakeUpload": {
+    "title": "Uploads",
+    "uploading": "Uploading… {{progress}}%",
+    "reading": "Uploaded. Reading with AI… {{seconds}} s (scanned statements can take up to a minute; you can keep working)",
+    "done": "Done in {{seconds}} s.",
+    "open": "Open",
+    "dismiss": "Dismiss",
+    "doneToast": "{{file}} read and added to Entrada",
+    "failed": "Failed: {{reason}}",
+    "large": "Large file: reading may take longer.",
+    "errors": {
+      "too_large": "File larger than 25 MB. Scan at 200–300 dpi in grey or split the PDF, then upload again.",
+      "network": "Connection lost during upload. Please try again.",
+      "not signed in": "Your session expired. Sign in again and retry."
+    }
   }
 }

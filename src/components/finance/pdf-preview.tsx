@@ -30,8 +30,8 @@ export function PdfCanvasPreview({
 
     (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+        const workerSrc = (await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url")).default;
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
         const doc = await pdfjs.getDocument({ url }).promise;

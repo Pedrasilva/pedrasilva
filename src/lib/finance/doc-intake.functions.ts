@@ -55,8 +55,12 @@ export const ingestFinancialDocument = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
 
+    // Manual uploads go to the company chosen in the entity switcher
+    // (previously every upload defaulted to PSA).
+    const { data: entityId } = await supabase.rpc("current_finance_entity");
     const { ingestStoredDocument } = await import("@/lib/finance/doc-intake.server");
     return ingestStoredDocument({
+      entityId: (entityId as string | null) ?? undefined,
       bucket: data.bucket,
       storagePath: data.storagePath,
       originalFilename: data.originalFilename ?? null,

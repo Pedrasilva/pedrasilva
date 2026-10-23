@@ -886,7 +886,10 @@ export async function ingestStoredDocument(opts: {
 
   // A PDF holding several documents (e.g. bank notices) becomes one item per
   // document: each page range is stored as its own file and read separately.
-  if (result.parts && !opts.splitOf) {
+  // A bank or card statement spans several pages but is one document: never
+  // split it (splitting re-read every page and flagged the parts as duplicates).
+  const statementKind = (result.extraction as { bank_doc_kind?: string | null } | undefined)?.bank_doc_kind;
+  if (result.parts && !opts.splitOf && statementKind !== "account_statement" && statementKind !== "card_statement") {
     return splitAndIngest(opts, result.parts);
   }
   if (opts.splitOf) {
