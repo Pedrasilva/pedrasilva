@@ -102,10 +102,11 @@ const RETRY_MINUTES = [30, 120, 720];
 export async function copyQueueItemToDrive(id: string, opts: { manual?: boolean } = {}) {
   const { data: row, error } = await supabaseAdmin
     .from("financial_document_review_queue")
-    .select("id, status, intake_type, source_bucket, source_file_url, matched_bank_account_id, bank_period, drive_file_id, drive_web_link, drive_copy_attempts")
+    .select("id, status, bank_ownership, intake_type, source_bucket, source_file_url, matched_bank_account_id, bank_period, drive_file_id, drive_web_link, drive_copy_attempts")
     .eq("id", id)
     .single();
   if (error || !row) return { ok: false, error: error?.message ?? "not found" };
+  if (row.bank_ownership) return { ok: false, error: "Not a company bank document" };
   if (row.drive_file_id) return { ok: true, driveFileId: row.drive_file_id, link: row.drive_web_link };
   if (row.status !== "filed" || !row.matched_bank_account_id || !row.bank_period || !row.source_file_url) {
     return { ok: false, error: "Not a filed bank document" };

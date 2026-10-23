@@ -614,9 +614,10 @@ export const restoreRemovedItem = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
     const { data: row, error } = await supabase
-      .from("financial_document_review_queue").select("id, status, removed_prev_status").eq("id", data.id).single();
+      .from("financial_document_review_queue").select("id, status, bank_ownership, removed_prev_status").eq("id", data.id).single();
     if (error) throw new Error(error.message);
     if (row.status !== "removed") throw new Error("Item is not removed");
+    if (row.bank_ownership) throw new Error("This statement belongs to a known non-company account and cannot enter company registers");
     const prev = ["pending_review", "filed", "paid"].includes(row.removed_prev_status ?? "") ? row.removed_prev_status : "pending_review";
     const { error: e2 } = await supabase
       .from("financial_document_review_queue")

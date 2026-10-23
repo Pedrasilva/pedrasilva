@@ -99,6 +99,14 @@ export function MatchPanel({
     return () => { off = true; };
   }, [tx.id, qc]);
   const openQ = useQuery({ queryKey: ["finance", "reconcile-suggestions", "open", tx.id], queryFn: () => fetchTxOpenBalance(tx.id) });
+  const partnerQ = useQuery({
+    queryKey: ["finance", "partner-transfer-hint", tx.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("fin_partner_transfer_hint", { _tx_id: tx.id });
+      if (error) throw error;
+      return data as { holder: string; bank: string } | null;
+    },
+  });
   const cQ = useQuery({
     queryKey: ["finance", "reconcile-candidates", tx.id, debounced],
     queryFn: async (): Promise<Candidate[]> => {
