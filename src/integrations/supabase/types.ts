@@ -7271,6 +7271,30 @@ export type Database = {
           },
         ]
       }
+      marketing_ig_account_insights: {
+        Row: {
+          captured_at: string
+          captured_on: string
+          followers: number | null
+          metrics: Json
+          unavailable_metrics: string[]
+        }
+        Insert: {
+          captured_at?: string
+          captured_on: string
+          followers?: number | null
+          metrics?: Json
+          unavailable_metrics?: string[]
+        }
+        Update: {
+          captured_at?: string
+          captured_on?: string
+          followers?: number | null
+          metrics?: Json
+          unavailable_metrics?: string[]
+        }
+        Relationships: []
+      }
       marketing_ig_comment_actions: {
         Row: {
           action: string
@@ -7364,6 +7388,90 @@ export type Database = {
           read_by?: string | null
           synced_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      marketing_ig_media_insights: {
+        Row: {
+          caption: string | null
+          captured_at: string
+          captured_on: string
+          draft_id: string | null
+          id: string
+          media_id: string
+          media_product_type: string | null
+          media_type: string | null
+          metrics: Json
+          permalink: string | null
+          posted_at: string | null
+          thumbnail: string | null
+          unavailable_metrics: string[]
+        }
+        Insert: {
+          caption?: string | null
+          captured_at?: string
+          captured_on: string
+          draft_id?: string | null
+          id?: string
+          media_id: string
+          media_product_type?: string | null
+          media_type?: string | null
+          metrics?: Json
+          permalink?: string | null
+          posted_at?: string | null
+          thumbnail?: string | null
+          unavailable_metrics?: string[]
+        }
+        Update: {
+          caption?: string | null
+          captured_at?: string
+          captured_on?: string
+          draft_id?: string | null
+          id?: string
+          media_id?: string
+          media_product_type?: string | null
+          media_type?: string | null
+          metrics?: Json
+          permalink?: string | null
+          posted_at?: string | null
+          thumbnail?: string | null
+          unavailable_metrics?: string[]
+        }
+        Relationships: []
+      }
+      marketing_insight_analyses: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          input_summary: Json
+          model: string
+          period_from: string | null
+          period_to: string | null
+          post_count: number
+          result: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          input_summary: Json
+          model: string
+          period_from?: string | null
+          period_to?: string | null
+          post_count?: number
+          result: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          input_summary?: Json
+          model?: string
+          period_from?: string | null
+          period_to?: string | null
+          post_count?: number
+          result?: Json
         }
         Relationships: []
       }
@@ -8086,6 +8194,8 @@ export type Database = {
           instagram_feed: Json
           instagram_feed_at: string | null
           instagram_feed_error: string | null
+          instagram_insights_error: string | null
+          instagram_insights_synced_at: string | null
           instagram_username: string | null
           last_error_code: string | null
           last_tested_at: string
@@ -8108,6 +8218,8 @@ export type Database = {
           instagram_feed?: Json
           instagram_feed_at?: string | null
           instagram_feed_error?: string | null
+          instagram_insights_error?: string | null
+          instagram_insights_synced_at?: string | null
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
@@ -8130,6 +8242,8 @@ export type Database = {
           instagram_feed?: Json
           instagram_feed_at?: string | null
           instagram_feed_error?: string | null
+          instagram_insights_error?: string | null
+          instagram_insights_synced_at?: string | null
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
