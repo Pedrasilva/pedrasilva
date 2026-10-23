@@ -284,3 +284,9 @@
 - [x] Stage B: period window, lock/reopen with reason, one candidate pool searched in the database, card payment check. Entrada confirm-and-match in one step still opens Entrada (pending).
 - [x] Stage C (ranking, split/partial, learned rules, review mode) + stage B one-step Entrada confirm-and-match.
 - [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — waits for Luis's go.
+
+## Open (23 Oct)
+- [ ] docs@ catch-up: decide on discarding 6 second copies created by the interrupted catch-up run (awaiting Luis)
+- [ ] Verify stages B/C on screen (17/09 LOVABLE 300 EUR -> 29/07 invoice first, no match)
+- [ ] Stage D: two-way audit log with links, searchable 'Registo de reconciliações', possible duplicate suppliers/purchases with merge only after confirmation (old names kept as aliases, never delete documents)
+- [ ] Intake failure alerts (3 failed runs / 48h nothing on working day) for docs@, Drive, ideas@
