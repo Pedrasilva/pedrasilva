@@ -426,6 +426,7 @@
       "inbox.settings": "Definições",
       "marketing.inbox": "Caixa de Marketing",
       "marketing.comments": "Comentários Instagram",
+      "marketing.insights": "Estatísticas Instagram",
       "marketing.settings": "Definições",
       "marketing.bible": "Bíblia de Marketing",
       "marketing.projects": "Perfis de projeto",
@@ -446,6 +447,7 @@
     "tab": {
       "marketing.inbox": "Caixa",
       "marketing.comments": "Comentários",
+      "marketing.insights": "Estatísticas",
       "marketing.posts": "Planeador",
       "marketing.projects": "Perfis",
       "marketing.questions": "Perguntas",

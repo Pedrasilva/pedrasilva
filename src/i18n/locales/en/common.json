@@ -426,6 +426,7 @@
       "inbox.settings": "Settings",
       "marketing.inbox": "Marketing Inbox",
       "marketing.comments": "Instagram comments",
+      "marketing.insights": "Instagram insights",
       "marketing.settings": "Settings",
       "marketing.bible": "Marketing Bible",
       "marketing.projects": "Project profiles",
@@ -446,6 +447,7 @@
     "tab": {
       "marketing.inbox": "Inbox",
       "marketing.comments": "Comments",
+      "marketing.insights": "Insights",
       "marketing.posts": "Planner",
       "marketing.projects": "Profiles",
       "marketing.questions": "Questions",

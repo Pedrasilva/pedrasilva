@@ -74,6 +74,7 @@ import { Route as AppMarketingIndexRouteImport } from './routes/_app.marketing.i
 import { Route as AppMarketingBibleRouteImport } from './routes/_app.marketing.bible'
 import { Route as AppMarketingCalendarRouteImport } from './routes/_app.marketing.calendar'
 import { Route as AppMarketingCommentsRouteImport } from './routes/_app.marketing.comments'
+import { Route as AppMarketingInsightsRouteImport } from './routes/_app.marketing.insights'
 import { Route as AppMarketingPostsRouteImport } from './routes/_app.marketing.posts'
 import { Route as AppMarketingQuestionsRouteImport } from './routes/_app.marketing.questions'
 import { Route as AppMarketingSettingsRouteImport } from './routes/_app.marketing.settings'
@@ -505,6 +506,11 @@ const AppMarketingCalendarRoute = AppMarketingCalendarRouteImport.update({
 const AppMarketingCommentsRoute = AppMarketingCommentsRouteImport.update({
   id: '/marketing/comments',
   path: '/marketing/comments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketingInsightsRoute = AppMarketingInsightsRouteImport.update({
+  id: '/marketing/insights',
+  path: '/marketing/insights',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMarketingPostsRoute = AppMarketingPostsRouteImport.update({
@@ -1145,6 +1151,7 @@ export interface FileRoutesByFullPath {
   '/marketing/bible': typeof AppMarketingBibleRoute
   '/marketing/calendar': typeof AppMarketingCalendarRoute
   '/marketing/comments': typeof AppMarketingCommentsRoute
+  '/marketing/insights': typeof AppMarketingInsightsRoute
   '/marketing/posts': typeof AppMarketingPostsRoute
   '/marketing/questions': typeof AppMarketingQuestionsRoute
   '/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1306,6 +1313,7 @@ export interface FileRoutesByTo {
   '/marketing/bible': typeof AppMarketingBibleRoute
   '/marketing/calendar': typeof AppMarketingCalendarRoute
   '/marketing/comments': typeof AppMarketingCommentsRoute
+  '/marketing/insights': typeof AppMarketingInsightsRoute
   '/marketing/posts': typeof AppMarketingPostsRoute
   '/marketing/questions': typeof AppMarketingQuestionsRoute
   '/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1478,6 +1486,7 @@ export interface FileRoutesById {
   '/_app/marketing/bible': typeof AppMarketingBibleRoute
   '/_app/marketing/calendar': typeof AppMarketingCalendarRoute
   '/_app/marketing/comments': typeof AppMarketingCommentsRoute
+  '/_app/marketing/insights': typeof AppMarketingInsightsRoute
   '/_app/marketing/posts': typeof AppMarketingPostsRoute
   '/_app/marketing/questions': typeof AppMarketingQuestionsRoute
   '/_app/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1650,6 +1659,7 @@ export interface FileRouteTypes {
     | '/marketing/bible'
     | '/marketing/calendar'
     | '/marketing/comments'
+    | '/marketing/insights'
     | '/marketing/posts'
     | '/marketing/questions'
     | '/marketing/settings'
@@ -1811,6 +1821,7 @@ export interface FileRouteTypes {
     | '/marketing/bible'
     | '/marketing/calendar'
     | '/marketing/comments'
+    | '/marketing/insights'
     | '/marketing/posts'
     | '/marketing/questions'
     | '/marketing/settings'
@@ -1982,6 +1993,7 @@ export interface FileRouteTypes {
     | '/_app/marketing/bible'
     | '/_app/marketing/calendar'
     | '/_app/marketing/comments'
+    | '/_app/marketing/insights'
     | '/_app/marketing/posts'
     | '/_app/marketing/questions'
     | '/_app/marketing/settings'
@@ -2579,6 +2591,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing/comments'
       fullPath: '/marketing/comments'
       preLoaderRoute: typeof AppMarketingCommentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketing/insights': {
+      id: '/_app/marketing/insights'
+      path: '/marketing/insights'
+      fullPath: '/marketing/insights'
+      preLoaderRoute: typeof AppMarketingInsightsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/marketing/posts': {
@@ -3607,6 +3626,7 @@ interface AppRouteChildren {
   AppMarketingBibleRoute: typeof AppMarketingBibleRoute
   AppMarketingCalendarRoute: typeof AppMarketingCalendarRoute
   AppMarketingCommentsRoute: typeof AppMarketingCommentsRoute
+  AppMarketingInsightsRoute: typeof AppMarketingInsightsRoute
   AppMarketingPostsRoute: typeof AppMarketingPostsRoute
   AppMarketingQuestionsRoute: typeof AppMarketingQuestionsRoute
   AppMarketingSettingsRoute: typeof AppMarketingSettingsRoute
@@ -3666,6 +3686,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMarketingBibleRoute: AppMarketingBibleRoute,
   AppMarketingCalendarRoute: AppMarketingCalendarRoute,
   AppMarketingCommentsRoute: AppMarketingCommentsRoute,
+  AppMarketingInsightsRoute: AppMarketingInsightsRoute,
   AppMarketingPostsRoute: AppMarketingPostsRoute,
   AppMarketingQuestionsRoute: AppMarketingQuestionsRoute,
   AppMarketingSettingsRoute: AppMarketingSettingsRoute,

@@ -45,3 +45,6 @@ Latest 30 Instagram posts read server-side and cached in existing marketing_sett
 
 ## Stage 3b — comments
 The same 15-minute job also calls the publish callback when comments were last refreshed over 14 minutes ago; the callback runs publishing first, then a read-only comment sync (GET only). Replies and hide/unhide happen only when a person presses Send/Confirm in Marketing › Comments; each attempt is logged in marketing_ig_comment_actions and never retried automatically.
+
+## Stage 3c — Insights
+Daily read-only snapshots via the existing 15-minute job (runs when last snapshot >23h). Tables: marketing_ig_media_insights, marketing_ig_account_insights, marketing_insight_analyses (migration 0152). No Meta write calls.
