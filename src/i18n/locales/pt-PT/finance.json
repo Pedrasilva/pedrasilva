@@ -12,12 +12,14 @@
   "classificationBrowser": {
     "title": "Catálogo de classificações",
     "subtitle": "Referência só de leitura para todas as categorias financeiras.",
-    "searchPlaceholder": "Pesquisar por código ou nome…",
+    "searchPlaceholder": "Pesquisar por código, nome ou nome em inglês…",
     "code": "Código",
     "name": "Nome",
     "spendingPolicy": "Política",
     "loading": "A carregar…",
-    "empty": "Sem categoria correspondente."
+    "empty": "Sem categoria correspondente.",
+    "pickTitle": "Escolher categoria",
+    "pickSubtitle": "Clique numa linha ou prima Enter para escolher. As sugeridas vêm deste fornecedor e das regras aprendidas."
   },
   "financialClassifications": {
     "tab": "Classificações financeiras",

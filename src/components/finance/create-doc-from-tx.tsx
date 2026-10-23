@@ -516,6 +516,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
                 options={classificationsQ.data ?? []}
                 isPt={isPt}
                 placeholder={t("finance:bankRec.selectClassification")}
+                matchText={tx.description}
                 suggestedIds={
                   supplierId && supplierClassQ.data?.[supplierId]
                     ? [supplierClassQ.data[supplierId]]
