@@ -1,4 +1,5 @@
 # Agent rules
+- Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
 - Composer shares planner fees, invalidates on billing edits, and normalizes frozen relative dates at render without writes. Why: totals and labels agree.
 
 - Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.

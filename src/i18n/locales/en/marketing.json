@@ -310,7 +310,7 @@
   },
   "posts": {
     "title": "Post planner",
-    "subtitle": "AI-drafted Instagram and LinkedIn posts from the best cleared material. You decide; posting stays manual.",
+    "subtitle": "",
     "brief": "Brief (optional)",
     "briefHint": "e.g. focus on hospitality",
     "periodStart": "From",
@@ -339,7 +339,8 @@
       "published": "Published",
       "pending_approval": "Awaiting approval",
       "scheduled": "Scheduled",
-      "failed": "Failed"
+      "failed": "Failed",
+      "publishing": "Publishing"
     },
     "requestStatus": {
       "running": "Running",
@@ -808,5 +809,15 @@
     "post": "Post",
     "requestedOn": "Requested on",
     "review": "Review"
+  },
+  "publishing": {
+    "now": "Publish now",
+    "retry": "Try again",
+    "confirmNow": "Publish this approved post on Instagram now? This is a real action and cannot be undone in the Hub.",
+    "requested": "Publishing request processed; check its status.",
+    "openInstagram": "Open on Instagram",
+    "connectionUnavailable": "Instagram connection unavailable.",
+    "feedUnavailable": "Instagram feed could not be refreshed.",
+    "feedEmpty": "No posts in the Instagram feed."
   }
 }

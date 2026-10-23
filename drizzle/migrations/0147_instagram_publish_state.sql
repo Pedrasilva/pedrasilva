@@ -1,0 +1,12 @@
+ALTER TYPE public.marketing_draft_status ADD VALUE IF NOT EXISTS 'publishing';
+ALTER TABLE public.marketing_post_drafts ADD COLUMN ig_media_id text, ADD COLUMN ig_container_ids jsonb NOT NULL DEFAULT '[]', ADD COLUMN ig_published_at timestamptz, ADD COLUMN publish_lock_id uuid, ADD COLUMN publish_locked_at timestamptz, ADD COLUMN publish_attempts integer NOT NULL DEFAULT 0, ADD COLUMN publish_retry_at timestamptz, ADD COLUMN publish_error_code text, ADD COLUMN publish_error_message text, ADD COLUMN publish_sent_at timestamptz;
+COMMENT ON COLUMN public.marketing_post_drafts.ig_published_at IS 'Exact publication timestamp; existing published_at date remains compatible.';
+ALTER TABLE public.marketing_settings ADD COLUMN instagram_feed jsonb NOT NULL DEFAULT '[]', ADD COLUMN instagram_feed_at timestamptz, ADD COLUMN instagram_feed_error text;
+CREATE TABLE public.marketing_publish_log (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), draft_id uuid NOT NULL REFERENCES public.marketing_post_drafts(id) ON DELETE CASCADE, attempt_at timestamptz NOT NULL DEFAULT now(), step text NOT NULL, success boolean NOT NULL, meta_error_code text, meta_error_message text);
+GRANT SELECT ON public.marketing_publish_log TO authenticated;
+GRANT ALL ON public.marketing_publish_log TO service_role;
+REVOKE TRUNCATE ON public.marketing_publish_log FROM anon, authenticated;
+ALTER TABLE public.marketing_publish_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY mpl_read ON public.marketing_publish_log FOR SELECT TO authenticated USING (public.has_module_permission(auth.uid(),'marketing.view','all'));
+CREATE INDEX marketing_publish_log_draft ON public.marketing_publish_log(draft_id,attempt_at DESC);
+CREATE INDEX marketing_publish_due ON public.marketing_post_drafts(scheduled_at) WHERE platform='instagram' AND ig_media_id IS NULL;
