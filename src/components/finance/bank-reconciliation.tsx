@@ -25,7 +25,7 @@ import {
   type ParseResult,
   type RuleRow,
 } from "@/lib/finance/bank-statement-parser";
-import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
+import { MatchPanel } from "@/components/finance/match-panel";
 import { MatchBankTxToReimbursementDialog } from "@/components/finance/match-bank-tx-to-reimbursement";
 import { PolicyControl } from "@/components/finance/policy-control";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
@@ -36,8 +36,8 @@ import { CreateDocFromTxDialog } from "@/components/finance/create-doc-from-tx";
 import { StatementPeriodsPanel, PeriodStatusBadge } from "@/components/finance/statement-periods-panel";
 import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } from "@/lib/finance/use-statement-periods";
 import { currentEntityId } from "@/lib/finance/current-entity";
-import { PeriodWindowCard, CandidatePool } from "@/components/finance/bank-period-window";
-import { TxSuggestions, EntradaConfirmMatchSheet, ReviewSuggestionsDialog, MatchRulesPanel } from "@/components/finance/reconcile-suggestions";
+import { PeriodWindowCard } from "@/components/finance/bank-period-window";
+import { EntradaConfirmMatchSheet, ReviewSuggestionsDialog, MatchRulesPanel } from "@/components/finance/reconcile-suggestions";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -573,8 +573,6 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   // Selection + action dialogs
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
-  const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
-  const [matchDocInitial, setMatchDocInitial] = useState<string | undefined>(undefined);
   const [entradaConfirm, setEntradaConfirm] = useState<{ queueId: string; tx: BankTx } | null>(null);
   const [reviewPeriod, setReviewPeriod] = useState<string | null>(null);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
@@ -687,6 +685,15 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   }, [filtered, selectedId]);
 
   const selectedTx = useMemo(() => filtered.find((r) => r.id === selectedId) ?? null, [filtered, selectedId]);
+
+  /** Moves to the next movement in the current list (period) that still has nothing matched; wraps around. */
+  function goNextUnmatched(fromId: string) {
+    const links = linksQ.data;
+    const open = (r: BankTx) => r.id !== fromId && r.status === "unclassified" && !links?.has(r.id);
+    const i = filtered.findIndex((r) => r.id === fromId);
+    const next = filtered.slice(i + 1).find(open) ?? filtered.slice(0, Math.max(0, i)).find(open) ?? null;
+    if (next) setSelectedId(next.id);
+  }
 
   /**
    * Marks a movement as resolved without a document match.
@@ -1000,7 +1007,6 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     isPt={isPt}
                     linked={linksQ.data?.get(selectedTx.id) ?? null}
                     onClassify={() => setClassifyTx(selectedTx)}
-                    onMatchDoc={() => setMatchDocTx(selectedTx)}
                     onCreateDoc={() => setCreateDocTx(selectedTx)}
                     onMatchReimb={() => setMatchReimbTx(selectedTx)}
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
@@ -1012,28 +1018,21 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                 ) : null}
                 {selectedTx && ((!(linksQ.data?.has(selectedTx.id)) && selectedTx.status === "unclassified") ||
                   (linksQ.data?.has(selectedTx.id) && (linksQ.data.get(selectedTx.id)?.amount ?? 0) < Math.abs(Number(selectedTx.amount)) - 0.005)) && (
-                  <>
-                    <TxSuggestions
-                      tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
-                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
-                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
-                    />
-                    <CandidatePool
-                      txId={selectedTx.id}
-                      txAmount={Number(selectedTx.amount)}
-                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
-                      onMatchReimb={() => setMatchReimbTx(selectedTx)}
-                      onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
-                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
-                    />
-                  </>
+                  <MatchPanel
+                    tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
+                    onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
+                    onMatchReimb={() => setMatchReimbTx(selectedTx)}
+                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                    onMatched={() => { goNextUnmatched(selectedTx.id); txQ.refetch(); linksQ.refetch(); counts.refetch(); }}
+                    onNext={() => goNextUnmatched(selectedTx.id)}
+                  />
                 )}
                 {entradaConfirm && (
                   <EntradaConfirmMatchSheet
                     queueId={entradaConfirm.queueId}
                     tx={{ id: entradaConfirm.tx.id, transaction_date: entradaConfirm.tx.transaction_date, description: entradaConfirm.tx.description, amount: Number(entradaConfirm.tx.amount) }}
                     onClose={() => setEntradaConfirm(null)}
-                    onDone={() => { txQ.refetch(); linksQ.refetch(); }}
+                    onDone={() => { goNextUnmatched(entradaConfirm.tx.id); txQ.refetch(); linksQ.refetch(); }}
                   />
                 )}
                 {!selectedTx && (
@@ -1054,14 +1053,6 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
             linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
             onClose={() => setClassifyTx(null)}
             onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
-          />
-        )}
-        {matchDocTx && (
-          <MatchBankTxToDocDialog
-            tx={{ id: matchDocTx.id, transaction_date: matchDocTx.transaction_date, description: matchDocTx.description, amount: Number(matchDocTx.amount) }}
-            initialDocId={matchDocInitial}
-            onClose={() => { setMatchDocTx(null); setMatchDocInitial(undefined); }}
-            onMatched={() => { txQ.refetch(); linksQ.refetch(); qc.invalidateQueries({ queryKey: ["finance", "period-window"] }); qc.invalidateQueries({ queryKey: ["finance", "reconcile-candidates"] }); }}
           />
         )}
         {createDocTx && (
@@ -1090,7 +1081,7 @@ type LinkedInfo = { documentId: string; documentNumber: string | null; direction
 
 function TxDetailPanel({
   tx, periods, onPeriodOverride, classifications, isPt, linked,
-  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch, onDelete,
+  onClassify, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer, onUnmatch, onDelete,
 }: {
   tx: BankTx;
   periods: StatementPeriod[];
@@ -1099,7 +1090,6 @@ function TxDetailPanel({
   isPt: boolean;
   linked: LinkedInfo;
   onClassify: () => void;
-  onMatchDoc: () => void;
   onCreateDoc: () => void;
   onMatchReimb: () => void;
   onMarkIgnored: () => void;
@@ -1121,34 +1111,6 @@ function TxDetailPanel({
         .eq("bank_transaction_id", tx.id);
       if (error) throw error;
       return data ?? [];
-    },
-  });
-
-  // Candidate document matches (unlinked tx only)
-  const candidatesQ = useQuery({
-    queryKey: ["finance", "tx-candidates", tx.id, tx.amount, tx.transaction_date, !!linked],
-    enabled: !linked,
-    queryFn: async () => {
-      const wantDir = isOutflow ? "received" : "issued";
-      const target = Math.abs(Number(tx.amount));
-      const tolerance = Math.max(0.5, target * 0.01);
-      const lo = target - tolerance;
-      const hi = target + tolerance;
-      const refDate = new Date(tx.transaction_date);
-      const from = new Date(refDate); from.setDate(from.getDate() - 30);
-      const to = new Date(refDate); to.setDate(to.getDate() + 30);
-      const { data, error } = await supabase
-        .from("financial_documents")
-        .select("id, document_number, doc_type, direction, status, issue_date, due_date, total_inc_vat, outstanding_amount, counterparty_name_snapshot")
-        .eq("direction", wantDir)
-        .gte("outstanding_amount", lo)
-        .lte("outstanding_amount", hi)
-        .gte("issue_date", from.toISOString().slice(0, 10))
-        .lte("issue_date", to.toISOString().slice(0, 10))
-        .in("status", ["issued", "partially_paid", "draft"])
-        .limit(8);
-      if (error) throw error;
-      return (data ?? []).map((d) => ({ ...d, counterpartyName: d.counterparty_name_snapshot ?? null }));
     },
   });
 
@@ -1231,40 +1193,6 @@ function TxDetailPanel({
         )}
       </div>
 
-      {/* Candidate suggestions (unlinked) */}
-      {!linked && (
-        <div className="p-4 space-y-2 border-b">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-            <FileText className="size-3" /> {t("finance:bankRec.operator.candidatesTitle")}
-          </div>
-          {candidatesQ.isLoading ? (
-            <div className="text-xs text-muted-foreground">{t("common:loading")}</div>
-          ) : (candidatesQ.data ?? []).length === 0 ? (
-            <div className="text-xs text-muted-foreground">{t("finance:bankRec.operator.noCandidates")}</div>
-          ) : (
-            <div className="space-y-1">
-              {(candidatesQ.data ?? []).map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={onMatchDoc}
-                  className="w-full text-left flex items-center justify-between gap-3 text-xs border rounded px-2 py-1.5 bg-background hover:bg-muted/50 transition-colors"
-                >
-                  <div className="min-w-0">
-                    <div className="font-medium truncate">{d.document_number ?? "—"} · {d.counterpartyName ?? "—"}</div>
-                    <div className="text-[11px] text-muted-foreground">{d.issue_date ?? "—"}{d.due_date ? ` → ${d.due_date}` : ""}</div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="tabular-nums font-medium">{fmtAmount(Number(d.outstanding_amount))}</div>
-                    <div className="text-[10px] text-muted-foreground">{t("finance:bankRec.operator.candidateMatch")}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Actions */}
       <div className="p-4 flex flex-wrap gap-2">
         {linked ? (
@@ -1273,9 +1201,6 @@ function TxDetailPanel({
           </Button>
         ) : (
           <>
-            <Button size="sm" onClick={onMatchDoc}>
-              {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
-            </Button>
             <Button size="sm" variant="outline" onClick={onCreateDoc}>
               {t("finance:bankRec.actions.createDoc")}
             </Button>

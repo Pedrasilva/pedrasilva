@@ -2637,5 +2637,33 @@
       "manual": "Manual",
       "saved": "Regra guardada"
     }
+  },
+  "matchPanel": {
+    "title": "Conciliar este movimento",
+    "keys": "↑/↓ escolher · Enter conciliar · N seguinte",
+    "search": "Pesquisar fornecedor, número, valor ou descrição",
+    "suggestError": "Não foi possível carregar as sugestões. A lista completa abaixo continua a funcionar.",
+    "matched": "Conciliado ({{amount}}).",
+    "matchedSplit": "{{count}} documentos conciliados ({{amount}}).",
+    "selected": "{{count}} selecionados",
+    "runningTotal": "Selecionado",
+    "remainder": "Diferença",
+    "matchSelected": "Conciliar selecionados",
+    "next": "Movimento seguinte",
+    "preview": "Pré-visualização",
+    "previewHint": "Passe o rato ou clique numa linha para ver o documento.",
+    "noFile": "Este documento não tem ficheiro.",
+    "total": "Total",
+    "diffExact": "Mesmo valor",
+    "diff": "Diferença {{diff}}",
+    "selectForSplit": "Selecionar para pagamento dividido",
+    "origin": {
+      "purchase": "Compra",
+      "sale": "Fatura emitida",
+      "project": "Projeto",
+      "entrada": "Entrada pendente",
+      "hr": "RH",
+      "transfer": "Transferência"
+    }
   }
 }

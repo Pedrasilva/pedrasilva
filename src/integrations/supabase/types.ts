@@ -16234,6 +16234,7 @@ export type Database = {
           doc_date: string
           kind: string
           label: string
+          origin: string
           outstanding: number
           ref_id: string
         }[]
