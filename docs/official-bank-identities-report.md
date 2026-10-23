@@ -18,7 +18,7 @@ All supplied IBANs and entities verified. Only correction: PSA 02 CGD account nu
 | DetOper_BPI_20260802180606 | Not a condominium statement: receipt of €2,835.15 from Magnificent Fields to PSA; preserved in payment review, not excluded simply because BPI issued it |
 | ResumoMultiAutorizacao_BPINetEmpresas… | Condominium BPI 4-4231310.000.001: excluded and retained |
 
-Five personal documents and three external documents among these eleven; two aggregate company-card statements remain pending and one genuine PSA payment stays for review. Across the whole intake: five personal and eight external documents protected. Exact-account rules apply automatically to future bank statements; no blanket bank-name rule can discard a genuine company payment.
+Five personal documents and three external documents among these eleven; two aggregate company-card statements remain pending and one genuine PSA payment stays for review. Across the whole intake: six personal and nine external documents protected. Exact-account rules apply automatically to future bank statements; no blanket bank-name rule can discard a genuine company payment.
 
 ## Verification
 Disposable database test: personal account punctuation matching, attempted filing/restoration blocked, no draft period created, external ownership exclusion; rolled back completely. Twelve statement unit tests pass. Authenticated Bancos screen verified. Database fingerprints unchanged for 1,032 transactions, seven periods and 381 payments. Partner-transfer hints are exact account/IBAN matches, read-only, and open classification for human review; no automatic matching. No accounts/cards created in company Bancos.
