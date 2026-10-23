@@ -9,13 +9,13 @@ const p = (o: Partial<PeriodLite>): PeriodLite => ({
 
 describe("statement IDs", () => {
   it("account code + month/year of the period end", () => {
-    expect(statementPeriodCode("MBCP", "2026-06-30")).toBe("MBCP06/2026");
+    expect(statementPeriodCode("MBCP", "2026-06-30")).toBe("MBCP 06/2026");
   });
   it("card code", () => {
-    expect(statementPeriodCode("VISA1234", "2026-06-15")).toBe("VISA123406/2026");
+    expect(statementPeriodCode("VISA 1234", "2026-06-15")).toBe("VISA 1234 06/2026");
   });
   it("suffix for a second statement in a month", () => {
-    expect(statementPeriodCode("CGD", "2026-07-31", 2)).toBe("CGD07/2026-2");
+    expect(statementPeriodCode("CGD", "2026-07-31", 2)).toBe("CGD 07/2026-2");
   });
 });
 

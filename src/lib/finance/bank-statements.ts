@@ -206,10 +206,10 @@ export function changedFields(
 // Draft statement periods (bulk confirmation in Entrada > Banco)
 // ---------------------------------------------------------------------------
 
-/** Hub statement ID: account/card code + MM/YYYY of the period end (+ -n when several in a month). */
+/** Hub statement ID: account/card code, space, MM/YYYY of the period end (+ -n when several in a month). */
 export function statementPeriodCode(base: string, periodEnd: string, suffix?: number | null): string {
   const [y, m] = periodEnd.split("-");
-  return `${base}${m}/${y}${suffix ? `-${suffix}` : ""}`;
+  return `${base} ${m}/${y}${suffix ? `-${suffix}` : ""}`;
 }
 
 export type AiReadings = {
