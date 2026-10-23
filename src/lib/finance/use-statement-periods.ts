@@ -31,6 +31,10 @@ export type StatementPeriod = {
   opening_balance: number;
   closing_balance: number;
   notes: string | null;
+  /** "draft" = created from a statement read at intake, not yet confirmed. */
+  status: "draft" | "confirmed";
+  bank_statement_number: string | null;
+  balance_disagreement: boolean;
 };
 
 export type StatementPeriodStatus = {
@@ -60,7 +64,7 @@ export function useStatementPeriods(accountId: string | null | undefined) {
       const { data, error } = await supabase
         .from("bank_statement_periods")
         .select(
-          "id, bank_account_id, statement_number, period_start_date, period_end_date, opening_balance, closing_balance, notes",
+          "id, bank_account_id, statement_number, period_start_date, period_end_date, opening_balance, closing_balance, notes, status, bank_statement_number, balance_disagreement",
         )
         .eq("bank_account_id", accountId!)
         .order("period_start_date", { ascending: false });
