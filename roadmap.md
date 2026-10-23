@@ -279,7 +279,7 @@
 
 ## Current request — Finance reconciliation stages A–D (sequential)
 - [x] Stage A discovery reported; proposed queue statement fields + period→document/card link.
-- [ ] Stage A build — awaits Luis's OK on the proposed fields.
+- [ ] Stage A build — awaits Luis's OK on the proposed fields. Includes: printed opening/closing vs Hub opening+movements=computed closing and difference (green/red) in registry and statement view; Extratos uses statement balances when a statement exists, else says none.
 - [ ] Stage B (period window, one candidate pool, search, cards) — after A; Lovable 17/09 300 € case diagnosed (200-row limit), not matched.
 - [ ] Stage C (ranking, split/partial, learned rules, review mode) — after B.
 - [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — after C.
