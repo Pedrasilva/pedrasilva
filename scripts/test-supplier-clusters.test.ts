@@ -19,14 +19,19 @@ describe("supplier clusters", () => {
   });
   it("links via bank pattern, ignoring the card prefix", () => {
     expect(bankPatternKey("MDB8022 LOVABLE")).toBe("LOVABLE");
-    const cl = buildSupplierClusters([co("a", "Lovable", null, ["MDB8022 LOVABLE"]), co("b", "LVBL Labs", null, ["MDB8022 LOVABLE"])]);
+    const cl = buildSupplierClusters([co("a", "Lovable", null, ["MDB8022 LOVABLE"]), co("b", "Lovable Lab Incorpareited", null, ["MDB8022 LOVABLE"])]);
     expect(cl[0]?.edges[0].reason).toBe("bank_pattern");
+  });
+  it("ignores a shared bank text that names neither supplier", () => {
+    expect(buildSupplierClusters([co("a", "Via Verde", null, ["DD PT12 SIBS"]), co("b", "Caixa Geral", null, ["DD PT12 SIBS"])])).toHaveLength(0);
   });
   it("respects not-duplicate decisions", () => {
     expect(buildSupplierClusters([co("a", "Lovable Labs"), co("b", "Lovable Labs Inc")], [["b", "a"]])).toHaveLength(0);
   });
   it("flags same amount within 3 days, same company only", () => {
-    const d = (id: string, date: string, total: number, entityId = "e1") => ({ id, companyId: "x", entityId, number: id, date, total });
+    const d = (id: string, date: string, total: number, entityId = "e1", number: string | null = null, companyId = "x") => ({ id, companyId, entityId, number, date, total });
     expect(clusterPurchasePairs([d("1", "2026-07-31", 300), d("2", "2026-07-31", 300), d("3", "2026-08-05", 300), d("4", "2026-07-31", 300, "e2")])).toHaveLength(1);
+    expect(clusterPurchasePairs([d("1", "2026-07-05", 11.89, "e1", "A1"), d("2", "2026-07-05", 11.89, "e1", "A2")])).toHaveLength(0);
+    expect(clusterPurchasePairs([d("1", "2026-07-29", 300, "e1", "A1", "x"), d("2", "2026-07-29", 300, "e1", "B9", "y")])).toHaveLength(1);
   });
 });

@@ -96,11 +96,12 @@ export function buildSupplierClusters(
     else if (a.norm.length >= 3 && a.norm === b.norm) e = { a: a.id, b: b.id, reason: "same_name", confidence: 90, detail: a.norm };
     else {
       const sim = nameSimilarity(a.norm, b.norm);
-      const shared = [...a.pats].find((p) => b.pats.has(p) && (patOwners.get(p) ?? 0) <= 4);
-      if (shared && sim >= 0.5) e = { a: a.id, b: b.id, reason: "bank_pattern", confidence: 85, detail: shared };
+      // A shared bank merchant only counts when it names both suppliers (e.g. LOVABLE).
+      const inName = (p: string, n: string) => p.toLowerCase().split(" ").some((w) => n.split(" ").some((t) => ratio(stem(w), stem(t)) >= 0.8));
+      const shared = [...a.pats].find((p) => b.pats.has(p) && (patOwners.get(p) ?? 0) <= 4 && inName(p, a.norm) && inName(p, b.norm));
+      if (shared) e = { a: a.id, b: b.id, reason: "bank_pattern", confidence: 85, detail: shared };
       else if (sim >= 0.8 && Math.min(a.norm.length, b.norm.length) >= 4)
         e = { a: a.id, b: b.id, reason: "similar_name", confidence: Math.round(55 + sim * 30), detail: `${Math.round(sim * 100)}%` };
-      else if (shared) e = { a: a.id, b: b.id, reason: "bank_pattern", confidence: 70, detail: shared };
     }
     if (e) edges.push(e);
   }
@@ -119,7 +120,11 @@ export function buildSupplierClusters(
 }
 
 export type ClusterDoc = { id: string; companyId: string; entityId: string; number: string | null; date: string | null; total: number };
-/** Purchases in one cluster with the same amount and dates within 3 days. */
+/**
+ * Purchases in one cluster with the same amount and dates within 3 days. Within a
+ * single supplier name only pairs with the same or a missing document number count
+ * (distinct numbers there are ordinary repeat purchases, e.g. tolls).
+ */
 export function clusterPurchasePairs(docs: ClusterDoc[], maxDays = 3) {
   const out: Array<[ClusterDoc, ClusterDoc]> = [];
   const s = [...docs].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
@@ -127,7 +132,10 @@ export function clusterPurchasePairs(docs: ClusterDoc[], maxDays = 3) {
     const a = s[i], b = s[j];
     if (!a.date || !b.date || a.entityId !== b.entityId) continue;
     if (Math.abs(Date.parse(b.date) - Date.parse(a.date)) / 86_400_000 > maxDays) continue;
-    if (Math.abs(Number(a.total) - Number(b.total)) < 0.005) out.push([a, b]);
+    if (Math.abs(Number(a.total) - Number(b.total)) >= 0.005) continue;
+    const num = (x: ClusterDoc) => (x.number ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (a.companyId === b.companyId && num(a) && num(b) && num(a) !== num(b)) continue;
+    out.push([a, b]);
   }
   return out;
 }
