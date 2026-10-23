@@ -3435,6 +3435,48 @@ export type Database = {
           },
         ]
       }
+      finance_drive_settings: {
+        Row: {
+          contabilidade_root_id: string | null
+          failed_folder_id: string | null
+          id: boolean
+          intake_folder_id: string | null
+          last_test: Json | null
+          last_test_at: string | null
+          last_test_ok: boolean | null
+          processed_folder_id: string | null
+          shared_drive_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contabilidade_root_id?: string | null
+          failed_folder_id?: string | null
+          id?: boolean
+          intake_folder_id?: string | null
+          last_test?: Json | null
+          last_test_at?: string | null
+          last_test_ok?: boolean | null
+          processed_folder_id?: string | null
+          shared_drive_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contabilidade_root_id?: string | null
+          failed_folder_id?: string | null
+          id?: boolean
+          intake_folder_id?: string | null
+          last_test?: Json | null
+          last_test_at?: string | null
+          last_test_ok?: boolean | null
+          processed_folder_id?: string | null
+          shared_drive_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       finance_duplicate_decisions: {
         Row: {
           decided_at: string
