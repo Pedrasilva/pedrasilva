@@ -73,6 +73,7 @@ import { Route as AppInventoryReportsRouteImport } from './routes/_app.inventory
 import { Route as AppMarketingIndexRouteImport } from './routes/_app.marketing.index'
 import { Route as AppMarketingBibleRouteImport } from './routes/_app.marketing.bible'
 import { Route as AppMarketingCalendarRouteImport } from './routes/_app.marketing.calendar'
+import { Route as AppMarketingCommentsRouteImport } from './routes/_app.marketing.comments'
 import { Route as AppMarketingPostsRouteImport } from './routes/_app.marketing.posts'
 import { Route as AppMarketingQuestionsRouteImport } from './routes/_app.marketing.questions'
 import { Route as AppMarketingSettingsRouteImport } from './routes/_app.marketing.settings'
@@ -499,6 +500,11 @@ const AppMarketingBibleRoute = AppMarketingBibleRouteImport.update({
 const AppMarketingCalendarRoute = AppMarketingCalendarRouteImport.update({
   id: '/marketing/calendar',
   path: '/marketing/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketingCommentsRoute = AppMarketingCommentsRouteImport.update({
+  id: '/marketing/comments',
+  path: '/marketing/comments',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMarketingPostsRoute = AppMarketingPostsRouteImport.update({
@@ -1138,6 +1144,7 @@ export interface FileRoutesByFullPath {
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/marketing/bible': typeof AppMarketingBibleRoute
   '/marketing/calendar': typeof AppMarketingCalendarRoute
+  '/marketing/comments': typeof AppMarketingCommentsRoute
   '/marketing/posts': typeof AppMarketingPostsRoute
   '/marketing/questions': typeof AppMarketingQuestionsRoute
   '/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1298,6 +1305,7 @@ export interface FileRoutesByTo {
   '/inventory/reports': typeof AppInventoryReportsRoute
   '/marketing/bible': typeof AppMarketingBibleRoute
   '/marketing/calendar': typeof AppMarketingCalendarRoute
+  '/marketing/comments': typeof AppMarketingCommentsRoute
   '/marketing/posts': typeof AppMarketingPostsRoute
   '/marketing/questions': typeof AppMarketingQuestionsRoute
   '/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1469,6 +1477,7 @@ export interface FileRoutesById {
   '/_app/inventory/reports': typeof AppInventoryReportsRoute
   '/_app/marketing/bible': typeof AppMarketingBibleRoute
   '/_app/marketing/calendar': typeof AppMarketingCalendarRoute
+  '/_app/marketing/comments': typeof AppMarketingCommentsRoute
   '/_app/marketing/posts': typeof AppMarketingPostsRoute
   '/_app/marketing/questions': typeof AppMarketingQuestionsRoute
   '/_app/marketing/settings': typeof AppMarketingSettingsRoute
@@ -1640,6 +1649,7 @@ export interface FileRouteTypes {
     | '/inventory/reports'
     | '/marketing/bible'
     | '/marketing/calendar'
+    | '/marketing/comments'
     | '/marketing/posts'
     | '/marketing/questions'
     | '/marketing/settings'
@@ -1800,6 +1810,7 @@ export interface FileRouteTypes {
     | '/inventory/reports'
     | '/marketing/bible'
     | '/marketing/calendar'
+    | '/marketing/comments'
     | '/marketing/posts'
     | '/marketing/questions'
     | '/marketing/settings'
@@ -1970,6 +1981,7 @@ export interface FileRouteTypes {
     | '/_app/inventory/reports'
     | '/_app/marketing/bible'
     | '/_app/marketing/calendar'
+    | '/_app/marketing/comments'
     | '/_app/marketing/posts'
     | '/_app/marketing/questions'
     | '/_app/marketing/settings'
@@ -2560,6 +2572,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing/calendar'
       fullPath: '/marketing/calendar'
       preLoaderRoute: typeof AppMarketingCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketing/comments': {
+      id: '/_app/marketing/comments'
+      path: '/marketing/comments'
+      fullPath: '/marketing/comments'
+      preLoaderRoute: typeof AppMarketingCommentsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/marketing/posts': {
@@ -3587,6 +3606,7 @@ interface AppRouteChildren {
   AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
   AppMarketingBibleRoute: typeof AppMarketingBibleRoute
   AppMarketingCalendarRoute: typeof AppMarketingCalendarRoute
+  AppMarketingCommentsRoute: typeof AppMarketingCommentsRoute
   AppMarketingPostsRoute: typeof AppMarketingPostsRoute
   AppMarketingQuestionsRoute: typeof AppMarketingQuestionsRoute
   AppMarketingSettingsRoute: typeof AppMarketingSettingsRoute
@@ -3645,6 +3665,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
   AppMarketingBibleRoute: AppMarketingBibleRoute,
   AppMarketingCalendarRoute: AppMarketingCalendarRoute,
+  AppMarketingCommentsRoute: AppMarketingCommentsRoute,
   AppMarketingPostsRoute: AppMarketingPostsRoute,
   AppMarketingQuestionsRoute: AppMarketingQuestionsRoute,
   AppMarketingSettingsRoute: AppMarketingSettingsRoute,

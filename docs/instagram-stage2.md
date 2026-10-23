@@ -42,3 +42,6 @@ Latest 30 Instagram posts read server-side and cached in existing marketing_sett
 - Generated local four-second 1080×1920 H.264 video parsed and validated without uploading.
 - Real authenticated feed UI showed 30 live posts in three columns; no runtime errors. Unauthenticated callback returned 401. Existing real draft/approval records were not used for write tests.
 - Live provider publication, real failure email delivery, genuine second-user admin denial and browser scheduling/retry on persisted fixtures were not exercised; the first actual publication belongs to Luis.
+
+## Stage 3b — comments
+The same 15-minute job also calls the publish callback when comments were last refreshed over 14 minutes ago; the callback runs publishing first, then a read-only comment sync (GET only). Replies and hide/unhide happen only when a person presses Send/Confirm in Marketing › Comments; each attempt is logged in marketing_ig_comment_actions and never retried automatically.

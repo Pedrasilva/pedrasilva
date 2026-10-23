@@ -8,7 +8,7 @@ import type { PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { RAIL_ITEMS, type FlyoutLink } from "./nav-config";
 import { useModuleAccess } from "@/lib/module-access";
-import { useMyOpenActions, usePendingQuestions } from "./AppRail";
+import { useMyOpenActions, usePendingQuestions, useUnreadComments } from "./AppRail";
 
 /**
  * In-module tab strip built from the module's rail flyout links, with the
@@ -50,7 +50,8 @@ function SubnavTab({ link, active }: { link: FlyoutLink; active: boolean }) {
   const { t } = useTranslation("common");
   const { data: pendingQ = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
   const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
-  const pending = link.badge === "marketingActions" ? pendingA : pendingQ;
+  const { data: unreadC = 0 } = useUnreadComments(link.badge === "marketingComments");
+  const pending = link.badge === "marketingComments" ? unreadC : link.badge === "marketingActions" ? pendingA : pendingQ;
   return (
     <Link
       to={link.to as never}

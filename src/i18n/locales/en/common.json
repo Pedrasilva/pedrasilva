@@ -425,6 +425,7 @@
       "inbox.triage": "Inbox",
       "inbox.settings": "Settings",
       "marketing.inbox": "Marketing Inbox",
+      "marketing.comments": "Instagram comments",
       "marketing.settings": "Settings",
       "marketing.bible": "Marketing Bible",
       "marketing.projects": "Project profiles",
@@ -444,6 +445,7 @@
     },
     "tab": {
       "marketing.inbox": "Inbox",
+      "marketing.comments": "Comments",
       "marketing.posts": "Planner",
       "marketing.projects": "Profiles",
       "marketing.questions": "Questions",

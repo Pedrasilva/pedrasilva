@@ -833,5 +833,43 @@
     "confirm": "Confirm schedule",
     "tab": "Grid",
     "listTab": "List"
+  },
+  "comments": {
+    "title": "Instagram comments",
+    "subtitle": "Comments and replies on our published posts, newest first. Refreshed every 15 minutes.",
+    "refresh": "Refresh now",
+    "lastSync": "Last refresh: {{when}}",
+    "never": "Not refreshed yet",
+    "empty": "No comments yet.",
+    "new": "New",
+    "hidden": "Hidden",
+    "ours": "Our reply",
+    "openPost": "Open post",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply…",
+    "suggest": "Suggest with AI",
+    "suggestHint": "AI draft — review and edit before sending. Nothing is sent automatically.",
+    "send": "Send reply",
+    "sending": "Sending…",
+    "sent": "Reply sent",
+    "hide": "Hide",
+    "unhide": "Unhide",
+    "hideTitle": "Hide this comment?",
+    "unhideTitle": "Show this comment again?",
+    "hideBody": "Hidden comments stay visible to the author and their followers, but not to anyone else.",
+    "unhideBody": "The comment will be visible to everyone again.",
+    "confirm": "Confirm",
+    "done": "Updated",
+    "history": "History",
+    "historyItem": "{{action}} by {{who}} · {{when}}",
+    "act": {
+      "reply": "Replied",
+      "hide": "Hidden",
+      "unhide": "Unhidden"
+    },
+    "failed": "Failed",
+    "filterUnread": "Only new",
+    "commentsPartial": "Some posts could not be refreshed.",
+    "connectionUnavailable": "Instagram connection unavailable."
   }
 }
