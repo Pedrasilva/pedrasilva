@@ -21,6 +21,19 @@ describe("Meta connection rules", () => {
     expect(permissionChecks(grants).map((p) => p.permission)).toEqual(grants);
     expect(permissionChecks(grants.slice(1))[0]?.granted).toBe(false);
   });
+  it("treats business_management as optional and connects with the six required grants", async () => {
+    const required = grants.filter((permission) => permission !== "business_management");
+    expect(permissionChecks(required).find((p) => p.permission === "business_management")).toEqual({ permission: "business_management", granted: false, required: false });
+    const result = await checkMetaConnection("test-only", mocked({ is_valid: true, scopes: required, expires_at: 0 }));
+    expect(result.connection_ok).toBe(true);
+    expect(result.last_error_code).toBeNull();
+    expect(result.granted_permissions).toEqual(required);
+  });
+  it.each(grants.filter((permission) => permission !== "business_management"))("still requires %s", async (missing) => {
+    const result = await checkMetaConnection("test-only", mocked({ is_valid: true, scopes: grants.filter((permission) => permission !== missing), expires_at: 0 }));
+    expect(result.connection_ok).toBe(false);
+    expect(result.last_error_code).toBe("missingPermissions");
+  });
   it("selects the expected Instagram, projects only safe metadata and confirms no expiry", async () => {
     const result = await checkMetaConnection("test-only", mocked({ is_valid: true, scopes: grants, expires_at: 0, access_token: "do-not-return" }));
     expect(result.connection_ok).toBe(true);

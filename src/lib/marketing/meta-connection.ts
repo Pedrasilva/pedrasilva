@@ -19,5 +19,5 @@ export function metaAdminAllowed(role: unknown, error: unknown): boolean {
 }
 
 export function permissionChecks(granted: readonly string[]) {
-  return META_EXPECTED_PERMISSIONS.map((permission) => ({ permission, granted: granted.includes(permission) }));
+  return META_EXPECTED_PERMISSIONS.map((permission) => ({ permission, granted: granted.includes(permission), required: permission !== "business_management" }));
 }

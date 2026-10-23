@@ -66,7 +66,7 @@ export async function checkMetaConnection(token: string, request: typeof fetch =
     result.instagram_username = META_EXPECTED_USERNAME;
   } else result.last_error_code ??= matches.length > 1 ? "ambiguousPage" : "pageNotFound";
   if (result.token_valid === false) result.last_error_code ??= "invalidToken";
-  if (permissionChecks(result.granted_permissions).some((p) => !p.granted)) result.last_error_code ??= "missingPermissions";
+  if (permissionChecks(result.granted_permissions).some((p) => p.required && !p.granted)) result.last_error_code ??= "missingPermissions";
   result.connection_ok = !result.last_error_code && result.token_valid === true && !!result.meta_page_id;
   if (result.connection_ok) result.connected_at = testedAt;
   return result;
