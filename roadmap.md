@@ -276,3 +276,10 @@
 - [x] 9 calendar rule tests; rolled-back database scenario (A–I) passed; pages open signed-in without errors.
 - [ ] Await Luis: existing readiness check treats every never_mention project as internal-only, so such posts can never be approved today; confirm whether to relax it to the new location/sector rule.
 - [ ] Drag-and-drop not exercised on screen (no approved drafts exist); real approval email not sent in tests.
+
+## Current request — Finance reconciliation stages A–D (sequential)
+- [x] Stage A discovery reported; proposed queue statement fields + period→document/card link.
+- [ ] Stage A build — awaits Luis's OK on the proposed fields.
+- [ ] Stage B (period window, one candidate pool, search, cards) — after A; Lovable 17/09 300 € case diagnosed (200-row limit), not matched.
+- [ ] Stage C (ranking, split/partial, learned rules, review mode) — after B.
+- [ ] Stage D (audit record, Paid by/Received in, reconciliation log, supplier/purchase duplicates with confirmed merge) — after C.
