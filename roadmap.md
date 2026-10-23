@@ -301,3 +301,4 @@
 - [ ] Intake source failure alerts (docs@, Drive, ideas@).
 - [x] End-to-end match-panel checks (scripts/e2e/match-panel-e2e.py): 12/12, all saves intercepted, 381 payments unchanged.
 - [x] Read-only diagnosis of MBCP 006/2026 reported; no fixes applied (awaiting Luis).
+- [x] Stage D: two-way reconciliation audit + searchable register, supplier duplicates with confirmed merge/aliases (purchases tab reused), intake source alerts (bell + email). 10 rolled-back DB checks + 7 alert-rule checks pass.
