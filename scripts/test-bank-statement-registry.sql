@@ -158,7 +158,7 @@ BEGIN
   EXCEPTION WHEN invalid_parameter_value THEN ok := true; END;
   IF NOT ok THEN RAISE EXCEPTION 'FAIL non-editable field accepted'; END IF;
 
-  RAISE NOTICE 'ALL BANK REGISTRY TESTS PASSED';
+  RAISE EXCEPTION 'ALL BANK REGISTRY TESTS PASSED (rolled back)';
 END
 $T$;
 
