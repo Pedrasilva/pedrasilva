@@ -688,6 +688,15 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
 
   const selectedTx = useMemo(() => filtered.find((r) => r.id === selectedId) ?? null, [filtered, selectedId]);
 
+  /** Moves to the next movement in the current list (period) that still has nothing matched; wraps around. */
+  function goNextUnmatched(fromId: string) {
+    const links = linksQ.data;
+    const open = (r: BankTx) => r.id !== fromId && r.status === "unclassified" && !links?.has(r.id);
+    const i = filtered.findIndex((r) => r.id === fromId);
+    const next = filtered.slice(i + 1).find(open) ?? filtered.slice(0, Math.max(0, i)).find(open) ?? null;
+    if (next) setSelectedId(next.id);
+  }
+
   /**
    * Marks a movement as resolved without a document match.
    *
@@ -1000,7 +1009,6 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     isPt={isPt}
                     linked={linksQ.data?.get(selectedTx.id) ?? null}
                     onClassify={() => setClassifyTx(selectedTx)}
-                    onMatchDoc={() => setMatchDocTx(selectedTx)}
                     onCreateDoc={() => setCreateDocTx(selectedTx)}
                     onMatchReimb={() => setMatchReimbTx(selectedTx)}
                     onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
@@ -1012,28 +1020,21 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                 ) : null}
                 {selectedTx && ((!(linksQ.data?.has(selectedTx.id)) && selectedTx.status === "unclassified") ||
                   (linksQ.data?.has(selectedTx.id) && (linksQ.data.get(selectedTx.id)?.amount ?? 0) < Math.abs(Number(selectedTx.amount)) - 0.005)) && (
-                  <>
-                    <TxSuggestions
-                      tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
-                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
-                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
-                    />
-                    <CandidatePool
-                      txId={selectedTx.id}
-                      txAmount={Number(selectedTx.amount)}
-                      onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
-                      onMatchReimb={() => setMatchReimbTx(selectedTx)}
-                      onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
-                      onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
-                    />
-                  </>
+                  <MatchPanel
+                    tx={{ id: selectedTx.id, transaction_date: selectedTx.transaction_date, description: selectedTx.description, amount: Number(selectedTx.amount) }}
+                    onConfirmEntrada={(qid) => setEntradaConfirm({ queueId: qid, tx: selectedTx })}
+                    onMatchReimb={() => setMatchReimbTx(selectedTx)}
+                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                    onMatched={() => { goNextUnmatched(selectedTx.id); txQ.refetch(); linksQ.refetch(); counts.refetch(); }}
+                    onNext={() => goNextUnmatched(selectedTx.id)}
+                  />
                 )}
                 {entradaConfirm && (
                   <EntradaConfirmMatchSheet
                     queueId={entradaConfirm.queueId}
                     tx={{ id: entradaConfirm.tx.id, transaction_date: entradaConfirm.tx.transaction_date, description: entradaConfirm.tx.description, amount: Number(entradaConfirm.tx.amount) }}
                     onClose={() => setEntradaConfirm(null)}
-                    onDone={() => { txQ.refetch(); linksQ.refetch(); }}
+                    onDone={() => { goNextUnmatched(entradaConfirm.tx.id); txQ.refetch(); linksQ.refetch(); }}
                   />
                 )}
                 {!selectedTx && (
@@ -1054,14 +1055,6 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
             linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
             onClose={() => setClassifyTx(null)}
             onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
-          />
-        )}
-        {matchDocTx && (
-          <MatchBankTxToDocDialog
-            tx={{ id: matchDocTx.id, transaction_date: matchDocTx.transaction_date, description: matchDocTx.description, amount: Number(matchDocTx.amount) }}
-            initialDocId={matchDocInitial}
-            onClose={() => { setMatchDocTx(null); setMatchDocInitial(undefined); }}
-            onMatched={() => { txQ.refetch(); linksQ.refetch(); qc.invalidateQueries({ queryKey: ["finance", "period-window"] }); qc.invalidateQueries({ queryKey: ["finance", "reconcile-candidates"] }); }}
           />
         )}
         {createDocTx && (
