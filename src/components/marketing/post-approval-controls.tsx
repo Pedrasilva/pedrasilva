@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarClock, Check, MessageSquareWarning, Send } from "lucide-react";
+import { Check, MessageSquareWarning, Send } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,23 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { decidePostApproval, listPostApprovers, requestPostApproval } from "@/lib/marketing/post-approvals.functions";
-
-/** Disabled publishing placeholder: no automatic publishing in this stage. */
-export function SchedulePublishPlaceholder() {
-  const { t } = useTranslation("marketing");
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span tabIndex={0}><Button size="sm" variant="outline" disabled><CalendarClock className="mr-1 h-3.5 w-3.5" />{t("calendar.schedulePublish")}</Button></span>
-        </TooltipTrigger>
-        <TooltipContent>{t("calendar.schedulePublishSoon")}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
 
 export function usePostApprovers(enabled = true) {
   const fn = useServerFn(listPostApprovers);
@@ -108,7 +92,6 @@ export function PostApprovalControls({ draftId, status, readiness, canCurate }: 
             <Button size="sm" variant="outline" disabled={busy} onClick={() => setDecision("changes_requested")}><MessageSquareWarning className="mr-1 h-3.5 w-3.5" />{t("approval.requestChanges")}</Button>
           </>
         )}
-        <SchedulePublishPlaceholder />
       </div>
 
       <Dialog open={askOpen} onOpenChange={(v) => !busy && setAskOpen(v)}>

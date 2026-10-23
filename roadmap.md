@@ -1,3 +1,10 @@
+## Current request — Instagram publishing stage 2
+- [x] Service-only claims/checkpoints, hash/anonymity/clearance rechecks, private URLs, attempt log and durable feed; migrations 0147–0150 mirrored exactly.
+- [x] Instagram containers, bounded validation, persistent send evidence, pre-send transient retry, bell/per-event emails and Vault-gated five-minute cron (288 checks/day); ambiguous sends blocked, no real test post.
+- [x] Scheduling/admin confirmation/retry, status/permalink tiles, EN/PT and real 30-post live feed verified.
+- [x] 19 unit checks, five full mocked pipelines, 11 rolled-back DB checks, nine calendar regressions; build OK, authenticated feed, unsigned callback 401, zero fixtures. Detailed report docs/instagram-stage2.md.
+- [ ] Production callback awaits publication of this version by Luis; first real Instagram post not tested by request. Official exhaustive format tables unavailable: conservative support envelope and unrendered Story overlays fail explicitly.
+
 ## Current request — invoice PDF draft save only
 - [x] Migration 0146 adds only an invoker transaction using queue.created_expense_id; explicit entity assignment before existing validation, extraction retained on original queue. RPC-only queue ID no longer enters document inserts; reopened PDF drafts reuse the link.
 - [x] Real authenticated editor saved/reopened/resaved PSA copy; deferred confirmation issued the same document and filed the same queue. Pedra Rioja copy saved through the same RPC and reopened/resaved in the real editor. PDF/lines/raw extraction/entity/link preserved; 15 regressions and preview build passed. Two queue/two document/one project copies removed (all counts zero), original PDF/queue untouched, no payments/bank writes. Migration mirrored at supabase/migrations/20261022235500_issued_pdf_draft_queue_link.sql.

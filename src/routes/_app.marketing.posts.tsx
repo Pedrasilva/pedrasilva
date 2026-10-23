@@ -23,6 +23,7 @@ import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
 import { resolveDraftImages } from "@/lib/marketing/draft-images";
+import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/_app/marketing/posts")({
 });
 
 const BUCKET = "marketing-assets";
-const STATUSES = ["suggested", "pending_approval", "approved", "scheduled", "rejected", "published", "failed"] as const;
+const STATUSES = ["suggested", "pending_approval", "approved", "scheduled", "publishing", "rejected", "published", "failed"] as const;
 type Platform = "instagram" | "linkedin";
 type Draft = {
   id: string; request_id: string; idea_id: string; platform: Platform; capture_ids: string[]; asset_ids: string[];
@@ -57,6 +58,7 @@ type Draft = {
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
   published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
+  publish_error_message?:string|null; publish_sent_at?:string|null;
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
@@ -513,7 +515,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [saving, setSaving] = useState(false);
   const [editNote, setEditNote] = useState("");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
-  const locked = !canCurate || draft.status === "rejected" || draft.status === "published";
+  const locked = !canCurate || draft.status === "rejected" || draft.status === "published" || draft.status === "publishing" || !!draft.publish_sent_at;
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
 
   const update = async (patch: Record<string, unknown>, ok: string) => {
@@ -647,13 +649,14 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
             <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
           </Button>
         )}
-        {canCurate && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
+        {canCurate && draft.platform !== "instagram" && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
         {(assets.length > 0 || (isStory && frames.some((f) => f.kind === "text"))) && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
       {canCurate && draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}
       {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
+      {draft.platform === "instagram" && <InstagramPublishControls draftId={draft.id} status={draft.status} canCurate={canCurate && !changedFromSaved} error={draft.publish_error_message} permalink={draft.published_url} sentAt={draft.publish_sent_at}/>}
       <PostApprovalControls draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>

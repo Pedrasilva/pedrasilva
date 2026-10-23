@@ -310,7 +310,7 @@
   },
   "posts": {
     "title": "Planeador de publicações",
-    "subtitle": "Rascunhos de publicações para Instagram e LinkedIn, feitos pela IA a partir do melhor material autorizado. Quem decide é você; a publicação continua manual.",
+    "subtitle": "",
     "brief": "Orientação (opcional)",
     "briefHint": "ex.: foco em hotelaria",
     "periodStart": "De",
@@ -339,7 +339,8 @@
       "published": "Publicado",
       "pending_approval": "A aguardar aprovação",
       "scheduled": "Agendado",
-      "failed": "Falhou"
+      "failed": "Falhou",
+      "publishing": "A publicar"
     },
     "requestStatus": {
       "running": "Em curso",
@@ -808,5 +809,15 @@
     "post": "Publicação",
     "requestedOn": "Pedido em",
     "review": "Rever"
+  },
+  "publishing": {
+    "now": "Publicar agora",
+    "retry": "Tentar de novo",
+    "confirmNow": "Publicar esta publicação aprovada no Instagram agora? Esta ação é real e não pode ser desfeita no Hub.",
+    "requested": "Pedido de publicação processado; consulte o estado.",
+    "openInstagram": "Abrir no Instagram",
+    "connectionUnavailable": "Ligação Instagram indisponível.",
+    "feedUnavailable": "Não foi possível atualizar o feed Instagram.",
+    "feedEmpty": "Não há publicações no feed Instagram."
   }
 }

@@ -170,6 +170,7 @@ import { Route as ApiPublicHooksGmailIntakeRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksInboxPollRouteImport } from './routes/api/public/hooks/inbox-poll'
 import { Route as ApiPublicHooksMarketingEnrichRouteImport } from './routes/api/public/hooks/marketing-enrich'
 import { Route as ApiPublicHooksMarketingIntakeRouteImport } from './routes/api/public/hooks/marketing-intake'
+import { Route as ApiPublicHooksMarketingPublishRouteImport } from './routes/api/public/hooks/marketing-publish'
 import { Route as ApiPublicHooksRecebimentosBackfillRouteImport } from './routes/api/public/hooks/recebimentos-backfill'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as ApiPublicHooksTimesheetReminderRouteImport } from './routes/api/public/hooks/timesheet-reminder'
@@ -1039,6 +1040,12 @@ const ApiPublicHooksMarketingIntakeRoute =
     path: '/api/public/hooks/marketing-intake',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMarketingPublishRoute =
+  ApiPublicHooksMarketingPublishRouteImport.update({
+    id: '/api/public/hooks/marketing-publish',
+    path: '/api/public/hooks/marketing-publish',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRecebimentosBackfillRoute =
   ApiPublicHooksRecebimentosBackfillRouteImport.update({
     id: '/api/public/hooks/recebimentos-backfill',
@@ -1228,6 +1235,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
   '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
@@ -1387,6 +1395,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
   '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
@@ -1557,6 +1566,7 @@ export interface FileRoutesById {
   '/api/public/hooks/inbox-poll': typeof ApiPublicHooksInboxPollRoute
   '/api/public/hooks/marketing-enrich': typeof ApiPublicHooksMarketingEnrichRoute
   '/api/public/hooks/marketing-intake': typeof ApiPublicHooksMarketingIntakeRoute
+  '/api/public/hooks/marketing-publish': typeof ApiPublicHooksMarketingPublishRoute
   '/api/public/hooks/recebimentos-backfill': typeof ApiPublicHooksRecebimentosBackfillRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/api/public/hooks/timesheet-reminder': typeof ApiPublicHooksTimesheetReminderRoute
@@ -1727,6 +1737,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/marketing-publish'
     | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
@@ -1886,6 +1897,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/marketing-publish'
     | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
@@ -2055,6 +2067,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/inbox-poll'
     | '/api/public/hooks/marketing-enrich'
     | '/api/public/hooks/marketing-intake'
+    | '/api/public/hooks/marketing-publish'
     | '/api/public/hooks/recebimentos-backfill'
     | '/api/public/hooks/run-backup'
     | '/api/public/hooks/timesheet-reminder'
@@ -2091,6 +2104,7 @@ export interface RootRouteChildren {
   ApiPublicHooksInboxPollRoute: typeof ApiPublicHooksInboxPollRoute
   ApiPublicHooksMarketingEnrichRoute: typeof ApiPublicHooksMarketingEnrichRoute
   ApiPublicHooksMarketingIntakeRoute: typeof ApiPublicHooksMarketingIntakeRoute
+  ApiPublicHooksMarketingPublishRoute: typeof ApiPublicHooksMarketingPublishRoute
   ApiPublicHooksRecebimentosBackfillRoute: typeof ApiPublicHooksRecebimentosBackfillRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
   ApiPublicHooksTimesheetReminderRoute: typeof ApiPublicHooksTimesheetReminderRoute
@@ -3227,6 +3241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMarketingIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/marketing-publish': {
+      id: '/api/public/hooks/marketing-publish'
+      path: '/api/public/hooks/marketing-publish'
+      fullPath: '/api/public/hooks/marketing-publish'
+      preLoaderRoute: typeof ApiPublicHooksMarketingPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/recebimentos-backfill': {
       id: '/api/public/hooks/recebimentos-backfill'
       path: '/api/public/hooks/recebimentos-backfill'
@@ -3699,6 +3720,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksInboxPollRoute: ApiPublicHooksInboxPollRoute,
   ApiPublicHooksMarketingEnrichRoute: ApiPublicHooksMarketingEnrichRoute,
   ApiPublicHooksMarketingIntakeRoute: ApiPublicHooksMarketingIntakeRoute,
+  ApiPublicHooksMarketingPublishRoute: ApiPublicHooksMarketingPublishRoute,
   ApiPublicHooksRecebimentosBackfillRoute:
     ApiPublicHooksRecebimentosBackfillRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,

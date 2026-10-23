@@ -21,7 +21,9 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import { resolveDraftImages } from "@/lib/marketing/draft-images";
 import { gridOrder, lisbonParts, lisbonToUtcIso, lowWeeks, mondayOf, repetitionWarnings, WEEKLY_TARGET, type CalendarPost } from "@/lib/marketing/calendar";
 import { InstagramGrid, type GridPost } from "@/components/marketing/instagram-grid";
-import { SchedulePublishPlaceholder } from "@/components/marketing/post-approval-controls";
+import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
+import { instagramFeed, scheduleInstagram } from "@/lib/marketing/instagram.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_app/marketing/calendar")({
   component: () => (
@@ -44,18 +46,19 @@ export const Route = createFileRoute("/_app/marketing/calendar")({
 type Row = {
   id: string; request_id: string; platform: "instagram" | "linkedin"; status: string; scheduled_at: string | null; created_at: string;
   pillar: string | null; persona: string | null; project_id: string | null; asset_ids: string[];
-  final_copy: string | null; ai_copy: string; final_hashtags: string[] | null; ai_hashtags: string[]; format: string | null;
+  final_copy: string | null; ai_copy: string; final_hashtags: string[] | null; ai_hashtags: string[]; format: string | null; published_url: string | null; publish_error_message: string | null; publish_sent_at: string | null;
 };
 
 function useCalendarData() {
   return useQuery({
     queryKey: ["marketing-calendar"],
+    refetchInterval: 30000,
     queryFn: async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = supabase as any;
       const { data, error } = await sb.from("marketing_post_drafts")
-        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format")
-        .in("status", ["approved", "scheduled", "published"]).order("created_at", { ascending: false }).limit(400);
+        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at")
+        .in("status", ["approved", "scheduled", "publishing", "published", "failed"]).order("created_at", { ascending: false }).limit(400);
       if (error) throw error;
       const rows = (data ?? []) as Row[];
       const pids = [...new Set(rows.map((r) => r.project_id).filter(Boolean))] as string[];
@@ -79,6 +82,9 @@ function CalendarPage() {
   const qc = useQueryClient();
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = useCalendarData();
+  const feedFn=useServerFn(instagramFeed);
+  const scheduleFn=useServerFn(scheduleInstagram);
+  const feed=useQuery({queryKey:["instagram-feed"],queryFn:()=>feedFn(),staleTime:900000});
   const [view, setView] = useState<"week" | "month">("week");
   const [anchor, setAnchor] = useState(() => new Date());
   const [drop, setDrop] = useState<{ row: Row; date: string; time: string } | null>(null);
@@ -92,7 +98,7 @@ function CalendarPage() {
   }, [view, anchor]);
 
   const rows = data?.rows ?? [];
-  const placed = rows.filter((r) => r.scheduled_at && (r.status === "scheduled" || r.status === "published"));
+  const placed = rows.filter((r) => r.scheduled_at && ["scheduled","publishing","published","failed"].includes(r.status));
   const unplaced = rows.filter((r) => r.status === "approved");
   const byDay = useMemo(() => {
     const m = new Map<string, Row[]>();
@@ -114,8 +120,9 @@ function CalendarPage() {
     if (!drop) return;
     setBusy(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from("marketing_post_drafts")
-      .update({ scheduled_at: lisbonToUtcIso(drop.date, drop.time), status: "scheduled" }).eq("id", drop.row.id);
+    let error: Error | null=null;
+    try { if(drop.row.platform === "instagram")await scheduleFn({data:{draftId:drop.row.id,at:lisbonToUtcIso(drop.date,drop.time),now:false}});
+    else { const r=await supabase.from("marketing_post_drafts").update({scheduled_at:lisbonToUtcIso(drop.date,drop.time),status:"scheduled"}).eq("id",drop.row.id);if(r.error)throw r.error; } } catch(e){error=e instanceof Error?e:new Error(t("posts.error"));}
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("calendar.scheduledToast"));
@@ -130,29 +137,30 @@ function CalendarPage() {
   const onDrop = (date: string, id: string) => {
     setOverDay(null);
     const row = rows.find((r) => r.id === id);
-    if (!row || !canCurate || row.status === "published") return;
+    if (!row || !canCurate || !["approved","scheduled"].includes(row.status)) return;
     setDrop({ row, date, time: row.scheduled_at ? lisbonParts(row.scheduled_at).time : "10:00" });
   };
 
-  const gridPosts: GridPost[] = gridOrder(rows.filter((r) => r.platform === "instagram" && (r.status === "approved" || r.status === "scheduled"))).map((r) => ({
+  const gridPosts: GridPost[] = gridOrder(rows.filter((r) => r.platform === "instagram" && ["approved","scheduled","publishing","published","failed"].includes(r.status))).map((r) => ({
     id: r.id, caption: caption(r), hashtags: r.final_hashtags ?? r.ai_hashtags,
     images: r.asset_ids.map((a) => data?.urls.get(a)).filter((u): u is string => !!u),
-    status: r.status,
+    status: r.status, permalink:r.published_url,error:r.publish_error_message,sentAt:r.publish_sent_at,
     when: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : null,
   }));
 
   const Item = ({ r, compact }: { r: Row; compact?: boolean }) => (
-    <div draggable={canCurate && r.status !== "published"} onDragStart={(e) => e.dataTransfer.setData("text/plain", r.id)}
-      className={cn("group rounded border bg-card p-1.5 text-xs", canCurate && r.status !== "published" && "cursor-grab")}>
+    <div draggable={canCurate && ["approved","scheduled"].includes(r.status)} onDragStart={(e) => e.dataTransfer.setData("text/plain", r.id)}
+      className={cn("group rounded border bg-card p-1.5 text-xs", canCurate && ["approved","scheduled"].includes(r.status) && "cursor-grab")}>
       <div className="flex items-start gap-1">
-        {canCurate && r.status !== "published" && <GripVertical className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />}
+        {canCurate && ["approved","scheduled"].includes(r.status) && <GripVertical className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1">
             {r.scheduled_at && <span className="font-medium">{lisbonParts(r.scheduled_at).time}</span>}
             <Badge variant="outline" className="px-1 py-0 text-[10px]">{t(`posts.platform.${r.platform}`)}</Badge>
-            {r.status === "published" && <Badge variant="secondary" className="px-1 py-0 text-[10px]">{t("posts.status.published")}</Badge>}
+            <Badge variant={r.status==="failed"?"destructive":"secondary"} className="px-1 py-0 text-[10px]">{t(`posts.status.${r.status}`)}</Badge>
           </div>
           <Link to="/marketing/posts" search={{ draft: r.id }} className={cn("mt-0.5 block hover:underline", compact ? "line-clamp-2" : "line-clamp-3")}>{caption(r)}</Link>
+          {r.platform==="instagram"&&["failed","published"].includes(r.status)&&<InstagramPublishControls draftId={r.id} status={r.status} canCurate={canCurate} error={r.publish_error_message} permalink={r.published_url} sentAt={r.publish_sent_at}/>}
           {(r.pillar || r.project_id) && !compact && <p className="mt-0.5 truncate text-[10px] text-muted-foreground">{[r.pillar, r.persona, r.project_id ? data?.names[r.project_id] : null].filter(Boolean).join(" · ")}</p>}
           {(repsBy.get(r.id) ?? []).map((w, i) => (
             <p key={i} className="mt-0.5 flex items-start gap-1 text-[10px] text-warning">
@@ -222,7 +230,7 @@ function CalendarPage() {
           </div>
         </TabsContent>
         <TabsContent value="grid">
-          <InstagramGrid planned={gridPosts} live={null} />
+          <InstagramGrid planned={gridPosts} canCurate={canCurate} liveError={feed.data?.error ?? (feed.isError?"feedUnavailable":null)} live={feed.data?.posts.map(p=>({id:p.id,caption:p.caption,images:[p.thumbnail_url??p.media_url].filter((u):u is string=>!!u),permalink:p.permalink,when:p.timestamp?new Date(p.timestamp).toLocaleString():null}))} />
         </TabsContent>
       </Tabs>
 
@@ -236,8 +244,7 @@ function CalendarPage() {
           </div>
           <p className="text-xs text-muted-foreground">{t("calendar.tzHint")}</p>
           <DialogFooter className="gap-2">
-            <SchedulePublishPlaceholder />
-            <Button onClick={save} disabled={busy || !drop?.date || !drop?.time}>{t("calendar.place")}</Button>
+            <Button onClick={save} disabled={busy || !drop?.date || !drop?.time}>{t("calendar.schedulePublish")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

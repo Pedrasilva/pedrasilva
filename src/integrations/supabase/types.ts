@@ -7440,12 +7440,22 @@ export type Database = {
           format: string
           id: string
           idea_id: string
+          ig_container_ids: Json
+          ig_media_id: string | null
+          ig_published_at: string | null
           location_tag: string | null
           model: string
           persona: string | null
           pillar: string | null
           platform: Database["public"]["Enums"]["marketing_platform"]
           project_id: string | null
+          publish_attempts: number
+          publish_error_code: string | null
+          publish_error_message: string | null
+          publish_lock_id: string | null
+          publish_locked_at: string | null
+          publish_retry_at: string | null
+          publish_sent_at: string | null
           published_at: string | null
           published_url: string | null
           rationale: string
@@ -7476,12 +7486,22 @@ export type Database = {
           format?: string
           id?: string
           idea_id: string
+          ig_container_ids?: Json
+          ig_media_id?: string | null
+          ig_published_at?: string | null
           location_tag?: string | null
           model: string
           persona?: string | null
           pillar?: string | null
           platform: Database["public"]["Enums"]["marketing_platform"]
           project_id?: string | null
+          publish_attempts?: number
+          publish_error_code?: string | null
+          publish_error_message?: string | null
+          publish_lock_id?: string | null
+          publish_locked_at?: string | null
+          publish_retry_at?: string | null
+          publish_sent_at?: string | null
           published_at?: string | null
           published_url?: string | null
           rationale: string
@@ -7512,12 +7532,22 @@ export type Database = {
           format?: string
           id?: string
           idea_id?: string
+          ig_container_ids?: Json
+          ig_media_id?: string | null
+          ig_published_at?: string | null
           location_tag?: string | null
           model?: string
           persona?: string | null
           pillar?: string | null
           platform?: Database["public"]["Enums"]["marketing_platform"]
           project_id?: string | null
+          publish_attempts?: number
+          publish_error_code?: string | null
+          publish_error_message?: string | null
+          publish_lock_id?: string | null
+          publish_locked_at?: string | null
+          publish_retry_at?: string | null
+          publish_sent_at?: string | null
           published_at?: string | null
           published_url?: string | null
           rationale?: string
@@ -7908,6 +7938,44 @@ export type Database = {
           },
         ]
       }
+      marketing_publish_log: {
+        Row: {
+          attempt_at: string
+          draft_id: string
+          id: string
+          meta_error_code: string | null
+          meta_error_message: string | null
+          step: string
+          success: boolean
+        }
+        Insert: {
+          attempt_at?: string
+          draft_id: string
+          id?: string
+          meta_error_code?: string | null
+          meta_error_message?: string | null
+          step: string
+          success: boolean
+        }
+        Update: {
+          attempt_at?: string
+          draft_id?: string
+          id?: string
+          meta_error_code?: string | null
+          meta_error_message?: string | null
+          step?: string
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_publish_log_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_post_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_settings: {
         Row: {
           connected_at: string | null
@@ -7917,6 +7985,9 @@ export type Database = {
           graph_api_version: string
           id: boolean
           instagram_account_id: string | null
+          instagram_feed: Json
+          instagram_feed_at: string | null
+          instagram_feed_error: string | null
           instagram_username: string | null
           last_error_code: string | null
           last_tested_at: string
@@ -7934,6 +8005,9 @@ export type Database = {
           graph_api_version?: string
           id?: boolean
           instagram_account_id?: string | null
+          instagram_feed?: Json
+          instagram_feed_at?: string | null
+          instagram_feed_error?: string | null
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
@@ -7951,6 +8025,9 @@ export type Database = {
           graph_api_version?: string
           id?: boolean
           instagram_account_id?: string | null
+          instagram_feed?: Json
+          instagram_feed_at?: string | null
+          instagram_feed_error?: string | null
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
@@ -16088,6 +16165,61 @@ export type Database = {
         Args: { _capture_id: string }
         Returns: string
       }
+      marketing_claim_publish: {
+        Args: { _id?: string }
+        Returns: {
+          ai_copy: string
+          ai_hashtags: string[]
+          ai_story_frames: Json | null
+          approved_content_hash: string | null
+          asset_ids: string[]
+          bible_version: number
+          brief_item: string | null
+          capture_ids: string[]
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          edited_after_approval: boolean
+          final_copy: string | null
+          final_hashtags: string[] | null
+          final_story_frames: Json | null
+          format: string
+          id: string
+          idea_id: string
+          ig_container_ids: Json
+          ig_media_id: string | null
+          ig_published_at: string | null
+          location_tag: string | null
+          model: string
+          persona: string | null
+          pillar: string | null
+          platform: Database["public"]["Enums"]["marketing_platform"]
+          project_id: string | null
+          publish_attempts: number
+          publish_error_code: string | null
+          publish_error_message: string | null
+          publish_lock_id: string | null
+          publish_locked_at: string | null
+          publish_retry_at: string | null
+          publish_sent_at: string | null
+          published_at: string | null
+          published_url: string | null
+          rationale: string
+          readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
+          readiness_note: string | null
+          request_id: string
+          safety_flags: string[]
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["marketing_draft_status"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "marketing_post_drafts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       marketing_composition_is_draft: {
         Args: { _composition_id: string }
         Returns: boolean
@@ -16179,6 +16311,16 @@ export type Database = {
         }
         Returns: string
       }
+      marketing_publish_blocker: {
+        Args: {
+          d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
+        }
+        Returns: string
+      }
+      marketing_publish_checkpoint: {
+        Args: { _id: string; _lock: string; _patch?: Json; _send?: boolean }
+        Returns: boolean
+      }
       marketing_recheck_draft_readiness: {
         Args: { _draft_id: string }
         Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
@@ -16192,9 +16334,17 @@ export type Database = {
         Returns: string
       }
       marketing_resolve_action: { Args: { _id: string }; Returns: string }
+      marketing_schedule_instagram: {
+        Args: { _at: string; _id: string; _now?: boolean }
+        Returns: undefined
+      }
       marketing_set_capture_format: {
         Args: { _capture_id: string; _format_hint: string }
         Returns: undefined
+      }
+      marketing_story_send: {
+        Args: { _container: string; _id: string; _lock: string }
+        Returns: boolean
       }
       my_finance_entities: {
         Args: never
@@ -16910,6 +17060,7 @@ export type Database = {
         | "pending_approval"
         | "scheduled"
         | "failed"
+        | "publishing"
       marketing_name_rule: "name" | "describe_only" | "never_mention"
       marketing_platform: "instagram" | "linkedin"
       marketing_sector:
@@ -17415,6 +17566,7 @@ export const Constants = {
         "pending_approval",
         "scheduled",
         "failed",
+        "publishing",
       ],
       marketing_name_rule: ["name", "describe_only", "never_mention"],
       marketing_platform: ["instagram", "linkedin"],
