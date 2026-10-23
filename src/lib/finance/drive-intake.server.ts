@@ -134,7 +134,7 @@ type DriveFile = { id: string; name: string; mimeType: string; size?: string };
 
 async function listInbox(folderId: string, driveId?: string | null): Promise<DriveFile[]> {
   const url = driveUrl("/drive/v3/files", {
-    q: `'${folderId}' in parents and trashed = false`, pageSize: String(MAX_FILES), orderBy: "createdTime",
+    q: `'${folderId}' in parents and trashed = false`, pageSize: "200", orderBy: "createdTime",
     fields: "files(id,name,mimeType,size)",
   }, { list: true, driveId });
   const json = (await drive(url.slice(GATEWAY_BASE.length))) as { files?: DriveFile[] };
@@ -194,7 +194,8 @@ export async function runDriveFolderIntake(opts: { maxFiles?: number } = {}): Pr
   summary.inboxFolderId = folders.inbox;
 
   // Pickup is ONLY from the intake folder ("Entrada"), never from its parent.
-  const files = (await listInbox(folders.inbox, folders.driveId)).slice(0, opts.maxFiles ?? MAX_FILES);
+  const files = await listInbox(folders.inbox, folders.driveId);
+  const max = opts.maxFiles ?? MAX_FILES;
   if (files.length === 0) {
     await trashOldProcessed(folders.processed, folders.driveId);
     return summary;
@@ -222,6 +223,7 @@ export async function runDriveFolderIntake(opts: { maxFiles?: number } = {}): Pr
       }
       continue;
     }
+    if (summary.scanned >= max) break;
     summary.scanned++;
     const mime = resolveMime(file);
     const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
