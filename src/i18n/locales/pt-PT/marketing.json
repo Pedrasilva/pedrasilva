@@ -820,5 +820,18 @@
     "connectionUnavailable": "Ligação Instagram indisponível.",
     "feedUnavailable": "Não foi possível atualizar o feed Instagram.",
     "feedEmpty": "Não há publicações no feed Instagram."
+  },
+  "grid": {
+    "carousel": "Carrossel",
+    "reel": "Reel",
+    "readOnly": "Publicado no Instagram (só leitura)",
+    "dragHint": "Arraste rascunhos sem data para reordenar ou largue-os entre posts agendados",
+    "proposeTitle": "Propor hora de publicação",
+    "proposeBody": "Agendar este post para {{when}} (Lisboa)? Nada muda até confirmar.",
+    "noGap": "Não há tempo livre entre estes vizinhos. Largue noutro sítio.",
+    "needsApproval": "Este rascunho ainda aguarda aprovação. Só pode ser agendado depois de uma aprovação válida.",
+    "confirm": "Confirmar agendamento",
+    "tab": "Grelha",
+    "listTab": "Lista"
   }
 }
