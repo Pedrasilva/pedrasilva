@@ -74,7 +74,7 @@ export async function syncStoryInsightsIfDue(opts: { graph?: Graph; db?: Db; now
   const { data: ours } = await db.from("marketing_post_drafts").select("id,ig_media_id,published_at").eq("format", "story").not("ig_media_id", "is", null).gte("published_at", since);
   const cands = new Map<string, { id: string; posted_at: string | null; draft_id: string | null; m?: any }>();
   for (const d of ours ?? []) cands.set(String(d.ig_media_id), { id: String(d.ig_media_id), posted_at: d.published_at, draft_id: d.id });
-  // Only call Meta when at least one of our Stories is due, or to discover Stories published outside the Hub.
+  // One GET of the live Story list also discovers Stories published outside the Hub.
   let graph: Graph | null = null;
   const g = () => (graph ??= opts.graph ?? instagramGraph(token()));
   try {
