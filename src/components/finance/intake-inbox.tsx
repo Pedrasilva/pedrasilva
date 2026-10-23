@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { INBOX_SORTS, sortInbox, useInboxSorts, type InboxSort } from "@/lib/finance/intake-sort";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SenderRulesPanel } from "@/components/finance/sender-rules-panel";
 import { IntakeInstructionsPanel } from "@/components/finance/intake-instructions-panel";
@@ -142,14 +143,22 @@ export function IntakeInbox() {
   const rowsQ = useQuery({
     queryKey: ["finance", "review-queue", "inbox"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("financial_document_review_queue")
-        .select("*")
-        // Filed / paid items stay visible in their tab with their status.
-        .in("status", ["pending_review", "filed", "paid", "duplicate", "removed"])
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as InboxRow[];
+      // Load the full list in pages so sorting always covers every item.
+      const all: InboxRow[] = [];
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase
+          .from("financial_document_review_queue")
+          .select("*")
+          // Filed / paid items stay visible in their tab with their status.
+          .in("status", ["pending_review", "filed", "paid", "duplicate", "removed"])
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, from + 999);
+        if (error) throw error;
+        all.push(...((data ?? []) as unknown as InboxRow[]));
+        if (!data || data.length < 1000) break;
+      }
+      return all;
     },
   });
   const ignoredEmailsQ = useQuery({
@@ -200,7 +209,9 @@ export function IntakeInbox() {
 
   const switchTab = (v: Tab | "rules" | "instructions") => { setTab(v); setSelected(null); setRuleId(null); };
   const countOf = (k: Tab) => (k === "duplicates" || k === "removed" ? byTab[k].length : byTab[k].filter((r) => r.status === "pending_review").length);
-  const list = tab === "rules" || tab === "instructions" ? [] : tab === "payments" ? byTab.payments.filter((r) => r.payment_direction !== "incoming") : byTab[tab];
+  const [sorts, setSorts] = useInboxSorts();
+  const sortKey: InboxSort = sorts[tab] ?? "arrived_desc";
+  const list = sortInbox(tab === "rules" || tab === "instructions" ? [] : tab === "payments" ? byTab.payments.filter((r) => r.payment_direction !== "incoming") : byTab[tab], sortKey);
   const openItem = (id: string) => {
     const rows = qc.getQueryData<InboxRow[]>(["finance", "review-queue", "inbox"]) ?? rowsQ.data ?? [];
     const r = rows.find((x) => x.id === id);
@@ -310,6 +321,12 @@ export function IntakeInbox() {
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1.5 max-h-[680px] overflow-auto pt-4">
+            <Select value={sortKey} onValueChange={(v) => setSorts({ ...sorts, [tab]: v as InboxSort })}>
+              <SelectTrigger className="h-8 text-xs" aria-label={t("finance:intakeInbox.sort.label") as string}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {INBOX_SORTS.map((k) => <SelectItem key={k} value={k} className="text-xs">{t(`finance:intakeInbox.sort.${k}`)}</SelectItem>)}
+              </SelectContent>
+            </Select>
             {(tab === "purchases" || tab === "issued") && repeats.length > 0 && (
               <ConfirmRepeatsButton rows={repeats} />
             )}
