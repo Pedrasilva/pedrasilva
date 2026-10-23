@@ -146,6 +146,59 @@ export type Database = {
           },
         ]
       }
+      bank_balance_correction_audit: {
+        Row: {
+          actor_email: string
+          actor_id: string
+          after_changes: Json
+          before_row: Json
+          created_at: string
+          entity_id: string
+          id: string
+          reason: string
+          record_id: string
+          record_table: string
+          source_document: string
+          source_url: string | null
+        }
+        Insert: {
+          actor_email: string
+          actor_id: string
+          after_changes: Json
+          before_row: Json
+          created_at?: string
+          entity_id: string
+          id?: string
+          reason: string
+          record_id: string
+          record_table: string
+          source_document: string
+          source_url?: string | null
+        }
+        Update: {
+          actor_email?: string
+          actor_id?: string
+          after_changes?: Json
+          before_row?: Json
+          created_at?: string
+          entity_id?: string
+          id?: string
+          reason?: string
+          record_id?: string
+          record_table?: string
+          source_document?: string
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_balance_correction_audit_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_balance_snapshots: {
         Row: {
           balance: number

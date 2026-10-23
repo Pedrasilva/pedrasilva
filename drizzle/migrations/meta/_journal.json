@@ -1205,6 +1205,13 @@
       "when": 1792788341831,
       "tag": "0171_known_bank_guard_compatibility",
       "breakpoints": true
+    },
+    {
+      "idx": 172,
+      "version": "7",
+      "when": 1792790622153,
+      "tag": "0172_bank_opening_correction_audit",
+      "breakpoints": true
     }
   ]
 }
