@@ -2766,5 +2766,32 @@
   "driveFetch": {
     "label": "Buscar agora no Drive",
     "done": "Drive: {{queued}} novos na Entrada, {{failed}} em Failed."
+  },
+  "statementDrafts": {
+    "draftBadge": "Por confirmar",
+    "bankNumber": "N.º do banco {{number}}",
+    "title_one": "{{count}} extrato por confirmar",
+    "title_other": "{{count}} extratos por confirmar",
+    "selectGreen": "Selecionar todos os válidos ({{count}})",
+    "confirmSelected": "Confirmar selecionados ({{count}})",
+    "confirmed_one": "{{count}} extrato confirmado",
+    "confirmed_other": "{{count}} extratos confirmados",
+    "col": {
+      "account": "Conta",
+      "id": "ID do extrato",
+      "period": "Período",
+      "opening": "Saldo inicial",
+      "closing": "Saldo final",
+      "ai": "Leituras IA",
+      "continuity": "Continuidade"
+    },
+    "aiAgree": "Ambas concordam",
+    "aiDiffer": "Leituras diferem",
+    "copyDiffers": "Outra cópia difere",
+    "firstPeriod": "Primeiro período",
+    "continuityOk": "Igual ao saldo final anterior",
+    "continuityBreak": "Saldo final anterior {{previous}} (diferença {{difference}})",
+    "review": "Rever",
+    "confirmOne": "Confirmar"
   }
 }
