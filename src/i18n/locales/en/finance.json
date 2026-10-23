@@ -2762,5 +2762,9 @@
       "move": "Move to Processed",
       "delete": "Delete test file"
     }
+  },
+  "driveFetch": {
+    "label": "Fetch now from Drive",
+    "done": "Drive: {{queued}} new in Entrada, {{failed}} to Failed."
   }
 }

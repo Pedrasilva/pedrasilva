@@ -2762,5 +2762,9 @@
       "move": "Mover para Processed",
       "delete": "Apagar ficheiro de teste"
     }
+  },
+  "driveFetch": {
+    "label": "Buscar agora no Drive",
+    "done": "Drive: {{queued}} novos na Entrada, {{failed}} em Failed."
   }
 }
