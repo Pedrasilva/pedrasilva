@@ -38,6 +38,7 @@ import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } f
 import { currentEntityId } from "@/lib/finance/current-entity";
 import { PeriodWindowCard } from "@/components/finance/bank-period-window";
 import { EntradaConfirmMatchSheet, ReviewSuggestionsDialog, MatchRulesPanel } from "@/components/finance/reconcile-suggestions";
+import { warmSuggestions } from "@/lib/finance/reconcile-suggestions";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
