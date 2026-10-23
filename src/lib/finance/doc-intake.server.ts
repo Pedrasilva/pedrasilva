@@ -592,7 +592,14 @@ export async function matchSupplierByVat(rawVat: string | null): Promise<{
 
   // A merged (inactive) supplier keeps its NIF; when an active company shares it, the active one wins.
   const active = all.filter((c) => c.is_active);
-  const hits = active.length > 0 ? active : all;
+  let hits = active.length > 0 ? active : all;
+  if (active.length === 0 && all.length > 0) {
+    // Only merged/archived companies carry this NIF: follow a merge to the kept company.
+    const { data: al } = await supabaseAdmin.from("company_aliases").select("company_id").in("source_company_id", all.map((c) => c.id));
+    const ids = [...new Set((al ?? []).map((a) => a.company_id))];
+    if (ids.length === 1) return { status: "matched", matched_supplier_id: ids[0], ambiguous_ids: [] };
+    hits = all;
+  }
   if (hits.length === 1) return { status: "matched", matched_supplier_id: hits[0].id, ambiguous_ids: [] };
   if (hits.length > 1) {
     return { status: "ambiguous", matched_supplier_id: null, ambiguous_ids: hits.map((h) => h.id) };
