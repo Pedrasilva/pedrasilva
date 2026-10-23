@@ -2732,5 +2732,35 @@
     "noPairs": "No repeated purchases in this group.",
     "entityPsa": "PSA",
     "entityOther": "Pedra Rioja"
+  },
+  "driveSettings": {
+    "title": "Shared drive «PSA Finance»",
+    "hint": "Paste the ID or link of the shared drive and of each folder. «Test access» lists Finance Intake, creates a small test file, moves it to Processed and deletes it.",
+    "placeholder": "ID or Drive link",
+    "save": "Save",
+    "saved": "Drive settings saved.",
+    "test": "Test access",
+    "testOk": "Access test passed.",
+    "testFailed": "Access test failed — see the steps below.",
+    "fields": {
+      "shared_drive_id": "Shared drive",
+      "intake_folder_id": "Finance Intake",
+      "processed_folder_id": "Processed",
+      "failed_folder_id": "Failed",
+      "contabilidade_root_id": "Contabilidade",
+      "intakeShort": "Finance Intake",
+      "processedShort": "Processed",
+      "failedShort": "Failed",
+      "contabilidadeShort": "Contabilidade"
+    },
+    "steps": {
+      "config": "Settings",
+      "drive": "Open shared drive",
+      "folder": "Folder permissions",
+      "list": "List Finance Intake",
+      "create": "Create test file",
+      "move": "Move to Processed",
+      "delete": "Delete test file"
+    }
   }
 }

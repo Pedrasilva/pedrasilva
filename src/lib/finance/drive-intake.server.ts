@@ -19,6 +19,7 @@ import { parseDriveFolderId } from "@/lib/google-drive-folder";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { ingestStoredDocument } from "@/lib/finance/doc-intake.server";
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
+import { driveUrl, getFinanceDriveConfig } from "@/lib/finance/drive-config.server";
 
 const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
 const BUCKET = "financial-documents";
@@ -105,7 +106,12 @@ export type IntakeFolders = { inbox: string; processed: string; failed: string }
  *  - otherwise create "Finance Intake" under the configured archive root
  *    (or My Drive) and reuse it from then on.
  */
-export async function ensureIntakeFolders(): Promise<IntakeFolders> {
+export async function ensureIntakeFolders(): Promise<IntakeFolders & { driveId?: string | null }> {
+  // Shared drive "PSA Finance": folder IDs set in Administração > Arquivo Drive win.
+  const cfg = await getFinanceDriveConfig();
+  if (cfg.intake && cfg.processed && cfg.failed) {
+    return { inbox: cfg.intake, processed: cfg.processed, failed: cfg.failed, driveId: cfg.sharedDriveId };
+  }
   const configured = folderId(process.env.GOOGLE_DRIVE_FINANCE_INTAKE_FOLDER_ID);
   const archiveRoot = folderId(process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID);
 
@@ -126,12 +132,12 @@ export async function ensureIntakeFolders(): Promise<IntakeFolders> {
 
 type DriveFile = { id: string; name: string; mimeType: string; size?: string };
 
-async function listInbox(folderId: string): Promise<DriveFile[]> {
-  const q = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-  const json = (await drive(
-    `/drive/v3/files?q=${q}&pageSize=${MAX_FILES}&orderBy=createdTime` +
-      `&fields=files(id,name,mimeType,size)&supportsAllDrives=true&includeItemsFromAllDrives=true`,
-  )) as { files?: DriveFile[] };
+async function listInbox(folderId: string, driveId?: string | null): Promise<DriveFile[]> {
+  const url = driveUrl("/drive/v3/files", {
+    q: `'${folderId}' in parents and trashed = false`, pageSize: String(MAX_FILES), orderBy: "createdTime",
+    fields: "files(id,name,mimeType,size)",
+  }, { list: true, driveId });
+  const json = (await drive(url.slice(GATEWAY_BASE.length))) as { files?: DriveFile[] };
   return (json.files ?? []).filter((f) => f.mimeType !== "application/vnd.google-apps.folder");
 }
 
@@ -175,7 +181,7 @@ export async function runDriveFolderIntake(): Promise<DriveIntakeSummary> {
   const folders = await ensureIntakeFolders();
   summary.inboxFolderId = folders.inbox;
 
-  const files = await listInbox(folders.inbox);
+  const files = await listInbox(folders.inbox, folders.driveId);
   if (files.length === 0) return summary;
 
   const { data: seen } = await supabaseAdmin

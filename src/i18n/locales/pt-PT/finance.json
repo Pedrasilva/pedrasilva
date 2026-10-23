@@ -2732,5 +2732,35 @@
     "noPairs": "Sem compras repetidas neste grupo.",
     "entityPsa": "PSA",
     "entityOther": "Pedra Rioja"
+  },
+  "driveSettings": {
+    "title": "Drive partilhado «PSA Finance»",
+    "hint": "Cole o ID ou o link do drive partilhado e de cada pasta. «Testar acesso» lista a Finance Intake, cria um ficheiro de teste, move-o para Processed e apaga-o.",
+    "placeholder": "ID ou link do Drive",
+    "save": "Guardar",
+    "saved": "Definições do Drive guardadas.",
+    "test": "Testar acesso",
+    "testOk": "Teste de acesso concluído.",
+    "testFailed": "O teste de acesso falhou — veja os passos abaixo.",
+    "fields": {
+      "shared_drive_id": "Drive partilhado",
+      "intake_folder_id": "Finance Intake",
+      "processed_folder_id": "Processed",
+      "failed_folder_id": "Failed",
+      "contabilidade_root_id": "Contabilidade",
+      "intakeShort": "Finance Intake",
+      "processedShort": "Processed",
+      "failedShort": "Failed",
+      "contabilidadeShort": "Contabilidade"
+    },
+    "steps": {
+      "config": "Definições",
+      "drive": "Abrir drive partilhado",
+      "folder": "Permissões da pasta",
+      "list": "Listar Finance Intake",
+      "create": "Criar ficheiro de teste",
+      "move": "Mover para Processed",
+      "delete": "Apagar ficheiro de teste"
+    }
   }
 }
