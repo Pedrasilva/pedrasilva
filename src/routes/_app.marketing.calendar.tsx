@@ -230,7 +230,7 @@ function CalendarPage() {
           </div>
         </TabsContent>
         <TabsContent value="grid">
-          <InstagramGrid planned={gridPosts} canCurate={canCurate} liveError={feed.data?.error ?? (feed.isError?"feedUnavailable":null)} live={feed.data?.posts.map(p=>({id:p.id,caption:p.caption,images:[p.thumbnail_url??p.media_url].filter((u):u is string=>!!u),permalink:p.permalink,when:p.timestamp?new Date(p.timestamp).toLocaleString():null}))} />
+          <InstagramGrid planned={gridPosts} canCurate={canCurate} loadFull={async (id) => { const r = rows.find((x) => x.id === id); if (!r) return null; const imgs = await resolveDraftImages(supabase, r.asset_ids, 900); return imgs.map((i) => i.url).filter((u): u is string => !!u); }} liveError={feed.data?.error ?? (feed.isError?"feedUnavailable":null)} live={feed.data?.posts.map(p=>({id:p.id,caption:p.caption,images:[p.thumbnail_url??p.media_url].filter((u):u is string=>!!u),permalink:p.permalink,when:p.timestamp?new Date(p.timestamp).toLocaleString():null}))} />
         </TabsContent>
       </Tabs>
 

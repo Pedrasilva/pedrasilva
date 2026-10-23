@@ -25,7 +25,7 @@ function Tile({ post, onOpen }: { post: GridPost; onOpen: () => void }) {
   const cover = post.images[0];
   return (
     <Button variant="ghost" type="button" onClick={onOpen} className="group relative h-auto aspect-square rounded-none overflow-hidden bg-muted p-0" aria-label={post.caption.slice(0, 80) || t("calendar.grid.open")}>
-      {cover ? <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover transition-opacity group-hover:opacity-80" />
+      {cover ? <img src={cover} alt="" loading="lazy" decoding="async" width={400} height={400} className="h-full w-full object-cover transition-opacity group-hover:opacity-80" />
         : <span className="flex h-full w-full items-center justify-center p-2 text-center text-[10px] text-muted-foreground">{post.caption.slice(0, 60)}</span>}
       {post.images.length > 1 && <Layers className="absolute right-1.5 top-1.5 h-4 w-4 text-background drop-shadow" />}
       {post.status && <Badge variant={post.status==='failed'?'destructive':'secondary'} className="absolute bottom-1 left-1 px-1 py-0 text-[10px]">{t(`posts.status.${post.status}`)}</Badge>}
@@ -34,9 +34,16 @@ function Tile({ post, onOpen }: { post: GridPost; onOpen: () => void }) {
 }
 
 /** 3-column Instagram-style grid: planned posts on top, then the live feed (or its placeholder). */
-export function InstagramGrid({ planned, live, canCurate=false, liveError }: { planned: GridPost[]; live?: GridPost[] | null; canCurate?:boolean;liveError?:string|null }) {
+export function InstagramGrid({ planned, live, canCurate=false, liveError, loadFull }: { planned: GridPost[]; live?: GridPost[] | null; canCurate?:boolean;liveError?:string|null; loadFull?: (id: string) => Promise<string[] | null> }) {
   const { t } = useTranslation("marketing");
-  const [open, setOpen] = useState<GridPost | null>(null);
+  const [current, setCurrent] = useState<GridPost | null>(null);
+  const [full, setFull] = useState<{ id: string; images: string[] } | null>(null);
+  // Tiles use small previews; the full-resolution files load only once the preview window opens.
+  const setOpen = (p: GridPost | null) => {
+    setCurrent(p); setFull(null);
+    if (p && loadFull && p.status) loadFull(p.id).then((imgs) => imgs?.length && setFull({ id: p.id, images: imgs })).catch(() => {});
+  };
+  const open = current && full?.id === current.id ? { ...current, images: full.images } : current;
   return (
     <div className="mx-auto max-w-md space-y-1">
       <div className="grid grid-cols-3 gap-0.5">
