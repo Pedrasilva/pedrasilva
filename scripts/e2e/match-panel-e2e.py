@@ -28,7 +28,7 @@ async def guard(route, req):
         write = m in ("POST", "PATCH", "PUT", "DELETE") and "/rest/v1/" in url
     if write:
         body = req.post_data or ""
-        blocked.append((m, url.split("?")[0].split("/")[-1], body[:200]))
+        blocked.append((m, url.split("?")[0].split("/")[-1], body))
         try: payload = json.loads(body) if body else {}
         except Exception: payload = {}
         fake = [{"id": "00000000-0000-0000-0000-000000000000", **(payload if isinstance(payload, dict) else {})}]
