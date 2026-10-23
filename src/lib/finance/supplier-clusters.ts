@@ -44,7 +44,7 @@ export function levenshtein(a: string, b: string): number {
 const ratio = (a: string, b: string) => 1 - levenshtein(a, b) / Math.max(a.length, b.length, 1);
 const stem = (t: string) => (t.length > 3 && t.endsWith("s") ? t.slice(0, -1) : t);
 
-/** 0..1 similarity; >= 0.8 counts as "very similar". */
+/** 0..1 similarity; >= 0.88 counts as "very similar". */
 export function nameSimilarity(na: string, nb: string): number {
   if (!na || !nb) return 0;
   if (na === nb) return 1;
@@ -54,7 +54,7 @@ export function nameSimilarity(na: string, nb: string): number {
   // Same leading word, and every word of the shorter name fuzzily present in the longer one.
   if (short[0].length >= 4 && ratio(short[0], long[0]) >= 0.85
     && short.every((t) => long.some((u) => ratio(t, u) >= 0.8))) {
-    return Math.max(whole, 0.85);
+    return Math.max(whole, 0.88);
   }
   return whole;
 }
@@ -100,7 +100,7 @@ export function buildSupplierClusters(
       const inName = (p: string, n: string) => p.toLowerCase().split(" ").some((w) => n.split(" ").some((t) => ratio(stem(w), stem(t)) >= 0.8));
       const shared = [...a.pats].find((p) => b.pats.has(p) && (patOwners.get(p) ?? 0) <= 4 && inName(p, a.norm) && inName(p, b.norm));
       if (shared) e = { a: a.id, b: b.id, reason: "bank_pattern", confidence: 85, detail: shared };
-      else if (sim >= 0.8 && Math.min(a.norm.length, b.norm.length) >= 4)
+      else if (sim >= 0.88 && Math.min(a.norm.length, b.norm.length) >= 4)
         e = { a: a.id, b: b.id, reason: "similar_name", confidence: Math.round(55 + sim * 30), detail: `${Math.round(sim * 100)}%` };
     }
     if (e) edges.push(e);
