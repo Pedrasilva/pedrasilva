@@ -2637,5 +2637,33 @@
       "manual": "Manual",
       "saved": "Rule saved"
     }
+  },
+  "matchPanel": {
+    "title": "Match this movement",
+    "keys": "↑/↓ choose · Enter match · N next",
+    "search": "Search supplier, number, amount or description",
+    "suggestError": "Suggestions could not be loaded. The full list below still works.",
+    "matched": "Matched ({{amount}}).",
+    "matchedSplit": "{{count}} documents matched ({{amount}}).",
+    "selected": "{{count}} selected",
+    "runningTotal": "Selected",
+    "remainder": "Remainder",
+    "matchSelected": "Match selected",
+    "next": "Next movement",
+    "preview": "Preview",
+    "previewHint": "Hover or click a row to see the document.",
+    "noFile": "No file attached to this document.",
+    "total": "Total",
+    "diffExact": "Same amount",
+    "diff": "Difference {{diff}}",
+    "selectForSplit": "Select for split payment",
+    "origin": {
+      "purchase": "Purchase",
+      "sale": "Issued invoice",
+      "project": "Project",
+      "entrada": "Entrada pending",
+      "hr": "HR",
+      "transfer": "Transfer"
+    }
   }
 }
