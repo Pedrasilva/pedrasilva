@@ -1084,7 +1084,9 @@
       "intakeInbox": "Caixa de entrada",
       "purchaseDuplicates": "Possíveis duplicados",
       "driveArchive": "Arquivo Drive",
-      "reclassify": "Por reclassificar"
+      "reclassify": "Por reclassificar",
+      "reconciliationLog": "Registo de reconciliações",
+      "duplicates": "Duplicados"
     }
   },
   "purchases": {
@@ -2665,5 +2667,59 @@
       "hr": "RH",
       "transfer": "Transferência"
     }
+  },
+  "reconAudit": {
+    "title": "Registo de reconciliações",
+    "subtitle": "Cada conciliação, anulação e mudança de estado dos movimentos bancários, com quem e quando. Cada entrada liga ao movimento e ao documento.",
+    "historyTitle": "Histórico de conciliação",
+    "openRegister": "Abrir registo",
+    "empty": "Ainda não há alterações registadas.",
+    "system": "automático",
+    "search": "Pesquisar descrição, n.º de documento, fornecedor, valor ou pessoa",
+    "from": "De",
+    "to": "Até",
+    "count_one": "{{count}} entrada",
+    "count_other": "{{count}} entradas",
+    "statusFromTo": "{{from}} → {{to}}",
+    "amountFromTo": "{{from}} → {{to}}",
+    "col": {
+      "when": "Quando",
+      "action": "Alteração",
+      "detail": "Detalhe",
+      "movement": "Movimento",
+      "document": "Documento",
+      "who": "Quem"
+    },
+    "action": {
+      "match": "Conciliado",
+      "unmatch": "Conciliação anulada",
+      "amount_change": "Valor alterado",
+      "reconciled": "Reconciliado",
+      "unreconciled": "Reconciliação desfeita",
+      "status_change": "Estado alterado"
+    }
+  },
+  "supplierDups": {
+    "tabPurchases": "Compras",
+    "tabSuppliers": "Fornecedores",
+    "subtitle": "Fornecedores que podem ser a mesma empresa (mesmo NIF ou mesmo nome). Nada muda até escolher qual manter e confirmar. O outro nunca é apagado: fica inativo e o nome e o NIF ficam como aliases.",
+    "none": "Não há fornecedores possivelmente duplicados.",
+    "count_one": "{{count}} possível duplicado",
+    "count_other": "{{count}} possíveis duplicados",
+    "reason": {
+      "same_nif": "Mesmo NIF",
+      "same_name": "Mesmo nome"
+    },
+    "documents": "Documentos",
+    "total": "Total",
+    "keep": "Manter {{keep}}, fundir {{merge}}",
+    "notDup": "Não é duplicado",
+    "confirmTitle": "Fundir fornecedores",
+    "confirmDesc": "Manter {{keep}}. Todos os documentos e registos de {{merge}} ({{docs}} documentos) passam para ele; {{merge}} fica inativo e o nome e o NIF ficam como aliases. Nenhum documento é apagado.",
+    "reasonPh": "Motivo (obrigatório)",
+    "cancel": "Cancelar",
+    "confirm": "Fundir",
+    "merged": "{{merged}} fundido em {{keep}}.",
+    "remembered": "Marcado como não duplicado."
   }
 }
