@@ -214,7 +214,7 @@ export function MatchPanel({
   const nSugg = rows.filter((r) => r.section === "suggestion").length;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-3">
+    <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_300px] gap-3">
       <div className="border rounded-md bg-card min-w-0">
         <div className="p-2 border-b flex items-center gap-2">
           <Sparkles className="size-3.5 text-muted-foreground" />
@@ -356,7 +356,7 @@ function MatchRow({
           </span>
         </div>
         {r.confidence != null && (
-          <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+          <div className="text-[10px] text-muted-foreground flex flex-wrap items-center gap-1">
             <Badge variant="outline" className={`text-[10px] tabular-nums py-0 ${confCls}`}>{r.confidence}%</Badge>
             {reasonLine(r.reasons ?? [], t as never, fmt)}
           </div>
