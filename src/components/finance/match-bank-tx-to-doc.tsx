@@ -43,6 +43,8 @@ type Props = {
   tx: BankTxLite;
   onClose: () => void;
   onMatched?: () => void;
+  /** Preselect a document chosen in the reconciliation candidate pool. */
+  initialDocId?: string;
 };
 
 const fmtEUR = (n: number) =>
@@ -64,7 +66,7 @@ const fmtDate = (s: string | null | undefined) => {
   }).format(d);
 };
 
-export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
+export function MatchBankTxToDocDialog({ tx, onClose, onMatched, initialDocId }: Props) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
   const wantIssued = tx.amount > 0; // money in -> issued (client) invoices
@@ -88,7 +90,18 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
     },
   });
 
-  const [docId, setDocId] = useState<string>("");
+  // A preselected document may lie outside the 200 most recent ones.
+  const initialDocQ = useQuery({
+    queryKey: ["fin-doc-by-id", initialDocId],
+    enabled: !!initialDocId,
+    queryFn: async (): Promise<FinDoc | null> => {
+      const { data, error } = await supabase.from("financial_documents").select("*").eq("id", initialDocId!).maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as FinDoc | null;
+    },
+  });
+
+  const [docId, setDocId] = useState<string>(initialDocId ?? "");
   const [amount, setAmount] = useState<string>("");
 
   /**
@@ -108,7 +121,9 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
    * a card), then closest issue date to the bank movement's date.
    */
   const candidates = useMemo(() => {
-    const docs = docsQ.data ?? [];
+    const base = docsQ.data ?? [];
+    const extra = initialDocQ.data;
+    const docs = extra && !base.some((d) => d.id === extra.id) ? [extra, ...base] : base;
     const q = docSearch.trim().toLowerCase();
     const filtered = q
       ? docs.filter((d) =>
@@ -135,7 +150,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
       (a, b) =>
         Number(sameCard(b)) - Number(sameCard(a)) || distance(a) - distance(b),
     );
-  }, [docsQ.data, txCardLast4, docSearch, tx.transaction_date]);
+  }, [docsQ.data, initialDocQ.data, txCardLast4, docSearch, tx.transaction_date]);
 
   const selectedDoc = useMemo(
     () => candidates.find((d) => d.id === docId) ?? null,

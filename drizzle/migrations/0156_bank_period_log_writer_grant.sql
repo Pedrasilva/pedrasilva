@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.fin_period_log_write(uuid, text, text) TO authenticated;

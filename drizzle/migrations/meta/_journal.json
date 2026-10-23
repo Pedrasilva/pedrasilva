@@ -1079,6 +1079,27 @@
       "when": 1792753294639,
       "tag": "0153_bank_statement_registry",
       "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "7",
+      "when": 1792754599769,
+      "tag": "0154_bank_period_window",
+      "breakpoints": true
+    },
+    {
+      "idx": 155,
+      "version": "7",
+      "when": 1792754811560,
+      "tag": "0155_bank_period_log_writer",
+      "breakpoints": true
+    },
+    {
+      "idx": 156,
+      "version": "7",
+      "when": 1792754875137,
+      "tag": "0156_bank_period_log_writer_grant",
+      "breakpoints": true
     }
   ]
 }

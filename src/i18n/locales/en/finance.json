@@ -2496,5 +2496,58 @@
       "useStatementDates": "Use statement dates",
       "usingStatement": "Opening and closing balances below come from the statement."
     }
+  },
+  "periodWindow": {
+    "title": "Statement {{number}}",
+    "opening": "Statement opening balance",
+    "movements_one": "{{count}} imported movement",
+    "movements_other": "{{count}} imported movements",
+    "expectedClosing": "Expected closing (opening + movements)",
+    "statementClosing": "Statement closing balance",
+    "difference": "Difference",
+    "continuity": "Opening differs from the previous closing {{previous}} by {{diff}}.",
+    "progress": "Matched",
+    "progressValue": "{{matched}} of {{total}}",
+    "unmatchedAmount": "Unmatched amount",
+    "matchedDifference": "Difference using matched movements only",
+    "explanations": "Possible explanations",
+    "gap": "No movements imported from {{from}} to {{to}}",
+    "duplicate": "{{count}} identical movements on {{date}}: {{amount}} · {{description}}",
+    "outside": "Outside the period: {{date}} {{amount}} · {{description}}",
+    "noExplanation": "No obvious cause found; check for missing imports or wrong balances.",
+    "cardPayment": "Card payment",
+    "cardDue": "{{amount}} to be debited on {{date}}",
+    "cardNoDebit": "No matching debit found on the settling account.",
+    "reconciled": "reconciled",
+    "lock": "Mark reconciled and lock",
+    "lockHint": "All movements must be resolved and the difference with matched movements must be zero.",
+    "lockedBadge": "Reconciled · locked",
+    "locked": "Period reconciled and locked.",
+    "reopen": "Reopen",
+    "reopenTitle": "Reopen statement period",
+    "reasonPlaceholder": "Reason for reopening (required)",
+    "reopened": "Period reopened.",
+    "errors": {
+      "period_has_unmatched": "There are still unmatched movements.",
+      "period_difference_not_zero": "The difference with matched movements is not zero.",
+      "reason_required": "A reason is required.",
+      "forbidden": "Only administrators can do this.",
+      "period_locked": "This period is locked. Reopen it with a reason first."
+    }
+  },
+  "candidatePool": {
+    "title": "Candidates",
+    "search": "Search supplier, number or amount",
+    "empty": "No candidates found.",
+    "match": "Match",
+    "markTransfer": "Mark transfer",
+    "openEntrada": "Open in Entrada",
+    "kind": {
+      "purchase": "Purchase",
+      "sale": "Sale",
+      "entrada": "Entrada",
+      "reimbursement": "Reimbursement",
+      "transfer": "Transfer"
+    }
   }
 }
