@@ -36,6 +36,7 @@ import { CreateDocFromTxDialog } from "@/components/finance/create-doc-from-tx";
 import { StatementPeriodsPanel, PeriodStatusBadge } from "@/components/finance/statement-periods-panel";
 import { useStatementPeriods, useStatementPeriodStatus, type StatementPeriod } from "@/lib/finance/use-statement-periods";
 import { currentEntityId } from "@/lib/finance/current-entity";
+import { PeriodWindowCard, CandidatePool } from "@/components/finance/bank-period-window";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -572,6 +573,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
+  const [matchDocInitial, setMatchDocInitial] = useState<string | undefined>(undefined);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
   const [matchReimbTx, setMatchReimbTx] = useState<BankTx | null>(null);
 
@@ -805,6 +807,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   return (
     <div className="space-y-4">
       <InconsistencyWarningCard />
+      {selectedPeriodId && <PeriodWindowCard periodId={selectedPeriodId} />}
 
       <Card>
         <CardHeader className="pb-3">
@@ -994,7 +997,17 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     onDelete={isAdmin ? () => deleteTxs([selectedTx.id]) : undefined}
 
                   />
-                ) : (
+                ) : null}
+                {selectedTx && !(linksQ.data?.has(selectedTx.id)) && selectedTx.reconciled_at == null && (
+                  <CandidatePool
+                    txId={selectedTx.id}
+                    txAmount={Number(selectedTx.amount)}
+                    onMatchDoc={(docId) => { setMatchDocInitial(docId); setMatchDocTx(selectedTx); }}
+                    onMatchReimb={() => setMatchReimbTx(selectedTx)}
+                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                  />
+                )}
+                {!selectedTx && (
                   <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
                     {t("finance:bankRec.operator.selectTx")}
                   </div>
@@ -1017,8 +1030,9 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
         {matchDocTx && (
           <MatchBankTxToDocDialog
             tx={{ id: matchDocTx.id, transaction_date: matchDocTx.transaction_date, description: matchDocTx.description, amount: Number(matchDocTx.amount) }}
-            onClose={() => setMatchDocTx(null)}
-            onMatched={() => { txQ.refetch(); }}
+            initialDocId={matchDocInitial}
+            onClose={() => { setMatchDocTx(null); setMatchDocInitial(undefined); }}
+            onMatched={() => { txQ.refetch(); linksQ.refetch(); qc.invalidateQueries({ queryKey: ["finance", "period-window"] }); qc.invalidateQueries({ queryKey: ["finance", "reconcile-candidates"] }); }}
           />
         )}
         {createDocTx && (
