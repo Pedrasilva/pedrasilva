@@ -22,7 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PdfCanvasPreview } from "@/components/finance/pdf-preview";
 import { useAddFinDocPayment } from "@/lib/finance/use-documents";
 import {
-  confidenceTone, fetchSuggestions, fetchTxOpenBalance, learnFromMatch, reasonLine, suggestionsKey, type Suggestion,
+  confidenceTone, fetchSuggestions, fetchTxOpenBalance, learnFromMatch, reasonLine, refreshSuggestions, suggestionsKey, type Suggestion,
 } from "@/lib/finance/reconcile-suggestions";
 import { allocateSplit, dedupeSuggestions, type MatchOrigin } from "@/lib/finance/match-panel";
 
@@ -92,6 +92,12 @@ export function MatchPanel({
   useEffect(() => { setSearch(""); setDebounced(""); setChecked(new Set()); setFocus(0); setPreview(null); }, [tx.id]);
 
   const sQ = useQuery({ queryKey: suggestionsKey(tx.id), queryFn: () => fetchSuggestions(tx.id) });
+  // Stale-while-revalidate: the cached list shows instantly, a fresh ranking replaces it quietly.
+  useEffect(() => {
+    let off = false;
+    refreshSuggestions(tx.id).then((fresh) => { if (!off) qc.setQueryData(suggestionsKey(tx.id), fresh); }).catch(() => {});
+    return () => { off = true; };
+  }, [tx.id, qc]);
   const openQ = useQuery({ queryKey: ["finance", "reconcile-suggestions", "open", tx.id], queryFn: () => fetchTxOpenBalance(tx.id) });
   const cQ = useQuery({
     queryKey: ["finance", "reconcile-candidates", tx.id, debounced],
