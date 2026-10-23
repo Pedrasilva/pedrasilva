@@ -1740,6 +1740,7 @@
     }
   },
   "intakeInbox": {
+    "sort": {"label": "Sort", "doc_desc": "Document date (newest)", "doc_asc": "Document date (oldest)", "arrived_desc": "Arrival date (newest)", "arrived_asc": "Arrival date (oldest)", "name_asc": "Name / supplier A–Z", "name_desc": "Name / supplier Z–A", "amount_desc": "Amount (highest)", "amount_asc": "Amount (lowest)"},
     "title": "Finance inbox",
     "subtitle": "Every incoming document, sorted by type. Two AI models read each one; nothing is approved without you.",
     "tabs": {
