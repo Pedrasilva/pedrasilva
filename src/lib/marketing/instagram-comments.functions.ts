@@ -55,7 +55,7 @@ export const commentActorNames = createServerFn({ method: "POST" }).middleware([
     const emails = new Map<string, string>();
     await Promise.all(ids.map(async (id) => { const { data } = await supabaseAdmin.auth.admin.getUserById(id); if (data?.user?.email) emails.set(id, data.user.email.toLowerCase()); }));
     if (emails.size) {
-      const { data: cols } = await supabaseAdmin.from("collaborators").select("nome,email,foto_path").in("email", [...new Set(emails.values())]);
+      const { data: cols } = await supabaseAdmin.from("collaborators").select("nome,email,foto_path").not("email", "is", null);
       const byEmail = new Map((cols ?? []).map((c) => [String(c.email).toLowerCase(), c]));
       for (const [id, e] of emails) { const c = byEmail.get(e); out[id] = { name: c?.nome ?? null, fotoPath: c?.foto_path ?? null }; }
     }
