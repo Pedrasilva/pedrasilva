@@ -98,6 +98,6 @@ BEGIN
   UPDATE public.financial_document_review_queue SET status = 'removed' WHERE id = q4;
   IF EXISTS (SELECT 1 FROM public.bank_statement_periods WHERE source_queue_item_id = q4) THEN RAISE EXCEPTION 'FAIL draft kept after removal'; END IF;
 
-  RAISE NOTICE 'ALL STATEMENT DRAFT TESTS PASSED';
+  RAISE EXCEPTION 'ALL STATEMENT DRAFT TESTS PASSED (rolled back)';
 END $T$;
 ROLLBACK;
