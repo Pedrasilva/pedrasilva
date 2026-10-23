@@ -13,13 +13,15 @@ import { CheckCircle2, Loader2, Upload, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ingestFinancialDocument } from "@/lib/finance/doc-intake.functions";
-import { restoreDuplicate } from "@/lib/finance/intake-inbox.functions";
+import { restoreDuplicate, discardUploadedDuplicates } from "@/lib/finance/intake-inbox.functions";
 import {
   startUpload, useUploadJobs, dismissUploadJob, LARGE_UPLOAD_BYTES, type UploadJob,
 } from "@/lib/finance/intake-upload-store";
 
 const BUCKET = "financial-documents";
 export const OPEN_INTAKE_ITEM_EVENT = "finance:intake-open-item";
+
+type PendingDup = { queueItemId: string; exact: boolean; text: string; matchQueueId?: string; matchDocumentId?: string };
 
 const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`;
 
@@ -29,8 +31,31 @@ export function IntakeUploadButton() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const fileRef = useRef<HTMLInputElement>(null);
+  const jobsAll = useUploadJobs();
+  const jobsRef = useRef(jobsAll);
+  jobsRef.current = jobsAll;
   const ingest = useServerFn(ingestFinancialDocument);
   const restoreDup = useServerFn(restoreDuplicate);
+  const discardDups = useServerFn(discardUploadedDuplicates);
+  const [dups, setDups] = useState<PendingDup[]>([]);
+  const [busyDup, setBusyDup] = useState(false);
+
+  async function discard(ids: string[]) {
+    setBusyDup(true);
+    try {
+      const r = await discardDups({ data: { ids } });
+      setDups((d) => d.filter((x) => !ids.includes(x.queueItemId)));
+      for (const j of jobsRef.current) if (j.result?.queueItemId && ids.includes(j.result.queueItemId)) dismissUploadJob(j.id);
+      toast.success(t("finance:intakeInbox.dup.discarded", { count: r.discarded }));
+      qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally { setBusyDup(false); }
+  }
+  async function keep(d: PendingDup) {
+    setDups((x) => x.filter((y) => y.queueItemId !== d.queueItemId));
+    if (d.exact) { await restoreDup({ data: { id: d.queueItemId } }); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); }
+  }
 
   /** Opens a queue item or document inside the app — never a full page reload. */
   function openTarget(queueItemId?: string, documentId?: string) {
@@ -48,21 +73,19 @@ export function IntakeUploadButton() {
       return;
     }
     const res = job.result;
-    toast.success(t("finance:intakeUpload.doneToast", { file: job.fileName }), {
-      action: res?.queueItemId ? { label: t("finance:intakeUpload.open"), onClick: () => openTarget(res.queueItemId) } : undefined,
-    });
     const dup = res ? (res.duplicate ?? res.possibleDuplicates?.[0]) : undefined;
     if (dup && res?.queueItemId) {
       const qid = res.queueItemId;
-      toast.warning(
-        t("finance:intakeInbox.dup.uploadWarn", { file: job.fileName, label: dup.label, date: dup.registeredAt ? new Date(dup.registeredAt).toLocaleDateString(i18n.language) : "—" }),
-        {
-          duration: 15000,
-          action: { label: t("finance:intakeInbox.dup.open"), onClick: () => openTarget(dup.queueItemId ?? qid, dup.documentId) },
-          ...(res.duplicate ? { cancel: { label: t("finance:intakeInbox.dup.keepAnyway"), onClick: () => { void restoreDup({ data: { id: qid } }).then(() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })); } } } : {}),
-        },
-      );
+      setDups((d) => [...d.filter((x) => x.queueItemId !== qid), {
+        queueItemId: qid, exact: !!res.duplicate,
+        text: t("finance:intakeInbox.dup.uploadWarn", { file: job.fileName, label: dup.label, date: dup.registeredAt ? new Date(dup.registeredAt).toLocaleDateString(i18n.language) : "—" }),
+        matchQueueId: dup.queueItemId, matchDocumentId: dup.documentId,
+      }]);
+      return;
     }
+    toast.success(t("finance:intakeUpload.doneToast", { file: job.fileName }), {
+      action: res?.queueItemId ? { label: t("finance:intakeUpload.open"), onClick: () => openTarget(res.queueItemId) } : undefined,
+    });
   }
 
   function handleUpload(files: FileList | null) {
@@ -86,6 +109,24 @@ export function IntakeUploadButton() {
         {t("finance:reviewQueue.upload")}
       </Button>
       <UploadProgressPanel onOpen={(id) => openTarget(id)} />
+      {dups.length > 0 && (
+        <div className="fixed bottom-4 left-4 z-50 w-96 max-w-[calc(100vw-2rem)] rounded-lg border bg-popover text-popover-foreground shadow-lg p-3 space-y-2" role="alertdialog" aria-label={t("finance:intakeInbox.dup.pendingTitle") as string}>
+          <div className="text-xs font-medium">{t("finance:intakeInbox.dup.pendingTitle")}</div>
+          {dups.map((d) => (
+            <div key={d.queueItemId} className="space-y-1 border-t pt-2 first:border-t-0 first:pt-0">
+              <div className="text-xs">{d.text}</div>
+              <div className="flex flex-wrap gap-1.5">
+                <Button size="sm" className="h-7" autoFocus disabled={busyDup} onClick={() => void discard([d.queueItemId])}>{t("finance:intakeInbox.dup.discard")}</Button>
+                <Button size="sm" variant="outline" className="h-7" disabled={busyDup} onClick={() => void keep(d)}>{t("finance:intakeInbox.dup.keepAnyway")}</Button>
+                <Button size="sm" variant="ghost" className="h-7" onClick={() => openTarget(d.matchQueueId ?? d.queueItemId, d.matchDocumentId)}>{t("finance:intakeInbox.dup.open")}</Button>
+              </div>
+            </div>
+          ))}
+          {dups.length > 1 && (
+            <Button size="sm" className="w-full h-7" disabled={busyDup} onClick={() => void discard(dups.map((d) => d.queueItemId))}>{t("finance:intakeInbox.dup.discardAll")}</Button>
+          )}
+        </div>
+      )}
     </>
   );
 }
