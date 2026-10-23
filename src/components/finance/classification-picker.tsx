@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { ClassificationBrowser } from "./classification-browser";
+import { learnedClassificationIds, type LearnedRule } from "@/lib/finance/classification-rank";
 
 export type ClassificationOption = {
   id: string;
@@ -55,6 +56,8 @@ interface Props {
   className?: string;
   /** Optional suggestion IDs (e.g. derived from selected supplier). Shown above Recent. */
   suggestedIds?: string[];
+  /** Movement description / supplier text: categories from learned bank rules that match it rank first. */
+  matchText?: string | null;
 }
 
 const RECENT_KEY = "lovable.finance.recentClassifications";
@@ -116,7 +119,8 @@ export function ClassificationPicker({
   allowClear = false,
   placeholder,
   className,
-  suggestedIds,
+  suggestedIds: suggestedIdsProp,
+  matchText,
 }: Props) {
   const { t } = useTranslation("finance");
   const [open, setOpen] = useState(false);
@@ -142,6 +146,23 @@ export function ClassificationPicker({
       return data ?? [];
     },
   });
+  const rulesQ = useQuery({
+    queryKey: ["classification-picker-rules"],
+    enabled: !!matchText,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_classification_rules")
+        .select("match_type, pattern, case_sensitive, classification_id, priority, active")
+        .eq("active", true);
+      if (error) throw error;
+      return (data ?? []) as LearnedRule[];
+    },
+  });
+  const suggestedIds = useMemo(() => {
+    const learned = learnedClassificationIds(matchText, rulesQ.data ?? []);
+    return [...new Set([...(suggestedIdsProp ?? []), ...learned])];
+  }, [suggestedIdsProp, matchText, rulesQ.data]);
   const meta = useMemo(() => new Map((metaQ.data ?? []).map((m) => [m.id, m])), [metaQ.data]);
   const groupLabel = (c: ClassificationOption) => {
     const m = meta.get(c.id);
@@ -203,7 +224,8 @@ export function ClassificationPicker({
       }
     }
     return out;
-  }, [isSearching, suggestedIds, byId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSearching, suggestedIds, byId, options]);
 
   const recentItems = useMemo(() => {
     if (isSearching) return [];
@@ -360,7 +382,14 @@ export function ClassificationPicker({
           {t(`policies.${policyOf(selected.id)}`)} — {t(`policies.${policyOf(selected.id)}Hint`)}
         </p>
       )}
-      <ClassificationBrowser open={browserOpen} onOpenChange={setBrowserOpen} />
+      <ClassificationBrowser
+        open={browserOpen}
+        onOpenChange={setBrowserOpen}
+        onSelect={handleSelect}
+        selectedId={value ?? null}
+        selectableIds={options.map((o) => o.id)}
+        suggestedIds={suggestedIds}
+      />
     </>
   );
 }

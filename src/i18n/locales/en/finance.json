@@ -12,12 +12,14 @@
   "classificationBrowser": {
     "title": "Classification browser",
     "subtitle": "Read-only reference for all financial categories.",
-    "searchPlaceholder": "Search by code or name…",
+    "searchPlaceholder": "Search by code, name or Portuguese name…",
     "code": "Code",
     "name": "Name",
     "spendingPolicy": "Policy",
     "loading": "Loading…",
-    "empty": "No matching category."
+    "empty": "No matching category.",
+    "pickTitle": "Choose a category",
+    "pickSubtitle": "Click a row or press Enter to choose. Suggested categories come from this supplier and learned rules."
   },
   "financialClassifications": {
     "tab": "Financial fields",
