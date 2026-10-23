@@ -2766,5 +2766,32 @@
   "driveFetch": {
     "label": "Fetch now from Drive",
     "done": "Drive: {{queued}} new in Entrada, {{failed}} to Failed."
+  },
+  "statementDrafts": {
+    "draftBadge": "Pending confirmation",
+    "bankNumber": "Bank no. {{number}}",
+    "title_one": "{{count}} statement pending confirmation",
+    "title_other": "{{count}} statements pending confirmation",
+    "selectGreen": "Select all that pass ({{count}})",
+    "confirmSelected": "Confirm selected ({{count}})",
+    "confirmed_one": "{{count}} statement confirmed",
+    "confirmed_other": "{{count}} statements confirmed",
+    "col": {
+      "account": "Account",
+      "id": "Statement ID",
+      "period": "Period",
+      "opening": "Opening",
+      "closing": "Closing",
+      "ai": "AI readings",
+      "continuity": "Continuity"
+    },
+    "aiAgree": "Both agree",
+    "aiDiffer": "Readings differ",
+    "copyDiffers": "Another copy differs",
+    "firstPeriod": "First period",
+    "continuityOk": "Matches previous closing",
+    "continuityBreak": "Previous closing {{previous}} (difference {{difference}})",
+    "review": "Review",
+    "confirmOne": "Confirm"
   }
 }

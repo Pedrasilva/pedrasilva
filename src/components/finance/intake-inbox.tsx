@@ -48,6 +48,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { RemoveButton, RemovedPanel } from "@/components/finance/intake-removal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { RecebimentosPanel } from "@/components/finance/recebimentos-panel";
+import { PendingStatementsTable, PENDING_STATEMENTS_KEY } from "@/components/finance/pending-statements-table";
 
 const TABS = ["triage", "purchases", "payments", "bank", "issued", "other", "ignored", "duplicates", "removed"] as const;
 const MAIN_TABS = ["triage", "purchases", "payments", "bank", "issued", "other"] as const;
@@ -317,6 +318,7 @@ export function IntakeInbox() {
           ))}
         </div>
       )}
+      {tab === "bank" && <PendingStatementsTable onOpenItem={openItem} />}
       {tab === "instructions" ? <IntakeInstructionsPanel highlightId={ruleId} /> : tab === "rules" ? <SenderRulesPanel /> : tab === "payments" && paySub === "incoming" ? <RecebimentosPanel /> : (
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
@@ -761,6 +763,7 @@ function BankPanel({ row }: { row: InboxRow }) {
       else toast.warning(t("finance:intakeInbox.bank.filedNoDrive", { error: res.driveError ?? "" }));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
       qc.invalidateQueries({ queryKey: REGISTRY_KEY });
+      qc.invalidateQueries({ queryKey: PENDING_STATEMENTS_KEY });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });

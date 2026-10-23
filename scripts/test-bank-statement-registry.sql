@@ -55,7 +55,7 @@ BEGIN
   -- Confirm → period from corrected values, linked to the document.
   p1 := public.fin_bank_statement_sync_period(q1);
   SELECT * INTO v FROM public.bank_statement_periods WHERE id = p1;
-  IF v.closing_balance <> 750.50 OR v.opening_balance <> 1000 OR v.source_queue_item_id <> q1 OR v.statement_number <> '010/2026'
+  IF v.closing_balance <> 750.50 OR v.opening_balance <> 1000 OR v.source_queue_item_id <> q1 OR v.bank_statement_number <> '010/2026' OR v.status <> 'confirmed'
     THEN RAISE EXCEPTION 'FAIL period values %', v; END IF;
   -- Hub check (existing status function counts reconciled only) still works on this period.
   PERFORM 1 FROM public.bank_statement_period_status(acc_psa) WHERE period_id = p1;
@@ -136,7 +136,7 @@ BEGIN
   VALUES (pr, 'test-reg/pr-card.pdf', 'bank', 'pending_review', 'bank_statement',
     'card_statement', acc_cc, card, '2026-09-21', '2026-10-20', 0, -45.10, 45.10) RETURNING id INTO qc;
   PERFORM public.fin_bank_statement_sync_period(qc);
-  IF (SELECT statement_number FROM public.bank_statement_periods WHERE source_queue_item_id = qc) <> '2026-10'
+  IF (SELECT statement_number FROM public.bank_statement_periods WHERE source_queue_item_id = qc) NOT LIKE '%10/2026'
     THEN RAISE EXCEPTION 'FAIL missing number fallback'; END IF;
 
   -- PSA cannot see Pedra Rioja's statement once switched back.
@@ -158,7 +158,7 @@ BEGIN
   EXCEPTION WHEN invalid_parameter_value THEN ok := true; END;
   IF NOT ok THEN RAISE EXCEPTION 'FAIL non-editable field accepted'; END IF;
 
-  RAISE NOTICE 'ALL BANK REGISTRY TESTS PASSED';
+  RAISE EXCEPTION 'ALL BANK REGISTRY TESTS PASSED (rolled back)';
 END
 $T$;
 

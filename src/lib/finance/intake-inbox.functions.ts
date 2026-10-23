@@ -135,6 +135,39 @@ export const fileBankDocument = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
+    return fileBankItem(supabase, userId, data);
+  });
+
+/** Bulk confirmation of pending statements (Entrada > Banco): each one is filed exactly as above. */
+export const confirmStatements = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(100) }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertFinanceAccess(supabase, userId);
+    const results: Array<{ id: string; ok: boolean; error?: string; driveCopied?: boolean }> = [];
+    for (const id of data.ids) {
+      try {
+        const { data: q, error } = await supabase
+          .from("financial_document_review_queue")
+          .select("matched_bank_account_id, extracted_period_end, bank_doc_kind")
+          .eq("id", id).single();
+        if (error) throw new Error(error.message);
+        if (q.bank_doc_kind !== "account_statement" && q.bank_doc_kind !== "card_statement") throw new Error("not_statement");
+        if (!q.matched_bank_account_id || !q.extracted_period_end) throw new Error("statement_incomplete");
+        const r = await fileBankItem(supabase, userId, {
+          id, bankAccountId: q.matched_bank_account_id, period: String(q.extracted_period_end).slice(0, 7),
+        });
+        results.push({ id, ok: true, driveCopied: r.driveCopied });
+      } catch (e) {
+        results.push({ id, ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    return { results };
+  });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fileBankItem(supabase: any, userId: string, data: { id: string; bankAccountId: string; period: string }) {
     const row = await loadPending(supabase, data.id);
     if (row.intake_route !== "bank") throw new Error("Not a bank document");
     const { data: acct, error: aErr } = await supabase
@@ -175,7 +208,7 @@ export const fileBankDocument = createServerFn({ method: "POST" })
     const { copyQueueItemToDrive } = await import("@/lib/finance/bank-drive-filing.server");
     const r = await copyQueueItemToDrive(data.id);
     return { ok: true, driveCopied: r.ok, driveError: r.ok ? null : r.error ?? null };
-  });
+  }
 
 /** Retry only the Drive copy of an already filed bank document. */
 export const retryBankDriveCopy = createServerFn({ method: "POST" })

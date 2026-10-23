@@ -201,3 +201,60 @@ export function changedFields(
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// Draft statement periods (bulk confirmation in Entrada > Banco)
+// ---------------------------------------------------------------------------
+
+/** Hub statement ID: account/card code + MM/YYYY of the period end (+ -n when several in a month). */
+export function statementPeriodCode(base: string, periodEnd: string, suffix?: number | null): string {
+  const [y, m] = periodEnd.split("-");
+  return `${base}${m}/${y}${suffix ? `-${suffix}` : ""}`;
+}
+
+export type AiReadings = {
+  opening?: { claude?: number | null; gemini?: number | null; differ?: boolean };
+  closing?: { claude?: number | null; gemini?: number | null; differ?: boolean };
+} | null;
+
+export type PeriodLite = {
+  id: string;
+  bank_account_id: string;
+  payment_card_id: string | null;
+  statement_number: string;
+  period_start_date: string;
+  period_end_date: string;
+  opening_balance: number;
+  closing_balance: number;
+  status: "draft" | "confirmed";
+  balance_disagreement: boolean;
+  ai_readings: AiReadings;
+  attached_documents: Record<string, { differences?: string[] }> | null;
+};
+
+export type DraftCheck = {
+  aiAgree: boolean;
+  /** null = no earlier period to compare with. */
+  continuity: { ok: boolean; previousClosing: number; difference: number } | null;
+  attachedDifferences: boolean;
+  /** Green: AI agree, continuity holds (or first period), no attached differences. */
+  passes: boolean;
+};
+
+/** Checks for a pending period against the previous period of the same account/card. */
+export function draftCheck(p: PeriodLite, all: PeriodLite[]): DraftCheck {
+  const prev = all
+    .filter((o) => o.id !== p.id && o.bank_account_id === p.bank_account_id
+      && (o.payment_card_id ?? null) === (p.payment_card_id ?? null)
+      && o.period_end_date < p.period_start_date)
+    .sort((a, b) => b.period_end_date.localeCompare(a.period_end_date))[0];
+  const continuity = prev
+    ? (() => {
+        const d = r2(Number(p.opening_balance) - Number(prev.closing_balance));
+        return { ok: Math.abs(d) <= BALANCE_TOLERANCE, previousClosing: Number(prev.closing_balance), difference: d };
+      })()
+    : null;
+  const attachedDifferences = Object.values(p.attached_documents ?? {}).some((a) => (a.differences ?? []).length > 0);
+  const aiAgree = !p.balance_disagreement;
+  return { aiAgree, continuity, attachedDifferences, passes: aiAgree && (continuity?.ok ?? true) && !attachedDifferences };
+}

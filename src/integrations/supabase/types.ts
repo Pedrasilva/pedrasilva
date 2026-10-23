@@ -86,6 +86,7 @@ export type Database = {
           opening_balance: number | null
           opening_balance_date: string | null
           settles_from_account_id: string | null
+          statement_code: string | null
           updated_at: string
         }
         Insert: {
@@ -105,6 +106,7 @@ export type Database = {
           opening_balance?: number | null
           opening_balance_date?: string | null
           settles_from_account_id?: string | null
+          statement_code?: string | null
           updated_at?: string
         }
         Update: {
@@ -124,6 +126,7 @@ export type Database = {
           opening_balance?: number | null
           opening_balance_date?: string | null
           settles_from_account_id?: string | null
+          statement_code?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -406,8 +409,14 @@ export type Database = {
       }
       bank_statement_periods: {
         Row: {
+          ai_readings: Json | null
+          attached_documents: Json
+          balance_disagreement: boolean
           bank_account_id: string
+          bank_statement_number: string | null
           closing_balance: number
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
           created_by: string | null
           entity_id: string
@@ -421,11 +430,18 @@ export type Database = {
           period_start_date: string
           source_queue_item_id: string | null
           statement_number: string
+          status: string
           updated_at: string
         }
         Insert: {
+          ai_readings?: Json | null
+          attached_documents?: Json
+          balance_disagreement?: boolean
           bank_account_id: string
+          bank_statement_number?: string | null
           closing_balance?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           created_by?: string | null
           entity_id: string
@@ -439,11 +455,18 @@ export type Database = {
           period_start_date: string
           source_queue_item_id?: string | null
           statement_number: string
+          status?: string
           updated_at?: string
         }
         Update: {
+          ai_readings?: Json | null
+          attached_documents?: Json
+          balance_disagreement?: boolean
           bank_account_id?: string
+          bank_statement_number?: string | null
           closing_balance?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           created_by?: string | null
           entity_id?: string
@@ -457,6 +480,7 @@ export type Database = {
           period_start_date?: string
           source_queue_item_id?: string | null
           statement_number?: string
+          status?: string
           updated_at?: string
         }
         Relationships: [
@@ -16671,6 +16695,23 @@ export type Database = {
           _policy: Database["public"]["Enums"]["financial_spending_policy"]
         }
         Returns: undefined
+      }
+      fin_statement_base_code: {
+        Args: { _account_id: string; _card_id: string }
+        Returns: string
+      }
+      fin_statement_draft_upsert: {
+        Args: { _id: string; _strict?: boolean }
+        Returns: string
+      }
+      fin_statement_period_code: {
+        Args: {
+          _account_id: string
+          _card_id: string
+          _end: string
+          _self: string
+        }
+        Returns: string
       }
       fin_storage_visible: { Args: { _name: string }; Returns: boolean }
       fin_supplier_duplicate_candidates: {

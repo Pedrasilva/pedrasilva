@@ -225,6 +225,14 @@ export function StatementPeriodsPanel({
                     >
                       <TableCell className="font-medium text-sm">
                         {p.statement_number}
+                        {p.status === "draft" && (
+                          <Badge variant="outline" className={`ml-1.5 text-[10px] ${p.balance_disagreement ? "border-destructive text-destructive" : ""}`}>
+                            {t("finance:statementDrafts.draftBadge")}
+                          </Badge>
+                        )}
+                        {p.bank_statement_number && (
+                          <div className="text-[10px] text-muted-foreground">{t("finance:statementDrafts.bankNumber", { number: p.bank_statement_number })}</div>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground tabular-nums">
                         {p.period_start_date} → {p.period_end_date}
