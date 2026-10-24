@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { supabase } from "@/integrations/supabase/client";
 import { metaConnectionCheck } from "@/lib/marketing/meta-connection-check.functions";
-import { permissionChecks } from "@/lib/marketing/meta-connection";
+import { formatMetaError, permissionChecks } from "@/lib/marketing/meta-connection";
 
 export const Route = createFileRoute("/_app/marketing/settings")({
   component: MarketingSettingsPage,
@@ -84,7 +84,11 @@ function MarketingSettingsPage() {
             {(settings?.granted_permissions ?? []).filter((s) => !permissionChecks([]).some((p) => p.permission === s)).map((scope) => <div key={scope} className="break-all font-mono text-xs text-success">{scope}</div>)}
           </div>
         </>}
-        {(errorCode ?? settings?.last_error_code) && <p role="alert" className="text-sm text-destructive">{t(`meta.errors.${errorCode ?? settings?.last_error_code}`)}</p>}
+        {(errorCode ?? settings?.last_error_code) && <div role="alert" className="space-y-1 text-sm text-destructive">
+          <p>{t(`meta.errors.${errorCode ?? settings?.last_error_code}`)}</p>
+          {formatMetaError(settings) && <p className="break-words font-mono text-xs">{t("meta.providerError", { detail: formatMetaError(settings), interpolation: { escapeValue: false } })}</p>}
+          {settings?.meta_error_fbtrace_id && <p className="break-all text-xs text-muted-foreground">{settings.meta_error_call} · fbtrace_id {settings.meta_error_fbtrace_id}</p>}
+        </div>}
       </Card>}
   </div>;
 }

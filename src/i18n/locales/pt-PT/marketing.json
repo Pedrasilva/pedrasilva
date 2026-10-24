@@ -17,7 +17,6 @@
     "missing": "Em falta",
     "permissionOptional": "Permissão opcional",
     "providerError": "Meta: {{detail}}",
-    "providerNetwork": "erro de rede — não foi possível contactar a Meta",
     "noAccess": "Não tem acesso às definições de Marketing.",
     "errors": {
       "identityFailed": "A Meta não conseguiu verificar o utilizador de sistema. Verifique o token e os ativos atribuídos.",

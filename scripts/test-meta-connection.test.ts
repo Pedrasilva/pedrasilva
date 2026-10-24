@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { checkMetaConnection } from "../src/lib/marketing/meta-connection-check.server";
-import { metaAdminAllowed, permissionChecks } from "../src/lib/marketing/meta-connection";
+import { formatMetaError, metaAdminAllowed, permissionChecks } from "../src/lib/marketing/meta-connection";
 
 const grants = ["instagram_basic", "instagram_content_publish", "instagram_manage_comments", "instagram_manage_insights", "pages_show_list", "pages_read_engagement", "business_management"];
 function mocked(debug: unknown, pages: unknown = [{ id: "100", name: "Pedra Silva Arquitectos", instagram_business_account: { id: "200", username: "pedrasilva_arquitectos" } }]): typeof fetch {
@@ -65,5 +65,33 @@ describe("Meta connection rules", () => {
     const result = await checkMetaConnection("test-only", request);
     expect(result.last_error_code).toBe("identityFailed");
     expect(JSON.stringify(result)).not.toContain("test-only");
+  });
+});
+describe("Meta failure reasons", () => {
+  it("keeps Meta's code, subcode, type, message and fbtrace_id without the token", async () => {
+    const err = { error: { message: "Error validating access token: Session has been invalidated because the user changed their password. test-only", type: "OAuthException", code: 190, error_subcode: 460, fbtrace_id: "AbC123" } };
+    const request = (async () => Response.json([
+      { code: 400, body: JSON.stringify(err) }, { code: 400, body: JSON.stringify(err) }, { code: 400, body: JSON.stringify(err) },
+    ])) as typeof fetch;
+    const result = await checkMetaConnection("test-only", request);
+    expect(result.last_error_code).toBe("identityFailed");
+    expect(result.meta_error_call).toBe("me");
+    expect(result.meta_error_code).toBe(190);
+    expect(result.meta_error_subcode).toBe(460);
+    expect(result.meta_error_type).toBe("OAuthException");
+    expect(result.meta_error_fbtrace_id).toBe("AbC123");
+    expect(formatMetaError(result)).toMatch(/^\(#190\/460\) Error validating access token/);
+    expect(JSON.stringify(result)).not.toContain("test-only");
+  });
+  it("reports a top-level HTTP failure with Meta's reason", async () => {
+    const request = (async () => Response.json({ error: { message: "Invalid OAuth access token.", code: 190, type: "OAuthException", fbtrace_id: "X1" } }, { status: 400 })) as typeof fetch;
+    const result = await checkMetaConnection("test-only", request);
+    expect(result.meta_error_call).toBe("batch");
+    expect(formatMetaError(result)).toBe("(#190) Invalid OAuth access token.");
+  });
+  it("leaves the reason empty when the connection works", async () => {
+    const result = await checkMetaConnection("test-only", mocked({ is_valid: true, scopes: grants, expires_at: 0 }));
+    expect(result.meta_error_code).toBeNull();
+    expect(formatMetaError(result)).toBeNull();
   });
 });
