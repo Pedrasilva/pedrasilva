@@ -285,7 +285,7 @@ function CalendarPage() {
             </div>
           )}
           <div className="grid gap-3 lg:grid-cols-[16rem_1fr]">
-            <Card className="space-y-2 p-3">
+            <Card className="min-w-0 space-y-2 overflow-x-auto p-3">
               <h2 className="text-sm font-semibold">{t("calendar.approvedList")}</h2>
               <p className="text-xs text-muted-foreground">{canCurate ? t("calendar.dragHint") : t("calendar.readOnly")}</p>
               {isLoading ? <p className="text-xs">{t("common:loading")}</p> : unplaced.length === 0
