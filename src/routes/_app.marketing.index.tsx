@@ -12,7 +12,7 @@ import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
 import { generateCaptureThumbnails } from "@/lib/marketing/captures.functions";
-import { signPaths } from "@/lib/marketing/draft-images";
+import { PREVIEW_VERSION, signPaths } from "@/lib/marketing/draft-images";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,18 +180,18 @@ function useCaptures() {
 function useCardThumbs(assets: Asset[]) {
   const key = assets.map((a) => `${a.id}:${a.thumb_path ?? ""}`);
   return useQuery({
-    queryKey: ["marketing-card-thumbs", key],
+    queryKey: ["marketing-card-thumbs", PREVIEW_VERSION, key],
     enabled: assets.length > 0,
     staleTime: 50 * 60_000,
     queryFn: async () => {
       const withThumb = assets.filter((a) => a.thumb_path);
       const without = assets.filter((a) => !a.thumb_path);
       const [stored, fallback] = await Promise.all([
-        signPaths(supabase, withThumb.map((a) => ({ path: a.thumb_path! })), 3600),
+        signPaths(supabase, withThumb.flatMap((a) => a.thumb_path ? [{ path: a.thumb_path }] : []), 3600),
         signPaths(supabase, without.map((a) => ({ path: a.storage_path })), 3600, 600),
       ]);
       const map: Record<string, string> = {};
-      for (const a of withThumb) { const u = stored.get(a.thumb_path!); if (u) map[a.id] = u; }
+      for (const a of withThumb) { if (a.thumb_path) { const u = stored.get(a.thumb_path); if (u) map[a.id] = u; } }
       for (const a of without) { const u = fallback.get(a.storage_path); if (u) map[a.id] = u; }
       return map;
     },
@@ -341,7 +341,7 @@ function MarketingInboxPage() {
                       alt=""
                       width={600}
                       height={338}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover object-center"
                       loading="lazy"
                       decoding="async"
                       onError={() => {

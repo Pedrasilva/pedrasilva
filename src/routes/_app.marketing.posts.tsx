@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
-import { PREVIEW, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
+import { PREVIEW, PREVIEW_VERSION, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
@@ -414,7 +414,7 @@ function PostPlannerPage() {
 /** ~400px WebP previews for list cards (videos stay original); URLs are reused for most of their hour. */
 function useSigned(items: { path: string; video: boolean }[]) {
   return useQuery({
-    queryKey: ["marketing-post-urls", items.map((i) => i.path)],
+    queryKey: ["marketing-post-urls", PREVIEW_VERSION, items.map((i) => i.path)],
     enabled: items.length > 0,
     staleTime: 30 * 60 * 1000,
     queryFn: async () => Object.fromEntries(await signPaths(supabase, items, 3600, PREVIEW.tile)) as Record<string, string>,
@@ -451,7 +451,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
               {urls[a.storage_path]
                 ? (a.mime_type.startsWith("video/")
                   ? <video src={urls[a.storage_path]} controls preload="metadata" className="h-48 rounded" />
-                  : <img src={urls[a.storage_path]} alt={a.file_name} loading="lazy" decoding="async" className={cn("rounded bg-muted object-cover", first.format === "story" ? "h-64 w-36" : "h-48 w-48")} />)
+                  : <img src={urls[a.storage_path]} alt={a.file_name} loading="lazy" decoding="async" className={cn("rounded bg-muted object-cover object-center", first.format === "story" ? "h-64 w-36" : "h-48 w-48")} />)
                 : <div className={cn("animate-pulse rounded bg-muted", first.format === "story" ? "h-64 w-36" : "h-48 w-48")} />}
               {(assets.length > 1 || textFrame) && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1 + (textFrame ? 1 : 0)}</span>}
             </div>
