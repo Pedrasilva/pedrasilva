@@ -7,6 +7,7 @@ export const generatePostSuggestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
+      language: z.enum(["project", "en", "pt-PT", "bilingual"]).default("project"),
       brief: z.string().max(4000).optional().nullable(),
       periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       periodEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -26,6 +27,7 @@ export const generatePostSuggestions = createServerFn({ method: "POST" })
     // Insert as the user (RLS applies); requested_by defaults to auth.uid().
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: req, error: insErr } = await (context.supabase as any).from("marketing_post_requests").insert({
+      language_override: data.language,
       brief: data.brief?.trim() || null,
       period_start: data.periodStart,
       period_end: data.periodEnd,

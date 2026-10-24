@@ -1,3 +1,5 @@
+import { POST_LANGUAGES, languageChip, type PostLanguage, type RunLanguage } from "@/lib/marketing/post-language";
+import { translatePost } from "@/lib/marketing/translate-post.functions";
 import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
 import { getStoryRenderContext } from "@/lib/marketing/story-render.functions";
 import type { StoryManifest } from "@/lib/marketing/story-render";
@@ -66,7 +68,7 @@ const BUCKET = "marketing-assets";
 const STATUSES = ["suggested", "pending_approval", "approved", "scheduled", "publishing", "rejected", "published", "failed"] as const;
 type Platform = "instagram" | "linkedin";
 type Draft = {
-  id: string; request_id: string; idea_id: string; platform: Platform; capture_ids: string[]; asset_ids: string[];
+  post_language: PostLanguage; id: string; request_id: string; idea_id: string; platform: Platform; capture_ids: string[]; asset_ids: string[];
   project_id: string | null; pillar: string | null; persona: string | null; ai_copy: string; ai_hashtags: string[];
   final_copy: string | null; final_hashtags: string[] | null; rationale: string;
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
@@ -193,6 +195,7 @@ function PostPlannerPage() {
   const [end, setEnd] = useState(defEnd);
   const [count, setCount] = useState(5);
   const [storyCount, setStoryCount] = useState(0);
+  const [runLanguage, setRunLanguage] = useState<RunLanguage>("project");
   const [focusProfile, setFocusProfile] = useState("none");
   const { data: focusOptions = [] } = useQuery({
     queryKey: ["marketing-focus-profiles"],
@@ -235,7 +238,7 @@ function PostPlannerPage() {
     setBusy(true);
     setTimeout(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] }), 1500);
     try {
-      const r = await generate({ data: { brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count, storyCount, focusProfileId: focusProfile === "none" ? null : focusProfile } });
+      const r = await generate({ data: { language: runLanguage, brief: brief || null, periodStart: start, periodEnd: end, ideaCount: count, storyCount, focusProfileId: focusProfile === "none" ? null : focusProfile } });
       if (r.ok) toast.success(`${t("posts.generated", { count: r.ideas })}${"stories" in r && r.stories ? ` · ${t("posts.storiesGenerated", { count: r.stories })}` : ""}`);
       else toast.error(r.error);
     } catch (e) {
@@ -298,6 +301,8 @@ function PostPlannerPage() {
             <Label>{t("posts.brief")}</Label>
             <Textarea rows={4} value={brief} maxLength={4000} onChange={(e) => setBrief(e.target.value)} placeholder={t("posts.briefHint")}
               className="field-sizing-content min-h-24" />
+            <Label className="mt-2 block">{t("common:language")}</Label>
+            <Select value={runLanguage} onValueChange={x => setRunLanguage(x as RunLanguage)}><SelectTrigger aria-label={t("common:language")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="project">{t("postLanguage.perProject")}</SelectItem>{POST_LANGUAGES.map(l => <SelectItem key={l} value={l}>{t(`postLanguage.options.${l}`)}</SelectItem>)}</SelectContent></Select>
             <Label className="mt-2 block">{t("posts.focusProject")}</Label>
             <Select value={focusProfile} onValueChange={setFocusProfile}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
@@ -502,6 +507,9 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const isStory = draft.format === "story";
   const savedFrames = draft.final_story_frames ?? draft.ai_story_frames ?? [];
   const [frames, setFrames] = useState<StoryFrame[]>(savedFrames);
+  const translateFn = useServerFn(translatePost);
+  const [language, setLanguage] = useState<PostLanguage>(draft.post_language ?? "en");
+  const [translating, setTranslating] = useState(false);
   const [plainCopy, setCopy] = useState(draft.final_copy ?? draft.ai_copy);
   const copy = isStory ? renderFrames(frames) : plainCopy;
   const setFrame = (i: number, f: Partial<StoryFrame>) => setFrames((fr) => fr.map((x, j) => (j === i ? { ...x, ...f } : x)));
@@ -538,9 +546,9 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     finally { setSaving(false); }
   };
   const framePatch = isStory ? { final_story_frames: frames } : {};
-  const changedFromSaved = (isStory ? JSON.stringify(frames) !== JSON.stringify(savedFrames) : copy !== (draft.final_copy ?? draft.ai_copy)) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
+  const changedFromSaved = language !== draft.post_language || (isStory ? JSON.stringify(frames) !== JSON.stringify(savedFrames) : copy !== (draft.final_copy ?? draft.ai_copy)) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
   const saveEdit = async () => {
-    const patch: Record<string, unknown> = { final_copy: copy, final_hashtags: parsedTags, ...framePatch };
+    const patch: Record<string, unknown> = { post_language: language, final_copy: copy, final_hashtags: parsedTags, ...framePatch };
     if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
     if (await update(patch, t("posts.editSaved"))) {
       setEditNote("");
@@ -551,7 +559,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   };
   const edited = (isStory ? JSON.stringify(frames) !== JSON.stringify(draft.ai_story_frames ?? []) : copy !== draft.ai_copy) || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
   const approve = async () => {
-    const patch = { final_copy: copy, final_hashtags: parsedTags, ...framePatch,
+    const patch = { post_language: language, final_copy: copy, final_hashtags: parsedTags, ...framePatch,
       decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null) };
     if (isStory) {
       if (!await update(patch, "")) return false;
@@ -568,6 +576,15 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   };
   const publish = async () => {
     if (await update({ status: "published", published_at: pubDate, published_url: pubUrl.trim() || null }, t("posts.publishedToast"))) setPubOpen(false);
+  };
+  const translate = async (target: "en" | "pt-PT") => {
+    setTranslating(true);
+    try {
+      const r = await translateFn({data:{draftId:draft.id,language:target,copy,hashtags:parsedTags,...(isStory ? {frames} : {})}});
+      setCopy(r.copy); setTags(r.hashtags.join(" ")); if (r.frames) setFrames(r.frames as StoryFrame[]); setLanguage(r.language); setShowOriginal(false);
+      toast.success(t("postLanguage.translated"));
+    } catch(e) { const msg=e instanceof Error ? e.message : String(e); toast.error(/credits|spending|credit_limit|402|AI access denied/i.test(msg) ? `${t("postLanguage.aiBlocked")} ${msg}` : msg); }
+    finally { setTranslating(false); }
   };
   const copyText = async () => {
     const txt = isStory ? frames.map((f, i) => `${t("posts.frame", { n: i + 1 })}: ${f.text}${f.sticker.type !== "none" ? `\n${t(`posts.sticker.${f.sticker.type}`)}: ${f.sticker.text}` : ""}`).join("\n\n") : `${copy}${parsedTags.length ? `\n\n${parsedTags.map((h) => `#${h}`).join(" ")}` : ""}`;
@@ -592,6 +609,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
 
   return (
     <div className="space-y-2" id={`draft-${draft.id}`}>
+      <div className="flex flex-wrap items-center gap-2"><Badge variant="outline" data-post-language={language}>{languageChip(language)}</Badge>{!locked && (["pt-PT","en"] as const).map(l => <Button key={l} size="sm" variant="outline" disabled={saving || translating} onClick={() => translate(l)}>{translating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <RefreshCw className="mr-1 h-3 w-3" />}{t(l === "pt-PT" ? "postLanguage.translatePt" : "postLanguage.translateEn")}</Button>)}</div>
       {isStory ? (
         <div className="space-y-2">
           {(showOriginal ? draft.ai_story_frames ?? [] : frames).map((f, i) => (
@@ -658,23 +676,23 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       <div className="flex flex-wrap gap-2">
         {canCurate && draft.status === "suggested" && (
           <>
-            <Button size="sm" onClick={approve} disabled={saving}>
+            <Button size="sm" onClick={approve} disabled={saving || translating}>
               <Check className="mr-1 h-3.5 w-3.5" /> {t("posts.approve")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)} disabled={saving}>
+            <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)} disabled={saving || translating}>
               <X className="mr-1 h-3.5 w-3.5" /> {t("posts.reject")}
             </Button>
           </>
         )}
         {!locked && changedFromSaved && (
-          <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving}>
+          <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving || translating}>
             <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
           </Button>
         )}
         {draft.status === "approved" && !draft.scheduled_at && (
           <Button size="sm" variant="secondary" asChild><Link to="/marketing/calendar"><CalendarDays className="mr-1 h-3.5 w-3.5" /> {t("posts.schedule")}</Link></Button>
         )}
-        {canCurate && draft.platform !== "instagram" && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
+        {canCurate && draft.platform !== "instagram" && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving || translating}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
         {(assets.length > 0 || (isStory && frames.some((f) => f.kind === "text"))) && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
@@ -690,7 +708,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           <Label>{t("posts.rejectReason")}</Label>
           <Textarea value={reason} onChange={(e) => setReason(e.target.value)} />
           <p className="text-xs text-muted-foreground">{t("posts.rejectHint")}</p>
-          <DialogFooter><Button onClick={reject} disabled={saving}>{t("posts.reject")}</Button></DialogFooter>
+          <DialogFooter><Button onClick={reject} disabled={saving || translating}>{t("posts.reject")}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={pubOpen} onOpenChange={setPubOpen}>

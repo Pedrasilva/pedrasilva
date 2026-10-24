@@ -1,3 +1,4 @@
+import { resolvePostLanguage, languageInstruction, type LanguageProfile } from "./post-language";
 import { cleanEmailBody } from "./clean-email";
 /**
  * Marketing Pass 4 — post suggestions (Instagram + LinkedIn).
@@ -164,8 +165,10 @@ export async function runPostRequest(requestId: string) {
     const bible = await getActiveMarketingBible();
     if (!bible) throw new Error("No Marketing Bible yet");
     const profiles = (await getProjectProfilesForMatching()) as unknown as Profile[];
-    const { data: clearRows } = await db.from("marketing_project_profiles").select("project_id, clearance");
+    const { data: clearRows } = await db.from("marketing_project_profiles").select("project_id, clearance, post_language, instagram_language, linkedin_language");
     const projClear = new Map<string, string>((clearRows ?? []).map((r: { project_id: string; clearance: string }) => [r.project_id, r.clearance]));
+    const languageBy = new Map<string, LanguageProfile>((clearRows ?? []).map((r: LanguageProfile & { project_id: string }) => [r.project_id, r]));
+    const languagesFor = (pid: string | null) => ({ instagram: resolvePostLanguage(pid ? languageBy.get(pid) : null, "instagram", req.language_override ?? "project"), linkedin: resolvePostLanguage(pid ? languageBy.get(pid) : null, "linkedin", req.language_override ?? "project") });
     const profileBy = new Map(profiles.map((p) => [p.project_id, p]));
 
     // ── Candidates ──
@@ -314,7 +317,7 @@ export async function runPostRequest(requestId: string) {
     const projectData = (pid: string) => {
       const p = profileBy.get(pid);
       return p ? {
-        id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
+        output_languages: languagesFor(p.project_id), id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
         ...(p.name_rule === "name" ? { name: p.project_name, client: p.client } : {}),
         ...(p.name_rule === "never_mention" ? {} : { sector: p.sector, location: p.location }),
         client_ambition: p.client_ambition, central_idea: p.central_idea, challenges: p.challenges,
@@ -341,7 +344,7 @@ export async function runPostRequest(requestId: string) {
         ...(teamCtx.get(c.id)?.length ? { team_context: teamCtx.get(c.id) } : {}),
         pillar: c.pillar, persona: c.persona, effective_clearance: c.eff, ai_flags: c.ai_flags, received: c.received_at,
         project: p ? {
-          id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
+          output_languages: languagesFor(p.project_id), id: p.project_id, name_rule: p.name_rule, public_description: p.public_description,
           ...(p.name_rule === "name" ? { name: p.project_name, client: p.client } : {}),
           ...(p.name_rule === "never_mention" ? {} : { sector: p.sector, location: p.location }),
           client_ambition: p.client_ambition, central_idea: p.central_idea, challenges: p.challenges,
@@ -358,6 +361,8 @@ export async function runPostRequest(requestId: string) {
     const briefItems = Math.min(10, (req.brief ?? "").split(/\n/).filter((l: string) => /^\s*(\d+[.)]|[-*•])\s+\S/.test(l)).length);
     const ideasRequested = Math.max(req.idea_count, briefItems);
     const payload = {
+      language_default: languagesFor(null),
+      language_rules: { en: languageInstruction("en"), "pt-PT": languageInstruction("pt-PT"), bilingual: languageInstruction("bilingual") },
       brief: req.brief ?? null,
       ...(focusProjectId ? { focus_project_id: focusProjectId } : {}),
       period: { start: req.period_start, end: req.period_end },
@@ -418,10 +423,10 @@ ${JSON.stringify(bible.personas)}
 # Instagram stories
 - Return at most story_sets_requested items in "stories" (an empty array when 0). Stories suit behind-the-scenes, site and studio moments, so prefer captures that feel too casual for the grid.
 - A story may open with ONE text preview frame (kind "text", asset_id "", text = headline of at most ~12 words, line = optional line below of at most ~20 words or null). Only the first frame may be a text frame, and at most one per set.
-- Then 1–5 image frames (kind "image", line null); each uses a different image from the candidates (asset_id). On-screen text at most ~12 words per frame, in English. No hashtags anywhere. At most one sticker per set (all other frames use type "none").
+- Then 1–5 image frames (kind "image", line null); each uses a different image from the candidates (asset_id). On-screen text at most ~12 words per language per frame, in the project output_languages.instagram language. No hashtags anywhere. At most one sticker per set (all other frames use type "none").
 - Sketches, drawings and diagrams are welcome in stories, including as the first image frame; the "never the cover" rule applies to posts only.
 - rationale: why this post, why now (1–2 sentences).
-- Write in English, in the Bible's honest-expert voice. No hype, no clichés ("stunning", "dream home"), no invented quotes.
+- Resolve language per project and platform from output_languages (language_default for material without a project). Obey language_rules exactly for captions, hashtags and ALL story text. Language instructions override English examples in the Bible, not its voice or safety rules. Bilingual word counts apply per language.
 
 # Platform styles
 - Instagram: hook in the first line; 40–150 words; plain, warm and visual; 3–8 relevant hashtags returned separately (not in the copy); at most one emoji, or none.
@@ -517,8 +522,8 @@ ${JSON.stringify(bible.personas)}
         brief_item: req.brief && idea.brief_item?.trim() ? idea.brief_item.trim().slice(0, 120) : null,
         readiness, readiness_note: note, safety_flags: flags, bible_version: bible.version, model: POSTS_MODEL,
       };
-      rows.push({ ...base, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags });
-      rows.push({ ...base, platform: "linkedin", ai_copy: li.copy, ai_hashtags: li.hashtags });
+      rows.push({ ...base, post_language: languagesFor(base.project_id).instagram, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags });
+      rows.push({ ...base, post_language: languagesFor(base.project_id).linkedin, platform: "linkedin", ai_copy: li.copy, ai_hashtags: li.hashtags });
     }
     const ideaCount = rows.length / 2;
     let storyCount = 0;
@@ -533,9 +538,9 @@ ${JSON.stringify(bible.personas)}
         if (f.kind === "text") {
           // Only the first frame may be a text preview.
           if (fi !== 0 || frames.length) continue;
-          const head = words(f.text ?? "", 12);
+          const head = words(f.text ?? "", req.language_override === "bilingual" || languagesFor(st.project_id ?? null).instagram === "bilingual" ? 24 : 12);
           if (!head) continue;
-          const line = f.line ? words(f.line, 20) : "";
+          const line = f.line ? words(f.line, languagesFor(st.project_id ?? null).instagram === "bilingual" ? 40 : 20) : "";
           frames.push({ kind: "text", asset_id: "", text: head, line: line || null, sticker: { type: "none", text: "" } });
           continue;
         }
@@ -561,7 +566,7 @@ ${JSON.stringify(bible.personas)}
       if (nameCheck(projectIds, copy.toLowerCase())) { readiness = "blocked"; flags.push("Names a client that must not be named"); }
       rows.push({
         request_id: requestId, idea_id: crypto.randomUUID(), capture_ids: capIds, asset_ids: imgFrames.map((f) => f.asset_id),
-        format: "story", platform: "instagram", ai_copy: copy, ai_hashtags: [], ai_story_frames: frames,
+        post_language: languagesFor(st.project_id ?? caps[0]?.project_id ?? libFrames[0]?.project_id ?? null).instagram, format: "story", platform: "instagram", ai_copy: copy, ai_hashtags: [], ai_story_frames: frames,
         project_id: st.project_id && profileBy.has(st.project_id) ? st.project_id : caps[0]?.project_id ?? libFrames[0]?.project_id ?? null,
         pillar: st.pillar && pillarKeys.has(st.pillar) ? st.pillar : null,
         persona: st.persona && personaKeys.has(st.persona) ? st.persona : null,

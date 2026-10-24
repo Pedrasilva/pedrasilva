@@ -1,3 +1,4 @@
+import type { PostLanguage } from "./post-language";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -18,6 +19,9 @@ export const CLEARANCE_BADGE: Record<Clearance, string> = {
 export type ProjectProfile = {
   id: string;
   project_id: string;
+  post_language: PostLanguage;
+  instagram_language: PostLanguage | null;
+  linkedin_language: PostLanguage | null;
   sector: "workspace" | "healthcare" | "residential" | "hospitality" | "other" | null;
   location: string | null;
   stage: "design" | "construction" | "completed" | "other" | null;

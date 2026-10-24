@@ -1,3 +1,7 @@
+## Current request — Marketing post language
+- [x] Profile/platform defaults, run override, resolved generation/composer prompts and stored draft language; migration 0180 mirrored.
+- [x] Manual translation into editor, language chips, accents verified visually; 19 tests and EN/PT parity pass. Disposable fixture translated/saved, ai_copy preserved, fixtures deleted; all real draft row hash unchanged.
+
 ## Current request — owner-authorized draft approval reversal
 - [x] Reverted only 74d87598 to suggested at 22:23:13 UTC, using existing approval_sync to void approval; hash cleared, Luis/time/exact reason recorded in decision_note and retained approval comment. Transaction checked complete other-field and other-draft/approval equality.
 - [x] Read-only authenticated browser confirmed Planner To review presence and zero target tiles in Calendar; screenshots in /tmp/browser/approval-reversal. SQL correction retained in docs/owner-requested-marketing-approval-reversal.sql; no schema changes. Clearly marked disposable fixtures only is now a permanent rule.
