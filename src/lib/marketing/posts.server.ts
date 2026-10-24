@@ -1,3 +1,4 @@
+import { cleanEmailBody } from "./clean-email";
 /**
  * Marketing Pass 4 — post suggestions (Instagram + LinkedIn).
  * Picks the best cleared captures in code, asks Claude for ideas, then re-checks
@@ -336,7 +337,7 @@ export async function runPostRequest(requestId: string) {
     const candidateData = candidates.map((c) => {
       const p = c.project_id ? profileBy.get(c.project_id) : null;
       return {
-        id: c.id, raw_text: trunc(c.raw_text, 1500), ai_summary: c.ai_summary, fit_score: c.fit_score,
+        id: c.id, raw_text: trunc(cleanEmailBody(c.raw_text) || null, 1500), ai_summary: c.ai_summary, fit_score: c.fit_score,
         ...(teamCtx.get(c.id)?.length ? { team_context: teamCtx.get(c.id) } : {}),
         pillar: c.pillar, persona: c.persona, effective_clearance: c.eff, ai_flags: c.ai_flags, received: c.received_at,
         project: p ? {
