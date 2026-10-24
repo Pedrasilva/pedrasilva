@@ -1,3 +1,8 @@
+## Current request — Story burn-in
+- [ ] Browser renderer, sticker choices, private hash-bound manifest, approval integration and previews.
+- [ ] Publisher consumes matching rendered frames without changing locks or send boundaries.
+- [ ] Render failed real story only; screenshots, tests, mirrored migration and report.
+
 ## Current request — editorial calendar portrait tiles
 - [x] Weekly portrait tiles, compact month items, crisp whole-image previews and tile drag ghost; preserve quick preview.
 - [x] Authenticated Tuesday 27 at 10:00: 104×130 tile from 400×500 preview, 10-slide quick preview and compact month verified; 12 regression tests pass, build OK. Finance untouched.
