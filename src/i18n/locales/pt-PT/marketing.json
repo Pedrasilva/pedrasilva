@@ -357,7 +357,7 @@
     "words_one": "{{count}} palavra",
     "words_other": "{{count}} palavras",
     "approve": "Aprovar",
-    "approveDisabled": "Só rascunhos Prontos podem ser aprovados.",
+    "approveDisabled": "Os avisos de autorização e segurança são consultivos.",
     "reject": "Rejeitar",
     "rejectTitle": "Rejeitar este rascunho",
     "rejectReason": "Motivo (opcional)",
@@ -789,6 +789,8 @@
     }
   },
   "approval": {
+    "warningTitle": "Confirmar aviso de cliente confidencial",
+    "confirmWarning": "Aprovar com este aviso",
     "ask": "Pedir aprovação",
     "askAgain": "Pedir novamente",
     "colleague": "Colega",

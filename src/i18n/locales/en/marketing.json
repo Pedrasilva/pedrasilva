@@ -357,7 +357,7 @@
     "words_one": "{{count}} word",
     "words_other": "{{count}} words",
     "approve": "Approve",
-    "approveDisabled": "Only Ready drafts can be approved.",
+    "approveDisabled": "Clearance and safety warnings are advisory.",
     "reject": "Reject",
     "rejectTitle": "Reject this draft",
     "rejectReason": "Reason (optional)",
@@ -789,6 +789,8 @@
     }
   },
   "approval": {
+    "warningTitle": "Confirm confidential-client concern",
+    "confirmWarning": "Approve with this warning",
     "ask": "Request approval",
     "askAgain": "Request again",
     "colleague": "Colleague",
