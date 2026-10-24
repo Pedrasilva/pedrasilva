@@ -94,9 +94,9 @@
   },
   "status": {
     "new": "New",
-    "enriched": "Enriched",
-    "ready": "Ready",
-    "used": "Used",
+    "enriched": "To curate",
+    "ready": "To curate",
+    "used": "Published",
     "archived": "Archived"
   },
   "clearance": {
@@ -373,9 +373,9 @@
       "failed": "Failed"
     },
     "readiness": {
-      "ready": "Ready",
-      "needs_approval": "Needs approval",
-      "blocked": "Blocked"
+      "ready": "Clearance: OK",
+      "needs_approval": "Clearance: check",
+      "blocked": "Clearance: named client"
     },
     "hashtags": "Hashtags, separated by spaces",
     "words_one": "{{count}} word",
@@ -400,7 +400,7 @@
     "rejected": "Draft rejected",
     "publishedToast": "Marked as published; captures set to used",
     "fromCapture": "Suggest a post from this",
-    "recheck": "Recheck",
+    "recheck": "Recheck clearance",
     "saveEdit": "Save edit",
     "editSaved": "Edit saved",
     "deleteIdea": "Delete idea",
@@ -442,9 +442,14 @@
       "rejected": "Rejected",
       "all": "All"
     },
-    "approvedSchedule": "Approved — schedule it in the Editorial calendar",
+    "approvedSchedule": "Approved — place it in the Calendar",
     "openCalendar": "Open calendar",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "generateIdeas": "Generate ideas",
+    "runHistory": "Generation runs",
+    "fromRun": "From run {{date}}",
+    "clearanceWarning": "Clearance warning:",
+    "recheckHint": "Checks client clearance and naming rules again. Warnings never block approval."
   },
   "nudge": {
     "title": "Ask an architect for context",

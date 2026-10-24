@@ -1,6 +1,6 @@
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState , useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
@@ -27,6 +27,8 @@ import { instagramFeed, scheduleInstagram } from "@/lib/marketing/instagram.func
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_app/marketing/calendar")({
+  validateSearch: (s: Record<string, unknown>): { highlight?: string } =>
+    typeof s.highlight === "string" && /^[0-9a-f-]{36}$/i.test(s.highlight) ? { highlight: s.highlight } : {},
   component: () => (
     <V2PermissionGate permission="marketing.view" scope="all">
       <CalendarPage />
@@ -111,6 +113,15 @@ function CalendarPage() {
   }, [view, anchor]);
 
   const rows = data?.rows ?? [];
+  const { highlight } = Route.useSearch();
+  const highlighted = useRef(false);
+  useEffect(() => {
+    const row = highlight ? rows.find((x) => x.id === highlight) : undefined;
+    if (!row || highlighted.current) return;
+    highlighted.current = true;
+    if (row.scheduled_at) setAnchor(new Date(row.scheduled_at));
+    setTimeout(() => document.querySelector(`[data-post-id="${row.id}"]`)?.scrollIntoView({ block: "center" }), 300);
+  }, [highlight, rows]);
   const placed = rows.filter((r) => r.scheduled_at && ["scheduled","publishing","published","failed"].includes(r.status));
   const unplaced = rows.filter((r) => r.status === "approved");
   const byDay = useMemo(() => {
@@ -185,7 +196,8 @@ function CalendarPage() {
   const Item = ({ r, compact, dayTile = false }: { r: Row; compact?: boolean; dayTile?: boolean }) => {
     const movable = canCurate && ["approved","scheduled"].includes(r.status);
     return (
-    <div draggable={movable} role="button" tabIndex={0} data-calendar-tile={dayTile ? r.id : undefined}
+    <div draggable={movable} role="button" tabIndex={0} data-calendar-tile={dayTile ? r.id : undefined} data-post-id={r.id}
+      data-highlight={highlight === r.id ? "true" : undefined}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", r.id);
         // Use the entire visible tile, including badges, time and caption.
@@ -193,7 +205,7 @@ function CalendarPage() {
       }}
       onClick={(e) => { if (!(e.target as HTMLElement).closest("button,a")) setPreviewRow(r); }}
       onKeyDown={(e) => { if (e.key === "Enter") setPreviewRow(r); }}
-      className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
+      className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", highlight === r.id && "ring-2 ring-primary", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
       {dayTile ? (
         <>
           <Thumb r={r} tile size={cn("w-full", r.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]")} />
