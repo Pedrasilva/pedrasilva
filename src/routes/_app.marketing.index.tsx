@@ -1,3 +1,4 @@
+import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { CaptureContextCard } from "@/components/marketing/capture-context-card";
 import { DeleteCaptureButton } from "@/components/marketing/delete-capture-button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -314,7 +315,7 @@ function MarketingInboxPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{t("inbox.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("inbox.subtitle")}</p>
+          <StepHint step="inbox" />
         </div>
         {canContribute && (
           <Button onClick={() => setAddOpen(true)}>
@@ -324,6 +325,7 @@ function MarketingInboxPage() {
       </div>
 
       <ModuleSubnav moduleId="marketing" />
+      <PipelineStrip current="inbox" />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div role="tablist" aria-label={t("filters.status")} className="flex flex-wrap gap-1">

@@ -31,22 +31,29 @@ export function ModuleSubnav({ moduleId }: { moduleId: string }) {
     (!l.requiresFinance || hasFinance) &&
     can(l.perm) &&
     (!l.permV2 || isAdmin || canV2(l.permV2, l.permV2Scope ?? "team"));
-  const links = item.flyout.flatMap((s) => s.links).filter(canLink);
+  const sections = item.flyout.map((s) => s.links.filter(canLink)).filter((l) => l.length > 0);
+  // Marketing: workflow tabs first, then a smaller secondary group after a separator.
+  const grouped = moduleId === "marketing";
   const isActive = (to: string) =>
     to === item.to ? pathname === to || pathname === to + "/" : pathname === to || pathname.startsWith(to + "/");
 
   return (
     <nav aria-label={t("shell.subnavLabel")} className="-mx-1 overflow-x-auto border-b">
       <div className="flex w-max gap-1 px-1">
-        {links.map((l) => (
-          <SubnavTab key={l.to} link={l} active={isActive(l.to)} />
+        {sections.map((links, si) => (
+          <div key={si} className="flex items-center gap-1">
+            {grouped && si > 0 && <span aria-hidden className="mx-2 h-5 w-px bg-border" />}
+            {links.map((l) => (
+              <SubnavTab key={l.to} link={l} active={isActive(l.to)} small={grouped && si > 0} />
+            ))}
+          </div>
         ))}
       </div>
     </nav>
   );
 }
 
-function SubnavTab({ link, active }: { link: FlyoutLink; active: boolean }) {
+function SubnavTab({ link, active, small }: { link: FlyoutLink; active: boolean; small?: boolean }) {
   const { t } = useTranslation("common");
   const { data: pendingQ = 0 } = usePendingQuestions(link.badge === "marketingQuestions");
   const { data: pendingA = 0 } = useMyOpenActions(link.badge === "marketingActions");
@@ -57,7 +64,8 @@ function SubnavTab({ link, active }: { link: FlyoutLink; active: boolean }) {
       to={link.to as never}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "-mb-px inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm transition-colors",
+        "-mb-px inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 py-2 transition-colors",
+        small ? "px-2 text-xs" : "px-3 text-sm",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "border-primary font-medium text-foreground"

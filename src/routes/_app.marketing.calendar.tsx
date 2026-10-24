@@ -1,3 +1,4 @@
+import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,9 +34,9 @@ export const Route = createFileRoute("/_app/marketing/calendar")({
   ),
   head: () => ({
     meta: [
-      { title: "Editorial calendar — Portal Pedra Silva" },
+      { title: "Calendar — Portal Pedra Silva" },
       { name: "description", content: "Week and month editorial calendar with an Instagram grid preview for Pedra Silva Arquitectos." },
-      { property: "og:title", content: "Editorial calendar — Portal Pedra Silva" },
+      { property: "og:title", content: "Calendar — Portal Pedra Silva" },
       { property: "og:description", content: "Week and month editorial calendar with an Instagram grid preview for Pedra Silva Arquitectos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -255,8 +256,12 @@ function CalendarPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
-      <h1 className="text-2xl font-semibold">{t("calendar.title")}</h1>
+      <div>
+        <h1 className="text-2xl font-semibold">{t("calendar.title")}</h1>
+        <StepHint step="calendar" />
+      </div>
       <ModuleSubnav moduleId="marketing" />
+      <PipelineStrip current="calendar" />
       <Tabs defaultValue="calendar">
         <TabsList>
           <TabsTrigger value="calendar">{t("calendar.tab")}</TabsTrigger>
@@ -280,7 +285,7 @@ function CalendarPage() {
             </div>
           )}
           <div className="grid gap-3 lg:grid-cols-[16rem_1fr]">
-            <Card className="space-y-2 p-3">
+            <Card className="min-w-0 space-y-2 overflow-x-auto p-3">
               <h2 className="text-sm font-semibold">{t("calendar.approvedList")}</h2>
               <p className="text-xs text-muted-foreground">{canCurate ? t("calendar.dragHint") : t("calendar.readOnly")}</p>
               {isLoading ? <p className="text-xs">{t("common:loading")}</p> : unplaced.length === 0

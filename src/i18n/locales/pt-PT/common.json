@@ -434,7 +434,8 @@
       "reports.hours": "Horas registadas",
       "marketing.questions": "Perguntas",
       "marketing.actions": "Ações",
-      "marketing.calendar": "Calendário editorial"
+      "marketing.calendar": "Calendário",
+      "marketing.published": "Publicados"
     },
     "top": {
       "create": "Criar",
@@ -453,7 +454,9 @@
       "marketing.questions": "Perguntas",
       "marketing.actions": "Ações",
       "marketing.settings": "Definições",
-      "marketing.bible": "Bíblia"
+      "marketing.bible": "Bíblia",
+      "marketing.calendar": "Calendário",
+      "marketing.published": "Publicados"
     },
     "subnavLabel": "Páginas da secção"
   },

@@ -434,7 +434,8 @@
       "reports.hours": "Hours logged",
       "marketing.questions": "Questions",
       "marketing.actions": "Actions",
-      "marketing.calendar": "Editorial calendar"
+      "marketing.calendar": "Calendar",
+      "marketing.published": "Published"
     },
     "top": {
       "create": "Create",
@@ -453,7 +454,9 @@
       "marketing.questions": "Questions",
       "marketing.actions": "Actions",
       "marketing.settings": "Settings",
-      "marketing.bible": "Bible"
+      "marketing.bible": "Bible",
+      "marketing.calendar": "Calendar",
+      "marketing.published": "Published"
     },
     "subnavLabel": "Section pages"
   },

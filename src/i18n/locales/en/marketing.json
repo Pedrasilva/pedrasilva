@@ -782,7 +782,7 @@
     "cancel": "Cancel"
   },
   "calendar": {
-    "title": "Editorial calendar",
+    "title": "Calendar",
     "tab": "Calendar",
     "prev": "Previous",
     "next": "Next",
@@ -966,6 +966,38 @@
       "morning": "Morning",
       "afternoon": "Afternoon",
       "evening": "Evening"
+    }
+  },
+  "pipeline": {
+    "label": "Marketing workflow",
+    "inbox": "Inbox",
+    "planner": "Planner",
+    "calendar": "Calendar",
+    "published": "Published",
+    "toCurate": "{{count}} to curate",
+    "toReview": "{{count}} to review",
+    "calendarDetail": "{{place}} to place / {{scheduled}} scheduled",
+    "hint": {
+      "inbox": "Material from the team. Create a post to send it to the Planner.",
+      "planner": "Review the AI's posts. Approved posts go to the Calendar.",
+      "calendar": "Drag approved posts onto a day. They publish automatically at that time.",
+      "published": "What went live, with its comments and results."
+    }
+  },
+  "published": {
+    "title": "Published",
+    "tabs": {
+      "posts": "Posts",
+      "comments": "Comments",
+      "insights": "Insights"
+    },
+    "empty": "Nothing has been published yet.",
+    "open": "View post",
+    "metric": {
+      "reach": "Reach",
+      "likes": "Likes",
+      "comments": "Comments",
+      "saved": "Saves"
     }
   }
 }
