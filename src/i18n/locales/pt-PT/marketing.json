@@ -94,9 +94,9 @@
   },
   "status": {
     "new": "Nova",
-    "enriched": "Enriquecida",
-    "ready": "Pronta",
-    "used": "Usada",
+    "enriched": "Por curar",
+    "ready": "Por curar",
+    "used": "Publicada",
     "archived": "Arquivada"
   },
   "clearance": {
@@ -373,9 +373,9 @@
       "failed": "Falhou"
     },
     "readiness": {
-      "ready": "Pronto",
-      "needs_approval": "Requer aprovação",
-      "blocked": "Bloqueado"
+      "ready": "Autorização: OK",
+      "needs_approval": "Autorização: verificar",
+      "blocked": "Autorização: cliente nomeado"
     },
     "hashtags": "Hashtags, separadas por espaços",
     "words_one": "{{count}} palavra",
@@ -400,7 +400,7 @@
     "rejected": "Rascunho rejeitado",
     "publishedToast": "Marcado como publicado; capturas marcadas como usadas",
     "fromCapture": "Sugerir uma publicação a partir desta",
-    "recheck": "Verificar de novo",
+    "recheck": "Verificar autorização",
     "saveEdit": "Guardar edição",
     "editSaved": "Edição guardada",
     "deleteIdea": "Eliminar ideia",
@@ -442,9 +442,14 @@
       "rejected": "Rejeitadas",
       "all": "Todas"
     },
-    "approvedSchedule": "Aprovada — agende-a no Calendário editorial",
+    "approvedSchedule": "Aprovado — coloque-o no Calendário",
     "openCalendar": "Abrir calendário",
-    "schedule": "Agendar"
+    "schedule": "Agendar",
+    "generateIdeas": "Gerar ideias",
+    "runHistory": "Gerações",
+    "fromRun": "Da geração de {{date}}",
+    "clearanceWarning": "Aviso de autorização do cliente:",
+    "recheckHint": "Volta a verificar a autorização do cliente e as regras de nomes. Os avisos nunca bloqueiam a aprovação."
   },
   "nudge": {
     "title": "Pedir contexto a um arquiteto",

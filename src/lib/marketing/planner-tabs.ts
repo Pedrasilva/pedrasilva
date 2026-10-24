@@ -1,5 +1,7 @@
 /** Planner status tabs. Client- and server-safe. */
 export const PLANNER_TABS = ["review", "approved", "scheduled", "published", "rejected", "all"] as const;
+/** Tabs shown in the Planner; approved/scheduled/published are handled in Calendar and Published. */
+export const PLANNER_VISIBLE_TABS = ["review", "rejected", "all"] as const;
 export type PlannerTab = (typeof PLANNER_TABS)[number];
 
 export const asPlannerTab = (v: unknown): PlannerTab =>

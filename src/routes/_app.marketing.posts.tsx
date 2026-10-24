@@ -1,6 +1,6 @@
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,7 +28,7 @@ import { InstagramPublishControls } from "@/components/marketing/instagram-publi
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
 import { useDraftWarningConfirm } from "@/components/marketing/draft-warning-confirm";
-import { asPlannerTab, inTab, PLANNER_TABS, tabCounts, tabOf, type PlannerTab } from "@/lib/marketing/planner-tabs";
+import { asPlannerTab, inTab, PLANNER_VISIBLE_TABS, tabCounts, tabOf, type PlannerTab } from "@/lib/marketing/planner-tabs";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
   validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string; tab?: PlannerTab } => ({
@@ -36,6 +36,12 @@ export const Route = createFileRoute("/_app/marketing/posts")({
     ...(typeof s.draft === "string" && /^[0-9a-f-]{36}$/i.test(s.draft) ? { draft: s.draft } : {}),
     ...(typeof s.tab === "string" ? { tab: asPlannerTab(s.tab) } : {}),
   }),
+  // Approved/scheduled/published posts now live in the Calendar and Published; keep old links working.
+  beforeLoad: ({ search }) => {
+    const highlight = search.draft ? { highlight: search.draft } : {};
+    if (search.tab === "approved" || search.tab === "scheduled") throw redirect({ to: "/marketing/calendar", search: highlight, replace: true });
+    if (search.tab === "published") throw redirect({ to: "/marketing/published", search: highlight, replace: true });
+  },
   component: () => (
     <V2PermissionGate permission="marketing.view" scope="all">
       <PostPlannerPage />
@@ -243,7 +249,9 @@ function PostPlannerPage() {
   const { data, isLoading } = usePlannerData();
   const focusRow = focusDraft ? data?.drafts.find((d) => d.id === focusDraft) : undefined;
   const focusRequest = requestParam ?? focusRow?.request_id;
-  const tab: PlannerTab = tabParam ?? (focusRow ? tabOf(focusRow) : "review");
+  const focusTab = focusRow ? tabOf(focusRow) : null;
+  const tab: PlannerTab = tabParam ?? (focusTab === "review" || focusTab === "rejected" ? focusTab : focusRow ? "all" : "review");
+  const [genOpen, setGenOpen] = useState(false);
   useEffect(() => {
     if (focusDraft && data) setTimeout(() => document.getElementById(`draft-${focusDraft}`)?.scrollIntoView({ block: "center" }), 300);
   }, [focusDraft, data]);
@@ -287,19 +295,17 @@ function PostPlannerPage() {
     return { total: recent.length, pillars: by("pillar"), personas: by("persona") };
   }, [data]);
 
-  const groups = useMemo(() => {
-    const reqs = data?.requests ?? [];
-    const ordered = focusRequest ? [...reqs.filter((r) => r.id === focusRequest), ...reqs.filter((r) => r.id !== focusRequest)] : reqs;
-    return ordered.map((r) => {
-      const ideas = new Map<string, Draft[]>();
-      for (const d of data?.drafts ?? []) {
-        if (d.request_id !== r.id) continue;
-        ideas.set(d.idea_id, [...(ideas.get(d.idea_id) ?? []), d]);
-      }
-      const list = [...ideas.values()].filter((ds) => ds.some((d) => inTab(d, tab)));
-      return { req: r, ideas: list };
-    }).filter((g) => tab === "all" || g.ideas.length > 0 || g.req.status === "running");
+  const ideas = useMemo(() => {
+    const reqById = new Map((data?.requests ?? []).map((r) => [r.id, r]));
+    const byIdea = new Map<string, Draft[]>();
+    for (const d of data?.drafts ?? []) byIdea.set(d.idea_id, [...(byIdea.get(d.idea_id) ?? []), d]);
+    const created = (ds: Draft[]) => reqById.get(ds[0].request_id)?.created_at ?? "";
+    return [...byIdea.values()]
+      .filter((ds) => ds.some((d) => inTab(d, tab)))
+      .sort((a, b) => Number(b[0].request_id === focusRequest) - Number(a[0].request_id === focusRequest) || created(b).localeCompare(created(a)))
+      .map((ds) => ({ drafts: ds, runAt: created(ds) || null }));
   }, [data, tab, focusRequest]);
+  const runningReqs = (data?.requests ?? []).filter((r) => r.status === "running");
   const counts = useMemo(() => tabCounts(data?.drafts ?? []), [data]);
 
   return (
@@ -307,14 +313,22 @@ function PostPlannerPage() {
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold">{t("posts.title")}</h1>
-          {canCurate && <div className="ml-auto"><NewCarouselButton /></div>}
+          {canCurate && <div className="ml-auto flex flex-wrap gap-2">
+            <Button onClick={() => setGenOpen(true)}>
+              {running ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />}{t("posts.generateIdeas")}
+            </Button>
+            <NewCarouselButton />
+          </div>}
         </div>
         <StepHint step="planner" />
       </div>
       <ModuleSubnav moduleId="marketing" />
       <PipelineStrip current="planner" />
 
-      {canCurate && <Card className="space-y-3 p-4">
+      <Dialog open={genOpen} onOpenChange={setGenOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader><DialogTitle>{t("posts.generateIdeas")}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
           <div>
             <Label>{t("posts.brief")}</Label>
@@ -355,9 +369,9 @@ function PostPlannerPage() {
           </Button>
           {running && <span className="text-xs text-muted-foreground">{t("posts.generatingHint")}</span>}
         </div>
-      </Card>}
+        </div>
 
-      <Card className="space-y-2 p-4">
+        <div className="space-y-2 border-t pt-3">
         <h2 className="text-sm font-semibold">{t("posts.balance", { count: balance.total })}</h2>
         {balance.total === 0 ? <p className="text-xs text-muted-foreground">{t("posts.balanceEmpty")}</p> : (
           <div className="grid gap-2 md:grid-cols-2">
@@ -371,7 +385,26 @@ function PostPlannerPage() {
             </div>
           </div>
         )}
-      </Card>
+        </div>
+        <div className="space-y-2 border-t pt-3">
+          <h3 className="text-sm font-semibold">{t("posts.runHistory")}</h3>
+          {(data?.requests ?? []).length === 0 && <p className="text-xs text-muted-foreground">{t("posts.empty")}</p>}
+          {(data?.requests ?? []).map((req) => (
+            <div key={req.id} className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium">{req.period_start} → {req.period_end}</span>
+              {focusName(req.focus_profile_id) && <Badge variant="secondary">{t("posts.focusLabel", { name: focusName(req.focus_profile_id) })}</Badge>}
+              <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
+              <span className="text-muted-foreground">{new Date(req.created_at).toLocaleString()}</span>
+              {req.error && <span className={cn("w-full", req.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{req.error}</span>}
+              {canCurate && req.status !== "running" && !(data?.drafts ?? []).some((d) => d.request_id === req.id && d.status === "published") && (
+                <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        </DialogContent>
+      </Dialog>
 
       <div className="flex gap-1">
         {(["list", "grid"] as const).map((v) => <Button key={v} size="sm" variant={plannerView === v ? "default" : "outline"} onClick={() => setPlannerView(v)}>{t(v === "grid" ? "grid.tab" : "grid.listTab")}</Button>)}
@@ -381,34 +414,22 @@ function PostPlannerPage() {
       {plannerView === "list" && (
         <Tabs value={tab} onValueChange={(v) => navigate({ search: (prev) => ({ ...prev, tab: asPlannerTab(v) }), replace: true })}>
           <TabsList className="flex-wrap">
-            {PLANNER_TABS.map((k) => <TabsTrigger key={k} value={k}>{t(`posts.tabs.${k}`)} <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">{counts[k]}</Badge></TabsTrigger>)}
+            {PLANNER_VISIBLE_TABS.map((k) => <TabsTrigger key={k} value={k}>{t(`posts.tabs.${k}`)} <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">{counts[k]}</Badge></TabsTrigger>)}
           </TabsList>
         </Tabs>
       )}
 
       {plannerView === "list" && isLoading && <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>}
-      {plannerView === "list" && !isLoading && !groups.length && <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>}
-
-      {plannerView === "list" && groups.map(({ req, ideas }) => (
-        <section key={req.id} className="space-y-3">
-          <div className="flex flex-wrap items-baseline gap-2 border-b pb-1">
-            <h2 className="text-sm font-semibold">{req.period_start} → {req.period_end}</h2>
-            {focusName(req.focus_profile_id) && <Badge variant="secondary">{t("posts.focusLabel", { name: focusName(req.focus_profile_id) })}</Badge>}
-            {req.brief && <span className="w-full whitespace-pre-wrap text-xs text-muted-foreground order-last">“{req.brief}”</span>}
-            <Badge variant="outline">{t(`posts.requestStatus.${req.status}`)}</Badge>
-            {canCurate && req.status !== "running" && !ideas.flat().some((d) => d.status === "published") && (
-              <span className="ml-auto"><DeleteButton label={t("posts.deleteRequest")} ids={[req.id]} column="request_id" /></span>
-            )}
-            <span className="text-xs text-muted-foreground">{new Date(req.created_at).toLocaleString()}</span>
-          </div>
-          {req.status === "running" && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("posts.generating")}</p>}
-          {req.error && <p className={cn("text-sm", req.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{req.error}</p>}
-          {ideas.map((ds) => (
-            <IdeaCard key={ds[0].idea_id} drafts={ds} assetMap={data!.assetMap} tab={tab}
-              projectName={ds[0].project_id ? data!.projectMap[ds[0].project_id] ?? null : null}
-              pillar={pillarName(ds[0].pillar)} persona={personaName(ds[0].persona)} />
-          ))}
-        </section>
+      {plannerView === "list" && runningReqs.map((r) => (
+        <Card key={r.id} className="flex items-center gap-2 border-dashed p-4 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("posts.generating")} <span className="text-xs">· {t("posts.generatingHint")}</span>
+        </Card>
+      ))}
+      {plannerView === "list" && !isLoading && !ideas.length && !runningReqs.length && <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>}
+      {plannerView === "list" && ideas.map(({ drafts: ds, runAt }) => (
+        <IdeaCard key={ds[0].idea_id} drafts={ds} assetMap={data!.assetMap} tab={tab} runAt={runAt}
+          projectName={ds[0].project_id ? data!.projectMap[ds[0].project_id] ?? null : null}
+          pillar={pillarName(ds[0].pillar)} persona={personaName(ds[0].persona)} />
       ))}
     </div>
   );
@@ -424,11 +445,11 @@ function useSigned(items: { path: string; video: boolean }[]) {
   });
 }
 
-function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab }: {
+function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }: {
   drafts: Draft[]; assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }>;
-  projectName: string | null; pillar: string | null; persona: string | null; tab: PlannerTab;
+  projectName: string | null; pillar: string | null; persona: string | null; tab: PlannerTab; runAt?: string | null;
 }) {
-  const { t } = useTranslation("marketing");
+  const { t, i18n } = useTranslation("marketing");
   const first = drafts[0];
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
   const textFrame = first.format === "story" ? (first.final_story_frames ?? first.ai_story_frames ?? []).find((f) => f.kind === "text") ?? null : null;
@@ -466,6 +487,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab }: {
         {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length + (textFrame ? 1 : 0) })}</Badge>}
         {first.format === "carousel" && <Badge>{t("posts.format.carousel", { count: assets.length })}</Badge>}
         <Badge variant="outline" className={READY_CLASS[first.readiness]}>{t(`posts.readiness.${first.readiness}`)}</Badge>
+        {runAt && <span className="text-xs text-muted-foreground">{t("posts.fromRun", { date: new Date(runAt).toLocaleDateString(i18n.language, { day: "numeric", month: "short", timeZone: "Europe/Lisbon" }) })}</span>}
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
         {pillar && <Badge variant="outline">{pillar}</Badge>}
         {persona && <Badge variant="outline">{persona}</Badge>}
@@ -473,9 +495,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab }: {
           <span className="ml-auto"><DeleteButton label={t("posts.deleteIdea")} ids={drafts.map((d) => d.id)} column="id" /></span>
         )}
       </div>
-      {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note}</p>}
+      {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note.replace(/^Not cleared yet:\s*/i, `${t("posts.clearanceWarning")} `)}</p>}
       {canCurate && first.status === "suggested" && first.readiness !== "ready" && (
-        <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck}>
+        <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck} title={t("posts.recheckHint")}>
           <RefreshCw className={`mr-1 h-3.5 w-3.5 ${rechecking ? "animate-spin" : ""}`} /> {t("posts.recheck")}
         </Button>
       )}
