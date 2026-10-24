@@ -400,7 +400,7 @@ function PostPlannerPage() {
 }
 
 /** ~400px WebP previews for list cards (videos stay original); URLs are reused for most of their hour. */
-function useSigned(items: { path: string; video: boolean }[]) {
+function useSigned(items: { path: string; video?: boolean }[]) {
   return useQuery({
     queryKey: ["marketing-post-urls", PREVIEW_VERSION, items.map((i) => i.path)],
     enabled: items.length > 0,
