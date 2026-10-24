@@ -1,4 +1,17 @@
 {
+  "clearanceReview": {
+    "capture": "Capture",
+    "project": "Project",
+    "flag": "AI flag",
+    "openInbox": "Open in Inbox",
+    "noProject": "No project — this capture's own clearance applies.",
+    "dismiss": "Dismiss",
+    "dismissTitle": "Dismiss AI flag",
+    "reason": "Short reason (required)",
+    "dismissed": "Flag dismissed; clearance warnings updated.",
+    "history": "Dismissed flags",
+    "audit": "{{reason}} · {{who}} · {{when}}"
+  },
   "postLanguage": {
     "title": "Post language",
     "default": "Default",
