@@ -8,6 +8,8 @@ type BatchResult = { code: number; body: string };
 const stamp = (value: number | undefined) => typeof value === "number" && value > 0 ? new Date(value * 1000).toISOString() : null;
 const int = (v: unknown) => typeof v === "number" && Number.isInteger(v) ? v : typeof v === "string" && /^\d+$/.test(v) ? Number(v) : null;
 const short = (v: unknown, max: number) => typeof v === "string" && v ? v.replace(/[^\w.\-: ]/g, "").slice(0, max) || null : null;
+/** redirect:"manual" yields a 3xx (or an opaque status 0 in browsers); never follow it. */
+export const isRedirect = (r: Response) => r.type === "opaqueredirect" || (r.status >= 300 && r.status < 400);
 
 /** Batch GET operations keep input_token in the HTTPS POST body, not a logged URL.
  * Never log requests, provider bodies, headers or thrown provider errors. Only DTO fields leave this module;
@@ -37,14 +39,23 @@ export async function checkMetaConnection(token: string, request: typeof fetch =
     const none = () => calls.map(() => null);
     let response: Response;
     try {
+      // Workers' fetch rejects redirect "error"; use "manual" and refuse any 3xx below (never follow).
       response = await request(`https://graph.facebook.com/${META_GRAPH_VERSION}/`, {
         method: "POST", headers: { Authorization: `Bearer ${token}` },
         body: new URLSearchParams({ batch: JSON.stringify(calls.map((c) => ({ method: "GET", relative_url: c.path }))), include_headers: "false" }),
-        signal: AbortSignal.timeout(20000), redirect: "error",
+        signal: AbortSignal.timeout(20000), redirect: "manual",
       });
     } catch (e) {
       const timeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
-      note("batch", { type: "network" }, timeout ? "Meta did not answer within 20 seconds" : "Meta could not be reached");
+      const name = e instanceof Error ? short(e.name, 40) : null;
+      const reason = e instanceof Error ? redactMetaMessage(e.message, token) : null;
+      const base = timeout ? "Meta did not answer within 20 seconds" : "Meta could not be reached";
+      note("batch", { type: "network" }, reason ? `${base} (${name ?? "Error"}: ${reason})`.slice(0, 500) : base);
+      return none();
+    }
+    if (isRedirect(response)) {
+      await response.body?.cancel().catch(() => {});
+      note("batch", { type: "redirect" }, `Meta redirected unexpectedly (HTTP ${response.status})`);
       return none();
     }
     const text = await response.text().catch(() => "");
