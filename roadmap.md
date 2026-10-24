@@ -1,3 +1,7 @@
+## Current request — editorial calendar portrait tiles
+- [x] Weekly portrait tiles, compact month items, crisp whole-image previews and tile drag ghost; preserve quick preview.
+- [x] Authenticated Tuesday 27 at 10:00: 104×130 tile from 400×500 preview, 10-slide quick preview and compact month verified; 12 regression tests pass, build OK. Finance untouched.
+
 ## Current request — whole-image Marketing previews
 - [x] Diagnose three real originals: 4500×5625, EXIF 1; faulty 400×5625 strips; all below 25MB/50MP limits.
 - [x] Explicit contain, versioned caches/files; overwrite regenerated 55 images in 7 captures; 13 missing-original failures preserved. Maintenance-only large-image fallback implemented.

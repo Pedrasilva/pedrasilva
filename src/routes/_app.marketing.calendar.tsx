@@ -51,7 +51,7 @@ type Row = {
 
 function useCalendarData() {
   return useQuery({
-    queryKey: ["marketing-calendar"],
+    queryKey: ["marketing-calendar", PREVIEW_VERSION, PREVIEW.tile],
     refetchInterval: 30000,
     queryFn: async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,10 +62,10 @@ function useCalendarData() {
       if (error) throw error;
       const rows = (data ?? []) as Row[];
       const pids = [...new Set(rows.map((r) => r.project_id).filter(Boolean))] as string[];
-      // Batch-signed whole-image previews: small first-image thumbnails for the calendar items,
-      // tile size only for the Instagram grid tab.
+      // Whole-image 400px previews keep narrow weekly tiles crisp at retina density.
+      // Month cells reuse the same cached previews at compact portrait dimensions.
       const [thumbs, images, { data: projects }] = await Promise.all([
-        resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 3600, { preview: PREVIEW.small }),
+        resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 3600, { preview: PREVIEW.tile }),
         resolveDraftImages(sb, [...new Set(rows.filter((r) => r.platform === "instagram").flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
         pids.length ? sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] },
       ]);
@@ -100,7 +100,7 @@ function CalendarPage() {
     queryKey: ["marketing-calendar-preview", PREVIEW_VERSION, previewRow?.id],
     enabled: !!previewRow,
     staleTime: 30 * 60 * 1000,
-    queryFn: () => resolveDraftImages(supabase, previewRow!.asset_ids, 3600, { preview: PREVIEW.tile }),
+    queryFn: () => resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, { preview: PREVIEW.tile }),
   });
 
   const days = useMemo(() => {
@@ -160,19 +160,20 @@ function CalendarPage() {
     when: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : null,
   }));
 
-  const Thumb = ({ r, size }: { r: Row; size: string }) => {
+  const Thumb = ({ r, size, tile = false }: { r: Row; size: string; tile?: boolean }) => {
     const th = data?.thumbUrls.get(r.asset_ids[0]);
     return (
       <span className={cn("relative block shrink-0 overflow-hidden rounded bg-muted", size)}>
         {th?.url ? (th.video
           ? <video src={th.url} muted preload="metadata" className="h-full w-full object-cover object-center" />
-          : <img data-thumb={r.id} src={th.url} alt="" loading="lazy" decoding="async" width={120} height={120} className="h-full w-full object-cover object-center" />)
+          : <img data-thumb={r.id} src={th.url} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-center" />)
           : <ImageOff className="m-auto h-full w-3 text-muted-foreground" />}
         {r.asset_ids.length > 1 && (
-          <span className="absolute right-0.5 top-0.5 flex items-center gap-px rounded bg-background/90 px-0.5 text-[9px] font-medium" aria-label={t("calendar.slides", { count: r.asset_ids.length })}>
+          <span className={cn("absolute top-1 flex items-center gap-0.5 rounded bg-background/90 px-1 py-0.5 text-[10px] font-medium", tile ? "left-1" : "right-0.5")} aria-label={t("calendar.slides", { count: r.asset_ids.length })}>
             <Layers className="h-2.5 w-2.5" />{r.asset_ids.length}
           </span>
         )}
+        {tile && <span className="absolute right-1 top-1 rounded bg-background/90 p-1"><PlatformIcon r={r} /></span>}
       </span>
     );
   };
@@ -180,22 +181,35 @@ function CalendarPage() {
     ? <Instagram className="h-3 w-3 shrink-0" aria-label={t("posts.platform.instagram")} />
     : <Linkedin className="h-3 w-3 shrink-0" aria-label={t("posts.platform.linkedin")} />;
 
-  const Item = ({ r, compact }: { r: Row; compact?: boolean }) => {
+  const Item = ({ r, compact, dayTile = false }: { r: Row; compact?: boolean; dayTile?: boolean }) => {
     const movable = canCurate && ["approved","scheduled"].includes(r.status);
     return (
-    <div draggable={movable} role="button" tabIndex={0}
+    <div draggable={movable} role="button" tabIndex={0} data-calendar-tile={dayTile ? r.id : undefined}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", r.id);
-        // Drag ghost: the item's own thumbnail.
-        const img = e.currentTarget.querySelector<HTMLImageElement>("img[data-thumb]");
-        if (img) e.dataTransfer.setDragImage(img, 24, 24);
+        // Use the entire visible tile, including badges, time and caption.
+        e.dataTransfer.setDragImage(e.currentTarget, e.currentTarget.clientWidth / 2, 24);
       }}
       onClick={(e) => { if (!(e.target as HTMLElement).closest("button,a")) setPreviewRow(r); }}
       onKeyDown={(e) => { if (e.key === "Enter") setPreviewRow(r); }}
-      className={cn("group rounded border bg-card p-1 text-xs hover:border-primary/50", movable ? "cursor-grab" : "cursor-pointer")}>
-      {compact ? (
+      className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
+      {dayTile ? (
+        <>
+          <Thumb r={r} tile size={cn("w-full", r.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]")} />
+          <div className="min-w-0 px-0.5 pb-0.5 pt-1.5">
+            <div className="flex items-center justify-between gap-1">
+              {r.scheduled_at && <span className="font-bold tabular-nums">{lisbonParts(r.scheduled_at).time}</span>}
+              {(repsBy.get(r.id) ?? []).length > 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />}
+              {canCurate && r.status === "scheduled" && <Button variant="ghost" size="icon" aria-label={t("calendar.unschedule")} onClick={() => void unschedule(r)} className="h-5 w-5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"><X className="h-3 w-3" /></Button>}
+            </div>
+            <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{firstLine(r)}</p>
+            {r.status !== "scheduled" && <span className={cn("text-[10px]", r.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{t(`posts.status.${r.status}`)}</span>}
+            {r.platform === "instagram" && ["failed", "published"].includes(r.status) && <InstagramPublishControls draftId={r.id} status={r.status} canCurate={canCurate} error={r.publish_error_message} permalink={r.published_url} sentAt={r.publish_sent_at} />}
+          </div>
+        </>
+      ) : compact ? (
         <div className="flex items-center gap-1">
-          <Thumb r={r} size="h-8 w-8" />
+          <Thumb r={r} size="h-10 w-8" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1">
               <PlatformIcon r={r} />
@@ -273,15 +287,16 @@ function CalendarPage() {
                 ? <p className="text-xs text-muted-foreground">{t("calendar.noApproved")}</p>
                 : <div className="space-y-1.5">{unplaced.map((r) => <Item key={r.id} r={r} />)}</div>}
             </Card>
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded border bg-border">
+            <div className="grid min-w-0 grid-cols-7 gap-px overflow-hidden rounded border bg-border">
               {days.slice(0, 7).map((d) => <div key={`h-${d}`} className="bg-muted px-2 py-1 text-xs font-medium capitalize">{format(parseISO(d), "EEE", { locale })}</div>)}
               {days.map((d) => (
                 <div key={d} onDragOver={(e) => { if (canCurate) { e.preventDefault(); setOverDay(d); } }} onDragLeave={() => setOverDay((o) => (o === d ? null : o))}
                   onDrop={(e) => { e.preventDefault(); onDrop(d, e.dataTransfer.getData("text/plain")); }}
-                  className={cn("space-y-1 bg-background p-1", view === "week" ? "min-h-64" : "min-h-28", overDay === d && "bg-accent",
+                  data-calendar-day={d}
+                  className={cn("min-w-0 space-y-2 bg-background p-1", view === "week" ? "min-h-64" : "min-h-28", overDay === d && "bg-accent",
                     view === "month" && !d.startsWith(month) && "opacity-50")}>
                   <div className="text-[11px] text-muted-foreground">{format(parseISO(d), "d", { locale })}</div>
-                  {(byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact />)}
+                  {(byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact={view === "month"} dayTile={view === "week"} />)}
                 </div>
               ))}
             </div>
