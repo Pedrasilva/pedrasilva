@@ -220,6 +220,7 @@ function CalendarPage() {
           <Thumb r={r} tile size={cn("w-full", r.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]")} />
           <div className="min-w-0 px-0.5 pb-0.5 pt-1.5">
             <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] text-muted-foreground" data-post-language={r.post_language}>{languageChip(r.post_language)}</span>
               {r.scheduled_at && <span className="font-bold tabular-nums">{lisbonParts(r.scheduled_at).time}</span>}
               {(repsBy.get(r.id) ?? []).length > 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />}
               {canCurate && r.status === "scheduled" && <Button variant="ghost" size="icon" aria-label={t("calendar.unschedule")} onClick={() => void unschedule(r)} className="h-5 w-5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"><X className="h-3 w-3" /></Button>}
