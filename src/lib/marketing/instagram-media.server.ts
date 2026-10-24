@@ -32,7 +32,9 @@ export function validateVideo(v: VideoMetadata, size: number, format: PublishFor
   for (const a of v.audio) if (a.codec!=='mp4a' || a.sampleRate > 48000 || a.channels > 2) throw new Error('Audio requires AAC, ≤48 kHz, mono or stereo');
 }
 export async function inspectMedia(url: string, format: PublishFormat, request: typeof fetch = fetch): Promise<boolean> {
-  const response = await request(url,{ signal:AbortSignal.timeout(30000), redirect:'error' });
+  // Workers' fetch rejects redirect "error"; use "manual" and refuse any redirect.
+  const response = await request(url,{ signal:AbortSignal.timeout(30000), redirect:'manual' });
+  if (response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400)) { await response.body?.cancel().catch(()=>{}); throw new Error('Private media redirected unexpectedly'); }
   if (!response.ok || !response.body) throw new Error('Unable to read private media');
   const size=Number(response.headers.get('content-length'));
   if (!size || size>1000*1024*1024) { await response.body.cancel(); throw new Error('Media size unavailable or exceeds 1 GiB'); }

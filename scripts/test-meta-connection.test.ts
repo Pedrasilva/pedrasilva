@@ -94,4 +94,22 @@ describe("Meta failure reasons", () => {
     expect(result.meta_error_code).toBeNull();
     expect(formatMetaError(result)).toBeNull();
   });
+  it("uses redirect manual, which the Workers runtime accepts", async () => {
+    let mode: RequestRedirect | undefined;
+    const base = mocked({ is_valid: true, scopes: grants, expires_at: 0 });
+    const request = (async (url: RequestInfo | URL, init?: RequestInit) => { mode = init?.redirect; return base(url, init); }) as typeof fetch;
+    await checkMetaConnection("test-only", request);
+    expect(mode).toBe("manual");
+  });
+  it("refuses a 3xx from Meta without following it", async () => {
+    const request = (async () => new Response(null, { status: 302, headers: { location: "https://elsewhere.example/" } })) as typeof fetch;
+    const result = await checkMetaConnection("test-only", request);
+    expect(result.connection_ok).toBe(false);
+    expect(result.meta_error_message).toBe("Meta redirected unexpectedly (HTTP 302)");
+  });
+  it("stores the thrown error's name and redacted message", async () => {
+    const request = (async () => { throw new TypeError("Invalid redirect value test-only"); }) as typeof fetch;
+    const result = await checkMetaConnection("test-only", request);
+    expect(result.meta_error_message).toBe("Meta could not be reached (TypeError: Invalid redirect value [redacted])");
+  });
 });
