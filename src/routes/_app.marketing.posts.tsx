@@ -240,7 +240,9 @@ function PostPlannerPage() {
   const [plannerView, setPlannerView] = useState<"list" | "grid">("list");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = usePlannerData();
-  const focusRequest = requestParam ?? (focusDraft ? data?.drafts.find((d) => d.id === focusDraft)?.request_id : undefined);
+  const focusRow = focusDraft ? data?.drafts.find((d) => d.id === focusDraft) : undefined;
+  const focusRequest = requestParam ?? focusRow?.request_id;
+  const tab: PlannerTab = tabParam ?? (focusRow ? tabOf(focusRow) : "review");
   useEffect(() => {
     if (focusDraft && data) setTimeout(() => document.getElementById(`draft-${focusDraft}`)?.scrollIntoView({ block: "center" }), 300);
   }, [focusDraft, data]);
