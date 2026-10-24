@@ -8393,6 +8393,7 @@ export type Database = {
           safety_flags: string[]
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
+          story_render_manifest: Json | null
           warning_approval_history: Json
           warning_confirmation_hash: string | null
         }
@@ -8442,6 +8443,7 @@ export type Database = {
           safety_flags?: string[]
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
+          story_render_manifest?: Json | null
           warning_approval_history?: Json
           warning_confirmation_hash?: string | null
         }
@@ -8491,6 +8493,7 @@ export type Database = {
           safety_flags?: string[]
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
+          story_render_manifest?: Json | null
           warning_approval_history?: Json
           warning_confirmation_hash?: string | null
         }
@@ -17411,6 +17414,7 @@ export type Database = {
           safety_flags: string[]
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
+          story_render_manifest: Json | null
           warning_approval_history: Json
           warning_confirmation_hash: string | null
         }[]
@@ -17559,6 +17563,10 @@ export type Database = {
       }
       marketing_set_capture_format: {
         Args: { _capture_id: string; _format_hint: string }
+        Returns: undefined
+      }
+      marketing_store_story_render: {
+        Args: { _hash: string; _id: string; _manifest: Json }
         Returns: undefined
       }
       marketing_story_send: {

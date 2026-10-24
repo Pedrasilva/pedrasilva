@@ -1,3 +1,6 @@
+import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
+import { getStoryRenderContext } from "@/lib/marketing/story-render.functions";
+import type { StoryManifest } from "@/lib/marketing/story-render";
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
@@ -69,11 +72,12 @@ type Draft = {
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
   published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
+  story_render_manifest?: StoryManifest | null;
   publish_error_message?:string|null; publish_sent_at?:string|null;
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
-type StoryFrame = { kind?: "image" | "text"; asset_id: string; text: string; line?: string | null; sticker: { type: StickerType; text: string } };
+type StoryFrame = { kind?: "image" | "text"; asset_id: string; text: string; line?: string | null; sticker: { type: StickerType; text: string }; sticker_policy?: "omit" | "manual" };
 const renderFrames = (fr: StoryFrame[]) =>
   fr.map((f, i) => f.kind === "text" ? `${i + 1}. [Preview] ${f.text.trim()}${f.line?.trim() ? ` — ${f.line.trim()}` : ""}` : `${i + 1}. ${f.text.trim()}${f.sticker && f.sticker.type !== "none" ? ` [${f.sticker.type}: ${f.sticker.text.trim()}]` : ""}`).join("\n");
 
@@ -85,46 +89,6 @@ function TextFrameCard({ frame }: { frame: StoryFrame }) {
       {frame.line && <p className="text-[11px] leading-snug text-muted-foreground">{frame.line}</p>}
     </div>
   );
-}
-
-const wrapLines = (ctx: CanvasRenderingContext2D, text: string, max: number) => {
-  const out: string[] = []; let cur = "";
-  for (const w of text.split(/\s+/).filter(Boolean)) {
-    const next = cur ? `${cur} ${w}` : w;
-    if (ctx.measureText(next).width > max && cur) { out.push(cur); cur = w; } else cur = next;
-  }
-  if (cur) out.push(cur);
-  return out;
-};
-/** Export a text preview frame as a 1080×1920 PNG in the same style as TextFrameCard. */
-async function exportTextFrame(frame: StoryFrame, name: string) {
-  const probe = document.createElement("div");
-  probe.className = "bg-background text-foreground font-display";
-  const muted = document.createElement("span"); muted.className = "text-muted-foreground font-sans";
-  probe.appendChild(muted); document.body.appendChild(probe);
-  const cs = getComputedStyle(probe), ms = getComputedStyle(muted);
-  const bg = cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" ? cs.backgroundColor : "#f5f3ef";
-  const fg = cs.color || "#222", mutedFg = ms.color || "#666", display = cs.fontFamily, sans = ms.fontFamily;
-  probe.remove();
-  await document.fonts?.ready;
-  const c = document.createElement("canvas"); c.width = 1080; c.height = 1920;
-  const ctx = c.getContext("2d")!;
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, 1080, 1920);
-  ctx.font = `96px ${display}`;
-  const head = wrapLines(ctx, frame.text, 900);
-  ctx.font = `48px ${sans}`;
-  const sub = frame.line ? wrapLines(ctx, frame.line, 900) : [];
-  const total = head.length * 112 + (sub.length ? 48 + sub.length * 64 : 0);
-  let y = (1920 - total) / 2 + 96;
-  ctx.fillStyle = fg; ctx.font = `96px ${display}`;
-  for (const l of head) { ctx.fillText(l, 90, y); y += 112; }
-  if (sub.length) { y += 24; ctx.fillStyle = mutedFg; ctx.font = `48px ${sans}`; for (const l of sub) { ctx.fillText(l, 90, y); y += 64; } }
-  const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/png"));
-  if (!blob) return;
-  const url = URL.createObjectURL(blob);
-  const el = document.createElement("a"); el.href = url; el.download = name;
-  document.body.appendChild(el); el.click(); el.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 function DeleteButton({ label, ids, column }: { label: string; ids: string[]; column: "id" | "request_id" | "idea" }) {
@@ -436,7 +400,7 @@ function PostPlannerPage() {
 }
 
 /** ~400px WebP previews for list cards (videos stay original); URLs are reused for most of their hour. */
-function useSigned(items: { path: string; video: boolean }[]) {
+function useSigned(items: { path: string; video?: boolean }[]) {
   return useQuery({
     queryKey: ["marketing-post-urls", PREVIEW_VERSION, items.map((i) => i.path)],
     enabled: items.length > 0,
@@ -452,8 +416,9 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
   const { t, i18n } = useTranslation("marketing");
   const first = drafts[0];
   const assets = first.asset_ids.map((id) => assetMap[id]).filter(Boolean);
-  const textFrame = first.format === "story" ? (first.final_story_frames ?? first.ai_story_frames ?? []).find((f) => f.kind === "text") ?? null : null;
-  const { data: urls = {} } = useSigned(assets.map((a) => ({ path: a.storage_path, video: a.mime_type.startsWith("video/") })));
+  const renderedPaths = first.story_render_manifest?.paths ?? [];
+  const textFrame = !renderedPaths.length && first.format === "story" ? (first.final_story_frames ?? first.ai_story_frames ?? []).find((f) => f.kind === "text") ?? null : null;
+  const { data: urls = {} } = useSigned([...assets.map((a) => ({ path: a.storage_path, video: a.mime_type.startsWith("video/") })), ...renderedPaths.map(path => ({ path }))]);
   const byPlatform = (p: Platform) => drafts.find((d) => d.platform === p);
   const qc = useQueryClient();
   const [rechecking, setRechecking] = useState(false);
@@ -470,7 +435,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
       {(assets.length > 0 || textFrame) && (
         <div className="flex snap-x gap-2 overflow-x-auto">
           {textFrame && <div className="relative shrink-0 snap-start"><TextFrameCard frame={textFrame} /><span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">1</span></div>}
-          {assets.map((a, i) => (
+          {(renderedPaths.length ? renderedPaths.map(path => ({ storage_path: path, file_name: "Story", mime_type: "image/jpeg" })) : assets).map((a, i) => (
             <div key={a.storage_path} className="relative shrink-0 snap-start">
               {urls[a.storage_path]
                 ? (a.mime_type.startsWith("video/")
@@ -565,6 +530,13 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
   };
+  const rendered = useQuery({ queryKey: ["marketing-story-render", draft.id, draft.story_render_manifest], enabled: isStory, queryFn: () => getStoryRenderContext({ data: { draftId: draft.id } }) });
+  const renderSaved = async () => {
+    setSaving(true);
+    try { await prepareStoryRender(draft.id); await rendered.refetch(); qc.invalidateQueries({ queryKey: ["marketing-posts"] }); qc.invalidateQueries({ queryKey: ["marketing-calendar"] }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
+    finally { setSaving(false); }
+  };
   const framePatch = isStory ? { final_story_frames: frames } : {};
   const changedFromSaved = (isStory ? JSON.stringify(frames) !== JSON.stringify(savedFrames) : copy !== (draft.final_copy ?? draft.ai_copy)) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
   const saveEdit = async () => {
@@ -572,14 +544,19 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
     if (await update(patch, t("posts.editSaved"))) {
       setEditNote("");
+      if (isStory) await renderSaved();
       try { await recheckDrafts([draft.id]); } catch { /* badge refreshes on next load */ }
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     }
   };
   const edited = (isStory ? JSON.stringify(frames) !== JSON.stringify(draft.ai_story_frames ?? []) : copy !== draft.ai_copy) || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
-  const approve = () => {
+  const approve = async () => {
     const patch = { final_copy: copy, final_hashtags: parsedTags, ...framePatch,
       decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null) };
+    if (isStory) {
+      if (!await update(patch, "")) return false;
+      try { setSaving(true); await prepareStoryRender(draft.id); } catch(e) { toast.error(e instanceof Error ? e.message : t("posts.error")); return false; } finally { setSaving(false); }
+    }
     return warning.run(async () => {
       const ok = await update({ status: "approved", ...patch }, "");
       if (ok) toast.success(t("posts.approvedSchedule"), { action: { label: t("posts.openCalendar"), onClick: () => navigate({ to: "/marketing/calendar" }) } });
@@ -599,7 +576,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   };
   const download = async () => {
     const tf = isStory ? frames.find((f) => f.kind === "text") : null;
-    if (tf) await exportTextFrame(tf, "story-1-preview.png");
+    if (tf) { const { renderStoryFrame } = await import("@/lib/marketing/story-render"); const b = await renderStoryFrame(tf); const url = URL.createObjectURL(b); const a = document.createElement("a"); a.href=url; a.download="story-1.jpg"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),2000); }
     for (const a of assets) {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(a.storage_path, 600, { download: a.file_name });
       if (data?.signedUrl) {
@@ -619,6 +596,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         <div className="space-y-2">
           {(showOriginal ? draft.ai_story_frames ?? [] : frames).map((f, i) => (
             <div key={i} className="space-y-1 rounded-md border p-2">
+              {f.sticker?.type !== "none" && <div className="space-y-1"><p className="text-xs text-warning">{t("storyRender.stickerWarning")}</p><Select value={f.sticker_policy ?? "unresolved"} disabled={locked || showOriginal} onValueChange={v => setFrame(i, { sticker_policy: v as "omit" | "manual" })}><SelectTrigger aria-label={t("storyRender.stickerChoice")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="unresolved">{t("storyRender.choose")}</SelectItem><SelectItem value="omit">{t("storyRender.omit")}</SelectItem><SelectItem value="manual">{t("storyRender.manual")}</SelectItem></SelectContent></Select></div>}
               <Label className="text-xs">{t("posts.frame", { n: i + 1 })}{f.kind === "text" ? ` · ${t("posts.textFrame")}` : ""}</Label>
               {f.kind === "text" ? <>
                 <Input value={f.text} maxLength={100} disabled={locked || showOriginal} onChange={(e) => setFrame(i, { text: e.target.value })} aria-label={t("posts.textFrameHeadline")} placeholder={t("posts.textFrameHeadline")} />
@@ -641,6 +619,9 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
               </>}
             </div>
           ))}
+          <Button size="sm" variant="outline" onClick={renderSaved} disabled={saving || changedFromSaved}>{saving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}{t("storyRender.render")}</Button>
+          {rendered.data?.manifest && !changedFromSaved && <div className="flex gap-2 overflow-x-auto">{rendered.data.manifest.paths.map((p,i) => <img key={p} data-story-frame={i+1} src={rendered.data?.urls[p]} alt={t("posts.frame", { n:i+1 })} className="h-80 w-44 shrink-0 rounded object-contain" />)}</div>}
+          {rendered.data?.manifest?.automatic === false && <p className="text-xs text-warning">{t("storyRender.blocked")}</p>}
           <p className="text-xs text-muted-foreground">{t("posts.storyHint")}</p>
         </div>
       ) : showOriginal ? (
@@ -700,7 +681,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       </div>
       {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
       {draft.platform === "instagram" && <InstagramPublishControls draftId={draft.id} status={draft.status} canCurate={canCurate && !changedFromSaved} error={draft.publish_error_message} permalink={draft.published_url} sentAt={draft.publish_sent_at}/>}
-      <PostApprovalControls draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
+      <PostApprovalControls isStory={isStory} draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
       {warning.dialog}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
