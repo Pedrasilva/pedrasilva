@@ -304,12 +304,9 @@ export const RAIL_ITEMS: RailItem[] = [
         titleKey: "work",
         links: [
           { to: "/marketing", labelKey: "marketing.inbox" },
-          { to: "/marketing/comments", labelKey: "marketing.comments", permV2: "marketing.view", permV2Scope: "all", badge: "marketingComments" },
-          { to: "/marketing/insights", labelKey: "marketing.insights", permV2: "marketing.view", permV2Scope: "all" },
           { to: "/marketing/posts", labelKey: "marketing.posts", permV2: "marketing.view", permV2Scope: "all" },
           { to: "/marketing/calendar", labelKey: "marketing.calendar", permV2: "marketing.view", permV2Scope: "all" },
-          { to: "/marketing/questions", labelKey: "marketing.questions", permV2: "marketing.curate", permV2Scope: "all", badge: "marketingQuestions" },
-          { to: "/marketing/actions", labelKey: "marketing.actions", badge: "marketingActions" },
+          { to: "/marketing/published", labelKey: "marketing.published", permV2: "marketing.view", permV2Scope: "all", badge: "marketingComments" },
         ],
       },
       {
@@ -317,6 +314,8 @@ export const RAIL_ITEMS: RailItem[] = [
         links: [
           { to: "/marketing/projects", labelKey: "marketing.projects" },
           { to: "/marketing/bible", labelKey: "marketing.bible" },
+          { to: "/marketing/questions", labelKey: "marketing.questions", permV2: "marketing.curate", permV2Scope: "all", badge: "marketingQuestions" },
+          { to: "/marketing/actions", labelKey: "marketing.actions", badge: "marketingActions" },
           { to: "/marketing/settings", labelKey: "marketing.settings", permV2: "marketing.view", permV2Scope: "own" },
         ],
       },

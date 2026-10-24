@@ -782,7 +782,7 @@
     "cancel": "Cancelar"
   },
   "calendar": {
-    "title": "Calendário editorial",
+    "title": "Calendário",
     "tab": "Calendário",
     "prev": "Anterior",
     "next": "Seguinte",
@@ -966,6 +966,38 @@
       "morning": "Manhã",
       "afternoon": "Tarde",
       "evening": "Noite"
+    }
+  },
+  "pipeline": {
+    "label": "Fluxo de marketing",
+    "inbox": "Entrada",
+    "planner": "Planner",
+    "calendar": "Calendário",
+    "published": "Publicados",
+    "toCurate": "{{count}} por curar",
+    "toReview": "{{count}} por rever",
+    "calendarDetail": "{{place}} por colocar / {{scheduled}} agendados",
+    "hint": {
+      "inbox": "Material da equipa. Crie um post para o enviar para o Planner.",
+      "planner": "Reveja os posts da IA. Os aprovados seguem para o Calendário.",
+      "calendar": "Arraste os posts aprovados para um dia. São publicados automaticamente a essa hora.",
+      "published": "O que foi publicado, com comentários e resultados."
+    }
+  },
+  "published": {
+    "title": "Publicados",
+    "tabs": {
+      "posts": "Posts",
+      "comments": "Comentários",
+      "insights": "Estatísticas"
+    },
+    "empty": "Ainda nada foi publicado.",
+    "open": "Ver post",
+    "metric": {
+      "reach": "Alcance",
+      "likes": "Gostos",
+      "comments": "Comentários",
+      "saved": "Guardados"
     }
   }
 }

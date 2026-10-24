@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { useTranslation } from "react-i18next";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
-import { V2PermissionGate } from "@/components/auth/V2PermissionGate";
+import { V2PermissionGate } from "@/components/PermissionGate";
 import { useUnreadComments } from "@/components/shell/AppRail";
 import { cn } from "@/lib/utils";
 
