@@ -1,3 +1,4 @@
+import { resolvePostLanguage, languageInstruction } from "./post-language";
 /**
  * Carousel composer — hand-built carousels.
  * The curator fixes the slide order; the AI only writes the Instagram + LinkedIn copy around it.
@@ -151,7 +152,9 @@ export async function writeComposedPost(compositionId: string, userId: string) {
     content.push({ type: "text", text: `Slide ${d.number}${d.number === 1 ? " (cover)" : ""}:` });
     content.push({ type: "image", source: { type: "url", url: d.thumb } });
   }
+  const languages = { instagram: resolvePostLanguage(prof, "instagram"), linkedin: resolvePostLanguage(prof, "linkedin") };
   const payload = {
+    output_languages: languages,
     title: comp.title,
     intent: comp.intent ?? null,
     slides: desc.map((d) => d.slide.kind === "text"
@@ -191,7 +194,9 @@ ${JSON.stringify(bible.personas)}
 - Obey every publishing rule in the Bible. When name_rule is describe_only, never use the client's or project's name; use the public_description. When it's never_mention, don't identify the client or project in any way.
 - Do not write a photographer credit; it is added automatically.
 - pillar and persona: one key each from the lists above. rationale: 1–2 sentences on why this post works. approval_note: who needs to approve and why, or "" if nothing.
-- Write in English, in the Bible's honest-expert voice. No hype, no clichés, no invented quotes.
+- Instagram language: ${languageInstruction(languages.instagram)}
+- LinkedIn language: ${languageInstruction(languages.linkedin)}
+- Language overrides English examples in the Bible; bilingual word counts apply per language.
 
 # Platform styles
 - Instagram: hook in the first line; 40–150 words; plain, warm and visual; 3–8 relevant hashtags returned separately (not in the copy); at most one emoji, or none.
@@ -244,8 +249,8 @@ ${JSON.stringify(bible.personas)}
       bible_version: bible.version, model: POSTS_MODEL,
     };
     const { data: drafts, error: dErr } = await db.from("marketing_post_drafts").insert([
-      { ...base, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags },
-      { ...base, platform: "linkedin", ai_copy: li.copy, ai_hashtags: li.hashtags },
+      { ...base, post_language: languages.instagram, platform: "instagram", ai_copy: ig.copy, ai_hashtags: ig.hashtags },
+      { ...base, post_language: languages.linkedin, platform: "linkedin", ai_copy: li.copy, ai_hashtags: li.hashtags },
     ]).select("id");
     if (dErr) throw new Error(`drafts: ${dErr.message}`);
     for (const d of (drafts ?? []) as { id: string }[]) {
