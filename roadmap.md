@@ -1,3 +1,9 @@
+## Current request — whole-image Marketing previews
+- [x] Diagnose three real originals: 4500×5625, EXIF 1; faulty 400×5625 strips; all below 25MB/50MP limits.
+- [x] Explicit contain, versioned caches/files; overwrite regenerated 55 images in 7 captures; 13 missing-original failures preserved. Maintenance-only large-image fallback implemented.
+- [x] Nine regression checks and authenticated Planner/Inbox screenshots verified; docs/marketing-preview-images-report.md saved. Finance untouched.
+- [ ] Automatic oversized-original fallback during hosted intake needs an external image-processing service; maintenance fallback works outside the edge runtime. No existing source required it.
+
 ## Current request — Marketing advisory approvals (A only)
 - [x] Save and apply mirrored migrations 0174–0175 removing readiness gates while preserving approval hashes and publication locks, including insert-time audit protection.
 - [x] Enable direct/request approvals and add explicit named-client confirmation plus system-owned warning audit.

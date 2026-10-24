@@ -8,6 +8,7 @@ export type ResolvedImage = {
 
 /** Preview sizes. Originals (no preview option) are what publishing sends to Meta. */
 export const PREVIEW = { tile: 400, small: 120 } as const;
+export const PREVIEW_VERSION = "contain-v2";
 export type ResolveOptions = { preview?: number; sign?: boolean };
 
 // Browser-only cache so the same signed URL is reused for most of its lifetime and the image stays in HTTP cache.
@@ -22,7 +23,7 @@ const browser = typeof window !== "undefined";
 export async function signPaths(sb: any, items: { path: string; video?: boolean }[], ttl = 3600, preview?: number): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   const now = Date.now();
-  const key = (p: string, v?: boolean) => `${p}|${v || !preview ? "orig" : preview}`;
+  const key = (p: string, v?: boolean) => `${PREVIEW_VERSION}|${p}|${v || !preview ? "orig" : preview}`;
   const todo = items.filter((i) => {
     if (out.has(i.path)) return false;
     const hit = browser ? cache.get(key(i.path, i.video)) : undefined;
@@ -41,7 +42,7 @@ export async function signPaths(sb: any, items: { path: string; video?: boolean 
     for (const d of data ?? []) if (d.path && d.signedUrl) remember(d.path, plain.find((i) => i.path === d.path)?.video, d.signedUrl);
   }
   await Promise.all([...new Set(resized.map((i) => i.path))].map(async (p) => {
-    const { data } = await sb.storage.from(BUCKET).createSignedUrl(p, ttl, { transform: { width: preview, quality: 70 } });
+    const { data } = await sb.storage.from(BUCKET).createSignedUrl(p, ttl, { transform: { width: preview, quality: 70, resize: "contain" } });
     if (data?.signedUrl) remember(p, false, data.signedUrl);
   }));
   return out;
