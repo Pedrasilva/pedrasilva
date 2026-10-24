@@ -1,3 +1,4 @@
+import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -308,9 +309,10 @@ function PostPlannerPage() {
           <h1 className="text-2xl font-semibold">{t("posts.title")}</h1>
           {canCurate && <div className="ml-auto"><NewCarouselButton /></div>}
         </div>
-        <p className="text-sm text-muted-foreground">{t("posts.subtitle")}</p>
+        <StepHint step="planner" />
       </div>
       <ModuleSubnav moduleId="marketing" />
+      <PipelineStrip current="planner" />
 
       {canCurate && <Card className="space-y-3 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
