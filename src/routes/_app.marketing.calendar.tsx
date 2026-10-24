@@ -205,7 +205,7 @@ function CalendarPage() {
       }}
       onClick={(e) => { if (!(e.target as HTMLElement).closest("button,a")) setPreviewRow(r); }}
       onKeyDown={(e) => { if (e.key === "Enter") setPreviewRow(r); }}
-      className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
+      className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", highlight === r.id && "ring-2 ring-primary", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
       {dayTile ? (
         <>
           <Thumb r={r} tile size={cn("w-full", r.format === "story" ? "aspect-[9/16]" : "aspect-[4/5]")} />

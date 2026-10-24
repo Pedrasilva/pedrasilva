@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { PREVIEW, PREVIEW_VERSION, resolveDraftImages } from "@/lib/marketing/draft-images";
 
 export const Route = createFileRoute("/_app/marketing/published/")({
+  validateSearch: (s: Record<string, unknown>): { highlight?: string } =>
+    typeof s.highlight === "string" && /^[0-9a-f-]{36}$/i.test(s.highlight) ? { highlight: s.highlight } : {},
   component: PublishedPosts,
   head: () => ({
     meta: [
@@ -24,6 +26,7 @@ type Row = { id: string; platform: string; final_copy: string | null; ai_copy: s
 
 function PublishedPosts() {
   const { t, i18n } = useTranslation("marketing");
+  const { highlight } = Route.useSearch();
   const { data, isLoading } = useQuery({
     queryKey: ["marketing-published-posts", PREVIEW_VERSION],
     queryFn: async () => {
@@ -55,7 +58,7 @@ function PublishedPosts() {
         const m = r.insight?.metrics ?? {};
         const PIcon = r.platform === "linkedin" ? Linkedin : Instagram;
         return (
-          <Card key={r.id} className="flex items-center gap-3 p-2.5">
+          <Card key={r.id} className={`flex items-center gap-3 p-2.5 ${highlight === r.id ? "ring-2 ring-primary" : ""}`}>
             <div className="h-16 w-14 shrink-0 overflow-hidden rounded bg-muted">
               {r.thumb ? <img src={r.thumb} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover object-center" /> : <ImageIcon className="m-auto mt-5 h-5 w-5 text-muted-foreground" />}
             </div>
