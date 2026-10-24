@@ -1,3 +1,4 @@
+import { POST_LANGUAGES, type PostLanguage } from "@/lib/marketing/post-language";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -148,6 +149,7 @@ function ProfilePage() {
     for (const f of STORY_FIELDS) patch[f] = v[f];
     if (canCurate) {
       Object.assign(patch, {
+        post_language: v.post_language, instagram_language: v.instagram_language, linkedin_language: v.linkedin_language,
         sector: v.sector, location: v.location, stage: v.stage, year_completed: v.year_completed,
         name_rule: v.name_rule, public_description: v.public_description, clearance: v.clearance, rules_notes: v.rules_notes,
       });
@@ -262,6 +264,13 @@ function ProfilePage() {
 
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.rules")}</h2>
+        <div className="space-y-3 border-t pt-3" data-post-language-settings>
+          <Label>{t("postLanguage.title")}</Label>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1"><Label className="text-xs">{t("postLanguage.default")}</Label><Select value={v.post_language} disabled={!canCurate} onValueChange={x => set({post_language:x as PostLanguage})}><SelectTrigger aria-label={t("postLanguage.title")}><SelectValue /></SelectTrigger><SelectContent>{POST_LANGUAGES.map(l => <SelectItem key={l} value={l}>{t(`postLanguage.options.${l}`)}</SelectItem>)}</SelectContent></Select></div>
+            {(["instagram","linkedin"] as const).map(platform => <div key={platform} className="space-y-1"><Label className="text-xs">{t(`posts.platform.${platform}`)}</Label><Select value={v[`${platform}_language`] ?? "project"} disabled={!canCurate} onValueChange={x => set({[`${platform}_language`]:x === "project" ? null : x as PostLanguage})}><SelectTrigger aria-label={t(`posts.platform.${platform}`)}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="project">{t("postLanguage.perProject")}</SelectItem>{POST_LANGUAGES.map(l => <SelectItem key={l} value={l}>{t(`postLanguage.options.${l}`)}</SelectItem>)}</SelectContent></Select></div>)}
+          </div>
+        </div>
         {!canCurate && <p className="text-xs text-muted-foreground">{t("profile.rulesReadOnly")}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">

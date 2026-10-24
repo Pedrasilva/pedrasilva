@@ -1,4 +1,4 @@
-import { resolvePostLanguage, languageInstruction } from "./post-language";
+import { resolvePostLanguage, languageInstruction, type LanguageProfile } from "./post-language";
 /**
  * Carousel composer — hand-built carousels.
  * The curator fixes the slide order; the AI only writes the Instagram + LinkedIn copy around it.
@@ -50,8 +50,8 @@ async function loadComposition(db: any, compositionId: string) {
   const { data: comp } = await db.from("marketing_compositions").select("*").eq("id", compositionId).maybeSingle();
   if (!comp) throw new Error("Carousel not found");
   const { data: slides } = await db.from("marketing_composition_slides").select("*").eq("composition_id", compositionId).order("position");
-  const { data: prof } = await db.from("marketing_project_profiles").select("id, project_id, clearance").eq("id", comp.profile_id).single();
-  return { comp, slides: (slides ?? []) as CompSlide[], prof: prof as { id: string; project_id: string; clearance: string } };
+  const { data: prof } = await db.from("marketing_project_profiles").select("id, project_id, clearance, post_language, instagram_language, linkedin_language").eq("id", comp.profile_id).single();
+  return { comp, slides: (slides ?? []) as CompSlide[], prof: prof as LanguageProfile & { id: string; project_id: string; clearance: string } };
 }
 
 /** Slide descriptions + small signed thumbnails, in order. */

@@ -1,4 +1,18 @@
 {
+  "postLanguage": {
+    "title": "Idioma dos posts",
+    "default": "Predefinição",
+    "perProject": "Por projeto",
+    "options": {
+      "en": "English",
+      "pt-PT": "Português (PT-PT)",
+      "bilingual": "Bilingue (PT primeiro, depois EN)"
+    },
+    "translatePt": "Traduzir para português",
+    "translateEn": "Traduzir para inglês",
+    "translated": "Tradução carregada no editor. Guarde ou aprove para a manter.",
+    "aiBlocked": "Tradução bloqueada pelos créditos de IA ou pelo limite de gastos."
+  },
   "storyRender": {
     "render": "Preparar pré-visualização da Story",
     "stickerWarning": "O Instagram não permite adicionar este sticker automaticamente. Escolha como publicar este frame.",

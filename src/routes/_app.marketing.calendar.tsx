@@ -1,3 +1,4 @@
+import { languageChip, type PostLanguage } from "@/lib/marketing/post-language";
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState , useEffect, useRef } from "react";
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/_app/marketing/calendar")({
 });
 
 type Row = {
-  story_render_manifest: StoryManifest | null;
+  post_language: PostLanguage; story_render_manifest: StoryManifest | null;
   id: string; request_id: string; platform: "instagram" | "linkedin"; status: string; scheduled_at: string | null; created_at: string;
   pillar: string | null; persona: string | null; project_id: string | null; asset_ids: string[];
   final_copy: string | null; ai_copy: string; final_hashtags: string[] | null; ai_hashtags: string[]; format: string | null; published_url: string | null; publish_error_message: string | null; publish_sent_at: string | null;
@@ -62,7 +63,7 @@ function useCalendarData() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = supabase as any;
       const { data, error } = await sb.from("marketing_post_drafts")
-        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at, story_render_manifest")
+        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at, story_render_manifest, post_language")
         .in("status", ["approved", "scheduled", "publishing", "published", "failed"]).order("created_at", { ascending: false }).limit(400);
       if (error) throw error;
       const rows = (data ?? []) as Row[];
@@ -193,7 +194,7 @@ function CalendarPage() {
             <Layers className="h-2.5 w-2.5" />{r.asset_ids.length}
           </span>
         )}
-        {tile && <span className="absolute right-1 top-1 rounded bg-background/90 p-1"><PlatformIcon r={r} /></span>}
+        {tile && <span className="absolute right-1 top-1 rounded bg-background/90 p-1"><PlatformIcon r={r} /><span className="text-[10px] text-muted-foreground" data-post-language={r.post_language}>{languageChip(r.post_language)}</span></span>}
       </span>
     );
   };
@@ -233,7 +234,7 @@ function CalendarPage() {
           <Thumb r={r} size="h-10 w-8" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1">
-              <PlatformIcon r={r} />
+              <PlatformIcon r={r} /><span className="text-[10px] text-muted-foreground" data-post-language={r.post_language}>{languageChip(r.post_language)}</span>
               {r.scheduled_at && <span className="font-medium">{lisbonParts(r.scheduled_at).time}</span>}
             </div>
             {r.status !== "scheduled" && <span className={cn("text-[10px]", r.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{t(`posts.status.${r.status}`)}</span>}
@@ -246,7 +247,7 @@ function CalendarPage() {
         <Thumb r={r} size="h-12 w-12" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1">
-            <PlatformIcon r={r} />
+            <PlatformIcon r={r} /><span className="text-[10px] text-muted-foreground" data-post-language={r.post_language}>{languageChip(r.post_language)}</span>
             {r.scheduled_at && <span className="font-medium">{lisbonParts(r.scheduled_at).time}</span>}
             <Badge variant={r.status==="failed"?"destructive":"secondary"} className="px-1 py-0 text-[10px]">{t(`posts.status.${r.status}`)}</Badge>
           </div>
