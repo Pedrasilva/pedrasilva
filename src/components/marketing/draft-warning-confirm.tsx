@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { Json } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -32,7 +32,7 @@ export function useDraftWarningConfirm(draftId: string) {
     setBusy(true);
     try {
       if (Object.keys(pending.patch).length) {
-        const { error } = await supabase.from("marketing_post_drafts").update(pending.patch).eq("id", draftId);
+        const { error } = await supabase.from("marketing_post_drafts").update(pending.patch as Database["public"]["Tables"]["marketing_post_drafts"]["Update"]).eq("id", draftId);
         if (error) throw error;
       }
       const { error } = await supabase.rpc("marketing_confirm_draft_warning", { _draft: draftId, _hash: pending.review.hash });
