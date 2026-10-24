@@ -81,8 +81,7 @@ export function PostApprovalControls({ draftId, status, readiness, canCurate }: 
       )}
       <div className="flex flex-wrap gap-2">
         {canCurate && (status === "suggested" || status === "pending_approval") && (
-          <Button size="sm" variant="outline" disabled={busy || readiness !== "ready"} onClick={() => setAskOpen(true)}
-            title={readiness !== "ready" ? t("posts.approveDisabled") : undefined}>
+          <Button size="sm" variant="outline" disabled={busy} onClick={() => setAskOpen(true)}>
             <Send className="mr-1 h-3.5 w-3.5" />{status === "pending_approval" ? t("approval.askAgain") : t("approval.ask")}
           </Button>
         )}

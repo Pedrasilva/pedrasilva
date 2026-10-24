@@ -640,7 +640,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       <div className="flex flex-wrap gap-2">
         {canCurate && draft.status === "suggested" && (
           <>
-            <Button size="sm" onClick={approve} disabled={saving || draft.readiness !== "ready"} title={draft.readiness !== "ready" ? t("posts.approveDisabled") : undefined}>
+            <Button size="sm" onClick={approve} disabled={saving}>
               <Check className="mr-1 h-3.5 w-3.5" /> {t("posts.approve")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)} disabled={saving}>
@@ -658,7 +658,6 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
         {(assets.length > 0 || (isStory && frames.some((f) => f.kind === "text"))) && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
-      {canCurate && draft.status === "suggested" && draft.readiness !== "ready" && <p className="text-xs text-muted-foreground">{t("posts.approveDisabled")}</p>}
       {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
       {draft.platform === "instagram" && <InstagramPublishControls draftId={draft.id} status={draft.status} canCurate={canCurate && !changedFromSaved} error={draft.publish_error_message} permalink={draft.published_url} sentAt={draft.publish_sent_at}/>}
       <PostApprovalControls draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
