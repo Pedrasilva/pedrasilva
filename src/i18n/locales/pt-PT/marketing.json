@@ -16,6 +16,7 @@
     "granted": "Concedida",
     "missing": "Em falta",
     "permissionOptional": "Permissão opcional",
+    "providerError": "Meta: {{detail}}",
     "noAccess": "Não tem acesso às definições de Marketing.",
     "errors": {
       "identityFailed": "A Meta não conseguiu verificar o utilizador de sistema. Verifique o token e os ativos atribuídos.",

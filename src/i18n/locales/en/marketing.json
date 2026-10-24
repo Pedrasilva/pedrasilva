@@ -16,6 +16,7 @@
     "granted": "Granted",
     "missing": "Missing",
     "permissionOptional": "Optional permission",
+    "providerError": "Meta: {{detail}}",
     "noAccess": "You do not have access to Marketing settings.",
     "errors": {
       "identityFailed": "Meta could not verify the system user. Check the token and assigned assets.",
