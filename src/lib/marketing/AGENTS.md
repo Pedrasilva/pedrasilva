@@ -1,6 +1,6 @@
 # Marketing module rules
 
-- Meta connection verification uses the authenticated meta-connection-check.functions.ts RPC and a server-only Graph batch helper; roles are checked through the caller-scoped has_role RPC before reading secrets, and settings writes retain caller RLS. Why: tokens stay out of browser bundles, URLs, logs and tables, while admin verification cannot be bypassed.
+- Meta connection verification uses the authenticated meta-connection-check.functions.ts RPC and a server-only Graph batch helper; roles are checked through the caller-scoped has_role RPC before reading secrets, and settings writes retain caller RLS. The first failed call's Meta code/subcode/type/fbtrace_id and a redacted message are saved in marketing_settings.meta_error_* and shown on the card. Why: tokens stay out of browser bundles, URLs, logs and tables, while admin verification cannot be bypassed.
 
 - Marketing module: captures in marketing_captures (original fields immutable via trigger) + files in private marketing-assets bucket at {capture_id}/...; always served via signed URLs. Why: originals are evidence and assets may need client clearance.
 - Marketing email intake: ideas@ read via GOOGLE_MAIL_API_KEY_3 in src/routes/api/public/hooks/marketing-intake.ts; hook secret lives only in Vault (marketing_intake_secret, checked by service-role-only marketing_intake_secret_matches). Why: no secret values in migrations or env duplicates.
