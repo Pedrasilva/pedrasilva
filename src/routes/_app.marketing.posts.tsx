@@ -554,7 +554,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     const patch = { final_copy: copy, final_hashtags: parsedTags, ...framePatch,
       decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null) };
     if (isStory) {
-      if (changedFromSaved && !await update(patch, "")) return false;
+      if (!await update(patch, "")) return false;
       try { setSaving(true); await prepareStoryRender(draft.id); } catch(e) { toast.error(e instanceof Error ? e.message : t("posts.error")); return false; } finally { setSaving(false); }
     }
     return warning.run(async () => {
