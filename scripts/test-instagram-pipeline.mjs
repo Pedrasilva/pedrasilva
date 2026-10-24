@@ -26,4 +26,4 @@ const staleStory=await scenario({format:'story',files:2,stale:true});assert.equa
 const manualStory=await scenario({format:'story',files:2,manual:true});assert.equal(manualStory.calls.length,0);
 const fenced=await scenario({fence:true});assert.equal(fenced.calls.filter(c=>c.url.includes('/media_publish')).length,0);
 const ambiguous=await scenario({unknown:true});assert.equal(ambiguous.calls.filter(c=>c.url.includes('/media_publish')).length,1);assert.ok(ambiguous.checkpoints.some(c=>c._patch.error_code==='network'&&c._patch.confirmed_rejection===false));
-console.log('5 mocked pipeline scenarios passed: single, carousel, multi-frame Stories, stale lock, lost publish response. No real Graph calls.');
+console.log('7 mocked pipeline scenarios passed: single, carousel, multi-frame Stories, stale render, manual sticker, stale lock, lost publish response. No real Graph calls.');

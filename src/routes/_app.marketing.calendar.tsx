@@ -352,6 +352,7 @@ function CalendarPage() {
             ))}
           </div>
           <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">{previewRow ? caption(previewRow) : ""}</p>
+          {previewRow?.story_render_manifest?.automatic === false && <p className="text-xs text-warning">{t("storyRender.blocked")}</p>}
           {previewRow && <p className="text-xs text-muted-foreground">{(previewRow.final_hashtags ?? previewRow.ai_hashtags).map((h) => `#${h}`).join(" ")}</p>}
           <DialogFooter>
             {previewRow && <Button variant="outline" size="sm" asChild><Link to="/marketing/posts" search={{ draft: previewRow.id }}>{t("calendar.openInPlanner")}</Link></Button>}
