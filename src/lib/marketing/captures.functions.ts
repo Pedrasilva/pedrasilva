@@ -62,3 +62,16 @@ export const deleteCapture = createServerFn({ method: "POST" })
     if (error) { console.error("deleteCapture: delete failed", error.message); return { ok: false, reason: "failed" }; }
     return { ok: true };
   });
+
+/** Creates card thumbnails for a capture's images after a manual upload. Caller must see the capture (RLS). */
+export const generateCaptureThumbnails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ captureId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<{ done: number }> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: cap } = await (context.supabase as any).from("marketing_captures").select("id").eq("id", data.captureId).maybeSingle();
+    if (!cap) return { done: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { generateThumbnailsForCapture } = await import("@/lib/marketing/thumbnails.server");
+    return { done: await generateThumbnailsForCapture(supabaseAdmin, cap.id) };
+  });

@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
+import { generateCaptureThumbnails } from "@/lib/marketing/captures.functions";
+import { signPaths } from "@/lib/marketing/draft-images";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,7 +88,7 @@ const NONE = "__none";
 const ALL = "__all";
 const ACTIVE = "__active";
 
-type Asset = { id: string; storage_path: string; file_name: string; mime_type: string; size_bytes: number; position?: number };
+type Asset = { id: string; storage_path: string; thumb_path?: string | null; file_name: string; mime_type: string; size_bytes: number; position?: number };
 type Capture = {
   id: string;
   created_by: string | null;
@@ -161,12 +163,37 @@ function useCaptures() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketing_captures")
-        .select("*, marketing_capture_assets(id, storage_path, file_name, mime_type, size_bytes, position)")
+        .select("*, marketing_capture_assets(id, storage_path, thumb_path, file_name, mime_type, size_bytes, position)")
         .order("received_at", { ascending: false });
       if (error) throw error;
       const list = (data ?? []) as unknown as Capture[];
       for (const c of list) c.marketing_capture_assets.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
       return list;
+    },
+  });
+}
+
+/**
+ * Card thumbnails, signed in one batch (private bucket). Uses the stored WebP thumbnail;
+ * assets not yet backfilled fall back to an on-the-fly 600px transform, never the original.
+ */
+function useCardThumbs(assets: Asset[]) {
+  const key = assets.map((a) => `${a.id}:${a.thumb_path ?? ""}`);
+  return useQuery({
+    queryKey: ["marketing-card-thumbs", key],
+    enabled: assets.length > 0,
+    staleTime: 50 * 60_000,
+    queryFn: async () => {
+      const withThumb = assets.filter((a) => a.thumb_path);
+      const without = assets.filter((a) => !a.thumb_path);
+      const [stored, fallback] = await Promise.all([
+        signPaths(supabase, withThumb.map((a) => ({ path: a.thumb_path! })), 3600),
+        signPaths(supabase, without.map((a) => ({ path: a.storage_path })), 3600, 600),
+      ]);
+      const map: Record<string, string> = {};
+      for (const a of withThumb) { const u = stored.get(a.thumb_path!); if (u) map[a.id] = u; }
+      for (const a of without) { const u = fallback.get(a.storage_path); if (u) map[a.id] = u; }
+      return map;
     },
   });
 }
@@ -225,10 +252,12 @@ function MarketingInboxPage() {
     ? (b.fit_score ?? -1) - (a.fit_score ?? -1) || b.received_at.localeCompare(a.received_at)
     : b.received_at.localeCompare(a.received_at));
 
-  const thumbPaths = filtered
-    .map((c) => c.marketing_capture_assets.find((a) => a.mime_type.startsWith("image/"))?.storage_path)
-    .filter((p): p is string => !!p);
-  const { data: thumbs = {} } = useSignedUrls(thumbPaths);
+  // Cards only ever load the small thumbnail; the original loads when a capture is opened.
+  const cardImages = filtered
+    .map((c) => c.marketing_capture_assets.find((a) => a.mime_type.startsWith("image/")))
+    .filter((a): a is Asset => !!a);
+  const { data: thumbs = {} } = useCardThumbs(cardImages);
+  const [brokenThumbs, setBrokenThumbs] = useState<Set<string>>(new Set());
   const selected = captures.find((c) => c.id === openId) ?? null;
 
   return (
@@ -305,9 +334,21 @@ function MarketingInboxPage() {
             const Icon = hasVideo ? Video : c.content_type === "link" ? Link2 : c.content_type === "idea" ? Lightbulb : ImageIcon;
             return (
               <Card key={c.id} className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md" onClick={() => setOpenId(c.id)}>
-                <div className="flex aspect-video items-center justify-center bg-muted">
-                  {img && thumbs[img.storage_path] ? (
-                    <img src={thumbs[img.storage_path]} alt="" className="h-full w-full object-cover" loading="lazy" />
+                <div className="flex aspect-video items-center justify-center overflow-hidden bg-muted">
+                  {img && thumbs[img.id] && !brokenThumbs.has(img.id) ? (
+                    <img
+                      src={thumbs[img.id]}
+                      alt=""
+                      width={600}
+                      height={338}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      onError={() => {
+                        console.warn("marketing inbox: thumbnail failed to load", { asset: img.id, path: img.thumb_path ?? img.storage_path });
+                        setBrokenThumbs((s) => new Set(s).add(img.id));
+                      }}
+                    />
                   ) : (
                     <Icon className="h-8 w-8 text-muted-foreground" />
                   )}
@@ -390,6 +431,7 @@ function OptSelect(props: { label: string; value: string | null; onChange: (v: s
 function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: { id: string; name: string }[] }) {
   const { t } = useTranslation("marketing");
   const { user } = useAuth();
+  const makeThumbs = useServerFn(generateCaptureThumbnails);
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -448,6 +490,8 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
       });
       if (ins.error) failed.push(f.name);
     }
+    try { await makeThumbs({ data: { captureId: cap.id } }); }
+    catch (e) { console.warn("marketing add: thumbnail generation failed", cap.id, e); }
     setSaving(false);
     setProgress({});
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });

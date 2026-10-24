@@ -1212,6 +1212,13 @@
       "when": 1792790622153,
       "tag": "0172_bank_opening_correction_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 173,
+      "version": "7",
+      "when": 1792845594483,
+      "tag": "0173_capture_asset_thumbnails",
+      "breakpoints": true
     }
   ]
 }

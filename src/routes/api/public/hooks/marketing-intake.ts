@@ -322,6 +322,11 @@ export const Route = createFileRoute("/api/public/hooks/marketing-intake")({
               if (assets.length) {
                 const { error: aErr } = await db.from("marketing_capture_assets").insert(assets);
                 if (aErr) summary.errors.push(`${id}: assets insert: ${aErr.message}`);
+                else {
+                  const { generateThumbnailsForCapture } = await import("@/lib/marketing/thumbnails.server");
+                  await generateThumbnailsForCapture(supabaseAdmin, captureId).catch((e) =>
+                    console.error("marketing-intake: thumbnails failed", captureId, e));
+                }
               }
               if (skipped.length) {
                 await db.from("marketing_email_ignored").insert(
