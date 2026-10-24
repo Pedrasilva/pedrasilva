@@ -49,6 +49,30 @@
       "clearance": "Autorização: {{value}}",
       "interest": "Interesse {{score}}",
       "flags": "{{count}} alertas da IA"
+    },
+    "stage": {
+      "to_curate": "Por curar",
+      "new": "Nova",
+      "in_planner": "No planner",
+      "scheduled": "Agendada",
+      "published": "Publicada",
+      "archived": "Arquivada",
+      "all": "Todas",
+      "chip": {
+        "in_planner_one": "No planner · {{count}} post",
+        "in_planner_other": "No planner · {{count}} posts",
+        "published_one": "Publicada · {{count}} post",
+        "published_other": "Publicada · {{count}} posts"
+      },
+      "chipScheduled": "Agendada · {{when}}",
+      "postsTitle": "Posts que usam esta captura",
+      "noPosts": "Ainda nenhum post usa esta captura.",
+      "openPost": "Abrir"
+    },
+    "createPost": {
+      "button": "Criar post",
+      "blocked": "Não foi possível criar o post porque os créditos de IA ou o limite de gastos foram atingidos. Carregue créditos ou aumente o limite e tente de novo.",
+      "failed": "Não foi possível criar o post: {{error}}"
     }
   },
   "filters": {

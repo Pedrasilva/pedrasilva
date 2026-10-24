@@ -49,6 +49,30 @@
       "clearance": "Clearance: {{value}}",
       "interest": "Interest {{score}}",
       "flags": "{{count}} AI flags"
+    },
+    "stage": {
+      "to_curate": "To curate",
+      "new": "New",
+      "in_planner": "In planner",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "archived": "Archived",
+      "all": "All",
+      "chip": {
+        "in_planner_one": "In planner · {{count}} post",
+        "in_planner_other": "In planner · {{count}} posts",
+        "published_one": "Published · {{count}} post",
+        "published_other": "Published · {{count}} posts"
+      },
+      "chipScheduled": "Scheduled · {{when}}",
+      "postsTitle": "Posts using this capture",
+      "noPosts": "No posts use this capture yet.",
+      "openPost": "Open"
+    },
+    "createPost": {
+      "button": "Create post",
+      "blocked": "The post could not be created because the AI credits or spending limit have been reached. Top up or raise the limit, then try again.",
+      "failed": "The post could not be created: {{error}}"
     }
   },
   "filters": {

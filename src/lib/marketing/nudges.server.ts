@@ -1,3 +1,4 @@
+import { cleanEmailBody } from "./clean-email";
 /**
  * Marketing Pass 5 — context nudges. Server-only helpers (service role + gateway).
  * The question draft and the story-field pick use the enrichment model (ENRICH_MODEL).
@@ -92,7 +93,7 @@ export async function draftNudgeQuestion(captureId: string): Promise<string> {
       `Project: ${c.pm_projects?.name ?? "unknown"}`, `Sector: ${c.sector ?? "unknown"}`, `Stage: ${c.stage ?? "unknown"}`,
       `Captured by: ${c.sender_name ?? "a colleague"}`,
       `What the project story already says: ${JSON.stringify(profile ?? {})}`,
-      "Text:", c.raw_text ?? "(no text)", "</capture>",
+      "Text:", cleanEmailBody(c.raw_text) || "(no text)", "</capture>",
     ].join("\n"),
   });
   const system = `You help an architecture studio's marketing curator ask an architect for the story behind a photo or note.

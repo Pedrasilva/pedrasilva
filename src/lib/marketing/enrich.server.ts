@@ -1,3 +1,4 @@
+import { cleanEmailBody } from "./clean-email";
 /**
  * Marketing Pass 3 — AI enrichment of captures.
  * Reads a capture against the active Marketing Bible and project profiles and
@@ -173,7 +174,7 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
       `Received: ${c.received_at}`,
       `Currently linked project: ${linked ? `${linked.project_name} (${linked.project_id})` : c.project_id ?? "none"}`,
       others.length ? `Also attached (not shown): ${others.map((o) => `${o.mime_type.split("/")[0]} (${o.file_name})`).join(", ")}` : "",
-      "Text:", c.raw_text ?? "(no text)",
+      "Text:", cleanEmailBody(c.raw_text) || "(no text)",
       ...teamContext.map((t) => `Team context: ${t.author}: ${t.text}`),
       "</capture>",
     ].filter(Boolean).join("\n"),

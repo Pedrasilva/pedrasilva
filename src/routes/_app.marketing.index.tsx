@@ -7,13 +7,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ArrowLeft, ArrowRight, FileText, ImageIcon, LayoutGrid, Lightbulb, Link2, Mail, MessageCircle, Plus, RefreshCw, SlidersHorizontal, Sparkles, Video } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { useServerFn } from "@tanstack/react-start";
 import { reenrichCapture } from "@/lib/marketing/enrich.functions";
 import { generateCaptureThumbnails } from "@/lib/marketing/captures.functions";
 import { PREVIEW_VERSION, signPaths } from "@/lib/marketing/draft-images";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
+import { cleanEmailBody } from "@/lib/marketing/clean-email";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -49,6 +49,12 @@ export const Route = createFileRoute("/_app/marketing/")({
 });
 
 const STATUSES = ["new", "enriched", "ready", "used", "archived"] as const;
+/** Statuses people may pick; "ready" stays in the enum but is no longer offered. */
+const PICKABLE_STATUSES = ["new", "enriched", "used", "archived"] as const;
+const STAGE_TABS = ["to_curate", "new", "in_planner", "scheduled", "published", "archived", "all"] as const;
+type Stage = Exclude<(typeof STAGE_TABS)[number], "all">;
+type DraftLink = { capture_id: string; draft_id: string; request_id: string | null; platform: string; status: string; scheduled_at: string | null; format: string | null };
+type StageRow = { capture_id: string; stage: Stage; post_count: number; next_scheduled_at: string | null };
 const CLEARANCES = ["unknown", "cleared", "needs_client_approval", "internal_only"] as const;
 const SECTORS = ["workspace", "healthcare", "residential", "hospitality", "other"] as const;
 const STAGES = ["design", "construction", "completed", "other"] as const;
@@ -128,12 +134,11 @@ const CLEARANCE_CLASS: Record<Capture["clearance"], string> = {
   unknown: "bg-warning/15 text-warning border-warning/30",
 };
 
-const QUICK = ["new", "enriched", "ready", "used"] as const;
 const CHANNEL_ICON = { email: Mail, hub: LayoutGrid, whatsapp: MessageCircle } as const;
 
 /** Card title + preview; never shows a literal "Subject:" line. */
 function cardText(c: { raw_text: string | null; ai_summary: string | null }) {
-  const raw = (c.raw_text ?? "").trim();
+  const raw = cleanEmailBody(c.raw_text);
   const [first = "", ...rest] = raw.split(/\r?\n/);
   if (/^subject:/i.test(first)) {
     return { title: first.replace(/^subject:\s*/i, "").trim(), preview: rest.join(" ").trim() };
@@ -198,6 +203,50 @@ function useCardThumbs(assets: Asset[]) {
   });
 }
 
+/** Derived capture stage + linked posts (security-invoker views, one batched read each). */
+function useCaptureStages() {
+  return useQuery({
+    queryKey: ["marketing-capture-stages"],
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = supabase as any;
+      const [st, ln] = await Promise.all([
+        db.from("marketing_capture_stages").select("capture_id, stage, post_count, next_scheduled_at"),
+        db.from("marketing_capture_draft_links").select("capture_id, draft_id, request_id, platform, status, scheduled_at, format"),
+      ]);
+      if (st.error) throw st.error;
+      if (ln.error) throw ln.error;
+      const stages = new Map<string, StageRow>((st.data as StageRow[]).map((r) => [r.capture_id, r]));
+      const links = new Map<string, DraftLink[]>();
+      for (const l of ln.data as DraftLink[]) links.set(l.capture_id, [...(links.get(l.capture_id) ?? []), l]);
+      return { stages, links };
+    },
+  });
+}
+
+const fmtSlot = (iso: string, lang: string) =>
+  new Date(iso).toLocaleString(lang, { timeZone: "Europe/Lisbon", weekday: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+/** Chip showing where a capture is downstream, linking to the Planner or the Editorial calendar. */
+function StageChip({ row, links }: { row: StageRow | undefined; links: DraftLink[] }) {
+  const { t, i18n } = useTranslation("marketing");
+  const stage = row?.stage ?? "to_curate";
+  const live = links.filter((l) => l.status !== "rejected");
+  const label = stage === "scheduled" && row?.next_scheduled_at
+    ? t("inbox.stage.chipScheduled", { when: fmtSlot(row.next_scheduled_at, i18n.language) })
+    : stage === "in_planner" || stage === "published"
+      ? t(`inbox.stage.chip.${stage}`, { count: row?.post_count ?? live.length })
+      : t(`inbox.stage.${stage}`);
+  const cls = "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium";
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
+  if (stage === "scheduled") return <Link to="/marketing/calendar" onClick={stop} className={cn(cls, "border-primary/30 bg-primary/10 text-primary hover:underline")}>{label}</Link>;
+  if ((stage === "in_planner" || stage === "published") && live.length) {
+    const search = live.length === 1 ? { draft: live[0].draft_id, tab: "all" as const } : live[0].request_id ? { request: live[0].request_id, tab: "all" as const } : { draft: live[0].draft_id, tab: "all" as const };
+    return <Link to="/marketing/posts" search={search} onClick={stop} className={cn(cls, stage === "published" ? "border-success/30 bg-success/10 text-success" : "border-primary/30 bg-primary/10 text-primary", "hover:underline")}>{label}</Link>;
+  }
+  return <span className={cn(cls, "border-border bg-muted text-muted-foreground")}>{label}</span>;
+}
+
 /** Signed URLs only — the bucket is private. */
 function useSignedUrls(paths: string[]) {
   return useQuery({
@@ -222,8 +271,10 @@ function MarketingInboxPage() {
   const { data: projects = [] } = useProjects();
   const projectName = useMemo(() => new Map(projects.map((p) => [p.id, p.name])), [projects]);
 
-  const [status, setStatus] = useState<string>(ALL);
-  const [showArchived, setShowArchived] = useState(false);
+  const [status, setStatus] = useState<string>("to_curate");
+  const { data: stageData } = useCaptureStages();
+  const stageOf = (c: Capture): Stage => stageData?.stages.get(c.id)?.stage ?? (c.status === "archived" ? "archived" : c.status === "new" ? "new" : "to_curate");
+  const canCurate = can("marketing.curate", "all");
   const [sector, setSector] = useState<string>(ALL);
   const [clearance, setClearance] = useState<string>(ALL);
   const [channel, setChannel] = useState<string>(ALL);
@@ -242,13 +293,11 @@ function MarketingInboxPage() {
       (channel === ALL || c.channel === channel) &&
       (project === ALL || c.project_id === project);
   const base = captures.filter(matchesOther);
-  const countFor = (s: string) => base.filter((c) => (s === ALL ? showArchived || c.status !== "archived" : c.status === s)).length;
-  const activeFilters = [sector, clearance, channel, project].filter((v) => v !== ALL).length + (showArchived ? 1 : 0);
-  const clearFilters = () => { setSector(ALL); setClearance(ALL); setChannel(ALL); setProject(ALL); setShowArchived(false); if (status === "archived") setStatus(ALL); };
-  const quickTabs = [...QUICK, ...(showArchived ? (["archived"] as const) : []), ALL];
-  const filtered = base.filter(
-    (c) => (status === ALL ? showArchived || c.status !== "archived" : c.status === status),
-  ).sort((a, b) => sort === "fit"
+  const inTab = (c: Capture, s: string) => s === "all" || stageOf(c) === s;
+  const countFor = (s: string) => base.filter((c) => inTab(c, s)).length;
+  const activeFilters = [sector, clearance, channel, project].filter((v) => v !== ALL).length;
+  const clearFilters = () => { setSector(ALL); setClearance(ALL); setChannel(ALL); setProject(ALL); };
+  const filtered = base.filter((c) => inTab(c, status)).sort((a, b) => sort === "fit"
     ? (b.fit_score ?? -1) - (a.fit_score ?? -1) || b.received_at.localeCompare(a.received_at)
     : b.received_at.localeCompare(a.received_at));
 
@@ -278,10 +327,10 @@ function MarketingInboxPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div role="tablist" aria-label={t("filters.status")} className="flex flex-wrap gap-1">
-          {quickTabs.map((s) => (
+          {STAGE_TABS.map((s) => (
             <Button key={s} role="tab" aria-selected={status === s} size="sm" variant={status === s ? "secondary" : "ghost"}
               onClick={() => setStatus(s)}>
-              {t(`inbox.quick.${s === ALL ? "all" : s}`)}
+              {t(`inbox.stage.${s}`)}
               <span className="ml-1.5 text-xs text-muted-foreground">{countFor(s)}</span>
             </Button>
           ))}
@@ -303,11 +352,6 @@ function MarketingInboxPage() {
           options={[{ v: ALL, l: t("filters.all") }, ...CHANNELS.map((s) => ({ v: s, l: t(`channel.${s}`) }))]} />
         <FilterSelect label={t("filters.project")} value={project} onChange={setProject}
           options={[{ v: ALL, l: t("filters.all") }, ...projects.map((p) => ({ v: p.id, l: p.name }))]} />
-              <div className="flex items-center justify-between pt-1">
-                <Label htmlFor="mk-show-archived" className="text-sm">{t("filters.showArchived")}</Label>
-                <Switch id="mk-show-archived" checked={showArchived}
-                  onCheckedChange={(v) => { setShowArchived(v); if (!v && status === "archived") setStatus(ALL); }} />
-              </div>
               <Button variant="ghost" size="sm" className="w-full" disabled={activeFilters === 0} onClick={clearFilters}>
                 {t("filters.clear")}
               </Button>
@@ -362,7 +406,7 @@ function MarketingInboxPage() {
                   {c.project_id && <p className="truncate text-xs font-medium">{projectName.get(c.project_id)}</p>}
                   <div className="flex flex-wrap gap-1">
                     <Badge variant="outline" className="gap-1"><ChIcon className="h-3 w-3" />{t(`channel.${c.channel}`)}</Badge>
-                    <Badge variant="secondary">{t(`status.${c.status}`)}</Badge>
+                    <StageChip row={stageData?.stages.get(c.id)} links={stageData?.links.get(c.id) ?? []} />
                     <Badge variant="outline" className={CLEARANCE_CLASS[eff]}>
                       {t("inbox.card.clearance", { value: t(`clearance.${eff}`).toLocaleLowerCase() })}
                     </Badge>
@@ -380,6 +424,9 @@ function MarketingInboxPage() {
                       </Tooltip>
                     )}
                   </div>
+                  {canCurate && stageOf(c) === "to_curate" && (
+                    <div onClick={(e) => e.stopPropagation()}><SuggestPostButton captureId={c.id} compact /></div>
+                  )}
                 </div>
               </Card>
             );
@@ -618,9 +665,10 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
   );
 }
 
-function SuggestPostButton({ captureId }: { captureId: string }) {
+function SuggestPostButton({ captureId, compact }: { captureId: string; compact?: boolean }) {
   const { t } = useTranslation("marketing");
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const generate = useServerFn(generatePostSuggestions);
   const [busy, setBusy] = useState(false);
   const run = async () => {
@@ -630,8 +678,18 @@ function SuggestPostButton({ captureId }: { captureId: string }) {
       const d = (x: Date) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
       const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
       const r = await generate({ data: { periodStart: d(today), periodEnd: d(end), ideaCount: 1, sourceCaptureId: captureId } });
-      if (!r.ok) toast.error(r.error);
-      navigate({ to: "/marketing/posts", search: { request: r.requestId } });
+      if (!r.ok) {
+        const blocked = /credit|spending|limit|denied|402|403|429/i.test(r.error);
+        toast.error(blocked ? t("inbox.createPost.blocked") : t("inbox.createPost.failed", { error: r.error }), { duration: 10000 });
+        return;
+      }
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["marketing-capture-stages"] }),
+        qc.invalidateQueries({ queryKey: ["marketing-captures"] }),
+      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: first } = await (supabase as any).from("marketing_post_drafts").select("id").eq("request_id", r.requestId).order("created_at").limit(1).maybeSingle();
+      navigate({ to: "/marketing/posts", search: first?.id ? { draft: first.id, tab: "review" } : { request: r.requestId } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("posts.error"));
     } finally {
@@ -639,8 +697,8 @@ function SuggestPostButton({ captureId }: { captureId: string }) {
     }
   };
   return (
-    <Button size="sm" variant="outline" className="mt-3" onClick={run} disabled={busy}>
-      <Sparkles className={cn("mr-1 h-3.5 w-3.5", busy && "animate-pulse")} /> {busy ? t("posts.generating") : t("posts.fromCapture")}
+    <Button size="sm" variant={compact ? "default" : "outline"} className={compact ? "w-full" : "mt-3"} onClick={run} disabled={busy}>
+      <Sparkles className={cn("mr-1 h-3.5 w-3.5", busy && "animate-pulse")} /> {busy ? t("posts.generating") : t(compact ? "inbox.createPost.button" : "posts.fromCapture")}
     </Button>
   );
 }
@@ -772,6 +830,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
         </div>
 
         <AiAnalysis capture={capture} canCurate={canCurate} />
+        <CapturePosts captureId={capture.id} />
         {canCurate && <SuggestPostButton captureId={capture.id} />}
         <CaptureContextCard captureId={capture.id} hasProfile={!!profile} profileId={profile?.id ?? null} canCurate={canCurate} />
         <DeleteCaptureButton capture={capture} canCurate={canCurate} onDeleted={onClose} />
@@ -809,9 +868,9 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
           </div>
           <div className="space-y-1">
             <Label className="text-xs">{t("detail.status")}</Label>
-            <Select value={v.status} onValueChange={(x) => set({ status: x as Capture["status"] })} disabled={!canCurate}>
+            <Select value={v.status === "ready" ? "enriched" : v.status} onValueChange={(x) => set({ status: x as Capture["status"] })} disabled={!canCurate}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`status.${s}`)}</SelectItem>)}</SelectContent>
+              <SelectContent>{PICKABLE_STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`status.${s}`)}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="col-span-2 space-y-1">
@@ -831,6 +890,26 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
         </Dialog>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/** Posts using this capture, with platform, status and a link. */
+function CapturePosts({ captureId }: { captureId: string }) {
+  const { t, i18n } = useTranslation("marketing");
+  const { data } = useCaptureStages();
+  const links = data?.links.get(captureId) ?? [];
+  return (
+    <div className="mt-4 space-y-1.5 rounded-md border border-border p-3">
+      <h4 className="text-sm font-semibold">{t("inbox.stage.postsTitle")}</h4>
+      {links.length === 0 ? <p className="text-xs text-muted-foreground">{t("inbox.stage.noPosts")}</p> : links.map((l) => (
+        <div key={l.draft_id} className="flex flex-wrap items-center gap-2 text-sm">
+          <Badge variant="outline">{t(`posts.platform.${l.platform}`)}</Badge>
+          <span className="text-muted-foreground">{t(`posts.status.${l.status}`)}</span>
+          {l.scheduled_at && <span className="text-xs text-muted-foreground">{fmtSlot(l.scheduled_at, i18n.language)}</span>}
+          <Link to="/marketing/posts" search={{ draft: l.draft_id, tab: "all" }} className="ml-auto text-xs text-primary underline">{t("inbox.stage.openPost")}</Link>
+        </div>
+      ))}
+    </div>
   );
 }
 
