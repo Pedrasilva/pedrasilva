@@ -1,3 +1,5 @@
+import { canRecheckClearance } from '@/lib/marketing/clearance';
+import { ClearanceSources } from '@/components/marketing/clearance-sources';
 import { POST_LANGUAGES, languageChip, type PostLanguage, type RunLanguage } from "@/lib/marketing/post-language";
 import { translatePost } from "@/lib/marketing/translate-post.functions";
 import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
@@ -149,7 +151,7 @@ const READY_CLASS: Record<Draft["readiness"], string> = {
 function usePlannerData() {
   return useQuery({
     queryKey: ["marketing-posts"],
-    refetchInterval: (q) => ((q.state.data as { requests: Req[] } | undefined)?.requests.some((r) => r.status === "running") ? 4000 : false),
+    refetchInterval: (q) => ((q.state.data as { requests: Req[] } | undefined)?.requests.some((r) => r.status === "running") ? 4000 : 15000),
     queryFn: async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = supabase as any;
@@ -176,11 +178,9 @@ function usePlannerData() {
 }
 
 async function recheckDrafts(ids: string[]) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rpc = (supabase as any).rpc.bind(supabase);
-  const results = await Promise.all(ids.map((id) => rpc("marketing_recheck_draft_readiness", { _draft_id: id })));
-  const err = results.find((r: { error: unknown }) => r.error);
-  if (err) throw err.error;
+  if (!ids.length) return;
+  const { error } = await supabase.rpc('marketing_recheck_drafts', { _ids: ids });
+  if (error) throw error;
 }
 
 function PostPlannerPage() {
@@ -225,10 +225,10 @@ function PostPlannerPage() {
   const { data: bible } = useActiveBible();
   const rechecked = useRef(new Set<string>());
   useEffect(() => {
-    const ids = (data?.drafts ?? []).filter((d) => d.status === "suggested" && !rechecked.current.has(d.id)).map((d) => d.id);
+    const ids = (data?.drafts ?? []).filter((d) => canRecheckClearance(d.status) && !rechecked.current.has(d.id)).map((d) => d.id);
     if (!canCurate || !ids.length) return;
     ids.forEach((id) => rechecked.current.add(id));
-    recheckDrafts(ids).then(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] })).catch(() => {});
+    recheckDrafts(ids).then(() => qc.invalidateQueries({ queryKey: ["marketing-posts"] })).catch(() => { ids.forEach(id => rechecked.current.delete(id)); });
   }, [data, qc, canCurate]);
 
   const pillarName = (k: string | null) => (k ? bible?.pillars.find((p) => p.key === k)?.name ?? k : null);
@@ -430,7 +430,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const recheck = async () => {
     setRechecking(true);
-    try { await recheckDrafts(drafts.filter((d) => d.status === "suggested").map((d) => d.id)); }
+    try { await recheckDrafts(drafts.filter((d) => canRecheckClearance(d.status)).map((d) => d.id)); }
     catch (e) { toast.error((e as { message?: string })?.message || t("posts.error")); }
     setRechecking(false);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
@@ -465,14 +465,11 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
           <span className="ml-auto"><DeleteButton label={t("posts.deleteIdea")} ids={drafts.map((d) => d.id)} column="id" /></span>
         )}
       </div>
-      {first.readiness_note && <p className="text-sm text-warning">{first.readiness_note.replace(/^Not cleared yet:\s*/i, `${t("posts.clearanceWarning")} `)}</p>}
-      {canCurate && first.status === "suggested" && first.readiness !== "ready" && (
+      <ClearanceSources draftId={first.id} safetyFlags={first.safety_flags} />
+      {canCurate && drafts.some(d => canRecheckClearance(d.status)) && (
         <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck} title={t("posts.recheckHint")}>
           <RefreshCw className={`mr-1 h-3.5 w-3.5 ${rechecking ? "animate-spin" : ""}`} /> {t("posts.recheck")}
         </Button>
-      )}
-      {first.safety_flags.length > 0 && (
-        <div className="flex flex-wrap gap-1">{first.safety_flags.map((f) => <Badge key={f} variant="outline" className={READY_CLASS.blocked}>{f}</Badge>)}</div>
       )}
       <p className="text-sm"><span className="text-muted-foreground">{t("posts.rationale")}: </span>{first.rationale}</p>
       <div className="flex flex-wrap gap-2 text-xs">

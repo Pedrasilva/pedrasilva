@@ -1,3 +1,5 @@
+import { ClearanceSources } from '@/components/marketing/clearance-sources';
+import { canRecheckClearance } from '@/lib/marketing/clearance';
 import { languageChip, type PostLanguage } from "@/lib/marketing/post-language";
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -123,6 +125,17 @@ function CalendarPage() {
   const rows = data?.rows ?? [];
   const { highlight } = Route.useSearch();
   const highlighted = useRef(false);
+  const rechecked = useRef(new Set<string>());
+  useEffect(() => {
+    const ids = rows.filter(r => canRecheckClearance(r.status) && !rechecked.current.has(r.id)).map(r => r.id);
+    if (!canCurate || !ids.length) return;
+    ids.forEach(id => rechecked.current.add(id));
+    supabase.rpc('marketing_recheck_drafts', { _ids: ids }).then(({ error }) => {
+      if (error) { ids.forEach(id => rechecked.current.delete(id)); return; }
+      qc.invalidateQueries({ queryKey: ['marketing-calendar'] });
+      qc.invalidateQueries({ queryKey: ['marketing-clearance-sources'] });
+    });
+  }, [rows, canCurate, qc]);
   useEffect(() => {
     const row = highlight ? rows.find((x) => x.id === highlight) : undefined;
     if (!row || highlighted.current) return;
@@ -354,6 +367,7 @@ function CalendarPage() {
             ))}
           </div>
           <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">{previewRow ? caption(previewRow) : ""}</p>
+          {previewRow && <ClearanceSources draftId={previewRow.id} />}
           {previewRow?.story_render_manifest?.automatic === false && <p className="text-xs text-warning">{t("storyRender.blocked")}</p>}
           {previewRow && <p className="text-xs text-muted-foreground">{(previewRow.final_hashtags ?? previewRow.ai_hashtags).map((h) => `#${h}`).join(" ")}</p>}
           <DialogFooter>
