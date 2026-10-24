@@ -1,3 +1,4 @@
+import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,7 +23,7 @@ export function usePostApprovers(enabled = true) {
 type Approval = { id: string; requested_by: string; approver_id: string; decision: string; comment: string | null; created_at: string; decided_at: string | null; voided_at: string | null };
 
 /** Request / decide controls for one draft. */
-export function PostApprovalControls({ draftId, status, canCurate }: { draftId: string; status: string; readiness: string; canCurate: boolean }) {
+export function PostApprovalControls({ draftId, status, canCurate, isStory = false }: { isStory?: boolean; draftId: string; status: string; readiness: string; canCurate: boolean }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -55,6 +56,7 @@ export function PostApprovalControls({ draftId, status, canCurate }: { draftId: 
     if (!approver) return;
     setBusy(true);
     try {
+      if (isStory) await prepareStoryRender(draftId);
       const r = await requestFn({ data: { draftId, approverId: approver, comment: comment.trim() || undefined } });
       toast.success(r.emailed ? t("approval.requested") : t("approval.requestedNoEmail"));
       setAskOpen(false); setComment(""); refresh();
@@ -65,6 +67,7 @@ export function PostApprovalControls({ draftId, status, canCurate }: { draftId: 
     if (!pending || !decision) return;
     setBusy(true);
     try {
+      if (isStory && decision === "approved") await prepareStoryRender(draftId);
       await decideFn({ data: { approvalId: pending.id, decision, comment: comment.trim() || undefined } });
       toast.success(decision === "approved" ? t("approval.approvedToast") : t("approval.changesToast"));
       setDecision(null); setComment(""); refresh();

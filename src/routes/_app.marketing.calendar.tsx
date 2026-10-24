@@ -19,7 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
-import { PREVIEW, PREVIEW_VERSION, resolveDraftImages } from "@/lib/marketing/draft-images";
+import type { StoryManifest } from "@/lib/marketing/story-render";
+import { PREVIEW, PREVIEW_VERSION, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
 import { gridOrder, lisbonParts, lisbonToUtcIso, lowWeeks, mondayOf, repetitionWarnings, WEEKLY_TARGET, type CalendarPost } from "@/lib/marketing/calendar";
 import { InstagramGrid, type GridPost } from "@/components/marketing/instagram-grid";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
@@ -47,6 +48,7 @@ export const Route = createFileRoute("/_app/marketing/calendar")({
 });
 
 type Row = {
+  story_render_manifest: StoryManifest | null;
   id: string; request_id: string; platform: "instagram" | "linkedin"; status: string; scheduled_at: string | null; created_at: string;
   pillar: string | null; persona: string | null; project_id: string | null; asset_ids: string[];
   final_copy: string | null; ai_copy: string; final_hashtags: string[] | null; ai_hashtags: string[]; format: string | null; published_url: string | null; publish_error_message: string | null; publish_sent_at: string | null;
@@ -60,7 +62,7 @@ function useCalendarData() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = supabase as any;
       const { data, error } = await sb.from("marketing_post_drafts")
-        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at")
+        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at, story_render_manifest")
         .in("status", ["approved", "scheduled", "publishing", "published", "failed"]).order("created_at", { ascending: false }).limit(400);
       if (error) throw error;
       const rows = (data ?? []) as Row[];
@@ -72,11 +74,12 @@ function useCalendarData() {
         resolveDraftImages(sb, [...new Set(rows.filter((r) => r.platform === "instagram").flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
         pids.length ? sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] },
       ]);
+      const storyUrls = await signPaths(sb, rows.flatMap(r => (r.story_render_manifest?.paths ?? []).map(path => ({ path }))), 3600, PREVIEW.tile);
       const urls = new Map(images.map((i) => [i.id, i.url]));
       const thumbUrls = new Map(thumbs.map((i) => [i.id, { url: i.url, video: i.mime_type?.startsWith("video/") }]));
       const names: Record<string, string> = {};
       for (const p of projects ?? []) names[p.id] = p.name;
-      return { rows, urls, thumbUrls, names };
+      return { rows, urls, thumbUrls, names, storyUrls };
     },
   });
 }
@@ -103,7 +106,11 @@ function CalendarPage() {
     queryKey: ["marketing-calendar-preview", PREVIEW_VERSION, previewRow?.id],
     enabled: !!previewRow,
     staleTime: 30 * 60 * 1000,
-    queryFn: () => resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, { preview: PREVIEW.tile }),
+    queryFn: async () => {
+      const paths = previewRow?.story_render_manifest?.paths;
+      if (paths?.length) { const urls = await signPaths(supabase, paths.map(path=>({path})), 3600, PREVIEW.tile); return paths.map((path,i)=>({id:path, url:urls.get(path), file_name:`Story ${i+1}`, mime_type:"image/jpeg"})); }
+      return resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, { preview: PREVIEW.tile });
+    },
   });
 
   const days = useMemo(() => {
@@ -167,13 +174,14 @@ function CalendarPage() {
 
   const gridPosts: GridPost[] = gridOrder(rows.filter((r) => r.platform === "instagram" && ["approved","scheduled","publishing","published","failed"].includes(r.status))).map((r) => ({
     id: r.id, caption: caption(r), hashtags: r.final_hashtags ?? r.ai_hashtags,
-    images: r.asset_ids.map((a) => data?.urls.get(a)).filter((u): u is string => !!u),
+    images: r.story_render_manifest?.paths.length ? r.story_render_manifest.paths.map(p=>data?.storyUrls.get(p)).filter((u):u is string=>!!u) : r.asset_ids.map((a) => data?.urls.get(a)).filter((u): u is string => !!u),
     status: r.status, permalink:r.published_url,error:r.publish_error_message,sentAt:r.publish_sent_at,
     when: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : null,
   }));
 
   const Thumb = ({ r, size, tile = false }: { r: Row; size: string; tile?: boolean }) => {
-    const th = data?.thumbUrls.get(r.asset_ids[0]);
+    const path = r.story_render_manifest?.paths[0];
+    const th = path ? {url:data?.storyUrls.get(path),video:false} : data?.thumbUrls.get(r.asset_ids[0]);
     return (
       <span className={cn("relative block shrink-0 overflow-hidden rounded bg-muted", size)}>
         {th?.url ? (th.video

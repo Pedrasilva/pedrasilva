@@ -1,4 +1,13 @@
 {
+  "storyRender": {
+    "render": "Preparar pré-visualização da Story",
+    "stickerWarning": "O Instagram não permite adicionar este sticker automaticamente. Escolha como publicar este frame.",
+    "stickerChoice": "Escolha de publicação do sticker",
+    "choose": "Escolher antes da publicação automática",
+    "omit": "Publicar sem o sticker",
+    "manual": "Vou publicar esta Story manualmente",
+    "blocked": "A publicação automática está bloqueada até escolher omitir todos os stickers."
+},
   "meta": {
     "title": "Ligação Meta",
     "test": "Testar ligação",

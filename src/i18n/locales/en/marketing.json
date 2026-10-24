@@ -1,4 +1,13 @@
 {
+  "storyRender": {
+    "render": "Render story preview",
+    "stickerWarning": "Instagram cannot add this sticker automatically. Choose how to publish this frame.",
+    "stickerChoice": "Sticker publication choice",
+    "choose": "Choose before automatic publishing",
+    "omit": "Publish without the sticker",
+    "manual": "I’ll post this story manually",
+    "blocked": "Automatic publishing is blocked until every sticker is explicitly omitted."
+},
   "meta": {
     "title": "Meta connection",
     "test": "Test connection",

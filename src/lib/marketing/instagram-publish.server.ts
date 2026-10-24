@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database, Json } from '@/integrations/supabase/types';
-import { resolveDraftImages } from './draft-images';
+import { storyRenderReady, type StoryManifest } from './story-render';
+import { signPaths, resolveDraftImages } from './draft-images';
 import { carouselBody, containerBody, type ContainerState, type PublishFormat } from './instagram-publish';
 import { inspectMedia } from './instagram-media.server';
 import { InstagramError, instagramGraph } from './instagram-graph.server';
@@ -51,9 +52,14 @@ export async function publishInstagramDraft(db: Db, draft: Draft, token: string,
     if(draft.location_tag)throw new InstagramError('Location tags are not supported by automatic publishing; remove the tag and approve again','validation');
     const format:PublishFormat=draft.format==='story'?'story':draft.format==='carousel'?'carousel':draft.format==='reel'||draft.format==='video'?'reel':'single';
     const frames=draft.final_story_frames??draft.ai_story_frames;
-    if(format==='story'&&Array.isArray(frames)&&frames.some(f=>f&&typeof f==='object'&&!Array.isArray(f)&&(f.kind==='text'||f.text||f.line||(f.sticker&&typeof f.sticker==='object'&&!Array.isArray(f.sticker)&&f.sticker.type!=='none'))))throw new InstagramError('Story text and stickers must already be rendered in the media; Instagram API does not add overlays','validation');
-    const images=await resolveDraftImages(db,draft.asset_ids,3600);
-    if(images.length!==draft.asset_ids.length||images.some(i=>!i.url))throw new InstagramError('Some approved media are missing or unreadable','validation');
+    const manifest = draft.story_render_manifest as unknown as StoryManifest | null;
+    if(format==='story' && !storyRenderReady(manifest,draft.approved_content_hash,Array.isArray(frames)?frames.length:0))throw new InstagramError('Story frames need re-rendering, open the post and approve again','validation');
+    let images;
+    if(format==='story' && manifest) {
+      const urls=await signPaths(db,manifest.paths.map(path=>({path})),3600);
+      images=manifest.paths.map((path,i)=>({url:urls.get(path)??null,file_name:`Story ${i+1}`}));
+    } else images=await resolveDraftImages(db,draft.asset_ids,3600);
+    if((format!=='story'&&images.length!==draft.asset_ids.length)||images.some(i=>!i.url))throw new InstagramError('Some approved media are missing or unreadable','validation');
     if(!images.length||format==='carousel'&&(images.length<2||images.length>10)||format!=='carousel'&&format!=='story'&&images.length!==1)throw new InstagramError('Single/reel requires one file; carousel requires 2–10 files','validation');
     const media=[];
     step='validate_media';
