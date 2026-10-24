@@ -1,3 +1,8 @@
+## Current request — whole-image Marketing previews
+- [ ] Diagnose three real originals, EXIF, transformed dimensions and documented limits.
+- [ ] Explicit contain transforms, versioned URLs/thumbnails, overwrite backfill with safe oversized-original fallback.
+- [ ] Run regression tests and browser-check Planner/Inbox; save dimensions and screenshots report. Finance untouched.
+
 ## Current request — Marketing advisory approvals (A only)
 - [x] Save and apply mirrored migrations 0174–0175 removing readiness gates while preserving approval hashes and publication locks, including insert-time audit protection.
 - [x] Enable direct/request approvals and add explicit named-client confirmation plus system-owned warning audit.
