@@ -1,7 +1,7 @@
 ## Current request — live clearance warnings
-- [ ] Batched unpublished rechecks and automatic source-change triggers; preserve content hashes, approvals and schedules.
-- [ ] Linked source warnings and curator-only append-only AI flag dismissal; original flags preserved.
-- [ ] Fixture tests, mirrored migration, Behind the hedge screenshot and report; Finance untouched.
+- [x] Batched unpublished rechecks and automatic source-change triggers; preserve content hashes, approvals and schedules.
+- [x] Linked source warnings and curator-only append-only AI flag dismissal; original flags preserved.
+- [x] 22 tests and rollback-only database fixtures passed; migration 0181 mirrored. Read-only Behind the hedge screenshot confirms project Cleared, capture Unknown and active AI flag; scheduled time/content/hash preserved. Finance untouched. Full live-browser dismissal not committed because immutable audit fixtures cannot be deleted.
 
 ## Current request — Marketing post language
 - [x] Profile/platform defaults, run override, resolved generation/composer prompts and stored draft language; migration 0180 mirrored.

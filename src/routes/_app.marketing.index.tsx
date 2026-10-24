@@ -757,7 +757,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
     if (error) { toast.error(t("detail.error")); return; }
     toast.success(t("detail.saved"));
     setDraft({});
-    qc.invalidateQueries({ queryKey: ["marketing-captures"] });
+    qc.invalidateQueries({ predicate: q => typeof q.queryKey[0] === 'string' && q.queryKey[0].startsWith('marketing-') });
   };
 
   const images = assets.filter((a) => a.mime_type.startsWith("image/"));

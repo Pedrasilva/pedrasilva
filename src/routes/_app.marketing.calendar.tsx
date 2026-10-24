@@ -52,6 +52,7 @@ export const Route = createFileRoute("/_app/marketing/calendar")({
 
 type Row = {
   post_language: PostLanguage; story_render_manifest: StoryManifest | null;
+  safety_flags: string[];
   id: string; request_id: string; platform: "instagram" | "linkedin"; status: string; scheduled_at: string | null; created_at: string;
   pillar: string | null; persona: string | null; project_id: string | null; asset_ids: string[];
   final_copy: string | null; ai_copy: string; final_hashtags: string[] | null; ai_hashtags: string[]; format: string | null; published_url: string | null; publish_error_message: string | null; publish_sent_at: string | null;
@@ -65,7 +66,7 @@ function useCalendarData() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = supabase as any;
       const { data, error } = await sb.from("marketing_post_drafts")
-        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at, story_render_manifest, post_language")
+        .select("id, request_id, platform, status, scheduled_at, created_at, pillar, persona, project_id, asset_ids, final_copy, ai_copy, final_hashtags, ai_hashtags, format, published_url, publish_error_message, publish_sent_at, story_render_manifest, post_language, safety_flags")
         .in("status", ["approved", "scheduled", "publishing", "published", "failed"]).order("created_at", { ascending: false }).limit(400);
       if (error) throw error;
       const rows = (data ?? []) as Row[];
@@ -367,7 +368,7 @@ function CalendarPage() {
             ))}
           </div>
           <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">{previewRow ? caption(previewRow) : ""}</p>
-          {previewRow && <ClearanceSources draftId={previewRow.id} />}
+          {previewRow && <ClearanceSources draftId={previewRow.id} safetyFlags={rows.find(r => r.id === previewRow.id)?.safety_flags ?? previewRow.safety_flags} />}
           {previewRow?.story_render_manifest?.automatic === false && <p className="text-xs text-warning">{t("storyRender.blocked")}</p>}
           {previewRow && <p className="text-xs text-muted-foreground">{(previewRow.final_hashtags ?? previewRow.ai_hashtags).map((h) => `#${h}`).join(" ")}</p>}
           <DialogFooter>
