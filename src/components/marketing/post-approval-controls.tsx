@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { decidePostApproval, listPostApprovers, requestPostApproval } from "@/lib/marketing/post-approvals.functions";
+import { useDraftWarningConfirm } from "./draft-warning-confirm";
 
 export function usePostApprovers(enabled = true) {
   const fn = useServerFn(listPostApprovers);
@@ -21,12 +22,13 @@ export function usePostApprovers(enabled = true) {
 type Approval = { id: string; requested_by: string; approver_id: string; decision: string; comment: string | null; created_at: string; decided_at: string | null; voided_at: string | null };
 
 /** Request / decide controls for one draft. */
-export function PostApprovalControls({ draftId, status, readiness, canCurate }: { draftId: string; status: string; readiness: string; canCurate: boolean }) {
+export function PostApprovalControls({ draftId, status, canCurate }: { draftId: string; status: string; readiness: string; canCurate: boolean }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const { user } = useAuth();
   const requestFn = useServerFn(requestPostApproval);
   const decideFn = useServerFn(decidePostApproval);
+  const warning = useDraftWarningConfirm(draftId);
   const [askOpen, setAskOpen] = useState(false);
   const [approver, setApprover] = useState("");
   const [comment, setComment] = useState("");
@@ -111,9 +113,10 @@ export function PostApprovalControls({ draftId, status, readiness, canCurate }: 
           <DialogHeader><DialogTitle>{decision === "approved" ? t("approval.approve") : t("approval.requestChanges")}</DialogTitle></DialogHeader>
           <Label>{t("approval.comment")}{decision === "changes_requested" ? " *" : ""}</Label>
           <Textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} />
-          <DialogFooter><Button onClick={decide} disabled={busy || (decision === "changes_requested" && !comment.trim())}>{t("approval.confirm")}</Button></DialogFooter>
+          <DialogFooter><Button onClick={() => decision === "approved" ? warning.run(decide) : decide()} disabled={busy || (decision === "changes_requested" && !comment.trim())}>{t("approval.confirm")}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      {warning.dialog}
     </div>
   );
 }

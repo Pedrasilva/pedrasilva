@@ -26,6 +26,7 @@ import { PREVIEW, resolveDraftImages, signPaths } from "@/lib/marketing/draft-im
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
+import { useDraftWarningConfirm } from "@/components/marketing/draft-warning-confirm";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
   validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string } => ({
@@ -518,6 +519,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [pubUrl, setPubUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [editNote, setEditNote] = useState("");
+  const warning = useDraftWarningConfirm(draft.id);
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const locked = !canCurate || draft.status === "rejected" || draft.status === "published" || draft.status === "publishing" || !!draft.publish_sent_at;
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
@@ -545,10 +547,11 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     }
   };
   const edited = (isStory ? JSON.stringify(frames) !== JSON.stringify(draft.ai_story_frames ?? []) : copy !== draft.ai_copy) || parsedTags.join(" ") !== draft.ai_hashtags.join(" ");
-  const approve = () => update({
-    status: "approved", final_copy: copy, final_hashtags: parsedTags, ...framePatch,
-    decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null),
-  }, t("posts.approved"));
+  const approve = () => {
+    const patch = { final_copy: copy, final_hashtags: parsedTags, ...framePatch,
+      decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null) };
+    return warning.run(() => update({ status: "approved", ...patch }, t("posts.approved")), patch);
+  };
   const reject = async () => {
     if (await update({ status: "rejected", decision_note: reason.trim() || null }, t("posts.rejected"))) setRejectOpen(false);
   };
@@ -661,6 +664,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
       {draft.platform === "instagram" && <InstagramPublishControls draftId={draft.id} status={draft.status} canCurate={canCurate && !changedFromSaved} error={draft.publish_error_message} permalink={draft.published_url} sentAt={draft.publish_sent_at}/>}
       <PostApprovalControls draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
+      {warning.dialog}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
