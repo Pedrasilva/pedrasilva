@@ -7493,6 +7493,13 @@ export type Database = {
             foreignKeyName: "marketing_capture_assets_capture_id_fkey"
             columns: ["capture_id"]
             isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_capture_assets_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
             referencedRelation: "marketing_capture_draft_links"
             referencedColumns: ["capture_id"]
           },
@@ -7505,6 +7512,62 @@ export type Database = {
           },
           {
             foreignKeyName: "marketing_capture_assets_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_capture_flag_dismissals: {
+        Row: {
+          capture_id: string
+          dismissed_at: string
+          dismissed_by: string
+          flag: string
+          id: string
+          reason: string
+        }
+        Insert: {
+          capture_id: string
+          dismissed_at?: string
+          dismissed_by: string
+          flag: string
+          id?: string
+          reason: string
+        }
+        Update: {
+          capture_id?: string
+          dismissed_at?: string
+          dismissed_by?: string
+          flag?: string
+          id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_capture_flag_dismissals_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_capture_flag_dismissals_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_draft_links"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_capture_flag_dismissals_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_stages"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_capture_flag_dismissals_capture_id_fkey"
             columns: ["capture_id"]
             isOneToOne: false
             referencedRelation: "marketing_captures"
@@ -7544,6 +7607,13 @@ export type Database = {
           text?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_capture_notes_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
           {
             foreignKeyName: "marketing_capture_notes_capture_id_fkey"
             columns: ["capture_id"]
@@ -7906,6 +7976,13 @@ export type Database = {
             foreignKeyName: "marketing_email_ignored_capture_id_fkey"
             columns: ["capture_id"]
             isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_email_ignored_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
             referencedRelation: "marketing_capture_draft_links"
             referencedColumns: ["capture_id"]
           },
@@ -8206,6 +8283,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "marketing_project_briefings"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_nudges_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
           },
           {
             foreignKeyName: "marketing_nudges_capture_id_fkey"
@@ -8590,6 +8674,13 @@ export type Database = {
             foreignKeyName: "marketing_post_requests_source_capture_id_fkey"
             columns: ["source_capture_id"]
             isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "marketing_post_requests_source_capture_id_fkey"
+            columns: ["source_capture_id"]
+            isOneToOne: false
             referencedRelation: "marketing_capture_draft_links"
             referencedColumns: ["capture_id"]
           },
@@ -8900,6 +8991,13 @@ export type Database = {
           suggested_text?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_project_story_suggestions_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_capture_active_flags"
+            referencedColumns: ["capture_id"]
+          },
           {
             foreignKeyName: "marketing_project_story_suggestions_capture_id_fkey"
             columns: ["capture_id"]
@@ -16406,6 +16504,13 @@ export type Database = {
           },
         ]
       }
+      marketing_capture_active_flags: {
+        Row: {
+          active_flags: string[] | null
+          capture_id: string | null
+        }
+        Relationships: []
+      }
       marketing_capture_draft_links: {
         Row: {
           capture_id: string | null
@@ -16432,6 +16537,20 @@ export type Database = {
           next_scheduled_at: string | null
           post_count: number | null
           stage: string | null
+        }
+        Relationships: []
+      }
+      marketing_draft_clearance_sources: {
+        Row: {
+          clearance: string | null
+          draft_id: string | null
+          flag: string | null
+          kind: string | null
+          label: string | null
+          no_project: boolean | null
+          profile_id: string | null
+          source_id: string | null
+          warning: boolean | null
         }
         Relationships: []
       }
@@ -17356,6 +17475,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      marketing_active_capture_flags: {
+        Args: { _capture: string }
+        Returns: string[]
+      }
       marketing_bible_validate_items: {
         Args: { _arr: Json; _label: string }
         Returns: undefined
@@ -17480,6 +17603,10 @@ export type Database = {
         Args: { _capture_id: string }
         Returns: string[]
       }
+      marketing_dismiss_capture_flag: {
+        Args: { _capture: string; _flag: string; _reason: string }
+        Returns: string
+      }
       marketing_draft_hash: {
         Args: {
           d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
@@ -17563,6 +17690,8 @@ export type Database = {
         Args: { _draft_id: string }
         Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
       }
+      marketing_recheck_drafts: { Args: { _ids: string[] }; Returns: number }
+      marketing_refresh_clearance: { Args: { _ids: string[] }; Returns: number }
       marketing_reorder_capture_assets: {
         Args: { _asset_ids: string[]; _capture_id: string }
         Returns: undefined
