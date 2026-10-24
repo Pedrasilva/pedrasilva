@@ -1233,6 +1233,13 @@
       "when": 1792853082904,
       "tag": "0175_marketing_warning_evidence_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 176,
+      "version": "7",
+      "when": 1792866100699,
+      "tag": "0176_marketing_capture_stages",
+      "breakpoints": true
     }
   ]
 }
