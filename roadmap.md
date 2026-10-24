@@ -1,8 +1,8 @@
 ## Current request — Marketing advisory approvals (A only)
-- [ ] Save and apply a self-contained mirrored migration removing readiness gates while preserving approval hashes and publication locks.
-- [ ] Enable direct/request approvals and add explicit named-client confirmation plus system-owned warning audit.
-- [ ] Verify unknown-clearance approval, request/schedule/publication eligibility and named-client confirmation on disposable copies; remove fixtures.
-- [ ] Report saved file evidence and available commit hash; More copy (B) deferred until A is reviewed; pending Finance changes untouched.
+- [x] Save and apply mirrored migrations 0174–0175 removing readiness gates while preserving approval hashes and publication locks, including insert-time audit protection.
+- [x] Enable direct/request approvals and add explicit named-client confirmation plus system-owned warning audit.
+- [x] Browser-verify unknown-clearance approval and named-client dialog on disposable copies; SQL rollback verifies request/decision/schedule/publish eligibility and invalidation. Fixtures removed.
+- [x] Save report in docs/marketing-advisory-copy-report.md; report available commit hash. More copy (B) deferred as requested; pending Finance changes untouched.
 
 ## Current request — confirmed June opening balances
 - [x] Apply 11 audited openings with 31 May cut-off and CGD date; exact other-field equality verified, 14 audit rows.
