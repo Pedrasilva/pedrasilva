@@ -1,3 +1,7 @@
+## Current request — owner-authorized draft approval reversal
+- [ ] Revert only 74d87598 to suggested, void approval evidence, clear approval hash, and retain content with actor/time/reason history.
+- [ ] Verify Calendar absence and Planner To review presence without any test writes to real drafts.
+
 ## Current request — Story burn-in
 - [x] Browser renderer, sticker choices, private hash-bound manifest, approval integration and previews.
 - [x] Publisher consumes matching rendered frames without changing locks or send boundaries.
