@@ -431,6 +431,7 @@ function OptSelect(props: { label: string; value: string | null; onChange: (v: s
 function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: { id: string; name: string }[] }) {
   const { t } = useTranslation("marketing");
   const { user } = useAuth();
+  const makeThumbs = useServerFn(generateCaptureThumbnails);
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -489,6 +490,8 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
       });
       if (ins.error) failed.push(f.name);
     }
+    try { await makeThumbs({ data: { captureId: cap.id } }); }
+    catch (e) { console.warn("marketing add: thumbnail generation failed", cap.id, e); }
     setSaving(false);
     setProgress({});
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
