@@ -1,7 +1,7 @@
 ## Current request — Story burn-in
-- [ ] Browser renderer, sticker choices, private hash-bound manifest, approval integration and previews.
-- [ ] Publisher consumes matching rendered frames without changing locks or send boundaries.
-- [ ] Render failed real story only; screenshots, tests, mirrored migration and report.
+- [x] Browser renderer, sticker choices, private hash-bound manifest, approval integration and previews.
+- [x] Publisher consumes matching rendered frames without changing locks or send boundaries.
+- [x] Rendered failed real story only; two 1080×1920 frames, Calendar screenshot, 22 helper/calendar tests + 7 mocked pipelines + 19 media tests; migrations 0178–0179 mirrored; docs/marketing-story-burn-in-report.md. Sticker remains unresolved; no publish/retry/reschedule.
 
 ## Current request — editorial calendar portrait tiles
 - [x] Weekly portrait tiles, compact month items, crisp whole-image previews and tile drag ghost; preserve quick preview.
