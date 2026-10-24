@@ -8254,6 +8254,7 @@ export type Database = {
           id: string
           instruction: string | null
           platform: string
+          post_language: string
         }
         Insert: {
           copy: string
@@ -8264,6 +8265,7 @@ export type Database = {
           id?: string
           instruction?: string | null
           platform: string
+          post_language?: string
         }
         Update: {
           copy?: string
@@ -8274,6 +8276,7 @@ export type Database = {
           id?: string
           instruction?: string | null
           platform?: string
+          post_language?: string
         }
         Relationships: [
           {
@@ -8376,6 +8379,7 @@ export type Database = {
           persona: string | null
           pillar: string | null
           platform: Database["public"]["Enums"]["marketing_platform"]
+          post_language: string
           project_id: string | null
           publish_attempts: number
           publish_error_code: string | null
@@ -8426,6 +8430,7 @@ export type Database = {
           persona?: string | null
           pillar?: string | null
           platform: Database["public"]["Enums"]["marketing_platform"]
+          post_language?: string
           project_id?: string | null
           publish_attempts?: number
           publish_error_code?: string | null
@@ -8476,6 +8481,7 @@ export type Database = {
           persona?: string | null
           pillar?: string | null
           platform?: Database["public"]["Enums"]["marketing_platform"]
+          post_language?: string
           project_id?: string | null
           publish_attempts?: number
           publish_error_code?: string | null
@@ -8524,6 +8530,7 @@ export type Database = {
           focus_profile_id: string | null
           id: string
           idea_count: number
+          language_override: string
           model: string | null
           origin: string
           period_end: string
@@ -8542,6 +8549,7 @@ export type Database = {
           focus_profile_id?: string | null
           id?: string
           idea_count: number
+          language_override?: string
           model?: string | null
           origin?: string
           period_end: string
@@ -8560,6 +8568,7 @@ export type Database = {
           focus_profile_id?: string | null
           id?: string
           idea_count?: number
+          language_override?: string
           model?: string | null
           origin?: string
           period_end?: string
@@ -8774,9 +8783,12 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          instagram_language: string | null
           key_facts: string | null
+          linkedin_language: string | null
           location: string | null
           name_rule: Database["public"]["Enums"]["marketing_name_rule"]
+          post_language: string
           project_id: string
           proud_of: string | null
           public_description: string | null
@@ -8796,9 +8808,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          instagram_language?: string | null
           key_facts?: string | null
+          linkedin_language?: string | null
           location?: string | null
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
+          post_language?: string
           project_id: string
           proud_of?: string | null
           public_description?: string | null
@@ -8818,9 +8833,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          instagram_language?: string | null
           key_facts?: string | null
+          linkedin_language?: string | null
           location?: string | null
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
+          post_language?: string
           project_id?: string
           proud_of?: string | null
           public_description?: string | null
@@ -17397,6 +17415,7 @@ export type Database = {
           persona: string | null
           pillar: string | null
           platform: Database["public"]["Enums"]["marketing_platform"]
+          post_language: string
           project_id: string | null
           publish_attempts: number
           publish_error_code: string | null

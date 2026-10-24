@@ -1261,6 +1261,13 @@
       "when": 1792880204028,
       "tag": "0179_marketing_story_render_invalidation",
       "breakpoints": true
+    },
+    {
+      "idx": 180,
+      "version": "7",
+      "when": 1792880866355,
+      "tag": "0180_marketing_post_language",
+      "breakpoints": true
     }
   ]
 }
