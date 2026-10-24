@@ -1219,6 +1219,13 @@
       "when": 1792845594483,
       "tag": "0173_capture_asset_thumbnails",
       "breakpoints": true
+    },
+    {
+      "idx": 174,
+      "version": "7",
+      "when": 1792852523906,
+      "tag": "0174_marketing_advisory_approvals",
+      "breakpoints": true
     }
   ]
 }
