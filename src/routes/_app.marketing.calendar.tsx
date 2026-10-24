@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
-import { AlertTriangle, ChevronLeft, ChevronRight, GripVertical, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, GripVertical, ImageOff, Instagram, Layers, Linkedin, X } from "lucide-react";
 import { toast } from "sonner";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { V2PermissionGate } from "@/components/PermissionGate";
@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
-import { PREVIEW, resolveDraftImages } from "@/lib/marketing/draft-images";
+import { PREVIEW, PREVIEW_VERSION, resolveDraftImages } from "@/lib/marketing/draft-images";
 import { gridOrder, lisbonParts, lisbonToUtcIso, lowWeeks, mondayOf, repetitionWarnings, WEEKLY_TARGET, type CalendarPost } from "@/lib/marketing/calendar";
 import { InstagramGrid, type GridPost } from "@/components/marketing/instagram-grid";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
@@ -62,19 +62,24 @@ function useCalendarData() {
       if (error) throw error;
       const rows = (data ?? []) as Row[];
       const pids = [...new Set(rows.map((r) => r.project_id).filter(Boolean))] as string[];
-      const [images, { data: projects }] = await Promise.all([
-        resolveDraftImages(sb, [...new Set(rows.flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
+      // Batch-signed whole-image previews: small first-image thumbnails for the calendar items,
+      // tile size only for the Instagram grid tab.
+      const [thumbs, images, { data: projects }] = await Promise.all([
+        resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 3600, { preview: PREVIEW.small }),
+        resolveDraftImages(sb, [...new Set(rows.filter((r) => r.platform === "instagram").flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
         pids.length ? sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] },
       ]);
       const urls = new Map(images.map((i) => [i.id, i.url]));
+      const thumbUrls = new Map(thumbs.map((i) => [i.id, { url: i.url, video: i.mime_type?.startsWith("video/") }]));
       const names: Record<string, string> = {};
       for (const p of projects ?? []) names[p.id] = p.name;
-      return { rows, urls, names };
+      return { rows, urls, thumbUrls, names };
     },
   });
 }
 
 const caption = (r: Row) => r.final_copy ?? r.ai_copy;
+const firstLine = (r: Row) => caption(r).split("\n").find((l) => l.trim())?.trim() ?? "";
 
 function CalendarPage() {
   const { t } = useTranslation("marketing");
@@ -90,6 +95,13 @@ function CalendarPage() {
   const [drop, setDrop] = useState<{ row: Row; date: string; time: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [overDay, setOverDay] = useState<string | null>(null);
+  const [previewRow, setPreviewRow] = useState<Row | null>(null);
+  const previewImgs = useQuery({
+    queryKey: ["marketing-calendar-preview", PREVIEW_VERSION, previewRow?.id],
+    enabled: !!previewRow,
+    staleTime: 30 * 60 * 1000,
+    queryFn: () => resolveDraftImages(supabase, previewRow!.asset_ids, 3600, { preview: PREVIEW.tile }),
+  });
 
   const days = useMemo(() => {
     const start = view === "week" ? startOfWeek(anchor, { weekStartsOn: 1 }) : startOfWeek(startOfMonth(anchor), { weekStartsOn: 1 });
@@ -148,20 +160,64 @@ function CalendarPage() {
     when: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : null,
   }));
 
-  const Item = ({ r, compact }: { r: Row; compact?: boolean }) => (
-    <div draggable={canCurate && ["approved","scheduled"].includes(r.status)} onDragStart={(e) => e.dataTransfer.setData("text/plain", r.id)}
-      className={cn("group rounded border bg-card p-1.5 text-xs", canCurate && ["approved","scheduled"].includes(r.status) && "cursor-grab")}>
-      <div className="flex items-start gap-1">
-        {canCurate && ["approved","scheduled"].includes(r.status) && <GripVertical className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />}
+  const Thumb = ({ r, size }: { r: Row; size: string }) => {
+    const th = data?.thumbUrls.get(r.asset_ids[0]);
+    return (
+      <span className={cn("relative block shrink-0 overflow-hidden rounded bg-muted", size)}>
+        {th?.url ? (th.video
+          ? <video src={th.url} muted preload="metadata" className="h-full w-full object-cover object-center" />
+          : <img data-thumb={r.id} src={th.url} alt="" loading="lazy" decoding="async" width={120} height={120} className="h-full w-full object-cover object-center" />)
+          : <ImageOff className="m-auto h-full w-3 text-muted-foreground" />}
+        {r.asset_ids.length > 1 && (
+          <span className="absolute right-0.5 top-0.5 flex items-center gap-px rounded bg-background/90 px-0.5 text-[9px] font-medium" aria-label={t("calendar.slides", { count: r.asset_ids.length })}>
+            <Layers className="h-2.5 w-2.5" />{r.asset_ids.length}
+          </span>
+        )}
+      </span>
+    );
+  };
+  const PlatformIcon = ({ r }: { r: Row }) => r.platform === "instagram"
+    ? <Instagram className="h-3 w-3 shrink-0" aria-label={t("posts.platform.instagram")} />
+    : <Linkedin className="h-3 w-3 shrink-0" aria-label={t("posts.platform.linkedin")} />;
+
+  const Item = ({ r, compact }: { r: Row; compact?: boolean }) => {
+    const movable = canCurate && ["approved","scheduled"].includes(r.status);
+    return (
+    <div draggable={movable} role="button" tabIndex={0}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", r.id);
+        // Drag ghost: the item's own thumbnail.
+        const img = e.currentTarget.querySelector<HTMLImageElement>("img[data-thumb]");
+        if (img) e.dataTransfer.setDragImage(img, 24, 24);
+      }}
+      onClick={(e) => { if (!(e.target as HTMLElement).closest("button,a")) setPreviewRow(r); }}
+      onKeyDown={(e) => { if (e.key === "Enter") setPreviewRow(r); }}
+      className={cn("group rounded border bg-card p-1 text-xs hover:border-primary/50", movable ? "cursor-grab" : "cursor-pointer")}>
+      {compact ? (
+        <div className="flex items-center gap-1">
+          <Thumb r={r} size="h-8 w-8" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1">
+              <PlatformIcon r={r} />
+              {r.scheduled_at && <span className="font-medium">{lisbonParts(r.scheduled_at).time}</span>}
+            </div>
+            {r.status !== "scheduled" && <span className={cn("text-[10px]", r.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{t(`posts.status.${r.status}`)}</span>}
+          </div>
+          {(repsBy.get(r.id) ?? []).length > 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />}
+        </div>
+      ) : (
+      <div className="flex items-start gap-1.5">
+        {movable && <GripVertical className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />}
+        <Thumb r={r} size="h-12 w-12" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1">
+            <PlatformIcon r={r} />
             {r.scheduled_at && <span className="font-medium">{lisbonParts(r.scheduled_at).time}</span>}
-            <Badge variant="outline" className="px-1 py-0 text-[10px]">{t(`posts.platform.${r.platform}`)}</Badge>
             <Badge variant={r.status==="failed"?"destructive":"secondary"} className="px-1 py-0 text-[10px]">{t(`posts.status.${r.status}`)}</Badge>
           </div>
-          <Link to="/marketing/posts" search={{ draft: r.id }} className={cn("mt-0.5 block hover:underline", compact ? "line-clamp-2" : "line-clamp-3")}>{caption(r)}</Link>
+          <p className="mt-0.5 truncate">{firstLine(r)}</p>
           {r.platform==="instagram"&&["failed","published"].includes(r.status)&&<InstagramPublishControls draftId={r.id} status={r.status} canCurate={canCurate} error={r.publish_error_message} permalink={r.published_url} sentAt={r.publish_sent_at}/>}
-          {(r.pillar || r.project_id) && !compact && <p className="mt-0.5 truncate text-[10px] text-muted-foreground">{[r.pillar, r.persona, r.project_id ? data?.names[r.project_id] : null].filter(Boolean).join(" · ")}</p>}
+          {(r.pillar || r.project_id) && <p className="mt-0.5 truncate text-[10px] text-muted-foreground">{[r.pillar, r.persona, r.project_id ? data?.names[r.project_id] : null].filter(Boolean).join(" · ")}</p>}
           {(repsBy.get(r.id) ?? []).map((w, i) => (
             <p key={i} className="mt-0.5 flex items-start gap-1 text-[10px] text-warning">
               <AlertTriangle className="mt-px h-3 w-3 shrink-0" />{t(`calendar.warn.${w.kind}`, { field: t(`calendar.field.${w.field}`), value: repValue(w) })}
@@ -172,8 +228,10 @@ function CalendarPage() {
           <button type="button" aria-label={t("calendar.unschedule")} onClick={() => void unschedule(r)} className="opacity-0 group-hover:opacity-100"><X className="h-3 w-3" /></button>
         )}
       </div>
+      )}
     </div>
-  );
+    );
+  };
 
   const title = view === "week"
     ? `${format(parseISO(days[0]), "d MMM", { locale })} – ${format(parseISO(days[days.length - 1]), "d MMM yyyy", { locale })}`
@@ -223,7 +281,7 @@ function CalendarPage() {
                   className={cn("space-y-1 bg-background p-1", view === "week" ? "min-h-64" : "min-h-28", overDay === d && "bg-accent",
                     view === "month" && !d.startsWith(month) && "opacity-50")}>
                   <div className="text-[11px] text-muted-foreground">{format(parseISO(d), "d", { locale })}</div>
-                  {(byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact={view === "month"} />)}
+                  {(byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact />)}
                 </div>
               ))}
             </div>
@@ -233,6 +291,33 @@ function CalendarPage() {
           <InstagramGrid planned={gridPosts} canCurate={canCurate} loadFull={async (id) => { const r = rows.find((x) => x.id === id); if (!r) return null; const imgs = await resolveDraftImages(supabase, r.asset_ids, 900); return imgs.map((i) => i.url).filter((u): u is string => !!u); }} liveError={feed.data?.error ?? (feed.isError?"feedUnavailable":null)} live={feed.data?.posts.map(p=>({id:p.id,caption:p.caption,images:[p.thumbnail_url??p.media_url].filter((u):u is string=>!!u),permalink:p.permalink,when:p.timestamp?new Date(p.timestamp).toLocaleString():null}))} />
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!previewRow} onOpenChange={(v) => !v && setPreviewRow(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle className="flex items-center gap-2">
+            {previewRow && <PlatformIcon r={previewRow} />}{t("calendar.preview")}
+            {previewRow && previewRow.asset_ids.length > 1 && <Badge variant="secondary">{t("calendar.slides", { count: previewRow.asset_ids.length })}</Badge>}
+            {previewRow?.scheduled_at && <span className="text-sm font-normal text-muted-foreground">{new Date(previewRow.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" })}</span>}
+          </DialogTitle></DialogHeader>
+          <div className="flex snap-x gap-2 overflow-x-auto">
+            {previewImgs.isLoading && previewRow?.asset_ids.map((a) => <div key={a} className="h-56 w-44 shrink-0 animate-pulse rounded bg-muted" />)}
+            {(previewImgs.data ?? []).map((img, i) => (
+              <div key={img.id} className="relative shrink-0 snap-start">
+                {img.url ? (img.mime_type?.startsWith("video/")
+                  ? <video src={img.url} controls preload="metadata" className="h-56 rounded" />
+                  : <img src={img.url} alt={img.file_name} loading="lazy" decoding="async" className="h-56 w-auto rounded bg-muted object-contain" />)
+                  : <div className="flex h-56 w-44 items-center justify-center rounded bg-muted"><ImageOff className="h-5 w-5 text-muted-foreground" /></div>}
+                {previewRow && previewRow.asset_ids.length > 1 && <span className="absolute left-1 top-1 rounded bg-background/90 px-1.5 text-xs font-medium">{i + 1}</span>}
+              </div>
+            ))}
+          </div>
+          <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">{previewRow ? caption(previewRow) : ""}</p>
+          {previewRow && <p className="text-xs text-muted-foreground">{(previewRow.final_hashtags ?? previewRow.ai_hashtags).map((h) => `#${h}`).join(" ")}</p>}
+          <DialogFooter>
+            {previewRow && <Button variant="outline" size="sm" asChild><Link to="/marketing/posts" search={{ draft: previewRow.id }}>{t("calendar.openInPlanner")}</Link></Button>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!drop} onOpenChange={(v) => !busy && !v && setDrop(null)}>
         <DialogContent>

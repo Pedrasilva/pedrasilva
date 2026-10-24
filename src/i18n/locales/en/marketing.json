@@ -409,7 +409,18 @@
     "briefItem": "Brief: {{item}}",
     "textFrame": "Text preview",
     "textFrameHeadline": "Headline (max ~12 words)",
-    "textFrameLine": "Line below (optional, max ~20 words)"
+    "textFrameLine": "Line below (optional, max ~20 words)",
+    "tabs": {
+      "review": "To review",
+      "approved": "Approved",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "rejected": "Rejected",
+      "all": "All"
+    },
+    "approvedSchedule": "Approved — schedule it in the Editorial calendar",
+    "openCalendar": "Open calendar",
+    "schedule": "Schedule"
   },
   "nudge": {
     "title": "Ask an architect for context",
@@ -786,7 +797,11 @@
       "empty": "No approved or scheduled Instagram posts yet.",
       "livePlaceholder": "Current feed (available after connecting Instagram)",
       "preview": "Preview"
-    }
+    },
+    "preview": "Preview",
+    "slides_one": "{{count}} slide",
+    "slides_other": "{{count}} slides",
+    "openInPlanner": "Open in Planner"
   },
   "approval": {
     "warningTitle": "Confirm confidential-client concern",
