@@ -8973,6 +8973,12 @@ export type Database = {
           instagram_username: string | null
           last_error_code: string | null
           last_tested_at: string
+          meta_error_call: string | null
+          meta_error_code: number | null
+          meta_error_fbtrace_id: string | null
+          meta_error_message: string | null
+          meta_error_subcode: number | null
+          meta_error_type: string | null
           meta_page_id: string | null
           meta_page_name: string | null
           token_expires_at: string | null
@@ -8997,6 +9003,12 @@ export type Database = {
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
+          meta_error_call?: string | null
+          meta_error_code?: number | null
+          meta_error_fbtrace_id?: string | null
+          meta_error_message?: string | null
+          meta_error_subcode?: number | null
+          meta_error_type?: string | null
           meta_page_id?: string | null
           meta_page_name?: string | null
           token_expires_at?: string | null
@@ -9021,6 +9033,12 @@ export type Database = {
           instagram_username?: string | null
           last_error_code?: string | null
           last_tested_at?: string
+          meta_error_call?: string | null
+          meta_error_code?: number | null
+          meta_error_fbtrace_id?: string | null
+          meta_error_message?: string | null
+          meta_error_subcode?: number | null
+          meta_error_type?: string | null
           meta_page_id?: string | null
           meta_page_name?: string | null
           token_expires_at?: string | null
