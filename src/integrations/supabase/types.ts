@@ -7461,6 +7461,8 @@ export type Database = {
           position: number | null
           size_bytes: number
           storage_path: string
+          thumb_path: string | null
+          thumb_size_bytes: number | null
         }
         Insert: {
           capture_id: string
@@ -7471,6 +7473,8 @@ export type Database = {
           position?: number | null
           size_bytes: number
           storage_path: string
+          thumb_path?: string | null
+          thumb_size_bytes?: number | null
         }
         Update: {
           capture_id?: string
@@ -7481,6 +7485,8 @@ export type Database = {
           position?: number | null
           size_bytes?: number
           storage_path?: string
+          thumb_path?: string | null
+          thumb_size_bytes?: number | null
         }
         Relationships: [
           {
