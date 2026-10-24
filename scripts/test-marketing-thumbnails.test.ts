@@ -1,8 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { signPaths } from "../src/lib/marketing/draft-images";
 import { backfillCaptureThumbnails, thumbPathFor } from "../src/lib/marketing/thumbnails.server";
+import { encodeWholeThumbnail } from "./thumbnail-fallback";
+import sharp from "sharp";
 
 describe("whole-image previews", () => {
+  it("maintenance fallback applies EXIF rotation before proportional resize", async () => {
+    const original = await sharp({ create: { width: 1200, height: 800, channels: 3, background: "red" } })
+      .jpeg().withMetadata({ orientation: 6 }).toBuffer();
+    const metadata = await sharp(await encodeWholeThumbnail(original)).metadata();
+    expect(metadata.width).toBe(600);
+    expect(metadata.height).toBe(900);
+    expect(metadata.orientation).toBeUndefined();
+  });
   it("requests contain at 400px and does not transform publishing originals", async () => {
     const calls: unknown[] = [];
     const sb = { storage: { from: () => ({

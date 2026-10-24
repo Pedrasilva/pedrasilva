@@ -1,7 +1,7 @@
 /** Maintenance only, never imported by the app/Worker. Add --overwrite to regenerate all. */
 import { createClient } from "@supabase/supabase-js";
 import { backfillCaptureThumbnails } from "../src/lib/marketing/thumbnails.server";
-import sharp from "sharp";
+import { encodeWholeThumbnail } from "./thumbnail-fallback";
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) throw new Error("Maintenance credentials unavailable");
@@ -11,7 +11,5 @@ console.log(await backfillCaptureThumbnails(admin, {
   overwrite: process.argv.includes("--overwrite"),
   // Alternative for Storage's 25MB/50MP limits: server-side maintenance, not edge
   // decode. autoOrient includes mirrored EXIF orientations; originals stay untouched.
-  fallback: async (bytes) => new Uint8Array(await sharp(bytes)
-    .autoOrient().resize({ width: 600, fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 75 }).toBuffer()),
+  fallback: encodeWholeThumbnail,
 }));
