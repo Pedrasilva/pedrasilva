@@ -159,6 +159,8 @@ import { Route as AppMarketingActionsActionIdRouteImport } from './routes/_app.m
 import { Route as AppMarketingCarouselsIdRouteImport } from './routes/_app.marketing.carousels.$id'
 import { Route as AppMarketingProjectsIndexRouteImport } from './routes/_app.marketing.projects.index'
 import { Route as AppMarketingProjectsProfileIdRouteImport } from './routes/_app.marketing.projects.$profileId'
+import { Route as AppMarketingPublishedCommentsRouteImport } from './routes/_app.marketing.published.comments'
+import { Route as AppMarketingPublishedInsightsRouteImport } from './routes/_app.marketing.published.insights'
 import { Route as AppProductsProjectProjectIdRouteImport } from './routes/_app.products.project.$projectId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
@@ -977,6 +979,18 @@ const AppMarketingProjectsProfileIdRoute =
     path: '/marketing/projects/$profileId',
     getParentRoute: () => AppRoute,
   } as any)
+const AppMarketingPublishedCommentsRoute =
+  AppMarketingPublishedCommentsRouteImport.update({
+    id: '/marketing/published/comments',
+    path: '/marketing/published/comments',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMarketingPublishedInsightsRoute =
+  AppMarketingPublishedInsightsRouteImport.update({
+    id: '/marketing/published/insights',
+    path: '/marketing/published/insights',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppProductsProjectProjectIdRoute =
   AppProductsProjectProjectIdRouteImport.update({
     id: '/project/$projectId',
@@ -1243,6 +1257,8 @@ export interface FileRoutesByFullPath {
   '/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
   '/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
+  '/marketing/published/comments': typeof AppMarketingPublishedCommentsRoute
+  '/marketing/published/insights': typeof AppMarketingPublishedInsightsRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -1406,6 +1422,8 @@ export interface FileRoutesByTo {
   '/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
   '/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
+  '/marketing/published/comments': typeof AppMarketingPublishedCommentsRoute
+  '/marketing/published/insights': typeof AppMarketingPublishedInsightsRoute
   '/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -1580,6 +1598,8 @@ export interface FileRoutesById {
   '/_app/marketing/actions/$actionId': typeof AppMarketingActionsActionIdRoute
   '/_app/marketing/carousels/$id': typeof AppMarketingCarouselsIdRoute
   '/_app/marketing/projects/$profileId': typeof AppMarketingProjectsProfileIdRoute
+  '/_app/marketing/published/comments': typeof AppMarketingPublishedCommentsRoute
+  '/_app/marketing/published/insights': typeof AppMarketingPublishedInsightsRoute
   '/_app/products/project/$projectId': typeof AppProductsProjectProjectIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -1754,6 +1774,8 @@ export interface FileRouteTypes {
     | '/marketing/actions/$actionId'
     | '/marketing/carousels/$id'
     | '/marketing/projects/$profileId'
+    | '/marketing/published/comments'
+    | '/marketing/published/insights'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
@@ -1917,6 +1939,8 @@ export interface FileRouteTypes {
     | '/marketing/actions/$actionId'
     | '/marketing/carousels/$id'
     | '/marketing/projects/$profileId'
+    | '/marketing/published/comments'
+    | '/marketing/published/insights'
     | '/products/project/$projectId'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
@@ -2090,6 +2114,8 @@ export interface FileRouteTypes {
     | '/_app/marketing/actions/$actionId'
     | '/_app/marketing/carousels/$id'
     | '/_app/marketing/projects/$profileId'
+    | '/_app/marketing/published/comments'
+    | '/_app/marketing/published/insights'
     | '/_app/products/project/$projectId'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
@@ -3201,6 +3227,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMarketingProjectsProfileIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/marketing/published/comments': {
+      id: '/_app/marketing/published/comments'
+      path: '/marketing/published/comments'
+      fullPath: '/marketing/published/comments'
+      preLoaderRoute: typeof AppMarketingPublishedCommentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketing/published/insights': {
+      id: '/_app/marketing/published/insights'
+      path: '/marketing/published/insights'
+      fullPath: '/marketing/published/insights'
+      preLoaderRoute: typeof AppMarketingPublishedInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/products/project/$projectId': {
       id: '/_app/products/project/$projectId'
       path: '/project/$projectId'
@@ -3680,6 +3720,8 @@ interface AppRouteChildren {
   AppMarketingActionsActionIdRoute: typeof AppMarketingActionsActionIdRoute
   AppMarketingCarouselsIdRoute: typeof AppMarketingCarouselsIdRoute
   AppMarketingProjectsProfileIdRoute: typeof AppMarketingProjectsProfileIdRoute
+  AppMarketingPublishedCommentsRoute: typeof AppMarketingPublishedCommentsRoute
+  AppMarketingPublishedInsightsRoute: typeof AppMarketingPublishedInsightsRoute
   AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
   AppMarketingActionsIndexRoute: typeof AppMarketingActionsIndexRoute
   AppMarketingProjectsIndexRoute: typeof AppMarketingProjectsIndexRoute
@@ -3740,6 +3782,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppMarketingActionsActionIdRoute: AppMarketingActionsActionIdRoute,
   AppMarketingCarouselsIdRoute: AppMarketingCarouselsIdRoute,
   AppMarketingProjectsProfileIdRoute: AppMarketingProjectsProfileIdRoute,
+  AppMarketingPublishedCommentsRoute: AppMarketingPublishedCommentsRoute,
+  AppMarketingPublishedInsightsRoute: AppMarketingPublishedInsightsRoute,
   AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
   AppMarketingActionsIndexRoute: AppMarketingActionsIndexRoute,
   AppMarketingProjectsIndexRoute: AppMarketingProjectsIndexRoute,
