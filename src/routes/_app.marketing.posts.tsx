@@ -1,10 +1,10 @@
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
+import { CalendarDays, Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { V2PermissionGate } from "@/components/PermissionGate";
@@ -27,11 +27,13 @@ import { InstagramPublishControls } from "@/components/marketing/instagram-publi
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
 import { useDraftWarningConfirm } from "@/components/marketing/draft-warning-confirm";
+import { asPlannerTab, inTab, PLANNER_TABS, tabCounts, tabOf, type PlannerTab } from "@/lib/marketing/planner-tabs";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
-  validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { request?: string; draft?: string; tab?: PlannerTab } => ({
     ...(typeof s.request === "string" ? { request: s.request } : {}),
     ...(typeof s.draft === "string" && /^[0-9a-f-]{36}$/i.test(s.draft) ? { draft: s.draft } : {}),
+    ...(typeof s.tab === "string" ? { tab: asPlannerTab(s.tab) } : {}),
   }),
   component: () => (
     <V2PermissionGate permission="marketing.view" scope="all">
@@ -211,7 +213,8 @@ async function recheckDrafts(ids: string[]) {
 function PostPlannerPage() {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
-  const { request: requestParam, draft: focusDraft } = Route.useSearch();
+  const { request: requestParam, draft: focusDraft, tab: tabParam } = Route.useSearch();
+  // A ?draft= deep link opens on the tab that contains that post.
   const generate = useServerFn(generatePostSuggestions);
   const [defStart, defEnd] = nextWeek();
   const [brief, setBrief] = useState("");
@@ -233,7 +236,7 @@ function PostPlannerPage() {
   });
   const focusName = (id: string | null | undefined) => (id ? focusOptions.find((o) => o.id === id)?.name ?? null : null);
   const [busy, setBusy] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("active");
+  const navigate = useNavigate({ from: "/marketing/posts" });
   const [plannerView, setPlannerView] = useState<"list" | "grid">("list");
   const { allowed: canCurate } = useCan("marketing.curate", "all");
   const { data, isLoading } = usePlannerData();
@@ -290,11 +293,11 @@ function PostPlannerPage() {
         if (d.request_id !== r.id) continue;
         ideas.set(d.idea_id, [...(ideas.get(d.idea_id) ?? []), d]);
       }
-      const match = (st: string) => statusFilter === "all" || (statusFilter === "active" ? st !== "rejected" : st === statusFilter);
-      const list = [...ideas.values()].filter((ds) => ds.some((d) => match(d.status)));
+      const list = [...ideas.values()].filter((ds) => ds.some((d) => inTab(d, tab)));
       return { req: r, ideas: list };
-    }).filter((g) => statusFilter === "all" || g.ideas.length > 0 || g.req.status === "running" || g.req.id === focusRequest);
-  }, [data, statusFilter, focusRequest]);
+    }).filter((g) => tab === "all" || g.ideas.length > 0 || g.req.status === "running");
+  }, [data, tab, focusRequest]);
+  const counts = useMemo(() => tabCounts(data?.drafts ?? []), [data]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
@@ -371,17 +374,13 @@ function PostPlannerPage() {
       </div>
       {plannerView === "grid" && <PlannerGrid />}
 
-      {plannerView === "list" && <div className="flex items-center gap-2">
-        <Label className="text-sm">{t("filters.status")}</Label>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">{t("posts.filterActive")}</SelectItem>
-            <SelectItem value="all">{t("filters.all")}</SelectItem>
-            {STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`posts.status.${s}`)}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </div>}
+      {plannerView === "list" && (
+        <Tabs value={tab} onValueChange={(v) => navigate({ search: (prev) => ({ ...prev, tab: asPlannerTab(v) }), replace: true })}>
+          <TabsList className="flex-wrap">
+            {PLANNER_TABS.map((k) => <TabsTrigger key={k} value={k}>{t(`posts.tabs.${k}`)} <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-[10px]">{counts[k]}</Badge></TabsTrigger>)}
+          </TabsList>
+        </Tabs>
+      )}
 
       {plannerView === "list" && isLoading && <p className="text-sm text-muted-foreground">{t("inbox.loading")}</p>}
       {plannerView === "list" && !isLoading && !groups.length && <p className="text-sm text-muted-foreground">{t("posts.empty")}</p>}
@@ -401,7 +400,7 @@ function PostPlannerPage() {
           {req.status === "running" && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t("posts.generating")}</p>}
           {req.error && <p className={cn("text-sm", req.status === "failed" ? "text-destructive" : "text-muted-foreground")}>{req.error}</p>}
           {ideas.map((ds) => (
-            <IdeaCard key={ds[0].idea_id} drafts={ds} assetMap={data!.assetMap}
+            <IdeaCard key={ds[0].idea_id} drafts={ds} assetMap={data!.assetMap} tab={tab}
               projectName={ds[0].project_id ? data!.projectMap[ds[0].project_id] ?? null : null}
               pillar={pillarName(ds[0].pillar)} persona={personaName(ds[0].persona)} />
           ))}
@@ -421,9 +420,9 @@ function useSigned(items: { path: string; video: boolean }[]) {
   });
 }
 
-function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
+function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab }: {
   drafts: Draft[]; assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }>;
-  projectName: string | null; pillar: string | null; persona: string | null;
+  projectName: string | null; pillar: string | null; persona: string | null; tab: PlannerTab;
 }) {
   const { t } = useTranslation("marketing");
   const first = drafts[0];
@@ -485,18 +484,22 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
           <Link key={id} to="/marketing" search={{ capture: id }} className="text-primary underline">{t("posts.sourceCapture", { n: i + 1 })}</Link>
         ))}
       </div>
-      {first.format === "story" ? <PlatformDraft draft={first} assets={assets} /> : (
-      <Tabs defaultValue="instagram">
-        <TabsList>
-          {(["instagram", "linkedin"] as const).map((p) => byPlatform(p) && (
-            <TabsTrigger key={p} value={p}>{t(`posts.platform.${p}`)} · {t(`posts.status.${byPlatform(p)!.status}`)}</TabsTrigger>
-          ))}
-        </TabsList>
-        {(["instagram", "linkedin"] as const).map((p) => byPlatform(p) && (
-          <TabsContent key={p} value={p}><PlatformDraft draft={byPlatform(p)!} assets={assets} /></TabsContent>
-        ))}
-      </Tabs>
-      )}
+      {first.format === "story" ? <PlatformDraft draft={first} assets={assets} /> : (() => {
+        // In "To review", decided platforms collapse to a status chip; only undecided ones keep their editor.
+        const open = (["instagram", "linkedin"] as const).filter((p) => byPlatform(p) && (tab !== "review" || inTab(byPlatform(p)!, "review")));
+        const decided = (["instagram", "linkedin"] as const).filter((p) => byPlatform(p) && !open.includes(p));
+        return <>
+          {decided.length > 0 && <div className="flex flex-wrap gap-1">{decided.map((p) => (
+            <Badge key={p} variant="secondary">{t(`posts.platform.${p}`)} · {t(`posts.status.${byPlatform(p)!.status}`)}</Badge>
+          ))}</div>}
+          {open.length > 0 && <Tabs defaultValue={open[0]}>
+            <TabsList>
+              {open.map((p) => <TabsTrigger key={p} value={p}>{t(`posts.platform.${p}`)} · {t(`posts.status.${byPlatform(p)!.status}`)}</TabsTrigger>)}
+            </TabsList>
+            {open.map((p) => <TabsContent key={p} value={p}><PlatformDraft draft={byPlatform(p)!} assets={assets} /></TabsContent>)}
+          </Tabs>}
+        </>;
+      })()}
     </Card>
   );
 }
@@ -504,6 +507,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona }: {
 function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path: string; file_name: string }[] }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const isStory = draft.format === "story";
   const savedFrames = draft.final_story_frames ?? draft.ai_story_frames ?? [];
   const [frames, setFrames] = useState<StoryFrame[]>(savedFrames);
@@ -530,7 +534,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     const { error } = await (supabase as any).from("marketing_post_drafts").update(patch).eq("id", draft.id);
     setSaving(false);
     if (error) { toast.error(error.message || t("posts.error")); return false; }
-    toast.success(ok);
+    if (ok) toast.success(ok);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
     return true;
@@ -550,7 +554,11 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const approve = () => {
     const patch = { final_copy: copy, final_hashtags: parsedTags, ...framePatch,
       decision_note: editNote.trim() ? editNote.trim().slice(0, 500) : (edited ? (draft.decision_note ?? null) : null) };
-    return warning.run(() => update({ status: "approved", ...patch }, t("posts.approved")), patch);
+    return warning.run(async () => {
+      const ok = await update({ status: "approved", ...patch }, "");
+      if (ok) toast.success(t("posts.approvedSchedule"), { action: { label: t("posts.openCalendar"), onClick: () => navigate({ to: "/marketing/calendar" }) } });
+      return ok;
+    }, patch);
   };
   const reject = async () => {
     if (await update({ status: "rejected", decision_note: reason.trim() || null }, t("posts.rejected"))) setRejectOpen(false);
@@ -655,6 +663,9 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           <Button size="sm" variant="outline" onClick={saveEdit} disabled={saving}>
             <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
           </Button>
+        )}
+        {draft.status === "approved" && !draft.scheduled_at && (
+          <Button size="sm" variant="secondary" asChild><Link to="/marketing/calendar"><CalendarDays className="mr-1 h-3.5 w-3.5" /> {t("posts.schedule")}</Link></Button>
         )}
         {canCurate && draft.platform !== "instagram" && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
