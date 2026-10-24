@@ -8188,6 +8188,47 @@ export type Database = {
           },
         ]
       }
+      marketing_post_alternatives: {
+        Row: {
+          copy: string
+          created_at: string
+          created_by: string
+          draft_id: string
+          hashtags: string[]
+          id: string
+          instruction: string | null
+          platform: string
+        }
+        Insert: {
+          copy: string
+          created_at?: string
+          created_by?: string
+          draft_id: string
+          hashtags?: string[]
+          id?: string
+          instruction?: string | null
+          platform: string
+        }
+        Update: {
+          copy?: string
+          created_at?: string
+          created_by?: string
+          draft_id?: string
+          hashtags?: string[]
+          id?: string
+          instruction?: string | null
+          platform?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_alternatives_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_post_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_post_approvals: {
         Row: {
           approver_id: string
@@ -8245,6 +8286,7 @@ export type Database = {
           bible_version: number
           brief_item: string | null
           capture_ids: string[]
+          chosen_alternative_id: string | null
           created_at: string
           decided_at: string | null
           decided_by: string | null
@@ -8281,6 +8323,8 @@ export type Database = {
           safety_flags: string[]
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
+          warning_approval_history: Json
+          warning_confirmation_hash: string | null
         }
         Insert: {
           ai_copy: string
@@ -8291,6 +8335,7 @@ export type Database = {
           bible_version: number
           brief_item?: string | null
           capture_ids: string[]
+          chosen_alternative_id?: string | null
           created_at?: string
           decided_at?: string | null
           decided_by?: string | null
@@ -8327,6 +8372,8 @@ export type Database = {
           safety_flags?: string[]
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
+          warning_approval_history?: Json
+          warning_confirmation_hash?: string | null
         }
         Update: {
           ai_copy?: string
@@ -8337,6 +8384,7 @@ export type Database = {
           bible_version?: number
           brief_item?: string | null
           capture_ids?: string[]
+          chosen_alternative_id?: string | null
           created_at?: string
           decided_at?: string | null
           decided_by?: string | null
@@ -8373,8 +8421,17 @@ export type Database = {
           safety_flags?: string[]
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
+          warning_approval_history?: Json
+          warning_confirmation_hash?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_post_drafts_chosen_alternative_id_fkey"
+            columns: ["chosen_alternative_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_post_alternatives"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "marketing_post_drafts_request_id_fkey"
             columns: ["request_id"]
@@ -17165,6 +17222,7 @@ export type Database = {
           bible_version: number
           brief_item: string | null
           capture_ids: string[]
+          chosen_alternative_id: string | null
           created_at: string
           decided_at: string | null
           decided_by: string | null
@@ -17201,6 +17259,8 @@ export type Database = {
           safety_flags: string[]
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
+          warning_approval_history: Json
+          warning_confirmation_hash: string | null
         }[]
         SetofOptions: {
           from: "*"
@@ -17232,6 +17292,10 @@ export type Database = {
         }
         Returns: Record<string, unknown>
       }
+      marketing_confirm_draft_warning: {
+        Args: { _draft: string; _hash: string }
+        Returns: undefined
+      }
       marketing_curator_user_ids: { Args: never; Returns: string[] }
       marketing_decide_post_approval: {
         Args: { _approval: string; _comment?: string; _decision: string }
@@ -17256,6 +17320,12 @@ export type Database = {
         Returns: string
       }
       marketing_draft_name_rule_violation: {
+        Args: {
+          d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
+        }
+        Returns: string
+      }
+      marketing_draft_warning_issue: {
         Args: {
           d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
         }
@@ -17327,6 +17397,10 @@ export type Database = {
         Returns: string
       }
       marketing_resolve_action: { Args: { _id: string }; Returns: string }
+      marketing_review_draft_warnings: {
+        Args: { _draft: string; _patch?: Json }
+        Returns: Json
+      }
       marketing_schedule_instagram: {
         Args: { _at: string; _id: string; _now?: boolean }
         Returns: undefined
