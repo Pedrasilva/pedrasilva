@@ -1,3 +1,4 @@
+import { DismissCaptureFlag } from '@/components/marketing/clearance-sources';
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { CaptureContextCard } from "@/components/marketing/capture-context-card";
 import { DeleteCaptureButton } from "@/components/marketing/delete-capture-button";
@@ -166,6 +167,7 @@ function useProjects() {
 function useCaptures() {
   return useQuery({
     queryKey: ["marketing-captures"],
+    refetchInterval: 15000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketing_captures")
@@ -173,6 +175,10 @@ function useCaptures() {
         .order("received_at", { ascending: false });
       if (error) throw error;
       const list = (data ?? []) as unknown as Capture[];
+      const { data: active, error: flagError } = await supabase.from('marketing_capture_active_flags').select('*');
+      if (flagError) throw flagError;
+      const flags = new Map((active ?? []).map(r => [r.capture_id, r.active_flags]));
+      for (const c of list) c.ai_flags = flags.get(c.id) ?? [];
       for (const c of list) c.marketing_capture_assets.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
       return list;
     },
@@ -619,6 +625,11 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
   const qc = useQueryClient();
   const rerun = useServerFn(reenrichCapture);
   const [busy, setBusy] = useState(false);
+  const { data: dismissals = [] } = useQuery({ queryKey: ['marketing-flag-history', capture.id], queryFn: async () => {
+    const { data, error } = await supabase.from('marketing_capture_flag_dismissals').select('*').eq('capture_id', capture.id).order('dismissed_at', { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  } });
   const analysed = !!capture.enriched_at;
   if (!analysed && !canCurate && !capture.enrichment_error) return null;
   const run = async () => {
@@ -653,7 +664,7 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
       {capture.ai_flags?.length > 0 && (
         <Row label={t("ai.flags")}>
           <div className="flex flex-wrap gap-1">
-            {capture.ai_flags.map((f) => <Badge key={f} variant="outline" className="bg-warning/15 text-warning border-warning/30">{f}</Badge>)}
+            {capture.ai_flags.map((f) => <div key={f} className="flex flex-wrap items-center gap-1"><Badge variant="outline" className="bg-warning/15 text-warning border-warning/30">{f}</Badge><DismissCaptureFlag captureId={capture.id} flag={f} /></div>)}
           </div>
         </Row>
       )}
@@ -662,6 +673,7 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
           {t("ai.analysedWith", { version: capture.enriched_bible_version ?? "?", date: new Date(capture.enriched_at!).toLocaleString(), model: capture.enrichment_model ?? "" })}
         </p>
       )}
+      {dismissals.length > 0 && <div className="space-y-1 text-xs text-muted-foreground"><p className="font-medium">{t('clearanceReview.history')}</p>{dismissals.map(d => <p key={d.id}>{d.flag} — {t('clearanceReview.audit', { reason: d.reason, who: d.dismissed_by, when: new Date(d.dismissed_at).toLocaleString() })}</p>)}</div>}
       {canCurate && capture.enrichment_error && <p className="text-xs text-destructive">{capture.enrichment_error}</p>}
     </div>
   );
@@ -745,7 +757,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
     if (error) { toast.error(t("detail.error")); return; }
     toast.success(t("detail.saved"));
     setDraft({});
-    qc.invalidateQueries({ queryKey: ["marketing-captures"] });
+    qc.invalidateQueries({ predicate: q => typeof q.queryKey[0] === 'string' && q.queryKey[0].startsWith('marketing-') });
   };
 
   const images = assets.filter((a) => a.mime_type.startsWith("image/"));

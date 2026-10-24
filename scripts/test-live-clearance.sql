@@ -1,0 +1,41 @@
+-- Disposable fixtures only. Intentional PASS exception rolls the entire test back.
+DO $$
+DECLARE actor uuid; pid uuid; profile uuid; capture uuid; asset uuid; req uuid; d uuid; row public.marketing_post_drafts; before_row jsonb; did uuid; state text; before_all text;
+BEGIN
+ SELECT user_id INTO actor FROM public.user_roles WHERE role='admin' ORDER BY user_id LIMIT 1;
+ IF actor IS NULL THEN RAISE EXCEPTION 'No test actor'; END IF;
+ PERFORM set_config('request.jwt.claims',json_build_object('sub',actor,'role','authenticated')::text,true);
+ SELECT md5(string_agg(to_jsonb(x)::text,'' ORDER BY id)) INTO before_all FROM public.marketing_post_drafts x;
+ INSERT INTO public.pm_projects(name) VALUES('QA live clearance disposable') RETURNING id INTO pid;
+ INSERT INTO public.marketing_project_profiles(project_id,clearance,name_rule) VALUES(pid,'unknown','name') RETURNING id INTO profile;
+ INSERT INTO public.marketing_captures(channel,raw_text,ai_summary,clearance,ai_flags,project_id) VALUES('hub','QA live clearance disposable','QA clearance','unknown',ARRAY['QA identifiable'],pid) RETURNING id INTO capture;
+ INSERT INTO public.marketing_capture_assets(capture_id,storage_path,file_name,mime_type,size_bytes) VALUES(capture,'qa/nonexistent.jpg','QA','image/jpeg',1) RETURNING id INTO asset;
+ INSERT INTO public.marketing_post_requests(period_start,period_end,idea_count,requested_by) VALUES(current_date,current_date+7,1,actor) RETURNING id INTO req;
+ INSERT INTO public.marketing_post_drafts(request_id,idea_id,platform,capture_ids,asset_ids,project_id,ai_copy,ai_hashtags,rationale,readiness,bible_version,model,format) VALUES(req,gen_random_uuid(),'instagram','{}',ARRAY[asset],pid,'QA disposable caption','{}','QA','ready',1,'fixture','single') RETURNING id INTO d;
+ UPDATE public.marketing_post_drafts SET status='approved' WHERE id=d;
+ PERFORM public.marketing_schedule_instagram(d,now()+interval '100 years',false);
+ SELECT to_jsonb(x)-ARRAY['readiness','readiness_note','safety_flags'] INTO before_row FROM public.marketing_post_drafts x WHERE id=d;
+ UPDATE public.marketing_project_profiles SET clearance='cleared' WHERE id=profile;
+ SELECT * INTO row FROM public.marketing_post_drafts WHERE id=d;
+ IF row.readiness='ready' THEN RAISE EXCEPTION 'FAIL capture unknown must remain'; END IF;
+ UPDATE public.marketing_captures SET clearance='cleared' WHERE id=capture;
+ SELECT * INTO row FROM public.marketing_post_drafts WHERE id=d;
+ IF row.readiness='ready' OR NOT('QA identifiable'=ANY(row.safety_flags)) THEN RAISE EXCEPTION 'FAIL cleared capture still has AI concern'; END IF;
+ BEGIN PERFORM public.marketing_dismiss_capture_flag(capture,'QA identifiable',' '); RAISE EXCEPTION 'FAIL empty reason'; EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE 'A short reason%' THEN RAISE;END IF;END;
+ did:=public.marketing_dismiss_capture_flag(capture,'QA identifiable','not identifiable');
+ SELECT * INTO row FROM public.marketing_post_drafts WHERE id=d;
+ IF row.readiness<>'ready' OR row.readiness_note IS NOT NULL OR cardinality(row.safety_flags)<>0 THEN RAISE EXCEPTION 'FAIL dismissed fully cleared warning';END IF;
+ IF to_jsonb(row)-ARRAY['readiness','readiness_note','safety_flags'] IS DISTINCT FROM before_row OR row.approved_content_hash IS DISTINCT FROM public.marketing_draft_hash(row) THEN RAISE EXCEPTION 'FAIL approval/schedule/content changed'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.marketing_captures WHERE id=capture AND ai_flags=ARRAY['QA identifiable']) OR NOT EXISTS(SELECT 1 FROM public.marketing_capture_flag_dismissals WHERE id=did AND dismissed_by=actor AND reason='not identifiable' AND dismissed_at IS NOT NULL) THEN RAISE EXCEPTION 'FAIL original/audit';END IF;
+ BEGIN UPDATE public.marketing_capture_flag_dismissals SET reason='tampered' WHERE id=did;RAISE EXCEPTION 'FAIL history update';EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE 'Flag dismissal history%' THEN RAISE;END IF;END;
+ BEGIN DELETE FROM public.marketing_capture_flag_dismissals WHERE id=did;RAISE EXCEPTION 'FAIL history delete';EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE 'Flag dismissal history%' THEN RAISE;END IF;END;
+ PERFORM set_config('request.jwt.claims',json_build_object('sub',gen_random_uuid(),'role','authenticated')::text,true);
+ BEGIN PERFORM public.marketing_dismiss_capture_flag(capture,'QA identifiable','not identifiable');RAISE EXCEPTION 'FAIL noncurator';EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE 'Only curators%' THEN RAISE;END IF;END;
+ PERFORM set_config('request.jwt.claims',json_build_object('sub',actor,'role','authenticated')::text,true);
+ UPDATE public.marketing_captures SET project_id=NULL WHERE id=capture;
+ IF (SELECT readiness FROM public.marketing_post_drafts WHERE id=d)<>'ready' THEN RAISE EXCEPTION 'FAIL unlinked own clearance';END IF;
+ UPDATE public.marketing_captures SET ai_flags=ARRAY['QA new flag'] WHERE id=capture;
+ IF (SELECT readiness FROM public.marketing_post_drafts WHERE id=d)='ready' THEN RAISE EXCEPTION 'FAIL new AI flags refresh';END IF;
+ IF (SELECT md5(string_agg(to_jsonb(x)::text,'' ORDER BY id)) FROM public.marketing_post_drafts x WHERE id<>d) IS DISTINCT FROM before_all THEN RAISE EXCEPTION 'FAIL real draft changed';END IF;
+ RAISE EXCEPTION 'PASS live clearance: asset-only links, auto profile/capture/flags refresh, scheduled hash and all other fields preserved, required reason, append-only actor/time, noncurator denial, no-project own clearance, real rows unchanged; ALL FIXTURES ROLLED BACK';
+END $$;

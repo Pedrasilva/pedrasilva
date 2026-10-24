@@ -1,0 +1,3 @@
+export const RECHECK_STATUSES = ['suggested', 'pending_approval', 'approved', 'scheduled', 'failed'] as const;
+export const canRecheckClearance = (status: string) => (RECHECK_STATUSES as readonly string[]).includes(status);
+export type ClearanceSource = { draft_id: string; kind: 'capture' | 'project' | 'flag'; source_id: string; label: string; clearance: string | null; profile_id: string | null; flag: string | null; no_project: boolean; warning: boolean };

@@ -1,4 +1,17 @@
 {
+  "clearanceReview": {
+    "capture": "Captura",
+    "project": "Projeto",
+    "flag": "Alerta da IA",
+    "openInbox": "Abrir na Entrada",
+    "noProject": "Sem projeto — aplica-se apenas a autorização desta captura.",
+    "dismiss": "Dispensar",
+    "dismissTitle": "Dispensar alerta da IA",
+    "reason": "Motivo breve (obrigatório)",
+    "dismissed": "Alerta dispensado; avisos de autorização atualizados.",
+    "history": "Alertas dispensados",
+    "audit": "{{reason}} · {{who}} · {{when}}"
+  },
   "postLanguage": {
     "title": "Idioma dos posts",
     "default": "Predefinição",
