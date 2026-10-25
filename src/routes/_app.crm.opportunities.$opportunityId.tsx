@@ -1,3 +1,5 @@
+import { formatEUR } from "@/lib/product-ui-format";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -32,11 +34,10 @@ import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
+   OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
   defaultQuoteTypeForCategory,
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
-  type QuoteType, type QuoteCategory, type Contact, contactFullName,
-} from "@/lib/crm/types";
+  type QuoteType, type QuoteCategory, type Contact, contactFullName} from "@/lib/crm/types";
 import { Briefcase, Clock, Repeat2 } from "lucide-react";
 
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
@@ -298,7 +299,7 @@ function OpportunityDetail() {
       return data as string;
     },
     onSuccess: (newId) => {
-      toast.success("Revisão criada");
+      toast.success(uiI18n.t("crm:opportunities.revisionCreated"));
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
     },
@@ -476,7 +477,7 @@ function OpportunityDetail() {
                       )}
                       {opp.lost_at && (
                         <p className="mt-1 text-[11px] text-muted-foreground">
-                          {new Date(opp.lost_at).toLocaleDateString()}
+                          {new Date(opp.lost_at).toLocaleDateString(uiI18n.language)}
                         </p>
                       )}
                     </div>
@@ -510,7 +511,7 @@ function OpportunityDetail() {
               />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Estimated fee</Label>
+                  <Label className="text-xs text-muted-foreground"> {uiI18n.t("crm:opportunities.estimatedFee")} </Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -558,12 +559,12 @@ function OpportunityDetail() {
                 return (
                   <div className="rounded-md border bg-muted/30 p-2 text-xs space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Quoted total</span>
+                      <span className="text-muted-foreground"> {uiI18n.t("crm:opportunities.quotedTotal")} </span>
                       <span className="font-semibold tabular-nums">{formatEUR(actual)}</span>
                     </div>
                     {est > 0 && (
                       <div className={cn("flex justify-between", tone)}>
-                        <span>vs estimate</span>
+                        <span> {uiI18n.t("crm:opportunities.vsEstimate")} </span>
                         <span className="tabular-nums">
                           {delta >= 0 ? "+" : ""}{formatEUR(delta)}
                           {pct !== null && ` (${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%)`}
@@ -721,7 +722,7 @@ function OpportunityDetail() {
                             <span className="truncate">{q.titulo}</span>
                             {rev > 1 && (
                               <span className="shrink-0 rounded bg-muted px-1 text-[10px] text-muted-foreground">
-                                rev {rev}
+                                 {uiI18n.t("crm:opportunities.revisionShort")} {rev}
                               </span>
                             )}
                           </span>
@@ -738,8 +739,7 @@ function OpportunityDetail() {
                               onClick={() => reviseQuote.mutate(q.id)}
                               disabled={reviseQuote.isPending}
                             >
-                              <Copy className="h-3.5 w-3.5 mr-2" /> Criar revisão
-                            </DropdownMenuItem>
+                              <Copy className="h-3.5 w-3.5 mr-2" />  {uiI18n.t("crm:opportunities.createRevision")} </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                         </div>
@@ -753,10 +753,10 @@ function OpportunityDetail() {
                                   className="flex items-center justify-between gap-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground"
                                 >
                                   <span className="flex items-center gap-1">
-                                    <Send className="h-3 w-3" /> rev {s.revNumber}
+                                    <Send className="h-3 w-3" />  {uiI18n.t("crm:opportunities.revisionShort")} {s.revNumber}
                                   </span>
                                   <span className="tabular-nums">
-                                    {new Date(s.createdAt).toLocaleDateString("pt-PT")}
+                                    {new Date(s.createdAt).toLocaleDateString(uiI18n.language)}
                                   </span>
                                 </Link>
                               </li>
@@ -774,8 +774,7 @@ function OpportunityDetail() {
                 className="w-full"
                 onClick={() => setQuoteOpen(true)}
               >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Criar orçamento
-              </Button>
+                <Plus className="h-3.5 w-3.5 mr-1" />  {uiI18n.t("crm:opportunities.createQuote")} </Button>
             </CardContent>
           </Card>
 

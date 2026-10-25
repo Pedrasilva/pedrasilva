@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,12 +11,14 @@ import { Users, Search } from "lucide-react";
 import { contactFullName, type Contact, type Company } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/contacts")({
+  head: () => ({ meta: [{ title: "crm / contacts — PSA Hub" }, { name: "description", content: "PSA Hub crm / contacts workspace." }, { property: "og:title", content: "crm / contacts — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / contacts workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ContactsList,
 });
 
 type Row = Contact & { company: Pick<Company, "id" | "nome"> | null };
 
 function ContactsList() {
+  useTranslation();
   const [q, setQ] = useState("");
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts-with-company"],
@@ -47,12 +51,12 @@ function ContactsList() {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Procurar contactos…"
+            placeholder={uiI18n.t("crm:contacts.search")}
             className="pl-8"
           />
         </div>
         <div className="text-xs text-muted-foreground">
-          {filtered.length} de {contacts.length}
+          {filtered.length}  {uiI18n.t("common:of")} {contacts.length}
         </div>
       </div>
 
@@ -61,19 +65,18 @@ function ContactsList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Posição</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Telemóvel</TableHead>
+                <TableHead> {uiI18n.t("common:name")} </TableHead>
+                <TableHead> {uiI18n.t("glossary:entity.company")} </TableHead>
+                <TableHead> {uiI18n.t("crm:contacts.position")} </TableHead>
+                <TableHead> {uiI18n.t("common:email")} </TableHead>
+                <TableHead> {uiI18n.t("common:mobilePhone")} </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                    A carregar…
-                  </TableCell>
+                     {uiI18n.t("common:loading")} </TableCell>
                 </TableRow>
               )}
               {!isLoading && filtered.length === 0 && (
@@ -81,8 +84,7 @@ function ContactsList() {
                   <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
                     <div className="flex flex-col items-center gap-2 py-6">
                       <Users className="h-6 w-6 opacity-50" />
-                      Nenhum contacto. Use o botão “Novo” no topo.
-                    </div>
+                       {uiI18n.t("crm:contacts.empty")} </div>
                   </TableCell>
                 </TableRow>
               )}

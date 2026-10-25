@@ -37,3 +37,5 @@
 <!-- LOVABLE:END -->
 
 - Project financial views share financial-calculation.ts for exact working-calendar plans, author-based saved-entry valuation, incomplete-cost propagation and unrounded value-minus-cost profit; accounting retains canonical fiscal signs and cash scope, quotes keep NO_HOLIDAYS and retainers never estimate missing actual costs. Why: identical economic scopes must reconcile without changing historical records.
+
+- CRM and Product UI translates display labels at render and uses separate locale-aware money wrappers; client datasheet/schedule output keeps its original formatters and stored values. Why: UI language must not change documents, enums or prices.

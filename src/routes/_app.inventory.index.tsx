@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,13 +19,15 @@ import {
 import { InventoryAccessCard } from "@/components/inventory/inventory-access-card";
 
 export const Route = createFileRoute("/_app/inventory/")({
+  head: () => ({ meta: [{ title: "inventory / index — PSA Hub" }, { name: "description", content: "PSA Hub inventory / index workspace." }, { property: "og:title", content: "inventory / index — PSA Hub" }, { property: "og:description", content: "PSA Hub inventory / index workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InventoryDashboard,
 });
 
 const eur = (v: number) =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v || 0);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v || 0);
 
 function Kpi({ label, value }: { label: string; value: string | number }) {
+  useTranslation();
   return (
     <Card>
       <CardContent className="p-4">

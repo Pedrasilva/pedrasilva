@@ -38,8 +38,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
   QUOTE_STATUSES, FEE_STRUCTURE_TYPES, normalizeQuoteCategory,
-  type FeeProposal, type QuoteStatus, type FeeStructureType,
-} from "@/lib/crm/types";
+  type FeeProposal, type QuoteStatus, type FeeStructureType} from "@/lib/crm/types";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuoteConstructionAssistanceTab } from "@/components/quotes/quote-construction-assistance-tab";

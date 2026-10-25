@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { LibraryBrowser } from "@/components/products/library-browser";
 
@@ -24,13 +26,13 @@ export const Route = createFileRoute("/_app/products/library")({
 });
 
 function LibraryPage() {
+  useTranslation();
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold tracking-tight">Library</h1>
+        <h1 className="text-xl font-semibold tracking-tight"> {uiI18n.t("common:library")} </h1>
         <p className="text-sm text-muted-foreground">
-          Reusable PSA product knowledge. It grows organically as projects are specified.
-        </p>
+           {uiI18n.t("crm:products.librarySub")} </p>
       </header>
       <LibraryBrowser />
     </div>

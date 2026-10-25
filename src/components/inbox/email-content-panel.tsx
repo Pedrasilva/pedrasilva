@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Full message view for one queued email: sanitised body, attachment list
  * (downloaded through the connector gateway, never direct Gmail auth) and a
@@ -247,7 +248,7 @@ export function EmailContentPanel({
               id={`fwd-${eventId}`}
               type="email"
               value={to}
-              placeholder="name@example.com"
+              placeholder={uiI18n.t("common:emailHint")}
               onChange={(e) => setTo(e.target.value)}
             />
           </div>

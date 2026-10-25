@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/_app/inventory/assets/")({
 });
 
 const eur = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v);
+  v == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v);
 
 function AssetRegister() {
   const { t } = useTranslation(["inventory", "common"]);

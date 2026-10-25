@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useRef, useState } from "react";
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ export function ImageField({
   /** Accept a PDF sample board in addition to a single image. */
   allowPdf?: boolean;
 }) {
+  useTranslation();
   const input = useRef<HTMLInputElement>(null);
   const upload = useUploadProductImage();
   const [busy, setBusy] = useState(false);
@@ -62,7 +65,7 @@ export function ImageField({
             onClick={() => input.current?.click()}
           >
             {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Upload className="mr-1.5 h-3.5 w-3.5" />}
-            {value ? "Replace" : "Upload"}
+            {value ? uiI18n.t("common:replace") : uiI18n.t("common:upload")}
           </Button>
           {value && (
             <Button type="button" variant="ghost" size="sm" onClick={() => onChange(null)}>
@@ -85,7 +88,7 @@ export function ImageField({
             const path = await upload.mutateAsync(file);
             onChange(path);
           } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Upload failed");
+            toast.error(err instanceof Error ? err.message : uiI18n.t("common:uploadFailed"));
           } finally {
             setBusy(false);
           }
@@ -97,6 +100,7 @@ export function ImageField({
 
 /** Sample PDFs cannot be thumbnailed by storage — show a chip that opens them. */
 function PdfPreview({ path, size }: { path: string | null; size: "small" | "medium" | "large" }) {
+  useTranslation();
   const { data: url } = useProductImageUrl(path);
   return (
     <a
@@ -108,7 +112,7 @@ function PdfPreview({ path, size }: { path: string | null; size: "small" | "medi
       }`}
     >
       <FileText className="h-5 w-5" />
-      {size !== "small" && <span>Open sample PDF</span>}
+      {size !== "small" && <span> {uiI18n.t("crm:products.openSamplePdf")} </span>}
     </a>
   );
 }

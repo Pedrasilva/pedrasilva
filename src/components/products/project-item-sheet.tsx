@@ -1,3 +1,6 @@
+import { formatMoney } from "@/lib/product-ui-format";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -20,11 +23,10 @@ import {
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import {
   APPROVAL_STATUSES,
-  formatMoney,
+  
   itemTotal,
   type ProductApprovalStatus,
-  type ProjectItem,
-} from "@/lib/products/types";
+  type ProjectItem} from "@/lib/products/types";
 import {
   Select,
   SelectContent,
@@ -60,6 +62,7 @@ export function ProjectItemSheet({
   projectId: string;
   onOpenChange: (open: boolean) => void;
 }) {
+  useTranslation();
   const update = useUpdateProjectItem();
   const pushToLibrary = useUpdateLibraryFromItem();
   const canEditLibrary = useMyPermissionsV2().can("products.edit", "all");
@@ -108,15 +111,15 @@ export function ProjectItemSheet({
       (patch as Record<string, unknown>)[f] = (draft[f] ?? "").toString().trim() || null;
     }
     if (!patch.name) {
-      toast.error("Item name is required");
+      toast.error(uiI18n.t("crm:products.itemNameRequired"));
       return;
     }
     try {
       await update.mutateAsync({ id: item.id, projectId, patch });
-      toast.success("Item saved");
+      toast.success(uiI18n.t("crm:products.itemSaved"));
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save the item");
+      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:products.itemSaveFailed"));
     }
   };
 
@@ -126,52 +129,51 @@ export function ProjectItemSheet({
         <SheetHeader>
           <SheetTitle>{item.name}</SheetTitle>
           <SheetDescription>
-            Project-specific record. Editing it never changes the library product.
-          </SheetDescription>
+             {uiI18n.t("crm:products.projectRecordSub")} </SheetDescription>
         </SheetHeader>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <F label="Reference / Plan ID">
+          <F label={uiI18n.t("crm:products.referencePlanId")}>
             <Input value={draft.reference ?? ""} onChange={(e) => set("reference", e.target.value)} />
           </F>
-          <F label="Ref. code">
+          <F label={uiI18n.t("crm:products.refCode")}>
             <Input value={draft.ref_code ?? ""} onChange={(e) => set("ref_code", e.target.value)} />
           </F>
-          <F label="Location">
+          <F label={uiI18n.t("common:location")}>
             <Input value={draft.location ?? ""} onChange={(e) => set("location", e.target.value)} />
           </F>
-          <F label="Item name *">
+          <F label={uiI18n.t("crm:products.itemNameRequiredLabel")}>
             <Input value={draft.name ?? ""} onChange={(e) => set("name", e.target.value)} />
           </F>
-          <F label="Category">
+          <F label={uiI18n.t("common:category")}>
             <CategorySelect value={categoryId} onChange={setCategoryId} />
           </F>
-          <F label="Manufacturer">
+          <F label={uiI18n.t("common:manufacturer")}>
             <Input
               value={draft.manufacturer ?? ""}
               onChange={(e) => set("manufacturer", e.target.value)}
             />
           </F>
-          <F label="Designer">
+          <F label={uiI18n.t("common:designer")}>
             <Input value={draft.designer ?? ""} onChange={(e) => set("designer", e.target.value)} />
           </F>
-          <F label="Dimensions">
+          <F label={uiI18n.t("common:dimensions")}>
             <Input
               value={draft.dimensions ?? ""}
               onChange={(e) => set("dimensions", e.target.value)}
             />
           </F>
-          <F label="Weight">
+          <F label={uiI18n.t("common:weight")}>
             <Input value={draft.weight ?? ""} onChange={(e) => set("weight", e.target.value)} />
           </F>
-          <F label="Selected finish / colour">
+          <F label={uiI18n.t("crm:products.selectedFinish")}>
             <Input
               value={draft.selected_finish ?? ""}
               onChange={(e) => set("selected_finish", e.target.value)}
             />
           </F>
           <div className="sm:col-span-2">
-            <F label="Material / specification">
+            <F label={uiI18n.t("crm:products.materialSpecification")}>
               <Textarea
                 rows={2}
                 value={draft.material_spec ?? ""}
@@ -179,7 +181,7 @@ export function ProjectItemSheet({
               />
             </F>
           </div>
-          <F label="Client approval">
+          <F label={uiI18n.t("crm:products.clientApproval")}>
             <Select value={approval} onValueChange={(v) => setApproval(v as ProductApprovalStatus)}>
               <SelectTrigger>
                 <SelectValue />
@@ -187,16 +189,16 @@ export function ProjectItemSheet({
               <SelectContent>
                 {APPROVAL_STATUSES.map((s) => (
                   <SelectItem key={s} value={s} className="capitalize">
-                    {s}
+                    {uiI18n.t(`crm:products.approval.${s}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </F>
-          <F label="Quantity">
+          <F label={uiI18n.t("common:quantity")}>
             <Input type="number" step="0.01" value={qty} onChange={(e) => setQty(e.target.value)} />
           </F>
-          <F label="Unit price">
+          <F label={uiI18n.t("common:unitPrice")}>
             <Input
               type="number"
               step="0.01"
@@ -205,17 +207,17 @@ export function ProjectItemSheet({
             />
           </F>
           <div className="sm:col-span-2 text-sm text-muted-foreground">
-            Total:{" "}
+             {uiI18n.t("common:totalPrefix")} {" "}
             <span className="font-medium text-foreground tabular-nums">
               {formatMoney(
                 (Number(qty) || 0) * (price === "" ? 0 : Number(price) || 0),
                 item.currency,
               )}
             </span>{" "}
-            <span className="text-xs">(currently {formatMoney(itemTotal(item), item.currency)})</span>
+            <span className="text-xs"> {uiI18n.t("crm:products.currentTotal", { total: formatMoney(itemTotal(item), item.currency) })}</span>
           </div>
           <div className="sm:col-span-2">
-            <F label="Product URL">
+            <F label={uiI18n.t("crm:products.productUrl")}>
               <Input
                 value={draft.product_url ?? ""}
                 onChange={(e) => set("product_url", e.target.value)}
@@ -223,24 +225,24 @@ export function ProjectItemSheet({
             </F>
           </div>
           <ImageField
-            label="Main image"
+            label={uiI18n.t("crm:products.mainImage")}
             value={images.primary}
             onChange={(v) => setImages((s) => ({ ...s, primary: v }))}
           />
           <ImageField
-            label="Finish / sample image"
+            label={uiI18n.t("crm:products.finishImage")}
             value={images.finish}
             onChange={(v) => setImages((s) => ({ ...s, finish: v }))}
           />
           <ImageField
-            label="Samples (image or PDF)"
+            label={uiI18n.t("crm:products.samples")}
             value={images.sample}
             onChange={(v) => setImages((s) => ({ ...s, sample: v }))}
             allowPdf
           />
 
           <div className="sm:col-span-2">
-            <F label="Notes">
+            <F label={uiI18n.t("common:notes")}>
               <Textarea
                 rows={3}
                 value={draft.notes ?? ""}
@@ -252,25 +254,22 @@ export function ProjectItemSheet({
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Button onClick={save} disabled={update.isPending}>
-            Save item
-          </Button>
+             {uiI18n.t("crm:products.saveItem")} </Button>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+             {uiI18n.t("common:cancel")} </Button>
           {item.source_library_product_id && canEditLibrary && (
             <Button
               variant="outline"
               className="ml-auto"
               onClick={() => {
-                if (!confirm("Overwrite the library product with this item's data?")) return;
+                if (!confirm(uiI18n.t("crm:products.overwritePrompt"))) return;
                 pushToLibrary
                   .mutateAsync(item)
-                  .then(() => toast.success("Library product updated"))
+                  .then(() => toast.success(uiI18n.t("crm:products.libraryUpdated")))
                   .catch((e) => toast.error(String(e)));
               }}
             >
-              Update library product from this item
-            </Button>
+               {uiI18n.t("crm:products.updateFromItem")} </Button>
           )}
         </div>
       </SheetContent>
@@ -279,6 +278,7 @@ export function ProjectItemSheet({
 }
 
 function F({ label, children }: { label: string; children: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { SenderRulesCard } from "@/components/inbox/sender-rules-card";
 
 export const Route = createFileRoute("/_app/inbox/settings")({
+  head: () => ({ meta: [{ title: "inbox / settings — PSA Hub" }, { name: "description", content: "PSA Hub inbox / settings workspace." }, { property: "og:title", content: "inbox / settings — PSA Hub" }, { property: "og:description", content: "PSA Hub inbox / settings workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InboxSettingsPage,
 });
 
@@ -147,7 +149,7 @@ function InboxSettingsPage() {
                   {r.label ? `${r.label} · ` : ""}
                   {r.connector_secret_name} · {t("inbox:settings.lastChecked")}:{" "}
                   {r.last_checked_at
-                    ? new Date(r.last_checked_at).toLocaleString()
+                    ? new Date(r.last_checked_at).toLocaleString(uiI18n.language)
                     : t("inbox:settings.never")}
                 </div>
               </div>

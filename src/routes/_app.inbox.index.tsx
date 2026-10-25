@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Inbox review queue — every Gmail-visible action taken here is one explicit
  * click on one row, confirmed in a dialog, and reversible for 8 seconds.
@@ -53,6 +54,7 @@ import { AutoHandledList } from "@/components/inbox/auto-handled-list";
 import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/inbox/")({
+  head: () => ({ meta: [{ title: "inbox / index — PSA Hub" }, { name: "description", content: "PSA Hub inbox / index workspace." }, { property: "og:title", content: "inbox / index — PSA Hub" }, { property: "og:description", content: "PSA Hub inbox / index workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InboxTriagePage,
 });
 
@@ -290,7 +292,7 @@ function EmailRow({
           <div className="mt-0.5 break-words text-xs text-muted-foreground">
             {row.from_address ?? "—"}
             {row.received_at
-              ? ` · ${new Date(row.received_at).toLocaleString()}`
+              ? ` · ${new Date(row.received_at).toLocaleString(uiI18n.language)}`
               : ""}
           </div>
 

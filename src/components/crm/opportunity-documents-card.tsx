@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Documents on the opportunity — every revision that was actually sent, plus
  * whatever came back signed. The data already exists (psa_proposal_snapshots
@@ -50,7 +51,7 @@ async function openStoredPdf(path: string, filename?: string | null) {
   // direct storage URLs are frequently blocked by ad-blockers (ERR_BLOCKED_BY_CLIENT).
   const { data, error } = await supabase.storage.from(PDF_BUCKET).download(path);
   if (error || !data) {
-    toast.error(error?.message ?? "Não foi possível obter o PDF.");
+    toast.error(error?.message ?? uiI18n.t("crm:opportunities.pdfUnavailable"));
     return;
   }
   const url = URL.createObjectURL(data.slice(0, data.size, "application/pdf"));
@@ -142,10 +143,12 @@ function useProposalDocuments(scope: { opportunityId?: string; quoteId?: string 
 
 /** Same documents surface scoped to a single quote (proposal workspace). */
 export function QuoteDocumentsCard({ quoteId }: { quoteId: string }) {
+  useTranslation();
   return <DocumentsCard scope={{ quoteId }} />;
 }
 
 export function OpportunityDocumentsCard({ opportunityId }: { opportunityId: string }) {
+  useTranslation();
   return <DocumentsCard scope={{ opportunityId }} />;
 }
 
@@ -191,7 +194,7 @@ function DocumentsCard({ scope }: { scope: { opportunityId?: string; quoteId?: s
                         </span>
                       </div>
                       <div className="text-[11px] text-muted-foreground">
-                        {new Date(d.createdAt).toLocaleDateString("pt-PT")}
+                        {new Date(d.createdAt).toLocaleDateString(uiI18n.language)}
                       </div>
                     </div>
                     <Badge variant="secondary" className="shrink-0 text-[10px]">
@@ -208,7 +211,7 @@ function DocumentsCard({ scope }: { scope: { opportunityId?: string; quoteId?: s
                         {t("opportunities.documents.clientSigner")}:{" "}
                         {sig.client_signer_name ?? sig.client_signer_email ?? "—"}
                         {sig.client_signed_at
-                          ? ` · ${new Date(sig.client_signed_at).toLocaleDateString("pt-PT")}`
+                          ? ` · ${new Date(sig.client_signed_at).toLocaleDateString(uiI18n.language)}`
                           : ` · ${t("opportunities.documents.awaiting")}`}
                       </div>
                       <div className="flex items-center gap-1">
@@ -216,7 +219,7 @@ function DocumentsCard({ scope }: { scope: { opportunityId?: string; quoteId?: s
                         {t("opportunities.documents.psaSigner")}:{" "}
                         {sig.psa_signer_name ?? sig.psa_signer_email ?? "—"}
                         {sig.psa_signed_at
-                          ? ` · ${new Date(sig.psa_signed_at).toLocaleDateString("pt-PT")}`
+                          ? ` · ${new Date(sig.psa_signed_at).toLocaleDateString(uiI18n.language)}`
                           : ` · ${t("opportunities.documents.awaiting")}`}
                       </div>
                     </div>

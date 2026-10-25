@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, createFileRoute, useParams } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,10 +37,11 @@ export const Route = createFileRoute("/_app/inventory/assets/$assetId")({
 });
 
 const eur = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v);
+  v == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v);
 const day = (v: string | null | undefined) => (v ? v.slice(0, 10) : "—");
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="flex items-start justify-between gap-4 py-1 text-sm">
       <span className="text-muted-foreground">{label}</span>

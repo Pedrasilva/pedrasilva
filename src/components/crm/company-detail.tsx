@@ -1,3 +1,6 @@
+import { formatEUR } from "@/lib/product-ui-format";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,9 +25,8 @@ import { PaymentsReceived } from "@/components/finance/recebimentos-panel";
 import { StatementView } from "@/components/finance/statement-view";
 import { useCounterpartyStatement } from "@/lib/finance/use-documents";
 import {
-  contactFullName, formatEUR, PIPELINE_STATUSES,
-  type Company, type Contact, type FeeProposal,
-} from "@/lib/crm/types";
+  contactFullName,  PIPELINE_STATUSES,
+  type Company, type Contact, type FeeProposal} from "@/lib/crm/types";
 import { relationshipLabel, statementSideOf, relationshipOf, relationshipVariant } from "@/lib/crm/relationship";
 import { Switch } from "@/components/ui/switch";
 
@@ -42,6 +44,7 @@ export function CompanyDetail({
   companyId: string;
   back: CompanyDetailBack;
 }) {
+  useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -119,7 +122,7 @@ export function CompanyDetail({
 
     },
     onSuccess: () => {
-      toast.success("Empresa actualizada");
+      toast.success(uiI18n.t("crm:companies.updated"));
       qc.invalidateQueries({ queryKey: ["company", companyId] });
       qc.invalidateQueries({ queryKey: ["companies"] });
       setForm(null);
@@ -146,7 +149,7 @@ export function CompanyDetail({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Empresa eliminada");
+      toast.success(uiI18n.t("crm:companies.deleted"));
       qc.invalidateQueries({ queryKey: ["companies"] });
       navigate({ to: back.to } as never);
     },
@@ -154,7 +157,7 @@ export function CompanyDetail({
   });
 
   if (isLoading || !current) {
-    return <div className="text-sm text-muted-foreground">A carregar…</div>;
+    return <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>;
   }
 
   const update = <K extends keyof Company>(k: K, v: Company[K]) =>
@@ -174,11 +177,11 @@ export function CompanyDetail({
           </h2>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <Badge variant={relationshipVariant(relationshipOf(current as Company))}>
-              {relationshipLabel(current as Company)}
+              {uiI18n.t(relationshipOf(current as Company) === "client" ? "glossary:relation.client" : relationshipOf(current as Company) === "supplier" ? "common:supplier" : `crm:companies.relationshipBadges.${relationshipOf(current as Company)}`)}
             </Badge>
-            <Badge variant="secondary" className="capitalize">{current.status}</Badge>
+            <Badge variant="secondary" className="capitalize">{uiI18n.t(`crm:companies.status.${current.status}`)}</Badge>
             {(current as Company).is_active === false ? (
-              <Badge variant="outline">Inactivo</Badge>
+              <Badge variant="outline"> {uiI18n.t("common:inactive")} </Badge>
             ) : null}
           </div>
 
@@ -191,11 +194,9 @@ export function CompanyDetail({
             disabled={remove.isPending}
             className="text-destructive hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4 mr-1" /> Eliminar
-          </Button>
+            <Trash2 className="h-4 w-4 mr-1" />  {uiI18n.t("common:delete")} </Button>
           <Button size="sm" onClick={() => save.mutate()} disabled={!form || save.isPending}>
-            <Save className="h-4 w-4 mr-1" /> Guardar
-          </Button>
+            <Save className="h-4 w-4 mr-1" />  {uiI18n.t("common:save")} </Button>
         </div>
       </div>
 
@@ -203,13 +204,13 @@ export function CompanyDetail({
 
       <Tabs defaultValue="detalhes">
         <TabsList>
-          <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
-          <TabsTrigger value="contactos">Contactos ({contacts.length})</TabsTrigger>
-          <TabsTrigger value="propostas">Propostas ({proposals.length})</TabsTrigger>
-          <TabsTrigger value="projectos">Trabalhos</TabsTrigger>
-          <TabsTrigger value="conta-corrente">Conta corrente</TabsTrigger>
+          <TabsTrigger value="detalhes"> {uiI18n.t("common:details")} </TabsTrigger>
+          <TabsTrigger value="contactos"> {uiI18n.t("crm:companies.contactsCount", { count: contacts.length })}</TabsTrigger>
+          <TabsTrigger value="propostas"> {uiI18n.t("crm:companies.proposalsCount", { count: proposals.length })}</TabsTrigger>
+          <TabsTrigger value="projectos"> {uiI18n.t("crm:companies.work")} </TabsTrigger>
+          <TabsTrigger value="conta-corrente"> {uiI18n.t("crm:companies.statement")} </TabsTrigger>
 
-          <TabsTrigger value="actividades">Actividades</TabsTrigger>
+          <TabsTrigger value="actividades"> {uiI18n.t("common:activities")} </TabsTrigger>
         </TabsList>
 
 
@@ -217,9 +218,9 @@ export function CompanyDetail({
           {contacts[0] && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-base">Contacto principal</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("crm:common.primaryContact")} </CardTitle>
                 <span className="text-xs text-muted-foreground">
-                  Ver todos ({contacts.length})
+                   {uiI18n.t("crm:companies.viewAllCount", { count: contacts.length })}
                 </span>
               </CardHeader>
               <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
@@ -238,35 +239,35 @@ export function CompanyDetail({
           )}
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Detalhes da empresa</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base"> {uiI18n.t("crm:companies.details")} </CardTitle></CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>Nome</Label>
+                <Label> {uiI18n.t("common:name")} </Label>
                 <Input value={current.nome ?? ""} onChange={(e) => update("nome", e.target.value)} />
               </div>
               <div>
-                <Label>Estado</Label>
+                <Label> {uiI18n.t("common:status")} </Label>
                 <Select
                   value={current.status ?? "activo"}
                   onValueChange={(v) => update("status", v as Company["status"])}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="activo">Activo</SelectItem>
-                    <SelectItem value="prospecto">Prospecto</SelectItem>
-                    <SelectItem value="inactivo">Inactivo</SelectItem>
+                    <SelectItem value="activo"> {uiI18n.t("common:active")} </SelectItem>
+                    <SelectItem value="prospecto"> {uiI18n.t("crm:companies.prospect")} </SelectItem>
+                    <SelectItem value="inactivo"> {uiI18n.t("common:inactive")} </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>NIF / Tax ID</Label>
+                <Label> {uiI18n.t("crm:companies.taxId")} </Label>
                 <Input
                   value={(current as Company & { nif?: string | null }).nif ?? ""}
                   onChange={(e) => update("nif" as keyof Company, e.target.value as never)}
                 />
               </div>
               <div>
-                <Label>Tipo</Label>
+                <Label> {uiI18n.t("common:type")} </Label>
                 <Select
                   value={(current as Company & { company_type?: string | null }).company_type ?? "__none__"}
                   onValueChange={(v) =>
@@ -276,48 +277,48 @@ export function CompanyDetail({
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">—</SelectItem>
-                    <SelectItem value="cliente">Cliente</SelectItem>
-                    <SelectItem value="fornecedor">Fornecedor</SelectItem>
-                    <SelectItem value="parceiro">Parceiro</SelectItem>
-                    <SelectItem value="prospecto">Prospecto</SelectItem>
-                    <SelectItem value="outro">Outro</SelectItem>
+                    <SelectItem value="cliente"> {uiI18n.t("glossary:relation.client")} </SelectItem>
+                    <SelectItem value="fornecedor"> {uiI18n.t("common:supplier")} </SelectItem>
+                    <SelectItem value="parceiro"> {uiI18n.t("crm:companies.partner")} </SelectItem>
+                    <SelectItem value="prospecto"> {uiI18n.t("crm:companies.prospect")} </SelectItem>
+                    <SelectItem value="outro"> {uiI18n.t("common:other")} </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Indústria</Label>
+                <Label> {uiI18n.t("common:industry")} </Label>
                 <Input value={current.industria ?? ""} onChange={(e) => update("industria", e.target.value)} />
               </div>
               <div>
-                <Label>Website</Label>
+                <Label> {uiI18n.t("common:website")} </Label>
                 <Input value={current.website ?? ""} onChange={(e) => update("website", e.target.value)} />
               </div>
               <div>
-                <Label>Email</Label>
+                <Label> {uiI18n.t("common:email")} </Label>
                 <Input type="email" value={current.email ?? ""} onChange={(e) => update("email", e.target.value)} />
               </div>
               <div>
-                <Label>Telefone</Label>
+                <Label> {uiI18n.t("common:phone")} </Label>
                 <Input value={current.telefone ?? ""} onChange={(e) => update("telefone", e.target.value)} />
               </div>
               <div>
-                <Label>Telemóvel</Label>
+                <Label> {uiI18n.t("common:mobilePhone")} </Label>
                 <Input value={current.mobile ?? ""} onChange={(e) => update("mobile", e.target.value)} />
               </div>
               <div className="sm:col-span-2">
-                <Label>Morada</Label>
+                <Label> {uiI18n.t("common:address")} </Label>
                 <Input value={current.morada ?? ""} onChange={(e) => update("morada", e.target.value)} />
               </div>
               <div>
-                <Label>Código postal</Label>
+                <Label> {uiI18n.t("common:postalCode")} </Label>
                 <Input value={current.postal_code ?? ""} onChange={(e) => update("postal_code", e.target.value)} />
               </div>
               <div>
-                <Label>Localidade</Label>
+                <Label> {uiI18n.t("common:city")} </Label>
                 <Input value={current.city ?? ""} onChange={(e) => update("city", e.target.value)} />
               </div>
               <div>
-                <Label>Código</Label>
+                <Label> {uiI18n.t("common:code")} </Label>
                 <Input
                   className="font-mono"
                   value={current.code ?? ""}
@@ -325,11 +326,11 @@ export function CompanyDetail({
                 />
               </div>
               <div>
-                <Label>Abreviatura</Label>
+                <Label> {uiI18n.t("common:abbreviation")} </Label>
                 <Input value={current.abbreviation ?? ""} onChange={(e) => update("abbreviation", e.target.value)} />
               </div>
               <div>
-                <Label>Moeda</Label>
+                <Label> {uiI18n.t("common:currency")} </Label>
                 <Select
                   value={current.currency || "EUR"}
                   onValueChange={(v) => update("currency", v)}
@@ -343,15 +344,15 @@ export function CompanyDetail({
                 </Select>
               </div>
               <div>
-                <Label>Condições de pagamento</Label>
+                <Label> {uiI18n.t("crm:composer.blocks.paymentTerms")} </Label>
                 <Input
                   value={current.payment_terms ?? ""}
                   onChange={(e) => update("payment_terms", e.target.value)}
-                  placeholder="ex.: 30 dias"
+                  placeholder={uiI18n.t("crm:companies.paymentTermsHint")}
                 />
               </div>
               <div>
-                <Label>Saldo inicial a receber</Label>
+                <Label> {uiI18n.t("crm:companies.openingReceivable")} </Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -359,11 +360,10 @@ export function CompanyDetail({
                   onChange={(e) => update("opening_balance_receivable", Number(e.target.value) || 0)}
                 />
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Saldo transitado, usado como abertura da conta corrente.
-                </p>
+                   {uiI18n.t("crm:companies.openingBalanceHint")} </p>
               </div>
               <div>
-                <Label>Saldo inicial a pagar</Label>
+                <Label> {uiI18n.t("crm:companies.openingPayable")} </Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -371,8 +371,7 @@ export function CompanyDetail({
                   onChange={(e) => update("opening_balance_payable", Number(e.target.value) || 0)}
                 />
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Saldo transitado, usado como abertura da conta corrente.
-                </p>
+                   {uiI18n.t("crm:companies.openingBalanceHint")} </p>
               </div>
               <div className="sm:col-span-2 flex flex-wrap items-center gap-6 pt-1">
                 <div className="flex items-center gap-2">
@@ -381,7 +380,7 @@ export function CompanyDetail({
                     checked={!!current.is_client}
                     onCheckedChange={(v) => update("is_client", v)}
                   />
-                  <Label htmlFor="co-is-client" className="text-sm">Cliente</Label>
+                  <Label htmlFor="co-is-client" className="text-sm"> {uiI18n.t("glossary:relation.client")} </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
@@ -389,7 +388,7 @@ export function CompanyDetail({
                     checked={!!current.is_supplier}
                     onCheckedChange={(v) => update("is_supplier", v)}
                   />
-                  <Label htmlFor="co-is-supplier" className="text-sm">Fornecedor</Label>
+                  <Label htmlFor="co-is-supplier" className="text-sm"> {uiI18n.t("common:supplier")} </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
@@ -397,11 +396,11 @@ export function CompanyDetail({
                     checked={current.is_active !== false}
                     onCheckedChange={(v) => update("is_active", v)}
                   />
-                  <Label htmlFor="co-is-active" className="text-sm">Activo</Label>
+                  <Label htmlFor="co-is-active" className="text-sm"> {uiI18n.t("common:active")} </Label>
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <Label>Notas</Label>
+                <Label> {uiI18n.t("common:notes")} </Label>
                 <Textarea rows={3} value={current.notas ?? ""} onChange={(e) => update("notas", e.target.value)} />
               </div>
 
@@ -415,8 +414,7 @@ export function CompanyDetail({
               {contacts.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 p-6 text-sm text-muted-foreground">
                   <Users className="h-6 w-6 opacity-50" />
-                  Nenhum contacto associado.
-                </div>
+                   {uiI18n.t("crm:companies.noContacts")} </div>
               ) : (
                 <ul className="divide-y">
                   {contacts.map((c) => (
@@ -426,8 +424,7 @@ export function CompanyDetail({
                           {contactFullName(c)}
                           {(c as Contact & { is_billing_contact?: boolean }).is_billing_contact ? (
                             <Badge variant="default" className="gap-1">
-                              <Receipt className="h-3 w-3" /> Contacto de facturação
-                            </Badge>
+                              <Receipt className="h-3 w-3" />  {uiI18n.t("crm:companies.billingContact")} </Badge>
                           ) : null}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -443,8 +440,7 @@ export function CompanyDetail({
                             disabled={setBilling.isPending}
                           />
                           <Label htmlFor={`billing-${c.id}`} className="text-xs text-muted-foreground">
-                            Facturação
-                          </Label>
+                             {uiI18n.t("common:billing")} </Label>
                         </div>
                         <div className="text-xs text-muted-foreground">{c.telemovel ?? c.telefone ?? ""}</div>
                       </div>
@@ -467,8 +463,7 @@ export function CompanyDetail({
               {proposals.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 p-6 text-sm text-muted-foreground">
                   <GitBranch className="h-6 w-6 opacity-50" />
-                  Nenhuma proposta.
-                </div>
+                   {uiI18n.t("crm:companies.noProposals")} </div>
               ) : (
                 <ul className="divide-y">
                   {proposals.map((p) => {
@@ -484,7 +479,7 @@ export function CompanyDetail({
                             <div className="font-medium">{p.titulo}</div>
                             <div className="text-xs text-muted-foreground flex items-center gap-2">
                               <span className={`h-2 w-2 rounded-full ${meta?.color ?? "bg-muted"}`} />
-                              {meta?.label} · {p.probabilidade}%
+                              {meta ? uiI18n.t(`crm:companies.pipeline.${meta.value}`) : "—"} · {p.probabilidade}%
                             </div>
                           </div>
                           <div className="text-sm font-semibold">{formatEUR(Number(p.valor))}</div>
@@ -503,8 +498,8 @@ export function CompanyDetail({
             <Button size="sm" onClick={() => setSettleOpen(true)}>
               <Wallet className="size-4 mr-1" />
               {statementSideOf(current as Company) === "client"
-                ? "Registar recebimento"
-                : "Registar pagamento"}
+                ? uiI18n.t("crm:companies.recordReceipt")
+                : uiI18n.t("crm:companies.recordPayment")}
             </Button>
           </div>
           <Card>
@@ -524,8 +519,8 @@ export function CompanyDetail({
               <DialogHeader>
                 <DialogTitle>
                   {(statementSideOf(current as Company) === "client"
-                    ? "Registar recebimento — "
-                    : "Registar pagamento — ") + (current.nome ?? "")}
+                    ? uiI18n.t("crm:companies.receiptPrefix")
+                    : uiI18n.t("crm:companies.paymentPrefix")) + (current.nome ?? "")}
                 </DialogTitle>
               </DialogHeader>
               <SettlementWorkspace
@@ -560,6 +555,7 @@ function OutstandingBalanceCard({
   company: Company;
   companyId: string;
 }) {
+  useTranslation();
   const kind = statementSideOf(company);
   const { data } = useCounterpartyStatement({ kind, id: companyId });
   const outstanding = data?.outstanding ?? 0;
@@ -568,7 +564,7 @@ function OutstandingBalanceCard({
       <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
         <div>
           <div className="text-xs uppercase tracking-wide text-muted-foreground">
-            Saldo c/c em aberto ({kind === "client" ? "a receber" : "a pagar"})
+             {uiI18n.t("crm:companies.outstandingPrefix")} {kind === "client" ? uiI18n.t("crm:companies.receivable") : uiI18n.t("crm:companies.payable")})
           </div>
           <div className="mt-1 text-2xl font-semibold tabular-nums">
             {formatEUR(outstanding)}

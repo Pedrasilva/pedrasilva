@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +18,7 @@ import {
 } from "@/lib/crm/relationship";
 
 export const Route = createFileRoute("/_app/crm/companies/")({
+  head: () => ({ meta: [{ title: "crm / companies / index — PSA Hub" }, { name: "description", content: "PSA Hub crm / companies / index workspace." }, { property: "og:title", content: "crm / companies / index — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / companies / index workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CompaniesList,
 });
 
@@ -28,6 +31,7 @@ function statusVariant(s: Company["status"]): "default" | "secondary" | "outline
 }
 
 function CompaniesList() {
+  useTranslation();
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<TabKey>("all");
 
@@ -74,12 +78,12 @@ function CompaniesList() {
       <div className="flex flex-wrap items-center gap-2">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList>
-            <TabsTrigger value="all">Todas ({companies.length})</TabsTrigger>
-            <TabsTrigger value="client">Clientes ({counts.client})</TabsTrigger>
-            <TabsTrigger value="supplier">Fornecedores ({counts.supplier})</TabsTrigger>
-            <TabsTrigger value="both">Ambos ({counts.both})</TabsTrigger>
+            <TabsTrigger value="all"> {uiI18n.t("crm:companies.allCount", { count: companies.length })}</TabsTrigger>
+            <TabsTrigger value="client"> {uiI18n.t("crm:companies.clientsCount", { count: counts.client })}</TabsTrigger>
+            <TabsTrigger value="supplier"> {uiI18n.t("crm:companies.suppliersCount", { count: counts.supplier })}</TabsTrigger>
+            <TabsTrigger value="both"> {uiI18n.t("crm:companies.bothCount", { count: counts.both })}</TabsTrigger>
             <TabsTrigger value="uncategorized">
-              Sem categoria ({counts.uncategorized})
+               {uiI18n.t("crm:companies.uncategorizedCount", { count: counts.uncategorized })}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -88,12 +92,12 @@ function CompaniesList() {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Procurar empresas…"
+            placeholder={uiI18n.t("common:companyPicker.search")}
             className="pl-8"
           />
         </div>
         <div className="text-xs text-muted-foreground">
-          {filtered.length} de {companies.length}
+          {uiI18n.t("crm:companies.showingCount", { shown: filtered.length, total: companies.length })}
         </div>
       </div>
 
@@ -102,13 +106,9 @@ function CompaniesList() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
           <div>
             <p className="font-medium">
-              {counts.uncategorized} empresas sem categoria
-            </p>
+              {uiI18n.t("crm:companies.uncategorizedWarning", { count: counts.uncategorized })} </p>
             <p className="text-muted-foreground">
-              Sem documentos financeiros, oportunidades ou projectos associados — provável
-              dados antigos da importação PHC. Sinalizadas para revisão manual; nada é
-              arquivado automaticamente.
-            </p>
+               {uiI18n.t("crm:companies.importReviewHint")} </p>
           </div>
         </div>
       )}
@@ -118,20 +118,19 @@ function CompaniesList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Relação</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Indústria</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Telefone</TableHead>
+                <TableHead> {uiI18n.t("common:name")} </TableHead>
+                <TableHead> {uiI18n.t("crm:companies.relationship")} </TableHead>
+                <TableHead> {uiI18n.t("common:status")} </TableHead>
+                <TableHead> {uiI18n.t("common:industry")} </TableHead>
+                <TableHead> {uiI18n.t("common:email")} </TableHead>
+                <TableHead> {uiI18n.t("common:phone")} </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
-                    A carregar…
-                  </TableCell>
+                     {uiI18n.t("common:loading")} </TableCell>
                 </TableRow>
               )}
               {!isLoading && filtered.length === 0 && (
@@ -139,8 +138,7 @@ function CompaniesList() {
                   <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
                     <div className="flex flex-col items-center gap-2 py-6">
                       <Building2 className="h-6 w-6 opacity-50" />
-                      Nenhuma empresa. Use o botão “Novo” no topo para criar.
-                    </div>
+                       {uiI18n.t("crm:companies.empty")} </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -158,11 +156,11 @@ function CompaniesList() {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={relationshipVariant(r)}>{RELATIONSHIP_LABEL[r]}</Badge>
+                      <Badge variant={relationshipVariant(r)}>{uiI18n.t(r === "client" ? "glossary:relation.client" : r === "supplier" ? "common:supplier" : `crm:companies.relationshipBadges.${r}`)}</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusVariant(c.status)} className="capitalize">
-                        {c.status}
+                        {uiI18n.t(`crm:companies.status.${c.status}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{c.industria ?? "—"}</TableCell>

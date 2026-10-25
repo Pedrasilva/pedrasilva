@@ -1,0 +1,422 @@
+{
+  "before": 344,
+  "after": 14,
+  "removedBaselineOccurrences": 330,
+  "files": [
+    {
+      "file": "src/components/crm/account-suggest-field.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/activity-timeline.tsx",
+      "before": 11,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/company-detail.tsx",
+      "before": 59,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/company-picker.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/company-projects-tab.tsx",
+      "before": 9,
+      "after": 1
+    },
+    {
+      "file": "src/components/crm/contact-picker.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/crm-shell.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/mark-lost-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/new-company-dialog.tsx",
+      "before": 38,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/opportunity-activity-timeline.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/opportunity-documents-card.tsx",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/quick-quote-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/crm/quick-sale-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inbox/auto-handled-list.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inbox/email-content-panel.tsx",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "file": "src/components/inbox/sender-rules-card.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inbox/teach-assistant-card.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/asset-form-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/assign-asset-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/collaborator-assets-card.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/inventory-access-card.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/inventory-top-nav.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/invoice-inventory-action.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/invoice-inventory-dialog.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/inventory/review-queue-inventory-section.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/category-select.tsx",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/datasheet-sheet.tsx",
+      "before": 21,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/image-field.tsx",
+      "before": 5,
+      "after": 1
+    },
+    {
+      "file": "src/components/products/library-browser.tsx",
+      "before": 12,
+      "after": 1
+    },
+    {
+      "file": "src/components/products/product-form-dialog.tsx",
+      "before": 31,
+      "after": 1
+    },
+    {
+      "file": "src/components/products/product-image.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/products-top-nav.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/project-item-sheet.tsx",
+      "before": 30,
+      "after": 0
+    },
+    {
+      "file": "src/components/products/project-items-table.tsx",
+      "before": 26,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.companies.$companyId.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.companies.index.tsx",
+      "before": 17,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.companies.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.contacts.tsx",
+      "before": 9,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.contracts.$contractId.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.email-leads.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.index.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "before": 14,
+      "after": 6
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.index.tsx",
+      "before": 16,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.pipeline.$proposalId.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.pipeline.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.quote-templates.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.crm.quotes.$quoteId.tsx",
+      "before": 2,
+      "after": 2
+    },
+    {
+      "file": "src/routes/_app.crm.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inbox.index.tsx",
+      "before": 1,
+      "after": 1
+    },
+    {
+      "file": "src/routes/_app.inbox.settings.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inbox.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.assets.$assetId.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.assets.index.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.assignments.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.index.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.intake.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.reports.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.inventory.tsx",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.products.categories.tsx",
+      "before": 13,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.products.index.tsx",
+      "before": 10,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.products.library.tsx",
+      "before": 2,
+      "after": 0
+    },
+    {
+      "file": "src/routes/_app.products.project.$projectId.tsx",
+      "before": 15,
+      "after": 1
+    },
+    {
+      "file": "src/routes/_app.products.tsx",
+      "before": 0,
+      "after": 0
+    }
+  ],
+  "intentional": [
+    {
+      "file": "src/components/crm/company-projects-tab.tsx",
+      "line": 109,
+      "column": 30,
+      "kind": "jsxExpression",
+      "text": "company"
+    },
+    {
+      "file": "src/components/products/image-field.tsx",
+      "line": 115,
+      "column": 17,
+      "kind": "jsxExpression",
+      "text": "small"
+    },
+    {
+      "file": "src/components/products/library-browser.tsx",
+      "line": 131,
+      "column": 33,
+      "kind": "jsxExpression",
+      "text": "archived"
+    },
+    {
+      "file": "src/components/products/product-form-dialog.tsx",
+      "line": 267,
+      "column": 19,
+      "kind": "jsxExpression",
+      "text": "project"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 402,
+      "column": 37,
+      "kind": "jsxExpression",
+      "text": "overdue"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 407,
+      "column": 37,
+      "kind": "jsxExpression",
+      "text": "soon"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 420,
+      "column": 30,
+      "kind": "jsxExpression",
+      "text": "won"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 420,
+      "column": 53,
+      "kind": "jsxExpression",
+      "text": "lost"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 461,
+      "column": 30,
+      "kind": "jsxExpression",
+      "text": "lost"
+    },
+    {
+      "file": "src/routes/_app.crm.opportunities.$opportunityId.tsx",
+      "line": 984,
+      "column": 40,
+      "kind": "jsxExpression",
+      "text": "project"
+    },
+    {
+      "file": "src/routes/_app.crm.quotes.$quoteId.tsx",
+      "line": 576,
+      "column": 17,
+      "kind": "jsxExpression",
+      "text": "publish"
+    },
+    {
+      "file": "src/routes/_app.crm.quotes.$quoteId.tsx",
+      "line": 624,
+      "column": 21,
+      "kind": "jsxExpression",
+      "text": "estimate"
+    },
+    {
+      "file": "src/routes/_app.inbox.index.tsx",
+      "line": 286,
+      "column": 40,
+      "kind": "jsxExpression",
+      "text": "number"
+    },
+    {
+      "file": "src/routes/_app.products.project.$projectId.tsx",
+      "line": 207,
+      "column": 40,
+      "kind": "jsxExpression",
+      "text": "undefined"
+    }
+  ]
+}

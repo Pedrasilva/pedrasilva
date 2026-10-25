@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -22,12 +24,12 @@ import {
 
 
 
-const companySchema = z.object({
+const companySchema = () => z.object({
   // Company details
-  nome: z.string().trim().min(1, "Nome obrigatório").max(200),
+  nome: z.string().trim().min(1, uiI18n.t("crm:companies.nameRequired")).max(200),
   status: z.enum(["activo", "prospecto", "inactivo"]),
   website: z.string().trim().max(255).optional().or(z.literal("")),
-  email: z.string().trim().email("Email inválido").max(255).optional().or(z.literal("")),
+  email: z.string().trim().email(uiI18n.t("crm:companies.invalidEmail")).max(255).optional().or(z.literal("")),
   telefone: z.string().trim().max(50).optional().or(z.literal("")),
   morada: z.string().trim().max(500).optional().or(z.literal("")),
   nif: z.string().trim().max(50).optional().or(z.literal("")),
@@ -39,7 +41,7 @@ const companySchema = z.object({
   contact_titulo: z.string().trim().max(20).optional().or(z.literal("")),
   contact_primeiro_nome: z.string().trim().max(100).optional().or(z.literal("")),
   contact_apelido: z.string().trim().max(100).optional().or(z.literal("")),
-  contact_email: z.string().trim().email("Email do contacto inválido").max(255).optional().or(z.literal("")),
+  contact_email: z.string().trim().email(uiI18n.t("crm:companies.invalidContactEmail")).max(255).optional().or(z.literal("")),
   contact_telefone: z.string().trim().max(50).optional().or(z.literal("")),
   contact_telemovel: z.string().trim().max(50).optional().or(z.literal("")),
   contact_posicao: z.string().trim().max(100).optional().or(z.literal("")),
@@ -94,6 +96,7 @@ export interface NewCompanyDialogProps {
 export function NewCompanyDialog({
   open, onClose, defaultName, defaultIsClient, defaultIsSupplier, onCreated,
 }: NewCompanyDialogProps) {
+  useTranslation();
   const qc = useQueryClient();
   const [form, setForm] = useState({
     ...INITIAL_FORM,
@@ -130,7 +133,7 @@ export function NewCompanyDialog({
   const checkNif = async (raw: string, country = form.tax_country) => {
     const res = checkTaxId(raw, country);
     if (!res.normalized) return setNifWarning(null);
-    if (!res.ok) return setNifWarning(res.message ?? null);
+    if (!res.ok) return setNifWarning(country === "PT" ? uiI18n.t("crm:companies.invalidPortugueseNifHint", { number: res.normalized }) : uiI18n.t("crm:companies.unusualTaxIdHint", { number: res.normalized, country: country === "OTHER" ? uiI18n.t("crm:companies.otherCountry") : new Intl.DisplayNames([uiI18n.language], { type: "region" }).of(country) ?? country }));
     try {
       const { data: existing } = await supabase
         .from("companies")
@@ -139,7 +142,7 @@ export function NewCompanyDialog({
         .limit(1)
         .maybeSingle();
       setNifWarning(
-        existing ? `Já existe uma empresa com este número: ${existing.nome}.` : null,
+        existing ? uiI18n.t("crm:companies.duplicateTaxIdHint", { name: existing.nome }) : null,
       );
     } catch {
       setNifWarning(null);
@@ -148,7 +151,7 @@ export function NewCompanyDialog({
 
   const create = useMutation({
     mutationFn: async () => {
-      const parsed = companySchema.parse(form);
+      const parsed = companySchema().parse(form);
       const normalizedNif = normalizeTaxId(parsed.nif ?? "", form.tax_country);
 
       // 1) Create company
@@ -206,7 +209,7 @@ export function NewCompanyDialog({
       return { id: companyId, nome: companyRow.nome as string };
     },
     onSuccess: ({ id, nome }) => {
-      toast.success("Empresa criada");
+      toast.success(uiI18n.t("crm:companies.created"));
       qc.invalidateQueries({ queryKey: ["companies"] });
       qc.invalidateQueries({ queryKey: ["companies-lite"] });
       qc.invalidateQueries({ queryKey: ["contacts"] });
@@ -229,32 +232,30 @@ export function NewCompanyDialog({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" /> Nova empresa
-          </DialogTitle>
+            <Building2 className="h-5 w-5" />  {uiI18n.t("crm:companies.new")} </DialogTitle>
           <DialogDescription>
-            Crie uma empresa com o seu contacto principal e classificação.
-          </DialogDescription>
+             {uiI18n.t("crm:companies.newSub")} </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Section 1: Company details */}
-          <Section title="Detalhes da empresa" icon={<Building2 className="h-4 w-4" />}>
-            <FieldRow label="Nome *" full>
+          <Section title={uiI18n.t("crm:companies.details")} icon={<Building2 className="h-4 w-4" />}>
+            <FieldRow label={uiI18n.t("common:nameRequiredLabel")} full>
               <Input className="input-yellow" value={form.nome}
                 onChange={(e) => set("nome", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Estado">
+            <FieldRow label={uiI18n.t("common:status")}>
               <Select value={form.status}
                 onValueChange={(v) => set("status", v as CompanyStatus)}>
                 <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="activo">Activo</SelectItem>
-                  <SelectItem value="prospecto">Prospecto</SelectItem>
-                  <SelectItem value="inactivo">Inactivo</SelectItem>
+                  <SelectItem value="activo"> {uiI18n.t("common:active")} </SelectItem>
+                  <SelectItem value="prospecto"> {uiI18n.t("crm:companies.prospect")} </SelectItem>
+                  <SelectItem value="inactivo"> {uiI18n.t("common:inactive")} </SelectItem>
                 </SelectContent>
               </Select>
             </FieldRow>
-            <FieldRow label="País fiscal">
+            <FieldRow label={uiI18n.t("crm:companies.taxCountry")}>
               <Select
                 value={form.tax_country}
                 onValueChange={(v) => {
@@ -265,12 +266,12 @@ export function NewCompanyDialog({
                 <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                 <SelectContent className="max-h-72">
                   {TAX_COUNTRIES.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                    <SelectItem key={c.code} value={c.code}>{c.code === "OTHER" ? uiI18n.t("crm:companies.otherCountry") : new Intl.DisplayNames([uiI18n.language], { type: "region" }).of(c.code) ?? c.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </FieldRow>
-            <FieldRow label={form.tax_country === "PT" ? "NIF" : "NIF / Tax ID"}>
+            <FieldRow label={form.tax_country === "PT" ? uiI18n.t("crm:companies.nif") : uiI18n.t("crm:companies.taxId")}>
               <Input
                 className="input-yellow"
                 value={form.nif}
@@ -285,42 +286,40 @@ export function NewCompanyDialog({
                 </p>
               )}
             </FieldRow>
-            <FieldRow label="Papel no sistema" full>
+            <FieldRow label={uiI18n.t("crm:companies.systemRole")} full>
               <div className="flex flex-wrap items-center gap-4 pt-1">
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox
                     checked={form.is_client}
                     onCheckedChange={(v) => set("is_client", v === true)}
                   />
-                  Cliente (facturação)
-                </label>
+                   {uiI18n.t("crm:companies.clientBilling")} </label>
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox
                     checked={form.is_supplier}
                     onCheckedChange={(v) => set("is_supplier", v === true)}
                   />
-                  Fornecedor (compras)
-                </label>
+                   {uiI18n.t("crm:companies.supplierPurchases")} </label>
               </div>
             </FieldRow>
 
-            <FieldRow label="Website">
-              <Input className="input-yellow" placeholder="https://…" value={form.website}
+            <FieldRow label={uiI18n.t("common:website")}>
+              <Input className="input-yellow" placeholder={uiI18n.t("common:websiteHint")} value={form.website}
                 onChange={(e) => set("website", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Telefone">
+            <FieldRow label={uiI18n.t("common:phone")}>
               <Input className="input-yellow" value={form.telefone}
                 onChange={(e) => set("telefone", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Email">
+            <FieldRow label={uiI18n.t("common:email")}>
               <Input type="email" className="input-yellow" value={form.email}
                 onChange={(e) => set("email", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Morada" full>
+            <FieldRow label={uiI18n.t("common:address")} full>
               <Input className="input-yellow" value={form.morada}
                 onChange={(e) => set("morada", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Notas" full>
+            <FieldRow label={uiI18n.t("common:notes")} full>
               <Textarea className="input-yellow" rows={2} value={form.notas}
                 onChange={(e) => set("notas", e.target.value)} />
             </FieldRow>
@@ -328,60 +327,60 @@ export function NewCompanyDialog({
 
           {/* Section 2: Primary contact */}
           <Section
-            title="Contacto principal"
+            title={uiI18n.t("crm:common.primaryContact")}
             icon={<User className="h-4 w-4" />}
-            hint="Opcional — preencha para criar um contacto associado à empresa."
+            hint={uiI18n.t("crm:companies.contactHint")}
           >
-            <FieldRow label="Título">
-              <Input className="input-yellow" placeholder="Sr., Sra., Dr…" value={form.contact_titulo}
+            <FieldRow label={uiI18n.t("common:title")}>
+              <Input className="input-yellow" placeholder={uiI18n.t("crm:companies.honorificHint")} value={form.contact_titulo}
                 onChange={(e) => set("contact_titulo", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Posição / Função">
+            <FieldRow label={uiI18n.t("crm:companies.positionRole")}>
               <Input className="input-yellow" value={form.contact_posicao}
                 onChange={(e) => set("contact_posicao", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Primeiro nome">
+            <FieldRow label={uiI18n.t("common:firstName")}>
               <Input className="input-yellow" value={form.contact_primeiro_nome}
                 onChange={(e) => set("contact_primeiro_nome", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Apelido">
+            <FieldRow label={uiI18n.t("common:lastName")}>
               <Input className="input-yellow" value={form.contact_apelido}
                 onChange={(e) => set("contact_apelido", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Email">
+            <FieldRow label={uiI18n.t("common:email")}>
               <Input type="email" className="input-yellow" value={form.contact_email}
                 onChange={(e) => set("contact_email", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Telefone">
+            <FieldRow label={uiI18n.t("common:phone")}>
               <Input className="input-yellow" value={form.contact_telefone}
                 onChange={(e) => set("contact_telefone", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Telemóvel">
+            <FieldRow label={uiI18n.t("common:mobilePhone")}>
               <Input className="input-yellow" value={form.contact_telemovel}
                 onChange={(e) => set("contact_telemovel", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Notas" full>
+            <FieldRow label={uiI18n.t("common:notes")} full>
               <Textarea className="input-yellow" rows={2} value={form.contact_notas}
                 onChange={(e) => set("contact_notas", e.target.value)} />
             </FieldRow>
           </Section>
 
           {/* Section 3: Classification */}
-          <Section title="Classificação" icon={<Tag className="h-4 w-4" />}>
-            <FieldRow label="Indústria">
-              <Input className="input-yellow" placeholder="Construção, retalho…" value={form.industria}
+          <Section title={uiI18n.t("common:classification")} icon={<Tag className="h-4 w-4" />}>
+            <FieldRow label={uiI18n.t("common:industry")}>
+              <Input className="input-yellow" placeholder={uiI18n.t("crm:companies.industryHint")} value={form.industria}
                 onChange={(e) => set("industria", e.target.value)} />
             </FieldRow>
-            <FieldRow label="Tipo de empresa">
+            <FieldRow label={uiI18n.t("crm:companies.companyType")}>
               <Select
                 value={form.company_type || "__none__"}
                 onValueChange={(v) => set("company_type", v === "__none__" ? "" : v)}
               >
-                <SelectTrigger className="input-yellow"><SelectValue placeholder="Seleccione…" /></SelectTrigger>
+                <SelectTrigger className="input-yellow"><SelectValue placeholder={uiI18n.t("common:selectHint")} /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">—</SelectItem>
                   {COMPANY_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    <SelectItem key={t.value} value={t.value}>{uiI18n.t(`crm:companies.type.${t.value}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -390,10 +389,9 @@ export function NewCompanyDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}> {uiI18n.t("common:cancel")} </Button>
           <Button onClick={() => create.mutate()} disabled={create.isPending || !form.nome.trim()}>
-            Criar empresa
-          </Button>
+             {uiI18n.t("crm:companies.create")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -403,6 +401,7 @@ export function NewCompanyDialog({
 function Section({
   title, icon, hint, children,
 }: { title: string; icon: React.ReactNode; hint?: string; children: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="rounded-lg border bg-card/40 p-3">
       <div className="mb-2 flex items-center gap-2">
@@ -420,6 +419,7 @@ function Section({
 function FieldRow({
   label, children, full,
 }: { label: string; children: React.ReactNode; full?: boolean }) {
+  useTranslation();
   return (
     <div className={`space-y-1.5 ${full ? "sm:col-span-full" : ""}`}>
       <Label className="text-xs text-muted-foreground">{label}</Label>

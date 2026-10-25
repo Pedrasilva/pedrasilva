@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -51,7 +52,7 @@ type LineDraft = {
 };
 
 const eur = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v);
+  v == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v);
 
 /**
  * Finance → Inventory review step.

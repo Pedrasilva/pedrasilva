@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useMemo } from "react";
 import {
   Select,
@@ -25,6 +27,7 @@ export function CategorySelect({
   className?: string;
   includeAll?: boolean;
 }) {
+  useTranslation();
   const { data: categories = [] } = useProductCategories();
   const options = useMemo(() => flatten(categories), [categories]);
 
@@ -37,7 +40,7 @@ export function CategorySelect({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={NONE}>{includeAll ? "All categories" : "—"}</SelectItem>
+        <SelectItem value={NONE}>{includeAll ? uiI18n.t("common:allCategories") : "—"}</SelectItem>
         {options.map((o) => (
           <SelectItem key={o.id} value={o.id}>
             {o.depth > 0 ? `${"\u00a0".repeat(o.depth * 3)}${o.name}` : o.name}

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -10,8 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   OPPORTUNITY_ACTIVITY_TYPES,
   type OpportunityActivity,
-  type OpportunityActivityType,
-} from "@/lib/crm/types";
+  type OpportunityActivityType} from "@/lib/crm/types";
 
 const ICONS: Record<OpportunityActivityType, React.ComponentType<{ className?: string }>> = {
   call: Phone,
@@ -29,7 +29,7 @@ function relativeTime(iso: string, t: (k: string, opts?: Record<string, unknown>
   if (h < 24) return t("opportunities.activity.hourAgo", { count: h });
   const d = Math.floor(h / 24);
   if (d < 30) return t("opportunities.activity.dayAgo", { count: d });
-  return new Date(iso).toLocaleDateString();
+  return new Date(iso).toLocaleDateString(uiI18n.language);
 }
 
 export function OpportunityActivityTimeline({ opportunityId }: { opportunityId: string }) {

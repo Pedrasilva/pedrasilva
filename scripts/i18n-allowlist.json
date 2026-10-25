@@ -84,6 +84,26 @@
       "path": "src/components/psa-composer/block-renderer.tsx",
       "name": "GanttRotatedAppendix",
       "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/products/datasheet-sheet.tsx",
+      "name": "DatasheetPrintView",
+      "reason": "Client A4 datasheet output only; preserves document labels, stored product values and original money format independently of the app language. No editor controls exist in these scopes."
+    },
+    {
+      "path": "src/components/products/datasheet-sheet.tsx",
+      "name": "Row",
+      "reason": "Client A4 datasheet output only; preserves document labels, stored product values and original money format independently of the app language. No editor controls exist in these scopes."
+    },
+    {
+      "path": "src/components/products/datasheet-sheet.tsx",
+      "name": "SheetImage",
+      "reason": "Client A4 datasheet output only; preserves document labels, stored product values and original money format independently of the app language. No editor controls exist in these scopes."
+    },
+    {
+      "path": "src/components/products/datasheet-sheet.tsx",
+      "name": "FinishPanel",
+      "reason": "Client A4 datasheet output only; preserves document labels, stored product values and original money format independently of the app language. No editor controls exist in these scopes."
     }
   ],
   "documentLanguageOptions": [

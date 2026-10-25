@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Stage 5A — Contract Generator Foundation
  * Stage 5B — Lifecycle + Revision Safety (UI hookup)
@@ -31,6 +32,7 @@ import type { ContractRow } from "@/lib/contracts";
 import { ContractBootstrapCard } from "@/components/contracts/contract-bootstrap-card";
 
 export const Route = createFileRoute("/_app/crm/contracts/$contractId")({
+  head: () => ({ meta: [{ title: "crm / contracts / contractId — PSA Hub" }, { name: "description", content: "PSA Hub crm / contracts / contractId workspace." }, { property: "og:title", content: "crm / contracts / contractId — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / contracts / contractId workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ContractDetailPage,
 });
 
@@ -508,6 +510,7 @@ function ContractDetailPage() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  useTranslation();
   return (
     <div className="flex justify-between gap-2 border-b pb-1">
       <span className="text-muted-foreground">{label}</span>
@@ -519,7 +522,7 @@ function Row({ label, value }: { label: string; value: string }) {
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleString("pt-PT");
+    return new Date(iso).toLocaleString(uiI18n.language);
   } catch {
     return iso;
   }

@@ -1,3 +1,6 @@
+import { formatMoney } from "@/lib/product-ui-format";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { Copy, ExternalLink, Search, Trash2, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
@@ -27,7 +30,7 @@ import {
   useProductCategories,
   useUpdateProjectItem,
 } from "@/lib/products/use-products";
-import { categoryPath, formatMoney, itemTotal, type ProjectItem } from "@/lib/products/types";
+import { categoryPath,  itemTotal, type ProjectItem } from "@/lib/products/types";
 
 type SortKey = "reference" | "location" | "name" | "manufacturer" | "total";
 
@@ -43,6 +46,7 @@ export function ProjectItemsTable({
   items: ProjectItem[];
   projectId: string;
 }) {
+  useTranslation();
   const { data: categories = [] } = useProductCategories();
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const update = useUpdateProjectItem();
@@ -92,22 +96,22 @@ export function ProjectItemsTable({
             className="pl-8"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search items"
+            placeholder={uiI18n.t("crm:products.searchItems")}
           />
         </div>
         <CategorySelect
           value={category}
           onChange={setCategory}
           includeAll
-          placeholder="All categories"
+          placeholder={uiI18n.t("common:allCategories")}
           className="w-[190px]"
         />
         <Select value={location} onValueChange={setLocation}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All locations" />
+            <SelectValue placeholder={uiI18n.t("common:allLocations")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All locations</SelectItem>
+            <SelectItem value="__all__"> {uiI18n.t("common:allLocations")} </SelectItem>
             {locations.map((l) => (
               <SelectItem key={l} value={l}>
                 {l}
@@ -121,11 +125,11 @@ export function ProjectItemsTable({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="reference">Sort: reference</SelectItem>
-            <SelectItem value="location">Sort: location</SelectItem>
-            <SelectItem value="name">Sort: item</SelectItem>
-            <SelectItem value="manufacturer">Sort: manufacturer</SelectItem>
-            <SelectItem value="total">Sort: total</SelectItem>
+            <SelectItem value="reference"> {uiI18n.t("crm:products.sortReference")} </SelectItem>
+            <SelectItem value="location"> {uiI18n.t("crm:products.sortLocation")} </SelectItem>
+            <SelectItem value="name"> {uiI18n.t("crm:products.sortItem")} </SelectItem>
+            <SelectItem value="manufacturer"> {uiI18n.t("crm:products.sortManufacturer")} </SelectItem>
+            <SelectItem value="total"> {uiI18n.t("crm:products.sortTotal")} </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -134,16 +138,16 @@ export function ProjectItemsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[64px]">Image</TableHead>
-              <TableHead className="w-[110px]">Ref.</TableHead>
-              <TableHead className="w-[150px]">Location</TableHead>
-              <TableHead>Item</TableHead>
-              <TableHead className="w-[150px]">Manufacturer</TableHead>
-              <TableHead className="w-[150px]">Category</TableHead>
-              <TableHead className="w-[140px]">Finish</TableHead>
-              <TableHead className="w-[80px] text-right">Qty</TableHead>
-              <TableHead className="w-[110px] text-right">Unit price</TableHead>
-              <TableHead className="w-[110px] text-right">Total</TableHead>
+              <TableHead className="w-[64px]"> {uiI18n.t("common:image")} </TableHead>
+              <TableHead className="w-[110px]"> {uiI18n.t("common:referenceShort")} </TableHead>
+              <TableHead className="w-[150px]"> {uiI18n.t("common:location")} </TableHead>
+              <TableHead> {uiI18n.t("common:item")} </TableHead>
+              <TableHead className="w-[150px]"> {uiI18n.t("common:manufacturer")} </TableHead>
+              <TableHead className="w-[150px]"> {uiI18n.t("common:category")} </TableHead>
+              <TableHead className="w-[140px]"> {uiI18n.t("common:finish")} </TableHead>
+              <TableHead className="w-[80px] text-right"> {uiI18n.t("common:quantityShort")} </TableHead>
+              <TableHead className="w-[110px] text-right"> {uiI18n.t("common:unitPrice")} </TableHead>
+              <TableHead className="w-[110px] text-right"> {uiI18n.t("common:total")} </TableHead>
               <TableHead className="w-[110px]" />
             </TableRow>
           </TableHeader>
@@ -151,8 +155,7 @@ export function ProjectItemsTable({
             {rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={11} className="py-10 text-center text-sm text-muted-foreground">
-                  No items yet. Use “Add item” to browse the library or create a new product.
-                </TableCell>
+                   {uiI18n.t("crm:products.itemsEmpty")} </TableCell>
               </TableRow>
             )}
             {rows.map((i) => (
@@ -209,7 +212,7 @@ export function ProjectItemsTable({
                 <TableCell>
                   <div className="flex justify-end gap-0.5">
                     {i.product_url && (
-                      <Button size="icon" variant="ghost" asChild aria-label="Open product page">
+                      <Button size="icon" variant="ghost" asChild aria-label={uiI18n.t("crm:products.openProduct")}>
                         <a href={i.product_url} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-3.5 w-3.5" />
                         </a>
@@ -218,11 +221,11 @@ export function ProjectItemsTable({
                     <Button
                       size="icon"
                       variant="ghost"
-                      aria-label="Duplicate item"
+                      aria-label={uiI18n.t("crm:products.duplicateItem")}
                       onClick={() =>
                         duplicate
                           .mutateAsync(i)
-                          .then(() => toast.success("Item duplicated"))
+                          .then(() => toast.success(uiI18n.t("crm:products.itemDuplicated")))
                           .catch((e) => toast.error(String(e)))
                       }
                     >
@@ -231,9 +234,9 @@ export function ProjectItemsTable({
                     <Button
                       size="icon"
                       variant="ghost"
-                      aria-label="Delete item"
+                      aria-label={uiI18n.t("crm:products.deleteItem")}
                       onClick={() => {
-                        if (confirm(`Remove “${i.name}” from this project?`))
+                        if (confirm(uiI18n.t("crm:products.removeItemPrompt", { value1: i.name })))
                           remove.mutate({ id: i.id, projectId });
                       }}
                     >
@@ -254,7 +257,7 @@ export function ProjectItemsTable({
       </datalist>
 
       <div className="flex justify-end gap-6 text-sm">
-        <span className="text-muted-foreground">{rows.length} items</span>
+        <span className="text-muted-foreground">{uiI18n.t("common:itemsCount", { count: rows.length })} </span>
         <span className="font-medium tabular-nums">{formatMoney(grandTotal)}</span>
       </div>
 
@@ -276,6 +279,7 @@ function InlineText({
   onCommit: (v: string | null) => void;
   list?: string;
 }) {
+  useTranslation();
   const [draft, setDraft] = useState(value ?? "");
   return (
     <Input
@@ -301,6 +305,7 @@ function InlineNumber({
   value: number | null;
   onCommit: (v: number | null) => void;
 }) {
+  useTranslation();
   const [draft, setDraft] = useState(value == null ? "" : String(value));
   return (
     <Input
