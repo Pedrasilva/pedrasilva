@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Signature status for a proposal — shown next to the send actions.
  * Compact badge with per-signer detail and a link to the signed PDF.
@@ -25,7 +27,7 @@ async function openSignedPdf(sig: ProposalSignature) {
     .from("proposal-pdfs")
     .download(sig.signed_pdf_storage_path);
   if (error || !data) {
-    toast.error("Não foi possível obter o PDF assinado.");
+    toast.error(uiI18n.t("crm:quoteEditor.signedPdfFailed"));
     return;
   }
   const url = URL.createObjectURL(data.slice(0, data.size, "application/pdf"));
@@ -40,6 +42,7 @@ async function openSignedPdf(sig: ProposalSignature) {
 
 
 export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) {
+  useTranslation();
   const { data: signatures = [] } = useProposalSignatures(proposalId);
   const latest = signatures[0];
   if (!latest) return null;
@@ -58,13 +61,13 @@ export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) 
           </Badge>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-xs">
-          <div>Cliente: {latest.client_signer_name ?? "—"} ({latest.client_signer_email ?? "—"})</div>
-          <div>PSA: {latest.psa_signer_name ?? "—"} ({latest.psa_signer_email ?? "—"})</div>
+          <div> {uiI18n.t("crm:quoteEditor.clientPrefix")} {latest.client_signer_name ?? "—"} ({latest.client_signer_email ?? "—"})</div>
+          <div> {uiI18n.t("crm:quoteEditor.psaPrefix")} {latest.psa_signer_name ?? "—"} ({latest.psa_signer_email ?? "—"})</div>
           {latest.client_signed_at && (
-            <div>Cliente assinou: {new Date(latest.client_signed_at).toLocaleString("pt-PT")}</div>
+            <div> {uiI18n.t("crm:quoteEditor.clientSignedPrefix")} {new Date(latest.client_signed_at).toLocaleString("pt-PT")}</div>
           )}
           {latest.psa_signed_at && (
-            <div>PSA assinou: {new Date(latest.psa_signed_at).toLocaleString("pt-PT")}</div>
+            <div> {uiI18n.t("crm:quoteEditor.psaSignedPrefix")} {new Date(latest.psa_signed_at).toLocaleString("pt-PT")}</div>
           )}
         </TooltipContent>
       </Tooltip>
@@ -73,7 +76,7 @@ export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) 
           size="icon"
           variant="ghost"
           className="h-7 w-7"
-          title="Descarregar PDF assinado"
+          title={uiI18n.t("crm:quoteEditor.downloadSignedPdf")}
           onClick={() => void openSignedPdf(latest)}
         >
           <Download className="h-3.5 w-3.5" />

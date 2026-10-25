@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,7 +75,7 @@ function ProposalRolesAdminPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(isPt ? "Título criado" : "Title created");
+      toast.success(isPt ? uiI18n.t("crm:quoteEditor.titleCreated") : uiI18n.t("crm:quoteEditor.titleCreated"));
       setLabelEn("");
       setLabelPt("");
       setSeniority("");
@@ -98,7 +99,7 @@ function ProposalRolesAdminPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(isPt ? "Guardado" : "Saved");
+      toast.success(isPt ? uiI18n.t("common:saved") : uiI18n.t("common:saved"));
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -129,8 +130,8 @@ function ProposalRolesAdminPage() {
       toast.error(
         e.message.includes("foreign key")
           ? isPt
-            ? "Em uso — arquive em vez de eliminar."
-            : "In use — archive instead of deleting."
+            ? uiI18n.t("crm:quoteEditor.titleInUse")
+            : uiI18n.t("crm:quoteEditor.titleInUse")
           : e.message,
       ),
   });
@@ -142,40 +143,40 @@ function ProposalRolesAdminPage() {
           <Button asChild variant="ghost" size="sm">
             <Link to="/admin">
               <ArrowLeft className="h-4 w-4" />
-              {isPt ? "Voltar à administração" : "Back to admin"}
+              {isPt ? uiI18n.t("crm:quoteEditor.backAdmin") : uiI18n.t("crm:quoteEditor.backAdmin")}
             </Link>
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{isPt ? "Títulos / Funções comerciais" : "Titles / Commercial Roles"}</CardTitle>
+            <CardTitle>{isPt ? uiI18n.t("crm:quoteEditor.commercialTitles") : uiI18n.t("crm:quoteEditor.commercialTitles")}</CardTitle>
             <CardDescription>
               {isPt
-                ? "Catálogo de títulos usados nas fichas dos colaboradores e nas propostas. As horas e valores no Quote Builder são apresentados por título, nunca pelo nome do colaborador."
-                : "Catalog of titles used on team member profiles and in proposals. Hours and sale values in the Quote Builder are presented by title, never by collaborator name."}
+                ? uiI18n.t("crm:quoteEditor.commercialTitlesHint")
+                : uiI18n.t("crm:quoteEditor.commercialTitlesHint")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
               <div className="space-y-1.5">
-                <Label>{isPt ? "Título (EN)" : "Title (EN)"}</Label>
+                <Label>{isPt ? uiI18n.t("crm:quoteEditor.titleEn") : uiI18n.t("crm:quoteEditor.titleEn")}</Label>
                 <Input
                   value={labelEn}
                   onChange={(e) => setLabelEn(e.target.value)}
-                  placeholder="e.g. Project Lead"
+                  placeholder={uiI18n.t("crm:quoteEditor.titleEnHint")}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>{isPt ? "Título (PT)" : "Title (PT)"}</Label>
+                <Label>{isPt ? uiI18n.t("crm:quoteEditor.titlePt") : uiI18n.t("crm:quoteEditor.titlePt")}</Label>
                 <Input
                   value={labelPt}
                   onChange={(e) => setLabelPt(e.target.value)}
-                  placeholder={isPt ? "ex.: Líder de Projeto" : "e.g. Líder de Projeto"}
+                  placeholder={isPt ? uiI18n.t("crm:quoteEditor.titlePtHint") : uiI18n.t("crm:quoteEditor.titlePtHint")}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>{isPt ? "Senioridade (0–100)" : "Seniority (0–100)"}</Label>
+                <Label>{isPt ? uiI18n.t("crm:quoteEditor.seniorityRange") : uiI18n.t("crm:quoteEditor.seniorityRange")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -192,7 +193,7 @@ function ProposalRolesAdminPage() {
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
-                  {isPt ? "Adicionar título" : "Add title"}
+                  {isPt ? uiI18n.t("crm:quoteEditor.addTitle") : uiI18n.t("crm:quoteEditor.addTitle")}
                 </Button>
               </div>
             </div>
@@ -201,21 +202,21 @@ function ProposalRolesAdminPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{isPt ? "Catálogo" : "Catalog"}</CardTitle>
+            <CardTitle className="text-base">{isPt ? uiI18n.t("crm:quoteEditor.catalogue") : uiI18n.t("crm:quoteEditor.catalogue")}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading…</p>
+              <p className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-20">{isPt ? "Ordem" : "Order"}</TableHead>
-                    <TableHead>{isPt ? "Título (EN)" : "Title (EN)"}</TableHead>
-                    <TableHead>{isPt ? "Título (PT)" : "Title (PT)"}</TableHead>
-                    <TableHead className="w-28">{isPt ? "Senioridade" : "Seniority"}</TableHead>
-                    <TableHead className="w-32 text-right">{isPt ? "Custo/hora" : "Cost / hour"}</TableHead>
-                    <TableHead className="w-40 text-right">{isPt ? "Ações" : "Actions"}</TableHead>
+                    <TableHead className="w-20">{isPt ? uiI18n.t("crm:quoteEditor.order") : uiI18n.t("crm:quoteEditor.order")}</TableHead>
+                    <TableHead>{isPt ? uiI18n.t("crm:quoteEditor.titleEn") : uiI18n.t("crm:quoteEditor.titleEn")}</TableHead>
+                    <TableHead>{isPt ? uiI18n.t("crm:quoteEditor.titlePt") : uiI18n.t("crm:quoteEditor.titlePt")}</TableHead>
+                    <TableHead className="w-28">{isPt ? uiI18n.t("crm:quoteEditor.seniority") : uiI18n.t("crm:quoteEditor.seniority")}</TableHead>
+                    <TableHead className="w-32 text-right">{isPt ? uiI18n.t("crm:quoteEditor.costHour") : uiI18n.t("crm:quoteEditor.costHour")}</TableHead>
+                    <TableHead className="w-40 text-right">{isPt ? uiI18n.t("common:actions") : uiI18n.t("common:actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -231,7 +232,7 @@ function ProposalRolesAdminPage() {
                   {roles.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
-                        {isPt ? "Sem títulos." : "No titles yet."}
+                        {isPt ? uiI18n.t("crm:quoteEditor.noTitlesYet") : uiI18n.t("crm:quoteEditor.noTitlesYet")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -294,7 +295,7 @@ function RoleRow({
             onChange={(e) => setDraft({ ...draft, label_pt: e.target.value })}
           />
           {archived && (
-            <Badge variant="secondary">{isPt ? "Arquivado" : "Archived"}</Badge>
+            <Badge variant="secondary">{isPt ? uiI18n.t("common:archived") : uiI18n.t("common:archived")}</Badge>
           )}
         </div>
       </TableCell>
@@ -339,7 +340,7 @@ function RoleRow({
             variant="ghost"
             disabled={!dirty}
             onClick={() => onSave(draft)}
-            title={isPt ? "Guardar" : "Save"}
+            title={isPt ? uiI18n.t("common:save") : uiI18n.t("common:save")}
           >
             <Save className="h-4 w-4" />
           </Button>
@@ -347,7 +348,7 @@ function RoleRow({
             size="sm"
             variant="ghost"
             onClick={() => onArchive(!archived)}
-            title={archived ? (isPt ? "Restaurar" : "Restore") : (isPt ? "Arquivar" : "Archive")}
+            title={archived ? (isPt ? uiI18n.t("crm:quoteEditor.restore") : "Restore") : (isPt ? "Arquivar" : "Archive")}
           >
             {archived ? (
               <RotateCcw className="h-4 w-4" />
@@ -362,14 +363,14 @@ function RoleRow({
               if (
                 window.confirm(
                   isPt
-                    ? "Eliminar definitivamente? Use Arquivar se o título estiver em uso."
-                    : "Delete permanently? Use Archive if this title is in use.",
+                    ? uiI18n.t("crm:quoteEditor.deleteTitlePrompt")
+                    : uiI18n.t("crm:quoteEditor.deleteTitlePrompt"),
                 )
               ) {
                 onDelete();
               }
             }}
-            title={isPt ? "Eliminar" : "Delete"}
+            title={isPt ? uiI18n.t("common:delete") : uiI18n.t("common:delete")}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Quote settings — per-supplier administration markup editor.
  *
@@ -34,6 +36,7 @@ interface SupplierRow extends SupplierIdentity {
 const db = supabase as any;
 
 export function QuoteSupplierMarkupEditor({ quoteId }: { quoteId: string }) {
+  useTranslation();
   const stagesQ = useQuoteStages(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
   const markupsQ = useQuoteSupplierMarkups(quoteId);
@@ -158,15 +161,13 @@ export function QuoteSupplierMarkupEditor({ quoteId }: { quoteId: string }) {
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between">
-        <Label className="text-xs">Taxa de administração por fornecedor</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.supplierAdminFee")} </Label>
         <p className="text-[11px] text-muted-foreground">
-          0% para desactivar
-        </p>
+           {uiI18n.t("crm:quoteEditor.disablePercent")} </p>
       </div>
       {suppliers.length === 0 ? (
         <p className="rounded-md border border-dashed bg-background/60 px-3 py-2 text-xs text-muted-foreground">
-          Sem fornecedores associados a este orçamento.
-        </p>
+           {uiI18n.t("crm:quoteEditor.noSuppliers")} </p>
       ) : (
         <div className="divide-y rounded-md border bg-background">
           {suppliers.map((s) => (
@@ -205,6 +206,7 @@ function SupplierMarkupRowEditor({
   disabled: boolean;
   onSave: (pct: number) => void;
 }) {
+  useTranslation();
   const [value, setValue] = useState<string>(String(currentPct ?? 0));
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

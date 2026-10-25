@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * RetainerStageEditor — UI for a `stage_kind='retainer_monthly'` quote stage.
  *
@@ -432,7 +433,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 defaultValue: "h/month",
               })}{" "}
               · {t("workspace.planning.retainerMonthly.cost", { defaultValue: "cost" })}{" "}
-              {formatEUR(monthlyCost)} / mo · {workdays}{" "}
+              {formatEUR(monthlyCost)}  {uiI18n.t("crm:quoteEditor.perMonthDot")} {workdays}{" "}
               {t("workspace.planning.retainerMonthly.workdays", {
                 defaultValue: "workdays",
               })}

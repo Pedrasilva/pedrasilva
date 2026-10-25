@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Composer top bar — proposal title, status, Preview / Export PDF, and
  * a disabled "Converter para Contrato" stub that previews which blocks
@@ -113,8 +114,8 @@ export function ComposerTopBar({
     update.mutate(
       { status: "draft" },
       {
-        onSuccess: () => toast.success("Nova revisão editável iniciada."),
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+        onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.editableRevisionStarted")),
+        onError: (e) => toast.error(e instanceof Error ? e.message : uiI18n.t("common:error")),
       },
     );
 
@@ -163,16 +164,15 @@ export function ComposerTopBar({
           >
             <Lock className="mr-1 h-3 w-3" />
             {proposal.outcome === "won"
-              ? "Ganha"
+              ? uiI18n.t("glossary:crm.won")
               : proposal.outcome === "lost"
-                ? "Perdida"
-                : "Bloqueada"}
+                ? uiI18n.t("glossary:crm.lost")
+                : uiI18n.t("crm:quoteEditor.locked")}
           </Badge>
         )}
         {isSentLocked && (
           <Badge variant="outline" className="border-sky-300 bg-sky-50 text-sky-800">
-            <Lock className="mr-1 h-3 w-3" /> Enviada
-          </Badge>
+            <Lock className="mr-1 h-3 w-3" />  {uiI18n.t("crm:quotes.lifecycle.sent")} </Badge>
         )}
         <VersionsPanel proposal={proposal} />
         <ProposalSignatureStatus proposalId={proposal.id} />
@@ -182,16 +182,15 @@ export function ComposerTopBar({
           variant={previewMode ? "default" : "outline"}
           size="sm"
           onClick={() => onTogglePreview?.()}
-          title="Pré-visualizar a proposta como será impressa"
+          title={uiI18n.t("crm:quoteEditor.previewPrintHint")}
         >
           <Printer className="mr-1 h-3.5 w-3.5" />
-          {previewMode ? "Sair pré-visualização" : "Pré-visualizar"}
+          {previewMode ? uiI18n.t("crm:quoteEditor.exitPreview") : uiI18n.t("crm:workspace.proposal.previewMode")}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
-              <FileDown className="mr-1 h-3.5 w-3.5" /> Descarregar
-              <ChevronDown className="ml-1 h-3.5 w-3.5" />
+              <FileDown className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.download")} <ChevronDown className="ml-1 h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -218,8 +217,7 @@ export function ComposerTopBar({
             <DropdownMenuItem
               onClick={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}
             >
-              <FileText className="mr-2 h-3.5 w-3.5" /> Word (.doc)
-            </DropdownMenuItem>
+              <FileText className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.wordDoc")} </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         {isSentLocked && latestSnapshot && !hasSignatureForLatest && (
@@ -228,10 +226,9 @@ export function ComposerTopBar({
             variant="outline"
             className="border-indigo-300 text-indigo-800 hover:bg-indigo-50"
             onClick={() => setSignExistingOpen(true)}
-            title="Enviar a revisão já enviada para assinatura DocuSign, sem criar nova revisão"
+            title={uiI18n.t("crm:quoteEditor.sendExistingSignatureHint")}
           >
-            <FileSignature className="mr-1 h-3.5 w-3.5" /> Enviar para assinatura
-          </Button>
+            <FileSignature className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.sendSignature")} </Button>
         )}
         {isSentLocked && (
           <Button
@@ -239,49 +236,42 @@ export function ComposerTopBar({
             variant="outline"
             className="border-sky-400 text-sky-900 hover:bg-sky-50"
             onClick={startNewRevision}
-            title="Criar nova revisão editável (a versão enviada mantém-se intacta)"
+            title={uiI18n.t("crm:quoteEditor.newRevisionHint")}
           >
-            <Send className="mr-1 h-3.5 w-3.5 rotate-180" /> Nova revisão
-          </Button>
+            <Send className="mr-1 h-3.5 w-3.5 rotate-180" />  {uiI18n.t("crm:quoteEditor.newRevision")} </Button>
         )}
         {!isFinalLocked && !isSentLocked && (
           <>
             <Button size="sm" onClick={() => setSendOpen(true)}>
-              <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
-            </Button>
+              <Send className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.sendProposal")} </Button>
             <Button
               size="sm"
               variant="outline"
               className="border-indigo-300 text-indigo-800 hover:bg-indigo-50"
               onClick={() => setSignOpen(true)}
-              title="Enviar a revisão para assinatura DocuSign (cliente assina primeiro)"
+              title={uiI18n.t("crm:quoteEditor.signatureClientFirstHint")}
             >
-              <FileSignature className="mr-1 h-3.5 w-3.5" /> Enviar para assinatura
-            </Button>
+              <FileSignature className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.sendSignature")} </Button>
           </>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" title="Mais ações">
+            <Button variant="ghost" size="sm" title={uiI18n.t("crm:quoteEditor.moreActions")}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {!isReadOnly && (
               <DropdownMenuItem onSelect={() => setImportOpen(true)}>
-                <LayoutTemplate className="mr-2 h-3.5 w-3.5" /> Importar template
-              </DropdownMenuItem>
+                <LayoutTemplate className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.importTemplate")} </DropdownMenuItem>
             )}
             <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
-              <Settings className="mr-2 h-3.5 w-3.5" /> Definições
-            </DropdownMenuItem>
+              <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("common:settings")} </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setConvertOpen(true)}>
-              <FileSignature className="mr-2 h-3.5 w-3.5" /> Converter para Contrato
-            </DropdownMenuItem>
+              <FileSignature className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.convertContract")} </DropdownMenuItem>
             {!historical && (
               <DropdownMenuItem onSelect={() => setHistoryOpen(true)}>
-                <History className="mr-2 h-3.5 w-3.5" /> Autosaves
-              </DropdownMenuItem>
+                <History className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.autosaves")} </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -306,7 +296,7 @@ export function ComposerTopBar({
       <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
         <SheetContent side="right" className="w-[380px] overflow-y-auto sm:max-w-[380px]">
           <SheetHeader>
-            <SheetTitle>Definições da Proposta</SheetTitle>
+            <SheetTitle> {uiI18n.t("crm:quoteEditor.proposalSettings")} </SheetTitle>
           </SheetHeader>
           <div className="mt-4">
             <ProposalStylePanel proposal={proposal} />
@@ -481,7 +471,7 @@ function escapeHtml(value: string): string {
 function downloadAsWord(title: string) {
   const container = document.querySelector(".proposal-print-document");
   if (!container) {
-    toast.error("Não foi possível encontrar a proposta para exportar.");
+    toast.error(uiI18n.t("crm:quoteEditor.exportMissing"));
     return;
   }
   const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
@@ -508,5 +498,5 @@ function downloadAsWord(title: string) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
-  toast.success("Documento Word transferido.");
+  toast.success(uiI18n.t("crm:quoteEditor.wordDownloaded"));
 }

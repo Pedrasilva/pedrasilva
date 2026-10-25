@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Embeds the PSA (PandaDoc-style) Proposal Composer inside the Quote
  * workspace. Looks up an existing psa_proposals row linked to this quote;
@@ -24,6 +26,7 @@ export function QuoteProposalComposerEmbed({
   quoteId: string;
   quoteTitle?: string | null;
 }) {
+  useTranslation();
   const lookup = useQuery({
     queryKey: ["psa-proposal-by-quote", quoteId],
     queryFn: async (): Promise<{ id: string } | null> => {
@@ -65,8 +68,7 @@ export function QuoteProposalComposerEmbed({
     />
   ) : (
     <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
-      A preparar o construtor de proposta…
-    </div>
+       {uiI18n.t("crm:quoteEditor.preparingComposer")} </div>
   );
 }
 
@@ -82,6 +84,7 @@ function ProposalTitleSync({
   proposalId: string;
   quoteTitle: string | null;
 }) {
+  useTranslation();
   const proposal = useProposal(proposalId);
   const update = useUpdateProposal(proposalId);
   const lastSynced = useRef<string | null>(null);

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Proposal-level style settings panel.
  *
@@ -70,6 +72,7 @@ const ALIGNMENTS: { label: string; value: NonNullable<PsaProposalStyleSettings["
 ];
 
 export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
+  useTranslation();
   const update = useUpdateProposal(proposal.id);
   const qc = useQueryClient();
   const s = proposal.style_settings ?? {};
@@ -110,8 +113,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-        Idioma da Proposta / Proposal Language
-      </div>
+         {uiI18n.t("crm:quoteEditor.documentLanguage")} </div>
       <Select
         value={(proposal.language ?? "pt-PT")}
         onValueChange={(v) => update.mutate({ language: v } as Partial<PsaProposal>)}
@@ -123,39 +125,31 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
         </SelectContent>
       </Select>
       <p className="text-[11px] text-zinc-500">
-        Controla labels do sistema (Fase, Duração, meses, etc.). Nomes das fases
-        vindos do orçamento não são traduzidos.
-      </p>
+         {uiI18n.t("crm:quoteEditor.documentLanguageHint")} </p>
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mt-2">
-        Tipografia da Proposta
-      </div>
+         {uiI18n.t("crm:quoteEditor.proposalTypography")} </div>
       <p className="text-[11px] text-zinc-500">
-        Aplica-se a todos os blocos. Os títulos usam o tipo de letra de heading;
-        os parágrafos usam o tipo de letra de body.
-      </p>
+         {uiI18n.t("crm:quoteEditor.typographyHint")} </p>
 
       <div className="rounded-md border border-zinc-300 bg-zinc-50 p-2 space-y-1.5">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700">
-          Predefinição
-        </div>
+           {uiI18n.t("crm:quoteEditor.preset")} </div>
         <Button
           variant="default"
           size="sm"
           className="w-full"
           onClick={() => update.mutate({ style_settings: PSA_BRAND_PRESET } as Partial<PsaProposal>)}
         >
-          Aplicar marca Pedra Silva
-        </Button>
+           {uiI18n.t("crm:quoteEditor.applyBrand")} </Button>
         <p className="text-[10px] text-zinc-500 leading-snug">
-          The Future (títulos) + Signifier (texto), conforme manual gráfico.
-        </p>
+           {uiI18n.t("crm:quoteEditor.brandFontsHint")} </p>
       </div>
 
 
 
       <div className="space-y-1">
-        <Label className="text-xs">Tipo de letra — Títulos</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.headingFont")} </Label>
         <Select
           value={s.headingFont ?? HEADING_FONTS[0].value}
           onValueChange={(v) => patch({ headingFont: v })}
@@ -170,7 +164,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Peso dos títulos</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.headingWeight")} </Label>
         <Select
           value={String(s.headingWeight ?? 700)}
           onValueChange={(v) => patch({ headingWeight: Number(v) })}
@@ -185,7 +179,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Tipo de letra — Texto</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodyFont")} </Label>
         <Select
           value={s.bodyFont ?? BODY_FONTS[0].value}
           onValueChange={(v) => patch({ bodyFont: v })}
@@ -200,7 +194,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Alinhamento do texto</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodyAlignment")} </Label>
         <Select
           value={s.bodyAlign ?? "justify"}
           onValueChange={(v) => patch({ bodyAlign: v as PsaProposalStyleSettings["bodyAlign"] })}
@@ -215,7 +209,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Tamanho do texto ({bodySize.toFixed(1)} pt)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodySizePrefix")} {bodySize.toFixed(1)}  {uiI18n.t("crm:quoteEditor.pointSuffix")} </Label>
         <Slider
           min={8}
           max={14}
@@ -227,7 +221,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
 
       <div className="space-y-1">
         <Label className="text-xs">
-          Tamanho dos títulos ({Math.round(headingScale * 100)}%)
+           {uiI18n.t("crm:quoteEditor.headingSizePrefix")} {Math.round(headingScale * 100)}%)
         </Label>
         <Slider
           min={0.7}
@@ -237,22 +231,19 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           onValueChange={([v]) => patch({ headingScale: v })}
         />
         <p className="text-[10px] text-zinc-500">
-          Escala H1/H2/H3 em conjunto. 100% = predefinição.
-        </p>
+           {uiI18n.t("crm:quoteEditor.headingScaleHint")} </p>
       </div>
 
 
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-        Margens da página
-      </div>
+         {uiI18n.t("crm:quoteEditor.pageMargins")} </div>
       <p className="text-[11px] text-zinc-500">
-        Controla o espaço entre o cabeçalho/rodapé e o corpo de texto.
-      </p>
+         {uiI18n.t("crm:quoteEditor.pageMarginsHint")} </p>
 
       <div className="space-y-1">
-        <Label className="text-xs">Margem superior ({marginTop} mm)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.topMarginPrefix")} {marginTop}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
         <Slider
           min={15}
           max={60}
@@ -263,7 +254,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Margem inferior ({marginBottom} mm)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bottomMarginPrefix")} {marginBottom}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
         <Slider
           min={15}
           max={60}
@@ -274,7 +265,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Margem esquerda ({marginLeft} mm)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.leftMarginPrefix")} {marginLeft}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
         <Slider
           min={5}
           max={60}
@@ -285,7 +276,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Margem direita ({marginRight} mm)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.rightMarginPrefix")} {marginRight}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
         <Slider
           min={5}
           max={60}
@@ -298,11 +289,10 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-        Cabeçalho
-      </div>
+         {uiI18n.t("crm:quoteEditor.header")} </div>
 
       <div className="flex items-center justify-between">
-        <Label className="text-xs">Mostrar cabeçalho</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showHeader")} </Label>
         <Switch
           checked={s.showHeader !== false}
           onCheckedChange={(v) => patch({ showHeader: v })}
@@ -310,7 +300,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Marca (linha 1)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.brandFirstLine")} </Label>
         <Input
           value={s.headerBrand ?? "PEDRA SILVA"}
           onChange={(e) => patch({ headerBrand: e.target.value })}
@@ -318,7 +308,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Marca (linha 2)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.brandSecondLine")} </Label>
         <Input
           value={s.headerBrandSub ?? "ARCHITECTS"}
           onChange={(e) => patch({ headerBrandSub: e.target.value })}
@@ -326,7 +316,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Email de contacto</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.contactEmail")} </Label>
         <Input
           value={s.headerContactEmail ?? "info@pedrasilva.com"}
           onChange={(e) => patch({ headerContactEmail: e.target.value })}
@@ -334,7 +324,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Website</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.website")} </Label>
         <Input
           value={s.headerContactWebsite ?? "www.pedrasilva.com"}
           onChange={(e) => patch({ headerContactWebsite: e.target.value })}
@@ -344,11 +334,10 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-        Rodapé
-      </div>
+         {uiI18n.t("crm:quoteEditor.footer")} </div>
 
       <div className="flex items-center justify-between">
-        <Label className="text-xs">Mostrar rodapé</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showFooter")} </Label>
         <Switch
           checked={s.showFooter !== false}
           onCheckedChange={(v) => patch({ showFooter: v })}
@@ -356,7 +345,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Morada (uma linha por linha)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.addressLines")} </Label>
         <Textarea
           rows={3}
           value={s.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal"}
@@ -372,8 +361,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           className="w-full"
           onClick={() => update.mutate({ style_settings: {} } as Partial<PsaProposal>)}
         >
-          Repor predefinições
-        </Button>
+           {uiI18n.t("crm:quoteEditor.resetDefaults")} </Button>
       </div>
     </div>
   );

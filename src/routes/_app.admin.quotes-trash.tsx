@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -39,6 +41,7 @@ function fmtDate(iso: string | null) {
 }
 
 function QuotesTrashPage() {
+  useTranslation();
   const qc = useQueryClient();
   const [purgeTarget, setPurgeTarget] = useState<TrashRow | null>(null);
   const [purgeText, setPurgeText] = useState("");
@@ -65,7 +68,7 @@ function QuotesTrashPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento restaurado");
+      toast.success(uiI18n.t("crm:quoteEditor.quoteRestored"));
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
@@ -81,7 +84,7 @@ function QuotesTrashPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Arquivo anulado");
+      toast.success(uiI18n.t("crm:quoteEditor.unarchived"));
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
@@ -97,7 +100,7 @@ function QuotesTrashPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento eliminado definitivamente");
+      toast.success(uiI18n.t("crm:quoteEditor.quotePurged"));
       setPurgeTarget(null);
       setPurgeText("");
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
@@ -118,13 +121,13 @@ function QuotesTrashPage() {
           <span className="truncate font-medium">{r.titulo ?? "(sem título)"}</span>
           {r.proposal_number && (
             <Badge variant="outline" className="text-[10px]">
-              {r.proposal_number}{r.revision_number ? ` · rev ${r.revision_number}` : ""}
+              {r.proposal_number}{r.revision_number ? uiI18n.t("crm:quoteEditor.revisionSuffix", { value1: r.revision_number }) : ""}
             </Badge>
           )}
           {kind === "deleted" ? (
             <Badge variant="destructive" className="text-[10px]"><Trash2 className="mr-1 h-3 w-3" />Eliminado</Badge>
           ) : (
-            <Badge variant="secondary" className="text-[10px]"><Archive className="mr-1 h-3 w-3" />Arquivado</Badge>
+            <Badge variant="secondary" className="text-[10px]"><Archive className="mr-1 h-3 w-3" /> {uiI18n.t("common:archived")} </Badge>
           )}
         </div>
         <div className="text-xs text-muted-foreground">
@@ -132,8 +135,8 @@ function QuotesTrashPage() {
           {r.opportunity?.name ? ` · ${r.opportunity.name}` : ""}
           {" · "}
           {kind === "deleted"
-            ? `Eliminado em ${fmtDate(r.deleted_at)}`
-            : `Arquivado em ${fmtDate(r.archived_at)}`}
+            ? uiI18n.t("crm:quoteEditor.deletedOn", { value1: fmtDate(r.deleted_at) })
+            : uiI18n.t("crm:quoteEditor.archivedOn", { value1: fmtDate(r.archived_at) })}
         </div>
       </div>
       <div className="flex shrink-0 gap-2">
@@ -143,16 +146,14 @@ function QuotesTrashPage() {
           onClick={() => (kind === "deleted" ? restoreDeleted.mutate(r.id) : unarchive.mutate(r.id))}
           disabled={restoreDeleted.isPending || unarchive.isPending}
         >
-          <RotateCcw className="mr-1 h-3.5 w-3.5" /> Restaurar
-        </Button>
+          <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.restore")} </Button>
         {kind === "deleted" && (
           <Button
             size="sm"
             variant="destructive"
             onClick={() => { setPurgeTarget(r); setPurgeText(""); }}
           >
-            <Trash2 className="mr-1 h-3.5 w-3.5" /> Eliminar definitivamente
-          </Button>
+            <Trash2 className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.deletePermanently")} </Button>
         )}
       </div>
     </div>
@@ -163,41 +164,35 @@ function QuotesTrashPage() {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="space-y-2">
           <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3 w-3" /> Administração
-          </Link>
+            <ArrowLeft className="h-3 w-3" />  {uiI18n.t("crm:quoteEditor.administration")} </Link>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Trash2 className="h-6 w-6" /> Papelera de orçamentos
-          </h1>
+            <Trash2 className="h-6 w-6" />  {uiI18n.t("crm:quoteEditor.quoteTrash")} </h1>
           <p className="text-sm text-muted-foreground">
-            Orçamentos eliminados ou arquivados podem ser restaurados aqui. A eliminação é "suave" — um snapshot completo
-            do orçamento (etapas, dependências, calendário, fornecedores) fica guardado no audit log e a linha pode ser
-            recuperada com um clique. A eliminação definitiva remove o snapshot e não é recuperável.
-          </p>
+             {uiI18n.t("crm:quoteEditor.quoteTrashHint")} </p>
         </div>
 
         <Tabs defaultValue="deleted">
           <TabsList>
             <TabsTrigger value="deleted">
-              Eliminados <Badge variant="secondary" className="ml-2">{deleted.length}</Badge>
+               {uiI18n.t("crm:quoteEditor.deletedPlural")} <Badge variant="secondary" className="ml-2">{deleted.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="archived">
-              Arquivados <Badge variant="secondary" className="ml-2">{archived.length}</Badge>
+               {uiI18n.t("crm:quoteEditor.archivedPlural")} <Badge variant="secondary" className="ml-2">{archived.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="deleted" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Orçamentos eliminados</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("crm:quoteEditor.deletedQuotes")} </CardTitle>
                 <CardDescription>
-                  Recuperáveis na íntegra. Restaurar coloca o orçamento de volta na oportunidade original.
-                </CardDescription>
+                   {uiI18n.t("crm:quoteEditor.restoreQuoteHint")} </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 {isLoading ? (
-                  <div className="text-sm text-muted-foreground">A carregar…</div>
+                  <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
                 ) : deleted.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">Nenhum orçamento eliminado.</div>
+                  <div className="text-sm text-muted-foreground"> {uiI18n.t("crm:quoteEditor.noDeletedQuotes")} </div>
                 ) : (
                   deleted.map((r) => renderRow(r, "deleted"))
                 )}
@@ -208,16 +203,15 @@ function QuotesTrashPage() {
           <TabsContent value="archived" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Orçamentos arquivados</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("crm:quoteEditor.archivedQuotes")} </CardTitle>
                 <CardDescription>
-                  Escondidos da lista principal mas totalmente intactos. Restaurar volta a mostrá-los.
-                </CardDescription>
+                   {uiI18n.t("crm:quoteEditor.archivedQuotesHint")} </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 {isLoading ? (
-                  <div className="text-sm text-muted-foreground">A carregar…</div>
+                  <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
                 ) : archived.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">Nenhum orçamento arquivado.</div>
+                  <div className="text-sm text-muted-foreground"> {uiI18n.t("crm:quoteEditor.noArchivedQuotes")} </div>
                 ) : (
                   archived.map((r) => renderRow(r, "archived"))
                 )}
@@ -230,29 +224,24 @@ function QuotesTrashPage() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" /> Eliminar definitivamente?
-              </AlertDialogTitle>
+                <AlertTriangle className="h-4 w-4 text-destructive" />  {uiI18n.t("crm:quoteEditor.purgePrompt")} </AlertDialogTitle>
               <AlertDialogDescription>
-                Esta ação remove o orçamento <strong>{purgeTarget?.titulo ?? ""}</strong> e o seu snapshot do audit log.
-                Não poderá ser recuperado pela aplicação — apenas a partir de uma cópia de segurança no Google Drive.
-                Para confirmar, escreva o título do orçamento:
-                <div className="mt-1 font-mono text-xs">{purgeTarget?.titulo ?? ""}</div>
+                 {uiI18n.t("crm:quoteEditor.purgePrefix")} <strong>{purgeTarget?.titulo ?? ""}</strong>  {uiI18n.t("crm:quoteEditor.purgeSuffix")} <div className="mt-1 font-mono text-xs">{purgeTarget?.titulo ?? ""}</div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <Input
               value={purgeText}
               onChange={(e) => setPurgeText(e.target.value)}
-              placeholder="Escreva o título exato"
+              placeholder={uiI18n.t("crm:quoteEditor.exactTitleHint")}
             />
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={purge.isPending}>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel disabled={purge.isPending}> {uiI18n.t("common:cancel")} </AlertDialogCancel>
               <AlertDialogAction
                 disabled={purge.isPending || purgeText.trim() !== (purgeTarget?.titulo ?? "").trim() || !purgeTarget}
                 onClick={() => purgeTarget && purge.mutate(purgeTarget.id)}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                Eliminar definitivamente
-              </AlertDialogAction>
+                 {uiI18n.t("crm:quoteEditor.deletePermanently")} </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

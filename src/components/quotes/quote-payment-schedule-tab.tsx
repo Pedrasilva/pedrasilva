@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Quote Payment Schedule tab — planned forecast payments.
  *
@@ -83,6 +84,7 @@ function AutoTextarea({
   className?: string;
   minHeight?: number;
 }) {
+  useTranslation();
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -112,6 +114,7 @@ function InlineLabelEditor({
   value: string;
   onSave: (next: string) => void;
 }) {
+  useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   useEffect(() => {
@@ -150,7 +153,7 @@ function InlineLabelEditor({
       onDoubleClick={() => setEditing(true)}
       onClick={() => setEditing(true)}
       className="group flex w-full items-start gap-1 text-left rounded hover:bg-muted/50 px-1 py-0.5 -mx-1"
-      title="Editar etiqueta"
+      title={uiI18n.t("crm:quoteEditor.editLabel")}
     >
       <span className="whitespace-pre-wrap break-words flex-1">{value}</span>
       <Pencil className="h-3 w-3 mt-1 opacity-0 group-hover:opacity-60 shrink-0" />
@@ -694,13 +697,13 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
       {/* Quote-level billing defaults */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Predefinições de faturação</CardTitle>
+          <CardTitle className="text-sm"> {uiI18n.t("crm:quoteEditor.billingDefaults")} </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <InvoiceGroupingControl kind="quote" id={quoteId} />
           <div className="grid gap-3 md:grid-cols-3">
             <div>
-              <Label className="text-xs">IVA padrão (%)</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.defaultVat")} </Label>
               <Input
                 type="number"
                 step="0.1"
@@ -719,7 +722,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
               />
             </div>
             <div>
-              <Label className="text-xs">Condições padrão</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.defaultTerms")} </Label>
               <Input
                 defaultValue={paymentDefaults.defaultTerms}
                 onBlur={async (e) => {
@@ -732,7 +735,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
               />
             </div>
             <div>
-              <Label className="text-xs">Condições do primeiro pagamento</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.firstPaymentTerms")} </Label>
               <Input
                 defaultValue={paymentDefaults.firstPaymentTerms}
                 onBlur={async (e) => {
@@ -787,8 +790,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
       <details className="rounded-md border bg-muted/10">
         <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground select-none">
-          Editor avançado — linhas de faturação (rever / ajustar IVA, condições, datas)
-        </summary>
+           {uiI18n.t("crm:quoteEditor.advancedBilling")} </summary>
         <div className="p-3 pt-0">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
@@ -923,10 +925,10 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
                 <TableHead>{t("workspace.payment.trigger")}</TableHead>
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
-                <TableHead className="text-right w-20">IVA %</TableHead>
-                <TableHead className="text-right">Valor c/ IVA</TableHead>
+                <TableHead className="text-right w-20"> {uiI18n.t("crm:quoteEditor.vatPercent")} </TableHead>
+                <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.includingVatShort")} </TableHead>
                 <TableHead>{t("workspace.payment.invoiceDate")}</TableHead>
-                <TableHead className="min-w-[160px]">Condições</TableHead>
+                <TableHead className="min-w-[160px]"> {uiI18n.t("crm:quoteEditor.terms")} </TableHead>
                 <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
@@ -1110,10 +1112,10 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
                           <TableHead>{t("workspace.payment.trigger")}</TableHead>
                           <TableHead>{t("common.stage")}</TableHead>
                           <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
-                          <TableHead className="text-right w-20">IVA %</TableHead>
-                          <TableHead className="text-right">Valor c/ IVA</TableHead>
+                          <TableHead className="text-right w-20"> {uiI18n.t("crm:quoteEditor.vatPercent")} </TableHead>
+                          <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.includingVatShort")} </TableHead>
                           <TableHead>{t("workspace.payment.paymentDate")}</TableHead>
-                          <TableHead className="min-w-[160px]">Condições</TableHead>
+                          <TableHead className="min-w-[160px]"> {uiI18n.t("crm:quoteEditor.terms")} </TableHead>
                           <TableHead className="w-12" />
                         </TableRow>
                       </TableHeader>

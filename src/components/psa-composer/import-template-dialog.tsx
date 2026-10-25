@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * ImportTemplateDialog — replace ALL blocks in the current PSA proposal
  * with the blocks saved inside a quote template ("Save as template").
@@ -31,6 +33,7 @@ export function ImportTemplateDialog({
   onOpenChange?: (v: boolean) => void;
   hideTrigger?: boolean;
 }) {
+  useTranslation();
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
   const setOpen = onOpenChangeProp ?? setOpenState;
@@ -56,10 +59,10 @@ export function ImportTemplateDialog({
     if (!templateId) return;
     try {
       const count = await importMut.mutateAsync(templateId);
-      toast.success(`${count} bloco(s) importado(s) do template.`);
+      toast.success(uiI18n.t("crm:quoteEditor.blocksImported", { value1: count }));
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao importar template");
+      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.importFailed"));
     }
   };
 
@@ -70,10 +73,9 @@ export function ImportTemplateDialog({
           variant="outline"
           size="sm"
           onClick={() => setOpen(true)}
-          title="Substituir todos os blocos pela biblioteca de um template"
+          title={uiI18n.t("crm:quoteEditor.replaceBlocks")}
         >
-          <LayoutTemplate className="mr-1 h-3.5 w-3.5" /> Importar template
-        </Button>
+          <LayoutTemplate className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.importTemplate")} </Button>
       )}
 
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,21 +83,16 @@ export function ImportTemplateDialog({
           {step === "pick" ? (
             <>
               <DialogHeader>
-                <DialogTitle>Importar template</DialogTitle>
+                <DialogTitle> {uiI18n.t("crm:quoteEditor.importTemplate")} </DialogTitle>
                 <DialogDescription>
-                  Escolhe um template guardado. Ao confirmar, todos os blocos
-                  atuais desta proposta serão substituídos pelos blocos do
-                  template selecionado.
-                </DialogDescription>
+                   {uiI18n.t("crm:quoteEditor.replaceBlocksHint")} </DialogDescription>
               </DialogHeader>
               <div className="max-h-[60vh] overflow-y-auto">
                 {isLoading ? (
-                  <p className="text-sm text-muted-foreground">A carregar…</p>
+                  <p className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </p>
                 ) : eligible.length === 0 ? (
                   <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-                    Não há templates com blocos guardados. Usa "Guardar como
-                    template" numa proposta para criar um.
-                  </div>
+                     {uiI18n.t("crm:quoteEditor.noBlockTemplates")} </div>
                 ) : (
                   <div className="grid gap-2">
                     {eligible.map((tpl) => (
@@ -117,8 +114,7 @@ export function ImportTemplateDialog({
                             </div>
                           )}
                           <div className="mt-1 text-[11px] text-muted-foreground">
-                            {tpl.blocks_count} bloco(s) · {tpl.stages_count} fase(s)
-                          </div>
+                            {tpl.blocks_count}  {uiI18n.t("crm:quoteEditor.blockCountSuffix")} {tpl.stages_count}  {uiI18n.t("crm:workspace.consultants.phaseCount")} </div>
                         </div>
                       </button>
                     ))}
@@ -127,14 +123,12 @@ export function ImportTemplateDialog({
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                  Cancelar
-                </Button>
+                   {uiI18n.t("common:cancel")} </Button>
                 <Button
                   onClick={() => setStep("confirm")}
                   disabled={!templateId}
                 >
-                  Continuar
-                </Button>
+                   {uiI18n.t("crm:quoteEditor.continue")} </Button>
               </DialogFooter>
             </>
           ) : (
@@ -142,14 +136,9 @@ export function ImportTemplateDialog({
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-amber-600" />
-                  Confirmar substituição
-                </DialogTitle>
+                   {uiI18n.t("crm:quoteEditor.confirmReplace")} </DialogTitle>
                 <DialogDescription>
-                  Esta ação vai <strong>apagar todos os blocos</strong> atuais
-                  desta proposta e substitui-los pelos blocos do template
-                  <strong> "{chosen?.name}"</strong>. Esta operação não pode
-                  ser anulada.
-                </DialogDescription>
+                   {uiI18n.t("crm:quoteEditor.actionWillPrefix")} <strong> {uiI18n.t("crm:quoteEditor.deleteAllBlocks")} </strong>  {uiI18n.t("crm:quoteEditor.replaceTemplateSuffix")} <strong> "{chosen?.name}"</strong> {uiI18n.t("crm:quoteEditor.irreversibleSuffix")} </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button
@@ -157,14 +146,13 @@ export function ImportTemplateDialog({
                   onClick={() => setStep("pick")}
                   disabled={importMut.isPending}
                 >
-                  Voltar
-                </Button>
+                   {uiI18n.t("common:back")} </Button>
                 <Button
                   variant="destructive"
                   onClick={doImport}
                   disabled={importMut.isPending}
                 >
-                  {importMut.isPending ? "A importar…" : "Substituir e importar"}
+                  {importMut.isPending ? uiI18n.t("crm:quoteEditor.importing") : uiI18n.t("crm:quoteEditor.replaceImport")}
                 </Button>
               </DialogFooter>
             </>

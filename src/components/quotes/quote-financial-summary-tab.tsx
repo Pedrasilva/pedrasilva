@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Financial Summary tab — read-only rollup for the quote.
  *
@@ -54,6 +55,7 @@ function HeadlineStat({
   accent?: Accent;
   emphasis?: "default" | "hero";
 }) {
+  useTranslation();
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -79,6 +81,7 @@ function Cell({
   value: string;
   accent?: Accent;
 }) {
+  useTranslation();
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -546,15 +549,15 @@ export function ArchitectureStagesCard({
         {(avgSaleRate > 0 || avgCostRate > 0) && (
           <div className="flex flex-wrap items-center gap-4 rounded-md border bg-muted/30 px-3 py-2 text-xs">
             <div className="flex items-baseline gap-1.5">
-              <span className="uppercase tracking-wide text-muted-foreground">Venda média</span>
+              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("crm:quoteEditor.averageSale")} </span>
               <span className="text-sm font-semibold tabular-nums">{formatEUR(avgSaleRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="uppercase tracking-wide text-muted-foreground">Custo médio</span>
+              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("crm:quoteEditor.averageCost")} </span>
               <span className="text-sm font-semibold tabular-nums">{formatEUR(effectiveCostRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="uppercase tracking-wide text-muted-foreground">Margem</span>
+              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("glossary:financial.margin")} </span>
               <span
                 className={`text-sm font-semibold tabular-nums ${
                   avgSaleRate > avgCostRate
@@ -574,8 +577,7 @@ export function ArchitectureStagesCard({
             </div>
             {avgSaleRate === avgCostRate && avgCostRate > 0 && (
               <span className="text-amber-600 dark:text-amber-400">
-                Margem de lucro definida a 0% em RH › Backoffice.
-              </span>
+                 {uiI18n.t("crm:quoteEditor.zeroMarginHint")} </span>
             )}
           </div>
         )}
@@ -584,8 +586,7 @@ export function ArchitectureStagesCard({
           <div className="rounded-md border bg-background px-3 py-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="uppercase tracking-wide text-muted-foreground">
-                Margem alvo (markup sobre custo)
-              </span>
+                 {uiI18n.t("crm:quoteEditor.targetMarkup")} </span>
               <div className="flex items-center gap-2">
                 <span className="font-semibold tabular-nums">
                   {marginPct.toFixed(0)}%
@@ -598,7 +599,7 @@ export function ArchitectureStagesCard({
                   onClick={() => setMarginPct(meanMarginPct)}
                   disabled={Math.abs(marginPct - meanMarginPct) < 0.01}
                 >
-                  Repor média ({meanMarginPct.toFixed(0)}%)
+                   {uiI18n.t("crm:quoteEditor.resetAveragePrefix")} {meanMarginPct.toFixed(0)}%)
                 </Button>
               </div>
             </div>
@@ -611,7 +612,7 @@ export function ArchitectureStagesCard({
             />
             <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
               <span>0%</span>
-              <span>50% (média)</span>
+              <span> {uiI18n.t("crm:quoteEditor.averagePercent")} </span>
               <span>150%</span>
             </div>
           </div>
@@ -690,6 +691,7 @@ export function ArchitectureStagesCard({
 // Self-fetching wrapper for the Architecture tab — same card + margin slider.
 // ---------------------------------------------------------------------------
 export function ArchitectureFinancialBreakdown({ quoteId }: { quoteId: string }) {
+  useTranslation();
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const { data: teamAvg } = useTeamPricingAverages();

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Block settings panel — right sidebar.
  *
@@ -60,6 +62,7 @@ function SectionLabel({
   checked: boolean;
   onCheckedChange: (v: boolean) => void;
 }) {
+  useTranslation();
   return (
     <div className="flex items-center justify-between">
       <Label className="text-xs">{label}</Label>
@@ -85,6 +88,7 @@ export function BlockSettingsPanel({
   quoteIdHint: string | null;
   block: PsaProposalBlock | null;
 }) {
+  useTranslation();
   const update = useUpdateBlock(proposalId);
   const del = useDeleteBlock(proposalId);
   const dup = useDuplicateBlock(proposalId);
@@ -142,8 +146,7 @@ export function BlockSettingsPanel({
       <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
         <ProposalStylePanel proposal={proposal} />
         <div className="mt-2 rounded-md border border-dashed bg-background/60 p-2 text-[11px] text-zinc-500">
-          Selecione um bloco para editar o seu conteúdo.
-        </div>
+           {uiI18n.t("crm:quoteEditor.selectBlockHint")} </div>
       </aside>
     );
   }
@@ -171,8 +174,7 @@ export function BlockSettingsPanel({
     <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Definições do Bloco
-        </div>
+           {uiI18n.t("crm:quoteEditor.blockSettings")} </div>
         <RelevanceBadge value={block.contract_relevance} />
       </div>
 
@@ -198,13 +200,13 @@ export function BlockSettingsPanel({
               if (std) update.mutate({ id: block.id, patch: { title: std } });
             }}
           >
-            {lang === "en" ? "Reset to standard" : "Repor título padrão"}
+            {lang === "en" ? uiI18n.t("crm:quoteEditor.resetTitle") : uiI18n.t("crm:quoteEditor.resetTitle")}
           </Button>
         )}
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Tipo de origem</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.sourceType")} </Label>
         <Select
           value={block.source_type}
           onValueChange={(v) =>
@@ -229,7 +231,7 @@ export function BlockSettingsPanel({
 
       {(block.source_type === "live_quote" || block.source_type === "mixed") && (
         <div className="space-y-1">
-          <Label className="text-xs">Quote ID (origem live)</Label>
+          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.quoteIdSource")} </Label>
           <Input
             value={effectiveQuoteId}
             onChange={(e) =>
@@ -240,7 +242,7 @@ export function BlockSettingsPanel({
                 },
               })
             }
-            placeholder="uuid do orçamento"
+            placeholder={uiI18n.t("crm:quoteEditor.quoteUuid")}
           />
         </div>
       )}
@@ -248,7 +250,7 @@ export function BlockSettingsPanel({
       {block.block_type === "stage_item" && (
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label className="text-xs">Fase do orçamento</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.quoteStage")} </Label>
             <Select
               value={sourceRef.stage_id ?? ""}
               onValueChange={(v) =>
@@ -259,7 +261,7 @@ export function BlockSettingsPanel({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Escolher fase..." />
+                <SelectValue placeholder={uiI18n.t("crm:quoteEditor.chooseStage")} />
               </SelectTrigger>
               <SelectContent>
                 {numberedStages.map(({ stage: s, number }) => (
@@ -269,15 +271,14 @@ export function BlockSettingsPanel({
                 ))}
                 {!liveQuery.data?.stages?.length && (
                   <div className="px-2 py-1.5 text-xs text-zinc-500">
-                    Defina primeiro o Quote ID acima.
-                  </div>
+                     {uiI18n.t("crm:quoteEditor.setQuoteIdHint")} </div>
                 )}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Conteúdo</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.content")} </Label>
             <RichTextEditor
               value={html || (legacyText ? `<p>${legacyText.replace(/\n/g, "</p><p>")}</p>` : "")}
               onChange={({ html, text }) =>
@@ -288,18 +289,16 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Descrição livre desta fase..."
+              placeholder={uiI18n.t("crm:quoteEditor.stageDescriptionHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
             <p className="text-[10px] text-zinc-500">
-              Use <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code> ou
-              "Inserir do orçamento" para puxar dados do quote.
-            </p>
+               {uiI18n.t("crm:quoteEditor.usePrefix")} <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code>  {uiI18n.t("crm:quoteEditor.insertQuoteSuffix")} </p>
           </div>
 
           <div className="space-y-1">
             <SectionLabel
-              label="Objetivo"
+              label={uiI18n.t("crm:quoteEditor.objective")}
               checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -322,14 +321,14 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Objetivo desta fase..."
+              placeholder={uiI18n.t("crm:quoteEditor.stageObjectiveHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
 
           <div className="space-y-1">
             <SectionLabel
-              label="Actividades Principais"
+              label={uiI18n.t("crm:quoteEditor.keyActivities")}
               checked={(block.content_rich?.show_key_activities as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -352,13 +351,13 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Principais actividades desta fase..."
+              placeholder={uiI18n.t("crm:quoteEditor.activitiesHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
 
           <div>
-            <Label className="text-xs">Entregáveis (texto livre)</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.deliverables")} </Label>
             <Textarea
               rows={10}
               className="min-h-[220px]"
@@ -374,12 +373,12 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Memória descritiva&#10;Planos cotados&#10;Cortes e alçados"
+              placeholder={uiI18n.t("crm:quoteEditor.deliverablesHint")}
             />
           </div>
 
           <div className="flex items-center justify-between rounded-md border bg-background p-2">
-            <Label className="text-xs">Mostrar "Informação necessária do cliente"</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showClientInfo")} </Label>
             <Switch
               checked={
                 (block.content_rich?.client_info_visible as boolean | undefined) ?? true
@@ -399,7 +398,7 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="flex items-center justify-between rounded-md border bg-background p-2">
-            <Label className="text-xs">Mostrar tabela "Recursos afectos"</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showResourcesTable")} </Label>
             <Switch
               checked={
                 (block.content_rich?.resources_visible as boolean | undefined) ?? true
@@ -421,7 +420,7 @@ export function BlockSettingsPanel({
 
           {((block.content_rich?.client_info_visible as boolean | undefined) ?? true) && (
             <div>
-              <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.clientInfoLines")} </Label>
               <Textarea
                 rows={5}
                 value={(block.content_rich?.client_info as string | undefined) ?? ""}
@@ -436,14 +435,14 @@ export function BlockSettingsPanel({
                     },
                   })
                 }
-                placeholder="Levantamento topográfico&#10;Indicações de orçamento&#10;Desenhos existentes&#10;Objetivos do projeto"
+                placeholder={uiI18n.t("crm:quoteEditor.clientInfoHint")}
               />
             </div>
           )}
 
           <div className="space-y-1">
             <SectionLabel
-              label="Aprovação da Fase"
+              label={uiI18n.t("crm:quoteEditor.stageApproval")}
               checked={(block.content_rich?.show_stage_approval as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -466,18 +465,17 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Critérios / processo de aprovação da fase..."
+              placeholder={uiI18n.t("crm:quoteEditor.approvalCriteriaHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
 
           <div className="space-y-2 rounded-md border bg-background p-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              Resumo da Fase
-            </div>
+               {uiI18n.t("crm:quoteEditor.stageSummary")} </div>
 
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Mostrar cartão de resumo</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showSummary")} </Label>
               <Switch
                 checked={(block.content_rich?.show_phase_summary_card as boolean | undefined) ?? true}
                 onCheckedChange={(v) =>
@@ -492,7 +490,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Mostrar horas estimadas</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showEstimatedHours")} </Label>
               <Switch
                 checked={(block.content_rich?.show_estimated_hours_by_phase as boolean | undefined) ?? true}
                 onCheckedChange={(v) =>
@@ -507,7 +505,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Mostrar honorários da fase</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showStageFee")} </Label>
               <Switch
                 checked={(block.content_rich?.show_phase_fee_in_scope as boolean | undefined) ?? true}
                 onCheckedChange={(v) =>
@@ -522,7 +520,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div>
-              <Label className="text-xs">Ciclos de revisão incluídos</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.reviewCycles")} </Label>
               <Input
                 type="number"
                 min={0}
@@ -542,7 +540,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div>
-              <Label className="text-xs">Reuniões de coordenação incluídas (opcional)</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.coordinationMeetings")} </Label>
               <Input
                 type="number"
                 min={0}
@@ -567,7 +565,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div>
-              <Label className="text-xs">Pacote de entrega</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.deliveryPackage")} </Label>
               <Input
                 value={(block.content_rich?.package_type as string | undefined) ?? ""}
                 onChange={(e) =>
@@ -578,12 +576,12 @@ export function BlockSettingsPanel({
                     },
                   })
                 }
-                placeholder="Ex: Tender Package"
+                placeholder={uiI18n.t("crm:quoteEditor.packageHint")}
               />
             </div>
 
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Aprovação do cliente necessária</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.clientApprovalRequired")} </Label>
               <Switch
                 checked={(block.content_rich?.requires_client_approval as boolean | undefined) ?? true}
                 onCheckedChange={(v) =>
@@ -598,7 +596,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div>
-              <Label className="text-xs">Imagens 3D (CGI) incluídas</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.cgiIncluded")} </Label>
               <Input
                 type="number"
                 min={0}
@@ -623,7 +621,7 @@ export function BlockSettingsPanel({
             </div>
 
             <div className="flex items-center justify-between">
-              <Label className="text-xs">BIM activo nesta fase</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bimActive")} </Label>
               <Switch
                 checked={(block.content_rich?.bim_enabled as boolean | undefined) ?? false}
                 onCheckedChange={(v) =>
@@ -639,7 +637,7 @@ export function BlockSettingsPanel({
 
             {((block.content_rich?.bim_enabled as boolean | undefined) ?? false) && (
               <div>
-                <Label className="text-xs">BIM / LOD</Label>
+                <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bimLod")} </Label>
                 <Input
                   value={(block.content_rich?.bim_lod as string | undefined) ?? ""}
                   onChange={(e) =>
@@ -650,7 +648,7 @@ export function BlockSettingsPanel({
                       },
                     })
                   }
-                  placeholder="Ex: LOD 300"
+                  placeholder={uiI18n.t("crm:quoteEditor.lodHint")}
                 />
               </div>
             )}
@@ -664,7 +662,7 @@ export function BlockSettingsPanel({
         block.block_type === "gantt_construction") && (
         <div className="space-y-1">
           <Label className="text-xs">
-            Fase pai {block.block_type === "gantt_partial" ? "(obrigatória)" : "(opcional — sobrepõe deteção automática)"}
+             {uiI18n.t("crm:quoteEditor.parentStage")} {block.block_type === "gantt_partial" ? uiI18n.t("crm:quoteEditor.requiredParenthesis") : uiI18n.t("crm:quoteEditor.overrideParenthesis")}
           </Label>
           <Select
             value={sourceRef.parent_stage_id ?? ""}
@@ -681,11 +679,11 @@ export function BlockSettingsPanel({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Escolher fase pai..." />
+              <SelectValue placeholder={uiI18n.t("crm:quoteEditor.chooseParent")} />
             </SelectTrigger>
             <SelectContent>
               {block.block_type !== "gantt_partial" && (
-                <SelectItem value="__auto__">Automático</SelectItem>
+                <SelectItem value="__auto__"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
               )}
               {numberedStages
                 .filter(({ stage: s }) => s.isSelf && !s.isMilestone)
@@ -696,20 +694,18 @@ export function BlockSettingsPanel({
                 ))}
               {!liveQuery.data?.stages?.length && (
                 <div className="px-2 py-1.5 text-xs text-zinc-500">
-                  Defina primeiro o Quote ID acima.
-                </div>
+                   {uiI18n.t("crm:quoteEditor.setQuoteIdHint")} </div>
               )}
             </SelectContent>
           </Select>
           <p className="text-[10px] text-zinc-500">
-            Renderiza um Gantt simplificado com todas as sub-fases desta fase pai.
-          </p>
+             {uiI18n.t("crm:quoteEditor.partialGanttHint")} </p>
         </div>
       )}
 
       {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
-          <Label className="text-xs">Conteúdo</Label>
+          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.content")} </Label>
           <RichTextEditor
             value={html || (legacyText ? `<p>${legacyText.replace(/\n/g, "</p><p>")}</p>` : "")}
             onChange={({ html, text }) =>
@@ -720,14 +716,12 @@ export function BlockSettingsPanel({
                 },
               })
             }
-            placeholder="Escreva o conteúdo deste bloco..."
+            placeholder={uiI18n.t("crm:quoteEditor.writeBlockHint")}
             tokenEntries={buildTokenPickerEntries(liveQuery.data)}
           />
           <p className="text-[10px] text-zinc-500">
-            Suporta negrito, itálico, sublinhado, títulos, listas, tabelas e links. Use{" "}
-            <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code> ou o menu
-            "Inserir do orçamento" para puxar dados do quote.
-          </p>
+             {uiI18n.t("crm:quoteEditor.richTextHint")} {" "}
+            <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code>  {uiI18n.t("crm:quoteEditor.insertMenuSuffix")} </p>
         </div>
       )}
 
@@ -751,7 +745,7 @@ export function BlockSettingsPanel({
         const current = (block.source_ref as { stage_id?: string } | undefined)?.stage_id ?? "__all__";
         return (
           <div className="space-y-1">
-            <Label className="text-xs">Fase opcional (raiz)</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.optionalRoot")} </Label>
             <Select
               value={current}
               onValueChange={(v) =>
@@ -770,7 +764,7 @@ export function BlockSettingsPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__all__">Todas as fases opcionais</SelectItem>
+                <SelectItem value="__all__"> {uiI18n.t("crm:quoteEditor.allOptionalStages")} </SelectItem>
                 {optionalRoots.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.code ? `${s.code} — ${s.name}` : s.name}
@@ -779,9 +773,7 @@ export function BlockSettingsPanel({
               </SelectContent>
             </Select>
             <p className="text-[10px] text-zinc-500">
-              Deixe "Todas" para mostrar todos os serviços opcionais, ou selecione uma
-              fase raiz (ex.: Interior Design) para separar num bloco próprio.
-            </p>
+               {uiI18n.t("crm:quoteEditor.optionalStageHint")} </p>
           </div>
         );
       })()}
@@ -802,7 +794,7 @@ export function BlockSettingsPanel({
         <div className="space-y-3">
           <div className="space-y-1">
             <SectionLabel
-              label="Objetivo"
+              label={uiI18n.t("crm:quoteEditor.objective")}
               checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -825,13 +817,13 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Objetivo dos serviços opcionais..."
+              placeholder={uiI18n.t("crm:quoteEditor.optionalObjectiveHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
           <div className="space-y-1">
             <SectionLabel
-              label="Âmbito Incluído"
+              label={uiI18n.t("crm:quoteEditor.includedScope")}
               checked={(block.content_rich?.show_scope_includes as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -854,7 +846,7 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Lista o âmbito incluído (uma linha por item)..."
+              placeholder={uiI18n.t("crm:quoteEditor.scopeListHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
@@ -867,13 +859,12 @@ export function BlockSettingsPanel({
         block.block_type === "appendix_general_terms") && (
         <div className="space-y-3 rounded-md border border-dashed bg-background/60 p-2">
           <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
-            Anexo
-          </div>
+             {uiI18n.t("crm:quoteEditor.appendix")} </div>
           {block.block_type !== "appendix_index" && (
             <>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Letra</Label>
+                  <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.letter")} </Label>
                   <Input
                     value={(block.content_rich?.appendix_letter as string | undefined) ?? ""}
                     onChange={(e) =>
@@ -905,7 +896,7 @@ export function BlockSettingsPanel({
                       })
                     }
                   />
-                  <Label className="text-xs">Activo</Label>
+                  <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.active")} </Label>
                 </div>
               </div>
             </>
@@ -934,15 +925,15 @@ export function BlockSettingsPanel({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">Automático</SelectItem>
-                  <SelectItem value="portrait">A4 Retrato</SelectItem>
-                  <SelectItem value="a3-landscape">A3 Paisagem</SelectItem>
+                  <SelectItem value="auto"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                  <SelectItem value="portrait"> {uiI18n.t("crm:quoteEditor.a4Portrait")} </SelectItem>
+                  <SelectItem value="a3-landscape"> {uiI18n.t("crm:quoteEditor.a3Landscape")} </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           )}
           <div className="space-y-1">
-            <Label className="text-xs">Introdução</Label>
+            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.introduction")} </Label>
             <RichTextEditor
               value={(block.content_rich?.html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
@@ -953,13 +944,11 @@ export function BlockSettingsPanel({
                   },
                 })
               }
-              placeholder="Introdução do anexo (opcional)…"
+              placeholder={uiI18n.t("crm:quoteEditor.appendixIntroHint")}
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
             <p className="text-[10px] text-zinc-500">
-              Renderizado no início do anexo. Se deixar vazio, é usado o texto por
-              defeito (quando aplicável).
-            </p>
+               {uiI18n.t("crm:quoteEditor.appendixIntroHelp")} </p>
           </div>
         </div>
       )}
@@ -968,7 +957,7 @@ export function BlockSettingsPanel({
 
 
       <div className="space-y-1">
-        <Label className="text-xs">Relevância contratual</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.contractRelevance")} </Label>
         <Select
           value={block.contract_relevance}
           onValueChange={(v) =>
@@ -992,7 +981,7 @@ export function BlockSettingsPanel({
       </div>
 
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
-        <Label className="text-xs">Visível</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.visible")} </Label>
         <Switch
           checked={block.is_visible}
           onCheckedChange={(v) =>
@@ -1001,7 +990,7 @@ export function BlockSettingsPanel({
         />
       </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
-        <Label className="text-xs">Layout bloqueado</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.layoutLocked")} </Label>
         <Switch
           checked={block.is_locked}
           onCheckedChange={(v) =>
@@ -1010,7 +999,7 @@ export function BlockSettingsPanel({
         />
       </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
-        <Label className="text-xs">Quebra de página antes</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.breakBefore")} </Label>
         <Switch
           checked={pageBreakBefore}
           onCheckedChange={(v) =>
@@ -1025,10 +1014,9 @@ export function BlockSettingsPanel({
       </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
         <div className="flex flex-col">
-          <Label className="text-xs">Quebra de página depois</Label>
+          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.breakAfter")} </Label>
           <span className="text-[10px] text-zinc-500">
-            Desligar permite ao próximo bloco (ex.: imagem) preencher o espaço livre nesta página.
-          </span>
+             {uiI18n.t("crm:quoteEditor.breakAfterHint")} </span>
         </div>
         <Switch
           checked={
@@ -1048,10 +1036,9 @@ export function BlockSettingsPanel({
 
 
       <div className="space-y-2 rounded-md border bg-background p-2">
-        <Label className="text-xs font-semibold">Alinhar na página</Label>
+        <Label className="text-xs font-semibold"> {uiI18n.t("crm:quoteEditor.pageAlignment")} </Label>
         <p className="text-[10px] text-zinc-500">
-          Faz o bloco ocupar uma página inteira e ancora o conteúdo ao canto escolhido (ex.: canto inferior esquerdo).
-        </p>
+           {uiI18n.t("crm:quoteEditor.pageAlignmentHint")} </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-[10px] uppercase text-zinc-500">Vertical</Label>
@@ -1068,10 +1055,10 @@ export function BlockSettingsPanel({
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Automático</SelectItem>
-                <SelectItem value="top">Topo</SelectItem>
-                <SelectItem value="middle">Meio</SelectItem>
-                <SelectItem value="bottom">Fundo</SelectItem>
+                <SelectItem value="none"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                <SelectItem value="top"> {uiI18n.t("crm:quoteEditor.top")} </SelectItem>
+                <SelectItem value="middle"> {uiI18n.t("crm:quoteEditor.middle")} </SelectItem>
+                <SelectItem value="bottom"> {uiI18n.t("crm:quoteEditor.bottom")} </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1090,10 +1077,10 @@ export function BlockSettingsPanel({
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Automático</SelectItem>
-                <SelectItem value="left">Esquerda</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="right">Direita</SelectItem>
+                <SelectItem value="none"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                <SelectItem value="left"> {uiI18n.t("crm:quoteEditor.left")} </SelectItem>
+                <SelectItem value="center"> {uiI18n.t("crm:quoteEditor.center")} </SelectItem>
+                <SelectItem value="right"> {uiI18n.t("crm:quoteEditor.right")} </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1108,18 +1095,16 @@ export function BlockSettingsPanel({
           className="flex-1"
           onClick={() => dup.mutate(block)}
         >
-          <Copy className="mr-1 h-3.5 w-3.5" /> Duplicar
-        </Button>
+          <Copy className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.duplicate")} </Button>
         <Button
           variant="destructive"
           size="sm"
           className="flex-1"
           onClick={() => {
-            if (confirm("Apagar este bloco?")) del.mutate(block.id);
+            if (confirm(uiI18n.t("crm:quoteEditor.deleteBlockPrompt"))) del.mutate(block.id);
           }}
         >
-          <Trash2 className="mr-1 h-3.5 w-3.5" /> Eliminar
-        </Button>
+          <Trash2 className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:delete")} </Button>
       </div>
     </aside>
   );
@@ -1134,6 +1119,7 @@ function ImageBlockPanel({
   block: PsaProposalBlock;
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
+  useTranslation();
   const cr = (block.content_rich ?? {}) as Record<string, unknown>;
   const imageId = (cr.image_id as string | undefined) ?? null;
   const size = (cr.size as string | undefined) ?? "1/2";
@@ -1157,40 +1143,40 @@ function ImageBlockPanel({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <Label className="text-xs">Tamanho</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.size")} </Label>
         <Select value={size} onValueChange={(v) => onPatch({ size: v })}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1/4">1/4 de página</SelectItem>
-            <SelectItem value="1/3">1/3 de página</SelectItem>
-            <SelectItem value="1/2">1/2 página</SelectItem>
-            <SelectItem value="2/3">2/3 de página</SelectItem>
-            <SelectItem value="full">Página inteira</SelectItem>
+            <SelectItem value="1/4"> {uiI18n.t("crm:quoteEditor.quarterPage")} </SelectItem>
+            <SelectItem value="1/3"> {uiI18n.t("crm:quoteEditor.thirdPage")} </SelectItem>
+            <SelectItem value="1/2"> {uiI18n.t("crm:quoteEditor.halfPage")} </SelectItem>
+            <SelectItem value="2/3"> {uiI18n.t("crm:quoteEditor.twoThirdsPage")} </SelectItem>
+            <SelectItem value="full"> {uiI18n.t("crm:quoteEditor.fullPage")} </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Legenda (opcional)</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.optionalCaption")} </Label>
         <Input
           value={caption}
           onChange={(e) => onPatch({ caption: e.target.value })}
-          placeholder="Legenda"
+          placeholder={uiI18n.t("crm:quoteEditor.caption")}
         />
       </div>
 
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <Label className="text-xs">Imagem</Label>
+          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.image")} </Label>
           <Button
             variant="outline"
             size="sm"
             onClick={() => fileRef.current?.click()}
             disabled={upload.isPending}
           >
-            {upload.isPending ? "A carregar..." : "Carregar nova"}
+            {upload.isPending ? uiI18n.t("crm:quoteEditor.uploading") : uiI18n.t("crm:quoteEditor.uploadNew")}
           </Button>
           <input
             ref={fileRef}
@@ -1203,7 +1189,7 @@ function ImageBlockPanel({
 
         {selected && (
           <div className="rounded border bg-background p-2 text-[11px]">
-            <div className="mb-1 font-medium">Selecionada: {selected.name}</div>
+            <div className="mb-1 font-medium"> {uiI18n.t("crm:quoteEditor.selectedPrefix")} {selected.name}</div>
             {selectedSigned.data && (
               <img
                 src={selectedSigned.data}
@@ -1226,8 +1212,7 @@ function ImageBlockPanel({
             ))}
             {!images.data?.length && (
               <div className="col-span-2 p-3 text-center text-[11px] text-zinc-500">
-                Biblioteca vazia. Carregue a primeira imagem.
-              </div>
+                 {uiI18n.t("crm:quoteEditor.emptyImageLibrary")} </div>
             )}
           </div>
         </div>
@@ -1245,6 +1230,7 @@ function ImageThumb({
   selected: boolean;
   onSelect: () => void;
 }) {
+  useTranslation();
   const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
   return (
     <button

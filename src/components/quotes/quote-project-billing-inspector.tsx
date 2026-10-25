@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Project-level billing inspector — opened from the first Gantt row
  * ("Project" summary). Lets the user bill the whole project (all stages and
@@ -55,6 +57,7 @@ export function QuoteProjectBillingInspector({
   disabled?: boolean;
   onClose: () => void;
 }) {
+  useTranslation();
   const qc = useQueryClient();
 
   const q = useQuery({
@@ -101,7 +104,7 @@ export function QuoteProjectBillingInspector({
       qc.invalidateQueries({ queryKey: ["quote-build-settings", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
 
-      toast.success("Project billing saved");
+      toast.success(uiI18n.t("crm:quoteEditor.projectBillingSaved"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -110,11 +113,9 @@ export function QuoteProjectBillingInspector({
     <aside className="w-[320px] shrink-0 overflow-auto border-l border-border bg-surface p-4">
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold">Project billing</h3>
+          <h3 className="text-sm font-semibold"> {uiI18n.t("crm:quoteEditor.projectBilling")} </h3>
           <p className="text-xs text-muted-foreground">
-            Invoice the whole project — every stage and subconsultant — as one
-            line.
-          </p>
+             {uiI18n.t("crm:quoteEditor.projectOneLineHint")} </p>
         </div>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -123,7 +124,7 @@ export function QuoteProjectBillingInspector({
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <Label className="text-sm">Bill as one line</Label>
+          <Label className="text-sm"> {uiI18n.t("crm:quoteEditor.billOneLine")} </Label>
           <Switch
             checked={draft.enabled}
             disabled={disabled}
@@ -132,7 +133,7 @@ export function QuoteProjectBillingInspector({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Billing model</Label>
+          <Label className="text-xs text-muted-foreground"> {uiI18n.t("crm:quoteEditor.billingModel")} </Label>
           <Select
             value={draft.model}
             disabled={disabled || !draft.enabled}
@@ -142,15 +143,15 @@ export function QuoteProjectBillingInspector({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="stage">One payment</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="stage"> {uiI18n.t("crm:quoteEditor.onePayment")} </SelectItem>
+              <SelectItem value="monthly"> {uiI18n.t("crm:feeStructure.monthly")} </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {draft.model === "stage" && (
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">When</Label>
+            <Label className="text-xs text-muted-foreground"> {uiI18n.t("crm:quoteEditor.when")} </Label>
             <Select
               value={draft.timing}
               disabled={disabled || !draft.enabled}
@@ -162,19 +163,19 @@ export function QuoteProjectBillingInspector({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="start">Project start</SelectItem>
-                <SelectItem value="end">Project end</SelectItem>
-                <SelectItem value="split">50% start / 50% end</SelectItem>
+                <SelectItem value="start"> {uiI18n.t("crm:workspace.planning.projectStart")} </SelectItem>
+                <SelectItem value="end"> {uiI18n.t("crm:quoteEditor.projectEnd")} </SelectItem>
+                <SelectItem value="split"> {uiI18n.t("crm:quoteEditor.halfStartEnd")} </SelectItem>
               </SelectContent>
             </Select>
           </div>
         )}
 
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Label</Label>
+          <Label className="text-xs text-muted-foreground"> {uiI18n.t("crm:workspace.payment.label")} </Label>
           <Input
             value={draft.label ?? ""}
-            placeholder="Projeto"
+            placeholder={uiI18n.t("glossary:entity.project")}
             disabled={disabled || !draft.enabled}
             onChange={(e) => setDraft({ ...draft, label: e.target.value })}
           />
@@ -187,13 +188,11 @@ export function QuoteProjectBillingInspector({
           onClick={() => save.mutate(draft)}
         >
           {save.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save
-        </Button>
+           {uiI18n.t("common:save")} </Button>
 
         <p className="text-xs text-muted-foreground">
-          Applies on the next <span className="font-medium">Update schedule</span>{" "}
-          run. Retainer phases keep their own monthly billing.
-        </p>
+           {uiI18n.t("crm:quoteEditor.appliesNextPrefix")} <span className="font-medium"> {uiI18n.t("crm:workspace.payment.headerUpdate")} </span>{" "}
+           {uiI18n.t("crm:quoteEditor.retainerRunSuffix")} </p>
       </div>
     </aside>
   );

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Payment schedule ↔ fee reconciliation.
  *
@@ -39,6 +41,7 @@ export function PaymentScheduleReconciliation({
   stageFees: Record<string, number>;
   contractTotal: number;
 }) {
+  useTranslation();
   const inflow = items.filter((it) => (it.direction ?? "inflow") === "inflow");
 
   const scheduledByStage = new Map<string, number>();
@@ -108,13 +111,12 @@ export function PaymentScheduleReconciliation({
           ) : (
             <AlertTriangle className="h-4 w-4 text-amber-600" />
           )}
-          Reconciliação — plano de pagamentos vs honorários
-        </CardTitle>
+           {uiI18n.t("crm:quoteEditor.reconciliation")} </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <div className="grid gap-2 sm:grid-cols-3">
-          <Metric label="Total do contrato (fases)" value={formatEUR(contractTotal)} />
-          <Metric label="Total agendado (entradas)" value={formatEUR(scheduleTotal)} />
+          <Metric label={uiI18n.t("crm:quoteEditor.stageContractTotal")} value={formatEUR(contractTotal)} />
+          <Metric label={uiI18n.t("crm:quoteEditor.scheduledInflows")} value={formatEUR(scheduleTotal)} />
           <Metric
             label="Diferença"
             value={`${delta > 0 ? "+" : ""}${formatEUR(delta)}`}
@@ -124,22 +126,19 @@ export function PaymentScheduleReconciliation({
 
         {balanced ? (
           <p className="text-xs text-muted-foreground">
-            O plano de pagamentos cobre a totalidade dos honorários.
-          </p>
+             {uiI18n.t("crm:quoteEditor.scheduleCovered")} </p>
         ) : (
           <>
             <p className="text-xs text-muted-foreground">
-              As linhas com montante fixo não acompanham alterações ao valor de venda das fases.
-              Verifique as fases abaixo ou volte a gerar o plano a partir do Gantt.
-            </p>
+               {uiI18n.t("crm:quoteEditor.fixedAmountHint")} </p>
             {rows.length > 0 && (
               <div className="overflow-hidden rounded-md border">
                 <table className="w-full text-xs">
                   <thead className="bg-muted/40 text-muted-foreground">
                     <tr>
-                      <th className="px-2 py-1.5 text-left font-medium">Fase</th>
-                      <th className="px-2 py-1.5 text-right font-medium">Honorário</th>
-                      <th className="px-2 py-1.5 text-right font-medium">Agendado</th>
+                      <th className="px-2 py-1.5 text-left font-medium"> {uiI18n.t("glossary:entity.stage")} </th>
+                      <th className="px-2 py-1.5 text-right font-medium"> {uiI18n.t("crm:workspace.planning.retainerMonthly.readings.fee")} </th>
+                      <th className="px-2 py-1.5 text-right font-medium"> {uiI18n.t("crm:quoteEditor.scheduled")} </th>
                       <th className="px-2 py-1.5 text-right font-medium">Diferença</th>
                     </tr>
                   </thead>
@@ -175,8 +174,7 @@ export function PaymentScheduleReconciliation({
             )}
             {unassigned > 0.5 && (
               <p className="text-xs text-muted-foreground">
-                {formatEUR(unassigned)} agendados sem fase associada.
-              </p>
+                {formatEUR(unassigned)}  {uiI18n.t("crm:quoteEditor.unlinkedScheduled")} </p>
             )}
           </>
         )}
@@ -194,6 +192,7 @@ function Metric({
   value: string;
   tone?: "ok" | "warn";
 }) {
+  useTranslation();
   return (
     <div className="rounded-md border bg-background/60 px-3 py-2">
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>

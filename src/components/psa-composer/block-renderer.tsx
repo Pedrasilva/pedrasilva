@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
  * renders the block body inside the A4 print container.
@@ -51,6 +52,7 @@ const IMAGE_SIZE_TO_CLASS: Record<string, string> = {
 };
 
 function ProposalImageBlock({ block, lang }: { block: PsaProposalBlock; lang: ProposalLang }) {
+  useTranslation();
   const cr = (block.content_rich ?? {}) as Record<string, unknown>;
   const imageId = (cr.image_id as string | undefined) ?? null;
   const size = (cr.size as string | undefined) ?? "1/2";
@@ -63,7 +65,7 @@ function ProposalImageBlock({ block, lang }: { block: PsaProposalBlock; lang: Pr
   if (!entry) {
     return (
       <div className={`proposal-image-block ${sizeClass} flex items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-xs italic text-zinc-400 print:hidden`}>
-        {lang === "en" ? "Select an image in the settings panel" : "Seleccione uma imagem no painel de definições"}
+        {lang === "en" ? uiI18n.t("crm:quoteEditor.selectImageHint") : uiI18n.t("crm:quoteEditor.selectImageHint")}
       </div>
     );
   }
@@ -90,6 +92,7 @@ type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
 function H({ children }: { children: React.ReactNode }) {
+  useTranslation();
   return (
     <h2 className="proposal-print-heading mb-3 text-lg font-semibold tracking-tight text-zinc-900">
       {children}
@@ -98,10 +101,12 @@ function H({ children }: { children: React.ReactNode }) {
 }
 
 function P({ children }: { children: React.ReactNode }) {
+  useTranslation();
   return <p className="mb-2 text-sm leading-relaxed text-zinc-800">{children}</p>;
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
+  useTranslation();
   return <p className="text-sm italic text-zinc-400">{children}</p>;
 }
 
@@ -125,6 +130,7 @@ function RichContent({
   paragraphSpacing?: Spacing;
   lineHeight?: LineHeight;
 }) {
+  useTranslation();
   const wrapClass = cn(
     "psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-1 [&_table]:w-full [&_table]:border-collapse [&_thead]:hidden [&_th]:border-0 [&_th]:bg-transparent [&_th]:px-0 [&_th]:py-0 [&_th]:text-left [&_th]:font-normal [&_td]:border-0 [&_td]:px-0 [&_td]:py-0 [&_td]:pr-4 [&_td]:align-baseline [&_tr]:leading-relaxed",
     spacingClass(paragraphSpacing),
@@ -195,6 +201,7 @@ const DEFAULT_TEXT_EN: Partial<Record<string, string>> = {
 };
 
 function StageRows({ stages }: { stages: LiveStage[] }) {
+  useTranslation();
   return (
     <>
       {stages.map((s) => (
@@ -218,6 +225,7 @@ function PhaseSummaryCard({
   lang: ProposalLang;
   L: ReturnType<typeof getProposalLabels>;
 }) {
+  useTranslation();
   const cr = (block.content_rich ?? {}) as Record<string, unknown>;
   const num = (v: unknown): number | null => {
     if (v == null || v === "") return null;
@@ -347,7 +355,7 @@ export function BlockBody({
           (text ? `<p>${text.split("\n\n").join("</p><p>")}</p>` : "")
         }
         onChange={({ html: h, text: t }) => onPatchContent({ html: h, text: t })}
-        placeholder={lang === "en" ? "Write this block's content..." : "Escreva o conteúdo deste bloco..."}
+        placeholder={lang === "en" ? uiI18n.t("crm:quoteEditor.writeBlockHint") : uiI18n.t("crm:quoteEditor.writeBlockHint")}
         tokenEntries={tokenEntries}
         paragraphSpacing={paragraphSpacing}
         lineHeight={lineHeight}
@@ -2349,6 +2357,7 @@ function GanttRotatedAppendix({
   header: React.ReactNode;
   chart: React.ReactNode;
 }) {
+  useTranslation();
   const headerRef = React.useRef<HTMLDivElement>(null);
   const [headHeight, setHeadHeight] = React.useState<number | null>(null);
 

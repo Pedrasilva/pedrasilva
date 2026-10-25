@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Quote lock guard — banner + prompt-to-revise dialog.
  *
@@ -35,6 +37,7 @@ export function QuoteLockGuard({
   quoteId: string | undefined;
   showBanner?: boolean;
 }) {
+  useTranslation();
   const lock = useQuoteLock(quoteId);
   const unlock = useUnlockQuoteForRevision(quoteId);
   const [open, setOpen] = useState(false);
@@ -53,13 +56,13 @@ export function QuoteLockGuard({
           <div className="flex-1 space-y-1">
             <p className="font-medium">
               {converted
-                ? "Proposta bloqueada — convertida em projecto"
-                : "Proposta bloqueada — foi enviada"}
+                ? uiI18n.t("crm:quoteEditor.convertedLocked")
+                : uiI18n.t("crm:quoteEditor.sentLocked")}
             </p>
             <p className="text-xs text-amber-800/90 dark:text-amber-200/90">
               {converted
-                ? "O plano vivo passou para o módulo de Projectos. Esta proposta é agora apenas o registo contratual e não pode voltar a ser editada."
-                : "Gantt, honorários, alocações, serviços externos e o texto da proposta estão bloqueados. Para continuar a editar, crie uma nova revisão."}
+                ? uiI18n.t("crm:quoteEditor.convertedLockedHint")
+                : uiI18n.t("crm:quoteEditor.sentLockedHint")}
             </p>
             {converted && projectId && (
               <Link
@@ -67,14 +70,12 @@ export function QuoteLockGuard({
                 params={{ projectId }}
                 className="inline-flex items-center gap-1 text-xs font-medium underline underline-offset-2 hover:no-underline"
               >
-                <ExternalLink className="h-3 w-3" /> Abrir projecto
-              </Link>
+                <ExternalLink className="h-3 w-3" />  {uiI18n.t("crm:quotes.openProject")} </Link>
             )}
             {!converted && (
               <div className="pt-1">
                 <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-                  Criar nova revisão
-                </Button>
+                   {uiI18n.t("crm:quoteEditor.createRevision")} </Button>
               </div>
             )}
           </div>
@@ -85,16 +86,16 @@ export function QuoteLockGuard({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {converted ? "Proposta convertida em projecto" : "Proposta bloqueada"}
+              {converted ? uiI18n.t("crm:quoteEditor.convertedProject") : uiI18n.t("crm:quoteEditor.proposalLocked")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {converted
-                ? "Esta proposta deu origem a um projecto e é agora o registo contratual permanente. Todas as alterações passam a ser feitas no módulo de Projectos."
-                : "Esta proposta está bloqueada porque foi enviada. Quer criar uma nova revisão para continuar a editar? A revisão enviada mantém-se congelada no histórico."}
+                ? uiI18n.t("crm:quoteEditor.convertedProjectHint")
+                : uiI18n.t("crm:quoteEditor.newRevisionPrompt")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Fechar</AlertDialogCancel>
+            <AlertDialogCancel> {uiI18n.t("common:close")} </AlertDialogCancel>
             {!converted && (
               <AlertDialogAction
                 disabled={unlock.isPending}
@@ -103,14 +104,13 @@ export function QuoteLockGuard({
                   unlock.mutate(undefined, {
                     onSuccess: () => {
                       setOpen(false);
-                      toast.success("Nova revisão iniciada — edição desbloqueada.");
+                      toast.success(uiI18n.t("crm:quoteEditor.revisionUnlocked"));
                     },
                     onError: (err: Error) => toast.error(err.message),
                   });
                 }}
               >
-                Criar nova revisão
-              </AlertDialogAction>
+                 {uiI18n.t("crm:quoteEditor.createRevision")} </AlertDialogAction>
             )}
           </AlertDialogFooter>
         </AlertDialogContent>

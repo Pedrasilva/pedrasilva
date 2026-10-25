@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Composer canvas — A4 print-aware document.
  *
@@ -86,6 +88,7 @@ function SortableRow({
   siblings: PsaProposalBlock[];
   isFirstPrintable: boolean;
 }) {
+  useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
   const refQuoteId = (block.source_ref as { quote_id?: string } | undefined)?.quote_id;
@@ -186,7 +189,7 @@ function SortableRow({
           {...attributes}
           {...listeners}
           className="cursor-grab rounded p-1 text-zinc-400 hover:bg-zinc-100"
-          aria-label="Reordenar"
+          aria-label={uiI18n.t("crm:quoteEditor.reorder")}
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -235,6 +238,7 @@ export function ComposerCanvas({
   language?: string | null;
   previewMode?: boolean;
 }) {
+  useTranslation();
   const lang = resolveProposalLang(language);
   // System headings follow the proposal language; user-written ones stay.
   const blocks = useMemo(

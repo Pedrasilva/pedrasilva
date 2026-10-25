@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Proposal-style read-only view of the payment schedule.
  *
@@ -42,6 +44,7 @@ const STATUS_META: Record<BillingStatus, { label: string; cls: string }> = {
 function InvoiceStatusButton({
   itemIds, currentStatus, quoteId,
 }: { itemIds: string[]; currentStatus: BillingStatus; quoteId: string | null }) {
+  useTranslation();
   const qc = useQueryClient();
   const [pending, setPending] = React.useState<BillingStatus | null>(null);
   const status = pending ?? currentStatus;
@@ -54,10 +57,10 @@ function InvoiceStatusButton({
     }).from("quote_payment_schedule_items").update({ billing_status: next }).in("id", itemIds);
     if (error) {
       setPending(null);
-      toast.error(`Não foi possível actualizar: ${error.message}`);
+      toast.error(uiI18n.t("crm:quoteEditor.updateFailed", { value1: error.message }));
       return;
     }
-    toast.success(`Estado actualizado para "${STATUS_META[next].label}"`);
+    toast.success(uiI18n.t("crm:quoteEditor.statusUpdated", { value1: STATUS_META[next].label }));
     if (quoteId) qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
   };
   return (
@@ -149,6 +152,7 @@ function PaymentSubTable({
   labelFor?: (it: QuotePaymentScheduleItem) => string;
   showTotalRow?: boolean;
 }) {
+  useTranslation();
   const groupTotal = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
   const groupVat = rows.reduce((s, r) => {
     const n = netAmount(r, totalFee, stageFees);
@@ -160,13 +164,13 @@ function PaymentSubTable({
     <Table>
       <TableHeader>
         <TableRow className="bg-muted/40">
-          <TableHead className="min-w-[220px]">Data de pagamento</TableHead>
-          <TableHead className="text-right">% dos honorários</TableHead>
-          <TableHead className="text-right">Valor sem IVA</TableHead>
-          <TableHead className="text-right">IVA</TableHead>
-          <TableHead className="text-right">Valor com IVA</TableHead>
+          <TableHead className="min-w-[220px]"> {uiI18n.t("crm:workspace.payment.paymentDate")} </TableHead>
+          <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.feePercent")} </TableHead>
+          <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
+          <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.vat")} </TableHead>
+          <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.includingVat")} </TableHead>
           <TableHead className="w-20">Fatura</TableHead>
-          <TableHead>Condições de pagamento</TableHead>
+          <TableHead> {uiI18n.t("crm:quoteEditor.paymentTerms")} </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -207,13 +211,12 @@ function PaymentSubTable({
         {rows.length === 0 && (
           <TableRow>
             <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-4">
-              Sem linhas
-            </TableCell>
+               {uiI18n.t("crm:quoteEditor.noLines")} </TableCell>
           </TableRow>
         )}
         {showTotalRow && rows.length > 0 && (
           <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
-            <TableCell>Total</TableCell>
+            <TableCell> {uiI18n.t("common:total")} </TableCell>
             <TableCell className="text-right tabular-nums">100%</TableCell>
             <TableCell className="text-right tabular-nums">{formatEUR(groupTotal)}</TableCell>
             <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(groupVat)}</TableCell>
@@ -239,6 +242,7 @@ export function PaymentScheduleProposalView({
   incomingOnly = false,
   outgoingOnly = false,
 }: Props) {
+  useTranslation();
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
     for (const s of suppliers) if (s.id) map.set(s.id, s.name);
@@ -374,13 +378,11 @@ export function PaymentScheduleProposalView({
             <CardHeader className="pb-3">
               <div className="flex items-baseline justify-between gap-4">
                 <CardTitle className="text-base uppercase tracking-wide">
-                  Composição do valor do contrato
-                </CardTitle>
+                   {uiI18n.t("crm:quoteEditor.contractComposition")} </CardTitle>
                 <div className="text-lg font-bold tabular-nums">{formatEUR(sum)}</div>
               </div>
               <div className="text-xs text-muted-foreground">
-                Visão global do contrato por disciplina / fornecedor
-              </div>
+                 {uiI18n.t("crm:quoteEditor.contractOverview")} </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -395,7 +397,7 @@ export function PaymentScheduleProposalView({
                     </TableRow>
                   ))}
                   <TableRow className="border-t-2 border-foreground/40 font-semibold">
-                    <TableCell className="py-1">Total</TableCell>
+                    <TableCell className="py-1"> {uiI18n.t("common:total")} </TableCell>
                     <TableCell className="py-1 text-right tabular-nums">{formatEUR(sum)}</TableCell>
                     <TableCell className="py-1 text-right tabular-nums">100%</TableCell>
                   </TableRow>
@@ -637,8 +639,7 @@ export function PaymentScheduleProposalView({
         return (
           <div className="space-y-4">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Detalhe por contrato
-            </div>
+               {uiI18n.t("crm:quoteEditor.contractDetail")} </div>
             {sections.map((section) => {
               const list = section.rows;
               const total = section.total;
@@ -656,9 +657,9 @@ export function PaymentScheduleProposalView({
                       <TableHeader>
                         <TableRow className="bg-muted/40">
                           {showRoot && <TableHead>Fornecedor</TableHead>}
-                          <TableHead>Fase</TableHead>
-                          <TableHead className="text-right">% do contrato</TableHead>
-                          <TableHead className="text-right">Valor sem IVA</TableHead>
+                          <TableHead> {uiI18n.t("glossary:entity.stage")} </TableHead>
+                          <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.contractPercent")} </TableHead>
+                          <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -678,7 +679,7 @@ export function PaymentScheduleProposalView({
                                   </TableRow>
                                 ))}
                                 <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
-                                  <TableCell>Total</TableCell>
+                                  <TableCell> {uiI18n.t("common:total")} </TableCell>
                                   <TableCell className="text-right tabular-nums">100%</TableCell>
                                   <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
                                 </TableRow>
@@ -721,7 +722,7 @@ export function PaymentScheduleProposalView({
                                   ))}
                                   <TableRow className="border-t border-foreground/30 font-medium bg-muted/10">
                                     <TableCell />
-                                    <TableCell>Subtotal — {g.rootName}</TableCell>
+                                    <TableCell> {uiI18n.t("crm:quoteEditor.subtotalPrefix")} {g.rootName}</TableCell>
                                     <TableCell className="text-right tabular-nums text-muted-foreground">
                                       {total > 0 ? `${Math.round((g.subtotal / total) * 100)}%` : "—"}
                                     </TableCell>
@@ -738,7 +739,7 @@ export function PaymentScheduleProposalView({
 
                               <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
                                 <TableCell />
-                                <TableCell>Total</TableCell>
+                                <TableCell> {uiI18n.t("common:total")} </TableCell>
                                 <TableCell className="text-right tabular-nums">100%</TableCell>
                                 <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
                               </TableRow>
@@ -756,8 +757,7 @@ export function PaymentScheduleProposalView({
                 <CardHeader className="pb-3 bg-amber-50 dark:bg-amber-950/40">
                   <div className="flex items-baseline justify-between gap-4">
                     <CardTitle className="text-sm uppercase tracking-wide">
-                      Serviços opcionais — não incluídos no total do contrato
-                    </CardTitle>
+                       {uiI18n.t("crm:quoteEditor.optionalExcluded")} </CardTitle>
                     <div className="text-base font-semibold tabular-nums">{formatEUR(optionalTotal)}</div>
                   </div>
                 </CardHeader>
@@ -765,8 +765,8 @@ export function PaymentScheduleProposalView({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/40">
-                        <TableHead>Fase</TableHead>
-                        <TableHead className="text-right">Valor sem IVA</TableHead>
+                        <TableHead> {uiI18n.t("glossary:entity.stage")} </TableHead>
+                        <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -782,15 +782,13 @@ export function PaymentScheduleProposalView({
                         </TableRow>
                       ))}
                       <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
-                        <TableCell>Total opcional</TableCell>
+                        <TableCell> {uiI18n.t("crm:quoteEditor.optionalTotal")} </TableCell>
                         <TableCell className="text-right tabular-nums">{formatEUR(optionalTotal)}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
                   <p className="mt-3 text-[11px] text-muted-foreground">
-                    Estes serviços são apresentados a título indicativo e não fazem parte do valor total do contrato.
-                    Caso sejam adjudicados, serão faturados em adenda.
-                  </p>
+                     {uiI18n.t("crm:quoteEditor.optionalHint")} </p>
                 </CardContent>
               </Card>
             )}
@@ -994,22 +992,20 @@ export function PaymentScheduleProposalView({
                 <div className="text-lg font-bold tabular-nums">{formatEUR(grandNet)}</div>
               </div>
               <div className="text-xs text-muted-foreground">
-                Cada fatura tem uma linha para Arquitectura e uma linha por cada fornecedor.
-                Datas planeadas a partir do Gantt — referência para cash flow futuro.
-              </div>
+                 {uiI18n.t("crm:quoteEditor.invoiceRowsHint")} </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40">
                     <TableHead className="w-24">Fatura</TableHead>
-                    <TableHead className="w-32">Data planeada</TableHead>
-                    <TableHead className="w-28">Estado</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead className="text-right">Valor sem IVA</TableHead>
-                    <TableHead className="text-right">IVA</TableHead>
-                    <TableHead className="text-right">Valor com IVA</TableHead>
-                    <TableHead className="min-w-[140px]">Condições</TableHead>
+                    <TableHead className="w-32"> {uiI18n.t("crm:quoteEditor.plannedDate")} </TableHead>
+                    <TableHead className="w-28"> {uiI18n.t("common:status")} </TableHead>
+                    <TableHead> {uiI18n.t("common:description")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.vat")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.includingVat")} </TableHead>
+                    <TableHead className="min-w-[140px]"> {uiI18n.t("crm:quoteEditor.terms")} </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1063,7 +1059,7 @@ export function PaymentScheduleProposalView({
                             <TableCell />
                             <TableCell />
                             <TableCell />
-                            <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
+                            <TableCell className="font-semibold"> {uiI18n.t("crm:workspace.proposal.attachments.subtotalRow")} {invoiceLabel}</TableCell>
                             <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net)}</TableCell>
                             <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(inv.vat)}</TableCell>
                             <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net + inv.vat)}</TableCell>
@@ -1074,7 +1070,7 @@ export function PaymentScheduleProposalView({
                     );
                   })}
                   <TableRow className="border-t-2 border-foreground/60 font-semibold bg-muted/40">
-                    <TableCell colSpan={4}>Total a faturar ao cliente</TableCell>
+                    <TableCell colSpan={4}> {uiI18n.t("crm:quoteEditor.clientBillingTotal")} </TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet)}</TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(grandVat)}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet + grandVat)}</TableCell>
@@ -1096,8 +1092,7 @@ export function PaymentScheduleProposalView({
       {(!compositionOnly && !consultantsOnly && !incomingOnly || outgoingOnly) && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Compromissos com fornecedores
-          </div>
+             {uiI18n.t("crm:quoteEditor.supplierCommitments")} </div>
           {supplierBuckets.map(([key, rows]) => {
             const name =
               key === "__unassigned__"
@@ -1114,8 +1109,7 @@ export function PaymentScheduleProposalView({
                 <CardHeader className="pb-3 bg-muted/30">
                   <div className="flex items-baseline justify-between gap-4">
                     <CardTitle className="text-sm uppercase tracking-wide">
-                      {name} — total dos honorários
-                    </CardTitle>
+                      {name}  {uiI18n.t("crm:quoteEditor.feeTotalSuffix")} </CardTitle>
                     <div className="text-base font-semibold tabular-nums">
                       {formatEUR(groupTotal)}
                     </div>

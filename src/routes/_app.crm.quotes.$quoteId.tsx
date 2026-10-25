@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ConversionInvoicePreview } from "@/components/quotes/conversion-invoice-preview";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -129,7 +130,7 @@ function QuoteDetail() {
       return data as unknown as string;
     },
     onSuccess: (newId) => {
-      toast.success("Revisão criada — a abrir a cópia editável");
+      toast.success(uiI18n.t("crm:quoteEditor.openingRevision"));
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
@@ -503,7 +504,7 @@ function QuoteDetail() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" title="Mais ações">
+              <Button variant="ghost" size="sm" title={uiI18n.t("crm:quoteEditor.moreActions")}>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -523,18 +524,15 @@ function QuoteDetail() {
                 onSelect={() => reviseQuote.mutate()}
                 disabled={reviseQuote.isPending}
               >
-                <Copy className="mr-2 h-3.5 w-3.5" /> Criar revisão (cópia editável)
-              </DropdownMenuItem>
+                <Copy className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.createEditableRevision")} </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setRevisionsOpen(true)}>
-                Histórico de revisões
-              </DropdownMenuItem>
+                 {uiI18n.t("crm:quoteEditor.revisionHistory")} </DropdownMenuItem>
 
               <DropdownMenuItem
                 disabled={isLocked && !isAdmin}
                 onSelect={() => setBuildSettingsOpen(true)}
               >
-                <Settings className="mr-2 h-3.5 w-3.5" /> Definições de construção
-              </DropdownMenuItem>
+                <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.constructionSettings")} </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setSaveTemplateOpen(true)}>
                 {t("templates.actions.saveAs")}
               </DropdownMenuItem>
@@ -626,12 +624,12 @@ function QuoteDetail() {
 
           {step === "estimate" && (isProject || isRetainer) && (
             <>
-              <TabsTrigger value="architecture">Architecture</TabsTrigger>
-              <TabsTrigger value="consultants">Suppliers</TabsTrigger>
-              <TabsTrigger value="incoming">Incoming</TabsTrigger>
-              <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
-              <TabsTrigger value="construction-assistance">Travel expenses</TabsTrigger>
-              <TabsTrigger value="billable-rates">Billable hourly rate</TabsTrigger>
+              <TabsTrigger value="architecture"> {uiI18n.t("crm:workspace.payment.archNetCol")} </TabsTrigger>
+              <TabsTrigger value="consultants"> {uiI18n.t("crm:workspace.payment.archSuppliersCol")} </TabsTrigger>
+              <TabsTrigger value="incoming"> {uiI18n.t("crm:quoteEditor.incoming")} </TabsTrigger>
+              <TabsTrigger value="outgoing"> {uiI18n.t("crm:quoteEditor.outgoing")} </TabsTrigger>
+              <TabsTrigger value="construction-assistance"> {uiI18n.t("crm:quoteEditor.travelExpenses")} </TabsTrigger>
+              <TabsTrigger value="billable-rates"> {uiI18n.t("crm:quoteEditor.billableHourly")} </TabsTrigger>
             </>
           )}
 
