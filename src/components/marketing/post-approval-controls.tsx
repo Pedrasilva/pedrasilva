@@ -49,6 +49,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
   const pending = approvals.find((a) => a.decision === "pending" && !a.voided_at);
   const lastChanges = approvals.find((a) => a.decision === "changes_requested");
   const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["marketing-draft-approval-state"] });
     for (const k of ["marketing-posts", "marketing-post-approvals", "marketing-calendar", "marketing-my-post-approvals", "notifications"]) qc.invalidateQueries({ queryKey: [k] });
   };
 

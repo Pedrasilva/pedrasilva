@@ -1,0 +1,9 @@
+# Stale approval recovery
+
+- Migration: `drizzle/migrations/0182_marketing_reapproval_recovery.sql`, byte-identical `supabase/migrations/20261025001500_marketing_reapproval_recovery.sql`.
+- RLS invoker view: `marketing_draft_approval_state`. Additive curator-only recovery RPCs: `marketing_prepare_reapproval`, `marketing_request_post_reapproval`. Normal approval and publishing guards remain authoritative.
+- Stale failed/approved/scheduled cards expose normal approval/request controls and withhold publishing controls until approval evidence matches the current hash. Send/lock evidence prevents recovery. Fresh approval archives any previously unlogged failure and clears only active error fields.
+- UI files: Planner route, Instagram publication controls, post approval controls; helpers `approval-state.ts`, `use-draft-approval-state.ts`; request server function; EN/PT messages; module rules and roadmap.
+- Fixture `67a8d4ab-384a-4986-84cd-f6ca3604d386` was created explicitly as QA. Browser confirmed stale recovery controls, rendered and directly approved it, then read valid approval and publication controls without publishing/scheduling. Current hash and rendered hash match; original failure is retained in the attempt log.
+- Screenshots: `/tmp/browser/reapproval/fixture-before.png`, `/tmp/browser/reapproval/fixture-after.png`. Test sources: `scripts/test-reapproval.test.ts`, `scripts/test-reapproval.sql`. 21 unit tests and i18n parity passed. SQL request/colleague approval/history/counter/sent-boundary assertions passed and rolled back all test rows.
+- Real Story `ced8fb1c` was read only; never approved, retried, published or rescheduled. Pending Finance work untouched.
