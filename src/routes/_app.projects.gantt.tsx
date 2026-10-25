@@ -188,7 +188,7 @@ function GlobalGanttPage() {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  {label}
+                  {t(label)}
                   <span
                     className={`ml-0.5 rounded-sm px-1 font-mono text-[10px] ${
                       active ? "bg-background/20" : "bg-muted"

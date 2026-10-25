@@ -40,7 +40,7 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             <FileText className="h-4 w-4" />
              {i18n.t("projects:contractBaselineCard.ui.contractualBaseline")} <Badge variant="secondary" className="ml-2 font-normal">
-              {header.quote_number ?? "Quote"} · {fmtEUR(header.total_fee)}  {i18n.t("projects:contractBaselineCard.ui.snapshotSuffix")} {" "}
+              {header.quote_number ?? i18n.t("glossary:entity.quote")} · {fmtEUR(header.total_fee)}  {i18n.t("projects:contractBaselineCard.ui.snapshotSuffix")} {" "}
               {fmtDate(header.snapshot_at)}
             </Badge>
           </CardTitle>
