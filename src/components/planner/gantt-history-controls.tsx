@@ -2,7 +2,7 @@ import {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {Undo2,Redo2} from "lucide-react";
-import {toast} from "sonner";
+import {toast} from "@/lib/toast";
 import {Button} from "@/components/ui/button";
 import {undoGanttSchedule} from "@/lib/projects/gantt-schedule";
 export function GanttHistoryControls({mode,scope,disabled=false}:{mode:"quote"|"project";scope:string;disabled?:boolean}) {

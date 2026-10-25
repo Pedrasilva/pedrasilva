@@ -1,8 +1,8 @@
 ## Current request — Translation batch 7 (server/database errors)
-- [ ] Inventory user-visible messages and separate internal diagnostics.
-- [ ] Add one display-only error translator, paired EN/PT keys, toast integration and stored-error displays.
-- [ ] Test exact/pattern matches, unknown fallback and locale parity; verify Portuguese toast with browser-local fixture.
-- [ ] Report module coverage, exclusions and screenshot; no server logic, migrations or data writes.
+- [x] Inventory user-visible messages and separate internal diagnostics.
+- [x] Add one display-only error translator, paired EN/PT keys, toast integration and stored-error displays.
+- [x] Test exact/pattern matches, unknown fallback and locale parity; verify Portuguese toast with browser-local fixture.
+- [x] Report module coverage, exclusions and screenshot; no server logic, migrations or data writes.
 
 ## Current request — Translation batch 6 and sentence quality
 - [x] Merge fragmented translated sentences and replace parenthetical plurals across prior namespaces.
