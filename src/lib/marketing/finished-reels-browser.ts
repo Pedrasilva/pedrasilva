@@ -38,7 +38,7 @@ export async function uploadReelVideo(file: File, path: string, onProgress: (pct
       metadata: { bucketName: 'marketing-assets', objectName: path, contentType: /\.mov$/i.test(file.name) ? 'video/quicktime' : 'video/mp4', cacheControl: '3600' },
       fingerprint: async () => `psa-reel:${path}:${file.size}:${file.lastModified}`,
       chunkSize: 6 * 1024 * 1024, retryDelays: [0, 3000, 5000, 10000, 20000], uploadDataDuringCreation: true, removeFingerprintOnSuccess: true,
-      onProgress: (sent, total) => onProgress(Math.round(sent / total * 100)), onSuccess: resolve, onError: reject,
+      onProgress: (sent, total) => onProgress(Math.round(sent / total * 100)), onSuccess: () => resolve(), onError: reject,
     });
     onControl({ pause: () => up.abort(), resume: () => up.start() });
     up.findPreviousUploads().then(prev => { if (prev[0]) up.resumeFromPreviousUpload(prev[0]); up.start(); }).catch(reject);
