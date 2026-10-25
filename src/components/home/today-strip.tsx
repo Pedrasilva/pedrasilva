@@ -82,7 +82,7 @@ export function TodayStrip() {
   const itemMeta = (item: AvailabilityItem) => {
     if (item.kind === "remote") return remoteLabel(item);
     const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
-    return `${type} · ${t("home:off.until", { date: fmtDate(item.end) })}`;
+    return t("home:off.typeUntil", { type, date: fmtDate(item.end) });
   };
 
 

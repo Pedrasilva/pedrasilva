@@ -865,7 +865,7 @@ export function QueueItemCard({
   // Server-only findings (e.g. supplier tax number, platform issuer) until something changes.
   const blockers = Array.from(new Set([...clientBlockers, ...serverBlockers.filter((b) => ["counterparty_tax", "platform_issuer"].includes(b))]));
   const blockerText = blockers.length
-    ? `${t("finance:confirm.cannotYet")} ${blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · ")}`
+    ? t("finance:confirm.cannotYetWithReasons", { reasons: blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · ") })
     : "";
   const verifyKeys = new Set(
     Object.entries(rx.field_checks ?? {}).filter(([, v]) => v?.status === "verify").map(([k]) => k),

@@ -49,7 +49,8 @@
       "metadata": "Não foi possível ler os metadados. Exporte MP4/MOV com fast start e metadados nos primeiros 32 MiB.",
       "cover": "Escolha uma capa JPEG legível ou um frame do vídeo."
     },
-    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}"
+    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}",
+    "videoRemovedWithReuseNotice": "Vídeo removido após 30 dias; original guardado offline. Para reutilizar este reel, é necessário carregar um novo vídeo."
   },
   "bestTimes": {
     "title": "Melhor hora para publicar",

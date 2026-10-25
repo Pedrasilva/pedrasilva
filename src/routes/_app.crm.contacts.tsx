@@ -56,7 +56,7 @@ function ContactsList() {
           />
         </div>
         <div className="text-xs text-muted-foreground">
-          {filtered.length}  {uiI18n.t("common:of")} {contacts.length}
+          {uiI18n.t("common:ofTotal", { shown: filtered.length.toLocaleString(uiI18n.language), total: contacts.length.toLocaleString(uiI18n.language) })}
         </div>
       </div>
 

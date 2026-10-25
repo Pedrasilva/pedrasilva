@@ -49,7 +49,8 @@
       "metadata": "Video metadata could not be read. Export a fast-start MP4/MOV with metadata within the first 32 MiB.",
       "cover": "Choose a readable JPEG cover or a video frame."
     },
-    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}"
+    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}",
+    "videoRemovedWithReuseNotice": "Video removed after 30 days; original kept offline. Reusing this reel requires a new upload."
   },
   "bestTimes": {
     "title": "Best time to post",

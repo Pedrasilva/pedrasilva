@@ -254,7 +254,8 @@
       "trend": "% facturável semanal vs objetivo",
       "viewTimesheet": "Ver folha de horas",
       "none": "Sem horas neste período.",
-      "noProject": "Sem projeto"
+      "noProject": "Sem projeto",
+      "periodSummary": "{{range}} · {{percentage}} faturável · Objetivo {{target}}"
     },
     "segmentHint": "{{name}}: {{hours}} ({{percent}}%)"
   },

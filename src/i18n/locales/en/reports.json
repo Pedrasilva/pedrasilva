@@ -254,7 +254,8 @@
       "trend": "Weekly % billable vs target",
       "viewTimesheet": "View timesheet",
       "none": "No hours in this period.",
-      "noProject": "No project"
+      "noProject": "No project",
+      "periodSummary": "{{range}} · {{percentage}} billable · Target {{target}}"
     },
     "segmentHint": "{{name}}: {{hours}} ({{percent}}%)"
   },

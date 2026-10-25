@@ -215,7 +215,9 @@
           "title": "Pré-visualização do Gantt (apenas leitura)",
           "hint": "Pré-visualização de como as fases aparecerão no Gantt do projeto após confirmar.",
           "people": "pessoas",
-          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h"
+          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h",
+          "peopleCount_one": "{{count}} pessoa",
+          "peopleCount_other": "{{count}} pessoas"
         },
         "source": {
           "explicit": "Explícito",
@@ -608,7 +610,8 @@
     "hourValue": "{{value}} h",
     "approxHourValue": "{{approx}}{{value}} h",
     "percentagePointValue": "{{sign}}{{value}} p.p.",
-    "versus": "{{actual}} face a {{target}}"
+    "versus": "{{actual}} face a {{target}}",
+    "percentagePointsSuffix": " p.p."
   },
   "imported": "Importado",
   "accessDenied": "Acesso negado.",

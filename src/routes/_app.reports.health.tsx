@@ -52,9 +52,9 @@ function presetRange(p: Preset, back = 0): { start: string; end: string } {
   };
 }
 
-const eur = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString(undefined, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }));
+const eur = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString(uiI18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }));
 const eurSigned = (n: number) => (n < 0 ? `−${eur(-n)}` : eur(n));
-const h = (n: number) => `${Math.round(n).toLocaleString()} h`;
+const h = (n: number) => `${Math.round(n).toLocaleString(uiI18n.language)} h`;
 const p0 = (n: number | null | undefined) => (n == null ? "—" : `${Math.round(n)}%`);
 
 function useHealth(start: string, end: string, dept: string, team: string) {
@@ -216,7 +216,7 @@ function Delta({ cur, prev, money }: { cur: number | null; prev: number | null |
   if (txt == null) return null;
   return (
     <p className="text-xs text-muted-foreground">
-      {t("health.vsPrevious")}: {txt >= 0 ? "+" : ""}{Math.round(txt)}{money ? "%" : " p.p."}
+      {t("health.vsPrevious")}: {txt >= 0 ? "+" : ""}{Math.round(txt)}{money ? "%" : uiI18n.t("common:units.percentagePointsSuffix")}
     </p>
   );
 }
@@ -244,7 +244,7 @@ function Funnel({ rows }: { rows: { label: string; value: number; unit: string; 
           <div className="h-3 rounded bg-muted">
             <div className={cn("h-3 rounded", r.minus ? "bg-muted-foreground/50" : "bg-primary")} style={{ width: `${(r.value / max) * 100}%` }} />
           </div>
-          <span className="text-right tabular-nums">{Math.round(r.value).toLocaleString()} {r.unit}</span>
+          <span className="text-right tabular-nums">{Math.round(r.value).toLocaleString(uiI18n.language)} {r.unit}</span>
         </div>
       ))}
     </div>
@@ -322,7 +322,7 @@ function Body({ H, P, monthly, cost, projName, monthLabel }: {
           <CardContent className="space-y-1 pt-4">
             <p className="text-xs text-muted-foreground">{t("health.tiles.breakEven")}</p>
             <p className={cn("text-2xl font-semibold", ch.ofAvailable != null && ch.breakEven != null && ch.ofAvailable < ch.breakEven && "text-destructive")}>
-              {p0(ch.ofAvailable)} <span className="text-base font-normal text-muted-foreground">vs {p0(ch.breakEven)}</span>
+              {uiI18n.t("common:units.versus", { actual: p0(ch.ofAvailable), target: p0(ch.breakEven) })}
             </p>
             <p className="text-xs text-muted-foreground">{t("health.tiles.breakEvenSub", { rate: eur(m.avgSaleRate) })}</p>
             <Delta cur={ch.ofAvailable} prev={P?.chargeability.ofAvailable} />

@@ -359,7 +359,9 @@
     "netActualCashMovement": "Net actual cash movement",
     "simpleForecast": "Simple forecast",
     "simpleForecastSub": "Bank balance + receivables due this month − payables due this month",
-    "qaSeedNotice": "Includes QA seed records (QA-PUR-001, QA-INV-001)."
+    "qaSeedNotice": "Includes QA seed records (QA-PUR-001, QA-INV-001).",
+    "documentsOverdueSummary_one": "{{count}} document · Overdue: {{amount}} ({{overdueCount}})",
+    "documentsOverdueSummary_other": "{{count}} documents · Overdue: {{amount}} ({{overdueCount}})"
   },
   "cashFlow": {
     "title": "Monthly cash flow",
@@ -2365,7 +2367,8 @@
       "bank": "from the bank",
       "manual": "chosen by hand",
       "card_print": "from the receipt"
-    }
+    },
+    "cannotYetWithReasons": "Can't confirm yet: {{reasons}}"
   },
   "paidMissing": {
     "title_one": "{{count}} confirmed document without \"Paid with\" after 30 days",

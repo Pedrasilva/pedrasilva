@@ -215,7 +215,9 @@
           "title": "Gantt preview (read-only)",
           "hint": "Visual preview of how stages will appear on the project Gantt after commit.",
           "people": "people",
-          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h"
+          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h",
+          "peopleCount_one": "{{count}} person",
+          "peopleCount_other": "{{count}} people"
         },
         "source": {
           "explicit": "Explicit",
@@ -608,7 +610,8 @@
     "hourValue": "{{value}} h",
     "approxHourValue": "{{approx}}{{value}} h",
     "percentagePointValue": "{{sign}}{{value}} p.p.",
-    "versus": "{{actual}} vs {{target}}"
+    "versus": "{{actual}} vs {{target}}",
+    "percentagePointsSuffix": " p.p."
   },
   "imported": "Imported",
   "accessDenied": "Access denied.",

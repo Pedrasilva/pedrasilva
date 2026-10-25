@@ -359,7 +359,9 @@
     "netActualCashMovement": "Movimento líquido real",
     "simpleForecast": "Previsão simples",
     "simpleForecastSub": "Saldo bancário + recebimentos com vencimento este mês − pagamentos com vencimento este mês",
-    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001)."
+    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001).",
+    "documentsOverdueSummary_one": "{{count}} documento · Em atraso: {{amount}} ({{overdueCount}})",
+    "documentsOverdueSummary_other": "{{count}} documentos · Em atraso: {{amount}} ({{overdueCount}})"
   },
   "cashFlow": {
     "title": "Cash flow mensal",
@@ -2365,7 +2367,8 @@
       "bank": "do banco",
       "manual": "escolhido à mão",
       "card_print": "do recibo"
-    }
+    },
+    "cannotYetWithReasons": "Ainda não é possível confirmar: {{reasons}}"
   },
   "paidMissing": {
     "title_one": "{{count}} documento confirmado sem \"Pago com\" há mais de 30 dias",

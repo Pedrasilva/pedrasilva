@@ -500,7 +500,7 @@ export function ArchitectureStagesCard({
           </span>
           <span className="tabular-nums text-right text-muted-foreground">
             {hoursValue > 0
-              ? `${implied ? "≈ " : ""}${hoursValue.toFixed(0)} h`
+              ? t("common:units.approxHourValue", { approx: implied ? "≈ " : "", value: hoursValue.toLocaleString(uiI18n.language, { maximumFractionDigits: 0 }) })
               : "—"}
           </span>
           <span className="tabular-nums text-right font-medium min-w-[8ch]">
@@ -645,7 +645,7 @@ export function ArchitectureStagesCard({
             {t("workspace.financial.total", { defaultValue: "Total" })}
           </span>
           <span className="tabular-nums text-right">
-            {grand.hours > 0 ? `${grand.hours.toFixed(0)} h` : "—"}
+            {grand.hours > 0 ? t("common:units.hourValue", { value: grand.hours.toLocaleString(uiI18n.language, { maximumFractionDigits: 0 }) }) : "—"}
           </span>
           <span className="tabular-nums text-right min-w-[8ch]">
             {formatEUR(grand.fee)}

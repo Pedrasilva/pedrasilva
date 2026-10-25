@@ -399,7 +399,7 @@ function CalendarPage() {
             ))}
           </div>
           <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">{previewRow ? caption(previewRow) : ""}</p>
-          {previewRow?.video_purged_at && <p className="text-xs text-muted-foreground">{t('reels.videoRemoved')} {t('reels.newUploadRequired')}{previewRow.published_url && <> <a href={previewRow.published_url} target="_blank" rel="noreferrer" className="text-primary underline">{t('published.open')}</a></>}</p>}
+          {previewRow?.video_purged_at && <p className="text-xs text-muted-foreground">{t("reels.videoRemovedWithReuseNotice")}{previewRow.published_url && <> <a href={previewRow.published_url} target="_blank" rel="noreferrer" className="text-primary underline">{t('published.open')}</a></>}</p>}
           {previewRow && <ClearanceSources draftId={previewRow.id} safetyFlags={rows.find(r => r.id === previewRow.id)?.safety_flags ?? previewRow.safety_flags} />}
           {previewRow?.story_render_manifest?.automatic === false && <p className="text-xs text-warning">{t("storyRender.blocked")}</p>}
           {previewRow && <p className="text-xs text-muted-foreground">{(previewRow.final_hashtags ?? previewRow.ai_hashtags).map((h) => `#${h}`).join(" ")}</p>}
