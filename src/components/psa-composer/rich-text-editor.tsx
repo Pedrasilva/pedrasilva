@@ -552,7 +552,7 @@ function Toolbar({
                   return (
                     <div key={group}>
                       <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-                        {group}
+                        {uiI18n.t(`crm:composer.tokenGroups.${group.toLowerCase()}`)}
                       </DropdownMenuLabel>
                       {items.map((entry) => (
                         <DropdownMenuItem
@@ -566,7 +566,7 @@ function Toolbar({
                           }}
                           className="text-xs"
                         >
-                          <span className="flex-1 truncate">{entry.label}</span>
+                          <span className="flex-1 truncate">{tokenLabel(entry)}</span>
                           <code className="ml-2 rounded bg-zinc-100 px-1 text-[10px] text-zinc-600">
                             {entry.token}
                           </code>
@@ -774,4 +774,11 @@ export function RichTextEditor({
       <EditorContent editor={editor} data-placeholder={placeholder} />
     </div>
   );
+}
+
+function tokenLabel(entry: TokenCatalogEntry): string {
+ if (!entry.token.startsWith("stage.")) return uiI18n.t("crm:composer.tokens." + entry.token.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()), { defaultValue: entry.label });
+ const field = entry.token.split(".").at(-1) ?? "name";
+ const stageLabel = entry.label.replace(/ — [^—]+$/, "");
+ return stageLabel + " — " + uiI18n.t("crm:composer.tokenFields." + field);
 }

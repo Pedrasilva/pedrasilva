@@ -26,6 +26,7 @@ import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute(
   "/_app/proposals/$proposalId/revisions/$revisionId",
 )({
+  head: () => ({ meta: [{ title: "Proposal revision | PSA Hub" }, { name: "description", content: "Read an archived proposal revision in PSA Hub." }, { property: "og:title", content: "Proposal revision | PSA Hub" }, { property: "og:description", content: "Read an archived proposal revision in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GuardedRevisionViewerPage,
 });
 

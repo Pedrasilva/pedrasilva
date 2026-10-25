@@ -16,6 +16,7 @@ import {
 } from "@/lib/psa-proposal/use-proposal-images";
 
 export const Route = createFileRoute("/_app/admin/proposal-images")({
+  head: () => ({ meta: [{ title: "Proposal image library | PSA Hub" }, { name: "description", content: "Manage shared images for proposal documents in PSA Hub." }, { property: "og:title", content: "Proposal image library | PSA Hub" }, { property: "og:description", content: "Manage shared images for proposal documents in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ProposalImagesAdminPage,
 });
 

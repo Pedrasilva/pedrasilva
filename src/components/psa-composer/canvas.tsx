@@ -35,6 +35,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, EyeOff, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
+import { BLOCK_UI_KEYS } from "./editor-labels";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
@@ -196,7 +197,7 @@ function SortableRow({
       </div>
       <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500 print:hidden">
         <RelevanceBadge value={block.contract_relevance} />
-        <span className="uppercase tracking-widest">{block.block_type}</span>
+        <span className="uppercase tracking-widest">{uiI18n.t(BLOCK_UI_KEYS[block.block_type])}</span>
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>

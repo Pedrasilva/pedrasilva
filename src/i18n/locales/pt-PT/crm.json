@@ -1950,7 +1950,10 @@
     "remainingBlocks_one": "{{count}} bloco permanece na proposta",
     "remainingBlocks_other": "{{count}} blocos permanecem na proposta",
     "wordExportFailed": "Não foi possível exportar o documento Word",
-    "pdfLoadFailed": "Não foi possível carregar o PDF"
+    "pdfLoadFailed": "Não foi possível carregar o PDF",
+    "invoiceNumber": "Fatura {{number}}",
+    "architectureContract": "Arquitetura — total do contrato",
+    "supplierContract": "Fornecedores — total do contrato"
   },
   "composer": {
     "blocks": {
@@ -2043,7 +2046,41 @@
       "sent": "Enviada",
       "archived": "Arquivada",
       "approved": "Aprovada",
-      "rejected": "Rejeitada"
+      "rejected": "Rejeitada",
+      "review": "Em revisão",
+      "accepted": "Aceite",
+      "won": "Ganha",
+      "lost": "Perdida"
+    },
+    "workingLocked": "Rev {{revision}} · bloqueada",
+    "workingEditing": "Rev {{revision}} · edição",
+    "tokens": {
+      "projectName": "Nome do projeto",
+      "projectNumber": "Número do projeto",
+      "projectDescription": "Descrição do projeto",
+      "proposalDate": "Data da proposta",
+      "clientName": "Cliente",
+      "architectureTotal": "Total de honorários de arquitetura",
+      "suppliersTotal": "Total de consultores",
+      "grandTotal": "Total geral",
+      "vatStatus": "Estado do IVA",
+      "overallDuration": "Duração total",
+      "projectStart": "Início do projeto",
+      "projectEnd": "Fim do projeto"
+    },
+    "tokenGroups": {
+      "projecto": "Projeto",
+      "cliente": "Cliente",
+      "totais": "Totais",
+      "programa": "Programa",
+      "fases": "Etapas"
+    },
+    "tokenFields": {
+      "name": "nome",
+      "fee": "honorário",
+      "duration": "duração",
+      "start": "início",
+      "end": "fim"
     }
   }
 }

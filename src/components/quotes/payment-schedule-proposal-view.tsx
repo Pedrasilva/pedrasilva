@@ -28,7 +28,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { formatEUR } from "@/lib/crm/types";
+const formatEUR = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
 import { isOptionalStage } from "@/lib/quotes/optional-stages";
@@ -135,7 +135,7 @@ function netAmount(
 function formatShortDate(iso?: string | null): string {
   if (!iso) return "—";
   const [year, month, day] = iso.split("-");
-  return year && month && day ? `${day}/${month}/${year}` : iso;
+  return year && month && day ? new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString(uiI18n.language) : iso;
 }
 
 function PaymentSubTable({
@@ -181,7 +181,7 @@ function PaymentSubTable({
           const vatAmt = (net * vat) / 100;
           const total = net + vatAmt;
           const pct = groupTotal > 0 ? (net / groupTotal) * 100 : 0;
-          const invoiceLabel = `Fatura ${String(i + 1).padStart(2, "0")}`;
+          const invoiceLabel = uiI18n.t("crm:quoteEditor.invoiceNumber", { number: String(i + 1).padStart(2, "0") });
           return (
             <TableRow key={it.id}>
               <TableCell>
@@ -618,13 +618,13 @@ export function PaymentScheduleProposalView({
         const allSections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
           {
             key: "architecture",
-            title: "Arquitectura — total do contrato",
+            title: uiI18n.t("crm:quoteEditor.architectureContract"),
             rows: architectureRows,
             total: architectureTop.reduce((sum, stage) => sum + amountFor(stage, "architecture"), 0),
           },
           {
             key: "supplier",
-            title: "Fornecedores — total do contrato",
+            title: uiI18n.t("crm:quoteEditor.supplierContract"),
             rows: supplierRows,
             total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
           },
@@ -1010,7 +1010,7 @@ export function PaymentScheduleProposalView({
                 </TableHeader>
                 <TableBody>
                   {invoices.map((inv, gi) => {
-                    const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
+                    const invoiceLabel = uiI18n.t("crm:quoteEditor.invoiceNumber", { number: String(gi + 1).padStart(2, "0") });
                     const dateLabel = fmtDate(inv.plannedDate);
                     const multiLine = inv.lines.length > 1;
                     const itemIds = inv.items.map((i) => i.id);

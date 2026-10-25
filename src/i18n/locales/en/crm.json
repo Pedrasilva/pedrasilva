@@ -1950,7 +1950,10 @@
     "remainingBlocks_one": "{{count}} block remains in the proposal",
     "remainingBlocks_other": "{{count}} blocks remain in the proposal",
     "wordExportFailed": "Could not export Word document",
-    "pdfLoadFailed": "Could not load PDF"
+    "pdfLoadFailed": "Could not load PDF",
+    "invoiceNumber": "Invoice {{number}}",
+    "architectureContract": "Architecture — contract total",
+    "supplierContract": "Suppliers — contract total"
   },
   "composer": {
     "blocks": {
@@ -2043,7 +2046,41 @@
       "sent": "Sent",
       "archived": "Archived",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "review": "In review",
+      "accepted": "Accepted",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "workingLocked": "Rev {{revision}} · locked",
+    "workingEditing": "Rev {{revision}} · editing",
+    "tokens": {
+      "projectName": "Project name",
+      "projectNumber": "Project number",
+      "projectDescription": "Project description",
+      "proposalDate": "Proposal date",
+      "clientName": "Client",
+      "architectureTotal": "Architecture fees total",
+      "suppliersTotal": "Consultants total",
+      "grandTotal": "Grand total",
+      "vatStatus": "VAT status",
+      "overallDuration": "Overall duration",
+      "projectStart": "Project start",
+      "projectEnd": "Project end"
+    },
+    "tokenGroups": {
+      "projecto": "Project",
+      "cliente": "Client",
+      "totais": "Totals",
+      "programa": "Programme",
+      "fases": "Stages"
+    },
+    "tokenFields": {
+      "name": "name",
+      "fee": "fee",
+      "duration": "duration",
+      "start": "start",
+      "end": "end"
     }
   }
 }

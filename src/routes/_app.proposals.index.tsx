@@ -13,6 +13,7 @@ import {
 
 import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute("/_app/proposals/")({
+  head: () => ({ meta: [{ title: "Proposals | PSA Hub" }, { name: "description", content: "Edit and manage proposal documents in PSA Hub." }, { property: "og:title", content: "Proposals | PSA Hub" }, { property: "og:description", content: "Edit and manage proposal documents in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GuardedProposalsIndex,
 });
 

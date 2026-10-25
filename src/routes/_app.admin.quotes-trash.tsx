@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { ArrowLeft, RotateCcw, Trash2, Archive, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/quotes-trash")({
+  head: () => ({ meta: [{ title: "Proposal recovery | PSA Hub" }, { name: "description", content: "Recover archived and deleted proposals in PSA Hub." }, { property: "og:title", content: "Proposal recovery | PSA Hub" }, { property: "og:description", content: "Recover archived and deleted proposals in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: QuotesTrashPage,
 });
 

@@ -144,7 +144,7 @@ export function ComposerTopBar({
         <SelectContent>
           {STATUSES.map((s) => (
             <SelectItem key={s} value={s}>
-              {s}
+              {uiI18n.t(`crm:composer.status.${s}`, { defaultValue: s })}
             </SelectItem>
           ))}
         </SelectContent>

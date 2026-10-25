@@ -88,8 +88,8 @@ export function VersionsPanel({
   const { data: signatures = [] } = useProposalSignatures(proposal.id);
   const isLocked = !!proposal.locked_at;
   const workingLabel = isLocked
-    ? `Rev ${String(nextRev - 1).padStart(2, "0")} · bloqueada`
-    : `Rev ${String(nextRev).padStart(2, "0")} · edição`;
+    ? uiI18n.t("crm:composer.workingLocked", { revision: String(nextRev - 1).padStart(2, "0") })
+    : uiI18n.t("crm:composer.workingEditing", { revision: String(nextRev).padStart(2, "0") });
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -147,7 +147,8 @@ export function VersionsPanel({
               {(() => {
                 const sig = signatures.find((s) => s.snapshot_id === r.id);
                 if (!sig) return null;
-                const { tone, label } = describeSignature(sig);
+                const { tone } = describeSignature(sig);
+                const label = signatureLabel(sig);
                 return (
                   <div
                     className={

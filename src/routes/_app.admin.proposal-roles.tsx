@@ -29,6 +29,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_app/admin/proposal-roles")({
+  head: () => ({ meta: [{ title: "Commercial titles | PSA Hub" }, { name: "description", content: "Manage commercial titles used in proposals in PSA Hub." }, { property: "og:title", content: "Commercial titles | PSA Hub" }, { property: "og:description", content: "Manage commercial titles used in proposals in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ProposalRolesAdminPage,
 });
 

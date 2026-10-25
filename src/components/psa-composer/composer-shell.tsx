@@ -82,7 +82,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         description:
           uiI18n.t("crm:quoteEditor.newRevisionHelp"),
         action: {
-          label: "Nova revisão",
+          label: uiI18n.t("crm:quoteEditor.newRevision"),
           onClick: startNewRevision,
         },
       });
