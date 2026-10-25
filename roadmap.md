@@ -1,7 +1,7 @@
 ## Current request — Translation batch 0
-- [ ] Add hardcoded UI checker, explicit document/brand exceptions, regression tests and CI baseline ratchet.
-- [ ] Correct unambiguous PT-PT AO90 locale spelling and verify language picker labels; no behavior or Finance changes.
-- [ ] Report per-module baseline and stop before batch 1.
+- [x] AST UI checker, explicit document/brand exceptions, nine regression tests and tests/CI signature-count ratchet.
+- [x] Corrected 72 unambiguous PT-PT values; English/Português picker labels confirmed; behavior and Finance untouched.
+- [x] Baseline: 2,837 candidate occurrences in 220 files; per-module report and per-file findings saved in docs/i18n-batch0-report.md and docs/i18n-batch0-per-file.json; batch 1 not started.
 
 ## Current request — Marketing portfolio projects
 - [x] Add Marketing-only project identities, preserve existing live identifiers and profile history, curator permissions and protected AI names.
