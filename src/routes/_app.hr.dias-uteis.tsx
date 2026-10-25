@@ -47,6 +47,7 @@ import { computeWorkdays, type Holiday } from "@/lib/workdays";
 import { useDateLocale } from "@/i18n/use-date-locale";
 
 export const Route = createFileRoute("/_app/hr/dias-uteis")({
+  head: () => ({ meta: [{ title: "Dias úteis | PSA Hub" }, { name: "description", content: "PSA Hub — dias úteis do atelier." }, { property: "og:title", content: "Dias úteis | PSA Hub" }, { property: "og:description", content: "PSA Hub — dias úteis do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: DiasUteisPage,
 });
 

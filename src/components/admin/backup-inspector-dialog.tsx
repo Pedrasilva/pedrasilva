@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -95,7 +96,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
         <DialogHeader>
           <div className="flex items-start justify-between gap-3 pr-8">
             <div className="min-w-0">
-              <DialogTitle>Inspecionar backup</DialogTitle>
+              <DialogTitle> {uiI18n.t("access:batchFive.labels.inspectBackup")} </DialogTitle>
               <DialogDescription className="truncate font-mono text-xs">
                 {fileName ?? runId}
               </DialogDescription>
@@ -120,8 +121,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
 
         {summaryQ.isLoading && (
           <div className="flex items-center gap-2 py-12 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> A descarregar e descomprimir do Drive…
-          </div>
+            <Loader2 className="h-4 w-4 animate-spin" />  {uiI18n.t("access:batchFive.labels.downloadingAndDecompressingFromDrive")} </div>
         )}
         {summaryQ.error && (
           <p className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
@@ -133,28 +133,28 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
           <div className="space-y-4 overflow-y-auto">
             <div className="grid grid-cols-3 gap-3 text-sm">
               <div className="rounded border p-3">
-                <div className="text-xs text-muted-foreground">Gerado em</div>
+                <div className="text-xs text-muted-foreground"> {uiI18n.t("access:batchFive.labels.generatedOn")} </div>
                 <div className="font-medium">
                   {summaryQ.data.meta.generated_at
-                    ? new Date(summaryQ.data.meta.generated_at).toLocaleString("pt-PT")
+                    ? new Date(summaryQ.data.meta.generated_at).toLocaleString(uiI18n.language)
                     : "—"}
                 </div>
               </div>
               <div className="rounded border p-3">
-                <div className="text-xs text-muted-foreground">Tabelas</div>
+                <div className="text-xs text-muted-foreground"> {uiI18n.t("common:tables")} </div>
                 <div className="font-medium">{summaryQ.data.totalTables}</div>
               </div>
               <div className="rounded border p-3">
-                <div className="text-xs text-muted-foreground">Linhas totais</div>
+                <div className="text-xs text-muted-foreground"> {uiI18n.t("access:batchFive.labels.totalRows")} </div>
                 <div className="font-medium">
-                  {summaryQ.data.totalRows.toLocaleString("pt-PT")}
+                  {summaryQ.data.totalRows.toLocaleString(uiI18n.language)}
                 </div>
               </div>
             </div>
 
             {summaryQ.data.meta.errors && summaryQ.data.meta.errors.length > 0 && (
               <div className="rounded border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900">
-                <strong>{summaryQ.data.meta.errors.length} tabela(s) com erro durante o dump:</strong>
+                <strong>{summaryQ.data.meta.errors.length}  {uiI18n.t("access:batchFive.labels.tableSHadAnErrorDuringThe")} </strong>
                 <ul className="mt-1 list-inside list-disc">
                   {summaryQ.data.meta.errors.slice(0, 5).map((e) => (
                     <li key={e.table}>
@@ -166,10 +166,10 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
             )}
 
             <div className="space-y-2">
-              <div className="text-sm font-medium">Procurar em todas as tabelas</div>
+              <div className="text-sm font-medium"> {uiI18n.t("access:batchFive.labels.searchAllTables")} </div>
               <div className="flex gap-2">
                 <Input
-                  placeholder="ex: Mastercard, nome de colaborador, número de fatura…"
+                  placeholder={uiI18n.t("access:batchFive.labels.eGMastercardCollaboratorNameInvoiceNumber")}
                   value={globalSearch}
                   onChange={(e) => setGlobalSearch(e.target.value)}
                   onKeyDown={(e) => {
@@ -190,7 +190,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
               {searchMut.data && (
                 <div className="rounded border bg-muted/40 p-2 text-xs">
                   {searchMut.data.matches.length === 0 ? (
-                    <span className="text-muted-foreground">Sem correspondências.</span>
+                    <span className="text-muted-foreground"> {uiI18n.t("access:batchFive.labels.noMatches")} </span>
                   ) : (
                     <ul className="space-y-1">
                       {searchMut.data.matches.map((m) => (
@@ -204,7 +204,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
                           >
                             {m.table}
                           </button>
-                          <Badge variant="secondary">{m.count} correspondência(s)</Badge>
+                          <Badge variant="secondary">{uiI18n.t("common:matchesCount", { count: m.count })} </Badge>
                         </li>
                       ))}
                     </ul>
@@ -214,13 +214,13 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm font-medium">Tabelas no backup</div>
+              <div className="mb-2 text-sm font-medium"> {uiI18n.t("access:batchFive.labels.tablesInThisBackup")} </div>
               <div className="max-h-[40vh] overflow-y-auto rounded border">
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 border-b bg-muted/50 text-left text-xs uppercase">
                     <tr>
-                      <th className="px-3 py-2">Tabela</th>
-                      <th className="px-3 py-2 text-right">Linhas</th>
+                      <th className="px-3 py-2"> {uiI18n.t("common:table")} </th>
+                      <th className="px-3 py-2 text-right"> {uiI18n.t("common:rows")} </th>
                       <th className="px-3 py-2 w-24"></th>
                     </tr>
                   </thead>
@@ -229,7 +229,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
                       <tr key={t.name} className="border-b last:border-0">
                         <td className="px-3 py-1.5 font-mono text-xs">{t.name}</td>
                         <td className="px-3 py-1.5 text-right">
-                          {t.rows.toLocaleString("pt-PT")}
+                          {t.rows.toLocaleString(uiI18n.language)}
                         </td>
                         <td className="px-3 py-1.5 text-right">
                           <Button
@@ -241,8 +241,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
                               setSelectedTable(t.name);
                             }}
                           >
-                            Ver
-                          </Button>
+                             {uiI18n.t("common:view")} </Button>
                         </td>
                       </tr>
                     ))}
@@ -257,28 +256,25 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
           <div className="space-y-3 overflow-hidden">
             <div className="flex items-center gap-2">
               <Button size="sm" variant="ghost" onClick={() => setSelectedTable(null)}>
-                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
-              </Button>
+                <ArrowLeft className="mr-1 h-4 w-4" />  {uiI18n.t("common:back")} </Button>
               <code className="text-sm">{selectedTable}</code>
               <Input
                 className="ml-auto max-w-xs"
-                placeholder="Filtrar nesta tabela…"
+                placeholder={uiI18n.t("access:batchFive.labels.filterThisTable")}
                 value={tableSearch}
                 onChange={(e) => setTableSearch(e.target.value)}
               />
             </div>
             {previewQ.isLoading && (
               <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> A filtrar…
-              </div>
+                <Loader2 className="h-4 w-4 animate-spin" />  {uiI18n.t("access:batchFive.labels.filtering")} </div>
             )}
             {previewQ.data && (
               <>
                 <div className="text-xs text-muted-foreground">
-                  {previewQ.data.matchCount.toLocaleString("pt-PT")} de{" "}
-                  {previewQ.data.totalRows.toLocaleString("pt-PT")} linhas
-                  {previewQ.data.matchCount > previewQ.data.returned && (
-                    <> (primeiras {previewQ.data.returned} mostradas)</>
+                  {previewQ.data.matchCount.toLocaleString(uiI18n.language)}  {uiI18n.t("common:of")} {" "}
+                  {previewQ.data.totalRows.toLocaleString(uiI18n.language)}  {uiI18n.t("access:batchFive.labels.rows")} {previewQ.data.matchCount > previewQ.data.returned && (
+                    <>  {uiI18n.t("access:batchFive.labels.first")} {previewQ.data.returned}  {uiI18n.t("access:batchFive.labels.shown")} </>
                   )}
                 </div>
                 <div className="max-h-[55vh] overflow-auto rounded border">

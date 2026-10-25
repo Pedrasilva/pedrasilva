@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 // HR-owned salary Excel importer (admin-only).
 //
 // Flow: upload → auto-detect header row → preview headers + matches +
@@ -376,7 +377,7 @@ export function SalaryImporter() {
               <div className="text-xs text-muted-foreground">
                 {t("salaryImport.duplicateInfo", {
                   file: result.existing_import.file_name,
-                  date: new Date(result.existing_import.imported_at).toLocaleString(),
+                  date: new Date(result.existing_import.imported_at).toLocaleString(uiI18n.language),
                 })}
               </div>
             </div>
@@ -471,7 +472,7 @@ function PreviewSection({
               <div className="text-xs text-muted-foreground">
                 {t("salaryImport.duplicateInfo", {
                   file: preview.duplicateOfImport.file_name,
-                  date: new Date(preview.duplicateOfImport.imported_at).toLocaleString(),
+                  date: new Date(preview.duplicateOfImport.imported_at).toLocaleString(uiI18n.language),
                 })}
               </div>
             </div>
@@ -538,7 +539,7 @@ function PreviewSection({
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {m.valor_base.toLocaleString("pt-PT", {
+                        {m.valor_base.toLocaleString(uiI18n.language, {
                           style: "currency",
                           currency: "EUR",
                         })}
@@ -599,7 +600,7 @@ function PreviewSection({
                       <TableCell className="text-xs">{c.email ?? "—"}</TableCell>
                       <TableCell className="text-xs">{c.numero_colaborador ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {c.valor_base.toLocaleString("pt-PT", {
+                        {c.valor_base.toLocaleString(uiI18n.language, {
                           style: "currency",
                           currency: "EUR",
                         })}
@@ -679,7 +680,7 @@ function PreviewSection({
                 })}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
-                log id: {completed.log.id}
+                 {uiI18n.t("hr:batchFive.labels.logId")} {completed.log.id}
               </div>
               {completed.log.notes && (
                 <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-muted/40 p-2 text-[11px] text-muted-foreground">
@@ -703,6 +704,7 @@ function SummaryTile({
   count: number;
   tone: "ok" | "warn" | "muted";
 }) {
+  useTranslation();
   const toneClass =
     tone === "ok"
       ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400"

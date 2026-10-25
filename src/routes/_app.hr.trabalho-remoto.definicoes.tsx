@@ -28,6 +28,7 @@ import {
 } from "@/hooks/use-remote-work";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto/definicoes")({
+  head: () => ({ meta: [{ title: "Definições de trabalho remoto | PSA Hub" }, { name: "description", content: "PSA Hub — definições de trabalho remoto do atelier." }, { property: "og:title", content: "Definições de trabalho remoto | PSA Hub" }, { property: "og:description", content: "PSA Hub — definições de trabalho remoto do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: SettingsTab,
 });
 

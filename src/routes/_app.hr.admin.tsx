@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -76,7 +78,12 @@ type UserRow = {
   pending?: boolean;
 };
 
+
+const legacyLabels: Record<string, string> = {"HR":"access:permissions.catalogue.hr","Minha ficha":"access:permissions.catalogue.myProfile","Ver a sua própria ficha salarial":"access:permissions.catalogue.viewYourOwnSalaryRecord","Dias úteis":"access:permissions.catalogue.workingDays","Calendário e feriados":"access:permissions.catalogue.calendarAndPublicHolidays","Benefícios próprios":"access:permissions.catalogue.ownBenefits","Submeter despesas e ver saldo":"access:permissions.catalogue.submitExpensesAndViewBalance","Aprovar benefícios":"access:permissions.catalogue.approveBenefits","Aprovar/rejeitar despesas de benefícios de outros colaboradores":"access:permissions.catalogue.approveOrRejectBenefitExpensesForOtherCollaborators","Férias próprias":"access:permissions.catalogue.ownVacation","Pedir e ver férias":"access:permissions.catalogue.requestAndViewVacation","Colaboradores — lista":"access:permissions.catalogue.collaboratorList","Ver a lista de colaboradores (sem abrir ficha).":"access:permissions.catalogue.viewCollaboratorsWithoutOpeningIndividualRecords","Colaborador — abrir ficha":"access:permissions.catalogue.openCollaboratorRecord","Abrir a ficha individual de outros colaboradores (sem valores financeiros).":"access:permissions.catalogue.openOtherCollaboratorsRecordsWithoutFinancialValues","Colaborador — ver compensação":"access:permissions.catalogue.viewCollaboratorCompensation","Ver salário, benefícios, liquidez e custos na ficha individual.":"access:permissions.catalogue.viewSalaryBenefitsTakeHomePayAndCostsInAnIndividualRecord","Colaborador — editar ficha":"access:permissions.catalogue.editCollaboratorRecord","Editar dados de colaborador.":"access:permissions.catalogue.editCollaboratorDetails","Resumo comparativo":"access:permissions.catalogue.comparisonSummary","Aceder ao resumo entre colaboradores (sem valores).":"access:permissions.catalogue.viewTheCollaboratorComparisonWithoutFinancialValues","Resumo — ver valores":"access:permissions.catalogue.viewSummaryValues","Ver valores salariais no resumo comparativo.":"access:permissions.catalogue.viewSalaryValuesInTheComparisonSummary","HR — administração":"access:permissions.catalogue.hr20e280942061646d696e6973747261c3a7c3a36f","Gerir permissões e configuração avançada de HR.":"access:permissions.catalogue.managePermissionsAndAdvancedHRSettings","Subsídio alimentação (config)":"access:permissions.catalogue.mealAllowanceSettings","Configurar tabela do subsídio":"access:permissions.catalogue.configureTheAllowanceTable","Valor BO/hora":"access:permissions.catalogue.backofficeHourlyCost","Configuração financeira do backoffice":"access:permissions.catalogue.backofficeFinancialSettings","CRM":"access:permissions.catalogue.crm","Empresas":"access:permissions.catalogue.companies","Contactos":"access:permissions.catalogue.contacts","Pipeline & Propostas":"access:permissions.catalogue.pipelineProposals","Projects":"access:permissions.catalogue.projects","Todos os projectos":"access:permissions.catalogue.allProjects","Lista completa e detalhe de qualquer projecto":"access:permissions.catalogue.completeListAndDetailsOfEveryProject","Gantt global":"access:permissions.catalogue.globalGantt","Recursos":"access:permissions.catalogue.resources","Minhas tarefas":"access:permissions.catalogue.myTasks","Timesheet":"access:permissions.catalogue.timesheet","Indicadores financeiros":"access:permissions.catalogue.financialIndicators","Ver receita, custo, margem e orçamento no dashboard. Sem esta permissão, são mostrados apenas indicadores de tempo (planeado/realizado).":"access:permissions.catalogue.viewRevenueCostsMarginsAndBudgetsOnTheDashboardWithoutThisPermissionOnlyPlannedAndLoggedTimeIndicatorsAreShown","Finance":"access:permissions.catalogue.finance","Painel financeiro":"access:permissions.catalogue.financialDashboard","Aceder ao dashboard financeiro do escritório (cash flow, receitas, despesas, bancos).":"access:permissions.catalogue.openTheStudioFinancialDashboardCashFlowRevenueExpensesAndBanks","Inbox":"access:permissions.catalogue.inbox","Triagem de email":"access:permissions.catalogue.emailTriage","Aceder à triagem de email do atelier (mensagens captadas, classificação e acções sugeridas).":"access:permissions.catalogue.openStudioEmailTriageCapturedMessagesClassificationsAndSuggestedActions"};
+const displayPermission = (value: string) => uiI18n.t(legacyLabels[value] ?? value);
+
 export const Route = createFileRoute("/_app/hr/admin")({
+  head: () => ({ meta: [{ title: "Administração RH | PSA Hub" }, { name: "description", content: "PSA Hub — administração rh do atelier." }, { property: "og:title", content: "Administração RH | PSA Hub" }, { property: "og:description", content: "PSA Hub — administração rh do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <AdminOnly>
       <AdminPage />
@@ -85,6 +92,7 @@ export const Route = createFileRoute("/_app/hr/admin")({
 });
 
 function AdminPage() {
+  useTranslation();
   const qc = useQueryClient();
   const { user } = useAuth();
 
@@ -113,7 +121,7 @@ function AdminPage() {
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
-      toast.success(vars.isAdmin ? "Admin atribuído" : "Admin removido");
+      toast.success(vars.isAdmin ? uiI18n.t("access:batchFive.labels.administratorAssigned") : uiI18n.t("access:batchFive.labels.administratorRemoved"));
       qc.invalidateQueries({ queryKey: ["admin-users-with-permissions"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -195,29 +203,24 @@ function AdminPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Shield className="h-5 w-5" /> Administração
-          </h1>
+            <Shield className="h-5 w-5" />  {uiI18n.t("common:administration")} </h1>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            Gestão de utilizadores e permissões. Admins vêem tudo
-            automaticamente. Para os restantes, marque/desmarque cada
-            funcionalidade na matriz abaixo.
-          </p>
+             {uiI18n.t("access:batchFive.labels.manageAccountsAndPermissionsAdministratorsSeeEverything")} </p>
         </div>
         <NewCollaboratorDialog
           trigger={
             <Button>
-              <Plus className="h-4 w-4" /> Novo colaborador
-            </Button>
+              <Plus className="h-4 w-4" />  {uiI18n.t("hr:landing.newButton")} </Button>
           }
         />
       </div>
 
       <Tabs defaultValue="permissions">
         <TabsList>
-          <TabsTrigger value="permissions">Permissões</TabsTrigger>
-          <TabsTrigger value="users">Utilizadores & Admins</TabsTrigger>
-          <TabsTrigger value="internal-categories">Cost centers internos</TabsTrigger>
-          <TabsTrigger value="salary-import">Importar salários (RH)</TabsTrigger>
+          <TabsTrigger value="permissions"> {uiI18n.t("hr:nav.permissions")} </TabsTrigger>
+          <TabsTrigger value="users"> {uiI18n.t("access:batchFive.labels.accountsAndAdministrators")} </TabsTrigger>
+          <TabsTrigger value="internal-categories"> {uiI18n.t("access:batchFive.labels.internalCostCentres")} </TabsTrigger>
+          <TabsTrigger value="salary-import"> {uiI18n.t("access:batchFive.labels.importSalariesHr")} </TabsTrigger>
         </TabsList>
 
         <TabsContent value="permissions" className="mt-4">
@@ -247,26 +250,23 @@ function AdminPage() {
         <TabsContent value="users" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Utilizadores registados</CardTitle>
+              <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.registeredAccounts")} </CardTitle>
               <CardDescription>
-                O super-admin (Luis) não pode perder o estatuto. Não pode
-                remover o seu próprio acesso de admin.
-              </CardDescription>
+                 {uiI18n.t("access:batchFive.labels.theSuperAdministratorLuisCannotLoseThat")} </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (
-                <div className="p-6 text-sm text-muted-foreground">A carregar…</div>
+                <div className="p-6 text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
               ) : users.length === 0 ? (
                 <div className="p-6 text-sm text-muted-foreground">
-                  Sem utilizadores registados.
-                </div>
+                   {uiI18n.t("access:batchFive.labels.noRegisteredAccounts")} </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Colaborador</TableHead>
-                      <TableHead className="text-right">Admin</TableHead>
+                      <TableHead> {uiI18n.t("common:email")} </TableHead>
+                      <TableHead> {uiI18n.t("glossary:hr.employee")} </TableHead>
+                      <TableHead className="text-right"> {uiI18n.t("glossary:permissions.roles.admin")} </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -283,8 +283,8 @@ function AdminPage() {
                               {u.email}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
-                              {isSelf && "tu"}
-                              {u.is_super_admin && " · super-admin"}
+                              {isSelf && uiI18n.t("access:batchFive.labels.you")}
+                              {u.is_super_admin && uiI18n.t("access:batchFive.labels.superAdministrator")}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -299,13 +299,12 @@ function AdminPage() {
                               </Link>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <AlertCircle className="h-3 w-3" /> sem ficha
-                              </span>
+                                <AlertCircle className="h-3 w-3" />  {uiI18n.t("access:batchFive.labels.noSheet")} </span>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="inline-flex items-center gap-2">
-                              {u.is_admin && <Badge>Admin</Badge>}
+                              {u.is_admin && <Badge> {uiI18n.t("glossary:permissions.roles.admin")} </Badge>}
                               <Switch
                                 checked={u.is_admin}
                                 disabled={setAdmin.isPending || locked}
@@ -325,9 +324,7 @@ function AdminPage() {
           </Card>
 
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Os utilizadores aparecem aqui assim que fazem o primeiro login com
-            o email registado na ficha.
-          </p>
+             {uiI18n.t("access:batchFive.labels.accountsAppearHereAfterTheFirstSign")} </p>
         </TabsContent>
 
         <TabsContent value="internal-categories" className="mt-4">
@@ -359,6 +356,7 @@ function PermissionsMatrix({
     }[],
   ) => Promise<void>;
 }) {
+  useTranslation();
   const [filter, setFilter] = useState("");
   // Local edits keyed by `${userId}::${key}` -> granted boolean
   const [edits, setEdits] = useState<Record<string, boolean>>({});
@@ -368,12 +366,12 @@ function PermissionsMatrix({
 
   const handleViewAs = (u: UserRow) => {
     if (!u.collaborator_id) {
-      toast.error("Este utilizador não tem ficha de colaborador associada.");
+      toast.error(uiI18n.t("access:batchFive.labels.thisAccountHasNoLinkedCollaboratorSheet"));
       return;
     }
     setViewAsUser(true);
     setViewAsCollaboratorId(u.collaborator_id);
-    toast.success(`A ver a app como ${u.collaborator_nome ?? u.email}`);
+    toast.success(uiI18n.t("access:batchFive.labels.viewingTheAppAsWithValues", { value1: u.collaborator_nome ?? u.email }));
     navigate({ to: "/hr/minha-ficha" });
   };
 
@@ -442,11 +440,7 @@ function PermissionsMatrix({
     setSaving(true);
     try {
       await onSave(pendingChanges);
-      toast.success(
-        `${dirtyCount} alteração${dirtyCount === 1 ? "" : "ões"} guardada${
-          dirtyCount === 1 ? "" : "s"
-        }`,
-      );
+      toast.success(uiI18n.t("common:changesSaved", { count: dirtyCount }));
       setEdits({});
     } catch (e) {
       toast.error((e as Error).message);
@@ -461,8 +455,7 @@ function PermissionsMatrix({
     return (
       <Card>
         <CardContent className="p-6 text-sm text-muted-foreground">
-          A carregar…
-        </CardContent>
+           {uiI18n.t("common:loading")} </CardContent>
       </Card>
     );
   }
@@ -472,17 +465,15 @@ function PermissionsMatrix({
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base">Matriz de permissões</CardTitle>
+            <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.permissionsMatrix")} </CardTitle>
             <CardDescription>
-              Marque o que cada utilizador pode aceder e clique em Guardar.
-              Admins têm tudo automaticamente (linha cinzenta).
-            </CardDescription>
+               {uiI18n.t("access:batchFive.labels.selectTheFeaturesEachAccountCanAccess")} </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative w-64">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Procurar utilizador…"
+                placeholder={uiI18n.t("access:batchFive.labels.searchAccounts")}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 className="pl-8"
@@ -495,15 +486,14 @@ function PermissionsMatrix({
                 onClick={handleDiscard}
                 disabled={saving}
               >
-                Descartar
-              </Button>
+                 {uiI18n.t("access:batchFive.labels.discard")} </Button>
             )}
             <Button size="sm" onClick={handleSave} disabled={dirtyCount === 0 || saving}>
               {saving
-                ? "A guardar…"
+                ? uiI18n.t("common:saving")
                 : dirtyCount > 0
-                  ? `Guardar (${dirtyCount})`
-                  : "Guardar"}
+                  ? uiI18n.t("access:batchFive.labels.saveWithValues", { value1: dirtyCount })
+                  : uiI18n.t("common:save")}
             </Button>
           </div>
         </div>
@@ -515,22 +505,20 @@ function PermissionsMatrix({
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="sticky left-0 z-10 min-w-[220px] border-r bg-muted/30 px-3 py-2 text-left font-medium">
-                    Utilizador
-                  </th>
+                     {uiI18n.t("glossary:entity.user")} </th>
                   {PERMISSION_GROUPS.map((g) => (
                     <th
-                      key={g.module}
+                      key={displayPermission(g.module)}
                       colSpan={g.items.length}
                       className="border-l border-r px-3 py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
                     >
-                      {g.module}
+                      {displayPermission(g.module)}
                     </th>
                   ))}
                 </tr>
                 <tr className="border-b bg-muted/10">
                   <th className="sticky left-0 z-10 border-r bg-muted/10 px-3 py-2 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {filtered.length} utilizador(es)
-                  </th>
+                    {uiI18n.t("common:usersCount", { count: filtered.length })} </th>
                   {PERMISSION_GROUPS.flatMap((g) =>
                     g.items.map((item) => (
                       <th
@@ -540,14 +528,14 @@ function PermissionsMatrix({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="mx-auto h-24 w-7 [writing-mode:vertical-rl] rotate-180 cursor-default text-[11px] font-medium text-muted-foreground">
-                              {item.label}
+                              {displayPermission(item.label)}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[220px]">
-                            <div className="font-medium">{item.label}</div>
+                            <div className="font-medium">{displayPermission(item.label)}</div>
                             {item.description && (
                               <div className="text-xs text-muted-foreground">
-                                {item.description}
+                                {displayPermission(item.description)}
                               </div>
                             )}
                             <div className="mt-1 text-[10px] font-mono text-muted-foreground">
@@ -583,14 +571,13 @@ function PermissionsMatrix({
                                 variant="outline"
                                 className="shrink-0 border-amber-500/40 bg-amber-500/10 text-[10px] font-normal text-amber-700 dark:text-amber-300"
                               >
-                                por convidar
-                              </Badge>
+                                 {uiI18n.t("common:awaitingInvitation")} </Badge>
                             )}
                           </div>
                           <div className="text-[11px] text-muted-foreground truncate">
-                            {u.collaborator_nome ? u.email : "sem ficha"}
-                            {u.is_admin && " · admin"}
-                            {u.pending && " · sem acesso ainda"}
+                            {u.collaborator_nome ? u.email : uiI18n.t("access:batchFive.labels.noSheet")}
+                            {u.is_admin && uiI18n.t("access:batchFive.labels.administrator")}
+                            {u.pending && uiI18n.t("access:batchFive.labels.noAccessYet")}
                           </div>
                         </div>
                         {isRealAdmin && u.user_id !== currentUser?.id && u.collaborator_id && (
@@ -602,14 +589,13 @@ function PermissionsMatrix({
                                 size="icon"
                                 className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
                                 onClick={() => handleViewAs(u)}
-                                aria-label={`Ver a app como ${u.collaborator_nome ?? u.email}`}
+                                aria-label={uiI18n.t("access:batchFive.labels.viewTheAppAsWithValues", { value1: u.collaborator_nome ?? u.email })}
                               >
                                 <Eye className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent side="right">
-                              Ver a app como este utilizador
-                            </TooltipContent>
+                               {uiI18n.t("access:batchFive.labels.viewTheAppAsThisAccount")} </TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -633,7 +619,7 @@ function PermissionsMatrix({
                               onCheckedChange={(v) =>
                                 handleToggle(u.user_id, item.key, !!v)
                               }
-                              aria-label={`${item.label} para ${u.email}`}
+                              aria-label={uiI18n.t("common:labelForPerson", { label: displayPermission(item.label), person: u.email })}
                             />
                           </td>
                         );
@@ -647,8 +633,7 @@ function PermissionsMatrix({
                       colSpan={1 + PERMISSION_GROUPS.reduce((n, g) => n + g.items.length, 0)}
                       className="px-3 py-8 text-center text-sm text-muted-foreground"
                     >
-                      Sem utilizadores que correspondam à pesquisa.
-                    </td>
+                       {uiI18n.t("access:batchFive.labels.noAccountsMatchYourSearch")} </td>
                   </tr>
                 )}
               </tbody>
@@ -657,8 +642,7 @@ function PermissionsMatrix({
         </TooltipProvider>
         {dirtyCount > 0 && (
           <div className="border-t bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
-            {dirtyCount} alteração{dirtyCount === 1 ? "" : "ões"} por guardar.
-          </div>
+            {dirtyCount}  {uiI18n.t("access:batchFive.labels.change")} {dirtyCount === 1 ? "" : uiI18n.t("access:batchFive.labels.s")}  {uiI18n.t("access:batchFive.labels.unsaved")} </div>
         )}
       </CardContent>
     </Card>
@@ -694,11 +678,12 @@ function ProfileVisibilityCell({
   disabled?: boolean;
   onChange: (profiles: string[]) => void;
 }) {
+  useTranslation();
   const current = row.visible_to_profiles ?? [...ALL_WORK_PROFILES];
   const toggle = (p: string, checked: boolean) => {
     const next = checked ? [...current, p] : current.filter((x) => x !== p);
     if (!next.length) {
-      toast.error("Escolha pelo menos um perfil");
+      toast.error(uiI18n.t("access:batchFive.labels.chooseAtLeastOneRole"));
       return;
     }
     onChange(ALL_WORK_PROFILES.filter((x) => next.includes(x)));
@@ -716,10 +701,10 @@ function ProfileVisibilityCell({
               checked={checked}
               disabled={disabled}
               onCheckedChange={(v) => toggle(p, !!v)}
-              aria-label={`Visível para ${PROFILE_LABELS[p]}`}
+              aria-label={uiI18n.t("access:batchFive.labels.visibleToWithValues", { value1: uiI18n.t(`access:permissions.workProfiles.${p}`) })}
             />
             <Badge variant={checked ? "secondary" : "outline"} className="text-[10px]">
-              {PROFILE_LABELS[p]}
+              {uiI18n.t(`access:permissions.workProfiles.${p}`)}
             </Badge>
           </label>
         );
@@ -729,6 +714,7 @@ function ProfileVisibilityCell({
 }
 
 function InternalCategoriesAdmin() {
+  useTranslation();
   const [includeArchived, setIncludeArchived] = useState(true);
   const { data: rows = [], isLoading } = useInternalCategories({ includeArchived });
   const create = useCreateInternalCategory();
@@ -761,9 +747,9 @@ function InternalCategoriesAdmin() {
     try {
       await create.mutateAsync({ name });
       setNewName("");
-      toast.success("Cost center criado");
+      toast.success(uiI18n.t("access:batchFive.labels.costCentreCreated"));
     } catch (e) {
-      toast.error((e as Error).message || "Falhou");
+      toast.error((e as Error).message || uiI18n.t("common:failed"));
     }
   };
 
@@ -782,70 +768,61 @@ function InternalCategoriesAdmin() {
     }
     try {
       await update.mutateAsync({ id: row.id, name: editName });
-      toast.success("Renomeado");
+      toast.success(uiI18n.t("access:batchFive.labels.renamed"));
       cancelEdit();
     } catch (e) {
-      toast.error((e as Error).message || "Falhou");
+      toast.error((e as Error).message || uiI18n.t("common:failed"));
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Cost centers internos</CardTitle>
+        <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.internalCostCentres")} </CardTitle>
         <CardDescription>
-          Categorias usadas na timesheet para horas internas (reuniões,
-          formação, propostas, etc.). Arquivar uma categoria remove-a do
-          seletor para novas entradas, mas mantém-na intacta em relatórios
-          históricos.
-        </CardDescription>
+           {uiI18n.t("access:batchFive.labels.timesheetCategoriesForInternalHoursMeetingsTraining")} </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[240px]">
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
-              Novo cost center
-            </label>
+               {uiI18n.t("access:batchFive.labels.newCostCentre")} </label>
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="ex.: Recrutamento"
+              placeholder={uiI18n.t("access:batchFive.labels.eGRecruitment")}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleCreate();
               }}
             />
           </div>
           <Button onClick={handleCreate} disabled={create.isPending || !newName.trim()}>
-            <Plus className="h-4 w-4" /> Adicionar
-          </Button>
+            <Plus className="h-4 w-4" />  {uiI18n.t("common:add")} </Button>
           <label className="ml-auto inline-flex items-center gap-2 text-xs text-muted-foreground">
             <Switch
               checked={includeArchived}
               onCheckedChange={(v) => setIncludeArchived(!!v)}
             />
-            Mostrar arquivados
-          </label>
+             {uiI18n.t("access:batchFive.labels.showArchived")} </label>
         </div>
 
         <section>
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Activos ({active.length})
+             {uiI18n.t("access:batchFive.labels.active")} {active.length})
           </h3>
           {isLoading ? (
-            <div className="p-3 text-sm text-muted-foreground">A carregar…</div>
+            <div className="p-3 text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
           ) : active.length === 0 ? (
             <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-              Sem categorias activas. A timesheet não terá nada na secção
-              "Internal cost centers".
-            </div>
+               {uiI18n.t("access:batchFive.labels.noActiveCategoriesTheTimesheetWillHave")} </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[60px]">Ordem</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead className="w-[280px]">Visível para</TableHead>
-                  <TableHead className="text-right">Acções</TableHead>
+                  <TableHead className="w-[60px]"> {uiI18n.t("common:order")} </TableHead>
+                  <TableHead> {uiI18n.t("common:name")} </TableHead>
+                  <TableHead className="w-[280px]"> {uiI18n.t("access:batchFive.labels.visibleTo")} </TableHead>
+                  <TableHead className="text-right"> {uiI18n.t("common:actions")} </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -858,7 +835,7 @@ function InternalCategoriesAdmin() {
                           variant="ghost"
                           disabled={i === 0 || reorder.isPending}
                           onClick={() => moveActive(row.id, -1)}
-                          aria-label="Mover para cima"
+                          aria-label={uiI18n.t("access:batchFive.labels.moveUp")}
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </Button>
@@ -867,7 +844,7 @@ function InternalCategoriesAdmin() {
                           variant="ghost"
                           disabled={i === active.length - 1 || reorder.isPending}
                           onClick={() => moveActive(row.id, 1)}
-                          aria-label="Mover para baixo"
+                          aria-label={uiI18n.t("access:batchFive.labels.moveDown")}
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
                         </Button>
@@ -891,7 +868,7 @@ function InternalCategoriesAdmin() {
                             variant="ghost"
                             onClick={() => saveEdit(row)}
                             disabled={update.isPending}
-                            aria-label="Guardar"
+                            aria-label={uiI18n.t("common:save")}
                           >
                             <Check className="h-3.5 w-3.5" />
                           </Button>
@@ -899,7 +876,7 @@ function InternalCategoriesAdmin() {
                             size="icon"
                             variant="ghost"
                             onClick={cancelEdit}
-                            aria-label="Cancelar"
+                            aria-label={uiI18n.t("common:cancel")}
                           >
                             <X className="h-3.5 w-3.5" />
                           </Button>
@@ -916,7 +893,7 @@ function InternalCategoriesAdmin() {
                           update
                             .mutateAsync({ id: row.id, visible_to_profiles: profiles })
                             .catch((e) =>
-                              toast.error((e as Error).message || "Falhou"),
+                              toast.error((e as Error).message || uiI18n.t("common:failed")),
                             )
                         }
                       />
@@ -928,7 +905,7 @@ function InternalCategoriesAdmin() {
                             size="icon"
                             variant="ghost"
                             onClick={() => startEdit(row)}
-                            aria-label="Renomear"
+                            aria-label={uiI18n.t("access:batchFive.labels.rename")}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
@@ -941,14 +918,13 @@ function InternalCategoriesAdmin() {
                                 variant="ghost"
                                 onClick={() => archive.mutate(row.id)}
                                 disabled={archive.isPending}
-                                aria-label="Arquivar"
+                                aria-label={uiI18n.t("common:archive")}
                               >
                                 <Archive className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              Remove do seletor da timesheet. Histórico mantém-se.
-                            </TooltipContent>
+                               {uiI18n.t("access:batchFive.labels.removesTheCategoryFromTimesheetChoicesHistory")} </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       </div>
@@ -963,19 +939,18 @@ function InternalCategoriesAdmin() {
         {includeArchived && (
           <section>
             <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Arquivados ({archived.length})
+               {uiI18n.t("access:batchFive.labels.archived")} {archived.length})
             </h3>
             {archived.length === 0 ? (
               <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-                Sem categorias arquivadas.
-              </div>
+                 {uiI18n.t("access:batchFive.labels.noArchivedCategories")} </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Arquivado em</TableHead>
-                    <TableHead className="text-right">Acções</TableHead>
+                    <TableHead> {uiI18n.t("common:name")} </TableHead>
+                    <TableHead> {uiI18n.t("access:batchFive.labels.archivedOn")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("common:actions")} </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -986,7 +961,7 @@ function InternalCategoriesAdmin() {
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {row.archived_at
-                          ? new Date(row.archived_at).toLocaleDateString("pt-PT")
+                          ? new Date(row.archived_at).toLocaleDateString(uiI18n.language)
                           : "—"}
                       </TableCell>
                       <TableCell className="text-right">
@@ -996,7 +971,7 @@ function InternalCategoriesAdmin() {
                             variant="ghost"
                             onClick={() => restore.mutate(row.id)}
                             disabled={restore.isPending}
-                            aria-label="Restaurar"
+                            aria-label={uiI18n.t("common:restore")}
                           >
                             <ArchiveRestore className="h-3.5 w-3.5" />
                           </Button>
@@ -1009,22 +984,20 @@ function InternalCategoriesAdmin() {
                                   onClick={() => {
                                     if (
                                       confirm(
-                                        `Apagar "${row.name}" definitivamente? Esta acção é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.`,
+                                        uiI18n.t("access:batchFive.labels.permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical", { value1: row.name }),
                                       )
                                     ) {
                                       remove.mutate(row.id);
                                     }
                                   }}
                                   disabled={remove.isPending}
-                                  aria-label="Apagar definitivamente"
+                                  aria-label={uiI18n.t("access:batchFive.labels.permanentlyDelete")}
                                 >
                                   <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                Apagar definitivamente — pode afectar relatórios
-                                históricos. Prefere arquivar.
-                              </TooltipContent>
+                                 {uiI18n.t("access:batchFive.labels.permanentlyDeletingMayAffectHistoricalReportsArchiving")} </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>

@@ -1,14 +1,10 @@
+import uiI18n from "@/i18n/index";
+import { allowanceLabel } from "@/lib/hr/ui-terms";
+import { fmtEUR, fmtDate } from "@/lib/hr/ui-format";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  type Collaborator,
-  type Snapshot,
-  SUBSIDIOS_MODO_OPTIONS,
-  computeSnapshot,
-  fmtEUR,
-  fmtDate,
-} from "@/lib/salary";
+import { type Collaborator, type Snapshot, SUBSIDIOS_MODO_OPTIONS, computeSnapshot } from "@/lib/salary";
 import { ResumoCompare } from "@/components/ResumoCompare";
 import {
   Card,
@@ -190,10 +186,9 @@ function DetailsTab({
   const v = (k: string) => t(`hr:myProfile.details.values.${k}`);
   const yn = (b: boolean) => (b ? v("yes") : v("no"));
   const pct = (n: number) =>
-    `${(n * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
+    `${(n * 100).toLocaleString(uiI18n.language, { maximumFractionDigits: 2 })}%`;
   const modoLabel =
-    SUBSIDIOS_MODO_OPTIONS.find((o) => o.value === snapshot.subsidios_modo)?.label ??
-    snapshot.subsidios_modo;
+    allowanceLabel(snapshot.subsidios_modo);
   const sourceLabel =
     snapshot.source === "excel_import"
       ? v("sourceExcel")

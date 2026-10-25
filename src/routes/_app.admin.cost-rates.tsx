@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -73,7 +74,7 @@ function CostRatesPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            {t("costRates.locked")}: live {d?.bySource.live ?? 0} · backfill {d?.bySource.backfill ?? 0} · recalc{" "}
+            {t("costRates.locked")} {uiI18n.t("access:batchFive.labels.live")} {d?.bySource.live ?? 0}  {uiI18n.t("access:batchFive.labels.backfill")} {d?.bySource.backfill ?? 0}  {uiI18n.t("access:batchFive.labels.recalculation")} {" "}
             {d?.bySource.recalc ?? 0}
           </p>
           <p>{t("costRates.missing", { count: d?.missing ?? 0 })}</p>
@@ -127,7 +128,7 @@ function CostRatesPage() {
                 <th>{t("costRates.person")}</th>
                 <th>{t("costRates.from")}</th>
                 <th>{t("costRates.to")}</th>
-                <th className="text-right">€/h</th>
+                <th className="text-right"> {uiI18n.t("common:units.eurosPerHour")} </th>
                 <th>{t("costRates.inputs")}</th>
               </tr>
             </thead>
@@ -141,7 +142,7 @@ function CostRatesPage() {
                   <td className="text-xs text-muted-foreground">
                     {p.inputs.source === "manual_override"
                       ? t("costRates.manual")
-                      : `VBG ${p.inputs.own_vbg} · BO ${p.inputs.bo_share} · FTE ${p.inputs.fte} · ${p.inputs.working_days}d × ${p.inputs.hours_per_day}h`}
+                      : uiI18n.t("access:batchFive.labels.totalGrossValueBackofficeFteDaysHoursWithValues", { value1: p.inputs.own_vbg, value2: p.inputs.bo_share, value3: p.inputs.fte, value4: p.inputs.working_days, value5: p.inputs.hours_per_day })}
                   </td>
                 </tr>
               ))}
@@ -158,7 +159,7 @@ function CostRatesPage() {
           {(d?.log ?? []).length === 0 ? <p className="text-muted-foreground">—</p> : null}
           {(d?.log ?? []).map((l) => (
             <p key={l.id}>
-              {new Date(l.run_at).toLocaleString()} · {l.kind} · {l.from_date ?? "—"} ·{" "}
+              {new Date(l.run_at).toLocaleString(uiI18n.language)} · {l.kind} · {l.from_date ?? "—"} ·{" "}
               {d?.resources.find((r) => r.id === l.resource_id)?.name ?? t("costRates.everyone")} ·{" "}
               {t("costRates.changed", { count: l.entries_changed })}
             </p>

@@ -7,6 +7,10 @@
     {
       "path": "src/components/quotes/payment-contract-note.tsx",
       "reason": "Existing client contractual acceptance note extracted unchanged from mixed payment editor; not app UI."
+    },
+    {
+      "path": "src/components/hr/offer-summary-sheet.tsx",
+      "reason": "Candidate-facing printed compensation document only, hidden in the application. Portuguese document labels, dates and original salary format remain independent from the UI locale."
     }
   ],
   "prefixes": [

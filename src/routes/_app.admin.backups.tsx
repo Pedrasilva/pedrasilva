@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +18,7 @@ import {
 } from "@/lib/backups/backup.functions";
 
 export const Route = createFileRoute("/_app/admin/backups")({
+  head: () => ({ meta: [{ title: "Cópias de segurança | PSA Hub" }, { name: "description", content: "PSA Hub — cópias de segurança do atelier." }, { property: "og:title", content: "Cópias de segurança | PSA Hub" }, { property: "og:description", content: "PSA Hub — cópias de segurança do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: BackupsPage,
 });
 
@@ -32,6 +35,7 @@ function formatBytes(n: number | null | undefined) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  useTranslation();
   const map: Record<string, string> = {
     running: "bg-blue-100 text-blue-800",
     success: "bg-green-100 text-green-800",
@@ -41,6 +45,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function BackupsPage() {
+  useTranslation();
   const qc = useQueryClient();
   const [inspect, setInspect] = useState<{ id: string; name: string | null } | null>(null);
   const configFn = useServerFn(getBackupConfig);
@@ -53,10 +58,10 @@ function BackupsPage() {
   const runMut = useMutation({
     mutationFn: () => runFn(),
     onSuccess: (r) => {
-      toast.success(`Backup criado: ${r.tables} tabelas, ${r.rows} linhas (${formatBytes(r.sizeBytes)})`);
+      toast.success(uiI18n.t("access:batchFive.labels.backupCreatedTablesRowsWithValues", { value1: r.tables, value2: r.rows, value3: formatBytes(r.sizeBytes) }));
       qc.invalidateQueries({ queryKey: ["backup-runs"] });
     },
-    onError: (e: Error) => toast.error(`Falhou: ${e.message}`),
+    onError: (e: Error) => toast.error(uiI18n.t("access:batchFive.labels.failedWithValues", { value1: e.message })),
   });
 
   const cfg = configQ.data;
@@ -66,29 +71,26 @@ function BackupsPage() {
       <div className="mx-auto max-w-6xl space-y-6 p-6">
         <div className="space-y-1">
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Database className="h-6 w-6" /> Backups
-          </h1>
+            <Database className="h-6 w-6" />  {uiI18n.t("access:batchFive.labels.backups")} </h1>
           <p className="text-sm text-muted-foreground">
-            Cópias de segurança de toda a base de dados, enviadas para Google Drive. Diárias automáticas (03:00 UTC), semanais ao domingo e manuais a qualquer momento.
-          </p>
+             {uiI18n.t("access:batchFive.labels.entireDatabaseBackupsSentToGoogleDrive")} </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Configuração</CardTitle>
+            <CardTitle className="text-base"> {uiI18n.t("common:configuration")} </CardTitle>
             <CardDescription>
-              Pasta de destino no Google Drive e estado do conector.
-            </CardDescription>
+               {uiI18n.t("access:batchFive.labels.googleDriveDestinationFolderAndConnectorStatus")} </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span>Google Drive connector</span>
+              <span> {uiI18n.t("access:batchFive.labels.googleDriveConnector")} </span>
               <Badge variant={cfg?.driveConnector ? "default" : "destructive"}>
-                {cfg?.driveConnector ? "Ligado" : "Não ligado"}
+                {cfg?.driveConnector ? uiI18n.t("access:batchFive.labels.connected") : uiI18n.t("access:batchFive.labels.notConnected")}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span>Pasta de destino</span>
+              <span> {uiI18n.t("access:batchFive.labels.destinationFolder")} </span>
               {cfg?.configured && cfg.driveFolderUrl ? (
                 <a
                   href={cfg.driveFolderUrl}
@@ -96,19 +98,19 @@ function BackupsPage() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
-                  Abrir pasta <ExternalLink className="h-3 w-3" />
+                   {uiI18n.t("access:batchFive.labels.openFolder")} <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
-                <Badge variant="destructive">Não configurada</Badge>
+                <Badge variant="destructive"> {uiI18n.t("access:batchFive.labels.notConfigured")} </Badge>
               )}
             </div>
             <div className="flex items-center justify-between">
-              <span>Tabelas incluídas</span>
+              <span> {uiI18n.t("access:batchFive.labels.includedTables")} </span>
               <span className="font-mono">{cfg?.tables.length ?? 0}</span>
             </div>
             {!cfg?.configured && (
               <p className="rounded border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900">
-                Para activar os backups, peça ao agente para guardar o ID da pasta do Google Drive no secret <code>BACKUP_DRIVE_FOLDER_ID</code>.
+                 {uiI18n.t("access:batchFive.labels.toActivateBackupsAskTheAgentTo")} <code>BACKUP_DRIVE_FOLDER_ID</code>.
               </p>
             )}
           </CardContent>
@@ -117,10 +119,9 @@ function BackupsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base">Criar backup agora</CardTitle>
+              <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.createBackupNow")} </CardTitle>
               <CardDescription>
-                Gera um snapshot imediato de todas as tabelas e envia para o Drive.
-              </CardDescription>
+                 {uiI18n.t("access:batchFive.labels.createsAnImmediateSnapshotOfEveryTable")} </CardDescription>
             </div>
             <Button
               onClick={() => runMut.mutate()}
@@ -131,7 +132,7 @@ function BackupsPage() {
               ) : (
                 <FolderOpen className="mr-2 h-4 w-4" />
               )}
-              {runMut.isPending ? "A criar…" : "Criar backup"}
+              {runMut.isPending ? uiI18n.t("common:creating") : uiI18n.t("access:batchFive.labels.createBackup")}
             </Button>
           </CardHeader>
         </Card>
@@ -139,48 +140,47 @@ function BackupsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base">Histórico</CardTitle>
-              <CardDescription>Últimos 200 backups (auditoria completa).</CardDescription>
+              <CardTitle className="text-base"> {uiI18n.t("common:history")} </CardTitle>
+              <CardDescription> {uiI18n.t("access:batchFive.labels.lastBackupsCompleteAuditTrail")} </CardDescription>
             </div>
             <Button
               size="sm"
               variant="outline"
               onClick={() => qc.invalidateQueries({ queryKey: ["backup-runs"] })}
             >
-              <RefreshCw className="mr-2 h-4 w-4" /> Atualizar
-            </Button>
+              <RefreshCw className="mr-2 h-4 w-4" />  {uiI18n.t("common:refresh")} </Button>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                   <tr>
-                    <th className="py-2 pr-4">Quando</th>
-                    <th className="py-2 pr-4">Tipo</th>
-                    <th className="py-2 pr-4">Estado</th>
-                    <th className="py-2 pr-4">Tabelas</th>
-                    <th className="py-2 pr-4">Linhas</th>
-                    <th className="py-2 pr-4">Tamanho</th>
-                    <th className="py-2 pr-4">Drive</th>
-                    <th className="py-2 pr-4">Inspecionar</th>
+                    <th className="py-2 pr-4"> {uiI18n.t("access:batchFive.labels.when")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:type")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:status")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:tables")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:rows")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:size")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("common:googleDrive")} </th>
+                    <th className="py-2 pr-4"> {uiI18n.t("access:batchFive.labels.inspect")} </th>
                   </tr>
                 </thead>
                 <tbody>
                   {runsQ.isLoading && (
-                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">A carregar…</td></tr>
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground"> {uiI18n.t("common:loading")} </td></tr>
                   )}
                   {!runsQ.isLoading && (runsQ.data?.length ?? 0) === 0 && (
-                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground"> {uiI18n.t("access:batchFive.labels.noBackupsYet")} </td></tr>
                   )}
                   {runsQ.data?.map((r) => (
                     <tr key={r.id} className="border-b last:border-0">
                       <td className="py-2 pr-4 font-mono text-xs">
-                        {new Date(r.started_at).toLocaleString("pt-PT")}
+                        {new Date(r.started_at).toLocaleString(uiI18n.language)}
                       </td>
                       <td className="py-2 pr-4">{r.trigger}</td>
                       <td className="py-2 pr-4"><StatusBadge status={r.status} /></td>
                       <td className="py-2 pr-4">{r.tables_count ?? "—"}</td>
-                      <td className="py-2 pr-4">{r.rows_count?.toLocaleString("pt-PT") ?? "—"}</td>
+                      <td className="py-2 pr-4">{r.rows_count?.toLocaleString(uiI18n.language) ?? "—"}</td>
                       <td className="py-2 pr-4">{formatBytes(r.size_bytes)}</td>
                       <td className="py-2 pr-4">
                         {r.drive_url ? (
@@ -190,7 +190,7 @@ function BackupsPage() {
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 text-primary hover:underline"
                           >
-                            Abrir <ExternalLink className="h-3 w-3" />
+                             {uiI18n.t("common:open")} <ExternalLink className="h-3 w-3" />
                           </a>
                         ) : r.error ? (
                           <span className="text-xs text-red-600" title={r.error}>
@@ -209,8 +209,7 @@ function BackupsPage() {
                               setInspect({ id: r.id, name: r.drive_file_name ?? null })
                             }
                           >
-                            <Eye className="mr-1 h-3 w-3" /> Ver dados
-                          </Button>
+                            <Eye className="mr-1 h-3 w-3" />  {uiI18n.t("access:batchFive.labels.viewData")} </Button>
                         ) : (
                           "—"
                         )}

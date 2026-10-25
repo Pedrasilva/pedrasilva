@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,13 +17,14 @@ import { HrRecentActivityFeed } from "@/components/hr/dashboard/HrRecentActivity
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/hr/")({
+  head: () => ({ meta: [{ title: "Atelier · Recursos Humanos | PSA Hub" }, { name: "description", content: "PSA Hub — atelier · recursos humanos do atelier." }, { property: "og:title", content: "Atelier · Recursos Humanos | PSA Hub" }, { property: "og:description", content: "PSA Hub — atelier · recursos humanos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: HrDashboard,
 });
 
 const fmtEUR = (n: number | null | undefined) =>
   n === null || n === undefined
     ? null
-    : new Intl.NumberFormat("pt-PT", {
+    : new Intl.NumberFormat(uiI18n.language, {
         style: "currency",
         currency: "EUR",
         maximumFractionDigits: 0,

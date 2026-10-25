@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -27,7 +28,7 @@ type RunResult = {
 
 function fmtEUR(v: number | string | null | undefined): string {
   const n = typeof v === "string" ? Number(v) : (v ?? 0);
-  return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+  return new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 }
 
 export function FinanceBackfillCard() {
@@ -171,8 +172,7 @@ export function FinanceBackfillCard() {
                 ))}
                 {lastRun.failures.length > 5 && (
                   <li className="text-muted-foreground">
-                    +{lastRun.failures.length - 5} more
-                  </li>
+                    {uiI18n.t("common:moreCount", { count: lastRun.failures.length - 5 })} </li>
                 )}
               </ul>
             )}

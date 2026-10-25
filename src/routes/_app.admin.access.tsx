@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -368,7 +369,7 @@ function EveryoneView({ people, current, targets }: { people: Person[]; current:
             {people.map((p) => (
               <tr key={p.user_id} className="border-t">
                 <td className="sticky left-0 z-10 whitespace-nowrap bg-background p-2 font-medium">
-                  {p.name}{p.is_admin ? " · Admin" : ""}
+                  {p.name}{p.is_admin ? uiI18n.t("access:batchFive.labels.administrator") : ""}
                 </td>
                 {items.map((i) => {
                   const target = targetOf(targets, p.user_id, i);

@@ -1,15 +1,12 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  type Collaborator,
-  type Snapshot,
-  computeSnapshot,
-  fmtEUR,
-} from "@/lib/salary";
+import { type Collaborator, type Snapshot, computeSnapshot } from "@/lib/salary";
 import { computeValorBO } from "./_app.hr.valor-bo";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
@@ -57,6 +54,7 @@ import type { BenefitExpense } from "@/lib/benefits";
 import { aggregateResourceSplit } from "@/lib/finance/hybrid-resource-cost";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
+  head: () => ({ meta: [{ title: "Resumo da equipa | PSA Hub" }, { name: "description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:title", content: "Resumo da equipa | PSA Hub" }, { property: "og:description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.resumo">
       <ResumoPage />
@@ -493,6 +491,7 @@ function Kpi({
   value: string;
   highlight?: boolean;
 }) {
+  useTranslation();
   return (
     <Card className={highlight ? "border-primary" : ""}>
       <CardHeader className="pb-2">
@@ -621,6 +620,7 @@ function CompositionView({
   fmtPct: (n: number) => string;
   t: (k: string, opts?: Record<string, unknown>) => string;
 }) {
+  useTranslation();
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
@@ -951,7 +951,7 @@ function RhTable({
                   {isV("ssEmployer") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_atelier_pct)}</TableCell>}
                   {isV("ssEmployee") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_colaborador_pct)}</TableCell>}
                   {isV("irsPct") && <TableCell className="text-right tabular-nums">{pct(ref?.irs_pct)}</TableCell>}
-                  {isV("mealAllowance") && <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + "/dia" : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>}
+                  {isV("mealAllowance") && <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + uiI18n.t("hr:batchFive.labels.day") : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>}
                   {isV("perDiem") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.ajudasMensal) : "—"}</TableCell>}
                   {isV("transportPass") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.passe_anual) : "—"}</TableCell>}
                   {isV("netMonthly") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.liquidoTotalMensal) : "—"}</TableCell>}
@@ -1256,6 +1256,7 @@ function SortHead<K extends string>({
   align?: "left" | "right";
   bold?: boolean;
 }) {
+  useTranslation();
   const active = sortKey === k;
   const Icon = !active ? ArrowUpDown : dir === "asc" ? ArrowUp : ArrowDown;
   return (

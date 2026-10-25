@@ -1,13 +1,11 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  type Collaborator,
-  type Snapshot,
-  computeSnapshot,
-  fmtEUR,
-} from "@/lib/salary";
+import { type Collaborator, type Snapshot, computeSnapshot } from "@/lib/salary";
 import {
   Card,
   CardContent,
@@ -30,6 +28,7 @@ import { toast } from "sonner";
 import { PermissionGate } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app/hr/valor-bo")({
+  head: () => ({ meta: [{ title: "Custo horário Backoffice | PSA Hub" }, { name: "description", content: "PSA Hub — custo horário backoffice do atelier." }, { property: "og:title", content: "Custo horário Backoffice | PSA Hub" }, { property: "og:description", content: "PSA Hub — custo horário backoffice do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.valor-bo">
       <ValorBOPage />
@@ -63,6 +62,7 @@ export function computeValorBO(args: {
 }
 
 function ValorBOPage() {
+  useTranslation();
   const qc = useQueryClient();
 
   const { data: collaborators = [] } = useQuery({
@@ -123,7 +123,7 @@ function ValorBOPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Parâmetros guardados");
+      toast.success(uiI18n.t("hr:batchFive.labels.parametersSaved"));
       qc.invalidateQueries({ queryKey: ["bo-settings"] });
     },
     onError: (e: unknown) => toast.error((e as Error).message),
@@ -163,27 +163,25 @@ function ValorBOPage() {
   });
 
   if (!draft) {
-    return <div className="text-muted-foreground">A carregar parâmetros…</div>;
+    return <div className="text-muted-foreground"> {uiI18n.t("hr:batchFive.labels.loadingParameters")} </div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Valor BO / hora</h1>
+        <h1 className="text-2xl font-semibold tracking-tight"> {uiI18n.t("hr:batchFive.labels.backofficeValueHour")} </h1>
         <p className="text-sm text-muted-foreground">
-          Cálculo do valor de referência de venda à hora, distribuindo o custo da Equipa Backoffice e
-          custos operacionais pelos colaboradores da Equipa Projecto.
-        </p>
+           {uiI18n.t("hr:batchFive.labels.calculationOfTheReferenceHourlySaleValue")} </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Parâmetros</CardTitle>
-          <CardDescription>Campos amarelos: input manual.</CardDescription>
+          <CardTitle className="text-base"> {uiI18n.t("common:parameters")} </CardTitle>
+          <CardDescription> {uiI18n.t("hr:batchFive.labels.yellowFieldsManualInput")} </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-1">
-            <Label>Custos operacionais anuais (D3)</Label>
+            <Label> {uiI18n.t("hr:batchFive.labels.annualOperatingCostsD")} </Label>
             <Input
               type="number"
               step="0.01"
@@ -195,16 +193,16 @@ function ValorBOPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Dias úteis (D13)</Label>
+            <Label> {uiI18n.t("hr:batchFive.labels.workingDaysD")} </Label>
             <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
               {draft.dias_uteis}
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Definido em <strong>Definições → Dias úteis</strong>.
+               {uiI18n.t("hr:batchFive.labels.definedIn")} <strong> {uiI18n.t("hr:batchFive.labels.settingsWorkingDays")} </strong>.
             </p>
           </div>
           <div className="space-y-1">
-            <Label>Horas / dia</Label>
+            <Label> {uiI18n.t("hr:collaborator.capacityRecovery.dailyHours")} </Label>
             <Input
               type="number"
               step="0.5"
@@ -214,7 +212,7 @@ function ValorBOPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Margem de lucro global (%)</Label>
+            <Label> {uiI18n.t("hr:batchFive.labels.globalProfitMargin")} </Label>
             <Input
               type="number"
               step="0.5"
@@ -225,12 +223,11 @@ function ValorBOPage() {
               }
             />
             <p className="text-xs text-muted-foreground">
-              Aplicada por defeito a todos os colaboradores de Projecto. Pode ser sobreposta na ficha individual.
-            </p>
+               {uiI18n.t("hr:batchFive.labels.appliesByDefaultToAllProjectTeam")} </p>
           </div>
           <div className="sm:col-span-3">
             <Button onClick={() => save.mutate(draft)} disabled={save.isPending}>
-              {save.isPending ? "A guardar…" : "Guardar parâmetros"}
+              {save.isPending ? uiI18n.t("common:saving") : uiI18n.t("hr:batchFive.labels.saveParameters")}
             </Button>
           </div>
         </CardContent>
@@ -238,29 +235,29 @@ function ValorBOPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Cálculo</CardTitle>
+          <CardTitle className="text-base"> {uiI18n.t("hr:batchFive.labels.calculation")} </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">Cél.</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="w-12"> {uiI18n.t("hr:batchFive.labels.cell")} </TableHead>
+                <TableHead> {uiI18n.t("common:description")} </TableHead>
+                <TableHead className="text-right"> {uiI18n.t("glossary:financial.value")} </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <Row code="D3" label="Custos operacionais anuais (manual)" value={fmtEUR(Number(draft.custos_operacionais_anual))} />
-              <Row code="D4" label={`Custo total Equipa Backoffice — VBG (${backoffice.length} colab.)`} value={fmtEUR(custoBackoffice)} />
-              <Row code="D5" label={`Custo total Equipa Projecto — VBG (${projecto.length} colab.)`} value={fmtEUR(custoProjecto)} />
-              <Row code="D11" label="Nº colaboradores Equipa Projecto" value={String(projecto.length)} />
-              <Row code="D13" label="Dias úteis" value={String(draft.dias_uteis)} />
-              <Row code="D14" label="Total a distribuir (D3 + D4)" value={fmtEUR(result.totalAnual)} bold />
-              <Row code="D15" label="Por colaborador / ano" value={fmtEUR(result.porColabAno)} />
-              <Row code="D16" label="Por colaborador / dia" value={fmtEUR(result.porColabDia)} />
+              <Row code="D3" label={uiI18n.t("hr:batchFive.labels.annualOperatingCostsManual")} value={fmtEUR(Number(draft.custos_operacionais_anual))} />
+              <Row code="D4" label={uiI18n.t("hr:batchFive.labels.backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators", { value1: backoffice.length })} value={fmtEUR(custoBackoffice)} />
+              <Row code="D5" label={uiI18n.t("hr:batchFive.labels.projectTeamTotalCostTotalGrossValueWithValuesCollaborators", { value1: projecto.length })} value={fmtEUR(custoProjecto)} />
+              <Row code="D11" label={uiI18n.t("hr:batchFive.labels.projectTeamCollaboratorCount")} value={String(projecto.length)} />
+              <Row code="D13" label={uiI18n.t("common:shell.link.settings.workingDays")} value={String(draft.dias_uteis)} />
+              <Row code="D14" label={uiI18n.t("hr:batchFive.labels.totalToDistributeDD")} value={fmtEUR(result.totalAnual)} bold />
+              <Row code="D15" label={uiI18n.t("hr:batchFive.labels.perCollaboratorYear")} value={fmtEUR(result.porColabAno)} />
+              <Row code="D16" label={uiI18n.t("hr:batchFive.labels.perCollaboratorDay")} value={fmtEUR(result.porColabDia)} />
               <Row
                 code="D18"
-                label="Valor BO / hora (referência de venda)"
+                label={uiI18n.t("hr:batchFive.labels.backofficeValueHourReferenceSaleValue")}
                 value={fmtEUR(result.valorHora)}
                 highlight
               />
@@ -285,6 +282,7 @@ function Row({
   bold?: boolean;
   highlight?: boolean;
 }) {
+  useTranslation();
   return (
     <TableRow className={highlight ? "bg-primary/5" : ""}>
       <TableCell className="font-mono text-xs text-muted-foreground">{code}</TableCell>

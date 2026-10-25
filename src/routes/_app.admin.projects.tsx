@@ -4,6 +4,7 @@ import { AdminOnly } from "@/components/AdminOnly";
 import { AdminResetProjectsTool } from "@/components/admin/admin-reset-projects-tool";
 
 export const Route = createFileRoute("/_app/admin/projects")({
+  head: () => ({ meta: [{ title: "Ferramentas de projetos | PSA Hub" }, { name: "description", content: "PSA Hub — ferramentas de projetos do atelier." }, { property: "og:title", content: "Ferramentas de projetos | PSA Hub" }, { property: "og:description", content: "PSA Hub — ferramentas de projetos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminProjectsPage,
 });
 

@@ -1,8 +1,9 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeSnapshot, type Snapshot } from "@/lib/salary";
 import { CompositionDonut } from "./SalaryDonut";
 
 export function BrutoTab({ draft }: { draft: Snapshot }) {

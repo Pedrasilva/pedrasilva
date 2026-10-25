@@ -1,9 +1,10 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fmtEUR, type Computed } from "@/lib/salary";
+import { type Computed } from "@/lib/salary";
 
 type Period = "mensal" | "anual";
 

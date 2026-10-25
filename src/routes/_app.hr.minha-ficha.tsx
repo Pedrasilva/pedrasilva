@@ -1,14 +1,11 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  type Collaborator,
-  type Snapshot,
-  fmtEUR,
-} from "@/lib/salary";
+import { type Collaborator, type Snapshot } from "@/lib/salary";
 import {
   Card,
   CardDescription,

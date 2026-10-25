@@ -27,6 +27,7 @@ import {
 import { toLocalISODate } from "@/lib/dates";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto/historico")({
+  head: () => ({ meta: [{ title: "Histórico de trabalho remoto | PSA Hub" }, { name: "description", content: "PSA Hub — histórico de trabalho remoto do atelier." }, { property: "og:title", content: "Histórico de trabalho remoto | PSA Hub" }, { property: "og:description", content: "PSA Hub — histórico de trabalho remoto do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: HistoryTab,
 });
 

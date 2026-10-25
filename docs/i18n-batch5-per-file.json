@@ -1,0 +1,402 @@
+[
+  {
+    "file": "src/components/NewCollaboratorDialog.tsx",
+    "before": 24,
+    "after": 0
+  },
+  {
+    "file": "src/components/ResumoCompare.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/SnapshotForm.tsx",
+    "before": 55,
+    "after": 0
+  },
+  {
+    "file": "src/components/admin/admin-reset-projects-tool.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/admin/backup-inspector-dialog.tsx",
+    "before": 21,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/BenefitDriveSyncCard.tsx",
+    "before": 27,
+    "after": 15
+  },
+  {
+    "file": "src/components/hr/BenefitExpenseTimeline.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/BenefitsOverviewTab.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/CommercialRoleCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/DeleteExpenseDialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/ExpenseFilterBar.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/FinanceBackfillCard.tsx",
+    "before": 1,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/MonthlyLiquidityCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/PaymentLedgerBackfillCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/RejectExpenseDialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/SubmitExpenseDialog.tsx",
+    "before": 2,
+    "after": 2
+  },
+  {
+    "file": "src/components/hr/archive-collaborator-dialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/availability/absence-legend.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/availability/availability-balances.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/availability/availability-grid.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/availability/availability-summary.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/availability/availability-year.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/benefit-pessoal-mapping.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/collaborators-table.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/dashboard/HrAlertList.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/dashboard/HrCapacityCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/dashboard/HrKpiCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/dashboard/HrRecentActivityFeed.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/hours-bank-panel.tsx",
+    "before": 3,
+    "after": 1
+  },
+  {
+    "file": "src/components/hr/leave-change.tsx",
+    "before": 2,
+    "after": 2
+  },
+  {
+    "file": "src/components/hr/offer-summary-sheet.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/restore-collaborator-dialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/salary-importer.tsx",
+    "before": 3,
+    "after": 2
+  },
+  {
+    "file": "src/components/hr/vacation-opening-editor.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/wfh/late-request-chip.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/wfh/request-wfh-dialog.tsx",
+    "before": 2,
+    "after": 2
+  },
+  {
+    "file": "src/components/hr/wfh/wfh-profile-card.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/wfh/wfh-status-chip.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/hr/year-leave-calendar.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/BrutoTab.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/HighlightCard.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/LiquidoTab.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/PayrollSimulationCard.tsx",
+    "before": 26,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/SalaryDonut.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/SalarySimulatorHero.tsx",
+    "before": 7,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/SimulationTab.tsx",
+    "before": 35,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/SnapshotMirrorPanel.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/ValueChainSummary.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/snapshot/inputs.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.access.tsx",
+    "before": 1,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.backups.tsx",
+    "before": 34,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.admin.calendar.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.company-settings.tsx",
+    "before": 2,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.admin.cost-rates.tsx",
+    "before": 5,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.imports.tsx",
+    "before": 33,
+    "after": 15
+  },
+  {
+    "file": "src/routes/_app.admin.index.tsx",
+    "before": 3,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.permissions.tsx",
+    "before": 42,
+    "after": 2
+  },
+  {
+    "file": "src/routes/_app.admin.projects.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.proposal-images.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.proposal-roles.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.quotes-trash.tsx",
+    "before": 1,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.hr.admin.tsx",
+    "before": 81,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.aprovacoes.tsx",
+    "before": 1,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.hr.beneficios.tsx",
+    "before": 34,
+    "after": 2
+  },
+  {
+    "file": "src/routes/_app.hr.colaborador.$id.tsx",
+    "before": 4,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.hr.colaboradores.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.dias-uteis.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.disponibilidade.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.ferias.tsx",
+    "before": 74,
+    "after": 15
+  },
+  {
+    "file": "src/routes/_app.hr.index.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.minha-ficha.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.resumo.tsx",
+    "before": 6,
+    "after": 5
+  },
+  {
+    "file": "src/routes/_app.hr.subsidio-alimentacao.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.trabalho-remoto.analytics.tsx",
+    "before": 1,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.hr.trabalho-remoto.definicoes.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.trabalho-remoto.historico.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.trabalho-remoto.index.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.trabalho-remoto.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.hr.valor-bo.tsx",
+    "before": 28,
+    "after": 0
+  }
+]

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { RequestWfhDialog } from "@/components/hr/wfh/request-wfh-dialog";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto")({
+  head: () => ({ meta: [{ title: "Recursos Humanos | PSA Hub" }, { name: "description", content: "PSA Hub — recursos humanos do atelier." }, { property: "og:title", content: "Recursos Humanos | PSA Hub" }, { property: "og:description", content: "PSA Hub — recursos humanos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.ferias.own">
       <RemoteWorkLayout />

@@ -23,6 +23,7 @@ import {
 import { toLocalISODate } from "@/lib/dates";
 
 export const Route = createFileRoute("/_app/hr/trabalho-remoto/analytics")({
+  head: () => ({ meta: [{ title: "Estatísticas de trabalho remoto | PSA Hub" }, { name: "description", content: "PSA Hub — estatísticas de trabalho remoto do atelier." }, { property: "og:title", content: "Estatísticas de trabalho remoto | PSA Hub" }, { property: "og:description", content: "PSA Hub — estatísticas de trabalho remoto do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AnalyticsTab,
 });
 

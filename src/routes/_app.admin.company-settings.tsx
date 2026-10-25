@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import { ArrowLeft, Building2, Loader2, CheckCircle2, AlertTriangle } from "luci
 import { normalizePortugueseNif, isValidPortugueseNif, formatPortugueseNif } from "@/lib/finance/nif";
 
 export const Route = createFileRoute("/_app/admin/company-settings")({
+  head: () => ({ meta: [{ title: "Dados fiscais da empresa | PSA Hub" }, { name: "description", content: "PSA Hub — dados fiscais da empresa do atelier." }, { property: "og:title", content: "Dados fiscais da empresa | PSA Hub" }, { property: "og:description", content: "PSA Hub — dados fiscais da empresa do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CompanySettingsPage,
 });
 
@@ -110,7 +112,7 @@ function CompanySettingsPage() {
                   <Input
                     value={companyNif}
                     onChange={(e) => setCompanyNif(e.target.value)}
-                    placeholder="9 dígitos"
+                    placeholder={uiI18n.t("hr:beneficios.submit.supplier.nifPlaceholder")}
                     inputMode="numeric"
                   />
                   {companyNif && !nifValid && (

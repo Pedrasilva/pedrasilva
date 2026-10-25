@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -32,7 +33,7 @@ import {
   type BenefitCategory,
   type BenefitCategoryRow,
 } from "@/lib/benefits";
-import { fmtEUR } from "@/lib/salary";
+import {  } from "@/lib/salary";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
 import { routeBenefitReceiptToQueue } from "@/lib/hr/benefit-queue.functions";
 import { getOwnCompanyNif } from "@/lib/finance/own-company.functions";

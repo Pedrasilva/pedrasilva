@@ -109,7 +109,8 @@
       "architect": "Arquitecto",
       "hr": "HR",
       "finance": "Financeiro"
-    }
+    },
+    "scopesLabel": "Âmbito"
   },
   "crm": {
     "company": "Empresa",
@@ -149,7 +150,11 @@
     "socialSecurity": "Segurança Social",
     "grossSalary": "Salário Bruto",
     "netSalary": "Salário Líquido",
-    "baseSalary": "Salário Base"
+    "baseSalary": "Salário Base",
+    "grossTaxableSalary": "Vencimento bruto tributável",
+    "withholding": "Retenção na fonte de IRS",
+    "employerContribution": "Contribuição patronal para a Segurança Social",
+    "expenseAllowance": "Ajudas de custo"
   },
   "ptCanonical": {
     "_doc": "Termos legais/payroll em PT — sempre usar a forma canónica.",
@@ -161,7 +166,11 @@
     "feeProposal": "Proposta de Fee",
     "downPayment": "Sinal",
     "grossSalary": "Salário Bruto",
-    "netSalary": "Salário Líquido"
+    "netSalary": "Salário Líquido",
+    "grossTaxableSalary": "Vencimento bruto tributável",
+    "withholding": "Retenção na fonte de IRS",
+    "employerContribution": "Contribuição patronal para a Segurança Social",
+    "expenseAllowance": "Ajudas de custo"
   },
   "_ambiguous": {
     "_doc": "Termos sinalizados para clarificação. NÃO usar como canónicos.",

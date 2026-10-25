@@ -1,3 +1,5 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
@@ -54,7 +56,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
+import { type Snapshot, type Collaborator } from "@/lib/salary";
 import {
   CATEGORY_LABELS,
   STATUS_LABELS,
@@ -112,6 +114,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/hr/beneficios")({
+  head: () => ({ meta: [{ title: "Benefícios | PSA Hub" }, { name: "description", content: "PSA Hub — benefícios do atelier." }, { property: "og:title", content: "Benefícios | PSA Hub" }, { property: "og:description", content: "PSA Hub — benefícios do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.beneficios.own">
       <BeneficiosPage />
@@ -479,6 +482,7 @@ function YearTile({
   value: number;
   tone?: "emerald" | "sky" | "rose";
 }) {
+  useTranslation();
   const colorMap = {
     emerald: "text-emerald-700",
     sky: "text-sky-700",
@@ -861,7 +865,7 @@ function ExpenseActions({
                       <div className="flex flex-wrap items-center gap-2">
                         <span>
                           {expense.supplier_name_snapshot ?? "—"}
-                          {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                          {expense.supplier_nif ? uiI18n.t("hr:batchFive.labels.taxIdWithValues", { value1: expense.supplier_nif }) : ""}
                         </span>
                         {expense.supplier_company_id ? (
                           <Badge variant="secondary" className="gap-1">
@@ -926,10 +930,11 @@ function ExpenseActions({
 // Vista do aprovador (colaborador com permissão hr.beneficios.approve)
 // =============================================================
 function ApproverView() {
+  useTranslation();
   const qc = useQueryClient();
   return (
     <ManagementView
-      title="Aprovações de despesas"
+      title={uiI18n.t("hr:beneficios.approverTitle")}
       subtitle="Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite."
       queryKey="approver-expenses"
       onInvalidate={() => qc.invalidateQueries()}
@@ -961,11 +966,9 @@ function AdminView() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Wallet className="h-6 w-6" /> Benefícios — Gestão
-          </h1>
+            <Wallet className="h-6 w-6" />  {uiI18n.t("hr:beneficios.adminTitle")} </h1>
           <p className="text-sm text-muted-foreground">
-            Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.
-          </p>
+             {uiI18n.t("hr:beneficios.adminSubtitle")} </p>
         </div>
         <ManageBalancesDialog
           collaborators={collaborators}
@@ -1121,9 +1124,9 @@ function ManagementView({
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Pendentes" value={totals.pendente} className="border-amber-200" />
-        <SummaryCard label="Aprovadas" value={totals.aprovada} className="border-emerald-200" />
-        <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
+        <SummaryCard label={uiI18n.t("hr:beneficios.summary.pending")} value={totals.pendente} className="border-amber-200" />
+        <SummaryCard label={uiI18n.t("hr:beneficios.summary.approvedPlural")} value={totals.aprovada} className="border-emerald-200" />
+        <SummaryCard label={uiI18n.t("hr:beneficios.summary.paidPlural")} value={totals.paga} className="border-sky-200" />
       </div>
 
       {collaboratorFilter && (
@@ -1185,6 +1188,7 @@ function SummaryCard({
   value: number;
   className?: string;
 }) {
+  useTranslation();
   return (
     <Card className={cn("border-2", className)}>
       <CardHeader className="pb-2">
@@ -1208,6 +1212,7 @@ function ManageBalancesDialog({
   openForId?: string | null;
   onOpenForIdChange?: (id: string | null) => void;
 }) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const controlled = openForId != null;
@@ -1228,23 +1233,20 @@ function ManageBalancesDialog({
     <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Settings2 className="h-4 w-4" /> Gerir saldos
-        </Button>
+          <Settings2 className="h-4 w-4" />  {uiI18n.t("hr:beneficios.admin.manageBalances")} </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Saldos e créditos anuais</DialogTitle>
+          <DialogTitle> {uiI18n.t("hr:beneficios.admin.balancesDialogTitle")} </DialogTitle>
           <DialogDescription>
-            Defina o saldo inicial e os créditos por ano fiscal de cada colaborador. Sobras
-            transitam automaticamente.
-          </DialogDescription>
+             {uiI18n.t("hr:beneficios.admin.balancesDialogDescription")} </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-1.5">
-          <Label>Colaborador</Label>
+          <Label> {uiI18n.t("glossary:hr.employee")} </Label>
           <Select value={activeId} onValueChange={handleSelect}>
             <SelectTrigger>
-              <SelectValue placeholder="Escolha um colaborador…" />
+              <SelectValue placeholder={uiI18n.t("hr:beneficios.admin2.collaboratorPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {collaborators.map((c) => (
@@ -1264,6 +1266,7 @@ function ManageBalancesDialog({
 
 
 function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborator }) {
+  useTranslation();
   const qc = useQueryClient();
   const { balancesQ, creditsQ } = useBenefitData(collaborator.id);
 
@@ -1305,7 +1308,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
       ? await sb.from("benefit_balances").update(payload).eq("id", existing.id)
       : await sb.from("benefit_balances").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success("Saldo inicial guardado");
+    toast.success(uiI18n.t("hr:beneficios.admin2.balanceSaved"));
     qc.invalidateQueries({ queryKey: ["benefit-balances", collaborator.id] });
   }
 
@@ -1321,15 +1324,15 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
       ? await sb.from("benefit_yearly_credits").update(payload).eq("id", existing.id)
       : await sb.from("benefit_yearly_credits").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success(`Crédito ${ano} guardado`);
+    toast.success(uiI18n.t("hr:batchFive.labels.creditForSavedWithValues", { value1: ano }));
     qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
   }
 
   async function removeCredit(id: string) {
-    if (!confirm("Apagar este crédito?")) return;
+    if (!confirm(uiI18n.t("hr:beneficios.admin2.confirmDeleteCredit"))) return;
     const { error } = await sb.from("benefit_yearly_credits").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Crédito apagado");
+    toast.success(uiI18n.t("hr:beneficios.admin2.creditDeleted"));
     qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
   }
 
@@ -1342,7 +1345,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
       await upsertCredit(ano, c, valor);
       n++;
     }
-    if (n === 0) toast.info("A ficha não tem benefícios atribuídos.");
+    if (n === 0) toast.info(uiI18n.t("hr:beneficios.admin2.noFichaBenefits"));
   }
 
   // Anos existentes + ano corrente
@@ -1356,10 +1359,9 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
     <div className="space-y-6">
       {/* Saldo inicial */}
       <section className="space-y-2">
-        <h3 className="text-sm font-semibold">Saldo inicial (uma vez)</h3>
+        <h3 className="text-sm font-semibold"> {uiI18n.t("hr:beneficios.admin2.balanceSection")} </h3>
         <p className="text-xs text-muted-foreground">
-          Saldo já existente do colaborador antes da implementação deste sistema.
-        </p>
+           {uiI18n.t("hr:beneficios.admin2.balanceSectionSub")} </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {CATS.map((c) => (
             <BalanceField
@@ -1376,14 +1378,12 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
       <section className="space-y-2">
         <div className="flex items-end justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold">Créditos anuais</h3>
+            <h3 className="text-sm font-semibold"> {uiI18n.t("hr:beneficios.admin2.creditsSection")} </h3>
             <p className="text-xs text-muted-foreground">
-              Valor creditado em cada ano. Por norma, igual ao da ficha do colaborador desse ano.
-            </p>
+               {uiI18n.t("hr:beneficios.admin2.creditsSectionSub")} </p>
           </div>
           <Button size="sm" variant="outline" onClick={creditFromFicha}>
-            Creditar {collaborator.ano_fiscal} a partir da ficha
-          </Button>
+             {uiI18n.t("hr:batchFive.labels.credit")} {collaborator.ano_fiscal}  {uiI18n.t("hr:batchFive.labels.fromTheSheet")} </Button>
         </div>
 
         {anos.map((ano) => (
@@ -1410,6 +1410,7 @@ function BalanceField({
   value: number;
   onSave: (v: number) => unknown;
 }) {
+  useTranslation();
   const [v, setV] = useState(String(value));
   return (
     <div className="space-y-1">
@@ -1426,8 +1427,7 @@ function BalanceField({
           variant="outline"
           onClick={() => onSave(Number(v.replace(",", ".")) || 0)}
         >
-          OK
-        </Button>
+           {uiI18n.t("common:ok")} </Button>
       </div>
     </div>
   );
@@ -1446,6 +1446,7 @@ function YearCreditRow({
   onSave: (cat: BenefitCategory, valor: number) => unknown;
   onRemove: (id: string) => unknown;
 }) {
+  useTranslation();
   const byCat = useMemo(() => {
     const m = {} as Record<BenefitCategory, BenefitYearlyCredit | undefined>;
     for (const c of credits) m[c.categoria] = c;
@@ -1455,7 +1456,7 @@ function YearCreditRow({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Ano fiscal {ano}</CardTitle>
+        <CardTitle className="text-sm"> {uiI18n.t("hr:myProfile.details.fields.ano_fiscal")} {ano}</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {CATS.map((c) => {
@@ -1470,8 +1471,7 @@ function YearCreditRow({
                     onClick={() => onRemove(existing.id)}
                     className="text-[10px] text-rose-600 hover:underline"
                   >
-                    apagar
-                  </button>
+                     {uiI18n.t("hr:beneficios.admin2.deleteCredit")} </button>
                 )}
               </div>
               <BalanceField
@@ -1481,7 +1481,7 @@ function YearCreditRow({
               />
               {!existing && sugestao > 0 && (
                 <div className="text-[10px] text-muted-foreground">
-                  Ficha: {fmtEUR(sugestao)}
+                   {uiI18n.t("hr:batchFive.labels.sheet")} {fmtEUR(sugestao)}
                 </div>
               )}
             </div>
@@ -1503,6 +1503,7 @@ function CreateSupplierButton({
   name: string;
   onLinked: () => void;
 }) {
+  useTranslation();
   const [busy, setBusy] = useState(false);
   const link = useServerFn(linkOrCreateSupplierForBenefitExpense);
   return (
@@ -1516,18 +1517,18 @@ function CreateSupplierButton({
           const res = await link({ data: { expense_id: expenseId, nif, name } });
           toast.success(
             res.created
-              ? `Fornecedor criado: ${res.company_name}`
-              : `Fornecedor ligado: ${res.company_name}`,
+              ? uiI18n.t("hr:batchFive.labels.supplierCreatedWithValues", { value1: res.company_name })
+              : uiI18n.t("hr:batchFive.labels.supplierLinkedWithValues", { value1: res.company_name }),
           );
           onLinked();
         } catch (e) {
-          toast.error(e instanceof Error ? e.message : "Falhou criar fornecedor");
+          toast.error(e instanceof Error ? e.message : uiI18n.t("hr:batchFive.labels.couldNotCreateSupplier"));
         } finally {
           setBusy(false);
         }
       }}
     >
-      {busy ? "A criar…" : "Criar fornecedor"}
+      {busy ? uiI18n.t("common:creating") : uiI18n.t("hr:batchFive.labels.createSupplier")}
     </Button>
   );
 }

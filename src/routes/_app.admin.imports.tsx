@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -63,6 +64,7 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/admin/imports")({
+  head: () => ({ meta: [{ title: "Importação de projetos | PSA Hub" }, { name: "description", content: "PSA Hub — importação de projetos do atelier." }, { property: "og:title", content: "Importação de projetos | PSA Hub" }, { property: "og:description", content: "PSA Hub — importação de projetos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ImportsPage,
 });
 
@@ -74,6 +76,7 @@ type UnassignedStageProject = { key: string; label: string; rows: number };
 const STEP_ORDER: StepId[] = ["upload", "projects", "people", "stages", "review", "result"];
 
 function ImportsPage() {
+  useTranslation();
   return (
     <AdminOnly>
       <ImportsContent />
@@ -99,9 +102,9 @@ function ImportsContent() {
 
   const previewMutation = useMutation({
     mutationFn: async () => {
-      if (!file) throw new Error("No file selected");
+      if (!file) throw new Error(uiI18n.t("access:batchFive.labels.noFileSelected"));
       if (importType !== "accelo_activity_timesheet") {
-        throw new Error("This import type is not implemented yet");
+        throw new Error(uiI18n.t("access:batchFive.labels.thisImportTypeIsNotImplementedYet"));
       }
       return uploadAndPreviewAccelo(file);
     },
@@ -121,7 +124,7 @@ function ImportsContent() {
 
   const revalidateMutation = useMutation({
     mutationFn: async () => {
-      if (!file || !preview) throw new Error("No file");
+      if (!file || !preview) throw new Error(uiI18n.t("access:batchFive.labels.noFile"));
       return revalidatePreview(file, preview.jobId);
     },
     onSuccess: (p) => {
@@ -148,7 +151,7 @@ function ImportsContent() {
 
   const commitMutation = useMutation({
     mutationFn: async (vars?: { restrictProjectIds?: string[] }) => {
-      if (!preview) throw new Error("No preview");
+      if (!preview) throw new Error(uiI18n.t("access:batchFive.labels.noPreview"));
       const opts = buildCommitOptions(vars?.restrictProjectIds);
       // Fail-fast: if user assigned stages on Review but stripping invalid
       // ones produced an empty mapping while there are stageless projects,
@@ -387,7 +390,7 @@ function ImportsContent() {
               <TableBody>
                 {(jobsQuery.data ?? []).map((j) => (
                   <TableRow key={j.id}>
-                    <TableCell className="text-xs">{new Date(j.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="text-xs">{new Date(j.created_at).toLocaleString(uiI18n.language)}</TableCell>
                     <TableCell className="text-xs">{j.import_type}</TableCell>
                     <TableCell className="text-xs">{j.original_filename}</TableCell>
                     <TableCell><Badge variant="outline">{j.status}</Badge></TableCell>
@@ -1585,7 +1588,7 @@ function MappingDialog({
   });
   const save = useMutation({
     mutationFn: async () => {
-      if (!target || !collabId) throw new Error("Select a collaborator");
+      if (!target || !collabId) throw new Error(uiI18n.t("access:batchFive.labels.selectACollaborator"));
       await saveIdentityMapping({
         source_identifier: target.email,
         source_name: target.name || null,
@@ -1648,6 +1651,7 @@ function MappingDialog({
 }
 
 function Stat({ label, value, tone }: { label: string; value: number; tone?: "success" | "warning" | "error" }) {
+  useTranslation();
   const color =
     tone === "success" ? "text-emerald-600" :
     tone === "warning" ? "text-amber-600" :
@@ -1661,6 +1665,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "su
 }
 
 function RepairOrphanEntriesCard() {
+  useTranslation();
   const [projectId, setProjectId] = useState("");
   const [stageName, setStageName] = useState("Imported");
   const [result, setResult] = useState<RepairResult | null>(null);
@@ -1669,7 +1674,7 @@ function RepairOrphanEntriesCard() {
   const repairMutation = useMutation({
     mutationFn: async () => {
       const id = projectId.trim();
-      if (!id) throw new Error("Project ID is required");
+      if (!id) throw new Error(uiI18n.t("access:batchFive.labels.projectIdIsRequired"));
       return repairProjectOrphanEntries({ project_id: id, stage_name: stageName });
     },
     onSuccess: (r) => {
@@ -1678,7 +1683,7 @@ function RepairOrphanEntriesCard() {
         toast.info(r.message);
       } else {
         toast.success(
-          `Repair complete: ${r.entries_backfilled} entries backfilled, ${r.allocations_upserted} allocations`,
+          uiI18n.t("access:batchFive.labels.repairCompleteEntriesBackfilledAllocationsWithValues", { value1: r.entries_backfilled, value2: r.allocations_upserted }),
         );
       }
       const keys: Array<readonly unknown[]> = [
@@ -1702,16 +1707,14 @@ function RepairOrphanEntriesCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Repair orphan historical entries</CardTitle>
+        <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.repairOrphanHistoricalEntries")} </CardTitle>
         <CardDescription>
-          For projects where historical_time_entries exist but stage_id is null and pm_stages = 0.
-          Creates a default stage from MIN/MAX entry_date, backfills stage_id, and creates per-resource allocations.
-        </CardDescription>
+           {uiI18n.t("access:batchFive.labels.forProjectsWithHistoricalEntriesButNo")} </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-2 space-y-1">
-            <Label>Project ID (UUID)</Label>
+            <Label> {uiI18n.t("access:batchFive.labels.projectIdUuid")} </Label>
             <Input
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
@@ -1719,7 +1722,7 @@ function RepairOrphanEntriesCard() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Default stage name</Label>
+            <Label> {uiI18n.t("access:batchFive.labels.defaultStageName")} </Label>
             <Input value={stageName} onChange={(e) => setStageName(e.target.value)} />
           </div>
         </div>
@@ -1727,31 +1730,30 @@ function RepairOrphanEntriesCard() {
           onClick={() => repairMutation.mutate()}
           disabled={repairMutation.isPending || !projectId.trim()}
         >
-          {repairMutation.isPending ? "Repairing…" : "Run repair"}
+          {repairMutation.isPending ? uiI18n.t("access:batchFive.labels.repairing") : uiI18n.t("access:batchFive.labels.runRepair")}
         </Button>
 
         {result && d && (
           <div className="space-y-3">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Stat label="Stages" value={d.visibleStagesForProject} tone={d.visibleStagesForProject > 0 ? "success" : "error"} />
-              <Stat label="Entries (total)" value={d.historicalEntriesForProject} />
-              <Stat label="Entries with stage" value={d.historicalEntriesWithStage} tone={d.historicalEntriesWithStage > 0 ? "success" : "warning"} />
-              <Stat label="Entries without stage" value={d.entriesWithoutStage} tone={d.entriesWithoutStage === 0 ? "success" : "error"} />
-              <Stat label="Allocations" value={d.allocationsForProject} tone={d.allocationsForProject > 0 ? "success" : "warning"} />
-              <Stat label="Backfilled" value={result.entries_backfilled} tone="success" />
-              <Stat label="Allocations upserted" value={result.allocations_upserted} tone="success" />
+              <Stat label={uiI18n.t("access:batchFive.labels.stages")} value={d.visibleStagesForProject} tone={d.visibleStagesForProject > 0 ? "success" : "error"} />
+              <Stat label={uiI18n.t("access:batchFive.labels.entriesTotal")} value={d.historicalEntriesForProject} />
+              <Stat label={uiI18n.t("access:batchFive.labels.entriesWithAStage")} value={d.historicalEntriesWithStage} tone={d.historicalEntriesWithStage > 0 ? "success" : "warning"} />
+              <Stat label={uiI18n.t("access:batchFive.labels.entriesWithoutAStage")} value={d.entriesWithoutStage} tone={d.entriesWithoutStage === 0 ? "success" : "error"} />
+              <Stat label={uiI18n.t("access:batchFive.labels.allocations")} value={d.allocationsForProject} tone={d.allocationsForProject > 0 ? "success" : "warning"} />
+              <Stat label={uiI18n.t("access:batchFive.labels.backfilled")} value={result.entries_backfilled} tone="success" />
+              <Stat label={uiI18n.t("access:batchFive.labels.allocationsUpdatedOrCreated")} value={result.allocations_upserted} tone="success" />
               <div className="rounded-md border p-3">
-                <div className="text-xs text-muted-foreground">Status</div>
+                <div className="text-xs text-muted-foreground"> {uiI18n.t("common:status")} </div>
                 <div className={`text-sm font-semibold ${d.reconstructionFailed ? "text-destructive" : "text-emerald-600"}`}>
-                  {d.reconstructionFailed ? "Failed" : "OK"}
+                  {d.reconstructionFailed ? uiI18n.t("common:failed") : uiI18n.t("common:ok")}
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link to="/projects/$projectId" params={{ projectId: result.project_id }}>
-                  Open project
-                </Link>
+                   {uiI18n.t("access:batchFive.labels.openProject")} </Link>
               </Button>
             </div>
           </div>
