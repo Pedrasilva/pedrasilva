@@ -337,7 +337,16 @@
       "archivedOn": "Arquivado em",
       "permanentlyDeleteThisActionIsIrreversibleAnd": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
       "permanentlyDelete": "Apagar definitivamente",
-      "permanentlyDeletingMayAffectHistoricalReportsArchiving": "Apagar definitivamente — pode afetar relatórios históricos. Prefere arquivar."
+      "permanentlyDeletingMayAffectHistoricalReportsArchiving": "Apagar definitivamente — pode afetar relatórios históricos. Prefere arquivar.",
+      "backupCreatedTablesRowsWithValues": "Backup criado: {{value1}} tabelas, {{value2}} linhas ({{value3}})",
+      "failedWithValues": "Falhou: {{value1}}",
+      "totalGrossValueBackofficeFteDaysHoursWithValues": "VBG {{value1}} · BO {{value2}} · FTE {{value3}} · {{value4}}d × {{value5}}h",
+      "repairCompleteEntriesBackfilledAllocationsWithValues": "Repair complete: {{value1}} entries backfilled, {{value2}} allocations",
+      "viewingTheAppAsWithValues": "A ver a app como {{value1}}",
+      "saveWithValues": "Guardar ({{value1}})",
+      "viewTheAppAsWithValues": "Ver a app como {{value1}}",
+      "visibleToWithValues": "Visível para {{value1}}",
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome."
     }
   }
 }

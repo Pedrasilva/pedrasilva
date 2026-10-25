@@ -578,7 +578,10 @@
       "effectiveIrsPercentage": "Effective IRS percentage",
       "noIrsWithholdingTableIsLoadedFor": "No IRS withholding table is loaded for",
       "theNearestAvailableTableWasUsedAutomatically": ". The nearest available table was used automatically:",
-      "valuesAppearAsZeroUntilTablesBecome": ". Values appear as zero until tables become available."
+      "valuesAppearAsZeroUntilTablesBecome": ". Values appear as zero until tables become available.",
+      "socialSecurityWithValues": "Social Security ({{value1}}%)",
+      "irsWithholdingWithValues": "IRS withholding ({{value1}}%)",
+      "employerSocialSecurityContributionWithValues": "Employer Social Security contribution ({{value1}}%)"
     }
   },
   "enums": {
@@ -2105,7 +2108,17 @@
       "namePsaPt": "name@psa.pt",
       "alreadyRegistered": "Already registered (",
       "aSheetAlreadyExistsForThisEmail": "A sheet already exists for this email:",
-      "noEmail": "no email"
+      "noEmail": "no email",
+      "destinationSharedRootFolderInACompanyWithValues": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
+      "destinationSharedDriveWithValues": "Destination: Shared Drive {{value1}}… / {{value2}}.",
+      "taxIdWithValues": "· Tax ID {{value1}}",
+      "creditForSavedWithValues": "Credit for {{value1}} saved",
+      "supplierCreatedWithValues": "Supplier created: {{value1}}",
+      "supplierLinkedWithValues": "Supplier linked: {{value1}}",
+      "requestsForWithValues": "Requests for {{value1}}",
+      "annualTeamCalendarWithValues": "Annual team calendar · {{value1}}",
+      "backofficeTeamTotalCostTotalGrossValueWithValues": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
+      "projectTeamTotalCostTotalGrossValueWithValues": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
     }
   }
 }

@@ -337,7 +337,16 @@
       "archivedOn": "Archived on",
       "permanentlyDeleteThisActionIsIrreversibleAnd": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
       "permanentlyDelete": "Permanently delete",
-      "permanentlyDeletingMayAffectHistoricalReportsArchiving": "Permanently deleting may affect historical reports. Archiving is preferable."
+      "permanentlyDeletingMayAffectHistoricalReportsArchiving": "Permanently deleting may affect historical reports. Archiving is preferable.",
+      "backupCreatedTablesRowsWithValues": "Backup created: {{value1}} tables, {{value2}} rows ({{value3}})",
+      "failedWithValues": "Failed: {{value1}}",
+      "totalGrossValueBackofficeFteDaysHoursWithValues": "Total Gross Value {{value1}} · Backoffice {{value2}} · FTE {{value3}} · {{value4}} days × {{value5}} hours",
+      "repairCompleteEntriesBackfilledAllocationsWithValues": "Repair complete: {{value1}} entries backfilled, {{value2}} allocations",
+      "viewingTheAppAsWithValues": "Viewing the app as {{value1}}",
+      "saveWithValues": "Save ({{value1}})",
+      "viewTheAppAsWithValues": "View the app as {{value1}}",
+      "visibleToWithValues": "Visible to {{value1}}",
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name."
     }
   }
 }

@@ -251,8 +251,8 @@ function ValorBOPage() {
             </TableHeader>
             <TableBody>
               <Row code="D3" label={uiI18n.t("hr:batchFive.labels.annualOperatingCostsManual")} value={fmtEUR(Number(draft.custos_operacionais_anual))} />
-              <Row code="D4" label={uiI18n.t("hr:batchFive.labels.backofficeTeamTotalCostTotalGrossValue")} value={fmtEUR(custoBackoffice)} />
-              <Row code="D5" label={uiI18n.t("hr:batchFive.labels.projectTeamTotalCostTotalGrossValue")} value={fmtEUR(custoProjecto)} />
+              <Row code="D4" label={uiI18n.t("hr:batchFive.labels.backofficeTeamTotalCostTotalGrossValueWithValues")} value={fmtEUR(custoBackoffice)} />
+              <Row code="D5" label={uiI18n.t("hr:batchFive.labels.projectTeamTotalCostTotalGrossValueWithValues")} value={fmtEUR(custoProjecto)} />
               <Row code="D11" label={uiI18n.t("hr:batchFive.labels.projectTeamCollaboratorCount")} value={String(projecto.length)} />
               <Row code="D13" label={uiI18n.t("common:shell.link.settings.workingDays")} value={String(draft.dias_uteis)} />
               <Row code="D14" label={uiI18n.t("hr:batchFive.labels.totalToDistributeDD")} value={fmtEUR(result.totalAnual)} bold />

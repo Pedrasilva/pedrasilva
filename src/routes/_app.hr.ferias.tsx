@@ -674,9 +674,9 @@ function FeriasPage() {
                 ? uiI18n.t("hr:remoteWork.myRequests")
                 : adminScope === "colaborador"
                   ? selectedCollabId
-                    ? uiI18n.t("hr:batchFive.labels.requestsFor")
+                    ? uiI18n.t("hr:batchFive.labels.requestsForWithValues")
                     : uiI18n.t("hr:batchFive.labels.selectACollaborator")
-                  : uiI18n.t("hr:batchFive.labels.annualTeamCalendar")
+                  : uiI18n.t("hr:batchFive.labels.annualTeamCalendarWithValues")
               : uiI18n.t("hr:remoteWork.myRequests")}
           </CardTitle>
           {isAdmin && (

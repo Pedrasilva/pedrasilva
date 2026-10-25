@@ -242,8 +242,8 @@ export function BenefitDriveSyncCard() {
                     {cfgQ.data?.mode === "myDrive"
                       ? uiI18n.t("hr:batchFive.labels.destinationMyDriveOfTheConnectorAccount")
                       : cfgQ.data?.mode === "rootFolder"
-                        ? uiI18n.t("hr:batchFive.labels.destinationSharedRootFolderInACompany")
-                        : uiI18n.t("hr:batchFive.labels.destinationSharedDrive")}
+                        ? uiI18n.t("hr:batchFive.labels.destinationSharedRootFolderInACompanyWithValues")
+                        : uiI18n.t("hr:batchFive.labels.destinationSharedDriveWithValues")}
                     {" "} {uiI18n.t("hr:batchFive.labels.noFilesAreDeletedFromLovableCloud")} </span>
                 </AlertDialogDescription>
               </AlertDialogHeader>

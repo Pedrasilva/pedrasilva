@@ -578,7 +578,10 @@
       "effectiveIrsPercentage": "% IRS efectiva",
       "noIrsWithholdingTableIsLoadedFor": "Não há tabela de retenção IRS carregada para",
       "theNearestAvailableTableWasUsedAutomatically": ". Foi usada automaticamente a tabela mais próxima disponível:",
-      "valuesAppearAsZeroUntilTablesBecome": ". Os valores aparecem a zero até existirem tabelas disponíveis."
+      "valuesAppearAsZeroUntilTablesBecome": ". Os valores aparecem a zero até existirem tabelas disponíveis.",
+      "socialSecurityWithValues": "Segurança Social ({{value1}}%)",
+      "irsWithholdingWithValues": "Retenção IRS ({{value1}}%)",
+      "employerSocialSecurityContributionWithValues": "Contribuição patronal TSU ({{value1}}%)"
     }
   },
   "enums": {
@@ -2105,7 +2108,17 @@
       "namePsaPt": "nome@psa.pt",
       "alreadyRegistered": "Já registados (",
       "aSheetAlreadyExistsForThisEmail": "Já existe ficha com este email:",
-      "noEmail": "sem email"
+      "noEmail": "sem email",
+      "destinationSharedRootFolderInACompanyWithValues": "Destino: pasta partilhada (root folder {{value1}}…) numa Shared Drive da empresa.",
+      "destinationSharedDriveWithValues": "Destino: Shared Drive {{value1}}… / {{value2}}.",
+      "taxIdWithValues": "· NIF {{value1}}",
+      "creditForSavedWithValues": "Crédito {{value1}} guardado",
+      "supplierCreatedWithValues": "Fornecedor criado: {{value1}}",
+      "supplierLinkedWithValues": "Fornecedor ligado: {{value1}}",
+      "requestsForWithValues": "Pedidos de {{value1}}",
+      "annualTeamCalendarWithValues": "Calendário anual da equipa · {{value1}}",
+      "backofficeTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Backoffice — VBG ({{value1}} colab.)",
+      "projectTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Projeto — VBG ({{value1}} colab.)"
     }
   }
 }
