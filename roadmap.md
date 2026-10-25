@@ -1,3 +1,9 @@
+## Current request — Translation batch 2 (Projects components + Planner)
+- [ ] Correct PT-PT AO90 and ordinary English remnants in projects/common.
+- [ ] Translate component UI, maps, counts and dates without behavioral or pending Finance changes.
+- [ ] Prune only resolved signatures, run test:i18n, report per-file counts and exclusions.
+- [ ] Check detail, Gantt and weekly planning in PT/EN on local disposable copies; bilingual screenshots.
+
 ## Current request — Translation batch 1 (Projects routes only)
 - [x] Translate route-owned UI, constant labels and interpolated counts; preserve documents, behavior and pending Finance work.
 - [x] Remove only resolved baseline signatures; run test:i18n and audit before/after counts.
