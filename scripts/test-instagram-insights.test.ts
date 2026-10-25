@@ -58,6 +58,7 @@ describe("instagram insights", () => {
       const q: any = {
         select: () => q, eq: () => q, in: () => Promise.resolve({ data: [] }),
         single: () => Promise.resolve({ data: { instagram_account_id: "ig" } }),
+        maybeSingle: () => Promise.resolve({ data: null, error: null }),
         upsert: (row: any) => { (writes[name] ??= []).push(row); return Promise.resolve({ error: null }); },
         update: (row: any) => { (writes[name] ??= []).push(row); return q; },
       };

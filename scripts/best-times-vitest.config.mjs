@@ -1,0 +1,2 @@
+import { fileURLToPath } from 'node:url';
+export default { resolve: { alias: { '@': fileURLToPath(new URL('../src', import.meta.url)) } }, test: { include: ['scripts/test-best-times.test.ts','scripts/test-marketing-calendar.test.ts','scripts/test-instagram-insights.test.ts','scripts/test-instagram-story-insights.test.ts'], environment: 'node' } };

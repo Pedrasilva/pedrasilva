@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { engagement, engagementRate, formatOf, groupBy, latestPerMedia, slotOf, type PostRow } from "@/lib/marketing/instagram-insights";
 import { runInsightsAnalysis, syncInsightsNow } from "@/lib/marketing/instagram-insights.functions";
+import { BestTimesMap } from '@/components/marketing/best-times-map';
 
 export const Route = createFileRoute("/_app/marketing/published/insights")({
   component: () => (
@@ -121,6 +122,7 @@ function InsightsPage() {
         </div>
       </div>
 
+      <BestTimesMap />
       {isLoading ? <p className="text-sm text-muted-foreground">…</p> : !latest.length ? (
         <Card className="p-6 text-sm text-muted-foreground">{t("insights.empty")}</Card>
       ) : (

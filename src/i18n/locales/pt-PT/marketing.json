@@ -1,4 +1,21 @@
 {
+  "bestTimes": {
+    "title": "Melhor hora para publicar",
+    "show": "Mostrar melhores horários",
+    "feed": "Feed / carrosséis",
+    "story": "Stories",
+    "best": "Melhor",
+    "average": "Médio",
+    "weak": "Fraco",
+    "basedOn": "Com base em {{count}} posts",
+    "notEnough": "Ainda não há dados suficientes ({{count}} posts)",
+    "followers": "atividade dos seguidores",
+    "period": "últimos 90 dias · hora de Lisboa",
+    "unsupported": "A atividade dos seguidores não é suportada nesta conta.",
+    "noActivity": "Sem atividade recente dos seguidores disponível.",
+    "loadError": "Não foi possível carregar os dados dos horários.",
+    "cell": "{{day}} {{hour}} · pontuação {{score}} · alcance médio {{reach}} · {{count}} posts · interação {{engagement}}"
+  },
   "clearanceReview": {
     "capture": "Captura",
     "project": "Projeto",

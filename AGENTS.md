@@ -1,4 +1,5 @@
 # Agent rules
+- Marketing timing computations stay in the Marketing module's shared pure scorer and RLS-scoped data RPC. Why: Calendar and Insights need identical recommendations without accessing unrelated financial records.
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
 - Composer shares planner fees, invalidates on billing edits, and normalizes frozen relative dates at render without writes. Why: totals and labels agree.
 

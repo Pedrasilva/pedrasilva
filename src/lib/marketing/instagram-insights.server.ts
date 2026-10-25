@@ -1,4 +1,5 @@
 import { instagramGraph, InstagramError } from "./instagram-graph.server";
+import { parseOnlineFollowers } from './best-times';
 import { ACCOUNT_METRICS, buildAnalysisInput, collectMetrics, metricSet, parseAnalysis, storyReadDue, MEDIA_METRICS, type DraftMeta, type PostRow } from "./instagram-insights";
 
 type Graph = ReturnType<typeof instagramGraph>;
@@ -19,6 +20,7 @@ export async function syncInstagramInsights(opts: { graph?: Graph; db?: Db; now?
   const ig = s.instagram_account_id as string;
   const graph = opts.graph ?? instagramGraph(token());
   const day = lisbonDay(opts.now);
+  await syncFollowerActivity({ db, graph, now: opts.now }).catch(() => ({ status: 'unavailable' }));
   const feed = await graph(`${ig}/media?fields=${MEDIA_FIELDS}&limit=50`);
   let stories: any[] = [];
   try { stories = (await graph(`${ig}/stories?fields=${MEDIA_FIELDS}`)).data ?? []; } catch { /* stories optional */ }
@@ -56,9 +58,31 @@ export async function syncInstagramInsights(opts: { graph?: Graph; db?: Db; now?
 /** Runs from the existing 15-minute job; only does work once per ~day. */
 export async function syncInstagramInsightsIfStale() {
   const db = await admin();
+  await syncFollowerActivity({ db }).catch(() => ({ status: 'unavailable' }));
   const { data: s } = await db.from("marketing_settings").select("instagram_insights_synced_at").eq("id", true).single();
   if (s?.instagram_insights_synced_at && Date.now() - Date.parse(s.instagram_insights_synced_at) < 23 * 3600_000) return { skipped: true };
   return syncInstagramInsights({ db });
+}
+
+/** Optional audience metric; at most one probe per Lisbon day, on the existing job. Never writes to Meta. */
+export async function syncFollowerActivity(opts: { graph?: Graph; db?: Db; now?: Date } = {}) {
+  const db = opts.db ?? await admin(); const now = opts.now ?? new Date(); const day = lisbonDay(now);
+  const { data: settings, error: settingsError } = await db.from('marketing_settings').select('instagram_account_id').eq('id', true).single();
+  if (settingsError) throw settingsError;
+  if (!settings?.instagram_account_id) return { status: 'unavailable' as const };
+  const { data: previous, error: readError } = await db.from('marketing_ig_follower_activity').select('status').eq('captured_on', day).eq('account_id', settings.instagram_account_id).maybeSingle();
+  if (readError) throw readError;
+  if (previous) return { status: previous.status, skipped: true };
+  const graph = opts.graph ?? instagramGraph(token());
+  let status: 'available' | 'unsupported' | 'unavailable' = 'unavailable'; let errorCode: string | null = null;
+  let slots: ReturnType<typeof parseOnlineFollowers> = [];
+  try {
+    slots = parseOnlineFollowers(await graph(`${settings.instagram_account_id}/insights?metric=online_followers&period=lifetime`));
+    status = slots.length ? 'available' : 'unavailable';
+  } catch (e) { errorCode = code(e); status = errorCode === '100' ? 'unsupported' : 'unavailable'; }
+  const { error } = await db.from('marketing_ig_follower_activity').upsert({ captured_on: day, captured_at: now.toISOString(), account_id: settings.instagram_account_id, status, slots, error_code: errorCode }, { onConflict: 'captured_on' });
+  if (error) throw error;
+  return { status, slots: slots.length, errorCode };
 }
 
 /**

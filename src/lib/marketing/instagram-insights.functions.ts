@@ -13,6 +13,12 @@ export const syncInsightsNow = createServerFn({ method: "POST" }).middleware([re
   return syncInstagramInsights();
 });
 
+export const checkFollowerActivity = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  await requireMarketing(context);
+  const { syncFollowerActivity } = await import('./instagram-insights.server');
+  return syncFollowerActivity();
+});
+
 export const runInsightsAnalysis = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   await requireMarketing(context);
   const { analyseInsights } = await import("./instagram-insights.server");

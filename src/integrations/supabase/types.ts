@@ -8122,6 +8122,36 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_ig_follower_activity: {
+        Row: {
+          account_id: string
+          captured_at: string
+          captured_on: string
+          error_code: string | null
+          metric: string
+          slots: Json
+          status: string
+        }
+        Insert: {
+          account_id: string
+          captured_at?: string
+          captured_on: string
+          error_code?: string | null
+          metric?: string
+          slots?: Json
+          status: string
+        }
+        Update: {
+          account_id?: string
+          captured_at?: string
+          captured_on?: string
+          error_code?: string | null
+          metric?: string
+          slots?: Json
+          status?: string
+        }
+        Relationships: []
+      }
       marketing_ig_media_insights: {
         Row: {
           caption: string | null
@@ -17518,6 +17548,7 @@ export type Database = {
         Args: { _capture: string }
         Returns: string[]
       }
+      marketing_best_times_data: { Args: never; Returns: Json }
       marketing_bible_validate_items: {
         Args: { _arr: Json; _label: string }
         Returns: undefined

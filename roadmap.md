@@ -1,3 +1,7 @@
+## Current request — best posting times
+- [x] Verified online_followers through authenticated application function: empty response, unavailable, 0 slots. Daily optional snapshots + RLS-scoped RPC; migration 0183 mirrored. 50 historical media, none in last 90 days; no AI.
+- [x] Shared Lisbon hourly scoring, Calendar tints/drag suggestions and Insights grid; 33 fixture/mock tests and EN/PT parity pass. Authenticated week/Insights screenshots + remembered toggle verified; no real draft writes. Fixture browser drag simulation timed out and was stopped; real-data recommendations await data (0 recent posts/0 follower slots). No background test remains running.
+
 ## Current request — stale Story approval recovery
 - [x] Restore normal direct/request approval for stale unsent drafts; hide publication until valid, preserve failure history and locks. Migration 0182 mirrored.
 - [x] Fixture Story approved in authenticated browser, current render/approval hashes match, active failure cleared and old failure logged; colleague path/hash/counters/send lock verified in rollback test. 21 tests plus EN/PT parity pass. No real Story approval/publication or Finance edits.
