@@ -67,7 +67,15 @@
     "unsupported": "A atividade dos seguidores não é suportada nesta conta.",
     "noActivity": "Sem atividade recente dos seguidores disponível.",
     "loadError": "Não foi possível carregar os dados dos horários.",
-    "cell": "{{day}} {{hour}} · pontuação {{score}} · alcance médio {{reach}} · {{count}} posts · interação {{engagement}}"
+    "cell": "{{day}} {{hour}} · pontuação {{score}} · alcance médio {{reach}} · {{count}} posts · interação {{engagement}}",
+    "evidenceEnoughFollowers_one": "Com base em {{count}} publicação recente e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughFollowers_other": "Com base em {{count}} publicações recentes e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughPosts_one": "Com base em {{count}} publicação recente; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughPosts_other": "Com base em {{count}} publicações recentes; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparseFollowers_one": "Dados recentes insuficientes: {{count}} publicação recente e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparseFollowers_other": "Dados recentes insuficientes: {{count}} publicações recentes e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparsePosts_one": "Dados recentes insuficientes: {{count}} publicação recente; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparsePosts_other": "Dados recentes insuficientes: {{count}} publicações recentes; últimos 90 dias, hora de Lisboa."
   },
   "clearanceReview": {
     "capture": "Captura",
@@ -80,7 +88,9 @@
     "reason": "Motivo breve (obrigatório)",
     "dismissed": "Alerta dispensado; avisos de autorização atualizados.",
     "history": "Alertas dispensados",
-    "audit": "{{reason}} · {{who}} · {{when}}"
+    "audit": "{{reason}} · {{who}} · {{when}}",
+    "source": "{{kind}}: {{label}}",
+    "sourceWithStatus": "{{kind}}: {{label}} ({{status}}{{check}})"
   },
   "postLanguage": {
     "title": "Idioma dos posts",

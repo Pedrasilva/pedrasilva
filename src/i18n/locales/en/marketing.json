@@ -67,7 +67,15 @@
     "unsupported": "Follower activity is not supported for this account.",
     "noActivity": "No recent follower activity available.",
     "loadError": "Posting-time data could not be loaded.",
-    "cell": "{{day}} {{hour}} · score {{score}} · avg reach {{reach}} · {{count}} posts · engagement {{engagement}}"
+    "cell": "{{day}} {{hour}} · score {{score}} · avg reach {{reach}} · {{count}} posts · engagement {{engagement}}",
+    "evidenceEnoughFollowers_one": "Based on {{count}} recent post and follower activity; last 90 days, Lisbon time.",
+    "evidenceEnoughFollowers_other": "Based on {{count}} recent posts and follower activity; last 90 days, Lisbon time.",
+    "evidenceEnoughPosts_one": "Based on {{count}} recent post; last 90 days, Lisbon time.",
+    "evidenceEnoughPosts_other": "Based on {{count}} recent posts; last 90 days, Lisbon time.",
+    "evidenceSparseFollowers_one": "Insufficient recent data: {{count}} recent post and follower activity; last 90 days, Lisbon time.",
+    "evidenceSparseFollowers_other": "Insufficient recent data: {{count}} recent posts and follower activity; last 90 days, Lisbon time.",
+    "evidenceSparsePosts_one": "Insufficient recent data: {{count}} recent post; last 90 days, Lisbon time.",
+    "evidenceSparsePosts_other": "Insufficient recent data: {{count}} recent posts; last 90 days, Lisbon time."
   },
   "clearanceReview": {
     "capture": "Capture",
@@ -80,7 +88,9 @@
     "reason": "Short reason (required)",
     "dismissed": "Flag dismissed; clearance warnings updated.",
     "history": "Dismissed flags",
-    "audit": "{{reason}} · {{who}} · {{when}}"
+    "audit": "{{reason}} · {{who}} · {{when}}",
+    "source": "{{kind}}: {{label}}",
+    "sourceWithStatus": "{{kind}}: {{label}} ({{status}}{{check}})"
   },
   "postLanguage": {
     "title": "Post language",

@@ -18,6 +18,7 @@ function safeRelative(next: string | undefined): string {
 }
 
 export const Route = createFileRoute("/login")({
+  head: () => ({ meta: [{"title": "Sign in | PSA Hub"}, {"name": "description", "content": "PSA Hub \u2014 sign in for Pedra Silva Architects."}, {"property": "og:title", "content": "Sign in | PSA Hub"}, {"property": "og:description", "content": "PSA Hub \u2014 sign in for Pedra Silva Architects."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" ? { next: s.next } : {},
   component: LoginPage,

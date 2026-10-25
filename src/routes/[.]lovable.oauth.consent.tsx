@@ -11,6 +11,7 @@ import { oauthNs } from "@/lib/oauth-consent-ns";
 
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
+  head: () => ({ meta: [{"title": "Authorize connection | PSA Hub"}, {"name": "description", "content": "PSA Hub \u2014 authorize connection for Pedra Silva Architects."}, {"property": "og:title", "content": "Authorize connection | PSA Hub"}, {"property": "og:description", "content": "PSA Hub \u2014 authorize connection for Pedra Silva Architects."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",

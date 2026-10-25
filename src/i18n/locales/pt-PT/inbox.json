@@ -47,7 +47,7 @@
     "secretHint": "Nome da variável de ambiente com a chave do conector (ex.: GOOGLE_MAIL_API_KEY_2).",
     "add": "Ligar caixa",
     "remove": "Remover",
-    "active": "Activa",
+    "active": "Ativa",
     "inactive": "Em pausa",
     "lastChecked": "Última verificação",
     "never": "Nunca",
@@ -90,8 +90,8 @@
   },
   "category": {
     "new_enquiry": "Novo pedido",
-    "project_correspondence": "Correspondência de projecto",
-    "supplier_invoice": "Factura de fornecedor",
+    "project_correspondence": "Correspondência de projeto",
+    "supplier_invoice": "Fatura de fornecedor",
     "admin_finance": "Administrativo / financeiro",
     "recruitment": "Recrutamento",
     "newsletter_marketing": "Newsletter / marketing"

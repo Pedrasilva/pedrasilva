@@ -48,12 +48,12 @@
     "noStageCount": "{{count}} sem fase",
     "changeCount_one": "{{count}} alteração face ao Gantt",
     "changeCount_other": "{{count}} alterações face ao Gantt",
-    "outsideStages": "Fora das datas das fases de {{project}}",
+    "outsideStages": "Fora das datas das fases de {{projet}}",
     "requestExtension": "Pedir extensão: {{stage}} de {{from}} até {{until}}",
     "extensionRecorded": "Pedido de extensão registado: {{stage}} de {{from}} até {{until}}",
     "overloadsDropped_one": "{{count}} alocação sobreposta não copiada:",
     "overloadsDropped_other": "{{count}} alocações sobrepostas não copiadas:",
-    "unbookedProjects": "Projeto sem ninguém esta semana: {{projects}}",
+    "unbookedProjects": "Projeto sem ninguém esta semana: {{projets}}",
     "chooseStage": "Escolher fase",
     "unsavedConfirm": "Sair com alterações do rascunho por guardar?",
     "brushHint": "Escolha um projeto ou Apagar",
@@ -579,12 +579,12 @@
     "noLink": "A tua conta ainda não está ligada a um membro da equipa. Pede a um admin para te adicionar à equipa com o mesmo email ({{email}}).",
     "tabs": {
       "pending": "Pendentes",
-      "active": "Activas",
+      "active": "Ativas",
       "done": "Concluídas"
     },
     "empty": {
       "pending": "Sem tarefas pendentes. Boa.",
-      "active": "Sem tarefas activas. Aceita uma das pendentes para começar.",
+      "active": "Sem tarefas ativas. Aceita uma das pendentes para começar.",
       "done": "Ainda sem tarefas concluídas."
     },
     "errors": {
@@ -771,7 +771,7 @@
     "newMilestone": "Milestone",
     "stageDeleted": "Fase eliminada",
     "inspector": {
-      "empty": "Selecciona uma linha para editar.",
+      "empty": "Seleciona uma linha para editar.",
       "plan": "Plano",
       "dependencies": "Dependências",
       "resources": "Recursos",
@@ -1028,7 +1028,7 @@
       "stageCount_one": "{{count}} fase",
       "stageCount_other": "{{count}} fases",
       "noStagesDefined": "Sem fases definidas para este projeto.",
-      "added": "Adicionado {{project}} · {{stage}}",
+      "added": "Adicionado {{projet}} · {{stage}}",
       "addFailed": "Não foi possível adicionar a fase"
     },
     "rowCounts": {
@@ -1052,7 +1052,7 @@
     },
     "rows": {
       "loadingProjects": "A carregar projetos…",
-      "emptyProjects": "Sem fases activas esta semana. Usa \"Adicionar projeto / fase\" para registar tempo noutro lado.",
+      "emptyProjects": "Sem fases ativas esta semana. Usa \"Adicionar projeto / fase\" para registar tempo noutro lado.",
       "emptyNonWorking": "Sem férias aprovadas nem feriados esta semana.",
       "internalNonBillableSub": "Interno · não faturável",
       "internalArchivedSub": "Interno · arquivado (etiqueta só de leitura, edições ainda permitidas)",
@@ -1068,7 +1068,7 @@
       "descriptionLabel": "Descrição",
       "descriptionPlaceholder": "Em que trabalhaste?",
       "billable": "Faturável",
-      "billableHint": "Desactiva para registar tempo que não será cobrado ao cliente.",
+      "billableHint": "Desativa para registar tempo que não será cobrado ao cliente.",
       "internalHint": "Tempo interno é sempre não faturável e conta para a capacidade usada.",
       "nonWorkingHint": "Tempo não trabalhado reduz a capacidade disponível e não é faturável."
     },
@@ -1164,7 +1164,7 @@
       "revenue": "Receita",
       "cost": "Custo",
       "profit": "Lucro",
-      "empty": "Sem horas registadas para os filtros seleccionados."
+      "empty": "Sem horas registadas para os filtros selecionados."
     },
     "internalCenters": {
       "title": "Centros de custo interno",
@@ -1262,7 +1262,7 @@
   "forecast": {
     "eyebrow": "Atelier",
     "title": "Previsão",
-    "subtitle": "Receita, custo e lucro projectados a partir das alocações do Gantt. Compara com o real, detecta sobreposições com férias aprovadas e estima margens futuras.",
+    "subtitle": "Receita, custo e lucro projetados a partir das alocações do Gantt. Compara com o real, detecta sobreposições com férias aprovadas e estima margens futuras.",
     "mode": {
       "label": "Modo de previsão",
       "weighted": "Probabilístico",
@@ -1279,12 +1279,12 @@
       "effectiveCapacitySubLeave": "−{{leave}} de férias (de {{raw}})",
       "effectiveCapacitySubNoLeave": "{{raw}} brutas · sem férias",
       "forecastRevenue": "Receita prevista",
-      "forecastRevenueWeighted": "pond. · bruto {{raw}} · real {{actual}}",
-      "forecastRevenueVsActual": "vs real {{actual}}",
+      "forecastRevenueWeighted": "pond. · bruto {{raw}} · real {{atual}}",
+      "forecastRevenueVsActual": "vs real {{atual}}",
       "forecastCost": "Custo previsto",
-      "forecastCostSub": "vs real {{actual}}",
+      "forecastCostSub": "vs real {{atual}}",
       "forecastProfit": "Lucro previsto",
-      "forecastProfitSub": "Margem {{margin}}% · real {{actual}}"
+      "forecastProfitSub": "Margem {{margin}}% · real {{atual}}"
     },
     "split": {
       "committed": "Confirmado",
@@ -1309,7 +1309,7 @@
     },
     "trend": {
       "title": "Tendência de previsão (6 meses)",
-      "subtitle": "Receita vs custo projectados a partir do Gantt atual",
+      "subtitle": "Receita vs custo projetados a partir do Gantt atual",
       "revenue": "Receita",
       "cost": "Custo",
       "profit": "Lucro"
@@ -1451,9 +1451,9 @@
       "allocatedPeople_other": "{{count}} colaboradores alocados",
       "leaveCapacitySub": "−{{leave}} de férias (de {{raw}})",
       "noLeaveSub": "{{raw}} brutas · sem férias",
-      "weightedRevenueSub": "ponderado · não ponderado {{raw}} · real {{actual}}",
-      "actualSub": "face ao real {{actual}}",
-      "marginSub": "Margem {{margin}}% · real {{actual}}",
+      "weightedRevenueSub": "ponderado · não ponderado {{raw}} · real {{atual}}",
+      "actualSub": "face ao real {{atual}}",
+      "marginSub": "Margem {{margin}}% · real {{atual}}",
       "conflictDays_one": "{{count}} dia com sobreposição. Reveja as alocações abaixo assinaladas com",
       "conflictDays_other": "{{count}} dias com sobreposição. Reveja as alocações abaixo assinaladas com",
       "capacitySub": "Equipa com {{leave}} de férias aprovadas neste mês → capacidade efetiva {{effective}} (de {{raw}}).",
@@ -1552,7 +1552,7 @@
     "archived": "Arquivado",
     "legacy": "antigo",
     "picker": {
-      "placeholder": "Seleccionar fornecedor…",
+      "placeholder": "Selecionar fornecedor…",
       "searchPlaceholder": "Procurar fornecedores…",
       "empty": "Sem fornecedores correspondentes.",
       "heading": "Fornecedores",
@@ -2175,7 +2175,7 @@
     "noMatch": "Nada corresponde a \"{{query}}\".",
     "typeToSearchProjects": "Escreva para procurar projetos por nome, número ou cliente.",
     "internalInGrid": "{{name}} já está nas linhas internas abaixo.",
-    "noActiveStages": "Sem fases activas",
+    "noActiveStages": "Sem fases ativas",
     "suggestions": "Sugestões",
     "suggestionReason": {
       "remembered": "a sua escolha habitual",

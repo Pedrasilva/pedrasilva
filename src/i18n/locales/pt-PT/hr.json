@@ -48,7 +48,7 @@
   },
   "compensationLiquidity": {
     "title": "Liquidez mensal total",
-    "tooltip": "Valor mensal estimado efectivamente percebido pelo colaborador: líquido + alimentação + ajudas + passe + média de benefícios recorrentes elegíveis. Exclui despesas rejeitadas e outliers únicos acima de 500€.",
+    "tooltip": "Valor mensal estimado efetivamente percebido pelo colaborador: líquido + alimentação + ajudas + passe + média de benefícios recorrentes elegíveis. Exclui despesas rejeitadas e outliers únicos acima de 500€.",
     "perMonth": "por mês",
     "netCompensationLabel": "Líquido salarial:",
     "windowNote": "Média de benefícios normalizada aos últimos 12 meses — apenas despesas elegíveis aprovadas/pagas; outliers pontuais excluídos.",
@@ -205,7 +205,7 @@
       "name": "Nome *",
       "number": "Nº colaborador",
       "department": "Departamento *",
-      "contractStatus": "Situação contractual",
+      "contractStatus": "Situação contratual",
       "careerStart": "Início de carreira",
       "admissionDate": "Data de admissão",
       "birthDate": "Data de nascimento",
@@ -215,7 +215,7 @@
     },
     "empty": "Sem colaboradores ainda. Crie o primeiro acima.",
     "departments": {
-      "project": "Equipa Projecto",
+      "project": "Equipa Projeto",
       "backoffice": "Equipa Backoffice"
     },
     "department": {
@@ -231,14 +231,14 @@
   },
   "myProfile": {
     "title": "Minha ficha",
-    "subtitle": "Consulta das suas fichas salariais — efectiva e histórico.",
+    "subtitle": "Consulta das suas fichas salariais — efetiva e histórico.",
     "loadingProfile": "A carregar a sua ficha…",
     "quickLinks": {
       "vacationTitle": "As minhas férias",
       "vacationSubtitle": "Pedir férias, ver dias gozados e estado dos pedidos.",
       "vacationDaysThisYear": "dias de férias em {{year}}",
       "benefitsTitle": "Os meus benefícios",
-      "benefitsSubtitle": "Saldo disponível, submeter facturas e ver histórico.",
+      "benefitsSubtitle": "Saldo disponível, submeter faturas e ver histórico.",
       "benefitsAvailable": "disponíveis"
     },
     "loadingSnapshots": "A carregar fichas…",
@@ -287,7 +287,7 @@
         "meses_pagos": "Meses pagos por ano",
         "ss_atelier_pct": "SS Atelier (patronal)",
         "ss_colaborador_pct": "SS Colaborador",
-        "irs_pct": "IRS efectivo",
+        "irs_pct": "IRS efetivo",
         "irs_calculado_auto": "IRS calculado automaticamente",
         "subsidio_alimentacao_diario": "Valor diário",
         "dias_uteis": "Dias úteis / ano",
@@ -369,8 +369,8 @@
       "idle": "Sem alterações",
       "updatedToast": "Ficha atualizada",
       "saveError": "Erro a guardar: {{message}}",
-      "projectCostEffectiveFromLabel": "Reflectir nos projectos a partir de",
-      "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projecto já fechadas. Por omissão usa a data de efeito do payroll.",
+      "projectCostEffectiveFromLabel": "Reflectir nos projetos a partir de",
+      "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projeto já fechadas. Por omissão usa a data de efeito do payroll.",
       "householdHint": "Editar o agregado na página do colaborador não altera fichas existentes — só fichas novas.",
       "fallbackTableHint": "Não existe tabela de retenção na fonte de IRS carregada para {{year}}. Foi usada automaticamente a tabela mais próxima disponível: {{resolvedYear}}.",
       "missingTableHint": "Não há tabela de retenção na fonte de IRS carregada para {{location}} · {{table}}. Os valores aparecem a zero até existirem tabelas disponíveis."
@@ -585,7 +585,7 @@
       "contextLockedInTheSheet": "contexto trancado na ficha",
       "marginalTaxRate": "Taxa marginal",
       "deductibleAmount": "Parcela a abater",
-      "effectiveIrsPercentage": "% IRS efectiva",
+      "effectiveIrsPercentage": "% IRS efetiva",
       "noIrsWithholdingTableIsLoadedFor": "Não há tabela de retenção IRS carregada para",
       "theNearestAvailableTableWasUsedAutomatically": ". Foi usada automaticamente a tabela mais próxima disponível:",
       "valuesAppearAsZeroUntilTablesBecome": ". Os valores aparecem a zero até existirem tabelas disponíveis.",
@@ -634,7 +634,7 @@
   },
   "enums": {
     "department": {
-      "Projecto": "Equipa Projecto",
+      "Projecto": "Equipa Projeto",
       "Backoffice": "Equipa Backoffice"
     },
     "maritalStatus": {
@@ -652,7 +652,7 @@
   },
   "resumoCompare": {
     "title": "Comparação",
-    "description": "Por defeito: última ficha efectiva vs. última ficha proposta. Pode escolher quaisquer duas fichas.",
+    "description": "Por defeito: última ficha efetiva vs. última ficha proposta. Pode escolher quaisquer duas fichas.",
     "emptyState": "Crie pelo menos uma ficha para ver o resumo.",
     "columnA": "Coluna A",
     "columnB": "Coluna B",
@@ -697,7 +697,7 @@
   },
   "resumoComparativo": {
     "title": "Comparativo Atual vs Proposto",
-    "description": "Diferenças por colaborador entre a ficha efectiva e a ficha proposta. Use os filtros para focar uma métrica ou pesquisar pelo nome.",
+    "description": "Diferenças por colaborador entre a ficha efetiva e a ficha proposta. Use os filtros para focar uma métrica ou pesquisar pelo nome.",
     "filters": {
       "searchLabel": "Pesquisar colaborador",
       "searchPlaceholder": "Nome…",
@@ -786,13 +786,13 @@
     "back": "Voltar",
     "printPdf": "Imprimir / PDF",
     "deleteButton": "Eliminar colaborador",
-    "archiveButton": "Marcar como não activo",
-    "restoreButton": "Marcar como activo",
-    "archivedBadge": "Não activo",
-    "inactiveBadge": "Não activo",
+    "archiveButton": "Marcar como não ativo",
+    "restoreButton": "Marcar como ativo",
+    "archivedBadge": "Não ativo",
+    "inactiveBadge": "Não ativo",
     "activeToggle": {
-      "active": "Activo",
-      "inactive": "Não activo",
+      "active": "Ativo",
+      "inactive": "Não ativo",
       "aria": "Estado do colaborador"
     },
     "deleteDialog": {
@@ -817,7 +817,7 @@
       "name": "Nome",
       "employeeNumber": "Nº colaborador",
       "department": "Departamento",
-      "contractStatus": "Situação contractual",
+      "contractStatus": "Situação contratual",
       "birthDate": "Data de nascimento",
       "careerStart": "Início de carreira",
       "admissionDate": "Data de admissão",
@@ -853,28 +853,28 @@
     },
     "resourceClassification": {
       "title": "Classificação do recurso",
-      "help": "Divisão de planeamento entre trabalho de Projecto (recuperável) e Back Office (overhead). Independente do departamento e do FTE contractual. O registo de horas reais sobrepõe-se a esta assunção quando existe.",
+      "help": "Divisão de planeamento entre trabalho de Projeto (recuperável) e Back Office (overhead). Independente do departamento e do FTE contratual. O registo de horas reais sobrepõe-se a esta assunção quando existe.",
       "field": "Classificação",
       "options": {
-        "project": "Projecto",
+        "project": "Projeto",
         "backoffice": "Back Office",
         "hybrid": "Híbrido"
       },
       "backofficePct": "% Back Office",
-      "projectPct": "% Projecto",
-      "fte": "FTE (contractual)",
+      "projectPct": "% Projeto",
+      "fte": "FTE (contratual)",
       "fteHint": "vs. semana padrão do atelier",
       "boFte": "Equivalente FTE Back Office",
-      "projectFte": "Equivalente FTE Projecto",
+      "projectFte": "Equivalente FTE Projeto",
       "monthlyCostTotal": "Custo mensal da empresa",
       "monthlyCostTotalHint": "Realidade do payroll — não alterada pela divisão",
       "monthlyCostBo": "Atribuído a Back Office",
-      "monthlyCostProject": "Atribuído a capacidade de Projecto",
-      "costSplitDisclaimer": "Atribuição de gestão apenas. O P&L real de projecto continua a usar horas registadas × custo/hora — a divisão de planeamento nunca reduz o custo/hora quando há tempo real de projecto registado.",
+      "monthlyCostProject": "Atribuído a capacidade de Projeto",
+      "costSplitDisclaimer": "Atribuição de gestão apenas. O P&L real de projeto continua a usar horas registadas × custo/hora — a divisão de planeamento nunca reduz o custo/hora quando há tempo real de projeto registado.",
       "readOnlyHint": "Apenas administradores de RH podem editar este valor."
     },
     "placeholders": {
-      "selectOption": "Seleccionar…",
+      "selectOption": "Selecionar…",
       "emailExample": "nome@empresa.com",
       "usesGlobal": "usa global"
     },
@@ -933,19 +933,19 @@
   },
   "colaboradores": {
     "title": "Colaboradores",
-    "subtitle": "Gerir a equipa — criar, editar e arquivar colaboradores. Os arquivados mantêm o histórico salarial mas ficam ocultos das listas activas.",
+    "subtitle": "Gerir a equipa — criar, editar e arquivar colaboradores. Os arquivados mantêm o histórico salarial mas ficam ocultos das listas ativas.",
     "cardTitle": "Colaboradores",
     "count_one": "{{count}} colaborador",
     "count_other": "{{count}} colaboradores",
     "empty": "Sem colaboradores ainda. Crie o primeiro acima.",
     "noResults": "Nenhum colaborador corresponde aos filtros actuais.",
-    "activeBadge": "Activo",
-    "archivedBadge": "Não activo",
+    "activeBadge": "Ativo",
+    "archivedBadge": "Não ativo",
     "filters": {
       "searchPlaceholder": "Procurar por nome, email, número…",
       "allDepartments": "Todos os departamentos",
-      "statusActive": "Activos",
-      "statusArchived": "Não activos",
+      "statusActive": "Ativos",
+      "statusArchived": "Não ativos",
       "statusAll": "Todos"
     },
     "columns": {
@@ -958,12 +958,12 @@
     },
     "actions": {
       "open": "Abrir",
-      "archive": "Marcar como não activo",
-      "restore": "Marcar como activo"
+      "archive": "Marcar como não ativo",
+      "restore": "Marcar como ativo"
     },
     "archiveDialog": {
       "title": "Arquivar colaborador?",
-      "description": "{{name}} ficará oculto das listas activas. O histórico salarial e todos os registos associados (fichas, férias, despesas) são preservados e podem ser restaurados a qualquer momento.",
+      "description": "{{name}} ficará oculto das listas ativas. O histórico salarial e todos os registos associados (fichas, férias, despesas) são preservados e podem ser restaurados a qualquer momento.",
       "referencesNote": "Registos associados que serão preservados:",
       "refs": {
         "snapshots_one": "{{count}} ficha salarial",
@@ -980,7 +980,7 @@
     },
     "restoreDialog": {
       "title": "Restaurar colaborador?",
-      "description": "{{name}} voltará a estar activo e a aparecer em listas operacionais, selectores e atribuições.",
+      "description": "{{name}} voltará a estar ativo e a aparecer em listas operacionais, selectores e atribuições.",
       "archivedOn": "Arquivado em:",
       "archiveReason": "Motivo original:",
       "referencesNote": "Registos associados que voltam a ficar disponíveis:",
@@ -988,8 +988,8 @@
       "restoring": "A restaurar…"
     },
     "filterChip": {
-      "showingArchived": "A mostrar não activos",
-      "showingAll": "A mostrar todos (incl. não activos)",
+      "showingArchived": "A mostrar não ativos",
+      "showingAll": "A mostrar todos (incl. não ativos)",
       "clear": "Limpar"
     },
     "archivedMeta": {
@@ -1059,7 +1059,7 @@
       "minusHolidaysWorkingDays": "− Feriados em dia útil",
       "workingDaysBase": "= Dias úteis (base, sem férias)",
       "minusVacation": "− Dias de férias do colaborador (22)",
-      "effectiveWorkingDays": "= Dias efectivamente trabalhados"
+      "effectiveWorkingDays": "= Dias efetivamente trabalhados"
     },
     "toasts": {
       "fillFields": "Preenche data e nome",
@@ -1071,26 +1071,26 @@
   },
   "resumo": {
     "title": "Resumo geral",
-    "subtitle": "Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.",
+    "subtitle": "Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projeto.",
     "exportPdf": "Exportar PDF",
     "tabs": {
       "general": "Geral",
       "comparative": "Comparativo"
     },
     "kpis": {
-      "totalProjectTeam": "Total Equipa Projecto (VBG)",
+      "totalProjectTeam": "Total Equipa Projeto (VBG)",
       "totalBackofficeTeam": "Total Equipa Backoffice (VBG)",
       "totalAtelierAnnualCost": "Custo total anual do atelier"
     },
     "hybridSplit": {
       "title": "Atribuição de recursos híbridos",
-      "description": "Divide o custo mensal de cada colaborador entre os baldes Back Office e capacidade de Projecto, usando a classificação de recurso e o % Back Office. O custo total mantém-se — é apenas atribuição de gestão. O P&L real de projecto continua a usar horas registadas × custo/hora.",
+      "description": "Divide o custo mensal de cada colaborador entre os baldes Back Office e capacidade de Projeto, usando a classificação de recurso e o % Back Office. O custo total mantém-se — é apenas atribuição de gestão. O P&L real de projeto continua a usar horas registadas × custo/hora.",
       "totalFte": "FTE total",
       "boFteEquivalent": "Equivalente FTE Back Office",
-      "projectFteEquivalent": "Equivalente FTE Projecto",
+      "projectFteEquivalent": "Equivalente FTE Projeto",
       "totalMonthlyCost": "Custo mensal total de pessoas",
       "boMonthlyCost": "Custo mensal Back Office",
-      "projectMonthlyCost": "Custo mensal capacidade de Projecto"
+      "projectMonthlyCost": "Custo mensal capacidade de Projeto"
     },
     "valorBo": {
       "title": "Custo do atelier por unidade de tempo",
@@ -1115,20 +1115,20 @@
       "structureSubtitle": "Estrutura = Backoffice + Operacional",
       "humanResourcesTgv": "Recursos Humanos (VBG)",
       "operationalCost": "Custo Operacional",
-      "projectResources": "Recursos Projecto",
+      "projectResources": "Recursos Projeto",
       "structureLabel": "Backoffice ({{backoffice}}) + Operacional ({{operational}})",
       "humanResourcesPct": "Recursos Humanos: {{pct}}",
       "operationalPct": "Custo Operacional: {{pct}}",
-      "projectResourcesPct": "Recursos Projecto: {{pct}}",
+      "projectResourcesPct": "Recursos Projeto: {{pct}}",
       "structurePct": "Estrutura: {{pct}}",
       "wholeTeamHours": "Toda a equipa ({{count}} × {{days}} × {{hours}} h)",
-      "projectOnlyHours": "Só Projecto ({{count}} × {{days}} × {{hours}} h)",
+      "projectOnlyHours": "Só Projeto ({{count}} × {{days}} × {{hours}} h)",
       "hoursPerYear": "{{value}} h/ano",
       "costPerHour": "{{value}}/h"
     },
     "rhTable": {
-      "subtitle_one": "{{count}} colaborador · valores baseados na ficha efectiva (ou proposta se não houver efectiva)",
-      "subtitle_other": "{{count}} colaboradores · valores baseados na ficha efectiva (ou proposta se não houver efectiva)",
+      "subtitle_one": "{{count}} colaborador · valores baseados na ficha efetiva (ou proposta se não houver efetiva)",
+      "subtitle_other": "{{count}} colaboradores · valores baseados na ficha efetiva (ou proposta se não houver efetiva)",
       "headers": {
         "name": "Nome",
         "code": "Cód.",
@@ -1138,7 +1138,7 @@
         "fte": "FTE",
         "targetChargeability": "Target chargeability",
         "grossAnnual": "Bruto anual",
-        "contractualBase": "Base contractual",
+        "contractualBase": "Base contratual",
         "grossMonthly": "Bruto mensal",
         "subsidiosMode": "Regime subsídios",
         "monthsPaid": "Meses pagos",
@@ -1170,7 +1170,7 @@
       "totals": {
         "production": "Equipa produção",
         "backoffice": "Equipa Backoffice",
-        "project": "Equipa Projecto"
+        "project": "Equipa Projeto"
       }
     },
     "capacityOverview": {
@@ -1191,8 +1191,8 @@
       "disclaimer": "Fase 0 — apenas observacional. Target chargeability não alimenta cálculos de custo, taxas, distribuição de BO, sobrecarga do planner ou rentabilidade."
     },
     "pricing": {
-      "title": "Pricing — Equipa Projecto",
-      "description": "VBG/h e Cota BO/h dividem o valor anual por horas facturáveis ({{days}}×{{hours}} h × chargeability). Custo/h soma os dois e absorve o tempo não-facturável; venda = custo/h × (1 + margem). Sem chargeability definido, assume-se 100%.",
+      "title": "Pricing — Equipa Projeto",
+      "description": "VBG/h e Cota BO/h dividem o valor anual por horas faturáveis ({{days}}×{{hours}} h × chargeability). Custo/h soma os dois e absorve o tempo não-faturável; venda = custo/h × (1 + margem). Sem chargeability definido, assume-se 100%.",
       "headers": {
         "collaborator": "Colaborador",
         "tgvPerHour": "VBG/h",
@@ -1207,7 +1207,7 @@
   },
   "salaryImport": {
     "title": "Importar salários (folha RH)",
-    "subtitle": "Carregue um Excel de salários para acrescentar novas fichas com data efectiva. As fichas existentes nunca são alteradas.",
+    "subtitle": "Carregue um Excel de salários para acrescentar novas fichas com data efetiva. As fichas existentes nunca são alteradas.",
     "hrOwnedBadge": "Gestão RH",
     "fields": {
       "file": "Ficheiro Excel",
@@ -1215,7 +1215,7 @@
       "sheet": "Folha",
       "headerRow": "Linha de cabeçalho (a partir de 1)",
       "autoDetected": "auto-detectada",
-      "defaultEffectiveFrom": "Data efectiva por defeito",
+      "defaultEffectiveFrom": "Data efetiva por defeito",
       "createMissing": "Criar colaboradores em falta quando existe nome + email/nº"
     },
     "reset": "Limpar",
@@ -1237,7 +1237,7 @@
       "skippedCount": "Ignorados",
       "matchedTitle": "Colaboradores correspondidos",
       "willCreateTitle": "Novos colaboradores a criar",
-      "willCreateDisabled": "Desactivado — active “Criar colaboradores em falta” para os incluir.",
+      "willCreateDisabled": "Desativado — ative “Criar colaboradores em falta” para os incluir.",
       "skippedTitle": "Linhas que vão ser ignoradas",
       "confirmHint": "Fichas a inserir: {{insert}}; linhas a ignorar: {{skip}}.",
       "selectRow": "Incluir linha",
@@ -1247,7 +1247,7 @@
         "matchedTo": "Correspondido a",
         "matchedBy": "Por",
         "base": "Salário base",
-        "effectiveFrom": "Data efectiva",
+        "effectiveFrom": "Data efetiva",
         "name": "Nome",
         "email": "Email",
         "number": "Nº",
@@ -1261,7 +1261,7 @@
       "missing_email": "Sem email",
       "salary_too_low": "Salário invulgarmente baixo",
       "salary_too_high": "Salário invulgarmente alto",
-      "invalid_effective_date": "Data efectiva inválida",
+      "invalid_effective_date": "Data efetiva inválida",
       "duplicate_in_file": "Duplicado no ficheiro",
       "no_change_vs_current": "Sem alteração face ao atual"
     },
@@ -1276,11 +1276,11 @@
   },
   "beneficios": {
     "title": "Os meus benefícios",
-    "subtitle": "Acompanhe o saldo disponível e submeta as suas facturas.",
+    "subtitle": "Acompanhe o saldo disponível e submeta as suas faturas.",
     "adminTitle": "Benefícios — Gestão",
     "adminSubtitle": "Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.",
     "approverTitle": "Aprovações de despesas",
-    "approverSubtitle": "Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite.",
+    "approverSubtitle": "Reveja as faturas submetidas pelos colaboradores e aprove ou rejeite.",
     "tabs": {
       "mine": "Os meus benefícios",
       "approvals": "Aprovações",
@@ -1338,7 +1338,7 @@
     "submit": {
       "button": "Submeter despesa",
       "dialogTitle": "Nova despesa",
-      "dialogDescription": "Anexe a foto da factura e indique a categoria do benefício.",
+      "dialogDescription": "Anexe a foto da fatura e indique a categoria do benefício.",
       "category": "Categoria",
       "categoryPlaceholder": "Escolha…",
       "categoryAvailable": "disponível {{value}}",
@@ -1346,7 +1346,7 @@
       "descriptionPlaceholder": "Ex: Combustível Galp 12/03",
       "amount": "Valor (€)",
       "date": "Data da despesa",
-      "receipt": "Foto / factura",
+      "receipt": "Foto / fatura",
       "notes": "Notas (opcional)",
       "cancel": "Cancelar",
       "submit": "Submeter",
@@ -1403,7 +1403,7 @@
     },
     "actions": {
       "details": "Detalhes",
-      "viewReceipt": "Ver factura",
+      "viewReceipt": "Ver fatura",
       "approve": "Aprovar",
       "reject": "Rejeitar",
       "markPaid": "Marcar como paga",
@@ -1426,8 +1426,8 @@
     },
     "delete": {
       "title": "Apagar despesa",
-      "descriptionPending": "Esta ação é permanente. A despesa pendente e a respectiva factura serão removidas.",
-      "descriptionGeneric": "Esta ação é permanente. A despesa e a respectiva factura serão removidas.",
+      "descriptionPending": "Esta ação é permanente. A despesa pendente e a respectiva fatura serão removidas.",
+      "descriptionGeneric": "Esta ação é permanente. A despesa e a respectiva fatura serão removidas.",
       "cancel": "Cancelar",
       "confirm": "Apagar",
       "loading": "A apagar…"
@@ -1436,7 +1436,7 @@
       "title": "Rejeitar despesa",
       "description": "Indique o motivo da rejeição. O colaborador será notificado e o saldo é devolvido.",
       "reasonLabel": "Motivo",
-      "reasonPlaceholder": "Ex: Factura não corresponde ao colaborador / fora do âmbito da categoria…",
+      "reasonPlaceholder": "Ex: Fatura não corresponde ao colaborador / fora do âmbito da categoria…",
       "minChars": "Mínimo 3 caracteres.",
       "cancel": "Cancelar",
       "confirm": "Rejeitar",
@@ -1452,7 +1452,7 @@
         "categoryRequired": "Escolha uma categoria",
         "descriptionRequired": "Descrição obrigatória",
         "invalidAmount": "Valor inválido",
-        "receiptRequired": "Anexe a foto/factura",
+        "receiptRequired": "Anexe a foto/fatura",
         "submit": "Erro ao submeter",
         "openPhoto": "Erro ao abrir foto"
       },
@@ -1907,11 +1907,11 @@
     },
     "filters": {
       "department": "Departamento",
-      "project": "Projecto",
+      "project": "Projeto",
       "collaborator": "Colaborador",
       "state": "Estado",
       "allDepartments": "Todos os departamentos",
-      "allProjects": "Todos os projectos",
+      "allProjects": "Todos os projetos",
       "allCollaborators": "Todos os colaboradores",
       "allStates": "Todos os estados"
     },

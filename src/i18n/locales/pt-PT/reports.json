@@ -9,15 +9,15 @@
       },
       "business": {
         "title": "Desempenho do negócio",
-        "description": "Receita das horas facturáveis, custo, lucro e utilização, por projecto e pessoa."
+        "description": "Receita das horas faturáveis, custo, lucro e utilização, por projeto e pessoa."
       },
       "budget": {
         "title": "Orçamento vs consumo",
-        "description": "Orçamento consumido por projecto, projectos acima do orçamento e ritmo face ao prazo."
+        "description": "Orçamento consumido por projeto, projetos acima do orçamento e ritmo face ao prazo."
       },
       "billable": {
-        "title": "Facturável vs não facturável",
-        "description": "Horas facturáveis, de projeto não facturáveis e internas por pessoa face ao objetivo."
+        "title": "Faturável vs não faturável",
+        "description": "Horas faturáveis, de projeto não faturáveis e internas por pessoa face ao objetivo."
       },
       "capacity": {
         "title": "Previsão de capacidade",
@@ -65,7 +65,7 @@
       "clear": "Limpar seleção"
     },
     "departments": {
-      "Projecto": "Projecto",
+      "Projecto": "Projeto",
       "Backoffice": "Backoffice"
     },
     "tiles": {
@@ -112,7 +112,7 @@
   },
   "business": {
     "title": "Desempenho do negócio",
-    "subtitle": "Receita das horas facturáveis, custo e lucro por período, projecto e pessoa. Os custos usam as taxas de custo fixadas.",
+    "subtitle": "Receita das horas faturáveis, custo e lucro por período, projeto e pessoa. Os custos usam as taxas de custo fixadas.",
     "presets": {
       "lastWeek": "Última semana",
       "lastMonth": "Último mês",
@@ -121,17 +121,17 @@
       "custom": "Intervalo personalizado"
     },
     "filters": {
-      "projectStatus": "Estado do projecto"
+      "projectStatus": "Estado do projeto"
     },
     "status": {
       "all": "Todos",
-      "active": "Activos",
+      "active": "Ativos",
       "paused": "Em pausa",
       "closing": "Em fecho",
       "archived": "Arquivados"
     },
     "tiles": {
-      "revenue": "Receita (horas facturáveis × valor de venda)",
+      "revenue": "Receita (horas faturáveis × valor de venda)",
       "revenueShort": "Receita",
       "cost": "Custo total",
       "profit": "Lucro",
@@ -147,16 +147,16 @@
       "utilMonth": "Utilização por mês"
     },
     "byProject": {
-      "title": "Por projecto",
-      "project": "Projecto",
+      "title": "Por projeto",
+      "project": "Projeto",
       "hours": "Horas",
       "margin": "Margem %",
-      "empty": "Sem horas de projecto neste período."
+      "empty": "Sem horas de projeto neste período."
     },
     "byPerson": {
       "title": "Por pessoa",
       "capacity": "Capacidade",
-      "billablePct": "% facturável",
+      "billablePct": "% faturável",
       "internalPct": "% interno",
       "target": "(meta ≤ {{pct}}%)"
     }
@@ -168,7 +168,7 @@
     "toDate": "Custos até hoje",
     "upToLabel": "Custos até {{date}}",
     "search": "Pesquisar",
-    "searchPlaceholder": "Projecto ou cliente",
+    "searchPlaceholder": "Projeto ou cliente",
     "tiles": {
       "budget": "Orçamento total",
       "cost": "Custo total",
@@ -178,15 +178,15 @@
       "near": "Perto do limite (80–100%)"
     },
     "chart": {
-      "title": "Orçamento consumido por projecto, maior primeiro",
+      "title": "Orçamento consumido por projeto, maior primeiro",
       "label": "{{name}} · {{cost}} de {{budget}} · {{pct}}%"
     },
     "pace": {
       "title": "Orçamento consumido vs tempo decorrido",
       "x": "Prazo decorrido",
       "y": "Orçamento consumido",
-      "noDates_one": "{{count}} projecto sem datas fica de fora.",
-      "noDates_other": "{{count}} projectos sem datas ficam de fora."
+      "noDates_one": "{{count}} projeto sem datas fica de fora.",
+      "noDates_other": "{{count}} projetos sem datas ficam de fora."
     },
     "cols": {
       "budget": "Orçamento",
@@ -204,10 +204,10 @@
     "projectLevel": "Sem fase atribuída: angariação {{pursuit}} · materiais e despesas {{other}}",
     "expand": "Mostrar fases de {{name}}",
     "collapse": "Esconder fases de {{name}}",
-    "empty": "Nenhum projecto com orçamento corresponde a estes filtros.",
+    "empty": "Nenhum projeto com orçamento corresponde a estes filtros.",
     "noBudget": {
       "title": "Sem orçamento definido",
-      "hint": "Estes projectos têm custos mas não têm orçamento, por isso ficam fora dos totais em %."
+      "hint": "Estes projetos têm custos mas não têm orçamento, por isso ficam fora dos totais em %."
     },
     "external": {
       "title": "Serviços externos",
@@ -215,19 +215,19 @@
     }
   },
   "billable": {
-    "title": "Facturável vs não facturável",
-    "subtitle": "Tempo de projeto facturável, de projeto não facturável e interno. Ausências e feriados ficam fora de todas as percentagens.",
+    "title": "Faturável vs não faturável",
+    "subtitle": "Tempo de projeto faturável, de projeto não faturável e interno. Ausências e feriados ficam fora de todas as percentagens.",
     "kinds": {
-      "billable": "Projeto facturável",
-      "nonBillable": "Projeto não facturável",
+      "billable": "Projeto faturável",
+      "nonBillable": "Projeto não faturável",
       "internal": "Interno"
     },
     "tiles": {
       "logged": "Horas registadas",
-      "target": "Facturável vs objetivo",
+      "target": "Faturável vs objetivo",
       "targetSub": "Real / objetivo da equipa (ponderado pelas horas)",
-      "projectTeam": "Equipa de projecto: {{actual}} vs meta {{target}}",
-      "wholeStudio": "Estúdio todo: {{pct}} facturável"
+      "projectTeam": "Equipa de projeto: {{atual}} vs meta {{target}}",
+      "wholeStudio": "Estúdio todo: {{pct}} faturável"
     },
     "leaveContext": "Ausências {{h}} h (não contam)",
     "leaveExcluded": "Ausências e feriados excluídos",
@@ -238,7 +238,7 @@
     },
     "byPerson": {
       "title": "Por pessoa",
-      "hint": "Ordenado por % facturável. O marcador preto é o objetivo de RH da pessoa. Clique numa pessoa para ver o detalhe.",
+      "hint": "Ordenado por % faturável. O marcador preto é o objetivo de RH da pessoa. Clique numa pessoa para ver o detalhe.",
       "split": "Distribuição",
       "target": "Objetivo",
       "diff": "Diferença",
@@ -247,11 +247,11 @@
     "detail": {
       "byProject": "Por projeto",
       "stage": "Fase",
-      "hBillable": "h facturável",
-      "hNonBillable": "h não facturável",
+      "hBillable": "h faturável",
+      "hNonBillable": "h não faturável",
       "share": "% do seu tempo",
       "internal": "Tempo interno por categoria",
-      "trend": "% facturável semanal vs objetivo",
+      "trend": "% faturável semanal vs objetivo",
       "viewTimesheet": "Ver folha de horas",
       "none": "Sem horas neste período.",
       "noProject": "Sem projeto",
@@ -261,10 +261,10 @@
   },
   "capacity": {
     "title": "Previsão de capacidade",
-    "subtitle": "Horas planeadas nas fases próprias da PSA, activas e planeadas, face às horas disponíveis (feriados, ausências aprovadas, tempo parcial e datas de admissão incluídos).",
+    "subtitle": "Horas planeadas nas fases próprias da PSA, ativas e planeadas, face às horas disponíveis (feriados, ausências aprovadas, tempo parcial e datas de admissão incluídos).",
     "nextWeeks_one": "Próxima {{count}} semana",
     "nextWeeks_other": "Próximas {{count}} semanas",
-    "project": "Projecto",
+    "project": "Projeto",
     "unassigned": "Por atribuir",
     "team": "Equipa",
     "cell": "{{planned}} h planeadas de {{available}} h disponíveis",
@@ -292,7 +292,7 @@
       "over": "Acima de 110%"
     },
     "detail": {
-      "projectStage": "Projecto · fase",
+      "projectStage": "Projeto · fase",
       "none": "Nada planeado"
     },
     "explicitOnly": "Só horas explícitas",
@@ -335,7 +335,7 @@
       "licensing": "Licenciamento",
       "interiors": "Mobiliário / Interiores",
       "closeout": "Close out",
-      "singleProject": "Projecto (fase única)"
+      "singleProject": "Projeto (fase única)"
     },
     "missing_one": "{{count}} fase sem estimativa",
     "missing_other": "{{count}} fases sem estimativa",
@@ -380,7 +380,7 @@
   },
   "health": {
     "title": "Saúde da empresa",
-    "subtitle": "Dias, horas, custo total do estúdio, valor do trabalho e facturabilidade de equilíbrio. Só períodos concluídos, desde 1 de Junho de 2026. Os custos usam as taxas de custo fixadas; os salários ficam no servidor.",
+    "subtitle": "Dias, horas, custo total do estúdio, valor do trabalho e faturabilidade de equilíbrio. Só períodos concluídos, desde 1 de Junho de 2026. Os custos usam as taxas de custo fixadas; os salários ficam no servidor.",
     "presets": {
       "lastMonth": "Último mês",
       "last2Months": "Últimos 2 meses",
@@ -399,12 +399,12 @@
     "tiles": {
       "result": "Resultado",
       "margin": "Margem {{pct}}",
-      "value": "Valor do trabalho facturável",
-      "valueSub": "Horas facturáveis × taxa de venda — não é facturação emitida",
+      "value": "Valor do trabalho faturável",
+      "valueSub": "Horas faturáveis × taxa de venda — não é faturação emitida",
       "fullCost": "Custo total do estúdio",
       "fullCostSub": "Salários + custos operacionais, proporcionais aos dias úteis",
-      "breakEven": "Facturabilidade vs equilíbrio",
-      "breakEvenSub": "Horas facturáveis da equipa de projecto ÷ horas disponíveis · taxa média de venda {{rate}}/h"
+      "breakEven": "Faturabilidade vs equilíbrio",
+      "breakEvenSub": "Horas faturáveis da equipa de projeto ÷ horas disponíveis · taxa média de venda {{rate}}/h"
     },
     "days": {
       "title": "Dias",
@@ -424,19 +424,19 @@
       "available": "Horas disponíveis",
       "logged": "Registadas",
       "unlogged": "Por registar ({{pct}})",
-      "chargeTeam": "Equipa de projecto: {{actual}} vs meta {{target}}",
-      "chargeStudio": "Estúdio todo: {{pct}} facturável",
+      "chargeTeam": "Equipa de projeto: {{atual}} vs meta {{target}}",
+      "chargeStudio": "Estúdio todo: {{pct}} faturável",
       "internalCat": "Interno por categoria"
     },
     "kinds": {
-      "billable": "Projecto facturável",
-      "nonBillable": "Projecto não facturável",
+      "billable": "Projeto faturável",
+      "nonBillable": "Projeto não faturável",
       "internal": "Interno",
       "unlogged": "Por registar"
     },
     "blocks": {
-      "billable": "Horas de projecto facturáveis",
-      "nonBillable": "Horas de projecto não facturáveis",
+      "billable": "Horas de projeto faturáveis",
+      "nonBillable": "Horas de projeto não faturáveis",
       "internal": "Horas internas",
       "unlogged": "Horas por registar",
       "leave": "Ausências pagas e feriados",
@@ -447,7 +447,7 @@
     },
     "money": {
       "title": "Para onde vai o dinheiro",
-      "how": "Custo total = {{people}} pessoas ({{proj}} projecto, {{bo}} backoffice): salários de projecto {{projSal}} + salários de backoffice {{boSal}} (custo anual ÷ {{days}} dias úteis × dias trabalhados) + custos operacionais {{opex}} ({{opexAnnual}}/ano ÷ {{days}} × dias úteis × {{share}}%). Horas da equipa de projecto à taxa de custo fixada; a estrutura é o resto.",
+      "how": "Custo total = {{people}} pessoas ({{proj}} projeto, {{bo}} backoffice): salários de projeto {{projSal}} + salários de backoffice {{boSal}} (custo anual ÷ {{days}} dias úteis × dias trabalhados) + custos operacionais {{opex}} ({{opexAnnual}}/ano ÷ {{days}} × dias úteis × {{share}}%). Horas da equipa de projeto à taxa de custo fixada; a estrutura é o resto.",
       "withoutSalary": "{{n}} pessoas não têm registo salarial e somam 0 €.",
       "running": "Total acumulado"
     },
@@ -455,11 +455,11 @@
       "title": "Onde perdemos dinheiro",
       "internal": "Interno · {{cat}}",
       "unlogged": "Horas por registar",
-      "nonBillable": "Horas de projecto não facturáveis",
+      "nonBillable": "Horas de projeto não faturáveis",
       "pursuitLost": "Pursuit em leads perdidas",
-      "projects": "Projectos com custo acima do valor do trabalho",
+      "projects": "Projetos com custo acima do valor do trabalho",
       "noProjects": "Nenhum neste período.",
-      "project": "Projecto",
+      "project": "Projeto",
       "cost": "Custo",
       "colHours": "Horas",
       "colCost": "€",
@@ -476,7 +476,7 @@
     "trends": {
       "title": "Tendência mensal",
       "margin": "Margem %",
-      "charge": "Facturabilidade",
+      "charge": "Faturabilidade",
       "breakEven": "Equilíbrio",
       "unlogged": "Por registar %"
     }

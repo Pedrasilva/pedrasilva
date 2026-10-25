@@ -50,7 +50,7 @@ export function ClearanceSources({ draftId, safetyFlags = [] }: { draftId: strin
   return <div className="space-y-1 text-xs" data-clearance-draft={draftId}>
     {warning && <p className="font-medium text-warning">{t('posts.clearanceWarning')}</p>}
     {rows.map(r => <div key={`${r.kind}-${r.source_id}-${r.flag ?? ''}`} className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className={`${r.warning ? 'text-warning' : 'text-muted-foreground'} min-w-0 break-words`}>{t(`clearanceReview.${r.kind}`)}: {r.label}{r.clearance ? ` (${t(`clearance.${r.clearance}`)}${r.clearance === 'cleared' ? ' ✓' : ''})` : ''}</span>
+      <span className={`${r.warning ? 'text-warning' : 'text-muted-foreground'} min-w-0 break-words`}>{t(r.clearance ? "clearanceReview.sourceWithStatus" : "clearanceReview.source", { kind: t(`clearanceReview.${r.kind}`), label: r.label, status: r.clearance ? t(`clearance.${r.clearance}`) : "", check: r.clearance === "cleared" ? " ✓" : "" })}</span>
       {r.kind === 'project' ? r.profile_id && <Link className="text-primary underline" to="/marketing/projects/$profileId" params={{ profileId: r.profile_id }}>{t('profile.openProfile')}</Link> : <Link className="text-primary underline" to="/marketing" search={{ capture: r.source_id }}>{t('clearanceReview.openInbox')}</Link>}
       {r.kind === 'capture' && r.no_project && <span className="text-muted-foreground">{t('clearanceReview.noProject')}</span>}
       {r.kind === 'flag' && r.flag && <DismissCaptureFlag captureId={r.source_id} flag={r.flag} />}
