@@ -196,7 +196,7 @@
     "impact_other": "{{count}} emails currently in the queue will be handled immediately.",
     "confirm": "Save rule & apply now",
     "cancel": "Discard",
-    "saved": "{{created}} rule(s) saved · {{applied}} existing email(s) handled.",
+    "saved": "Rules saved: {{created}} · existing emails handled: {{applied}}.",
     "savedFailed_one": "{{count}} email could not be handled.",
     "savedFailed_other": "{{count}} emails could not be handled."
   },

@@ -196,7 +196,7 @@
     "impact_other": "{{count}} emails atualmente na fila serão tratados de imediato.",
     "confirm": "Guardar regra e aplicar agora",
     "cancel": "Descartar",
-    "saved": "{{created}} regra(s) guardada(s) · {{applied}} email(s) existente(s) tratado(s).",
+    "saved": "Regras guardadas: {{created}} · emails existentes tratados: {{applied}}.",
     "savedFailed_one": "{{count}} email não pôde ser tratado.",
     "savedFailed_other": "{{count}} emails não puderam ser tratados."
   },

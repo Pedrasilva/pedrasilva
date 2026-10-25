@@ -108,7 +108,8 @@
       },
       "feiPaidHrDrift": {
         "title": "Finance/HR payment drift",
-        "body": "{{count}} paid liability(ies) not reflected on HR side."
+        "body_one": "{{count}} paid liability not reflected in HR.",
+        "body_other": "{{count}} paid liabilities not reflected in HR."
       },
       "syncFailed": {
         "title": "Finance → HR sync failures",

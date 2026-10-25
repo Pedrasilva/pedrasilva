@@ -108,7 +108,8 @@
       },
       "feiPaidHrDrift": {
         "title": "Divergência de pagamento Finanças/RH",
-        "body": "{{count}} passivo(s) pago(s) não refletido(s) no RH."
+        "body_one": "{{count}} passivo pago não refletido no RH.",
+        "body_other": "{{count}} passivos pagos não refletidos no RH."
       },
       "syncFailed": {
         "title": "Falhas de sincronização Finanças → RH",
