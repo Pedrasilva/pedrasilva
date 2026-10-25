@@ -8936,7 +8936,7 @@ export type Database = {
           location: string | null
           name_rule: Database["public"]["Enums"]["marketing_name_rule"]
           post_language: string
-          project_id: string
+          project_id: string | null
           proud_of: string | null
           public_description: string | null
           rules_notes: string | null
@@ -8961,7 +8961,7 @@ export type Database = {
           location?: string | null
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
           post_language?: string
-          project_id: string
+          project_id?: string | null
           proud_of?: string | null
           public_description?: string | null
           rules_notes?: string | null
@@ -8986,7 +8986,7 @@ export type Database = {
           location?: string | null
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
           post_language?: string
-          project_id?: string
+          project_id?: string | null
           proud_of?: string | null
           public_description?: string | null
           rules_notes?: string | null
