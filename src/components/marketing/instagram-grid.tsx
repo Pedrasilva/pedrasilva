@@ -67,7 +67,7 @@ export function InstagramGrid({ planned, live, canCurate=false, liveError, loadF
             <Carousel className="mx-10">
               <CarouselContent>
                 {open.images.map((src, i) => (
-                  <CarouselItem key={`${src}-${i}`}><img src={src} alt="" className="aspect-square w-full object-cover" /></CarouselItem>
+                  <CarouselItem key={`${src}-${i}`}>{/\.(mp4|mov)(?:\?|$)/i.test(src) ? <video src={src} controls preload="metadata" className="aspect-[9/16] w-full object-contain" /> : <img src={src} alt="" className="aspect-square w-full object-cover" />}</CarouselItem>
                 ))}
               </CarouselContent>
               {open.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}

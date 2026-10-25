@@ -36,7 +36,7 @@ export const finishReelUpload = createServerFn({ method: 'POST' }).middleware([r
   const { inspectMedia } = await import('./instagram-media.server');
   // Independent inspection of actual uploaded bytes; never trust browser metadata.
   if (!await inspectMedia(urls[0].signedUrl, 'reel')) throw new Error('Reel requires a video');
-  await inspectMedia(urls[1].signedUrl, 'story');
+  if (await inspectMedia(urls[1].signedUrl, 'story')) throw new Error('Cover must be a JPEG image');
   const { data: draftId, error: finishError } = await context.supabase.rpc('marketing_finish_reel', { _upload: data.uploadId, _copy: data.copy, _hashtags: data.hashtags, _share: data.shareToFeed });
   if (finishError || !draftId) throw new Error(finishError?.message ?? 'Could not save reel');
   return { draftId };

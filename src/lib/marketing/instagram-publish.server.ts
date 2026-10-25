@@ -70,7 +70,7 @@ export async function publishInstagramDraft(db: Db, draft: Draft, token: string,
       const signed=await signPaths(db,[{path:draft.reel_cover_path}],3600);
       coverUrl=signed.get(draft.reel_cover_path);
       if(!coverUrl)throw new InstagramError('Reel cover unavailable','validation');
-      try { await inspectMedia(coverUrl,'story',request); } catch { throw new InstagramError('Reel cover must be a valid portrait JPEG','validation'); }
+      try { if(await inspectMedia(coverUrl,'story',request))throw new Error('Cover is not JPEG'); } catch { throw new InstagramError('Reel cover must be a valid portrait JPEG','validation'); }
     }
     await log(true);
     const caption=[draft.final_copy??draft.ai_copy,(draft.final_hashtags??draft.ai_hashtags).map(h=>'#'+h.replace(/^#+/,'')).join(' ')].filter(Boolean).join('\n\n');
