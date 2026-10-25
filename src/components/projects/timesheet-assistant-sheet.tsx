@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -437,7 +438,7 @@ export function TimesheetAssistantSheet({
                     {!d.saved && (
                       <span className="text-xs text-muted-foreground">
                         {t(k("adds"), { hours: d.hours })}
-                        {already > 0 ? ` · ${t(k("addsAlready"), { already })}` : ""}
+                        {already > 0 ? i18n.t("projects:timesheetAssistantSheet.ui.valueSeparator", { value1: t(k("addsAlready"), { already }) }) : ""}
                       </span>
                     )}
                     {d.saved && <span className="text-xs text-success">✓ {t(k("savedOne"))}</span>}
@@ -462,7 +463,7 @@ export function TimesheetAssistantSheet({
                     <div className="grid gap-2 sm:grid-cols-2">
                       <select aria-label={t(k("project"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.project_id ?? ""} disabled={d.saved} onChange={(e) => { const p = projById.get(e.target.value); update(d.key, { project_id: e.target.value || null, stage_id: p?.stages.length === 1 ? p.stages[0].id : null }); }}>
                         <option value="">{t(k("pickProject"))}</option>
-                        {(result?.projects ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}{p.client ? ` — ${p.client}` : ""}</option>)}
+                        {(result?.projects ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}{p.client ? i18n.t("projects:timesheetAssistantSheet.ui.dashValue", { value1: p.client }) : ""}</option>)}
                       </select>
                       <select aria-label={t(k("stage"))} className="h-9 rounded-md border bg-background px-2 text-sm" value={d.stage_id ?? ""} disabled={d.saved || !proj} onChange={(e) => update(d.key, { stage_id: e.target.value || null })}>
                         <option value="">{t(k("pickStage"))}</option>
@@ -482,7 +483,7 @@ export function TimesheetAssistantSheet({
                         <optgroup label={t("projects:pursuit.leadsGroup")}>
                           {(result?.leads ?? []).map((l) => (
                             <option key={l.id} value={`lead:${l.id}`}>
-                              {t("projects:pursuit.categoryLabel")} · {l.name}{l.client ? ` · ${l.client}` : ""}
+                              {t("projects:pursuit.categoryLabel")} · {l.name}{l.client ? i18n.t("projects:timesheetAssistantSheet.ui.valueSeparatorLabel", { value1: l.client }) : ""}
                             </option>
                           ))}
                         </optgroup>

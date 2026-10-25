@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,7 @@ interface Props {
  * edits to working dates/budget.
  */
 export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
+  useTranslation();
   const locked = isBaselineLocked(stage as StageWithBaseline);
   const [open, setOpen] = useState(false);
 
@@ -64,7 +67,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
 
   async function save() {
     if (!start || !end) {
-      toast.error("Datas obrigatórias");
+      toast.error(i18n.t("projects:stageBaselineDialog.ui.baselineDatesRequired"));
       return;
     }
     try {
@@ -77,7 +80,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
         baseline_target_hours: Number(targetHours) || 0,
         baseline_notes: notes || null,
       });
-      toast.success(locked ? "Baseline atualizada" : "Baseline definida");
+      toast.success(locked ? i18n.t("projects:stageBaselineDialog.ui.baselineUpdated") : i18n.t("projects:stageBaselineDialog.ui.baselineSet"));
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -85,10 +88,10 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
   }
 
   async function clear() {
-    if (!confirm("Remover baseline desta fase? A variância deixará de ser calculada.")) return;
+    if (!confirm(i18n.t("projects:stageBaselineDialog.ui.removeBaselineConfirm"))) return;
     try {
       await clearBaseline.mutateAsync({ id: stage.id, projectId });
-      toast.success("Baseline removida");
+      toast.success(i18n.t("projects:stageBaselineDialog.ui.baselineRemoved"));
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -112,7 +115,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             {locked ? <Lock className="h-3 w-3" /> : <LockOpen className="h-3 w-3" />}
-            {locked ? "Re-baseline" : "Definir baseline"}
+            {locked ? i18n.t("projects:stageBaselineDialog.ui.resetBaseline") : i18n.t("projects:stageBaselineDialog.ui.setBaseline")}
           </button>
         )}
       </DialogTrigger>
@@ -121,7 +124,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {locked ? <Lock className="h-4 w-4 text-primary" /> : <LockOpen className="h-4 w-4" />}
-            {locked ? "Re-baseline" : "Definir baseline"} — {stage.name}
+            {locked ? i18n.t("projects:stageBaselineDialog.ui.resetBaseline") : i18n.t("projects:stageBaselineDialog.ui.setBaseline")} — {stage.name}
           </DialogTitle>
         </DialogHeader>
 
@@ -129,16 +132,15 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
           <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <div className="space-y-1">
-              <p className="font-medium">Esta fase já tem baseline.</p>
+              <p className="font-medium"> {i18n.t("projects:stageBaselineDialog.ui.stageHasBaseline")} </p>
               <p>
-                Última actualização:{" "}
+                 {i18n.t("projects:stageBaselineDialog.ui.lastUpdated")} {" "}
                 <span className="font-mono">
                   {stage.baseline_locked_at
                     ? format(new Date(stage.baseline_locked_at), "dd MMM yyyy")
                     : "—"}
                 </span>
-                . Re-baseline substitui os valores de referência usados em variância e KPIs de saúde.
-              </p>
+                 {i18n.t("projects:stageBaselineDialog.ui.resetBaselineHint")} </p>
             </div>
           </div>
         )}
@@ -146,17 +148,17 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="bl-start" className="text-xs">Início baseline</Label>
+              <Label htmlFor="bl-start" className="text-xs"> {i18n.t("projects:stageBaselineDialog.ui.baselineStart")} </Label>
               <Input id="bl-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="bl-end" className="text-xs">Fim baseline</Label>
+              <Label htmlFor="bl-end" className="text-xs"> {i18n.t("projects:stageBaselineDialog.ui.baselineEnd")} </Label>
               <Input id="bl-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="bl-budget" className="text-xs">Orçamento baseline (€)</Label>
+              <Label htmlFor="bl-budget" className="text-xs"> {i18n.t("projects:stageBaselineDialog.ui.baselineBudgetEuros")} </Label>
               <Input
                 id="bl-budget"
                 type="number"
@@ -167,7 +169,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
               />
             </div>
             <div>
-              <Label htmlFor="bl-hours" className="text-xs">Horas-alvo baseline</Label>
+              <Label htmlFor="bl-hours" className="text-xs"> {i18n.t("projects:stageBaselineDialog.ui.baselineTargetHours")} </Label>
               <Input
                 id="bl-hours"
                 type="number"
@@ -177,16 +179,16 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
                 onChange={(e) => setTargetHours(Number(e.target.value))}
               />
               <p className="mt-0.5 text-[10px] text-muted-foreground">
-                Sugestão (alocações actuais): <span className="font-mono">{livePlannedHours.toFixed(0)}h</span>
+                 {i18n.t("projects:stageBaselineDialog.ui.baselineAllocationSuggestion")} <span className="font-mono">{livePlannedHours.toFixed(0)} {i18n.t("common:units.hoursShort")} </span>
               </p>
             </div>
           </div>
           <div>
-            <Label htmlFor="bl-notes" className="text-xs">Notas (opcional)</Label>
+            <Label htmlFor="bl-notes" className="text-xs"> {i18n.t("common:notesOptional")} </Label>
             <Textarea
               id="bl-notes"
               rows={2}
-              placeholder="Ex.: re-baseline após mudança de âmbito do cliente"
+              placeholder={i18n.t("projects:stageBaselineDialog.ui.baselineNotesExample")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -194,12 +196,12 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
 
           <div className="rounded-md bg-muted/50 p-3 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Orçamento de trabalho actual</span>
+              <span className="text-muted-foreground"> {i18n.t("projects:stageBaselineDialog.ui.currentWorkingBudget")} </span>
               <span className="font-mono">{euros(Number(stage.budget) || 0)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Horas planeadas (alocações)</span>
-              <span className="font-mono">{livePlannedHours.toFixed(0)}h</span>
+              <span className="text-muted-foreground"> {i18n.t("projects:stageBaselineDialog.ui.plannedAllocationHours")} </span>
+              <span className="font-mono">{livePlannedHours.toFixed(0)} {i18n.t("common:units.hoursShort")} </span>
             </div>
           </div>
         </div>
@@ -207,17 +209,15 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
         <DialogFooter className="flex items-center justify-between sm:justify-between">
           {locked ? (
             <Button variant="ghost" size="sm" onClick={clear} className="text-destructive hover:text-destructive">
-              Remover baseline
-            </Button>
+               {i18n.t("projects:stageBaselineDialog.ui.removeBaseline")} </Button>
           ) : (
             <span />
           )}
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
+               {i18n.t("common:cancel")} </Button>
             <Button size="sm" onClick={save} disabled={setBaseline.isPending}>
-              {setBaseline.isPending ? "A guardar…" : locked ? "Re-baseline" : "Definir baseline"}
+              {setBaseline.isPending ? i18n.t("common:saving") : locked ? i18n.t("projects:stageBaselineDialog.ui.resetBaseline") : i18n.t("projects:stageBaselineDialog.ui.setBaseline")}
             </Button>
           </div>
         </DialogFooter>

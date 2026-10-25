@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Interactive row controls for the project Overview "Milestones & Tasks"
  * table: stage status switching (planned / active / done / cancelled),
@@ -68,6 +69,7 @@ export function StageStatusCell({
   status: StageStatus;
   disabled?: boolean;
 }) {
+  useTranslation();
   const updateStage = useUpdateStage();
 
   const set = (next: StageStatus) => {
@@ -75,7 +77,7 @@ export function StageStatusCell({
     updateStage.mutate(
       { id: stageId, projectId, patch: { status: next } },
       {
-        onSuccess: () => toast.success(`Status: ${STAGE_STATUS_LABEL[next]}`),
+        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValue", { value1: STAGE_STATUS_LABEL[next] })),
         onError: (e: unknown) => toast.error((e as Error).message),
       },
     );
@@ -103,7 +105,7 @@ export function StageStatusCell({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-44">
-        <DropdownMenuLabel className="text-[11px]">Stage status</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-[11px]"> {i18n.t("projects:stageRowActions.ui.stageStatus")} </DropdownMenuLabel>
         {(["planned", "active", "done", "cancelled"] as const).map((s) => (
           <DropdownMenuItem key={s} onSelect={() => set(s)} className="text-xs">
             <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", DOT[s])} />
@@ -142,6 +144,7 @@ export function StageRowActions({
   /** Supplier/consultant stage: PSA staff cannot be assigned. */
   isSupplier?: boolean;
 }) {
+  useTranslation();
   const { data: resources } = useResources();
   const createAllocation = useCreateAllocation();
   const updateStage = useUpdateStage();
@@ -162,7 +165,7 @@ export function StageRowActions({
         projectId,
       },
       {
-        onSuccess: () => toast.success("Resource assigned to stage"),
+        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.resourceAssignedToStage")),
         onError: (e: unknown) => toast.error((e as Error).message),
       },
     );
@@ -172,7 +175,7 @@ export function StageRowActions({
     updateStage.mutate(
       { id: stageId, projectId, patch: { status: next } },
       {
-        onSuccess: () => toast.success(`Status: ${STAGE_STATUS_LABEL[next]}`),
+        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValueLabel", { value1: STAGE_STATUS_LABEL[next] })),
         onError: (e: unknown) => toast.error((e as Error).message),
       },
     );
@@ -183,8 +186,8 @@ export function StageRowActions({
         type="button"
         onClick={onEdit}
         className="rounded p-1 hover:bg-accent hover:text-foreground"
-        aria-label="Editar"
-        title="Edit plan"
+        aria-label={i18n.t("common:edit")}
+        title={i18n.t("projects:detail.ui.editPlan")}
       >
         <Pencil className="h-3.5 w-3.5" />
       </button>
@@ -194,18 +197,17 @@ export function StageRowActions({
           <button
             type="button"
             className="rounded p-1 hover:bg-accent hover:text-foreground"
-            aria-label="Atribuir"
-            title="Assign responsible"
+            aria-label={i18n.t("projects:stageRowActions.ui.assign")}
+            title={i18n.t("common:myActions.ownerPlaceholder")}
           >
             <UserPlus className="h-3.5 w-3.5" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="max-h-72 w-56 overflow-y-auto">
-          <DropdownMenuLabel className="text-[11px]">Assign responsible</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-[11px]"> {i18n.t("common:myActions.ownerPlaceholder")} </DropdownMenuLabel>
           {active.length === 0 && (
             <DropdownMenuItem disabled className="text-xs">
-              No resources
-            </DropdownMenuItem>
+               {i18n.t("projects:stageRowActions.ui.noResources")} </DropdownMenuItem>
           )}
           {active.map((r) => (
             <DropdownMenuItem
@@ -230,13 +232,13 @@ export function StageRowActions({
           <button
             type="button"
             className="rounded p-1 hover:bg-accent hover:text-foreground"
-            aria-label="Mais"
+            aria-label={i18n.t("common:more")}
           >
             <MoreVertical className="h-3.5 w-3.5" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel className="text-[11px]">Stage status</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-[11px]"> {i18n.t("projects:stageRowActions.ui.stageStatus")} </DropdownMenuLabel>
           {(["planned", "active", "done", "cancelled"] as const).map((s) => (
             <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className="text-xs">
               <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", DOT[s])} />
@@ -246,11 +248,9 @@ export function StageRowActions({
           ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setTaskOpen(true)} className="text-xs">
-            <ListPlus className="mr-2 h-3.5 w-3.5" /> Add task
-          </DropdownMenuItem>
+            <ListPlus className="mr-2 h-3.5 w-3.5" />  {i18n.t("projects:detail.ui.addTask")} </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onEdit?.()} className="text-xs">
-            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit plan
-          </DropdownMenuItem>
+            <Pencil className="mr-2 h-3.5 w-3.5" />  {i18n.t("projects:detail.ui.editPlan")} </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -294,8 +294,8 @@ export function AllocationRowActions({
         type="button"
         onClick={onEditTask ?? onEdit}
         className="rounded p-1 hover:bg-accent hover:text-foreground"
-        aria-label="Editar"
-        title={onEditTask ? "Edit task" : "Edit plan"}
+        aria-label={i18n.t("common:edit")}
+        title={onEditTask ? i18n.t("projects:stageRowActions.ui.editTask") : i18n.t("projects:detail.ui.editPlan")}
       >
         <Pencil className="h-3.5 w-3.5" />
       </button>
@@ -304,7 +304,7 @@ export function AllocationRowActions({
           <button
             type="button"
             className="rounded p-1 hover:bg-accent hover:text-foreground"
-            aria-label="Mais"
+            aria-label={i18n.t("common:more")}
           >
             <MoreVertical className="h-3.5 w-3.5" />
           </button>
@@ -312,12 +312,10 @@ export function AllocationRowActions({
         <DropdownMenuContent align="end" className="w-48">
           {onEditTask && (
             <DropdownMenuItem onSelect={() => onEditTask()} className="text-xs">
-              <Pencil className="mr-2 h-3.5 w-3.5" /> Edit task
-            </DropdownMenuItem>
+              <Pencil className="mr-2 h-3.5 w-3.5" />  {i18n.t("projects:stageRowActions.ui.editTask")} </DropdownMenuItem>
           )}
           <DropdownMenuItem onSelect={() => onEdit?.()} className="text-xs">
-            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit plan
-          </DropdownMenuItem>
+            <Pencil className="mr-2 h-3.5 w-3.5" />  {i18n.t("projects:detail.ui.editPlan")} </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-xs text-destructive focus:text-destructive"

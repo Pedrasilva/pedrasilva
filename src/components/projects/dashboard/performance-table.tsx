@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { plannedAllocationFigures } from "@/lib/projects/financial-calculation";
 import { effectiveRates } from "@/lib/projects/use-default-rates";
 import { useMemo, useState } from "react";
@@ -21,6 +23,7 @@ interface Props {
 }
 
 export function PerformanceTable({ projects, stages, resources, loading }: Props) {
+  useTranslation();
   const [metric, setMetric] = useState<Metric>("Budget (hrs)");
   const { data: defaultRates } = useDefaultResourceRates();
 
@@ -127,9 +130,8 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex items-center gap-3">
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Performance
-          </h2>
-          <span className="text-[11px] text-muted-foreground">Analyze by Resource</span>
+             {i18n.t("projects:performanceTable.ui.performance")} </h2>
+          <span className="text-[11px] text-muted-foreground"> {i18n.t("projects:performanceTable.ui.analyzeByResource")} </span>
         </div>
         <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
           {(["Value", "Budget (hrs)", "Number of Projects"] as Metric[]).map((m) => (
@@ -153,26 +155,24 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
         <table className="w-full text-sm">
           <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-5 py-2 text-left font-medium">Staff</th>
-              <th className="px-3 py-2 text-center font-medium"># Active</th>
-              <th className="px-3 py-2 text-right font-medium">Value</th>
-              <th className="px-3 py-2 text-left font-medium">On Budget</th>
-              <th className="px-5 py-2 text-left font-medium">On Time</th>
+              <th className="px-5 py-2 text-left font-medium"> {i18n.t("projects:performanceTable.ui.staff")} </th>
+              <th className="px-3 py-2 text-center font-medium"> {i18n.t("projects:performanceTable.ui.activeCount")} </th>
+              <th className="px-3 py-2 text-right font-medium"> {i18n.t("glossary:financial.value")} </th>
+              <th className="px-3 py-2 text-left font-medium"> {i18n.t("projects:performanceTable.ui.onBudget")} </th>
+              <th className="px-5 py-2 text-left font-medium"> {i18n.t("projects:performanceTable.ui.onTime")} </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  Loading…
-                </td>
+                   {i18n.t("common:loading")} </td>
               </tr>
             )}
             {!loading && rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  No resources allocated to projects yet.
-                </td>
+                   {i18n.t("projects:performanceTable.ui.noAllocatedResources")} </td>
               </tr>
             )}
             {rows.map((r) => (
@@ -185,7 +185,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
                   {metric === "Number of Projects"
                     ? r.active
                     : metric === "Budget (hrs)"
-                      ? `${Math.round(r.hours)}h`
+                      ? i18n.t("projects:performanceTable.ui.hoursValue", { value1: Math.round(r.hours) })
                       : euros(r.value)}
                 </td>
                 <td className="px-3 py-2.5">
@@ -204,6 +204,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
 }
 
 function SegmentBar({ good, warn, bad }: { good: number; warn: number; bad: number }) {
+  useTranslation();
   const total = good + warn + bad;
   if (total === 0) {
     return <div className="h-2.5 w-full rounded-full bg-muted" />;

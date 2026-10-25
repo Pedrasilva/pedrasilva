@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { useMemo } from "react";
 import { addDays, format, parseISO, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -94,6 +96,7 @@ function useHolidaySet() {
 }
 
 export function ResourcePool({ resources, collapsed = false, missingRateIds }: Props) {
+  useTranslation();
   const { data: allocs } = useAllAllocations();
   const { data: leaveByResource } = useLeaveByResource();
   const { data: holidays } = useHolidaySet();
@@ -119,14 +122,13 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
       <div className="border-b border-border px-3 py-3">
         {collapsed ? (
           <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Team
-          </p>
+             {i18n.t("glossary:entity.team")} </p>
         ) : (
           <>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
-            <h2 className="text-lg font-semibold">Team pool</h2>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground"> {i18n.t("projects:resourcePool.ui.dragOntoStage")} </p>
+            <h2 className="text-lg font-semibold"> {i18n.t("projects:resourcePool.ui.teamPool")} </h2>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
+               {i18n.t("projects:resourcePool.ui.thisWeekSeparator")} {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
             </p>
           </>
         )}
@@ -193,12 +195,10 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                   <TooltipContent side="left" className="text-xs">
                     <div className="font-medium">{r.name}</div>
                     <div className="font-mono text-[10px] text-muted-foreground">
-                      {wh.toFixed(0)}/{effCap.toFixed(0)} h this week
-                    </div>
+                      {wh.toFixed(0)}/{effCap.toFixed(0)}  {i18n.t("projects:resourcePool.ui.hoursThisWeek")} </div>
                     {reducedByLeave && (
                       <div className="text-[10px] text-amber-600 dark:text-amber-400">
-                        −{cap.leaveHours.toFixed(0)}h leave
-                      </div>
+                        −{cap.leaveHours.toFixed(0)} {i18n.t("projects:resourcePool.ui.leaveHours")} </div>
                     )}
                   </TooltipContent>
                 </Tooltip>
@@ -242,8 +242,8 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                       </TooltipTrigger>
                       <TooltipContent side="left" className="text-xs">
                         {fullyOnLeave
-                          ? "On leave all week — 0h capacity"
-                          : `−${cap.leaveHours.toFixed(0)}h this week (leave)`}
+                          ? i18n.t("projects:resourcePool.ui.onLeaveAllWeek")
+                          : i18n.t("projects:resourcePool.ui.leaveCapacityReduction", { value1: cap.leaveHours.toFixed(0) })}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -259,22 +259,19 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                         <TooltipTrigger asChild>
                           <span className="inline-flex items-center gap-1 rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-700 dark:text-amber-300">
                             <AlertTriangle className="h-3 w-3" />
-                            Rate missing
-                          </span>
+                             {i18n.t("projects:resourcePool.ui.costRateMissing")} </span>
                         </TooltipTrigger>
                         <TooltipContent side="left" className="text-xs">
-                          Configure collaborator costing in HR
-                        </TooltipContent>
+                           {i18n.t("projects:resourcePool.ui.configureHrCosting")} </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   ) : (
-                    <span className="text-muted-foreground">{euros(Number(r.hourly_rate))}/h</span>
+                    <span className="text-muted-foreground">{euros(Number(r.hourly_rate))} {i18n.t("common:units.perHour")} </span>
                   )}
                   <span
                     className={`font-mono ${over ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                   >
-                    {wh.toFixed(0)}/{effCap.toFixed(0)} h
-                    {reducedByLeave && (
+                    {wh.toFixed(0)}/{effCap.toFixed(0)}  {i18n.t("common:units.hoursShort")} {reducedByLeave && (
                       <span className="ml-1 text-[9px] text-muted-foreground/70 line-through">
                         {baseCap.toFixed(0)}
                       </span>
@@ -292,8 +289,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                 </div>
                 {reducedByLeave && (
                   <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
-                    Capacity reduced {cap.reductionPct.toFixed(0)}% by leave
-                  </p>
+                     {i18n.t("projects:resourcePool.ui.capacityReduced")} {cap.reductionPct.toFixed(0)} {i18n.t("projects:resourcePool.ui.byLeavePercentSuffix")} </p>
                 )}
               </div>
             </div>
@@ -301,8 +297,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
         })}
         {!activeResources.length && !collapsed && (
           <div className="rounded-md border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-            No active team members. Add or activate someone in the Team tab to start allocating.
-          </div>
+             {i18n.t("projects:resourcePool.ui.noActiveTeamMembers")} </div>
         )}
       </div>
     </aside>

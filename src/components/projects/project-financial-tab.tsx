@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * Project Financial tab.
  *
@@ -71,6 +73,7 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "des
 };
 
 export function ProjectFinancialTab({ projectId }: { projectId: string }) {
+  useTranslation();
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<Row>>({});
@@ -115,7 +118,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       qc.invalidateQueries({ queryKey: ["pm-financial", projectId] });
       setEditingId(null);
       setDraft({});
-      toast.success("Saved");
+      toast.success(i18n.t("common:saved"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -131,7 +134,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["pm-financial", projectId] });
-      toast.success("Removed");
+      toast.success(i18n.t("common:removed"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -181,7 +184,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
     .filter((r) => r.direction === "inflow")
     .reduce((s, r) => s + Number(r.amount_value ?? 0), 0);
 
-  if (isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+  if (isLoading) return <div className="p-6 text-sm text-muted-foreground"> {i18n.t("common:loading")} </div>;
 
   const beginEdit = (r: Row) => {
     setEditingId(r.id);
@@ -199,28 +202,26 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       <Card className="border-2 border-foreground/80">
         <CardHeader className="pb-3">
           <div className="flex items-baseline justify-between gap-4">
-            <CardTitle className="text-base uppercase tracking-wide">Financial</CardTitle>
+            <CardTitle className="text-base uppercase tracking-wide"> {i18n.t("projects:projectFinancialTab.ui.financial")} </CardTitle>
             <div className="text-lg font-bold tabular-nums">{fmtEUR(grandTotal)}</div>
           </div>
           <div className="text-xs text-muted-foreground">
-            Plano de faturação ao cliente — herdado do orçamento aprovado e editável aqui.
-          </div>
+             {i18n.t("projects:projectFinancialTab.ui.billingPlanDescription")} </div>
           <div className="pt-2"><InvoiceGroupingControl kind="project" id={projectId} /></div>
         </CardHeader>
         <CardContent>
           {grouped.length === 0 ? (
             <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
-              Sem linhas. Carregue em &quot;Adicionar linha&quot; abaixo para começar.
-            </div>
+               {i18n.t("projects:projectFinancialTab.ui.noBillingLines")} </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/40">
-                  <TableHead className="w-28">Mês</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Etapa</TableHead>
-                  <TableHead className="text-right w-32">Valor</TableHead>
-                  <TableHead className="w-28">Estado</TableHead>
+                  <TableHead className="w-28"> {i18n.t("common:month")} </TableHead>
+                  <TableHead> {i18n.t("common:description")} </TableHead>
+                  <TableHead> {i18n.t("glossary:entity.stage")} </TableHead>
+                  <TableHead className="text-right w-32"> {i18n.t("glossary:financial.value")} </TableHead>
+                  <TableHead className="w-28"> {i18n.t("common:status")} </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,7 +250,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
                       ))}
                       <TableRow className="bg-muted/20">
                         <TableCell colSpan={3} className="text-right text-xs font-medium">
-                          Subtotal {month}
+                           {i18n.t("projects:projectFinancialTab.ui.subtotal")} {month}
                         </TableCell>
                         <TableCell className="text-right font-semibold tabular-nums">
                           {fmtEUR(subtotal)}
@@ -268,21 +269,20 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       {/* Editable line items */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-sm">Linhas (editar)</CardTitle>
+          <CardTitle className="text-sm"> {i18n.t("projects:projectFinancialTab.ui.editLines")} </CardTitle>
           <Button size="sm" variant="outline" onClick={() => insert.mutate()}>
-            <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar linha
-          </Button>
+            <Plus className="mr-1 h-3.5 w-3.5" />  {i18n.t("projects:projectFinancialTab.ui.addLine")} </Button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Etapa</TableHead>
-                <TableHead>Data fatura</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Direção</TableHead>
+                <TableHead> {i18n.t("common:description")} </TableHead>
+                <TableHead> {i18n.t("glossary:entity.stage")} </TableHead>
+                <TableHead> {i18n.t("projects:externalServices.fields.invoiceDate")} </TableHead>
+                <TableHead className="text-right"> {i18n.t("glossary:financial.value")} </TableHead>
+                <TableHead> {i18n.t("common:status")} </TableHead>
+                <TableHead> {i18n.t("projects:projectFinancialTab.ui.direction")} </TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -393,8 +393,8 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="inflow">Inflow</SelectItem>
-                            <SelectItem value="outflow">Outflow</SelectItem>
+                            <SelectItem value="inflow"> {i18n.t("projects:projectFinancialTab.ui.inflow")} </SelectItem>
+                            <SelectItem value="outflow"> {i18n.t("projects:projectFinancialTab.ui.outflow")} </SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
@@ -421,8 +421,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
                       ) : (
                         <div className="flex justify-end gap-1">
                           <Button size="sm" variant="ghost" onClick={() => beginEdit(r)}>
-                            Editar
-                          </Button>
+                             {i18n.t("common:edit")} </Button>
                           <Button
                             size="icon"
                             variant="ghost"

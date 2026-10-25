@@ -596,8 +596,19 @@
     "hoursPerWeek": "h/semana",
     "eurosPerHour": "€/h",
     "pixels": "px",
-    "hoursDot": "h ·"
+    "hoursDot": "h ·",
+    "hours": "Horas",
+    "hoursPerDayShort": "h/dia",
+    "perHour": "/h",
+    "hoursPerDayEnd": "h/dia.",
+    "hoursTimes": "h ×"
   },
   "imported": "Importado",
-  "accessDenied": "Acesso negado."
+  "accessDenied": "Acesso negado.",
+  "updated": "Atualizado",
+  "days": "Dias",
+  "more": "Mais",
+  "planned": "Planeado",
+  "hrParenthesis": "(RH)",
+  "hrPercentSuffix": "% (RH)"
 }

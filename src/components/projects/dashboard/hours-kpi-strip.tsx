@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { Activity, Clock, Hourglass, Timer, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -51,14 +52,14 @@ export function HoursKpiStrip({
           icon={<Hourglass className="h-4 w-4" />}
           tone="primary"
           label={t("kpi.plannedHours")}
-          value={loading ? "…" : <span className="font-mono">{Math.round(data.plannedHours)}h</span>}
+          value={loading ? "…" : <span className="font-mono">{Math.round(data.plannedHours)} {i18n.t("common:units.hoursShort")} </span>}
           sub={t("kpi.plannedHoursSub")}
         />
         <KpiCell
           icon={<Clock className="h-4 w-4" />}
           tone="muted"
           label={t("kpi.loggedHours")}
-          value={loading ? "…" : <span className="font-mono">{Math.round(data.loggedHours)}h</span>}
+          value={loading ? "…" : <span className="font-mono">{Math.round(data.loggedHours)} {i18n.t("common:units.hoursShort")} </span>}
           sub={t("kpi.loggedHoursSub")}
         />
         <KpiCell
@@ -68,8 +69,7 @@ export function HoursKpiStrip({
           value={
             loading ? "…" : (
               <span className="font-mono">
-                {Math.round(data.remainingHours)}h
-              </span>
+                {Math.round(data.remainingHours)} {i18n.t("common:units.hoursShort")} </span>
             )
           }
           sub={t("kpi.remainingSub")}
@@ -91,8 +91,7 @@ export function HoursKpiStrip({
                 {Math.round(data.capacityUsedHours)}
                 <span className="text-muted-foreground">
                   {" / "}
-                  {Math.round(data.capacityAvailableHours)}h
-                </span>
+                  {Math.round(data.capacityAvailableHours)} {i18n.t("common:units.hoursShort")} </span>
               </>
             )
           }
@@ -116,6 +115,7 @@ function KpiCell({
   value: React.ReactNode;
   sub?: string;
 }) {
+  useTranslation();
   const toneCls = {
     primary: "bg-primary/15 text-primary",
     muted: "bg-muted text-muted-foreground",

@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -144,7 +145,7 @@ export function ApprovalsPanel({ projectId }: Props) {
               <div className="flex-1">
                 <div className="font-medium">
                   {g.stage
-                    ? `${g.stage.sort_order + 1}. ${g.stage.name}`
+                    ? i18n.t("projects:approvalsPanel.ui.numberedLabel", { value1: g.stage.sort_order + 1, value2: g.stage.name })
                     : t("projects:approvals.unassigned", {
                         defaultValue: "Unassigned stage",
                       })}
@@ -159,8 +160,7 @@ export function ApprovalsPanel({ projectId }: Props) {
                   <span>
                     {t("projects:approvals.hours", { defaultValue: "Hours" })}:{" "}
                     <span className="font-medium text-foreground">
-                      {g.totalHours.toFixed(1)}h
-                    </span>
+                      {g.totalHours.toFixed(1)} {i18n.t("common:units.hoursShort")} </span>
                   </span>
                   <span>
                     {t("projects:approvals.billableAmount", {

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { useState } from "react";
 import { useCreateStage } from "@/lib/projects/use-planner";
 import {
@@ -24,6 +26,7 @@ interface Props {
 }
 
 export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [budget, setBudget] = useState(10000);
@@ -45,7 +48,7 @@ export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
         color,
         sort_order: nextOrder,
       });
-      toast.success("Stage added");
+      toast.success(i18n.t("projects:newStageDialog.ui.stageAdded"));
       setOpen(false);
       setName("");
     } catch (err) {
@@ -58,34 +61,33 @@ export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Plus className="mr-1 h-3.5 w-3.5" />
-          Add stage
-        </Button>
+           {i18n.t("projects:detail.actions.addStage")} </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">New stage</DialogTitle>
+          <DialogTitle className="text-xl"> {i18n.t("projects:gantt.newStage")} </DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <Label htmlFor="s-name">Name</Label>
-            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Concept" autoFocus />
+            <Label htmlFor="s-name"> {i18n.t("common:name")} </Label>
+            <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={i18n.t("projects:newStageDialog.ui.stageNamePlaceholder")} autoFocus />
           </div>
           <div>
-            <Label htmlFor="s-budget">Budget (€) — fixed</Label>
+            <Label htmlFor="s-budget"> {i18n.t("projects:newStageDialog.ui.fixedBudgetEuros")} </Label>
             <Input id="s-budget" type="number" min={0} value={budget} onChange={(e) => setBudget(Number(e.target.value))} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="s-start">Start</Label>
+              <Label htmlFor="s-start"> {i18n.t("projects:detail.ui.start")} </Label>
               <Input id="s-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="s-end">End</Label>
+              <Label htmlFor="s-end"> {i18n.t("projects:detail.ui.end")} </Label>
               <Input id="s-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
           <div>
-            <Label>Color</Label>
+            <Label> {i18n.t("common:color")} </Label>
             <div className="mt-2 flex flex-wrap gap-2">
               {STAGE_COLORS.map((c) => (
                 <button
@@ -100,7 +102,7 @@ export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
           </div>
           <DialogFooter>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Adding…" : "Add stage"}
+              {create.isPending ? i18n.t("projects:newStageDialog.ui.adding") : i18n.t("projects:detail.actions.addStage")}
             </Button>
           </DialogFooter>
         </form>

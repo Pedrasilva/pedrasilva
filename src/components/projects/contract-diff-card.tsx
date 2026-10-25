@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * "Compare to contract" — derived proposed vs. actual diff view. Sits next to
  * the read-only ContractBaselineCard, which stays as the raw reference.
@@ -40,6 +42,7 @@ const PAYMENT_LABEL: Record<PaymentDiffStatus, string> = {
 };
 
 function StatusBadge({ label, tone }: { label: string; tone: "ok" | "warn" | "bad" | "info" }) {
+  useTranslation();
   const cls =
     tone === "ok"
       ? "border-transparent bg-positive/10 text-positive"
@@ -62,6 +65,7 @@ const paymentTone = (s: PaymentDiffStatus) =>
   s === "as_planned" ? "ok" : s === "not_due" ? "info" : s === "unplanned" ? "warn" : "bad";
 
 export function ContractDiffCard({ projectId }: { projectId: string }) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const { data: baseline } = useContractBaseline(projectId);
   const { data: livePlan } = useLivePlanForDiff(projectId);
@@ -93,37 +97,33 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
           <CardTitle className="flex items-center gap-2 text-base">
             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             <GitCompare className="h-4 w-4" />
-            Compare to contract
-            <Badge variant="secondary" className="ml-2 font-normal">
+             {i18n.t("projects:contractDiffCard.ui.compareToContract")} <Badge variant="secondary" className="ml-2 font-normal">
               {offTrack === 0
-                ? "All stages on track"
-                : `${offTrack} of ${stageRows.length} stages differ`}
+                ? i18n.t("projects:contractDiffCard.ui.allStagesOnTrack")
+                : i18n.t("projects:contractDiffCard.ui.stagesDiffer", { value1: offTrack, value2: stageRows.length })}
             </Badge>
           </CardTitle>
-          <span className="text-xs text-muted-foreground">Derived</span>
+          <span className="text-xs text-muted-foreground"> {i18n.t("projects:contractDiffCard.ui.derived")} </span>
         </button>
       </CardHeader>
 
       {open && (
         <CardContent className="space-y-5 pt-0">
           <p className="text-xs text-muted-foreground">
-            Agreed contract (at conversion) compared against the live plan and
-            billing. The baseline itself is never changed by this view.
-          </p>
+             {i18n.t("projects:contractDiffCard.ui.contractComparisonHint")} </p>
 
           <div>
             <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Stages
-            </h4>
+               {i18n.t("projects:contractDiffCard.ui.undefined")} </h4>
             <div className="overflow-x-auto rounded border text-sm">
               <table className="w-full">
                 <thead className="bg-muted/40 text-xs text-muted-foreground">
                   <tr>
-                    <th className="px-2 py-1 text-left">Contract stage</th>
-                    <th className="px-2 py-1 text-left">Live stage</th>
-                    <th className="px-2 py-1 text-left">End (contract → live)</th>
-                    <th className="px-2 py-1 text-right">Budget (contract → live)</th>
-                    <th className="px-2 py-1 text-left">Status</th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.contractStage")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.liveStage")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.contractLiveEnd")} </th>
+                    <th className="px-2 py-1 text-right"> {i18n.t("projects:contractDiffCard.ui.contractLiveBudget")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("common:status")} </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -134,8 +134,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                         {r.live?.name ?? "—"}
                         {r.matchedBy === "name" && (
                           <span className="ml-1 text-[10px] text-muted-foreground">
-                            (matched by name)
-                          </span>
+                             {i18n.t("projects:contractDiffCard.ui.matchedByName")} </span>
                         )}
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap">
@@ -148,8 +147,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                           >
                             {" "}
                             ({r.dayDelta > 0 ? "+" : ""}
-                            {r.dayDelta}d)
-                          </span>
+                            {r.dayDelta} {i18n.t("projects:contractDiffCard.ui.daysClosing")} </span>
                         )}
                       </td>
                       <td className="px-2 py-1 text-right tabular-nums whitespace-nowrap">
@@ -164,7 +162,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                             ({r.budgetDelta > 0 ? "+" : ""}
                             {fmtEUR(r.budgetDelta)}
                             {r.budgetPct != null
-                              ? ` · ${(r.budgetPct * 100).toFixed(1)}%`
+                              ? i18n.t("projects:contractDiffCard.ui.percentSuffix", { value1: (r.budgetPct * 100).toFixed(1) })
                               : ""}
                             )
                           </span>
@@ -181,8 +179,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                   {stageRows.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-2 py-3 text-center text-muted-foreground">
-                        No stages to compare.
-                      </td>
+                         {i18n.t("projects:contractDiffCard.ui.noStagesToCompare")} </td>
                     </tr>
                   )}
                 </tbody>
@@ -192,17 +189,16 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
 
           <div>
             <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Billing
-            </h4>
+               {i18n.t("projects:detail.tabs.billing")} </h4>
             <div className="overflow-x-auto rounded border text-sm">
               <table className="w-full">
                 <thead className="bg-muted/40 text-xs text-muted-foreground">
                   <tr>
-                    <th className="px-2 py-1 text-left">Contract payment</th>
-                    <th className="px-2 py-1 text-left">Live item</th>
-                    <th className="px-2 py-1 text-left">Invoice date (contract → live)</th>
-                    <th className="px-2 py-1 text-right">Amount (contract → live)</th>
-                    <th className="px-2 py-1 text-left">Status</th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.contractPayment")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.liveItem")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("projects:contractDiffCard.ui.contractLiveInvoiceDate")} </th>
+                    <th className="px-2 py-1 text-right"> {i18n.t("projects:contractDiffCard.ui.contractLiveAmount")} </th>
+                    <th className="px-2 py-1 text-left"> {i18n.t("common:status")} </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -228,8 +224,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                   {paymentRows.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-2 py-3 text-center text-muted-foreground">
-                        No billing items to compare.
-                      </td>
+                         {i18n.t("projects:contractDiffCard.ui.noBillingItemsToCompare")} </td>
                     </tr>
                   )}
                 </tbody>

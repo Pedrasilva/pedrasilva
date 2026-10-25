@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -162,11 +163,9 @@ export function TeamPerformance({
                   </div>
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
-                  {Math.round(r.capacityHours)}h
-                </td>
+                  {Math.round(r.capacityHours)} {i18n.t("common:units.hoursShort")} </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
-                  {Math.round(r.totalLogged)}h
-                </td>
+                  {Math.round(r.totalLogged)} {i18n.t("common:units.hoursShort")} </td>
                 <td className="px-3 py-2.5 text-center">
                   <UtilizationPill pct={r.utilization} />
                 </td>
@@ -187,6 +186,7 @@ export function TeamPerformance({
 }
 
 function UtilizationPill({ pct }: { pct: number }) {
+  useTranslation();
   const display = Math.round(pct * 100);
   const tone =
     pct > 1

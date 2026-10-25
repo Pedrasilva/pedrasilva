@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Outline column for the Gantt chart — spreadsheet-style WBS table.
  *
@@ -195,12 +196,12 @@ export function GanttOutlineColumn({
           className="flex w-full items-center gap-1 px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
         >
           <span style={{ width: COL.num }} className="text-center">#</span>
-          <span style={{ width: nameWidth }} className="truncate">Milestones &amp; Tasks</span>
-          {showDur && <span style={{ width: COL.dur }} className="text-right tabular-nums">{relative ? "Dur." : t("gantt.wdShort")}</span>}
-          {showStart && <span style={{ width: COL.start }} className="text-right">Start</span>}
-          {showDue && <span style={{ width: COL.due }} className="text-right">Due</span>}
-          {showBudget && <span style={{ width: COL.budget }} className="text-right">Budget</span>}
-          {showDep && <span style={{ width: COL.dep }} className="text-right">Dep.</span>}
+          <span style={{ width: nameWidth }} className="truncate"> {i18n.t("projects:detail.ui.milestonesTasks")} </span>
+          {showDur && <span style={{ width: COL.dur }} className="text-right tabular-nums">{relative ? i18n.t("projects:ganttOutlineColumn.ui.durationShort") : t("gantt.wdShort")}</span>}
+          {showStart && <span style={{ width: COL.start }} className="text-right"> {i18n.t("projects:detail.ui.start")} </span>}
+          {showDue && <span style={{ width: COL.due }} className="text-right"> {i18n.t("projects:ganttOutlineColumn.ui.due")} </span>}
+          {showBudget && <span style={{ width: COL.budget }} className="text-right"> {i18n.t("glossary:financial.budget")} </span>}
+          {showDep && <span style={{ width: COL.dep }} className="text-right"> {i18n.t("projects:ganttOutlineColumn.ui.dependenciesShort")} </span>}
         </div>
       </div>
 
@@ -293,8 +294,8 @@ export function GanttOutlineColumn({
                           type="button"
                           onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg - 1); }}
                           className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
-                          aria-label="Move up"
-                          title="Move up"
+                          aria-label={i18n.t("projects:ganttOutlineColumn.ui.moveUp")}
+                          title={i18n.t("projects:ganttOutlineColumn.ui.moveUp")}
                         >
                           <ChevronUp className="h-2.5 w-2.5" />
                         </button>
@@ -302,8 +303,8 @@ export function GanttOutlineColumn({
                           type="button"
                           onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg + 1); }}
                           className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
-                          aria-label="Move down"
-                          title="Move down"
+                          aria-label={i18n.t("projects:ganttOutlineColumn.ui.moveDown")}
+                          title={i18n.t("projects:ganttOutlineColumn.ui.moveDown")}
                         >
                           <ChevronDown className="h-2.5 w-2.5" />
                         </button>
@@ -315,7 +316,7 @@ export function GanttOutlineColumn({
                       type="button"
                       onClick={(e) => { e.stopPropagation(); onChevron(); }}
                       className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-muted"
-                      aria-label={chevronOpen ? "Collapse" : "Expand"}
+                      aria-label={chevronOpen ? i18n.t("common:collapse") : i18n.t("common:expand")}
                     >
                       {chevronOpen ? (
                         <ChevronDown className="h-3 w-3" />
@@ -471,23 +472,19 @@ export function GanttOutlineColumn({
               <ContextMenuContent className="w-52">
                 {onInsertStage && (
                   <ContextMenuSub>
-                    <ContextMenuSubTrigger>Insert</ContextMenuSubTrigger>
+                    <ContextMenuSubTrigger> {i18n.t("projects:ganttOutlineColumn.ui.insert")} </ContextMenuSubTrigger>
                     <ContextMenuSubContent className="w-44">
                       <ContextMenuItem onSelect={() => onInsertStage(stage.id, "above")}>
-                        Stage above
-                      </ContextMenuItem>
+                         {i18n.t("projects:ganttOutlineColumn.ui.stageAbove")} </ContextMenuItem>
                       <ContextMenuItem onSelect={() => onInsertStage(stage.id, "below")}>
-                        Stage below
-                      </ContextMenuItem>
+                         {i18n.t("projects:ganttOutlineColumn.ui.stageBelow")} </ContextMenuItem>
                       <ContextMenuItem
                         disabled={!canChild}
                         onSelect={() => canChild && onInsertStage(stage.id, "child")}
                       >
-                        Child stage
-                      </ContextMenuItem>
+                         {i18n.t("projects:ganttOutlineColumn.ui.childStage")} </ContextMenuItem>
                       <ContextMenuItem onSelect={() => onInsertStage(stage.id, "milestone")}>
-                        Milestone
-                      </ContextMenuItem>
+                         {i18n.t("glossary:planning.milestone")} </ContextMenuItem>
                     </ContextMenuSubContent>
                   </ContextMenuSub>
                 )}
@@ -498,8 +495,7 @@ export function GanttOutlineColumn({
                       className="text-destructive focus:text-destructive"
                       onSelect={() => onDeleteStage(stage.id)}
                     >
-                      Delete stage
-                    </ContextMenuItem>
+                       {i18n.t("projects:gantt.stage.deleteAction")} </ContextMenuItem>
                   </>
                 )}
               </ContextMenuContent>
@@ -518,7 +514,7 @@ export function GanttOutlineColumn({
             className="mt-2 flex w-full items-center gap-1.5 border-b border-dashed border-border/60 px-2 py-1.5 text-left text-[11px] text-muted-foreground hover:bg-muted/40 hover:text-foreground"
           >
             <Plus className="h-3 w-3" />
-            <span>Insert stage</span>
+            <span> {i18n.t("projects:ganttOutlineColumn.ui.insertStage")} </span>
           </button>
         )}
       </div>
@@ -535,6 +531,7 @@ function EditableName({
   summary: boolean;
   onSave?: (next: string) => Promise<unknown> | unknown;
 }) {
+  useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [busy, setBusy] = useState(false);
@@ -587,7 +584,7 @@ function EditableName({
       className={`truncate text-xs ${summary ? "font-semibold" : "font-medium"} ${
         onSave ? "cursor-text hover:bg-muted/60 rounded-sm px-0.5 -mx-0.5" : ""
       }`}
-      title={onSave ? "Double-click to rename" : value}
+      title={onSave ? i18n.t("projects:detail.ui.renameHint") : value}
       onDoubleClick={(e) => {
         if (!onSave) return;
         e.stopPropagation();
@@ -609,6 +606,7 @@ function WbsCode({
   editable: boolean;
   onCommit: (newLast: number) => Promise<unknown> | unknown;
 }) {
+  useTranslation();
   const parts = wbs.split(".");
   const lead = parts.slice(0, -1).join(".");
   const last = parts[parts.length - 1] ?? "";
@@ -656,7 +654,7 @@ function WbsCode({
       className={`font-mono text-[10px] tabular-nums text-muted-foreground ${
         editable ? "cursor-pointer hover:text-foreground hover:underline underline-offset-2" : ""
       }`}
-      title={editable ? "Click to renumber within siblings" : undefined}
+      title={editable ? i18n.t("projects:ganttOutlineColumn.ui.renumberSiblings") : undefined}
       onClick={(e) => {
         if (!editable) return;
         e.stopPropagation();
@@ -682,6 +680,7 @@ function NumberCell({
   suffix?: string;
   onCommit: (n: number) => Promise<unknown> | unknown;
 }) {
+  useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const [busy, setBusy] = useState(false);
@@ -718,7 +717,7 @@ function NumberCell({
     <span
       className={`block tabular-nums text-[11px] text-${align} ${editable ? "cursor-pointer hover:bg-muted/60 rounded-sm px-0.5" : "text-muted-foreground"}`}
       onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
-      title={editable ? "Click to edit" : undefined}
+      title={editable ? i18n.t("projects:ganttOutlineColumn.ui.clickToEdit") : undefined}
     >
       {value}{suffix}
     </span>
@@ -734,6 +733,7 @@ function DateCell({
   editable: boolean;
   onCommit: (iso: string) => Promise<unknown> | unknown;
 }) {
+  useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value ?? "");
   const [busy, setBusy] = useState(false);
@@ -774,7 +774,7 @@ function DateCell({
     <span
       className={`block text-[10px] tabular-nums ${editable ? "cursor-pointer text-foreground hover:bg-muted/60 rounded-sm px-0.5" : "text-muted-foreground"}`}
       onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
-      title={editable ? "Click to edit" : undefined}
+      title={editable ? i18n.t("projects:ganttOutlineColumn.ui.clickToEdit") : undefined}
     >
       {display}
     </span>
@@ -792,6 +792,7 @@ function BudgetCell({
   editable: boolean;
   onCommit: (n: number) => Promise<unknown> | unknown;
 }) {
+  useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value || 0));
   const [busy, setBusy] = useState(false);
@@ -830,7 +831,7 @@ function BudgetCell({
         summary ? "font-semibold text-foreground" : editable ? "text-foreground" : "text-muted-foreground"
       } ${editable ? "cursor-pointer hover:bg-muted/60 rounded-sm px-0.5" : ""}`}
       onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
-      title={editable ? "Click to edit" : "Rollup of children"}
+      title={editable ? i18n.t("projects:ganttOutlineColumn.ui.clickToEdit") : i18n.t("projects:ganttOutlineColumn.ui.childrenRollup")}
     >
       {value > 0 ? EUR0.format(value) : "—"}
     </span>

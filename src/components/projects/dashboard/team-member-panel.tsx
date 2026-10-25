@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -174,6 +175,7 @@ export function TeamMemberPanel({
 }
 
 function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  useTranslation();
   return (
     <div className={cn("flex justify-between gap-2", strong && "font-semibold")}>
       <span>{label}</span>
@@ -183,10 +185,11 @@ function Line({ label, value, strong }: { label: string; value: string; strong?:
 }
 
 function Deduction({ title, items }: { title: string; items: { date: string; label: string; hours: number }[] }) {
+  useTranslation();
   const total = items.reduce((s, i) => s + i.hours, 0);
   return (
     <div>
-      <Line label={`− ${title}`} value={fmtH(total)} />
+      <Line label={i18n.t("projects:teamMemberPanel.ui.negativeValue", { value1: title })} value={fmtH(total)} />
       {items.map((i) => (
         <div key={i.date + i.label} className="flex justify-between gap-2 pl-3 text-muted-foreground">
           <span className="truncate">{fmtD(i.date)} · {i.label}</span>

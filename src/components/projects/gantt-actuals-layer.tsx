@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
 import type { ActualPerson, ActualTotals } from "@/lib/projects/gantt-actuals";
@@ -29,7 +30,7 @@ export function GanttActualMetrics({totals,financials,compact=false}:{totals:Act
       {financials && <span className={`h-2 w-2 shrink-0 rounded-full ${actualBandClass(totals.band)}`} />}
       <span className="min-w-0 truncate">
         {financials && <span className="block truncate">{euros(totals.budget)} · {totals.cost==null?"—":euros(totals.cost)} · {totals.remaining==null?"—":euros(totals.remaining)}</span>}
-        <span className="block truncate">{number(totals.planned)}h / {number(totals.logged)}h{financials?` · ${totals.consumed==null?"—":`${number(totals.consumed)}%`}`:""}</span>
+        <span className="block truncate">{number(totals.planned)} {i18n.t("projects:ganttActualsLayer.ui.hoursSlash")} {number(totals.logged)} {i18n.t("common:units.hoursShort")} {financials?i18n.t("projects:ganttActualsLayer.ui.valueSeparator", { value1: totals.consumed==null?"—":`${number(totals.consumed)}%` }):""}</span>
       </span><Info className="h-3 w-3 shrink-0" />
     </Button>
   </TooltipTrigger><TooltipContent className="max-w-xs space-y-1 text-xs">
@@ -48,15 +49,15 @@ export function GanttActualTrail({person,origin,dayWidth,maxHours,top}:{person:A
       const end=format(addDays(parseISO(week.start),6),"yyyy-MM-dd");
       const opacity=week.logged>0?0.25+0.75*week.logged/maxHours:0.12;
       return <Tooltip key={week.start}><TooltipTrigger asChild>
-        <Button variant="ghost" size="sm" className={`absolute top-4 h-3 min-w-0 rounded-sm p-0 ${week.outside>0?"ring-1 ring-destructive ring-offset-1 ring-offset-background":""}`} style={{left,width:Math.max(2,7*dayWidth-1)}} aria-label={`${person.name} · ${week.start} · ${number(week.logged)}h`} onPointerDown={e=>e.stopPropagation()} data-gantt-actual-week={week.start}>
+        <Button variant="ghost" size="sm" className={`absolute top-4 h-3 min-w-0 rounded-sm p-0 ${week.outside>0?"ring-1 ring-destructive ring-offset-1 ring-offset-background":""}`} style={{left,width:Math.max(2,7*dayWidth-1)}} aria-label={i18n.t("projects:ganttActualsLayer.ui.actualsSummary", { value1: person.name, value2: week.start, value3: number(week.logged) })} onPointerDown={e=>e.stopPropagation()} data-gantt-actual-week={week.start}>
           <span className="absolute inset-0 rounded-sm bg-foreground" style={{opacity}} />
           {week.outside>0 && dayWidth>=4 && <AlertTriangle className="relative h-2.5 w-2.5 text-destructive" />}
         </Button>
       </TooltipTrigger><TooltipContent className="space-y-1 text-xs">
         <strong>{person.name||t("gantt.actuals.unattributed")}</strong><div>{week.start} → {end}</div>
-        <div>{t("glossary:time.loggedHours")}: {number(week.logged)}h</div>
-        <div>{t("glossary:time.plannedHours")}: {number(week.planned)}h</div>
-        <div>{t("gantt.actuals.difference")}: {week.difference>0?"+":""}{number(week.difference)}h</div>
+        <div>{t("glossary:time.loggedHours")}: {number(week.logged)} {i18n.t("common:units.hoursShort")} </div>
+        <div>{t("glossary:time.plannedHours")}: {number(week.planned)} {i18n.t("common:units.hoursShort")} </div>
+        <div>{t("gantt.actuals.difference")}: {week.difference>0?"+":""}{number(week.difference)} {i18n.t("common:units.hoursShort")} </div>
         {week.outside>0 && <div className="text-destructive">{t("gantt.actuals.outsideDates",{hours:number(week.outside)})}</div>}
         {week.imported>0 && <div>{t("gantt.actuals.importedHours",{hours:number(week.imported)})}</div>}
       </TooltipContent></Tooltip>;

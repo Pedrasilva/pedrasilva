@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * Direct project creation — a first-class path alongside quote conversion.
  *
@@ -50,6 +52,7 @@ const newStage = (start: string, i: number): StageDraft => ({
 });
 
 export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
+  useTranslation();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -82,7 +85,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error("Project name is required");
+      toast.error(i18n.t("projects:createProjectDirectDialog.ui.projectNameRequired"));
       return;
     }
     setSaving(true);
@@ -124,7 +127,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
 
       await qc.invalidateQueries({ queryKey: ["pm-projects"] });
       await qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
-      toast.success("Project created");
+      toast.success(i18n.t("projects:quickCreate.toasts.projectCreated"));
       setOpen(false);
       reset();
       navigate({ to: "/projects/$projectId", params: { projectId: project.id } });
@@ -140,46 +143,42 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
       <DialogTrigger asChild>
         <Button size={compact ? "sm" : "default"}>
           <FolderPlus className="mr-1.5 h-4 w-4" />
-          Create project directly
-        </Button>
+           {i18n.t("projects:createProjectDirectDialog.ui.createProjectDirectly")} </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create project directly</DialogTitle>
+          <DialogTitle> {i18n.t("projects:createProjectDirectDialog.ui.createProjectDirectly")} </DialogTitle>
           <DialogDescription>
-            For work that never went through a CRM proposal — migrated legacy
-            projects, small retainers, ad-hoc support. No quote or contractual
-            baseline is created.
-          </DialogDescription>
+             {i18n.t("projects:createProjectDirectDialog.ui.directProjectHint")} </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={submit} className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <Label htmlFor="dp-name">Project name</Label>
+              <Label htmlFor="dp-name"> {i18n.t("projects:createProjectDirectDialog.ui.projectName")} </Label>
               <Input
                 id="dp-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="2610 Example Project"
+                placeholder={i18n.t("projects:createProjectDirectDialog.ui.projectNameExample")}
                 autoFocus
               />
             </div>
             <div>
-              <Label>Client (CRM company)</Label>
+              <Label> {i18n.t("projects:createProjectDirectDialog.ui.crmClient")} </Label>
               <CompanyPicker value={companyId} onChange={setCompanyId} />
             </div>
             <div>
-              <Label htmlFor="dp-client">Client label (optional)</Label>
+              <Label htmlFor="dp-client"> {i18n.t("projects:createProjectDirectDialog.ui.clientLabel")} </Label>
               <Input
                 id="dp-client"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                placeholder="Shown when no CRM company is linked"
+                placeholder={i18n.t("projects:createProjectDirectDialog.ui.clientLabelHint")}
               />
             </div>
             <div>
-              <Label htmlFor="dp-start">Start date</Label>
+              <Label htmlFor="dp-start"> {i18n.t("projects:quickCreate.fields.startDate")} </Label>
               <Input
                 id="dp-start"
                 type="date"
@@ -188,20 +187,20 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
               />
             </div>
             <div>
-              <Label>Status</Label>
+              <Label> {i18n.t("common:status")} </Label>
               <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value="active"> {i18n.t("common:active")} </SelectItem>
+                  <SelectItem value="paused"> {i18n.t("common:paused")} </SelectItem>
+                  <SelectItem value="archived"> {i18n.t("common:archived")} </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label>Colour</Label>
+              <Label> {i18n.t("common:color")} </Label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {PALETTE.map((c) => (
                   <button
@@ -218,20 +217,20 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
               </div>
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="dp-notes">Notes</Label>
+              <Label htmlFor="dp-notes"> {i18n.t("common:notes")} </Label>
               <Textarea
                 id="dp-notes"
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Context, origin of the work, closeout state…"
+                placeholder={i18n.t("projects:createProjectDirectDialog.ui.projectNotesPlaceholder")}
               />
             </div>
           </div>
 
           <div className="rounded-lg border border-border p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Stages</h3>
+              <h3 className="text-sm font-semibold"> {i18n.t("projects:createProjectDirectDialog.ui.undefined")} </h3>
               <Button
                 type="button"
                 size="sm"
@@ -241,8 +240,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                 }
               >
                 <Plus className="mr-1 h-3.5 w-3.5" />
-                Add stage
-              </Button>
+                 {i18n.t("projects:detail.actions.addStage")} </Button>
             </div>
             <div className="space-y-3">
               {stages.map((s) => (
@@ -251,7 +249,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                     <Input
                       value={s.name}
                       onChange={(e) => patchStage(s.key, { name: e.target.value })}
-                      placeholder="Stage name"
+                      placeholder={i18n.t("projects:createProjectDirectDialog.ui.stageName")}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -265,9 +263,9 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="stage">Fixed fee</SelectItem>
-                        <SelectItem value="hourly">Hourly (T&amp;M)</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="stage"> {i18n.t("projects:createProjectDirectDialog.ui.fixedFee")} </SelectItem>
+                        <SelectItem value="hourly"> {i18n.t("projects:createProjectDirectDialog.ui.hourlyTimeMaterials")} </SelectItem>
+                        <SelectItem value="monthly"> {i18n.t("projects:createProjectDirectDialog.ui.monthly")} </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -278,7 +276,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                       value={s.budget}
                       disabled={s.billing_model === "hourly"}
                       onChange={(e) => patchStage(s.key, { budget: Number(e.target.value) })}
-                      placeholder="Fee €"
+                      placeholder={i18n.t("projects:createProjectDirectDialog.ui.feeEuros")}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -301,7 +299,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
                       size="icon"
                       variant="ghost"
                       onClick={() => setStages((prev) => prev.filter((x) => x.key !== s.key))}
-                      aria-label="Remove stage"
+                      aria-label={i18n.t("projects:createProjectDirectDialog.ui.removeStage")}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -310,21 +308,18 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
               ))}
               {stages.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No stages — you can add them later on the project page.
-                </p>
+                   {i18n.t("projects:createProjectDirectDialog.ui.noStagesDirectHint")} </p>
               )}
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Hourly stages are pure time-and-materials: no fixed fee is stored.
-            </p>
+               {i18n.t("projects:createProjectDirectDialog.ui.hourlyStagesHint")} </p>
           </div>
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
+               {i18n.t("common:cancel")} </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? "Creating…" : "Create project"}
+              {saving ? i18n.t("common:creating") : i18n.t("projects:quickCreate.actions.createProject")}
             </Button>
           </DialogFooter>
         </form>

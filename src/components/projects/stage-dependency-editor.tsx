@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -194,7 +195,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                           .catch((err) => toast.error((err as Error).message))
                       }
                       className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"
-                      aria-label="Remove"
+                      aria-label={i18n.t("common:remove")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -240,7 +241,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                   onChange={(e) => setNewLag(Number(e.target.value) || 0)}
                   className="h-8 w-20 text-xs"
                   title={t("projects:gantt.dependency.lagWorkingDays")}
-                  placeholder="Lag"
+                  placeholder={i18n.t("projects:stageDependencyEditor.ui.dependencyLag")}
                 />
                 <Button size="sm" onClick={add} disabled={!newPredId || adapter.pending.dependency}>
                   <Plus className="mr-1 h-3.5 w-3.5" />

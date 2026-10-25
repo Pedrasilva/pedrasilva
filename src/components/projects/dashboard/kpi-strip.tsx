@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { Briefcase, CheckCircle2, Tag, BatteryWarning, BatteryCharging } from "lucide-react";
 import { euros } from "@/lib/projects/gantt-utils";
 import { formatHM } from "@/lib/projects/time-format";
@@ -19,16 +21,16 @@ export interface KpiStripData {
 }
 
 export function KpiStrip({ data, loading }: { data: KpiStripData; loading?: boolean }) {
+  useTranslation();
   return (
     <section className="rounded-lg border border-border bg-card px-5 py-4">
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        Project work
-      </h2>
+         {i18n.t("projects:kpiStrip.ui.projectWork")} </h2>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-3 xl:grid-cols-5">
         <KpiCell
           icon={<Briefcase className="h-4 w-4" />}
           tone="primary"
-          label="Work in progress"
+          label={i18n.t("projects:kpiStrip.ui.workInProgress")}
           value={
             loading ? "…" : (
               <>
@@ -43,7 +45,7 @@ export function KpiStrip({ data, loading }: { data: KpiStripData; loading?: bool
         <KpiCell
           icon={<CheckCircle2 className="h-4 w-4" />}
           tone="muted"
-          label="Work done today"
+          label={i18n.t("projects:kpiStrip.ui.workDoneToday")}
           value={
             loading ? "…" : (
               <>
@@ -58,14 +60,14 @@ export function KpiStrip({ data, loading }: { data: KpiStripData; loading?: bool
         <KpiCell
           icon={<Tag className="h-4 w-4" />}
           tone="success"
-          label="Billable work this week"
+          label={i18n.t("projects:kpiStrip.ui.billableWorkThisWeek")}
           value={loading ? "…" : `${data.billablePctThisWeek}%`}
           sub={loading ? "" : `${formatHM(data.billableHoursThisWeek)} billable this week`}
         />
         <KpiCell
           icon={<BatteryWarning className="h-4 w-4" />}
           tone="danger"
-          label="Unapproved work"
+          label={i18n.t("projects:kpiStrip.ui.unapprovedWork")}
           value={
             loading ? "…" : (
               <>
@@ -79,7 +81,7 @@ export function KpiStrip({ data, loading }: { data: KpiStripData; loading?: bool
         <KpiCell
           icon={<BatteryCharging className="h-4 w-4" />}
           tone="warning"
-          label="Approved uninvoiced"
+          label={i18n.t("projects:kpiStrip.ui.approvedUninvoiced")}
           value={
             loading ? "…" : (
               <>
@@ -108,6 +110,7 @@ function KpiCell({
   value: React.ReactNode;
   sub?: string;
 }) {
+  useTranslation();
   const toneCls = {
     primary: "bg-primary/15 text-primary",
     muted: "bg-muted text-muted-foreground",

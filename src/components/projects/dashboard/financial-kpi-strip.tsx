@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { TrendingUp, Receipt, Wallet, Activity, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { euros } from "@/lib/projects/gantt-utils";
@@ -92,8 +93,7 @@ export function FinancialKpiStrip({
                 {Math.round(data.capacityUsedHours)}
                 <span className="text-muted-foreground">
                   {" / "}
-                  {Math.round(data.capacityAvailableHours)}h
-                </span>
+                  {Math.round(data.capacityAvailableHours)} {i18n.t("common:units.hoursShort")} </span>
               </>
             )
           }
@@ -117,6 +117,7 @@ function KpiCell({
   value: React.ReactNode;
   sub?: string;
 }) {
+  useTranslation();
   const toneCls = {
     primary: "bg-primary/15 text-primary",
     muted: "bg-muted text-muted-foreground",

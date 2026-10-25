@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Per-stage hours breakdown shown inside an expanded dashboard table row.
  *
@@ -28,6 +29,7 @@ export function stageHoursStatus(planned: number, logged: number): StageHoursSta
 }
 
 export function StageDot({ status }: { status: StageHoursStatus }) {
+  useTranslation();
   if (status === "none") {
     return <span className="inline-block h-2 w-2 rounded-full border border-border bg-muted/40" />;
   }
@@ -72,16 +74,16 @@ export function StageHoursBreakdown({ stages }: { stages: StageHoursRow[] }) {
                 </td>
                 <td className="max-w-[18rem] truncate py-1.5 pr-3">{s.name}</td>
                 <td className="py-1.5 text-right font-mono text-muted-foreground">
-                  {s.plannedHours > 0 ? `${Math.round(s.plannedHours)}h` : "—"}
+                  {s.plannedHours > 0 ? i18n.t("projects:stageHoursBreakdown.ui.hoursValue", { value1: Math.round(s.plannedHours) }) : "—"}
                 </td>
-                <td className="py-1.5 text-right font-mono">{Math.round(s.loggedHours)}h</td>
+                <td className="py-1.5 text-right font-mono">{Math.round(s.loggedHours)} {i18n.t("common:units.hoursShort")} </td>
                 <td
                   className={cn(
                     "py-1.5 text-right font-mono font-semibold",
                     s.remainingHours < 0 ? "text-destructive" : "text-foreground",
                   )}
                 >
-                  {s.plannedHours > 0 ? `${Math.round(s.remainingHours)}h` : "—"}
+                  {s.plannedHours > 0 ? i18n.t("projects:stageHoursBreakdown.ui.hoursValueLabel", { value1: Math.round(s.remainingHours) }) : "—"}
                 </td>
                 <td className="py-1.5 pl-2">
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">

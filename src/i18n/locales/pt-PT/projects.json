@@ -2415,5 +2415,444 @@
         "done": "Concluída"
       }
     }
+  },
+  "allocationEditor": {
+    "ui": {
+      "allocationTentative": "Marcada como tentativa",
+      "removeAllocationConfirm": "Remover alocação de {{value1}}?",
+      "editResource": "Editar {{value1}}",
+      "saleOverrideHint": "Preço de venda horário definido manualmente para este recurso do projeto. Substitui a predefinição de RH de 75%.",
+      "hrDefaultWouldBe": "A predefinição de RH seria",
+      "saleBandSuffix": "(escalão de 75%).",
+      "hrSalePriceHint": "Calculado a partir da tabela de preços de RH, usando o escalão de 75% do preço de venda horário.",
+      "allocationStatus": "Estado da alocação",
+      "tentativeHint": "Reserva provisória: visível, mas não conta como compromisso firme.",
+      "committedHint": "Compromisso firme contabilizado na capacidade e nos KPI.",
+      "billableCapacity": "Capacidade faturável",
+      "missingChargeability": "Sem percentagem faturável definida em RH — assume-se",
+      "projectAllocationPercent": "Alocação ao projeto (%)",
+      "hoursPerDay": "Horas/dia",
+      "billableHoursEditable": "h faturáveis · editável",
+      "hoursPerWorkingDay": "Horas por dia útil",
+      "undefined": "Dias úteis",
+      "totalHours": "Total de horas",
+      "markTentative": "→ Tentativa",
+      "confirmAllocation": "→ Confirmar"
+    }
+  },
+  "approvalsPanel": {
+    "ui": {
+      "numberedLabel": "{{value1}}. {{value2}}"
+    }
+  },
+  "budgetControlPanel": {
+    "ui": {
+      "hourlyValue": "{{value1}}/h",
+      "hoursValue": "{{value1}}h"
+    }
+  },
+  "contractBaselineCard": {
+    "ui": {
+      "contractualBaseline": "Referência contratual",
+      "snapshotSuffix": "· registo fixo",
+      "readOnly": "Só de leitura",
+      "contractBaselineHint": "O que foi acordado quando esta proposta foi convertida num projeto. Apenas para referência interna — o plano atual acima é a fonte de referência.",
+      "agreedStages": "Fases acordadas",
+      "agreedPaymentSchedule": "Calendário de pagamentos acordado",
+      "label": "Designação",
+      "expectedInvoice": "Faturação prevista"
+    }
+  },
+  "contractDiffCard": {
+    "ui": {
+      "compareToContract": "Comparar com o contrato",
+      "allStagesOnTrack": "Todas as fases em conformidade",
+      "stagesDiffer": "{{value1}} de {{value2}} fases apresentam diferenças",
+      "derived": "Calculado",
+      "contractComparisonHint": "Contrato acordado (no momento da conversão) comparado com o plano e a faturação atuais. Esta vista nunca altera a referência contratual.",
+      "undefined": "Fases",
+      "contractStage": "Fase contratual",
+      "liveStage": "Fase atual",
+      "contractLiveEnd": "Fim (contrato → atual)",
+      "contractLiveBudget": "Orçamento (contrato → atual)",
+      "matchedByName": "(associação pelo nome)",
+      "daysClosing": "d)",
+      "percentSuffix": "· {{value1}}%",
+      "noStagesToCompare": "Sem fases para comparar.",
+      "contractPayment": "Pagamento contratual",
+      "liveItem": "Item atual",
+      "contractLiveInvoiceDate": "Data de faturação (contrato → atual)",
+      "contractLiveAmount": "Montante (contrato → atual)",
+      "noBillingItemsToCompare": "Sem itens de faturação para comparar."
+    }
+  },
+  "createProjectDirectDialog": {
+    "ui": {
+      "projectNameRequired": "O nome do projeto é obrigatório",
+      "createProjectDirectly": "Criar projeto diretamente",
+      "directProjectHint": "Para trabalho sem proposta no CRM — projetos antigos migrados, pequenas avenças ou apoio pontual. Não é criada nenhuma proposta nem referência contratual.",
+      "projectName": "Nome do projeto",
+      "projectNameExample": "2610 Projeto de exemplo",
+      "crmClient": "Cliente (empresa no CRM)",
+      "clientLabel": "Designação do cliente (opcional)",
+      "clientLabelHint": "Apresentada quando não existe uma empresa do CRM associada",
+      "projectNotesPlaceholder": "Contexto, origem do trabalho, estado de encerramento…",
+      "undefined": "Fases",
+      "stageName": "Nome da fase",
+      "fixedFee": "Preço fixo",
+      "hourlyTimeMaterials": "À hora (tempo e materiais)",
+      "monthly": "Mensal",
+      "feeEuros": "Honorários €",
+      "removeStage": "Remover fase",
+      "noStagesDirectHint": "Sem fases — pode adicioná-las mais tarde na página do projeto.",
+      "hourlyStagesHint": "As fases à hora são faturadas apenas por tempo e materiais: não é guardado nenhum preço fixo."
+    }
+  },
+  "createStageTaskDialog": {
+    "ui": {
+      "taskNameRequired": "O nome da tarefa é obrigatório",
+      "taskAssigneeRequired": "Escolha a quem se destina a tarefa",
+      "taskUpdated": "Tarefa atualizada",
+      "editTask": "Editar tarefa",
+      "stageValue": "Fase: {{value1}}",
+      "addTaskToStage": "Adicionar uma tarefa a esta fase",
+      "stageWindow": "Período da fase:",
+      "noAssigneeYet": "Ainda sem responsável",
+      "valueSeparator": "· {{value1}}",
+      "allocatedAfter": "Alocado (após)",
+      "stageFinancialsTargetMargin": "Finanças da fase · margem-alvo",
+      "saleValue": "Valor de venda",
+      "targetPlannedCost": "Custo planeado alvo",
+      "plannedCostAfter": "Custo planeado (após)",
+      "remainingTargetCost": "Custo-alvo restante",
+      "thisTask": "Esta tarefa",
+      "projectedMargin": "Margem projetada",
+      "taskCapacityExceeded": "A alocação da tarefa excede a capacidade restante da fase em",
+      "projectedMarginFalls": "A margem projetada da fase desce para",
+      "belowTargetPrefix": ", abaixo da",
+      "target": "meta",
+      "overTargetPlannedCost": "({{value1}} acima do custo planeado alvo)",
+      "taskName": "Nome da tarefa",
+      "taskNameExample": "Ex.: Plantas dos pisos",
+      "assignee": "Responsável",
+      "choosePerson": "Escolha uma pessoa",
+      "valueSeparatorLabel": "· {{value1}}",
+      "planningNotePlaceholder": "Nota de planeamento opcional",
+      "due": "Prazo",
+      "durationDays": "Duração (dias)",
+      "hoursPerDay": "Horas / dia",
+      "allocatedWeekdayEffort": "Esforço alocado (seg.–sex.)",
+      "plannedCostPrefix": "Custo planeado (",
+      "perHourClosing": "/h)",
+      "calendarSpan": "Período no calendário",
+      "workingDaysSeparator": "dias úteis ·",
+      "calendarHours": "h de calendário",
+      "window": "Período",
+      "outsideStageWindow": "Prolonga-se para fora do período da fase",
+      "saveTask": "Guardar tarefa"
+    }
+  },
+  "ganttActualsLayer": {
+    "ui": {
+      "hoursSlash": "h /",
+      "valueSeparator": "· {{value1}}",
+      "actualsSummary": "{{value1}} · {{value2}} · {{value3}}h"
+    }
+  },
+  "ganttChart": {
+    "ui": {
+      "stagesShifted": "{{value1}} etapa(s) deslocada(s) {{value2}} dia(s)",
+      "resizeWbsColumn": "Arraste para redimensionar a coluna da estrutura de decomposição do trabalho",
+      "holidayLabel": "Feriado — {{value1}}",
+      "holidayLabelLabel": "Feriado — {{value1}}",
+      "dateRangeLabel": "{{value1}} · {{value2}} → {{value3}}",
+      "labelWithDetail": "{{value1}} — {{value2}}",
+      "estimatedBudgetHours": "Horas estimadas (orçamento / preço médio de venda por hora)",
+      "estimatedHours": "Horas (estimadas)"
+    }
+  },
+  "ganttOutlineColumn": {
+    "ui": {
+      "durationShort": "Dur.",
+      "due": "Prazo",
+      "dependenciesShort": "Dep.",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "insert": "Inserir",
+      "stageAbove": "Fase acima",
+      "stageBelow": "Fase abaixo",
+      "childStage": "Subfase",
+      "insertStage": "Inserir fase",
+      "renumberSiblings": "Clique para renumerar entre as fases do mesmo nível",
+      "clickToEdit": "Clique para editar",
+      "childrenRollup": "Total das subfases"
+    }
+  },
+  "logRetainerHoursDialog": {
+    "ui": {
+      "dateOutsideRetainerMonth": "A data selecionada não pertence a nenhum mês da avença",
+      "hoursLogged": "Horas registadas",
+      "logHoursFor": "Registar horas —",
+      "pickMonth": "Selecione um mês",
+      "hoursNotesPlaceholder": "Visita à obra, reunião, etc.",
+      "ratesSnapshotCost": "Valores à data do registo: custo €",
+      "saleRateSuffix": "/h · venda €"
+    }
+  },
+  "newProjectDialog": {
+    "ui": {
+      "projectNamePlaceholder": "Casa Verde",
+      "clientNamePlaceholder": "Verde Holdings"
+    }
+  },
+  "newRetainerStageDialog": {
+    "ui": {
+      "retainerStageCreated": "Fase de avença criada",
+      "newRetainerStage": "Nova fase de avença",
+      "monthlyFeeEuros": "Honorários mensais (€)",
+      "firstMonth": "Primeiro mês",
+      "monthlyChildrenTotal": "subfases mensais serão criadas. Total: €",
+      "createRetainer": "Criar avença"
+    }
+  },
+  "newStageDialog": {
+    "ui": {
+      "stageAdded": "Fase adicionada",
+      "stageNamePlaceholder": "Conceito",
+      "fixedBudgetEuros": "Orçamento (€) — fixo",
+      "adding": "A adicionar…"
+    }
+  },
+  "projectExpensesSection": {
+    "ui": {
+      "labelWithParenthesis": "{{value1}} ({{value2}})"
+    }
+  },
+  "projectFinancialTab": {
+    "ui": {
+      "financial": "Financeiro",
+      "billingPlanDescription": "Plano de faturação ao cliente — herdado do orçamento aprovado e editável aqui.",
+      "noBillingLines": "Sem linhas. Carregue em \"Adicionar linha\" abaixo para começar.",
+      "subtotal": "Subtotal",
+      "editLines": "Linhas (editar)",
+      "addLine": "Adicionar linha",
+      "direction": "Direção",
+      "inflow": "Entrada",
+      "outflow": "Saída"
+    }
+  },
+  "projectPlannerInspector": {
+    "ui": {
+      "failedDeleteStage": "Não foi possível eliminar a etapa"
+    }
+  },
+  "projectPursuitCard": {
+    "ui": {
+      "valueSeparator": "· {{value1}}"
+    }
+  },
+  "projectSyncStatusBadge": {
+    "ui": {
+      "lastSync": "Última sincronização:",
+      "sourceQuoteAutoUpdates": "As alterações ao orçamento de origem atualizam automaticamente este projeto.",
+      "sourceQuoteDisconnected": "As alterações ao orçamento de origem já não afetam este projeto."
+    }
+  },
+  "resourcePool": {
+    "ui": {
+      "dragOntoStage": "Arraste para uma fase",
+      "teamPool": "Recursos da equipa",
+      "thisWeekSeparator": "Esta semana ·",
+      "hoursThisWeek": "h esta semana",
+      "leaveHours": "h de ausência",
+      "onLeaveAllWeek": "Ausente toda a semana — 0h de capacidade",
+      "leaveCapacityReduction": "−{{value1}}h esta semana (ausência)",
+      "costRateMissing": "Custo horário em falta",
+      "configureHrCosting": "Configure o custo do colaborador em RH",
+      "capacityReduced": "Capacidade reduzida",
+      "byLeavePercentSuffix": "% por ausência",
+      "noActiveTeamMembers": "Sem membros ativos na equipa. Adicione ou ative alguém no separador Equipa para começar a alocar."
+    }
+  },
+  "retainerMonitorPanel": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "labelHours": "{{value1}}: {{value2}}h",
+      "labelHoursLabel": "{{value1}}: {{value2}}h",
+      "hoursSlash": "h /",
+      "prefixedHoursValue": "{{value1}}{{value2}}h",
+      "hoursValueLabel": "{{value1}}h",
+      "noEntriesThisMonth": "Sem registos este mês.",
+      "who": "Quem"
+    }
+  },
+  "stageBaselineDialog": {
+    "ui": {
+      "baselineDatesRequired": "As datas são obrigatórias",
+      "baselineUpdated": "Referência atualizada",
+      "baselineSet": "Referência definida",
+      "removeBaselineConfirm": "Remover a referência desta fase? O desvio deixará de ser calculado.",
+      "baselineRemoved": "Referência removida",
+      "resetBaseline": "Redefinir referência",
+      "setBaseline": "Definir referência",
+      "stageHasBaseline": "Esta fase já tem uma referência.",
+      "lastUpdated": "Última atualização:",
+      "resetBaselineHint": ". Redefinir a referência substitui os valores usados no cálculo dos desvios e dos KPI de saúde.",
+      "baselineStart": "Início de referência",
+      "baselineEnd": "Fim de referência",
+      "baselineBudgetEuros": "Orçamento de referência (€)",
+      "baselineTargetHours": "Horas-alvo de referência",
+      "baselineAllocationSuggestion": "Sugestão (alocações atuais):",
+      "baselineNotesExample": "Ex.: redefinir referência após alteração do âmbito pelo cliente",
+      "currentWorkingBudget": "Orçamento de trabalho atual",
+      "plannedAllocationHours": "Horas planeadas (alocações)",
+      "removeBaseline": "Remover referência"
+    }
+  },
+  "stageDependencyEditor": {
+    "ui": {
+      "dependencyLag": "Desfasamento"
+    }
+  },
+  "stageRowActions": {
+    "ui": {
+      "statusValue": "Estado: {{value1}}",
+      "stageStatus": "Estado da fase",
+      "resourceAssignedToStage": "Recurso atribuído à fase",
+      "statusValueLabel": "Estado: {{value1}}",
+      "assign": "Atribuir",
+      "noResources": "Sem recursos",
+      "editTask": "Editar tarefa"
+    }
+  },
+  "timesheetAssistantSheet": {
+    "ui": {
+      "valueSeparator": "· {{value1}}",
+      "dashValue": "— {{value1}}",
+      "valueSeparatorLabel": "· {{value1}}"
+    }
+  },
+  "timesheetRetainerStages": {
+    "ui": {
+      "retainerStages": "Etapas da avença",
+      "openLoggingHint": "registo livre — não é necessária alocação",
+      "perMonth": "/mês"
+    }
+  },
+  "weekPlanningBoard": {
+    "ui": {
+      "hoursPerDayValue": "{{value1}}h/d",
+      "threePartLabel": "{{value1}} · {{value2}} · {{value3}}",
+      "valueSeparator": "· {{value1}}"
+    }
+  },
+  "weekPublicationDialog": {
+    "ui": {
+      "parenthesizedRange": "({{value1}} – {{value2}})"
+    }
+  },
+  "kpiStrip": {
+    "ui": {
+      "projectWork": "Trabalho em projetos",
+      "workInProgress": "Trabalho em curso",
+      "workDoneToday": "Trabalho realizado hoje",
+      "billableWorkThisWeek": "Trabalho faturável esta semana",
+      "unapprovedWork": "Trabalho por aprovar",
+      "approvedUninvoiced": "Aprovado por faturar"
+    }
+  },
+  "performanceTable": {
+    "ui": {
+      "performance": "Desempenho",
+      "analyzeByResource": "Analisar por recurso",
+      "staff": "Pessoal",
+      "activeCount": "N.º de ativos",
+      "onBudget": "Dentro do orçamento",
+      "onTime": "Dentro do prazo",
+      "noAllocatedResources": "Ainda não há recursos alocados a projetos.",
+      "hoursValue": "{{value1}}h"
+    }
+  },
+  "projectEffortTable": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "paginationRange": "{{value1}}-{{value2}} / {{value3}}"
+    }
+  },
+  "projectHealthTable": {
+    "ui": {
+      "hoursSlash": "h /",
+      "nonBillableHoursHint": "Horas não faturáveis registadas (custo sem receita)",
+      "nonBillableHoursShort": "h nf",
+      "paginationRange": "{{value1}}-{{value2}} / {{value3}}"
+    }
+  },
+  "projectScorecard": {
+    "ui": {
+      "projectScorecard": "Quadro de avaliação de projetos",
+      "projectManager": "Gestor de projeto",
+      "due": "Prazo",
+      "activity": "Atividade",
+      "noProjectsToScore": "Sem projetos para avaliar.",
+      "invoicedShort": "Fat.",
+      "emptyPagination": "0 de 0",
+      "paginationOf": "{{value1}}-{{value2}} de {{value3}}"
+    }
+  },
+  "projectValueChart": {
+    "ui": {
+      "projectValue": "Valor do projeto",
+      "graphBy": "Agrupar gráfico por"
+    }
+  },
+  "stageHoursBreakdown": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "hoursValueLabel": "{{value1}}h"
+    }
+  },
+  "teamMemberPanel": {
+    "ui": {
+      "negativeValue": "− {{value1}}"
+    }
+  },
+  "ganttPrintButton": {
+    "ui": {
+      "printOrSavePdf": "Imprimir / Guardar como PDF",
+      "printGanttChart": "Imprimir diagrama de Gantt",
+      "printGanttDescription": "Escolha o formato do papel, distribua por várias páginas se necessário e pré-visualize. Utilize a caixa de diálogo de impressão do navegador para guardar como PDF.",
+      "paperSize": "Formato do papel",
+      "orientation": "Orientação",
+      "landscape": "Horizontal",
+      "portrait": "Vertical",
+      "spreadAcrossPages": "Distribuir por várias páginas",
+      "pageSingular": "página",
+      "pagePlural": "páginas",
+      "tileTimelineHint": "Distribua a cronologia horizontalmente por várias páginas para facilitar a leitura.",
+      "fitHeightToPage": "Ajustar altura à página",
+      "scale": "Escala",
+      "zoom": "Ampliação",
+      "resetZoom": "Repor ampliação",
+      "reset": "Repor",
+      "extraZoomHint": "Ampliação adicional aplicada ao ajuste à página ou à escala definida.",
+      "effectiveScale": "Escala efetiva:",
+      "pageSize": "Dimensões da página:",
+      "content": "Conteúdo:",
+      "print": "Imprimir",
+      "loadingPreview": "A carregar pré-visualização…",
+      "previewAt": "Pré-visualização a",
+      "previewTileHint": "% — cada segmento é impresso numa",
+      "landscapeSheet": "folha na horizontal."
+    }
+  },
+  "plannerGantt": {
+    "ui": {
+      "indent": "Aumentar avanço",
+      "outdent": "Diminuir avanço",
+      "zoomOut": "Reduzir",
+      "zoomIn": "Ampliar",
+      "failedInsertStage": "Não foi possível inserir a etapa",
+      "failedDeleteStage": "Não foi possível eliminar a etapa"
+    }
   }
 }

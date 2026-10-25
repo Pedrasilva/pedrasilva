@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { Fragment, useMemo, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -164,19 +165,17 @@ export function ProjectEffortTable({
                 </td>
 
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
-                  {r.plannedHours > 0 ? `${Math.round(r.plannedHours)}h` : "—"}
+                  {r.plannedHours > 0 ? i18n.t("projects:projectEffortTable.ui.hoursValue", { value1: Math.round(r.plannedHours) }) : "—"}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
-                  {Math.round(r.loggedHours)}h
-                </td>
+                  {Math.round(r.loggedHours)} {i18n.t("common:units.hoursShort")} </td>
                 <td
                   className={cn(
                     "px-3 py-2.5 text-right font-mono text-xs font-semibold",
                     r.remainingHours < 0 ? "text-destructive" : "text-foreground",
                   )}
                 >
-                  {Math.round(r.remainingHours)}h
-                </td>
+                  {Math.round(r.remainingHours)} {i18n.t("common:units.hoursShort")} </td>
                 <td className="px-3 py-2.5 text-right">
                   <EfficiencyBadge
                     efficiencyPct={r.efficiencyPct}
@@ -204,7 +203,7 @@ export function ProjectEffortTable({
         <span>
           {filtered.length === 0
             ? "0 / 0"
-            : `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`}
+            : i18n.t("projects:projectEffortTable.ui.paginationRange", { value1: page * PAGE_SIZE + 1, value2: Math.min((page + 1) * PAGE_SIZE, filtered.length), value3: filtered.length })}
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -230,6 +229,7 @@ export function ProjectEffortTable({
 }
 
 function StatusDot({ status }: { status: EffortStatus }) {
+  useTranslation();
   if (status === "none") {
     return (
       <span className="inline-block h-2.5 w-2.5 rounded-full border border-border bg-muted/40" />
@@ -258,6 +258,7 @@ function EfficiencyBadge({
   efficiencyPct: number;
   hasPlanned: boolean;
 }) {
+  useTranslation();
   if (!hasPlanned) {
     return <span className="text-xs text-muted-foreground">—</span>;
   }

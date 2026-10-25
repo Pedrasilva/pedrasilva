@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,7 @@ import { WeekPlanningBoard } from "./week-planning-board";
 import { WeekProjectNotes } from "./week-project-notes";
 
 export function WeekDraftEditor({ data, week }: { data:BoardData; week:string }) {
+  useTranslation();
   const permissions=useMyPermissionsV2();
   if (permissions.loading || !(permissions.isAdmin || permissions.can("projects.edit_planning","all"))) return <><WeekPlanningBoard data={data} week={week} /><WeekProjectNotes data={data} week={week} slots={explicitSlots(deriveSlots(data.allocations,week,Object.fromEntries(data.resources.map(r => [r.id,dailyHours(r)])),data.leave,data.stage_tree ?? data.stages))} /></>;
   return <PlannerDraft key={week} data={data} week={week} />;
@@ -113,7 +115,7 @@ function PlannerDraft({ data:raw, week }: { data:BoardData; week:string }) {
       {diffOpen && <div className="mb-5 border-y border-border py-3">{data.resources.map(r => { const rows=allDifferences.filter(c => c.resource_id===r.id); return rows.length ? <div key={r.id} className="mb-3"><p className="text-sm font-medium">{r.name}</p>{rows.map(c => <p key={slotKey(c)} className="flex flex-wrap items-center gap-2 py-1 text-xs text-muted-foreground">{c.day} · {t(`common:${c.part==="am" ? "morning" : "afternoon"}`)} · {label(c.before?.project_id)}{c.before?.is_site_visit && ` (${t("weekPlan.siteVisit")})`}<ArrowRight className="h-3 w-3" />{label(c.after?.project_id)}{c.after?.is_site_visit && ` (${t("weekPlan.siteVisit")})`}{c.before?.stage_id!==c.after?.stage_id && <span>{t("weekPlan.stageChange")} · {stageById(c.before?.stage_id)} → {stageById(c.after?.stage_id)}</span>}</p>)}</div> : null; })}</div>}
       {missing.length>0 && <div className="mb-4 space-y-2 border-l-2 border-destructive pl-3">{[...new Set(missing.map(s => s.project_id))].map(id => { const days=missing.filter(s => s.project_id===id).map(s => s.day); const stage=nearestStage(data.stages,id,[...days].sort()[0]); const note=stage ? extensionRange(stage,days) : null; return <div key={id} className="text-sm"><p>{t("weekPlan.outsideStages",{project:label(id)})} <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => { setBrush(null); setSelected(new Set(missing.filter(s => s.project_id===id).map(slotKey))); }}>{t("weekPlan.selectSlots")}</Button></p>{stage && note && <Button variant="link" size="sm" className="h-auto whitespace-normal p-0 text-left text-xs" onClick={() => draft.addNote(note)}>{t("weekPlan.requestExtension",{stage:stageLabel(stage),from:note.from,until:note.until})}</Button>}</div>; })}</div>}
       {draft.notes.map((n,i) => <p key={i} className="mb-2 text-xs text-muted-foreground">{t("weekPlan.extensionRecorded",{stage:stageById(n.stage_id),from:n.from ?? data.stages.find(s => s.id===n.stage_id)?.start_date ?? "—",until:n.until})}</p>)}
-      {dropped.length>0 && <section className="mb-5 border-y border-border py-3" data-testid="dropped-bookings"><h2 className="mb-2 text-sm font-medium">{t("weekPlan.droppedBookings")}</h2>{dropped.map(s => <p key={`${s.allocation_id}/${s.day}`} className="py-1 text-xs text-muted-foreground">{data.resources.find(r => r.id===s.resource_id)?.name} · {s.day} · {label(s.project_id)} · {stageById(s.stage_id)} · {s.hours}h</p>)}</section>}
+      {dropped.length>0 && <section className="mb-5 border-y border-border py-3" data-testid="dropped-bookings"><h2 className="mb-2 text-sm font-medium">{t("weekPlan.droppedBookings")}</h2>{dropped.map(s => <p key={`${s.allocation_id}/${s.day}`} className="py-1 text-xs text-muted-foreground">{data.resources.find(r => r.id===s.resource_id)?.name} · {s.day} · {label(s.project_id)} · {stageById(s.stage_id)} · {s.hours} {i18n.t("common:units.hoursShort")} </p>)}</section>}
     </div>}
     {activeDraft && compare && <div className="mt-8"><h2 className="mb-4 text-lg font-medium">{t("weekPlan.currentGantt")}</h2><WeekPlanningBoard data={data} week={week} /></div>}
     {activeDraft && unbooked.length>0 && <p className="mt-5 text-xs text-muted-foreground">{t("weekPlan.unbookedProjects",{projects:unbooked.map(p => p.name).join(", ")})}</p>}

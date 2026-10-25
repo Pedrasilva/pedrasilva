@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 // "Pre-contract (pursuit)" line on a project: hours and cost of all Pursuit
 // entries on the project's CRM lead (pm_projects.opportunity_id). Rendered
 // only where project financials are shown; the server functions also refuse
@@ -83,7 +84,7 @@ export function ProjectPursuitCard({
               {(opps.data ?? []).map((o) => (
                 <SelectItem key={o.id} value={o.id}>
                   {o.name}
-                  {o.company_name ? ` · ${o.company_name}` : ""}
+                  {o.company_name ? i18n.t("projects:projectPursuitCard.ui.valueSeparator", { value1: o.company_name }) : ""}
                 </SelectItem>
               ))}
             </SelectContent>

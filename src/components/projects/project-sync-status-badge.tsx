@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * Project ↔ Quote sync status indicator.
  *
@@ -26,6 +28,7 @@ interface Props {
 }
 
 export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = false }: Props) {
+  useTranslation();
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["pm-project-sync", projectId],
@@ -88,7 +91,7 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
                   update.mutate({ sync_status: status === "live" ? "paused" : "live" })
                 }
               >
-                {status === "live" ? "Pause" : "Resume"}
+                {status === "live" ? i18n.t("common:pause") : i18n.t("common:resume")}
               </Button>
             )}
           </span>
@@ -98,13 +101,13 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
             <div>{label}</div>
             {lastSync && (
               <div className="text-muted-foreground">
-                Last sync: {format(new Date(lastSync), "d MMM yyyy HH:mm")}
+                 {i18n.t("projects:projectSyncStatusBadge.ui.lastSync")} {format(new Date(lastSync), "d MMM yyyy HH:mm")}
               </div>
             )}
             <div className="mt-1 text-muted-foreground">
               {status === "live"
-                ? "Edits to the source quote auto-update this project."
-                : "Edits to the source quote no longer affect this project."}
+                ? i18n.t("projects:projectSyncStatusBadge.ui.sourceQuoteAutoUpdates")
+                : i18n.t("projects:projectSyncStatusBadge.ui.sourceQuoteDisconnected")}
             </div>
           </div>
         </TooltipContent>
