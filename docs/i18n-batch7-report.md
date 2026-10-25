@@ -46,4 +46,4 @@ Uma notificação local recebeu o texto original `No valid approval for the curr
 - Chaves já traduzidas pelos ecrãs (`gantt.schedule.*`, Finanças `provisional.*`, `meta.errors.*`) não foram duplicadas.
 
 ## Limites
-O mapeamento é deliberadamente conservador: não traduz substrings arbitrárias. Fluxos que substituem um erro por uma mensagem genérica continuam a mostrar essa mensagem já traduzida.
+O inventário de ocorrências inclui mensagens históricas e não comprova que todas estejam ativas. Os itens não mapeados incluem diagnósticos internos, chaves já traduzidas e variantes cuja exposição não foi confirmada; não são apresentados como cobertura integral de todas as exceções. O mapeamento é deliberadamente conservador: não traduz substrings arbitrárias. Fluxos que substituem um erro por uma mensagem genérica continuam a mostrar essa mensagem já traduzida.
