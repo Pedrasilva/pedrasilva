@@ -709,5 +709,7 @@
   "exportFailed": "Export failed",
   "itemsCount_one": "{{count}} item",
   "itemsCount_other": "{{count}} items",
-  "undo": "Undo"
+  "undo": "Undo",
+  "companies": "Companies",
+  "projects": "Projects"
 }

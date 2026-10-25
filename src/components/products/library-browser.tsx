@@ -24,7 +24,7 @@ import { categoryPath,  type LibraryProduct } from "@/lib/products/types";
  */
 export function LibraryBrowser({
   onSelect,
-  selectLabel = "Add to project",
+  selectLabel,
   compact,
 }: {
   onSelect?: (product: LibraryProduct) => void;
@@ -150,7 +150,7 @@ export function LibraryBrowser({
                 <div className="mt-auto flex items-center gap-1 pt-2">
                   {onSelect && (
                     <Button size="sm" className="flex-1" onClick={() => onSelect(p)}>
-                      {selectLabel}
+                      {selectLabel ?? uiI18n.t("crm:products.addToProject")}
                     </Button>
                   )}
                   {canEdit && (

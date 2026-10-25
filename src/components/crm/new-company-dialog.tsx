@@ -133,7 +133,7 @@ export function NewCompanyDialog({
   const checkNif = async (raw: string, country = form.tax_country) => {
     const res = checkTaxId(raw, country);
     if (!res.normalized) return setNifWarning(null);
-    if (!res.ok) return setNifWarning(res.message ?? null);
+    if (!res.ok) return setNifWarning(country === "PT" ? uiI18n.t("crm:companies.invalidPortugueseNifHint", { number: res.normalized }) : uiI18n.t("crm:companies.unusualTaxIdHint", { number: res.normalized, country: country === "OTHER" ? uiI18n.t("crm:companies.otherCountry") : new Intl.DisplayNames([uiI18n.language], { type: "region" }).of(country) ?? country }));
     try {
       const { data: existing } = await supabase
         .from("companies")
@@ -266,7 +266,7 @@ export function NewCompanyDialog({
                 <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                 <SelectContent className="max-h-72">
                   {TAX_COUNTRIES.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                    <SelectItem key={c.code} value={c.code}>{c.code === "OTHER" ? uiI18n.t("crm:companies.otherCountry") : new Intl.DisplayNames([uiI18n.language], { type: "region" }).of(c.code) ?? c.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

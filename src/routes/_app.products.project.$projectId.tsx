@@ -165,7 +165,7 @@ function ProjectWorkspace() {
           </DialogHeader>
           <LibraryBrowser
             compact
-            selectLabel="Add to project"
+            selectLabel={uiI18n.t("crm:products.addToProject")}
             onSelect={(product) =>
               addFromLibrary
                 .mutateAsync({ product, projectId })

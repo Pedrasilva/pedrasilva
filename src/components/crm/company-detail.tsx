@@ -177,7 +177,7 @@ export function CompanyDetail({
           </h2>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <Badge variant={relationshipVariant(relationshipOf(current as Company))}>
-              {uiI18n.t(relationshipOf(current as Company) === "client" ? "glossary:relation.client" : relationshipOf(current as Company) === "supplier" ? "common:supplier" : `crm:companies.relationship.${relationshipOf(current as Company)}`)}
+              {uiI18n.t(relationshipOf(current as Company) === "client" ? "glossary:relation.client" : relationshipOf(current as Company) === "supplier" ? "common:supplier" : `crm:companies.relationshipBadges.${relationshipOf(current as Company)}`)}
             </Badge>
             <Badge variant="secondary" className="capitalize">{uiI18n.t(`crm:companies.status.${current.status}`)}</Badge>
             {(current as Company).is_active === false ? (

@@ -439,7 +439,7 @@ function OpportunitiesPage() {
                                     <div key={q.id} className="px-1 py-1">
                                       <div className="px-2 pb-1 text-[11px] text-muted-foreground line-clamp-1">
                                         {q.titulo || q.id.slice(0, 8)}
-                                        {q.pipeline_status ? ` · ${q.pipeline_status}` : ""}
+                                        {q.pipeline_status ? ` · ${uiI18n.t(`crm:companies.pipeline.${q.pipeline_status}`)}` : ""}
                                         {q.is_locked ? " · 🔒" : ""}
                                       </div>
                                       <DropdownMenuItem

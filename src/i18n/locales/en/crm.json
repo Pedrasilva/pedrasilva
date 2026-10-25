@@ -2286,7 +2286,14 @@
       "negociacao": "Negotiation",
       "ganho": "Won",
       "perdido": "Lost"
-    }
+    },
+    "relationshipBadges": {
+      "both": "Client and supplier",
+      "uncategorized": "Uncategorized"
+    },
+    "invalidPortugueseNifHint": "Tax ID (NIF) {{number}} fails Portuguese validation (check digit).",
+    "unusualTaxIdHint": "The format {{number}} is unusual in {{country}}. Please check — you can still save it.",
+    "otherCountry": "Other country"
   },
   "products": {
     "openSamplePdf": "Open sample PDF",

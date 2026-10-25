@@ -2286,7 +2286,14 @@
       "negociacao": "Negociação",
       "ganho": "Ganho",
       "perdido": "Perdido"
-    }
+    },
+    "relationshipBadges": {
+      "both": "Cliente e fornecedor",
+      "uncategorized": "Sem categoria"
+    },
+    "invalidPortugueseNifHint": "O NIF {{number}} não passa a validação portuguesa (dígito de controlo).",
+    "unusualTaxIdHint": "O formato {{number}} não corresponde ao habitual em {{country}}. Verifique — pode guardar assim mesmo.",
+    "otherCountry": "Outro país"
   },
   "products": {
     "openSamplePdf": "Abrir PDF da amostra",

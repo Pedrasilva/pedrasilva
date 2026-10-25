@@ -709,5 +709,7 @@
   "exportFailed": "Falha ao exportar",
   "itemsCount_one": "{{count}} item",
   "itemsCount_other": "{{count}} itens",
-  "undo": "Anular"
+  "undo": "Anular",
+  "companies": "Empresas",
+  "projects": "Projetos"
 }

@@ -156,7 +156,7 @@ function CompaniesList() {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={relationshipVariant(r)}>{uiI18n.t(r === "client" ? "glossary:relation.client" : r === "supplier" ? "common:supplier" : `crm:companies.relationship.${r}`)}</Badge>
+                      <Badge variant={relationshipVariant(r)}>{uiI18n.t(r === "client" ? "glossary:relation.client" : r === "supplier" ? "common:supplier" : `crm:companies.relationshipBadges.${r}`)}</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusVariant(c.status)} className="capitalize">
