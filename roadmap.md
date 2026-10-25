@@ -1,7 +1,7 @@
 ## Current request — Translation batch 1 (Projects routes only)
-- [ ] Translate route-owned UI, constant labels and interpolated counts; preserve documents, behavior and pending Finance work.
-- [ ] Remove only resolved baseline signatures; run test:i18n and audit before/after counts.
-- [ ] Verify project detail, forecast and my-tasks in PT/EN on disposable browser copies; save bilingual detail screenshots and report exclusions.
+- [x] Translate route-owned UI, constant labels and interpolated counts; preserve documents, behavior and pending Finance work.
+- [x] Remove only resolved baseline signatures; run test:i18n and audit before/after counts.
+- [x] Verify project detail, forecast and my-tasks in PT/EN on disposable browser copies; save bilingual detail screenshots and report exclusions.
 
 ## Current request — Portfolio identity review
 - [x] Audited all nine live patched definitions: no stale capture/profile operational joins; draft project_id has no pm_projects FK.
