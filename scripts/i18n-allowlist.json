@@ -1,6 +1,6 @@
 {
-  "files": [],
-  "prefixes": [],
+  "files": [{"path":"src/components/products/schedule-print-view.tsx","reason":"Dedicated client-facing furniture schedule print/PDF, not editor UI."}],
+  "prefixes": [{"path":"src/lib/email-templates/","reason":"Email message content; language is separate from app UI."}],
   "literals": ["Pedra Silva", "Pedra Silva Architects", "Portal Pedra Silva", "PSA", "PSA Hub", "Instagram", "LinkedIn", "EN", "PT"],
   "notes": "Only independently localized document-output files may be excluded. Mixed editor/print files remain scanned; use explicit document-only scopes when needed. Brands are exact whole-string exceptions, never substrings."
 }

@@ -1,4 +1,5 @@
 # Agent rules
+- UI translation auditing uses the TypeScript AST checker in scripts/check-i18n.mjs with explicit document/brand exclusions and a signature-count baseline ratchet; never refresh the baseline to admit new UI literals. Why: existing debt remains visible while tests/CI block new untranslated UI without touching document languages.
 - Marketing portfolio uses immutable profile-owned identity and optional live linkage; read src/lib/marketing/AGENTS.md before identity changes. Why: no operational pseudo-projects or lost editorial history.
 - Marketing timing computations stay in the Marketing module's shared pure scorer and RLS-scoped data RPC. Why: Calendar and Insights need identical recommendations without accessing unrelated financial records.
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.

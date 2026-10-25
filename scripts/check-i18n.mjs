@@ -32,6 +32,7 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
     // Calls, identifiers and property access are dynamic; t() keys are not UI literals.
   }
   function visit(node) {
+    if (ts.isJsxElement(node) && ['style', 'script'].includes(node.openingElement.tagName.getText(tree))) return;
     if (ts.isJsxText(node)) add(node, 'jsxText', node.text);
     if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) literals(node.expression, 'jsxExpression');
     if (ts.isJsxAttribute(node) && props.has(node.name.getText(tree))) {

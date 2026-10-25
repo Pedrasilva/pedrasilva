@@ -1,3 +1,8 @@
+## Current request — Translation batch 0
+- [ ] Add hardcoded UI checker, explicit document/brand exceptions, regression tests and CI baseline ratchet.
+- [ ] Correct unambiguous PT-PT AO90 locale spelling and verify language picker labels; no behavior or Finance changes.
+- [ ] Report per-module baseline and stop before batch 1.
+
 ## Current request — Marketing portfolio projects
 - [x] Add Marketing-only project identities, preserve existing live identifiers and profile history, curator permissions and protected AI names.
 - [x] Unified searchable pickers, portfolio creation/profile editing and optional live linkage; no operational project rows.

@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "src/i18n/locales/**"
+      - "src/**/*.tsx"
+      - "scripts/*i18n*"
+      - "package.json"
       - "scripts/check-i18n-parity.mjs"
       - "scripts/test-holiday-clauses.mjs"
       - ".github/workflows/i18n-parity.yml"
@@ -11,6 +14,9 @@ on:
     branches: [main]
     paths:
       - "src/i18n/locales/**"
+      - "src/**/*.tsx"
+      - "scripts/*i18n*"
+      - "package.json"
       - "scripts/check-i18n-parity.mjs"
       - "scripts/test-holiday-clauses.mjs"
 
@@ -26,7 +32,11 @@ jobs:
         with:
           node-version: "20"
 
-      # No npm install required — both scripts are pure Node ESM with no deps.
+      - name: Install checker parser
+        run: npm install --no-save --package-lock=false --ignore-scripts --prefix /tmp/i18n-parser typescript@5.8.3 && mkdir -p node_modules && ln -s /tmp/i18n-parser/node_modules/typescript node_modules/typescript
+
+      - name: Test hardcoded UI checker and enforce baseline
+        run: node --test scripts/test-check-i18n.mjs && node scripts/check-i18n.mjs
 
       - name: Verify locale parity (keys, plurals, placeholders)
         run: node scripts/check-i18n-parity.mjs
