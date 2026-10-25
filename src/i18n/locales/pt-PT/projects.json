@@ -339,7 +339,8 @@
       "end": "Fim",
       "overdue": "Em atraso",
       "remaining": "Restante"
-    }
+    },
+    "notFound": "Projeto não encontrado"
   },
   "quickCreate": {
     "time": "Tempo",
@@ -807,7 +808,8 @@
       "hoursPerDay": "h/d",
       "addResource": "Adicionar recurso",
       "resourceAdded": "Recurso adicionado.",
-      "pickResource": "Escolhe primeiro um recurso."
+      "pickResource": "Escolhe primeiro um recurso.",
+      "moveHint": "Arraste a etapa para a mover na cronologia."
     },
     "schedule": {
       "undo": "Desfazer alteração do Gantt",

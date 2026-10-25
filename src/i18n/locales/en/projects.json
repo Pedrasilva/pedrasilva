@@ -339,7 +339,8 @@
       "end": "End",
       "overdue": "Overdue",
       "remaining": "Remaining"
-    }
+    },
+    "notFound": "Project not found"
   },
   "quickCreate": {
     "time": "Time",
@@ -807,7 +808,8 @@
       "hoursPerDay": "h/d",
       "addResource": "Add resource",
       "resourceAdded": "Resource added.",
-      "pickResource": "Pick a resource first."
+      "pickResource": "Pick a resource first.",
+      "moveHint": "Drag the stage to move it on the timeline."
     },
     "schedule": {
       "undo": "Undo Gantt change",
