@@ -106,7 +106,6 @@ function ResourceDetailPage() {
   }
 
   async function handleSave() {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     try {
       const rate = Number(form.hourly_rate);
       await update.mutateAsync({
@@ -134,7 +133,6 @@ function ResourceDetailPage() {
   }
 
   async function handleUseHrDefault() {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     try {
       await update.mutateAsync({
         id: resourceId,
@@ -148,7 +146,6 @@ function ResourceDetailPage() {
   }
 
   async function handleDelete() {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     if (!confirm(t("projects:resources.ui.deleteConfirm", { name: member?.name ?? "" }))) return;
     try {
       await del.mutateAsync(resourceId);
@@ -178,7 +175,7 @@ function ResourceDetailPage() {
               {(form.name || member.name).slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{TEAM_LABEL[form.team]}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t(TEAM_LABEL[form.team])}</p>
               <h1 className="text-3xl font-semibold tracking-tight">
                 {form.name || member.name}
               </h1>
@@ -209,18 +206,18 @@ function ResourceDetailPage() {
         <div className="mt-8 space-y-6">
           <Section title={t("glossary:entity.team")}>
             <div className="inline-flex w-full max-w-xs overflow-hidden rounded-md border border-border">
-              {(["project", "back_office"] as ResourceTeam[]).map((t) => (
+              {(["project", "back_office"] as ResourceTeam[]).map((team) => (
                 <button
                   type="button"
-                  key={t}
-                  onClick={() => setForm({ ...form, team: t })}
+                  key={team}
+                  onClick={() => setForm({ ...form, team: team })}
                   className={`flex-1 px-3 py-2 text-sm font-medium transition ${
-                    form.team === t
+                    form.team === team
                       ? "bg-foreground text-background"
                       : "bg-transparent text-muted-foreground hover:bg-accent"
                   }`}
                 >
-                  {TEAM_LABEL[t]}
+                  {t(TEAM_LABEL[team])}
                 </button>
               ))}
             </div>

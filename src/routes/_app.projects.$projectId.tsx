@@ -437,7 +437,7 @@ function ProjectDetail() {
               : ("planned" as const),
         note: inv.title ?? null,
       }));
-  }, [invoices]);
+  }, [invoices, t]);
 
   if (isLoading) {
     return (
@@ -3474,7 +3474,6 @@ function dayDiffInclusive(start: string, end: string) {
 }
 
 function formatHm(hours: number) {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
   if (!Number.isFinite(hours)) return i18n.t("common:duration.hoursMinutes", { hours: 0, minutes: 0 });
   const totalMin = Math.round(hours * 60);
   const h = Math.floor(totalMin / 60);

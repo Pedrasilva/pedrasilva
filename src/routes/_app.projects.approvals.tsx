@@ -25,7 +25,6 @@ function ProjectsApprovalsQueue() {
   const decide = useDecideNonWorkingEntry();
   const locale = useDateLocale();
   async function act(id: string, approve: boolean) {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     let reason: string | undefined;
     if (!approve) {
       const r = window.prompt(t("projects:approvals.rejectPrompt") ?? "");

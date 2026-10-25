@@ -187,7 +187,7 @@ function ResourcesPage() {
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {TEAM_LABEL[rTeam]}
+                        {t(TEAM_LABEL[rTeam])}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-muted-foreground">

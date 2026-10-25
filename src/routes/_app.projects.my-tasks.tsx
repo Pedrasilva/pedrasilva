@@ -177,7 +177,6 @@ function TaskCard({ task, canClock }: { task: MyTask; canClock: boolean }) {
   const end = task.allocation?.end_date;
 
   async function setStatus(status: TaskStatus, msg: string) {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     try {
       await updateStatus.mutateAsync({ id: task.id, status });
       toast.success(msg);
@@ -310,8 +309,6 @@ function LogTimeDialog({ task, dailyH, onClose }: { task: MyTask; dailyH: number
   const [notes, setNotes] = useState("");
 
   async function submit() {
-  const dateLocale = useDateLocale();
-  const { t } = useTranslation(["projects", "common", "glossary"]);
     if (!user) return toast.error(t("projects:tasks.ui.notSignedIn"));
     const h = Number(hours);
     if (!Number.isFinite(h) || h <= 0) return toast.error(t("projects:tasks.ui.validHours"));
