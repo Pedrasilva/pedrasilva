@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,9 +23,10 @@ export const Route = createFileRoute("/_app/inventory/")({
 });
 
 const eur = (v: number) =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v || 0);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v || 0);
 
 function Kpi({ label, value }: { label: string; value: string | number }) {
+  useTranslation();
   return (
     <Card>
       <CardContent className="p-4">

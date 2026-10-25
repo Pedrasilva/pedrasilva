@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -168,7 +169,7 @@ function OpportunitiesPage() {
     },
     onSuccess: (quoteId) => {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
-      toast.success("Orçamento arquivado", {
+      toast.success(uiI18n.t("crm:opportunities.quoteArchived"), {
         duration: 8000,
         action: {
           label: "Anular",
@@ -182,7 +183,7 @@ function OpportunitiesPage() {
               return;
             }
             qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
-            toast.success("Arquivo anulado");
+            toast.success(uiI18n.t("crm:quoteEditor.unarchived"));
           },
         },
       });
@@ -204,7 +205,7 @@ function OpportunitiesPage() {
       setConfirmDelete(null);
       setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
-      toast.success("Orçamento eliminado", {
+      toast.success(uiI18n.t("crm:opportunities.quoteDeleted"), {
         description: "Recuperável em Admin → Papelera de orçamentos",
         duration: 10000,
         action: {
@@ -216,7 +217,7 @@ function OpportunitiesPage() {
               return;
             }
             qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
-            toast.success("Orçamento restaurado");
+            toast.success(uiI18n.t("crm:opportunities.quoteRestored"));
           },
         },
       });
@@ -421,7 +422,7 @@ function OpportunitiesPage() {
                                   size="icon"
                                   className="h-6 w-6"
                                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                  aria-label="Ações do orçamento"
+                                  aria-label={uiI18n.t("crm:opportunities.quoteActions")}
                                 >
                                   <MoreVertical className="h-3.5 w-3.5" />
                                 </Button>
@@ -430,7 +431,7 @@ function OpportunitiesPage() {
                                 align="end"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <DropdownMenuLabel className="text-xs">Orçamentos</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-xs"> {uiI18n.t("crm:opportunities.proposals")} </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {[...(o.quotes ?? [])]
                                   .sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""))
@@ -447,8 +448,7 @@ function OpportunitiesPage() {
                                           navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: q.id } });
                                         }}
                                       >
-                                        <ExternalLink className="h-3.5 w-3.5" /> Abrir
-                                      </DropdownMenuItem>
+                                        <ExternalLink className="h-3.5 w-3.5" />  {uiI18n.t("common:open")} </DropdownMenuItem>
                                       <DropdownMenuItem
                                         disabled={archiveQuote.isPending || !!q.is_locked}
                                         onSelect={(e) => {
@@ -456,8 +456,7 @@ function OpportunitiesPage() {
                                           archiveQuote.mutate(q.id);
                                         }}
                                       >
-                                        <Archive className="h-3.5 w-3.5" /> Arquivar
-                                      </DropdownMenuItem>
+                                        <Archive className="h-3.5 w-3.5" />  {uiI18n.t("common:archive")} </DropdownMenuItem>
                                       <DropdownMenuItem
                                         disabled={!!q.is_locked}
                                         className="text-destructive focus:text-destructive"
@@ -466,8 +465,7 @@ function OpportunitiesPage() {
                                           setConfirmDelete(q);
                                         }}
                                       >
-                                        <Trash2 className="h-3.5 w-3.5" /> Eliminar
-                                      </DropdownMenuItem>
+                                        <Trash2 className="h-3.5 w-3.5" />  {uiI18n.t("common:delete")} </DropdownMenuItem>
                                     </div>
                                   ))}
                               </DropdownMenuContent>
@@ -591,18 +589,13 @@ function OpportunitiesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
+            <AlertDialogTitle> {uiI18n.t("crm:opportunities.deleteQuotePrompt")} </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2">
                 <p>
-                  Esta acção marca o orçamento como eliminado. Um snapshot
-                  completo (etapas, alocações, fornecedores, faturação e documento)
-                  é guardado no registo de auditoria e pode ser recuperado por um
-                  administrador.
-                </p>
+                   {uiI18n.t("crm:opportunities.deleteQuoteHint")} </p>
                 <p>
-                  Para confirmar, escreva o título do orçamento abaixo:
-                  <br />
+                   {uiI18n.t("crm:opportunities.confirmTitleHint")} <br />
                   <span className="font-mono text-foreground">
                     {confirmDelete?.titulo ?? confirmDelete?.id.slice(0, 8) ?? ""}
                   </span>
@@ -614,10 +607,10 @@ function OpportunitiesPage() {
             autoFocus
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="Escreva o título exato"
+            placeholder={uiI18n.t("crm:quoteEditor.exactTitleHint")}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteQuote.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteQuote.isPending}> {uiI18n.t("common:cancel")} </AlertDialogCancel>
             <AlertDialogAction
               disabled={
                 deleteQuote.isPending ||
@@ -627,8 +620,7 @@ function OpportunitiesPage() {
               onClick={() => confirmDelete && deleteQuote.mutate(confirmDelete.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Eliminar
-            </AlertDialogAction>
+               {uiI18n.t("common:delete")} </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { Archive, ArchiveRestore, Pencil, Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -28,6 +30,7 @@ export function LibraryBrowser({
   selectLabel?: string;
   compact?: boolean;
 }) {
+  useTranslation();
   const { data: products = [], isLoading } = useLibraryProducts();
   const { data: categories = [] } = useProductCategories();
   const setStatus = useSetLibraryProductStatus();
@@ -75,7 +78,7 @@ export function LibraryBrowser({
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search product, manufacturer or designer"
+            placeholder={uiI18n.t("crm:products.librarySearch")}
             className="pl-8"
           />
         </div>
@@ -83,7 +86,7 @@ export function LibraryBrowser({
           value={category}
           onChange={setCategory}
           includeAll
-          placeholder="All categories"
+          placeholder={uiI18n.t("common:allCategories")}
           className="w-[200px]"
         />
         <Button
@@ -91,7 +94,7 @@ export function LibraryBrowser({
           size="sm"
           onClick={() => setShowArchived((v) => !v)}
         >
-          {showArchived ? "Showing archived" : "Current only"}
+          {showArchived ? uiI18n.t("crm:products.showingArchived") : uiI18n.t("crm:products.currentOnly")}
         </Button>
         {!compact && canEdit && (
           <Button
@@ -102,17 +105,15 @@ export function LibraryBrowser({
             }}
           >
             <Plus className="mr-1.5 h-4 w-4" />
-            New product
-          </Button>
+             {uiI18n.t("crm:products.newProduct")} </Button>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading library…</p>
+        <p className="text-sm text-muted-foreground"> {uiI18n.t("crm:products.loadingLibrary")} </p>
       ) : filtered.length === 0 ? (
         <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-          No products yet. The library grows as you specify products on projects.
-        </p>
+           {uiI18n.t("crm:products.libraryEmpty")} </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
           {filtered.map((p) => (
@@ -128,8 +129,7 @@ export function LibraryBrowser({
                   <p className="text-sm font-medium leading-tight">{p.name}</p>
                   {p.status === "archived" && (
                     <Badge variant="outline" className="shrink-0 text-[10px]">
-                      Archived
-                    </Badge>
+                       {uiI18n.t("common:archived")} </Badge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -157,7 +157,7 @@ export function LibraryBrowser({
                       <Button
                         size="icon"
                         variant="ghost"
-                        aria-label="Edit"
+                        aria-label={uiI18n.t("common:edit")}
                         onClick={() => {
                           setEditing(p);
                           setFormOpen(true);
@@ -168,7 +168,7 @@ export function LibraryBrowser({
                       <Button
                         size="icon"
                         variant="ghost"
-                        aria-label={p.status === "archived" ? "Restore" : "Archive"}
+                        aria-label={p.status === "archived" ? uiI18n.t("common:restore") : uiI18n.t("common:archive")}
                         onClick={() =>
                           setStatus.mutate({
                             id: p.id,

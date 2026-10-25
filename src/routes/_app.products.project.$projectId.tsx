@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
@@ -54,6 +56,7 @@ export const Route = createFileRoute("/_app/products/project/$projectId")({
 });
 
 function ProjectWorkspace() {
+  useTranslation();
   const { projectId } = Route.useParams();
   const { data: items = [], isLoading } = useProjectItems(projectId);
   const { data: projects = [] } = useProductProjects();
@@ -85,8 +88,7 @@ function ProjectWorkspace() {
             to="/products"
             className="mb-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> All projects
-          </Link>
+            <ArrowLeft className="h-3.5 w-3.5" />  {uiI18n.t("crm:products.allProjects")} </Link>
           <h1 className="text-xl font-semibold tracking-tight">
             {project?.name ?? "Project specification"}
           </h1>
@@ -102,18 +104,15 @@ function ProjectWorkspace() {
             <DropdownMenuTrigger asChild>
               <Button size="sm">
                 <Plus className="mr-1.5 h-4 w-4" />
-                Add item
-              </Button>
+                 {uiI18n.t("crm:products.addItem")} </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => setBrowseOpen(true)}>
                 <Search className="mr-2 h-4 w-4" />
-                Browse PSA library
-              </DropdownMenuItem>
+                 {uiI18n.t("crm:products.browseLibrary")} </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setNewOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create new product
-              </DropdownMenuItem>
+                 {uiI18n.t("crm:products.createNew")} </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -124,40 +123,36 @@ function ProjectWorkspace() {
             onClick={() => printNow("datasheets")}
           >
             <FileText className="mr-1.5 h-4 w-4" />
-            Export datasheets
-          </Button>
+             {uiI18n.t("crm:products.exportDatasheets")} </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline" disabled={items.length === 0}>
                 <FileDown className="mr-1.5 h-4 w-4" />
-                Export schedule
-              </Button>
+                 {uiI18n.t("crm:products.exportSchedule")} </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => printNow("schedule")}>
                 <FileText className="mr-2 h-4 w-4" />
-                PDF (A4 landscape)
-              </DropdownMenuItem>
+                 {uiI18n.t("crm:products.pdfLandscape")} </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => {
                   try {
                     exportSchedule(items, catMap, project?.name ?? "project");
                   } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Export failed");
+                    toast.error(e instanceof Error ? e.message : uiI18n.t("common:exportFailed"));
                   }
                 }}
               >
                 <FileDown className="mr-2 h-4 w-4" />
-                Excel (.xlsx)
-              </DropdownMenuItem>
+                 {uiI18n.t("crm:products.excel")} </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading items…</p>
+        <p className="text-sm text-muted-foreground"> {uiI18n.t("crm:products.loadingItems")} </p>
       ) : (
         <ProjectItemsTable items={items} projectId={projectId} />
       )}
@@ -165,7 +160,7 @@ function ProjectWorkspace() {
       <Dialog open={browseOpen} onOpenChange={setBrowseOpen}>
         <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Browse PSA library</DialogTitle>
+            <DialogTitle> {uiI18n.t("crm:products.browseLibrary")} </DialogTitle>
           </DialogHeader>
           <LibraryBrowser
             compact
@@ -174,7 +169,7 @@ function ProjectWorkspace() {
               addFromLibrary
                 .mutateAsync({ product, projectId })
                 .then(() => {
-                  toast.success(`${product.name} added`);
+                  toast.success(uiI18n.t("crm:products.addedNamed", { value1: product.name }));
                   setBrowseOpen(false);
                 })
                 .catch((e) => toast.error(String(e)))
@@ -204,7 +199,7 @@ function ProjectWorkspace() {
             notes: draft.notes || null,
             quantity: 1,
           });
-          toast.success("Item added to the project");
+          toast.success(uiI18n.t("crm:products.itemAdded"));
         }}
       />
 

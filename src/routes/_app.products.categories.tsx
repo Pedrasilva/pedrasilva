@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/_app/products/categories")({
 });
 
 function CategoriesPage() {
+  useTranslation();
   const { data: categories = [] } = useProductCategories();
   const save = useSaveCategory();
   const canEdit = useMyPermissionsV2().can("products.edit", "all");
@@ -52,9 +55,9 @@ function CategoriesPage() {
     try {
       await save.mutateAsync({ name: name.trim(), parent_id: parent, active: true });
       setName("");
-      toast.success("Category added");
+      toast.success(uiI18n.t("crm:products.categoryAdded"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not add the category");
+      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:products.categoryFailed"));
     }
   };
 
@@ -72,11 +75,11 @@ function CategoriesPage() {
               variant="ghost"
               onClick={() => save.mutate({ id: c.id, name: c.name, active: !c.active })}
             >
-              {c.active ? "Active" : "Inactive"}
+              {c.active ? uiI18n.t("common:active") : uiI18n.t("common:inactive")}
             </Button>
           ) : (
             <span className="px-3 text-xs text-muted-foreground">
-              {c.active ? "Active" : "Inactive"}
+              {c.active ? uiI18n.t("common:active") : uiI18n.t("common:inactive")}
             </span>
           )}
         </div>
@@ -87,26 +90,24 @@ function CategoriesPage() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold tracking-tight">Categories</h1>
+        <h1 className="text-xl font-semibold tracking-tight"> {uiI18n.t("common:categories")} </h1>
         <p className="text-sm text-muted-foreground">
-          Generic taxonomy — new families (lighting, sanitaryware, finishes) can be added here.
-        </p>
+           {uiI18n.t("crm:products.categoriesSub")} </p>
       </header>
 
       {canEdit && (
         <Card className="flex flex-wrap items-end gap-2 p-4">
           <div className="min-w-[220px] flex-1 space-y-1.5">
-            <label className="text-xs text-muted-foreground">Category name</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Stool" />
+            <label className="text-xs text-muted-foreground"> {uiI18n.t("crm:products.categoryName")} </label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={uiI18n.t("crm:products.categoryHint")} />
           </div>
           <div className="w-[220px] space-y-1.5">
-            <label className="text-xs text-muted-foreground">Parent</label>
-            <CategorySelect value={parent} onChange={setParent} includeAll placeholder="Top level" />
+            <label className="text-xs text-muted-foreground"> {uiI18n.t("crm:products.parentCategory")} </label>
+            <CategorySelect value={parent} onChange={setParent} includeAll placeholder={uiI18n.t("crm:products.topLevel")} />
           </div>
           <Button onClick={add} disabled={save.isPending}>
             <Plus className="mr-1.5 h-4 w-4" />
-            Add
-          </Button>
+             {uiI18n.t("common:add")} </Button>
         </Card>
       )}
 

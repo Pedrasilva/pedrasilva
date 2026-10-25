@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Stage 5A — Contract Generator Foundation
  * Stage 5B — Lifecycle + Revision Safety (UI hookup)
@@ -508,6 +509,7 @@ function ContractDetailPage() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  useTranslation();
   return (
     <div className="flex justify-between gap-2 border-b pb-1">
       <span className="text-muted-foreground">{label}</span>
@@ -519,7 +521,7 @@ function Row({ label, value }: { label: string; value: string }) {
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleString("pt-PT");
+    return new Date(iso).toLocaleString(uiI18n.language);
   } catch {
     return iso;
   }

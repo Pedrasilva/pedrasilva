@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/_app/inventory/intake")({
 });
 
 const eur = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v);
+  v == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(v);
 
 function IntakePage() {
   const { t } = useTranslation(["inventory", "common"]);

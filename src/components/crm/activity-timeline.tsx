@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,13 +30,14 @@ const ICONS: Record<CrmActivityType, React.ComponentType<{ className?: string }>
 
 function formatDateTime(iso: string) {
   try {
-    return new Date(iso).toLocaleString("pt-PT", { dateStyle: "medium", timeStyle: "short" });
+    return new Date(iso).toLocaleString(uiI18n.language, { dateStyle: "medium", timeStyle: "short" });
   } catch {
     return iso;
   }
 }
 
 export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
+  useTranslation();
   const qc = useQueryClient();
   const [tipo, setTipo] = useState<CrmActivityType>("nota");
   const [resumo, setResumo] = useState("");
@@ -57,7 +60,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!resumo.trim()) throw new Error("Resumo obrigatório");
+      if (!resumo.trim()) throw new Error(uiI18n.t("crm:activities.summaryRequired"));
       const { error } = await supabase.from("crm_activities").insert({
         tipo,
         resumo: resumo.trim(),
@@ -69,7 +72,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Actividade registada");
+      toast.success(uiI18n.t("crm:activities.recorded"));
       setResumo("");
       setDetalhes("");
       setTipo("nota");
@@ -84,7 +87,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Actividade removida");
+      toast.success(uiI18n.t("crm:activities.removed"));
       qc.invalidateQueries({ queryKey });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -95,7 +98,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
       <div className="rounded-md border p-3 space-y-3">
         <div className="grid gap-2 sm:grid-cols-[140px_1fr]">
           <div>
-            <Label className="text-xs">Tipo</Label>
+            <Label className="text-xs"> {uiI18n.t("common:type")} </Label>
             <Select value={tipo} onValueChange={(v) => setTipo(v as CrmActivityType)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -106,34 +109,33 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
             </Select>
           </div>
           <div>
-            <Label className="text-xs">Resumo</Label>
+            <Label className="text-xs"> {uiI18n.t("common:summary")} </Label>
             <Input
-              placeholder="Ex: Chamada com cliente sobre orçamento"
+              placeholder={uiI18n.t("crm:activities.summaryHint")}
               value={resumo}
               onChange={(e) => setResumo(e.target.value)}
             />
           </div>
         </div>
         <div>
-          <Label className="text-xs">Detalhes (opcional)</Label>
+          <Label className="text-xs"> {uiI18n.t("common:detailsOptional")} </Label>
           <Textarea
             rows={2}
-            placeholder="Notas adicionais…"
+            placeholder={uiI18n.t("crm:activities.notesHint")}
             value={detalhes}
             onChange={(e) => setDetalhes(e.target.value)}
           />
         </div>
         <div className="flex justify-end">
           <Button size="sm" onClick={() => create.mutate()} disabled={create.isPending || !resumo.trim()}>
-            Registar
-          </Button>
+             {uiI18n.t("crm:activities.log")} </Button>
         </div>
       </div>
 
       <div className="space-y-2">
-        {isLoading && <p className="text-xs text-muted-foreground">A carregar…</p>}
+        {isLoading && <p className="text-xs text-muted-foreground"> {uiI18n.t("common:loading")} </p>}
         {!isLoading && activities.length === 0 && (
-          <p className="text-xs text-muted-foreground">Ainda sem actividades.</p>
+          <p className="text-xs text-muted-foreground"> {uiI18n.t("crm:activities.empty")} </p>
         )}
         {activities.map((a) => {
           const Icon = ICONS[a.tipo];
@@ -155,7 +157,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
                     variant="ghost"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={() => remove.mutate(a.id)}
-                    aria-label="Remover"
+                    aria-label={uiI18n.t("common:remove")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>

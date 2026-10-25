@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Auto-handled audit tab — messages a sender rule resolved without human
  * review. Each row stays undoable indefinitely (not an 8-second window):
@@ -103,7 +104,7 @@ function AutoHandledRow({ row }: { row: AutoHandledEmailEvent }) {
         <div className="mt-0.5 break-words text-xs text-muted-foreground">
           {row.from_address ?? "—"}
           {row.reviewed_at
-            ? ` · ${new Date(row.reviewed_at).toLocaleString()}`
+            ? ` · ${new Date(row.reviewed_at).toLocaleString(uiI18n.language)}`
             : ""}
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +31,7 @@ const DONE = new Set(["completed", "cancelled", "archived"]);
 
 /** Work history for a company: projects linked directly, via a billing account, or via invoices. */
 export function CompanyProjectsTab({ companyId }: { companyId: string }) {
+  useTranslation();
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["company-projects", companyId],
     queryFn: async (): Promise<LinkedProject[]> => {
@@ -74,16 +77,15 @@ export function CompanyProjectsTab({ companyId }: { companyId: string }) {
     <Card>
       <CardContent className="p-0">
         {isLoading ? (
-          <div className="p-6 text-sm text-muted-foreground">A carregar…</div>
+          <div className="p-6 text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
         ) : projects.length === 0 ? (
           <div className="flex flex-col items-center gap-2 p-6 text-sm text-muted-foreground">
             <Briefcase className="h-6 w-6 opacity-50" />
-            Nenhum trabalho associado.
-          </div>
+             {uiI18n.t("crm:companies.noWork")} </div>
         ) : (
           <div>
-            <Section title="Em curso" rows={ongoing} />
-            <Section title="Histórico" rows={finished} />
+            <Section title={uiI18n.t("crm:companies.ongoing")} rows={ongoing} />
+            <Section title={uiI18n.t("common:history")} rows={finished} />
           </div>
         )}
       </CardContent>
@@ -92,6 +94,7 @@ export function CompanyProjectsTab({ companyId }: { companyId: string }) {
 }
 
 function Section({ title, rows }: { title: string; rows: LinkedProject[] }) {
+  useTranslation();
   if (rows.length === 0) return null;
   return (
     <div>
@@ -109,9 +112,9 @@ function Section({ title, rows }: { title: string; rows: LinkedProject[] }) {
               <div>
                 <div className="font-medium">{p.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  Início: {p.start_date ? new Date(p.start_date).toLocaleDateString("pt-PT") : "—"}
+                   {uiI18n.t("crm:companies.startPrefix")} {p.start_date ? new Date(p.start_date).toLocaleDateString(uiI18n.language) : "—"}
                   {p.via !== "company" && (
-                    <span> · ligado via {p.via === "account" ? "conta de facturação" : "facturas"}</span>
+                    <span>  {uiI18n.t("crm:companies.linkedViaPrefix")} {p.via === "account" ? uiI18n.t("crm:companies.billingAccount") : uiI18n.t("crm:companies.invoices")}</span>
                   )}
                 </div>
               </div>

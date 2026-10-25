@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -147,7 +148,7 @@ function InboxSettingsPage() {
                   {r.label ? `${r.label} · ` : ""}
                   {r.connector_secret_name} · {t("inbox:settings.lastChecked")}:{" "}
                   {r.last_checked_at
-                    ? new Date(r.last_checked_at).toLocaleString()
+                    ? new Date(r.last_checked_at).toLocaleString(uiI18n.language)
                     : t("inbox:settings.never")}
                 </div>
               </div>

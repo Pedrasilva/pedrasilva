@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -75,6 +77,7 @@ export function ProductFormDialog({
   /** project mode: receives the draft plus the resulting library product (if saved). */
   onCreated?: (draft: ProductDraft, saved: LibraryProduct | null) => void | Promise<void>;
 }) {
+  useTranslation();
   const [draft, setDraft] = useState<ProductDraft>(EMPTY);
   const [saveToLibrary, setSaveToLibrary] = useState(true);
   const save = useSaveLibraryProduct();
@@ -110,7 +113,7 @@ export function ProductFormDialog({
 
   const submit = async () => {
     if (!draft.name.trim()) {
-      toast.error("Product name is required");
+      toast.error(uiI18n.t("crm:products.nameRequired"));
       return;
     }
     const payload = {
@@ -136,14 +139,14 @@ export function ProductFormDialog({
     try {
       if (mode === "library") {
         await save.mutateAsync({ ...payload, id: product?.id });
-        toast.success(product ? "Product updated" : "Product added to the library");
+        toast.success(product ? uiI18n.t("crm:products.updated") : uiI18n.t("crm:products.addedToLibrary"));
       } else {
         const saved = saveToLibrary && canEditLibrary ? await save.mutateAsync(payload) : null;
         await onCreated?.(draft, saved);
       }
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save the product");
+      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:products.saveFailed"));
     }
   };
 
@@ -154,51 +157,49 @@ export function ProductFormDialog({
           <DialogTitle>
             {mode === "library"
               ? product
-                ? "Edit library product"
-                : "New library product"
-              : "Create new product"}
+                ? uiI18n.t("crm:products.editLibrary")
+                : uiI18n.t("crm:products.newLibrary")
+              : uiI18n.t("crm:products.createNew")}
           </DialogTitle>
           <DialogDescription>
-            Reusable product knowledge. Project-specific details (reference, location, quantity)
-            are set on the project item.
-          </DialogDescription>
+             {uiI18n.t("crm:products.libraryRecordSub")} </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Product name *">
+            <Field label={uiI18n.t("crm:products.nameRequiredLabel")}>
               <Input value={draft.name} onChange={(e) => set("name", e.target.value)} autoFocus />
             </Field>
-            <Field label="Category">
+            <Field label={uiI18n.t("common:category")}>
               <CategorySelect value={draft.category_id} onChange={(v) => set("category_id", v)} />
             </Field>
-            <Field label="Manufacturer">
+            <Field label={uiI18n.t("common:manufacturer")}>
               <Input
                 value={draft.manufacturer}
                 onChange={(e) => set("manufacturer", e.target.value)}
               />
             </Field>
-            <Field label="Designer">
+            <Field label={uiI18n.t("common:designer")}>
               <Input value={draft.designer} onChange={(e) => set("designer", e.target.value)} />
             </Field>
-            <Field label="Ref. code">
+            <Field label={uiI18n.t("crm:products.refCode")}>
               <Input value={draft.ref_code} onChange={(e) => set("ref_code", e.target.value)} />
             </Field>
-            <Field label="Dimensions">
+            <Field label={uiI18n.t("common:dimensions")}>
               <Input
                 value={draft.dimensions}
-                placeholder="W × D × H"
+                placeholder={uiI18n.t("crm:products.dimensionsHint")}
                 onChange={(e) => set("dimensions", e.target.value)}
               />
             </Field>
-            <Field label="Weight">
+            <Field label={uiI18n.t("common:weight")}>
               <Input
                 value={draft.weight}
-                placeholder="e.g. 12 kg"
+                placeholder={uiI18n.t("crm:products.weightHint")}
                 onChange={(e) => set("weight", e.target.value)}
               />
             </Field>
-            <Field label="Indicative unit price">
+            <Field label={uiI18n.t("crm:products.indicativePrice")}>
               <Input
                 type="number"
                 step="0.01"
@@ -206,22 +207,22 @@ export function ProductFormDialog({
                 onChange={(e) => set("indicative_unit_price", e.target.value)}
               />
             </Field>
-            <Field label="Price last updated">
+            <Field label={uiI18n.t("crm:products.priceUpdated")}>
               <Input
                 type="date"
                 value={draft.price_last_updated}
                 onChange={(e) => set("price_last_updated", e.target.value)}
               />
             </Field>
-            <Field label="Product URL">
+            <Field label={uiI18n.t("crm:products.productUrl")}>
               <Input
                 value={draft.product_url}
-                placeholder="https://"
+                placeholder={uiI18n.t("common:urlHint")}
                 onChange={(e) => set("product_url", e.target.value)}
               />
             </Field>
             <div className="sm:col-span-2">
-              <Field label="Material / specification">
+              <Field label={uiI18n.t("crm:products.materialSpecification")}>
                 <Textarea
                   rows={4}
                   value={draft.material_spec}
@@ -230,7 +231,7 @@ export function ProductFormDialog({
               </Field>
             </div>
             <div className="sm:col-span-2">
-              <Field label="Notes">
+              <Field label={uiI18n.t("common:notes")}>
                 <Textarea
                   rows={3}
                   value={draft.notes}
@@ -242,19 +243,19 @@ export function ProductFormDialog({
 
           <div className="space-y-4">
             <ImageField
-              label="Primary image"
+              label={uiI18n.t("crm:products.primaryImage")}
               value={draft.primary_image_path}
               onChange={(v) => set("primary_image_path", v)}
               size="large"
             />
             <ImageField
-              label="Finish / sample image"
+              label={uiI18n.t("crm:products.finishImage")}
               value={draft.finish_image_path}
               onChange={(v) => set("finish_image_path", v)}
               size="medium"
             />
             <ImageField
-              label="Samples (image or PDF)"
+              label={uiI18n.t("crm:products.samples")}
               value={draft.sample_pdf_path}
               onChange={(v) => set("sample_pdf_path", v)}
               size="medium"
@@ -269,16 +270,14 @@ export function ProductFormDialog({
               checked={saveToLibrary}
               onCheckedChange={(v) => setSaveToLibrary(v === true)}
             />
-            Save this product to the PSA Library
-          </label>
+             {uiI18n.t("crm:products.saveToLibrary")} </label>
         )}
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+             {uiI18n.t("common:cancel")} </Button>
           <Button onClick={submit} disabled={save.isPending}>
-            {mode === "library" ? "Save product" : "Add to project"}
+            {mode === "library" ? uiI18n.t("crm:products.saveProduct") : uiI18n.t("crm:products.addToProject")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -287,6 +286,7 @@ export function ProductFormDialog({
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>

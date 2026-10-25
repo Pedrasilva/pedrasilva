@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { GripVertical, Palette, Search } from "lucide-react";
@@ -46,6 +48,7 @@ export const Route = createFileRoute("/_app/products/")({
 });
 
 function ProductProjectsPage() {
+  useTranslation();
   const { data: projects = [], isLoading } = useProductProjects();
   const [q, setQ] = useState("");
   const board = useProjectBoard();
@@ -77,10 +80,9 @@ function ProductProjectsPage() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold tracking-tight">Product Library</h1>
+        <h1 className="text-xl font-semibold tracking-tight"> {uiI18n.t("common:shell.rail.products")} </h1>
         <p className="text-sm text-muted-foreground">
-          Specify products on a project, reuse the studio library, issue datasheets and schedules.
-        </p>
+           {uiI18n.t("crm:products.projectsSub")} </p>
       </header>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -90,18 +92,17 @@ function ProductProjectsPage() {
             className="pl-8"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search projects"
+            placeholder={uiI18n.t("crm:products.searchProjects")}
           />
         </div>
         {board.hasCustomOrder && (
           <Button variant="outline" size="sm" onClick={board.resetOrder}>
-            Reset order
-          </Button>
+             {uiI18n.t("crm:products.resetOrder")} </Button>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading projects…</p>
+        <p className="text-sm text-muted-foreground"> {uiI18n.t("crm:products.loadingProjects")} </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((p) => {
@@ -142,7 +143,7 @@ function ProductProjectsPage() {
                       {p.name}
                     </span>
                     <Badge variant={p.itemCount > 0 ? "secondary" : "outline"} className="shrink-0">
-                      {p.itemCount} {p.itemCount === 1 ? "item" : "items"}
+                      {p.itemCount} {p.itemCount === 1 ? uiI18n.t("common:item") : uiI18n.t("crm:products.itemsUnit")}
                     </Badge>
                   </div>
                   <p className="pointer-events-none relative z-10 mt-1 text-xs text-muted-foreground">
@@ -150,13 +151,13 @@ function ProductProjectsPage() {
                   </p>
                   <div className="pointer-events-none relative z-10 mt-3 flex items-end justify-between gap-2">
                     <span className="text-sm tabular-nums">
-                      {p.itemCount > 0 ? formatMoney(p.itemsValue) : "Ready to specify"}
+                      {p.itemCount > 0 ? formatMoney(p.itemsValue) : uiI18n.t("crm:products.ready")}
                     </span>
 
                     <div className="pointer-events-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost" aria-label="Colour">
+                          <Button size="icon" variant="ghost" aria-label={uiI18n.t("common:color")}>
                             <Palette className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -176,7 +177,7 @@ function ProductProjectsPage() {
                       </DropdownMenu>
                       <span
                         className="cursor-grab p-1.5 text-muted-foreground active:cursor-grabbing"
-                        aria-label="Drag to reorder"
+                        aria-label={uiI18n.t("crm:products.dragReorder")}
                       >
                         <GripVertical className="h-4 w-4" />
                       </span>

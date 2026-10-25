@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -166,7 +167,7 @@ function DraftCard({ draft }: { draft: Draft }) {
             </CardTitle>
             <div className="text-xs text-muted-foreground">
               {t("emailLeads.from")}: {draft.from_address ?? "—"}
-              {draft.received_at ? ` · ${new Date(draft.received_at).toLocaleString()}` : ""}
+              {draft.received_at ? ` · ${new Date(draft.received_at).toLocaleString(uiI18n.language)}` : ""}
             </div>
           </div>
           <div className="flex items-center gap-2">

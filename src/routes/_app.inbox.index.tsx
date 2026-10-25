@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Inbox review queue — every Gmail-visible action taken here is one explicit
  * click on one row, confirmed in a dialog, and reversible for 8 seconds.
@@ -290,7 +291,7 @@ function EmailRow({
           <div className="mt-0.5 break-words text-xs text-muted-foreground">
             {row.from_address ?? "—"}
             {row.received_at
-              ? ` · ${new Date(row.received_at).toLocaleString()}`
+              ? ` · ${new Date(row.received_at).toLocaleString(uiI18n.language)}`
               : ""}
           </div>
 
