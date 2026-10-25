@@ -1,3 +1,6 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
+import { useTranslation } from "react-i18next";
 import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute } from "@tanstack/react-router";
@@ -70,11 +73,11 @@ export const Route = createFileRoute("/_app/projects/forecast")({
 });
 
 const euros = (n: number) =>
-  !Number.isFinite(n) ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(
+  !Number.isFinite(n) ? "—" : new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(
     Number.isFinite(n) ? n : 0,
   );
 const hoursFmt = (n: number) =>
-  `${(Number.isFinite(n) ? n : 0).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} h`;
+  `${(Number.isFinite(n) ? n : 0).toLocaleString(i18n.language, { maximumFractionDigits: 1 })} h`;
 
 type LeaveRow = {
   collaborator_id: string;
@@ -206,6 +209,8 @@ type ForecastByProject = {
 };
 
 function ForecastPage() {
+  const dateLocale = useDateLocale();
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const [monthAnchor, setMonthAnchor] = useState<Date>(startOfMonth(new Date()));
   // Default to "weighted" so the headline numbers always reflect the realistic
   // probability-adjusted forecast — the previous "optimistic" behaviour is
@@ -592,10 +597,10 @@ function ForecastPage() {
           }
         }
       }
-      out.push({ label: format(ms, "MMM yy"), revenue: rev, cost, profit: rev - cost });
+      out.push({ label: format(ms, "MMM yy", { locale: dateLocale }), revenue: rev, cost, profit: rev - cost });
     }
     return out;
-  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode]);
+  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode, dateLocale]);
 
   const profit = planned.totalRevenue - planned.totalCost;
   const margin = planned.totalRevenue > 0 ? (profit / planned.totalRevenue) * 100 : 0;
@@ -682,12 +687,10 @@ function ForecastPage() {
       <div className="w-full px-6 py-6">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
-            <h1 className="text-4xl font-semibold tracking-tight">Forecast</h1>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground"> {t("projects:studio")} </p>
+            <h1 className="text-4xl font-semibold tracking-tight"> {t("projects:forecast.title")} </h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Revenue, custo e lucro projectados a partir das alocações do Gantt. Compara com o real,
-              detecta sobreposições com férias aprovadas e estima margens futuras.
-            </p>
+               {t("projects:forecast.ui.subtitle")} </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -695,13 +698,13 @@ function ForecastPage() {
             <div
               className="flex items-center gap-1 rounded-md border border-border p-1"
               role="radiogroup"
-              aria-label="Modo de previsão"
+              aria-label={t("projects:forecast.mode.label")}
             >
               {(
                 [
-                  { v: "weighted", label: "Probabilístico", title: "Pipeline contado pela probabilidade da proposta" },
-                  { v: "optimistic", label: "100%", title: "Tudo contado a 100% (visão optimista)" },
-                  { v: "committed", label: "Confirmado", title: "Apenas projectos ganhos ou sem proposta CRM" },
+                  { v: "weighted", label: t("projects:forecast.mode.weighted"), title: t("projects:forecast.ui.weightedHint") },
+                  { v: "optimistic", label: "100%", title: t("projects:forecast.mode.optimisticHint") },
+                  { v: "committed", label: t("projects:forecast.mode.committed"), title: t("projects:forecast.mode.committedHint") },
                 ] as const
               ).map((opt) => (
                 <Button
@@ -723,24 +726,23 @@ function ForecastPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
-                aria-label="Mês anterior"
+                aria-label={t("common:previousMonth")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="px-3 text-sm font-medium tabular-nums min-w-[120px] text-center">
-                {format(monthAnchor, "MMMM yyyy")}
+                {format(monthAnchor, "MMMM yyyy", { locale: dateLocale })}
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
-                aria-label="Mês seguinte"
+                aria-label={t("common:nextMonth")}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonthAnchor(startOfMonth(new Date()))}>
-                Hoje
-              </Button>
+                 {t("common:today")} </Button>
             </div>
           </div>
         </div>
@@ -748,19 +750,19 @@ function ForecastPage() {
         {/* KPI strip */}
         <div className="mt-6 grid gap-3 md:grid-cols-5">
           <KpiCard
-            label="Horas planeadas"
+            label={t("glossary:time.plannedHours")}
             value={hoursFmt(planned.totalHours)}
-            sub={`${planned.byResource.size} pessoas alocadas`}
+            sub={t("projects:forecast.ui.allocatedPeople", { count: planned.byResource.size })}
             icon={<Clock className="h-4 w-4" />}
             tone="muted"
           />
           <KpiCard
-            label="Capacidade efectiva"
+            label={t("projects:forecast.kpi.effectiveCapacity")}
             value={hoursFmt(capacity.totalEffective)}
             sub={
               capacity.totalLeave > 0
-                ? `−${hoursFmt(capacity.totalLeave)} de férias (de ${hoursFmt(capacity.totalRaw)})`
-                : `${hoursFmt(capacity.totalRaw)} brutas · sem férias`
+                ? t("projects:forecast.ui.leaveCapacitySub", { leave: hoursFmt(capacity.totalLeave), raw: hoursFmt(capacity.totalRaw) })
+                : t("projects:forecast.ui.noLeaveSub", { raw: hoursFmt(capacity.totalRaw) })
             }
             icon={<CalendarOff className="h-4 w-4" />}
             tone={
@@ -772,27 +774,27 @@ function ForecastPage() {
             }
           />
           <KpiCard
-            label="Receita prevista"
+            label={t("projects:forecast.kpi.forecastRevenue")}
             value={euros(planned.totalRevenue)}
             sub={
               mode === "weighted" && planned.rawTotalRevenue !== planned.totalRevenue
-                ? `pond. · bruto ${euros(planned.rawTotalRevenue)} · real ${euros(actualByProject.totalRev)}`
-                : `vs real ${euros(actualByProject.totalRev)}`
+                ? t("projects:forecast.ui.weightedRevenueSub", { raw: euros(planned.rawTotalRevenue), actual: euros(actualByProject.totalRev) })
+                : t("projects:forecast.ui.actualSub", { actual: euros(actualByProject.totalRev) })
             }
             icon={<Wallet className="h-4 w-4" />}
             tone="primary"
           />
           <KpiCard
-            label="Custo previsto"
+            label={t("projects:forecast.kpi.forecastCost")}
             value={euros(planned.totalCost)}
-            sub={`vs real ${euros(actualByProject.totalCost)}`}
+            sub={t("projects:forecast.ui.actualSub", { actual: euros(actualByProject.totalCost) })}
             icon={<Target className="h-4 w-4" />}
             tone="muted"
           />
           <KpiCard
-            label="Lucro previsto"
+            label={t("projects:forecast.kpi.forecastProfit")}
             value={euros(profit)}
-            sub={`Margem ${margin.toFixed(1)}% · real ${euros(actualProfit)}`}
+            sub={t("projects:forecast.ui.marginSub", { margin: formatNumber(margin, 1), actual: euros(actualProfit) })}
             icon={<TrendingUp className="h-4 w-4" />}
             tone={profit >= 0 ? "success" : "danger"}
           />
@@ -802,26 +804,25 @@ function ForecastPage() {
         {(split.pipelineRawRev > 0 || split.lostRev > 0) && (
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <div className="rounded-lg border border-border bg-card px-4 py-3">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Confirmado</p>
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground"> {t("projects:forecast.mode.committed")} </p>
               <p className="mt-1 text-lg font-semibold tabular-nums">{euros(split.committedRev)}</p>
-              <p className="text-[11px] text-muted-foreground">{hoursFmt(split.committedHours)} · ganhos / sem proposta</p>
+              <p className="text-[11px] text-muted-foreground">{hoursFmt(split.committedHours)}  {t("projects:forecast.ui.wonNoProposal")} </p>
             </div>
             <div className="rounded-lg border border-amber-500/40 bg-amber-50/40 px-4 py-3 dark:bg-amber-950/10">
-              <p className="text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">Pipeline (ponderado)</p>
+              <p className="text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300"> {t("projects:forecast.split.pipelineWeighted")} </p>
               <p className="mt-1 text-lg font-semibold tabular-nums">
                 {euros(split.pipelineWeightedRev)}{" "}
-                <span className="text-xs font-normal text-muted-foreground">/ {euros(split.pipelineRawRev)} bruto</span>
+                <span className="text-xs font-normal text-muted-foreground">/ {euros(split.pipelineRawRev)}  {t("projects:forecast.ui.raw")} </span>
               </p>
               <p className="text-[11px] text-muted-foreground">
-                {hoursFmt(split.pipelineWeightedHours)} ponderadas · {hoursFmt(split.pipelineRawHours)} brutas
-              </p>
+                {hoursFmt(split.pipelineWeightedHours)}  {t("projects:forecast.ui.weightedHours")} {hoursFmt(split.pipelineRawHours)}  {t("projects:forecast.ui.rawHours")} </p>
             </div>
             <div className="rounded-lg border border-border bg-muted/40 px-4 py-3">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Perdidos (excluídos)</p>
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground"> {t("projects:forecast.split.lost")} </p>
               <p className="mt-1 text-lg font-semibold tabular-nums text-muted-foreground line-through">
                 {euros(split.lostRev)}
               </p>
-              <p className="text-[11px] text-muted-foreground">não contam para o forecast</p>
+              <p className="text-[11px] text-muted-foreground"> {t("projects:forecast.ui.lostHint")} </p>
             </div>
           </div>
         )}
@@ -832,11 +833,9 @@ function ForecastPage() {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
             <div className="flex-1">
               <p className="text-sm font-medium text-destructive">
-                {hoursFmt(planned.conflictHours)} planeadas durante férias aprovadas
-              </p>
+                {hoursFmt(planned.conflictHours)}  {t("projects:forecast.ui.leavePlanned")} </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {planned.conflictDetails.length} dia(s) com sobreposição. Reveja as alocações abaixo
-                marcadas com <CalendarOff className="inline h-3 w-3 -mt-0.5" />.
+                {t("projects:forecast.ui.conflictDays", { count: planned.conflictDetails.length })} <CalendarOff className="inline h-3 w-3 -mt-0.5" />.
               </p>
             </div>
           </div>
@@ -848,14 +847,12 @@ function ForecastPage() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                Capacidade reduzida por férias
-              </CardTitle>
+                 {t("projects:forecast.capacityRisk.title")} </CardTitle>
               <CardDescription>
-                Equipa com {hoursFmt(capacity.totalLeave)} de férias aprovadas este mês →
-                capacidade efectiva {hoursFmt(capacity.totalEffective)} (de {hoursFmt(capacity.totalRaw)}).
+                {t("projects:forecast.ui.capacitySub", { leave: hoursFmt(capacity.totalLeave), effective: hoursFmt(capacity.totalEffective), raw: hoursFmt(capacity.totalRaw) })}
                 {planned.totalHours > capacity.totalEffective + 0.01 && (
                   <span className="ml-1 font-semibold text-destructive">
-                    Plano excede capacidade em {hoursFmt(planned.totalHours - capacity.totalEffective)}.
+                    {t("projects:forecast.ui.overCapacity", { hours: hoursFmt(planned.totalHours - capacity.totalEffective) })}
                   </span>
                 )}
               </CardDescription>
@@ -863,8 +860,7 @@ function ForecastPage() {
             {atRiskProjects.length > 0 && (
               <CardContent className="pt-0">
                 <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
-                  Projectos sob pressão
-                </p>
+                   {t("projects:forecast.capacityRisk.underPressure")} </p>
                 <div className="grid gap-2">
                   {atRiskProjects.slice(0, 6).map((p) => {
                     const over = p.plannedHours - p.effectiveCapacity;
@@ -895,7 +891,7 @@ function ForecastPage() {
                           {p.leaveHours > 0 && (
                             <span
                               className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"
-                              title="Hours lost to approved leave"
+                              title={t("projects:forecast.capacityRisk.leaveTooltip")}
                             >
                               <CalendarOff className="h-3 w-3" />
                               {hoursFmt(p.leaveHours)}
@@ -915,8 +911,8 @@ function ForecastPage() {
         {/* Trend chart */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">Tendência de previsão (6 meses)</CardTitle>
-            <CardDescription>Receita vs custo projectados a partir do Gantt actual</CardDescription>
+            <CardTitle className="text-lg"> {t("projects:forecast.trend.title")} </CardTitle>
+            <CardDescription> {t("projects:forecast.ui.trendSub")} </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[280px]">
@@ -930,9 +926,9 @@ function ForecastPage() {
                     contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
                   />
                   <Legend />
-                  <Bar dataKey="revenue" name="Receita" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" name="Custo" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-                  <Line type="monotone" dataKey="profit" name="Lucro" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+                  <Bar dataKey="revenue" name={t("glossary:financial.revenue")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cost" name={t("glossary:financial.cost")} fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+                  <Line type="monotone" dataKey="profit" name={t("glossary:financial.profit")} stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -942,31 +938,29 @@ function ForecastPage() {
         {/* Variance table */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">Variância planeado vs real — {format(monthAnchor, "MMMM yyyy")}</CardTitle>
+            <CardTitle className="text-lg"> {t("projects:forecast.ui.variance")} {format(monthAnchor, "MMMM yyyy", { locale: dateLocale })}</CardTitle>
             <CardDescription>
-              Diferença entre o que foi alocado no Gantt e o que foi efectivamente registado em timesheet
-            </CardDescription>
+               {t("projects:forecast.ui.varianceSub")} </CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             {actualLoading ? (
-              <p className="text-sm text-muted-foreground">A carregar…</p>
+              <p className="text-sm text-muted-foreground"> {t("common:loading")} </p>
             ) : varianceRows.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                Sem dados planeados nem reais para este mês.
-              </p>
+                 {t("projects:forecast.variance.empty")} </p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="px-2 py-2 font-medium">Projecto</th>
-                    <th className="px-2 py-2 text-right font-medium">Plan h</th>
-                    <th className="px-2 py-2 text-right font-medium">Real h</th>
-                    <th className="px-2 py-2 text-right font-medium">Δ h</th>
-                    <th className="px-2 py-2 text-right font-medium">Plan receita</th>
-                    <th className="px-2 py-2 text-right font-medium">Real receita</th>
-                    <th className="px-2 py-2 text-right font-medium">Plan lucro</th>
-                    <th className="px-2 py-2 text-right font-medium">Real lucro</th>
-                    <th className="px-2 py-2 text-right font-medium">Δ lucro</th>
+                    <th className="px-2 py-2 font-medium"> {t("glossary:entity.project")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.ui.plannedHoursCol")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.ui.loggedHoursCol")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.variance.deltaH")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.ui.plannedRevenueCol")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:health.columns.actualRevenue")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.ui.plannedProfitCol")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.variance.actualProfit")} </th>
+                    <th className="px-2 py-2 text-right font-medium"> {t("projects:forecast.variance.deltaProfit")} </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1009,11 +1003,9 @@ function ForecastPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <CalendarOff className="h-4 w-4 text-destructive" />
-                Conflitos com férias aprovadas
-              </CardTitle>
+                 {t("projects:forecast.conflicts.title")} </CardTitle>
               <CardDescription>
-                Pessoas alocadas a projectos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.
-              </CardDescription>
+                 {t("projects:forecast.ui.conflictsSub")} </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-2">
@@ -1033,7 +1025,7 @@ function ForecastPage() {
                   >
                     <div className="flex items-center gap-2">
                       <Badge variant="destructive" className="font-mono">
-                        {c.days}d
+                        {t("common:duration.daysShort", { count: c.days })}
                       </Badge>
                       <span className="font-medium">{c.resourceName}</span>
                       <span className="text-muted-foreground">→ {c.projectName}</span>
@@ -1057,28 +1049,27 @@ function ForecastPage() {
  * pipeline projects show "P{n}%" reflecting the proposal slider value.
  */
 function ProbabilityChip({ probability }: { probability: ProjectProbability }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   if (probability.status === null) return null; // committed work, no proposal
   if (probability.status === "ganho") {
     return (
       <Badge variant="outline" className="h-5 border-emerald-500/40 px-1.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
-        Ganho
-      </Badge>
+         {t("glossary:crm.won")} </Badge>
     );
   }
   if (probability.status === "perdido") {
     return (
       <Badge variant="outline" className="h-5 border-destructive/40 px-1.5 text-[10px] font-medium text-destructive line-through">
-        Perdido
-      </Badge>
+         {t("glossary:crm.lost")} </Badge>
     );
   }
   return (
     <Badge
       variant="outline"
       className="h-5 border-amber-500/40 px-1.5 text-[10px] font-medium text-amber-700 dark:text-amber-300"
-      title={`Pipeline · ${probability.probability ?? 0}% probabilidade`}
+      title={t("projects:forecast.ui.probabilityHint", { value: probability.probability ?? 0 })}
     >
-      P{probability.probability ?? 0}%
+      {t("projects:forecast.ui.probabilityShort", { value: probability.probability ?? 0 })}
     </Badge>
   );
 }
@@ -1122,4 +1113,8 @@ function KpiCard({
       </CardContent>
     </Card>
   );
+}
+
+function formatNumber(value: number, digits?: number): string {
+  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
 }

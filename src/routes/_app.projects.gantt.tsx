@@ -1,3 +1,6 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
+import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { addDays, differenceInCalendarDays } from "date-fns";
@@ -21,7 +24,7 @@ import {
   useUpdateProject,
   type ProjectStatus,
 } from "@/lib/projects/use-planner";
-import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { allocationCost } from "@/lib/projects/gantt-utils";
 import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import {
   ArrowUpRight,
@@ -40,26 +43,28 @@ import { toast } from "sonner";
 import type { Project } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects/gantt")({
+  head: () => ({ meta: [{ title: "Global project Gantt — PSA Hub" }, { name: "description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Global project Gantt — PSA Hub" }, { property: "og:description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: GlobalGanttPage,
 });
 
 const STATUS_TABS: { id: ProjectStatus; label: string; Icon: typeof CircleDot }[] = [
-  { id: "active", label: "Activos", Icon: CircleDot },
-  { id: "paused", label: "Em pausa", Icon: PauseCircle },
-  { id: "archived", label: "Arquivados", Icon: Archive },
+  { id: "active", label: "common:active", Icon: CircleDot },
+  { id: "paused", label: "common:paused", Icon: PauseCircle },
+  { id: "archived", label: "common:archived", Icon: Archive },
 ];
 
 // Zoom presets in pixels-per-day. Match the CRM quote gantt so users can
 // switch from a fine daily view all the way out to a full-year overview.
 const ZOOM_PRESETS: { id: "day" | "week" | "month" | "quarter" | "year"; label: string; dayWidth: number }[] = [
-  { id: "day", label: "Day", dayWidth: 40 },
-  { id: "week", label: "Week", dayWidth: 16 },
-  { id: "month", label: "Month", dayWidth: 6 },
-  { id: "quarter", label: "Quarter", dayWidth: 3 },
-  { id: "year", label: "Year", dayWidth: 1.5 },
+  { id: "day", label: "common:day", dayWidth: 40 },
+  { id: "week", label: "common:week", dayWidth: 16 },
+  { id: "month", label: "common:month", dayWidth: 6 },
+  { id: "quarter", label: "common:quarter", dayWidth: 3 },
+  { id: "year", label: "common:year", dayWidth: 1.5 },
 ];
 
 function GlobalGanttPage() {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const { data: projects, isLoading } = useProjects();
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
@@ -154,12 +159,10 @@ function GlobalGanttPage() {
         <div className="w-full px-6 pt-6">
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
-              <h1 className="text-4xl font-semibold tracking-tight">Global Gantt</h1>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground"> {t("projects:studio")} </p>
+              <h1 className="text-4xl font-semibold tracking-tight"> {t("projects:nav.globalGantt")} </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Todos os projectos {filter === "active" ? "activos" : filter === "paused" ? "em pausa" : "arquivados"} num
-                só Gantt. Arraste recursos do painel lateral para qualquer fase, ou agarre uma alocação
-                existente pelo ícone à esquerda para a mover entre fases ou projectos.
+                {t("projects:gantt.ui.subtitle", { status: t(`projects:detail.status.${filter}`) })}
               </p>
             </div>
             <NewProjectDialog />
@@ -221,15 +224,15 @@ function GlobalGanttPage() {
               <button
                 onClick={() => setDayWidth((w) => Math.max(1.5, w - 4))}
                 className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                aria-label="Reduzir zoom"
+                aria-label={t("common:zoomOut")}
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
-              <span className="px-1 font-mono text-[10px] text-muted-foreground">{dayWidth}px</span>
+              <span className="px-1 font-mono text-[10px] text-muted-foreground">{dayWidth} {t("common:units.pixels")} </span>
               <button
                 onClick={() => setDayWidth((w) => Math.min(80, w + 4))}
                 className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                aria-label="Aumentar zoom"
+                aria-label={t("common:zoomIn")}
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
@@ -239,16 +242,14 @@ function GlobalGanttPage() {
             <button
               onClick={() => setPoolCollapsed((v) => !v)}
               className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              aria-label={poolCollapsed ? t("common:expandTeam") : t("common:collapseTeam")}
             >
               {poolCollapsed ? (
                 <>
-                  <PanelRightOpen className="h-3.5 w-3.5" /> Expand pool
-                </>
+                  <PanelRightOpen className="h-3.5 w-3.5" />  {t("common:expandTeam")} </>
               ) : (
                 <>
-                  <PanelRightClose className="h-3.5 w-3.5" /> Collapse pool
-                </>
+                  <PanelRightClose className="h-3.5 w-3.5" />  {t("common:collapseTeam")} </>
               )}
             </button>
 
@@ -256,16 +257,14 @@ function GlobalGanttPage() {
             <button
               onClick={() => setFullscreen((v) => !v)}
               className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-              aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              aria-label={fullscreen ? t("common:exitFullscreen") : t("common:fullscreen")}
             >
               {fullscreen ? (
                 <>
-                  <Minimize2 className="h-3.5 w-3.5" /> Exit fullscreen
-                </>
+                  <Minimize2 className="h-3.5 w-3.5" />  {t("common:exitFullscreen")} </>
               ) : (
                 <>
-                  <Maximize2 className="h-3.5 w-3.5" /> Fullscreen
-                </>
+                  <Maximize2 className="h-3.5 w-3.5" />  {t("common:fullscreen")} </>
               )}
             </button>
           </div>
@@ -284,21 +283,21 @@ function GlobalGanttPage() {
           <ResizablePanel defaultSize={poolCollapsed ? 96 : 78} minSize={50}>
             <div className="h-full overflow-auto">
               {isLoading ? (
-                <div className="p-12 text-center text-sm text-muted-foreground">A carregar…</div>
+                <div className="p-12 text-center text-sm text-muted-foreground"> {t("common:loading")} </div>
               ) : !filteredProjects.length ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center">
                     <p className="text-2xl text-muted-foreground">
                       {filter === "active"
-                        ? "Nenhum projecto activo"
+                        ? t("projects:gantt.empty.active")
                         : filter === "paused"
-                          ? "Nada em pausa"
-                          : "Nada arquivado"}
+                          ? t("projects:gantt.ui.emptyPaused")
+                          : t("projects:gantt.empty.archived")}
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {filter === "active"
-                        ? "Crie um projecto para começar."
-                        : "Mude o estado de um projecto para o ver aqui."}
+                        ? t("projects:gantt.ui.createHint")
+                        : t("projects:gantt.ui.statusHint")}
                     </p>
                   </div>
                 </div>
@@ -325,7 +324,7 @@ function GlobalGanttPage() {
                             {p.client && <span className="truncate text-xs text-muted-foreground">· {p.client}</span>}
                             {stages.length > 0 && (
                               <span className="shrink-0 rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                                {stages.length} {stages.length === 1 ? "fase" : "fases"}
+                                {t("projects:gantt.ui.stages", { count: stages.length })}
                               </span>
                             )}
                           </div>
@@ -343,7 +342,7 @@ function GlobalGanttPage() {
                                   onClick={() =>
                                     updateProject
                                       .mutateAsync({ id: p.id, patch: { status: id } })
-                                      .then(() => toast.success("Estado actualizado"))
+                                      .then(() => toast.success(t("projects:gantt.ui.statusUpdated")))
                                       .catch((err) => toast.error((err as Error).message))
                                   }
                                   title={label}
@@ -360,16 +359,16 @@ function GlobalGanttPage() {
                             </div>
                             <button
                               onClick={async () => {
-                                if (!confirm(`Apagar o projecto "${p.name}"?`)) return;
+                                if (!confirm(t("projects:gantt.ui.deleteConfirm", { name: p.name }))) return;
                                 try {
                                   await del.mutateAsync(p.id);
-                                  toast.success("Projecto apagado");
+                                  toast.success(t("projects:gantt.ui.projectDeleted"));
                                 } catch (err) {
                                   toast.error((err as Error).message);
                                 }
                               }}
                               className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"
-                              aria-label="Apagar"
+                              aria-label={t("common:delete")}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -378,13 +377,12 @@ function GlobalGanttPage() {
 
                         {stages.length === 0 ? (
                           <div className="px-4 py-8 text-center text-xs text-muted-foreground">
-                            Sem fases.{" "}
+                             {t("projects:gantt.ui.noStages")} {" "}
                             <button
                               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: p.id } })}
                               className="underline hover:text-foreground"
                             >
-                              Adicionar fases
-                            </button>
+                               {t("projects:gantt.ui.addStages")} </button>
                           </div>
                         ) : (
                           <GanttChart
@@ -419,4 +417,8 @@ function GlobalGanttPage() {
       </div>
     </AppShell>
   );
+}
+
+function euros(value: number): string {
+  return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
 }

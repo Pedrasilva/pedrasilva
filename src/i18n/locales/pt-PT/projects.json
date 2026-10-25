@@ -13,7 +13,7 @@
     "parentStageBlocked": "As novas alocações devem usar uma fase final, não uma fase-mãe.",
     "title": "Planeamento semanal",
     "view": "Vista do planeamento",
-    "colourStyle": "Cores dos projectos",
+    "colourStyle": "Cores dos projetos",
     "colourStripe": "Faixa de cor",
     "colourFull": "Cor cheia",
     "siteVisit": "Visita de obra",
@@ -23,8 +23,8 @@
     "halfDays_one": "{{count}} meio-dia",
     "halfDays_other": "{{count}} meios-dias",
     "otherHours": "{{hours}}h outras",
-    "emptyBookings": "Sem alocações de projectos nesta semana.",
-    "emptyPeople": "Sem colaboradores activos.",
+    "emptyBookings": "Sem alocações de projetos nesta semana.",
+    "emptyPeople": "Sem colaboradores ativos.",
     "createFrom": "Criar rascunho a partir de",
     "currentGantt": "Gantt atual",
     "previousPlan": "Semana anterior",
@@ -75,15 +75,15 @@
     "supplierStageBlocked": "Fase de fornecedor/consultor: não é possível alocar equipa PSA."
   },
   "module": {
-    "title": "Projectos",
+    "title": "Projetos",
     "subtitle": "Estúdio",
-    "description": "Projectos, alocação, gantt, tarefas e timesheets."
+    "description": "Projetos, alocação, gantt, tarefas e timesheets."
   },
   "studio": "Atelier",
   "people": "Pessoas",
   "nav": {
-    "projects": "Projectos",
-    "projectList": "Lista de projectos",
+    "projects": "Projetos",
+    "projectList": "Lista de projetos",
     "globalGantt": "Gantt global",
     "team": "Equipa",
     "myTasks": "Minhas tarefas",
@@ -109,7 +109,7 @@
     "teamSchedule": "Agenda da equipa",
     "globalGantt": "Gantt global",
     "newTask": "Tarefa",
-    "newProject": "Projecto",
+    "newProject": "Projeto",
     "newExpense": "Despesa",
     "newMaterial": "Material / Serviço externo"
   },
@@ -121,7 +121,7 @@
     "cancelado": "Cancelado"
   },
   "detail": {
-    "backToList": "Todos os projectos",
+    "backToList": "Todos os projetos",
     "togglePanel": {
       "hide": "Esconder painel",
       "show": "Mostrar painel"
@@ -143,7 +143,8 @@
       "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas",
       "editClient": "Alterar cliente",
       "manageTeam": "Gerir equipa",
-      "pickPerson": "Escolher pessoa"
+      "pickPerson": "Escolher pessoa",
+      "details": "Detalhes do projeto"
     },
     "budgetControl": {
       "title": "Controlo de orçamento",
@@ -217,13 +218,13 @@
     },
     "placeholder": {
       "comingSoon": "Em breve",
-      "ratesTitle": "Tarifas do projecto",
-      "ratesDescription": "Sobreposições de tarifas e lógica de preços específicas do projecto serão geridas aqui.",
+      "ratesTitle": "Tarifas do projeto",
+      "ratesDescription": "Sobreposições de tarifas e lógica de preços específicas do projeto serão geridas aqui.",
       "billingTitle": "Facturação",
-      "billingDescription": "Facturas e pagamentos associados a este projecto serão geridos aqui."
+      "billingDescription": "Facturas e pagamentos associados a este projeto serão geridos aqui."
     },
     "actions": {
-      "activate": "Activar",
+      "activate": "Ativar",
       "pause": "Pausar",
       "archive": "Arquivar",
       "more": "Mais",
@@ -231,7 +232,7 @@
       "close": "Encerrar"
     },
     "status": {
-      "active": "Activo",
+      "active": "Ativo",
       "paused": "Em pausa",
       "archived": "Arquivado",
       "closing": "Em encerramento"
@@ -265,6 +266,79 @@
       "budgetTip": "Orçamento consumido: {{pct}}%",
       "profit": "Lucro",
       "profitTip": "Lucro face ao orçamento: {{amount}}"
+    },
+    "ui": {
+      "invoiced": "Faturado",
+      "retainer": "Avença",
+      "nonBillable": "Não faturável",
+      "hours": "Horas",
+      "loading": "A carregar projeto…",
+      "loadError": "Não foi possível carregar o projeto.",
+      "architecture": "Arquitetura",
+      "suppliers": "Fornecedores",
+      "incoming": "Recebimentos",
+      "outgoing": "Pagamentos",
+      "paymentSchedule": "Calendário de pagamentos",
+      "financialSummary": "Resumo financeiro",
+      "retainers": "Avenças",
+      "noActivity": "Sem atividade registada neste projeto.",
+      "renameHint": "Duplo clique para renomear",
+      "noQuote": "Esta vista usa a proposta ligada ao projeto (Gantt). Ainda não existe uma proposta ligada.",
+      "createQuoteHint": "Crie uma proposta ligada a partir do Gantt do projeto para preencher Arquitetura, Fornecedores, Recebimentos, Pagamentos, Calendário de pagamentos e Resumo financeiro.",
+      "createQuote": "Criar proposta ligada a partir do Gantt",
+      "addStageHint": "Adicione uma fase para começar.",
+      "noAllocation": "Sem alocação",
+      "editPlan": "Editar planeamento",
+      "addTask": "Adicionar tarefa",
+      "milestonesTasks": "Marcos e tarefas",
+      "actualCostHint": "Custo real = Σ horas registadas × custo horário. Comparado com o orçamento da fase, quando definido.",
+      "actualCost": "Custo (real face ao orçamento)",
+      "earnedRevenueHint": "Receita gerada = Σ horas faturáveis × preço de venda horário",
+      "earnedRevenue": "Receita (gerada)",
+      "profitHint": "Lucro = receita − custo. A margem só é apresentada quando a receita é superior a zero.",
+      "profitMargin": "Lucro / Margem",
+      "usedPlannedHours": "Horas registadas / planeadas",
+      "scheduledStart": "Início previsto",
+      "scheduledDue": "Conclusão prevista",
+      "stageInsights": "Abrir estatísticas desta fase",
+      "taskEditHint": "Duplo clique para editar esta tarefa",
+      "plannedCostHint": "Custo planeado (alocação × custo horário)",
+      "plannedRevenueHint": "Receita planeada (alocação × preço de venda horário)",
+      "plannedProfitHint": "Lucro planeado = receita planeada − custo planeado",
+      "scope": "Âmbito",
+      "wholeProject": "Todo o projeto",
+      "projectWideHint": "A faturação, os materiais, as despesas e as horas importadas abrangem todo o projeto e não se aplicam a uma única fase.",
+      "activitiesHours": "Atividades e horas",
+      "actualRevenue": "Receita real:",
+      "revenueCalculationHint": "Real = horas faturáveis × preço de venda horário. Planeado = total de horas alocadas × preço de venda horário.",
+      "currentMargin": "Margem atual:",
+      "totalLogged": "Total de horas registadas",
+      "viewTasks": "Ver tarefas",
+      "workDone": "Trabalho concluído",
+      "noActivityYet": "Ainda não há atividade registada.",
+      "noAllocations": "Sem alocações.",
+      "noBudget": "Sem orçamento",
+      "noRevenue": "Ainda sem receita",
+      "ofTotalTime": "do tempo total",
+      "quoteCreated": "Proposta criada ({{id}}…). A recarregar…",
+      "subStages_one": "{{count}} subfase",
+      "subStages_other": "{{count}} subfases",
+      "allocatedCapacity": "{{allocated}} / {{capacity}} h alocadas ·",
+      "remainingHours": "{{hours}} h disponíveis",
+      "plannedCostLabel": "custo planeado ·",
+      "marginValue": "{{value}}% de margem",
+      "costValue": "· {{value}} de custo",
+      "historical_one": "Inclui {{count}} registo histórico importado",
+      "historical_other": "Inclui {{count}} registos históricos importados",
+      "unapproved_one": "{{value}} por aprovar · {{hours}} h ({{count}} registo)",
+      "unapproved_other": "{{value}} por aprovar · {{hours}} h ({{count}} registos)",
+      "invoice": "Fatura",
+      "profitability": "Rentabilidade",
+      "review": "Rever →",
+      "start": "Início",
+      "end": "Fim",
+      "overdue": "Em atraso",
+      "remaining": "Restante"
     }
   },
   "quickCreate": {
@@ -278,7 +352,7 @@
     "task": "Tarefa",
     "expense": "Despesa",
     "benefitExpense": "Reembolso de benefício",
-    "projectExpense": "Despesa de projecto / empresa",
+    "projectExpense": "Despesa de projeto / empresa",
     "material": "Material (serviço externo)",
     "sale": {
       "menuLabel": "Venda / Oportunidade",
@@ -310,11 +384,11 @@
     },
     "request": "Pedido (férias/ausência)",
     "newTask": "Nova tarefa",
-    "newTaskDesc": "Liga a uma alocação existente (projecto · fase · recurso).",
+    "newTaskDesc": "Liga a uma alocação existente (projeto · fase · recurso).",
     "newContact": "Novo contacto",
     "newContactDesc": "Pessoa associada (ou não) a uma empresa.",
-    "newProject": "Novo projecto",
-    "newProjectDesc": "Cria uma proposta ou projecto em curso.",
+    "newProject": "Novo projeto",
+    "newProjectDesc": "Cria uma proposta ou projeto em curso.",
     "newExpense": "Nova despesa",
     "newExpenseDesc": "Submete uma despesa para aprovação.",
     "newRequest": "Novo pedido",
@@ -349,7 +423,7 @@
       "allocation": "Alocação *",
       "hours": "Horas *",
       "noCompany": "Sem empresa associada",
-      "positionPlaceholder": "Director, gestor de projectos…",
+      "positionPlaceholder": "Director, gestor de projetos…",
       "noneOption": "—",
       "allocationPlaceholderEmpty": "Sem alocações disponíveis",
       "allocationPlaceholderPick": "Escolher…"
@@ -358,7 +432,7 @@
       "cancel": "Cancelar",
       "createTask": "Criar tarefa",
       "createContact": "Criar contacto",
-      "createProject": "Criar projecto",
+      "createProject": "Criar projeto",
       "submit": "Submeter",
       "logTime": "Registar",
       "startTimer": "Iniciar"
@@ -378,7 +452,7 @@
     "toasts": {
       "taskCreated": "Tarefa criada",
       "contactCreated": "Contacto criado",
-      "projectCreated": "Projecto criado",
+      "projectCreated": "Projeto criado",
       "expenseSubmitted": "Despesa submetida",
       "requestSubmitted": "Pedido submetido",
       "timeLogged": "Tempo registado",
@@ -394,19 +468,19 @@
   "quickFinance": {
     "expense": {
       "title": "Nova despesa",
-      "description": "Entrada rápida — detalhes completos disponíveis dentro do projecto."
+      "description": "Entrada rápida — detalhes completos disponíveis dentro do projeto."
     },
     "material": {
       "title": "Novo material",
-      "description": "Serviço externo ou compra a fornecedor associada a um projecto.",
-      "projectHint": "Materiais estão sempre ligados a um projecto."
+      "description": "Serviço externo ou compra a fornecedor associada a um projeto.",
+      "projectHint": "Materiais estão sempre ligados a um projeto."
     },
     "fields": {
-      "project": "Projecto",
-      "projectPlaceholder": "Escolher projecto…",
+      "project": "Projeto",
+      "projectPlaceholder": "Escolher projeto…",
       "autoDetected": "detectado",
       "companyExpense": "Esta é uma despesa de empresa",
-      "companyExpenseHint": "Guarda em custos de empresa (sem projecto, sem margem).",
+      "companyExpenseHint": "Guarda em custos de empresa (sem projeto, sem margem).",
       "description": "Descrição",
       "descriptionPlaceholder": "Descrição breve…",
       "category": "Categoria",
@@ -423,13 +497,13 @@
       "create": "Criar"
     },
     "errors": {
-      "projectRequired": "Escolha um projecto ou marque como despesa de empresa.",
+      "projectRequired": "Escolha um projeto ou marque como despesa de empresa.",
       "descriptionRequired": "Descrição é obrigatória.",
       "amountRequired": "O valor tem de ser maior que zero.",
       "unitCostRequired": "O custo unitário tem de ser maior que zero."
     },
     "toasts": {
-      "projectExpenseCreated": "Despesa de projecto criada",
+      "projectExpenseCreated": "Despesa de projeto criada",
       "companyExpenseCreated": "Despesa de empresa criada",
       "materialCreated": "Material criado"
     }
@@ -452,7 +526,7 @@
     "allTeams": "Todas as equipas",
     "allPeople": "Todas as pessoas",
     "backOffice": "Back office",
-    "projects": "Projectos",
+    "projects": "Projetos",
     "billable": "Facturável",
     "internal": "Interno",
     "internalNonBillable": "Interno (não facturável)",
@@ -474,12 +548,12 @@
     "noData": "Sem dados."
   },
   "dashboard": {
-    "title": "Painel de Projectos",
-    "searchPlaceholder": "Procurar projectos ou clientes…",
+    "title": "Painel de Projetos",
+    "searchPlaceholder": "Procurar projetos ou clientes…",
     "thisWeek": "Esta semana",
     "thisMonth": "Este mês",
     "filters": {
-      "active": "Activos",
+      "active": "Ativos",
       "paused": "Em pausa",
       "archived": "Arquivados",
       "all": "Todos",
@@ -491,7 +565,7 @@
     "subtitleSelf": "As tuas horas e divisão facturável — {{period}}"
   },
   "insights": {
-    "title": "Análises de Projectos",
+    "title": "Análises de Projetos",
     "subtitle": "Vistas analíticas: valor da pipeline ao longo do tempo e desempenho por recurso."
   },
   "myTasks": {
@@ -515,16 +589,16 @@
     "errors": {
       "updateFailed": "Não foi possível atualizar a tarefa"
     },
-    "project": "Projecto"
+    "project": "Projeto"
   },
   "resources": {
     "title": "Equipa",
-    "subtitle": "Os membros da equipa são geridos no HR. Novos colaboradores adicionados lá aparecem aqui automaticamente. Clica num nome para editar detalhes específicos do projecto (rate, capacidade, cor).",
+    "subtitle": "Os membros da equipa são geridos no HR. Novos colaboradores adicionados lá aparecem aqui automaticamente. Clica num nome para editar detalhes específicos do projeto (rate, capacidade, cor).",
     "tabs": {
       "all": "Todos",
-      "project": "Equipa de Projecto",
+      "project": "Equipa de Projeto",
       "back_office": "Back Office",
-      "inactive": "Inactivos"
+      "inactive": "Inativos"
     },
     "columns": {
       "name": "Nome",
@@ -532,14 +606,50 @@
       "team": "Equipa",
       "rate": "Rate",
       "capacity": "Capacidade",
-      "active": "Activo"
+      "active": "Ativo"
     },
     "rateSuggestionTitle": "Sugestão automática @ 50% do Resumo Comparativo do HR (sem rate definido)",
-    "removeConfirm": "Remover {{name}} da equipa do projecto? Continuará no HR.",
+    "removeConfirm": "Remover {{name}} da equipa do projeto? Continuará no HR.",
     "removed": "Removido",
     "emptyFiltered": "Ninguém nesta vista ainda.",
     "emptyAll": "Ainda sem membros. Adiciona colaboradores na secção HR para preencher esta lista.",
-    "rateSuggestionFootnote": "* Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o recurso ainda não tem rate definido. Edita o recurso para fixar um valor."
+    "rateSuggestionFootnote": "* Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o recurso ainda não tem rate definido. Edita o recurso para fixar um valor.",
+    "ui": {
+      "subtitle": "Os colaboradores são geridos em RH. Os novos colaboradores aparecem aqui automaticamente. Clique num nome para editar os detalhes de Projetos (preço de venda horário, capacidade e cor).",
+      "projectTeam": "Equipa de projeto",
+      "backoffice": "Backoffice",
+      "costPerHour": "Custo horário (€/h)",
+      "salePerHour75": "Preço de venda horário (€/h, 75%)",
+      "reference100": "Ref. 100%",
+      "hrArchived": "Arquivado em RH",
+      "override": "Valor específico de Projetos",
+      "hrDefault75": "Valor de RH · 75%",
+      "overrideHint": "Preço de venda horário definido manualmente para este recurso. Substitui o valor de RH a 75%.",
+      "defaultHint": "Calculado a partir da tabela de preços de RH, no escalão de venda a 75%.",
+      "noTeam": "Ainda não há colaboradores. Adicione-os em RH para preencher esta lista.",
+      "notFound": "Colaborador não encontrado.",
+      "backToTeam": "Voltar à equipa",
+      "usingDefault": "A usar o valor de RH",
+      "profile": "Perfil",
+      "architect": "Arquiteto",
+      "capacitySaleRate": "Capacidade e preço de venda horário",
+      "weeklyCapacity": "Capacidade (h/semana)",
+      "salePerHour": "Preço de venda horário (€/h)",
+      "overrideActive": "Valor específico de Projetos ativo",
+      "usingDefault75": "A usar o valor de RH · 75%",
+      "prefillHint": "Preencher com o valor de RH a 75%",
+      "default75Label": "Valor de RH a 75%:",
+      "useDefault": "Usar valor de RH",
+      "notesPlaceholder": "Informações a recordar sobre este colaborador…",
+      "removeConfirm": "Remover {{name}} da equipa de projeto? O colaborador continuará em RH.",
+      "deleteConfirm": "Remover {{name}}? Esta ação não pode ser anulada.",
+      "defaultWouldBe": "O valor de RH seria {{value}} (escalão de 75%).",
+      "pricingBefore": "Os preços de venda horários usam a tabela de RH no",
+      "pricingBand": "escalão de margem de 75%",
+      "pricingMiddle": ". O escalão de 100% é apresentado como referência.",
+      "pricingAfter": "só aparece quando o recurso tem um preço de venda horário manual. Os colaboradores inativos estão ocultos por predefinição — use o separador",
+      "pricingEnd": "para os consultar."
+    }
   },
   "gantt": {
     "actuals": {
@@ -555,18 +665,18 @@
       "outsideDates": "{{hours}}h fora das datas planeadas",
       "importedHours": "Importado: {{hours}}h (custo guardado na importação)",
       "loadFailed": "Não foi possível carregar as horas registadas.",
-      "limited": "Apenas são mostradas actividades autorizadas. Os totais dos meses concluídos usam resumos do projecto; o mês atual pode estar incompleto."
+      "limited": "Apenas são mostradas actividades autorizadas. Os totais dos meses concluídos usam resumos do projeto; o mês atual pode estar incompleto."
     },
     "wdShort": "d.ú.",
     "title": "Gantt Global",
-    "subtitle": "Todos os projectos {{filter}} num só Gantt. Arrasta recursos do painel lateral para qualquer fase, ou agarra uma alocação existente pelo ícone à esquerda para a mover entre fases ou projectos.",
+    "subtitle": "Todos os projetos {{filter}} num só Gantt. Arrasta recursos do painel lateral para qualquer fase, ou agarra uma alocação existente pelo ícone à esquerda para a mover entre fases ou projetos.",
     "filterLabels": {
-      "active": "activos",
+      "active": "ativos",
       "paused": "em pausa",
       "archived": "arquivados"
     },
     "tabs": {
-      "active": "Activos",
+      "active": "Ativos",
       "paused": "Em pausa",
       "archived": "Arquivados"
     },
@@ -587,9 +697,9 @@
     },
     "loading": "A carregar…",
     "empty": {
-      "active": "Nenhum projecto activo",
+      "active": "Nenhum projeto ativo",
       "paused": "Nada em pausa",
-      "archived": "Nenhum projecto arquivado"
+      "archived": "Nenhum projeto arquivado"
     },
     "tooltip": {
       "stage": "Fase",
@@ -601,7 +711,7 @@
       "costPerHour": "Custo/h",
       "totalCost": "Custo total",
       "overload": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dia(s).",
-      "leaveImpact": "Capacidade reduzida: <strong>{{leave}}h</strong> de férias aprovadas dentro do período → capacidade efectiva ≈ <strong>{{effective}}h</strong> (de {{planned}}h planeadas).",
+      "leaveImpact": "Capacidade reduzida: <strong>{{leave}}h</strong> de férias aprovadas dentro do período → capacidade efetiva ≈ <strong>{{effective}}h</strong> (de {{planned}}h planeadas).",
       "baselineHover": "Baseline: {{start}} → {{end}}",
       "leaveOverlap": "{{hours}}h sobrepostas com férias aprovadas"
     },
@@ -652,10 +762,10 @@
     },
     "readOnly": {
       "badge": "Apenas leitura — edição reservada a admins",
-      "adminOnly": "Apenas administradores podem editar o plano do projecto."
+      "adminOnly": "Apenas administradores podem editar o plano do projeto."
     },
     "showCancelled": "Mostrar canceladas",
-    "projectSummary": "Projecto",
+    "projectSummary": "Projeto",
     "newStage": "Nova fase",
     "newMilestone": "Milestone",
     "stageDeleted": "Fase eliminada",
@@ -679,7 +789,7 @@
       "status": "Estado",
       "cancelled": "Cancelada",
       "cancelledHint": "Escondida do Gantt e dos totais. Restaura para a trazer de volta ao plano.",
-      "activeHint": "Cancelar preserva a linha e o histórico mas esconde-a do plano activo.",
+      "activeHint": "Cancelar preserva a linha e o histórico mas esconde-a do plano ativo.",
       "cancelStage": "Cancelar fase",
       "cancelConfirm": "Cancelar esta fase? Vai ficar escondida do Gantt e dos totais mas mantida em arquivo.",
       "restoreStage": "Restaurar fase",
@@ -711,7 +821,7 @@
       "locked": "Uma fase bloqueada não pode ser deslocada.",
       "lockedAllocation": "Uma alocação protegida não pode ser redimensionada.",
       "slack": "{{days}}d de intervalo adicional",
-      "crossProject": "Esta ligação entre projectos requer revisão antes de editar.",
+      "crossProject": "Esta ligação entre projetos requer revisão antes de editar.",
       "lockedSkipped": "{{count}} fase(s) bloqueada(s) mantida(s) no lugar.",
       "nothingMoved": "Nada a deslocar: todas as fases estão ligadas ou bloqueadas."
     },
@@ -726,7 +836,7 @@
       "confirmCorrection": "Remover ligações indicadas e inicializar",
       "startWeek": "Semana de início",
       "durationWeeks": "Duração (semanas)",
-      "convertStart": "Data de início do projecto",
+      "convertStart": "Data de início do projeto",
       "previewBaseline": "Datas da proposta",
       "previewLive": "Datas em obra",
       "previewShift": "+{{count}} dias de calendário (feriados/fechos)",
@@ -735,7 +845,20 @@
       "approvedRequired": "A proposta tem de estar aprovada.",
       "previewRequired": "Pré-visualize as datas antes de converter."
     },
-    "leaveDays": "Férias {{days}} d"
+    "leaveDays": "Férias {{days}} d",
+    "ui": {
+      "emptyPaused": "Sem projetos em pausa",
+      "createHint": "Crie um projeto para começar.",
+      "statusHint": "Altere o estado de um projeto para o ver aqui.",
+      "statusUpdated": "Estado do projeto atualizado",
+      "projectDeleted": "Projeto eliminado",
+      "noStages": "Sem fases.",
+      "addStages": "Adicionar fases",
+      "subtitle": "Todos os projetos {{status}} num único Gantt. Arraste recursos do painel lateral para qualquer fase, ou mova uma alocação existente entre fases ou projetos pelo ícone à esquerda.",
+      "stages_one": "{{count}} fase",
+      "stages_other": "{{count}} fases",
+      "deleteConfirm": "Eliminar o projeto «{{name}}»?"
+    }
   },
   "kpi": {
     "businessPerformance": "Desempenho do negócio",
@@ -753,13 +876,13 @@
     "plannedHours": "Horas planeadas",
     "plannedHoursSub": "Esforço alocado",
     "loggedHours": "Horas registadas",
-    "loggedHoursSub": "Tempo efectivamente registado",
+    "loggedHoursSub": "Tempo efetivamente registado",
     "remaining": "Restantes",
     "remainingSub": "Planeadas − registadas"
   },
   "health": {
-    "title": "Saúde do projecto",
-    "subtitle": "Receita real, custo e margem por projecto",
+    "title": "Saúde do projeto",
+    "subtitle": "Receita real, custo e margem por projeto",
     "filters": {
       "all": "Todos",
       "ok": "Saudáveis",
@@ -767,7 +890,7 @@
       "bad": "Críticos"
     },
     "columns": {
-      "project": "Projecto",
+      "project": "Projeto",
       "budget": "Orçamento",
       "actualRevenue": "Receita real",
       "actualCost": "Custo real",
@@ -777,8 +900,8 @@
       "status": "Estado",
       "hours": "Horas (usadas / planeadas)"
     },
-    "loadingProjects": "A carregar projectos…",
-    "emptyFilter": "Nenhum projecto neste filtro.",
+    "loadingProjects": "A carregar projetos…",
+    "emptyFilter": "Nenhum projeto neste filtro.",
     "reasons": {
       "healthy": "Saudável",
       "noActivity": "Sem actividade",
@@ -791,7 +914,7 @@
     "pursuitHint": "Horas de angariação registadas no lead do CRM antes de ser ganho."
   },
   "effort": {
-    "title": "Esforço do projecto",
+    "title": "Esforço do projeto",
     "subtitle": "Horas planeadas vs registadas, eficiência e estado de excesso",
     "filters": {
       "ok": "No prazo",
@@ -823,7 +946,7 @@
     "subtitle": "Problemas que precisam de atenção",
     "scanning": "A analisar…",
     "allClear": "Tudo em ordem",
-    "allClearDetail": "Sem projectos, recursos ou registos sinalizados.",
+    "allClearDetail": "Sem projetos, recursos ou registos sinalizados.",
     "overBudget": "{{name}} está acima do orçamento",
     "lowMargin": "{{name}} tem margem baixa",
     "negativeMargin": "{{name}} tem margem negativa",
@@ -883,7 +1006,7 @@
   },
   "timesheet": {
     "title": "Folha de Horas Semanal",
-    "subtitle": "Regista tempo por fase de projecto, centro de custo interno ou tempo não trabalhado.",
+    "subtitle": "Regista tempo por fase de projeto, centro de custo interno ou tempo não trabalhado.",
     "summary": {
       "billable": "Facturável",
       "internalNonBillable": "Interno (não facturável)",
@@ -891,21 +1014,21 @@
       "total": "Total"
     },
     "noResource": "A tua conta ainda não está ligada a um membro da equipa. Pede a um admin para te adicionar com email correspondente.",
-    "addStage": "Adicionar projecto / fase",
+    "addStage": "Adicionar projeto / fase",
     "search": {
-      "placeholder": "Procurar qualquer projecto por nome ou cliente…",
-      "prompt": "Escreve o nome de um projecto ou cliente para procurar.",
+      "placeholder": "Procurar qualquer projeto por nome ou cliente…",
+      "prompt": "Escreve o nome de um projeto ou cliente para procurar.",
       "searching": "A procurar…",
-      "noResults": "Nenhum projecto corresponde a \"{{query}}\".",
+      "noResults": "Nenhum projeto corresponde a \"{{query}}\".",
       "stageCount_one": "{{count}} fase",
       "stageCount_other": "{{count}} fases",
-      "noStagesDefined": "Sem fases definidas para este projecto.",
+      "noStagesDefined": "Sem fases definidas para este projeto.",
       "added": "Adicionado {{project}} · {{stage}}",
       "addFailed": "Não foi possível adicionar a fase"
     },
     "rowCounts": {
-      "project_one": "{{count}} linha de projecto",
-      "project_other": "{{count}} linhas de projecto",
+      "project_one": "{{count}} linha de projeto",
+      "project_other": "{{count}} linhas de projeto",
       "internal": "{{count}} interno",
       "nonWorking": "{{count}} não trabalhado"
     },
@@ -915,7 +1038,7 @@
       "dailyTotal": "Total diário"
     },
     "sections": {
-      "projects": "Projectos",
+      "projects": "Projetos",
       "projectsHint": "Facturável ou não facturável. Alterna em cada célula.",
       "internal": "Centros de custo interno",
       "internalHint": "Tempo de trabalho não facturável (consome capacidade, sem receita).",
@@ -923,8 +1046,8 @@
       "nonWorkingHint": "Preenchido a partir de férias aprovadas e feriados. Reduz a capacidade."
     },
     "rows": {
-      "loadingProjects": "A carregar projectos…",
-      "emptyProjects": "Sem fases activas esta semana. Usa \"Adicionar projecto / fase\" para registar tempo noutro lado.",
+      "loadingProjects": "A carregar projetos…",
+      "emptyProjects": "Sem fases activas esta semana. Usa \"Adicionar projeto / fase\" para registar tempo noutro lado.",
       "emptyNonWorking": "Sem férias aprovadas nem feriados esta semana.",
       "internalNonBillableSub": "Interno · não facturável",
       "internalArchivedSub": "Interno · arquivado (etiqueta só de leitura, edições ainda permitidas)",
@@ -944,7 +1067,25 @@
       "internalHint": "Tempo interno é sempre não facturável e conta para a capacidade usada.",
       "nonWorkingHint": "Tempo não trabalhado reduz a capacidade disponível e não é facturável."
     },
-    "weekRange": "{{start}} – {{end}}"
+    "weekRange": "{{start}} – {{end}}",
+    "ui": {
+      "readOnly": "Só de leitura · a consultar outro colaborador",
+      "noResource": "A sua conta ainda não está ligada a um colaborador. Peça a um administrador para o adicionar com o mesmo email.",
+      "hideProjects": "Ocultar horas de projetos",
+      "showProjects": "Mostrar horas de projetos",
+      "internalCountSuffix": "internas ·",
+      "noStages": "Sem fases ativas nesta semana. Use «Adicionar projeto / fase» para registar horas noutro projeto.",
+      "internalCenters": "Centros de custo internos",
+      "nonWorkingHint": "Preenchido automaticamente a partir das ausências aprovadas e dos feriados. Reduz a capacidade.",
+      "selectCollaborator": "Selecionar colaborador…",
+      "searchCollaborator": "Procurar colaborador…",
+      "noCollaborator": "Nenhum colaborador encontrado.",
+      "viewCollaborator": "Ver folha de horas de…",
+      "me": "(eu)",
+      "projectRows_one": "{{count}} linha de projeto ·",
+      "projectRows_other": "{{count}} linhas de projetos ·",
+      "archivedName": "{{name}} (arquivado)"
+    }
   },
   "financials": {
     "eyebrow": "Financeiro da empresa",
@@ -985,7 +1126,7 @@
       "nonWorkingHoursHint": "férias + feriados",
       "combinedDrag": "Custo de oportunidade combinado",
       "combinedDragHint": "horas × custo médio/h",
-      "explanation": "A receita só vem de horas facturáveis em projectos. Cada hora interna ou ausente é paga mas não gera rendimento — reduzindo o lucro directamente. Se essas horas fossem facturáveis ao valor médio, o lucro seria aproximadamente <strong>{{value}}</strong>."
+      "explanation": "A receita só vem de horas facturáveis em projetos. Cada hora interna ou ausente é paga mas não gera rendimento — reduzindo o lucro directamente. Se essas horas fossem facturáveis ao valor médio, o lucro seria aproximadamente <strong>{{value}}</strong>."
     },
     "trailing": {
       "title": "Últimos 12 meses",
@@ -1050,21 +1191,21 @@
       "metrics": {
         "submitted": "Propostas submetidas",
         "submittedSub": "{{count}} este mês",
-        "won": "Projectos ganhos",
+        "won": "Projetos ganhos",
         "wonSub": "{{count}} este mês",
         "winRate": "Taxa de sucesso",
         "winRateSub": "{{decided}} decididas · {{open}} abertas",
-        "costPerWon": "Custo por projecto ganho",
+        "costPerWon": "Custo por projeto ganho",
         "costPerWonSub": "{{cost}} de custo BD total"
       },
-      "insight": "<strong>{{hours}}</strong> registadas em <strong>Propostas de fee</strong> em toda a empresa, custando <strong>{{cost}}</strong>. Cada projecto ganho custa <strong>{{costPerWon}}</strong> em esforço de BD.",
+      "insight": "<strong>{{hours}}</strong> registadas em <strong>Propostas de fee</strong> em toda a empresa, custando <strong>{{cost}}</strong>. Cada projeto ganho custa <strong>{{costPerWon}}</strong> em esforço de BD.",
       "valueWon": "Valor total ganho: <strong>{{value}}</strong> · ROI: <strong>{{roi}}× retorno do investimento BD</strong>",
       "recentWins": "Vitórias recentes",
       "recentTable": {
         "proposal": "Proposta",
         "value": "Valor",
         "decided": "Decidida",
-        "linkedProject": "Projecto associado",
+        "linkedProject": "Projeto associado",
         "linked": "Ligado",
         "notLinked": "Não ligado"
       },
@@ -1123,12 +1264,12 @@
       "optimistic": "100%",
       "optimisticHint": "Tudo contado a 100% (visão optimista)",
       "committed": "Confirmado",
-      "committedHint": "Apenas projectos ganhos ou sem proposta CRM"
+      "committedHint": "Apenas projetos ganhos ou sem proposta CRM"
     },
     "kpi": {
       "plannedHours": "Horas planeadas",
       "plannedHoursSub": "{{count}} pessoas alocadas",
-      "effectiveCapacity": "Capacidade efectiva",
+      "effectiveCapacity": "Capacidade efetiva",
       "effectiveCapacitySubLeave": "−{{leave}} de férias (de {{raw}})",
       "effectiveCapacitySubNoLeave": "{{raw}} brutas · sem férias",
       "forecastRevenue": "Receita prevista",
@@ -1154,9 +1295,9 @@
     },
     "capacityRisk": {
       "title": "Capacidade reduzida por férias",
-      "subtitle": "Equipa com {{leave}} de férias aprovadas este mês → capacidade efectiva {{eff}} (de {{raw}}).",
+      "subtitle": "Equipa com {{leave}} de férias aprovadas este mês → capacidade efetiva {{eff}} (de {{raw}}).",
       "exceeded": "Plano excede capacidade em {{over}}.",
-      "underPressure": "Projectos sob pressão",
+      "underPressure": "Projetos sob pressão",
       "leaveTooltip": "Horas perdidas para férias aprovadas"
     },
     "trend": {
@@ -1168,10 +1309,10 @@
     },
     "variance": {
       "title": "Variância planeado vs real — {{month}}",
-      "subtitle": "Diferença entre o que foi alocado no Gantt e o que foi efectivamente registado em timesheet",
+      "subtitle": "Diferença entre o que foi alocado no Gantt e o que foi efetivamente registado em timesheet",
       "loading": "A carregar…",
       "empty": "Sem dados planeados nem reais para este mês.",
-      "project": "Projecto",
+      "project": "Projeto",
       "planH": "Plan h",
       "actualH": "Real h",
       "deltaH": "Δ h",
@@ -1188,12 +1329,12 @@
     },
     "conflicts": {
       "title": "Conflitos com férias aprovadas",
-      "subtitle": "Pessoas alocadas a projectos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.",
+      "subtitle": "Pessoas alocadas a projetos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.",
       "daysSuffix": "{{count}}d"
     },
     "expenses": {
       "title": "Despesas",
-      "subtitle": "Despesas reembolsáveis do projecto (deslocações, alojamento, refeições). Sem markup.",
+      "subtitle": "Despesas reembolsáveis do projeto (deslocações, alojamento, refeições). Sem markup.",
       "addButton": "Adicionar despesa",
       "empty": "Sem despesas.",
       "totals": "Totais",
@@ -1275,6 +1416,43 @@
         "unread_other": "{{count}} recibos não foram lidos — rascunhos criados com o recibo anexado",
         "failed": "Não foi possível adicionar: {{names}}"
       }
+    },
+    "ui": {
+      "subtitle": "Receita, custo e lucro previstos a partir das alocações do Gantt. Compare com os valores reais, identifique sobreposições com férias aprovadas e estime margens futuras.",
+      "weighted": "Ponderado pela probabilidade",
+      "weightedHint": "Pipeline ponderado pela probabilidade da proposta",
+      "wonNoProposal": "· ganhos / sem proposta",
+      "rawHours": "não ponderadas",
+      "raw": "não ponderado",
+      "weightedHours": "ponderadas ·",
+      "lost": "Perdidos (excluídos)",
+      "lostHint": "não contam para a previsão",
+      "leavePlanned": "planeadas durante férias aprovadas",
+      "leaveCapacity": "Capacidade reduzida por férias",
+      "trend": "Tendência da previsão (6 meses)",
+      "trendSub": "Receita e custo previstos a partir do Gantt atual",
+      "variance": "Variação entre planeado e real —",
+      "varianceSub": "Diferença entre as alocações do Gantt e as horas registadas na folha de horas",
+      "plannedHoursCol": "Horas planeadas",
+      "loggedHoursCol": "Horas registadas",
+      "plannedRevenueCol": "Receita planeada",
+      "plannedProfitCol": "Lucro planeado",
+      "conflicts": "Conflitos com férias aprovadas",
+      "conflictsSub": "Colaboradores alocados a projetos em dias de férias. Ajuste o Gantt ou rejeite o pedido.",
+      "allocatedPeople_one": "{{count}} colaborador alocado",
+      "allocatedPeople_other": "{{count}} colaboradores alocados",
+      "leaveCapacitySub": "−{{leave}} de férias (de {{raw}})",
+      "noLeaveSub": "{{raw}} brutas · sem férias",
+      "weightedRevenueSub": "ponderado · não ponderado {{raw}} · real {{actual}}",
+      "actualSub": "face ao real {{actual}}",
+      "marginSub": "Margem {{margin}}% · real {{actual}}",
+      "conflictDays_one": "{{count}} dia com sobreposição. Reveja as alocações abaixo assinaladas com",
+      "conflictDays_other": "{{count}} dias com sobreposição. Reveja as alocações abaixo assinaladas com",
+      "capacitySub": "Equipa com {{leave}} de férias aprovadas neste mês → capacidade efetiva {{effective}} (de {{raw}}).",
+      "overCapacity": "O planeamento excede a capacidade em {{hours}}.",
+      "probabilityHint": "Pipeline · {{value}}% de probabilidade",
+      "probabilityShort": "P{{value}}%",
+      "plannedHours": "Horas planeadas"
     }
   },
   "externalServices": {
@@ -1387,7 +1565,7 @@
       "status": "Estado"
     },
     "status": {
-      "active": "Activo",
+      "active": "Ativo",
       "archived": "Arquivado"
     },
     "actions": {
@@ -1403,8 +1581,8 @@
       "phone": "Telefone",
       "taxId": "NIF",
       "notes": "Notas",
-      "active": "Activo",
-      "activeHint": "Fornecedores inactivos ficam ocultos no selector mas continuam visíveis em registos existentes."
+      "active": "Ativo",
+      "activeHint": "Fornecedores inativos ficam ocultos no selector mas continuam visíveis em registos existentes."
     },
     "dialog": {
       "createTitle": "Novo fornecedor",
@@ -1431,7 +1609,7 @@
   },
   "expenses": {
     "title": "Despesas",
-    "subtitle": "Despesas reembolsáveis do projecto (deslocações, alojamento, refeições). Sem markup.",
+    "subtitle": "Despesas reembolsáveis do projeto (deslocações, alojamento, refeições). Sem markup.",
     "addButton": "Adicionar despesa",
     "empty": "Sem despesas.",
     "totals": "Totais",
@@ -1568,9 +1746,9 @@
   },
   "approvals": {
     "title": "Aprovações",
-    "subtitle": "Rever, ajustar e aprovar horas registadas neste projecto.",
+    "subtitle": "Rever, ajustar e aprovar horas registadas neste projeto.",
     "queueTitle": "Aprovar trabalho",
-    "queueSubtitle": "Projectos com horas por aprovar.",
+    "queueSubtitle": "Projetos com horas por aprovar.",
     "queueEmpty": "Tudo em dia. Sem horas pendentes.",
     "empty": "Sem horas pendentes. Está tudo aprovado.",
     "pending": "Pendente",
@@ -1594,7 +1772,9 @@
     "stageApproved": "Registos da fase aprovados",
     "unassigned": "Fase por atribuir",
     "review": "Rever →",
-    "unapproved": "por aprovar"
+    "unapproved": "por aprovar",
+    "pendingCount_one": "{{count}} registo pendente",
+    "pendingCount_other": "{{count}} registos pendentes"
   },
   "notes": {
     "tab": "Notas",
@@ -1615,7 +1795,7 @@
     "filterAll": "Todas",
     "confirmDelete": "Apagar esta nota?",
     "eventOn": "evento",
-    "askTitle": "Perguntar ao histórico do projecto",
+    "askTitle": "Perguntar ao histórico do projeto",
     "askPlaceholder": "ex. O que aconteceu com a cobertura?",
     "micError": "Acesso ao microfone negado",
     "emptyRecording": "Gravação vazia — tente novamente",
@@ -1624,7 +1804,7 @@
       "todo": "A fazer",
       "issue_risk": "Problema / risco",
       "decision_fact": "Decisão / facto",
-      "project": "Projecto",
+      "project": "Projeto",
       "engineering": "Engenharia",
       "status": "Estado",
       "other": "Outro"
@@ -2203,6 +2383,37 @@
       "obra": "Obra",
       "stand_by": "Stand by",
       "a_arrancar": "A arrancar"
+    }
+  },
+  "tasks": {
+    "ui": {
+      "subtitle": "As suas alocações. Aceite uma tarefa para começar a registar horas.",
+      "emptyPending": "Sem tarefas pendentes.",
+      "suggested": "Sugerido",
+      "loggedToday": "Horas registadas hoje:",
+      "accepted": "Tarefa aceite",
+      "paused": "Tarefa em pausa",
+      "completed": "Tarefa concluída",
+      "resumed": "Tarefa retomada",
+      "reopened": "Tarefa reaberta",
+      "acceptHint": "Aceite esta tarefa para começar a registar horas.",
+      "notSignedIn": "Sessão não iniciada",
+      "validHours": "Introduza um número de horas válido",
+      "logError": "Não foi possível registar as horas",
+      "saveEntry": "Guardar registo",
+      "timeHistory": "Histórico de horas",
+      "noEntries": "Ainda não há registos.",
+      "noResourceBefore": "A sua conta ainda não está ligada a um colaborador. Peça a um administrador para o adicionar à",
+      "noResourceAfter": "com o mesmo email ({{email}}).",
+      "suggestedHours": "Sugerido: {{hours}} h/dia",
+      "logged": "{{hours}} h registadas em {{date}}",
+      "loggedTotal": "{{hours}} h registadas",
+      "status": {
+        "pending": "Pendente",
+        "active": "Ativa",
+        "paused": "Em pausa",
+        "done": "Concluída"
+      }
     }
   }
 }

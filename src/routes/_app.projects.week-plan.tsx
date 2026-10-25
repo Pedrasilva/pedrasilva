@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { addDays, format, isValid, parseISO } from "date-fns";
-import { enGB, pt } from "date-fns/locale";
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mondayOf } from "@/lib/projects/week-board";
@@ -31,10 +31,10 @@ function WeekPlanError({ reset }: { reset: () => void }) {
   return <div className="py-12"><p className="mb-4 text-muted-foreground">{t("errorTitle")}</p><Button variant="outline" onClick={reset}>{t("retry")}</Button></div>;
 }
 function WeekPlanPage() {
-  const { t, i18n } = useTranslation("projects");
+  const { t } = useTranslation("projects");
   const search = Route.useSearch(); const navigate = useNavigate();
   const week = search.week ?? mondayOf(new Date());
-  const locale = i18n.language.startsWith("pt") ? pt : enGB;
+  const locale = useDateLocale();
   const date = parseISO(week); const end = addDays(date, 4);
   const label = format(date, date.getMonth() === end.getMonth() ? "d" : "d MMM", { locale }) + "–" + format(end, "d MMM yyyy", { locale });
   const changeWeek = (value: string) => navigate({ to:"/projects/week-plan", search:{ week:value } });
