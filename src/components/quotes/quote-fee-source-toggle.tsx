@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Quote-level "Contract value source" switch.
  *
@@ -32,6 +34,7 @@ export function QuoteFeeSourceToggle({
   quoteId: string;
   compact?: boolean;
 }) {
+  useTranslation();
   const qc = useQueryClient();
 
   const q = useQuery({
@@ -60,8 +63,8 @@ export function QuoteFeeSourceToggle({
     onSuccess: (mode) => {
       toast.success(
         mode === "budget"
-          ? "Contract value now uses Budget values"
-          : "Contract value now uses Resource Allocations",
+          ? uiI18n.t("crm:quoteEditor.budgetValueSelected")
+          : uiI18n.t("crm:quoteEditor.allocationsSelected"),
       );
       qc.invalidateQueries({ queryKey: ["fee-proposal-fee-source-mode", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
@@ -83,14 +86,12 @@ export function QuoteFeeSourceToggle({
       }}
       className="shrink-0"
     >
-      <ToggleGroupItem value="allocation" aria-label="Alocação de recursos" className="gap-1.5">
+      <ToggleGroupItem value="allocation" aria-label={uiI18n.t("glossary:planning.allocation")} className="gap-1.5">
         <Calculator className="h-3.5 w-3.5" />
-        Alocação de recursos
-      </ToggleGroupItem>
-      <ToggleGroupItem value="budget" aria-label="Valor do orçamento" className="gap-1.5">
+         {uiI18n.t("glossary:planning.allocation")} </ToggleGroupItem>
+      <ToggleGroupItem value="budget" aria-label={uiI18n.t("crm:quoteEditor.budgetValue")} className="gap-1.5">
         <Wallet className="h-3.5 w-3.5" />
-        Valor do orçamento
-      </ToggleGroupItem>
+         {uiI18n.t("crm:quoteEditor.budgetValue")} </ToggleGroupItem>
     </ToggleGroup>
   );
 
@@ -98,10 +99,9 @@ export function QuoteFeeSourceToggle({
     return (
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-0.5">
-          <Label className="text-xs">Origem do valor do contrato</Label>
+          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.contractValueSource")} </Label>
           <p className="text-[11px] text-muted-foreground">
-            Aplica a todo o projeto — fases, sub-fases e fornecedores.
-          </p>
+             {uiI18n.t("crm:quoteEditor.allStagesHint")} </p>
         </div>
         {toggle}
       </div>
@@ -112,10 +112,9 @@ export function QuoteFeeSourceToggle({
     <Card className="border-dashed">
       <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium">Origem do valor do contrato</Label>
+          <Label className="text-sm font-medium"> {uiI18n.t("crm:quoteEditor.contractValueSource")} </Label>
           <p className="text-xs text-muted-foreground">
-            Aplica a todo o projeto — todas as fases, sub-fases e fornecedores.
-          </p>
+             {uiI18n.t("crm:quoteEditor.allStagesHint")} </p>
         </div>
         {toggle}
       </CardContent>

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Construction-percentage architectural fee calculator.
  *
@@ -317,11 +318,11 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
         <div className="flex flex-wrap items-center justify-end gap-2">
           <span className="mr-auto text-xs text-muted-foreground">
             {autoSaveState === "saving"
-              ? "A guardar…"
+              ? uiI18n.t("common:saving")
               : autoSaveState === "saved"
-                ? "Guardado automaticamente"
+                ? uiI18n.t("crm:quoteEditor.autosaved")
                 : autoSaveState === "error"
-                  ? "Erro ao guardar"
+                  ? uiI18n.t("crm:quoteEditor.saveFailed")
                   : ""}
           </span>
           <Button
@@ -347,6 +348,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
 function SummaryRow({
   label, value, bold, highlight,
 }: { label: string; value: string; bold?: boolean; highlight?: boolean }) {
+  useTranslation();
   return (
     <div className={"flex items-center justify-between " + (highlight ? "text-base" : "")}>
       <span className={"text-muted-foreground " + (highlight ? "text-foreground" : "")}>{label}</span>

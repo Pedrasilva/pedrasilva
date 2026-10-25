@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,7 @@ interface Props {
 const NONE_STAGE = "__none__";
 
 function fmtMoney(n: number): string {
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 2,
@@ -61,6 +63,7 @@ function fmtMoney(n: number): string {
 }
 
 export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
+  useTranslation();
   const tripsQ = useQuoteSiteTrips(quoteId);
   const stagesQ = useQuoteStages(quoteId);
   const resourcesQ = useResources();
@@ -338,45 +341,39 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
-            <CardTitle>Construction Assistance</CardTitle>
+            <CardTitle> {uiI18n.t("crm:quoteEditor.constructionAssistance")} </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Plan site trips during Construction (or any other stage). Cost per
-              trip = km × price/km × 2 + trip hours × hourly rate × 2 (return
-              included).
-            </p>
+               {uiI18n.t("crm:quoteEditor.tripCostHint")} </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end">
               <Label className="text-xs text-muted-foreground mb-1">
-                Billing rate for all resources
-              </Label>
+                 {uiI18n.t("crm:quoteEditor.tripBillingRate")} </Label>
               <Select
                 value={billingMode}
                 onValueChange={(v) => changeBillingMode(v as BillingMode)}
               >
                 <SelectTrigger
                   className="h-9 min-w-[14rem]"
-                  title="Choose which €/h drives the cost of every trip"
+                  title={uiI18n.t("crm:quoteEditor.tripBillingRateHint")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="resource">Resource €/h (per collaborator)</SelectItem>
-                  <SelectItem value="manual">Manual €/h (per trip)</SelectItem>
-                  <SelectItem value="role">Role €/h (billable hourly rate)</SelectItem>
+                  <SelectItem value="resource"> {uiI18n.t("crm:quoteEditor.resourceHourly")} </SelectItem>
+                  <SelectItem value="manual"> {uiI18n.t("crm:quoteEditor.manualHourlyTrip")} </SelectItem>
+                  <SelectItem value="role"> {uiI18n.t("crm:quoteEditor.roleHourly")} </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <Button size="sm" onClick={startAdd}>
-              <Plus className="mr-1 h-4 w-4" /> Add trip
-            </Button>
+              <Plus className="mr-1 h-4 w-4" />  {uiI18n.t("crm:quoteEditor.addTrip")} </Button>
           </div>
         </CardHeader>
         <CardContent>
           {rows.length === 0 && !draft && (
             <div className="text-sm text-muted-foreground py-8 text-center">
-              No site trips defined yet.
-            </div>
+               {uiI18n.t("crm:quoteEditor.noTrips")} </div>
           )}
 
           {(rows.length > 0 || draft) && (
@@ -384,20 +381,20 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Label</TableHead>
-                    <TableHead>Stage</TableHead>
+                    <TableHead> {uiI18n.t("crm:workspace.payment.label")} </TableHead>
+                    <TableHead> {uiI18n.t("glossary:entity.stage")} </TableHead>
                     <TableHead className="text-right">km</TableHead>
                     <TableHead className="text-right">€/km</TableHead>
-                    <TableHead className="text-right">Hours</TableHead>
-                    <TableHead>Resource</TableHead>
-                    <TableHead>Billable role</TableHead>
-                    <TableHead>Show in proposal</TableHead>
-                    <TableHead className="text-right">Resource €/h</TableHead>
-                    <TableHead className="text-right">Manual €/h</TableHead>
-                    <TableHead>Frequency</TableHead>
-                    <TableHead className="text-right">Trips</TableHead>
-                    <TableHead className="text-right">€/trip</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("common:mobile.hours")} </TableHead>
+                    <TableHead> {uiI18n.t("glossary:entity.resource")} </TableHead>
+                    <TableHead> {uiI18n.t("crm:quoteEditor.billableRole")} </TableHead>
+                    <TableHead> {uiI18n.t("crm:quoteEditor.showProposal")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.resourceHour")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.manualHour")} </TableHead>
+                    <TableHead> {uiI18n.t("crm:quoteEditor.frequency")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.trips")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.perTrip")} </TableHead>
+                    <TableHead className="text-right"> {uiI18n.t("common:total")} </TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -422,7 +419,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={NONE_STAGE}>— None —</SelectItem>
+                            <SelectItem value={NONE_STAGE}> {uiI18n.t("crm:quoteEditor.noneChoice")} </SelectItem>
                             {numberedStages.map(({ stage: s, number }) => (
                               <SelectItem key={s.id} value={s.id}>
                                 {number} {s.name}
@@ -465,7 +462,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           return label ? (
                             <span
                               className="text-sm"
-                              title="Client-facing role from the HR / Commercial Role card"
+                              title={uiI18n.t("crm:quoteEditor.commercialRoleHint")}
                             >
                               {label}
                             </span>
@@ -483,13 +480,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         >
                           <SelectTrigger
                             className="h-8 min-w-[7rem]"
-                            title="How resources are referenced in the generated proposal"
+                            title={uiI18n.t("crm:quoteEditor.resourceDisplayHint")}
                           >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="role">Role</SelectItem>
-                            <SelectItem value="name">Name</SelectItem>
+                            <SelectItem value="role"> {uiI18n.t("common:role")} </SelectItem>
+                            <SelectItem value="name"> {uiI18n.t("common:name")} </SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -497,13 +494,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         {(trip.resource_ids?.length ?? 0) > 0 ? (
                           <span
                             className="tabular-nums"
-                            title={`Sum of sale rates: ${(trip.resource_ids ?? [])
+                            title={uiI18n.t("crm:quoteEditor.saleSum", { value1: (trip.resource_ids ?? [])
                               .map((id) => {
                                 const ov = Number(trip.resource_hourly_rates?.[id]) || 0;
                                 const r = ov > 0 ? ov : resourceRateById.get(id) ?? 0;
                                 return `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(r)}/h${ov > 0 ? " (custom)" : ""}`;
                               })
-                              .join(" + ")}`}
+                              .join(" + ") })}
                           >
                             {fmtMoney(
                               (trip.resource_ids ?? []).reduce((s, id) => {
@@ -542,8 +539,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="per_month">per month</SelectItem>
-                              <SelectItem value="total">total</SelectItem>
+                              <SelectItem value="per_month"> {uiI18n.t("crm:quoteEditor.perMonth")} </SelectItem>
+                              <SelectItem value="total"> {uiI18n.t("common:totalLower")} </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -561,7 +558,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                               className="w-14"
                               step="1"
                             />
-                            <span className="text-[10px] text-muted-foreground mr-1">mo</span>
+                            <span className="text-[10px] text-muted-foreground mr-1"> {uiI18n.t("crm:quoteEditor.monthShort")} </span>
                             <span>
                               ={" "}
                               {cost.totalTrips.toFixed(
@@ -574,7 +571,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         )}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        <span title="km × €/km × 2 + hours × €/h × 2">
+                        <span title={uiI18n.t("crm:quoteEditor.tripFormula")}>
                           <ArrowLeftRight className="inline h-3 w-3 mr-1 text-muted-foreground" />
                           {fmtMoney(cost.perTripTotal)}
                         </span>
@@ -587,7 +584,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Edit trip"
+                            title={uiI18n.t("crm:quoteEditor.editTrip")}
                             onClick={() => startEdit(trip)}
                           >
                             <Pencil className="h-4 w-4" />
@@ -595,7 +592,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Delete trip"
+                            title={uiI18n.t("crm:quoteEditor.deleteTrip")}
                             onClick={() => del.mutate(trip.id)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -608,8 +605,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   {rows.length > 0 && (
                     <TableRow>
                       <TableCell colSpan={13} className="text-right font-semibold">
-                        Grand total
-                      </TableCell>
+                         {uiI18n.t("crm:quoteEditor.grandTotal")} </TableCell>
                       <TableCell className="text-right font-semibold tabular-nums">
                         {fmtMoney(grandTotal)}
                       </TableCell>
@@ -623,15 +619,15 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
           {draft && (
             <div className="mt-4 rounded-md border p-4 space-y-3">
-              <div className="font-medium text-sm">{draft.id ? "Edit site trip" : "New site trip"}</div>
+              <div className="font-medium text-sm">{draft.id ? uiI18n.t("crm:quoteEditor.editSiteTrip") : uiI18n.t("crm:quoteEditor.newSiteTrip")}</div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <Field label="Label">
+                <Field label={uiI18n.t("crm:workspace.payment.label")}>
                   <Input
                     value={draft.label ?? ""}
                     onChange={(e) => setDraft({ ...draft, label: e.target.value })}
                   />
                 </Field>
-                <Field label="Stage">
+                <Field label={uiI18n.t("glossary:entity.stage")}>
                   <Select
                     value={draft.stage_id ?? NONE_STAGE}
                     onValueChange={(v) =>
@@ -642,7 +638,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NONE_STAGE}>— None —</SelectItem>
+                      <SelectItem value={NONE_STAGE}> {uiI18n.t("crm:quoteEditor.noneChoice")} </SelectItem>
                       {numberedStages.map(({ stage: s, number }) => (
                         <SelectItem key={s.id} value={s.id}>
                           {number} {s.name}
@@ -651,7 +647,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Resources on trip (return incl.)" className="md:col-span-3">
+                <Field label={uiI18n.t("crm:quoteEditor.tripResources")} className="md:col-span-3">
                   <ResourceRateList
                     selected={draft.resource_ids ?? []}
                     overrides={(draft.resource_hourly_rates ?? {}) as Record<string, number>}
@@ -665,14 +661,14 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     }
                   />
                 </Field>
-                <Field label="km to site">
+                <Field label={uiI18n.t("crm:quoteEditor.siteDistance")}>
                   <Input
                     type="number"
                     value={draft.km ?? 0}
                     onChange={(e) => setDraft({ ...draft, km: Number(e.target.value) })}
                   />
                 </Field>
-                <Field label="Price €/km">
+                <Field label={uiI18n.t("crm:quoteEditor.priceKm")}>
                   <Input
                     type="number"
                     step="0.01"
@@ -682,7 +678,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     }
                   />
                 </Field>
-                <Field label="Hours per trip">
+                <Field label={uiI18n.t("crm:quoteEditor.tripHours")}>
                   <Input
                     type="number"
                     step="0.25"
@@ -692,7 +688,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     }
                   />
                 </Field>
-                <Field label="Manual €/h">
+                <Field label={uiI18n.t("crm:quoteEditor.manualHour")}>
                   <Input
                     type="number"
                     step="0.5"
@@ -703,10 +699,10 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         resource_hourly_rate: Number(e.target.value),
                       })
                     }
-                    title="Additive €/h on top of the resource sale sum (per-diem, tooling, etc.)"
+                    title={uiI18n.t("crm:quoteEditor.hourlyExtraHint")}
                   />
                 </Field>
-                <Field label="Frequency">
+                <Field label={uiI18n.t("crm:quoteEditor.frequency")}>
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -729,18 +725,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="per_month">per month</SelectItem>
-                        <SelectItem value="total">total</SelectItem>
+                        <SelectItem value="per_month"> {uiI18n.t("crm:quoteEditor.perMonth")} </SelectItem>
+                        <SelectItem value="total"> {uiI18n.t("common:totalLower")} </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </Field>
-                <Field label="Duration (months, override)">
+                <Field label={uiI18n.t("crm:quoteEditor.durationOverride")}>
                   <Input
                     type="number"
                     step="1"
                     min="0"
-                    placeholder="From stage dates"
+                    placeholder={uiI18n.t("crm:quoteEditor.fromStageDates")}
                     value={
                       draft.duration_months_override == null
                         ? ""
@@ -753,10 +749,10 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         duration_months_override: v === "" ? null : Number(v),
                       });
                     }}
-                    title="Overrides the stage's date-derived duration when frequency is 'per month'. Leave empty to use stage dates."
+                    title={uiI18n.t("crm:quoteEditor.durationOverrideHint")}
                   />
                 </Field>
-                <Field label="Show resources in proposal as">
+                <Field label={uiI18n.t("crm:quoteEditor.resourcesAs")}>
                   <Select
                     value={(draft.display_mode as string) ?? "role"}
                     onValueChange={(v) =>
@@ -767,12 +763,12 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="role">Billable role</SelectItem>
-                      <SelectItem value="name">Collaborator name</SelectItem>
+                      <SelectItem value="role"> {uiI18n.t("crm:quoteEditor.billableRole")} </SelectItem>
+                      <SelectItem value="name"> {uiI18n.t("crm:quoteEditor.collaboratorName")} </SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Notes" className="md:col-span-3">
+                <Field label={uiI18n.t("common:notes")} className="md:col-span-3">
                   <Textarea
                     rows={2}
                     value={draft.notes ?? ""}
@@ -782,10 +778,9 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" onClick={() => setDraft(null)}>
-                  Cancel
-                </Button>
+                   {uiI18n.t("common:cancel")} </Button>
                 <Button onClick={saveDraft} disabled={upsert.isPending}>
-                  {draft.id ? "Save changes" : "Save trip"}
+                  {draft.id ? uiI18n.t("common:saveChanges") : uiI18n.t("crm:quoteEditor.saveTrip")}
                 </Button>
               </div>
             </div>
@@ -805,6 +800,7 @@ function Field({
   children: React.ReactNode;
   className?: string;
 }) {
+  useTranslation();
   return (
     <div className={className}>
       <Label className="text-xs text-muted-foreground">{label}</Label>
@@ -824,6 +820,7 @@ function NumberCell({
   step?: string;
   className?: string;
 }) {
+  useTranslation();
   const [local, setLocal] = useState<string>(String(value ?? 0));
   return (
     <Input
@@ -865,6 +862,7 @@ function ResourceMultiSelect({
   fullWidth?: boolean;
   rateById?: Map<string, number>;
 }) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const selectedSet = new Set(selected);
   const label =
@@ -888,7 +886,7 @@ function ResourceMultiSelect({
       <PopoverContent className="w-72 p-2" align="start">
         <div className="max-h-64 overflow-y-auto space-y-1">
           {resources.length === 0 && (
-            <div className="text-xs text-muted-foreground p-2">No resources.</div>
+            <div className="text-xs text-muted-foreground p-2"> {uiI18n.t("crm:quoteEditor.noResources")} </div>
           )}
           {resources.map((r) => {
             const checked = selectedSet.has(r.id);
@@ -922,8 +920,7 @@ function ResourceMultiSelect({
               size="sm"
               onClick={() => onChange([])}
             >
-              Clear
-            </Button>
+               {uiI18n.t("common:clear")} </Button>
           </div>
         )}
       </PopoverContent>
@@ -952,6 +949,7 @@ function ResourceRateList({
   onChangeSelected: (ids: string[]) => void;
   onChangeOverrides: (next: Record<string, number>) => void;
 }) {
+  useTranslation();
   const selectedSet = new Set(selected);
   const selectedRows = selected
     .map((id) => resources.find((r) => r.id === id))
@@ -986,8 +984,7 @@ function ResourceRateList({
     <div className="rounded-md border">
       {selectedRows.length === 0 ? (
         <div className="text-xs text-muted-foreground px-3 py-2">
-          No resources on this trip yet.
-        </div>
+           {uiI18n.t("crm:quoteEditor.noTripResources")} </div>
       ) : (
         <div className="divide-y">
           {selectedRows.map((r) => {
@@ -1001,21 +998,21 @@ function ResourceRateList({
                 <span className="flex-1 truncate">{r.name}</span>
                 <span
                   className="text-xs text-muted-foreground tabular-nums"
-                  title="Default sale rate from HR pricing"
+                  title={uiI18n.t("crm:quoteEditor.defaultSaleHint")}
                 >
-                  default {fmtMoney(base)}/h
+                   {uiI18n.t("common:defaultLower")} {fmtMoney(base)}/h
                 </span>
                 <div className="flex items-center gap-1">
                   <Input
                     type="number"
                     step="0.5"
-                    placeholder="custom €/h"
+                    placeholder={uiI18n.t("crm:quoteEditor.customHour")}
                     className="h-8 w-28 text-right"
                     value={ov > 0 ? ov : ""}
                     onChange={(e) =>
                       setOverride(r.id, Number(e.target.value) || 0)
                     }
-                    title="Custom sale €/h for this resource on this trip. Leave empty to use the default."
+                    title={uiI18n.t("crm:quoteEditor.customSaleHint")}
                   />
                   <span className="text-xs text-muted-foreground">€/h</span>
                 </div>
@@ -1024,7 +1021,7 @@ function ResourceRateList({
                   variant="ghost"
                   size="icon"
                   onClick={() => removeResource(r.id)}
-                  title="Remove resource"
+                  title={uiI18n.t("crm:quoteEditor.removeResource")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -1036,7 +1033,7 @@ function ResourceRateList({
       <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
         <Select value="" onValueChange={addResource}>
           <SelectTrigger className="h-8 w-64">
-            <SelectValue placeholder={available.length === 0 ? "All resources added" : "Add resource…"} />
+            <SelectValue placeholder={available.length === 0 ? uiI18n.t("crm:quoteEditor.allResourcesAdded") : uiI18n.t("crm:quoteEditor.addResource")} />
           </SelectTrigger>
           <SelectContent>
             {available.map((r) => (
@@ -1047,7 +1044,7 @@ function ResourceRateList({
           </SelectContent>
         </Select>
         <span className="text-xs text-muted-foreground tabular-nums">
-          Combined €/h: <span className="font-medium text-foreground">{fmtMoney(total)}</span>
+           {uiI18n.t("crm:quoteEditor.combinedHour")} <span className="font-medium text-foreground">{fmtMoney(total)}</span>
         </span>
       </div>
     </div>

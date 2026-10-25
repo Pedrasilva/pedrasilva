@@ -5,6 +5,7 @@ import { useProposalQuoteId } from "@/lib/quotes/use-quote-lock";
 
 import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute("/_app/proposals/$proposalId/composer")({
+  head: () => ({ meta: [{ title: "Proposal editor | PSA Hub" }, { name: "description", content: "Compose proposal documents and edit their presentation in PSA Hub." }, { property: "og:title", content: "Proposal editor | PSA Hub" }, { property: "og:description", content: "Compose proposal documents and edit their presentation in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GuardedComposerPage,
 });
 

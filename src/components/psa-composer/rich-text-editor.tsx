@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * TipTap-based rich text editor used by manual / library / mixed PSA blocks.
  *
@@ -90,22 +92,22 @@ const FontSize = Extension.create({
 });
 
 const FONT_FAMILIES: { label: string; value: string }[] = [
-  { label: "Padrão", value: "" },
-  { label: "Sans (Inter)", value: "Inter, system-ui, sans-serif" },
-  { label: "Serif (Georgia)", value: "Georgia, 'Times New Roman', serif" },
-  { label: "Mono (JetBrains)", value: "'JetBrains Mono', ui-monospace, monospace" },
+  { label: "crm:composer.typography.default", value: "" },
+  { label: "crm:composer.typography.sansInter", value: "Inter, system-ui, sans-serif" },
+  { label: "crm:composer.typography.serifGeorgia", value: "Georgia, 'Times New Roman', serif" },
+  { label: "crm:composer.typography.monoJetBrains", value: "'JetBrains Mono', ui-monospace, monospace" },
   { label: "Signifier", value: "'Signifier', Georgia, serif" },
   { label: "The Future", value: "'The Future', Inter, sans-serif" },
 ];
 
 const FONT_SIZES: { label: string; value: string }[] = [
-  { label: "Pequeno (12)", value: "12px" },
-  { label: "Normal (14)", value: "14px" },
-  { label: "Médio (16)", value: "16px" },
-  { label: "Grande (18)", value: "18px" },
-  { label: "Título 3 (20)", value: "20px" },
-  { label: "Título 2 (24)", value: "24px" },
-  { label: "Título 1 (32)", value: "32px" },
+  { label: "crm:composer.typography.small12", value: "12px" },
+  { label: "crm:composer.typography.normal14", value: "14px" },
+  { label: "crm:composer.typography.medium16", value: "16px" },
+  { label: "crm:composer.typography.large18", value: "18px" },
+  { label: "crm:composer.typography.heading20", value: "20px" },
+  { label: "crm:composer.typography.heading24", value: "24px" },
+  { label: "crm:composer.typography.heading32", value: "32px" },
 ];
 
 /**
@@ -173,10 +175,10 @@ type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
 const SPACING_LABEL: Record<Spacing, string> = {
-  tight: "Compacto",
-  normal: "Normal",
-  relaxed: "Espaçado",
-  loose: "Muito espaçado",
+  tight: "crm:composer.spacing.tight",
+  normal: "crm:composer.spacing.normal",
+  relaxed: "crm:composer.spacing.relaxed",
+  loose: "crm:composer.spacing.loose",
 };
 const LINEHEIGHT_LABEL: Record<LineHeight, string> = {
   tight: "1.2",
@@ -224,6 +226,7 @@ function ToolbarButton({
   title: string;
   children: React.ReactNode;
 }) {
+  useTranslation();
   return (
     <button
       type="button"
@@ -257,24 +260,25 @@ function Toolbar({
   onParagraphSpacingChange?: (v: Spacing) => void;
   onLineHeightChange?: (v: LineHeight) => void;
 }) {
+  useTranslation();
   return (
     <div data-editor-toolbar="true" className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-zinc-50 px-1 py-1 print:hidden">
       <ToolbarButton
-        title="Negrito"
+        title={uiI18n.t("crm:quoteEditor.bold")}
         active={editor.isActive("bold")}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
         <Bold className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Itálico"
+        title={uiI18n.t("crm:quoteEditor.italic")}
         active={editor.isActive("italic")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
         <Italic className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Sublinhado"
+        title={uiI18n.t("crm:quoteEditor.underline")}
         active={editor.isActive("underline")}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
@@ -285,19 +289,19 @@ function Toolbar({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title="Estilo de parágrafo"
+            title={uiI18n.t("crm:quoteEditor.paragraphStyle")}
             onMouseDown={(e) => e.preventDefault()}
             className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
           >
             <Pilcrow className="h-3.5 w-3.5" />
             <span>
               {editor.isActive("heading", { level: 1 })
-                ? "Título 1"
+                ? uiI18n.t("crm:quoteEditor.headingOne")
                 : editor.isActive("heading", { level: 2 })
-                ? "Título 2"
+                ? uiI18n.t("crm:quoteEditor.headingTwo")
                 : editor.isActive("heading", { level: 3 })
-                ? "Título 3"
-                : "Corpo"}
+                ? uiI18n.t("crm:quoteEditor.headingThree")
+                : uiI18n.t("crm:quoteEditor.body")}
             </span>
             <ChevronDown className="h-3 w-3" />
           </button>
@@ -307,32 +311,28 @@ function Toolbar({
             onSelect={() => editor.chain().focus().setParagraph().run()}
             className="text-sm"
           >
-            <Pilcrow className="mr-2 h-3.5 w-3.5" /> Corpo
-          </DropdownMenuItem>
+            <Pilcrow className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.body")} </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
             className="text-base font-bold"
           >
-            <Heading1 className="mr-2 h-4 w-4" /> Título 1
-          </DropdownMenuItem>
+            <Heading1 className="mr-2 h-4 w-4" />  {uiI18n.t("crm:quoteEditor.headingOne")} </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
             className="text-sm font-semibold"
           >
-            <Heading2 className="mr-2 h-4 w-4" /> Título 2
-          </DropdownMenuItem>
+            <Heading2 className="mr-2 h-4 w-4" />  {uiI18n.t("crm:quoteEditor.headingTwo")} </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() =>
               editor.chain().focus().toggleHeading({ level: 3 }).run()
             }
             className="text-sm font-medium"
           >
-            <Heading3 className="mr-2 h-4 w-4" /> Título 3
-          </DropdownMenuItem>
+            <Heading3 className="mr-2 h-4 w-4" />  {uiI18n.t("crm:quoteEditor.headingThree")} </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -340,7 +340,7 @@ function Toolbar({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title="Tipo de letra"
+            title={uiI18n.t("crm:quoteEditor.font")}
             onMouseDown={(e) => e.preventDefault()}
             className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
           >
@@ -350,11 +350,10 @@ function Toolbar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-52">
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-            Tipo de letra
-          </DropdownMenuLabel>
+             {uiI18n.t("crm:quoteEditor.font")} </DropdownMenuLabel>
           {FONT_FAMILIES.map((f) => (
             <DropdownMenuItem
-              key={f.label}
+              key={f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}
               onSelect={() => {
                 const chain = editor.chain().focus();
                 if (editor.state.selection.empty) chain.selectAll();
@@ -364,7 +363,7 @@ function Toolbar({
               className="text-xs"
               style={f.value ? { fontFamily: f.value } : undefined}
             >
-              {f.label}
+              {f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -374,7 +373,7 @@ function Toolbar({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title="Tamanho"
+            title={uiI18n.t("common:size")}
             onMouseDown={(e) => e.preventDefault()}
             className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
           >
@@ -384,8 +383,7 @@ function Toolbar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44">
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-            Tamanho
-          </DropdownMenuLabel>
+             {uiI18n.t("common:size")} </DropdownMenuLabel>
           <DropdownMenuItem
             onSelect={() => {
               const chain = editor.chain().focus();
@@ -396,8 +394,7 @@ function Toolbar({
             }}
             className="text-xs"
           >
-            Padrão
-          </DropdownMenuItem>
+             {uiI18n.t("common:default")} </DropdownMenuItem>
           {FONT_SIZES.map((s) => (
             <DropdownMenuItem
               key={s.value}
@@ -411,7 +408,7 @@ function Toolbar({
               className="text-xs"
               style={{ fontSize: s.value }}
             >
-              {s.label}
+              {s.label.startsWith("crm:") ? uiI18n.t(s.label) : s.label}
             </DropdownMenuItem>
           ))}
 
@@ -419,34 +416,34 @@ function Toolbar({
       </DropdownMenu>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
       <ToolbarButton
-        title="Lista"
+        title={uiI18n.t("crm:opportunities.viewList")}
         active={editor.isActive("bulletList")}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
         <List className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Lista numerada"
+        title={uiI18n.t("crm:quoteEditor.numberedList")}
         active={editor.isActive("orderedList")}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
       >
         <ListOrdered className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Diminuir avanço"
+        title={uiI18n.t("crm:quoteEditor.outdent")}
         onClick={() => applyIndent(editor, -1)}
       >
         <IndentDecrease className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Aumentar avanço"
+        title={uiI18n.t("crm:quoteEditor.indent")}
         onClick={() => applyIndent(editor, 1)}
       >
         <IndentIncrease className="h-3.5 w-3.5" />
       </ToolbarButton>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
       <ToolbarButton
-        title="Link"
+        title={uiI18n.t("crm:quoteEditor.link")}
         active={editor.isActive("link")}
         onClick={() => {
           const prev = editor.getAttributes("link").href as string | undefined;
@@ -462,7 +459,7 @@ function Toolbar({
         <Link2 className="h-3.5 w-3.5" />
       </ToolbarButton>
       <ToolbarButton
-        title="Inserir tabela"
+        title={uiI18n.t("crm:quoteEditor.insertTable")}
         onClick={() =>
           editor
             .chain()
@@ -481,20 +478,19 @@ function Toolbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                title="Espaçamento e entrelinha"
+                title={uiI18n.t("crm:quoteEditor.spacingLineHeight")}
                 onMouseDown={(e) => e.preventDefault()}
                 className="flex items-center gap-1 rounded p-1 text-zinc-600 hover:bg-zinc-200"
               >
                 <AlignJustify className="h-3.5 w-3.5" />
-                <span className="text-[11px]">Espaçamento</span>
+                <span className="text-[11px]"> {uiI18n.t("crm:quoteEditor.spacing")} </span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
               {onParagraphSpacingChange && (
                 <>
                   <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-                    Entre parágrafos
-                  </DropdownMenuLabel>
+                     {uiI18n.t("crm:quoteEditor.paragraphSpacing")} </DropdownMenuLabel>
                   {(Object.keys(SPACING_LABEL) as Spacing[]).map((k) => (
                     <DropdownMenuItem
                       key={k}
@@ -504,7 +500,7 @@ function Toolbar({
                         (paragraphSpacing ?? "normal") === k && "bg-zinc-100 font-medium",
                       )}
                     >
-                      {SPACING_LABEL[k]}
+                      {uiI18n.t(SPACING_LABEL[k])}
                     </DropdownMenuItem>
                   ))}
                 </>
@@ -513,8 +509,7 @@ function Toolbar({
               {onLineHeightChange && (
                 <>
                   <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-                    Entrelinha
-                  </DropdownMenuLabel>
+                     {uiI18n.t("crm:quoteEditor.lineHeight")} </DropdownMenuLabel>
                   {(Object.keys(LINEHEIGHT_LABEL) as LineHeight[]).map((k) => (
                     <DropdownMenuItem
                       key={k}
@@ -524,7 +519,7 @@ function Toolbar({
                         (lineHeight ?? "normal") === k && "bg-zinc-100 font-medium",
                       )}
                     >
-                      {LINEHEIGHT_LABEL[k]}
+                      {Number(LINEHEIGHT_LABEL[k]).toLocaleString(uiI18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}
                     </DropdownMenuItem>
                   ))}
                 </>
@@ -541,12 +536,12 @@ function Toolbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                title="Inserir dado do orçamento"
+                title={uiI18n.t("crm:quoteEditor.insertQuoteData")}
                 onMouseDown={(e) => e.preventDefault()}
                 className="flex items-center gap-1 rounded p-1 text-zinc-600 hover:bg-zinc-200"
               >
                 <Database className="h-3.5 w-3.5" />
-                <span className="text-[11px]">Inserir do orçamento</span>
+                <span className="text-[11px]"> {uiI18n.t("crm:quoteEditor.insertFromQuote")} </span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="max-h-80 w-72 overflow-y-auto">
@@ -557,7 +552,7 @@ function Toolbar({
                   return (
                     <div key={group}>
                       <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-                        {group}
+                        {uiI18n.t(`crm:composer.tokenGroups.${group.toLowerCase()}`)}
                       </DropdownMenuLabel>
                       {items.map((entry) => (
                         <DropdownMenuItem
@@ -571,7 +566,7 @@ function Toolbar({
                           }}
                           className="text-xs"
                         >
-                          <span className="flex-1 truncate">{entry.label}</span>
+                          <span className="flex-1 truncate">{tokenLabel(entry)}</span>
                           <code className="ml-2 rounded bg-zinc-100 px-1 text-[10px] text-zinc-600">
                             {entry.token}
                           </code>
@@ -613,6 +608,7 @@ export function RichTextEditor({
   editorClassName?: string;
   autoFocus?: boolean;
 }) {
+  useTranslation();
   // Keep latest onChange in a ref so the editor instance can call the freshest
   // version without being recreated on every render.
   const onChangeRef = useRef(onChange);
@@ -778,4 +774,11 @@ export function RichTextEditor({
       <EditorContent editor={editor} data-placeholder={placeholder} />
     </div>
   );
+}
+
+function tokenLabel(entry: TokenCatalogEntry): string {
+ if (!entry.token.startsWith("stage.")) return uiI18n.t("crm:composer.tokens." + entry.token.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()), { defaultValue: entry.label });
+ const field = entry.token.split(".").at(-1) ?? "name";
+ const stageLabel = entry.label.replace(/ — [^—]+$/, "");
+ return stageLabel + " — " + uiI18n.t("crm:composer.tokenFields." + field);
 }

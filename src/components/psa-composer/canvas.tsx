@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Composer canvas — A4 print-aware document.
  *
@@ -33,6 +35,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, EyeOff, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
+import { BLOCK_UI_KEYS } from "./editor-labels";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
@@ -86,6 +89,7 @@ function SortableRow({
   siblings: PsaProposalBlock[];
   isFirstPrintable: boolean;
 }) {
+  useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
   const refQuoteId = (block.source_ref as { quote_id?: string } | undefined)?.quote_id;
@@ -186,14 +190,14 @@ function SortableRow({
           {...attributes}
           {...listeners}
           className="cursor-grab rounded p-1 text-zinc-400 hover:bg-zinc-100"
-          aria-label="Reordenar"
+          aria-label={uiI18n.t("crm:quoteEditor.reorder")}
         >
           <GripVertical className="h-4 w-4" />
         </button>
       </div>
       <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500 print:hidden">
         <RelevanceBadge value={block.contract_relevance} />
-        <span className="uppercase tracking-widest">{block.block_type}</span>
+        <span className="uppercase tracking-widest">{uiI18n.t(BLOCK_UI_KEYS[block.block_type])}</span>
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
@@ -235,6 +239,7 @@ export function ComposerCanvas({
   language?: string | null;
   previewMode?: boolean;
 }) {
+  useTranslation();
   const lang = resolveProposalLang(language);
   // System headings follow the proposal language; user-written ones stay.
   const blocks = useMemo(

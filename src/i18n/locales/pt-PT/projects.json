@@ -758,8 +758,7 @@
       "cascadeToast_one": "Atualizada {{count}} fase dependente",
       "cascadeToast_other": "Atualizadas {{count}} fases dependentes",
       "addPredecessor": "Adicionar predecessora",
-      "noDependencies": "Sem dependências de entrada",
-      "labelDays": "{{sign}}{{abs}}d"
+      "noDependencies": "Sem dependências de entrada"
     },
     "readOnly": {
       "badge": "Apenas leitura — edição reservada a admins",
@@ -822,10 +821,11 @@
       "summaryReadOnly": "As datas da fase principal são calculadas pelas subfases.",
       "locked": "Uma fase bloqueada não pode ser deslocada.",
       "lockedAllocation": "Uma alocação protegida não pode ser redimensionada.",
-      "slack": "{{days}}d de intervalo adicional",
       "crossProject": "Esta ligação entre projetos requer revisão antes de editar.",
       "lockedSkipped": "{{count}} fase(s) bloqueada(s) mantida(s) no lugar.",
-      "nothingMoved": "Nada a deslocar: todas as fases estão ligadas ou bloqueadas."
+      "nothingMoved": "Nada a deslocar: todas as fases estão ligadas ou bloqueadas.",
+      "slack_one": "{{count}} dia de intervalo adicional",
+      "slack_other": "{{count}} dias de intervalo adicional"
     },
     "relative": {
       "week": "Semana {{number}}",
@@ -847,7 +847,6 @@
       "approvedRequired": "A proposta tem de estar aprovada.",
       "previewRequired": "Pré-visualize as datas antes de converter."
     },
-    "leaveDays": "Férias {{days}} d",
     "ui": {
       "emptyPaused": "Sem projetos em pausa",
       "createHint": "Crie um projeto para começar.",
@@ -860,7 +859,9 @@
       "stages_one": "{{count}} fase",
       "stages_other": "{{count}} fases",
       "deleteConfirm": "Eliminar o projeto «{{name}}»?"
-    }
+    },
+    "leaveDays_one": "Ausência {{count}} dia",
+    "leaveDays_other": "Ausência {{count}} dias"
   },
   "kpi": {
     "businessPerformance": "Desempenho do negócio",
@@ -1332,7 +1333,8 @@
     "conflicts": {
       "title": "Conflitos com férias aprovadas",
       "subtitle": "Pessoas alocadas a projetos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.",
-      "daysSuffix": "{{count}}d"
+      "daysSuffix_one": "{{count}} dia",
+      "daysSuffix_other": "{{count}} dias"
     },
     "expenses": {
       "title": "Despesas",
@@ -2884,5 +2886,10 @@
       "committed": "Confirmada",
       "tentative": "Tentativa"
     }
-  }
+  },
+  "quotePricing": {
+    "averageSaleRate": "Preço de venda médio",
+    "averageCostRate": "Custo médio por hora"
+  },
+  "stageSummaryLabel": "Resumo da etapa"
 }

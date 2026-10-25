@@ -1,3 +1,6 @@
+import { signatureLabel } from "./signature-label";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Revision history — the primary surface for sent revisions.
  *
@@ -34,7 +37,7 @@ import {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
+    return new Date(iso).toLocaleDateString(uiI18n.language, {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -46,7 +49,7 @@ function formatDate(iso: string): string {
 
 async function downloadRevision(rev: ProposalRevision) {
   if (!rev.pdf_storage_path) {
-    toast.error("Esta revisão não tem PDF anexado.");
+    toast.error(uiI18n.t("crm:quoteEditor.noRevisionPdf"));
     return;
   }
   try {
@@ -76,6 +79,7 @@ export function VersionsPanel({
   onOpenChange?: (v: boolean) => void;
   hideTrigger?: boolean;
 }) {
+  useTranslation();
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
   const setOpen = onOpenChangeProp ?? setOpenState;
@@ -84,8 +88,8 @@ export function VersionsPanel({
   const { data: signatures = [] } = useProposalSignatures(proposal.id);
   const isLocked = !!proposal.locked_at;
   const workingLabel = isLocked
-    ? `Rev ${String(nextRev - 1).padStart(2, "0")} · bloqueada`
-    : `Rev ${String(nextRev).padStart(2, "0")} · edição`;
+    ? uiI18n.t("crm:composer.workingLocked", { revision: String(nextRev - 1).padStart(2, "0") })
+    : uiI18n.t("crm:composer.workingEditing", { revision: String(nextRev).padStart(2, "0") });
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -93,7 +97,7 @@ export function VersionsPanel({
         {hideTrigger ? (
           <span className="sr-only" aria-hidden tabIndex={-1} />
         ) : (
-          <Button variant="outline" size="sm" title="Histórico de revisões">
+          <Button variant="outline" size="sm" title={uiI18n.t("crm:quoteEditor.revisionHistory")}>
             <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
           </Button>
         )}
@@ -102,26 +106,22 @@ export function VersionsPanel({
 
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wide">
-          Histórico de revisões
-        </DropdownMenuLabel>
+           {uiI18n.t("crm:quoteEditor.revisionHistory")} </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!isLocked && (
           <DropdownMenuItem disabled className="flex items-center gap-2 opacity-100">
             <Pencil className="h-3.5 w-3.5 text-blue-600" />
             <div className="flex-1">
               <div className="text-sm font-medium">
-                Rev {String(nextRev).padStart(2, "0")} — cópia editável
-              </div>
+                 {uiI18n.t("crm:quoteEditor.revisionShort")} {String(nextRev).padStart(2, "0")}  {uiI18n.t("crm:quoteEditor.editableCopySuffix")} </div>
               <div className="text-[11px] text-muted-foreground">
-                Em edição neste momento
-              </div>
+                 {uiI18n.t("crm:quoteEditor.editingNow")} </div>
             </div>
           </DropdownMenuItem>
         )}
         {revisions.length === 0 && (
           <div className="px-2 py-4 text-center text-xs text-muted-foreground">
-            Ainda não foi enviada nenhuma revisão.
-          </div>
+             {uiI18n.t("crm:quoteEditor.noSentRevisions")} </div>
         )}
         {revisions.map((r) => {
           const basedOn = r.restored_from_snapshot_id
@@ -135,20 +135,20 @@ export function VersionsPanel({
             <Lock className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
             <div className="min-w-0 flex-1">
               <div className="text-sm font-medium">
-                Rev {String(r.rev_number).padStart(2, "0")} — enviada
-              </div>
+                 {uiI18n.t("crm:quoteEditor.revisionShort")} {String(r.rev_number).padStart(2, "0")}  {uiI18n.t("crm:quoteEditor.sentSuffix")} </div>
               <div className="truncate text-[11px] text-muted-foreground">
-                {formatDate(r.created_at)} · {r.pdf_filename ?? "sem ficheiro"}
+                {formatDate(r.created_at)} · {r.pdf_filename ?? uiI18n.t("crm:quoteEditor.noFile")}
               </div>
               {basedOn && (
                 <div className="text-[11px] text-indigo-600">
-                  baseada na Rev {String(basedOn.rev_number).padStart(2, "0")}
+                   {uiI18n.t("crm:quoteEditor.basedOnRevision")} {String(basedOn.rev_number).padStart(2, "0")}
                 </div>
               )}
               {(() => {
                 const sig = signatures.find((s) => s.snapshot_id === r.id);
                 if (!sig) return null;
-                const { tone, label } = describeSignature(sig);
+                const { tone } = describeSignature(sig);
+                const label = signatureLabel(sig);
                 return (
                   <div
                     className={
@@ -165,8 +165,7 @@ export function VersionsPanel({
               })()}
               {!revisionIsViewable(r) && (
                 <div className="text-[11px] text-amber-700">
-                  Sem dados arquivados — só PDF
-                </div>
+                   {uiI18n.t("crm:quoteEditor.noArchivedData")} </div>
               )}
             </div>
             {revisionIsViewable(r) ? (
@@ -175,7 +174,7 @@ export function VersionsPanel({
                 size="icon"
                 variant="ghost"
                 className="h-7 w-7 shrink-0"
-                title="Ver revisão (só leitura)"
+                title={uiI18n.t("crm:quoteEditor.viewReadonlyRevision")}
               >
                 <Link
                   to="/proposals/$proposalId/revisions/$revisionId"
@@ -191,7 +190,7 @@ export function VersionsPanel({
               size="icon"
               variant="ghost"
               className="h-7 w-7 shrink-0"
-              title="Descarregar PDF"
+              title={uiI18n.t("crm:quoteEditor.downloadPdf")}
               onClick={() => void downloadRevision(r)}
             >
               <Download className="h-3.5 w-3.5" />

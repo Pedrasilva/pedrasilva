@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react";
@@ -63,22 +64,22 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
             to="/admin/proposal-roles"
             className="inline-flex items-center gap-1.5 text-primary hover:underline"
           >
-            {isPt ? "Valor/hora facturável" : "Billable hourly rate"}
+            {uiI18n.t("crm:quoteEditor.billableHourly")}
             <ExternalLink className="h-4 w-4" />
           </Link>
         </CardTitle>
         <CardDescription>
           {isPt
-            ? "Custo/hora vive no catálogo de Títulos (partilhado entre todas as propostas). O valor de venda manual é específico desta proposta."
-            : "Cost/hour lives in the Titles catalog (shared across all quotes). Manual sale rate is specific to this quote."}
+            ? uiI18n.t("crm:quoteEditor.rolePricingHint")
+            : uiI18n.t("crm:quoteEditor.rolePricingHint")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="text-sm text-muted-foreground">Loading…</div>
+          <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
         ) : roles.length === 0 ? (
           <div className="text-sm text-muted-foreground">
-            {isPt ? "Sem títulos no catálogo." : "No titles in the catalog."}
+            {uiI18n.t("crm:quoteEditor.noTitles")}
           </div>
         ) : (
           <div className="overflow-hidden rounded-md border">
@@ -86,10 +87,10 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-4 py-2 font-semibold">
-                    {isPt ? "Título" : "Title"}
+                    {uiI18n.t("common:title")}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
-                    {isPt ? "Custo / hora" : "Cost / hour"}
+                    {uiI18n.t("glossary:financial.costRate")}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
                     <button
@@ -98,11 +99,11 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                       className="inline-flex items-center gap-1 uppercase tracking-wide hover:text-foreground"
                       title={
                         isPt
-                          ? "Ordenar por valor de venda"
-                          : "Sort by sale value"
+                          ? uiI18n.t("crm:quoteEditor.sortSale")
+                          : uiI18n.t("crm:quoteEditor.sortSale")
                       }
                     >
-                      {isPt ? "Valor venda manual" : "Manual sale rate"}
+                      {uiI18n.t("glossary:financial.saleRate")}
                       {saleSort === "desc" ? (
                         <ArrowDown className="h-3.5 w-3.5" />
                       ) : saleSort === "asc" ? (
@@ -160,6 +161,7 @@ function RateCell({
   value: number;
   onSave: (v: number) => void;
 }) {
+  useTranslation();
   const [text, setText] = useState<string>(value > 0 ? String(value) : "");
 
   useEffect(() => {

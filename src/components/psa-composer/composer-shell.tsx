@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
  * Owns the selected-block state.
@@ -48,8 +49,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   if (!proposal.data) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-        A carregar proposta...
-      </div>
+         {uiI18n.t("crm:quoteEditor.loadingProposal")} </div>
     );
   }
 
@@ -64,25 +64,25 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
       {
         onSuccess: () =>
           toast.success(
-            "Nova revisão editável — a próxima versão será registada ao enviar.",
+            uiI18n.t("crm:quoteEditor.newEditableRevisionHint"),
           ),
         onError: (e) =>
-          toast.error(e instanceof Error ? e.message : "Erro"),
+          toast.error(e instanceof Error ? e.message : uiI18n.t("common:error")),
       },
     );
   };
 
   const guardEdit = () => {
     if (isFinalLocked) {
-      toast.error("Proposta bloqueada — não é possível editar.");
+      toast.error(uiI18n.t("crm:quoteEditor.cannotEditLocked"));
       return;
     }
     if (isSentLocked) {
-      toast.message("Versão enviada bloqueada.", {
+      toast.message(uiI18n.t("crm:quoteEditor.sentVersionLocked"), {
         description:
-          "Cria uma nova revisão para continuar a editar. As revisões enviadas mantêm-se intactas.",
+          uiI18n.t("crm:quoteEditor.newRevisionHelp"),
         action: {
-          label: "Nova revisão",
+          label: uiI18n.t("crm:quoteEditor.newRevision"),
           onClick: startNewRevision,
         },
       });
@@ -114,20 +114,15 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           <span className="flex items-center gap-2">
             <History className="h-3.5 w-3.5" />
-            A ver a Revisão {String(historical.revision.revNumber).padStart(2, "0")} —
-            enviada em{" "}
-            {new Date(historical.revision.sentAt).toLocaleDateString("pt-PT", {
+             {uiI18n.t("crm:quoteEditor.viewRevisionPrefix")} {String(historical.revision.revNumber).padStart(2, "0")}  {uiI18n.t("crm:quoteEditor.sentOnPrefix")} {" "}
+            {new Date(historical.revision.sentAt).toLocaleDateString(uiI18n.language, {
               day: "2-digit",
               month: "short",
               year: "numeric",
             })}
-            . Vista histórica só de leitura: não reflete o orçamento atual e
-            nada aqui altera dados em vigor.
-            {!historical.quoteData && (
+             {uiI18n.t("crm:quoteEditor.historicalReadonlyHint")} {!historical.quoteData && (
               <strong className="ml-1">
-                Esta revisão é anterior ao arquivo de dados — apenas o PDF é
-                fiável.
-              </strong>
+                 {uiI18n.t("crm:quoteEditor.oldRevisionHint")} </strong>
             )}
           </span>
           <Button
@@ -140,39 +135,31 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
               to="/proposals/$proposalId/composer"
               params={{ proposalId }}
             >
-              <ArrowLeft className="mr-1 h-3.5 w-3.5" /> Versão atual
-            </Link>
+              <ArrowLeft className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.currentVersion")} </Link>
           </Button>
         </div>
       )}
       {isFinalLocked && !historical && (
 
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
-          Proposta bloqueada
-          {proposal.data.outcome === "won"
-            ? " (Ganha)"
+           {uiI18n.t("crm:quoteEditor.proposalLocked")} {proposal.data.outcome === "won"
+            ? uiI18n.t("crm:quoteEditor.wonParenthesis")
             : proposal.data.outcome === "lost"
-              ? " (Perdida)"
+              ? uiI18n.t("crm:quoteEditor.lostParenthesis")
               : ""}
-          . O conteúdo dos blocos está protegido; podes continuar a
-          descarregar as revisões enviadas em qualquer altura.
-        </div>
+           {uiI18n.t("crm:quoteEditor.lockedContentHint")} </div>
       )}
       {isSentLocked && !historical && (
         <div className="flex items-center justify-between gap-3 border-b border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 print:hidden">
           <span>
-            Versão enviada bloqueada. Para alterar qualquer campo, cria uma
-            nova revisão — a versão enviada anterior mantém-se intacta no
-            histórico.
-          </span>
+             {uiI18n.t("crm:quoteEditor.sentRevisionHint")} </span>
           <Button
             size="sm"
             variant="outline"
             className="border-sky-400 bg-white text-sky-900 hover:bg-sky-100"
             onClick={startNewRevision}
           >
-            <FilePlus2 className="mr-1 h-3.5 w-3.5" /> Nova revisão
-          </Button>
+            <FilePlus2 className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.newRevision")} </Button>
         </div>
       )}
       <div className="flex min-h-0 flex-1 overflow-hidden print:block">

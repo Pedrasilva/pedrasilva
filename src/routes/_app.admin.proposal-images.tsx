@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
 import { toast } from "sonner";
@@ -14,18 +16,19 @@ import {
 } from "@/lib/psa-proposal/use-proposal-images";
 
 export const Route = createFileRoute("/_app/admin/proposal-images")({
+  head: () => ({ meta: [{ title: "Proposal image library | PSA Hub" }, { name: "description", content: "Manage shared images for proposal documents in PSA Hub." }, { property: "og:title", content: "Proposal image library | PSA Hub" }, { property: "og:description", content: "Manage shared images for proposal documents in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ProposalImagesAdminPage,
 });
 
 function ProposalImagesAdminPage() {
+  useTranslation();
   return (
     <AdminOnly>
       <div className="mx-auto max-w-5xl space-y-4 p-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Biblioteca de Imagens (Propostas)</h1>
+          <h1 className="text-2xl font-semibold tracking-tight"> {uiI18n.t("crm:quoteEditor.proposalImageLibrary")} </h1>
           <p className="text-sm text-muted-foreground">
-            Imagens partilhadas usadas para preencher espaços em branco no PDF das propostas.
-          </p>
+             {uiI18n.t("crm:quoteEditor.proposalImageLibraryHint")} </p>
         </div>
         <ImagesPanel />
       </div>
@@ -34,6 +37,7 @@ function ProposalImagesAdminPage() {
 }
 
 function ImagesPanel() {
+  useTranslation();
   const images = useProposalImages();
   const upload = useUploadProposalImage();
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -44,20 +48,20 @@ function ImagesPanel() {
       try {
         await upload.mutateAsync({ file: f });
       } catch (e) {
-        toast.error(`Falha ao carregar ${f.name}: ${(e as Error).message}`);
+        toast.error(uiI18n.t("crm:quoteEditor.imageUploadFailed", { value1: f.name, value2: (e as Error).message }));
       }
     }
-    toast.success("Imagens carregadas");
+    toast.success(uiI18n.t("crm:quoteEditor.imagesUploaded"));
   };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-base">Imagens ({images.data?.length ?? 0})</CardTitle>
+        <CardTitle className="text-base"> {uiI18n.t("crm:quoteEditor.imagesPrefix")} {images.data?.length ?? 0})</CardTitle>
         <div>
           <Button size="sm" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
             <Upload className="mr-2 h-4 w-4" />
-            {upload.isPending ? "A carregar..." : "Carregar imagens"}
+            {upload.isPending ? uiI18n.t("common:uploading") : uiI18n.t("crm:quoteEditor.uploadImages")}
           </Button>
           <input
             ref={fileRef}
@@ -72,8 +76,7 @@ function ImagesPanel() {
       <CardContent>
         {!images.data?.length ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            Biblioteca vazia. Carregue as primeiras imagens.
-          </p>
+             {uiI18n.t("crm:quoteEditor.emptyImages")} </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {images.data.map((img) => (
@@ -87,6 +90,7 @@ function ImagesPanel() {
 }
 
 function ImageCard({ entry }: { entry: PsaImageLibraryEntry }) {
+  useTranslation();
   const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
   const del = useDeleteProposalImage();
   return (
@@ -101,11 +105,11 @@ function ImageCard({ entry }: { entry: PsaImageLibraryEntry }) {
         <button
           type="button"
           className="rounded p-1 text-zinc-400 hover:bg-red-50 hover:text-red-600"
-          title="Eliminar"
+          title={uiI18n.t("common:delete")}
           onClick={() => {
-            if (confirm(`Eliminar "${entry.name}"?`)) {
+            if (confirm(uiI18n.t("crm:quoteEditor.deleteNamedPrompt", { value1: entry.name }))) {
               del.mutate(entry, {
-                onSuccess: () => toast.success("Imagem removida"),
+                onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.imageRemoved")),
                 onError: (e) => toast.error((e as Error).message),
               });
             }

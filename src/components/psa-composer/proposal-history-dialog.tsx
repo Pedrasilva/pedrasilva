@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Version history dialog for the PSA Proposal Composer.
  *
@@ -36,7 +38,7 @@ function relTime(iso: string) {
   if (h < 24) return `há ${h} h`;
   const days = Math.round(h / 24);
   if (days < 30) return `há ${days} d`;
-  return d.toLocaleString("pt-PT");
+  return d.toLocaleString(uiI18n.language);
 }
 
 export function ProposalHistoryDialog({
@@ -50,6 +52,7 @@ export function ProposalHistoryDialog({
   onOpenChange?: (v: boolean) => void;
   hideTrigger?: boolean;
 }) {
+  useTranslation();
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
   const setOpen = onOpenChange ?? setOpenState;
@@ -66,32 +69,25 @@ export function ProposalHistoryDialog({
           <Button
             variant="ghost"
             size="sm"
-            title="Recuperação de autosaves (avançado) — não é o histórico de revisões"
+            title={uiI18n.t("crm:quoteEditor.autosaveRecoveryHint")}
           >
-            <History className="mr-1 h-3.5 w-3.5" /> Autosaves
-          </Button>
+            <History className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.autosaves")} </Button>
         </DialogTrigger>
       )}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Recuperação de autosaves (avançado)</DialogTitle>
+          <DialogTitle> {uiI18n.t("crm:quoteEditor.autosaveRecovery")} </DialogTitle>
           <DialogDescription>
-            Ferramenta de baixo nível para recuperar conteúdo de blocos a
-            partir de gravações automáticas. <strong>Não é o histórico de
-            revisões</strong> — as revisões enviadas estão no menu
-            &quot;Revisões&quot;. Ao restaurar, apenas o conteúdo dos blocos é
-            afetado; nenhum dado do orçamento é alterado. A versão atual é
-            guardada automaticamente como &quot;Antes de restaurar&quot;.
-          </DialogDescription>
+             {uiI18n.t("crm:quoteEditor.autosaveRecoveryHelp")} <strong> {uiI18n.t("crm:quoteEditor.notRevisionHistory")} </strong>  {uiI18n.t("crm:quoteEditor.restoreHelpSuffix")} </DialogDescription>
         </DialogHeader>
 
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <label className="text-xs text-zinc-500">Nome desta versão (opcional)</label>
+            <label className="text-xs text-zinc-500"> {uiI18n.t("crm:quoteEditor.versionNameOptional")} </label>
             <Input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="ex.: Antes da revisão do cliente"
+              placeholder={uiI18n.t("crm:quoteEditor.versionNameHint")}
             />
           </div>
           <Button
@@ -101,11 +97,11 @@ export function ProposalHistoryDialog({
                 { label: label.trim() || undefined, reason: "manual" },
                 {
                   onSuccess: () => {
-                    toast.success("Versão guardada");
+                    toast.success(uiI18n.t("crm:quoteEditor.versionSaved"));
                     setLabel("");
                   },
                   onError: (e) =>
-                    toast.error("Falha ao guardar versão", {
+                    toast.error(uiI18n.t("crm:quoteEditor.versionSaveFailed"), {
                       description: String((e as Error).message ?? e),
                     }),
                 },
@@ -113,8 +109,7 @@ export function ProposalHistoryDialog({
             }
             disabled={create.isPending}
           >
-            <Save className="mr-1 h-3.5 w-3.5" /> Guardar versão
-          </Button>
+            <Save className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.saveVersion")} </Button>
         </div>
 
         <ScrollArea className="h-[420px] rounded-md border">
@@ -130,16 +125,15 @@ export function ProposalHistoryDialog({
                       {snap.label ?? (
                         <span className="text-zinc-500">
                           {snap.reason === "pre-restore"
-                            ? "Antes de restaurar"
+                            ? uiI18n.t("crm:quoteEditor.beforeRestore")
                             : snap.reason === "auto"
-                              ? "Automático"
-                              : "Versão"}
+                              ? uiI18n.t("common:automatic")
+                              : uiI18n.t("crm:quoteEditor.version")}
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-zinc-500">
-                      {relTime(snap.created_at)} · {blockCount} blocos
-                    </div>
+                      {relTime(snap.created_at)} · {blockCount}  {uiI18n.t("crm:quoteEditor.blocks")} </div>
                   </div>
                   <Button
                     variant="outline"
@@ -147,29 +141,28 @@ export function ProposalHistoryDialog({
                     onClick={() => {
                       if (
                         !confirm(
-                          "Restaurar esta versão? A versão atual será guardada automaticamente.",
+                          uiI18n.t("crm:quoteEditor.restoreVersionPrompt"),
                         )
                       )
                         return;
                       restore.mutate(snap, {
-                        onSuccess: () => toast.success("Versão restaurada"),
+                        onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.versionRestored")),
                         onError: (e) =>
-                          toast.error("Falha ao restaurar", {
+                          toast.error(uiI18n.t("crm:quoteEditor.restoreFailed"), {
                             description: String((e as Error).message ?? e),
                           }),
                       });
                     }}
                   >
-                    <RotateCcw className="mr-1 h-3.5 w-3.5" /> Restaurar
-                  </Button>
+                    <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:restore")} </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => {
-                      if (!confirm("Apagar esta versão?")) return;
+                      if (!confirm(uiI18n.t("crm:quoteEditor.deleteVersionPrompt"))) return;
                       del.mutate(snap.id);
                     }}
-                    title="Apagar versão"
+                    title={uiI18n.t("crm:quoteEditor.deleteVersion")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -178,8 +171,7 @@ export function ProposalHistoryDialog({
             })}
             {!list.isLoading && !(list.data?.length) && (
               <li className="px-3 py-6 text-center text-xs text-zinc-500">
-                Sem versões guardadas. Guarde a primeira agora.
-              </li>
+                 {uiI18n.t("crm:quoteEditor.noVersions")} </li>
             )}
           </ul>
         </ScrollArea>

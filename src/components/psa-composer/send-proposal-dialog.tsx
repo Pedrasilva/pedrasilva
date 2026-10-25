@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Send Proposal dialog. Flow:
  *  1. Show the auto-generated filename ("{title} {YYMMDD} proposal rev NN").
@@ -57,6 +59,7 @@ export function SendProposalDialog({
   /** Required for "signature-existing": the already-sent revision to sign. */
   existingSnapshot?: { id: string; revNumber: number; filename: string | null };
 }) {
+  useTranslation();
   const filename = buildProposalBaseFilename(proposal, nextRev);
   const [file, setFile] = useState<File | null>(null);
   const [printed, setPrinted] = useState(false);
@@ -80,7 +83,7 @@ export function SendProposalDialog({
     // produce blank pages.
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
-      toast.error("Não foi possível abrir a janela de impressão.");
+      toast.error(uiI18n.t("crm:quoteEditor.printWindowFailed"));
       return;
     }
     setPrinted(true);
@@ -99,7 +102,7 @@ export function SendProposalDialog({
     const f = e.target.files?.[0];
     if (!f) return;
     if (!f.name.toLowerCase().endsWith(".pdf") && f.type !== "application/pdf") {
-      toast.error("Ficheiro tem de ser PDF.");
+      toast.error(uiI18n.t("crm:quoteEditor.pdfRequired"));
       return;
     }
     setFile(f);
@@ -110,7 +113,7 @@ export function SendProposalDialog({
     const f = e.dataTransfer.files?.[0];
     if (!f) return;
     if (!f.name.toLowerCase().endsWith(".pdf") && f.type !== "application/pdf") {
-      toast.error("Ficheiro tem de ser PDF.");
+      toast.error(uiI18n.t("crm:quoteEditor.pdfRequired"));
       return;
     }
     setFile(f);
@@ -119,7 +122,7 @@ export function SendProposalDialog({
   const handleSend = () => {
     if (usesExistingPdf) {
       if (!nameValue.trim() || !emailValue.trim()) {
-        toast.error("Indica o nome e email do signatário do cliente.");
+        toast.error(uiI18n.t("crm:quoteEditor.signerRequired"));
         return;
       }
       sendForSignature.mutate(
@@ -131,13 +134,13 @@ export function SendProposalDialog({
         {
           onSuccess: () => {
             toast.success(
-              `Rev ${String(existingSnapshot!.revNumber).padStart(2, "0")} enviada para assinatura — o cliente assina primeiro.`,
+              uiI18n.t("crm:quoteEditor.sentSignature", { value1: String(existingSnapshot!.revNumber).padStart(2, "0") }),
             );
             onOpenChange(false);
           },
           onError: (err: unknown) => {
             toast.error(
-              err instanceof Error ? err.message : "Erro a criar envelope DocuSign",
+              err instanceof Error ? err.message : uiI18n.t("crm:quoteEditor.envelopeFailed"),
             );
           },
         },
@@ -145,11 +148,11 @@ export function SendProposalDialog({
       return;
     }
     if (!file) {
-      toast.error("Adiciona o PDF gerado antes de enviar.");
+      toast.error(uiI18n.t("crm:quoteEditor.attachPdfRequired"));
       return;
     }
     if (forSignature && (!nameValue.trim() || !emailValue.trim())) {
-      toast.error("Indica o nome e email do signatário do cliente.");
+      toast.error(uiI18n.t("crm:quoteEditor.signerRequired"));
       return;
     }
     const revLabel = String(nextRev).padStart(2, "0");
@@ -164,7 +167,7 @@ export function SendProposalDialog({
         {
           onSuccess: () => {
             toast.success(
-              `Revisão ${revLabel} enviada para assinatura — o cliente assina primeiro.`,
+              uiI18n.t("crm:quoteEditor.sentSignature", { value1: revLabel }),
             );
             setPendingSnapshotId(null);
             setFile(null);
@@ -174,7 +177,7 @@ export function SendProposalDialog({
           onError: (err: unknown) => {
             const msg = err instanceof Error ? err.message : "Erro a criar envelope DocuSign";
             toast.error(
-              `Revisão ${revLabel} guardada, mas o envio para assinatura falhou: ${msg}. Tenta novamente — não será criada nova revisão.`,
+              uiI18n.t("crm:quoteEditor.savedSignatureFailed", { value1: revLabel, value2: msg }),
             );
           },
         },
@@ -193,7 +196,7 @@ export function SendProposalDialog({
       {
         onSuccess: (result) => {
           if (!forSignature) {
-            toast.success(`Revisão ${revLabel} guardada.`);
+            toast.success(uiI18n.t("crm:quoteEditor.revisionSaved", { value1: revLabel }));
             setFile(null);
             setPrinted(false);
             onOpenChange(false);
@@ -216,13 +219,13 @@ export function SendProposalDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-4 w-4" />{" "}
-            {forSignature ? "Enviar para assinatura" : "Enviar Proposta"} — Rev{" "}
+            {forSignature ? uiI18n.t("crm:quoteEditor.sendSignature") : uiI18n.t("crm:quoteEditor.sendProposal")}  {uiI18n.t("crm:quoteEditor.revisionPrefix")} {" "}
             {String(usesExistingPdf ? (existingSnapshot?.revNumber ?? 0) : nextRev).padStart(2, "0")}
           </DialogTitle>
           <DialogDescription>
             {usesExistingPdf
-              ? "Envia o PDF já guardado desta revisão para assinatura DocuSign — não é criada nova revisão."
-              : `Esta ação bloqueia a revisão atual como imutável e guarda o PDF no construtor. Continuas a editar numa cópia (Rev ${String(nextRev + 1).padStart(2, "0")}).`}
+              ? uiI18n.t("crm:quoteEditor.existingPdfSignatureHint")
+              : uiI18n.t("crm:quoteEditor.immutableRevisionHint", { value1: String(nextRev + 1).padStart(2, "0") })}
           </DialogDescription>
         </DialogHeader>
 
@@ -230,39 +233,34 @@ export function SendProposalDialog({
           {usesExistingPdf ? (
             <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                Documento a assinar
-              </div>
+                 {uiI18n.t("crm:quoteEditor.documentToSign")} </div>
               <div className="font-medium">
-                Rev {String(existingSnapshot?.revNumber ?? 0).padStart(2, "0")}
+                 {uiI18n.t("crm:quoteEditor.revisionShort")} {String(existingSnapshot?.revNumber ?? 0).padStart(2, "0")}
               </div>
               <div className="font-mono text-[13px] break-all">
-                {existingSnapshot?.filename ?? "PDF da revisão enviada"}
+                {existingSnapshot?.filename ?? uiI18n.t("crm:quoteEditor.sentRevisionPdf")}
               </div>
             </div>
           ) : (
             <>
           <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                Nome do ficheiro
-              </div>
+                 {uiI18n.t("common:fileName")} </div>
               <div className="font-mono text-[13px]">{filename}.pdf</div>
             </div>
   
             <div className="space-y-2">
-              <div className="text-sm font-medium">1. Gerar o PDF</div>
+              <div className="text-sm font-medium"> {uiI18n.t("crm:quoteEditor.generatePdfStep")} </div>
               <p className="text-xs text-muted-foreground">
-                Abre o diálogo de impressão e escolhe <strong>Guardar como PDF</strong>.
-                O nome do ficheiro já vem preenchido.
-              </p>
+                 {uiI18n.t("crm:quoteEditor.printSavePrefix")} <strong> {uiI18n.t("crm:quoteEditor.savePdf")} </strong> {uiI18n.t("crm:quoteEditor.fileNameReadySuffix")} </p>
               <Button variant="outline" size="sm" onClick={openPrint} className="w-full">
                 <Printer className="mr-2 h-4 w-4" />
-                Abrir diálogo de impressão
-                {printed && <CheckCircle2 className="ml-2 h-3.5 w-3.5 text-emerald-600" />}
+                 {uiI18n.t("crm:quoteEditor.openPrintDialog")} {printed && <CheckCircle2 className="ml-2 h-3.5 w-3.5 text-emerald-600" />}
               </Button>
             </div>
   
             <div className="space-y-2">
-              <div className="text-sm font-medium">2. Anexar o PDF gerado</div>
+              <div className="text-sm font-medium"> {uiI18n.t("crm:quoteEditor.attachPdfStep")} </div>
               <div
                 onDrop={onDrop}
                 onDragOver={(e) => e.preventDefault()}
@@ -274,8 +272,8 @@ export function SendProposalDialog({
                   <span className="font-medium text-foreground">{file.name}</span>
                 ) : (
                   <>
-                    <span>Arrasta o PDF ou clica para escolher</span>
-                    <span className="text-xs">Só ficheiros .pdf</span>
+                    <span> {uiI18n.t("crm:quoteEditor.dropPdfHint")} </span>
+                    <span className="text-xs"> {uiI18n.t("crm:quoteEditor.onlyPdf")} </span>
                   </>
                 )}
                 <input
@@ -294,7 +292,7 @@ export function SendProposalDialog({
 
           {forSignature && (
             <div className="space-y-2 rounded-md border border-sky-200 bg-sky-50/60 p-3">
-              <div className="text-sm font-medium">{usesExistingPdf ? "Signatários" : "3. Signatários"}</div>
+              <div className="text-sm font-medium">{usesExistingPdf ? uiI18n.t("crm:quoteEditor.signers") : uiI18n.t("crm:quoteEditor.signersStep")}</div>
               {defaults?.configError && (
                 <Alert variant="destructive">
                   <AlertDescription className="text-xs">
@@ -304,37 +302,33 @@ export function SendProposalDialog({
               )}
               <div className="grid gap-2 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Nome do cliente</Label>
+                  <Label className="text-xs"> {uiI18n.t("crm:workspace.proposal.acceptanceClientName")} </Label>
                   <Input
                     value={nameValue}
                     onChange={(e) => setClientName(e.target.value)}
-                    placeholder="Nome do signatário"
+                    placeholder={uiI18n.t("crm:quoteEditor.signerName")}
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Email do cliente</Label>
+                  <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.clientEmail")} </Label>
                   <Input
                     type="email"
                     value={emailValue}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="email@cliente.pt"
+                    placeholder={uiI18n.t("crm:quoteEditor.clientEmailHint")}
                   />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                O cliente assina primeiro. Depois segue automaticamente para
-                contra-assinatura de{" "}
-                <strong>{defaults?.psaSignerName ?? "signatário PSA (por configurar)"}</strong>.
-                A proposta só fica <em>aceite</em> quando ambas as assinaturas estiverem concluídas.
-              </p>
+                 {uiI18n.t("crm:quoteEditor.signatureOrderPrefix")} {" "}
+                <strong>{defaults?.psaSignerName ?? uiI18n.t("crm:quoteEditor.unconfiguredPsaSigner")}</strong> {uiI18n.t("crm:quoteEditor.proposalBecomesPrefix")} <em> {uiI18n.t("crm:quoteEditor.accepted")} </em>  {uiI18n.t("crm:quoteEditor.bothSignaturesSuffix")} </p>
             </div>
           )}
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
+             {uiI18n.t("common:cancel")} </Button>
           <Button
             onClick={handleSend}
             disabled={
@@ -346,10 +340,10 @@ export function SendProposalDialog({
           >
             <FileDown className="mr-2 h-4 w-4" />
             {send.isPending || sendForSignature.isPending
-              ? "A enviar…"
+              ? uiI18n.t("crm:quoteEditor.sending")
               : forSignature
-                ? `Enviar Rev ${String(usesExistingPdf ? (existingSnapshot?.revNumber ?? 0) : nextRev).padStart(2, "0")} para assinatura`
-                : `Enviar Rev ${String(nextRev).padStart(2, "0")}`}
+                ? uiI18n.t("crm:quoteEditor.sendRevisionSignature", { value1: String(usesExistingPdf ? (existingSnapshot?.revNumber ?? 0) : nextRev).padStart(2, "0") })
+                : uiI18n.t("crm:quoteEditor.sendRevision", { value1: String(nextRev).padStart(2, "0") })}
           </Button>
         </DialogFooter>
       </DialogContent>

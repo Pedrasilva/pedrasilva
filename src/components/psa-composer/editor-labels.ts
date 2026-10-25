@@ -1,0 +1,48 @@
+// Editor display labels only. Never use these values as stored document titles or content.
+import type { PsaBlockType, PsaContractRelevance, PsaSourceType } from "@/lib/psa-proposal/types";
+export const BLOCK_UI_KEYS: Record<PsaBlockType, string> = {
+  cover: "crm:composer.blocks.cover",
+  index: "crm:composer.blocks.index",
+  about: "crm:composer.blocks.about",
+  scope: "crm:composer.blocks.scope",
+  stage_list: "crm:composer.blocks.stageList",
+  stage_item: "crm:composer.blocks.stageItem",
+  timeline: "crm:composer.blocks.timeline",
+  gantt_design: "crm:composer.blocks.ganttDesign",
+  gantt_construction: "crm:composer.blocks.ganttConstruction",
+  gantt_partial: "crm:composer.blocks.ganttPartial",
+  consultants: "crm:composer.blocks.consultants",
+  fee_table: "crm:composer.blocks.feeTable",
+  supplier_fee_table: "crm:composer.blocks.supplierFeeTable",
+  optional_fee_table: "crm:composer.blocks.optionalFeeTable",
+  construction_fee: "crm:composer.blocks.constructionFee",
+  travel_expenses: "crm:composer.blocks.travelExpenses",
+  billable_hourly_rate: "crm:composer.blocks.billableHourlyRate",
+  payment_terms: "crm:composer.blocks.paymentTerms",
+  payment_schedule: "crm:composer.blocks.paymentSchedule",
+  additional_services: "crm:composer.blocks.additionalServices",
+  general: "crm:composer.blocks.general",
+  suspension: "crm:composer.blocks.suspension",
+  exclusions: "crm:composer.blocks.exclusions",
+  acceptance: "crm:composer.blocks.acceptance",
+  custom_text: "crm:composer.blocks.customText",
+  image: "crm:composer.blocks.image",
+  page_break: "crm:composer.blocks.pageBreak",
+  appendix_index: "crm:composer.blocks.appendixIndex",
+  appendix_payment_schedule: "crm:composer.blocks.appendixPaymentSchedule",
+  appendix_gantt: "crm:composer.blocks.appendixGantt",
+  appendix_general_terms: "crm:composer.blocks.appendixGeneralTerms",
+};
+export const RELEVANCE_UI_KEYS: Record<PsaContractRelevance, string> = {
+  proposal_only: "crm:composer.relevance.proposalOnly",
+  contract_relevant: "crm:composer.relevance.contractRelevant",
+  both: "crm:composer.relevance.both",
+  internal_only: "crm:composer.relevance.internalOnly",
+};
+export const SOURCE_UI_KEYS: Record<PsaSourceType, string> = {
+  manual: "crm:composer.source.manual",
+  library: "crm:composer.source.library",
+  live_quote: "crm:composer.source.liveQuote",
+  mixed: "crm:composer.source.mixed",
+  contract_clause: "crm:composer.source.contractClause",
+};

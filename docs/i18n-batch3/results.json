@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "lang": "pt-PT",
+      "documentHash": "ae628e13856a8ac0d8306a3d82c1aa1bad686b182872661c14cc72cea72ab271",
+      "rawKeys": []
+    },
+    {
+      "lang": "en",
+      "documentHash": "ae628e13856a8ac0d8306a3d82c1aa1bad686b182872661c14cc72cea72ab271",
+      "rawKeys": []
+    }
+  ],
+  "documentUnchanged": true,
+  "errors": [],
+  "blockedWrites": [
+    "/rest/v1/psa_proposal_snapshots"
+  ]
+}

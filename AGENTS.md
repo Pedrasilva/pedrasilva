@@ -6,6 +6,7 @@
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
 - Reel video retention uses Marketing's service-only persistent cleanup claims in the existing private scheduled job; purge evidence is outside approval hashes and media reuse is locked through shared upload advisory locks. Why: storage removal must preserve publication history and never race new drafts.
 - Composer shares planner fees, invalidates on billing edits, and normalizes frozen relative dates at render without writes. Why: totals and labels agree.
+- Proposal editor display labels live in an editor-only key map; stored block titles/content, print labels and document-language autonyms are independent of UI locale, with exact documented output scopes in the AST allowlist. Why: switching editor language must never rewrite client documents.
 
 - Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.
 

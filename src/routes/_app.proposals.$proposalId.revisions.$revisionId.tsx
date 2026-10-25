@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -24,6 +26,7 @@ import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute(
   "/_app/proposals/$proposalId/revisions/$revisionId",
 )({
+  head: () => ({ meta: [{ title: "Proposal revision | PSA Hub" }, { name: "description", content: "Read an archived proposal revision in PSA Hub." }, { property: "og:title", content: "Proposal revision | PSA Hub" }, { property: "og:description", content: "Read an archived proposal revision in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GuardedRevisionViewerPage,
 });
 
@@ -35,6 +38,7 @@ export const Route = createFileRoute(
  * copies this snapshot back over the single live editable draft.
  */
 function RevisionViewerPage() {
+  useTranslation();
   const { proposalId, revisionId } = Route.useParams();
   const revision = useRevision(revisionId);
   const restore = useRestoreRevision(proposalId);
@@ -44,19 +48,17 @@ function RevisionViewerPage() {
   if (revision.isLoading) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-        A carregar revisão…
-      </div>
+         {uiI18n.t("crm:quoteEditor.loadingRevision")} </div>
     );
   }
 
   if (revision.isError || !revision.data) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-zinc-500">
-        <span>Não foi possível carregar esta revisão.</span>
+        <span> {uiI18n.t("crm:quoteEditor.revisionLoadFailed")} </span>
         <Button asChild variant="outline" size="sm">
           <Link to="/proposals/$proposalId/composer" params={{ proposalId }}>
-            Voltar à versão atual
-          </Link>
+             {uiI18n.t("crm:quoteEditor.backCurrentVersion")} </Link>
         </Button>
       </div>
     );
@@ -68,7 +70,7 @@ function RevisionViewerPage() {
     try {
       await restore.mutateAsync(revisionId);
       setConfirmOpen(false);
-      toast.success(`Rascunho restaurado a partir da Rev ${revLabel}.`);
+      toast.success(uiI18n.t("crm:quoteEditor.draftRestored", { value1: revLabel }));
       navigate({
         to: "/proposals/$proposalId/composer",
         params: { proposalId },
@@ -82,9 +84,7 @@ function RevisionViewerPage() {
     <RevisionProvider revision={revision.data}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-amber-50 px-4 py-2 text-sm text-amber-900">
         <span>
-          A ver a <strong>Rev {revLabel}</strong> — só leitura, congelada tal
-          como foi enviada.
-        </span>
+           {uiI18n.t("crm:quoteEditor.viewingPrefix")} <strong> {uiI18n.t("crm:quoteEditor.revisionShort")} {revLabel}</strong>  {uiI18n.t("crm:quoteEditor.frozenReadonlySuffix")} </span>
         <Button
           size="sm"
           variant="outline"
@@ -92,39 +92,28 @@ function RevisionViewerPage() {
           disabled={restore.isPending}
         >
           <RotateCcw className="mr-1 h-3.5 w-3.5" />
-          Restaurar como rascunho
-        </Button>
+           {uiI18n.t("crm:quoteEditor.restoreAsDraft")} </Button>
       </div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Restaurar a Rev {revLabel} como rascunho editável?
-            </AlertDialogTitle>
+               {uiI18n.t("crm:quoteEditor.restoreRevisionPrefix")} {revLabel}  {uiI18n.t("crm:quoteEditor.editableDraftPromptSuffix")} </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm">
                 <p>
-                  O conteúdo da proposta, os blocos e todos os dados do orçamento
-                  (fases, dependências, alocações, mapa de pagamentos, taxas,
-                  deslocações e custos de fornecedores) desta revisão vão
-                  substituir o rascunho atual.
-                </p>
+                   {uiI18n.t("crm:quoteEditor.restoreDraftHint")} </p>
                 <p className="font-medium text-destructive">
-                  Isto apaga o estado não enviado do rascunho atual e não pode ser
-                  desfeito.
-                </p>
+                   {uiI18n.t("crm:quoteEditor.restoreDraftWarning")} </p>
                 <p>
-                  As revisões já enviadas mantêm-se congeladas e intactas — nada
-                  do que editar a seguir as afeta.
-                </p>
+                   {uiI18n.t("crm:quoteEditor.sentRevisionsSafeHint")} </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={restore.isPending}>
-              Cancelar
-            </AlertDialogCancel>
+               {uiI18n.t("common:cancel")} </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -132,7 +121,7 @@ function RevisionViewerPage() {
               }}
               disabled={restore.isPending}
             >
-              {restore.isPending ? "A restaurar…" : "Restaurar rascunho"}
+              {restore.isPending ? uiI18n.t("crm:quoteEditor.restoring") : uiI18n.t("crm:quoteEditor.restoreDraft")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -144,6 +133,7 @@ function RevisionViewerPage() {
 }
 
 function GuardedRevisionViewerPage() {
+  useTranslation();
   return (
     <V2PermissionGate permission="crm.pipeline.view" scope="own">
       <RevisionViewerPage />

@@ -1,3 +1,6 @@
+import { BLOCK_UI_KEYS } from "./editor-labels";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Block library panel — left sidebar.
  * Shows all library entries grouped by canonical PSA order; click to append
@@ -27,6 +30,7 @@ export function BlockLibraryPanel({
   selectedId?: string | null;
   onInserted?: (id: string) => void;
 }) {
+  useTranslation();
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
   const live = useLiveQuoteSnapshot(quoteIdHint ?? null);
@@ -34,7 +38,7 @@ export function BlockLibraryPanel({
 
   const items =
     lib.data?.filter((l) =>
-      !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+      !q ? true : uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label }).toLowerCase().includes(q.toLowerCase()),
     ) ?? [];
 
   const sorted = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
@@ -192,7 +196,7 @@ export function BlockLibraryPanel({
     },
   ];
   const filteredManual = manualEntries.filter((l) =>
-    !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+    !q ? true : uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label }).toLowerCase().includes(q.toLowerCase()),
   );
 
 
@@ -227,7 +231,7 @@ export function BlockLibraryPanel({
       { lib: entry, afterOrder },
       {
         onSuccess: (res) => {
-          toast.success(`Bloco "${entry.default_title}" adicionado`);
+          toast.success(uiI18n.t("crm:quoteEditor.blockAdded", { value1: entry.default_title }));
           onInserted?.(res.id);
           // Scroll the newly inserted block into view after re-render.
 
@@ -239,7 +243,7 @@ export function BlockLibraryPanel({
           }, 250);
         },
         onError: (e: unknown) => {
-          const msg = e instanceof Error ? e.message : "Erro ao adicionar bloco";
+          const msg = e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.addBlockFailed");
           toast.error(msg);
         },
       },
@@ -250,8 +254,7 @@ export function BlockLibraryPanel({
     <aside className="flex h-full w-60 shrink-0 flex-col border-r bg-muted/30 xl:w-64">
       <div className="border-b px-3 py-2">
         <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Biblioteca de Blocos
-        </div>
+           {uiI18n.t("crm:quoteEditor.blockLibrary")} </div>
       </div>
       <div className="border-b p-2">
         <div className="relative">
@@ -259,7 +262,7 @@ export function BlockLibraryPanel({
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Procurar bloco..."
+            placeholder={uiI18n.t("crm:quoteEditor.searchBlocks")}
             className="h-8 pl-7 text-sm"
           />
         </div>
@@ -274,7 +277,7 @@ export function BlockLibraryPanel({
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{l.label}</div>
+                  <div className="truncate font-medium">{uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label })}</div>
                   <div className="mt-0.5 flex items-center gap-1">
                     <RelevanceBadge value={l.default_contract_relevance} />
                   </div>
@@ -291,7 +294,7 @@ export function BlockLibraryPanel({
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{l.label}</div>
+                  <div className="truncate font-medium">{uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label })}</div>
                   <div className="mt-0.5 flex items-center gap-1">
                     <RelevanceBadge value={l.default_contract_relevance} />
                   </div>
@@ -302,8 +305,7 @@ export function BlockLibraryPanel({
           ))}
           {!items.length && !filteredManual.length && (
             <li className="px-2 py-4 text-center text-xs text-zinc-500">
-              Sem resultados.
-            </li>
+               {uiI18n.t("crm:quoteEditor.noResults")} </li>
           )}
         </ul>
       </ScrollArea>

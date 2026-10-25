@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Signature checkpoint card — step 3 of the quote workspace.
  *
@@ -63,7 +64,7 @@ export function QuoteSignatureCard({
             <p className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
               {t("workspace.signature.signedOn", {
-                date: sig.data?.signedAt ? new Date(sig.data.signedAt).toLocaleDateString() : "—",
+                date: sig.data?.signedAt ? new Date(sig.data.signedAt).toLocaleDateString(uiI18n.language) : "—",
                 method: t(`workspace.signature.method.${sig.data?.signedMethod ?? "manual"}`),
               })}
             </p>

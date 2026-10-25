@@ -1,3 +1,6 @@
+import { BLOCK_UI_KEYS } from "./editor-labels";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * "Converter para Contrato" stub dialog.
  *
@@ -27,6 +30,7 @@ export function ConvertToContractDialog({
   onOpenChange: (v: boolean) => void;
   blocks: PsaProposalBlock[];
 }) {
+  useTranslation();
   const migrating = blocks.filter(
     (b) => b.contract_relevance === "contract_relevant" || b.contract_relevance === "both",
   );
@@ -38,45 +42,42 @@ export function ConvertToContractDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Converter para Contrato</DialogTitle>
+          <DialogTitle> {uiI18n.t("crm:quoteEditor.convertContract")} </DialogTitle>
           <DialogDescription>
-            Pré-visualização da migração. O Compositor de Contratos será lançado
-            numa próxima fase — por agora, apenas mostramos quais blocos serão
-            transformados em cláusulas contratuais.
-          </DialogDescription>
+             {uiI18n.t("crm:quoteEditor.contractPreviewHint")} </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <section>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-700">
-              Migram ({migrating.length})
+               {uiI18n.t("crm:quoteEditor.migratingBlocks", { count: migrating.length })}
             </h4>
             <ul className="space-y-1 rounded-md border bg-emerald-50/40 p-2 text-sm">
               {migrating.length ? (
                 migrating.map((b) => (
                   <li key={b.id} className="flex items-center justify-between gap-2">
                     <span className="truncate">
-                      <span className="text-zinc-400">{BLOCK_TYPE_LABEL[b.block_type]} · </span>
+                      <span className="text-zinc-400">{uiI18n.t(BLOCK_UI_KEYS[b.block_type])} · </span>
                       {b.title}
                     </span>
                     <RelevanceBadge value={b.contract_relevance} />
                   </li>
                 ))
               ) : (
-                <li className="text-xs italic text-zinc-500">Nenhum bloco marcado como contratual.</li>
+                <li className="text-xs italic text-zinc-500"> {uiI18n.t("crm:quoteEditor.noContractBlocks")} </li>
               )}
             </ul>
           </section>
 
           <section>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-              Permanecem na proposta ({skipped.length})
+               {uiI18n.t("crm:quoteEditor.remainingBlocks", { count: skipped.length })}
             </h4>
             <ul className="space-y-1 rounded-md border bg-zinc-50 p-2 text-sm">
               {skipped.map((b) => (
                 <li key={b.id} className="flex items-center justify-between gap-2">
                   <span className="truncate">
-                    <span className="text-zinc-400">{BLOCK_TYPE_LABEL[b.block_type]} · </span>
+                    <span className="text-zinc-400">{uiI18n.t(BLOCK_UI_KEYS[b.block_type])} · </span>
                     {b.title}
                   </span>
                   <RelevanceBadge value={b.contract_relevance} />
@@ -88,11 +89,9 @@ export function ConvertToContractDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
-          <Button disabled title="Compositor de Contratos em desenvolvimento">
-            Converter (em breve)
-          </Button>
+             {uiI18n.t("common:close")} </Button>
+          <Button disabled title={uiI18n.t("crm:quoteEditor.contractComposerPending")}>
+             {uiI18n.t("crm:quoteEditor.convertSoon")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

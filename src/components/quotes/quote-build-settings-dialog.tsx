@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Quote Build Settings — dialog opened from the settings gear next to
  * "Update schedule" in the quote header. Houses common quote-build
@@ -74,6 +76,7 @@ export function QuoteBuildSettingsDialog({
   onOpenChange?: (v: boolean) => void;
   hideTrigger?: boolean;
 }) {
+  useTranslation();
   const qc = useQueryClient();
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
@@ -128,7 +131,7 @@ export function QuoteBuildSettingsDialog({
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
 
-      toast.success("Settings saved");
+      toast.success(uiI18n.t("crm:quoteEditor.settingsSaved"));
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -143,31 +146,27 @@ export function QuoteBuildSettingsDialog({
             size="sm"
             className="gap-2"
             disabled={disabled}
-            title="Quote build settings"
+            title={uiI18n.t("crm:quoteEditor.buildSettings")}
           >
             <Settings className="h-4 w-4" />
-            Settings
-          </Button>
+             {uiI18n.t("common:settings")} </Button>
         </DialogTrigger>
       )}
 
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Quote build settings</DialogTitle>
+          <DialogTitle> {uiI18n.t("crm:quoteEditor.buildSettings")} </DialogTitle>
           <DialogDescription>
-            Common preferences that drive how the payment schedule is generated
-            from the Gantt.
-          </DialogDescription>
+             {uiI18n.t("crm:quoteEditor.buildSettingsHint")} </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="rounded-md border p-3 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Label className="text-sm font-medium">Down payment</Label>
+                <Label className="text-sm font-medium"> {uiI18n.t("crm:workspace.timeBased.consultancy.downpayment")} </Label>
                 <p className="text-xs text-muted-foreground">
-                  Include an upfront invoice at project start.
-                </p>
+                   {uiI18n.t("crm:quoteEditor.upfrontHint")} </p>
               </div>
               <Switch
                 checked={draft.downPaymentEnabled}
@@ -177,8 +176,7 @@ export function QuoteBuildSettingsDialog({
 
             <div className="grid grid-cols-2 items-center gap-3">
               <Label htmlFor="dp-pct" className="text-xs text-muted-foreground">
-                Down payment %
-              </Label>
+                 {uiI18n.t("crm:workspace.payment.downPaymentPercent")} </Label>
               <Input
                 id="dp-pct"
                 type="number"
@@ -195,8 +193,7 @@ export function QuoteBuildSettingsDialog({
 
             <div className="flex items-center justify-between gap-3">
               <Label className="text-xs text-muted-foreground">
-                Deduct from stage payments
-              </Label>
+                 {uiI18n.t("crm:quoteEditor.deductStagePayments")} </Label>
               <Switch
                 checked={draft.deductDownPaymentFromStages}
                 disabled={!draft.downPaymentEnabled}
@@ -210,11 +207,9 @@ export function QuoteBuildSettingsDialog({
           <div className="rounded-md border p-3 space-y-2">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Label className="text-sm font-medium">VAT</Label>
+                <Label className="text-sm font-medium"> {uiI18n.t("crm:quoteEditor.vat")} </Label>
                 <p className="text-xs text-muted-foreground">
-                  Turn off for projects outside the EU. A note is added to the
-                  proposal and all VAT amounts are set to €0.
-                </p>
+                   {uiI18n.t("crm:quoteEditor.vatHint")} </p>
               </div>
               <Switch
                 checked={draft.vatEnabled}
@@ -224,20 +219,17 @@ export function QuoteBuildSettingsDialog({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Changes take effect on the next{" "}
-            <span className="font-medium">Update schedule</span> run.
-          </p>
+             {uiI18n.t("crm:quoteEditor.nextRunPrefix")} {" "}
+            <span className="font-medium"> {uiI18n.t("crm:workspace.payment.headerUpdate")} </span>  {uiI18n.t("crm:quoteEditor.runSuffix")} </p>
 
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)} disabled={save.isPending}>
-            Cancel
-          </Button>
+             {uiI18n.t("common:cancel")} </Button>
           <Button onClick={() => save.mutate(draft)} disabled={save.isPending}>
             {save.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-            Save
-          </Button>
+             {uiI18n.t("common:save")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 /**
  * Proposals index — list of PSA proposals + create button.
  */
@@ -11,10 +13,12 @@ import {
 
 import { V2PermissionGate } from "@/components/PermissionGate";
 export const Route = createFileRoute("/_app/proposals/")({
+  head: () => ({ meta: [{ title: "Proposals | PSA Hub" }, { name: "description", content: "Edit and manage proposal documents in PSA Hub." }, { property: "og:title", content: "Proposals | PSA Hub" }, { property: "og:description", content: "Edit and manage proposal documents in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GuardedProposalsIndex,
 });
 
 function ProposalsIndex() {
+  useTranslation();
   const list = useProposalList();
   const create = useCreateProposal();
   const nav = useNavigate();
@@ -23,10 +27,9 @@ function ProposalsIndex() {
     <div className="mx-auto max-w-5xl space-y-4 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Propostas PSA</h1>
+          <h1 className="text-2xl font-semibold"> {uiI18n.t("crm:quoteEditor.psaProposals")} </h1>
           <p className="text-sm text-zinc-500">
-            Compositor de propostas em estilo CanvaDoc.
-          </p>
+             {uiI18n.t("crm:quoteEditor.composerDescription")} </p>
         </div>
         <Button
           onClick={async () => {
@@ -37,17 +40,15 @@ function ProposalsIndex() {
             });
           }}
         >
-          <Plus className="mr-1 h-4 w-4" /> Nova Proposta
-        </Button>
+          <Plus className="mr-1 h-4 w-4" />  {uiI18n.t("crm:quoteEditor.newProposal")} </Button>
       </div>
 
       <div className="rounded-md border bg-background">
         {list.isLoading ? (
-          <div className="p-6 text-sm text-zinc-500">A carregar...</div>
+          <div className="p-6 text-sm text-zinc-500"> {uiI18n.t("common:loading")} </div>
         ) : !list.data?.length ? (
           <div className="p-6 text-center text-sm text-zinc-500">
-            Sem propostas. Comece criando uma nova.
-          </div>
+             {uiI18n.t("crm:quoteEditor.noProposals")} </div>
         ) : (
           <ul className="divide-y">
             {list.data.map((p) => (
@@ -61,8 +62,8 @@ function ProposalsIndex() {
                   <div className="flex-1">
                     <div className="font-medium">{p.title}</div>
                     <div className="text-xs text-zinc-500">
-                      Estado: {p.status} ·{" "}
-                      {new Date(p.updated_at).toLocaleDateString("pt-PT")}
+                       {uiI18n.t("crm:quoteEditor.statusPrefix")} {uiI18n.t(`crm:composer.status.${uiI18n.t(`crm:composer.status.${p.status}`, { defaultValue: p.status })}`, { defaultValue: p.status })} ·{" "}
+                      {new Date(p.updated_at).toLocaleDateString(uiI18n.language)}
                     </div>
                   </div>
                 </Link>
@@ -76,6 +77,7 @@ function ProposalsIndex() {
 }
 
 function GuardedProposalsIndex() {
+  useTranslation();
   return (
     <V2PermissionGate permission="crm.pipeline.view" scope="own">
       <ProposalsIndex />

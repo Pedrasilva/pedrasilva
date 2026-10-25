@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * RetainerStageEditor — UI for a `stage_kind='retainer_monthly'` quote stage.
  *
@@ -95,7 +96,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
     const byCode: Record<string, string> = {};
     for (const r of proposalRoles) byCode[r.code] = isPt ? r.label_pt : r.label_en;
     return (code: string | null | undefined): string => {
-      if (!code) return isPt ? "Sem título" : "Untitled";
+      if (!code) return uiI18n.t("common:untitled");
       return byCode[code] ?? code;
     };
   }, [proposalRoles, isPt]);
@@ -432,7 +433,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 defaultValue: "h/month",
               })}{" "}
               · {t("workspace.planning.retainerMonthly.cost", { defaultValue: "cost" })}{" "}
-              {formatEUR(monthlyCost)} / mo · {workdays}{" "}
+              {formatEUR(monthlyCost)}  {uiI18n.t("crm:quoteEditor.perMonthDot")} {workdays}{" "}
               {t("workspace.planning.retainerMonthly.workdays", {
                 defaultValue: "workdays",
               })}

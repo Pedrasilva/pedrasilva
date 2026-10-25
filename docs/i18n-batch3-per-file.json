@@ -1,0 +1,302 @@
+[
+  {
+    "file": "src/components/psa-composer/block-library-panel.tsx",
+    "before": 4,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/block-renderer.tsx",
+    "before": 11,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/block-settings-panel.tsx",
+    "before": 126,
+    "after": 22
+  },
+  {
+    "file": "src/components/psa-composer/canvas.tsx",
+    "before": 1,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/composer-shell.tsx",
+    "before": 17,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/composer-top-bar.tsx",
+    "before": 27,
+    "after": 1
+  },
+  {
+    "file": "src/components/psa-composer/convert-to-contract-dialog.tsx",
+    "before": 8,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/import-template-dialog.tsx",
+    "before": 20,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/paginated-preview.tsx",
+    "before": 2,
+    "after": 2
+  },
+  {
+    "file": "src/components/psa-composer/proposal-history-dialog.tsx",
+    "before": 22,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/proposal-style-panel.tsx",
+    "before": 37,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/relevance-badge.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/rich-text-editor.tsx",
+    "before": 30,
+    "after": 1
+  },
+  {
+    "file": "src/components/psa-composer/send-proposal-dialog.tsx",
+    "before": 44,
+    "after": 1
+  },
+  {
+    "file": "src/components/psa-composer/signature-status.tsx",
+    "before": 6,
+    "after": 0
+  },
+  {
+    "file": "src/components/psa-composer/versions-panel.tsx",
+    "before": 14,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/apply-template-dialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/conversion-invoice-preview.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/invoice-grouping-control.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/payment-schedule-proposal-view.tsx",
+    "before": 42,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/payment-schedule-reconciliation.tsx",
+    "before": 11,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-billable-rates-tab.tsx",
+    "before": 15,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-build-settings-dialog.tsx",
+    "before": 16,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-construction-assistance-tab.tsx",
+    "before": 75,
+    "after": 6
+  },
+  {
+    "file": "src/components/quotes/quote-create-contract-card.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-external-services-tab.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-fee-calculator-card.tsx",
+    "before": 3,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-fee-source-toggle.tsx",
+    "before": 10,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-financial-summary-tab.tsx",
+    "before": 11,
+    "after": 4
+  },
+  {
+    "file": "src/components/quotes/quote-lock-guard.tsx",
+    "before": 13,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-ontology-bootstrap-card.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-payment-schedule-tab.tsx",
+    "before": 14,
+    "after": 2
+  },
+  {
+    "file": "src/components/quotes/quote-planner-inspector.tsx",
+    "before": 6,
+    "after": 5
+  },
+  {
+    "file": "src/components/quotes/quote-planning-tab.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-project-billing-inspector.tsx",
+    "before": 18,
+    "after": 1
+  },
+  {
+    "file": "src/components/quotes/quote-proposal-composer-embed.tsx",
+    "before": 1,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-publish-step.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-revisions-button.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-sale-margin-settings.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-signature-card.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-status-rail.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-supplier-markup-editor.tsx",
+    "before": 3,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-template-picker.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-time-based-settings-tab.tsx",
+    "before": 2,
+    "after": 2
+  },
+  {
+    "file": "src/components/quotes/quote-warnings-banner.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/quote-workflow-actions.tsx",
+    "before": 1,
+    "after": 1
+  },
+  {
+    "file": "src/components/quotes/quote-workflow-stepper.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/relative-schedule-controls.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/components/quotes/retainer-monthly-readings.tsx",
+    "before": 1,
+    "after": 1
+  },
+  {
+    "file": "src/components/quotes/retainer-stage-editor.tsx",
+    "before": 4,
+    "after": 3
+  },
+  {
+    "file": "src/components/quotes/save-as-template-dialog.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.proposal-images.tsx",
+    "before": 11,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.proposal-roles.tsx",
+    "before": 54,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.admin.quotes-trash.tsx",
+    "before": 31,
+    "after": 1
+  },
+  {
+    "file": "src/routes/_app.crm.pipeline.$proposalId.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.crm.quote-templates.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.crm.quotes.$quoteId.tsx",
+    "before": 13,
+    "after": 2
+  },
+  {
+    "file": "src/routes/_app.proposals.$proposalId.composer.tsx",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.proposals.$proposalId.revisions.$revisionId.tsx",
+    "before": 16,
+    "after": 0
+  },
+  {
+    "file": "src/routes/_app.proposals.index.tsx",
+    "before": 6,
+    "after": 0
+  }
+]

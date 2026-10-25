@@ -33,6 +33,11 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
     // Calls, identifiers and property access are dynamic; t() keys are not UI literals.
   }
   function visit(node) {
+    if (ts.isFunctionDeclaration(node) && node.name && (allowlist.documentScopes ?? []).some(rule => rule.path === file && rule.name === node.name.text)) return;
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(tree) === 'SelectItem') {
+      const value = node.openingElement.attributes.properties.find(p => ts.isJsxAttribute(p) && p.name.getText(tree) === 'value');
+      if (value?.initializer && ts.isStringLiteral(value.initializer) && (allowlist.documentLanguageOptions ?? []).some(rule => rule.path === file && rule.values.includes(value.initializer.text))) return;
+    }
     if (ts.isJsxElement(node) && ['style', 'script'].includes(node.openingElement.tagName.getText(tree))) return;
     if (ts.isJsxText(node)) add(node, 'jsxText', node.text);
     if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) {
