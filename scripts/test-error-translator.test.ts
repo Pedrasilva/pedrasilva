@@ -36,8 +36,8 @@ describe('display-only server/DB error translation', () => {
     expect(translateErrorMessage('Story frames need re-rendering, open the post and approve again', t)).toBe('Os frames da story precisam de nova renderização; abra o post e aprove novamente.');
   });
   it('extracts interpolated status without modifying the stored enum', () => {
-    expect(translateErrorMessage('Item is already removed', t)).toBe('O item já está removed.');
-    expect(translateErrorMessage('Action not allowed for contract status "signed"', t)).toBe('A ação não é permitida para o estado do contrato «signed».');
+    expect(translateErrorMessage('Item is already removed', t)).toBe('O item já está removido.');
+    expect(translateErrorMessage('Action not allowed for contract status "signed"', t)).toBe('A ação não é permitida para o estado do contrato «assinado».');
   });
   it('handles anchored HTTP patterns and nested known details', () => {
     expect(translateErrorMessage('Meta redirected unexpectedly (HTTP 302)', t)).toBe('A Meta redirecionou inesperadamente (HTTP 302).');

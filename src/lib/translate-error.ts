@@ -1,6 +1,6 @@
 import i18n from '@/i18n/index';
 import type { TFunction } from 'i18next';
-import { errorMessageMap, errorPatternMap } from './error-message-map';
+import { errorMessageMap, errorPatternMap, errorStatusValues } from './error-message-map';
 
 const exact = new Map<string, string>(errorMessageMap.map(entry => [entry.message, entry.key]));
 const patterns = errorPatternMap.map(entry => ({ ...entry, regex: new RegExp(entry.pattern) }));
@@ -15,7 +15,10 @@ export function translateErrorMessage(message: string, t: TFunction = i18n.t.bin
     const values: Record<string, string | number> = {};
     rule.names.forEach((name, index) => {
       const value = match[index + 1] ?? '';
-      values[name] = name === 'count' ? Number(value) : name === 'detail' ? translateErrorMessage(value, t) : value;
+      values[name] = name === 'count' ? Number(value)
+        : name === 'detail' ? translateErrorMessage(value, t)
+        : name === 'status' && (errorStatusValues as readonly string[]).includes(value) ? t(`errors:status.${value}`, { defaultValue: value })
+        : value;
     });
     return t(`errors:${rule.key}`, { ...values, defaultValue: message });
   }

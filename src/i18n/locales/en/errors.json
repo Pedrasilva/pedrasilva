@@ -195,7 +195,9 @@
     "storyVideoMustBe916": "Story video must be 9:16",
     "reelMustBePortraitExportAt916": "Reel must be portrait; export at 9:16",
     "audioRequiresAac48KhzMonoOrStereo": "Audio requires AAC, ≤48 kHz, mono or stereo",
-    "metaRedirect": "Meta redirected unexpectedly (HTTP {{status}})"
+    "metaRedirect": "Meta redirected unexpectedly (HTTP {{status}})",
+    "captureUsedInDrafts": "The capture is used in drafts: {{detail}}",
+    "uploadLookup": "Upload lookup failed: {{detail}}"
   },
   "inbox": {
     "youDoNotHavePermissionToTriageTheInbox": "You do not have permission to triage the inbox",
@@ -207,7 +209,9 @@
     "aiRateLimitReachedTryAgainShortly": "AI rate limit reached — try again shortly",
     "aiCreditsExhaustedTopUpInWorkspaceSettings": "AI credits exhausted — top up in workspace settings",
     "theAssistantReturnedNothingToPreview": "The assistant returned nothing to preview",
-    "theAssistantReturnedAnUnreadableRule": "The assistant returned an unreadable rule"
+    "theAssistantReturnedAnUnreadableRule": "The assistant returned an unreadable rule",
+    "originalMessageHasNoSenderAddress": "Original message has no sender address",
+    "attachmentHasNoContent": "Attachment has no content"
   },
   "projects": {
     "projectNotFound": "Project not found",
@@ -271,7 +275,15 @@
     "newBookingsMustUseALeafStageNotAParentStage": "New bookings must use a leaf stage, not a parent stage",
     "onlyYourOwnTimesheetCanBePrepared": "Only your own timesheet can be prepared",
     "stageIsNotAvailableForNewTimesheetActivities": "Stage is not available for new timesheet activities",
-    "loggedHistoryDeleteBlockedRetireInsteadLoggedHoursMustBePreserved": "logged_history_delete_blocked: Retire instead; logged hours must be preserved."
+    "loggedHistoryDeleteBlockedRetireInsteadLoggedHoursMustBePreserved": "logged_history_delete_blocked: Retire instead; logged hours must be preserved.",
+    "noProposalId": "No proposal id",
+    "noQuoteId": "No quote id",
+    "youMustBeSignedInToUploadImages": "You must be signed in to upload images.",
+    "propostaBloqueadaNOPossVelEnviarNovasRevisEs": "Proposal locked — new revisions cannot be uploaded.",
+    "stageCouldNotBeDeletedYouMayNotHavePermissionOrTheRowIsReferencedElsewhere": "Stage could not be deleted. You may not have permission, or the row is referenced elsewhere.",
+    "supplierMarkupRequiresASupplierIdentity": "Supplier markup requires a supplier identity.",
+    "leadClosed": "This lead is closed ({{status}}); it cannot take new hours",
+    "weekRange": "Week must be between {{start}} and {{end}}"
   },
   "finance": {
     "expenseNotFound": "Expense not found",
@@ -343,7 +355,25 @@
     "hrOriginItemsMayOnlyBeClassifiedUnderPes": "HR-origin items may only be classified under PES",
     "projectOriginItemsMayOnlyBeClassifiedUnderPrj": "Project-origin items may only be classified under PRJ",
     "notAuthorisedToUnreconcileBankTransactions": "Not authorised to unreconcile bank transactions",
-    "defaultCostCategoriesCannotBeDeleted": "Default cost categories cannot be deleted"
+    "defaultCostCategoriesCannotBeDeleted": "Default cost categories cannot be deleted",
+    "notStatement": "Not a statement.",
+    "statementIncomplete": "The statement is incomplete.",
+    "importNotFound": "import not found",
+    "targetAccountIsTheSameAsCurrentAccount": "target account is the same as current account",
+    "duplicateFileOnTarget": "The file already exists on the target account.",
+    "duplicateRowsOnTarget": "Duplicate transactions exist on the target account.",
+    "confirmationRequired": "Confirmation is required.",
+    "emailRequired": "email required",
+    "onlyAdminsCanRunFinancialImports": "Only admins can run financial imports",
+    "issuedDocumentsRequireAProjectOrMustBeExplicitlyMarkedAsNotProjectRelated": "Issued documents require a project, or must be explicitly marked as not project-related",
+    "forbiddenAdminRoleRequired": "forbidden: admin role required",
+    "forbiddenAdminOrFinanceRoleRequired": "forbidden: admin or finance role required",
+    "financeItemNotFound": "Finance item {{id}} not found",
+    "financeItemCancelled": "Finance item {{id}} is cancelled",
+    "financeItemPaid": "Finance item {{id}} already paid",
+    "financeItemSettled": "Finance item {{id}} already fully settled by existing payments",
+    "expenseItemNotFound": "Expense item {{id}} not found",
+    "bankTransactionNotFound": "Bank transaction {{id}} not found"
   },
   "admin": {
     "googleDriveConnectorNotLinked": "Google Drive connector not linked",
@@ -373,14 +403,46 @@
     "cannotChangePerson": "The person on this request cannot be changed.",
     "approvedWeekRequiresSeparateBankReconciliation": "An approved week requires separate time-bank reconciliation.",
     "timesheetsChanged": "Timesheets have changed.",
-    "bankChangedWithoutApprovedWeek": "The time bank changed without an approved week."
+    "bankChangedWithoutApprovedWeek": "The time bank changed without an approved week.",
+    "benefitExpenseNotFound": "Benefit expense {{id}} not found",
+    "weekStatus": "This week has been {{status}} and can no longer be edited"
   },
   "crm": {
     "contractStatus": "Action not allowed for contract status “{{status}}”",
-    "contractIdNotFound": "Contract {{id}} not found"
+    "contractIdNotFound": "Contract {{id}} not found",
+    "contractHasNoSourceQuote": "Contract has no source quote.",
+    "contractHasAlreadyBeenBootstrappedIntoAProject": "Contract has already been bootstrapped into a project.",
+    "proposalidEmFalta": "Proposal ID missing.",
+    "revisOEmFalta": "Revision missing.",
+    "nomeDoSignatRioDoClienteEmFalta": "Client signer name missing.",
+    "emailDoClienteInvLido": "Invalid client email.",
+    "revisONOPertenceAEstaProposta": "The revision does not belong to this proposal.",
+    "estaRevisONOTemPdfAnexado": "This revision has no PDF attached.",
+    "nOFoiPossVelLerOPdfDaRevisO": "Could not read the revision PDF.",
+    "bootstrapContractStatus": "Creating the project requires a signed contract (status=\"{{status}}\")"
   },
   "inventory": {
     "categoryCodeIsRequired": "Category code is required",
     "assetCodeIsPermanentAndCannotBeChanged": "Asset code is permanent and cannot be changed"
+  },
+  "products": {
+    "itemHasNoLibraryOrigin": "Item has no library origin"
+  },
+  "status": {
+    "removed": "removed",
+    "pending": "pending",
+    "approved": "approved",
+    "rejected": "rejected",
+    "submitted": "submitted",
+    "open": "open",
+    "signed": "signed",
+    "sent": "sent",
+    "published": "published",
+    "scheduled": "scheduled",
+    "failed": "failed",
+    "lost": "lost",
+    "won": "won",
+    "cancelled": "cancelled",
+    "aprovada": "approved"
   }
 }

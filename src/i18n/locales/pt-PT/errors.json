@@ -195,7 +195,9 @@
     "storyVideoMustBe916": "O vídeo da story tem de ter a proporção 9:16.",
     "reelMustBePortraitExportAt916": "O reel tem de ser vertical; exporte em 9:16.",
     "audioRequiresAac48KhzMonoOrStereo": "O áudio requer AAC, ≤48 kHz, mono ou estéreo.",
-    "metaRedirect": "A Meta redirecionou inesperadamente (HTTP {{status}})."
+    "metaRedirect": "A Meta redirecionou inesperadamente (HTTP {{status}}).",
+    "captureUsedInDrafts": "A captura é utilizada em rascunhos: {{detail}}",
+    "uploadLookup": "Falha ao procurar o carregamento: {{detail}}"
   },
   "inbox": {
     "youDoNotHavePermissionToTriageTheInbox": "Não tem permissão para fazer a triagem da entrada.",
@@ -207,7 +209,9 @@
     "aiRateLimitReachedTryAgainShortly": "Foi atingido o limite de pedidos à IA — tente novamente dentro de momentos.",
     "aiCreditsExhaustedTopUpInWorkspaceSettings": "Os créditos de IA esgotaram-se — adicione créditos nas definições do espaço de trabalho.",
     "theAssistantReturnedNothingToPreview": "O assistente não devolveu nada para pré-visualizar.",
-    "theAssistantReturnedAnUnreadableRule": "O assistente devolveu uma regra ilegível."
+    "theAssistantReturnedAnUnreadableRule": "O assistente devolveu uma regra ilegível.",
+    "originalMessageHasNoSenderAddress": "A mensagem original não tem endereço de remetente.",
+    "attachmentHasNoContent": "O anexo não contém conteúdo."
   },
   "projects": {
     "projectNotFound": "Projeto não encontrado.",
@@ -271,7 +275,15 @@
     "newBookingsMustUseALeafStageNotAParentStage": "As novas marcações têm de usar uma fase sem subfases, não uma fase principal.",
     "onlyYourOwnTimesheetCanBePrepared": "Só pode preparar a sua própria folha de horas.",
     "stageIsNotAvailableForNewTimesheetActivities": "A fase não está disponível para novas atividades na folha de horas.",
-    "loggedHistoryDeleteBlockedRetireInsteadLoggedHoursMustBePreserved": "Eliminação do histórico bloqueada: desative o registo; as horas registadas têm de ser preservadas."
+    "loggedHistoryDeleteBlockedRetireInsteadLoggedHoursMustBePreserved": "Eliminação do histórico bloqueada: desative o registo; as horas registadas têm de ser preservadas.",
+    "noProposalId": "O identificador da proposta está em falta.",
+    "noQuoteId": "O identificador da proposta está em falta.",
+    "youMustBeSignedInToUploadImages": "Tem de ter sessão iniciada para carregar imagens.",
+    "propostaBloqueadaNOPossVelEnviarNovasRevisEs": "Proposta bloqueada — não é possível enviar novas revisões.",
+    "stageCouldNotBeDeletedYouMayNotHavePermissionOrTheRowIsReferencedElsewhere": "Não foi possível eliminar a fase. Pode não ter permissão, ou o registo pode ser referenciado noutro local.",
+    "supplierMarkupRequiresASupplierIdentity": "A margem do fornecedor requer a identificação de um fornecedor.",
+    "leadClosed": "Esta oportunidade está encerrada ({{status}}); não pode receber novas horas.",
+    "weekRange": "A semana tem de estar entre {{start}} e {{end}}."
   },
   "finance": {
     "expenseNotFound": "Despesa não encontrada.",
@@ -343,7 +355,25 @@
     "hrOriginItemsMayOnlyBeClassifiedUnderPes": "Os itens provenientes de RH só podem ser classificados em PES.",
     "projectOriginItemsMayOnlyBeClassifiedUnderPrj": "Os itens provenientes de projetos só podem ser classificados em PRJ.",
     "notAuthorisedToUnreconcileBankTransactions": "Não tem autorização para desfazer a conciliação de movimentos bancários.",
-    "defaultCostCategoriesCannotBeDeleted": "Não é possível eliminar as categorias de custos predefinidas."
+    "defaultCostCategoriesCannotBeDeleted": "Não é possível eliminar as categorias de custos predefinidas.",
+    "notStatement": "Não é um extrato.",
+    "statementIncomplete": "O extrato está incompleto.",
+    "importNotFound": "Importação não encontrada.",
+    "targetAccountIsTheSameAsCurrentAccount": "A conta de destino é igual à conta atual.",
+    "duplicateFileOnTarget": "O ficheiro já existe na conta de destino.",
+    "duplicateRowsOnTarget": "Existem movimentos duplicados na conta de destino.",
+    "confirmationRequired": "É necessário confirmar.",
+    "emailRequired": "O email é obrigatório.",
+    "onlyAdminsCanRunFinancialImports": "Só os administradores podem executar importações financeiras.",
+    "issuedDocumentsRequireAProjectOrMustBeExplicitlyMarkedAsNotProjectRelated": "Os documentos emitidos requerem um projeto ou têm de ser explicitamente marcados como não relacionados com um projeto.",
+    "forbiddenAdminRoleRequired": "Não tem permissão: é necessário ser administrador.",
+    "forbiddenAdminOrFinanceRoleRequired": "Não tem permissão: é necessário ser administrador ou ter a função de Finanças.",
+    "financeItemNotFound": "Item financeiro {{id}} não encontrado.",
+    "financeItemCancelled": "O item financeiro {{id}} está anulado.",
+    "financeItemPaid": "O item financeiro {{id}} já foi pago.",
+    "financeItemSettled": "O item financeiro {{id}} já foi totalmente liquidado pelos pagamentos existentes.",
+    "expenseItemNotFound": "Item de despesa {{id}} não encontrado.",
+    "bankTransactionNotFound": "Movimento bancário {{id}} não encontrado."
   },
   "admin": {
     "googleDriveConnectorNotLinked": "O conector Google Drive não está ligado.",
@@ -373,14 +403,46 @@
     "cannotChangePerson": "Não é possível alterar a pessoa deste pedido.",
     "approvedWeekRequiresSeparateBankReconciliation": "Uma semana aprovada requer uma conciliação separada do banco de horas.",
     "timesheetsChanged": "As folhas de horas foram alteradas.",
-    "bankChangedWithoutApprovedWeek": "O banco de horas foi alterado sem uma semana aprovada."
+    "bankChangedWithoutApprovedWeek": "O banco de horas foi alterado sem uma semana aprovada.",
+    "benefitExpenseNotFound": "Despesa de benefício {{id}} não encontrada.",
+    "weekStatus": "Esta semana foi {{status}} e já não pode ser editada."
   },
   "crm": {
     "contractStatus": "A ação não é permitida para o estado do contrato «{{status}}».",
-    "contractIdNotFound": "Contrato {{id}} não encontrado."
+    "contractIdNotFound": "Contrato {{id}} não encontrado.",
+    "contractHasNoSourceQuote": "O contrato não tem uma proposta de origem.",
+    "contractHasAlreadyBeenBootstrappedIntoAProject": "O contrato já deu origem a um projeto.",
+    "proposalidEmFalta": "O identificador da proposta está em falta.",
+    "revisOEmFalta": "A revisão está em falta.",
+    "nomeDoSignatRioDoClienteEmFalta": "O nome do signatário do cliente está em falta.",
+    "emailDoClienteInvLido": "O email do cliente é inválido.",
+    "revisONOPertenceAEstaProposta": "A revisão não pertence a esta proposta.",
+    "estaRevisONOTemPdfAnexado": "Esta revisão não tem PDF anexado.",
+    "nOFoiPossVelLerOPdfDaRevisO": "Não foi possível ler o PDF da revisão.",
+    "bootstrapContractStatus": "A criação do projeto requer um contrato assinado (estado=\"{{status}}\")."
   },
   "inventory": {
     "categoryCodeIsRequired": "O código da categoria é obrigatório.",
     "assetCodeIsPermanentAndCannotBeChanged": "O código do ativo é permanente e não pode ser alterado."
+  },
+  "products": {
+    "itemHasNoLibraryOrigin": "O item não tem origem na biblioteca."
+  },
+  "status": {
+    "removed": "removido",
+    "pending": "pendente",
+    "approved": "aprovado",
+    "rejected": "rejeitado",
+    "submitted": "submetido",
+    "open": "aberto",
+    "signed": "assinado",
+    "sent": "enviado",
+    "published": "publicado",
+    "scheduled": "agendado",
+    "failed": "falhado",
+    "lost": "perdida",
+    "won": "ganha",
+    "cancelled": "anulado",
+    "aprovada": "aprovada"
   }
 }

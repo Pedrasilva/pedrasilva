@@ -1739,6 +1739,156 @@ export const errorMessageMap = [
     "module": "marketing",
     "message": "Audio requires AAC, ≤48 kHz, mono or stereo",
     "key": "marketing.audioRequiresAac48KhzMonoOrStereo"
+  },
+  {
+    "module": "crm",
+    "message": "Contract has no source quote.",
+    "key": "crm.contractHasNoSourceQuote"
+  },
+  {
+    "module": "crm",
+    "message": "Contract has already been bootstrapped into a project.",
+    "key": "crm.contractHasAlreadyBeenBootstrappedIntoAProject"
+  },
+  {
+    "module": "crm",
+    "message": "proposalId em falta",
+    "key": "crm.proposalidEmFalta"
+  },
+  {
+    "module": "crm",
+    "message": "Revisão em falta",
+    "key": "crm.revisOEmFalta"
+  },
+  {
+    "module": "crm",
+    "message": "Nome do signatário do cliente em falta",
+    "key": "crm.nomeDoSignatRioDoClienteEmFalta"
+  },
+  {
+    "module": "crm",
+    "message": "Email do cliente inválido",
+    "key": "crm.emailDoClienteInvLido"
+  },
+  {
+    "module": "crm",
+    "message": "Revisão não pertence a esta proposta",
+    "key": "crm.revisONOPertenceAEstaProposta"
+  },
+  {
+    "module": "crm",
+    "message": "Esta revisão não tem PDF anexado.",
+    "key": "crm.estaRevisONOTemPdfAnexado"
+  },
+  {
+    "module": "crm",
+    "message": "Não foi possível ler o PDF da revisão.",
+    "key": "crm.nOFoiPossVelLerOPdfDaRevisO"
+  },
+  {
+    "module": "projects",
+    "message": "No proposal id",
+    "key": "projects.noProposalId"
+  },
+  {
+    "module": "projects",
+    "message": "No quote id",
+    "key": "projects.noQuoteId"
+  },
+  {
+    "module": "projects",
+    "message": "You must be signed in to upload images.",
+    "key": "projects.youMustBeSignedInToUploadImages"
+  },
+  {
+    "module": "projects",
+    "message": "Proposta bloqueada — não é possível enviar novas revisões.",
+    "key": "projects.propostaBloqueadaNOPossVelEnviarNovasRevisEs"
+  },
+  {
+    "module": "projects",
+    "message": "Stage could not be deleted. You may not have permission, or the row is referenced elsewhere.",
+    "key": "projects.stageCouldNotBeDeletedYouMayNotHavePermissionOrTheRowIsReferencedElsewhere"
+  },
+  {
+    "module": "projects",
+    "message": "Supplier markup requires a supplier identity.",
+    "key": "projects.supplierMarkupRequiresASupplierIdentity"
+  },
+  {
+    "module": "products",
+    "message": "Item has no library origin",
+    "key": "products.itemHasNoLibraryOrigin"
+  },
+  {
+    "module": "finance",
+    "message": "not_statement",
+    "key": "finance.notStatement"
+  },
+  {
+    "module": "finance",
+    "message": "statement_incomplete",
+    "key": "finance.statementIncomplete"
+  },
+  {
+    "module": "finance",
+    "message": "import not found",
+    "key": "finance.importNotFound"
+  },
+  {
+    "module": "finance",
+    "message": "target account is the same as current account",
+    "key": "finance.targetAccountIsTheSameAsCurrentAccount"
+  },
+  {
+    "module": "finance",
+    "message": "duplicate_file_on_target",
+    "key": "finance.duplicateFileOnTarget"
+  },
+  {
+    "module": "finance",
+    "message": "duplicate_rows_on_target",
+    "key": "finance.duplicateRowsOnTarget"
+  },
+  {
+    "module": "finance",
+    "message": "confirmation_required",
+    "key": "finance.confirmationRequired"
+  },
+  {
+    "module": "finance",
+    "message": "email required",
+    "key": "finance.emailRequired"
+  },
+  {
+    "module": "finance",
+    "message": "Only admins can run financial imports",
+    "key": "finance.onlyAdminsCanRunFinancialImports"
+  },
+  {
+    "module": "finance",
+    "message": "Issued documents require a project, or must be explicitly marked as not project-related",
+    "key": "finance.issuedDocumentsRequireAProjectOrMustBeExplicitlyMarkedAsNotProjectRelated"
+  },
+  {
+    "module": "finance",
+    "message": "forbidden: admin role required",
+    "key": "finance.forbiddenAdminRoleRequired"
+  },
+  {
+    "module": "finance",
+    "message": "forbidden: admin or finance role required",
+    "key": "finance.forbiddenAdminOrFinanceRoleRequired"
+  },
+  {
+    "module": "inbox",
+    "message": "Original message has no sender address",
+    "key": "inbox.originalMessageHasNoSenderAddress"
+  },
+  {
+    "module": "inbox",
+    "message": "Attachment has no content",
+    "key": "inbox.attachmentHasNoContent"
   }
 ] as const;
 
@@ -1880,5 +2030,111 @@ export const errorPatternMap = [
     "names": [
       "status"
     ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.financeItemNotFound",
+    "pattern": "^finance item (.+) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.financeItemCancelled",
+    "pattern": "^finance item (.+) is cancelled$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.financeItemPaid",
+    "pattern": "^finance item (.+) already paid$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.financeItemSettled",
+    "pattern": "^finance item (.+) already fully settled by existing payments$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.expenseItemNotFound",
+    "pattern": "^expense item (.+) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.bankTransactionNotFound",
+    "pattern": "^bank transaction (.+) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "hr",
+    "key": "hr.benefitExpenseNotFound",
+    "pattern": "^benefit expense (.+) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "hr",
+    "key": "hr.weekStatus",
+    "pattern": "^This week has been (.+) and can no longer be edited$",
+    "names": [
+      "status"
+    ]
+  },
+  {
+    "module": "projects",
+    "key": "projects.leadClosed",
+    "pattern": "^This lead is closed \\((.+)\\); it can't take new hours$",
+    "names": [
+      "status"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.captureUsedInDrafts",
+    "pattern": "^capture_used_in_drafts:(.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.uploadLookup",
+    "pattern": "^Upload lookup failed: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "projects",
+    "key": "projects.weekRange",
+    "pattern": "^Week must be between (\\d{4}-\\d{2}-\\d{2}) and (\\d{4}-\\d{2}-\\d{2})$",
+    "names": [
+      "start",
+      "end"
+    ]
+  },
+  {
+    "module": "crm",
+    "key": "crm.bootstrapContractStatus",
+    "pattern": "^Project bootstrap requires a signed contract \\(status=\"(.+)\"\\)$",
+    "names": [
+      "status"
+    ]
   }
 ] as const;
+export const errorStatusValues = ["removed", "pending", "approved", "rejected", "submitted", "open", "signed", "sent", "published", "scheduled", "failed", "lost", "won", "cancelled", "aprovada"] as const;
