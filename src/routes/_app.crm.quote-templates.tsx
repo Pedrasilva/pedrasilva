@@ -14,6 +14,7 @@ import {
 import { useQuoteTemplates } from "@/lib/quotes/quote-templates";
 
 export const Route = createFileRoute("/_app/crm/quote-templates")({
+  head: () => ({ meta: [{ title: "Proposal templates | PSA Hub" }, { name: "description", content: "Saved proposal planning and document templates in PSA Hub." }, { property: "og:title", content: "Proposal templates | PSA Hub" }, { property: "og:description", content: "Saved proposal planning and document templates in PSA Hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: QuoteTemplatesPage,
 });
 
@@ -22,7 +23,7 @@ function QuoteTemplatesPage() {
   const { data: templates = [], isLoading } = useQuoteTemplates();
 
   const fmtDate = (iso: string) =>
-    new Date(iso).toLocaleDateString(i18n.language === "pt-PT" ? "pt-PT" : undefined);
+    new Date(iso).toLocaleDateString(i18n.language);
 
   return (
     <div className="space-y-4">
