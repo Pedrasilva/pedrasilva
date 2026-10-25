@@ -1,0 +1,20 @@
+{
+  "originalMessage": "No valid approval for the current content",
+  "translatedToast": "Não existe uma aprovação válida para o conteúdo atual.",
+  "storedFailureTranslated": true,
+  "errors": [],
+  "blockedWrites": [
+    "POST /rest/v1/rpc/is_psa_staff",
+    "POST /rest/v1/rpc/is_psa_staff",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvaHIvYXBwcm92YWwtaW5ib3guZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldEFwcHJvdmFsSW5ib3hfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL3Bvc3QtYXBwcm92YWxzLmZ1bmN0aW9ucy50cz90c3Mtc2VydmVyZm4tc3BsaXQiLCJleHBvcnQiOiJsaXN0TXlQb3N0QXBwcm92YWxzX2NyZWF0ZVNlcnZlckZuX2hhbmRsZXIifQ",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL251ZGdlcy5mdW5jdGlvbnMudHM_dHNzLXNlcnZlcmZuLXNwbGl0IiwiZXhwb3J0IjoibGlzdE15UGVuZGluZ051ZGdlc19jcmVhdGVTZXJ2ZXJGbl9oYW5kbGVyIn0",
+    "POST /rest/v1/rpc/list_user_effective_permissions",
+    "POST /rest/v1/rpc/pm_week_board",
+    "POST /rest/v1/rpc/pm_week_board",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvaHIvYXBwcm92YWwtaW5ib3guZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldEFwcHJvdmFsSW5ib3hfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL3Bvc3QtYXBwcm92YWxzLmZ1bmN0aW9ucy50cz90c3Mtc2VydmVyZm4tc3BsaXQiLCJleHBvcnQiOiJsaXN0TXlQb3N0QXBwcm92YWxzX2NyZWF0ZVNlcnZlckZuX2hhbmRsZXIifQ",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL251ZGdlcy5mdW5jdGlvbnMudHM_dHNzLXNlcnZlcmZuLXNwbGl0IiwiZXhwb3J0IjoibGlzdE15UGVuZGluZ051ZGdlc19jcmVhdGVTZXJ2ZXJGbl9oYW5kbGVyIn0"
+  ],
+  "localReadCount": 20
+}

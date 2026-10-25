@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { format, parseISO, startOfMonth } from "date-fns";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
 

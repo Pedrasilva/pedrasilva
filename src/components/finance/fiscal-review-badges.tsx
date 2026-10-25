@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCan } from '@/hooks/use-permissions-v2';
 import { useHasPermission } from '@/hooks/use-permissions';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export function FiscalReviewBadges({ document }: { document: FinDoc }) {
   const { t } = useTranslation('finance');

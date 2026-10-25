@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 const formatEUR = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";

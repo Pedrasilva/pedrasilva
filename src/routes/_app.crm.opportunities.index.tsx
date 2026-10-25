@@ -37,7 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
    OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
   contactFullName, type Contact,

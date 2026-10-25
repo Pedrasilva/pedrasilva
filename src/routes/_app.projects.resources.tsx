@@ -17,7 +17,7 @@ import {
 import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronRight, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { euros } from "@/lib/projects/gantt-utils";
 import type { Resource } from "@/lib/projects/types";
 

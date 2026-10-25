@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RefreshCw } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteNudgesButton } from "@/components/marketing/delete-nudges-button";
 import { V2PermissionGate } from "@/components/PermissionGate";

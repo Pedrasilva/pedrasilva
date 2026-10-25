@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lock, LockOpen, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { useSetStageBaseline, useClearStageBaseline } from "@/lib/projects/use-planner";
 import { allocationHours, euros } from "@/lib/projects/gantt-utils";
 import type { StageWithAllocations } from "@/lib/projects/types";

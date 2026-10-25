@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { QuoteGantt } from "@/components/planner/planner-gantt";
 import { RetainerStageEditor } from "@/components/quotes/retainer-stage-editor";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";

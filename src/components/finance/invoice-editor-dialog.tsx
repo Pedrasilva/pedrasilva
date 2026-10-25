@@ -17,7 +17,7 @@ import uiI18n from "@/i18n/index";
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Loader2, Plus, Trash2, FileText, X, CheckCircle2, BadgeCheck, ExternalLink } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";

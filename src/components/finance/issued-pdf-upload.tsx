@@ -1,7 +1,7 @@
 import { useRef,useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Upload,Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';

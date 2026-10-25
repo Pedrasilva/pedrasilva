@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Auto-handled audit tab — messages a sender rule resolved without human
@@ -7,7 +8,7 @@ import uiI18n from "@/i18n/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Loader2, Undo2 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -36,7 +37,7 @@ export function AutoHandledList() {
   if (q.isError) {
     return (
       <Card className="p-10 text-center text-sm text-destructive">
-        {q.error instanceof Error ? q.error.message : t("inbox:queue.loadError")}
+        {q.error instanceof Error ? translateError(q.error) : t("inbox:queue.loadError")}
       </Card>
     );
   }

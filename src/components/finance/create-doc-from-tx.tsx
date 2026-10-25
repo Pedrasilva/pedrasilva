@@ -16,7 +16,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Loader2, Paperclip, Plus } from "lucide-react";
 import {
   Dialog,

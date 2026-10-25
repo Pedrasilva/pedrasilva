@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import i18n from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { encodeWav } from "@/lib/projects/wav-encoder";

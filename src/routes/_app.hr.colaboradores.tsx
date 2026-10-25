@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { PermissionGate } from "@/components/PermissionGate";
 import { NewCollaboratorDialog } from "@/components/NewCollaboratorDialog";
 import {

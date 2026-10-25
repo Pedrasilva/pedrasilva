@@ -18,7 +18,7 @@ import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   Loader2,
   Plus,

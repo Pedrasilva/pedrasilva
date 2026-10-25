@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Repeat } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 
 const COLORS = ["#a78bfa", "#fb7185", "#22d3ee", "#fdba74", "#34d399"];

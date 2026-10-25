@@ -45,7 +45,7 @@ import {
   PROJECT_SUMMARY_ID,
 } from "@/lib/projects/build-project-gantt-tree";
 import type { PaymentMilestone } from "@/components/projects/gantt-chart";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   allocationCost,
   allocationHours,

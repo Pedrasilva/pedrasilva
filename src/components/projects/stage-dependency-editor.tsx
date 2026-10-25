@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link2, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import type { DepType } from "@/lib/projects/dependencies";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";

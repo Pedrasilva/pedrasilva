@@ -1,9 +1,10 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Trans, useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CloudUpload, FolderTree, Loader2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -118,7 +119,7 @@ export function BenefitDriveSyncCard() {
             {t("hr:beneficios.history.loading", { defaultValue: "A carregar…" })}
           </p>
         ) : previewQ.isError ? (
-          <p className="text-sm text-destructive">{(previewQ.error as Error).message}</p>
+          <p className="text-sm text-destructive">{translateError((previewQ.error as Error).message)}</p>
         ) : stats ? (
           <>
             <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">

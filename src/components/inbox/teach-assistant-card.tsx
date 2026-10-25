@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AlertTriangle, Loader2, Sparkles, Wand2 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";

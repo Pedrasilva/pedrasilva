@@ -9,7 +9,7 @@ import { effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Trash2, GripVertical, AlertTriangle, CalendarOff, CalendarDays, Info } from "lucide-react";
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";

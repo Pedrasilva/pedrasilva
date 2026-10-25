@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { Copy, ExternalLink, Search, Trash2, ChevronsUpDown } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {

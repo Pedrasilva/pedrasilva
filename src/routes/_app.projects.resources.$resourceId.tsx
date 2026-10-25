@@ -17,7 +17,7 @@ import {
 } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { ArrowLeft, Trash2, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import type { Resource } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects/resources/$resourceId")({

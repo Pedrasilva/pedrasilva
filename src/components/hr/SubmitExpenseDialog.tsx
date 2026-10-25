@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Camera, Sparkles, AlertTriangle, Loader2, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import {

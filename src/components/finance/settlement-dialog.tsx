@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   useAddFinDocPayment,
   type FinDoc,

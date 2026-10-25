@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   PROJECT_TEAM_ROLES,
   useAddProjectTeamMember,

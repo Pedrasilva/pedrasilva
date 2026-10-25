@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SettlementWorkspace } from "@/components/finance/settlement-workspace";
 import { ArrowLeft, Building2, Trash2, Save, Users, GitBranch, Receipt, Wallet } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { CompanyProjectsTab } from "@/components/crm/company-projects-tab";
 import { PaymentsReceived } from "@/components/finance/recebimentos-panel";

@@ -9,7 +9,7 @@ import uiI18n from "@/i18n/index";
  * the live quote.
  */
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Download, Eye, History, Lock, Pencil } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";

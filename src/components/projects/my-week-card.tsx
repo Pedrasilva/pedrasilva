@@ -9,7 +9,7 @@ import uiI18n from "@/i18n/index";
  */
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AlertTriangle, CheckCircle2, Clock, MessageSquareWarning, RotateCcw, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

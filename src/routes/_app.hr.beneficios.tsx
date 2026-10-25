@@ -55,7 +55,7 @@ import {
   Info,
   Sparkles,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { type Snapshot, type Collaborator } from "@/lib/salary";
 import {
   CATEGORY_LABELS,

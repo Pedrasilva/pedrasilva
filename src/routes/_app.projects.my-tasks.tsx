@@ -31,7 +31,7 @@ import {
   type TaskStatus,
 } from "@/lib/projects/use-tasks";
 import { ArrowRight, Pause, Play, CheckCircle2, Clock, Trash2, Inbox } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 export const Route = createFileRoute("/_app/projects/my-tasks")({
   head: () => ({ meta: [{ title: "My project tasks — PSA Hub" }, { name: "description", content: "My project tasks in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "My project tasks — PSA Hub" }, { property: "og:description", content: "My project tasks in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),

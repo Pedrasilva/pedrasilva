@@ -1,8 +1,9 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Database, Loader2, Play, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -167,7 +168,7 @@ export function FinanceBackfillCard() {
               <ul className="mt-2 space-y-1 text-xs text-rose-700">
                 {lastRun.failures.slice(0, 5).map((f) => (
                   <li key={f.expense_id} className="font-mono truncate">
-                    {f.expense_id}: {f.message}
+                    {f.expense_id}: {translateError(f.message)}
                   </li>
                 ))}
                 {lastRun.failures.length > 5 && (

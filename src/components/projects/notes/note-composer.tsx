@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { transcribeProjectNote, classifyProjectNote, type ClassifyResult } from "@/lib/projects/notes.functions";
 import { useCreateProjectNote, type NoteCategory } from "@/lib/projects/use-project-notes";
 import { encodeWav, blobToBase64 } from "@/lib/projects/wav-encoder";

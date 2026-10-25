@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ArrowLeft, RotateCcw, Trash2, Archive, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/quotes-trash")({

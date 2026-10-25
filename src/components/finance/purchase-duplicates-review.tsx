@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Suspected duplicate purchases: read-only side-by-side review. The only
@@ -8,7 +9,7 @@ import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AlertTriangle, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,7 @@ export function PurchaseDuplicatesReview() {
       {q.isLoading ? (
         <div className="space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-40" />)}</div>
       ) : q.error ? (
-        <p className="text-sm text-destructive">{(q.error as Error).message}</p>
+        <p className="text-sm text-destructive">{translateError((q.error as Error).message)}</p>
       ) : (
         <>
           <div className="flex flex-wrap gap-2 text-sm">

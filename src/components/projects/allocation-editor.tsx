@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2, Lock, FileQuestion } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AllocationRemoveDialog } from "./allocation-remove-dialog";
 import { allocationCost, allocationHours, effortHolidays, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";

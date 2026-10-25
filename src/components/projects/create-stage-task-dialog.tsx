@@ -13,7 +13,7 @@ import i18n from "@/i18n/index";
  * only ever moves the delta.
  */
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AlertTriangle, CalendarDays, Clock, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

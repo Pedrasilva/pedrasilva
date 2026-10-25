@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ProductImage } from "./product-image";
 import { useProductImageUrl, useUploadProductImage } from "@/lib/products/use-products";
 import { isPdfPath } from "@/lib/products/types";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 /** Small upload-or-clear image control used by the product/item forms. */
 export function ImageField({

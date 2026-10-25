@@ -60,7 +60,7 @@ import {
   ALL_WORK_PROFILES,
   type InternalCategoryRow,
 } from "@/lib/projects/use-internal-categories";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Button } from "@/components/ui/button";
 import { NewCollaboratorDialog } from "@/components/NewCollaboratorDialog";
 import { PERMISSION_GROUPS, type PermissionKey } from "@/lib/permissions";

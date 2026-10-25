@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -77,7 +78,7 @@ function Consent() {
       </p>
       {error && (
         <p role="alert" className="text-sm text-destructive">
-          {error}
+          {translateError(error)}
         </p>
       )}
       <div className="flex gap-3">

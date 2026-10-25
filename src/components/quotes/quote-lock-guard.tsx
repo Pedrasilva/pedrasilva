@@ -12,7 +12,7 @@ import uiI18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink, Lock } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   AlertDialog,
   AlertDialogAction,

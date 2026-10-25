@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import { QuoteBuildSettingsDialog } from "@/components/quotes/quote-build-settings-dialog";
 import { InlineEditableTitle } from "@/components/inline-editable-title";

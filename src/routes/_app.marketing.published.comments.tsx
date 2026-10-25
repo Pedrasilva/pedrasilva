@@ -1,10 +1,11 @@
+import { translateError } from '@/lib/translate-error';
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { EyeOff, ExternalLink, RefreshCw, Send, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { V2PermissionGate } from "@/components/PermissionGate";
@@ -142,7 +143,7 @@ function CommentLine({ c, isNew, actions, onToggleHide }: { c: Comment; isNew: b
       </div>
       <p className="whitespace-pre-wrap text-sm">{c.body}</p>
       {log.length > 0 && <ul className="space-y-0.5 text-[11px] text-muted-foreground">{log.map((a) => (
-        <li key={a.id} className={cn("flex items-center gap-1", !a.success && "text-destructive")}>{a.actor_id !== user?.id && names?.[a.actor_id]?.name && <CollaboratorAvatar fotoPath={names[a.actor_id].fotoPath} name={names[a.actor_id].name} size={16} />}<span>{t("comments.historyItem", { action: t(`comments.act.${a.action}`), who: a.actor_id === user?.id ? "✓" : names?.[a.actor_id]?.name ?? a.actor_id.slice(0, 8), when: when(a.created_at) })}{!a.success && ` · ${t("comments.failed")}: ${a.meta_error_message ?? ""}`}</span></li>
+        <li key={a.id} className={cn("flex items-center gap-1", !a.success && "text-destructive")}>{a.actor_id !== user?.id && names?.[a.actor_id]?.name && <CollaboratorAvatar fotoPath={names[a.actor_id].fotoPath} name={names[a.actor_id].name} size={16} />}<span>{t("comments.historyItem", { action: t(`comments.act.${a.action}`), who: a.actor_id === user?.id ? "✓" : names?.[a.actor_id]?.name ?? a.actor_id.slice(0, 8), when: when(a.created_at) })}{!a.success && ` · ${t("comments.failed")}: ${translateError(a.meta_error_message ?? "")}`}</span></li>
       ))}</ul>}
     </div>
   );

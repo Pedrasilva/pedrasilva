@@ -51,7 +51,7 @@ import { useHasPermission } from '@/hooks/use-permissions';
 import { isBilledDocument, billedSign } from '@/lib/finance/provisional-invoicing';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 const STATUS_LIST: FinDocStatus[] = [
   "draft",

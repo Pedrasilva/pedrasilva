@@ -9,7 +9,7 @@ import { BackupInspectorDialog } from "@/components/admin/backup-inspector-dialo
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ExternalLink, RefreshCw, Database, FolderOpen, Loader2, Eye } from "lucide-react";
 import {
   getBackupConfig,

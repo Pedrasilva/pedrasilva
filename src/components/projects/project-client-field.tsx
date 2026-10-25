@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { useUpdateProject } from "@/lib/projects/use-planner";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 export function ProjectClientField({
   projectId,

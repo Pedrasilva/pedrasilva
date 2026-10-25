@@ -40,7 +40,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Send, CheckCircle2, XCircle, ExternalLink, FileSignature } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import type { QuoteStatus } from "@/lib/crm/types";
 
