@@ -1,6 +1,6 @@
 # Translation batch 2 — Projects components and Planner
 
-Checker: **537 → 43** candidates in scoped components. 493 resolved signatures pruned; no baseline additions.
+Checker: **537 → 43** candidates in scoped components. 494 resolved signatures pruned; no baseline additions.
 
 ## Verification
 - `npm run test:i18n`: 9 AST tests, 12-namespace parity and baseline ratchet passed.

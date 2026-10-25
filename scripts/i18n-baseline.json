@@ -534,7 +534,6 @@
     "[\"src/components/products/project-items-table.tsx\",\"confirmation\",\"Remove “ {{value}} ” from this project?\"]": 1,
     "[\"src/components/products/project-items-table.tsx\",\"jsxText\",\"items\"]": 1,
     "[\"src/components/projects/allocation-editor.tsx\",\"jsxExpression\",\"project\"]": 1,
-    "[\"src/components/projects/contract-baseline-card.tsx\",\"jsxExpression\",\"Quote\"]": 1,
     "[\"src/components/projects/contract-diff-card.tsx\",\"jsxExpression\",\"name\"]": 1,
     "[\"src/components/projects/gantt-chart.tsx\",\"jsxExpression\",\"monthDay\"]": 1,
     "[\"src/components/projects/gantt-chart.tsx\",\"jsxExpression\",\"quarterMonth\"]": 1,
