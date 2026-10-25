@@ -32,7 +32,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
 import { useBestTimes } from '@/lib/marketing/use-best-times';
-import { bestSlots, hourlySlot, POSTING_HOURS, timingTone, type TimingFormat } from '@/lib/marketing/best-times';
+import { bestTimes, bestSlots, hourlySlot, POSTING_HOURS, timingTone, type TimingFormat } from '@/lib/marketing/best-times';
 import { TimingLegend, TimingFormatChoice, useTimingLabel } from '@/components/marketing/best-times-map';
 
 export const Route = createFileRoute("/_app/marketing/calendar")({
@@ -367,7 +367,7 @@ function CalendarPage() {
                   <div className={cn('text-[11px] text-muted-foreground',view === 'week' && showTimes && 'h-6 px-1 pt-1')}>{format(parseISO(d), "d", { locale })}</div>
                   {view === 'week' && showTimes ? <div className="relative min-h-[816px]">
                     <div className="absolute inset-0">{POSTING_HOURS.map(h => { const cell=timingCell(d,h); const top=dragKind && topSlots.some(s=>s.weekday===cell?.weekday&&s.hour===h); return <div key={h} data-timing-hour={h} tabIndex={0} title={cell ? timingLabel(cell) : undefined} aria-label={cell ? timingLabel(cell) : undefined} className={cn('h-12 border-t border-border/40', timingTone(cell?.score ?? null), top && 'ring-2 ring-inset ring-primary')} />; })}</div>
-                    <div className="pointer-events-none relative z-10 grid grid-rows-[repeat(17,48px)] px-1 pb-2">{POSTING_HOURS.map(h => <div key={h} className="col-start-1 min-w-0" style={{gridRowStart:h-6}}>{(byDay.get(d) ?? []).filter(r => Math.max(7,Math.min(23,Number(lisbonParts(r.scheduled_at ?? '').time.slice(0,2)))) === h).map(r=><div key={r.id} className="pointer-events-auto relative mb-2"><Item r={r} dayTile /></div>)}</div>)}</div>
+                    <div className="pointer-events-none relative z-10 grid auto-rows-[48px] grid-rows-[repeat(17,48px)] px-1 pb-2">{(() => { let nextRow=1; return (byDay.get(d) ?? []).map(r => { const hour=Number(lisbonParts(r.scheduled_at ?? '').time.slice(0,2)); const start=Math.max(nextRow,Math.max(1,Math.min(17,hour-6))); const span=r.format==='story'?6:5; nextRow=start+span; return <div key={r.id} className="pointer-events-auto relative min-w-0 self-start" style={{gridRow:`${start} / span ${span}`,gridColumn:1}}><Item r={r} dayTile /></div>; }); })()}</div>
                   </div> : (byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact={view === "month"} dayTile={view === "week"} />)}
                 </div>
               ))}

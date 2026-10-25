@@ -1,4 +1,21 @@
 {
+  "bestTimes": {
+    "title": "Best time to post",
+    "show": "Show best times",
+    "feed": "Feed / carousels",
+    "story": "Stories",
+    "best": "Best",
+    "average": "Average",
+    "weak": "Weak",
+    "basedOn": "Based on {{count}} posts",
+    "notEnough": "Not enough data yet ({{count}} posts)",
+    "followers": "follower activity",
+    "period": "last 90 days · Lisbon time",
+    "unsupported": "Follower activity is not supported for this account.",
+    "noActivity": "No recent follower activity available.",
+    "loadError": "Posting-time data could not be loaded.",
+    "cell": "{{day}} {{hour}} · score {{score}} · avg reach {{reach}} · {{count}} posts · engagement {{engagement}}"
+  },
   "clearanceReview": {
     "capture": "Capture",
     "project": "Project",
