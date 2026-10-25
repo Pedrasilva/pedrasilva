@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminOnly } from "@/components/AdminOnly";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,147 +37,147 @@ type AdminGroup = {
 
 const GROUPS: AdminGroup[] = [
   {
-    title: "Definições da empresa",
-    description: "Dados fiscais partilhados entre Finance, OCR e HR.",
+    title: uiI18n.t("common:shell.link.settings.company"),
+    description: uiI18n.t("access:batchFive.labels.taxDetailsSharedByFinanceOcrAnd"),
     links: [
       {
         to: "/admin/company-settings",
-        label: "Definições fiscais da empresa",
+        label: uiI18n.t("access:batchFive.labels.companyTaxSettings"),
         description:
-          "Nome, NIF/VAT e definições de faturação usadas por Finance e pela deteção de fornecedor por OCR.",
+          uiI18n.t("access:batchFive.labels.nameTaxIdVatAndInvoicingSettings"),
         icon: Building2,
       },
       {
         to: "/finance",
-        label: "Fornecedores e clientes (master data)",
+        label: uiI18n.t("access:batchFive.labels.suppliersAndClientsMasterData"),
         description:
-          "Tabela canónica de empresas partilhada por Finance, Projetos, HR e OCR. Abre o separador no Finance.",
+          uiI18n.t("access:batchFive.labels.canonicalCompanyRegisterSharedByFinanceProjects"),
         icon: Users,
       },
     ],
   },
   {
-    title: "Utilizadores e permissões",
+    title: uiI18n.t("access:batchFive.labels.accountsAndPermissions"),
     links: [
       {
         to: "/admin/permissions",
-        label: "Permissões (v2)",
+        label: uiI18n.t("access:batchFive.labels.permissionsV"),
         description:
-          "Perfis base por função e autorizações/revogações individuais por utilizador.",
+          uiI18n.t("access:batchFive.labels.baseRolesAndIndividualGrantsRevocationsPer"),
         icon: Shield,
       },
       {
         to: "/admin/access",
-        label: "Acessos (pré-visualização)",
+        label: uiI18n.t("access:batchFive.labels.accessPreview"),
         description:
-          "Novo catálogo de acessos e níveis-alvo por pessoa. Ainda não está ativo.",
+          uiI18n.t("access:batchFive.labels.newAccessCatalogueAndTargetLevelsPer"),
         icon: Shield,
       },
       {
         to: "/admin/cost-rates",
-        label: "Custos/hora bloqueados",
+        label: uiI18n.t("access:batchFive.labels.lockedHourlyCosts"),
         description:
-          "Períodos de custo por pessoa, preenchimento do histórico e recálculo a partir de uma data.",
+          uiI18n.t("access:batchFive.labels.costPeriodsPerPersonHistoricalBackfillAnd"),
         icon: Shield,
       },
       {
         to: "/hr/admin",
-        label: "Permissões e administração HR",
+        label: uiI18n.t("access:batchFive.labels.permissionsAndHrAdministration"),
         description:
-          "Matriz de permissões, colaboradores pendentes e ferramentas de administração HR.",
+          uiI18n.t("access:batchFive.labels.permissionsMatrixPendingCollaboratorsAndHrAdministration"),
         icon: Shield,
       },
     ],
   },
   {
-    title: "Configuração HR",
+    title: uiI18n.t("access:batchFive.labels.hrSettings"),
     links: [
       {
         to: "/admin/calendar",
-        label: "Calendário do atelier",
-        description: "Feriados, fecho do atelier (férias obrigatórias) e replaneamento de projetos ativos.",
+        label: uiI18n.t("access:batchFive.labels.studioCalendar"),
+        description: uiI18n.t("access:batchFive.labels.publicHolidaysStudioClosuresMandatoryVacationAnd"),
         icon: CalendarCheck,
       },
       {
         to: "/hr/dias-uteis",
-        label: "Dias úteis",
-        description: "Calendário de dias úteis e feriados usado pelo cálculo salarial.",
+        label: uiI18n.t("common:shell.link.settings.workingDays"),
+        description: uiI18n.t("access:batchFive.labels.workingDayAndPublicHolidayCalendarUsed"),
         icon: CalendarCheck,
       },
       {
         to: "/hr/valor-bo",
-        label: "Valor BO/hora",
-        description: "Valor Backoffice por hora usado em alocações internas.",
+        label: uiI18n.t("common:shell.link.settings.boValue"),
+        description: uiI18n.t("access:batchFive.labels.hourlyBackofficeValueUsedInInternalAllocations"),
         icon: Calculator,
       },
       {
         to: "/hr/subsidio-alimentacao",
-        label: "Subsídio de alimentação",
-        description: "Tabela e regras do subsídio de alimentação.",
+        label: uiI18n.t("common:shell.link.settings.mealAllowance"),
+        description: uiI18n.t("access:batchFive.labels.mealAllowanceTableAndRules"),
         icon: Utensils,
       },
       {
         to: "/hr/beneficios",
-        label: "Benefícios",
-        description: "Configuração e administração de recibos de benefícios HR.",
+        label: uiI18n.t("glossary:hr.benefits"),
+        description: uiI18n.t("access:batchFive.labels.hrBenefitsReceiptSettingsAndAdministration"),
         icon: Wallet,
       },
     ],
   },
   {
-    title: "Catálogos comerciais",
-    description: "Listas partilhadas pelas fichas de colaborador e pelo Quote Builder.",
+    title: uiI18n.t("access:batchFive.labels.commercialCatalogues"),
+    description: uiI18n.t("access:batchFive.labels.listsSharedByCollaboratorSheetsAndQuote"),
     links: [
       {
         to: "/admin/proposal-roles",
-        label: "Títulos / Funções comerciais",
+        label: uiI18n.t("access:batchFive.labels.commercialTitlesRoles"),
         description:
-          "Junior Architect, Architect, Senior Architect, Partner, Project Lead… Catálogo usado nas fichas e nas propostas. Horas e valor de venda no Quote Builder são apresentados por título.",
+          uiI18n.t("access:batchFive.labels.juniorArchitectArchitectSeniorArchitectPartnerProject"),
         icon: Users,
       },
       {
         to: "/admin/proposal-images",
-        label: "Biblioteca de imagens (Propostas)",
+        label: uiI18n.t("access:batchFive.labels.imageLibraryProposals"),
         description:
-          "Imagens partilhadas do atelier usadas no PSA Proposal Composer para preencher espaços em branco no PDF (1/4, 1/3, 1/2, 2/3 ou página inteira).",
+          uiI18n.t("access:batchFive.labels.sharedStudioImagesUsedInPsaProposal"),
         icon: Upload,
       },
     ],
   },
   {
 
-    title: "Ferramentas de sistema",
+    title: uiI18n.t("access:batchFive.labels.systemTools"),
     links: [
       {
         to: "/admin/imports",
-        label: "Importações",
-        description: "Importação de dados, sincronização Drive e backfills.",
+        label: uiI18n.t("common:admin.imports.title"),
+        description: uiI18n.t("access:batchFive.labels.dataImportsDriveSynchronizationAndBackfills"),
         icon: Upload,
       },
       {
         to: "/admin/backups",
-        label: "Backups (Google Drive)",
+        label: uiI18n.t("access:batchFive.labels.backupsGoogleDrive"),
         description:
-          "Cópias de segurança automáticas (diárias e semanais) e manuais de toda a base de dados, com auditoria e ligação ao ficheiro no Google Drive.",
+          uiI18n.t("access:batchFive.labels.automaticDailyAndWeeklyBackupsAndManual"),
         icon: Database,
       },
       {
         to: "/admin/quotes-trash",
-        label: "Papelera de orçamentos",
+        label: uiI18n.t("access:batchFive.labels.quoteRecovery"),
         description:
-          "Restaurar orçamentos eliminados ou arquivados. Os eliminados ficam com snapshot completo no audit log e são recuperáveis num clique.",
+          uiI18n.t("access:batchFive.labels.restoreDeletedOrArchivedQuotesDeletedQuotes"),
         icon: Trash2,
       },
       {
         to: "/admin/projects",
-        label: "Projetos (admin)",
-        description: "Ferramentas administrativas e de integridade para projetos.",
+        label: uiI18n.t("access:batchFive.labels.projectsAdmin"),
+        description: uiI18n.t("access:batchFive.labels.projectAdministrationAndIntegrityTools"),
         icon: FolderKanban,
       },
       {
         to: "/hr",
-        label: "Colaboradores",
-        description: "Gestão de colaboradores da equipa.",
+        label: uiI18n.t("common:shell.link.hr.collaborators"),
+        description: uiI18n.t("access:batchFive.labels.teamCollaboratorManagement"),
         icon: Users,
       },
     ],
@@ -183,16 +185,15 @@ const GROUPS: AdminGroup[] = [
 ];
 
 function AdminHubPage() {
+  useTranslation();
   return (
     <AdminOnly>
       <div className="mx-auto max-w-6xl space-y-8 p-6">
         <div className="space-y-1">
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Settings className="h-6 w-6" /> Administração
-          </h1>
+            <Settings className="h-6 w-6" />  {uiI18n.t("common:administration")} </h1>
           <p className="text-sm text-muted-foreground">
-            Ponto único de acesso a configurações da empresa, HR, Finance, permissões e ferramentas de sistema.
-          </p>
+             {uiI18n.t("access:batchFive.labels.companyHrFinancePermissionAndSystemSettings")} </p>
         </div>
 
         {GROUPS.map((group) => (
@@ -228,8 +229,7 @@ function AdminHubPage() {
                       </CardHeader>
                       <CardContent className="pt-0">
                         <span className="text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                          Abrir →
-                        </span>
+                           {uiI18n.t("access:batchFive.labels.open")} </span>
                       </CardContent>
                     </Card>
                   </Link>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 
@@ -12,6 +14,7 @@ import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
  * Purely presentational — every figure comes from `computeSnapshot`.
  */
 export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
+  useTranslation();
   const c = computeSnapshot(draft);
 
   const brutoTributavelMensal = c.baseMensalTributavel;
@@ -26,55 +29,51 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-base">Simulação salarial</CardTitle>
+        <CardTitle className="text-base"> {uiI18n.t("hr:snapshot.labels.payrollSimulation")} </CardTitle>
         <p className="text-[11px] text-muted-foreground">
-          Vista comparável a um simulador público: o que o colaborador recebe
-          por mês e quanto custa ao atelier, incluindo contribuições patronais.
-        </p>
+           {uiI18n.t("hr:snapshot.labels.monthlyCollaboratorTakeHomePayAndStudio")} </p>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <section className="space-y-1">
-          <Heading>Colaborador (mensal)</Heading>
-          <Line label="Vencimento bruto tributável" value={brutoTributavelMensal} />
+          <Heading> {uiI18n.t("hr:snapshot.labels.collaboratorMonthly")} </Heading>
+          <Line label={uiI18n.t("hr:snapshot.labels.grossTaxableSalary")} value={brutoTributavelMensal} />
           <Line
-            label={`Segurança Social (${(draft.ss_colaborador_pct * 100).toFixed(2)}%)`}
+            label={uiI18n.t("hr:snapshot.labels.socialSecurity")}
             value={-c.ssColaboradorMensal}
             muted
           />
           <Line
-            label={`Retenção IRS (${(draft.irs_pct * 100).toFixed(2)}%)`}
+            label={uiI18n.t("hr:snapshot.labels.irsWithholding")}
             value={-c.irsMensal}
             muted
           />
-          <Total label="Vencimento líquido" value={liquidoMensal} />
+          <Total label={uiI18n.t("hr:snapshot.labels.netSalary")} value={liquidoMensal} />
           <div className="pt-2" />
-          <Line label="Subsídio de alimentação" value={c.alimentacaoMensal} muted />
-          <Line label="Ajudas de custo" value={c.ajudasMensal} muted />
-          <Line label="Passe / transporte" value={c.passeMensal} muted />
-          <Line label="Benefícios garantidos" value={c.beneficiosMensalGarantido} muted />
-          <Total label="Total recebido por mês" value={recebeMensal} tone="sage" />
+          <Line label={uiI18n.t("common:shell.link.settings.mealAllowance")} value={c.alimentacaoMensal} muted />
+          <Line label={uiI18n.t("hr:compensationLiquidity.breakdown.perDiem")} value={c.ajudasMensal} muted />
+          <Line label={uiI18n.t("hr:snapshot.bruto.composition.slices.transitPass")} value={c.passeMensal} muted />
+          <Line label={uiI18n.t("hr:snapshot.labels.guaranteedBenefits")} value={c.beneficiosMensalGarantido} muted />
+          <Total label={uiI18n.t("hr:snapshot.labels.totalReceivedPerMonth")} value={recebeMensal} tone="sage" />
           <p className="pt-1 text-[11px] text-muted-foreground">
-            Isenções e benefícios pagos além do salário: {fmtEUR(isencoesMensal)}/mês.
-          </p>
+             {uiI18n.t("hr:snapshot.labels.exemptAllowancesAndBenefitsPaidOnTop")} {fmtEUR(isencoesMensal)} {uiI18n.t("hr:snapshot.labels.month")} </p>
         </section>
 
         <section className="space-y-1">
-          <Heading>Atelier (custo)</Heading>
-          <Line label="Remuneração base anual (14 meses)" value={c.baseAnual} />
+          <Heading> {uiI18n.t("hr:snapshot.labels.studioCost")} </Heading>
+          <Line label={uiI18n.t("hr:snapshot.labels.annualBasePayMonths")} value={c.baseAnual} />
           <Line
-            label={`Contribuição patronal TSU (${(draft.ss_atelier_pct * 100).toFixed(2)}%)`}
+            label={uiI18n.t("hr:snapshot.labels.employerSocialSecurityContribution")}
             value={c.ssAtelierAnual}
           />
-          <Line label="Subsídio de alimentação (ano)" value={c.alimentacaoAnual} muted />
-          <Line label="Ajudas de custo + passe (ano)" value={c.ajudasMensal * 12 + c.passeAnual} muted />
-          <Line label="Benefícios (ano)" value={c.beneficiosAnual} muted />
-          <Total label="Custo total anual" value={c.custoVBG} tone="clay" />
-          <Total label="Custo médio mensal" value={custoMensal} tone="clay" />
+          <Line label={uiI18n.t("hr:snapshot.labels.mealAllowanceAnnual")} value={c.alimentacaoAnual} muted />
+          <Line label={uiI18n.t("hr:snapshot.labels.expenseAllowancesAndTransitPassAnnual")} value={c.ajudasMensal * 12 + c.passeAnual} muted />
+          <Line label={uiI18n.t("hr:snapshot.labels.benefitsAnnual")} value={c.beneficiosAnual} muted />
+          <Total label={uiI18n.t("hr:snapshot.labels.totalAnnualCost")} value={c.custoVBG} tone="clay" />
+          <Total label={uiI18n.t("hr:snapshot.labels.averageMonthlyCost")} value={custoMensal} tone="clay" />
           <p className="pt-1 text-[11px] text-muted-foreground">
-            Encargo adicional sobre o que o colaborador recebe:{" "}
-            {fmtEUR(encargoMensal)}/mês ({fmtEUR(encargoMensal * 12)}/ano), dos
-            quais {fmtEUR(c.ssAtelierAnual / 12)}/mês de Segurança Social patronal.
-          </p>
+             {uiI18n.t("hr:snapshot.labels.additionalCostAboveWhatTheCollaboratorReceives")} {" "}
+            {fmtEUR(encargoMensal)} {uiI18n.t("hr:snapshot.labels.month")} {fmtEUR(encargoMensal * 12)}/ano), dos
+            quais {fmtEUR(c.ssAtelierAnual / 12)} {uiI18n.t("hr:snapshot.labels.monthInEmployerSocialSecurity")} </p>
         </section>
       </CardContent>
     </Card>
@@ -82,6 +81,7 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
 }
 
 function Heading({ children }: { children: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
       {children}
@@ -98,6 +98,7 @@ function Line({
   value: number;
   muted?: boolean;
 }) {
+  useTranslation();
   if (Math.round(value * 100) === 0) return null;
   return (
     <div className="flex items-baseline justify-between gap-4 text-sm">
@@ -116,6 +117,7 @@ function Total({
   value: number;
   tone?: "sage" | "clay";
 }) {
+  useTranslation();
   const toneCls =
     tone === "sage"
       ? "border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_10%,transparent)]"

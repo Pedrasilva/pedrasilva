@@ -109,7 +109,8 @@
       "architect": "Arquitecto",
       "hr": "HR",
       "finance": "Financeiro"
-    }
+    },
+    "scopesLabel": "Âmbito"
   },
   "crm": {
     "company": "Empresa",

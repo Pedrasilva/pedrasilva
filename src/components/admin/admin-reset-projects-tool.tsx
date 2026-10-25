@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Admin-only reset tool for project test data.
  *
@@ -142,7 +143,7 @@ export function AdminResetProjectsTool() {
                         c > 0 ? "text-destructive font-medium" : "text-muted-foreground"
                       }`}
                     >
-                      {counts.isLoading ? "…" : c < 0 ? "?" : c.toLocaleString()}
+                      {counts.isLoading ? "…" : c < 0 ? "?" : c.toLocaleString(uiI18n.language)}
                     </td>
                   </tr>
                 );
@@ -152,7 +153,7 @@ export function AdminResetProjectsTool() {
               <tr className="border-t bg-muted/20">
                 <td className="px-3 py-2 font-medium">{t("admin.projectReset.total")}</td>
                 <td className="px-3 py-2 text-right tabular-nums font-medium">
-                  {total.toLocaleString()}
+                  {total.toLocaleString(uiI18n.language)}
                 </td>
               </tr>
             </tfoot>

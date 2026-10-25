@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -22,6 +24,7 @@ import { SalarySimulatorHero } from "./SalarySimulatorHero";
 type Setter = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) => void;
 
 export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) {
+  useTranslation();
   const c = computeSnapshot(draft);
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -29,13 +32,13 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
       <PayrollSimulationCard draft={draft} />
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Base contractual</CardTitle>
+          <CardTitle className="text-base"> {uiI18n.t("hr:resumo.rhTable.headers.contractualBase")} </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Valor base mensal">
+          <FieldRow label={uiI18n.t("hr:myProfile.details.fields.valor_base")}>
             <NumIn value={draft.valor_base} onChange={(n) => set("valor_base", n)} />
           </FieldRow>
-          <FieldRow label="Subsídios férias e Natal">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.holidayAndChristmasAllowances")}>
             <Select
               value={draft.subsidios_modo ?? "tradicional"}
               onValueChange={(v) => {
@@ -46,7 +49,7 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
               }}
             >
               <SelectTrigger className="input-yellow h-9 text-left">
-                <SelectValue placeholder="Selecionar regime" />
+                <SelectValue placeholder={uiI18n.t("hr:snapshot.labels.selectAllowancePaymentMethod")} />
               </SelectTrigger>
               <SelectContent>
                 {SUBSIDIOS_MODO_OPTIONS.map((opt) => (
@@ -60,37 +63,37 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
               </SelectContent>
             </Select>
           </FieldRow>
-          <FieldRow label="SS atelier (%)">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.studioSocialSecurity")}>
             <NumIn value={draft.ss_atelier_pct * 100} step={0.01} suffix="%"
               onChange={(n) => set("ss_atelier_pct", n / 100)} />
           </FieldRow>
-          <FieldRow label="SS colaborador (%)">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.collaboratorSocialSecurity")}>
             <NumIn value={draft.ss_colaborador_pct * 100} step={0.01} suffix="%"
               onChange={(n) => set("ss_colaborador_pct", n / 100)} />
           </FieldRow>
           {draft.irs_calculado_auto ? (
-            <FieldRow label="IRS automático (%)">
+            <FieldRow label={uiI18n.t("hr:snapshot.labels.automaticIrs")}>
               <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
                 {(draft.irs_pct * 100).toFixed(2)}%
               </div>
             </FieldRow>
           ) : (
-            <FieldRow label="IRS manual (%)">
+            <FieldRow label={uiI18n.t("hr:snapshot.labels.manualIrs")}>
               <NumIn value={draft.irs_pct * 100} step={0.1} suffix="%"
                 onChange={(n) => set("irs_pct", n / 100)} />
             </FieldRow>
           )}
-          <CalcRow label="Bruto anual base" value={fmtEUR(c.baseAnual)} />
-          <CalcRow label="SS atelier anual" value={fmtEUR(c.ssAtelierAnual)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.annualBaseGrossSalary")} value={fmtEUR(c.baseAnual)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.annualStudioSocialSecurity")} value={fmtEUR(c.ssAtelierAnual)} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Subsídio alimentação</CardTitle>
+          <CardTitle className="text-base"> {uiI18n.t("hr:compensationLiquidity.breakdown.mealAllowance")} </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Definir manualmente">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.setManually")}>
             <div className="flex h-9 items-center justify-end gap-2">
               <Switch
                 checked={draft.subsidio_alimentacao_manual}
@@ -104,12 +107,12 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
                 }}
               />
               <span className="text-[11px] text-muted-foreground">
-                {draft.subsidio_alimentacao_manual ? "Valor manual" : "Tabela anual"}
+                {draft.subsidio_alimentacao_manual ? uiI18n.t("hr:snapshot.labels.manualAmount") : uiI18n.t("hr:snapshot.labels.annualTable")}
               </span>
             </div>
           </FieldRow>
           {draft.subsidio_alimentacao_manual ? (
-            <FieldRow label="Valor diário (manual)">
+            <FieldRow label={uiI18n.t("hr:snapshot.labels.dailyAmountManual")}>
               <NumIn
                 value={draft.subsidio_alimentacao_diario_manual}
                 step={0.01}
@@ -117,75 +120,73 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
               />
             </FieldRow>
           ) : (
-            <FieldRow label="Valor diário (tabela)">
+            <FieldRow label={uiI18n.t("hr:snapshot.labels.dailyAmountTable")}>
               <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
                 {fmtEUR(draft.subsidio_alimentacao_diario)}
               </div>
             </FieldRow>
           )}
-          <FieldRow label="Dias úteis (ano)">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.workingDaysAnnual")}>
             <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
               {draft.dias_uteis}
             </div>
           </FieldRow>
-          <CalcRow label="Total anual" value={fmtEUR(c.alimentacaoAnual)} />
-          <CalcRow label="Média mensal" value={fmtEUR(c.alimentacaoMensal)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.annualTotal")} value={fmtEUR(c.alimentacaoAnual)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.monthlyAverage")} value={fmtEUR(c.alimentacaoMensal)} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Ajudas de custo</CardTitle>
+          <CardTitle className="text-base"> {uiI18n.t("hr:compensationLiquidity.breakdown.perDiem")} </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Valor mensal">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.monthlyAmount")}>
             <NumIn value={Math.round(((draft.ajudas_custo_anual ?? 0) / 12) * 100) / 100}
               onChange={(n) => set("ajudas_custo_anual", Math.round((n || 0) * 12 * 100) / 100)} />
           </FieldRow>
-          <CalcRow label="Total anual" value={fmtEUR(draft.ajudas_custo_anual ?? 0)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.annualTotal")} value={fmtEUR(draft.ajudas_custo_anual ?? 0)} />
           <div className="border-t pt-3" />
-          <FieldRow label="Passe / Transporte público (mensal)">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.transitPassPublicTransportMonthly")}>
             <NumIn value={Math.round(((draft.passe_anual ?? 0) / 12) * 100) / 100}
               onChange={(n) => set("passe_anual", Math.round((n || 0) * 12 * 100) / 100)} />
           </FieldRow>
-          <CalcRow label="Passe — total anual" value={fmtEUR(draft.passe_anual ?? 0)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.transitPassAnnualTotal")} value={fmtEUR(draft.passe_anual ?? 0)} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Benefícios</CardTitle>
+          <CardTitle className="text-base"> {uiI18n.t("glossary:hr.benefits")} </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Apoio carro">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.carBenefit")}>
             <NumIn value={draft.beneficio_carro} onChange={(n) => set("beneficio_carro", n)} />
           </FieldRow>
-          <FieldRow label="Ticket">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.voucherBenefit")}>
             <NumIn value={draft.beneficio_ticket} onChange={(n) => set("beneficio_ticket", n)} />
           </FieldRow>
-          <FieldRow label="Prémio de associado">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.associateBonus")}>
             <NumIn value={draft.premio_associado} onChange={(n) => set("premio_associado", n)} />
           </FieldRow>
-          <FieldRow label="Outros">
+          <FieldRow label={uiI18n.t("common:other")}>
             <NumIn value={draft.outros_beneficios} onChange={(n) => set("outros_beneficios", n)} />
           </FieldRow>
-          <FieldRow label="Plano de reforma (anual) — sujeito a IRS">
+          <FieldRow label={uiI18n.t("hr:snapshot.labels.retirementPlanAnnualSubjectToIrs")}>
             <NumIn value={draft.plano_reforma ?? 0} onChange={(n) => set("plano_reforma", n)} />
           </FieldRow>
-          <CalcRow label="Total garantido (anual)" value={fmtEUR(c.beneficiosAnualGarantido)} />
+          <CalcRow label={uiI18n.t("hr:snapshot.labels.guaranteedTotalAnnual")} value={fmtEUR(c.beneficiosAnualGarantido)} />
 
           <div className="mt-2 rounded-md border border-dashed border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--cream)_50%,transparent)] p-3 space-y-3">
             <div className="space-y-0.5">
-              <div className="text-sm font-medium">Bónus anual (potencial)</div>
+              <div className="text-sm font-medium"> {uiI18n.t("hr:snapshot.labels.annualBonusPotential")} </div>
               <div className="text-[11px] text-muted-foreground">
-                Valor variável, não garantido — pago apenas conforme os resultados do ano.
-                Está incluído no custo total para fins de planeamento (cenário máximo).
-              </div>
+                 {uiI18n.t("hr:snapshot.labels.variableNonGuaranteedAmountPaidOnlyAccording")} </div>
             </div>
-            <FieldRow label="Bónus variável (anual)">
+            <FieldRow label={uiI18n.t("hr:snapshot.labels.variableBonusAnnual")}>
               <NumIn value={draft.beneficio_variavel ?? 0} onChange={(n) => set("beneficio_variavel", n)} />
             </FieldRow>
-            <CalcRow label="Total com bónus (anual)" value={fmtEUR(c.beneficiosAnual)} />
+            <CalcRow label={uiI18n.t("hr:snapshot.labels.totalWithBonusAnnual")} value={fmtEUR(c.beneficiosAnual)} />
           </div>
         </CardContent>
       </Card>

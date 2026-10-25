@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -68,6 +70,7 @@ const EMPTY = {
 };
 
 export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
+  useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
@@ -125,7 +128,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
       return data;
     },
     onSuccess: (c) => {
-      toast.success("Colaborador criado");
+      toast.success(uiI18n.t("hr:landing.newDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["collaborators"] });
       qc.invalidateQueries({ queryKey: ["collaborators-picker"] });
       qc.invalidateQueries({ queryKey: ["admin-users"] });
@@ -141,23 +144,19 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="h-4 w-4" /> Novo colaborador
-          </Button>
+            <Plus className="h-4 w-4" />  {uiI18n.t("hr:landing.newButton")} </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Novo colaborador</DialogTitle>
+          <DialogTitle> {uiI18n.t("hr:landing.newButton")} </DialogTitle>
           <DialogDescription>
-            Preencha os dados base. O email deve corresponder ao usado para
-            criar conta — assim que o colaborador fizer login, fica ligado à
-            ficha automaticamente.
-          </DialogDescription>
+             {uiI18n.t("hr:batchFive.labels.enterTheBasicDetailsTheEmailMust")} </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_260px]">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Nome *</Label>
+            <Label> {uiI18n.t("common:nameRequiredLabel")} </Label>
             <Input
               className="input-yellow"
               value={form.nome}
@@ -167,11 +166,11 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             />
           </div>
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Email</Label>
+            <Label> {uiI18n.t("common:email")} </Label>
             <Input
               type="email"
               className="input-yellow"
-              placeholder="nome@psa.pt"
+              placeholder={uiI18n.t("hr:batchFive.labels.namePsaPt")}
               value={form.email}
               onChange={(e) =>
                 setForm((f) => ({ ...f, email: e.target.value }))
@@ -179,7 +178,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Nº colaborador</Label>
+            <Label> {uiI18n.t("hr:landing.newDialog.number")} </Label>
             <Input
               className="input-yellow"
               value={form.numero_colaborador}
@@ -189,7 +188,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Departamento *</Label>
+            <Label> {uiI18n.t("hr:landing.newDialog.department")} </Label>
             <Select
               value={form.departamento}
               onValueChange={(v) =>
@@ -203,13 +202,13 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Projecto">Equipa Projecto</SelectItem>
-                <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
+                <SelectItem value="Projecto"> {uiI18n.t("hr:landing.departments.project")} </SelectItem>
+                <SelectItem value="Backoffice"> {uiI18n.t("hr:landing.departments.backoffice")} </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Situação contractual</Label>
+            <Label> {uiI18n.t("hr:landing.newDialog.contractStatus")} </Label>
             <Input
               className="input-yellow"
               value={form.situacao_contractual}
@@ -219,7 +218,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Início de carreira</Label>
+            <Label> {uiI18n.t("hr:landing.newDialog.careerStart")} </Label>
             <Input
               type="date"
               className="input-yellow"
@@ -230,7 +229,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Data de nascimento</Label>
+            <Label> {uiI18n.t("hr:landing.newDialog.birthDate")} </Label>
             <Input
               type="date"
               className="input-yellow"
@@ -245,20 +244,20 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
           <aside className="rounded-lg border bg-muted/30 p-3">
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-              Já registados ({existing.length})
+               {uiI18n.t("hr:batchFive.labels.alreadyRegistered")} {existing.length})
             </div>
             <div className="relative mb-2">
               <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                placeholder="Filtrar…"
+                placeholder={uiI18n.t("common:filterPlaceholder")}
                 className="h-8 pl-7 text-xs"
               />
             </div>
             {duplicateEmail && (
               <div className="mb-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
-                Já existe ficha com este email:{" "}
+                 {uiI18n.t("hr:batchFive.labels.aSheetAlreadyExistsForThisEmail")} {" "}
                 <strong>{duplicateEmail.nome}</strong>
               </div>
             )}
@@ -266,8 +265,8 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
               {filtered.length === 0 ? (
                 <div className="py-6 text-center text-xs text-muted-foreground">
                   {existing.length === 0
-                    ? "Sem colaboradores."
-                    : "Nenhum resultado."}
+                    ? uiI18n.t("hr:landing.table.noMembers")
+                    : uiI18n.t("common:noResults")}
                 </div>
               ) : (
                 <ul className="space-y-1">
@@ -282,7 +281,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
                           variant="secondary"
                           className="shrink-0 text-[10px]"
                         >
-                          {c.departamento === "Backoffice" ? "BO" : "Proj"}
+                          {c.departamento === "Backoffice" ? uiI18n.t("common:backoffice") : uiI18n.t("common:projectTeam")}
                         </Badge>
                       </div>
                       {(c.email || c.numero_colaborador) && (
@@ -290,7 +289,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
                           {c.numero_colaborador && (
                             <>#{c.numero_colaborador} · </>
                           )}
-                          {c.email ?? "sem email"}
+                          {c.email ?? uiI18n.t("hr:batchFive.labels.noEmail")}
                         </div>
                       )}
                     </li>
@@ -302,14 +301,12 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>
-            Cancelar
-          </Button>
+             {uiI18n.t("common:cancel")} </Button>
           <Button
             onClick={() => create.mutate()}
             disabled={create.isPending || !form.nome.trim()}
           >
-            Criar
-          </Button>
+             {uiI18n.t("common:create")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

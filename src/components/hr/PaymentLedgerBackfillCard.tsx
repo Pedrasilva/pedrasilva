@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ type RunResult = {
 
 function fmtEUR(v: number | string | null | undefined): string {
   const n = typeof v === "string" ? Number(v) : (v ?? 0);
-  return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+  return new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 }
 
 export function PaymentLedgerBackfillCard() {

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -110,7 +111,7 @@ function CompanySettingsPage() {
                   <Input
                     value={companyNif}
                     onChange={(e) => setCompanyNif(e.target.value)}
-                    placeholder="9 dígitos"
+                    placeholder={uiI18n.t("hr:beneficios.submit.supplier.nifPlaceholder")}
                     inputMode="numeric"
                   />
                   {companyNif && !nifValid && (

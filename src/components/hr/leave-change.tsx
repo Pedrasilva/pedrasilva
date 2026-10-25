@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Leave change requests (staff, on own approved requests) and direct edits
  * by leave approvers. All writes go through SECURITY DEFINER database
@@ -421,7 +422,7 @@ export function LeaveHistoryButton({ requestId }: { requestId: string }) {
                 <li key={h.id} className="rounded-md border p-2">
                   <div className="font-medium">{t(`leaveChange.action.${h.action}`, { defaultValue: h.action })}</div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(h.created_at).toLocaleString()} · {h.actor_name || "—"}
+                    {new Date(h.created_at).toLocaleString(uiI18n.language)} · {h.actor_name || "—"}
                   </div>
                   {h.reason && <div className="text-xs">“{h.reason}”</div>}
                 </li>
@@ -435,6 +436,7 @@ export function LeaveHistoryButton({ requestId }: { requestId: string }) {
 }
 
 export function EditIcon() {
+  useTranslation();
   return <Pencil className="h-3 w-3" />;
 }
 

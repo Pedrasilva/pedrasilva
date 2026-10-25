@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -493,6 +494,7 @@ function Kpi({
   value: string;
   highlight?: boolean;
 }) {
+  useTranslation();
   return (
     <Card className={highlight ? "border-primary" : ""}>
       <CardHeader className="pb-2">
@@ -621,6 +623,7 @@ function CompositionView({
   fmtPct: (n: number) => string;
   t: (k: string, opts?: Record<string, unknown>) => string;
 }) {
+  useTranslation();
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
@@ -951,7 +954,7 @@ function RhTable({
                   {isV("ssEmployer") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_atelier_pct)}</TableCell>}
                   {isV("ssEmployee") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_colaborador_pct)}</TableCell>}
                   {isV("irsPct") && <TableCell className="text-right tabular-nums">{pct(ref?.irs_pct)}</TableCell>}
-                  {isV("mealAllowance") && <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + "/dia" : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>}
+                  {isV("mealAllowance") && <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + uiI18n.t("hr:batchFive.labels.day") : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>}
                   {isV("perDiem") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.ajudasMensal) : "—"}</TableCell>}
                   {isV("transportPass") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.passe_anual) : "—"}</TableCell>}
                   {isV("netMonthly") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.liquidoTotalMensal) : "—"}</TableCell>}
@@ -1256,6 +1259,7 @@ function SortHead<K extends string>({
   align?: "left" | "right";
   bold?: boolean;
 }) {
+  useTranslation();
   const active = sortKey === k;
   const Icon = !active ? ArrowUpDown : dir === "asc" ? ArrowUp : ArrowDown;
   return (

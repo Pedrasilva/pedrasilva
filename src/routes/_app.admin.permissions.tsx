@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
@@ -90,22 +91,20 @@ const SCOPE_LABEL: Record<PermissionScope, string> = {
 };
 
 function AdminPermissionsPage() {
+  useTranslation();
   return (
     <AdminOnly>
       <div className="space-y-6 p-6">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold">
-            <ShieldCheck className="h-6 w-6" /> Permissões (v2)
-          </h1>
+            <ShieldCheck className="h-6 w-6" />  {uiI18n.t("access:batchFive.labels.permissionsV")} </h1>
           <p className="text-sm text-muted-foreground">
-            Perfis base por função, com autorizações e revogações individuais por
-            utilizador. Efetivo = base do perfil ∪ autorizações − revogações.
-          </p>
+             {uiI18n.t("access:batchFive.labels.baseRolesWithIndividualGrantsAndRevocations")} </p>
         </div>
         <Tabs defaultValue="users">
           <TabsList>
-            <TabsTrigger value="users">Por utilizador</TabsTrigger>
-            <TabsTrigger value="roles">Perfis base</TabsTrigger>
+            <TabsTrigger value="users"> {uiI18n.t("access:batchFive.labels.byAccount")} </TabsTrigger>
+            <TabsTrigger value="roles"> {uiI18n.t("access:batchFive.labels.baseRoles")} </TabsTrigger>
           </TabsList>
           <TabsContent value="users" className="mt-4">
             <UsersTab />
@@ -182,7 +181,7 @@ function UsersTab() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Permissão atualizada");
+      toast.success(uiI18n.t("access:batchFive.labels.permissionUpdated"));
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
     },
@@ -195,7 +194,7 @@ function UsersTab() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Exceção removida");
+      toast.success(uiI18n.t("access:batchFive.labels.exceptionRemoved"));
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
     },
@@ -244,10 +243,10 @@ function UsersTab() {
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Utilizadores</CardTitle>
-          <CardDescription>{users.length} contas</CardDescription>
+          <CardTitle className="text-base"> {uiI18n.t("common:users")} </CardTitle>
+          <CardDescription>{users.length}  {uiI18n.t("access:batchFive.labels.accounts")} </CardDescription>
           <Input
-            placeholder="Procurar…"
+            placeholder={uiI18n.t("common:searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mt-2"
@@ -255,7 +254,7 @@ function UsersTab() {
         </CardHeader>
         <CardContent className="max-h-[70vh] space-y-1 overflow-y-auto p-2">
           {usersQuery.isLoading && (
-            <p className="p-2 text-sm text-muted-foreground">A carregar…</p>
+            <p className="p-2 text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </p>
           )}
           {filtered.map((u) => (
             <button
@@ -269,14 +268,14 @@ function UsersTab() {
                 {u.collaborator_nome ?? u.email ?? u.user_id}
               </div>
               <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-                {u.is_admin && <Badge variant="destructive">Admin</Badge>}
+                {u.is_admin && <Badge variant="destructive"> {uiI18n.t("glossary:permissions.roles.admin")} </Badge>}
                 {(u.assigned_roles ?? []).map((r) => (
                   <Badge key={r} variant="secondary">
                     {ROLE_LABEL[r] ?? r}
                   </Badge>
                 ))}
                 {!u.is_admin && (u.assigned_roles ?? []).length === 0 && (
-                  <span>Sem perfil</span>
+                  <span> {uiI18n.t("access:batchFive.labels.noRole")} </span>
                 )}
               </div>
             </button>
@@ -288,8 +287,7 @@ function UsersTab() {
         {!user && (
           <Card>
             <CardContent className="p-6 text-sm text-muted-foreground">
-              Selecione um utilizador para rever as permissões efetivas.
-            </CardContent>
+               {uiI18n.t("access:batchFive.labels.selectAnAccountToReviewEffectivePermissions")} </CardContent>
           </Card>
         )}
 
@@ -303,19 +301,18 @@ function UsersTab() {
                 <CardDescription>
                   {user.email} ·{" "}
                   {user.is_admin
-                    ? "Admin — passa todas as verificações"
+                    ? uiI18n.t("access:batchFive.labels.administratorPassesAllChecks")
                     : (user.assigned_roles ?? []).map((r) => ROLE_LABEL[r] ?? r).join(", ") ||
-                      "Sem perfil atribuído"}
+                      uiI18n.t("access:batchFive.labels.noRoleAssigned")}
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Adicionar exceção</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.addException")} </CardTitle>
                 <CardDescription>
-                  Autorização adicional ou revogação sobre o perfil base.
-                </CardDescription>
+                   {uiI18n.t("access:batchFive.labels.additionalGrantOrRevocationOverTheBase")} </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap items-end gap-2">
                 <div className="min-w-[280px] flex-1">
@@ -329,7 +326,7 @@ function UsersTab() {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Permissão…" />
+                      <SelectValue placeholder={uiI18n.t("access:batchFive.labels.permission")} />
                     </SelectTrigger>
                     <SelectContent>
                       {MODULES.map((m) => (
@@ -368,8 +365,7 @@ function UsersTab() {
                     upsert.mutate({ key: newKey, scope: newScope, granted: true })
                   }
                 >
-                  <Plus className="mr-1 h-4 w-4" /> Autorizar
-                </Button>
+                  <Plus className="mr-1 h-4 w-4" />  {uiI18n.t("access:batchFive.labels.grant")} </Button>
                 <Button
                   variant="outline"
                   disabled={!newKey || upsert.isPending}
@@ -377,27 +373,25 @@ function UsersTab() {
                     upsert.mutate({ key: newKey, scope: newScope, granted: false })
                   }
                 >
-                  <Minus className="mr-1 h-4 w-4" /> Revogar
-                </Button>
+                  <Minus className="mr-1 h-4 w-4" />  {uiI18n.t("access:batchFive.labels.revoke")} </Button>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Exceções individuais</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.individualExceptions")} </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 {overrides.length === 0 ? (
                   <p className="p-4 text-sm text-muted-foreground">
-                    Sem exceções — o utilizador tem apenas o perfil base.
-                  </p>
+                     {uiI18n.t("access:batchFive.labels.noExceptionsTheAccountOnlyHasThe")} </p>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Permissão</TableHead>
-                        <TableHead>Âmbito</TableHead>
-                        <TableHead>Tipo</TableHead>
+                        <TableHead> {uiI18n.t("common:permission")} </TableHead>
+                        <TableHead> {uiI18n.t("glossary:permissions.scopesLabel")} </TableHead>
+                        <TableHead> {uiI18n.t("common:type")} </TableHead>
                         <TableHead className="w-16" />
                       </TableRow>
                     </TableHeader>
@@ -410,7 +404,7 @@ function UsersTab() {
                               <div className="font-medium">{o.permission_key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : def?.label ?? o.permission_key}</div>
                               <div className="text-xs text-muted-foreground">
                                 {o.permission_key}
-                                {!def && " · legado"}
+                                {!def && uiI18n.t("access:batchFive.labels.legacy")}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -419,12 +413,10 @@ function UsersTab() {
                             <TableCell>
                               {o.granted ? (
                                 <Badge variant="secondary">
-                                  <Check className="mr-1 h-3 w-3" /> Autorizado
-                                </Badge>
+                                  <Check className="mr-1 h-3 w-3" />  {uiI18n.t("access:batchFive.labels.granted")} </Badge>
                               ) : (
                                 <Badge variant="destructive">
-                                  <X className="mr-1 h-3 w-3" /> Revogado
-                                </Badge>
+                                  <X className="mr-1 h-3 w-3" />  {uiI18n.t("access:batchFive.labels.revoked")} </Badge>
                               )}
                             </TableCell>
                             <TableCell>
@@ -433,8 +425,7 @@ function UsersTab() {
                                 variant="ghost"
                                 onClick={() => remove.mutate(o.id)}
                               >
-                                Remover
-                              </Button>
+                                 {uiI18n.t("common:remove")} </Button>
                             </TableCell>
                           </TableRow>
                         );
@@ -447,20 +438,20 @@ function UsersTab() {
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Permissões efetivas</CardTitle>
+                <CardTitle className="text-base"> {uiI18n.t("access:batchFive.labels.effectivePermissions")} </CardTitle>
                 <CardDescription>
                   {user.is_admin
-                    ? "Admin — acesso total, independentemente da lista abaixo."
-                    : "Resultado do perfil base com as exceções aplicadas."}
+                    ? uiI18n.t("access:batchFive.labels.administratorFullAccessRegardlessOfTheList")
+                    : uiI18n.t("access:batchFive.labels.baseRoleWithIndividualExceptionsApplied")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Permissão</TableHead>
-                      <TableHead>Âmbito</TableHead>
-                      <TableHead>Origem</TableHead>
+                      <TableHead> {uiI18n.t("common:permission")} </TableHead>
+                      <TableHead> {uiI18n.t("glossary:permissions.scopesLabel")} </TableHead>
+                      <TableHead> {uiI18n.t("hr:myProfile.details.fields.source")} </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -477,7 +468,7 @@ function UsersTab() {
                           </TableCell>
                           <TableCell>
                             <Badge variant={e.source === "role" ? "outline" : "secondary"}>
-                              {e.source === "role" ? "Perfil" : "Exceção"}
+                              {e.source === "role" ? uiI18n.t("common:role") : uiI18n.t("access:batchFive.labels.exception")}
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -486,8 +477,7 @@ function UsersTab() {
                     {effective.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={3} className="text-sm text-muted-foreground">
-                          Sem permissões efetivas.
-                        </TableCell>
+                           {uiI18n.t("access:batchFive.labels.noEffectivePermissions")} </TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -521,11 +511,10 @@ function RolesTab() {
             <CardContent className="space-y-1">
               {role === "admin" && (
                 <p className="text-sm text-muted-foreground">
-                  Acesso total — não depende desta tabela.
-                </p>
+                   {uiI18n.t("access:batchFive.labels.fullAccessIndependentOfThisTable")} </p>
               )}
               {perms.length === 0 && role !== "admin" && (
-                <p className="text-sm text-muted-foreground">Sem permissões base.</p>
+                <p className="text-sm text-muted-foreground"> {uiI18n.t("access:batchFive.labels.noBasePermissions")} </p>
               )}
               {perms.map((p) => {
                 const def = PERMISSION_BY_KEY.get(p.permission_key as V2PermissionKey);

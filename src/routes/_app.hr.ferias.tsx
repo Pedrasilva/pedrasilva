@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -97,17 +98,17 @@ type AbsenceType =
   | "baixa_medica";
 
 const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descontaFerias: boolean }[] = [
-  { value: "ferias", label: "Férias", paga: true, descontaFerias: true },
-  { value: "casamento", label: "Casamento (15 dias, paga)", paga: true, descontaFerias: false },
-  { value: "falecimento_familiar", label: "Falecimento de familiar (paga)", paga: true, descontaFerias: false },
-  { value: "assistencia_filho", label: "Assistência a filho (paga até limite legal)", paga: true, descontaFerias: false },
-  { value: "nascimento_filho", label: "Nascimento de filho / licença parental (paga)", paga: true, descontaFerias: false },
-  { value: "trabalhador_estudante", label: "Trabalhador-estudante (paga até limite)", paga: true, descontaFerias: false },
-  { value: "doacao_sangue", label: "Dádiva de sangue (paga)", paga: true, descontaFerias: false },
-  { value: "autorizada_paga", label: "Outra ausência autorizada — paga", paga: true, descontaFerias: false },
-  { value: "autorizada_nao_paga", label: "Outra ausência autorizada — não paga", paga: false, descontaFerias: false },
-  { value: "consulta_medica", label: "Consulta médica — não paga", paga: false, descontaFerias: false },
-  { value: "baixa_medica", label: "Baixa médica — não paga", paga: false, descontaFerias: false },
+  { value: "ferias", label: uiI18n.t("glossary:hr.vacation"), paga: true, descontaFerias: true },
+  { value: "casamento", label: uiI18n.t("hr:batchFive.labels.marriageLeaveDaysPaid"), paga: true, descontaFerias: false },
+  { value: "falecimento_familiar", label: uiI18n.t("hr:batchFive.labels.familyBereavementLeavePaid"), paga: true, descontaFerias: false },
+  { value: "assistencia_filho", label: uiI18n.t("hr:batchFive.labels.childCareLeavePaidUpToThe"), paga: true, descontaFerias: false },
+  { value: "nascimento_filho", label: uiI18n.t("hr:batchFive.labels.birthParentalLeavePaid"), paga: true, descontaFerias: false },
+  { value: "trabalhador_estudante", label: uiI18n.t("hr:batchFive.labels.studentWorkerLeavePaidUpToThe"), paga: true, descontaFerias: false },
+  { value: "doacao_sangue", label: uiI18n.t("hr:batchFive.labels.bloodDonationLeavePaid"), paga: true, descontaFerias: false },
+  { value: "autorizada_paga", label: uiI18n.t("hr:batchFive.labels.otherAuthorizedAbsencePaid"), paga: true, descontaFerias: false },
+  { value: "autorizada_nao_paga", label: uiI18n.t("hr:batchFive.labels.otherAuthorizedAbsenceUnpaid"), paga: false, descontaFerias: false },
+  { value: "consulta_medica", label: uiI18n.t("hr:approvalInbox.types.consulta_medica"), paga: false, descontaFerias: false },
+  { value: "baixa_medica", label: uiI18n.t("hr:availability.types.baixa_medica"), paga: false, descontaFerias: false },
 ];
 
 const absenceLabel = (t: AbsenceType) => ABSENCE_TYPES.find((x) => x.value === t)?.label ?? t;
@@ -129,7 +130,7 @@ type VacationRequest = {
 
 async function openLeaveAttachment(path: string) {
   const { data, error } = await supabase.storage.from("leave-attachments").createSignedUrl(path, 300);
-  if (error || !data) return toast.error(error?.message ?? "Erro");
+  if (error || !data) return toast.error(error?.message ?? uiI18n.t("common:error"));
   window.open(data.signedUrl, "_blank", "noopener");
 }
 
@@ -262,13 +263,13 @@ function FeriasPage() {
   const createReq = useMutation({
     mutationFn: async () => {
       const collab_id = isAdminRole && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
-      if (!collab_id) throw new Error("Sem colaborador associado à sua conta");
-      if (!newReq.data_inicio) throw new Error("Indique a data");
+      if (!collab_id) throw new Error(uiI18n.t("hr:batchFive.labels.noCollaboratorLinkedToYourAccount"));
+      if (!newReq.data_inicio) throw new Error(uiI18n.t("hr:batchFive.labels.enterTheDate"));
       // Para período parcial (meio-dia ou horas) usamos um único dia.
       const isFullDay = newReq.periodo === "dia_inteiro";
       const dataFim = isFullDay ? (newReq.data_fim || newReq.data_inicio) : newReq.data_inicio;
-      if (isFullDay && !newReq.data_fim) throw new Error("Indique as datas");
-      if (dias <= 0) throw new Error("Período inválido");
+      if (isFullDay && !newReq.data_fim) throw new Error(uiI18n.t("hr:batchFive.labels.enterTheDates"));
+      if (dias <= 0) throw new Error(uiI18n.t("hr:batchFive.labels.invalidPeriod"));
       const horasNum =
         newReq.periodo === "horas"
           ? parseFloat(newReq.horas)
@@ -302,7 +303,7 @@ function FeriasPage() {
       }
     },
     onSuccess: () => {
-      toast.success("Pedido criado");
+      toast.success(uiI18n.t("hr:batchFive.labels.requestCreated"));
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       qc.invalidateQueries({ queryKey: ["leave-balances"] });
       qc.invalidateQueries({ queryKey: ["availability"] });
@@ -327,7 +328,7 @@ function FeriasPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Pedido eliminado");
+      toast.success(uiI18n.t("hr:batchFive.labels.requestDeleted"));
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       qc.invalidateQueries({ queryKey: ["leave-balances"] });
       qc.invalidateQueries({ queryKey: ["availability"] });
@@ -362,39 +363,34 @@ function FeriasPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <CalendarDays className="h-6 w-6" /> Mapa de Férias e Ausências
-          </h1>
+            <CalendarDays className="h-6 w-6" />  {uiI18n.t("hr:batchFive.labels.vacationAndAbsenceCalendar")} </h1>
           <p className="text-sm text-muted-foreground">
             {isAdmin
-              ? "Aprove ou rejeite pedidos de férias e outras ausências da equipa."
-              : "Consulte o saldo de férias e marque férias ou outras ausências autorizadas."}
+              ? uiI18n.t("hr:batchFive.labels.approveOrRejectTheTeamSVacation")
+              : uiI18n.t("hr:batchFive.labels.checkYourVacationBalanceAndRequestVacation")}
           </p>
         </div>
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
           <DialogTrigger asChild>
             <Button size="sm" disabled={!isAdminRole && !myCollab}>
-              <Plus className="h-4 w-4" /> Novo pedido
-            </Button>
+              <Plus className="h-4 w-4" />  {uiI18n.t("hr:remoteWork.newRequest")} </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Marcação de ausência</DialogTitle>
+              <DialogTitle> {uiI18n.t("hr:batchFive.labels.requestAbsence")} </DialogTitle>
               <DialogDescription>
-                Indique o tipo de ausência e o período. O número de dias úteis (seg–sex) é
-                calculado automaticamente. Apenas pedidos do tipo <em>Férias</em> descontam do
-                saldo anual.
-              </DialogDescription>
+                 {uiI18n.t("hr:batchFive.labels.chooseTheAbsenceTypeAndPeriodWorking")} <em> {uiI18n.t("glossary:hr.vacation")} </em>  {uiI18n.t("hr:batchFive.labels.areDeductedFromTheAnnualBalance")} </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {isAdminRole && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-xs text-muted-foreground">Colaborador</Label>
+                  <Label className="text-xs text-muted-foreground"> {uiI18n.t("glossary:hr.employee")} </Label>
                   <Select
                     value={newReq.collaborator_id}
                     onValueChange={(v) => setNewReq((f) => ({ ...f, collaborator_id: v }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar colaborador…" />
+                      <SelectValue placeholder={uiI18n.t("hr:batchFive.labels.selectCollaborator")} />
                     </SelectTrigger>
                     <SelectContent>
                       {collaborators.map((c) => (
@@ -407,7 +403,7 @@ function FeriasPage() {
                 </div>
               )}
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Tipo de ausência</Label>
+                <Label className="text-xs text-muted-foreground"> {uiI18n.t("hr:batchFive.labels.absenceType")} </Label>
                 <Select
                   value={newReq.tipo}
                   onValueChange={(v) => setNewReq((f) => ({ ...f, tipo: v as AbsenceType }))}
@@ -425,7 +421,7 @@ function FeriasPage() {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Duração</Label>
+                <Label className="text-xs text-muted-foreground"> {uiI18n.t("hr:leaveChange.duration")} </Label>
                 <Select
                   value={newReq.periodo}
                   onValueChange={(v) =>
@@ -441,16 +437,16 @@ function FeriasPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dia_inteiro">Dia(s) inteiro(s)</SelectItem>
-                    <SelectItem value="manha">Meio-dia — manhã (4h)</SelectItem>
-                    <SelectItem value="tarde">Meio-dia — tarde (4h)</SelectItem>
-                    <SelectItem value="horas">Algumas horas…</SelectItem>
+                    <SelectItem value="dia_inteiro"> {uiI18n.t("hr:batchFive.labels.fullDayS")} </SelectItem>
+                    <SelectItem value="manha"> {uiI18n.t("hr:batchFive.labels.halfDayMorningHours")} </SelectItem>
+                    <SelectItem value="tarde"> {uiI18n.t("hr:batchFive.labels.halfDayAfternoonHours")} </SelectItem>
+                    <SelectItem value="horas"> {uiI18n.t("hr:batchFive.labels.someHours")} </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs text-muted-foreground">
-                  {newReq.periodo === "dia_inteiro" ? "Período" : "Dia"}
+                  {newReq.periodo === "dia_inteiro" ? uiI18n.t("hr:remoteWork.period") : uiI18n.t("common:day")}
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -466,7 +462,7 @@ function FeriasPage() {
                         newReq.data_inicio ? (
                           format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })
                         ) : (
-                          <span>Seleccionar dia…</span>
+                          <span> {uiI18n.t("hr:batchFive.labels.selectDay")} </span>
                         )
                       ) : newReq.data_inicio && newReq.data_fim ? (
                         <>
@@ -477,10 +473,10 @@ function FeriasPage() {
                       ) : newReq.data_inicio ? (
                         <>
                           {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
-                          {" → escolher fim…"}
+                          {uiI18n.t("hr:batchFive.labels.chooseEndDate")}
                         </>
                       ) : (
-                        <span>Seleccionar datas…</span>
+                        <span> {uiI18n.t("hr:batchFive.labels.selectDates")} </span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -535,31 +531,29 @@ function FeriasPage() {
                     )}
                     <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
                       <span className="mr-1 inline-block h-2 w-2 rounded-full bg-destructive align-middle" />
-                      Feriados (não contam como dias úteis)
-                    </div>
+                       {uiI18n.t("hr:batchFive.labels.publicHolidaysExcludedFromWorkingDays")} </div>
                   </PopoverContent>
                 </Popover>
               </div>
               {newReq.periodo === "horas" && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-xs text-muted-foreground">Horas</Label>
+                  <Label className="text-xs text-muted-foreground"> {uiI18n.t("common:hours")} </Label>
                   <Input
                     type="number"
                     inputMode="decimal"
                     min={0.5}
                     max={8}
                     step={0.5}
-                    placeholder="ex.: 2"
+                    placeholder={uiI18n.t("hr:batchFive.labels.eG")}
                     value={newReq.horas}
                     onChange={(e) => setNewReq((f) => ({ ...f, horas: e.target.value }))}
                   />
                   <p className="text-[11px] text-muted-foreground">
-                    Indique o número de horas autorizadas (até 8h por dia).
-                  </p>
+                     {uiI18n.t("hr:batchFive.labels.enterTheAuthorizedHoursUpToHours")} </p>
                 </div>
               )}
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Notas (opcional)</Label>
+                <Label className="text-xs text-muted-foreground"> {uiI18n.t("common:notesOptional")} </Label>
                 <Textarea
                   rows={2}
                   value={newReq.notas}
@@ -585,18 +579,16 @@ function FeriasPage() {
                 <div>
                   {newReq.periodo === "horas" ? (
                     <>
-                      Horas: <span className="font-semibold">{newReq.horas || 0}</span>
+                       {uiI18n.t("hr:batchFive.labels.hours")} <span className="font-semibold">{newReq.horas || 0}</span>
                       <span className="ml-2 text-xs text-muted-foreground">
-                        (= {dias} dia(s) úteis)
-                      </span>
+                        (= {dias}  {uiI18n.t("hr:batchFive.labels.workingDayS")} </span>
                     </>
                   ) : (
                     <>
-                      Dias úteis: <span className="font-semibold">{dias}</span>
+                       {uiI18n.t("hr:batchFive.labels.workingDays")} <span className="font-semibold">{dias}</span>
                       {feriadosNoPeriodo.length > 0 && (
                         <span className="ml-2 text-xs text-muted-foreground">
-                          ({feriadosNoPeriodo.length} feriado(s) excluído(s))
-                        </span>
+                          ({feriadosNoPeriodo.length}  {uiI18n.t("hr:batchFive.labels.publicHolidaySExcluded")} </span>
                       )}
                     </>
                   )}
@@ -617,11 +609,9 @@ function FeriasPage() {
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setNewOpen(false)}>
-                Cancelar
-              </Button>
+                 {uiI18n.t("common:cancel")} </Button>
               <Button onClick={() => createReq.mutate()} disabled={createReq.isPending}>
-                Submeter pedido
-              </Button>
+                 {uiI18n.t("hr:batchFive.labels.submitRequest")} </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -630,9 +620,7 @@ function FeriasPage() {
       {!myCollab && !isAdmin && (
         <Card>
           <CardContent className="py-6 text-sm text-muted-foreground">
-            A sua conta Google ({user?.email}) ainda não está associada a nenhum colaborador.
-            Peça a um administrador para definir o seu email no perfil de colaborador.
-          </CardContent>
+             {uiI18n.t("hr:batchFive.labels.yourGoogleAccount")} {user?.email} {uiI18n.t("hr:batchFive.labels.isNotLinkedToACollaboratorYet")} </CardContent>
         </Card>
       )}
 
@@ -641,7 +629,7 @@ function FeriasPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Saldo de férias — {focusCollab.nome} · {currentYear}
+               {uiI18n.t("hr:batchFive.labels.vacationBalance")} {focusCollab.nome} · {currentYear}
             </CardTitle>
             <CardDescription>
               {t("leaveOpening.balanceSub")}
@@ -650,10 +638,10 @@ function FeriasPage() {
           <CardContent>
             {isAdmin && adminScope === "colaborador" && (
               <div className="mb-4 max-w-sm">
-                <Label className="text-xs text-muted-foreground">Ver saldo de…</Label>
+                <Label className="text-xs text-muted-foreground"> {uiI18n.t("hr:batchFive.labels.viewBalanceFor")} </Label>
                 <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
                   <SelectTrigger>
-                    <SelectValue placeholder={myCollab?.nome ?? "Seleccionar…"} />
+                    <SelectValue placeholder={myCollab?.nome ?? uiI18n.t("hr:collaborator.placeholders.selectOption")} />
                   </SelectTrigger>
                   <SelectContent>
                     {collaborators.map((c) => (
@@ -683,13 +671,13 @@ function FeriasPage() {
           <CardTitle className="text-base">
             {isAdmin
               ? adminScope === "meus"
-                ? "Os meus pedidos"
+                ? uiI18n.t("hr:remoteWork.myRequests")
                 : adminScope === "colaborador"
                   ? selectedCollabId
-                    ? `Pedidos de ${collabName(selectedCollabId)}`
-                    : "Seleccione um colaborador"
-                  : `Calendário anual da equipa · ${calendarYear}`
-              : "Os meus pedidos"}
+                    ? uiI18n.t("hr:batchFive.labels.requestsFor")
+                    : uiI18n.t("hr:batchFive.labels.selectACollaborator")
+                  : uiI18n.t("hr:batchFive.labels.annualTeamCalendar")
+              : uiI18n.t("hr:remoteWork.myRequests")}
           </CardTitle>
           {isAdmin && (
             <div className="inline-flex rounded-md border p-0.5 text-xs">
@@ -703,8 +691,7 @@ function FeriasPage() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Só os meus
-              </button>
+                 {uiI18n.t("hr:batchFive.labels.onlyMine")} </button>
               <button
                 type="button"
                 onClick={() => setAdminScope("colaborador")}
@@ -715,8 +702,7 @@ function FeriasPage() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Por colaborador
-              </button>
+                 {uiI18n.t("hr:remoteWork.comparisonTitle")} </button>
               <button
                 type="button"
                 onClick={() => setAdminScope("calendario")}
@@ -727,18 +713,17 @@ function FeriasPage() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Calendário anual
-              </button>
+                 {uiI18n.t("hr:batchFive.labels.annualCalendar")} </button>
             </div>
           )}
         </CardHeader>
         <CardContent>
           {isAdmin && adminScope === "colaborador" && !selectedCollabId && (
             <div className="mb-4 max-w-sm">
-              <Label className="text-xs text-muted-foreground">Colaborador</Label>
+              <Label className="text-xs text-muted-foreground"> {uiI18n.t("glossary:hr.employee")} </Label>
               <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar colaborador…" />
+                  <SelectValue placeholder={uiI18n.t("hr:batchFive.labels.selectCollaborator")} />
                 </SelectTrigger>
                 <SelectContent>
                   {collaborators.map((c) => (
@@ -764,20 +749,20 @@ function FeriasPage() {
               onOpenPerson={(id) => { setSelectedCollabId(id); setAdminScope("colaborador"); }}
             />
           ) : isLoading ? (
-            <div className="text-sm text-muted-foreground">A carregar…</div>
+            <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
           ) : visibleRequests.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Sem pedidos.</div>
+            <div className="text-sm text-muted-foreground"> {uiI18n.t("hr:batchFive.labels.noRequests")} </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Início</TableHead>
-                  <TableHead>Fim</TableHead>
-                  <TableHead className="text-right">Dias</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Notas</TableHead>
-                  <TableHead className="text-right">Acções</TableHead>
+                  <TableHead> {uiI18n.t("common:type")} </TableHead>
+                  <TableHead> {uiI18n.t("common:home")} </TableHead>
+                  <TableHead> {uiI18n.t("common:admin.imports.stages.cols.end")} </TableHead>
+                  <TableHead className="text-right"> {uiI18n.t("common:days")} </TableHead>
+                  <TableHead> {uiI18n.t("common:status")} </TableHead>
+                  <TableHead> {uiI18n.t("common:notes")} </TableHead>
+                  <TableHead className="text-right"> {uiI18n.t("common:actions")} </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -880,6 +865,7 @@ function FeriasPage() {
 }
 
 function Stat({ label, value, highlight, sub }: { label: string; value: number | string; highlight?: boolean; sub?: string }) {
+  useTranslation();
   return (
     <div className={`rounded-md border p-3 ${highlight ? "bg-primary/5 border-primary/30" : ""}`}>
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
@@ -890,6 +876,7 @@ function Stat({ label, value, highlight, sub }: { label: string; value: number |
 }
 
 function EstadoBadge({ estado }: { estado: VacationRequest["estado"] }) {
+  useTranslation();
   const styles = {
     pendente: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
     aprovada: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",

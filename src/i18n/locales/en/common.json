@@ -40,7 +40,7 @@
   "account": "Account",
   "menu": "Menu",
   "settings": "Settings",
-  "configuration": "Configuration",
+  "configuration": "Settings",
   "navigation": "Navigation",
   "signedInAs": "Signed in as",
   "today": "Today",
@@ -711,5 +711,15 @@
   "itemsCount_other": "{{count}} items",
   "undo": "Undo",
   "companies": "Companies",
-  "projects": "Projects"
+  "projects": "Projects",
+  "rows": "Rows",
+  "table": "Table",
+  "tables": "Tables",
+  "googleDrive": "Google Drive",
+  "parameters": "Parameters",
+  "permission": "Permission",
+  "simulation": "Simulation",
+  "projectTeam": "Project team",
+  "backoffice": "Backoffice",
+  "awaitingInvitation": "Awaiting invitation"
 }

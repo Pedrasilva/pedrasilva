@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_app/hr/")({
 const fmtEUR = (n: number | null | undefined) =>
   n === null || n === undefined
     ? null
-    : new Intl.NumberFormat("pt-PT", {
+    : new Intl.NumberFormat(uiI18n.language, {
         style: "currency",
         currency: "EUR",
         maximumFractionDigits: 0,

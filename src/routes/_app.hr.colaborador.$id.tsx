@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { CollaboratorAssetsCard } from "@/components/inventory/collaborator-assets-card";
 import { HoursBankPanel } from "@/components/hr/hours-bank-panel";
@@ -949,16 +950,14 @@ function CollaboratorPage() {
                     </span>
                     {s.archived_at ? (
                       <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                        Arquivada
-                      </span>
+                         {uiI18n.t("hr:batchFive.labels.archived")} </span>
                     ) : s.is_effective ? (
                       <span className="rounded-full bg-positive/15 px-1.5 py-0.5 text-[10px] font-semibold text-positive">
                         {t("hr:myProfile.inForce")}
                       </span>
                     ) : s.effective_to ? (
                       <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                        Desactualizada
-                      </span>
+                         {uiI18n.t("hr:batchFive.labels.outdated")} </span>
                     ) : null}
                   </TabsTrigger>
                 ))}
@@ -974,7 +973,7 @@ function CollaboratorPage() {
                       checked={showArchived}
                       onCheckedChange={setShowArchived}
                     />
-                    Mostrar arquivadas ({archivedCount})
+                     {uiI18n.t("hr:batchFive.labels.showArchived")} {archivedCount})
                   </label>
                 )}
               </div>
@@ -1128,6 +1127,7 @@ function CollaboratorPage() {
 
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  useTranslation();
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
@@ -1271,6 +1271,7 @@ function ReadOnlyStat({
   hint?: string;
   muted?: boolean;
 }) {
+  useTranslation();
   return (
     <div className="rounded-lg border bg-muted/30 p-3">
       <div className="text-[11px] text-muted-foreground">{label}</div>

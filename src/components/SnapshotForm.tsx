@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -205,7 +206,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Ficha eliminada");
+      toast.success(uiI18n.t("hr:snapshot.labels.sheetDeleted"));
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
     },
@@ -228,7 +229,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Ficha marcada como em vigor");
+      toast.success(uiI18n.t("hr:snapshot.labels.sheetMarkedAsEffective"));
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       setInForceOpen(false);
@@ -267,7 +268,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(snapshot.archived_at ? "Ficha restaurada" : "Ficha arquivada");
+      toast.success(snapshot.archived_at ? uiI18n.t("hr:snapshot.labels.sheetRestored") : uiI18n.t("hr:snapshot.labels.sheetArchived"));
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
     },
@@ -283,11 +284,11 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       <Card className="sticky top-2 z-20 border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_60%,var(--background))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_oklab,var(--cream)_45%,var(--background))]">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 flex-1">
-            <FieldStacked label="Etiqueta">
+            <FieldStacked label={uiI18n.t("hr:collaborator.newDialog.label")}>
               <Input className="input-yellow" value={draft.label}
                 onChange={(e) => set("label", e.target.value)} />
             </FieldStacked>
-            <FieldStacked label="Data de referência">
+            <FieldStacked label={uiI18n.t("hr:leaveOpening.reference")}>
               <Input type="date" className="input-yellow" value={draft.reference_date}
                 onChange={(e) => set("reference_date", e.target.value)} />
             </FieldStacked>
@@ -305,24 +306,22 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 {t("snapshot.form.projectCostEffectiveFromHint")}
               </div>
             </FieldStacked>
-            <FieldStacked label="Estado">
+            <FieldStacked label={uiI18n.t("common:status")}>
               <div className="flex h-9 items-center">
                 {snapshot.archived_at ? (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    Arquivada
-                  </span>
+                     {uiI18n.t("hr:snapshot.labels.archived")} </span>
                 ) : snapshot.is_effective ? (
                   <span className="rounded-full bg-positive/15 px-2 py-0.5 text-xs font-semibold text-positive">
-                    Em vigor desde {snapshot.effective_from}
+                     {uiI18n.t("hr:myProfile.details.fields.effective_from")} {snapshot.effective_from}
                   </span>
                 ) : snapshot.effective_to ? (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    Desactualizada · até {snapshot.effective_to}
+                     {uiI18n.t("hr:snapshot.labels.outdatedUntil")} {snapshot.effective_to}
                   </span>
                 ) : (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    Proposta / histórico
-                  </span>
+                     {uiI18n.t("hr:snapshot.labels.proposalHistory")} </span>
                 )}
               </div>
             </FieldStacked>
@@ -354,21 +353,20 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                   variant="outline"
                   size="sm"
                   disabled={!!snapshot.archived_at}
-                  title={snapshot.archived_at ? "Restaura a ficha antes de a marcar em vigor" : undefined}
+                  title={snapshot.archived_at ? uiI18n.t("hr:snapshot.labels.restoreTheSheetBeforeMarkingItAs") : undefined}
                 >
                   <BadgeCheck className="h-4 w-4" />
-                  {snapshot.is_effective ? "Alterar data em vigor" : "Marcar em vigor"}
+                  {snapshot.is_effective ? uiI18n.t("hr:snapshot.labels.changeEffectiveDate") : uiI18n.t("hr:snapshot.labels.markAsEffective")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Marcar ficha como em vigor</DialogTitle>
+                  <DialogTitle> {uiI18n.t("hr:snapshot.labels.markSheetAsEffective")} </DialogTitle>
                   <DialogDescription>
-                    A ficha actualmente em vigor (se existir) será marcada como desactualizada na véspera desta data.
-                  </DialogDescription>
+                     {uiI18n.t("hr:snapshot.labels.theCurrentEffectiveSheetIfAnyWill")} </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2 py-2">
-                  <Label className="text-xs text-muted-foreground">Em vigor a partir de</Label>
+                  <Label className="text-xs text-muted-foreground"> {uiI18n.t("hr:snapshot.labels.effectiveFrom")} </Label>
                   <Input
                     type="date"
                     className="input-yellow"
@@ -377,13 +375,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                   />
                 </div>
                 <DialogFooter>
-                  <Button variant="ghost" onClick={() => setInForceOpen(false)}>Cancelar</Button>
+                  <Button variant="ghost" onClick={() => setInForceOpen(false)}> {uiI18n.t("common:cancel")} </Button>
                   <Button
                     onClick={() => setInForce.mutate(inForceFrom)}
                     disabled={!inForceFrom || setInForce.isPending}
                   >
-                    Confirmar
-                  </Button>
+                     {uiI18n.t("common:confirm")} </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -394,10 +391,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               disabled={toggleArchive.isPending}
               title={
                 snapshot.archived_at
-                  ? "Restaurar ficha"
+                  ? uiI18n.t("hr:snapshot.labels.restoreSheet")
                   : snapshot.is_effective
-                    ? "Arquivar ficha (será desmarcada como em vigor)"
-                    : "Arquivar ficha"
+                    ? uiI18n.t("hr:snapshot.labels.archiveSheetItWillNoLongerBe")
+                    : uiI18n.t("hr:snapshot.labels.archiveSheet")
               }
             >
               {snapshot.archived_at ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
@@ -408,12 +405,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Eliminar esta ficha?</AlertDialogTitle>
-                  <AlertDialogDescription>Esta acção é irreversível.</AlertDialogDescription>
+                  <AlertDialogTitle> {uiI18n.t("hr:snapshot.labels.deleteThisSheet")} </AlertDialogTitle>
+                  <AlertDialogDescription> {uiI18n.t("hr:snapshot.labels.thisActionIsIrreversible")} </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => remove.mutate()}>Eliminar</AlertDialogAction>
+                  <AlertDialogCancel> {uiI18n.t("common:cancel")} </AlertDialogCancel>
+                  <AlertDialogAction onClick={() => remove.mutate()}> {uiI18n.t("common:delete")} </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -438,10 +435,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 />
                 <Layers className="h-4 w-4 text-muted-foreground" />
                 <div className="space-y-0.5">
-                  <div className="text-sm font-medium">Cadeia de valor, agregado familiar e IRS</div>
+                  <div className="text-sm font-medium"> {uiI18n.t("hr:snapshot.labels.valueChainHouseholdAndIrs")} </div>
                   <div className="text-[11px] text-muted-foreground">
-                    Resumo da distribuição do custo, contexto fiscal trancado nesta ficha e cálculo automático de IRS.
-                  </div>
+                     {uiI18n.t("hr:snapshot.labels.costDistributionTaxContextLockedInThis")} </div>
                 </div>
               </button>
             </CardHeader>
@@ -456,10 +452,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                     <div className="flex items-center gap-2">
                       <Lock className="h-4 w-4 text-[var(--clay)]" />
                       <div>
-                        <div className="text-sm font-medium">Agregado familiar (trancado nesta ficha)</div>
+                        <div className="text-sm font-medium"> {uiI18n.t("hr:snapshot.labels.householdLockedInThisSheet")} </div>
                         <div className="text-[11px] text-muted-foreground">
-                          Estes valores são guardados no histórico desta ficha e só mudam aqui.
-                        </div>
+                           {uiI18n.t("hr:snapshot.labels.theseValuesAreStoredInThisSheet")} </div>
                       </div>
                     </div>
                     <Button
@@ -475,11 +470,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         set("ano_fiscal", collaborator.ano_fiscal);
                       }}
                     >
-                      <Copy className="h-3.5 w-3.5" /> Copiar do colaborador
-                    </Button>
+                      <Copy className="h-3.5 w-3.5" />  {uiI18n.t("hr:snapshot.labels.copyFromCollaborator")} </Button>
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                    <FieldStacked label="Localização">
+                    <FieldStacked label={uiI18n.t("common:location")}>
                       <Select value={draft.localizacao} onValueChange={(v) => set("localizacao", v)}>
                         <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -489,7 +483,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         </SelectContent>
                       </Select>
                     </FieldStacked>
-                    <FieldStacked label="Estado civil">
+                    <FieldStacked label={uiI18n.t("hr:myProfile.details.fields.estado_civil")}>
                       <Select value={draft.estado_civil} onValueChange={(v) => set("estado_civil", v)}>
                         <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -499,7 +493,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         </SelectContent>
                       </Select>
                     </FieldStacked>
-                    <FieldStacked label="Nº titulares">
+                    <FieldStacked label={uiI18n.t("hr:myProfile.details.fields.numero_titulares")}>
                       <Input
                         type="number" min={1} max={2}
                         className="input-yellow tabular-nums"
@@ -507,7 +501,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         onChange={(e) => set("numero_titulares", Number(e.target.value) || 1)}
                       />
                     </FieldStacked>
-                    <FieldStacked label="Nº dependentes">
+                    <FieldStacked label={uiI18n.t("hr:myProfile.details.fields.numero_dependentes")}>
                       <Input
                         type="number" min={0}
                         className="input-yellow tabular-nums"
@@ -515,7 +509,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         onChange={(e) => set("numero_dependentes", Number(e.target.value) || 0)}
                       />
                     </FieldStacked>
-                    <FieldStacked label="Dep. c/ deficiência">
+                    <FieldStacked label={uiI18n.t("hr:resumo.rhTable.headers.dependentsDisability")}>
                       <Input
                         type="number" min={0}
                         className="input-yellow tabular-nums"
@@ -523,7 +517,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         onChange={(e) => set("dependentes_com_deficiencia", Number(e.target.value) || 0)}
                       />
                     </FieldStacked>
-                    <FieldStacked label="Ano fiscal">
+                    <FieldStacked label={uiI18n.t("hr:myProfile.details.fields.ano_fiscal")}>
                       <Input
                         type="number" min={2000} max={2100}
                         className="input-yellow tabular-nums"
@@ -533,8 +527,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                     </FieldStacked>
                   </div>
                   <Label className="block text-[11px] text-muted-foreground">
-                    Editar o agregado na página do colaborador <strong>não</strong> altera fichas existentes — só fichas novas.
-                  </Label>
+                     {uiI18n.t("hr:snapshot.labels.editingTheHouseholdOnTheCollaboratorPage")} <strong> {uiI18n.t("hr:snapshot.labels.not")} </strong>  {uiI18n.t("hr:snapshot.labels.doesNotChangeExistingSheetsOnlyNew")} </Label>
                 </div>
               </div>
 
@@ -543,12 +536,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-[var(--sage)]" />
                     <div>
-                      <div className="text-sm font-medium">Cálculo automático de IRS</div>
+                      <div className="text-sm font-medium"> {uiI18n.t("hr:snapshot.labels.automaticIrsCalculation")} </div>
                       <div className="text-[11px] text-muted-foreground">
-                        Tabela: {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
-                        {irsTableData.isFallback ? " · fallback automático" : ""}
+                         {uiI18n.t("hr:snapshot.labels.table")} {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
+                        {irsTableData.isFallback ? uiI18n.t("hr:snapshot.labels.automaticFallback") : ""}
                         {" · "}
-                        <span className="italic">contexto trancado na ficha</span>
+                        <span className="italic"> {uiI18n.t("hr:snapshot.labels.contextLockedInTheSheet")} </span>
                       </div>
                     </div>
                   </div>
@@ -558,20 +551,19 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 {draft.irs_calculado_auto && (
                   <>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] sm:grid-cols-4">
-                      <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
-                      <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
-                      <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
-                      <Mini label="% IRS efectiva" value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
+                      <Mini label={uiI18n.t("hr:snapshot.labels.marginalTaxRate")} value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
+                      <Mini label={uiI18n.t("hr:snapshot.labels.deductibleAmount")} value={fmtEUR(irsAuto.parcela_abater)} />
+                      <Mini label={uiI18n.t("hr:snapshot.bruto.composition.slices.incomeTaxMonthly")} value={fmtEUR(irsAuto.irs_mensal)} />
+                      <Mini label={uiI18n.t("hr:snapshot.labels.effectiveIrsPercentage")} value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
                     </div>
                     {irsTableData.isFallback && brackets.length > 0 && (
                       <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
-                        Não existe tabela de retenção IRS carregada para <strong>{draft.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
+                         {uiI18n.t("hr:snapshot.labels.noIrsWithholdingTableIsLoadedFor")} <strong>{draft.ano_fiscal}</strong> {uiI18n.t("hr:snapshot.labels.theNearestAvailableTableWasUsedAutomatically")} <strong>{irsTableData.resolvedYear}</strong>.
                       </div>
                     )}
                     {brackets.length === 0 && (
                       <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
-                        Não há tabela de retenção IRS carregada para {draft.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
-                      </div>
+                         {uiI18n.t("hr:snapshot.labels.noIrsWithholdingTableIsLoadedFor")} {draft.localizacao} · {TABELA_LABEL[tabela]} {uiI18n.t("hr:snapshot.labels.valuesAppearAsZeroUntilTablesBecome")} </div>
                     )}
                   </>
                 )}
@@ -583,9 +575,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 
       <Tabs defaultValue="simulacao">
         <TabsList>
-          <TabsTrigger value="simulacao">Simulação</TabsTrigger>
-          <TabsTrigger value="liquido">Visão Líquido</TabsTrigger>
-          <TabsTrigger value="bruto">Visão Bruto</TabsTrigger>
+          <TabsTrigger value="simulacao"> {uiI18n.t("common:simulation")} </TabsTrigger>
+          <TabsTrigger value="liquido"> {uiI18n.t("hr:myProfile.tabs.net")} </TabsTrigger>
+          <TabsTrigger value="bruto"> {uiI18n.t("hr:myProfile.tabs.gross")} </TabsTrigger>
         </TabsList>
         <TabsContent value="simulacao">
           <SimulationTab draft={draftEffective} set={set} />
@@ -602,6 +594,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 }
 
 function Mini({ label, value }: { label: string; value: string }) {
+  useTranslation();
   return (
     <div className="rounded-md border border-border/60 bg-background/60 px-2 py-1.5">
       <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
@@ -618,6 +611,7 @@ function SaveStatus({
   lastSavedAt: Date | null;
   labels: { saving: string; dirty: string; savedAt: (time: string) => string; idle: string };
 }) {
+  useTranslation();
   if (isSaving) {
     return (
       <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -631,7 +625,7 @@ function SaveStatus({
     );
   }
   if (lastSavedAt) {
-    const time = lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+    const time = lastSavedAt.toLocaleTimeString(uiI18n.language, { hour: "2-digit", minute: "2-digit" });
     return (
       <span className="flex items-center gap-1 text-[11px] text-[var(--sage)]">
         <Check className="h-3 w-3" /> {labels.savedAt(time)}

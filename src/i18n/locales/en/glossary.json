@@ -5,7 +5,6 @@
     "ptCanonical": "When the EN UI renders a term that has a Portuguese legal/payroll canonical form, render it as 'EN label (PT canonical)' on first occurrence using <Term k='...' /> — see ptCanonical field per term.",
     "entityRule": "Use entity.* for the master entity label (the record itself). For relationship/role wording (e.g. 'Client approval', 'belongs to client'), use the contextual key (e.g. relation.client). Never substitute 'Client' for 'Company' as the master entity."
   },
-
   "entity": {
     "_doc": "Master entity nouns — the record types themselves. Reuse these wherever a UI labels a record (table headers, form labels, picker placeholders, breadcrumbs).",
     "company": "Company",
@@ -22,7 +21,6 @@
     "resource": "Resource",
     "allocation": "Allocation"
   },
-
   "relation": {
     "_doc": "Relationship/role wording — never replaces entity.*. Use only when the sentence describes a role (e.g. 'Client approval', 'Project lead').",
     "client": "Client",
@@ -30,7 +28,6 @@
     "lead": "Lead",
     "responsible": "Responsible"
   },
-
   "time": {
     "plannedHours": "Planned Hours",
     "loggedHours": "Logged Hours",
@@ -44,7 +41,6 @@
     "paidHours": "Paid Hours",
     "billable": "Billable"
   },
-
   "financial": {
     "budget": "Budget",
     "revenue": "Revenue",
@@ -59,7 +55,6 @@
     "value": "Value",
     "fee": "Fee"
   },
-
   "planning": {
     "project": "Project",
     "stage": "Stage",
@@ -74,7 +69,6 @@
     "timeline": "Timeline",
     "resource": "Resource"
   },
-
   "performance": {
     "utilization": "Utilization",
     "capacity": "Capacity",
@@ -92,7 +86,6 @@
     "underutilized": "Underutilized",
     "overutilized": "Overutilized"
   },
-
   "permissions": {
     "actions": {
       "view": "View",
@@ -116,9 +109,9 @@
       "architect": "Architect",
       "hr": "HR",
       "finance": "Finance"
-    }
+    },
+    "scopesLabel": "Scope"
   },
-
   "crm": {
     "company": "Company",
     "contact": "Contact",
@@ -138,7 +131,6 @@
     "paymentSchedule": "Payment Schedule",
     "winRate": "Win Rate"
   },
-
   "hr": {
     "employee": "Employee",
     "collaborator": "Team Member",
@@ -160,7 +152,6 @@
     "netSalary": "Net Salary",
     "baseSalary": "Base Salary"
   },
-
   "ptCanonical": {
     "_doc": "Canonical Portuguese legal/payroll terms. EN UI renders 'EN label (PT canonical)' on first occurrence via <Term> component. Never translate these away — they are legal terms.",
     "mealAllowance": "Subsídio de Alimentação",
@@ -173,7 +164,6 @@
     "grossSalary": "Salário Bruto",
     "netSalary": "Salário Líquido"
   },
-
   "_ambiguous": {
     "_doc": "Terms flagged for product clarification — currently used inconsistently. Do NOT use these as canonical until resolved.",
     "value": "Used as proposal value, generic numeric value, or budget. Standardize per context.",

@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, type Snapshot } from "@/lib/salary";
 import { CompositionDonut } from "./SalaryDonut";
 
 const eur2 = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -21,6 +23,7 @@ const eur2 = (n: number) =>
  * Purely presentational — every figure comes from `computeSnapshot`.
  */
 export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
+  useTranslation();
   const c = computeSnapshot(draft);
 
   const isencoesMensal = c.alimentacaoMensal + c.ajudasMensal + c.passeMensal;
@@ -36,23 +39,23 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
   return (
     <Card className="overflow-hidden lg:col-span-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2 bg-[var(--clay)] px-5 py-4 text-primary-foreground">
-        <span className="text-base font-semibold">O que irá receber mensalmente:</span>
+        <span className="text-base font-semibold"> {uiI18n.t("hr:snapshot.labels.monthlyTakeHomePay")} </span>
         <span className="text-xl font-semibold tabular-nums">{eur2(recebeMensal)}</span>
       </div>
 
       <div className="grid grid-cols-1 divide-y border-b sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <Kpi
-          label="O salário bruto anual terá um valor de:"
+          label={uiI18n.t("hr:snapshot.labels.annualGrossSalary")}
           value={eur2(brutoAnualColaborador)}
           hint={`${eur2(brutoMensalColaborador)} por mês`}
         />
         <Kpi
-          label="A retenção na fonte do salário será de:"
+          label={uiI18n.t("hr:offerSheet.kpis.irsRate")}
           value={`${(draft.irs_pct * 100).toFixed(2)}%`}
           hint={`${eur2(c.irsMensal)} por mês`}
         />
         <Kpi
-          label="O custo anual para o atelier será de:"
+          label={uiI18n.t("hr:snapshot.labels.annualStudioCost")}
           value={eur2(custoAnual)}
           hint={`${eur2(custoMensal)} por mês`}
         />
@@ -61,20 +64,20 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
       <CardContent className="pt-5">
         <Tabs defaultValue="sim">
           <TabsList>
-            <TabsTrigger value="sim">Simulação do salário</TabsTrigger>
-            <TabsTrigger value="liquido">Salário líquido</TabsTrigger>
-            <TabsTrigger value="bruto">Salário bruto</TabsTrigger>
+            <TabsTrigger value="sim"> {uiI18n.t("hr:snapshot.labels.salarySimulation")} </TabsTrigger>
+            <TabsTrigger value="liquido"> {uiI18n.t("hr:compensationLiquidity.breakdown.netSalary")} </TabsTrigger>
+            <TabsTrigger value="bruto"> {uiI18n.t("hr:snapshot.labels.grossSalary")} </TabsTrigger>
           </TabsList>
 
           <TabsContent value="sim" className="pt-4">
             <CompositionDonut
-              centerLabel="Salário líquido"
+              centerLabel={uiI18n.t("hr:compensationLiquidity.breakdown.netSalary")}
               centerValue={c.liquido14m}
               slices={[
-                { name: "Salário líquido", value: c.liquido14m, color: "var(--sage)" },
-                { name: "Retenção IRS", value: c.irsMensal, color: "oklch(0.65 0.13 50)" },
+                { name: uiI18n.t("hr:compensationLiquidity.breakdown.netSalary"), value: c.liquido14m, color: "var(--sage)" },
+                { name: uiI18n.t("hr:snapshot.labels.irsWithholding"), value: c.irsMensal, color: "oklch(0.65 0.13 50)" },
                 {
-                  name: "Contribuição Segurança Social",
+                  name: uiI18n.t("hr:snapshot.labels.socialSecurityContribution"),
                   value: c.ssColaboradorMensal,
                   color: "var(--clay)",
                 },
@@ -84,22 +87,22 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
 
           <TabsContent value="liquido" className="pt-4">
             <CompositionDonut
-              centerLabel="Recebido por mês"
+              centerLabel={uiI18n.t("hr:offerSheet.donut.center")}
               centerValue={recebeMensal}
               slices={[
-                { name: "Rendimento líquido", value: c.liquido14m, color: "var(--sage)" },
+                { name: uiI18n.t("hr:snapshot.labels.netIncome"), value: c.liquido14m, color: "var(--sage)" },
                 {
-                  name: "Subsídio de alimentação",
+                  name: uiI18n.t("common:shell.link.settings.mealAllowance"),
                   value: c.alimentacaoMensal,
                   color: "oklch(0.75 0.09 160)",
                 },
                 {
-                  name: "Ajudas de custo + passe",
+                  name: uiI18n.t("hr:offerSheet.donut.travel"),
                   value: c.ajudasMensal + c.passeMensal,
                   color: "oklch(0.68 0.10 220)",
                 },
                 {
-                  name: "Benefícios garantidos",
+                  name: uiI18n.t("hr:snapshot.labels.guaranteedBenefits"),
                   value: c.beneficiosMensalGarantido,
                   color: "var(--clay)",
                 },
@@ -109,30 +112,30 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
 
           <TabsContent value="bruto" className="pt-4">
             <CompositionDonut
-              centerLabel="Custo mensal atelier"
+              centerLabel={uiI18n.t("hr:snapshot.labels.monthlyStudioCost")}
               centerValue={custoMensal}
               slices={[
                 {
-                  name: "Rendimento tributável",
+                  name: uiI18n.t("hr:snapshot.labels.taxableIncome"),
                   value: c.baseMensal12,
                   color: "oklch(0.72 0.06 250)",
                 },
                 {
-                  name: "Segurança Social patronal",
+                  name: uiI18n.t("hr:snapshot.labels.employerSocialSecurity"),
                   value: c.ssAtelier12,
                   color: "oklch(0.55 0.13 30)",
                 },
                 {
-                  name: "Subsídio de alimentação",
+                  name: uiI18n.t("common:shell.link.settings.mealAllowance"),
                   value: c.alimentacaoMensal,
                   color: "oklch(0.75 0.09 160)",
                 },
                 {
-                  name: "Ajudas de custo + passe",
+                  name: uiI18n.t("hr:offerSheet.donut.travel"),
                   value: c.ajudasMensal + c.passeMensal,
                   color: "oklch(0.68 0.10 220)",
                 },
-                { name: "Benefícios", value: c.beneficiosAnual / 12, color: "var(--clay)" },
+                { name: uiI18n.t("glossary:hr.benefits"), value: c.beneficiosAnual / 12, color: "var(--clay)" },
               ]}
             />
           </TabsContent>
@@ -143,6 +146,7 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
 }
 
 function Kpi({ label, value, hint }: { label: string; value: string; hint: string }) {
+  useTranslation();
   return (
     <div className="px-5 py-4">
       <div className="text-sm font-medium leading-snug">{label}</div>
