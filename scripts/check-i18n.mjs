@@ -65,6 +65,7 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
 
 export function moduleFor(file) {
   if (file === 'src/routes/__root.tsx') return 'shell/shared';
+  if (file === 'src/routes/_app.tsx') return 'shell/shared';
   if (file.includes('/routes/[')) return 'other';
   const route = file.match(/^src\/routes\/(?:_app\.)?([^./]+)/);
   if (route) return route[1] === 'index' ? 'home' : route[1];

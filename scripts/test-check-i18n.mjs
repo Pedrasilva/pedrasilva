@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scanSource, tally, moduleFor } from './check-i18n.mjs';
+import { scanSource, scanProject, tally, moduleFor } from './check-i18n.mjs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 test('detects own JSX text, expressions, conditional and interpolated text', () => {
   const findings = scanSource('const view=<><h1>Hello</h1><p>{"Olá"}</p><p>{ok ? "Yes" : "No"}</p><p>{`Hello ${name}`}</p></>;');
@@ -33,4 +36,13 @@ test('preserves document-language prose exceptions but still checks editor props
 });
 test('does not count CSS or templates containing only variable values', () => {
   assert.equal(scanSource('const v=<><style>{`body { color: red; }`}</style><p>{`${name}`}</p></>;').length,0);
+});
+test('project scan excludes only integrations, locales and explicit document files', () => {
+  const root=mkdtempSync(join(tmpdir(),'i18n-check-'));
+  try {
+    for(const dir of ['scripts','src/integrations','src/i18n','src/components'])mkdirSync(join(root,dir),{recursive:true});
+    writeFileSync(join(root,'scripts/i18n-allowlist.json'),JSON.stringify({files:[{path:'src/components/document.tsx'}],literals:[]}));
+    for(const file of ['src/integrations/client.tsx','src/i18n/locale.tsx','src/components/document.tsx','src/components/editor.tsx'])writeFileSync(join(root,file),'const v=<p>Hello</p>;');
+    const result=scanProject(root);assert.equal(result.length,1);assert.equal(result[0].file,'src/components/editor.tsx');
+  } finally {rmSync(root,{recursive:true,force:true});}
 });
