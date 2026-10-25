@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { Link, createFileRoute, useParams } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -81,7 +80,7 @@ function AssetDetail() {
       await returnAsset.mutateAsync({ assignmentId: openAssignment.id });
       toast.success(t("inventory:assign.returned"));
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   };
 

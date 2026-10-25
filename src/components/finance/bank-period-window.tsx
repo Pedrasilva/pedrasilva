@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Stage B reconciliation helpers:
@@ -85,13 +84,13 @@ export function PeriodWindowCard({ periodId }: { periodId: string }) {
 
   async function lock() {
     const { error } = await supabase.rpc("fin_period_lock", { _period_id: periodId });
-    if (error) { toast.error(t(`finance:periodWindow.errors.${translateError(error.message)}`, { defaultValue: translateError(error.message) })); return; }
+    if (error) { toast.error(t(`finance:periodWindow.errors.${error.message}`, { defaultValue: error.message })); return; }
     toast.success(t("finance:periodWindow.locked"));
     qc.invalidateQueries({ queryKey: ["finance"] });
   }
   async function reopen() {
     const { error } = await supabase.rpc("fin_period_reopen", { _period_id: periodId, _reason: reason });
-    if (error) { toast.error(t(`finance:periodWindow.errors.${translateError(error.message)}`, { defaultValue: translateError(error.message) })); return; }
+    if (error) { toast.error(t(`finance:periodWindow.errors.${error.message}`, { defaultValue: error.message })); return; }
     toast.success(t("finance:periodWindow.reopened"));
     setReopenOpen(false); setReason("");
     qc.invalidateQueries({ queryKey: ["finance"] });

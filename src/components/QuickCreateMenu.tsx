@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -225,7 +224,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -386,7 +385,7 @@ export function ProjectDialog({ open, onClose }: { open: boolean; onClose: () =>
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -534,7 +533,7 @@ export function TaskDialog({ open, onClose }: { open: boolean; onClose: () => vo
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -644,7 +643,7 @@ export function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () =>
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -754,7 +753,7 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -917,7 +916,7 @@ export function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () =>
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -1017,7 +1016,7 @@ export function StartTimerDialog({ open, onClose }: { open: boolean; onClose: ()
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (

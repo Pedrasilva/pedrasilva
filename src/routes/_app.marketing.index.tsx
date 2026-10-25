@@ -633,7 +633,7 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
       if (r.ok) toast.success(t("ai.rerunDone"));
       else toast.error(r.error ?? t("detail.error"));
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : t("detail.error"));
+      toast.error(e instanceof Error ? e.message : t("detail.error"));
     } finally {
       setBusy(false);
       qc.invalidateQueries({ queryKey: ["marketing-captures"] });
@@ -699,7 +699,7 @@ function SuggestPostButton({ captureId, compact }: { captureId: string; compact?
       const { data: first } = await (supabase as any).from("marketing_post_drafts").select("id").eq("request_id", r.requestId).order("created_at").limit(1).maybeSingle();
       navigate({ to: "/marketing/posts", search: first?.id ? { draft: first.id, tab: "review" } : { request: r.requestId } });
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : t("posts.error"));
+      toast.error(e instanceof Error ? e.message : t("posts.error"));
     } finally {
       setBusy(false);
     }
@@ -763,7 +763,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
     [ids[i], ids[j]] = [ids[j], ids[i]];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).rpc("marketing_reorder_capture_assets", { _capture_id: capture.id, _asset_ids: ids });
-    if (error) { toast.error(translateError(error.message) || t("detail.error")); return; }
+    if (error) { toast.error(error.message || t("detail.error")); return; }
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
   };
   const none = t("add.none");

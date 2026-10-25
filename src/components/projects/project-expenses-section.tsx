@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -82,7 +81,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
       (e.approval_state === "not_required" || e.approval_state === "rejected") && !e.invoiced_at));
   async function approve(e: ProjectExpenseWithSupplier) {
     try { await decide.mutateAsync({ expenseId: e.id, approve: true }); toast.success(t("expenses.approval.approvedToast")); }
-    catch (err) { toast.error(translateError((err as Error).message)); }
+    catch (err) { toast.error((err as Error).message); }
   }
 
   // Files run one at a time (rate limits); a failed read still leaves a draft.
@@ -149,7 +148,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
       toast.success(t("expenses.toast.deleted"));
       setConfirmDelete(null);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 

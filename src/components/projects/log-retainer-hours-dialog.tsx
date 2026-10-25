@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -129,7 +128,7 @@ export function LogRetainerHoursDialog({
       setHours(1);
       setNotes("");
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     } finally {
       setBusy(false);
     }

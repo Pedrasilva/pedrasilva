@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { allowanceLabel, allowanceHint, payrollTerm } from "@/lib/hr/ui-terms";
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
@@ -189,7 +188,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     },
     onError: (e: Error) => {
       pendingSaveSignature.current = null;
-      toast.error(t("snapshot.form.saveError", { message: translateError(e.message) }));
+      toast.error(t("snapshot.form.saveError", { message: e.message }));
     },
   });
 
@@ -237,7 +236,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       setInForceOpen(false);
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const toggleArchive = useMutation({
@@ -275,7 +274,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const set = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) =>

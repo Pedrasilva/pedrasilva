@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { createFileRoute } from "@tanstack/react-router";
@@ -203,7 +202,7 @@ function useUpdateUtilTargets() {
       qc.invalidateQueries({ queryKey: ["fin-util-targets"] });
       // Toast handled by caller via i18n; keep silent here.
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 }
 

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
@@ -52,7 +51,7 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-project-sync", projectId] }),
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   if (!sourceQuoteId) return null;

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * RetainerStageEditor — UI for a `stage_kind='retainer_monthly'` quote stage.
@@ -227,7 +226,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
       });
       setPicker({ resource_id: "", pct: "50" });
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

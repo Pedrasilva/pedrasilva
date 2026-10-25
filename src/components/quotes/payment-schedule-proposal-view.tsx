@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { PaymentContractNote } from "./payment-contract-note";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -59,7 +58,7 @@ function InvoiceStatusButton({
     }).from("quote_payment_schedule_items").update({ billing_status: next }).in("id", itemIds);
     if (error) {
       setPending(null);
-      toast.error(uiI18n.t("crm:quoteEditor.updateFailed", { value1: translateError(error.message) }));
+      toast.error(uiI18n.t("crm:quoteEditor.updateFailed", { value1: error.message }));
       return;
     }
     toast.success(uiI18n.t("crm:quoteEditor.statusUpdated", { value1: STATUS_META[next].label }));

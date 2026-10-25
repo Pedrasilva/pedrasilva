@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,7 +35,7 @@ export function DriveSettingsCard() {
   const onSave = async () => {
     setBusy("save");
     try { await save({ data: form }); toast.success(k("saved")); await qc.invalidateQueries({ queryKey: ["finance", "drive-settings"] }); }
-    catch (e) { toast.error(translateError((e as Error).message)); } finally { setBusy(null); }
+    catch (e) { toast.error((e as Error).message); } finally { setBusy(null); }
   };
   const onTest = async () => {
     setBusy("test");
@@ -44,7 +43,7 @@ export function DriveSettingsCard() {
       const r = await test();
       setSteps(r.steps);
       toast[r.ok ? "success" : "error"](r.ok ? k("testOk") : k("testFailed"));
-    } catch (e) { toast.error(translateError((e as Error).message)); } finally { setBusy(null); }
+    } catch (e) { toast.error((e as Error).message); } finally { setBusy(null); }
   };
 
   return (

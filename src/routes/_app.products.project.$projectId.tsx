@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -142,7 +141,7 @@ function ProjectWorkspace() {
                   try {
                     exportSchedule(items, catMap, project?.name ?? "project");
                   } catch (e) {
-                    toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("common:exportFailed"));
+                    toast.error(e instanceof Error ? e.message : uiI18n.t("common:exportFailed"));
                   }
                 }}
               >

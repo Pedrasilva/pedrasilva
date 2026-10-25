@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -15,7 +14,7 @@ export function useDraftWarningConfirm(draftId: string) {
   const { t } = useTranslation("marketing");
   const [pending, setPending] = useState<Pending | null>(null);
   const [busy, setBusy] = useState(false);
-  const fail = (e: unknown) => toast.error(e instanceof Error ? translateError(e.message) : t("posts.error"));
+  const fail = (e: unknown) => toast.error(e instanceof Error ? e.message : t("posts.error"));
   const review = async (patch: Record<string, unknown> = {}) => {
     const { data, error } = await supabase.rpc("marketing_review_draft_warnings", { _draft: draftId, _patch: patch as Json });
     if (error) throw error;

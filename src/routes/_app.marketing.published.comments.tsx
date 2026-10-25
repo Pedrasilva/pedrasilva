@@ -98,7 +98,7 @@ function CommentsPage() {
   const refresh = async () => {
     setSyncing(true);
     try { const r = await syncFn(); if (r.error) toast.warning(t(`comments.${r.error}`)); }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     setSyncing(false);
     qc.invalidateQueries({ queryKey: ["marketing-comments"] });
     qc.invalidateQueries({ queryKey: ["marketing-comments-unread"] });
@@ -164,7 +164,7 @@ function CommentCard({ c, replies, actions, isNew }: { c: Comment; replies: Comm
   const suggest = async () => {
     setBusy("suggest");
     try { const r = await suggestFn({ data: { commentId: c.id } }); if (r.error) toast.error(r.error); else { setText(r.text); setAiUsed(true); } }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     setBusy(null);
   };
   const send = async () => {
@@ -172,14 +172,14 @@ function CommentCard({ c, replies, actions, isNew }: { c: Comment; replies: Comm
     try {
       const r = await sendFn({ data: { commentId: c.id, message: text, aiSuggested: aiUsed } });
       if (r.ok) { toast.success(t("comments.sent")); setText(""); setAiUsed(false); } else toast.error(r.error);
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     setBusy(null); reload();
   };
   const doHide = async () => {
     if (!confirmHide) return;
     const target = confirmHide; setConfirmHide(null);
     try { const r = await hideFn({ data: { commentId: target.id, hide: !target.hidden } }); if (r.ok) toast.success(t("comments.done")); else toast.error(r.error); }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     reload();
   };
 

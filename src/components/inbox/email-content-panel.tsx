@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Full message view for one queued email: sanitised body, attachment list
@@ -87,7 +86,7 @@ export function EmailContentPanel({
     },
     onError: (e: unknown) =>
       toast.error(t("inbox:content.forwardFailed"), {
-        description: e instanceof Error ? translateError(e.message) : undefined,
+        description: e instanceof Error ? e.message : undefined,
       }),
   });
 
@@ -109,7 +108,7 @@ export function EmailContentPanel({
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
     } catch (e) {
       toast.error(t("inbox:content.attachmentFailed"), {
-        description: e instanceof Error ? translateError(e.message) : undefined,
+        description: e instanceof Error ? e.message : undefined,
       });
     } finally {
       setBusyAttachment(null);

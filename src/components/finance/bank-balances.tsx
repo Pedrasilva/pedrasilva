@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Banking → Bank balances.
@@ -175,7 +174,7 @@ export function BankBalancesSection() {
       qc.invalidateQueries({ queryKey: ["finance", "bank-accounts-balances"] });
       qc.invalidateQueries({ queryKey: ["finance", "bank-accounts"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const setKind = useMutation({
@@ -189,7 +188,7 @@ export function BankBalancesSection() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["finance", "bank-accounts-balances"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const insertSnapshot = useMutation({
@@ -212,7 +211,7 @@ export function BankBalancesSection() {
       setBalance("");
       setNotes("");
     },
-    onError: (e: Error) => toast.error(translateError(e.message) || t("finance:bank.form.saveError")),
+    onError: (e: Error) => toast.error(e.message || t("finance:bank.form.saveError")),
   });
 
   if (accountsQ.isLoading) {

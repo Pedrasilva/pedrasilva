@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,7 +61,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
       const r = await requestFn({ data: { draftId, approverId: approver, comment: comment.trim() || undefined, reapproval: needsReapproval } });
       toast.success(r.emailed ? t("approval.requested") : t("approval.requestedNoEmail"));
       setAskOpen(false); setComment(""); refresh();
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     finally { setBusy(false); }
   };
   const decide = async () => {
@@ -73,7 +72,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
       await decideFn({ data: { approvalId: pending.id, decision, comment: comment.trim() || undefined } });
       toast.success(decision === "approved" ? t("approval.approvedToast") : t("approval.changesToast"));
       setDecision(null); setComment(""); refresh();
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     finally { setBusy(false); }
   };
 

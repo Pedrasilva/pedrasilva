@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -201,7 +200,7 @@ export function ApprovalsPanel({ projectId }: Props) {
                       }),
                     );
                   } catch (err) {
-                    toast.error(String(translateError((err as Error).message) ?? err));
+                    toast.error(String((err as Error).message ?? err));
                   }
                 }}
                 className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
@@ -299,7 +298,7 @@ function EntryRow({
         t("projects:approvals.approved", { defaultValue: "Entry approved" }),
       );
     } catch (e) {
-      toast.error(String(translateError((e as Error).message) ?? e));
+      toast.error(String((e as Error).message ?? e));
     } finally {
       setBusy(false);
     }
@@ -319,7 +318,7 @@ function EntryRow({
         t("projects:approvals.rejected", { defaultValue: "Entry rejected" }),
       );
     } catch (e) {
-      toast.error(String(translateError((e as Error).message) ?? e));
+      toast.error(String((e as Error).message ?? e));
     } finally {
       setBusy(false);
     }

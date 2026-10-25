@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * ApplyTemplateDialog — apply a Quote Template to an existing quote
  * from inside the workspace. Appends template stages, dependencies,
@@ -62,7 +61,7 @@ export function ApplyTemplateDialog({
       setOpen(false);
       setTemplateId(null);
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

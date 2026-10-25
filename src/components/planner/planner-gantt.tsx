@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 /**
  * PlannerGantt — unified planner wrapper around the shared GanttChart.
@@ -143,7 +142,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       emitQuoteLockBlocked(isConvertedLockError(err));
       return;
     }
-    toast.error(err instanceof Error ? translateError(err.message) : String(err));
+    toast.error(err instanceof Error ? err.message : String(err));
   }, []);
   const [reflowing, setReflowing] = useState(false);
 
@@ -1708,7 +1707,7 @@ export function ProjectGantt({
           }
         }
       } catch (e) {
-        toast.error(e instanceof Error ? translateError(e.message) : i18n.t("projects:plannerGantt.ui.failedInsertStage"));
+        toast.error(e instanceof Error ? e.message : i18n.t("projects:plannerGantt.ui.failedInsertStage"));
       }
     },
     [canEdit, stages, createStage, projectId, t, createProjectDep],
@@ -1722,7 +1721,7 @@ export function ProjectGantt({
         if (selectedStageId === id) setSelectedStageId(null);
         toast.success(t("projects:gantt.stageDeleted", { defaultValue: "Stage deleted" }));
       } catch (e) {
-        toast.error(e instanceof Error ? translateError(e.message) : i18n.t("projects:plannerGantt.ui.failedDeleteStage"));
+        toast.error(e instanceof Error ? e.message : i18n.t("projects:plannerGantt.ui.failedDeleteStage"));
       }
     },
     [canEdit, deleteStageMut, projectId, selectedStageId, t],

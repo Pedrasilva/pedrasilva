@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Signature Projects — home page gallery backed by the shared PSA image
@@ -54,7 +53,7 @@ export function SignatureProjectsSection({ isAdmin }: { isAdmin: boolean }) {
         await upload.mutateAsync({ file: f, category: active });
         ok += 1;
       } catch (e) {
-        toast.error(`${f.name}: ${translateError((e as Error).message)}`);
+        toast.error(`${f.name}: ${(e as Error).message}`);
       }
     }
     if (ok)
@@ -193,7 +192,7 @@ export function SignatureProjectsSection({ isAdmin }: { isAdmin: boolean }) {
                               defaultValue: "Category updated",
                             }),
                           ),
-                        onError: (err) => toast.error(translateError((err as Error).message)),
+                        onError: (err) => toast.error((err as Error).message),
                       },
                     )
                   }
@@ -284,7 +283,7 @@ function GalleryTile({
               if (confirm(uiI18n.t("home:portfolio.removeImage", { name: entry.name }))) {
                 del.mutate(entry, {
                   onSuccess: () => toast.success(uiI18n.t("home:portfolio.imageRemoved")),
-                  onError: (err) => toast.error(translateError((err as Error).message)),
+                  onError: (err) => toast.error((err as Error).message),
                 });
               }
             }}

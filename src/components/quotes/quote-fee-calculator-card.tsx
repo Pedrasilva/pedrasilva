@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Construction-percentage architectural fee calculator.
@@ -96,7 +95,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
         .eq("id", quoteId);
       if (error) {
         setAutoSaveState("error");
-        toast.error(translateError(error.message));
+        toast.error(error.message);
       } else {
         setAutoSaveState("saved");
         qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
@@ -130,7 +129,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
         onApplied?.(result.finalFee, result.constructionValue, result.feePercentage);
       }
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const setStageName = (idx: number, name: string) =>

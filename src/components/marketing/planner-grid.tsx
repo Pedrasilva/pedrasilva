@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -87,7 +86,7 @@ export function PlannerGrid() {
       qc.invalidateQueries({ queryKey: ["marketing-grid-drafts"] });
       qc.invalidateQueries({ queryKey: ["marketing-calendar"] });
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     setBusy(false);
   };
 

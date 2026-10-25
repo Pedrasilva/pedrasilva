@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -32,7 +31,7 @@ export function InvoiceInventoryAction({ documentId }: { documentId: string }) {
       try {
         await mark.mutateAsync({ documentId, status: "pending" });
       } catch (err) {
-        toast.error(translateError((err as Error).message));
+        toast.error((err as Error).message);
         return;
       }
     }

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Sale margin settings for a quote's planning chart.
  *
@@ -45,7 +44,7 @@ export function QuoteSaleMarginSettings({ quoteId, disabled = false }: { quoteId
         t("workspace.planning.saleMargin.saved", { defaultValue: "Sale margin updated" }),
       );
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

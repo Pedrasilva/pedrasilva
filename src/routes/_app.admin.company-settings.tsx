@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -67,7 +66,7 @@ function CompanySettingsPage() {
       .eq("id", rowId);
     setSaving(false);
     if (error) {
-      toast.error(translateError(error.message));
+      toast.error(error.message);
       return;
     }
     if (normalized) setCompanyNif(normalized);

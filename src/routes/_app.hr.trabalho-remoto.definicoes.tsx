@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -86,7 +85,7 @@ function SettingsTab() {
       });
       toast.success(t("hr:remoteWork.settingsSaved"));
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 
@@ -104,7 +103,7 @@ function SettingsTab() {
       setNewPriority(1);
       toast.success(t("hr:remoteWork.approverAdded"));
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

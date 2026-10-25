@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -66,7 +65,7 @@ function QuestionsPage() {
   const resend = async (id: string) => {
     setBusy(id);
     try { await resendFn({ data: { nudgeId: id } }); toast.success(t("questions.resent")); }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("questions.error")); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("questions.error")); }
     finally { setBusy(null); qc.invalidateQueries({ queryKey: ["marketing-questions"] }); }
   };
 

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
@@ -226,7 +225,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
       toast.success(i18n.t("common:updated"));
       setOpen(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 
@@ -238,7 +237,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
       setStatus(next);
       toast.success(next === "committed" ? i18n.t("projects:allocation.status.committed") : i18n.t("projects:allocationEditor.ui.allocationTentative"));
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 
@@ -251,7 +250,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
       toast.success(i18n.t("common:removed"));
       setOpen(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 

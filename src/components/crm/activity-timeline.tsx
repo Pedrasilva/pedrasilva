@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
@@ -79,7 +78,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
       setTipo("nota");
       qc.invalidateQueries({ queryKey });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const remove = useMutation({
@@ -91,7 +90,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
       toast.success(uiI18n.t("crm:activities.removed"));
       qc.invalidateQueries({ queryKey });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (

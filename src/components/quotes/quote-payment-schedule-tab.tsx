@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Quote Payment Schedule tab — planned forecast payments.
@@ -567,7 +566,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
       await runGenerator("by_stage_billing", { replaceAll: true });
       toast.success(t("workspace.payment.synced", { defaultValue: "Billing schedule updated from the Gantt" }));
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 
@@ -596,7 +595,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         expected_invoice_date: "", expected_payment_date: "",
       });
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 
@@ -672,7 +671,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           : t("workspace.payment.generatorApplied"),
       );
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

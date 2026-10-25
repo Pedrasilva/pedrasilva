@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
@@ -77,7 +76,7 @@ function RevisionViewerPage() {
         params: { proposalId },
       });
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

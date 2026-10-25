@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -69,7 +68,7 @@ export function AssignAssetDialog({
       toast.success(t("inventory:assign.done"));
       onOpenChange(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   };
 

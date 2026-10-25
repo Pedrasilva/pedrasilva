@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -257,7 +256,7 @@ export function CreateStageTaskDialog({
       }
       onOpenChange(false);
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

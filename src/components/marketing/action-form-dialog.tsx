@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -87,7 +86,7 @@ export function ActionFormDialog({ open, onOpenChange, action, onSaved }: {
         language: i18n.language?.startsWith("en") ? "en" : "pt",
       } });
       setBrief((b) => (b.trim() ? `${b.trim()}\n\n${r.topics}` : r.topics));
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("actions.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("actions.error")); }
     finally { setDrafting(false); }
   };
 
@@ -115,7 +114,7 @@ export function ActionFormDialog({ open, onOpenChange, action, onSaved }: {
       const added = [row.owner_user_id, ...row.helper_user_ids].filter((p) => !before.has(p));
       if (channel === "email" && added.length) {
         try { await emailFn({ data: { actionId: id!, userIds: added } }); }
-        catch (e) { toast.error(t("actions.form.emailFailed", { error: e instanceof Error ? translateError(e.message) : "" })); }
+        catch (e) { toast.error(t("actions.form.emailFailed", { error: e instanceof Error ? e.message : "" })); }
       }
       qc.invalidateQueries({ queryKey: ["marketing-actions"] });
       qc.invalidateQueries({ queryKey: ["marketing-action", id] });
@@ -124,7 +123,7 @@ export function ActionFormDialog({ open, onOpenChange, action, onSaved }: {
       toast.success(t("actions.form.saved"));
       onOpenChange(false);
       onSaved?.(id!);
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("actions.error")); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : t("actions.error")); }
     finally { setBusy(false); }
   };
 

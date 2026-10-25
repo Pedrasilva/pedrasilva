@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Stage 5A — Contract Generator Foundation
@@ -100,7 +99,7 @@ function ContractDetailPage() {
           });
         }
       })
-      .catch((e: Error) => toast.error(translateError(e.message)));
+      .catch((e: Error) => toast.error(e.message));
   };
 
   const busy =
@@ -436,7 +435,7 @@ function ContractDetailPage() {
                                   toast.success(t("contracts.clauses.savedToast"));
                                   setEditingId(null);
                                 },
-                                onError: (e: Error) => toast.error(translateError(e.message)),
+                                onError: (e: Error) => toast.error(e.message),
                               },
                             );
                           }}

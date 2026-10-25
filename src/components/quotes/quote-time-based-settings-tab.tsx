@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Quote Time-Based Settings Tab
  *
@@ -102,7 +101,7 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
       qc.invalidateQueries({ queryKey: ["fee_proposal_time_based_settings", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   if (isLoading) {

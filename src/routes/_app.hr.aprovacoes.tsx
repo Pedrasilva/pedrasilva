@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -55,7 +54,7 @@ function ApprovalInboxPage() {
     catch(e){setErrors(v=>({...v,[row.id]:errorText(e)}));toast.error(errorText(e));return false;}
   }
   async function approveSelected() {setBulk(true);try {for(const row of eligible.filter(r => selected.has(r.id))) await act(row,true);}finally {setBulk(false);}}
-  async function proof(path:string) {const {data,error}=await supabase.storage.from("leave-attachments").createSignedUrl(path,300);if(error || !data){toast.error(translateError(error?.message) ?? t("common:errorTitle"));return;}window.open(data.signedUrl,"_blank","noopener");}
+  async function proof(path:string) {const {data,error}=await supabase.storage.from("leave-attachments").createSignedUrl(path,300);if(error || !data){toast.error(error?.message ?? t("common:errorTitle"));return;}window.open(data.signedUrl,"_blank","noopener");}
   if(inbox.isPending) return <p className="text-sm text-muted-foreground">{t("common:loading")}</p>;
   if(inbox.error) return <div role="alert" className="text-destructive">{errorText(inbox.error)}</div>;
   if(!inbox.allowed) return postApprovals.rows.length ? <div className="space-y-5"><h1 className="text-2xl font-semibold">{t("common:shell.link.hr.approvals")}</h1><PostApprovalsSection/></div> : <RestrictedCard/>;

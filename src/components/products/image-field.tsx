@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useRef, useState } from "react";
@@ -89,7 +88,7 @@ export function ImageField({
             const path = await upload.mutateAsync(file);
             onChange(path);
           } catch (err) {
-            toast.error(err instanceof Error ? translateError(err.message) : uiI18n.t("common:uploadFailed"));
+            toast.error(err instanceof Error ? err.message : uiI18n.t("common:uploadFailed"));
           } finally {
             setBusy(false);
           }

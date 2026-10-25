@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -35,7 +34,7 @@ export function CalendarConnection({ compact = false, expired = false, className
       await clearMem();
       toast.success(t(k("memoryCleared")));
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     } finally {
       qc.invalidateQueries({ queryKey: ["calendar-match-memory"] });
       qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
@@ -64,7 +63,7 @@ export function CalendarConnection({ compact = false, expired = false, className
       if (window.self !== window.top) window.open(url, "_blank");
       else window.location.assign(url);
     } catch (e) {
-      toast.error(t(k("connectError")), { description: translateError((e as Error).message) });
+      toast.error(t(k("connectError")), { description: (e as Error).message });
     }
   }
   async function disconnect() {
@@ -73,7 +72,7 @@ export function CalendarConnection({ compact = false, expired = false, className
       if (revoked) toast.success(t(k("disconnected")));
       else toast.warning(t(k("revokeFailed")), { duration: 15000 });
     } catch (e) {
-      toast.error(t(k("disconnectError")), { description: translateError((e as Error).message) });
+      toast.error(t(k("disconnectError")), { description: (e as Error).message });
     } finally {
       qc.invalidateQueries({ queryKey: CALENDAR_STATUS_KEY });
     }

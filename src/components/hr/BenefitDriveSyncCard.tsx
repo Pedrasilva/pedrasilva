@@ -57,12 +57,12 @@ export function BenefitDriveSyncCard() {
       );
       if (res.failures?.length) {
         for (const f of res.failures.slice(0, 3)) {
-          toast.error(`${f.expense_id.slice(0, 8)}: ${translateError(f.message)}`);
+          toast.error(`${f.expense_id.slice(0, 8)}: ${f.message}`);
         }
       }
       qc.invalidateQueries({ queryKey: ["benefit-drive-sync-preview"] });
     },
-    onError: (e: unknown) => toast.error(translateError((e as Error).message)),
+    onError: (e: unknown) => toast.error((e as Error).message),
   });
 
   const p = previewQ.data;

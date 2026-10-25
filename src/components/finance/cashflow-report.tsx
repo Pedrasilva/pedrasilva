@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { Fragment, useMemo, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
@@ -168,7 +167,7 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
       setCatDialog({ open: false, id: null, name: "" });
       toast.success(t("common:saved", { defaultValue: "Saved" }));
     },
-    onError: (e: unknown) => toast.error(String(translateError((e as Error).message) ?? e)),
+    onError: (e: unknown) => toast.error(String((e as Error).message ?? e)),
   });
 
   const deleteCategory = useMutation({
@@ -183,7 +182,7 @@ export function CashFlowReport({ vatMode }: { vatMode: VatMode }) {
       qc.invalidateQueries({ queryKey: ["finance", "cashflow-report-raw"] });
       qc.invalidateQueries({ queryKey: ["finance", "cost-categories"] });
     },
-    onError: (e: unknown) => toast.error(String(translateError((e as Error).message) ?? e)),
+    onError: (e: unknown) => toast.error(String((e as Error).message ?? e)),
   });
 
   if (isLoading || !report) {

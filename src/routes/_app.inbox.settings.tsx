@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -65,7 +64,7 @@ function InboxSettingsPage() {
     },
     onError: (e: unknown) =>
       toast.error(t("inbox:settings.error"), {
-        description: e instanceof Error ? translateError(e.message) : undefined,
+        description: e instanceof Error ? e.message : undefined,
       }),
   });
 

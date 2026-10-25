@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -135,7 +134,7 @@ export function QuoteBuildSettingsDialog({
       toast.success(uiI18n.t("crm:quoteEditor.settingsSaved"));
       setOpen(false);
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (

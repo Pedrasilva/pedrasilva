@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { ClearanceSources } from '@/components/marketing/clearance-sources';
 import { canRecheckClearance } from '@/lib/marketing/clearance';
 import { languageChip, type PostLanguage } from "@/lib/marketing/post-language";
@@ -187,14 +186,14 @@ function CalendarPage() {
     try { if(drop.row.platform === "instagram")await scheduleFn({data:{draftId:drop.row.id,at:lisbonToUtcIso(drop.date,drop.time),now:false}});
     else { const r=await supabase.from("marketing_post_drafts").update({scheduled_at:lisbonToUtcIso(drop.date,drop.time),status:"scheduled"}).eq("id",drop.row.id);if(r.error)throw r.error; } } catch(e){error=e instanceof Error?e:new Error(t("posts.error"));}
     setBusy(false);
-    if (error) { toast.error(translateError(error.message)); return; }
+    if (error) { toast.error(error.message); return; }
     toast.success(t("calendar.scheduledToast"));
     setDrop(null); refresh();
   };
   const unschedule = async (r: Row) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("marketing_post_drafts").update({ status: "approved", scheduled_at: null }).eq("id", r.id);
-    if (error) { toast.error(translateError(error.message)); return; }
+    if (error) { toast.error(error.message); return; }
     refresh();
   };
   const onDrop = (date: string, id: string) => {

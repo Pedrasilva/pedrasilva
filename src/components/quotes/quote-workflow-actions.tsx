@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Quote workflow actions — exposes the canonical Draft → Sent → Approved
  * path as primary buttons in the quote header. The Status select in
@@ -136,7 +135,7 @@ export function QuoteWorkflowActions({
 
       if (next === "approved") onApproved?.();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const askApprove = () => {

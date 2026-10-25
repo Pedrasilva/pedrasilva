@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Bank-side "Match to HR reimbursement" dialog.
@@ -225,7 +224,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
       onMatched?.();
       onClose();
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     } finally {
       setSettlingId(null);
     }

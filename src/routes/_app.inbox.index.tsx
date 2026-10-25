@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Inbox review queue — every Gmail-visible action taken here is one explicit
@@ -188,7 +187,7 @@ function EmailRow({
             })
             .catch((e: unknown) =>
               toast.error(t("inbox:queue.undoFailed"), {
-                description: e instanceof Error ? translateError(e.message) : undefined,
+                description: e instanceof Error ? e.message : undefined,
               }),
             );
         },

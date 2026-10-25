@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * PSA Proposal Ontology — Milestone 3
  * Lightweight "intelligent defaults" surface beneath the existing PSA Hub
@@ -158,7 +157,7 @@ export function QuoteOntologyBootstrapCard({
         }),
       );
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   };
 

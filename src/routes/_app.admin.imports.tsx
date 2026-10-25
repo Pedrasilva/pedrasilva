@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -120,7 +119,7 @@ function ImportsContent() {
       }
       setStep("projects");
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const revalidateMutation = useMutation({
@@ -132,7 +131,7 @@ function ImportsContent() {
       setPreview(p);
       setProjectMapping((prev) => ({ ...seedProjectMapping(p), ...prev }));
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const buildCommitOptions = (restrictProjectIds?: string[]) => {
@@ -210,7 +209,7 @@ function ImportsContent() {
       }
       setStep("result");
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const blockingErrors = preview ? preview.totals.error : 0;
@@ -1601,7 +1600,7 @@ function MappingDialog({
       setCollabId("");
       onSaved();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -1700,7 +1699,7 @@ function RepairOrphanEntriesCard() {
       ];
       keys.forEach((k) => qc.invalidateQueries({ queryKey: k, refetchType: "all" }));
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const d = result?.diagnostic;

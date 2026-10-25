@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { MarketingProjectPicker } from "@/components/marketing/project-picker";
 import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { canRecheckClearance } from '@/lib/marketing/clearance';
@@ -114,7 +113,7 @@ function DeleteButton({ label, ids, column }: { label: string; ids: string[]; co
       ? await db.from("marketing_post_requests").delete().in("id", ids)
       : await db.from("marketing_post_drafts").delete().in("id", ids);
     setBusy(false);
-    if (error) { toast.error(translateError(error.message) || t("posts.error")); return; }
+    if (error) { toast.error(error.message || t("posts.error")); return; }
     toast.success(t("posts.deleted"));
     setOpen(false);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
@@ -239,7 +238,7 @@ function PostPlannerPage() {
       if (r.ok) toast.success(`${t("posts.generated", { count: r.ideas })}${"stories" in r && r.stories ? ` · ${t("posts.storiesGenerated", { count: r.stories })}` : ""}`);
       else toast.error(r.error);
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : t("posts.error"));
+      toast.error(e instanceof Error ? e.message : t("posts.error"));
     } finally {
       setBusy(false);
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
@@ -423,7 +422,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
   const recheck = async () => {
     setRechecking(true);
     try { await recheckDrafts(drafts.filter((d) => canRecheckClearance(d.status)).map((d) => d.id)); }
-    catch (e) { toast.error(translateError((e as { message?: string })?.message) || t("posts.error")); }
+    catch (e) { toast.error((e as { message?: string })?.message || t("posts.error")); }
     setRechecking(false);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
   };
@@ -524,7 +523,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("marketing_post_drafts").update(patch).eq("id", draft.id);
     setSaving(false);
-    if (error) { toast.error(translateError(error.message) || t("posts.error")); return false; }
+    if (error) { toast.error(error.message || t("posts.error")); return false; }
     if (ok) toast.success(ok);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
@@ -536,7 +535,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const renderSaved = async () => {
     setSaving(true);
     try { await prepareStoryRender(draft.id); await rendered.refetch(); qc.invalidateQueries({ queryKey: ["marketing-posts"] }); qc.invalidateQueries({ queryKey: ["marketing-calendar"] }); }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
     finally { setSaving(false); }
   };
   const framePatch = isStory ? { final_story_frames: frames } : {};
@@ -560,12 +559,12 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       if (!await update(patch, "")) return false;
     }
     if (isStory) {
-      try { setSaving(true); await prepareStoryRender(draft.id); } catch(e) { toast.error(e instanceof Error ? translateError(e.message) : t("posts.error")); return false; } finally { setSaving(false); }
+      try { setSaving(true); await prepareStoryRender(draft.id); } catch(e) { toast.error(e instanceof Error ? e.message : t("posts.error")); return false; } finally { setSaving(false); }
     }
     return warning.run(async () => {
       if (actions.needsReapproval) {
         const { error } = await supabase.rpc('marketing_prepare_reapproval', { _draft: draft.id });
-        if (error) { toast.error(translateError(error.message)); return false; }
+        if (error) { toast.error(error.message); return false; }
       }
       const ok = await update({ status: "approved", ...patch }, "");
       if (ok) toast.success(t("posts.approvedSchedule"), { action: { label: t("posts.openCalendar"), onClick: () => navigate({ to: "/marketing/calendar" }) } });

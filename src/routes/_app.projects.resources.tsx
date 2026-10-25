@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -100,7 +99,7 @@ function ResourcesPage() {
     try {
       await update.mutateAsync({ id: r.id, patch: { active: next } });
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 
@@ -257,7 +256,7 @@ function ResourcesPage() {
                             await del.mutateAsync(r.id);
                             toast.success(t("common:removed"));
                           } catch (err) {
-                            toast.error(translateError((err as Error).message));
+                            toast.error((err as Error).message);
                           }
                         }}
                         className="rounded-md p-1.5 text-muted-foreground transition hover:bg-accent hover:text-destructive"

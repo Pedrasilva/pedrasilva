@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Banking → Bank balances → account detail.
@@ -185,7 +184,7 @@ export function BankAccountDetailDialog({
       qc.invalidateQueries({ queryKey: ["finance", "bank-accounts"] });
       onOpenChange(false);
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const isBank = form?.account_kind === "bank";

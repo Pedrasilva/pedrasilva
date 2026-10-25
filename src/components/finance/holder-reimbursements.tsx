@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * "A reembolsar": PSA expenses paid with a personal card, owed to the card
@@ -40,7 +39,7 @@ function useSetStatus() {
   const { t } = useTranslation(["finance"]);
   return async (id: string, status: "owed" | "repaid") => {
     const { error } = await supabase.from("finance_holder_reimbursements").update({ status }).eq("id", id);
-    if (error) return toast.error(translateError(error.message));
+    if (error) return toast.error(error.message);
     toast.success(t(status === "repaid" ? "finance:holderReimb.markedRepaid" : "finance:holderReimb.markedOwed"));
     qc.invalidateQueries({ queryKey: KEY });
   };

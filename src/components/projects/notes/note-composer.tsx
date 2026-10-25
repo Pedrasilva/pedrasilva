@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mic, Square, Loader2, Sparkles, Lock, RotateCcw, ChevronDown } from "lucide-react";
@@ -132,7 +131,7 @@ export function NoteComposer({ projectId, variant = "full", onSaved }: Props) {
       if (transcript.trim()) await runClassify(transcript);
     } catch (err) {
       setTranscribeFailed(true);
-      toast.error(err instanceof Error ? translateError(err.message) : String(err));
+      toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setTranscribing(false);
     }
@@ -162,7 +161,7 @@ export function NoteComposer({ projectId, variant = "full", onSaved }: Props) {
       setCategory(result.category);
       if (result.confidential) setConfidential(true);
     } catch (err) {
-      toast.error(err instanceof Error ? translateError(err.message) : String(err));
+      toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setClassifying(false);
     }
@@ -216,7 +215,7 @@ export function NoteComposer({ projectId, variant = "full", onSaved }: Props) {
       onSaved?.();
     } catch (err) {
       setSaveFailed(true);
-      toast.error(err instanceof Error ? translateError(err.message) : String(err));
+      toast.error(err instanceof Error ? err.message : String(err));
     } finally {
       setSaving(false);
     }

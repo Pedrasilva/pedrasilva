@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -107,7 +106,7 @@ export function QuoteLockGuard({
                       setOpen(false);
                       toast.success(uiI18n.t("crm:quoteEditor.revisionUnlocked"));
                     },
-                    onError: (err: Error) => toast.error(translateError(err.message)),
+                    onError: (err: Error) => toast.error(err.message),
                   });
                 }}
               >

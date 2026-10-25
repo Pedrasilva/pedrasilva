@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useRef, useState } from "react";
@@ -70,7 +69,7 @@ export function CollaboratorPhotoUploader({
       toast.success(uiI18n.t("common:collaboratorPhoto.updated"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
     onSettled: () => setBusy(false),
   });
 
@@ -89,7 +88,7 @@ export function CollaboratorPhotoUploader({
       toast.success(uiI18n.t("common:collaboratorPhoto.removed"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
     onSettled: () => setBusy(false),
   });
 

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
@@ -344,7 +343,7 @@ function GlobalGanttPage() {
                                     updateProject
                                       .mutateAsync({ id: p.id, patch: { status: id } })
                                       .then(() => toast.success(t("projects:gantt.ui.statusUpdated")))
-                                      .catch((err) => toast.error(translateError((err as Error).message)))
+                                      .catch((err) => toast.error((err as Error).message))
                                   }
                                   title={t(label)}
                                   aria-label={t(label)}
@@ -365,7 +364,7 @@ function GlobalGanttPage() {
                                   await del.mutateAsync(p.id);
                                   toast.success(t("projects:gantt.ui.projectDeleted"));
                                 } catch (err) {
-                                  toast.error(translateError((err as Error).message));
+                                  toast.error((err as Error).message);
                                 }
                               }}
                               className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"

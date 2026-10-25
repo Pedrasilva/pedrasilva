@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -125,7 +124,7 @@ function AdminPage() {
       toast.success(vars.isAdmin ? uiI18n.t("access:batchFive.labels.administratorAssigned") : uiI18n.t("access:batchFive.labels.administratorRemoved"));
       qc.invalidateQueries({ queryKey: ["admin-users-with-permissions"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const setPermission = useMutation({
@@ -166,7 +165,7 @@ function AdminPage() {
       return { prev };
     },
     onError: (e: Error, _v, ctx) => {
-      toast.error(translateError(e.message));
+      toast.error(e.message);
       if (ctx?.prev) qc.setQueryData(["admin-users-with-permissions"], ctx.prev);
     },
     onSettled: () => {
@@ -444,7 +443,7 @@ function PermissionsMatrix({
       toast.success(uiI18n.t("common:changesSaved", { count: dirtyCount }));
       setEdits({});
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -750,7 +749,7 @@ function InternalCategoriesAdmin() {
       setNewName("");
       toast.success(uiI18n.t("access:batchFive.labels.costCentreCreated"));
     } catch (e) {
-      toast.error(translateError((e as Error).message) || uiI18n.t("common:failed"));
+      toast.error((e as Error).message || uiI18n.t("common:failed"));
     }
   };
 
@@ -772,7 +771,7 @@ function InternalCategoriesAdmin() {
       toast.success(uiI18n.t("access:batchFive.labels.renamed"));
       cancelEdit();
     } catch (e) {
-      toast.error(translateError((e as Error).message) || uiI18n.t("common:failed"));
+      toast.error((e as Error).message || uiI18n.t("common:failed"));
     }
   };
 
@@ -894,7 +893,7 @@ function InternalCategoriesAdmin() {
                           update
                             .mutateAsync({ id: row.id, visible_to_profiles: profiles })
                             .catch((e) =>
-                              toast.error(translateError((e as Error).message) || uiI18n.t("common:failed")),
+                              toast.error((e as Error).message || uiI18n.t("common:failed")),
                             )
                         }
                       />

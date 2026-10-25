@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -64,7 +63,7 @@ export function NudgePanel({ captureId, compositionId, projectId, hasProfile, em
     try {
       const { question: q } = captureId ? await suggestFn({ data: { captureId } }) : await suggestCompFn({ data: { compositionId: compositionId! } });
       setQuestion(q); setAiQuestion(q);
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setDrafting(false); }
   };
 
@@ -82,7 +81,7 @@ export function NudgePanel({ captureId, compositionId, projectId, hasProfile, em
       setOpen(false); setQuestion(""); setAiQuestion(""); setArchitect("");
       qc.invalidateQueries({ queryKey: key });
       onSent?.();
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setSending(false); }
   };
 

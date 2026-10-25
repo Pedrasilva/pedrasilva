@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -180,7 +179,7 @@ function useSaveTargets() {
       qc.invalidateQueries({ queryKey: ["access-preview-targets"] });
       toast.success(t("page.saved"));
     },
-    onError: (e: Error) => toast.error(`${t("page.saveError")}: ${translateError(e.message)}`),
+    onError: (e: Error) => toast.error(`${t("page.saveError")}: ${e.message}`),
   });
 }
 

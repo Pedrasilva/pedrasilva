@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 /**
  * Stage 6C — Project forecast & coverage summary card.
@@ -182,7 +181,7 @@ export function ProjectForecastCard({ projectId }: { projectId: string }) {
                 { envelope },
                 {
                   onSuccess: () => toast.success(t("forecast.snapshotFrozenToast")),
-                  onError: (e: Error) => toast.error(translateError(e.message)),
+                  onError: (e: Error) => toast.error(e.message),
                 },
               );
             }}

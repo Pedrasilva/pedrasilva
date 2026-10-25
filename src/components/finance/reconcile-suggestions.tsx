@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Stage C reconciliation UI:
@@ -197,7 +196,7 @@ export function EntradaConfirmMatchSheet({
       onClose();
     } catch (e) {
       // The document stays confirmed; the movement is simply not matched yet.
-      toast.error(`${t("finance:reconSuggest.matchFailed")} ${translateError((e as Error).message)}`);
+      toast.error(`${t("finance:reconSuggest.matchFailed")} ${(e as Error).message}`);
       invalidateRecon(qc);
       onClose();
     }
@@ -307,7 +306,7 @@ export function ReviewSuggestionsDialog({ periodId, onClose }: { periodId: strin
       invalidateRecon(qc);
       next("confirmed");
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     }
   }
 
@@ -404,7 +403,7 @@ export function MatchRulesPanel({ classifications, isPt }: { classifications: Ar
   });
   async function update(id: string, patch: Partial<RuleRow>) {
     const { error } = await supabase.from("bank_classification_rules").update(patch as never).eq("id", id);
-    if (error) { toast.error(translateError(error.message)); return; }
+    if (error) { toast.error(error.message); return; }
     toast.success(t("finance:reconSuggest.rules.saved"));
     qc.invalidateQueries({ queryKey: ["finance", "bank-rules"] });
     qc.invalidateQueries({ queryKey: ["finance", "reconcile-suggestions"] });

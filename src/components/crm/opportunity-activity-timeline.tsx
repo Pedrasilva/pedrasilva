@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -76,7 +75,7 @@ export function OpportunityActivityTimeline({ opportunityId }: { opportunityId: 
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       ref.current?.focus();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const remove = useMutation({
@@ -87,7 +86,7 @@ export function OpportunityActivityTimeline({ opportunityId }: { opportunityId: 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   useEffect(() => {

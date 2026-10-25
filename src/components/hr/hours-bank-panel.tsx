@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Hours bank panel.
@@ -92,7 +91,7 @@ export function HoursBankPanel({
       toast.success(t("hoursBank.savedToast"));
       setOpeningOpen(false);
     } catch (e) {
-      toast.error(translateError((e as Error)?.message) ?? uiI18n.t("common:error"));
+      toast.error((e as Error)?.message ?? uiI18n.t("common:error"));
     }
   };
 
@@ -171,7 +170,7 @@ export function HoursBankPanel({
       reset();
       setOpen(false);
     } catch (e) {
-      toast.error(translateError((e as Error)?.message) ?? uiI18n.t("common:error"));
+      toast.error((e as Error)?.message ?? uiI18n.t("common:error"));
     } finally {
       setSaving(false);
     }

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +42,7 @@ export function ReviewQueueInventorySection({
       if (error) throw error;
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }),
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const status = invoice?.inventory_status ?? null;

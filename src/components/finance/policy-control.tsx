@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Spending policy for one record: document override → supplier default (current
  * entity) → category default. Shows where the effective policy comes from and
@@ -51,7 +50,7 @@ export function PolicyControl({
   async function setOverride(v: string) {
     const { error } = await (supabase as never as { from: (t: string) => any })
       .from(table).update({ spending_policy_override: v === AUTO ? null : v }).eq("id", recordId);
-    if (error) return toast.error(translateError(error.message));
+    if (error) return toast.error(error.message);
     toast.success(t("policyControl.saved"));
     qc.invalidateQueries({ queryKey: ["finance", "policy"] });
   }
@@ -59,7 +58,7 @@ export function PolicyControl({
     if (!supplierId) return;
     const { error } = await (supabase as never as { rpc: (f: string, a: unknown) => any })
       .rpc("fin_set_supplier_policy", { _company: supplierId, _policy: v === AUTO ? null : v });
-    if (error) return toast.error(translateError(error.message));
+    if (error) return toast.error(error.message);
     toast.success(t("policyControl.saved"));
     qc.invalidateQueries({ queryKey: ["finance", "policy"] });
   }

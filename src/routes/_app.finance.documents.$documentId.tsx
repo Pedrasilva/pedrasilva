@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Document editor route. Handles both:
@@ -248,7 +247,7 @@ function DocumentEditorPage() {
       contentType: file.type,
     });
     if (error) {
-      toast.error(translateError(error.message));
+      toast.error(error.message);
       return;
     }
     setHeader((h) => ({ ...h, file_path: path }));
@@ -281,7 +280,7 @@ function DocumentEditorPage() {
         .createSignedUrl(header.file_path, 60);
       if (error || !data) {
         toast.error(
-          translateError(error?.message) ?? (e instanceof Error ? translateError(e.message) : uiI18n.t("finance:attachments.openFailed")),
+          error?.message ?? (e instanceof Error ? e.message : uiI18n.t("finance:attachments.openFailed")),
         );
         return;
       }

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Finance › Bancos › Cartões: the current entity's payment cards (list, add,
  * edit, deactivate). Only the last 4 digits are ever stored. Credit-card
@@ -65,7 +64,7 @@ export function PaymentCardsList() {
     const res = draft.id
       ? await supabase.from("payment_cards").update(row).eq("id", draft.id)
       : await supabase.from("payment_cards").insert({ ...row, entity_id: await currentEntityId() });
-    if (res.error) return toast.error(translateError(res.error.message));
+    if (res.error) return toast.error(res.error.message);
     toast.success(t("finance:cards.saved"));
     setDraft(null);
     qc.invalidateQueries({ queryKey: PAYMENT_CARDS_KEY });
@@ -73,13 +72,13 @@ export function PaymentCardsList() {
 
   const setActive = async (c: PaymentCard, active: boolean) => {
     const { error } = await supabase.from("payment_cards").update({ active }).eq("id", c.id);
-    if (error) return toast.error(translateError(error.message));
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: PAYMENT_CARDS_KEY });
   };
 
   const setSettles = async (accountId: string, from: string | null) => {
     const { error } = await supabase.from("bank_accounts").update({ settles_from_account_id: from }).eq("id", accountId);
-    if (error) return toast.error(translateError(error.message));
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["finance", "accounts-lite"] });
   };
 

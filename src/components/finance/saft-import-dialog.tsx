@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +52,7 @@ export function SaftImportDialog() {
       if (f.size>20*1024*1024) throw new Error('fileTooLarge');
       const result = parseSaft(await f.text());
       setFile(f);setParsed(result);setSelected({});setAssignments({});setComplete({});
-    } catch(e) { toast.error(t(`finance:provisional.errors.${e instanceof Error ? translateError(e.message) : 'invalidXml'}`)); }
+    } catch(e) { toast.error(t(`finance:provisional.errors.${e instanceof Error ? e.message : 'invalidXml'}`)); }
   }
   async function apply() {
     const chosen = rows.filter(r=>selected[r.d.number] && r.allowed);

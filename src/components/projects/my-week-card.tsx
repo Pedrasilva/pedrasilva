@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * "My week" — the collaborator-facing weekly status strip shown above the
@@ -224,7 +223,7 @@ export function MyWeekCard({
                       setChangeReason("");
                       toast.success(t("timesheetWeek.requestChangeToast"));
                     },
-                    onError: (e: unknown) => toast.error(translateError((e as Error)?.message) ?? uiI18n.t("common:error")),
+                    onError: (e: unknown) => toast.error((e as Error)?.message ?? uiI18n.t("common:error")),
                   },
                 )
               }
@@ -285,7 +284,7 @@ export function MyWeekCard({
                       toast.success(t("timesheetWeek.submittedToast"));
                     },
                     onError: (e: unknown) =>
-                      toast.error(translateError((e as Error)?.message) ?? t("timesheetWeek.submitFailed")),
+                      toast.error((e as Error)?.message ?? t("timesheetWeek.submitFailed")),
                   },
                 );
               }}

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -492,7 +491,7 @@ export function SubmitExpenseDialog({
       setOpen(false);
       onCreated();
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : t("hr:beneficios.toasts.errors.submit"));
+      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.submit"));
     } finally {
       setSubmitting(false);
     }

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -95,7 +94,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
       toast.success(i18n.t("projects:newRetainerStageDialog.ui.retainerStageCreated"));
       setOpen(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     } finally {
       setBusy(false);
     }

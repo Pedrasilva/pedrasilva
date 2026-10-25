@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
@@ -76,14 +75,14 @@ export function CaptureContextCard({ captureId, hasProfile, profileId, canCurate
       qc.invalidateQueries({ queryKey: key });
       qc.invalidateQueries({ queryKey: ["marketing-captures"] });
       qc.invalidateQueries({ queryKey: ["marketing-story-suggestions"] });
-    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
     finally { setBusy(false); }
   };
 
   const remove = async (id: string) => {
     if (!window.confirm(t("context.deleteConfirm"))) return;
     try { await delFn({ data: { noteId: id } }); qc.invalidateQueries({ queryKey: key }); }
-    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
+    catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
   };
 
   const recordBtn = allowed && !open ? (

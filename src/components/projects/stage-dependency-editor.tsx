@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -107,7 +106,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
       setNewType("FS");
       toast.success(t("projects:gantt.toasts.linkCreated"));
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 
@@ -160,7 +159,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                         if (!adapter.updateDependency) return;
                         adapter
                           .updateDependency({ id: d.id, patch: { type: v as DepType } })
-                          .catch((err) => toast.error(translateError((err as Error).message)));
+                          .catch((err) => toast.error((err as Error).message));
                       }}
                     >
                       <SelectTrigger className="h-7 w-[140px] text-[11px]">
@@ -184,7 +183,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                         if (v === d.lag_days) return;
                         adapter
                           .updateDependency({ id: d.id, patch: { lag_days: v } })
-                          .catch((err) => toast.error(translateError((err as Error).message)));
+                          .catch((err) => toast.error((err as Error).message));
                       }}
                       className="h-7 w-16 text-xs"
                       title={t("projects:gantt.dependency.lagWorkingDays")}
@@ -193,7 +192,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                       onClick={() =>
                         adapter
                           .deleteDependency(d.id)
-                          .catch((err) => toast.error(translateError((err as Error).message)))
+                          .catch((err) => toast.error((err as Error).message))
                       }
                       className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"
                       aria-label={i18n.t("common:remove")}

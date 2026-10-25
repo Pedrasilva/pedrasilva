@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -190,7 +189,7 @@ function UsersTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const remove = useMutation({
@@ -203,7 +202,7 @@ function UsersTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const users = usersQuery.data ?? [];

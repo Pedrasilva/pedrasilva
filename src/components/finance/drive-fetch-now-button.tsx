@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,7 +21,7 @@ export function DriveFetchNowButton() {
       (r.failed ? toast.error : toast.success)(r.errors.length ? `${msg} ${r.errors[0]}` : msg);
       await qc.invalidateQueries({ queryKey: ["finance"] });
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     } finally {
       setBusy(false);
     }

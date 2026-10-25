@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import { Trans, useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -127,7 +126,7 @@ function ValorBOPage() {
       toast.success(uiI18n.t("hr:batchFive.labels.parametersSaved"));
       qc.invalidateQueries({ queryKey: ["bo-settings"] });
     },
-    onError: (e: unknown) => toast.error(translateError((e as Error).message)),
+    onError: (e: unknown) => toast.error((e as Error).message),
   });
 
   // Pega na ficha de referência (efectiva ou, se não houver, proposta) por colaborador

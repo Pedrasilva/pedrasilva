@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Fast modal: create a financial_document (with one line and a payment link)
  * starting from a bank transaction.
@@ -272,7 +271,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
       onCreated?.();
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : String(translateError((e as { message?: string })?.message) ?? e));
+      toast.error(e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e));
     }
   }
 

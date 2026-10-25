@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
@@ -86,7 +85,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
       toast.success(locked ? i18n.t("projects:stageBaselineDialog.ui.baselineUpdated") : i18n.t("projects:stageBaselineDialog.ui.baselineSet"));
       setOpen(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 
@@ -97,7 +96,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
       toast.success(i18n.t("projects:stageBaselineDialog.ui.baselineRemoved"));
       setOpen(false);
     } catch (err) {
-      toast.error(translateError((err as Error).message));
+      toast.error((err as Error).message);
     }
   }
 

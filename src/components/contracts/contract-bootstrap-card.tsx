@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Stage 6A — Project Bootstrap card.
  * Renders ONLY for signed contracts. Shows a deterministic preview of the
@@ -132,7 +131,7 @@ export function ContractBootstrapCard({ contractId }: { contractId: string }) {
                     params: { projectId: res.projectId },
                   });
                 },
-                onError: (e: Error) => toast.error(translateError(e.message)),
+                onError: (e: Error) => toast.error(e.message),
               },
             );
           }}

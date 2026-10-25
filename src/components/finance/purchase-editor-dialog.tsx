@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Purchase editor — multi-line supplier invoice / credit note workspace.
@@ -413,7 +412,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       }
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : String(e));
+      toast.error(e instanceof Error ? e.message : String(e));
     }
   }
 
@@ -429,7 +428,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
         toast.success(t("finance:purchases.confirmed"));
         onClose();
       } catch (e) {
-        toast.error(e instanceof Error ? translateError(e.message) : String(e));
+        toast.error(e instanceof Error ? e.message : String(e));
       }
     } else {
       await handleSave("issued");
@@ -444,7 +443,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       toast.success(t("finance:purchases.cancelled"));
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : String(e));
+      toast.error(e instanceof Error ? e.message : String(e));
     }
   }
 

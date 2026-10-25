@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Admin-only reset tool for project test data.
@@ -105,7 +104,7 @@ export function AdminResetProjectsTool() {
       // eslint-disable-next-line no-console
       console.info("[project reset]", data);
     },
-    onError: (err) => toast.error(err instanceof Error ? translateError(err.message) : String(err)),
+    onError: (err) => toast.error(err instanceof Error ? err.message : String(err)),
   });
 
   const total = counts.data

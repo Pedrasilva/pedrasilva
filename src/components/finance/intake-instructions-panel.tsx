@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 /**
  * Finance → Inbox → Instruções: free-text rules for the document reader,
  * global or scoped to a supplier NIF or a sender address/domain.
@@ -63,7 +62,7 @@ export function IntakeInstructionsPanel({ highlightId }: { highlightId?: string 
       if (error) throw error;
     },
     onSuccess: () => { setText(""); setValue(""); toast.success(t("finance:intakeInbox.instructions.saved")); qc.invalidateQueries({ queryKey: KEY }); },
-    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
 
   return (
@@ -136,7 +135,7 @@ function InstructionRow({ row, highlight, locale }: { row: Row; highlight: boole
       if (error) throw error;
     },
     onSuccess: () => { setEditing(false); qc.invalidateQueries({ queryKey: KEY }); },
-    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
   const del = useMutation({
     mutationFn: async () => {
@@ -144,7 +143,7 @@ function InstructionRow({ row, highlight, locale }: { row: Row; highlight: boole
       if (error) throw error;
     },
     onSuccess: () => { toast.success(t("finance:intakeInbox.instructions.deleted")); qc.invalidateQueries({ queryKey: KEY }); },
-    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
 
   return (

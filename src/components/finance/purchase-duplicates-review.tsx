@@ -26,7 +26,7 @@ const eur = (n: number) => n.toLocaleString(uiI18n.language, { style: "currency"
 
 async function openFile(path: string) {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 120);
-  if (error || !data) return toast.error(translateError(error?.message) ?? uiI18n.t("finance:attachments.unavailable"));
+  if (error || !data) return toast.error(error?.message ?? uiI18n.t("finance:attachments.unavailable"));
   window.open(data.signedUrl, "_blank", "noopener");
 }
 
@@ -84,7 +84,7 @@ function GroupCard({ g }: { g: DupGroup }) {
       setReason("");
       await qc.invalidateQueries({ queryKey: ["finance", "purchase-duplicates"] });
     } catch (e) {
-      toast.error(translateError((e as Error).message));
+      toast.error((e as Error).message);
     } finally {
       setBusy(false);
     }

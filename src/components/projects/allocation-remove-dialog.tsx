@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,7 +29,7 @@ export function AllocationRemoveDialog({ open, onOpenChange, allocationId, name,
       <AlertDialogAction disabled={mode === null} className={mode === "delete" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : undefined} onClick={async () => {
         if (!mode) return;
         try { await onRemove(mode); toast.success(mode === "delete" ? t("historySafety.deleted") : t("historySafety.retired")); }
-        catch (e) { toast.error(mode === "delete" ? t("historySafety.blocked") : translateError((e as Error).message)); }
+        catch (e) { toast.error(mode === "delete" ? t("historySafety.blocked") : (e as Error).message); }
       }}>{mode === "delete" ? t("historySafety.delete") : t("historySafety.retire")}</AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent></AlertDialog>;

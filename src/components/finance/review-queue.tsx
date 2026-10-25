@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * D3 — Financial document review queue.
@@ -334,7 +333,7 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
       toast.success(t("finance:reviewQueue.uploadDone"));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     } catch (e) {
-      toast.error(e instanceof Error ? translateError(e.message) : String(e));
+      toast.error(e instanceof Error ? e.message : String(e));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -758,7 +757,7 @@ export function QueueItemCard({
       toast.success(t("finance:reviewQueue.saved"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   /** Reviewer override when the AI could not anchor the firm's own VAT. */
@@ -774,7 +773,7 @@ export function QueueItemCard({
       toast.success(t("finance:reviewQueue.saved"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const confirmFn = useServerFn(confirmQueueItem);
@@ -814,7 +813,7 @@ export function QueueItemCard({
       invalidate();
       onConfirmed?.(res.documentId);
     },
-    onError: (e: Error) => { toast.error(translateError(e.message)); onConfirmFailed?.(); },
+    onError: (e: Error) => { toast.error(e.message); onConfirmFailed?.(); },
   });
 
   const doReject = useMutation({
@@ -823,7 +822,7 @@ export function QueueItemCard({
       toast.success(t("finance:reviewQueue.rejected"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const doReprocess = useMutation({
@@ -836,7 +835,7 @@ export function QueueItemCard({
       toast.success(t("finance:reviewQueue.reextracted"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const readOnlyEarly = row.status !== "pending_review";

@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import { formatEUR } from "@/lib/product-ui-format";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -138,7 +137,7 @@ function OpportunitiesPage() {
         try {
           await instantiate.mutateAsync({ quoteId: data.id, templateId });
         } catch (e) {
-          toast.error(translateError((e as Error).message));
+          toast.error((e as Error).message);
         }
       }
       return data;
@@ -149,7 +148,7 @@ function OpportunitiesPage() {
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
     onError: (e: Error) => {
-      toast.error(translateError(e.message));
+      toast.error(e.message);
       setCreatingFor(null);
       setChooserOpp(null);
     },
@@ -180,7 +179,7 @@ function OpportunitiesPage() {
               .update({ archived_at: null, archived_by: null })
               .eq("id", quoteId);
             if (error) {
-              toast.error(translateError(error.message));
+              toast.error(error.message);
               return;
             }
             qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
@@ -189,7 +188,7 @@ function OpportunitiesPage() {
         },
       });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteQuote = useMutation({
@@ -214,7 +213,7 @@ function OpportunitiesPage() {
           onClick: async () => {
             const { error } = await supabase.rpc("restore_fee_proposal", { _proposal_id: quoteId });
             if (error) {
-              toast.error(translateError(error.message));
+              toast.error(error.message);
               return;
             }
             qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
@@ -223,7 +222,7 @@ function OpportunitiesPage() {
         },
       });
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
 
@@ -747,7 +746,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
       reset();
       onClose();
     },
-    onError: (e: Error) => toast.error(translateError(e.message)),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (

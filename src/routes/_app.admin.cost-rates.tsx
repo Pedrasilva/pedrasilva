@@ -1,4 +1,3 @@
-import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -48,17 +47,17 @@ function CostRatesPage() {
   const mRebuild = useMutation({
     mutationFn: () => rebuild(),
     onSuccess: (r) => { toast.success(t("costRates.rebuilt", { count: r.periods })); done(); },
-    onError: (e) => toast.error(translateError((e as Error).message)),
+    onError: (e) => toast.error((e as Error).message),
   });
   const mBackfill = useMutation({
     mutationFn: () => backfill(),
     onSuccess: (r) => { toast.success(t("costRates.backfilled", { count: r.written })); done(); },
-    onError: (e) => toast.error(translateError((e as Error).message)),
+    onError: (e) => toast.error((e as Error).message),
   });
   const mRecalc = useMutation({
     mutationFn: () => recalc({ data: { from, resourceId: resourceId || null } }),
     onSuccess: (r) => { toast.success(t("costRates.recalculated", { count: r.changed })); done(); },
-    onError: (e) => toast.error(translateError((e as Error).message)),
+    onError: (e) => toast.error((e as Error).message),
   });
 
   const d = q.data;
