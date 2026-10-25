@@ -1,7 +1,7 @@
 ## Current request — Translation batch 4 (CRM, Products, Inventory, Inbox)
-- [ ] Translate UI, indirect labels and locale formatting without changing stored values, documents or Finance.
-- [ ] Prune resolved baseline signatures, run i18n tests and report per-file counts and exclusions.
-- [ ] Verify company detail and project items in PT/EN using browser-local fixtures only; screenshots and document hash proof.
+- [x] Translate UI, indirect labels and locale formatting without changing stored values, documents or Finance.
+- [x] Prune resolved baseline signatures, run i18n tests and report per-file counts and exclusions.
+- [x] Verify company detail and project items in PT/EN using browser-local fixtures only; screenshots and document hash proof.
 
 ## Current request — Translation batch 3 (Quotes + proposal editor)
 - [x] Translate editor-only controls, indirect labels and locale formatting; preserve document language and Finance work.

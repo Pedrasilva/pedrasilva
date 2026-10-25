@@ -1,0 +1,32 @@
+{
+  "pages": [
+    {
+      "page": "company",
+      "language": "pt-PT",
+      "url": "/crm/companies/00000000-0000-4000-8000-00000000b401",
+      "rawKeys": []
+    },
+    {
+      "page": "company",
+      "language": "en",
+      "url": "/crm/companies/00000000-0000-4000-8000-00000000b401",
+      "rawKeys": []
+    },
+    {
+      "page": "items",
+      "language": "pt-PT",
+      "url": "/products/project/00000000-0000-4000-8000-00000000b402",
+      "rawKeys": []
+    },
+    {
+      "page": "items",
+      "language": "en",
+      "url": "/products/project/00000000-0000-4000-8000-00000000b402",
+      "rawKeys": []
+    }
+  ],
+  "errors": [],
+  "blockedWrites": [],
+  "documentHash": "aaae3f199276ec01de9ecbf0f7679f278a898994202b9b58d99acb03e8deb251",
+  "documentUnchanged": true
+}
