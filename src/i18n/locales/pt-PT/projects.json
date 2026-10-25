@@ -513,7 +513,7 @@
       "done": "Ainda sem tarefas concluídas."
     },
     "errors": {
-      "updateFailed": "Não foi possível actualizar a tarefa"
+      "updateFailed": "Não foi possível atualizar a tarefa"
     },
     "project": "Projecto"
   },
@@ -555,7 +555,7 @@
       "outsideDates": "{{hours}}h fora das datas planeadas",
       "importedHours": "Importado: {{hours}}h (custo guardado na importação)",
       "loadFailed": "Não foi possível carregar as horas registadas.",
-      "limited": "Apenas são mostradas actividades autorizadas. Os totais dos meses concluídos usam resumos do projecto; o mês actual pode estar incompleto."
+      "limited": "Apenas são mostradas actividades autorizadas. Os totais dos meses concluídos usam resumos do projecto; o mês atual pode estar incompleto."
     },
     "wdShort": "d.ú.",
     "title": "Gantt Global",
@@ -721,7 +721,7 @@
       "monthHint": "Mês de planeamento: quatro semanas / 20 dias úteis",
       "initialize": "Usar cronologia relativa",
       "preview": "Pré-visualização do plano relativo",
-      "circularReview": "O plano actual contém ligações circulares. A pré-visualização exclui apenas as ligações indicadas abaixo.",
+      "circularReview": "O plano atual contém ligações circulares. A pré-visualização exclui apenas as ligações indicadas abaixo.",
       "removeReviewedLinks": "Ao confirmar, estas ligações são removidas e o plano relativo apresentado é guardado. Cancelar não altera nada.",
       "confirmCorrection": "Remover ligações indicadas e inicializar",
       "startWeek": "Semana de início",
@@ -1100,7 +1100,7 @@
       "internalLabel": "Alerta de tempo interno (% do tempo de trabalho)",
       "internalHint": "Sinaliza pessoas cujo tempo interno não facturável excede esta quota do tempo de trabalho.",
       "rangeError": "Mín tem de ser inferior a Máx, entre 0 e 100",
-      "saved": "Alvos de utilização actualizados"
+      "saved": "Alvos de utilização atualizados"
     },
     "unmappedUser": "Utilizador não mapeado",
     "filters": {
@@ -1161,7 +1161,7 @@
     },
     "trend": {
       "title": "Tendência de previsão (6 meses)",
-      "subtitle": "Receita vs custo projectados a partir do Gantt actual",
+      "subtitle": "Receita vs custo projectados a partir do Gantt atual",
       "revenue": "Receita",
       "cost": "Custo",
       "profit": "Lucro"
@@ -1226,7 +1226,7 @@
         "descriptionPlaceholder": "ex. Comboio para o Porto",
         "category": "Categoria",
         "supplier": "Fornecedor",
-        "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
+        "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para atualizar.",
         "vendor": "Fornecedor",
         "amount": "Valor",
         "incurredAt": "Data da despesa",
@@ -1252,7 +1252,7 @@
         },
         "toast": {
           "created": "Despesa adicionada.",
-          "updated": "Despesa actualizada."
+          "updated": "Despesa atualizada."
         }
       },
       "confirmDelete": {
@@ -1310,7 +1310,7 @@
       "description": "Descrição",
       "descriptionPlaceholder": "ex. Consultor de estruturas",
       "supplier": "Fornecedor",
-      "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
+      "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para atualizar.",
       "supplierName": "Fornecedor",
       "supplierContact": "Contacto do fornecedor",
       "quantity": "Quantidade",
@@ -1349,7 +1349,7 @@
       },
       "toast": {
         "created": "Serviço externo adicionado.",
-        "updated": "Serviço externo actualizado."
+        "updated": "Serviço externo atualizado."
       }
     },
     "confirmDelete": {
@@ -1420,7 +1420,7 @@
       },
       "toast": {
         "created": "Fornecedor criado.",
-        "updated": "Fornecedor actualizado."
+        "updated": "Fornecedor atualizado."
       }
     },
     "toast": {
@@ -1464,7 +1464,7 @@
       "descriptionPlaceholder": "ex. Comboio para o Porto",
       "category": "Categoria",
       "supplier": "Fornecedor",
-      "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
+      "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para atualizar.",
       "vendor": "Fornecedor",
       "amount": "Valor",
       "incurredAt": "Data da despesa",
@@ -1512,7 +1512,7 @@
       },
       "toast": {
         "created": "Despesa adicionada.",
-        "updated": "Despesa actualizada."
+        "updated": "Despesa atualizada."
       }
     },
     "confirmDelete": {
@@ -1584,7 +1584,7 @@
     "billable": "Facturável",
     "rate": "Tarifa €/h",
     "stage": "Fase",
-    "actions": "Acções",
+    "actions": "Ações",
     "approve": "Aprovar",
     "reject": "Rejeitar",
     "approved": "Registo aprovado",

@@ -103,8 +103,8 @@
       "back": "Voltar a oportunidades",
       "deleteConfirm": "Apagar esta oportunidade? As propostas ficarão órfãs.",
       "deletedToast": "Oportunidade apagada",
-      "stageUpdatedToast": "Fase actualizada",
-      "contactUpdatedToast": "Contacto actualizado",
+      "stageUpdatedToast": "Fase atualizada",
+      "contactUpdatedToast": "Contacto atualizado",
       "overview": "Resumo",
       "summary": "Resumo",
       "company": "Empresa",
@@ -118,7 +118,7 @@
       "quoteStructure": "Estrutura",
       "quoteStatus": "Estado",
       "quoteFee": "Fee",
-      "nextActionTitle": "Próxima acção",
+      "nextActionTitle": "Próxima ação",
       "nextActionPlaceholder": "Qual é o próximo passo?",
       "overdue": "Em atraso",
       "dueSoon": "Em breve",
@@ -140,7 +140,7 @@
     "activity": {
       "title": "Actividade",
       "add": "Registar actividade",
-      "empty": "Ainda sem actividade. Registe a primeira interacção.",
+      "empty": "Ainda sem actividade. Registe a primeira interação.",
       "placeholder": "O que aconteceu? (Cmd/Ctrl+Enter para gravar)",
       "shortcut": "Cmd/Ctrl + Enter para gravar",
       "errorEmpty": "Conteúdo obrigatório",
@@ -266,7 +266,7 @@
     "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
     "convertNoAccountWarning": "Sem conta atribuída",
     "setAccountFirst": " (definir conta primeiro)",
-    "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
+    "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
     "newQuoteDialog": {
       "title": "Nova proposta",
       "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
@@ -317,7 +317,7 @@
       "converting": "A converter…",
       "dialog": {
         "sendTitle": "Enviar proposta",
-        "sendDesc": "Marcar esta proposta como enviada ao cliente? Nenhum email será enviado — apenas o estado é actualizado.",
+        "sendDesc": "Marcar esta proposta como enviada ao cliente? Nenhum email será enviado — apenas o estado é atualizado.",
         "sendConfirmCta": "Marcar como enviada",
         "approveTitle": "Aprovar proposta",
         "approveDesc": "Marcar esta proposta como aprovada? A oportunidade será movida para Ganho.",
@@ -335,12 +335,12 @@
     },
     "convertDialog": {
       "title": "Converter em projecto",
-      "description": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
+      "description": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
       "confirm": "Criar projecto"
     },
     "deleteDialog": {
       "title": "Eliminar proposta",
-      "description": "Esta acção irá remover permanentemente a proposta e todos os dados de planeamento associados. Não pode ser desfeita.",
+      "description": "Esta ação irá remover permanentemente a proposta e todos os dados de planeamento associados. Não pode ser desfeita.",
       "confirm": "Eliminar"
     },
     "accountField": {
@@ -447,9 +447,9 @@
     },
     "publish": {
       "title": "Pré-visualizar e Publicar",
-      "description": "Reveja a proposta e utilize as acções de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projecto operacional.",
-      "placeholderNote": "A pré-visualização e publicação inline serão adicionadas numa fase posterior. Por enquanto, use o documento de proposta gerado no Passo 2 e as acções do cabeçalho para fazer avançar a proposta.",
-      "headerActionsHint": "As acções do cabeçalho (Enviar / Aprovar / Converter) continuam a ser a fonte de verdade para mudanças de estado.",
+      "description": "Reveja a proposta e utilize as ações de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projecto operacional.",
+      "placeholderNote": "A pré-visualização e publicação inline serão adicionadas numa fase posterior. Por enquanto, use o documento de proposta gerado no Passo 2 e as ações do cabeçalho para fazer avançar a proposta.",
+      "headerActionsHint": "As ações do cabeçalho (Enviar / Aprovar / Converter) continuam a ser a fonte de verdade para mudanças de estado.",
       "editEstimate": "Editar estimativa",
       "editContent": "Editar conteúdo",
       "readinessTitle": "Prontidão",
@@ -661,7 +661,7 @@
         "applyExisting": "Recalcular alocações existentes",
         "reset": "Usar predefinido (50%)",
         "save": "Guardar",
-        "saved": "Margem de venda actualizada",
+        "saved": "Margem de venda atualizada",
         "invalid": "Introduza uma percentagem válida."
       }
     },
@@ -669,7 +669,7 @@
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
       "noTeam": "Ainda não há equipa atribuída a esta proposta.",
       "stageWithoutAllocation": "{{count}} fase(s) sem alocação: {{names}}",
-      "negativeProfit": "Esta proposta tem actualmente lucro negativo. Reveja honorários, custos ou âmbito.",
+      "negativeProfit": "Esta proposta tem atualmente lucro negativo. Reveja honorários, custos ou âmbito.",
       "zeroProfit": "Lucro zero — a proposta cobre o custo mas não gera margem.",
       "externalNoSupplier": "{{count}} serviço(s) externo(s) sem fornecedor."
     },
@@ -767,7 +767,7 @@
       "markupHint": "Lucro ÷ custo (quanto se acrescenta sobre o custo).",
       "marginHint": "Lucro ÷ fee (parte do fee que é lucro).",
       "saveMultiplier": "Guardar",
-      "multiplierSaved": "Multiplicador actualizado"
+      "multiplierSaved": "Multiplicador atualizado"
     },
     "proposal": {
       "documentLabel": "Proposta",
@@ -839,7 +839,7 @@
         "subtitle": "Cria uma proposta estruturada e editável a partir deste orçamento, usando a biblioteca de blocos.",
         "generate": "Gerar documento de proposta",
         "regenerate": "Regenerar rascunho",
-        "regenerateWarning": "Regenerar substitui o rascunho actual. Edições aos blocos serão perdidas.",
+        "regenerateWarning": "Regenerar substitui o rascunho atual. Edições aos blocos serão perdidas.",
         "generating": "A gerar…",
         "success": "Documento de proposta gerado.",
         "error": "Falha ao gerar o documento de proposta.",
@@ -1345,7 +1345,7 @@
         "noPlaceholder": "Sem envelope de placeholder — adicione um baseline para activar correspondência.",
         "match": "Disciplina correspondente",
         "available": "Disponível {{hours}}h",
-        "loaded": "Actualmente a {{pct}}% de utilização",
+        "loaded": "Atualmente a {{pct}}% de utilização",
         "score": "Pontuação {{score}}"
       }
     }
@@ -1456,7 +1456,7 @@
     "matchedCompany": "Empresa encontrada",
     "matchedOpportunity": "Oportunidade aberta (só actividade)",
     "noMatch": "Nenhum — será criado",
-    "nextAction": "Próxima acção",
+    "nextAction": "Próxima ação",
     "nextActionDate": "Data de seguimento",
     "mentionedDateHint": "O email mencionava {{date}}",
     "attachments": "Anexos (não guardados)",
