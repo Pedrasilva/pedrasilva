@@ -1,3 +1,8 @@
+## Current request — Portfolio identity review
+- [ ] Audit all nine patched function definitions and draft project foreign keys.
+- [ ] Add mirrored migration-time assertions and fix any failed identity/source checks.
+- [ ] Verify named-client blocking and portfolio clearance labels end-to-end using disposable fixtures; delete fixtures and report.
+
 ## Current request — Translation batch 0
 - [x] AST UI checker, explicit document/brand exceptions, nine regression tests and tests/CI signature-count ratchet.
 - [x] Corrected 72 unambiguous PT-PT values; English/Português picker labels confirmed; behavior and Finance untouched.
