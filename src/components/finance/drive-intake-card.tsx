@@ -85,14 +85,13 @@ export function DriveIntakeCard() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{r.file_name ?? r.drive_file_id}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(r.processed_at).toLocaleString()}
-                    {r.moved_to ? ` · moved to ${r.moved_to}` : ""}
+                    {r.moved_to ? uiI18n.t("finance:driveIntake.processed", { date: new Date(r.processed_at).toLocaleString(uiI18n.language), folder: r.moved_to }) : new Date(r.processed_at).toLocaleString(uiI18n.language)}
                   </p>
                   {(r.reason || r.error) && (
                     <p className="mt-1 text-xs text-destructive">{r.reason ?? r.error}</p>
                   )}
                 </div>
-                <Badge variant={statusVariant[r.status] ?? "outline"}>{r.status}</Badge>
+                <Badge variant={statusVariant[r.status] ?? "outline"}>{uiI18n.t(`finance:driveIntake.status.${r.status}`, { defaultValue: r.status })}</Badge>
               </div>
             ))}
           </div>

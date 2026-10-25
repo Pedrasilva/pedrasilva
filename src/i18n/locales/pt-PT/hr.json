@@ -1573,7 +1573,11 @@
       "confirmBody": "Vai carregar {{count}} ficheiros para o Google Drive. Operação idempotente — pode ser repetida com segurança.",
       "confirmNote": "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase nem do Drive.",
       "confirmRun": "Sim, sincronizar",
-      "toastDone": "Concluído: {{created}} carregados · {{skipped}} ignorados · {{failed}} falhados"
+      "toastDone": "Concluído: {{created}} carregados · {{skipped}} ignorados · {{failed}} falhados",
+      "sharedDriveWarning": "Aviso: os ficheiros pertencem à conta Google ligada ao conector. Para maior resiliência, configure <code>{{variable}}</code> com uma pasta num Drive partilhado da empresa (por exemplo, <code>{{example}}</code>), partilhada com a conta do conector com permissão de escrita. Os ficheiros já arquivados em O meu disco permanecem nesse local; apenas as novas sincronizações usam o Drive partilhado.",
+      "rootArchivePath": "Arquivo: <code>Drive partilhado · pasta raiz {{id}}…</code> {{path}}",
+      "sharedArchivePath": "Arquivo: <code>Drive partilhado {{id}}…</code> {{path}}",
+      "personalArchivePath": "Arquivo: <code>O meu disco (conta do conector)</code> {{path}}"
     },
     "overview": {
       "remaining": "Disponível",
@@ -2168,7 +2172,9 @@
       "projectTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Projeto — VBG ({{value1}} colab.)",
       "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destino: pasta partilhada (root folder {{value1}}…) numa Shared Drive da empresa.",
       "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Backoffice — VBG ({{value1}} colab.)",
-      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Projeto — VBG ({{value1}} colab.)"
+      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Projeto — VBG ({{value1}} colab.)",
+      "workingDaysDefinedIn": "Definido em <strong>Definições → Dias úteis</strong>.",
+      "showArchivedCount": "Mostrar arquivados ({{count}})"
     }
   },
   "leave": {

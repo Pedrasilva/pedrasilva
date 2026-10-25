@@ -214,7 +214,8 @@
         "gantt": {
           "title": "Gantt preview (read-only)",
           "hint": "Visual preview of how stages will appear on the project Gantt after commit.",
-          "people": "people"
+          "people": "people",
+          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h"
         },
         "source": {
           "explicit": "Explicit",
@@ -603,7 +604,11 @@
     "hoursPerDayShort": "h/d",
     "perHour": "/h",
     "hoursPerDayEnd": "h/d.",
-    "hoursTimes": "h ×"
+    "hoursTimes": "h ×",
+    "hourValue": "{{value}} h",
+    "approxHourValue": "{{approx}}{{value}} h",
+    "percentagePointValue": "{{sign}}{{value}} p.p.",
+    "versus": "{{actual}} vs {{target}}"
   },
   "imported": "Imported",
   "accessDenied": "Access denied.",
@@ -738,5 +743,27 @@
   "workingDaysCount_other": "{{count}} working days",
   "labelForPerson": "{{label}} for {{person}}",
   "start": "Start",
-  "end": "End"
+  "end": "End",
+  "information": "Information",
+  "navigationUi": {
+    "primary": "Primary navigation",
+    "modules": "Modules",
+    "breadcrumb": "Breadcrumb",
+    "pagination": "Pagination",
+    "morePages": "More pages",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "sidebar": "Sidebar",
+    "sidebarHint": "Mobile navigation menu.",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "collaboratorPhoto": {
+    "updated": "Photo updated",
+    "removed": "Photo removed",
+    "change": "Change photo",
+    "upload": "Upload photo",
+    "hint": "JPG, PNG or WEBP · maximum 5 MB. The photo appears throughout the app (for example, on Gantt resources).",
+    "invalidFormat": "Invalid format. Use JPG, PNG or WEBP.",
+    "tooLarge": "File too large (maximum 5 MB)."
+  }
 }

@@ -144,7 +144,8 @@
       "pending": "Pendente",
       "rolled_back": "Anulada",
       "archived": "Arquivada"
-    }
+    },
+    "moveFailed": "Não foi possível mover a importação"
   },
   "module": {
     "title": "Finanças",
@@ -2799,5 +2800,52 @@
     "continuityBreak": "Saldo final anterior {{previous}} (diferença {{difference}})",
     "review": "Rever",
     "confirmOne": "Confirmar"
+  },
+  "attachments": {
+    "unavailable": "Ficheiro indisponível",
+    "openFailed": "Não foi possível abrir o anexo"
+  },
+  "companyImport": {
+    "supplierTitle": "Importar fornecedores (Excel)",
+    "clientTitle": "Importar clientes (Excel)",
+    "hint": "Pré-visualize antes de guardar. Correspondência por NIF → código → nome. Os dados existentes nunca são eliminados.",
+    "file": "Ficheiro Excel (.xlsx)",
+    "columns": "Colunas detetadas",
+    "match": "Correspondência",
+    "warnings": "Avisos",
+    "matchedBy": "(correspondência por {{method}})",
+    "includeConflicts": "Incluir conflitos na importação (atualizar a correspondência existente mesmo com NIF ou código divergente)",
+    "overwriteCodes": "Substituir os códigos existentes pelo código importado",
+    "confirm": "Confirmar importação",
+    "selectFile": "Selecione um ficheiro Excel",
+    "previewFirst": "Pré-visualize primeiro o ficheiro",
+    "parsed_one": "{{count}} linha lida",
+    "parsed_other": "{{count}} linhas lidas",
+    "storageWarning": "Armazenamento: {{message}}",
+    "result": "Importação concluída: {{created}} criados · {{updated}} atualizados · {{skipped}} ignorados · {{errors}} erros",
+    "actions": {
+      "create": "Criar",
+      "update": "Atualizar",
+      "skip": "Ignorar",
+      "conflict": "Conflito",
+      "invalid": "Inválido"
+    },
+    "rowsLabel": "Linhas: {{count}}",
+    "createLabel": "A criar: {{count}}",
+    "updateLabel": "A atualizar: {{count}}",
+    "conflictsLabel": "Conflitos: {{count}}",
+    "invalidLabel": "Linhas inválidas: {{count}}"
+  },
+  "driveIntake": {
+    "title": "Entrada por pasta do Google Drive",
+    "hint": "Coloque documentos digitalizados (PDF, JPEG, PNG) na pasta partilhada «Finance Intake» do Google Drive. A cada 5 minutos, entram na fila de revisão de documentos e são movidos para «Processed» (ou «Failed» se não puderem ser lidos).",
+    "open": "Abrir pasta de entrada",
+    "empty": "Ainda não foram recolhidos ficheiros.",
+    "processed": "{{date}} · movido para {{folder}}",
+    "status": {
+      "queued": "Na fila",
+      "skipped": "Ignorado",
+      "failed": "Falhou"
+    }
   }
 }

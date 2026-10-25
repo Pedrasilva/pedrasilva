@@ -2048,7 +2048,8 @@
     "pdfLoadFailed": "Could not load PDF",
     "invoiceNumber": "Invoice {{number}}",
     "architectureContract": "Architecture — contract total",
-    "supplierContract": "Suppliers — contract total"
+    "supplierContract": "Suppliers — contract total",
+    "replaceConfirmation": "This action will <strong>delete all blocks</strong> in this proposal and replace them with the blocks from template <strong>“{{name}}”</strong>. This operation cannot be undone."
   },
   "composer": {
     "blocks": {

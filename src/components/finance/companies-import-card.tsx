@@ -29,11 +29,11 @@ import {
 } from "@/lib/finance/imports/companies-importer";
 
 const ACTION_BADGE: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  create: { label: "Create", variant: "default" },
-  update: { label: "Update", variant: "secondary" },
-  skip: { label: "Skip", variant: "outline" },
-  conflict: { label: "Conflict", variant: "destructive" },
-  invalid: { label: "Invalid", variant: "destructive" },
+  create: { label: "finance:companyImport.actions.create", variant: "default" },
+  update: { label: "finance:companyImport.actions.update", variant: "secondary" },
+  skip: { label: "finance:companyImport.actions.skip", variant: "outline" },
+  conflict: { label: "finance:companyImport.actions.conflict", variant: "destructive" },
+  invalid: { label: "finance:companyImport.actions.invalid", variant: "destructive" },
 };
 
 export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
@@ -47,24 +47,24 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
 
   const previewMut = useMutation({
     mutationFn: async () => {
-      if (!file) throw new Error("Select an Excel file");
+      if (!file) throw new Error(uiI18n.t("finance:companyImport.selectFile"));
       return uploadAndPreviewCompanies(file, kind);
     },
     onSuccess: (p) => {
       setPreview(p);
-      toast.success(`Parsed ${p.totals.rows} rows`);
-      if (p.storageWarning) toast.warning(`Storage: ${p.storageWarning}`);
+      toast.success(uiI18n.t("finance:companyImport.parsed", { count: p.totals.rows }));
+      if (p.storageWarning) toast.warning(uiI18n.t("finance:companyImport.storageWarning", { message: p.storageWarning }));
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const commitMut = useMutation({
     mutationFn: async () => {
-      if (!preview) throw new Error("Preview first");
+      if (!preview) throw new Error(uiI18n.t("finance:companyImport.previewFirst"));
       return commitCompaniesImport(preview, { includeConflicts, overwriteExistingCodes: overwriteCodes });
     },
     onSuccess: (r) => {
-      toast.success(`Imported: ${r.created} created · ${r.updated} updated · ${r.skipped + r.conflicts} skipped · ${r.invalid} errors`);
+      toast.success(uiI18n.t("finance:companyImport.result", { created: r.created, updated: r.updated, skipped: r.skipped + r.conflicts, errors: r.invalid }));
       setPreview(null);
       setFile(null);
       qc.invalidateQueries({ queryKey: ["finance", "suppliers-master"] });
@@ -77,11 +77,11 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
   if (!isAdmin) return null;
 
   const title = kind === "supplier"
-    ? "Importar fornecedores (Excel)"
-    : "Importar clientes (Excel)";
+    ? uiI18n.t("finance:companyImport.supplierTitle")
+    : uiI18n.t("finance:companyImport.clientTitle");
   const subtitle = kind === "supplier"
-    ? "Pré-visualização segura antes de gravar. Match por NIF → código → nome. Nunca apaga dados existentes."
-    : "Pré-visualização segura antes de gravar. Match por NIF → código → nome. Nunca apaga dados existentes.";
+    ? uiI18n.t("finance:companyImport.hint")
+    : uiI18n.t("finance:companyImport.hint");
 
   return (
     <Card className="border-dashed">
@@ -116,11 +116,11 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
         {preview && (
           <>
             <div className="flex flex-wrap gap-3 text-xs">
-              <Badge variant="outline">Linhas: {preview.totals.rows}</Badge>
-              <Badge variant="default">Criar: {preview.totals.create}</Badge>
-              <Badge variant="secondary">Atualizar: {preview.totals.update}</Badge>
-              <Badge variant="destructive">Conflitos: {preview.totals.conflict}</Badge>
-              <Badge variant="destructive">Inválidas: {preview.totals.invalid}</Badge>
+              <Badge variant="outline">{t("finance:companyImport.rowsLabel", { count: preview.totals.rows })}</Badge>
+              <Badge variant="default">{t("finance:companyImport.createLabel", { count: preview.totals.create })}</Badge>
+              <Badge variant="secondary">{t("finance:companyImport.updateLabel", { count: preview.totals.update })}</Badge>
+              <Badge variant="destructive">{t("finance:companyImport.conflictsLabel", { count: preview.totals.conflict })}</Badge>
+              <Badge variant="destructive">{t("finance:companyImport.invalidLabel", { count: preview.totals.invalid })}</Badge>
             </div>
 
             <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
@@ -152,7 +152,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
                       <TableRow key={r.parsed.rowNumber}>
                         <TableCell className="text-xs text-muted-foreground">{r.parsed.rowNumber}</TableCell>
                         <TableCell>
-                          <Badge variant={b.variant} className="text-[10px]">{b.label}</Badge>
+                          <Badge variant={b.variant} className="text-[10px]">{t(b.label)}</Badge>
                         </TableCell>
                         <TableCell className="text-sm">{r.parsed.nome ?? "—"}</TableCell>
                         <TableCell className="text-xs font-mono">
@@ -166,7 +166,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
                           {r.matchedCompany ? (
                             <>
                               {r.matchedCompany.nome}
-                              <span className="text-muted-foreground"> (by {r.matchedBy})</span>
+                              <span className="text-muted-foreground"> {t("finance:companyImport.matchedBy", { method: r.matchedBy })}</span>
                             </>
                           ) : <span className="text-muted-foreground">—</span>}
                         </TableCell>

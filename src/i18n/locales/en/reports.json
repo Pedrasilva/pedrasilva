@@ -255,7 +255,8 @@
       "viewTimesheet": "View timesheet",
       "none": "No hours in this period.",
       "noProject": "No project"
-    }
+    },
+    "segmentHint": "{{name}}: {{hours}} ({{percent}}%)"
   },
   "capacity": {
     "title": "Capacity forecast",

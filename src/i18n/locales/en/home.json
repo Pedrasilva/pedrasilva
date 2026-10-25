@@ -9,7 +9,11 @@
     "viewTeam": "View team plan",
     "notPlanned": "Week not planned yet",
     "planNext": "Plan next week",
-    "status": { "noDraft": "No draft", "draft": "Draft", "approved": "Approved" }
+    "status": {
+      "noDraft": "No draft",
+      "draft": "Draft",
+      "approved": "Approved"
+    }
   },
   "tagline": "We make room for creativity.",
   "intro": "Welcome to the PSA team space. Here we share the tools, projects and small moments that build the studio — every day.",
@@ -131,5 +135,10 @@
     "title": "Questions for you",
     "answer": "Answer",
     "record": "Record briefing"
+  },
+  "portfolio": {
+    "moveCategory": "Move to category",
+    "removeImage": "Remove “{{name}}”?",
+    "imageRemoved": "Image removed"
   }
 }

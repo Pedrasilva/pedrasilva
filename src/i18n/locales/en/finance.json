@@ -144,7 +144,8 @@
       "pending": "Pending",
       "rolled_back": "Undone",
       "archived": "Archived"
-    }
+    },
+    "moveFailed": "Move failed"
   },
   "module": {
     "title": "Finance",
@@ -2799,5 +2800,52 @@
     "continuityBreak": "Previous closing {{previous}} (difference {{difference}})",
     "review": "Review",
     "confirmOne": "Confirm"
+  },
+  "attachments": {
+    "unavailable": "File not available",
+    "openFailed": "Unable to open attachment"
+  },
+  "companyImport": {
+    "supplierTitle": "Import suppliers (Excel)",
+    "clientTitle": "Import clients (Excel)",
+    "hint": "Preview before saving. Match by tax number → code → name. Existing data is never deleted.",
+    "file": "Excel file (.xlsx)",
+    "columns": "Detected columns",
+    "match": "Match",
+    "warnings": "Warnings",
+    "matchedBy": "(matched by {{method}})",
+    "includeConflicts": "Include conflicts in the import (update the existing match even when the tax number or code differs)",
+    "overwriteCodes": "Replace existing codes with the imported code",
+    "confirm": "Confirm import",
+    "selectFile": "Select an Excel file",
+    "previewFirst": "Preview the file first",
+    "parsed_one": "{{count}} row read",
+    "parsed_other": "{{count}} rows read",
+    "storageWarning": "Storage: {{message}}",
+    "result": "Import complete: {{created}} created · {{updated}} updated · {{skipped}} skipped · {{errors}} errors",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "skip": "Skip",
+      "conflict": "Conflict",
+      "invalid": "Invalid"
+    },
+    "rowsLabel": "Rows: {{count}}",
+    "createLabel": "To create: {{count}}",
+    "updateLabel": "To update: {{count}}",
+    "conflictsLabel": "Conflicts: {{count}}",
+    "invalidLabel": "Invalid rows: {{count}}"
+  },
+  "driveIntake": {
+    "title": "Drive folder intake",
+    "hint": "Place scanned documents (PDF, JPEG, PNG) in the shared “Finance Intake” Drive folder. Every 5 minutes, they enter the document review queue and move to “Processed” (or “Failed” if they cannot be read).",
+    "open": "Open intake folder",
+    "empty": "No files picked up yet.",
+    "processed": "{{date}} · moved to {{folder}}",
+    "status": {
+      "queued": "Queued",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    }
   }
 }

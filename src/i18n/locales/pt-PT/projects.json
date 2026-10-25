@@ -1254,7 +1254,8 @@
       "allPeople": "Todas as pessoas",
       "backOffice": "Back office",
       "projects": "Projetos"
-    }
+    },
+    "timeShare": "{{percent}} do tempo total"
   },
   "forecast": {
     "eyebrow": "Atelier",

@@ -1573,7 +1573,11 @@
       "confirmBody": "About to upload {{count}} files to Google Drive. Operation is idempotent — safe to rerun.",
       "confirmNote": "Files are copied to the Google account linked to the connector. Nothing is deleted from Supabase or Drive.",
       "confirmRun": "Yes, sync now",
-      "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed"
+      "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed",
+      "sharedDriveWarning": "Warning: files belong to the Google account linked to the connector. For resilience, set <code>{{variable}}</code> to a folder in a company Shared Drive (e.g. <code>{{example}}</code>) shared with the connector account with write access. Files already archived in My Drive stay there; only new syncs go to the Shared Drive.",
+      "rootArchivePath": "Archive: <code>Shared Drive · root folder {{id}}…</code> {{path}}",
+      "sharedArchivePath": "Archive: <code>Shared Drive {{id}}…</code> {{path}}",
+      "personalArchivePath": "Archive: <code>My Drive (connector account)</code> {{path}}"
     },
     "overview": {
       "remaining": "Remaining",
@@ -2168,7 +2172,9 @@
       "projectTeamTotalCostTotalGrossValueWithValues": "Project team total cost — Total Gross Value ({{value1}} collaborators)",
       "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
       "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
-      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
+      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)",
+      "workingDaysDefinedIn": "Defined in <strong>Settings → Working days</strong>.",
+      "showArchivedCount": "Show archived ({{count}})"
     }
   },
   "leave": {

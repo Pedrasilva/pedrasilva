@@ -347,7 +347,9 @@
       "viewTheAppAsWithValues": "Ver a app como {{value1}}",
       "visibleToWithValues": "Visível para {{value1}}",
       "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
-      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome."
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
+      "previewRows": "Linhas correspondentes: {{matched}} de {{total}}.",
+      "previewRowsLimited": "Linhas correspondentes: {{matched}} de {{total}} (apenas as primeiras {{shown}} apresentadas)."
     }
   },
   "permissions": {
@@ -527,5 +529,40 @@
       "viewReports": "Ver relatórios",
       "openTheReportsModuleHoursLoggedAndOtherStudioReports": "Abrir Relatórios (horas registadas e outros relatórios do atelier)."
     }
+  },
+  "restricted": {
+    "title": "Acesso restrito",
+    "confidentialHint": "Esta página contém informação confidencial e está reservada à equipa Backoffice. Para consultar a sua ficha salarial, visite a <sheet>Minha ficha</sheet>.",
+    "permissionHint": "Não tem permissão para consultar esta página. Se precisar de acesso, contacte um administrador. Pode sempre consultar a <sheet>sua ficha pessoal</sheet>."
+  },
+  "viewAs": {
+    "selected": "A ver como {{name}}",
+    "exit": "Sair da vista de colaborador",
+    "choose": "Ver como colaborador…",
+    "activeHint": "A ver como colaborador. Escolha outro colaborador ou saia desta vista.",
+    "previewHint": "Pré-visualizar a aplicação como um colaborador",
+    "mode": "Vista de colaborador",
+    "short": "Ver como…",
+    "search": "Procurar colaboradores…",
+    "empty": "Nenhum colaborador encontrado.",
+    "group": "Ver a aplicação como…",
+    "exitBanner": "Vista de colaborador · Sair"
+  },
+  "login": {
+    "title": "PSA Recursos Humanos",
+    "subtitle": "Inicie sessão com a sua conta Google da empresa",
+    "redirecting": "A redirecionar…",
+    "google": "Entrar com Google",
+    "hint": "O acesso é concedido se o seu email Google estiver associado a um colaborador.",
+    "failed": "Não foi possível iniciar sessão"
+  },
+  "consent": {
+    "loadFailed": "Não foi possível carregar este pedido de autorização: {{error}}",
+    "title": "Ligar {{name}} ao Portal Pedra Silva?",
+    "body": "Esta ligação permite que {{name}} utilize as ferramentas do Portal Pedra Silva em seu nome, respeitando as suas permissões. Pode revogar o acesso mais tarde.",
+    "application": "uma aplicação",
+    "approve": "Autorizar",
+    "deny": "Recusar",
+    "noRedirect": "O servidor de autorização não devolveu um redirecionamento."
   }
 }

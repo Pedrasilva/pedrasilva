@@ -280,7 +280,7 @@ function GalleryTile({
             title={uiI18n.t("common:remove")}
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Remove "${entry.name}"?`)) {
+              if (confirm(uiI18n.t("home:portfolio.removeImage", { name: entry.name }))) {
                 del.mutate(entry, {
                   onSuccess: () => toast.success(uiI18n.t("home:portfolio.imageRemoved")),
                   onError: (err) => toast.error((err as Error).message),

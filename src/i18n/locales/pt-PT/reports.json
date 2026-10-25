@@ -255,7 +255,8 @@
       "viewTimesheet": "Ver folha de horas",
       "none": "Sem horas neste período.",
       "noProject": "Sem projeto"
-    }
+    },
+    "segmentHint": "{{name}}: {{hours}} ({{percent}}%)"
   },
   "capacity": {
     "title": "Previsão de capacidade",

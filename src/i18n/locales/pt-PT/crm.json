@@ -2048,7 +2048,8 @@
     "pdfLoadFailed": "Não foi possível carregar o PDF",
     "invoiceNumber": "Fatura {{number}}",
     "architectureContract": "Arquitetura — total do contrato",
-    "supplierContract": "Fornecedores — total do contrato"
+    "supplierContract": "Fornecedores — total do contrato",
+    "replaceConfirmation": "Esta ação vai <strong>eliminar todos os blocos</strong> desta proposta e substituí-los pelos blocos do modelo <strong>«{{name}}»</strong>. Esta operação não pode ser anulada."
   },
   "composer": {
     "blocks": {

@@ -9,7 +9,11 @@
     "viewTeam": "Ver plano da equipa",
     "notPlanned": "Semana ainda não planeada",
     "planNext": "Planear próxima semana",
-    "status": { "noDraft": "Sem rascunho", "draft": "Rascunho", "approved": "Aprovado" }
+    "status": {
+      "noDraft": "Sem rascunho",
+      "draft": "Rascunho",
+      "approved": "Aprovado"
+    }
   },
   "tagline": "We make room for creativity.",
   "intro": "Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as ferramentas, os projectos e os pequenos momentos que constroem o atelier — todos os dias.",
@@ -131,5 +135,10 @@
     "title": "Perguntas para si",
     "answer": "Responder",
     "record": "Gravar briefing"
+  },
+  "portfolio": {
+    "moveCategory": "Mover para categoria",
+    "removeImage": "Remover «{{name}}»?",
+    "imageRemoved": "Imagem removida"
   }
 }
