@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { groupInvoices } from "@/lib/quotes/invoice-grouping";
@@ -20,7 +21,7 @@ export function ConversionInvoicePreview({ quoteId, payments }: { quoteId: strin
       return { items: items.data as Array<{ id: string; payment_terms: string | null; vat_rate: number | null; billing_status: string | null; direction: string | null }>, quote: quote.data as { invoice_grouping_enabled: boolean; invoice_grouping_days: number } };
     },
   });
-  const eur = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR" }).format(n);
+  const eur = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
   const meta = new Map((q.data?.items ?? []).map((i) => [i.id, i]));
   const byId = new Map(payments.map((p) => [p.id, p]));
   const groups = q.data?.quote.invoice_grouping_enabled

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -61,7 +62,7 @@ export function InvoiceGroupingControl({ kind, id, disabled = false }: { kind: K
 
   const enabled = !!q.data?.invoice_grouping_enabled;
   const days = q.data?.invoice_grouping_days ?? 7;
-  const fmt = (n: number) => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+  const fmt = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 
   return (
     <div className="flex flex-wrap items-center gap-3">

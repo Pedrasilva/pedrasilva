@@ -92,22 +92,22 @@ const FontSize = Extension.create({
 });
 
 const FONT_FAMILIES: { label: string; value: string }[] = [
-  { label: "Padrão", value: "" },
-  { label: "Sans (Inter)", value: "Inter, system-ui, sans-serif" },
-  { label: "Serif (Georgia)", value: "Georgia, 'Times New Roman', serif" },
-  { label: "Mono (JetBrains)", value: "'JetBrains Mono', ui-monospace, monospace" },
+  { label: "crm:composer.typography.default", value: "" },
+  { label: "crm:composer.typography.sansInter", value: "Inter, system-ui, sans-serif" },
+  { label: "crm:composer.typography.serifGeorgia", value: "Georgia, 'Times New Roman', serif" },
+  { label: "crm:composer.typography.monoJetBrains", value: "'JetBrains Mono', ui-monospace, monospace" },
   { label: "Signifier", value: "'Signifier', Georgia, serif" },
   { label: "The Future", value: "'The Future', Inter, sans-serif" },
 ];
 
 const FONT_SIZES: { label: string; value: string }[] = [
-  { label: "Pequeno (12)", value: "12px" },
-  { label: "Normal (14)", value: "14px" },
-  { label: "Médio (16)", value: "16px" },
-  { label: "Grande (18)", value: "18px" },
-  { label: "Título 3 (20)", value: "20px" },
-  { label: "Título 2 (24)", value: "24px" },
-  { label: "Título 1 (32)", value: "32px" },
+  { label: "crm:composer.typography.small12", value: "12px" },
+  { label: "crm:composer.typography.normal14", value: "14px" },
+  { label: "crm:composer.typography.medium16", value: "16px" },
+  { label: "crm:composer.typography.large18", value: "18px" },
+  { label: "crm:composer.typography.heading20", value: "20px" },
+  { label: "crm:composer.typography.heading24", value: "24px" },
+  { label: "crm:composer.typography.heading32", value: "32px" },
 ];
 
 /**
@@ -175,10 +175,10 @@ type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
 const SPACING_LABEL: Record<Spacing, string> = {
-  tight: "Compacto",
-  normal: "Normal",
-  relaxed: "Espaçado",
-  loose: "Muito espaçado",
+  tight: "crm:composer.spacing.tight",
+  normal: "crm:composer.spacing.normal",
+  relaxed: "crm:composer.spacing.relaxed",
+  loose: "crm:composer.spacing.loose",
 };
 const LINEHEIGHT_LABEL: Record<LineHeight, string> = {
   tight: "1.2",
@@ -353,7 +353,7 @@ function Toolbar({
              {uiI18n.t("crm:quoteEditor.font")} </DropdownMenuLabel>
           {FONT_FAMILIES.map((f) => (
             <DropdownMenuItem
-              key={f.label}
+              key={f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}
               onSelect={() => {
                 const chain = editor.chain().focus();
                 if (editor.state.selection.empty) chain.selectAll();
@@ -363,7 +363,7 @@ function Toolbar({
               className="text-xs"
               style={f.value ? { fontFamily: f.value } : undefined}
             >
-              {f.label}
+              {f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -408,7 +408,7 @@ function Toolbar({
               className="text-xs"
               style={{ fontSize: s.value }}
             >
-              {s.label}
+              {s.label.startsWith("crm:") ? uiI18n.t(s.label) : s.label}
             </DropdownMenuItem>
           ))}
 
@@ -500,7 +500,7 @@ function Toolbar({
                         (paragraphSpacing ?? "normal") === k && "bg-zinc-100 font-medium",
                       )}
                     >
-                      {SPACING_LABEL[k]}
+                      {uiI18n.t(SPACING_LABEL[k])}
                     </DropdownMenuItem>
                   ))}
                 </>

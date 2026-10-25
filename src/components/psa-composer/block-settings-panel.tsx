@@ -1,3 +1,4 @@
+import { SOURCE_UI_KEYS, RELEVANCE_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -68,7 +69,7 @@ function SectionLabel({
       <Label className="text-xs">{label}</Label>
       <div className="flex items-center gap-1.5">
         <span className="text-[10px] uppercase tracking-wider text-zinc-400">
-          {checked ? "On" : "Off"}
+          {checked ? uiI18n.t("crm:quoteEditor.on") : uiI18n.t("crm:quoteEditor.off")}
         </span>
         <Switch checked={checked} onCheckedChange={onCheckedChange} />
       </div>
@@ -179,7 +180,7 @@ export function BlockSettingsPanel({
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Título</Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.title")} </Label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -222,7 +223,7 @@ export function BlockSettingsPanel({
           <SelectContent>
             {(Object.keys(SOURCE_LABEL) as PsaSourceType[]).map((k) => (
               <SelectItem key={k} value={k}>
-                {SOURCE_LABEL[k]}
+                {uiI18n.t(SOURCE_UI_KEYS[k])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -903,7 +904,7 @@ export function BlockSettingsPanel({
           )}
           {block.block_type === "appendix_gantt" && (
             <div className="space-y-1">
-              <Label className="text-xs">Orientação</Label>
+              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.orientation")} </Label>
               <Select
                 value={
                   (block.content_rich?.page_orientation as string | undefined) ??
@@ -973,7 +974,7 @@ export function BlockSettingsPanel({
           <SelectContent>
             {(Object.keys(RELEVANCE_LABEL) as PsaContractRelevance[]).map((k) => (
               <SelectItem key={k} value={k}>
-                {RELEVANCE_LABEL[k]}
+                {uiI18n.t(RELEVANCE_UI_KEYS[k])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1041,7 +1042,7 @@ export function BlockSettingsPanel({
            {uiI18n.t("crm:quoteEditor.pageAlignmentHint")} </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <Label className="text-[10px] uppercase text-zinc-500">Vertical</Label>
+            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("crm:quoteEditor.vertical")} </Label>
             <Select
               value={(block.content_rich?.pageAlignY as string | undefined) ?? "none"}
               onValueChange={(v) =>
@@ -1063,7 +1064,7 @@ export function BlockSettingsPanel({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[10px] uppercase text-zinc-500">Horizontal</Label>
+            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("crm:quoteEditor.horizontal")} </Label>
             <Select
               value={(block.content_rich?.pageAlignX as string | undefined) ?? "none"}
               onValueChange={(v) =>

@@ -80,7 +80,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     if (isSentLocked) {
       toast.message(uiI18n.t("crm:quoteEditor.sentVersionLocked"), {
         description:
-          "Cria uma nova revisão para continuar a editar. As revisões enviadas mantêm-se intactas.",
+          uiI18n.t("crm:quoteEditor.newRevisionHelp"),
         action: {
           label: "Nova revisão",
           onClick: startNewRevision,
@@ -115,7 +115,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           <span className="flex items-center gap-2">
             <History className="h-3.5 w-3.5" />
              {uiI18n.t("crm:quoteEditor.viewRevisionPrefix")} {String(historical.revision.revNumber).padStart(2, "0")}  {uiI18n.t("crm:quoteEditor.sentOnPrefix")} {" "}
-            {new Date(historical.revision.sentAt).toLocaleDateString("pt-PT", {
+            {new Date(historical.revision.sentAt).toLocaleDateString(uiI18n.language, {
               day: "2-digit",
               month: "short",
               year: "numeric",

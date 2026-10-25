@@ -31,21 +31,21 @@ import type {
 
 const HEADING_FONTS = [
   { label: "The Future (Pedra Silva)", value: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif' },
-  { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
-  { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
-  { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
-  { label: "Source Serif (serif)", value: '"Source Serif 4", Georgia, serif' },
-  { label: "EB Garamond (classic serif)", value: '"EB Garamond", Georgia, serif' },
+  { label: "crm:composer.typography.interSans", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "crm:composer.typography.manropeSans", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
+  { label: "crm:composer.typography.frauncesSerif", value: '"Fraunces", Georgia, serif' },
+  { label: "crm:composer.typography.sourceSerif", value: '"Source Serif 4", Georgia, serif' },
+  { label: "crm:composer.typography.garamondSerif", value: '"EB Garamond", Georgia, serif' },
 ];
 
 const BODY_FONTS = [
   { label: "Signifier (Pedra Silva)", value: '"Signifier", "Source Serif 4", Georgia, serif' },
   { label: "The Future (Pedra Silva)", value: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif' },
-  { label: "Source Serif (serif)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
-  { label: "EB Garamond (classic serif)", value: '"EB Garamond", Georgia, serif' },
-  { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
-  { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
-  { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
+  { label: "crm:composer.typography.sourceSerif", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
+  { label: "crm:composer.typography.garamondSerif", value: '"EB Garamond", Georgia, serif' },
+  { label: "crm:composer.typography.frauncesSerif", value: '"Fraunces", Georgia, serif' },
+  { label: "crm:composer.typography.interSans", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "crm:composer.typography.manropeSans", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
 ];
 
 const PSA_BRAND_PRESET: PsaProposalStyleSettings = {
@@ -58,17 +58,17 @@ const PSA_BRAND_PRESET: PsaProposalStyleSettings = {
 
 
 const WEIGHTS = [
-  { label: "Regular (400)", value: 400 },
-  { label: "Medium (500)", value: 500 },
-  { label: "Semibold (600)", value: 600 },
-  { label: "Bold (700)", value: 700 },
+  { label: "crm:composer.typography.regular400", value: 400 },
+  { label: "crm:composer.typography.medium500", value: 500 },
+  { label: "crm:composer.typography.semibold600", value: 600 },
+  { label: "crm:composer.typography.bold700", value: 700 },
 ];
 
 const ALIGNMENTS: { label: string; value: NonNullable<PsaProposalStyleSettings["bodyAlign"]> }[] = [
-  { label: "Esquerda", value: "left" },
-  { label: "Justificado", value: "justify" },
-  { label: "Centrado", value: "center" },
-  { label: "Direita", value: "right" },
+  { label: "crm:composer.typography.left", value: "left" },
+  { label: "crm:composer.typography.justify", value: "justify" },
+  { label: "crm:composer.typography.center", value: "center" },
+  { label: "crm:composer.typography.right", value: "right" },
 ];
 
 export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
@@ -157,7 +157,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             {HEADING_FONTS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+              <SelectItem key={f.value} value={f.value}>{f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -172,7 +172,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             {WEIGHTS.map((w) => (
-              <SelectItem key={w.value} value={String(w.value)}>{w.label}</SelectItem>
+              <SelectItem key={w.value} value={String(w.value)}>{uiI18n.t(w.label)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -187,7 +187,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             {BODY_FONTS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+              <SelectItem key={f.value} value={f.value}>{f.label.startsWith("crm:") ? uiI18n.t(f.label) : f.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -202,7 +202,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             {ALIGNMENTS.map((a) => (
-              <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+              <SelectItem key={a.value} value={a.value}>{uiI18n.t(a.label)}</SelectItem>
             ))}
           </SelectContent>
         </Select>

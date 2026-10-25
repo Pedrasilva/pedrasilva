@@ -59,7 +59,7 @@ export function ImportTemplateDialog({
     if (!templateId) return;
     try {
       const count = await importMut.mutateAsync(templateId);
-      toast.success(uiI18n.t("crm:quoteEditor.blocksImported", { value1: count }));
+      toast.success(uiI18n.t("crm:quoteEditor.blocksImported", { count }));
       onOpenChange(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.importFailed"));
@@ -114,7 +114,7 @@ export function ImportTemplateDialog({
                             </div>
                           )}
                           <div className="mt-1 text-[11px] text-muted-foreground">
-                            {tpl.blocks_count}  {uiI18n.t("crm:quoteEditor.blockCountSuffix")} {tpl.stages_count}  {uiI18n.t("crm:workspace.consultants.phaseCount")} </div>
+                            {uiI18n.t("crm:quoteEditor.blockCount", { count: tpl.blocks_count })} · {uiI18n.t("crm:quoteEditor.stageCount", { count: tpl.stages_count })} </div>
                         </div>
                       </button>
                     ))}

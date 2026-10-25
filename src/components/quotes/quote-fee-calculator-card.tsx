@@ -322,7 +322,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
               : autoSaveState === "saved"
                 ? uiI18n.t("crm:quoteEditor.autosaved")
                 : autoSaveState === "error"
-                  ? "Erro ao guardar"
+                  ? uiI18n.t("crm:quoteEditor.saveFailed")
                   : ""}
           </span>
           <Button

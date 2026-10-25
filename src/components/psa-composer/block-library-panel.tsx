@@ -1,3 +1,4 @@
+import { BLOCK_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -37,7 +38,7 @@ export function BlockLibraryPanel({
 
   const items =
     lib.data?.filter((l) =>
-      !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+      !q ? true : uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label }).toLowerCase().includes(q.toLowerCase()),
     ) ?? [];
 
   const sorted = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
@@ -195,7 +196,7 @@ export function BlockLibraryPanel({
     },
   ];
   const filteredManual = manualEntries.filter((l) =>
-    !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+    !q ? true : uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label }).toLowerCase().includes(q.toLowerCase()),
   );
 
 
@@ -242,7 +243,7 @@ export function BlockLibraryPanel({
           }, 250);
         },
         onError: (e: unknown) => {
-          const msg = e instanceof Error ? e.message : "Erro ao adicionar bloco";
+          const msg = e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.addBlockFailed");
           toast.error(msg);
         },
       },
@@ -276,7 +277,7 @@ export function BlockLibraryPanel({
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{l.label}</div>
+                  <div className="truncate font-medium">{uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label })}</div>
                   <div className="mt-0.5 flex items-center gap-1">
                     <RelevanceBadge value={l.default_contract_relevance} />
                   </div>
@@ -293,7 +294,7 @@ export function BlockLibraryPanel({
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{l.label}</div>
+                  <div className="truncate font-medium">{uiI18n.t(BLOCK_UI_KEYS[l.kind], { defaultValue: l.label })}</div>
                   <div className="mt-0.5 flex items-center gap-1">
                     <RelevanceBadge value={l.default_contract_relevance} />
                   </div>

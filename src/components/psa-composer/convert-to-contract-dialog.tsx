@@ -1,3 +1,4 @@
+import { BLOCK_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -49,14 +50,14 @@ export function ConvertToContractDialog({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <section>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-700">
-               {uiI18n.t("crm:quoteEditor.migratePrefix")} {migrating.length})
+               {uiI18n.t("crm:quoteEditor.migratingBlocks", { count: migrating.length })}
             </h4>
             <ul className="space-y-1 rounded-md border bg-emerald-50/40 p-2 text-sm">
               {migrating.length ? (
                 migrating.map((b) => (
                   <li key={b.id} className="flex items-center justify-between gap-2">
                     <span className="truncate">
-                      <span className="text-zinc-400">{BLOCK_TYPE_LABEL[b.block_type]} · </span>
+                      <span className="text-zinc-400">{uiI18n.t(BLOCK_UI_KEYS[b.block_type])} · </span>
                       {b.title}
                     </span>
                     <RelevanceBadge value={b.contract_relevance} />
@@ -70,13 +71,13 @@ export function ConvertToContractDialog({
 
           <section>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-               {uiI18n.t("crm:quoteEditor.remainPrefix")} {skipped.length})
+               {uiI18n.t("crm:quoteEditor.remainingBlocks", { count: skipped.length })}
             </h4>
             <ul className="space-y-1 rounded-md border bg-zinc-50 p-2 text-sm">
               {skipped.map((b) => (
                 <li key={b.id} className="flex items-center justify-between gap-2">
                   <span className="truncate">
-                    <span className="text-zinc-400">{BLOCK_TYPE_LABEL[b.block_type]} · </span>
+                    <span className="text-zinc-400">{uiI18n.t(BLOCK_UI_KEYS[b.block_type])} · </span>
                     {b.title}
                   </span>
                   <RelevanceBadge value={b.contract_relevance} />

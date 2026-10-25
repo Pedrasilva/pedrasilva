@@ -87,7 +87,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-4 py-2 font-semibold">
-                    {isPt ? "Título" : "Title"}
+                    {isPt ? uiI18n.t("crm:quoteEditor.title") : uiI18n.t("crm:quoteEditor.title")}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
                     {isPt ? uiI18n.t("crm:quoteEditor.costHour") : uiI18n.t("crm:quoteEditor.costHour")}

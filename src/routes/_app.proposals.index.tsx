@@ -62,7 +62,7 @@ function ProposalsIndex() {
                     <div className="font-medium">{p.title}</div>
                     <div className="text-xs text-zinc-500">
                        {uiI18n.t("crm:quoteEditor.statusPrefix")} {p.status} ·{" "}
-                      {new Date(p.updated_at).toLocaleDateString("pt-PT")}
+                      {new Date(p.updated_at).toLocaleDateString(uiI18n.language)}
                     </div>
                   </div>
                 </Link>

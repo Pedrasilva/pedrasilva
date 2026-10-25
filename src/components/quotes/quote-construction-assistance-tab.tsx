@@ -55,7 +55,7 @@ interface Props {
 const NONE_STAGE = "__none__";
 
 function fmtMoney(n: number): string {
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 2,
@@ -920,8 +920,7 @@ function ResourceMultiSelect({
               size="sm"
               onClick={() => onChange([])}
             >
-              Clear
-            </Button>
+               {uiI18n.t("crm:quoteEditor.clear")} </Button>
           </div>
         )}
       </PopoverContent>

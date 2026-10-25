@@ -64,10 +64,10 @@ export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) 
           <div> {uiI18n.t("crm:quoteEditor.clientPrefix")} {latest.client_signer_name ?? "—"} ({latest.client_signer_email ?? "—"})</div>
           <div> {uiI18n.t("crm:quoteEditor.psaPrefix")} {latest.psa_signer_name ?? "—"} ({latest.psa_signer_email ?? "—"})</div>
           {latest.client_signed_at && (
-            <div> {uiI18n.t("crm:quoteEditor.clientSignedPrefix")} {new Date(latest.client_signed_at).toLocaleString("pt-PT")}</div>
+            <div> {uiI18n.t("crm:quoteEditor.clientSignedPrefix")} {new Date(latest.client_signed_at).toLocaleString(uiI18n.language)}</div>
           )}
           {latest.psa_signed_at && (
-            <div> {uiI18n.t("crm:quoteEditor.psaSignedPrefix")} {new Date(latest.psa_signed_at).toLocaleString("pt-PT")}</div>
+            <div> {uiI18n.t("crm:quoteEditor.psaSignedPrefix")} {new Date(latest.psa_signed_at).toLocaleString(uiI18n.language)}</div>
           )}
         </TooltipContent>
       </Tooltip>

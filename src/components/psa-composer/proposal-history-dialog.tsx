@@ -38,7 +38,7 @@ function relTime(iso: string) {
   if (h < 24) return `há ${h} h`;
   const days = Math.round(h / 24);
   if (days < 30) return `há ${days} d`;
-  return d.toLocaleString("pt-PT");
+  return d.toLocaleString(uiI18n.language);
 }
 
 export function ProposalHistoryDialog({

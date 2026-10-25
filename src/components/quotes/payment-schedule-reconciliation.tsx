@@ -118,7 +118,7 @@ export function PaymentScheduleReconciliation({
           <Metric label={uiI18n.t("crm:quoteEditor.stageContractTotal")} value={formatEUR(contractTotal)} />
           <Metric label={uiI18n.t("crm:quoteEditor.scheduledInflows")} value={formatEUR(scheduleTotal)} />
           <Metric
-            label="Diferença"
+            label={uiI18n.t("crm:quoteEditor.difference")}
             value={`${delta > 0 ? "+" : ""}${formatEUR(delta)}`}
             tone={balanced ? "ok" : "warn"}
           />
@@ -139,7 +139,7 @@ export function PaymentScheduleReconciliation({
                       <th className="px-2 py-1.5 text-left font-medium"> {uiI18n.t("glossary:entity.stage")} </th>
                       <th className="px-2 py-1.5 text-right font-medium"> {uiI18n.t("crm:workspace.planning.retainerMonthly.readings.fee")} </th>
                       <th className="px-2 py-1.5 text-right font-medium"> {uiI18n.t("crm:quoteEditor.scheduled")} </th>
-                      <th className="px-2 py-1.5 text-right font-medium">Diferença</th>
+                      <th className="px-2 py-1.5 text-right font-medium"> {uiI18n.t("crm:quoteEditor.difference")} </th>
                     </tr>
                   </thead>
                   <tbody>

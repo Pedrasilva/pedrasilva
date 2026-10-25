@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
+import { RELEVANCE_UI_KEYS } from "./editor-labels";
 /**
  * Coloured pill badge showing whether a block is Proposta, Contrato,
  * Ambos or Interno. Used in the canvas, library and settings panels.
@@ -16,6 +19,7 @@ export function RelevanceBadge({
   value: PsaContractRelevance;
   className?: string;
 }) {
+  useTranslation();
   return (
     <span
       className={cn(
@@ -24,7 +28,7 @@ export function RelevanceBadge({
         className,
       )}
     >
-      {RELEVANCE_LABEL[value]}
+      {uiI18n.t(RELEVANCE_UI_KEYS[value])}
     </span>
   );
 }

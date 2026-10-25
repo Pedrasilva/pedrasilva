@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Quote planner inspector — right-hand drawer that edits the selected stage.
  *
@@ -719,7 +720,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                       const budgetValue = Number(stage.budget ?? 0) || 0;
                       const saleSource = ((sx as { sale_source?: string | null }).sale_source ?? "allocation") as "allocation" | "budget";
                       const fmt = (n: number) =>
-                        new Intl.NumberFormat("pt-PT", {
+                        new Intl.NumberFormat(uiI18n.language, {
                           style: "currency",
                           currency: "EUR",
                           maximumFractionDigits: 0,
@@ -1034,7 +1035,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                       onClose();
                     },
                     onError: (e: unknown) => {
-                      toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+                      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.deleteStageFailed"));
                     },
                   });
                 }
@@ -1369,7 +1370,7 @@ function CurrencyInput({
   onCommit: (v: number) => void;
 }) {
   const fmt = (n: number) =>
-    new Intl.NumberFormat("pt-PT", {
+    new Intl.NumberFormat(uiI18n.language, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number.isFinite(n) ? n : 0);

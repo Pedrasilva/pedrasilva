@@ -238,7 +238,7 @@ export function SendProposalDialog({
                  {uiI18n.t("crm:quoteEditor.revisionShort")} {String(existingSnapshot?.revNumber ?? 0).padStart(2, "0")}
               </div>
               <div className="font-mono text-[13px] break-all">
-                {existingSnapshot?.filename ?? "PDF da revisão enviada"}
+                {existingSnapshot?.filename ?? uiI18n.t("crm:quoteEditor.sentRevisionPdf")}
               </div>
             </div>
           ) : (
@@ -321,7 +321,7 @@ export function SendProposalDialog({
               </div>
               <p className="text-xs text-muted-foreground">
                  {uiI18n.t("crm:quoteEditor.signatureOrderPrefix")} {" "}
-                <strong>{defaults?.psaSignerName ?? "signatário PSA (por configurar)"}</strong> {uiI18n.t("crm:quoteEditor.proposalBecomesPrefix")} <em> {uiI18n.t("crm:quoteEditor.accepted")} </em>  {uiI18n.t("crm:quoteEditor.bothSignaturesSuffix")} </p>
+                <strong>{defaults?.psaSignerName ?? uiI18n.t("crm:quoteEditor.unconfiguredPsaSigner")}</strong> {uiI18n.t("crm:quoteEditor.proposalBecomesPrefix")} <em> {uiI18n.t("crm:quoteEditor.accepted")} </em>  {uiI18n.t("crm:quoteEditor.bothSignaturesSuffix")} </p>
             </div>
           )}
         </div>

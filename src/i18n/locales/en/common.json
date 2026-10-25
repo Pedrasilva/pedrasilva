@@ -588,7 +588,9 @@
   "error": "Error",
   "duration": {
     "daysShort": "{{count}}d",
-    "hoursMinutes": "{{hours}}h {{minutes}}m"
+    "hoursMinutes": "{{hours}}h {{minutes}}m",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days"
   },
   "units": {
     "hoursShort": "h",

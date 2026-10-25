@@ -36,7 +36,7 @@ import {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
+    return new Date(iso).toLocaleDateString(uiI18n.language, {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -136,7 +136,7 @@ export function VersionsPanel({
               <div className="text-sm font-medium">
                  {uiI18n.t("crm:quoteEditor.revisionShort")} {String(r.rev_number).padStart(2, "0")}  {uiI18n.t("crm:quoteEditor.sentSuffix")} </div>
               <div className="truncate text-[11px] text-muted-foreground">
-                {formatDate(r.created_at)} · {r.pdf_filename ?? "sem ficheiro"}
+                {formatDate(r.created_at)} · {r.pdf_filename ?? uiI18n.t("crm:quoteEditor.noFile")}
               </div>
               {basedOn && (
                 <div className="text-[11px] text-indigo-600">

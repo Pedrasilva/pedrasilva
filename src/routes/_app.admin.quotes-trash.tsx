@@ -37,7 +37,7 @@ type TrashRow = {
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
-  try { return new Date(iso).toLocaleString("pt-PT"); } catch { return iso; }
+  try { return new Date(iso).toLocaleString(uiI18n.language); } catch { return iso; }
 }
 
 function QuotesTrashPage() {
@@ -118,14 +118,14 @@ function QuotesTrashPage() {
     >
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="truncate font-medium">{r.titulo ?? "(sem título)"}</span>
+          <span className="truncate font-medium">{r.titulo ?? uiI18n.t("crm:quoteEditor.untitled")}</span>
           {r.proposal_number && (
             <Badge variant="outline" className="text-[10px]">
               {r.proposal_number}{r.revision_number ? uiI18n.t("crm:quoteEditor.revisionSuffix", { value1: r.revision_number }) : ""}
             </Badge>
           )}
           {kind === "deleted" ? (
-            <Badge variant="destructive" className="text-[10px]"><Trash2 className="mr-1 h-3 w-3" />Eliminado</Badge>
+            <Badge variant="destructive" className="text-[10px]"><Trash2 className="mr-1 h-3 w-3" /> {uiI18n.t("crm:quoteEditor.deleted")} </Badge>
           ) : (
             <Badge variant="secondary" className="text-[10px]"><Archive className="mr-1 h-3 w-3" /> {uiI18n.t("common:archived")} </Badge>
           )}

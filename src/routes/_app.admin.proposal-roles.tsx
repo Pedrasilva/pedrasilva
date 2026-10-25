@@ -58,13 +58,13 @@ function ProposalRolesAdminPage() {
     mutationFn: async () => {
       const en = labelEn.trim();
       const pt = labelPt.trim() || en;
-      if (!en) throw new Error("Label is required");
+      if (!en) throw new Error(uiI18n.t("crm:quoteEditor.labelRequired"));
       const code = slug(en);
-      if (!code) throw new Error("Invalid code");
+      if (!code) throw new Error(uiI18n.t("crm:quoteEditor.invalidCode"));
       const maxSort = roles.reduce((m, r) => Math.max(m, r.sort_order), 0);
       const sen = seniority.trim() === "" ? null : Number(seniority);
       if (sen != null && (Number.isNaN(sen) || sen < 0 || sen > 100))
-        throw new Error("Seniority must be 0–100");
+        throw new Error(uiI18n.t("crm:quoteEditor.seniorityInvalid"));
       const { error } = await supabase.from("proposal_roles").insert({
         code,
         label_en: en,
@@ -123,7 +123,7 @@ function ProposalRolesAdminPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(isPt ? "Eliminado" : "Deleted");
+      toast.success(isPt ? uiI18n.t("crm:quoteEditor.deleted") : uiI18n.t("crm:quoteEditor.deleted"));
       invalidate();
     },
     onError: (e: Error) =>
@@ -348,7 +348,7 @@ function RoleRow({
             size="sm"
             variant="ghost"
             onClick={() => onArchive(!archived)}
-            title={archived ? (isPt ? uiI18n.t("crm:quoteEditor.restore") : "Restore") : (isPt ? "Arquivar" : "Archive")}
+            title={archived ? (isPt ? uiI18n.t("crm:quoteEditor.restore") : uiI18n.t("crm:quoteEditor.restore")) : (isPt ? uiI18n.t("crm:quoteEditor.archive") : uiI18n.t("crm:quoteEditor.archive"))}
           >
             {archived ? (
               <RotateCcw className="h-4 w-4" />
