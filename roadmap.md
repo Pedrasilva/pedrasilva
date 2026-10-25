@@ -1,3 +1,8 @@
+## Current request — finished reels
+- [ ] Private resumable video upload, shared validation, cover selection and manual caption assistance.
+- [ ] Normal hash-protected reel drafts, cover/feed publishing and preview integration; mirrored additive migration.
+- [ ] Fixture-only browser verification and cleanup, screenshots/report; no publishing or Finance edits.
+
 ## Current request — best posting times
 - [x] Verified online_followers through authenticated application function: empty response, unavailable, 0 slots. Daily optional snapshots + RLS-scoped RPC; migration 0183 mirrored. 50 historical media, none in last 90 days; no AI.
 - [x] Shared Lisbon hourly scoring, Calendar tints/drag suggestions and Insights grid; 33 fixture/mock tests and EN/PT parity pass. Authenticated week/Insights screenshots + remembered toggle verified; no real draft writes. Fixture browser drag simulation timed out and was stopped; real-data recommendations await data (0 recent posts/0 follower slots). No background test remains running.
