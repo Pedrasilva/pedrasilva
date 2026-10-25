@@ -5,6 +5,7 @@ describe('Marketing-only portfolio rules',()=>{
   const live={id:'live-project',name:'[TEST] live',profile_id:'live-profile',portfolio:false};
   it('portfolio capture links a profile, never an operational project',()=>expect(captureProjectPatch(portfolio.id,[portfolio,live])).toEqual({project_id:null,profile_id:'profile-key'}));
   it('live capture preserves the live reference',()=>expect(captureProjectPatch(live.id,[portfolio,live])).toEqual({project_id:'live-project',profile_id:'live-profile'}));
+  it('linked portfolio retains Marketing identity but stores the real live FK',()=>expect(captureProjectPatch('portfolio-key',[{...portfolio,portfolio:false,live_project_id:'imported-live'}])).toEqual({project_id:'imported-live',profile_id:'profile-key'}));
   it('removing project also removes profile',()=>expect(captureProjectPatch(null,[portfolio])).toEqual({project_id:null,profile_id:null}));
   it('describe-only keeps internal names and aliases out of AI',()=>expect(safeProfileForAI({name_rule:'describe_only',project_name:'Secret project',client:'Global Brand',aliases:['Global']})).toEqual({name_rule:'describe_only',project_name:null,client:null,aliases:[]}));
   it('allowed naming retains the client',()=>expect(safeProfileForAI({name_rule:'name',client:'Allowed Brand'}).client).toBe('Allowed Brand'));
