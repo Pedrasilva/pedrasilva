@@ -9,7 +9,7 @@ export async function getProjectProfilesForMatching() {
       "id, project_id, marketing_key, internal_name, internal_client, aliases, sector, location, client_ambition, central_idea, challenges, proud_of, key_facts, name_rule, public_description, pm_projects(name, client)",
     );
   if (error) throw error;
-  return ((data ?? []) as Array<Record<string, unknown> & { marketing_key: string; name_rule: string; internal_name: string | null; internal_client: string | null; pm_projects: { name: string; client: string | null } | null }>).map(
+  return ((data ?? []) as Array<Record<string, unknown> & { marketing_key: string; name_rule: string; public_description: string | null; internal_name: string | null; internal_client: string | null; pm_projects: { name: string; client: string | null } | null }>).map(
     ({ pm_projects, internal_name, internal_client, ...p }) => safeProfileForAI({
       ...p,
       project_id: p.marketing_key,

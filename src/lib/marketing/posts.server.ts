@@ -20,6 +20,7 @@ const strictest = (a: string | null | undefined, b: string | null | undefined) =
 };
 
 type Profile = {
+  id: string;
   project_id: string; project_name: string | null; client: string | null; sector: string | null; location: string | null;
   client_ambition: string | null; central_idea: string | null; challenges: string | null; proud_of: string | null;
   key_facts: string | null; name_rule: string; public_description: string | null;

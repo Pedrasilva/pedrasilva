@@ -114,8 +114,8 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
           ))}
         </ul>
       )}
-      {canCurate && <BriefingRequests projectId={projectId} />}
-      {askOpen && <AskBriefingDialog projectId={projectId} onClose={() => setAskOpen(false)} />}
+      {canCurate && projectId && <BriefingRequests projectId={projectId} />}
+      {askOpen && projectId && <AskBriefingDialog projectId={projectId} onClose={() => setAskOpen(false)} />}
     </Card>
   );
 }

@@ -55,7 +55,7 @@ const BUCKET = "marketing-assets";
 const MAX_SLIDES = 20;
 const MAX_REC_SECONDS = 600;
 
-type Comp = { id: string; profile_id: string; title: string; intent: string | null; status: "draft" | "sent"; idea_id: string | null; marketing_project_profiles: { project_id: string; pm_projects: { name: string } | null } | null };
+type Comp = { id: string; profile_id: string; title: string; intent: string | null; status: "draft" | "sent"; idea_id: string | null; marketing_project_profiles: { project_id: string | null; internal_name: string | null; pm_projects: { name: string } | null } | null };
 type Slide = { id: string; position: number; kind: "image" | "text"; media_id: string | null; capture_asset_id: string | null; text_heading: string | null; text_body: string | null; design_media_id: string | null };
 const slideAsset = (s: Slide) => (s.kind === "text" ? s.design_media_id : s.media_id ?? s.capture_asset_id);
 const safe = (n: string) => n.replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80);
@@ -85,7 +85,7 @@ function CarouselPage() {
   const { data: comp, isLoading } = useQuery({
     queryKey: compKey,
     queryFn: async () => {
-      const { data, error } = await db.from("marketing_compositions").select("*, marketing_project_profiles(project_id, pm_projects(name))").eq("id", id).maybeSingle();
+      const { data, error } = await db.from("marketing_compositions").select("*, marketing_project_profiles(project_id, internal_name, pm_projects(name))").eq("id", id).maybeSingle();
       if (error) throw error;
       return data as Comp | null;
     },
@@ -248,7 +248,7 @@ function CarouselPage() {
 
   if (isLoading) return <div className="p-6"><Loader2 className="h-5 w-5 animate-spin" /></div>;
   if (!comp) return <div className="p-6 text-sm text-muted-foreground">{t("carousel.notFound")}</div>;
-  const projectName = comp.marketing_project_profiles?.pm_projects?.name ?? "—";
+  const projectName = comp.marketing_project_profiles?.pm_projects?.name ?? comp.marketing_project_profiles?.internal_name ?? "—";
   const slideNo = new Map(order.map((s, i) => [s.id, i + 1]));
 
   return (
@@ -326,7 +326,7 @@ function CarouselPage() {
 
       <CommentsPanel compositionId={id} selected={selected} slideNo={slideNo} onClearSlide={() => setSelected(null)} canCurate={canCurate} />
 
-      {canCurate && comp.marketing_project_profiles && (
+      {canCurate && comp.marketing_project_profiles?.project_id && (
         <Card className="p-4">
           <NudgePanel compositionId={id} projectId={comp.marketing_project_profiles.project_id} hasProfile
             onSent={() => qc.invalidateQueries({ queryKey: ["marketing-composition-comments", id] })} />
@@ -427,8 +427,8 @@ function PhotoPicker({ profileId, projectId, inUse, room, onClose, onAdd }: {
         db.from("marketing_project_media").select("id, storage_path, caption, mime_type, kind, position, created_at")
           .eq("profile_id", profileId).eq("caption_status", "confirmed").neq("kind", "text_slide")
           .order("position", { ascending: true, nullsFirst: false }).order("created_at"),
-        projectId ? db.from("marketing_captures").select("id, ai_summary, marketing_capture_assets(id, storage_path, mime_type, position, created_at)")
-          .eq("project_id", projectId).order("received_at", { ascending: false }) : { data: [] },
+        db.from("marketing_captures").select("id, ai_summary, marketing_capture_assets(id, storage_path, mime_type, position, created_at)")
+          .eq("profile_id", profileId).order("received_at", { ascending: false }),
       ]);
       const library: PickItem[] = ((media ?? []) as { id: string; storage_path: string; caption: string | null; mime_type: string }[])
         .filter((m) => m.mime_type.startsWith("image/")).map((m) => ({ key: m.id, media_id: m.id, storage_path: m.storage_path, caption: m.caption }));
