@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -180,7 +181,7 @@ export function PaymentLedgerBackfillCard() {
                 <ul className="mt-1 space-y-1 text-xs">
                   {lastRun.failures.map((f, i) => (
                     <li key={i} className="font-mono">
-                      {f.expense_id.slice(0, 8)}… [{f.sqlstate}] {f.message}
+                      {f.expense_id.slice(0, 8)}… [{f.sqlstate}] {translateError(f.message)}
                     </li>
                   ))}
                 </ul>

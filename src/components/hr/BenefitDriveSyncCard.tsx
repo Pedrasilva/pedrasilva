@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -56,7 +57,7 @@ export function BenefitDriveSyncCard() {
       );
       if (res.failures?.length) {
         for (const f of res.failures.slice(0, 3)) {
-          toast.error(`${f.expense_id.slice(0, 8)}: ${f.message}`);
+          toast.error(`${f.expense_id.slice(0, 8)}: ${translateError(f.message)}`);
         }
       }
       qc.invalidateQueries({ queryKey: ["benefit-drive-sync-preview"] });
@@ -118,7 +119,7 @@ export function BenefitDriveSyncCard() {
             {t("hr:beneficios.history.loading", { defaultValue: "A carregar…" })}
           </p>
         ) : previewQ.isError ? (
-          <p className="text-sm text-destructive">{(previewQ.error as Error).message}</p>
+          <p className="text-sm text-destructive">{translateError((previewQ.error as Error).message)}</p>
         ) : stats ? (
           <>
             <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">

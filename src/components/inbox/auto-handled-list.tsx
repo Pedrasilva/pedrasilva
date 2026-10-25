@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Auto-handled audit tab — messages a sender rule resolved without human
@@ -36,7 +37,7 @@ export function AutoHandledList() {
   if (q.isError) {
     return (
       <Card className="p-10 text-center text-sm text-destructive">
-        {q.error instanceof Error ? q.error.message : t("inbox:queue.loadError")}
+        {q.error instanceof Error ? translateError(q.error) : t("inbox:queue.loadError")}
       </Card>
     );
   }

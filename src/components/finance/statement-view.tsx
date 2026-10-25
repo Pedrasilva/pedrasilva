@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Statement view — one component for bank accounts, clients and suppliers.
  *
@@ -447,7 +448,7 @@ export function StatementView({
       {statementQ.isError && (
         <Card>
           <CardContent className="p-4 text-sm text-destructive">
-            {(statementQ.error as Error).message}
+            {translateError((statementQ.error as Error).message)}
           </CardContent>
         </Card>
       )}

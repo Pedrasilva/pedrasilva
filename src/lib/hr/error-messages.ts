@@ -1,3 +1,4 @@
+import { translateErrorMessage } from '@/lib/translate-error';
 import type { TFunction } from "i18next";
 
 /**
@@ -15,6 +16,8 @@ export function humanizeMutationError(
       : typeof err === "string"
         ? err
         : "";
+  const translated = translateErrorMessage(raw, t);
+  if (translated !== raw) return translated;
   const msg = raw.toLowerCase();
 
   if (!msg) return t(fallbackKey);

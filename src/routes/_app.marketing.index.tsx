@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { MarketingProjectPicker } from "@/components/marketing/project-picker";
 import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { captureProjectPatch, type MarketingProjectOption } from "@/lib/marketing/portfolio";
@@ -667,7 +668,7 @@ function AiAnalysis({ capture, canCurate }: { capture: Capture; canCurate: boole
         </p>
       )}
       {dismissals.length > 0 && <div className="space-y-1 text-xs text-muted-foreground"><p className="font-medium">{t('clearanceReview.history')}</p>{dismissals.map(d => <p key={d.id}>{d.flag} — {t('clearanceReview.audit', { reason: d.reason, who: d.dismissed_by, when: new Date(d.dismissed_at).toLocaleString() })}</p>)}</div>}
-      {canCurate && capture.enrichment_error && <p className="text-xs text-destructive">{capture.enrichment_error}</p>}
+      {canCurate && capture.enrichment_error && <p className="text-xs text-destructive">{translateError(capture.enrichment_error)}</p>}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Admin-only read-only inconsistency report.
@@ -149,7 +150,7 @@ export function FinanceInconsistencyReport() {
           )}
           {q.error && (
             <div className="text-sm text-destructive">
-              {q.error instanceof Error ? q.error.message : String(q.error)}
+              {translateError(q.error)}
             </div>
           )}
           {q.data && total === 0 && (

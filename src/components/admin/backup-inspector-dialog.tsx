@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -125,7 +126,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
         )}
         {summaryQ.error && (
           <p className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-            {(summaryQ.error as Error).message}
+            {translateError((summaryQ.error as Error).message)}
           </p>
         )}
 
@@ -158,7 +159,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
                 <ul className="mt-1 list-inside list-disc">
                   {summaryQ.data.meta.errors.slice(0, 5).map((e) => (
                     <li key={e.table}>
-                      <code>{e.table}</code>: {e.message}
+                      <code>{e.table}</code>: {translateError(e.message)}
                     </li>
                   ))}
                 </ul>

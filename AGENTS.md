@@ -43,3 +43,5 @@
 - HR/payroll UI uses display-only locale formatters and render-time glossary terms with explicit first-appearance PT legal glosses; the candidate compensation print sheet keeps its own fixed Portuguese labels/date locale and salary formatter. Why: switching UI language must preserve calculations, stored enums and document hashes.
 
 - Application UI uses whole-sentence translation messages with interpolation or Trans markup and i18next plural counts; display-only locale formatters never alter input serialization or document output. Why: word order, plurality and formatting must follow the UI locale without changing data or client documents.
+
+- Server/RPC errors are translated only at presentation through the shared error translator and toast wrapper; exact/anchored known messages use paired errors-namespace keys, unknown details stay verbatim and stored errors are never rewritten. Why: localize user feedback without changing server semantics or publication evidence.

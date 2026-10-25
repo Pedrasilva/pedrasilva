@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,7 +26,7 @@ export function InstagramPublishControls({ draftId, status, canCurate, error, pe
  const actionable=['approved','scheduled','failed'].includes(status)&&!sentAt&&approval.data?.valid_approval===true;
  return <div className="space-y-2">
   <Badge variant={status==='failed'?'destructive':'secondary'}>{t(`posts.status.${status}`)}</Badge>
-  {error&&<p className="text-xs text-destructive">{error}</p>}
+  {error&&<p className="text-xs text-destructive">{translateError(error)}</p>}
   {permalink&&<a href={permalink} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-primary underline"><ExternalLink className="h-3 w-3"/>{t('publishing.openInstagram')}</a>}
   <div className="flex flex-wrap gap-2">
    {canCurate&&actionable&&<Button size="sm" variant="outline" disabled={busy} onClick={()=>setMode('schedule')}><CalendarClock className="mr-1 h-3.5 w-3.5"/>{t('calendar.schedulePublish')}</Button>}

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Reconciliation audit trail (stage D). Written only by database triggers on
@@ -134,7 +135,7 @@ export function ReconcileAuditRegister() {
         </CardHeader>
         <CardContent className="p-0">
           {query.isLoading ? <div className="p-4 space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-6" />)}</div>
-            : query.error ? <p className="p-4 text-sm text-destructive">{(query.error as Error).message}</p>
+            : query.error ? <p className="p-4 text-sm text-destructive">{translateError((query.error as Error).message)}</p>
             : rows.length === 0 ? <p className="p-4 text-sm text-muted-foreground">{t("finance:reconAudit.empty")}</p>
             : (
               <div className="overflow-auto">

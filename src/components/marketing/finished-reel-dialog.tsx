@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { MarketingProjectPicker } from "./project-picker";
 import { useProjectProfiles } from "@/lib/marketing/projects";
 import { useEffect, useRef, useState } from 'react';
@@ -93,7 +94,7 @@ export function FinishedReelDialog() {
           <Label htmlFor="reel-note">{t('reels.note')}</Label><Textarea id="reel-note" value={note} onChange={e=>setNote(e.target.value)} rows={3} maxLength={4000} disabled={busy||ai}/>
           <div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={busy||ai||voice.starting} onClick={()=>{if(voice.recording)void voice.stop().then(setAudio);else void voice.start();}} title={t('reels.voice')}>{voice.recording?<Square className="h-4 w-4"/>:<Mic className="h-4 w-4"/>}</Button><Button size="sm" variant="outline" disabled={!profileId||(!note.trim()&&!audio)||busy||ai||voice.recording} onClick={()=>void assist()}>{ai?<Loader2 className="mr-1 h-4 w-4 animate-spin"/>:<Sparkles className="mr-1 h-4 w-4"/>}{t('reels.suggest')}</Button></div>
           {audio&&<p className="text-xs text-muted-foreground">{t('reels.voiceReady')}</p>}
-          {error&&<p role="alert" className="text-sm text-destructive break-words">{error}</p>}
+          {error&&<p role="alert" className="text-sm text-destructive break-words">{translateError(error)}</p>}
           {busy&&<><Progress value={progress}/><p role="status" className="text-xs">{progress<100?t('reels.uploading',{progress}):t('reels.verifying')}</p>{control.current&&<Button size="sm" variant="outline" onClick={()=>{if(paused){control.current?.resume();setPaused(false);}else void control.current?.pause().then(()=>setPaused(true));}}>{paused?<Play className="mr-1 h-3 w-3"/>:<Pause className="mr-1 h-3 w-3"/>}{t(paused?'reels.resume':'reels.pause')}</Button>}</>}
           <Button disabled={!file||!meta||!profile||!cover||busy||ai||checking||voice.recording} onClick={()=>void save()}>{busy?<Loader2 className="mr-1 h-4 w-4 animate-spin"/>:<Clapperboard className="mr-1 h-4 w-4"/>}{t('reels.save')}</Button>
         </div>

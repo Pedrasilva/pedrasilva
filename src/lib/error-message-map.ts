@@ -1194,6 +1194,491 @@ export const errorMessageMap = [
     "module": "marketing",
     "message": "Publication could not be completed",
     "key": "marketing.publicationCouldNotBeCompleted"
+  },
+  {
+    "module": "common",
+    "message": "not allowed",
+    "key": "common.notAllowedVariant"
+  },
+  {
+    "module": "common",
+    "message": "not_found",
+    "key": "common.notFoundVariant"
+  },
+  {
+    "module": "common",
+    "message": "not_owner",
+    "key": "common.notOwner"
+  },
+  {
+    "module": "common",
+    "message": "not_approver",
+    "key": "common.notApprover"
+  },
+  {
+    "module": "common",
+    "message": "not_recipient",
+    "key": "common.notRecipient"
+  },
+  {
+    "module": "common",
+    "message": "explanation_required",
+    "key": "common.explanationRequired"
+  },
+  {
+    "module": "common",
+    "message": "invalid_dates",
+    "key": "common.invalidDates"
+  },
+  {
+    "module": "common",
+    "message": "invalid_recipient",
+    "key": "common.invalidRecipient"
+  },
+  {
+    "module": "common",
+    "message": "not_pending",
+    "key": "common.notPending"
+  },
+  {
+    "module": "common",
+    "message": "not_approved",
+    "key": "common.notApproved"
+  },
+  {
+    "module": "common",
+    "message": "invalid_type",
+    "key": "common.invalidType"
+  },
+  {
+    "module": "common",
+    "message": "Admin required",
+    "key": "common.adminRequired"
+  },
+  {
+    "module": "hr",
+    "message": "overlap",
+    "key": "hr.overlap"
+  },
+  {
+    "module": "hr",
+    "message": "own_approved",
+    "key": "hr.ownApproved"
+  },
+  {
+    "module": "hr",
+    "message": "own_request",
+    "key": "hr.ownRequest"
+  },
+  {
+    "module": "hr",
+    "message": "use_leave_decide",
+    "key": "hr.useLeaveDecide"
+  },
+  {
+    "module": "hr",
+    "message": "You can only change your own weekly timesheet",
+    "key": "hr.youCanOnlyChangeYourOwnWeeklyTimesheet"
+  },
+  {
+    "module": "hr",
+    "message": "Only an approver can change approval data",
+    "key": "hr.onlyAnApproverCanChangeApprovalData"
+  },
+  {
+    "module": "hr",
+    "message": "Weeks start as open",
+    "key": "hr.weeksStartAsOpen"
+  },
+  {
+    "module": "hr",
+    "message": "A manual adjustment requires a reason",
+    "key": "hr.aManualAdjustmentRequiresAReason"
+  },
+  {
+    "module": "hr",
+    "message": "admin_required",
+    "key": "hr.adminRequired"
+  },
+  {
+    "module": "hr",
+    "message": "stale_leave_record",
+    "key": "hr.staleLeaveRecord"
+  },
+  {
+    "module": "hr",
+    "message": "invalid_leave",
+    "key": "hr.invalidLeave"
+  },
+  {
+    "module": "hr",
+    "message": "cannot_change_person",
+    "key": "hr.cannotChangePerson"
+  },
+  {
+    "module": "hr",
+    "message": "approved_week_requires_separate_bank_reconciliation",
+    "key": "hr.approvedWeekRequiresSeparateBankReconciliation"
+  },
+  {
+    "module": "hr",
+    "message": "timesheets_changed",
+    "key": "hr.timesheetsChanged"
+  },
+  {
+    "module": "hr",
+    "message": "bank_changed_without_approved_week",
+    "key": "hr.bankChangedWithoutApprovedWeek"
+  },
+  {
+    "module": "projects",
+    "message": "Quote not found",
+    "key": "projects.quoteNotFoundVariant"
+  },
+  {
+    "module": "projects",
+    "message": "Revision not found",
+    "key": "projects.revisionNotFound"
+  },
+  {
+    "module": "projects",
+    "message": "QUOTE_LOCKED",
+    "key": "projects.quoteLocked"
+  },
+  {
+    "module": "projects",
+    "message": "QUOTE_LOCKED_CONVERTED",
+    "key": "projects.quoteLockedConverted"
+  },
+  {
+    "module": "projects",
+    "message": "Proposta bloqueada — não é possível restaurar revisões.",
+    "key": "projects.propostaBloqueadaNOPossVelRestaurarRevisEs"
+  },
+  {
+    "module": "projects",
+    "message": "Only draft/submitted allowed on creation",
+    "key": "projects.onlyDraftSubmittedAllowedOnCreation"
+  },
+  {
+    "module": "projects",
+    "message": "Only an approver can set this status",
+    "key": "projects.onlyAnApproverCanSetThisStatus"
+  },
+  {
+    "module": "projects",
+    "message": "Only the submitter can request approval",
+    "key": "projects.onlyTheSubmitterCanRequestApproval"
+  },
+  {
+    "module": "projects",
+    "message": "Approver is not an active collaborator",
+    "key": "projects.approverIsNotAnActiveCollaborator"
+  },
+  {
+    "module": "projects",
+    "message": "No pending approval",
+    "key": "projects.noPendingApproval"
+  },
+  {
+    "module": "projects",
+    "message": "Week must start on Monday",
+    "key": "projects.weekMustStartOnMonday"
+  },
+  {
+    "module": "projects",
+    "message": "Only drafts may be discarded",
+    "key": "projects.onlyDraftsMayBeDiscarded"
+  },
+  {
+    "module": "projects",
+    "message": "Draft editing only",
+    "key": "projects.draftEditingOnly"
+  },
+  {
+    "module": "projects",
+    "message": "Slot must belong to a draft weekday",
+    "key": "projects.slotMustBelongToADraftWeekday"
+  },
+  {
+    "module": "projects",
+    "message": "Inactive resource or project",
+    "key": "projects.inactiveResourceOrProject"
+  },
+  {
+    "module": "projects",
+    "message": "Leave and holidays cannot be painted",
+    "key": "projects.leaveAndHolidaysCannotBePainted"
+  },
+  {
+    "module": "projects",
+    "message": "Stage is not allocatable for this project",
+    "key": "projects.stageIsNotAllocatableForThisProject"
+  },
+  {
+    "module": "projects",
+    "message": "Draft no longer exists",
+    "key": "projects.draftNoLongerExists"
+  },
+  {
+    "module": "projects",
+    "message": "Draft changed; reload before discarding",
+    "key": "projects.draftChangedReloadBeforeDiscarding"
+  },
+  {
+    "module": "projects",
+    "message": "Approved plans are immutable",
+    "key": "projects.approvedPlansAreImmutable"
+  },
+  {
+    "module": "projects",
+    "message": "Approved plan slots are immutable",
+    "key": "projects.approvedPlanSlotsAreImmutable"
+  },
+  {
+    "module": "projects",
+    "message": "Slot must belong to an editable weekday",
+    "key": "projects.slotMustBelongToAnEditableWeekday"
+  },
+  {
+    "module": "projects",
+    "message": "Stage is not allocatable for this project and day",
+    "key": "projects.stageIsNotAllocatableForThisProjectAndDay"
+  },
+  {
+    "module": "projects",
+    "message": "A cost-rate rebuild is already running; retry later",
+    "key": "projects.aCostRateRebuildIsAlreadyRunningRetryLater"
+  },
+  {
+    "module": "projects",
+    "message": "Cost periods changed during calculation; retry the rebuild",
+    "key": "projects.costPeriodsChangedDuringCalculationRetryTheRebuild"
+  },
+  {
+    "module": "projects",
+    "message": "Overlapping cost periods",
+    "key": "projects.overlappingCostPeriods"
+  },
+  {
+    "module": "projects",
+    "message": "Cost operation in progress",
+    "key": "projects.costOperationInProgress"
+  },
+  {
+    "module": "projects",
+    "message": "Editable draft required",
+    "key": "projects.editableDraftRequired"
+  },
+  {
+    "module": "projects",
+    "message": "Publication in progress",
+    "key": "projects.publicationInProgress"
+  },
+  {
+    "module": "projects",
+    "message": "Preview changed; refresh and confirm again",
+    "key": "projects.previewChangedRefreshAndConfirmAgain"
+  },
+  {
+    "module": "projects",
+    "message": "Unresolved planning blocks approval",
+    "key": "projects.unresolvedPlanningBlocksApproval"
+  },
+  {
+    "module": "projects",
+    "message": "Protected overlap acknowledgement required",
+    "key": "projects.protectedOverlapAcknowledgementRequired"
+  },
+  {
+    "module": "projects",
+    "message": "Locked baseline acknowledgement required",
+    "key": "projects.lockedBaselineAcknowledgementRequired"
+  },
+  {
+    "module": "projects",
+    "message": "Publication changed; reload",
+    "key": "projects.publicationChangedReload"
+  },
+  {
+    "module": "projects",
+    "message": "Booking removal/change acknowledgement required",
+    "key": "projects.bookingRemovalChangeAcknowledgementRequired"
+  },
+  {
+    "module": "projects",
+    "message": "New bookings must use a leaf stage, not a parent stage",
+    "key": "projects.newBookingsMustUseALeafStageNotAParentStage"
+  },
+  {
+    "module": "projects",
+    "message": "Only your own timesheet can be prepared",
+    "key": "projects.onlyYourOwnTimesheetCanBePrepared"
+  },
+  {
+    "module": "projects",
+    "message": "Stage is not available for new timesheet activities",
+    "key": "projects.stageIsNotAvailableForNewTimesheetActivities"
+  },
+  {
+    "module": "projects",
+    "message": "logged_history_delete_blocked: Retire instead; logged hours must be preserved.",
+    "key": "projects.loggedHistoryDeleteBlockedRetireInsteadLoggedHoursMustBePreserved"
+  },
+  {
+    "module": "marketing",
+    "message": "Only marketing curators can set public rules",
+    "key": "marketing.onlyMarketingCuratorsCanSetPublicRules"
+  },
+  {
+    "module": "marketing",
+    "message": "Only marketing curators can change public rules",
+    "key": "marketing.onlyMarketingCuratorsCanChangePublicRules"
+  },
+  {
+    "module": "marketing",
+    "message": "Suggestion not found or already reviewed",
+    "key": "marketing.suggestionNotFoundOrAlreadyReviewed"
+  },
+  {
+    "module": "marketing",
+    "message": "Not allowed to edit this profile",
+    "key": "marketing.notAllowedToEditThisProfile"
+  },
+  {
+    "module": "marketing",
+    "message": "Not allowed to recheck drafts",
+    "key": "marketing.notAllowedToRecheckDrafts"
+  },
+  {
+    "module": "marketing",
+    "message": "Published drafts are the record of what went out and cannot be deleted",
+    "key": "marketing.publishedDraftsAreTheRecordOfWhatWentOutAndCannotBeDeleted"
+  },
+  {
+    "module": "marketing",
+    "message": "capture_used_in_published_post",
+    "key": "marketing.captureUsedInPublishedPost"
+  },
+  {
+    "module": "marketing",
+    "message": "not_allowed_to_delete_capture",
+    "key": "marketing.notAllowedToDeleteCapture"
+  },
+  {
+    "module": "marketing",
+    "message": "The list must contain every file of this capture exactly once",
+    "key": "marketing.theListMustContainEveryFileOfThisCaptureExactlyOnce"
+  },
+  {
+    "module": "marketing",
+    "message": "This image is used in a published post and cannot be deleted",
+    "key": "marketing.thisImageIsUsedInAPublishedPostAndCannotBeDeleted"
+  },
+  {
+    "module": "marketing",
+    "message": "This image is used in post drafts; delete those drafts first",
+    "key": "marketing.thisImageIsUsedInPostDraftsDeleteThoseDraftsFirst"
+  },
+  {
+    "module": "marketing",
+    "message": "action_not_open",
+    "key": "marketing.actionNotOpen"
+  },
+  {
+    "module": "marketing",
+    "message": "This carousel was sent to the planner and is read-only. Duplicate it to make a new version.",
+    "key": "marketing.thisCarouselWasSentToThePlannerAndIsReadOnlyDuplicateItToMakeANewVersion"
+  },
+  {
+    "module": "marketing",
+    "message": "Photo is not in this project's library",
+    "key": "marketing.photoIsNotInThisProjectSLibrary"
+  },
+  {
+    "module": "marketing",
+    "message": "Design must be a text-slide image of this project",
+    "key": "marketing.designMustBeATextSlideImageOfThisProject"
+  },
+  {
+    "module": "marketing",
+    "message": "Image is not from this project's Inbox",
+    "key": "marketing.imageIsNotFromThisProjectSInbox"
+  },
+  {
+    "module": "finance",
+    "message": "No access to this entity",
+    "key": "finance.noAccessToThisEntity"
+  },
+  {
+    "module": "finance",
+    "message": "No finance entity access",
+    "key": "finance.noFinanceEntityAccess"
+  },
+  {
+    "module": "finance",
+    "message": "Company not found",
+    "key": "finance.companyNotFound"
+  },
+  {
+    "module": "finance",
+    "message": "Supplier not visible",
+    "key": "finance.supplierNotVisible"
+  },
+  {
+    "module": "finance",
+    "message": "Record not in this entity",
+    "key": "finance.recordNotInThisEntity"
+  },
+  {
+    "module": "finance",
+    "message": "Paid with must be a personal card",
+    "key": "finance.paidWithMustBeAPersonalCard"
+  },
+  {
+    "module": "finance",
+    "message": "Item not found",
+    "key": "finance.itemNotFound"
+  },
+  {
+    "module": "finance",
+    "message": "Forbidden: finance access required for this entity",
+    "key": "finance.forbiddenFinanceAccessRequiredForThisEntity"
+  },
+  {
+    "module": "finance",
+    "message": "Counterparty not visible in this entity",
+    "key": "finance.counterpartyNotVisibleInThisEntity"
+  },
+  {
+    "module": "finance",
+    "message": "HR-origin items may only be classified under PES",
+    "key": "finance.hrOriginItemsMayOnlyBeClassifiedUnderPes"
+  },
+  {
+    "module": "finance",
+    "message": "Project-origin items may only be classified under PRJ",
+    "key": "finance.projectOriginItemsMayOnlyBeClassifiedUnderPrj"
+  },
+  {
+    "module": "finance",
+    "message": "Not authorised to unreconcile bank transactions",
+    "key": "finance.notAuthorisedToUnreconcileBankTransactions"
+  },
+  {
+    "module": "finance",
+    "message": "Default cost categories cannot be deleted",
+    "key": "finance.defaultCostCategoriesCannotBeDeleted"
+  },
+  {
+    "module": "inventory",
+    "message": "Category code is required",
+    "key": "inventory.categoryCodeIsRequired"
+  },
+  {
+    "module": "inventory",
+    "message": "Asset code is permanent and cannot be changed",
+    "key": "inventory.assetCodeIsPermanentAndCannotBeChanged"
   }
 ] as const;
 

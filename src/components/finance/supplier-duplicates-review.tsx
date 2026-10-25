@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Possible duplicate suppliers, grouped into clusters (read-only suggestions).
@@ -34,7 +35,7 @@ export function SupplierDuplicatesReview() {
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">{t("finance:supplierDups.subtitle")}</p>
       {q.isLoading ? <div className="space-y-2">{[0, 1].map((i) => <Skeleton key={i} className="h-28" />)}</div>
-        : q.error ? <p className="text-sm text-destructive">{(q.error as Error).message}</p>
+        : q.error ? <p className="text-sm text-destructive">{translateError((q.error as Error).message)}</p>
         : clusters.length === 0 ? <p className="text-sm text-muted-foreground">{t("finance:supplierDups.none")}</p>
         : (
           <>
