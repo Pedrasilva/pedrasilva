@@ -1,3 +1,8 @@
+## Current request — published reel video retention
+- [ ] Service-only logged 30-day video cleanup in existing job; preserve all other evidence, mirror migration.
+- [ ] Cover/offline-original notice and live link in reel views; new upload required for reuse.
+- [ ] Fixture-only tests and cleanup, report; no real files or Finance edits.
+
 ## Current request — finished reels
 - [x] Private resumable video upload, shared validation, cover selection and manual caption assistance.
 - [x] Normal hash-protected reel drafts, cover/feed publishing and preview integration; mirrored additive migrations 0184–0186.
