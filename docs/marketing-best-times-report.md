@@ -22,3 +22,4 @@
 - Authenticated Calendar renders 07–23 hour axis, existing Tuesday 27 tile and empty-data state; Insights renders all 119 cells. Per-person switch survives reload.
 - Screenshots: `/tmp/browser/best-times/week.png`, `/tmp/browser/best-times/insights.png`.
 - No approvals, publishing, rescheduling or real draft test writes; Finance untouched.
+- Verification limit: an intercepted, browser-only disposable draft drag simulation timed out and was stopped. Actual drag/drop best-hour prefill and top-three highlights were not verified end-to-end; pure best-slot rules passed. Real data currently cannot supply a recommended slot.
