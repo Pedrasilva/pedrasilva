@@ -855,7 +855,7 @@ export function GanttChart({
       }));
       if (adapter.moveStages && real[0]) await adapter.moveStages(real[0].projectId, edits);
       else for (const e of edits) await adapter.updateStage({ ...e, projectId: real[0].projectId });
-      toast.success(i18n.t("projects:ganttChart.ui.stagesShifted", { value1: edits.length, value2: days }));
+      toast.success(i18n.t("projects:ganttChart.ui.stagesShifted", { count: edits.length, days }));
     } catch (err) {
       const msg = (err as Error).message;
       toast.error(t(msg, { defaultValue: msg }));

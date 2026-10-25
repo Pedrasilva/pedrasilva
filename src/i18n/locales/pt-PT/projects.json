@@ -197,7 +197,7 @@
       "statusRed": "Excedido",
       "statusFuture": "Futuro",
       "totalsRow": "Total",
-      "derivedFromBlended": "derivado de mensalidade ÷ preço médio de venda ({{valor/hora}}/h)",
+      "derivedFromBlended": "derivado de mensalidade ÷ preço médio de venda ({{rate}}/h)",
       "capacityFallback": "sem horas registadas — a mostrar capacidade por defeito da avença",
       "noRateHint": "atribua recursos para derivar as horas a partir da mensalidade",
       "helpText": "A mensalidade é fixa. As horas incluídas = mensalidade ÷ preço médio de venda da equipa que entrega a avença. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado.",
