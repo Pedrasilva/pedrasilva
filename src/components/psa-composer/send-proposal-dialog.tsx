@@ -245,7 +245,7 @@ export function SendProposalDialog({
             <>
           <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                 {uiI18n.t("crm:quoteEditor.fileName")} </div>
+                 {uiI18n.t("common:fileName")} </div>
               <div className="font-mono text-[13px]">{filename}.pdf</div>
             </div>
   

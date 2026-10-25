@@ -44,7 +44,7 @@ function ProposalsIndex() {
 
       <div className="rounded-md border bg-background">
         {list.isLoading ? (
-          <div className="p-6 text-sm text-zinc-500"> {uiI18n.t("crm:quoteEditor.uploading")} </div>
+          <div className="p-6 text-sm text-zinc-500"> {uiI18n.t("common:loading")} </div>
         ) : !list.data?.length ? (
           <div className="p-6 text-center text-sm text-zinc-500">
              {uiI18n.t("crm:quoteEditor.noProposals")} </div>
@@ -61,7 +61,7 @@ function ProposalsIndex() {
                   <div className="flex-1">
                     <div className="font-medium">{p.title}</div>
                     <div className="text-xs text-zinc-500">
-                       {uiI18n.t("crm:quoteEditor.statusPrefix")} {p.status} ·{" "}
+                       {uiI18n.t("crm:quoteEditor.statusPrefix")} {uiI18n.t(`crm:composer.status.${p.status}`, { defaultValue: p.status })} ·{" "}
                       {new Date(p.updated_at).toLocaleDateString(uiI18n.language)}
                     </div>
                   </div>

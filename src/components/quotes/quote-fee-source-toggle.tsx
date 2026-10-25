@@ -86,9 +86,9 @@ export function QuoteFeeSourceToggle({
       }}
       className="shrink-0"
     >
-      <ToggleGroupItem value="allocation" aria-label={uiI18n.t("crm:quoteEditor.resourceAllocation")} className="gap-1.5">
+      <ToggleGroupItem value="allocation" aria-label={uiI18n.t("glossary:planning.allocation")} className="gap-1.5">
         <Calculator className="h-3.5 w-3.5" />
-         {uiI18n.t("crm:quoteEditor.resourceAllocation")} </ToggleGroupItem>
+         {uiI18n.t("glossary:planning.allocation")} </ToggleGroupItem>
       <ToggleGroupItem value="budget" aria-label={uiI18n.t("crm:quoteEditor.budgetValue")} className="gap-1.5">
         <Wallet className="h-3.5 w-3.5" />
          {uiI18n.t("crm:quoteEditor.budgetValue")} </ToggleGroupItem>

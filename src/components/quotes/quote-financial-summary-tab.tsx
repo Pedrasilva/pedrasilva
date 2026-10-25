@@ -549,11 +549,11 @@ export function ArchitectureStagesCard({
         {(avgSaleRate > 0 || avgCostRate > 0) && (
           <div className="flex flex-wrap items-center gap-4 rounded-md border bg-muted/30 px-3 py-2 text-xs">
             <div className="flex items-baseline gap-1.5">
-              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("crm:quoteEditor.averageSale")} </span>
+              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("projects:quotePricing.averageSaleRate")} </span>
               <span className="text-sm font-semibold tabular-nums">{formatEUR(avgSaleRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("crm:quoteEditor.averageCost")} </span>
+              <span className="uppercase tracking-wide text-muted-foreground"> {uiI18n.t("projects:quotePricing.averageCostRate")} </span>
               <span className="text-sm font-semibold tabular-nums">{formatEUR(effectiveCostRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">

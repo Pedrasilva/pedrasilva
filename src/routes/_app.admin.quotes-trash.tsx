@@ -118,14 +118,14 @@ function QuotesTrashPage() {
     >
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="truncate font-medium">{r.titulo ?? uiI18n.t("crm:quoteEditor.untitled")}</span>
+          <span className="truncate font-medium">{r.titulo ?? uiI18n.t("common:untitled")}</span>
           {r.proposal_number && (
             <Badge variant="outline" className="text-[10px]">
               {r.proposal_number}{r.revision_number ? uiI18n.t("crm:quoteEditor.revisionSuffix", { value1: r.revision_number }) : ""}
             </Badge>
           )}
           {kind === "deleted" ? (
-            <Badge variant="destructive" className="text-[10px]"><Trash2 className="mr-1 h-3 w-3" /> {uiI18n.t("crm:quoteEditor.deleted")} </Badge>
+            <Badge variant="destructive" className="text-[10px]"><Trash2 className="mr-1 h-3 w-3" /> {uiI18n.t("common:deleted")} </Badge>
           ) : (
             <Badge variant="secondary" className="text-[10px]"><Archive className="mr-1 h-3 w-3" /> {uiI18n.t("common:archived")} </Badge>
           )}
@@ -146,7 +146,7 @@ function QuotesTrashPage() {
           onClick={() => (kind === "deleted" ? restoreDeleted.mutate(r.id) : unarchive.mutate(r.id))}
           disabled={restoreDeleted.isPending || unarchive.isPending}
         >
-          <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.restore")} </Button>
+          <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:restore")} </Button>
         {kind === "deleted" && (
           <Button
             size="sm"
@@ -164,7 +164,7 @@ function QuotesTrashPage() {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="space-y-2">
           <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3 w-3" />  {uiI18n.t("crm:quoteEditor.administration")} </Link>
+            <ArrowLeft className="h-3 w-3" />  {uiI18n.t("common:administration")} </Link>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
             <Trash2 className="h-6 w-6" />  {uiI18n.t("crm:quoteEditor.quoteTrash")} </h1>
           <p className="text-sm text-muted-foreground">

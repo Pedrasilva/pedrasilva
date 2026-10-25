@@ -128,7 +128,7 @@ export function ImportTemplateDialog({
                   onClick={() => setStep("confirm")}
                   disabled={!templateId}
                 >
-                   {uiI18n.t("crm:quoteEditor.continue")} </Button>
+                   {uiI18n.t("common:continue")} </Button>
               </DialogFooter>
             </>
           ) : (

@@ -190,7 +190,7 @@ export function ComposerTopBar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
-              <FileDown className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.download")} <ChevronDown className="ml-1 h-3.5 w-3.5" />
+              <FileDown className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:download")} <ChevronDown className="ml-1 h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -256,7 +256,7 @@ export function ComposerTopBar({
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" title={uiI18n.t("crm:quoteEditor.moreActions")}>
+            <Button variant="ghost" size="sm" title={uiI18n.t("common:moreActions")}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

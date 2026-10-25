@@ -127,7 +127,7 @@ export function ProposalHistoryDialog({
                           {snap.reason === "pre-restore"
                             ? uiI18n.t("crm:quoteEditor.beforeRestore")
                             : snap.reason === "auto"
-                              ? uiI18n.t("crm:quoteEditor.automatic")
+                              ? uiI18n.t("common:automatic")
                               : uiI18n.t("crm:quoteEditor.version")}
                         </span>
                       )}
@@ -154,7 +154,7 @@ export function ProposalHistoryDialog({
                       });
                     }}
                   >
-                    <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.restore")} </Button>
+                    <RotateCcw className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:restore")} </Button>
                   <Button
                     variant="ghost"
                     size="icon"

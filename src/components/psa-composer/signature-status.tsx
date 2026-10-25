@@ -1,3 +1,4 @@
+import { signatureLabel } from "./signature-label";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -47,7 +48,8 @@ export function ProposalSignatureStatus({ proposalId }: { proposalId: string }) 
   const latest = signatures[0];
   if (!latest) return null;
 
-  const { tone, label } = describeSignature(latest);
+  const { tone } = describeSignature(latest);
+  const label = signatureLabel(latest);
   const variant =
     tone === "success" ? "default" : tone === "warning" ? "destructive" : "secondary";
 

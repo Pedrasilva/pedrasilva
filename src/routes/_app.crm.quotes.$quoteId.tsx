@@ -504,7 +504,7 @@ function QuoteDetail() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" title={uiI18n.t("crm:quoteEditor.moreActions")}>
+              <Button variant="ghost" size="sm" title={uiI18n.t("common:moreActions")}>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -626,8 +626,8 @@ function QuoteDetail() {
             <>
               <TabsTrigger value="architecture"> {uiI18n.t("crm:workspace.payment.archNetCol")} </TabsTrigger>
               <TabsTrigger value="consultants"> {uiI18n.t("crm:workspace.payment.archSuppliersCol")} </TabsTrigger>
-              <TabsTrigger value="incoming"> {uiI18n.t("crm:quoteEditor.incoming")} </TabsTrigger>
-              <TabsTrigger value="outgoing"> {uiI18n.t("crm:quoteEditor.outgoing")} </TabsTrigger>
+              <TabsTrigger value="incoming"> {uiI18n.t("common:inflow")} </TabsTrigger>
+              <TabsTrigger value="outgoing"> {uiI18n.t("common:outflow")} </TabsTrigger>
               <TabsTrigger value="construction-assistance"> {uiI18n.t("crm:quoteEditor.travelExpenses")} </TabsTrigger>
               <TabsTrigger value="billable-rates"> {uiI18n.t("crm:quoteEditor.billableHourly")} </TabsTrigger>
             </>

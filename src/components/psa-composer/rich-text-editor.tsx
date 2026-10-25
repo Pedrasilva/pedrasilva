@@ -373,7 +373,7 @@ function Toolbar({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            title={uiI18n.t("crm:quoteEditor.size")}
+            title={uiI18n.t("common:size")}
             onMouseDown={(e) => e.preventDefault()}
             className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
           >
@@ -383,7 +383,7 @@ function Toolbar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44">
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
-             {uiI18n.t("crm:quoteEditor.size")} </DropdownMenuLabel>
+             {uiI18n.t("common:size")} </DropdownMenuLabel>
           <DropdownMenuItem
             onSelect={() => {
               const chain = editor.chain().focus();
@@ -394,7 +394,7 @@ function Toolbar({
             }}
             className="text-xs"
           >
-             {uiI18n.t("crm:quoteEditor.default")} </DropdownMenuItem>
+             {uiI18n.t("common:default")} </DropdownMenuItem>
           {FONT_SIZES.map((s) => (
             <DropdownMenuItem
               key={s.value}

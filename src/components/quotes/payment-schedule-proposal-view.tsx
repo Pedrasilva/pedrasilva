@@ -170,7 +170,7 @@ function PaymentSubTable({
           <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
           <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.vat")} </TableHead>
           <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.includingVat")} </TableHead>
-          <TableHead className="w-20"> {uiI18n.t("crm:quoteEditor.invoice")} </TableHead>
+          <TableHead className="w-20"> {uiI18n.t("common:invoice")} </TableHead>
           <TableHead> {uiI18n.t("crm:quoteEditor.paymentTerms")} </TableHead>
         </TableRow>
       </TableHeader>
@@ -657,7 +657,7 @@ export function PaymentScheduleProposalView({
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/40">
-                          {showRoot && <TableHead> {uiI18n.t("crm:quoteEditor.supplier")} </TableHead>}
+                          {showRoot && <TableHead> {uiI18n.t("common:supplier")} </TableHead>}
                           <TableHead> {uiI18n.t("glossary:entity.stage")} </TableHead>
                           <TableHead className="text-right"> {uiI18n.t("crm:quoteEditor.contractPercent")} </TableHead>
                           <TableHead className="text-right"> {uiI18n.t("crm:quotes.exclVAT")} </TableHead>
@@ -865,14 +865,14 @@ export function PaymentScheduleProposalView({
           if (it.supplier_company_id) {
             return {
               key: `c:${it.supplier_company_id}`,
-              name: supplierName.get(it.supplier_company_id) ?? it.supplier_label ?? uiI18n.t("crm:quoteEditor.supplier"),
+              name: supplierName.get(it.supplier_company_id) ?? it.supplier_label ?? uiI18n.t("common:supplier"),
               isSupplier: true,
             };
           }
           if (it.supplier_id) {
             return {
               key: `s:${it.supplier_id}`,
-              name: supplierName.get(it.supplier_id) ?? it.supplier_label ?? uiI18n.t("crm:quoteEditor.supplier"),
+              name: supplierName.get(it.supplier_id) ?? it.supplier_label ?? uiI18n.t("common:supplier"),
               isSupplier: true,
             };
           }
@@ -988,7 +988,7 @@ export function PaymentScheduleProposalView({
             <CardHeader className="pb-3">
               <div className="flex items-baseline justify-between gap-4">
                 <CardTitle className="text-base uppercase tracking-wide">
-                   {uiI18n.t("crm:quoteEditor.financial")} </CardTitle>
+                   {uiI18n.t("common:financial")} </CardTitle>
                 <div className="text-lg font-bold tabular-nums">{formatEUR(grandNet)}</div>
               </div>
               <div className="text-xs text-muted-foreground">
@@ -998,7 +998,7 @@ export function PaymentScheduleProposalView({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40">
-                    <TableHead className="w-24"> {uiI18n.t("crm:quoteEditor.invoice")} </TableHead>
+                    <TableHead className="w-24"> {uiI18n.t("common:invoice")} </TableHead>
                     <TableHead className="w-32"> {uiI18n.t("crm:quoteEditor.plannedDate")} </TableHead>
                     <TableHead className="w-28"> {uiI18n.t("common:status")} </TableHead>
                     <TableHead> {uiI18n.t("common:description")} </TableHead>
@@ -1094,8 +1094,8 @@ export function PaymentScheduleProposalView({
               key === "__unassigned__"
                 ? "Fornecedores diversos"
                 : key.startsWith("p:")
-                  ? (rows[0]?.supplier_label ?? uiI18n.t("crm:quoteEditor.supplier"))
-                  : supplierName.get(key.slice(2)) ?? uiI18n.t("crm:quoteEditor.supplier");
+                  ? (rows[0]?.supplier_label ?? uiI18n.t("common:supplier"))
+                  : supplierName.get(key.slice(2)) ?? uiI18n.t("common:supplier");
             const groupTotal = rows.reduce(
               (s, r) => s + netAmount(r, totalFee, stageFees),
               0,

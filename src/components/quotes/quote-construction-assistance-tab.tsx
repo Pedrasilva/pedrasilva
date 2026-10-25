@@ -540,7 +540,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="per_month"> {uiI18n.t("crm:quoteEditor.perMonth")} </SelectItem>
-                              <SelectItem value="total"> {uiI18n.t("crm:quoteEditor.totalLower")} </SelectItem>
+                              <SelectItem value="total"> {uiI18n.t("common:totalLower")} </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -726,7 +726,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="per_month"> {uiI18n.t("crm:quoteEditor.perMonth")} </SelectItem>
-                        <SelectItem value="total"> {uiI18n.t("crm:quoteEditor.totalLower")} </SelectItem>
+                        <SelectItem value="total"> {uiI18n.t("common:totalLower")} </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -920,7 +920,7 @@ function ResourceMultiSelect({
               size="sm"
               onClick={() => onChange([])}
             >
-               {uiI18n.t("crm:quoteEditor.clear")} </Button>
+               {uiI18n.t("common:clear")} </Button>
           </div>
         )}
       </PopoverContent>
@@ -1000,7 +1000,7 @@ function ResourceRateList({
                   className="text-xs text-muted-foreground tabular-nums"
                   title={uiI18n.t("crm:quoteEditor.defaultSaleHint")}
                 >
-                   {uiI18n.t("crm:quoteEditor.defaultLower")} {fmtMoney(base)}/h
+                   {uiI18n.t("common:defaultLower")} {fmtMoney(base)}/h
                 </span>
                 <div className="flex items-center gap-1">
                   <Input

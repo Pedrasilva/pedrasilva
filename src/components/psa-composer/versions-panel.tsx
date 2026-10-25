@@ -1,3 +1,4 @@
+import { signatureLabel } from "./signature-label";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**

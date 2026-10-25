@@ -96,7 +96,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
     const byCode: Record<string, string> = {};
     for (const r of proposalRoles) byCode[r.code] = isPt ? r.label_pt : r.label_en;
     return (code: string | null | undefined): string => {
-      if (!code) return isPt ? uiI18n.t("crm:quoteEditor.untitled") : uiI18n.t("crm:quoteEditor.untitled");
+      if (!code) return uiI18n.t("common:untitled");
       return byCode[code] ?? code;
     };
   }, [proposalRoles, isPt]);

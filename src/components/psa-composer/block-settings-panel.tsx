@@ -69,7 +69,7 @@ function SectionLabel({
       <Label className="text-xs">{label}</Label>
       <div className="flex items-center gap-1.5">
         <span className="text-[10px] uppercase tracking-wider text-zinc-400">
-          {checked ? uiI18n.t("crm:quoteEditor.on") : uiI18n.t("crm:quoteEditor.off")}
+          {checked ? uiI18n.t("common:on") : uiI18n.t("common:off")}
         </span>
         <Switch checked={checked} onCheckedChange={onCheckedChange} />
       </div>
@@ -180,7 +180,7 @@ export function BlockSettingsPanel({
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.title")} </Label>
+        <Label className="text-xs"> {uiI18n.t("common:title")} </Label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -279,7 +279,7 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.content")} </Label>
+            <Label className="text-xs"> {uiI18n.t("common:content")} </Label>
             <RichTextEditor
               value={html || (legacyText ? `<p>${legacyText.replace(/\n/g, "</p><p>")}</p>` : "")}
               onChange={({ html, text }) =>
@@ -299,7 +299,7 @@ export function BlockSettingsPanel({
 
           <div className="space-y-1">
             <SectionLabel
-              label={uiI18n.t("crm:quoteEditor.objective")}
+              label={uiI18n.t("common:objective")}
               checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -473,7 +473,7 @@ export function BlockSettingsPanel({
 
           <div className="space-y-2 rounded-md border bg-background p-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-               {uiI18n.t("crm:quoteEditor.stageSummary")} </div>
+               {uiI18n.t("projects:stageSummaryLabel")} </div>
 
             <div className="flex items-center justify-between">
               <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showSummary")} </Label>
@@ -684,7 +684,7 @@ export function BlockSettingsPanel({
             </SelectTrigger>
             <SelectContent>
               {block.block_type !== "gantt_partial" && (
-                <SelectItem value="__auto__"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                <SelectItem value="__auto__"> {uiI18n.t("common:automatic")} </SelectItem>
               )}
               {numberedStages
                 .filter(({ stage: s }) => s.isSelf && !s.isMilestone)
@@ -706,7 +706,7 @@ export function BlockSettingsPanel({
 
       {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
-          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.content")} </Label>
+          <Label className="text-xs"> {uiI18n.t("common:content")} </Label>
           <RichTextEditor
             value={html || (legacyText ? `<p>${legacyText.replace(/\n/g, "</p><p>")}</p>` : "")}
             onChange={({ html, text }) =>
@@ -795,7 +795,7 @@ export function BlockSettingsPanel({
         <div className="space-y-3">
           <div className="space-y-1">
             <SectionLabel
-              label={uiI18n.t("crm:quoteEditor.objective")}
+              label={uiI18n.t("common:objective")}
               checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
               onCheckedChange={(v) =>
                 update.mutate({
@@ -904,7 +904,7 @@ export function BlockSettingsPanel({
           )}
           {block.block_type === "appendix_gantt" && (
             <div className="space-y-1">
-              <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.orientation")} </Label>
+              <Label className="text-xs"> {uiI18n.t("common:orientation")} </Label>
               <Select
                 value={
                   (block.content_rich?.page_orientation as string | undefined) ??
@@ -926,7 +926,7 @@ export function BlockSettingsPanel({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                  <SelectItem value="auto"> {uiI18n.t("common:automatic")} </SelectItem>
                   <SelectItem value="portrait"> {uiI18n.t("crm:quoteEditor.a4Portrait")} </SelectItem>
                   <SelectItem value="a3-landscape"> {uiI18n.t("crm:quoteEditor.a3Landscape")} </SelectItem>
                 </SelectContent>
@@ -1042,7 +1042,7 @@ export function BlockSettingsPanel({
            {uiI18n.t("crm:quoteEditor.pageAlignmentHint")} </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("crm:quoteEditor.vertical")} </Label>
+            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("common:vertical")} </Label>
             <Select
               value={(block.content_rich?.pageAlignY as string | undefined) ?? "none"}
               onValueChange={(v) =>
@@ -1056,7 +1056,7 @@ export function BlockSettingsPanel({
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                <SelectItem value="none"> {uiI18n.t("common:automatic")} </SelectItem>
                 <SelectItem value="top"> {uiI18n.t("crm:quoteEditor.top")} </SelectItem>
                 <SelectItem value="middle"> {uiI18n.t("crm:quoteEditor.middle")} </SelectItem>
                 <SelectItem value="bottom"> {uiI18n.t("crm:quoteEditor.bottom")} </SelectItem>
@@ -1064,7 +1064,7 @@ export function BlockSettingsPanel({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("crm:quoteEditor.horizontal")} </Label>
+            <Label className="text-[10px] uppercase text-zinc-500"> {uiI18n.t("common:horizontal")} </Label>
             <Select
               value={(block.content_rich?.pageAlignX as string | undefined) ?? "none"}
               onValueChange={(v) =>
@@ -1078,7 +1078,7 @@ export function BlockSettingsPanel({
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none"> {uiI18n.t("crm:quoteEditor.automatic")} </SelectItem>
+                <SelectItem value="none"> {uiI18n.t("common:automatic")} </SelectItem>
                 <SelectItem value="left"> {uiI18n.t("crm:quoteEditor.left")} </SelectItem>
                 <SelectItem value="center"> {uiI18n.t("crm:quoteEditor.center")} </SelectItem>
                 <SelectItem value="right"> {uiI18n.t("crm:quoteEditor.right")} </SelectItem>
@@ -1096,7 +1096,7 @@ export function BlockSettingsPanel({
           className="flex-1"
           onClick={() => dup.mutate(block)}
         >
-          <Copy className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.duplicate")} </Button>
+          <Copy className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:duplicate")} </Button>
         <Button
           variant="destructive"
           size="sm"
@@ -1144,7 +1144,7 @@ function ImageBlockPanel({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.size")} </Label>
+        <Label className="text-xs"> {uiI18n.t("common:size")} </Label>
         <Select value={size} onValueChange={(v) => onPatch({ size: v })}>
           <SelectTrigger>
             <SelectValue />
@@ -1164,20 +1164,20 @@ function ImageBlockPanel({
         <Input
           value={caption}
           onChange={(e) => onPatch({ caption: e.target.value })}
-          placeholder={uiI18n.t("crm:quoteEditor.caption")}
+          placeholder={uiI18n.t("common:caption")}
         />
       </div>
 
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.image")} </Label>
+          <Label className="text-xs"> {uiI18n.t("common:image")} </Label>
           <Button
             variant="outline"
             size="sm"
             onClick={() => fileRef.current?.click()}
             disabled={upload.isPending}
           >
-            {upload.isPending ? uiI18n.t("crm:quoteEditor.uploading") : uiI18n.t("crm:quoteEditor.uploadNew")}
+            {upload.isPending ? uiI18n.t("common:uploading") : uiI18n.t("crm:quoteEditor.uploadNew")}
           </Button>
           <input
             ref={fileRef}
@@ -1190,7 +1190,7 @@ function ImageBlockPanel({
 
         {selected && (
           <div className="rounded border bg-background p-2 text-[11px]">
-            <div className="mb-1 font-medium"> {uiI18n.t("crm:quoteEditor.selectedPrefix")} {selected.name}</div>
+            <div className="mb-1 font-medium"> {uiI18n.t("common:selectedPrefix")} {selected.name}</div>
             {selectedSigned.data && (
               <img
                 src={selectedSigned.data}

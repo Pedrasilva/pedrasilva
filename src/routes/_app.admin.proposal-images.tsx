@@ -60,7 +60,7 @@ function ImagesPanel() {
         <div>
           <Button size="sm" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
             <Upload className="mr-2 h-4 w-4" />
-            {upload.isPending ? uiI18n.t("crm:quoteEditor.uploading") : uiI18n.t("crm:quoteEditor.uploadImages")}
+            {upload.isPending ? uiI18n.t("common:uploading") : uiI18n.t("crm:quoteEditor.uploadImages")}
           </Button>
           <input
             ref={fileRef}

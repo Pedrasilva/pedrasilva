@@ -64,7 +64,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
             to="/admin/proposal-roles"
             className="inline-flex items-center gap-1.5 text-primary hover:underline"
           >
-            {isPt ? uiI18n.t("crm:quoteEditor.billableHourly") : uiI18n.t("crm:quoteEditor.billableHourly")}
+            {uiI18n.t("crm:quoteEditor.billableHourly")}
             <ExternalLink className="h-4 w-4" />
           </Link>
         </CardTitle>
@@ -79,7 +79,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
           <div className="text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </div>
         ) : roles.length === 0 ? (
           <div className="text-sm text-muted-foreground">
-            {isPt ? uiI18n.t("crm:quoteEditor.noTitles") : uiI18n.t("crm:quoteEditor.noTitles")}
+            {uiI18n.t("crm:quoteEditor.noTitles")}
           </div>
         ) : (
           <div className="overflow-hidden rounded-md border">
@@ -87,10 +87,10 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-4 py-2 font-semibold">
-                    {isPt ? uiI18n.t("crm:quoteEditor.title") : uiI18n.t("crm:quoteEditor.title")}
+                    {uiI18n.t("common:title")}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
-                    {isPt ? uiI18n.t("crm:quoteEditor.costHour") : uiI18n.t("crm:quoteEditor.costHour")}
+                    {uiI18n.t("glossary:financial.costRate")}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
                     <button
@@ -103,7 +103,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                           : uiI18n.t("crm:quoteEditor.sortSale")
                       }
                     >
-                      {isPt ? uiI18n.t("crm:quoteEditor.manualSale") : uiI18n.t("crm:quoteEditor.manualSale")}
+                      {uiI18n.t("glossary:financial.saleRate")}
                       {saleSort === "desc" ? (
                         <ArrowDown className="h-3.5 w-3.5" />
                       ) : saleSort === "asc" ? (

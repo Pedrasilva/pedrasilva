@@ -134,7 +134,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
 
       <div className="rounded-md border border-zinc-300 bg-zinc-50 p-2 space-y-1.5">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700">
-           {uiI18n.t("crm:quoteEditor.preset")} </div>
+           {uiI18n.t("common:preset")} </div>
         <Button
           variant="default"
           size="sm"
@@ -289,7 +289,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-         {uiI18n.t("crm:quoteEditor.header")} </div>
+         {uiI18n.t("common:header")} </div>
 
       <div className="flex items-center justify-between">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showHeader")} </Label>
@@ -324,7 +324,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.website")} </Label>
+        <Label className="text-xs"> {uiI18n.t("common:website")} </Label>
         <Input
           value={s.headerContactWebsite ?? "www.pedrasilva.com"}
           onChange={(e) => patch({ headerContactWebsite: e.target.value })}
@@ -334,7 +334,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-         {uiI18n.t("crm:quoteEditor.footer")} </div>
+         {uiI18n.t("common:footer")} </div>
 
       <div className="flex items-center justify-between">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showFooter")} </Label>
