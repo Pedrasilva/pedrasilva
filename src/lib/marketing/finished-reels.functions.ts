@@ -28,7 +28,8 @@ export const suggestReelCaption = createServerFn({ method: 'POST' }).middleware(
 export const finishReelUpload = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator(d => z.object({ uploadId: z.string().uuid(), copy: z.string().max(2200), hashtags: z.array(z.string().max(100)).max(30), shareToFeed: z.boolean() }).parse(d)).handler(async ({ data, context }) => {
   const { data: allowed } = await context.supabase.rpc('has_module_permission', { _user_id: context.userId, _key: 'marketing.curate', _required_scope: 'all' });
   if (!allowed) throw new Error('Not allowed');
-  const { data: upload } = await context.supabase.from('marketing_reel_uploads').select('*').eq('id', data.uploadId).eq('created_by', context.userId).single();
+  const { data: upload, error: uploadError } = await context.supabase.from('marketing_reel_uploads').select('*').eq('id', data.uploadId).eq('created_by', context.userId).single();
+  if (uploadError) throw new Error('Upload lookup failed: '+uploadError.message);
   if (!upload) throw new Error('Upload not found');
   const { data: urls, error } = await context.supabase.storage.from('marketing-assets').createSignedUrls([upload.video_path,upload.cover_path], 600);
   if (error || !urls?.[0]?.signedUrl || !urls[1]?.signedUrl) throw new Error('Media unavailable');
