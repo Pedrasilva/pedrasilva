@@ -55,10 +55,10 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { euros } from "@/lib/projects/gantt-utils";
 
 const STATUS_OPTIONS: { value: StageTaskStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "active", label: "Active" },
-  { value: "paused", label: "Paused" },
-  { value: "done", label: "Done" },
+  { value: "pending", label: "common:pending" },
+  { value: "active", label: "common:active" },
+  { value: "paused", label: "common:paused" },
+  { value: "done", label: "common:done" },
 ];
 
 function addDays(iso: string, days: number) {
@@ -90,7 +90,7 @@ function countWeekdays(startIso: string, endIso: string) {
 function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(i18n.language, { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function h(n: number) {
@@ -407,7 +407,7 @@ export function CreateStageTaskDialog({
                 <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
-                      {s.label}
+                      {i18n.t(s.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>

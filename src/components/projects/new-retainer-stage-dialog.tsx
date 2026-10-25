@@ -164,7 +164,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {months}  {i18n.t("projects:newRetainerStageDialog.ui.monthlyChildrenTotal")} {(monthlyFee * months).toLocaleString()}.
+            {months}  {i18n.t("projects:newRetainerStageDialog.ui.monthlyChildrenTotal")} {(monthlyFee * months).toLocaleString(i18n.language)}.
           </p>
           <DialogFooter>
             <Button type="submit" disabled={busy}>

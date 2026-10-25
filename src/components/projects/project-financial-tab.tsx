@@ -58,7 +58,7 @@ type Row = {
 type Stage = { id: string; name: string };
 
 const fmtEUR = (v: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(i18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -147,7 +147,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
         .from("pm_payment_schedule_items" as any)
         .insert({
           project_id: projectId,
-          label: "New line",
+          label: i18n.t("projects:projectFinancialTab.ui.newLine"),
           trigger_type: "manual_date",
           amount_type: "fixed",
           amount_value: 0,

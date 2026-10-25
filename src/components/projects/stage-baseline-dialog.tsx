@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -27,6 +28,7 @@ interface Props {
  * edits to working dates/budget.
  */
 export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const locked = isBaselineLocked(stage as StageWithBaseline);
   const [open, setOpen] = useState(false);
@@ -137,7 +139,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
                  {i18n.t("projects:stageBaselineDialog.ui.lastUpdated")} {" "}
                 <span className="font-mono">
                   {stage.baseline_locked_at
-                    ? format(new Date(stage.baseline_locked_at), "dd MMM yyyy")
+                    ? format(new Date(stage.baseline_locked_at), "dd MMM yyyy", { locale: dateLocale })
                     : "—"}
                 </span>
                  {i18n.t("projects:stageBaselineDialog.ui.resetBaselineHint")} </p>

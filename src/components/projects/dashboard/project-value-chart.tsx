@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 import { plannedAllocationFigures } from "@/lib/projects/financial-calculation";
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function ProjectValueChart({ projects, stages, loading }: Props) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [mode, setMode] = useState<Mode>("Created");
   const [unit, setUnit] = useState<Unit>("Hours");
@@ -155,7 +157,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
                   key={i}
                   className="flex-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
                 >
-                  {format(b.date, "MMM yy")}
+                  {format(b.date, "MMM yy", { locale: dateLocale })}
                 </div>
               ))}
             </div>

@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function NotesList({ projectId }: Props) {
+  const dateLocale = useDateLocale();
   const { t } = useTranslation("projects");
   const { data: notes, isLoading } = useProjectNotes(projectId);
   const del = useDeleteProjectNote(projectId);
@@ -48,7 +50,7 @@ export function NotesList({ projectId }: Props) {
   const grouped = useMemo(() => {
     const g = new Map<string, ProjectNote[]>();
     for (const n of filtered) {
-      const key = format(new Date(n.created_at), "MMMM yyyy");
+      const key = format(new Date(n.created_at), "MMMM yyyy", { locale: dateLocale });
       const arr = g.get(key) ?? [];
       arr.push(n);
       g.set(key, arr);
@@ -149,7 +151,7 @@ export function NotesList({ projectId }: Props) {
                           </Badge>
                         )}
                         <span className="text-muted-foreground">
-                          {format(new Date(n.created_at), "d MMM · HH:mm")}
+                          {format(new Date(n.created_at), "d MMM · HH:mm", { locale: dateLocale })}
                         </span>
                         {n.event_date && (
                           <span className="text-muted-foreground">

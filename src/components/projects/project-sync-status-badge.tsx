@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = false }: Props) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const qc = useQueryClient();
   const q = useQuery({
@@ -101,7 +103,7 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
             <div>{label}</div>
             {lastSync && (
               <div className="text-muted-foreground">
-                 {i18n.t("projects:projectSyncStatusBadge.ui.lastSync")} {format(new Date(lastSync), "d MMM yyyy HH:mm")}
+                 {i18n.t("projects:projectSyncStatusBadge.ui.lastSync")} {format(new Date(lastSync), "d MMM yyyy HH:mm", { locale: dateLocale })}
               </div>
             )}
             <div className="mt-1 text-muted-foreground">

@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -27,6 +28,7 @@ interface RetainerParent {
 }
 
 export function TimesheetRetainerStages() {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
 
@@ -68,7 +70,7 @@ export function TimesheetRetainerStages() {
         arr.push({
           id: k.id,
           monthDate: k.start_date,
-          month: format(parseISO(k.start_date), "MMM yyyy"),
+          month: format(parseISO(k.start_date), "MMM yyyy", { locale: dateLocale }),
         });
         byParent.set(k.parent_stage_id, arr);
       }
@@ -106,7 +108,7 @@ export function TimesheetRetainerStages() {
               <span>·</span>
               <span className="font-medium">{r.name}</span>
               <span className="ml-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                €{r.monthly_fee.toLocaleString()} {i18n.t("projects:timesheetRetainerStages.ui.perMonth")} </span>
+                €{r.monthly_fee.toLocaleString(i18n.language)} {i18n.t("projects:timesheetRetainerStages.ui.perMonth")} </span>
             </div>
             <Button
               size="sm"

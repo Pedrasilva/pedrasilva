@@ -1412,7 +1412,7 @@ export function ProjectGantt({
       .filter((inv) => inv.raised_date)
       .map((inv) => ({
         id: inv.id,
-        label: inv.invoice_number || inv.title || "Invoice",
+        label: inv.invoice_number || inv.title || i18n.t("projects:detail.ui.invoice"),
         date: inv.raised_date as string,
         amount: Number(inv.total ?? 0),
         status:

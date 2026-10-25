@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -430,7 +431,7 @@ function Stat({
         {label}
       </div>
       <div className={`mt-0.5 font-mono text-sm font-semibold ${color}`}>
-        {new Intl.NumberFormat("pt-PT", {
+        {new Intl.NumberFormat(i18n.language, {
           style: "currency",
           currency: "EUR",
         }).format(value)}

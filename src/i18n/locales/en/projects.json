@@ -2638,7 +2638,8 @@
       "addLine": "Add line",
       "direction": "Direction",
       "inflow": "Inflow",
-      "outflow": "Outflow"
+      "outflow": "Outflow",
+      "newLine": "New line"
     }
   },
   "projectPlannerInspector": {

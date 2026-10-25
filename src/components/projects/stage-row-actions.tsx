@@ -33,10 +33,10 @@ import { AllocationRemoveDialog } from "./allocation-remove-dialog";
 export type StageStatus = "planned" | "active" | "done" | "cancelled";
 
 export const STAGE_STATUS_LABEL: Record<StageStatus, string> = {
-  planned: "Planned",
-  active: "Active",
-  done: "Concluded",
-  cancelled: "Cancelled",
+  planned: "common:planned",
+  active: "common:active",
+  done: "common:done",
+  cancelled: "common:cancelled",
 };
 
 const DOT: Record<StageStatus, string> = {
@@ -77,7 +77,7 @@ export function StageStatusCell({
     updateStage.mutate(
       { id: stageId, projectId, patch: { status: next } },
       {
-        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValue", { value1: STAGE_STATUS_LABEL[next] })),
+        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValue", { value1: i18n.t(STAGE_STATUS_LABEL[next]) })),
         onError: (e: unknown) => toast.error((e as Error).message),
       },
     );
@@ -87,7 +87,7 @@ export function StageStatusCell({
     return (
       <span className="inline-flex items-center gap-1.5 text-xs">
         <span className={cn("inline-block h-2 w-2 rounded-full", DOT[status])} />
-        <span className={TEXT[status]}>{STAGE_STATUS_LABEL[status]}</span>
+        <span className={TEXT[status]}>{i18n.t(STAGE_STATUS_LABEL[status])}</span>
       </span>
     );
   }
@@ -101,7 +101,7 @@ export function StageStatusCell({
           className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs hover:bg-accent disabled:opacity-50"
         >
           <span className={cn("inline-block h-2 w-2 rounded-full", DOT[status])} />
-          <span className={TEXT[status]}>{STAGE_STATUS_LABEL[status]}</span>
+          <span className={TEXT[status]}>{i18n.t(STAGE_STATUS_LABEL[status])}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-44">
@@ -109,7 +109,7 @@ export function StageStatusCell({
         {(["planned", "active", "done", "cancelled"] as const).map((s) => (
           <DropdownMenuItem key={s} onSelect={() => set(s)} className="text-xs">
             <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", DOT[s])} />
-            {STAGE_STATUS_LABEL[s]}
+            {i18n.t(STAGE_STATUS_LABEL[s])}
             {s === status && <Check className="ml-auto h-3.5 w-3.5" />}
           </DropdownMenuItem>
         ))}
@@ -175,7 +175,7 @@ export function StageRowActions({
     updateStage.mutate(
       { id: stageId, projectId, patch: { status: next } },
       {
-        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValueLabel", { value1: STAGE_STATUS_LABEL[next] })),
+        onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValueLabel", { value1: i18n.t(STAGE_STATUS_LABEL[next]) })),
         onError: (e: unknown) => toast.error((e as Error).message),
       },
     );
@@ -242,7 +242,7 @@ export function StageRowActions({
           {(["planned", "active", "done", "cancelled"] as const).map((s) => (
             <DropdownMenuItem key={s} onSelect={() => setStatus(s)} className="text-xs">
               <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", DOT[s])} />
-              {STAGE_STATUS_LABEL[s]}
+              {i18n.t(STAGE_STATUS_LABEL[s])}
               {s === status && <Check className="ml-auto h-3.5 w-3.5" />}
             </DropdownMenuItem>
           ))}

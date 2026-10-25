@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 /**
  * Outline column for the Gantt chart — spreadsheet-style WBS table.
@@ -108,7 +109,7 @@ const COL = {
   dep: 56,
 } as const;
 
-const EUR0 = new Intl.NumberFormat("en-EU", {
+const EUR0 = new Intl.NumberFormat(i18n.language, {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
@@ -157,6 +158,7 @@ export function GanttOutlineColumn({
   dependencyLabels,
   onAppendRoot,
 }: Props) {
+  const dateLocale = useDateLocale();
   const {t}=useTranslation("projects");
   const last = visibleStages[visibleStages.length - 1];
   const showInsertRow = !!(onInsertStage || onAppendRoot);
@@ -531,6 +533,7 @@ function EditableName({
   summary: boolean;
   onSave?: (next: string) => Promise<unknown> | unknown;
 }) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -606,6 +609,7 @@ function WbsCode({
   editable: boolean;
   onCommit: (newLast: number) => Promise<unknown> | unknown;
 }) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const parts = wbs.split(".");
   const lead = parts.slice(0, -1).join(".");
@@ -680,6 +684,7 @@ function NumberCell({
   suffix?: string;
   onCommit: (n: number) => Promise<unknown> | unknown;
 }) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
@@ -733,6 +738,7 @@ function DateCell({
   editable: boolean;
   onCommit: (iso: string) => Promise<unknown> | unknown;
 }) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value ?? "");
@@ -748,7 +754,7 @@ function DateCell({
 
   const display = useMemo(() => {
     const d = safeParse(value);
-    return d ? format(d, "dd/MM/yyyy") : "—";
+    return d ? format(d, "dd/MM/yyyy", { locale: dateLocale }) : "—";
   }, [value]);
 
   if (editing) {
@@ -792,6 +798,7 @@ function BudgetCell({
   editable: boolean;
   onCommit: (n: number) => Promise<unknown> | unknown;
 }) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value || 0));

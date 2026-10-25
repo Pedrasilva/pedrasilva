@@ -1,3 +1,4 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 import { useMemo } from "react";
@@ -96,6 +97,7 @@ function useHolidaySet() {
 }
 
 export function ResourcePool({ resources, collapsed = false, missingRateIds }: Props) {
+  const dateLocale = useDateLocale();
   useTranslation();
   const { data: allocs } = useAllAllocations();
   const { data: leaveByResource } = useLeaveByResource();
@@ -128,7 +130,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
             <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground"> {i18n.t("projects:resourcePool.ui.dragOntoStage")} </p>
             <h2 className="text-lg font-semibold"> {i18n.t("projects:resourcePool.ui.teamPool")} </h2>
             <p className="mt-1 text-[11px] text-muted-foreground">
-               {i18n.t("projects:resourcePool.ui.thisWeekSeparator")} {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
+               {i18n.t("projects:resourcePool.ui.thisWeekSeparator")} {format(thisWeek.start, "MMM d", { locale: dateLocale })} – {format(thisWeek.end, "MMM d", { locale: dateLocale })}
             </p>
           </>
         )}

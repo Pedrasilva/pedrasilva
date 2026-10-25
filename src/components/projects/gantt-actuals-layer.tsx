@@ -9,7 +9,7 @@ import { Info, AlertTriangle } from "lucide-react";
 
 export const ACTUAL_ROW_HEIGHT = 38;
 export const ACTUAL_METRIC_HEIGHT = 44;
-const number = (n:number) => new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(n);
+const number = (n:number) => new Intl.NumberFormat(i18n.language,{maximumFractionDigits:2}).format(n);
 export const actualBandClass = (band:ActualTotals["band"]) => ({normal:"bg-budget-spent",ahead:"bg-budget-warning",over:"bg-budget-over",incomplete:"bg-muted-foreground"})[band];
 
 export function GanttActualMetrics({totals,financials,compact=false}:{totals:ActualTotals;financials:boolean;compact?:boolean}) {

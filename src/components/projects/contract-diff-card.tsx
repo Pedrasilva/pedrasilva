@@ -20,7 +20,7 @@ import {
 const fmtEUR = (n: number | null | undefined) =>
   n == null
     ? "—"
-    : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+    : new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(n);
 
 const fmtDate = (d: string | null | undefined) =>
   d ? new Date(d).toLocaleDateString("pt-PT") : "—";

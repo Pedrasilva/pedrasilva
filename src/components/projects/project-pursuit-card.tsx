@@ -20,7 +20,7 @@ import { useLinkableOpportunities, useLinkProjectOpportunity } from "@/lib/proje
 import { formatHM } from "@/lib/projects/time-format";
 
 const euros = (n: number) =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 
 export function ProjectPursuitCard({
   projectId,
