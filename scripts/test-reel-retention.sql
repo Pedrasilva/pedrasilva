@@ -10,8 +10,8 @@ BEGIN
  INSERT INTO public.marketing_reel_uploads(id,created_by,profile_id,video_path,cover_path,file_name,mime_type)
  VALUES(upload,actor,profile,'reels/'||upload||'/video.mp4','reels/'||upload||'/cover.jpg','PSA-QA-retention.mp4','video/mp4');
  INSERT INTO public.marketing_post_requests(period_start,period_end,idea_count,requested_by) VALUES(current_date,current_date,1,actor) RETURNING id INTO req;
- INSERT INTO public.marketing_post_drafts(request_id,idea_id,platform,asset_ids,ai_copy,ai_hashtags,rationale,readiness,bible_version,model,format,status,ig_media_id,published_at,ig_published_at,reel_cover_path,project_id)
- VALUES(req,gen_random_uuid(),'instagram',ARRAY[upload],'PSA QA disposable reel retention','{PSAQA}','Fixture','needs_approval',1,'test','reel','published','fixture-only-not-live',current_date-31,now()-interval '31 days','reels/'||upload||'/cover.jpg',project) RETURNING id INTO draft;
+ INSERT INTO public.marketing_post_drafts(request_id,idea_id,platform,capture_ids,asset_ids,ai_copy,ai_hashtags,rationale,readiness,bible_version,model,format,status,ig_media_id,published_at,ig_published_at,reel_cover_path,project_id)
+ VALUES(req,gen_random_uuid(),'instagram','{}',ARRAY[upload],'PSA QA disposable reel retention','{PSAQA}','Fixture','needs_approval',1,'test','reel','published','fixture-only-not-live',current_date-31,now()-interval '31 days','reels/'||upload||'/cover.jpg',project) RETURNING id INTO draft;
  IF NOT public.marketing_reel_purge_eligible(upload) THEN RAISE EXCEPTION 'FAIL published reel 31 days'; END IF;
  UPDATE public.marketing_post_drafts SET published_at=current_date-29,ig_published_at=now()-interval '29 days' WHERE id=draft;
  IF public.marketing_reel_purge_eligible(upload) THEN RAISE EXCEPTION 'FAIL younger than 30 days'; END IF;
@@ -32,8 +32,8 @@ BEGIN
  UPDATE public.marketing_reel_uploads SET video_purge_claim=c,video_purge_bytes=12345 WHERE id=upload;
  blocked:=false;
  BEGIN
-  INSERT INTO public.marketing_post_drafts(request_id,idea_id,platform,asset_ids,ai_copy,rationale,readiness,bible_version,model,format)
-  VALUES(req,gen_random_uuid(),'instagram',ARRAY[upload],'PSA QA reuse blocked','Fixture','needs_approval',1,'test','reel');
+  INSERT INTO public.marketing_post_drafts(request_id,idea_id,platform,capture_ids,asset_ids,ai_copy,ai_hashtags,rationale,readiness,bible_version,model,format)
+  VALUES(req,gen_random_uuid(),'instagram','{}',ARRAY[upload],'PSA QA reuse blocked','{}','Fixture','needs_approval',1,'test','reel');
  EXCEPTION WHEN others THEN
   IF SQLERRM NOT LIKE '%new upload%' THEN RAISE; END IF;
   blocked:=true;
