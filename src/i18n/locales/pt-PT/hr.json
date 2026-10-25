@@ -344,7 +344,7 @@
     },
     "deleteDialog": {
       "title": "Eliminar {{year}}?",
-      "description": "Esta acção é irreversível. As fichas existentes mantêm os valores guardados."
+      "description": "Esta ação é irreversível. As fichas existentes mantêm os valores guardados."
     },
     "toasts": {
       "saved": "Valor guardado",
@@ -360,7 +360,7 @@
       "autosavingSoon": "Alterações por guardar — autosave em instantes",
       "savedAt": "Guardado {{time}}",
       "idle": "Sem alterações",
-      "updatedToast": "Ficha actualizada",
+      "updatedToast": "Ficha atualizada",
       "saveError": "Erro a guardar: {{message}}",
       "projectCostEffectiveFromLabel": "Reflectir nos projectos a partir de",
       "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projecto já fechadas. Por omissão usa a data de efeito do payroll."
@@ -548,7 +548,7 @@
     }
   },
   "resumoComparativo": {
-    "title": "Comparativo Actual vs Proposto",
+    "title": "Comparativo Atual vs Proposto",
     "description": "Diferenças por colaborador entre a ficha efectiva e a ficha proposta. Use os filtros para focar uma métrica ou pesquisar pelo nome.",
     "filters": {
       "searchLabel": "Pesquisar colaborador",
@@ -566,7 +566,7 @@
       "department": "Departamento",
       "section": "Secção",
       "metric": "Métrica",
-      "current": "Actual",
+      "current": "Atual",
       "proposed": "Proposto",
       "delta": "Δ",
       "deltaPct": "Δ %"
@@ -598,36 +598,36 @@
       }
     },
     "valorBaseGlobal": {
-      "title": "Custo mensal total com colaboradores — Actual vs Proposto",
-      "description": "Média mensal do custo bruto anual de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Inclui salário base, SS patronal, subsídios, ajudas, passe e benefícios. Quem não tem proposta conta com o valor actual.",
-      "currentMonthly": "Custo mensal — actual",
+      "title": "Custo mensal total com colaboradores — Atual vs Proposto",
+      "description": "Média mensal do custo bruto anual de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Inclui salário base, SS patronal, subsídios, ajudas, passe e benefícios. Quem não tem proposta conta com o valor atual.",
+      "currentMonthly": "Custo mensal — atual",
       "proposedMonthly": "Custo mensal — proposto",
       "monthlyIncrease": "Aumento mensal",
       "annualPrefix": "Anual: {{value}}",
       "annualX14Prefix": "Anual: {{value}}"
     },
     "brutoGlobal": {
-      "title": "Custo anual total com colaboradores — Actual vs Proposto",
-      "description": "Soma do custo bruto anual de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Quem não tem proposta conta com o valor actual.",
-      "currentAnnual": "Custo anual actual",
+      "title": "Custo anual total com colaboradores — Atual vs Proposto",
+      "description": "Soma do custo bruto anual de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Quem não tem proposta conta com o valor atual.",
+      "currentAnnual": "Custo anual atual",
       "proposedAnnual": "Custo anual proposto",
       "additionalAnnual": "Custo adicional anual",
-      "vsCurrent": "vs actual",
+      "vsCurrent": "vs atual",
       "monthlyEquivalent": "Equivalente mensal: {{value}} / mês",
       "infoTooltip": "Inclui, por colaborador: salário base (×14, 13 ou 12 consoante o modo), Segurança Social patronal (23,75%), subsídio de alimentação, ajudas de custo, passe e benefícios anuais (carro, ticket, prémio, plano de reforma, bónus variável, outros). Não inclui SS do colaborador (11%) nem IRS — esses são descontos já contidos no bruto que a empresa paga."
     },
     "table": {
       "collaborator": "Colaborador",
       "metric": "Métrica",
-      "current": "Actual",
+      "current": "Atual",
       "proposed": "Proposto",
       "delta": "Δ",
       "deltaPct": "Δ %",
       "empty": "Sem colaboradores a apresentar.",
-      "noEffective": " · sem ficha actual",
+      "noEffective": " · sem ficha atual",
       "noProposed": " · sem ficha proposta",
       "fullComparison": "Comparação completa",
-      "onlyEffective": "Apenas ficha actual disponível",
+      "onlyEffective": "Apenas ficha atual disponível",
       "onlyProposed": "Apenas ficha proposta disponível",
       "noSnapshots": "Sem fichas",
       "totalLabel_one": "Total (1 colaborador)",
@@ -649,7 +649,7 @@
     },
     "deleteDialog": {
       "title": "Eliminar colaborador",
-      "description": "Esta acção remove o colaborador e todas as suas fichas.",
+      "description": "Esta ação remove o colaborador e todas as suas fichas.",
       "cancel": "Cancelar",
       "confirm": "Eliminar"
     },
@@ -749,10 +749,10 @@
     "snapshots": {
       "summaryTab": "Resumo",
       "newButton": "Nova ficha",
-      "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Actual\" com a data actual).",
+      "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Atual\" com a data atual).",
       "archivedBlocked": "Este colaborador está arquivado. Restaure-o para adicionar novas fichas.",
       "editorTitle": "Editar campos da ficha",
-      "editorDescription": "Ajuste os valores de remuneração, benefícios e fiscalidade desta ficha. O resumo acima actualiza ao guardar."
+      "editorDescription": "Ajuste os valores de remuneração, benefícios e fiscalidade desta ficha. O resumo acima atualiza ao guardar."
     },
     "newDialog": {
       "title": "Nova ficha salarial",
@@ -798,7 +798,7 @@
       "number": "Número",
       "contractStatus": "Contrato",
       "status": "Estado",
-      "actions": "Acções",
+      "actions": "Ações",
       "fte": "FTE",
       "chargeability": "Chargeability"
     },
@@ -845,12 +845,12 @@
     "toast": {
       "archived": "{{name}} arquivado",
       "restored": "{{name}} restaurado",
-      "error": "Não foi possível concluir a acção",
+      "error": "Não foi possível concluir a ação",
       "errors": {
-        "forbidden": "Não tem permissão para executar esta acção.",
+        "forbidden": "Não tem permissão para executar esta ação.",
         "session": "A sessão expirou. Por favor inicie sessão novamente.",
         "network": "Erro de rede. Verifique a ligação e tente novamente.",
-        "conflict": "Esta acção entra em conflito com dados existentes."
+        "conflict": "Esta ação entra em conflito com dados existentes."
       }
     }
   },
@@ -1108,7 +1108,7 @@
       "salary_too_high": "Salário invulgarmente alto",
       "invalid_effective_date": "Data efectiva inválida",
       "duplicate_in_file": "Duplicado no ficheiro",
-      "no_change_vs_current": "Sem alteração face ao actual"
+      "no_change_vs_current": "Sem alteração face ao atual"
     },
     "result": {
       "completedTitle": "Importação concluída",
@@ -1177,7 +1177,7 @@
       "description": "Descrição",
       "amount": "Valor",
       "status": "Estado",
-      "actions": "Acções"
+      "actions": "Ações"
     },
     "submit": {
       "button": "Submeter despesa",
@@ -1270,8 +1270,8 @@
     },
     "delete": {
       "title": "Apagar despesa",
-      "descriptionPending": "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas.",
-      "descriptionGeneric": "Esta acção é permanente. A despesa e a respectiva factura serão removidas.",
+      "descriptionPending": "Esta ação é permanente. A despesa pendente e a respectiva factura serão removidas.",
+      "descriptionGeneric": "Esta ação é permanente. A despesa e a respectiva factura serão removidas.",
       "cancel": "Cancelar",
       "confirm": "Apagar",
       "loading": "A apagar…"

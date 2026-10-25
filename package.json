@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "node --import tsx scripts/test-financial-rollups.mjs && node scripts/test-holiday-clauses.mjs && node --import tsx scripts/test-match-panel.mjs && bunx vitest run scripts/test-intake-health.test.ts scripts/test-supplier-clusters.test.ts scripts/test-contabilidade-export.test.ts"
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "test:i18n": "node --test scripts/test-check-i18n.mjs && node scripts/check-i18n-parity.mjs && node scripts/check-i18n.mjs",
+    "test": "npm run test:i18n && node --import tsx scripts/test-financial-rollups.mjs && node scripts/test-holiday-clauses.mjs && node --import tsx scripts/test-match-panel.mjs && bunx vitest run scripts/test-intake-health.test.ts scripts/test-supplier-clusters.test.ts scripts/test-contabilidade-export.test.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",

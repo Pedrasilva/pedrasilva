@@ -2,7 +2,7 @@
   "module": {
     "title": "Inbox",
     "subtitle": "Triagem de email",
-    "description": "Triagem do email do atelier: classificar, sugerir acção e preparar respostas antes de alguém responder."
+    "description": "Triagem do email do atelier: classificar, sugerir ação e preparar respostas antes de alguém responder."
   },
   "nav": {
     "triage": "Triagem",
@@ -19,7 +19,7 @@
     "subject": "Assunto",
     "category": "Categoria",
     "confidence": "Confiança",
-    "suggestedAction": "Acção sugerida",
+    "suggestedAction": "Ação sugerida",
     "status": "Estado",
     "receivedAt": "Recebido",
     "loading": "A carregar…"
@@ -54,7 +54,7 @@
     "empty": "Ainda não há caixas ligadas.",
     "added": "Caixa ligada.",
     "removed": "Caixa removida.",
-    "updated": "Caixa actualizada.",
+    "updated": "Caixa atualizada.",
     "error": "Não foi possível guardar a caixa.",
     "connectorTitle": "Como ligar uma segunda caixa",
     "connectorSteps": "Peça à Lovable para ligar um segundo conector Gmail para esta caixa. Depois de ligado, a chave fica disponível como novo segredo de ambiente — introduza aqui o nome desse segredo.",
@@ -74,12 +74,12 @@
     "archive": "Arquivar",
     "labelOnly": "Apenas etiquetar",
     "reject": "Rejeitar / escalar",
-    "actionFailed": "A acção falhou — a mensagem permanece na fila",
-    "actionsNote": "Aprovar e enviar, Arquivar e Mover para o lixo escrevem no Gmail. Apenas etiquetar e Rejeitar não tocam na caixa de correio. Qualquer acção pode ser anulada durante 8 segundos (uma resposta enviada não).",
+    "actionFailed": "A ação falhou — a mensagem permanece na fila",
+    "actionsNote": "Aprovar e enviar, Arquivar e Mover para o lixo escrevem no Gmail. Apenas etiquetar e Rejeitar não tocam na caixa de correio. Qualquer ação pode ser anulada durante 8 segundos (uma resposta enviada não).",
     "trash": "Mover para o lixo",
     "undo": "Anular",
-    "undone": "Acção anulada — a mensagem voltou à fila.",
-    "undoFailed": "Não foi possível anular a acção.",
+    "undone": "Ação anulada — a mensagem voltou à fila.",
+    "undoFailed": "Não foi possível anular a ação.",
     "doneSend": "Resposta enviada.",
     "done": {
       "archive": "Email arquivado no Gmail.",
@@ -147,7 +147,7 @@
     "patternAddressPlaceholder": "noreply@exemplo.com",
     "patternDomainPlaceholder": "exemplo.com",
     "category": "Categoria",
-    "actionLabel": "Acção sugerida",
+    "actionLabel": "Ação sugerida",
     "action": {
       "archive": "Arquivar",
       "label_only": "Apenas etiquetar",
@@ -157,9 +157,9 @@
     "remove": "Remover",
     "added": "Regra adicionada.",
     "removed": "Regra removida.",
-    "updated": "Regra actualizada.",
+    "updated": "Regra atualizada.",
     "error": "Não foi possível guardar a regra.",
-    "note": "As regras nunca enviam respostas nem actuam no Gmail por si — a acção sugerida continua a exigir um clique na fila de revisão."
+    "note": "As regras nunca enviam respostas nem actuam no Gmail por si — a ação sugerida continua a exigir um clique na fila de revisão."
   },
   "content": {
     "title": "Mensagem",
@@ -192,8 +192,8 @@
     "noRules": "Não foi possível construir uma regra utilizável a partir dessa instrução. As regras só podem arquivar, etiquetar ou enviar para o lixo — nunca responder.",
     "pendingMatches_one": "{{count}} email pendente",
     "pendingMatches_other": "{{count}} emails pendentes",
-    "impact_one": "{{count}} email actualmente na fila será tratado de imediato.",
-    "impact_other": "{{count}} emails actualmente na fila serão tratados de imediato.",
+    "impact_one": "{{count}} email atualmente na fila será tratado de imediato.",
+    "impact_other": "{{count}} emails atualmente na fila serão tratados de imediato.",
     "confirm": "Guardar regra e aplicar agora",
     "cancel": "Descartar",
     "saved": "{{created}} regra(s) guardada(s) · {{applied}} email(s) existente(s) tratado(s).",
@@ -205,7 +205,7 @@
     "count_one": "{{count}} mensagem tratada automaticamente",
     "count_other": "{{count}} mensagens tratadas automaticamente",
     "emptyTitle": "Ainda nada tratado automaticamente",
-    "emptySub": "Quando uma regra de remetente corresponde a uma mensagem recebida, a acção é executada durante a sincronização e a mensagem aparece aqui em vez da fila.",
+    "emptySub": "Quando uma regra de remetente corresponde a uma mensagem recebida, a ação é executada durante a sincronização e a mensagem aparece aqui em vez da fila.",
     "undo": "Anular"
   }
 }
