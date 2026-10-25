@@ -24,7 +24,7 @@ import {
   useUpdateProject,
   type ProjectStatus,
 } from "@/lib/projects/use-planner";
-import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { allocationCost } from "@/lib/projects/gantt-utils";
 import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import {
   ArrowUpRight,
@@ -417,4 +417,8 @@ function GlobalGanttPage() {
       </div>
     </AppShell>
   );
+}
+
+function euros(value: number): string {
+  return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
 }

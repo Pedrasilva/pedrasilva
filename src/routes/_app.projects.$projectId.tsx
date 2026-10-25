@@ -49,7 +49,6 @@ import { toast } from "sonner";
 import {
   allocationCost,
   allocationHours,
-  euros,
 } from "@/lib/projects/gantt-utils";
 import {
   useDefaultResourceRates,
@@ -3484,3 +3483,5 @@ function formatHm(hours: number) {
 function formatNumber(value: number, digits?: number): string {
   return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
 }
+
+const euros = fmtEur;

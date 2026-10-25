@@ -2278,6 +2278,7 @@
     "[\"src/routes/login.tsx\",\"jsxText\",\"Inicie sessão com a sua conta Google da empresa\"]": 1,
     "[\"src/routes/login.tsx\",\"jsxExpression\",\"A redireccionar…\"]": 1,
     "[\"src/routes/login.tsx\",\"jsxExpression\",\"Entrar com Google\"]": 1,
-    "[\"src/routes/login.tsx\",\"jsxText\",\"O acesso é concedido se o seu email Google estiver associado a um colaborador.\"]": 1
+    "[\"src/routes/login.tsx\",\"jsxText\",\"O acesso é concedido se o seu email Google estiver associado a um colaborador.\"]": 1,
+    "[\"src/routes/_app.projects.financials.tsx\",\"jsxText\",\"of total time\"]": 1
   }
 }
