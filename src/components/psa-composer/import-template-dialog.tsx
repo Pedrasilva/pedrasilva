@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
  * ImportTemplateDialog — replace ALL blocks in the current PSA proposal
@@ -138,7 +138,8 @@ export function ImportTemplateDialog({
                   <AlertTriangle className="h-5 w-5 text-amber-600" />
                    {uiI18n.t("crm:quoteEditor.confirmReplace")} </DialogTitle>
                 <DialogDescription>
-                   {uiI18n.t("crm:quoteEditor.actionWillPrefix")} <strong> {uiI18n.t("crm:quoteEditor.deleteAllBlocks")} </strong>  {uiI18n.t("crm:quoteEditor.replaceTemplateSuffix")} <strong> "{chosen?.name}"</strong> {uiI18n.t("crm:quoteEditor.irreversibleSuffix")} </DialogDescription>
+                  <Trans i18n={uiI18n} i18nKey="crm:quoteEditor.replaceConfirmation" values={{ name: chosen?.name ?? "" }} components={{ strong: <strong /> }} />
+                </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button
