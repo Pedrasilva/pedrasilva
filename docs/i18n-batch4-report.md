@@ -11,7 +11,7 @@
 - Authenticated browser-local company/contact/project/item/category fixtures only. Zero submitted/blocked record writes; no create/save/delete/publish/export/print commands were invoked. Fixtures existed only in the disposable browser context.
 - Company detail and project item table inspected in PT/EN, plus the item edit sheet in EN; no runtime errors or raw keys. Stored names and document prose remain Portuguese in both views.
 - A client datasheet was rendered directly in a browser-local React root with the same fixture data, never by invoking the print action. Normalized document text was identical in PT/EN: SHA-256 **aaae3f199276ec01de9ecbf0f7679f278a898994202b9b58d99acb03e8deb251**.
-- Source-document integrity: src/components/products/datasheet-sheet.tsx: byte-for-byte unchanged (32f81ad4729d797b2650293d2373c7b9f31949eb42028fc8bef1e0ff023efc25); src/components/products/schedule-print-view.tsx: CHECK REQUIRED (e09c8ab58807eed7d5b4afd06be906587fde1003b2abeadd78d93a4b5f2b7233).
+- Source-document integrity: src/components/products/datasheet-sheet.tsx: byte-for-byte unchanged (32f81ad4729d797b2650293d2373c7b9f31949eb42028fc8bef1e0ff023efc25); src/components/products/schedule-print-view.tsx: untouched, confirmed by empty source diff (excluded from the initial scanner snapshot) (e09c8ab58807eed7d5b4afd06be906587fde1003b2abeadd78d93a4b5f2b7233).
 - Screenshots: [company PT](i18n-batch4/company-pt-PT.png), [company EN](i18n-batch4/company-en.png), [items PT](i18n-batch4/items-pt-PT.png), [items EN](i18n-batch4/items-en.png), [item sheet EN](i18n-batch4/item-sheet-en.png).
 
 ## Explicit exclusions and intentional remnants
@@ -32,6 +32,14 @@
   - src/routes/_app.crm.quotes.$quoteId.tsx:624: `estimate` (jsxExpression)
   - src/routes/_app.inbox.index.tsx:286: `number` (jsxExpression)
   - src/routes/_app.products.project.$projectId.tsx:207: `undefined` (jsxExpression)
+
+## Changed support files
+- EN/PT `crm.json` and `common.json`: paired UI keys, shared labels and plurals. Existing Inventory/Inbox keys reused; those namespace files remained semantically unchanged.
+- `src/lib/product-ui-format.ts`: display-only currency helpers; original document helpers unchanged.
+- `scripts/i18n-allowlist.json`: exact datasheet output scopes.
+- `scripts/i18n-baseline.json`: removal-only ratchet.
+- `AGENTS.md`: UI/document formatter boundary; `roadmap.md`: completed task checklist.
+- Scoped routes also received missing app-specific leaf metadata; homepage metadata inspected and preserved.
 
 ## Counts per file
 | File | Before | After |
