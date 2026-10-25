@@ -928,7 +928,7 @@ function ForecastPage() {
                   <Legend />
                   <Bar dataKey="revenue" name={t("glossary:financial.revenue")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="cost" name={t("glossary:financial.cost")} fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-                  <Line type="monotone" dataKey="profit" name="Lucro" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="profit" name={t("glossary:financial.profit")} stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>

@@ -1,4 +1,3 @@
-import i18n from "@/i18n/index";
 import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
@@ -75,17 +74,17 @@ export const Route = createFileRoute("/_app/projects/financials")({
 });
 
 const euros = (n: number) =>
-  !Number.isFinite(n) ? "—" : new Intl.NumberFormat(i18n.language, {
+  !Number.isFinite(n) ? "—" : new Intl.NumberFormat("pt-PT", {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
   }).format(n);
 
 const hours = (n: number) =>
-  `${(Number.isFinite(n) ? n : 0).toLocaleString(i18n.language, { maximumFractionDigits: 1 })} h`;
+  `${(Number.isFinite(n) ? n : 0).toLocaleString("pt-PT", { maximumFractionDigits: 1 })} h`;
 
 const pct = (n: number) =>
-  `${(Number.isFinite(n) ? n : 0).toLocaleString(i18n.language, { maximumFractionDigits: 1 })}%`;
+  `${(Number.isFinite(n) ? n : 0).toLocaleString("pt-PT", { maximumFractionDigits: 1 })}%`;
 
 type ResourceLite = {
   id: string;
@@ -1181,7 +1180,6 @@ function BucketCard({
   icon: React.ReactNode;
   footnote?: string;
 }) {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
   const pctVal = total > 0 ? (hrs / total) * 100 : 0;
   const barClass = {
     success: "bg-emerald-500",
@@ -1197,7 +1195,8 @@ function BucketCard({
         <CardTitle className="text-2xl tabular-nums">{hours(hrs)}</CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-muted-foreground">
-        {pct(pctVal)}  {t("projects:detail.ui.ofTotalTime")} <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        {pct(pctVal)} of total time
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className={cn("h-full", barClass)} style={{ width: `${Math.min(100, pctVal)}%` }} />
         </div>
         {footnote && <p className="mt-2 text-[11px] italic">{footnote}</p>}
@@ -1805,7 +1804,7 @@ function WeeklyUtilizationCard({
                 tickFormatter={(v) => `${v}%`}
               />
               <RTooltip
-                formatter={(v: number, name: string) => [`${formatNumber(Number(v), 1)}%`, name]}
+                formatter={(v: number, name: string) => [`${Number(v).toFixed(1)}%`, name]}
                 contentStyle={{
                   background: "hsl(var(--popover))",
                   border: "1px solid hsl(var(--border))",
@@ -2074,7 +2073,7 @@ function BusinessDevCard({
           <BdMetric
             icon={<FileText className="h-4 w-4" />}
             label={t("projects:financials.businessDev.metrics.submitted")}
-            value={(data?.allTime.total ?? 0).toLocaleString(i18n.language)}
+            value={(data?.allTime.total ?? 0).toLocaleString("pt-PT")}
             sub={t("projects:financials.businessDev.metrics.submittedSub", {
               count: data?.inMonth.submitted ?? 0,
             })}
@@ -2082,7 +2081,7 @@ function BusinessDevCard({
           <BdMetric
             icon={<Trophy className="h-4 w-4" />}
             label={t("projects:financials.businessDev.metrics.won")}
-            value={(data?.allTime.won ?? 0).toLocaleString(i18n.language)}
+            value={(data?.allTime.won ?? 0).toLocaleString("pt-PT")}
             sub={t("projects:financials.businessDev.metrics.wonSub", {
               count: data?.inMonth.won ?? 0,
             })}
@@ -2132,7 +2131,7 @@ function BusinessDevCard({
                   dangerouslySetInnerHTML={{
                     __html: t("projects:financials.businessDev.valueWon", {
                       value: euros(data?.allTime.valueWon ?? 0),
-                      roi: formatNumber(roi, 1),
+                      roi: roi.toFixed(1),
                       interpolation: { escapeValue: false },
                     }),
                   }}
@@ -2231,7 +2230,3 @@ function BdMetric({
   );
 }
 
-
-function formatNumber(value: number, digits?: number): string {
-  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
-}
