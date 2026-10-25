@@ -1,5 +1,5 @@
 import { fmtEUR } from "@/lib/hr/ui-format";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -198,7 +198,7 @@ function ValorBOPage() {
               {draft.dias_uteis}
             </div>
             <p className="text-[11px] text-muted-foreground">
-               {uiI18n.t("hr:batchFive.labels.definedIn")} <strong> {uiI18n.t("hr:batchFive.labels.settingsWorkingDays")} </strong>.
+               <Trans i18nKey="hr:batchFive.labels.workingDaysDefinedIn" components={{ strong: <strong /> }} />
             </p>
           </div>
           <div className="space-y-1">

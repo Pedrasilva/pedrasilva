@@ -272,10 +272,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
             {previewQ.data && (
               <>
                 <div className="text-xs text-muted-foreground">
-                  {previewQ.data.matchCount.toLocaleString(uiI18n.language)}  {uiI18n.t("common:of")} {" "}
-                  {previewQ.data.totalRows.toLocaleString(uiI18n.language)}  {uiI18n.t("access:batchFive.labels.rows")} {previewQ.data.matchCount > previewQ.data.returned && (
-                    <>  {uiI18n.t("access:batchFive.labels.first")} {previewQ.data.returned}  {uiI18n.t("access:batchFive.labels.shown")} </>
-                  )}
+                  {uiI18n.t(previewQ.data.matchCount > previewQ.data.returned ? "access:batchFive.labels.previewRowsLimited" : "access:batchFive.labels.previewRows", { matched: previewQ.data.matchCount.toLocaleString(uiI18n.language), total: previewQ.data.totalRows.toLocaleString(uiI18n.language), shown: previewQ.data.returned.toLocaleString(uiI18n.language) })}
                 </div>
                 <div className="max-h-[55vh] overflow-auto rounded border">
                   <table className="w-full text-xs">
