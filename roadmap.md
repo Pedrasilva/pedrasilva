@@ -1,7 +1,7 @@
 ## Current request — finished reels
-- [ ] Private resumable video upload, shared validation, cover selection and manual caption assistance.
-- [ ] Normal hash-protected reel drafts, cover/feed publishing and preview integration; mirrored additive migration.
-- [ ] Fixture-only browser verification and cleanup, screenshots/report; no publishing or Finance edits.
+- [x] Private resumable video upload, shared validation, cover selection and manual caption assistance.
+- [x] Normal hash-protected reel drafts, cover/feed publishing and preview integration; mirrored additive migrations 0184–0186.
+- [x] Fixture video/JPEG upload saved and read back as suggested PT reel with project/clearance/cover; all four upload sessions, draft, request, files and project removed. Screenshots and report retained; no publishing or Finance edits. Sandbox Chromium lacks H.264 playback, so frame scrubber and voice/AI assistance remain unverified end-to-end.
 
 ## Current request — best posting times
 - [x] Verified online_followers through authenticated application function: empty response, unavailable, 0 slots. Daily optional snapshots + RLS-scoped RPC; migration 0183 mirrored. 50 historical media, none in last 90 days; no AI.

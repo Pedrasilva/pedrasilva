@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useActiveBible } from "@/lib/marketing/bible";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
+import { FinishedReelDialog } from '@/components/marketing/finished-reel-dialog';
 import { PREVIEW, PREVIEW_VERSION, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
@@ -80,7 +81,7 @@ type Draft = {
   published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
   story_render_manifest?: StoryManifest | null;
   publish_error_message?:string|null; publish_sent_at?:string|null; publish_lock_id?:string|null; ig_media_id?:string|null;
-  format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
+  format?: "single" | "carousel" | "story" | "reel"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
 type StoryFrame = { kind?: "image" | "text"; asset_id: string; text: string; line?: string | null; sticker: { type: StickerType; text: string }; sticker_policy?: "omit" | "manual" };
@@ -167,7 +168,7 @@ function usePlannerData() {
       const assetIds = [...new Set(ds.flatMap((d) => d.asset_ids))];
       const projectIds = [...new Set(ds.map((d) => d.project_id).filter(Boolean))] as string[];
       const [assets, { data: projects }] = await Promise.all([
-        resolveDraftImages(sb, assetIds, 3600, { sign: false }),
+        resolveDraftImages(sb, assetIds, 3600, { sign: false, preview:PREVIEW.tile }),
         projectIds.length ? sb.from("pm_projects").select("id, name").in("id", projectIds) : { data: [] },
       ]);
       const assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }> = {};
@@ -286,6 +287,7 @@ function PostPlannerPage() {
             <Button onClick={() => setGenOpen(true)}>
               {running ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />}{t("posts.generateIdeas")}
             </Button>
+            <FinishedReelDialog />
             <NewCarouselButton />
           </div>}
         </div>
@@ -458,6 +460,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
         {first.brief_item && <Badge variant="outline" className="border-primary/40 text-primary">{t("posts.briefItem", { item: first.brief_item })}</Badge>}
         {first.format === "story" && <Badge>{t("posts.format.story", { count: assets.length + (textFrame ? 1 : 0) })}</Badge>}
         {first.format === "carousel" && <Badge>{t("posts.format.carousel", { count: assets.length })}</Badge>}
+        {first.format === 'reel' && <Badge>{t('reels.format')}</Badge>}
         <Badge variant="outline" className={READY_CLASS[first.readiness]}>{t(`posts.readiness.${first.readiness}`)}</Badge>
         {runAt && <span className="text-xs text-muted-foreground">{t("posts.fromRun", { date: new Date(runAt).toLocaleDateString(i18n.language, { day: "numeric", month: "short", timeZone: "Europe/Lisbon" }) })}</span>}
         {projectName && <Badge variant="secondary">{projectName}</Badge>}
@@ -603,7 +606,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const download = async () => {
     const tf = isStory ? frames.find((f) => f.kind === "text") : null;
     if (tf) { const { renderStoryFrame } = await import("@/lib/marketing/story-render"); const b = await renderStoryFrame(tf); const url = URL.createObjectURL(b); const a = document.createElement("a"); a.href=url; a.download="story-1.jpg"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),2000); }
-    for (const a of assets) {
+    const originals = draft.format==='reel' ? await resolveDraftImages(supabase,draft.asset_ids,600,{sign:false}) : assets;
+    for (const a of originals) {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(a.storage_path, 600, { download: a.file_name });
       if (data?.signedUrl) {
         const el = document.createElement("a");

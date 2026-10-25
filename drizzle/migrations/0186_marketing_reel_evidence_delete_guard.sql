@@ -1,0 +1,2 @@
+ALTER POLICY reel_upload_delete ON public.marketing_reel_uploads USING (created_by=auth.uid() AND public.has_module_permission(auth.uid(),'marketing.curate','all') AND NOT EXISTS (SELECT 1 FROM public.marketing_post_drafts d WHERE marketing_reel_uploads.id=ANY(d.asset_ids)));
+COMMENT ON POLICY reel_upload_delete ON public.marketing_reel_uploads IS 'Only unused creator-owned upload sessions can be removed; referenced video evidence is retained.';

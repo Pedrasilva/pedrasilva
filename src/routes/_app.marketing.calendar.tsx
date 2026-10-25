@@ -129,7 +129,7 @@ function CalendarPage() {
     queryFn: async () => {
       const paths = previewRow?.story_render_manifest?.paths;
       if (paths?.length) { const urls = await signPaths(supabase, paths.map(path=>({path})), 3600, PREVIEW.tile); return paths.map((path,i)=>({id:path, url:urls.get(path), file_name:`Story ${i+1}`, mime_type:"image/jpeg"})); }
-      return resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, { preview: PREVIEW.tile });
+      return resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, previewRow?.format==='reel' ? {} : { preview: PREVIEW.tile });
     },
   });
 
@@ -207,7 +207,7 @@ function CalendarPage() {
 
   const gridPosts: GridPost[] = gridOrder(rows.filter((r) => r.platform === "instagram" && ["approved","scheduled","publishing","published","failed"].includes(r.status))).map((r) => ({
     id: r.id, caption: caption(r), hashtags: r.final_hashtags ?? r.ai_hashtags,
-    images: r.story_render_manifest?.paths.length ? r.story_render_manifest.paths.map(p=>data?.storyUrls.get(p)).filter((u):u is string=>!!u) : r.asset_ids.map((a) => data?.urls.get(a)).filter((u): u is string => !!u),
+    images: r.story_render_manifest?.paths.length ? r.story_render_manifest.paths.map(p=>data?.storyUrls.get(p)).filter((u):u is string=>!!u) : r.asset_ids.map((a) => r.format==='reel' ? data?.thumbUrls.get(a)?.url : data?.urls.get(a)).filter((u): u is string => !!u),
     status: r.status, permalink:r.published_url,error:r.publish_error_message,sentAt:r.publish_sent_at,
     when: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : null,
   }));
