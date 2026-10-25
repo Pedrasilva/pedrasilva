@@ -446,7 +446,7 @@
     "deleted": "Deleted",
     "cancel": "Cancel",
     "editNote": "What did you change and why? (optional)",
-    "editedAfterApproval": "Edited after approval, please approve again",
+    "editedAfterApproval": "Content changed since approval, approve again",
     "storyCount": "Story sets",
     "storiesGenerated_one": "{{count}} story set",
     "storiesGenerated_other": "{{count}} story sets",

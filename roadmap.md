@@ -1,3 +1,7 @@
+## Current request — stale Story approval recovery
+- [x] Restore normal direct/request approval for stale unsent drafts; hide publication until valid, preserve failure history and locks. Migration 0182 mirrored.
+- [x] Fixture Story approved in authenticated browser, current render/approval hashes match, active failure cleared and old failure logged; colleague path/hash/counters/send lock verified in rollback test. 21 tests plus EN/PT parity pass. No real Story approval/publication or Finance edits.
+
 ## Current request — live clearance warnings
 - [x] Batched unpublished rechecks and automatic source-change triggers; preserve content hashes, approvals and schedules.
 - [x] Linked source warnings and curator-only append-only AI flag dismissal; original flags preserved.

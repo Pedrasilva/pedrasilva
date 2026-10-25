@@ -23,7 +23,7 @@ export function usePostApprovers(enabled = true) {
 type Approval = { id: string; requested_by: string; approver_id: string; decision: string; comment: string | null; created_at: string; decided_at: string | null; voided_at: string | null };
 
 /** Request / decide controls for one draft. */
-export function PostApprovalControls({ draftId, status, canCurate, isStory = false }: { isStory?: boolean; draftId: string; status: string; readiness: string; canCurate: boolean }) {
+export function PostApprovalControls({ draftId, status, canCurate, isStory = false, needsReapproval = false }: { needsReapproval?: boolean; isStory?: boolean; draftId: string; status: string; readiness: string; canCurate: boolean }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -49,6 +49,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
   const pending = approvals.find((a) => a.decision === "pending" && !a.voided_at);
   const lastChanges = approvals.find((a) => a.decision === "changes_requested");
   const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["marketing-draft-approval-state"] });
     for (const k of ["marketing-posts", "marketing-post-approvals", "marketing-calendar", "marketing-my-post-approvals", "notifications"]) qc.invalidateQueries({ queryKey: [k] });
   };
 
@@ -57,7 +58,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
     setBusy(true);
     try {
       if (isStory) await prepareStoryRender(draftId);
-      const r = await requestFn({ data: { draftId, approverId: approver, comment: comment.trim() || undefined } });
+      const r = await requestFn({ data: { draftId, approverId: approver, comment: comment.trim() || undefined, reapproval: needsReapproval } });
       toast.success(r.emailed ? t("approval.requested") : t("approval.requestedNoEmail"));
       setAskOpen(false); setComment(""); refresh();
     } catch (e) { toast.error(e instanceof Error ? e.message : t("posts.error")); }
@@ -85,7 +86,7 @@ export function PostApprovalControls({ draftId, status, canCurate, isStory = fal
         <p className="text-xs text-warning">{t("approval.changesBy", { name: name(lastChanges.approver_id) })}{lastChanges.comment ? `: ${lastChanges.comment}` : ""}</p>
       )}
       <div className="flex flex-wrap gap-2">
-        {canCurate && (status === "suggested" || status === "pending_approval") && (
+        {canCurate && (status === "suggested" || status === "pending_approval" || needsReapproval) && (
           <Button size="sm" variant="outline" disabled={busy} onClick={() => setAskOpen(true)}>
             <Send className="mr-1 h-3.5 w-3.5" />{status === "pending_approval" ? t("approval.askAgain") : t("approval.ask")}
           </Button>

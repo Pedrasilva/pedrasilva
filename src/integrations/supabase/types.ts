@@ -8374,6 +8374,13 @@ export type Database = {
             foreignKeyName: "marketing_post_alternatives_draft_id_fkey"
             columns: ["draft_id"]
             isOneToOne: false
+            referencedRelation: "marketing_draft_approval_state"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_post_alternatives_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
             referencedRelation: "marketing_post_drafts"
             referencedColumns: ["id"]
           },
@@ -8423,6 +8430,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "marketing_capture_draft_links"
             referencedColumns: ["draft_id"]
+          },
+          {
+            foreignKeyName: "marketing_post_approvals_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_draft_approval_state"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "marketing_post_approvals_draft_id_fkey"
@@ -9063,6 +9077,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "marketing_capture_draft_links"
             referencedColumns: ["draft_id"]
+          },
+          {
+            foreignKeyName: "marketing_publish_log_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_draft_approval_state"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "marketing_publish_log_draft_id_fkey"
@@ -16540,6 +16561,24 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_draft_approval_state: {
+        Row: {
+          current_hash: string | null
+          id: string | null
+          valid_approval: boolean | null
+        }
+        Insert: {
+          current_hash?: never
+          id?: string | null
+          valid_approval?: never
+        }
+        Update: {
+          current_hash?: never
+          id?: string | null
+          valid_approval?: never
+        }
+        Relationships: []
+      }
       marketing_draft_clearance_sources: {
         Row: {
           clearance: string | null
@@ -17676,6 +17715,10 @@ export type Database = {
         }
         Returns: string
       }
+      marketing_prepare_reapproval: {
+        Args: { _draft: string }
+        Returns: undefined
+      }
       marketing_publish_blocker: {
         Args: {
           d: Database["public"]["Tables"]["marketing_post_drafts"]["Row"]
@@ -17697,6 +17740,10 @@ export type Database = {
         Returns: undefined
       }
       marketing_request_post_approval: {
+        Args: { _approver: string; _comment?: string; _draft: string }
+        Returns: string
+      }
+      marketing_request_post_reapproval: {
         Args: { _approver: string; _comment?: string; _draft: string }
         Returns: string
       }

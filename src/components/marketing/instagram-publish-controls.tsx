@@ -12,22 +12,24 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { scheduleInstagram } from '@/lib/marketing/instagram.functions';
 import { lisbonParts, lisbonToUtcIso } from '@/lib/marketing/calendar';
+import { useDraftApprovalState } from '@/lib/marketing/use-draft-approval-state';
 
 export function InstagramPublishControls({ draftId, status, canCurate, error, permalink, sentAt }: { draftId:string;status:string;canCurate:boolean;error?:string|null;permalink?:string|null;sentAt?:string|null }) {
  const {t}=useTranslation('marketing');const {isAdmin}=useAuth();const qc=useQueryClient();const schedule=useServerFn(scheduleInstagram);
+ const approval=useDraftApprovalState(draftId);
  const [mode,setMode]=useState<'schedule'|'now'|null>(null);const [busy,setBusy]=useState(false);
  const defaults=lisbonParts(new Date(Date.now()+3600000).toISOString());
  const [date,setDate]=useState(defaults.date);const [time,setTime]=useState(defaults.time);
  const refresh=()=>{for(const key of ['marketing-calendar','marketing-posts','instagram-feed'])void qc.invalidateQueries({queryKey:[key]});};
  const act=async(now:boolean)=>{setBusy(true);try{const r=await schedule({data:{draftId,at:now?new Date().toISOString():lisbonToUtcIso(date,time),now}});if(r.unavailable)toast.error(t('publishing.connectionUnavailable'));else toast.success(t(now?'publishing.requested':'calendar.scheduledToast'));setMode(null);refresh();}catch(e){toast.error(e instanceof Error?e.message:t('posts.error'));}finally{setBusy(false);}};
- const actionable=['approved','scheduled','failed'].includes(status)&&!sentAt;
+ const actionable=['approved','scheduled','failed'].includes(status)&&!sentAt&&approval.data?.valid_approval===true;
  return <div className="space-y-2">
   <Badge variant={status==='failed'?'destructive':'secondary'}>{t(`posts.status.${status}`)}</Badge>
   {error&&<p className="text-xs text-destructive">{error}</p>}
   {permalink&&<a href={permalink} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-primary underline"><ExternalLink className="h-3 w-3"/>{t('publishing.openInstagram')}</a>}
   <div className="flex flex-wrap gap-2">
    {canCurate&&actionable&&<Button size="sm" variant="outline" disabled={busy} onClick={()=>setMode('schedule')}><CalendarClock className="mr-1 h-3.5 w-3.5"/>{t('calendar.schedulePublish')}</Button>}
-   {canCurate&&status==='failed'&&!sentAt&&<Button size="sm" variant="outline" disabled={busy} onClick={()=>{setDate(lisbonParts(new Date().toISOString()).date);setTime(lisbonParts(new Date().toISOString()).time);setMode('schedule');}}><RefreshCw className="mr-1 h-3.5 w-3.5"/>{t('publishing.retry')}</Button>}
+   {canCurate&&status==='failed'&&actionable&&<Button size="sm" variant="outline" disabled={busy} onClick={()=>{setDate(lisbonParts(new Date().toISOString()).date);setTime(lisbonParts(new Date().toISOString()).time);setMode('schedule');}}><RefreshCw className="mr-1 h-3.5 w-3.5"/>{t('publishing.retry')}</Button>}
    {isAdmin&&canCurate&&actionable&&<Button size="sm" disabled={busy} onClick={()=>setMode('now')}><Send className="mr-1 h-3.5 w-3.5"/>{t('publishing.now')}</Button>}
   </div>
   <Dialog open={!!mode} onOpenChange={v=>{if(!v&&!busy)setMode(null);}}><DialogContent><DialogHeader><DialogTitle>{t(mode==='now'?'publishing.now':'calendar.setTime')}</DialogTitle></DialogHeader>
