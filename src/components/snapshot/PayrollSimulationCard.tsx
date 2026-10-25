@@ -50,7 +50,7 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
             value={-c.irsMensal}
             muted
           />
-          <Total label={payrollTerm("netPay", true)} value={liquidoMensal} />
+          <Total label={payrollTerm("netSalary", true)} value={liquidoMensal} />
           <div className="pt-2" />
           <Line label={payrollTerm("mealAllowance", true)} value={c.alimentacaoMensal} muted />
           <Line label={payrollTerm("expenseAllowance", true)} value={c.ajudasMensal} muted />

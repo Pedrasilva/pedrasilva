@@ -606,6 +606,23 @@
         "label": "100% em duodécimos · 12 meses",
         "hint": "Os dois subsídios diluídos integralmente nos 12 meses."
       }
+    },
+    "locations": {
+      "continente": "Continente",
+      "acores": "Açores",
+      "madeira": "Madeira"
+    },
+    "maritalStates": {
+      "solteiro": "Solteiro(a)",
+      "casado": "Casado(a)",
+      "uniao_facto": "União de facto",
+      "divorciado": "Divorciado(a)",
+      "viuvo": "Viúvo(a)"
+    },
+    "taxTables": {
+      "nao_casado": "Não casado / casado dois titulares",
+      "casado_unico_titular": "Casado — único titular",
+      "casado_dois_titulares": "Casado — dois titulares"
     }
   },
   "enums": {

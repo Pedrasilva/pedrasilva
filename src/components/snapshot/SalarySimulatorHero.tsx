@@ -1,3 +1,4 @@
+import { fmtNumber } from "@/lib/hr/ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,17 +48,17 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
         <Kpi
           label={uiI18n.t("hr:snapshot.labels.annualGrossSalary")}
           value={eur2(brutoAnualColaborador)}
-          hint={`${eur2(brutoMensalColaborador)} por mês`}
+          hint={uiI18n.t("hr:offerSheet.kpis.perMonth", { value: eur2(brutoMensalColaborador) })}
         />
         <Kpi
           label={uiI18n.t("hr:offerSheet.kpis.irsRate")}
-          value={`${(draft.irs_pct * 100).toFixed(2)}%`}
-          hint={`${eur2(c.irsMensal)} por mês`}
+          value={`${fmtNumber(draft.irs_pct * 100)}%`}
+          hint={uiI18n.t("hr:offerSheet.kpis.perMonth", { value: eur2(c.irsMensal) })}
         />
         <Kpi
           label={uiI18n.t("hr:snapshot.labels.annualStudioCost")}
           value={eur2(custoAnual)}
-          hint={`${eur2(custoMensal)} por mês`}
+          hint={uiI18n.t("hr:offerSheet.kpis.perMonth", { value: eur2(custoMensal) })}
         />
       </div>
 
@@ -75,9 +76,9 @@ export function SalarySimulatorHero({ draft }: { draft: Snapshot }) {
               centerValue={c.liquido14m}
               slices={[
                 { name: uiI18n.t("hr:compensationLiquidity.breakdown.netSalary"), value: c.liquido14m, color: "var(--sage)" },
-                { name: uiI18n.t("hr:snapshot.labels.irsWithholding"), value: c.irsMensal, color: "oklch(0.65 0.13 50)" },
+                { name: uiI18n.t("glossary:hr.withholding"), value: c.irsMensal, color: "oklch(0.65 0.13 50)" },
                 {
-                  name: uiI18n.t("hr:snapshot.labels.socialSecurityContribution"),
+                  name: uiI18n.t("glossary:hr.socialSecurity"),
                   value: c.ssColaboradorMensal,
                   color: "var(--clay)",
                 },

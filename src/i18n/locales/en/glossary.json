@@ -152,7 +152,6 @@
     "netSalary": "Net Salary",
     "baseSalary": "Base Salary",
     "grossTaxableSalary": "Gross taxable salary",
-    "netPay": "Net salary",
     "withholding": "Income tax withholding",
     "employerContribution": "Employer Social Security contribution",
     "expenseAllowance": "Expense allowances"
@@ -169,7 +168,6 @@
     "grossSalary": "Salário Bruto",
     "netSalary": "Salário Líquido",
     "grossTaxableSalary": "Vencimento bruto tributável",
-    "netPay": "Vencimento líquido",
     "withholding": "Retenção na fonte de IRS",
     "employerContribution": "Contribuição patronal para a Segurança Social",
     "expenseAllowance": "Ajudas de custo"

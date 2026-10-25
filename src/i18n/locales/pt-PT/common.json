@@ -736,5 +736,7 @@
   "hoursCount_other": "{{count}} horas",
   "workingDaysCount_one": "{{count}} dia útil",
   "workingDaysCount_other": "{{count}} dias úteis",
-  "labelForPerson": "{{label}} para {{person}}"
+  "labelForPerson": "{{label}} para {{person}}",
+  "start": "Início",
+  "end": "Fim"
 }

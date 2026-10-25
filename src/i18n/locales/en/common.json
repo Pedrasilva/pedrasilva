@@ -736,5 +736,7 @@
   "hoursCount_other": "{{count}} hours",
   "workingDaysCount_one": "{{count}} working day",
   "workingDaysCount_other": "{{count}} working days",
-  "labelForPerson": "{{label}} for {{person}}"
+  "labelForPerson": "{{label}} for {{person}}",
+  "start": "Start",
+  "end": "End"
 }

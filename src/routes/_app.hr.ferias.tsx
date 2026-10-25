@@ -1,3 +1,4 @@
+import { fmtDate, fmtNumber } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -581,14 +582,14 @@ function FeriasPage() {
                     <>
                        {uiI18n.t("hr:batchFive.labels.hours")} <span className="font-semibold">{newReq.horas || 0}</span>
                       <span className="ml-2 text-xs text-muted-foreground">
-                        (= {dias}  {uiI18n.t("hr:batchFive.labels.workingDayS")} </span>
+                        (= {uiI18n.t("common:workingDaysCount", { count: dias })}) </span>
                     </>
                   ) : (
                     <>
                        {uiI18n.t("hr:batchFive.labels.workingDays")} <span className="font-semibold">{dias}</span>
                       {feriadosNoPeriodo.length > 0 && (
                         <span className="ml-2 text-xs text-muted-foreground">
-                          ({feriadosNoPeriodo.length}  {uiI18n.t("hr:batchFive.labels.publicHolidaySExcluded")} </span>
+                          {uiI18n.t("hr:leave.excludedHolidays", { count: feriadosNoPeriodo.length })} </span>
                       )}
                     </>
                   )}
@@ -757,8 +758,8 @@ function FeriasPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead> {uiI18n.t("common:type")} </TableHead>
-                  <TableHead> {uiI18n.t("common:home")} </TableHead>
-                  <TableHead> {uiI18n.t("common:admin.imports.stages.cols.end")} </TableHead>
+                  <TableHead> {uiI18n.t("common:start")} </TableHead>
+                  <TableHead> {uiI18n.t("common:end")} </TableHead>
                   <TableHead className="text-right"> {uiI18n.t("common:days")} </TableHead>
                   <TableHead> {uiI18n.t("common:status")} </TableHead>
                   <TableHead> {uiI18n.t("common:notes")} </TableHead>
@@ -769,11 +770,11 @@ function FeriasPage() {
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
-                    <TableCell>{r.data_inicio}</TableCell>
-                    <TableCell>{r.data_fim}</TableCell>
-                    <TableCell className="text-right tabular-nums">{r.dias_uteis}</TableCell>
+                    <TableCell>{fmtDate(r.data_inicio)}</TableCell>
+                    <TableCell>{fmtDate(r.data_fim)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.dias_uteis == null ? "—" : fmtNumber(r.dias_uteis, 0)}</TableCell>
                     <TableCell>
-                      <EstadoBadge estado={uiI18n.t(`hr:leave.status.${r.estado}`)} />
+                      <EstadoBadge estado={r.estado} />
                       {pendingByRequest.get(r.id) && (
                         <PendingChangeBadge
                           change={pendingByRequest.get(r.id)!}
@@ -883,6 +884,6 @@ function EstadoBadge({ estado }: { estado: VacationRequest["estado"] }) {
     rejeitada: "bg-red-500/15 text-red-700 dark:text-red-400",
     cancelada: "bg-muted text-muted-foreground",
   }[estado];
-  const labels = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada", cancelada: "Cancelada" }[estado];
+  const labels = uiI18n.t(`hr:leave.status.${estado}`);
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles}`}>{labels}</span>;
 }

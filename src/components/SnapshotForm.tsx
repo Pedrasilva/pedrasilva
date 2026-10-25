@@ -1,3 +1,4 @@
+import { allowanceLabel, allowanceHint, payrollTerm } from "@/lib/hr/ui-terms";
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -479,7 +480,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {LOCALIZACOES.map((l) => (
-                            <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                            <SelectItem key={l.value} value={l.value}>{uiI18n.t(`hr:snapshot.locations.${l.value}`)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -489,7 +490,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                         <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {ESTADOS_CIVIS.map((e) => (
-                            <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                            <SelectItem key={e.value} value={e.value}>{uiI18n.t(`hr:snapshot.maritalStates.${e.value}`)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

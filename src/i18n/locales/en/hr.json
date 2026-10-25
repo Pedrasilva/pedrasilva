@@ -606,6 +606,23 @@
         "label": "100% in monthly instalments (Duodécimos) · 12 months",
         "hint": "Both allowances spread entirely across 12 months."
       }
+    },
+    "locations": {
+      "continente": "Mainland Portugal",
+      "acores": "Azores",
+      "madeira": "Madeira"
+    },
+    "maritalStates": {
+      "solteiro": "Single",
+      "casado": "Married",
+      "uniao_facto": "Civil partnership (União de facto)",
+      "divorciado": "Divorced",
+      "viuvo": "Widowed"
+    },
+    "taxTables": {
+      "nao_casado": "Unmarried / married, two income earners",
+      "casado_unico_titular": "Married — one income earner",
+      "casado_dois_titulares": "Married — two income earners"
     }
   },
   "enums": {

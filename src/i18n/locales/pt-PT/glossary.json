@@ -152,7 +152,6 @@
     "netSalary": "Salário Líquido",
     "baseSalary": "Salário Base",
     "grossTaxableSalary": "Vencimento bruto tributável",
-    "netPay": "Vencimento líquido",
     "withholding": "Retenção na fonte de IRS",
     "employerContribution": "Contribuição patronal para a Segurança Social",
     "expenseAllowance": "Ajudas de custo"
@@ -169,7 +168,6 @@
     "grossSalary": "Salário Bruto",
     "netSalary": "Salário Líquido",
     "grossTaxableSalary": "Vencimento bruto tributável",
-    "netPay": "Vencimento líquido",
     "withholding": "Retenção na fonte de IRS",
     "employerContribution": "Contribuição patronal para a Segurança Social",
     "expenseAllowance": "Ajudas de custo"
