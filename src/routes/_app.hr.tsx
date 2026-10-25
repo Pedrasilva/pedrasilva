@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/hr")({
+  head: () => ({ meta: [{ title: "Recursos Humanos | PSA Hub" }, { name: "description", content: "PSA Hub — recursos humanos do atelier." }, { property: "og:title", content: "Recursos Humanos | PSA Hub" }, { property: "og:description", content: "PSA Hub — recursos humanos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: HrLayout,
 });
 

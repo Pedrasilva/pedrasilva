@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { PermissionGate } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app/hr/valor-bo")({
+  head: () => ({ meta: [{ title: "Custo horário Backoffice | PSA Hub" }, { name: "description", content: "PSA Hub — custo horário backoffice do atelier." }, { property: "og:title", content: "Custo horário Backoffice | PSA Hub" }, { property: "og:description", content: "PSA Hub — custo horário backoffice do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.valor-bo">
       <ValorBOPage />

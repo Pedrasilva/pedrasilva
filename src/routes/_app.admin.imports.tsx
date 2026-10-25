@@ -64,6 +64,7 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/admin/imports")({
+  head: () => ({ meta: [{ title: "Importação de projetos | PSA Hub" }, { name: "description", content: "PSA Hub — importação de projetos do atelier." }, { property: "og:title", content: "Importação de projetos | PSA Hub" }, { property: "og:description", content: "PSA Hub — importação de projetos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ImportsPage,
 });
 

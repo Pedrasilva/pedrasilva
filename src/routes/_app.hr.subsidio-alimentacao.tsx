@@ -31,6 +31,7 @@ type Rate = {
 };
 
 export const Route = createFileRoute("/_app/hr/subsidio-alimentacao")({
+  head: () => ({ meta: [{ title: "Subsídio de Alimentação | PSA Hub" }, { name: "description", content: "PSA Hub — subsídio de alimentação do atelier." }, { property: "og:title", content: "Subsídio de Alimentação | PSA Hub" }, { property: "og:description", content: "PSA Hub — subsídio de alimentação do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.subsidio-alimentacao">
       <SubsidioAlimentacaoPage />

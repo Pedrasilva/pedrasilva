@@ -18,6 +18,7 @@ import {
 } from "@/lib/backups/backup.functions";
 
 export const Route = createFileRoute("/_app/admin/backups")({
+  head: () => ({ meta: [{ title: "Cópias de segurança | PSA Hub" }, { name: "description", content: "PSA Hub — cópias de segurança do atelier." }, { property: "og:title", content: "Cópias de segurança | PSA Hub" }, { property: "og:description", content: "PSA Hub — cópias de segurança do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: BackupsPage,
 });
 

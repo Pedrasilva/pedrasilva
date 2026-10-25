@@ -83,6 +83,7 @@ const legacyLabels: Record<string, string> = {"HR":"access:permissions.catalogue
 const displayPermission = (value: string) => uiI18n.t(legacyLabels[value] ?? value);
 
 export const Route = createFileRoute("/_app/hr/admin")({
+  head: () => ({ meta: [{ title: "Administração RH | PSA Hub" }, { name: "description", content: "PSA Hub — administração rh do atelier." }, { property: "og:title", content: "Administração RH | PSA Hub" }, { property: "og:description", content: "PSA Hub — administração rh do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <AdminOnly>
       <AdminPage />

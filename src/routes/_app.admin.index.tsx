@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/")({
+  head: () => ({ meta: [{ title: "Administração | PSA Hub" }, { name: "description", content: "PSA Hub — administração do atelier." }, { property: "og:title", content: "Administração | PSA Hub" }, { property: "og:description", content: "PSA Hub — administração do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AdminHubPage,
 });
 
@@ -35,7 +36,7 @@ type AdminGroup = {
   links: AdminLink[];
 };
 
-const GROUPS: AdminGroup[] = [
+const getGroups = (): AdminGroup[] => [
   {
     title: uiI18n.t("common:shell.link.settings.company"),
     description: uiI18n.t("access:batchFive.labels.taxDetailsSharedByFinanceOcrAnd"),
@@ -196,7 +197,7 @@ function AdminHubPage() {
              {uiI18n.t("access:batchFive.labels.companyHrFinancePermissionAndSystemSettings")} </p>
         </div>
 
-        {GROUPS.map((group) => (
+        {getGroups().map((group) => (
           <section key={group.title} className="space-y-3">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">

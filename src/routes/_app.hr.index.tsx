@@ -17,6 +17,7 @@ import { HrRecentActivityFeed } from "@/components/hr/dashboard/HrRecentActivity
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/hr/")({
+  head: () => ({ meta: [{ title: "Atelier · Recursos Humanos | PSA Hub" }, { name: "description", content: "PSA Hub — atelier · recursos humanos do atelier." }, { property: "og:title", content: "Atelier · Recursos Humanos | PSA Hub" }, { property: "og:description", content: "PSA Hub — atelier · recursos humanos do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: HrDashboard,
 });
 

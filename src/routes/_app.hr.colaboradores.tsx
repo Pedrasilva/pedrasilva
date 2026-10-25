@@ -40,6 +40,7 @@ import { Search, Users, AlertTriangle, Archive, X } from "lucide-react";
 import type { Collaborator } from "@/lib/salary";
 
 export const Route = createFileRoute("/_app/hr/colaboradores")({
+  head: () => ({ meta: [{ title: "Colaboradores | PSA Hub" }, { name: "description", content: "PSA Hub — colaboradores do atelier." }, { property: "og:title", content: "Colaboradores | PSA Hub" }, { property: "og:description", content: "PSA Hub — colaboradores do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.colaboradores">
       <CollaboratorsListPage />

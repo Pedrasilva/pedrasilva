@@ -114,6 +114,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/hr/beneficios")({
+  head: () => ({ meta: [{ title: "Benefícios | PSA Hub" }, { name: "description", content: "PSA Hub — benefícios do atelier." }, { property: "og:title", content: "Benefícios | PSA Hub" }, { property: "og:description", content: "PSA Hub — benefícios do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.beneficios.own">
       <BeneficiosPage />

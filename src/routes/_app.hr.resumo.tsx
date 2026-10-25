@@ -54,6 +54,7 @@ import type { BenefitExpense } from "@/lib/benefits";
 import { aggregateResourceSplit } from "@/lib/finance/hybrid-resource-cost";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
+  head: () => ({ meta: [{ title: "Resumo da equipa | PSA Hub" }, { name: "description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:title", content: "Resumo da equipa | PSA Hub" }, { property: "og:description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <PermissionGate permission="hr.resumo">
       <ResumoPage />
