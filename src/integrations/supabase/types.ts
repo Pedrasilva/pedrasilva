@@ -7669,6 +7669,7 @@ export type Database = {
           missing_notes: string | null
           persona: string | null
           pillar: string | null
+          profile_id: string | null
           project_id: string | null
           raw_text: string | null
           received_at: string
@@ -7706,6 +7707,7 @@ export type Database = {
           missing_notes?: string | null
           persona?: string | null
           pillar?: string | null
+          profile_id?: string | null
           project_id?: string | null
           raw_text?: string | null
           received_at?: string
@@ -7745,6 +7747,7 @@ export type Database = {
           missing_notes?: string | null
           persona?: string | null
           pillar?: string | null
+          profile_id?: string | null
           project_id?: string | null
           raw_text?: string | null
           received_at?: string
@@ -7761,6 +7764,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "marketing_captures_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "marketing_captures_project_id_fkey"
             columns: ["project_id"]
@@ -8931,9 +8941,12 @@ export type Database = {
           created_by: string | null
           id: string
           instagram_language: string | null
+          internal_client: string | null
+          internal_name: string | null
           key_facts: string | null
           linkedin_language: string | null
           location: string | null
+          marketing_key: string
           name_rule: Database["public"]["Enums"]["marketing_name_rule"]
           post_language: string
           project_id: string | null
@@ -8956,9 +8969,12 @@ export type Database = {
           created_by?: string | null
           id?: string
           instagram_language?: string | null
+          internal_client?: string | null
+          internal_name?: string | null
           key_facts?: string | null
           linkedin_language?: string | null
           location?: string | null
+          marketing_key?: string
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
           post_language?: string
           project_id?: string | null
@@ -8981,9 +8997,12 @@ export type Database = {
           created_by?: string | null
           id?: string
           instagram_language?: string | null
+          internal_client?: string | null
+          internal_name?: string | null
           key_facts?: string | null
           linkedin_language?: string | null
           location?: string | null
+          marketing_key?: string
           name_rule?: Database["public"]["Enums"]["marketing_name_rule"]
           post_language?: string
           project_id?: string | null
@@ -16691,6 +16710,16 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_project_directory: {
+        Row: {
+          client: string | null
+          id: string | null
+          name: string | null
+          portfolio: boolean | null
+          profile_id: string | null
+        }
+        Relationships: []
+      }
       pm_resources_public: {
         Row: {
           active: boolean | null
@@ -17645,6 +17674,10 @@ export type Database = {
         Args: { _capture_id: string }
         Returns: string
       }
+      marketing_capture_key: {
+        Args: { c: Database["public"]["Tables"]["marketing_captures"]["Row"] }
+        Returns: string
+      }
       marketing_claim_publish: {
         Args: { _id?: string }
         Returns: {
@@ -17817,6 +17850,10 @@ export type Database = {
       marketing_is_project_team_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      marketing_link_portfolio: {
+        Args: { _profile: string; _project: string }
+        Returns: undefined
       }
       marketing_mark_comments_read: {
         Args: { _ids: string[] }
