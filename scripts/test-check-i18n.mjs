@@ -14,6 +14,15 @@ test('detects all requested literal accessibility and label props', () => {
   const f=scanSource('const view=<Input placeholder="Search" title={"Title"} aria-label="Find" alt="Photo" label={ok?"One":"Two"}/>;');
   assert.equal(f.length, 6);
 });
+test('skips comparison predicates but catches emitted logical and concatenated text', () => {
+  const source='const v=<>{status === "failed" && <p>Retry</p>}{status !== "draft"}{flag && "Visible"}{name || "Fallback"}{"Hello " + name}</>;';
+  assert.deepEqual(scanSource(source).map(f=>f.text), ['Retry','Visible','Fallback','Hello']);
+});
+test('technical exclusions match exact path, kind and complete literal only', () => {
+  const rules={scopedLiterals:[{path:'bank.tsx',kind:'jsxText',text:'IBAN'}]};
+  assert.deepEqual(scanSource('const v=<><p>IBAN</p><p>Enter IBAN</p><Input title="IBAN"/></>;','bank.tsx',rules).map(f=>f.text), ['Enter IBAN','IBAN']);
+  assert.equal(scanSource('const v=<p>IBAN</p>;','other.tsx',rules).length,1);
+});
 test('detects literal toasts and confirmations including options', () => {
   assert.equal(scanSource('toast.success("Saved"); toast({title:"Error",description:"Try again"}); window.confirm("Delete?");').length, 4);
 });
