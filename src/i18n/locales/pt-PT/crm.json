@@ -233,7 +233,9 @@
     "proposals": "Propostas",
     "deleteQuotePrompt": "Eliminar proposta?",
     "deleteQuoteHint": "Esta ação marca a proposta como eliminada. Uma cópia completa (etapas, alocações, fornecedores, faturação e documento) é guardada no registo de auditoria e pode ser recuperada por um administrador.",
-    "confirmTitleHint": "Para confirmar, escreva o título da proposta abaixo:"
+    "confirmTitleHint": "Para confirmar, escreva o título da proposta abaixo:",
+    "pdfUnavailable": "Não foi possível obter o PDF.",
+    "recoverQuoteHint": "Recuperável em Administração → Reciclagem de propostas"
   },
   "accounts": {
     "count": "{{count}} contas",
@@ -2183,7 +2185,14 @@
     "notesHint": "Notas adicionais…",
     "log": "Registar atividade",
     "empty": "Ainda sem atividades.",
-    "summaryRequired": "O resumo é obrigatório"
+    "summaryRequired": "O resumo é obrigatório",
+    "type": {
+      "chamada": "Chamada",
+      "email": "Email",
+      "reuniao": "Reunião",
+      "nota": "Nota",
+      "outro": "Outro"
+    }
   },
   "companies": {
     "updated": "Empresa atualizada",
@@ -2242,7 +2251,42 @@
     "nameRequired": "O nome é obrigatório",
     "invalidEmail": "Email inválido",
     "invalidContactEmail": "Email do contacto inválido",
-    "contactHint": "Opcional — preencha para criar um contacto associado à empresa."
+    "contactHint": "Opcional — preencha para criar um contacto associado à empresa.",
+    "status": {
+      "activo": "Ativo",
+      "prospecto": "Potencial cliente",
+      "inactivo": "Inativo"
+    },
+    "type": {
+      "cliente": "Cliente",
+      "fornecedor": "Fornecedor",
+      "parceiro": "Parceiro",
+      "prospecto": "Potencial cliente",
+      "outro": "Outro"
+    },
+    "duplicateTaxIdHint": "Já existe uma empresa com este número: {{name}}.",
+    "contactsCount_one": "Contacto ({{count}})",
+    "contactsCount_other": "Contactos ({{count}})",
+    "proposalsCount_one": "Proposta ({{count}})",
+    "proposalsCount_other": "Propostas ({{count}})",
+    "viewAllCount": "Ver todos ({{count}})",
+    "allCount": "Todas ({{count}})",
+    "clientsCount_one": "Cliente ({{count}})",
+    "clientsCount_other": "Clientes ({{count}})",
+    "suppliersCount_one": "Fornecedor ({{count}})",
+    "suppliersCount_other": "Fornecedores ({{count}})",
+    "bothCount": "Ambos ({{count}})",
+    "uncategorizedCount": "Sem categoria ({{count}})",
+    "uncategorizedWarning_one": "{{count}} empresa sem categoria",
+    "uncategorizedWarning_other": "{{count}} empresas sem categoria",
+    "showingCount": "{{shown}} de {{total}}",
+    "pipeline": {
+      "lead": "Lead",
+      "proposta_enviada": "Proposta enviada",
+      "negociacao": "Negociação",
+      "ganho": "Ganho",
+      "perdido": "Perdido"
+    }
   },
   "products": {
     "openSamplePdf": "Abrir PDF da amostra",
@@ -2324,7 +2368,22 @@
     "excel": "Excel (.xlsx)",
     "loadingItems": "A carregar itens…",
     "addedNamed": "{{value1}} adicionado",
-    "itemAdded": "Item adicionado ao projeto"
+    "itemAdded": "Item adicionado ao projeto",
+    "specification": "Especificação do projeto",
+    "currentTotal": "(atualmente {{total}})",
+    "approval": {
+      "proposed": "Proposto",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado"
+    },
+    "color": {
+      "none": "Sem cor",
+      "chart-1": "Terracota",
+      "chart-2": "Verde-azulado",
+      "chart-3": "Azul-escuro",
+      "chart-4": "Âmbar",
+      "chart-5": "Ocre"
+    }
   },
   "contacts": {
     "search": "Procurar contactos…",

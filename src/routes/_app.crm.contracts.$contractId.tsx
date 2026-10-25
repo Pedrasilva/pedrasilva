@@ -32,6 +32,7 @@ import type { ContractRow } from "@/lib/contracts";
 import { ContractBootstrapCard } from "@/components/contracts/contract-bootstrap-card";
 
 export const Route = createFileRoute("/_app/crm/contracts/$contractId")({
+  head: () => ({ meta: [{ title: "crm / contracts / contractId — PSA Hub" }, { name: "description", content: "PSA Hub crm / contracts / contractId workspace." }, { property: "og:title", content: "crm / contracts / contractId — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / contracts / contractId workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ContractDetailPage,
 });
 

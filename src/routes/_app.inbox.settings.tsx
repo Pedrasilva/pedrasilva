@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { SenderRulesCard } from "@/components/inbox/sender-rules-card";
 
 export const Route = createFileRoute("/_app/inbox/settings")({
+  head: () => ({ meta: [{ title: "inbox / settings — PSA Hub" }, { name: "description", content: "PSA Hub inbox / settings workspace." }, { property: "og:title", content: "inbox / settings — PSA Hub" }, { property: "og:description", content: "PSA Hub inbox / settings workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InboxSettingsPage,
 });
 

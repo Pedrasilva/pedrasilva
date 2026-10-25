@@ -1,3 +1,4 @@
+import { formatEUR } from "@/lib/product-ui-format";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -33,11 +34,10 @@ import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
+   OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
   defaultQuoteTypeForCategory,
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
-  type QuoteType, type QuoteCategory, type Contact, contactFullName,
-} from "@/lib/crm/types";
+  type QuoteType, type QuoteCategory, type Contact, contactFullName} from "@/lib/crm/types";
 import { Briefcase, Clock, Repeat2 } from "lucide-react";
 
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";

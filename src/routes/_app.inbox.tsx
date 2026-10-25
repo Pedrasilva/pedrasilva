@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/inbox")({
+  head: () => ({ meta: [{ title: "inbox — PSA Hub" }, { name: "description", content: "PSA Hub inbox workspace." }, { property: "og:title", content: "inbox — PSA Hub" }, { property: "og:description", content: "PSA Hub inbox workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InboxLayout,
 });
 

@@ -24,7 +24,7 @@ import {
 
 
 
-const companySchema = z.object({
+const companySchema = () => z.object({
   // Company details
   nome: z.string().trim().min(1, uiI18n.t("crm:companies.nameRequired")).max(200),
   status: z.enum(["activo", "prospecto", "inactivo"]),
@@ -142,7 +142,7 @@ export function NewCompanyDialog({
         .limit(1)
         .maybeSingle();
       setNifWarning(
-        existing ? `Já existe uma empresa com este número: ${existing.nome}.` : null,
+        existing ? uiI18n.t("crm:companies.duplicateTaxIdHint", { name: existing.nome }) : null,
       );
     } catch {
       setNifWarning(null);
@@ -151,7 +151,7 @@ export function NewCompanyDialog({
 
   const create = useMutation({
     mutationFn: async () => {
-      const parsed = companySchema.parse(form);
+      const parsed = companySchema().parse(form);
       const normalizedNif = normalizeTaxId(parsed.nif ?? "", form.tax_country);
 
       // 1) Create company
@@ -380,7 +380,7 @@ export function NewCompanyDialog({
                 <SelectContent>
                   <SelectItem value="__none__">—</SelectItem>
                   {COMPANY_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    <SelectItem key={t.value} value={t.value}>{uiI18n.t(`crm:companies.type.${t.value}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -31,7 +32,7 @@ import {
   useProjectItems,
 } from "@/lib/products/use-products";
 import { exportSchedule } from "@/lib/products/exports";
-import { formatMoney, itemTotal } from "@/lib/products/types";
+import {  itemTotal } from "@/lib/products/types";
 
 export const Route = createFileRoute("/_app/products/project/$projectId")({
   component: ProjectWorkspace,
@@ -90,10 +91,10 @@ function ProjectWorkspace() {
           >
             <ArrowLeft className="h-3.5 w-3.5" />  {uiI18n.t("crm:products.allProjects")} </Link>
           <h1 className="text-xl font-semibold tracking-tight">
-            {project?.name ?? "Project specification"}
+            {project?.name ?? uiI18n.t("crm:products.specification")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {[project?.client, `${items.length} items`, formatMoney(total)]
+            {[project?.client, uiI18n.t("common:itemsCount", { count: items.length }), formatMoney(total)]
               .filter(Boolean)
               .join(" · ")}
           </p>

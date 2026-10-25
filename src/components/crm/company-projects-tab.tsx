@@ -18,14 +18,7 @@ type ProjectRow = {
 
 type LinkedProject = ProjectRow & { via: "company" | "account" | "invoice" };
 
-const STATUS_LABEL: Record<string, string> = {
-  active: "Em curso",
-  planned: "Planeado",
-  on_hold: "Suspenso",
-  completed: "Concluído",
-  cancelled: "Cancelado",
-  archived: "Arquivado",
-};
+const STATUS_LABEL: Record<string, string> = {active: "common:active", planned: "common:planned", on_hold: "common:onHold", completed: "common:completed", cancelled: "common:cancelled", archived: "common:archived"};
 
 const DONE = new Set(["completed", "cancelled", "archived"]);
 
@@ -119,7 +112,7 @@ function Section({ title, rows }: { title: string; rows: LinkedProject[] }) {
                 </div>
               </div>
               <Badge variant={DONE.has(p.status ?? "") ? "outline" : "secondary"}>
-                {STATUS_LABEL[p.status ?? ""] ?? p.status ?? "—"}
+                {STATUS_LABEL[p.status ?? ""] ? uiI18n.t(STATUS_LABEL[p.status ?? ""]) : p.status ?? "—"}
               </Badge>
             </Link>
           </li>

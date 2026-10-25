@@ -11,6 +11,7 @@ import { Users, Search } from "lucide-react";
 import { contactFullName, type Contact, type Company } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/contacts")({
+  head: () => ({ meta: [{ title: "crm / contacts — PSA Hub" }, { name: "description", content: "PSA Hub crm / contacts workspace." }, { property: "og:title", content: "crm / contacts — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / contacts workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ContactsList,
 });
 

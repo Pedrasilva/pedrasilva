@@ -103,7 +103,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ACTIVITY_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  <SelectItem key={t.value} value={t.value}>{uiI18n.t(`crm:activities.type.${t.value}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -149,7 +149,7 @@ export function ActivityTimeline({ companyId, contactId, proposalId }: Props) {
                   <div>
                     <div className="text-sm font-medium">{a.resumo}</div>
                     <div className="text-xs text-muted-foreground capitalize">
-                      {a.tipo} · {formatDateTime(a.data_actividade)}
+                      {uiI18n.t(`crm:activities.type.${a.tipo}`)} · {formatDateTime(a.data_actividade)}
                     </div>
                   </div>
                   <Button

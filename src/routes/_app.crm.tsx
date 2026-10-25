@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 const CRM_KEYS: PermissionKey[] = ["crm.companies", "crm.contacts", "crm.pipeline"];
 
 export const Route = createFileRoute("/_app/crm")({
+  head: () => ({ meta: [{ title: "crm — PSA Hub" }, { name: "description", content: "PSA Hub crm workspace." }, { property: "og:title", content: "crm — PSA Hub" }, { property: "og:description", content: "PSA Hub crm workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CRMLayout,
 });
 

@@ -700,11 +700,14 @@
   "totalPrefix": "Total:",
   "allLocations": "Todas as localizações",
   "referenceShort": "Ref.",
-  "item": "item",
+  "item": "Item",
   "finish": "Acabamento",
   "quantityShort": "Qtd.",
   "of": "de",
   "categories": "Categorias",
   "library": "Biblioteca",
-  "exportFailed": "Falha ao exportar"
+  "exportFailed": "Falha ao exportar",
+  "itemsCount_one": "{{count}} item",
+  "itemsCount_other": "{{count}} itens",
+  "undo": "Anular"
 }

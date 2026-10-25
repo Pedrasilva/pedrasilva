@@ -233,7 +233,9 @@
     "proposals": "Proposals",
     "deleteQuotePrompt": "Delete proposal?",
     "deleteQuoteHint": "This marks the proposal as deleted. A full snapshot (stages, allocations, suppliers, billing and document) is kept in the audit log and can be recovered by an administrator.",
-    "confirmTitleHint": "To confirm, enter the proposal title below:"
+    "confirmTitleHint": "To confirm, enter the proposal title below:",
+    "pdfUnavailable": "Could not retrieve the PDF.",
+    "recoverQuoteHint": "Recoverable in Admin → Proposal recycle bin"
   },
   "accounts": {
     "count": "{{count}} accounts",
@@ -2183,7 +2185,14 @@
     "notesHint": "Additional notes…",
     "log": "Log activity",
     "empty": "No activities yet.",
-    "summaryRequired": "Summary is required"
+    "summaryRequired": "Summary is required",
+    "type": {
+      "chamada": "Call",
+      "email": "Email",
+      "reuniao": "Meeting",
+      "nota": "Note",
+      "outro": "Other"
+    }
   },
   "companies": {
     "updated": "Company updated",
@@ -2242,7 +2251,42 @@
     "nameRequired": "Name is required",
     "invalidEmail": "Invalid email",
     "invalidContactEmail": "Invalid contact email",
-    "contactHint": "Optional — fill in to create a contact associated with the company."
+    "contactHint": "Optional — fill in to create a contact associated with the company.",
+    "status": {
+      "activo": "Active",
+      "prospecto": "Prospect",
+      "inactivo": "Inactive"
+    },
+    "type": {
+      "cliente": "Client",
+      "fornecedor": "Supplier",
+      "parceiro": "Partner",
+      "prospecto": "Prospect",
+      "outro": "Other"
+    },
+    "duplicateTaxIdHint": "A company with this number already exists: {{name}}.",
+    "contactsCount_one": "Contact ({{count}})",
+    "contactsCount_other": "Contacts ({{count}})",
+    "proposalsCount_one": "Proposal ({{count}})",
+    "proposalsCount_other": "Proposals ({{count}})",
+    "viewAllCount": "View all ({{count}})",
+    "allCount": "All ({{count}})",
+    "clientsCount_one": "Client ({{count}})",
+    "clientsCount_other": "Clients ({{count}})",
+    "suppliersCount_one": "Supplier ({{count}})",
+    "suppliersCount_other": "Suppliers ({{count}})",
+    "bothCount": "Both ({{count}})",
+    "uncategorizedCount": "Uncategorized ({{count}})",
+    "uncategorizedWarning_one": "{{count}} uncategorized company",
+    "uncategorizedWarning_other": "{{count}} uncategorized companies",
+    "showingCount": "{{shown}} of {{total}}",
+    "pipeline": {
+      "lead": "Lead",
+      "proposta_enviada": "Proposal sent",
+      "negociacao": "Negotiation",
+      "ganho": "Won",
+      "perdido": "Lost"
+    }
   },
   "products": {
     "openSamplePdf": "Open sample PDF",
@@ -2324,7 +2368,22 @@
     "excel": "Excel (.xlsx)",
     "loadingItems": "Loading items…",
     "addedNamed": "{{value1}} added",
-    "itemAdded": "Item added to the project"
+    "itemAdded": "Item added to the project",
+    "specification": "Project specification",
+    "currentTotal": "(currently {{total}})",
+    "approval": {
+      "proposed": "Proposed",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "color": {
+      "none": "No colour",
+      "chart-1": "Terracotta",
+      "chart-2": "Teal",
+      "chart-3": "Deep blue",
+      "chart-4": "Amber",
+      "chart-5": "Ochre"
+    }
   },
   "contacts": {
     "search": "Search contacts…",

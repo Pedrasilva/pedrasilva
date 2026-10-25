@@ -8,6 +8,7 @@ import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
 import { buildReportRows, exportRows, type ReportKey } from "@/lib/inventory/exports";
 
 export const Route = createFileRoute("/_app/inventory/reports")({
+  head: () => ({ meta: [{ title: "inventory / reports — PSA Hub" }, { name: "description", content: "PSA Hub inventory / reports workspace." }, { property: "og:title", content: "inventory / reports — PSA Hub" }, { property: "og:description", content: "PSA Hub inventory / reports workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ReportsPage,
 });
 

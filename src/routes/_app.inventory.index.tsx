@@ -19,6 +19,7 @@ import {
 import { InventoryAccessCard } from "@/components/inventory/inventory-access-card";
 
 export const Route = createFileRoute("/_app/inventory/")({
+  head: () => ({ meta: [{ title: "inventory / index — PSA Hub" }, { name: "description", content: "PSA Hub inventory / index workspace." }, { property: "og:title", content: "inventory / index — PSA Hub" }, { property: "og:description", content: "PSA Hub inventory / index workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: InventoryDashboard,
 });
 

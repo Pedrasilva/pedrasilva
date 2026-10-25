@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -15,7 +16,7 @@ import {
   useSetLibraryProductStatus,
 } from "@/lib/products/use-products";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
-import { categoryPath, formatMoney, type LibraryProduct } from "@/lib/products/types";
+import { categoryPath,  type LibraryProduct } from "@/lib/products/types";
 
 /**
  * Visual catalogue of the PSA library. Used both as a standalone page and

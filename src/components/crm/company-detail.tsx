@@ -1,3 +1,4 @@
+import { formatEUR } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -24,9 +25,8 @@ import { PaymentsReceived } from "@/components/finance/recebimentos-panel";
 import { StatementView } from "@/components/finance/statement-view";
 import { useCounterpartyStatement } from "@/lib/finance/use-documents";
 import {
-  contactFullName, formatEUR, PIPELINE_STATUSES,
-  type Company, type Contact, type FeeProposal,
-} from "@/lib/crm/types";
+  contactFullName,  PIPELINE_STATUSES,
+  type Company, type Contact, type FeeProposal} from "@/lib/crm/types";
 import { relationshipLabel, statementSideOf, relationshipOf, relationshipVariant } from "@/lib/crm/relationship";
 import { Switch } from "@/components/ui/switch";
 
@@ -177,9 +177,9 @@ export function CompanyDetail({
           </h2>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <Badge variant={relationshipVariant(relationshipOf(current as Company))}>
-              {relationshipLabel(current as Company)}
+              {uiI18n.t(relationshipOf(current as Company) === "client" ? "glossary:relation.client" : relationshipOf(current as Company) === "supplier" ? "common:supplier" : `crm:companies.relationship.${relationshipOf(current as Company)}`)}
             </Badge>
-            <Badge variant="secondary" className="capitalize">{current.status}</Badge>
+            <Badge variant="secondary" className="capitalize">{uiI18n.t(`crm:companies.status.${current.status}`)}</Badge>
             {(current as Company).is_active === false ? (
               <Badge variant="outline"> {uiI18n.t("common:inactive")} </Badge>
             ) : null}
@@ -205,8 +205,8 @@ export function CompanyDetail({
       <Tabs defaultValue="detalhes">
         <TabsList>
           <TabsTrigger value="detalhes"> {uiI18n.t("common:details")} </TabsTrigger>
-          <TabsTrigger value="contactos"> {uiI18n.t("crm:companies.contactsPrefix")} {contacts.length})</TabsTrigger>
-          <TabsTrigger value="propostas"> {uiI18n.t("crm:companies.proposalsPrefix")} {proposals.length})</TabsTrigger>
+          <TabsTrigger value="contactos"> {uiI18n.t("crm:companies.contactsCount", { count: contacts.length })}</TabsTrigger>
+          <TabsTrigger value="propostas"> {uiI18n.t("crm:companies.proposalsCount", { count: proposals.length })}</TabsTrigger>
           <TabsTrigger value="projectos"> {uiI18n.t("crm:companies.work")} </TabsTrigger>
           <TabsTrigger value="conta-corrente"> {uiI18n.t("crm:companies.statement")} </TabsTrigger>
 
@@ -220,7 +220,7 @@ export function CompanyDetail({
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-base"> {uiI18n.t("crm:common.primaryContact")} </CardTitle>
                 <span className="text-xs text-muted-foreground">
-                   {uiI18n.t("crm:companies.viewAllPrefix")} {contacts.length})
+                   {uiI18n.t("crm:companies.viewAllCount", { count: contacts.length })}
                 </span>
               </CardHeader>
               <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
@@ -479,7 +479,7 @@ export function CompanyDetail({
                             <div className="font-medium">{p.titulo}</div>
                             <div className="text-xs text-muted-foreground flex items-center gap-2">
                               <span className={`h-2 w-2 rounded-full ${meta?.color ?? "bg-muted"}`} />
-                              {meta?.label} · {p.probabilidade}%
+                              {meta ? uiI18n.t(`crm:companies.pipeline.${meta.value}`) : "—"} · {p.probabilidade}%
                             </div>
                           </div>
                           <div className="text-sm font-semibold">{formatEUR(Number(p.valor))}</div>

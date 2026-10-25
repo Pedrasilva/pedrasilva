@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useEffect, useState } from "react";
@@ -22,11 +23,10 @@ import {
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import {
   APPROVAL_STATUSES,
-  formatMoney,
+  
   itemTotal,
   type ProductApprovalStatus,
-  type ProjectItem,
-} from "@/lib/products/types";
+  type ProjectItem} from "@/lib/products/types";
 import {
   Select,
   SelectContent,
@@ -189,7 +189,7 @@ export function ProjectItemSheet({
               <SelectContent>
                 {APPROVAL_STATUSES.map((s) => (
                   <SelectItem key={s} value={s} className="capitalize">
-                    {s}
+                    {uiI18n.t(`crm:products.approval.${s}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -214,7 +214,7 @@ export function ProjectItemSheet({
                 item.currency,
               )}
             </span>{" "}
-            <span className="text-xs"> {uiI18n.t("crm:products.currentlyPrefix")} {formatMoney(itemTotal(item), item.currency)})</span>
+            <span className="text-xs"> {uiI18n.t("crm:products.currentTotal", { total: formatMoney(itemTotal(item), item.currency) })}</span>
           </div>
           <div className="sm:col-span-2">
             <F label={uiI18n.t("crm:products.productUrl")}>

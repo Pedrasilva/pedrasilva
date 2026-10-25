@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -14,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProductProjects } from "@/lib/products/use-products";
-import { formatMoney } from "@/lib/products/types";
+
 import { cn } from "@/lib/utils";
 import {
   PROJECT_COLORS,
@@ -143,7 +144,7 @@ function ProductProjectsPage() {
                       {p.name}
                     </span>
                     <Badge variant={p.itemCount > 0 ? "secondary" : "outline"} className="shrink-0">
-                      {p.itemCount} {p.itemCount === 1 ? uiI18n.t("common:item") : uiI18n.t("crm:products.itemsUnit")}
+                      {uiI18n.t("common:itemsCount", { count: p.itemCount })}
                     </Badge>
                   </div>
                   <p className="pointer-events-none relative z-10 mt-1 text-xs text-muted-foreground">
@@ -170,7 +171,7 @@ function ProductProjectsPage() {
                                   PROJECT_COLOR_SWATCH[c],
                                 )}
                               />
-                              {PROJECT_COLOR_LABEL[c]}
+                              {uiI18n.t(`crm:products.color.${c}`)}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>

@@ -16,8 +16,7 @@ import {
 import { AccountSuggestField } from "@/components/crm/account-suggest-field";
 import {
   defaultQuoteTypeForCategory,
-  type QuoteCategory,
-} from "@/lib/crm/types";
+  type QuoteCategory} from "@/lib/crm/types";
 
 type OppOption = {
   id: string;

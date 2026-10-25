@@ -1,3 +1,4 @@
+import { formatEUR } from "@/lib/product-ui-format";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -8,9 +9,8 @@ import {
   Building2, Users, TrendingUp, Target, ArrowRight, FileText,
 } from "lucide-react";
 import {
-  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES,
-  type CrmOpportunity, type FeeProposal,
-} from "@/lib/crm/types";
+   OPPORTUNITY_STAGES, QUOTE_STATUSES,
+  type CrmOpportunity, type FeeProposal} from "@/lib/crm/types";
 import { resolveOpportunityValue, quoteValue, type OpportunityQuoteValue } from "@/lib/crm/opportunity-value";
 import { attachResolvedQuoteValues, fetchResolvedQuoteValues } from "@/lib/crm/quote-values";
 import { opportunityOverview } from "@/lib/crm/pipeline-board";

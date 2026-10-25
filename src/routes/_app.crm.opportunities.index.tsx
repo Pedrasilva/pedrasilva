@@ -1,3 +1,4 @@
+import { formatEUR } from "@/lib/product-ui-format";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -38,10 +39,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  formatEUR, OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
+   OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
   contactFullName, type Contact,
-  defaultQuoteTypeForCategory, type QuoteCategory,
-} from "@/lib/crm/types";
+  defaultQuoteTypeForCategory, type QuoteCategory} from "@/lib/crm/types";
 import { resolveOpportunityValue, resolveOpportunityValueWithSource } from "@/lib/crm/opportunity-value";
 import { boardColumns, visibleOpportunities, shownTotal } from "@/lib/crm/pipeline-board";
 import { Switch } from "@/components/ui/switch";
@@ -172,7 +172,7 @@ function OpportunitiesPage() {
       toast.success(uiI18n.t("crm:opportunities.quoteArchived"), {
         duration: 8000,
         action: {
-          label: "Anular",
+          label: uiI18n.t("common:undo"),
           onClick: async () => {
             const { error } = await supabase
               .from("fee_proposals")
@@ -206,7 +206,7 @@ function OpportunitiesPage() {
       setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       toast.success(uiI18n.t("crm:opportunities.quoteDeleted"), {
-        description: "Recuperável em Admin → Papelera de orçamentos",
+        description: uiI18n.t("crm:opportunities.recoverQuoteHint"),
         duration: 10000,
         action: {
           label: "Anular",

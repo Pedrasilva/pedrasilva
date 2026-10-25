@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   OPPORTUNITY_ACTIVITY_TYPES,
   type OpportunityActivity,
-  type OpportunityActivityType,
-} from "@/lib/crm/types";
+  type OpportunityActivityType} from "@/lib/crm/types";
 
 const ICONS: Record<OpportunityActivityType, React.ComponentType<{ className?: string }>> = {
   call: Phone,

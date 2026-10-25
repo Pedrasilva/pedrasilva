@@ -18,6 +18,7 @@ import {
 } from "@/lib/crm/relationship";
 
 export const Route = createFileRoute("/_app/crm/companies/")({
+  head: () => ({ meta: [{ title: "crm / companies / index — PSA Hub" }, { name: "description", content: "PSA Hub crm / companies / index workspace." }, { property: "og:title", content: "crm / companies / index — PSA Hub" }, { property: "og:description", content: "PSA Hub crm / companies / index workspace." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: CompaniesList,
 });
 
@@ -77,12 +78,12 @@ function CompaniesList() {
       <div className="flex flex-wrap items-center gap-2">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList>
-            <TabsTrigger value="all"> {uiI18n.t("crm:companies.allPrefix")} {companies.length})</TabsTrigger>
-            <TabsTrigger value="client"> {uiI18n.t("crm:companies.clientsPrefix")} {counts.client})</TabsTrigger>
-            <TabsTrigger value="supplier"> {uiI18n.t("crm:companies.suppliersPrefix")} {counts.supplier})</TabsTrigger>
-            <TabsTrigger value="both"> {uiI18n.t("crm:companies.bothPrefix")} {counts.both})</TabsTrigger>
+            <TabsTrigger value="all"> {uiI18n.t("crm:companies.allCount", { count: companies.length })}</TabsTrigger>
+            <TabsTrigger value="client"> {uiI18n.t("crm:companies.clientsCount", { count: counts.client })}</TabsTrigger>
+            <TabsTrigger value="supplier"> {uiI18n.t("crm:companies.suppliersCount", { count: counts.supplier })}</TabsTrigger>
+            <TabsTrigger value="both"> {uiI18n.t("crm:companies.bothCount", { count: counts.both })}</TabsTrigger>
             <TabsTrigger value="uncategorized">
-               {uiI18n.t("crm:companies.uncategorizedPrefix")} {counts.uncategorized})
+               {uiI18n.t("crm:companies.uncategorizedCount", { count: counts.uncategorized })}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -96,7 +97,7 @@ function CompaniesList() {
           />
         </div>
         <div className="text-xs text-muted-foreground">
-          {filtered.length}  {uiI18n.t("common:of")} {companies.length}
+          {uiI18n.t("crm:companies.showingCount", { shown: filtered.length, total: companies.length })}
         </div>
       </div>
 
@@ -105,7 +106,7 @@ function CompaniesList() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
           <div>
             <p className="font-medium">
-              {counts.uncategorized}  {uiI18n.t("crm:companies.uncategorizedUnit")} </p>
+              {uiI18n.t("crm:companies.uncategorizedWarning", { count: counts.uncategorized })} </p>
             <p className="text-muted-foreground">
                {uiI18n.t("crm:companies.importReviewHint")} </p>
           </div>
@@ -155,11 +156,11 @@ function CompaniesList() {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={relationshipVariant(r)}>{RELATIONSHIP_LABEL[r]}</Badge>
+                      <Badge variant={relationshipVariant(r)}>{uiI18n.t(r === "client" ? "glossary:relation.client" : r === "supplier" ? "common:supplier" : `crm:companies.relationship.${r}`)}</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusVariant(c.status)} className="capitalize">
-                        {c.status}
+                        {uiI18n.t(`crm:companies.status.${c.status}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{c.industria ?? "—"}</TableCell>

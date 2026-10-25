@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -29,7 +30,7 @@ import {
   useProductCategories,
   useUpdateProjectItem,
 } from "@/lib/products/use-products";
-import { categoryPath, formatMoney, itemTotal, type ProjectItem } from "@/lib/products/types";
+import { categoryPath,  itemTotal, type ProjectItem } from "@/lib/products/types";
 
 type SortKey = "reference" | "location" | "name" | "manufacturer" | "total";
 
@@ -256,7 +257,7 @@ export function ProjectItemsTable({
       </datalist>
 
       <div className="flex justify-end gap-6 text-sm">
-        <span className="text-muted-foreground">{rows.length}  {uiI18n.t("crm:products.itemsUnit")} </span>
+        <span className="text-muted-foreground">{uiI18n.t("common:itemsCount", { count: rows.length })} </span>
         <span className="font-medium tabular-nums">{formatMoney(grandTotal)}</span>
       </div>
 
