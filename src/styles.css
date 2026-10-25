@@ -37,6 +37,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Posting-time tints are deliberately subtle under media tiles. */
+:root { --timing-best: oklch(0.72 0.16 40 / 0.16); --timing-average: oklch(0.7 0.025 85 / 0.08); --timing-weak: oklch(0.64 0.14 245 / 0.13); }
+.dark { --timing-best: oklch(0.72 0.16 40 / 0.23); --timing-average: oklch(0.7 0.025 85 / 0.09); --timing-weak: oklch(0.7 0.12 245 / 0.2); }
+.timing-best { background-color: var(--timing-best); }
+.timing-average { background-color: var(--timing-average); }
+.timing-weak { background-color: var(--timing-weak); }
+
 /*
  * Design system definition.
  *

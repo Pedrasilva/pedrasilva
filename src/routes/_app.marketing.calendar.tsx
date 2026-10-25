@@ -29,6 +29,11 @@ import { InstagramGrid, type GridPost } from "@/components/marketing/instagram-g
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
 import { instagramFeed, scheduleInstagram } from "@/lib/marketing/instagram.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from '@/hooks/use-auth';
+import { Switch } from '@/components/ui/switch';
+import { useBestTimes } from '@/lib/marketing/use-best-times';
+import { bestSlots, hourlySlot, POSTING_HOURS, timingTone, type TimingFormat } from '@/lib/marketing/best-times';
+import { TimingLegend, TimingFormatChoice, useTimingLabel } from '@/components/marketing/best-times-map';
 
 export const Route = createFileRoute("/_app/marketing/calendar")({
   validateSearch: (s: Record<string, unknown>): { highlight?: string } =>
@@ -105,6 +110,17 @@ function CalendarPage() {
   const [drop, setDrop] = useState<{ row: Row; date: string; time: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [overDay, setOverDay] = useState<string | null>(null);
+  const [dragKind, setDragKind] = useState<TimingFormat | null>(null);
+  const [timingKind, setTimingKind] = useState<TimingFormat>('feed');
+  const [showTimes, setShowTimes] = useState(true);
+  const { user } = useAuth();
+  const preferenceKey = user ? `psa.marketing.bestTimes.${user.id}` : null;
+  useEffect(() => { if (preferenceKey) { try { setShowTimes(localStorage.getItem(preferenceKey) !== 'off'); } catch { /* preference storage may be disabled */ } } }, [preferenceKey]);
+  const timing = useBestTimes(dragKind ?? timingKind); const timingLabel = useTimingLabel();
+  const topSlots = bestSlots(timing.map);
+  const timingCell = (date: string, hour: number) => timing.map.cells.find(c => c.weekday === hourlySlot(`${date}T12:00:00Z`).weekday && c.hour === hour);
+  const bestHour = (date: string, kind: TimingFormat) => bestSlots(bestTimesFor(kind), hourlySlot(`${date}T12:00:00Z`).weekday, 1)[0]?.hour;
+  const bestTimesFor = (kind: TimingFormat) => bestTimes(timing.data?.posts ?? [], timing.data?.activity ?? [], kind);
   const [previewRow, setPreviewRow] = useState<Row | null>(null);
   const previewImgs = useQuery({
     queryKey: ["marketing-calendar-preview", PREVIEW_VERSION, previewRow?.id],
@@ -184,7 +200,9 @@ function CalendarPage() {
     setOverDay(null);
     const row = rows.find((r) => r.id === id);
     if (!row || !canCurate || !["approved","scheduled"].includes(row.status)) return;
-    setDrop({ row, date, time: row.scheduled_at ? lisbonParts(row.scheduled_at).time : "10:00" });
+    const hour = bestHour(date, row.format === 'story' ? 'story' : 'feed');
+    setDragKind(null);
+    setDrop({ row, date, time: hour == null ? (row.scheduled_at ? lisbonParts(row.scheduled_at).time : "10:00") : `${String(hour).padStart(2,'0')}:00` });
   };
 
   const gridPosts: GridPost[] = gridOrder(rows.filter((r) => r.platform === "instagram" && ["approved","scheduled","publishing","published","failed"].includes(r.status))).map((r) => ({
@@ -222,10 +240,12 @@ function CalendarPage() {
     <div draggable={movable} role="button" tabIndex={0} data-calendar-tile={dayTile ? r.id : undefined} data-post-id={r.id}
       data-highlight={highlight === r.id ? "true" : undefined}
       onDragStart={(e) => {
+        setDragKind(r.format === 'story' ? 'story' : 'feed');
         e.dataTransfer.setData("text/plain", r.id);
         // Use the entire visible tile, including badges, time and caption.
         e.dataTransfer.setDragImage(e.currentTarget, e.currentTarget.clientWidth / 2, 24);
       }}
+      onDragEnd={() => { setDragKind(null); setOverDay(null); }}
       onClick={(e) => { if (!(e.target as HTMLElement).closest("button,a")) setPreviewRow(r); }}
       onKeyDown={(e) => { if (e.key === "Enter") setPreviewRow(r); }}
       className={cn("group min-w-0 rounded border bg-card p-1 text-xs hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", highlight === r.id && "ring-2 ring-primary", dayTile && "motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:-translate-y-0.5", movable ? "cursor-grab" : "cursor-pointer")}>
@@ -314,6 +334,11 @@ function CalendarPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground">{t("calendar.tzHint")}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2"><Switch id="show-best-times" checked={showTimes} onCheckedChange={value => { setShowTimes(value); if (preferenceKey) { try { localStorage.setItem(preferenceKey, value ? 'on' : 'off'); } catch { /* optional preference */ } } }} /><Label htmlFor="show-best-times">{t('bestTimes.show')}</Label></div>
+            {showTimes && <TimingFormatChoice value={timingKind} onChange={setTimingKind} />}
+          </div>
+          {showTimes && (timing.isError ? <p className="text-xs text-destructive">{t('bestTimes.loadError')}</p> : <TimingLegend map={timing.map} />)}
           {low.length > 0 && (
             <div className="space-y-1 border-l-2 border-warning bg-muted p-2 text-xs">
               {low.map((w) => <p key={w.week} className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" />
@@ -328,19 +353,25 @@ function CalendarPage() {
                 ? <p className="text-xs text-muted-foreground">{t("calendar.noApproved")}</p>
                 : <div className="space-y-1.5">{unplaced.map((r) => <Item key={r.id} r={r} />)}</div>}
             </Card>
-            <div className="grid min-w-0 grid-cols-7 gap-px overflow-hidden rounded border bg-border">
+            <div className="min-w-0 overflow-x-auto"><div className={cn('grid min-w-[700px] gap-px overflow-hidden rounded border bg-border', view === 'week' && showTimes ? 'grid-cols-[3rem_repeat(7,minmax(0,1fr))]' : 'grid-cols-7')} data-calendar-week={view === 'week' ? 'true' : undefined}>
+              {view === 'week' && showTimes && <div className="bg-muted" />}
               {days.slice(0, 7).map((d) => <div key={`h-${d}`} className="bg-muted px-2 py-1 text-xs font-medium capitalize">{format(parseISO(d), "EEE", { locale })}</div>)}
+              {view === 'week' && showTimes && <div className="bg-background pt-6">{POSTING_HOURS.map(h=><div key={h} className="h-12 border-t border-border/40 px-1 text-[10px] tabular-nums text-muted-foreground">{String(h).padStart(2,'0')}:00</div>)}</div>}
               {days.map((d) => (
                 <div key={d} onDragOver={(e) => { if (canCurate) { e.preventDefault(); setOverDay(d); } }} onDragLeave={() => setOverDay((o) => (o === d ? null : o))}
                   onDrop={(e) => { e.preventDefault(); onDrop(d, e.dataTransfer.getData("text/plain")); }}
                   data-calendar-day={d}
-                  className={cn("min-w-0 space-y-2 bg-background p-1", view === "week" ? "min-h-64" : "min-h-28", overDay === d && "bg-accent",
+                  className={cn("relative min-w-0 bg-background", view === "week" ? "min-h-64" : "min-h-28 p-1 space-y-2", view === 'week' && !showTimes && 'p-1 space-y-2', overDay === d && "ring-2 ring-inset ring-primary",
+                    view === 'month' && showTimes && timingTone(bestSlots(timing.map,hourlySlot(`${d}T12:00:00Z`).weekday,1)[0]?.score ?? null),
                     view === "month" && !d.startsWith(month) && "opacity-50")}>
-                  <div className="text-[11px] text-muted-foreground">{format(parseISO(d), "d", { locale })}</div>
-                  {(byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact={view === "month"} dayTile={view === "week"} />)}
+                  <div className={cn('text-[11px] text-muted-foreground',view === 'week' && showTimes && 'h-6 px-1 pt-1')}>{format(parseISO(d), "d", { locale })}</div>
+                  {view === 'week' && showTimes ? <div className="relative min-h-[816px]">
+                    <div className="absolute inset-0">{POSTING_HOURS.map(h => { const cell=timingCell(d,h); const top=dragKind && topSlots.some(s=>s.weekday===cell?.weekday&&s.hour===h); return <div key={h} data-timing-hour={h} tabIndex={0} title={cell ? timingLabel(cell) : undefined} aria-label={cell ? timingLabel(cell) : undefined} className={cn('h-12 border-t border-border/40', timingTone(cell?.score ?? null), top && 'ring-2 ring-inset ring-primary')} />; })}</div>
+                    <div className="pointer-events-none relative z-10 grid grid-rows-[repeat(17,48px)] px-1 pb-2">{POSTING_HOURS.map(h => <div key={h} className="col-start-1 min-w-0" style={{gridRowStart:h-6}}>{(byDay.get(d) ?? []).filter(r => Math.max(7,Math.min(23,Number(lisbonParts(r.scheduled_at ?? '').time.slice(0,2)))) === h).map(r=><div key={r.id} className="pointer-events-auto relative mb-2"><Item r={r} dayTile /></div>)}</div>)}</div>
+                  </div> : (byDay.get(d) ?? []).map((r) => <Item key={r.id} r={r} compact={view === "month"} dayTile={view === "week"} />)}
                 </div>
               ))}
-            </div>
+            </div></div>
           </div>
         </TabsContent>
         <TabsContent value="grid">
