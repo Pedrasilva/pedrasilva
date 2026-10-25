@@ -523,7 +523,7 @@
     "noMyProjects": "Sem projetos atribuídos — use a pesquisa.",
     "noProjects": "Nenhum projeto encontrado",
     "searchProjects": "Pesquisar projeto ou cliente",
-    "savedIn": "Guardada em {{projet}}",
+    "savedIn": "Guardada em {{project}}",
     "anotherNote": "Outra nota neste projeto",
     "backHome": "Voltar ao início",
     "installIos": "Instalar: Partilhar → Adicionar ao ecrã principal",
@@ -610,7 +610,7 @@
     "hourValue": "{{value}} h",
     "approxHourValue": "{{approx}}{{value}} h",
     "percentagePointValue": "{{sign}}{{value}} p.p.",
-    "versus": "{{atual}} face a {{target}}",
+    "versus": "{{actual}} face a {{target}}",
     "percentagePointsSuffix": " p.p."
   },
   "imported": "Importado",

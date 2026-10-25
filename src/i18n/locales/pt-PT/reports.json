@@ -226,7 +226,7 @@
       "logged": "Horas registadas",
       "target": "Faturável vs objetivo",
       "targetSub": "Real / objetivo da equipa (ponderado pelas horas)",
-      "projectTeam": "Equipa de projeto: {{atual}} vs meta {{target}}",
+      "projectTeam": "Equipa de projeto: {{actual}} vs meta {{target}}",
       "wholeStudio": "Estúdio todo: {{pct}} faturável"
     },
     "leaveContext": "Ausências {{h}} h (não contam)",
@@ -424,7 +424,7 @@
       "available": "Horas disponíveis",
       "logged": "Registadas",
       "unlogged": "Por registar ({{pct}})",
-      "chargeTeam": "Equipa de projeto: {{atual}} vs meta {{target}}",
+      "chargeTeam": "Equipa de projeto: {{actual}} vs meta {{target}}",
       "chargeStudio": "Estúdio todo: {{pct}} faturável",
       "internalCat": "Interno por categoria"
     },
