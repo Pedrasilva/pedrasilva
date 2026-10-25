@@ -1,7 +1,7 @@
 ## Current request — Portfolio identity review
-- [ ] Audit all nine patched function definitions and draft project foreign keys.
-- [ ] Add mirrored migration-time assertions and fix any failed identity/source checks.
-- [ ] Verify named-client blocking and portfolio clearance labels end-to-end using disposable fixtures; delete fixtures and report.
+- [x] Audited all nine live patched definitions: no stale capture/profile operational joins; draft project_id has no pm_projects FK.
+- [x] Migration 0192 mirrored with missing/old/expected-pattern assertions and explicit internal_name source fallback; existing directory already supplied portfolio names.
+- [x] Authenticated fixture recheck and Planner warnings verified; extended rollback SQL test and 41 unit tests passed; all fixtures deleted, original 17-draft full-row hash unchanged. Report docs/marketing-portfolio-review-report.md; Finance and translations untouched.
 
 ## Current request — Translation batch 0
 - [x] AST UI checker, explicit document/brand exceptions, nine regression tests and tests/CI signature-count ratchet.
