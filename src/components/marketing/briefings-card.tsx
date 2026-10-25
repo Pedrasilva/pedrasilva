@@ -74,7 +74,7 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="font-semibold">{t("briefings.title")}</h2>
         <div className="ml-auto flex gap-2">
-          {canCurate && <Button size="sm" variant="outline" onClick={() => setAskOpen(true)}><Send className="mr-1 h-3.5 w-3.5" />{t("briefings.ask")}</Button>}
+          {canCurate && projectId && <Button size="sm" variant="outline" onClick={() => setAskOpen(true)}><Send className="mr-1 h-3.5 w-3.5" />{t("briefings.ask")}</Button>}
         </div>
       </div>
       <p className="text-xs text-muted-foreground">{t("briefings.hint")}</p>
