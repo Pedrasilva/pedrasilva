@@ -1,0 +1,1 @@
+ALTER TABLE public.marketing_project_profiles ALTER COLUMN project_id DROP NOT NULL;

@@ -1,4 +1,13 @@
 {
+  "portfolio": {
+    "label": "Portfolio",
+    "create": "New portfolio project",
+    "internalName": "Project name (internal)",
+    "internalClient": "Client (internal)",
+    "search": "Search projects",
+    "link": "Link to live project",
+    "linkConfirm": "Link this portfolio profile to the selected live project? All Marketing history will be retained."
+  },
   "reels": {
     "videoRemoved": "Video removed after 30 days, original kept offline",
     "newUploadRequired": "Reusing this reel requires a new upload.",

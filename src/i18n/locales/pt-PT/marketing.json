@@ -1,4 +1,13 @@
 {
+  "portfolio": {
+    "label": "Portefólio",
+    "create": "Novo projeto de portefólio",
+    "internalName": "Nome do projeto (interno)",
+    "internalClient": "Cliente (interno)",
+    "search": "Pesquisar projetos",
+    "link": "Ligar a projeto ativo",
+    "linkConfirm": "Ligar este perfil de portefólio ao projeto selecionado? Todo o histórico de Marketing será preservado."
+  },
   "reels": {
     "videoRemoved": "Vídeo removido após 30 dias, original guardado offline",
     "newUploadRequired": "Reutilizar este reel requer um novo envio.",

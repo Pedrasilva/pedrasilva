@@ -1,6 +1,15 @@
 import type { PostLanguage } from "./post-language";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { MarketingProjectOption } from './portfolio';
+
+export function useMarketingProjectDirectory() {
+  return useQuery({ queryKey: ['marketing-projects'], queryFn: async () => {
+    const { data, error } = await supabase.from('marketing_project_directory').select('*').order('name');
+    if (error) throw error;
+    return (data ?? []) as MarketingProjectOption[];
+  }});
+}
 
 export const CLEARANCE_ORDER = ["internal_only", "needs_client_approval", "unknown", "cleared"] as const;
 export type Clearance = (typeof CLEARANCE_ORDER)[number];
@@ -18,7 +27,10 @@ export const CLEARANCE_BADGE: Record<Clearance, string> = {
 
 export type ProjectProfile = {
   id: string;
-  project_id: string;
+  project_id: string | null;
+  marketing_key: string;
+  internal_name: string | null;
+  internal_client: string | null;
   post_language: PostLanguage;
   instagram_language: PostLanguage | null;
   linkedin_language: PostLanguage | null;

@@ -1,3 +1,4 @@
+import { MarketingProjectPicker } from "./project-picker";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -62,10 +63,7 @@ export function NewCarouselButton({ profileId, variant = "outline" }: { profileI
             {!profileId && (
               <div className="space-y-1">
                 <Label>{t("carousel.project")}</Label>
-                <Select value={pick} onValueChange={setPick}>
-                  <SelectTrigger><SelectValue placeholder={t("carousel.pickProject")} /></SelectTrigger>
-                  <SelectContent>{options.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}</SelectContent>
-                </Select>
+                <MarketingProjectPicker profileValue value={pick} onChange={setPick} label={t("carousel.project")} emptyLabel={t("carousel.pickProject")}/>
               </div>
             )}
             <div className="space-y-1">

@@ -139,14 +139,17 @@ export async function analyseInsights(actorId: string, ask: (system: string, use
   const ids = posts.map((p) => p.media_id);
   const { data: d } = await sb.from("marketing_post_drafts").select("id,ig_media_id,project_id,pillar").in("ig_media_id", ids);
   const pids = [...new Set((d ?? []).map((x: any) => x.project_id).filter(Boolean))];
-  const { data: projs } = pids.length ? await sb.from("pm_projects").select("id,name").in("id", pids) : { data: [] };
+  const { data: projs } = pids.length ? await sb.from("marketing_project_directory").select("id,name").in("id", pids) : { data: [] };
   const pname = new Map((projs ?? []).map((p: any) => [p.id, p.name]));
   const drafts: DraftMeta[] = (d ?? []).map((x: any) => ({ ...x, project_name: x.project_id ? pname.get(x.project_id) ?? null : null }));
   const input = buildAnalysisInput(posts, drafts, acc ?? []);
   const { getActiveMarketingBible } = await import("./bible.server");
   const bible = await getActiveMarketingBible();
   const system = `You are the marketing analyst for Pedra Silva Arquitectos, an architecture studio. Positioning and tone come from this Marketing Bible:\n${(bible?.content_md ?? "").slice(0, 8000)}\n\nAnalyse the Instagram performance data. Be specific and evidence-based (cite formats, pillars, days, numbers). Small samples must be flagged as tentative. Respond ONLY with JSON: {"working": string[], "notWorking": string[], "recommendations": string[] (3 to 5 concrete actions for the next weeks, aligned with the Bible)}. Write in English.`;
-  const result = parseAnalysis(await ask(system, JSON.stringify(input)));
+  const { marketingAIInput } = await import('./ai-privacy.server');
+  const safe = await marketingAIInput(system,[{type:'text',text:JSON.stringify(input)}]);
+  const safeUser = safe.content[0] as {text:string};
+  const result = parseAnalysis(await ask(safe.system, safeUser.text));
   const dates = posts.map((p) => p.posted_at).filter(Boolean).sort() as string[];
   const { data: saved, error } = await sb.from("marketing_insight_analyses").insert({
     created_by: actorId, model, post_count: posts.length, period_from: dates[0]?.slice(0, 10) ?? null, period_to: dates[dates.length - 1]?.slice(0, 10) ?? null,

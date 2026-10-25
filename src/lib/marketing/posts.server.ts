@@ -1,5 +1,6 @@
 import { resolvePostLanguage, languageInstruction, type LanguageProfile } from "./post-language";
 import { cleanEmailBody } from "./clean-email";
+import { marketingAIInput } from './ai-privacy.server';
 /**
  * Marketing Pass 4 — post suggestions (Instagram + LinkedIn).
  * Picks the best cleared captures in code, asks Claude for ideas, then re-checks
@@ -20,6 +21,7 @@ const strictest = (a: string | null | undefined, b: string | null | undefined) =
 };
 
 type Profile = {
+  id: string;
   project_id: string; project_name: string | null; client: string | null; sector: string | null; location: string | null;
   client_ambition: string | null; central_idea: string | null; challenges: string | null; proud_of: string | null;
   key_facts: string | null; name_rule: string; public_description: string | null;
@@ -94,12 +96,13 @@ const SCHEMA = {
 export async function callClaude(system: string, content: unknown[], schema: unknown = SCHEMA): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
+  const safe = await marketingAIInput(system,content);
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: POSTS_MODEL, max_tokens: 16000, stream: true, system,
-      messages: [{ role: "user", content }],
+      model: POSTS_MODEL, max_tokens: 16000, stream: true, system:safe.system,
+      messages: [{ role: "user", content:safe.content }],
       output_config: { effort: "medium", format: { type: "json_schema", schema } },
     }),
   });
@@ -165,7 +168,7 @@ export async function runPostRequest(requestId: string) {
     const bible = await getActiveMarketingBible();
     if (!bible) throw new Error("No Marketing Bible yet");
     const profiles = (await getProjectProfilesForMatching()) as unknown as Profile[];
-    const { data: clearRows } = await db.from("marketing_project_profiles").select("project_id, clearance, post_language, instagram_language, linkedin_language");
+    const { data: clearRows } = await db.from("marketing_project_profiles").select("project_id:marketing_key, clearance, post_language, instagram_language, linkedin_language");
     const projClear = new Map<string, string>((clearRows ?? []).map((r: { project_id: string; clearance: string }) => [r.project_id, r.clearance]));
     const languageBy = new Map<string, LanguageProfile>((clearRows ?? []).map((r: LanguageProfile & { project_id: string }) => [r.project_id, r]));
     const languagesFor = (pid: string | null) => ({ instagram: resolvePostLanguage(pid ? languageBy.get(pid) : null, "instagram", req.language_override ?? "project"), linkedin: resolvePostLanguage(pid ? languageBy.get(pid) : null, "linkedin", req.language_override ?? "project") });
@@ -173,7 +176,7 @@ export async function runPostRequest(requestId: string) {
 
     // ── Candidates ──
     const { data: caps, error: capErr } = await db.from("marketing_captures")
-      .select("id, raw_text, ai_summary, fit_score, pillar, persona, project_id, clearance, ai_flags, received_at, status, expires_at, format_hint, marketing_capture_assets(id, storage_path, file_name, mime_type, position, created_at)")
+      .select("id, raw_text, ai_summary, fit_score, pillar, persona, project_id, profile_id, clearance, ai_flags, received_at, status, expires_at, format_hint, marketing_capture_assets(id, storage_path, file_name, mime_type, position, created_at)")
       .in("status", ["enriched", "ready"])
       .or(`expires_at.is.null,expires_at.gt.${req.period_start}`)
       .order("fit_score", { ascending: false, nullsFirst: false })
@@ -188,12 +191,12 @@ export async function runPostRequest(requestId: string) {
     };
     const byPos = (a: { position: number | null; created_at: string }, b: { position: number | null; created_at: string }) =>
       (a.position ?? 1e9) - (b.position ?? 1e9) || a.created_at.localeCompare(b.created_at);
-    let pool: Cap[] = (caps ?? []).map((c: Cap) => ({ ...c, marketing_capture_assets: [...c.marketing_capture_assets].sort(byPos), eff: strictest(c.clearance, c.project_id ? projClear.get(c.project_id) : null) }))
+    let pool: Cap[] = (caps ?? []).map((c: Cap & {profile_id:string|null}) => ({ ...c, project_id:profiles.find(p=>p.id===c.profile_id)?.project_id??c.project_id, marketing_capture_assets: [...c.marketing_capture_assets].sort(byPos), eff: strictest(c.clearance, projClear.get(profiles.find(p=>p.id===c.profile_id)?.project_id??c.project_id??"")) }))
       .filter((c: Cap) => c.eff !== "internal_only");
     // Focused brief: only the focus project's captures and library.
     let focusProjectId: string | null = null;
     if (req.focus_profile_id) {
-      const { data: fp } = await db.from("marketing_project_profiles").select("project_id").eq("id", req.focus_profile_id).maybeSingle();
+      const { data: fp } = await db.from("marketing_project_profiles").select("project_id:marketing_key").eq("id", req.focus_profile_id).maybeSingle();
       if (!fp) throw new Error("Focus project profile not found");
       focusProjectId = fp.project_id as string;
       pool = pool.filter((c) => c.project_id === focusProjectId);
@@ -211,7 +214,7 @@ export async function runPostRequest(requestId: string) {
     type Lib = { project_id: string; eff: string; images: LibImg[] };
     const library: Lib[] = [];
     if (!req.source_capture_id) {
-      const { data: libProfiles } = await db.from("marketing_project_profiles").select("id, project_id, clearance").neq("clearance", "internal_only");
+      const { data: libProfiles } = await db.from("marketing_project_profiles").select("id, project_id:marketing_key, clearance").neq("clearance", "internal_only");
       const libProfById = new Map<string, { project_id: string; clearance: string }>(((libProfiles ?? []) as { id: string; project_id: string; clearance: string }[]).map((r) => [r.id, r]));
       if (libProfById.size) {
         const { data: media } = await db.from("marketing_project_media")
@@ -239,7 +242,7 @@ export async function runPostRequest(requestId: string) {
     const candProjects = [...new Set([...candidates.map((c) => c.project_id), ...library.map((l) => l.project_id)].filter(Boolean))] as string[];
     const background = new Map<string, string[]>();
     if (candProjects.length) {
-      const { data: profRows } = await db.from("marketing_project_profiles").select("id, project_id").in("project_id", candProjects);
+      const { data: profRows } = await db.from("marketing_project_profiles").select("id, project_id:marketing_key").in("marketing_key", candProjects);
       const projByProfile = new Map<string, string>(((profRows ?? []) as { id: string; project_id: string }[]).map((r) => [r.id, r.project_id]));
       if (projByProfile.size) {
         const { data: briefs } = await db.from("marketing_project_briefings").select("profile_id, transcript, created_at")
@@ -378,8 +381,7 @@ export async function runPostRequest(requestId: string) {
       })),
       edit_lessons: editLessons,
     };
-    console.log(`[marketing-posts] request ${requestId}: ${candidates.length} candidates, ${payload.lessons_what_not_to_do.length} lessons`, JSON.stringify(payload.lessons_what_not_to_do));
-    console.log(`[marketing-posts] request ${requestId}: ${editLessons.length} edit lessons`, JSON.stringify(editLessons));
+    console.log(`[marketing-posts] request ${requestId}: ${candidates.length} candidates, ${payload.lessons_what_not_to_do.length} lessons, ${editLessons.length} edit lessons`);
     content.push({ type: "text", text: `<request>\n${JSON.stringify(payload)}\n</request>` });
 
     const system = `You are a social media strategist writing for Pedra Silva Arquitectos, an architecture practice. You turn curated material into draft posts for Instagram and LinkedIn.

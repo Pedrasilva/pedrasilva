@@ -1,4 +1,5 @@
 import { cleanEmailBody } from "./clean-email";
+import { marketingAIInput } from './ai-privacy.server';
 /**
  * Marketing Pass 3 — AI enrichment of captures.
  * Reads a capture against the active Marketing Bible and project profiles and
@@ -106,12 +107,13 @@ ${JSON.stringify(projects)}
 async function callClaude(system: string, content: unknown[]): Promise<Result> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
+  const safe = await marketingAIInput(system,content);
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: ENRICH_MODEL, max_tokens: 8000, stream: true, system,
-      messages: [{ role: "user", content }],
+      model: ENRICH_MODEL, max_tokens: 8000, stream: true, system:safe.system,
+      messages: [{ role: "user", content:safe.content }],
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
     }),
   });
@@ -158,7 +160,7 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
   const assets = (c.marketing_capture_assets ?? []) as Array<{ storage_path: string; file_name: string; mime_type: string }>;
   const images = assets.filter((a) => MODEL_IMAGE_TYPES.includes(a.mime_type)).slice(0, MAX_IMAGES);
   const others = assets.filter((a) => !images.includes(a));
-  const linked = c.project_id ? ctx.profiles.find((p) => p.project_id === c.project_id) : null;
+  const linked = ctx.profiles.find(p=>p.id===c.profile_id) ?? ctx.profiles.find(p=>p.project_id===c.project_id) ?? null;
 
   const content: unknown[] = [];
   for (const img of images) {
@@ -199,8 +201,8 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
     enrichment_model: ENRICH_MODEL,
     enrichment_error: null,
   };
-  if (!c.project_id && confident) { patch.project_id = projectId; patch.ai_project_guess = null; }
-  else if (!c.project_id) patch.ai_project_guess = r.project_guess?.slice(0, 200) ?? null;
+  if (!c.project_id && !c.profile_id && confident) { patch.profile_id = ctx.profiles.find(p=>p.project_id===projectId)?.id; patch.ai_project_guess = null; }
+  else if (!c.project_id && !c.profile_id) patch.ai_project_guess = r.project_guess?.slice(0, 200) ?? null;
   else if (overwriteAi) patch.ai_project_guess = null;
   if (c.sector == null && SECTORS.includes(r.sector ?? "")) patch.sector = r.sector;
   if (c.stage == null && STAGES.includes(r.stage ?? "")) patch.stage = r.stage;
@@ -220,8 +222,7 @@ export async function enrichCapture(captureId: string, ctx: EnrichContext, overw
   const { error: upErr } = await db.from("marketing_captures").update(patch).eq("id", captureId);
   if (upErr) throw new Error(`update: ${upErr.message}`);
 
-  const finalProject = (patch.project_id as string | undefined) ?? c.project_id;
-  const profile = finalProject ? ctx.profiles.find((p) => p.project_id === finalProject) : null;
+  const profile = ctx.profiles.find(p=>p.id===(patch.profile_id??c.profile_id)) ?? linked;
   if (profile && r.story_suggestions?.length) {
     const { data: pending } = await db.from("marketing_project_story_suggestions")
       .select("field, suggested_text").eq("profile_id", profile.id).eq("status", "pending");

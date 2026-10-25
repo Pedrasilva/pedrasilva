@@ -1,7 +1,7 @@
 ## Current request — Marketing portfolio projects
-- [ ] Add Marketing-only project identities, preserve existing live identifiers and profile history, curator permissions and protected AI names.
-- [ ] Unified searchable pickers, portfolio creation/profile editing and optional live linkage; no operational project rows.
-- [ ] Fixture-only rules and authenticated UI verification, mirrored migrations, screenshots and report; Finance untouched.
+- [x] Add Marketing-only project identities, preserve existing live identifiers and profile history, curator permissions and protected AI names.
+- [x] Unified searchable pickers, portfolio creation/profile editing and optional live linkage; no operational project rows.
+- [x] 41 tests, rolled-back identity/linkage fixtures and authenticated profile/capture creation verified; fixtures removed, migrations 0189–0191 mirrored; screenshots/report in docs/marketing-portfolio-report.md; Finance untouched.
 
 ## Current request — published reel video retention
 - [x] Service-only persistent 30-day video cleanup in existing private job with daily gate; migrations 0187–0188 mirrored byte-identically, all other evidence preserved.

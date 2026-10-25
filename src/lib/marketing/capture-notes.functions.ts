@@ -82,7 +82,7 @@ export const addCaptureNote = createServerFn({ method: "POST" })
     if (!(await canNote(context as unknown as Ctx, data.captureId))) throw new Error("Not allowed");
     const { admin, transcribe, transcriptionHint, pickStoryField } = await import("./nudges.server");
     const db = await admin();
-    const { data: c } = await db.from("marketing_captures").select("id, project_id").eq("id", data.captureId).maybeSingle();
+    const { data: c } = await db.from("marketing_captures").select("id, project_id, profile_id").eq("id", data.captureId).maybeSingle();
     if (!c) throw new Error("Capture not found");
 
     let text = (data.text ?? "").trim();
@@ -111,8 +111,9 @@ export const addCaptureNote = createServerFn({ method: "POST" })
     }
 
     let suggestionId: string | null = null;
-    if (c.project_id) {
-      const { data: prof } = await db.from("marketing_project_profiles").select("id").eq("project_id", c.project_id).maybeSingle();
+    if (c.profile_id || c.project_id) {
+      const query = db.from("marketing_project_profiles").select("id");
+      const { data: prof } = await (c.profile_id ? query.eq("id",c.profile_id) : query.eq("project_id",c.project_id)).maybeSingle();
       if (prof) {
         const field = await pickStoryField(text);
         const { data: s } = await db.from("marketing_project_story_suggestions").insert({

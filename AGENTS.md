@@ -1,4 +1,5 @@
 # Agent rules
+- Marketing portfolio uses immutable profile-owned identity and optional live linkage; read src/lib/marketing/AGENTS.md before identity changes. Why: no operational pseudo-projects or lost editorial history.
 - Marketing timing computations stay in the Marketing module's shared pure scorer and RLS-scoped data RPC. Why: Calendar and Insights need identical recommendations without accessing unrelated financial records.
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
 - Reel video retention uses Marketing's service-only persistent cleanup claims in the existing private scheduled job; purge evidence is outside approval hashes and media reuse is locked through shared upload advisory locks. Why: storage removal must preserve publication history and never race new drafts.

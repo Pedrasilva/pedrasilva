@@ -1,0 +1,1 @@
+export default {resolve:{alias:{'@':new URL('../src',import.meta.url).pathname}},test:{environment:'node',include:['scripts/test-marketing-portfolio.test.ts','scripts/test-post-language.test.ts','scripts/test-clearance.test.ts','scripts/test-finished-reels.test.ts','scripts/test-marketing-calendar.test.ts']}};

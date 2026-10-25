@@ -81,7 +81,7 @@ function useCalendarData() {
       const [thumbs, images, { data: projects }] = await Promise.all([
         resolveDraftImages(sb, [...new Set(rows.map((r) => r.asset_ids[0]).filter(Boolean))], 3600, { preview: PREVIEW.tile }),
         resolveDraftImages(sb, [...new Set(rows.filter((r) => r.platform === "instagram").flatMap((r) => r.asset_ids))], 3600, { preview: PREVIEW.tile }),
-        pids.length ? sb.from("pm_projects").select("id, name").in("id", pids) : { data: [] },
+        pids.length ? sb.from("marketing_project_directory").select("id, name").in("id", pids) : { data: [] },
       ]);
       const storyUrls = await signPaths(sb, rows.flatMap(r => (r.story_render_manifest?.paths ?? []).map(path => ({ path }))), 3600, PREVIEW.tile);
       const urls = new Map(images.map((i) => [i.id, i.url]));

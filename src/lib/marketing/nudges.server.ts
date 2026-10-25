@@ -1,4 +1,5 @@
 import { cleanEmailBody } from "./clean-email";
+import { marketingAIInput } from './ai-privacy.server';
 /**
  * Marketing Pass 5 — context nudges. Server-only helpers (service role + gateway).
  * The question draft and the story-field pick use the enrichment model (ENRICH_MODEL).
@@ -23,12 +24,13 @@ export async function admin() {
 export async function claudeText(system: string, content: unknown[], maxTokens = 1000): Promise<string> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
+  const safe = await marketingAIInput(system,content);
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: ENRICH_MODEL, max_tokens: maxTokens, stream: true, system,
-      messages: [{ role: "user", content }],
+      model: ENRICH_MODEL, max_tokens: maxTokens, stream: true, system:safe.system,
+      messages: [{ role: "user", content:safe.content }],
       output_config: { effort: "low" },
     }),
   });

@@ -54,7 +54,7 @@ function useInsights() {
       const draftIds = [...new Set(rows.map((r) => r.draft_id).filter(Boolean))] as string[];
       const d = draftIds.length ? await sb.from("marketing_post_drafts").select("id,project_id,pillar").in("id", draftIds) : { data: [] };
       const pids = [...new Set((d.data ?? []).map((x: any) => x.project_id).filter(Boolean))] as string[];
-      const p = pids.length ? await sb.from("pm_projects").select("id,name").in("id", pids) : { data: [] };
+      const p = pids.length ? await sb.from("marketing_project_directory").select("id,name").in("id", pids) : { data: [] };
       const pname = new Map((p.data ?? []).map((x: any) => [x.id, x.name as string]));
       const meta = new Map<string, { project: string; pillar: string }>((d.data ?? []).map((x: any) => [x.id, { project: x.project_id ? pname.get(x.project_id) ?? "—" : "—", pillar: x.pillar ?? "—" }]));
       return { rows, account: a.data ?? [], analyses: (an.data ?? []) as Analysis[], settings: s.data, meta };

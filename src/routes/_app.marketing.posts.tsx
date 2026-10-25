@@ -1,3 +1,5 @@
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { canRecheckClearance } from '@/lib/marketing/clearance';
 import { approvalActions } from '@/lib/marketing/approval-state';
 import { useDraftApprovalState } from '@/lib/marketing/use-draft-approval-state';
@@ -169,7 +171,7 @@ function usePlannerData() {
       const projectIds = [...new Set(ds.map((d) => d.project_id).filter(Boolean))] as string[];
       const [assets, { data: projects }] = await Promise.all([
         resolveDraftImages(sb, assetIds, 3600, { sign: false, preview:PREVIEW.tile }),
-        projectIds.length ? sb.from("pm_projects").select("id, name").in("id", projectIds) : { data: [] },
+        projectIds.length ? sb.from("marketing_project_directory").select("id, name").in("id", projectIds) : { data: [] },
       ]);
       const assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }> = {};
       for (const a of assets) assetMap[a.id] = a;
@@ -200,17 +202,8 @@ function PostPlannerPage() {
   const [storyCount, setStoryCount] = useState(0);
   const [runLanguage, setRunLanguage] = useState<RunLanguage>("project");
   const [focusProfile, setFocusProfile] = useState("none");
-  const { data: focusOptions = [] } = useQuery({
-    queryKey: ["marketing-focus-profiles"],
-    queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any).from("marketing_project_profiles").select("id, pm_projects(name)");
-      if (error) throw error;
-      return ((data ?? []) as { id: string; pm_projects: { name: string } | null }[])
-        .map((p) => ({ id: p.id, name: p.pm_projects?.name ?? "—" }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-    },
-  });
+  const {data: directory=[]}=useMarketingProjectDirectory();
+  const focusOptions=directory.map(p=>({id:p.profile_id,name:p.name}));
   const focusName = (id: string | null | undefined) => (id ? focusOptions.find((o) => o.id === id)?.name ?? null : null);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate({ from: "/marketing/posts" });
@@ -308,13 +301,7 @@ function PostPlannerPage() {
             <Label className="mt-2 block">{t("common:language")}</Label>
             <Select value={runLanguage} onValueChange={x => setRunLanguage(x as RunLanguage)}><SelectTrigger aria-label={t("common:language")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="project">{t("postLanguage.perProject")}</SelectItem>{POST_LANGUAGES.map(l => <SelectItem key={l} value={l}>{t(`postLanguage.options.${l}`)}</SelectItem>)}</SelectContent></Select>
             <Label className="mt-2 block">{t("posts.focusProject")}</Label>
-            <Select value={focusProfile} onValueChange={setFocusProfile}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("posts.focusNone")}</SelectItem>
-                {focusOptions.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <MarketingProjectPicker profileValue value={focusProfile} onChange={setFocusProfile} label={t("posts.focusProject")} emptyLabel={t("posts.focusNone")} emptyValue="none"/>
           </div>
           <div>
             <Label>{t("posts.periodStart")}</Label>

@@ -66,9 +66,9 @@ async function decorate(rows: any[]): Promise<ActionRow[]> {
   const profIds = [...new Set(rows.map((r) => r.profile_id).filter(Boolean))];
   const compIds = [...new Set(rows.map((r) => r.crm_company_id).filter(Boolean))];
   const { data: profs } = profIds.length
-    ? await db.from("marketing_project_profiles").select("id, pm_projects(name)").in("id", profIds) : { data: [] };
+    ? await db.from("marketing_project_profiles").select("id, internal_name, pm_projects(name)").in("id", profIds) : { data: [] };
   const { data: comps } = compIds.length ? await db.from("companies").select("id, nome").in("id", compIds) : { data: [] };
-  const pn = new Map((profs ?? []).map((p: any) => [p.id, p.pm_projects?.name ?? null]));
+  const pn = new Map((profs ?? []).map((p: any) => [p.id, p.pm_projects?.name ?? p.internal_name ?? null]));
   const cn = new Map((comps ?? []).map((c: any) => [c.id, c.nome]));
   return rows.map((r) => ({
     ...r, helper_user_ids: r.helper_user_ids ?? [],
@@ -160,9 +160,9 @@ export const suggestActionTopics = createServerFn({ method: "POST" })
     let profile: unknown = null;
     if (data.profileId) {
       const { data: p } = await db.from("marketing_project_profiles")
-        .select("client_ambition, central_idea, challenges, proud_of, key_facts, location, year_completed, name_rule, public_description, pm_projects(name)")
+        .select("client_ambition, central_idea, challenges, proud_of, key_facts, location, year_completed, name_rule, public_description, internal_name, pm_projects(name)")
         .eq("id", data.profileId).maybeSingle();
-      profile = p;
+      profile = p ? {...p, internal_name:undefined, pm_projects:p.name_rule==="name"?{name:p.pm_projects?.name??p.internal_name}:null, ...(p.name_rule==="never_mention"?{location:null}: {})} : null;
     }
     const bible = await getActiveMarketingBible().catch(() => null);
     const lang = data.language === "en" ? "English" : "European Portuguese";
@@ -204,7 +204,7 @@ export const routeOutcomeFile = createServerFn({ method: "POST" })
     let profile: { id: string; project_id: string | null } | null = null;
     if (a.profile_id) {
       const { data: p } = await db.from("marketing_project_profiles").select("id, project_id").eq("id", a.profile_id).maybeSingle();
-      profile = p;
+      profile = p ? {...p, internal_name:undefined, pm_projects:p.name_rule==="name"?{name:p.pm_projects?.name??p.internal_name}:null, ...(p.name_rule==="never_mention"?{location:null}: {})} : null;
     }
     if (!profile || (!AUDIO_VIDEO.test(f.mime_type) && !IMAGE.test(f.mime_type))) {
       await mark("file", null, profile ? null : "no_profile");
@@ -224,7 +224,7 @@ export const routeOutcomeFile = createServerFn({ method: "POST" })
       // Image → capture created as the uploader (set_sender trigger attributes it).
       const captureId = crypto.randomUUID();
       const { error: cErr } = await sb.from("marketing_captures").insert({
-        id: captureId, channel: "hub", project_id: profile.project_id, raw_text: `${a.title}\n${f.file_name}`,
+        id: captureId, channel: "hub", project_id: profile.project_id, profile_id: profile.id, raw_text: `${a.title}\n${f.file_name}`,
       });
       if (cErr) throw new Error(cErr.message);
       const dest = `${captureId}/${crypto.randomUUID()}-${f.file_name}`;
