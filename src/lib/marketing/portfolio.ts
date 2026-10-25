@@ -1,0 +1,9 @@
+export type MarketingProjectOption = { id: string; name: string; client?: string | null; profile_id: string | null; portfolio: boolean };
+export function captureProjectPatch(key: string | null, options: MarketingProjectOption[]) {
+  const p = options.find(p => p.id === key);
+  return { project_id: p?.portfolio ? null : key, profile_id: p?.profile_id ?? null };
+}
+export function safeProfileForAI<T extends { name_rule: string; project_name?: string | null; client?: string | null; aliases?: string[]; sector?: string | null; location?: string | null }>(p: T): T {
+  if (p.name_rule === 'name') return p;
+  return { ...p, project_name: null, client: null, aliases: [], ...(p.name_rule === 'never_mention' ? { sector: null, location: null } : {}) };
+}
