@@ -8528,6 +8528,8 @@ export type Database = {
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
           story_render_manifest: Json | null
+          video_purged_at: string | null
+          video_purged_bytes: number | null
           warning_approval_history: Json
           warning_confirmation_hash: string | null
         }
@@ -8581,6 +8583,8 @@ export type Database = {
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
           story_render_manifest?: Json | null
+          video_purged_at?: string | null
+          video_purged_bytes?: number | null
           warning_approval_history?: Json
           warning_confirmation_hash?: string | null
         }
@@ -8634,6 +8638,8 @@ export type Database = {
           scheduled_at?: string | null
           status?: Database["public"]["Enums"]["marketing_draft_status"]
           story_render_manifest?: Json | null
+          video_purged_at?: string | null
+          video_purged_bytes?: number | null
           warning_approval_history?: Json
           warning_confirmation_hash?: string | null
         }
@@ -9141,6 +9147,9 @@ export type Database = {
           mime_type: string
           profile_id: string
           video_path: string
+          video_purge_bytes: number | null
+          video_purge_claim: string | null
+          video_purged_at: string | null
         }
         Insert: {
           cover_path: string
@@ -9152,6 +9161,9 @@ export type Database = {
           mime_type: string
           profile_id: string
           video_path: string
+          video_purge_bytes?: number | null
+          video_purge_claim?: string | null
+          video_purged_at?: string | null
         }
         Update: {
           cover_path?: string
@@ -9163,6 +9175,9 @@ export type Database = {
           mime_type?: string
           profile_id?: string
           video_path?: string
+          video_purge_bytes?: number | null
+          video_purge_claim?: string | null
+          video_purged_at?: string | null
         }
         Relationships: [
           {
@@ -9201,6 +9216,7 @@ export type Database = {
           meta_error_type: string | null
           meta_page_id: string | null
           meta_page_name: string | null
+          reel_cleanup_checked_at: string | null
           token_expires_at: string | null
           token_never_expires: boolean
           token_valid: boolean | null
@@ -9231,6 +9247,7 @@ export type Database = {
           meta_error_type?: string | null
           meta_page_id?: string | null
           meta_page_name?: string | null
+          reel_cleanup_checked_at?: string | null
           token_expires_at?: string | null
           token_never_expires?: boolean
           token_valid?: boolean | null
@@ -9261,6 +9278,7 @@ export type Database = {
           meta_error_type?: string | null
           meta_page_id?: string | null
           meta_page_name?: string | null
+          reel_cleanup_checked_at?: string | null
           token_expires_at?: string | null
           token_never_expires?: boolean
           token_valid?: boolean | null
@@ -17679,6 +17697,8 @@ export type Database = {
           scheduled_at: string | null
           status: Database["public"]["Enums"]["marketing_draft_status"]
           story_render_manifest: Json | null
+          video_purged_at: string | null
+          video_purged_bytes: number | null
           warning_approval_history: Json
           warning_confirmation_hash: string | null
         }[]
@@ -17688,6 +17708,19 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      marketing_claim_reel_cleanup: {
+        Args: never
+        Returns: {
+          claim_id: string
+          purged_bytes: number
+          upload_id: string
+          video_path: string
+        }[]
+      }
+      marketing_complete_reel_purge: {
+        Args: { _claim: string; _upload: string }
+        Returns: boolean
       }
       marketing_composition_is_draft: {
         Args: { _composition_id: string }
@@ -17826,6 +17859,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["marketing_draft_readiness"]
       }
       marketing_recheck_drafts: { Args: { _ids: string[] }; Returns: number }
+      marketing_reel_purge_eligible: {
+        Args: { _upload: string }
+        Returns: boolean
+      }
       marketing_refresh_clearance: { Args: { _ids: string[] }; Returns: number }
       marketing_reorder_capture_assets: {
         Args: { _asset_ids: string[]; _capture_id: string }

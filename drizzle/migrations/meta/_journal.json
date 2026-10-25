@@ -1310,6 +1310,13 @@
       "when": 1792892788320,
       "tag": "0186_marketing_reel_evidence_delete_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 187,
+      "version": "7",
+      "when": 1792893000868,
+      "tag": "0187_marketing_reel_video_retention",
+      "breakpoints": true
     }
   ]
 }
