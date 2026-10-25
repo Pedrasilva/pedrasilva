@@ -20,7 +20,7 @@ export async function syncInstagramInsights(opts: { graph?: Graph; db?: Db; now?
   const ig = s.instagram_account_id as string;
   const graph = opts.graph ?? instagramGraph(token());
   const day = lisbonDay(opts.now);
-  await syncFollowerActivity({ db, graph, now: opts.now });
+  await syncFollowerActivity({ db, graph, now: opts.now }).catch(() => ({ status: 'unavailable' }));
   const feed = await graph(`${ig}/media?fields=${MEDIA_FIELDS}&limit=50`);
   let stories: any[] = [];
   try { stories = (await graph(`${ig}/stories?fields=${MEDIA_FIELDS}`)).data ?? []; } catch { /* stories optional */ }
@@ -58,7 +58,7 @@ export async function syncInstagramInsights(opts: { graph?: Graph; db?: Db; now?
 /** Runs from the existing 15-minute job; only does work once per ~day. */
 export async function syncInstagramInsightsIfStale() {
   const db = await admin();
-  await syncFollowerActivity({ db });
+  await syncFollowerActivity({ db }).catch(() => ({ status: 'unavailable' }));
   const { data: s } = await db.from("marketing_settings").select("instagram_insights_synced_at").eq("id", true).single();
   if (s?.instagram_insights_synced_at && Date.now() - Date.parse(s.instagram_insights_synced_at) < 23 * 3600_000) return { skipped: true };
   return syncInstagramInsights({ db });
