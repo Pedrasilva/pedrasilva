@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_app/marketing/published/")({
   }),
 });
 
-type Row = { id: string; platform: string; final_copy: string | null; ai_copy: string | null; asset_ids: string[]; published_at: string | null; ig_published_at: string | null; published_url: string | null; ig_media_id: string | null };
+type Row = { id: string; platform: string; final_copy: string | null; ai_copy: string | null; asset_ids: string[]; published_at: string | null; ig_published_at: string | null; published_url: string | null; ig_media_id: string | null; video_purged_at: string | null };
 
 function PublishedPosts() {
   const { t, i18n } = useTranslation("marketing");
@@ -33,7 +33,7 @@ function PublishedPosts() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = supabase as any;
       const { data: rows, error } = await db.from("marketing_post_drafts")
-        .select("id, platform, final_copy, ai_copy, asset_ids, published_at, ig_published_at, published_url, ig_media_id")
+        .select("id, platform, final_copy, ai_copy, asset_ids, published_at, ig_published_at, published_url, ig_media_id, video_purged_at")
         .eq("status", "published").order("published_at", { ascending: false, nullsFirst: false });
       if (error) throw error;
       const list = rows as Row[];
@@ -65,6 +65,7 @@ function PublishedPosts() {
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><PIcon className="h-3.5 w-3.5" />{when ? new Date(when).toLocaleDateString(i18n.language, { timeZone: "Europe/Lisbon" }) : "—"}</p>
               <p className="truncate text-sm">{(r.final_copy ?? r.ai_copy ?? "").split("\n")[0]}</p>
+              {r.video_purged_at && <p className="text-xs text-muted-foreground">{t('reels.videoRemoved')}</p>}
               {Object.keys(m).length > 0 && (
                 <p className="text-xs text-muted-foreground">
                   {["reach", "likes", "comments", "saved"].filter((k) => m[k] != null).map((k) => `${t(`published.metric.${k}`)} ${m[k]}`).join(" · ")}
