@@ -1,8 +1,8 @@
 ## Current request — Translation batch 3 (Quotes + proposal editor)
-- [ ] Translate editor-only controls, indirect labels and locale formatting; preserve document language and Finance work.
-- [ ] Replace abbreviated day durations with natural plurals.
-- [ ] Prune resolved baseline signatures, run i18n tests and document per-file counts/exclusions.
-- [ ] Verify authenticated disposable composer in PT/EN with unchanged document text; bilingual screenshots.
+- [x] Translate editor-only controls, indirect labels and locale formatting; preserve document language and Finance work.
+- [x] Replace abbreviated day durations with natural plurals.
+- [x] Prune 691 resolved occurrences (746 → 55), run 11 i18n and 14 proposal regression tests; report per-file counts and exact document exclusions.
+- [x] Verify authenticated disposable composer in PT/EN with identical document text hash, no runtime errors or live writes; bilingual screenshots in docs/i18n-batch3 and report docs/i18n-batch3-report.md.
 
 ## Current request — Translation batch 2 (Projects components + Planner)
 - [x] Correct PT-PT AO90 and ordinary English remnants in projects/common.
