@@ -1,3 +1,7 @@
+## Current request — best posting times
+- [ ] Verify follower metric availability; daily snapshots and RLS-scoped batched data, no AI.
+- [ ] Shared Lisbon hourly scoring, Calendar tints/drag suggestions and Insights grid; fixture tests and screenshot.
+
 ## Current request — stale Story approval recovery
 - [x] Restore normal direct/request approval for stale unsent drafts; hide publication until valid, preserve failure history and locks. Migration 0182 mirrored.
 - [x] Fixture Story approved in authenticated browser, current render/approval hashes match, active failure cleared and old failure logged; colleague path/hash/counters/send lock verified in rollback test. 21 tests plus EN/PT parity pass. No real Story approval/publication or Finance edits.
