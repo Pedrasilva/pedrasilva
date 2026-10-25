@@ -1,5 +1,6 @@
 import { resolvePostLanguage, languageInstruction, type LanguageProfile } from "./post-language";
 import { cleanEmailBody } from "./clean-email";
+import { marketingAIInput } from './ai-privacy.server';
 /**
  * Marketing Pass 4 — post suggestions (Instagram + LinkedIn).
  * Picks the best cleared captures in code, asks Claude for ideas, then re-checks
@@ -95,12 +96,13 @@ const SCHEMA = {
 export async function callClaude(system: string, content: unknown[], schema: unknown = SCHEMA): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
+  const safe = await marketingAIInput(system,content);
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: POSTS_MODEL, max_tokens: 16000, stream: true, system,
-      messages: [{ role: "user", content }],
+      model: POSTS_MODEL, max_tokens: 16000, stream: true, system:safe.system,
+      messages: [{ role: "user", content:safe.content }],
       output_config: { effort: "medium", format: { type: "json_schema", schema } },
     }),
   });
@@ -379,8 +381,7 @@ export async function runPostRequest(requestId: string) {
       })),
       edit_lessons: editLessons,
     };
-    console.log(`[marketing-posts] request ${requestId}: ${candidates.length} candidates, ${payload.lessons_what_not_to_do.length} lessons`, JSON.stringify(payload.lessons_what_not_to_do));
-    console.log(`[marketing-posts] request ${requestId}: ${editLessons.length} edit lessons`, JSON.stringify(editLessons));
+    console.log(`[marketing-posts] request ${requestId}: ${candidates.length} candidates, ${payload.lessons_what_not_to_do.length} lessons, ${editLessons.length} edit lessons`);
     content.push({ type: "text", text: `<request>\n${JSON.stringify(payload)}\n</request>` });
 
     const system = `You are a social media strategist writing for Pedra Silva Arquitectos, an architecture practice. You turn curated material into draft posts for Instagram and LinkedIn.

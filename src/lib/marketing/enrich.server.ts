@@ -1,4 +1,5 @@
 import { cleanEmailBody } from "./clean-email";
+import { marketingAIInput } from './ai-privacy.server';
 /**
  * Marketing Pass 3 — AI enrichment of captures.
  * Reads a capture against the active Marketing Bible and project profiles and
@@ -106,12 +107,13 @@ ${JSON.stringify(projects)}
 async function callClaude(system: string, content: unknown[]): Promise<Result> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
+  const safe = await marketingAIInput(system,content);
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: ENRICH_MODEL, max_tokens: 8000, stream: true, system,
-      messages: [{ role: "user", content }],
+      model: ENRICH_MODEL, max_tokens: 8000, stream: true, system:safe.system,
+      messages: [{ role: "user", content:safe.content }],
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
     }),
   });

@@ -1,4 +1,7 @@
 export type MarketingProjectOption = { id: string; name: string; client?: string | null; profile_id: string | null; portfolio: boolean };
+export function redactProtectedNames(text: string, names: string[]) {
+  return names.filter(n=>n.trim().length>=2).sort((a,b)=>b.length-a.length).reduce((s,n)=>s.replace(new RegExp(n.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'[confidential project]'),text);
+}
 export function captureProjectPatch(key: string | null, options: MarketingProjectOption[]) {
   const p = options.find(p => p.id === key);
   return { project_id: p?.portfolio ? null : key, profile_id: p?.profile_id ?? null };
