@@ -1,3 +1,9 @@
+## Current request — Translation batch 3 (Quotes + proposal editor)
+- [ ] Translate editor-only controls, indirect labels and locale formatting; preserve document language and Finance work.
+- [ ] Replace abbreviated day durations with natural plurals.
+- [ ] Prune resolved baseline signatures, run i18n tests and document per-file counts/exclusions.
+- [ ] Verify authenticated disposable composer in PT/EN with unchanged document text; bilingual screenshots.
+
 ## Current request — Translation batch 2 (Projects components + Planner)
 - [x] Correct PT-PT AO90 and ordinary English remnants in projects/common.
 - [x] Translate component UI, maps, counts and dates without behavioral or pending Finance changes.
