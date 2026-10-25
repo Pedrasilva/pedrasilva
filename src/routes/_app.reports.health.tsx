@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useFinancialIdentities } from "@/lib/projects/use-financial-identities";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useMemo, useState } from "react";
@@ -97,7 +98,7 @@ function useHealth(start: string, end: string, dept: string, team: string) {
       leaveDays: data.leaveDays,
       holidays: data.holidays,
       targetOf,
-      isBackOffice: (p: RosterPerson) => p.department === "Backoffice",
+      isBackOffice: (p: RosterPerson) => p.department === uiI18n.t("common:backoffice"),
       ratesFor: (e: HealthEntry) => resolver(e as BPEntry),
       costRateAt,
       projectOf: (e: HealthEntry) => stageOf(e)?.project_id ?? null,
@@ -173,8 +174,8 @@ function HealthPage() {
                 <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("hours.filters.all")}</SelectItem>
-                  <SelectItem value="Projecto">Projecto</SelectItem>
-                  <SelectItem value="Backoffice">Backoffice</SelectItem>
+                  <SelectItem value="Projecto"> {uiI18n.t("common:projectTeam")} </SelectItem>
+                  <SelectItem value="Backoffice"> {uiI18n.t("common:backoffice")} </SelectItem>
                 </SelectContent>
               </Select>
             </div>

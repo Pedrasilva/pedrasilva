@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { lovable } from "@/integrations/lovable/index";
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+  useTranslation();
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const { next } = Route.useSearch();
@@ -41,7 +44,7 @@ function LoginPage() {
     });
     if (result.error) {
       setBusy(false);
-      toast.error("Erro ao iniciar sessão");
+      toast.error(uiI18n.t("access:login.failed"));
       return;
     }
     if (result.redirected) return;
@@ -57,16 +60,15 @@ function LoginPage() {
             alt="Pedra Silva Architects"
             className="mx-auto mb-3 h-12 w-auto object-contain"
           />
-          <CardTitle>PSA Recursos Humanos</CardTitle>
-          <CardDescription>Inicie sessão com a sua conta Google da empresa</CardDescription>
+          <CardTitle> {uiI18n.t("access:login.title")} </CardTitle>
+          <CardDescription> {uiI18n.t("access:login.subtitle")} </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button className="w-full" onClick={handleGoogle} disabled={busy}>
-            {busy ? "A redireccionar…" : "Entrar com Google"}
+            {busy ? uiI18n.t("access:login.redirecting") : uiI18n.t("access:login.google")}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            O acesso é concedido se o seu email Google estiver associado a um colaborador.
-          </p>
+             {uiI18n.t("access:login.hint")} </p>
         </CardContent>
       </Card>
     </div>

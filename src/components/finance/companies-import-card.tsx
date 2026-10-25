@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Admin-only Excel import card for canonical `companies` (suppliers/clients).
  *
@@ -95,7 +96,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
       <CardContent className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <div className="grid w-full sm:max-w-sm items-center gap-1.5">
-            <Label htmlFor={`file-${kind}`}>Ficheiro .xlsx</Label>
+            <Label htmlFor={`file-${kind}`}> {uiI18n.t("finance:companyImport.file")} </Label>
             <Input
               id={`file-${kind}`}
               type="file"
@@ -109,8 +110,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
             variant="secondary"
           >
             {previewMut.isPending ? <Loader2 className="size-4 mr-1 animate-spin" /> : <Upload className="size-4 mr-1" />}
-            Pré-visualizar
-          </Button>
+             {uiI18n.t("common:preview")} </Button>
         </div>
 
         {preview && (
@@ -124,7 +124,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
             </div>
 
             <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-              <span className="font-medium">Colunas detetadas:</span>
+              <span className="font-medium"> {uiI18n.t("finance:companyImport.columns")} </span>
               {Object.entries(preview.detectedHeaders).map(([k, v]) => (
                 <span key={k} className="ml-2">
                   {k}: <span className="font-mono">{v ?? "—"}</span>
@@ -137,12 +137,12 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
-                    <TableHead className="w-24">Ação</TableHead>
-                    <TableHead>Nome</TableHead>
+                    <TableHead className="w-24"> {uiI18n.t("common:actions")} </TableHead>
+                    <TableHead> {uiI18n.t("glossary:entity.company")} </TableHead>
                     <TableHead>NIF</TableHead>
-                    <TableHead>Código</TableHead>
-                    <TableHead>Match</TableHead>
-                    <TableHead>Avisos</TableHead>
+                    <TableHead> {uiI18n.t("common:code")} </TableHead>
+                    <TableHead> {uiI18n.t("finance:companyImport.match")} </TableHead>
+                    <TableHead> {uiI18n.t("finance:companyImport.warnings")} </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -194,22 +194,19 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
                     checked={includeConflicts}
                     onCheckedChange={(v) => setIncludeConflicts(v === true)}
                   />
-                  Incluir conflitos no commit (atualiza match existente mesmo com NIF/código divergente)
-                </label>
+                   {uiI18n.t("finance:companyImport.includeConflicts")} </label>
               )}
               <label className="flex items-center gap-2 text-xs">
                 <Checkbox
                   checked={overwriteCodes}
                   onCheckedChange={(v) => setOverwriteCodes(v === true)}
                 />
-                Sobrescrever códigos já existentes com o código importado
-              </label>
+                 {uiI18n.t("finance:companyImport.overwriteCodes")} </label>
             </div>
 
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => { setPreview(null); setFile(null); }}>
-                Cancelar
-              </Button>
+                 {uiI18n.t("common:cancel")} </Button>
               <Button
                 onClick={() => commitMut.mutate()}
                 disabled={commitMut.isPending || (preview.totals.create + preview.totals.update === 0 && !includeConflicts)}
@@ -219,8 +216,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
                 ) : (
                   <CheckCircle2 className="size-4 mr-1" />
                 )}
-                Confirmar importação
-              </Button>
+                 {uiI18n.t("finance:companyImport.confirm")} </Button>
             </div>
           </>
         )}

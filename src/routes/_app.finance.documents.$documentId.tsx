@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Document editor route. Handles both:
  *   /finance/documents/new       (id === "new")
@@ -279,7 +280,7 @@ function DocumentEditorPage() {
         .createSignedUrl(header.file_path, 60);
       if (error || !data) {
         toast.error(
-          error?.message ?? (e instanceof Error ? e.message : "Unable to open attachment"),
+          error?.message ?? (e instanceof Error ? e.message : uiI18n.t("finance:attachments.openFailed")),
         );
         return;
       }

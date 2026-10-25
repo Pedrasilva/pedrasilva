@@ -150,8 +150,8 @@ function ResumoPage() {
     return { collab: c, effective, proposed };
   });
 
-  const projecto = rows.filter((r) => r.collab.departamento === "Projecto");
-  const backoffice = rows.filter((r) => r.collab.departamento === "Backoffice");
+  const projecto = rows.filter((r) => r.collab.departamento === uiI18n.t("common:projectTeam"));
+  const backoffice = rows.filter((r) => r.collab.departamento === uiI18n.t("common:backoffice"));
 
   const totalProjecto = sumVBG(projecto);
   const totalBackoffice = sumVBG(backoffice);

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, FolderOpen } from "lucide-react";
@@ -26,6 +28,7 @@ const statusVariant: Record<string, "default" | "secondary" | "destructive" | "o
 };
 
 export function DriveIntakeCard() {
+  useTranslation();
   const fetchFolder = useServerFn(getDriveIntakeFolder);
 
   const folderQ = useQuery({
@@ -54,13 +57,9 @@ export function DriveIntakeCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FolderOpen className="h-4 w-4" /> Drive folder intake
-        </CardTitle>
+          <FolderOpen className="h-4 w-4" />  {uiI18n.t("finance:driveIntake.title")} </CardTitle>
         <CardDescription>
-          Drop scanned documents (PDF, JPEG, PNG) into the shared “Finance Intake” Drive folder.
-          They are picked up every 5 minutes, queued in the document review queue, and moved to
-          “Processed” (or “Failed” when they could not be read).
-        </CardDescription>
+           {uiI18n.t("finance:driveIntake.hint")} </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {folderId ? (
@@ -70,7 +69,7 @@ export function DriveIntakeCard() {
               target="_blank"
               rel="noreferrer"
             >
-              Open intake folder <ExternalLink className="ml-2 h-3.5 w-3.5" />
+               {uiI18n.t("finance:driveIntake.open")} <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </a>
           </Button>
         ) : folderQ.data && !folderQ.data.ok ? (
@@ -78,7 +77,7 @@ export function DriveIntakeCard() {
         ) : null}
 
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No files picked up yet.</p>
+          <p className="text-sm text-muted-foreground"> {uiI18n.t("finance:driveIntake.empty")} </p>
         ) : (
           <div className="divide-y rounded-md border">
             {rows.map((r) => (

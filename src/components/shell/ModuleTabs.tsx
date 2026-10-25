@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,7 @@ export function ModuleTabs() {
   if (items.length === 0) return null;
 
   return (
-    <nav className="hidden items-center gap-0.5 md:flex" aria-label="Modules">
+    <nav className="hidden items-center gap-0.5 md:flex" aria-label={uiI18n.t("common:navigationUi.modules")}>
       {items.map((it) => {
         const active = isRailItemActive(it, loc.pathname);
         return (

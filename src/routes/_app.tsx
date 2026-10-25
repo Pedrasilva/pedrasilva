@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useWorkingCalendar } from "@/lib/projects/use-working-calendar";
 import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -125,7 +126,7 @@ function AppLayout() {
                     setViewAsCollaboratorId(null);
                   }}
                 >
-                  <span>Modo colaborador · Sair</span>
+                  <span> {uiI18n.t("access:viewAs.exitBanner")} </span>
                 </Button>
               )}
 
@@ -160,8 +161,7 @@ function AppLayout() {
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground font-normal">
-                        Admin
-                      </DropdownMenuLabel>
+                         {uiI18n.t("common:administration")} </DropdownMenuLabel>
                       <div className="px-1 pb-1">
                         <ViewAsPicker variant="mobile" />
                       </div>

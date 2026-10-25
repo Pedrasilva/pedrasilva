@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Fragment, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -512,7 +513,7 @@ export function ResumoComparativoTab({
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button type="button" className="text-muted-foreground hover:text-foreground" aria-label="info">
+                  <button type="button" className="text-muted-foreground hover:text-foreground" aria-label={uiI18n.t("common:information")}>
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>

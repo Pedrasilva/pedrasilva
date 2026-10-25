@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +25,7 @@ export function CollaboratorPhotoUploader({
   fotoPath,
   size = 96,
 }: Props) {
+  useTranslation();
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -37,10 +40,10 @@ export function CollaboratorPhotoUploader({
   const upload = useMutation({
     mutationFn: async (file: File) => {
       if (!ACCEPT.includes(file.type)) {
-        throw new Error("Formato inválido. Usa JPG, PNG ou WEBP.");
+        throw new Error(uiI18n.t("common:collaboratorPhoto.invalidFormat"));
       }
       if (file.size > MAX_BYTES) {
-        throw new Error("Ficheiro demasiado grande (máx. 5 MB).");
+        throw new Error(uiI18n.t("common:collaboratorPhoto.tooLarge"));
       }
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const path = `${collaboratorId}/${Date.now()}.${ext}`;
@@ -63,7 +66,7 @@ export function CollaboratorPhotoUploader({
       return path;
     },
     onSuccess: () => {
-      toast.success("Foto actualizada");
+      toast.success(uiI18n.t("common:collaboratorPhoto.updated"));
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -82,7 +85,7 @@ export function CollaboratorPhotoUploader({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Foto removida");
+      toast.success(uiI18n.t("common:collaboratorPhoto.removed"));
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -128,7 +131,7 @@ export function CollaboratorPhotoUploader({
             disabled={busy}
           >
             <Camera className="h-4 w-4" />
-            {fotoPath ? "Alterar foto" : "Carregar foto"}
+            {fotoPath ? uiI18n.t("common:collaboratorPhoto.change") : uiI18n.t("common:collaboratorPhoto.upload")}
           </Button>
           {fotoPath && (
             <Button
@@ -143,13 +146,11 @@ export function CollaboratorPhotoUploader({
               className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
-              Remover
-            </Button>
+               {uiI18n.t("common:remove")} </Button>
           )}
         </div>
         <p className="text-[11px] text-muted-foreground">
-          JPG, PNG ou WEBP · máx. 5 MB. A foto aparece em todo o sistema (ex.: recursos no Gantt).
-        </p>
+           {uiI18n.t("common:collaboratorPhoto.hint")} </p>
       </div>
     </div>
   );

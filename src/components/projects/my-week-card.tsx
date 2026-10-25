@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * "My week" — the collaborator-facing weekly status strip shown above the
  * existing timesheet grid.
@@ -222,7 +223,7 @@ export function MyWeekCard({
                       setChangeReason("");
                       toast.success(t("timesheetWeek.requestChangeToast"));
                     },
-                    onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+                    onError: (e: unknown) => toast.error((e as Error)?.message ?? uiI18n.t("common:error")),
                   },
                 )
               }

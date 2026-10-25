@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { ReconcileHistory } from "@/components/finance/reconcile-audit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -1405,7 +1406,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
       toast.success(t("finance:bankRec.classified"));
       onSaved();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      toast.error(err instanceof Error ? err.message : uiI18n.t("common:error"));
     } finally {
       setSaving(false);
     }

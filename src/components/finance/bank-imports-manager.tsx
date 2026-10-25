@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Admin-only manager for `bank_statement_imports` of a single bank account.
  *
@@ -273,7 +274,7 @@ function MoveImportDialog({
       } else if (msg.includes("duplicate_rows_on_target")) {
         toast.error(t("finance:bankImports.errorDupRows"));
       } else {
-        toast.error(msg || "Move failed");
+        toast.error(msg || uiI18n.t("finance:bankImports.moveFailed"));
       }
       return;
     }

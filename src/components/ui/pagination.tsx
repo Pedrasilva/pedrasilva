@@ -1,28 +1,30 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import * as React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { ButtonProps, buttonVariants } from "@/components/ui/button";
 
-const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
+const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => { useTranslation(); return ((
   <nav
     role="navigation"
-    aria-label="pagination"
+    aria-label={uiI18n.t("common:navigationUi.pagination")}
     className={cn("mx-auto flex w-full justify-center", className)}
     {...props}
   />
-);
+)); };
 Pagination.displayName = "Pagination";
 
 const PaginationContent = React.forwardRef<HTMLUListElement, React.ComponentProps<"ul">>(
-  ({ className, ...props }, ref) => (
+  ({ className, ...props }, ref) => { useTranslation(); return ((
     <ul ref={ref} className={cn("flex flex-row items-center gap-1", className)} {...props} />
-  ),
+  )); },
 );
 PaginationContent.displayName = "PaginationContent";
 
 const PaginationItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li">>(
-  ({ className, ...props }, ref) => <li ref={ref} className={cn("", className)} {...props} />,
+  ({ className, ...props }, ref) => { useTranslation(); return (<li ref={ref} className={cn("", className)} {...props} />); },
 );
 PaginationItem.displayName = "PaginationItem";
 
@@ -31,7 +33,7 @@ type PaginationLinkProps = {
 } & Pick<ButtonProps, "size"> &
   React.ComponentProps<"a">;
 
-const PaginationLink = ({ className, isActive, size = "icon", ...props }: PaginationLinkProps) => (
+const PaginationLink = ({ className, isActive, size = "icon", ...props }: PaginationLinkProps) => { useTranslation(); return ((
   <a
     aria-current={isActive ? "page" : undefined}
     className={cn(
@@ -43,48 +45,48 @@ const PaginationLink = ({ className, isActive, size = "icon", ...props }: Pagina
     )}
     {...props}
   />
-);
+)); };
 PaginationLink.displayName = "PaginationLink";
 
 const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}: React.ComponentProps<typeof PaginationLink>) => { useTranslation(); return ((
   <PaginationLink
-    aria-label="Go to previous page"
+    aria-label={uiI18n.t("common:previousPage")}
     size="default"
     className={cn("gap-1 pl-2.5", className)}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
+    <span> {uiI18n.t("common:previous")} </span>
   </PaginationLink>
-);
+)); };
 PaginationPrevious.displayName = "PaginationPrevious";
 
-const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
+const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => { useTranslation(); return ((
   <PaginationLink
-    aria-label="Go to next page"
+    aria-label={uiI18n.t("common:nextPage")}
     size="default"
     className={cn("gap-1 pr-2.5", className)}
     {...props}
   >
-    <span>Next</span>
+    <span> {uiI18n.t("common:next")} </span>
     <ChevronRight className="h-4 w-4" />
   </PaginationLink>
-);
+)); };
 PaginationNext.displayName = "PaginationNext";
 
-const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
+const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => { useTranslation(); return ((
   <span
     aria-hidden
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}
   >
     <MoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More pages</span>
+    <span className="sr-only"> {uiI18n.t("common:navigationUi.morePages")} </span>
   </span>
-);
+)); };
 PaginationEllipsis.displayName = "PaginationEllipsis";
 
 export {
