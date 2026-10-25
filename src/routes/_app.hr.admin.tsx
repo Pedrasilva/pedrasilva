@@ -366,7 +366,7 @@ function PermissionsMatrix({
     }
     setViewAsUser(true);
     setViewAsCollaboratorId(u.collaborator_id);
-    toast.success(uiI18n.t("access:batchFive.labels.viewingTheAppAsWithValues"));
+    toast.success(uiI18n.t("access:batchFive.labels.viewingTheAppAsWithValues", { value1: u.collaborator_nome ?? u.email }));
     navigate({ to: "/hr/minha-ficha" });
   };
 
@@ -491,7 +491,7 @@ function PermissionsMatrix({
               {saving
                 ? uiI18n.t("common:saving")
                 : dirtyCount > 0
-                  ? uiI18n.t("access:batchFive.labels.saveWithValues")
+                  ? uiI18n.t("access:batchFive.labels.saveWithValues", { value1: dirtyCount })
                   : uiI18n.t("common:save")}
             </Button>
           </div>
@@ -588,7 +588,7 @@ function PermissionsMatrix({
                                 size="icon"
                                 className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
                                 onClick={() => handleViewAs(u)}
-                                aria-label={uiI18n.t("access:batchFive.labels.viewTheAppAsWithValues")}
+                                aria-label={uiI18n.t("access:batchFive.labels.viewTheAppAsWithValues", { value1: u.collaborator_nome ?? u.email })}
                               >
                                 <Eye className="h-3.5 w-3.5" />
                               </Button>
@@ -700,7 +700,7 @@ function ProfileVisibilityCell({
               checked={checked}
               disabled={disabled}
               onCheckedChange={(v) => toggle(p, !!v)}
-              aria-label={uiI18n.t("access:batchFive.labels.visibleToWithValues")}
+              aria-label={uiI18n.t("access:batchFive.labels.visibleToWithValues", { value1: PROFILE_LABELS[p] })}
             />
             <Badge variant={checked ? "secondary" : "outline"} className="text-[10px]">
               {PROFILE_LABELS[p]}
@@ -983,7 +983,7 @@ function InternalCategoriesAdmin() {
                                   onClick={() => {
                                     if (
                                       confirm(
-                                        uiI18n.t("access:batchFive.labels.permanentlyDeleteThisActionIsIrreversibleAndWithValues"),
+                                        uiI18n.t("access:batchFive.labels.permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical", { value1: row.name }),
                                       )
                                     ) {
                                       remove.mutate(row.id);

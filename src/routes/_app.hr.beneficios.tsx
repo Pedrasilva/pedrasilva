@@ -863,7 +863,7 @@ function ExpenseActions({
                       <div className="flex flex-wrap items-center gap-2">
                         <span>
                           {expense.supplier_name_snapshot ?? "—"}
-                          {expense.supplier_nif ? uiI18n.t("hr:batchFive.labels.taxIdWithValues") : ""}
+                          {expense.supplier_nif ? uiI18n.t("hr:batchFive.labels.taxIdWithValues", { value1: expense.supplier_nif }) : ""}
                         </span>
                         {expense.supplier_company_id ? (
                           <Badge variant="secondary" className="gap-1">
@@ -1322,7 +1322,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
       ? await sb.from("benefit_yearly_credits").update(payload).eq("id", existing.id)
       : await sb.from("benefit_yearly_credits").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success(uiI18n.t("hr:batchFive.labels.creditForSavedWithValues"));
+    toast.success(uiI18n.t("hr:batchFive.labels.creditForSavedWithValues", { value1: ano }));
     qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
   }
 
@@ -1515,8 +1515,8 @@ function CreateSupplierButton({
           const res = await link({ data: { expense_id: expenseId, nif, name } });
           toast.success(
             res.created
-              ? uiI18n.t("hr:batchFive.labels.supplierCreatedWithValues")
-              : uiI18n.t("hr:batchFive.labels.supplierLinkedWithValues"),
+              ? uiI18n.t("hr:batchFive.labels.supplierCreatedWithValues", { value1: res.company_name })
+              : uiI18n.t("hr:batchFive.labels.supplierLinkedWithValues", { value1: res.company_name }),
           );
           onLinked();
         } catch (e) {

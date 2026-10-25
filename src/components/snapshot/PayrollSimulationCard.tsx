@@ -38,12 +38,12 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
           <Heading> {uiI18n.t("hr:snapshot.labels.collaboratorMonthly")} </Heading>
           <Line label={uiI18n.t("hr:snapshot.labels.grossTaxableSalary")} value={brutoTributavelMensal} />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.socialSecurityWithValues")}
+            label={uiI18n.t("hr:snapshot.labels.socialSecurityWithValues", { value1: (draft.ss_colaborador_pct * 100).toFixed(2) })}
             value={-c.ssColaboradorMensal}
             muted
           />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.irsWithholdingWithValues")}
+            label={uiI18n.t("hr:snapshot.labels.irsWithholdingWithValues", { value1: (draft.irs_pct * 100).toFixed(2) })}
             value={-c.irsMensal}
             muted
           />
@@ -62,7 +62,7 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
           <Heading> {uiI18n.t("hr:snapshot.labels.studioCost")} </Heading>
           <Line label={uiI18n.t("hr:snapshot.labels.annualBasePayMonths")} value={c.baseAnual} />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.employerSocialSecurityContributionWithValues")}
+            label={uiI18n.t("hr:snapshot.labels.employerSocialSecurityContributionWithValues", { value1: (draft.ss_atelier_pct * 100).toFixed(2) })}
             value={c.ssAtelierAnual}
           />
           <Line label={uiI18n.t("hr:snapshot.labels.mealAllowanceAnnual")} value={c.alimentacaoAnual} muted />

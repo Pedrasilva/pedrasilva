@@ -57,10 +57,10 @@ function BackupsPage() {
   const runMut = useMutation({
     mutationFn: () => runFn(),
     onSuccess: (r) => {
-      toast.success(uiI18n.t("access:batchFive.labels.backupCreatedTablesRowsWithValues"));
+      toast.success(uiI18n.t("access:batchFive.labels.backupCreatedTablesRowsWithValues", { value1: r.tables, value2: r.rows, value3: formatBytes(r.sizeBytes) }));
       qc.invalidateQueries({ queryKey: ["backup-runs"] });
     },
-    onError: (e: Error) => toast.error(uiI18n.t("access:batchFive.labels.failedWithValues")),
+    onError: (e: Error) => toast.error(uiI18n.t("access:batchFive.labels.failedWithValues", { value1: e.message })),
   });
 
   const cfg = configQ.data;

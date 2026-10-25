@@ -346,7 +346,8 @@
       "saveWithValues": "Save ({{value1}})",
       "viewTheAppAsWithValues": "View the app as {{value1}}",
       "visibleToWithValues": "Visible to {{value1}}",
-      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name."
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name."
     }
   }
 }

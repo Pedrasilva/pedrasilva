@@ -142,7 +142,7 @@ function CostRatesPage() {
                   <td className="text-xs text-muted-foreground">
                     {p.inputs.source === "manual_override"
                       ? t("costRates.manual")
-                      : uiI18n.t("access:batchFive.labels.totalGrossValueBackofficeFteDaysHoursWithValues")}
+                      : uiI18n.t("access:batchFive.labels.totalGrossValueBackofficeFteDaysHoursWithValues", { value1: p.inputs.own_vbg, value2: p.inputs.bo_share, value3: p.inputs.fte, value4: p.inputs.working_days, value5: p.inputs.hours_per_day })}
                   </td>
                 </tr>
               ))}

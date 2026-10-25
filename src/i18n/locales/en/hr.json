@@ -2118,7 +2118,10 @@
       "requestsForWithValues": "Requests for {{value1}}",
       "annualTeamCalendarWithValues": "Annual team calendar · {{value1}}",
       "backofficeTeamTotalCostTotalGrossValueWithValues": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
-      "projectTeamTotalCostTotalGrossValueWithValues": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
+      "projectTeamTotalCostTotalGrossValueWithValues": "Project team total cost — Total Gross Value ({{value1}} collaborators)",
+      "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
+      "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
+      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
     }
   }
 }

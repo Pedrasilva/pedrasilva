@@ -2118,7 +2118,10 @@
       "requestsForWithValues": "Pedidos de {{value1}}",
       "annualTeamCalendarWithValues": "Calendário anual da equipa · {{value1}}",
       "backofficeTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Backoffice — VBG ({{value1}} colab.)",
-      "projectTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Projeto — VBG ({{value1}} colab.)"
+      "projectTeamTotalCostTotalGrossValueWithValues": "Custo total Equipa Projeto — VBG ({{value1}} colab.)",
+      "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destino: pasta partilhada (root folder {{value1}}…) numa Shared Drive da empresa.",
+      "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Backoffice — VBG ({{value1}} colab.)",
+      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Projeto — VBG ({{value1}} colab.)"
     }
   }
 }

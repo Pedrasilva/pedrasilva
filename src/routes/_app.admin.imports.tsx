@@ -1682,7 +1682,7 @@ function RepairOrphanEntriesCard() {
         toast.info(r.message);
       } else {
         toast.success(
-          uiI18n.t("access:batchFive.labels.repairCompleteEntriesBackfilledAllocationsWithValues"),
+          uiI18n.t("access:batchFive.labels.repairCompleteEntriesBackfilledAllocationsWithValues", { value1: r.entries_backfilled, value2: r.allocations_upserted }),
         );
       }
       const keys: Array<readonly unknown[]> = [

@@ -346,7 +346,8 @@
       "saveWithValues": "Guardar ({{value1}})",
       "viewTheAppAsWithValues": "Ver a app como {{value1}}",
       "visibleToWithValues": "Visível para {{value1}}",
-      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome."
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome."
     }
   }
 }
