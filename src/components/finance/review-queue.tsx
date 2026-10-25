@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * D3 — Financial document review queue.
  *
@@ -147,7 +148,7 @@ function normalizeCurrency(cur: string | null): string {
 
 function fmtMoney(v: number | null, cur: string | null) {
   if (v == null) return "—";
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: normalizeCurrency(cur),
   }).format(v);

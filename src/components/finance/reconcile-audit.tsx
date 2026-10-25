@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Reconciliation audit trail (stage D). Written only by database triggers on
  * payments and bank movements; this file only reads it.
@@ -24,8 +25,8 @@ export type AuditRow = {
 };
 
 const eur = (n: number | null | undefined) =>
-  n == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(n));
-const when = (iso: string) => new Date(iso).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" });
+  n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
+const when = (iso: string) => new Date(iso).toLocaleString(uiI18n.language, { dateStyle: "short", timeStyle: "short" });
 
 export async function fetchAudit(p: { q?: string; from?: string; to?: string; tx?: string; doc?: string; limit?: number }): Promise<AuditRow[]> {
   const { data, error } = await supabase.rpc("fin_reconcile_audit_search", {

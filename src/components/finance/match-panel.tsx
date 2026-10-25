@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Reconciliation match panel — the single place to match a bank movement.
  *  1. Suggestions (top 5, ranked in the database) with confidence + reason.
@@ -27,7 +28,7 @@ import {
 import { allocateSplit, dedupeSuggestions, type MatchOrigin } from "@/lib/finance/match-panel";
 
 const fmt = (n: number | null | undefined) =>
-  n == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(n));
+  n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
 
 export type MatchTx = { id: string; transaction_date: string; description: string; amount: number };
 

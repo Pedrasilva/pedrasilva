@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Stage B reconciliation helpers:
  *  - PeriodWindowCard: statement figures vs Hub figures for one statement
@@ -22,7 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
 const fmt = (n: number | null | undefined) =>
-  n == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(n));
+  n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
 
 export type PeriodWindow = {
   period_id: string;

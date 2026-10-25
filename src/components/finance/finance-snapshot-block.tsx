@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const fmtEURHome = (v: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,

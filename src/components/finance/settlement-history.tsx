@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Settlement history — read-only panel listing recent
  * `financial_document_payments` for one direction (supplier payments or
@@ -56,7 +57,7 @@ const METHODS: Array<SettlementFilters["method"]> = [
 ];
 
 const fmt = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency }).format(n);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency }).format(n);
 
 export function SettlementHistory({ direction }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);

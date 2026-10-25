@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Incoming payments (recebimentos): each groups the proofs of one payment,
  * the bank credit line and what it pays. Suggestions only; "Confirmar" is the
@@ -42,7 +43,7 @@ type Proof = {
 type Tx = { id: string; transaction_date: string; amount: number; description: string | null; bank_account_id: string; reconciled_at: string | null };
 
 const fmt = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(v));
+  v == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(v));
 
 function useRecebimentos(filter: { projectId?: string; companyId?: string; onlyConfirmed?: boolean }) {
   return useQuery({

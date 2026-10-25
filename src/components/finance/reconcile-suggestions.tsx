@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Stage C reconciliation UI:
  *  - TxSuggestions: ranked top-5 for one movement (confidence + one-line reason).
@@ -30,7 +31,7 @@ import {
 } from "@/lib/finance/reconcile-suggestions";
 
 const fmt = (n: number | null | undefined) =>
-  n == null ? "—" : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(n));
+  n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
 
 export type SuggestTx = { id: string; transaction_date: string; description: string; amount: number };
 

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Invoice editor — multi-line client invoice / credit note workspace.
  *
@@ -90,7 +91,7 @@ const newLine = (): EditorLine => ({
 });
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);

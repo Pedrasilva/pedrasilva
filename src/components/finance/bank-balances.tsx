@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Banking → Bank balances.
  *
@@ -74,7 +75,7 @@ type Snapshot = {
 const GROUPS: AccountKind[] = ["bank", "credit_card", "benefits", "other"];
 
 const fmtEUR2 = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency,
     minimumFractionDigits: 2,

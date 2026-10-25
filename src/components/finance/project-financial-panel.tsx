@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Simple project financial panel.
  *
@@ -34,7 +35,7 @@ import {
 import { ChevronDown, Info } from "lucide-react";
 
 const fmtEUR = (v: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Possible duplicate suppliers, grouped into clusters (read-only suggestions).
  * Nothing is merged until a person picks which company to keep and confirms with
@@ -20,7 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { PSA_ENTITY_ID } from "@/lib/finance/entity";
 import { listSupplierClusters, type ClusterMember, type SupplierCluster } from "@/lib/finance/supplier-clusters.functions";
 
-const eur = (n: number) => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(n) || 0);
+const eur = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n) || 0);
 const KEY = ["finance", "supplier-clusters"] as const;
 const docsOf = (m: ClusterMember) => Object.values(m.byEntity).reduce((s, e) => s + e.docs, 0);
 

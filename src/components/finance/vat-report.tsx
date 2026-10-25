@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Reports → VAT.
  *
@@ -49,7 +50,7 @@ type Doc = {
 const EXCLUDED_STATUSES = ["cancelled", "draft"];
 
 const fmtEUR = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,

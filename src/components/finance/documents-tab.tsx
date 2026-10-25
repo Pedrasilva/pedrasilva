@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Documents tab for the Finance dashboard.
  *
@@ -37,7 +38,7 @@ import {
 } from "@/lib/finance/use-documents";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);
@@ -47,7 +48,7 @@ function fmtDate(s: string | null | undefined) {
   if (!s) return "—";
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat("pt-PT", {
+  return new Intl.DateTimeFormat(uiI18n.language, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

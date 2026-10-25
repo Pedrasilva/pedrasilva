@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Project Billing tab — read-only project-scoped financial view.
  *
@@ -45,7 +46,7 @@ import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
 const DASH = "—";
 
 const fmtEUR = (v: number | null | undefined) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -56,7 +57,7 @@ const fmtDate = (s: string | null | undefined) => {
   if (!s) return DASH;
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return DASH;
-  return new Intl.DateTimeFormat("pt-PT", {
+  return new Intl.DateTimeFormat(uiI18n.language, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

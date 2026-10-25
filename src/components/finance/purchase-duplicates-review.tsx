@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { listPurchaseDuplicates, resolvePurchaseDuplicate, type DupDoc, type DupGroup } from "@/lib/finance/purchase-duplicates.functions";
 
 const BUCKET = "financial-documents";
-const eur = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "EUR" });
+const eur = (n: number) => n.toLocaleString(uiI18n.language, { style: "currency", currency: "EUR" });
 
 async function openFile(path: string) {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 120);
