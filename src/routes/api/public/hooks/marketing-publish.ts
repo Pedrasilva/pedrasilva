@@ -14,6 +14,8 @@ export const Route=createFileRoute('/api/public/hooks/marketing-publish')({serve
     let insights:unknown=null;try{const {syncInstagramInsightsIfStale}=await import('@/lib/marketing/instagram-insights.server');insights=await syncInstagramInsightsIfStale();}catch{insights={error:'insightsUnavailable'};}
     // ...and live Stories (read-only) at ~20–23 h and before expiry.
     let stories:unknown=null;try{const {syncStoryInsightsIfDue}=await import('@/lib/marketing/instagram-insights.server');stories=await syncStoryInsightsIfDue();}catch{stories={error:'storyInsightsUnavailable'};}
-    return Response.json({...published,comments,insights,stories});}
+    // Independently gated in DB to at most once per day; reuses this job and its private secret.
+    let reelCleanup:unknown=null;try{const {cleanupPublishedReelVideos}=await import('@/lib/marketing/reel-retention.server');reelCleanup=await cleanupPublishedReelVideos();}catch{console.error('marketing.reelCleanup.unavailable');reelCleanup={error:'reelCleanupUnavailable'};}
+    return Response.json({...published,comments,insights,stories,reelCleanup});}
   catch{return Response.json({error:'Publishing job unavailable'},{status:503});}
 }}}});

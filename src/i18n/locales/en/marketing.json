@@ -1,5 +1,7 @@
 {
   "reels": {
+    "videoRemoved": "Video removed after 30 days, original kept offline",
+    "newUploadRequired": "Reusing this reel requires a new upload.",
     "add": "Add finished reel", "format": "Reel", "video": "Video · MP4 / MOV · up to 1 GiB", "projectRequired": "Choose a project (required)",
     "checklist": "Editor checklist: 9:16 · 1080×1920 · text burned in · keep text clear of the bottom 20% and top 14% · H.264/AAC · under 15 minutes.",
     "checking": "Checking the video before upload…", "ratioWarning": "This portrait video is not 9:16. It can be uploaded, but 9:16 is recommended.",

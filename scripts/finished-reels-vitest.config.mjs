@@ -1,1 +1,1 @@
-export default { resolve: { alias: { '@': new URL('../src', import.meta.url).pathname } }, test: { environment:'node', include:['scripts/test-finished-reels.test.ts'] } };
+export default { resolve: { alias: { '@': new URL('../src', import.meta.url).pathname } }, test: { environment:'node', include:['scripts/test-finished-reels.test.ts','scripts/test-reel-retention.test.ts','scripts/test-marketing-calendar.test.ts'] } };

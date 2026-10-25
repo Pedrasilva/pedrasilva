@@ -78,7 +78,7 @@ type Draft = {
   final_copy: string | null; final_hashtags: string[] | null; rationale: string;
   readiness: "ready" | "needs_approval" | "blocked"; readiness_note: string | null; safety_flags: string[];
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
-  published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
+  published_at: string | null; published_url: string | null; video_purged_at?: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
   story_render_manifest?: StoryManifest | null;
   publish_error_message?:string|null; publish_sent_at?:string|null; publish_lock_id?:string|null; ig_media_id?:string|null;
   format?: "single" | "carousel" | "story" | "reel"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
@@ -471,6 +471,7 @@ function IdeaCard({ drafts, assetMap, projectName, pillar, persona, tab, runAt }
         )}
       </div>
       <ClearanceSources draftId={first.id} safetyFlags={first.safety_flags} />
+      {first.video_purged_at && <p className="text-xs text-muted-foreground">{t('reels.videoRemoved')} {t('reels.newUploadRequired')}{first.published_url && <> <a href={first.published_url} target="_blank" rel="noreferrer" className="text-primary underline">{t('published.open')}</a></>}</p>}
       {canCurate && drafts.some(d => canRecheckClearance(d.status)) && (
         <Button size="sm" variant="outline" className="self-start" disabled={rechecking} onClick={recheck} title={t("posts.recheckHint")}>
           <RefreshCw className={`mr-1 h-3.5 w-3.5 ${rechecking ? "animate-spin" : ""}`} /> {t("posts.recheck")}
@@ -604,6 +605,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     toast.success(t("posts.copied"));
   };
   const download = async () => {
+    if (draft.video_purged_at) { toast.info(t('reels.newUploadRequired')); return; }
     const tf = isStory ? frames.find((f) => f.kind === "text") : null;
     if (tf) { const { renderStoryFrame } = await import("@/lib/marketing/story-render"); const b = await renderStoryFrame(tf); const url = URL.createObjectURL(b); const a = document.createElement("a"); a.href=url; a.download="story-1.jpg"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),2000); }
     const originals = draft.format==='reel' ? await resolveDraftImages(supabase,draft.asset_ids,600,{sign:false}) : assets;

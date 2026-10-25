@@ -1,6 +1,7 @@
 # Agent rules
 - Marketing timing computations stay in the Marketing module's shared pure scorer and RLS-scoped data RPC. Why: Calendar and Insights need identical recommendations without accessing unrelated financial records.
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
+- Reel video retention uses Marketing's service-only persistent cleanup claims in the existing private scheduled job; purge evidence is outside approval hashes and media reuse is locked through shared upload advisory locks. Why: storage removal must preserve publication history and never race new drafts.
 - Composer shares planner fees, invalidates on billing edits, and normalizes frozen relative dates at render without writes. Why: totals and labels agree.
 
 - Weekly notes use independent RLS-protected storage and revision-checked saves; week topics are editor-confidential and quote conversion relinks opportunity history in its existing transaction. Why: HR privacy and note autosave must not affect planning or approvals.

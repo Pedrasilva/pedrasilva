@@ -1,5 +1,7 @@
 {
   "reels": {
+    "videoRemoved": "Vídeo removido após 30 dias, original guardado offline",
+    "newUploadRequired": "Reutilizar este reel requer um novo envio.",
     "add": "Adicionar reel finalizado", "format": "Reel", "video": "Vídeo · MP4 / MOV · até 1 GiB", "projectRequired": "Escolha um projeto (obrigatório)",
     "checklist": "Lista para editores: 9:16 · 1080×1920 · texto incorporado · texto fora dos 20% inferiores e dos 14% superiores · H.264/AAC · menos de 15 minutos.",
     "checking": "A verificar o vídeo antes do envio…", "ratioWarning": "Este vídeo vertical não é 9:16. Pode ser enviado, mas recomendamos 9:16.",
