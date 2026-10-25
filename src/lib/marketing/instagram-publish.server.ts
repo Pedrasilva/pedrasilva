@@ -65,6 +65,13 @@ export async function publishInstagramDraft(db: Db, draft: Draft, token: string,
     step='validate_media';
     for(const image of images){ if(!image.url)throw new InstagramError('Private media URL unavailable','validation');try{media.push({url:image.url,video:await inspectMedia(image.url,format,request)});}catch(e){throw new InstagramError(image.file_name+': '+(e instanceof Error?e.message:'Invalid media'),'validation');} }
     if(format==='reel'&&!media[0].video)throw new InstagramError('Reel requires a video file','validation');
+    let coverUrl: string | undefined;
+    if(format==='reel' && draft.reel_cover_path) {
+      const signed=await signPaths(db,[{path:draft.reel_cover_path}],3600);
+      coverUrl=signed.get(draft.reel_cover_path);
+      if(!coverUrl)throw new InstagramError('Reel cover unavailable','validation');
+      try { await inspectMedia(coverUrl,'story',request); } catch { throw new InstagramError('Reel cover must be a valid portrait JPEG','validation'); }
+    }
     await log(true);
     const caption=[draft.final_copy??draft.ai_copy,(draft.final_hashtags??draft.ai_hashtags).map(h=>'#'+h.replace(/^#+/,'')).join(' ')].filter(Boolean).join('\n\n');
     if(caption.length>2200)throw new InstagramError('Caption exceeds 2200 characters','validation');
@@ -91,7 +98,7 @@ export async function publishInstagramDraft(db: Db, draft: Draft, token: string,
       }
       if(!lastId)throw new InstagramError('Story frames missing','validation');
       await checkpoint({media_id:lastId});return;
-    }else id=await make('parent',0,containerBody(format,media[0],caption));
+    }else id=await make('parent',0,containerBody(format,media[0],caption,false,format==='reel'?{coverUrl,shareToFeed:draft.reel_share_to_feed}:undefined));
     await ready(id);
     step='media_publish';await checkpoint({},true);
     const published=await tracked(`${ig}/media_publish`,{creation_id:id});

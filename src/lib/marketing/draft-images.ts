@@ -57,13 +57,15 @@ export async function signPaths(sb: any, items: { path: string; video?: boolean 
 export async function resolveDraftImages(sb: any, ids: string[], ttl = 3600, opts: ResolveOptions = {}): Promise<ResolvedImage[]> {
   const uniq = [...new Set(ids)];
   if (!uniq.length) return [];
-  const [{ data: caps }, { data: lib }] = await Promise.all([
+  const [{ data: caps }, { data: lib }, { data: reels }] = await Promise.all([
     sb.from("marketing_capture_assets").select("id, storage_path, file_name, mime_type").in("id", uniq),
     sb.from("marketing_project_media").select("id, storage_path, file_name, mime_type, kind, caption, credit").in("id", uniq),
+    sb.from("marketing_reel_uploads").select("id,video_path,cover_path,file_name,mime_type").in("id",uniq),
   ]);
   const map = new Map<string, ResolvedImage>();
   for (const a of caps ?? []) map.set(a.id, { ...a, source: "capture", kind: "photo", caption: null, credit: null, url: null });
   for (const m of lib ?? []) map.set(m.id, { ...m, source: "library", url: null });
+  for (const r of reels ?? []) map.set(r.id, { id:r.id, source:'library', storage_path:opts.preview ? r.cover_path : r.video_path, file_name:r.file_name, mime_type:opts.preview ? 'image/jpeg' : r.mime_type, kind:'reel',caption:null,credit:null,url:null });
   const list = ids.map((id) => map.get(id)).filter((x): x is ResolvedImage => !!x);
   if (opts.sign === false || !list.length) return list;
   const urls = await signPaths(sb, list.map((x) => ({ path: x.storage_path, video: x.mime_type?.startsWith("video/") })), ttl, opts.preview);
