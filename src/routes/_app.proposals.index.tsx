@@ -61,7 +61,7 @@ function ProposalsIndex() {
                   <div className="flex-1">
                     <div className="font-medium">{p.title}</div>
                     <div className="text-xs text-zinc-500">
-                       {uiI18n.t("crm:quoteEditor.statusPrefix")} {uiI18n.t(`crm:composer.status.${p.status}`, { defaultValue: p.status })} ·{" "}
+                       {uiI18n.t("crm:quoteEditor.statusPrefix")} {uiI18n.t(`crm:composer.status.${uiI18n.t(`crm:composer.status.${p.status}`, { defaultValue: p.status })}`, { defaultValue: p.status })} ·{" "}
                       {new Date(p.updated_at).toLocaleDateString(uiI18n.language)}
                     </div>
                   </div>

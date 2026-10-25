@@ -758,8 +758,7 @@
       "cascadeToast_one": "Updated {{count}} dependent stage",
       "cascadeToast_other": "Updated {{count}} dependent stages",
       "addPredecessor": "Add predecessor",
-      "noDependencies": "No incoming dependencies",
-      "labelDays": "{{sign}}{{abs}}d"
+      "noDependencies": "No incoming dependencies"
     },
     "readOnly": {
       "badge": "Read-only — admin edits only",
@@ -822,10 +821,11 @@
       "summaryReadOnly": "Parent dates are calculated from their children.",
       "locked": "A locked stage cannot be moved.",
       "lockedAllocation": "A protected resource allocation cannot be resized.",
-      "slack": "{{days}}d extra gap",
       "crossProject": "This cross-project dependency needs review before editing.",
       "lockedSkipped": "{{count}} locked stage(s) kept in place.",
-      "nothingMoved": "Nothing to move: every stage is linked or locked."
+      "nothingMoved": "Nothing to move: every stage is linked or locked.",
+      "slack_one": "{{count}} day extra gap",
+      "slack_other": "{{count}} days extra gap"
     },
     "relative": {
       "week": "Week {{number}}",
@@ -847,7 +847,6 @@
       "approvedRequired": "The proposal must be approved.",
       "previewRequired": "Preview the dates before converting."
     },
-    "leaveDays": "Leave {{days}} d",
     "ui": {
       "emptyPaused": "No paused projects",
       "createHint": "Create a project to get started.",
@@ -860,7 +859,9 @@
       "stages_one": "{{count}} stage",
       "stages_other": "{{count}} stages",
       "deleteConfirm": "Delete project “{{name}}”?"
-    }
+    },
+    "leaveDays_one": "Leave {{count}} day",
+    "leaveDays_other": "Leave {{count}} days"
   },
   "kpi": {
     "businessPerformance": "Business performance",
@@ -1332,7 +1333,8 @@
     "conflicts": {
       "title": "Conflicts with approved leave",
       "subtitle": "People allocated to projects on days they are on leave. Adjust the Gantt or reject the request.",
-      "daysSuffix": "{{count}}d"
+      "daysSuffix_one": "{{count}} day",
+      "daysSuffix_other": "{{count}} days"
     },
     "expenses": {
       "title": "Expenses",
@@ -2884,5 +2886,10 @@
       "committed": "Confirmed",
       "tentative": "Tentative"
     }
-  }
+  },
+  "quotePricing": {
+    "averageSaleRate": "Average sale rate",
+    "averageCostRate": "Average cost rate"
+  },
+  "stageSummaryLabel": "Stage summary"
 }

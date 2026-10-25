@@ -1794,7 +1794,7 @@ export function GanttChart({
                                       title={t("gantt.tooltip.leaveOverlap", { hours: allocLeaveHours })}
                                     >
                                       <CalendarDays className="h-2.5 w-2.5" />
-                                      {t("gantt.leaveDays", { days: Math.round(allocLeaveHours / (resourceDailyHours || 8) * 10) / 10 })}
+                                      {t("gantt.leaveDays", { count: Math.round(allocLeaveHours / (resourceDailyHours || 8) * 10) / 10 })}
                                     </span>
                                   )}
                                 </div>
@@ -1988,11 +1988,11 @@ export function GanttChart({
             const lagText =
               d.lag_days === 0
                 ? ""
-                : ` ${d.lag_days > 0 ? "+" : "−"}${Math.abs(d.lag_days)}d`;
+                : ` ${d.lag_days > 0 ? "+" : "−"}${t("common:duration.days", { count: Math.abs(d.lag_days) })}`;
             const predecessor=stages.find(v=>v.id===d.predecessor_id);
             const successor=stages.find(v=>v.id===d.successor_id);
             const slack=predecessor&&successor ? dependencySlack(predecessor,successor,d,relative ? [] : holidaySet??[]) : 0;
-            const label = `${d.type}${lagText}${slack ? ` · ${t("gantt.schedule.slack",{days:slack})}` : ""}`;
+            const label = `${d.type}${lagText}${slack ? ` · ${t("gantt.schedule.slack",{count:slack})}` : ""}`;
             const labelWidth = 14 + label.length * 6;
             const beginEndpointDrag = (e: React.PointerEvent, which: "from" | "to") => {
               e.stopPropagation();
