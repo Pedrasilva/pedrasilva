@@ -52,7 +52,7 @@ export function FinishedReelDialog() {
   const frame=async()=>{const v=video.current;if(!v||!v.videoWidth)return;try{putCover(await jpegCover(v,v.videoWidth,v.videoHeight));}catch{setError(t('reels.errors.cover'));}};
   const coverFile=async(f:File|undefined)=>{if(!f)return;try{
     const bytes=new Uint8Array(await f.slice(0,3).arrayBuffer());if(bytes[0]!==255||bytes[1]!==216)throw new Error();
-    const bitmap=await createImageBitmap(f);putCover(await jpegCover(bitmap,bitmap.width,bitmap.height));bitmap.close();
+    const bitmap=await createImageBitmap(f);putCover(await jpegCover(bitmap,bitmap.width,bitmap.height));bitmap.close();setError('');
   }catch{setError(t('reels.errors.cover'));}};
   const assist=async()=>{if(!profileId)return;setAi(true);setError('');try{
     let audioBase64:string|undefined;if(audio){const bytes=new Uint8Array(await audio.arrayBuffer());let binary='';for(const b of bytes)binary+=String.fromCharCode(b);audioBase64=btoa(binary);}
@@ -79,7 +79,7 @@ export function FinishedReelDialog() {
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-3">
           <Label>{t('glossary:entity.project')}</Label><Select value={profileId} disabled={busy||!!upload.current} onValueChange={setProfile}><SelectTrigger aria-label={t('glossary:entity.project')}><SelectValue placeholder={t('reels.projectRequired')}/></SelectTrigger><SelectContent>{profiles.data?.map(p=><SelectItem key={p.id} value={p.id}>{p.pm_projects?.name??p.id}</SelectItem>)}</SelectContent></Select>
-          {profile&&<Badge variant="outline">{languageChip(resolvePostLanguage(profile as Parameters<typeof resolvePostLanguage>[0],'instagram'))}</Badge>}
+          {profile&&<div><Badge variant="outline">{languageChip(resolvePostLanguage(profile as Parameters<typeof resolvePostLanguage>[0],'instagram'))}</Badge></div>}
           <Label htmlFor="finished-reel-video">{t('reels.video')}</Label><Input id="finished-reel-video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" disabled={busy||checking} onChange={e=>void pick(e.target.files?.[0])}/>
           {checking&&<p role="status" className="text-xs">{t('reels.checking')}</p>}
           {meta&&<><p className="text-xs text-muted-foreground">{meta.width}×{meta.height} · {meta.duration.toFixed(1)} s · {meta.fps.toFixed(1)} fps · {meta.codec}</p>{reelPortraitWarning(meta)&&<p className="text-xs text-warning">{t('reels.ratioWarning')}</p>}</>}
