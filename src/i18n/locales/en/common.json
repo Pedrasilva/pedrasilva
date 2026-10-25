@@ -657,5 +657,9 @@
   "totalLower": "total",
   "automatic": "Automatic",
   "architecture": "Architecture",
-  "suppliers": "Suppliers"
+  "suppliers": "Suppliers",
+  "inflow": "Inflow",
+  "outflow": "Outflow",
+  "hours": "Hours",
+  "confirm": "Confirm"
 }

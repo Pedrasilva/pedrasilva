@@ -519,7 +519,7 @@ function Toolbar({
                         (lineHeight ?? "normal") === k && "bg-zinc-100 font-medium",
                       )}
                     >
-                      {LINEHEIGHT_LABEL[k]}
+                      {Number(LINEHEIGHT_LABEL[k]).toLocaleString(uiI18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}
                     </DropdownMenuItem>
                   ))}
                 </>

@@ -657,5 +657,9 @@
   "totalLower": "total",
   "automatic": "Automático",
   "architecture": "Arquitetura",
-  "suppliers": "Fornecedores"
+  "suppliers": "Fornecedores",
+  "inflow": "Entrada",
+  "outflow": "Saída",
+  "hours": "Horas",
+  "confirm": "Confirmar"
 }

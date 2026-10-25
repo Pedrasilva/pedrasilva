@@ -209,7 +209,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodySizePrefix")} {bodySize.toFixed(1)}  {uiI18n.t("crm:quoteEditor.pointSuffix")} </Label>
+        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodySizePrefix")} {bodySize.toLocaleString(uiI18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}  {uiI18n.t("crm:quoteEditor.pointSuffix")} </Label>
         <Slider
           min={8}
           max={14}
