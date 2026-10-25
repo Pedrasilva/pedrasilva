@@ -1,3 +1,7 @@
+## Current request — stale Story approval recovery
+- [ ] Restore normal direct/request approval for stale unsent drafts; hide publication until valid, preserve failure history and locks.
+- [ ] Fixture-only browser and database verification; no real Story approval/publication or Finance edits.
+
 ## Current request — live clearance warnings
 - [x] Batched unpublished rechecks and automatic source-change triggers; preserve content hashes, approvals and schedules.
 - [x] Linked source warnings and curator-only append-only AI flag dismissal; original flags preserved.

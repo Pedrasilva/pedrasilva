@@ -22,9 +22,9 @@ export const listPostApprovers = createServerFn({ method: "POST" })
 /** Curator asks a colleague to approve; the database records it, notifies the bell, then we email. */
 export const requestPostApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ draftId: z.string().uuid(), approverId: z.string().uuid(), comment: z.string().max(1000).optional() }).parse(d))
+  .inputValidator((d) => z.object({ draftId: z.string().uuid(), approverId: z.string().uuid(), comment: z.string().max(1000).optional(), reapproval: z.boolean().optional() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: id, error } = await (context as Ctx).supabase.rpc("marketing_request_post_approval", {
+    const { data: id, error } = await (context as Ctx).supabase.rpc(data.reapproval ? "marketing_request_post_reapproval" : "marketing_request_post_approval", {
       _draft: data.draftId, _approver: data.approverId, _comment: data.comment ?? null,
     });
     if (error) throw new Error(error.message);

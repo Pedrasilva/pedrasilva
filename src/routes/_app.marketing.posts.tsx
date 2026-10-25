@@ -1,4 +1,6 @@
 import { canRecheckClearance } from '@/lib/marketing/clearance';
+import { approvalActions } from '@/lib/marketing/approval-state';
+import { useDraftApprovalState } from '@/lib/marketing/use-draft-approval-state';
 import { ClearanceSources } from '@/components/marketing/clearance-sources';
 import { POST_LANGUAGES, languageChip, type PostLanguage, type RunLanguage } from "@/lib/marketing/post-language";
 import { translatePost } from "@/lib/marketing/translate-post.functions";
@@ -77,7 +79,7 @@ type Draft = {
   status: (typeof STATUSES)[number]; decision_note: string | null; decided_at: string | null;
   published_at: string | null; published_url: string | null; created_at: string; edited_after_approval?: boolean; brief_item?: string | null; scheduled_at?: string | null;
   story_render_manifest?: StoryManifest | null;
-  publish_error_message?:string|null; publish_sent_at?:string|null;
+  publish_error_message?:string|null; publish_sent_at?:string|null; publish_lock_id?:string|null; ig_media_id?:string|null;
   format?: "single" | "carousel" | "story"; ai_story_frames?: StoryFrame[] | null; final_story_frames?: StoryFrame[] | null;
 };
 type StickerType = "none" | "poll" | "question" | "link";
@@ -502,6 +504,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const qc = useQueryClient();
   const navigate = useNavigate();
   const isStory = draft.format === "story";
+  const approvalState = useDraftApprovalState(draft.id);
   const savedFrames = draft.final_story_frames ?? draft.ai_story_frames ?? [];
   const [frames, setFrames] = useState<StoryFrame[]>(savedFrames);
   const translateFn = useServerFn(translatePost);
@@ -521,7 +524,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   const [editNote, setEditNote] = useState("");
   const warning = useDraftWarningConfirm(draft.id);
   const { allowed: canCurate } = useCan("marketing.curate", "all");
-  const locked = !canCurate || draft.status === "rejected" || draft.status === "published" || draft.status === "publishing" || !!draft.publish_sent_at;
+  const locked = !canCurate || draft.status === "rejected" || draft.status === "published" || draft.status === "publishing" || !!draft.publish_sent_at || !!draft.publish_lock_id || !!draft.ig_media_id;
   const parsedTags = tags.split(/[\s,]+/).map((s) => s.replace(/^#+/, "")).filter(Boolean);
 
   const update = async (patch: Record<string, unknown>, ok: string) => {
@@ -533,6 +536,8 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
     if (ok) toast.success(ok);
     qc.invalidateQueries({ queryKey: ["marketing-posts"] });
     qc.invalidateQueries({ queryKey: ["marketing-captures"] });
+    qc.invalidateQueries({ queryKey: ["marketing-calendar"] });
+    qc.invalidateQueries({ queryKey: ["marketing-draft-approval-state"] });
     return true;
   };
   const rendered = useQuery({ queryKey: ["marketing-story-render", draft.id, draft.story_render_manifest], enabled: isStory, queryFn: () => getStoryRenderContext({ data: { draftId: draft.id } }) });
@@ -544,6 +549,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
   };
   const framePatch = isStory ? { final_story_frames: frames } : {};
   const changedFromSaved = language !== draft.post_language || (isStory ? JSON.stringify(frames) !== JSON.stringify(savedFrames) : copy !== (draft.final_copy ?? draft.ai_copy)) || parsedTags.join(" ") !== (draft.final_hashtags ?? draft.ai_hashtags).join(" ");
+  const actions = approvalActions(draft.status, approvalState.data?.valid_approval === true, locked, changedFromSaved);
   const saveEdit = async () => {
     const patch: Record<string, unknown> = { post_language: language, final_copy: copy, final_hashtags: parsedTags, ...framePatch };
     if (editNote.trim()) patch.decision_note = editNote.trim().slice(0, 500);
@@ -563,6 +569,10 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
       try { setSaving(true); await prepareStoryRender(draft.id); } catch(e) { toast.error(e instanceof Error ? e.message : t("posts.error")); return false; } finally { setSaving(false); }
     }
     return warning.run(async () => {
+      if (actions.needsReapproval) {
+        const { error } = await supabase.rpc('marketing_prepare_reapproval', { _draft: draft.id });
+        if (error) { toast.error(error.message); return false; }
+      }
       const ok = await update({ status: "approved", ...patch }, "");
       if (ok) toast.success(t("posts.approvedSchedule"), { action: { label: t("posts.openCalendar"), onClick: () => navigate({ to: "/marketing/calendar" }) } });
       return ok;
@@ -663,7 +673,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           {draft.published_url && <a href={draft.published_url} target="_blank" rel="noreferrer" className="text-primary underline">{draft.published_url}</a>}
         </p>
       )}
-      {draft.edited_after_approval && draft.status === "suggested" && (
+      {(actions.needsReapproval || (draft.edited_after_approval && draft.status === "suggested")) && (
         <p className="text-xs text-warning">{t("posts.editedAfterApproval")}</p>
       )}
       {!locked && (edited || changedFromSaved) && (
@@ -671,7 +681,7 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
           placeholder={t("posts.editNote")} aria-label={t("posts.editNote")} />
       )}
       <div className="flex flex-wrap gap-2">
-        {canCurate && draft.status === "suggested" && (
+        {actions.canApprove && approvalState.isSuccess && (
           <>
             <Button size="sm" onClick={approve} disabled={saving || translating}>
               <Check className="mr-1 h-3.5 w-3.5" /> {t("posts.approve")}
@@ -686,17 +696,17 @@ function PlatformDraft({ draft, assets }: { draft: Draft; assets: { storage_path
             <Save className="mr-1 h-3.5 w-3.5" /> {t("posts.saveEdit")}
           </Button>
         )}
-        {draft.status === "approved" && !draft.scheduled_at && (
+        {draft.status === "approved" && !draft.scheduled_at && actions.canPublish && (
           <Button size="sm" variant="secondary" asChild><Link to="/marketing/calendar"><CalendarDays className="mr-1 h-3.5 w-3.5" /> {t("posts.schedule")}</Link></Button>
         )}
-        {canCurate && draft.platform !== "instagram" && draft.status === "approved" && !changedFromSaved && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving || translating}>{t("posts.markPublished")}</Button>}
+        {canCurate && draft.platform !== "instagram" && draft.status === "approved" && actions.canPublish && <Button size="sm" onClick={() => setPubOpen(true)} disabled={saving || translating}>{t("posts.markPublished")}</Button>}
         <Button size="sm" variant="outline" onClick={copyText}><Copy className="mr-1 h-3.5 w-3.5" /> {t("posts.copyText")}</Button>
         {(assets.length > 0 || (isStory && frames.some((f) => f.kind === "text"))) && <Button size="sm" variant="outline" onClick={download}><Download className="mr-1 h-3.5 w-3.5" /> {t("posts.downloadImages")}</Button>}
         <Button size="sm" variant="ghost" onClick={() => setShowOriginal((s) => !s)}>{showOriginal ? t("posts.showEdited") : t("posts.showOriginal")}</Button>
       </div>
       {draft.scheduled_at && <p className="text-xs text-muted-foreground">{t("calendar.scheduledFor", { when: new Date(draft.scheduled_at).toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "medium", timeStyle: "short" }) })}</p>}
       {draft.platform === "instagram" && <InstagramPublishControls draftId={draft.id} status={draft.status} canCurate={canCurate && !changedFromSaved} error={draft.publish_error_message} permalink={draft.published_url} sentAt={draft.publish_sent_at}/>}
-      <PostApprovalControls isStory={isStory} draftId={draft.id} status={draft.status} readiness={draft.readiness} canCurate={canCurate && !changedFromSaved} />
+      <PostApprovalControls isStory={isStory} draftId={draft.id} status={draft.status} readiness={draft.readiness} needsReapproval={approvalState.isSuccess && actions.needsReapproval && !locked} canCurate={!locked && !changedFromSaved} />
       {warning.dialog}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
