@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Banking → Bank balances → account detail.
  *
@@ -62,7 +63,7 @@ export type BankAccountRow = {
 const KINDS: AccountKind[] = ["bank", "credit_card", "benefits", "other"];
 
 const fmt = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency,
     minimumFractionDigits: 2,

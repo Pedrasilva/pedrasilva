@@ -15,7 +15,7 @@ export function TimingLegend({ map }: { map: TimingMap }) {
   const { t } = useTranslation('marketing');
   return <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
     <div className="flex gap-3">{(['best', 'average', 'weak'] as const).map(k => <span key={k} className="flex items-center gap-1"><span className={cn('h-3 w-3 rounded-sm border', `timing-${k}`)} />{t(`bestTimes.${k}`)}</span>)}</div>
-    <span>{map.enoughPosts ? t('bestTimes.basedOn', { count: map.postCount }) : t('bestTimes.notEnough', { count: map.postCount })}{map.hasFollowers ? ` · ${t('bestTimes.followers')}` : ''} · {t('bestTimes.period')}</span>
+    <span>{t(`bestTimes.evidence${map.enoughPosts ? "Enough" : "Sparse"}${map.hasFollowers ? "Followers" : "Posts"}`, { count: map.postCount })}</span>
     {!map.hasFollowers && <span>{t(map.activityStatus === 'unsupported' ? 'bestTimes.unsupported' : 'bestTimes.noActivity')}</span>}
   </div>;
 }

@@ -88,35 +88,43 @@
       "empty": "No pending alerts. Everything looks clean.",
       "benefitsPending": {
         "title": "Benefit expenses awaiting approval",
-        "body": "{{count}} pending reimbursement(s) to review."
+        "body_one": "{{count}} pending reimbursement to review.",
+        "body_other": "{{count}} pending reimbursements to review."
       },
       "benefitsStale": {
         "title": "Stale pending reimbursements",
-        "body": "{{count}} reimbursement(s) pending for more than 14 days."
+        "body_one": "{{count}} reimbursement pending for more than 14 days.",
+        "body_other": "{{count}} reimbursements pending for more than 14 days."
       },
       "vacationPending": {
         "title": "Vacation requests awaiting decision",
-        "body": "{{count}} request(s) awaiting approval."
+        "body_one": "{{count}} request awaiting approval.",
+        "body_other": "{{count}} requests awaiting approval."
       },
       "approvedNoFei": {
         "title": "Approved reimbursements without liability",
-        "body": "{{count}} approved reimbursement(s) missing a finance liability."
+        "body_one": "{{count}} approved reimbursement missing a finance liability.",
+        "body_other": "{{count}} approved reimbursements missing a finance liability."
       },
       "feiPaidHrDrift": {
         "title": "Finance/HR payment drift",
-        "body": "{{count}} paid liability(ies) not reflected on HR side."
+        "body_one": "{{count}} paid liability not reflected in HR.",
+        "body_other": "{{count}} paid liabilities not reflected in HR."
       },
       "syncFailed": {
         "title": "Finance → HR sync failures",
-        "body": "{{count}} settlement event(s) failed to sync back to HR."
+        "body_one": "{{count}} settlement event failed to sync back to HR.",
+        "body_other": "{{count}} settlement events failed to sync back to HR."
       },
       "reimbNoPeriod": {
         "title": "Reimbursements without period",
-        "body": "{{count}} approved reimbursement(s) missing a reference period."
+        "body_one": "{{count}} approved reimbursement missing a reference period.",
+        "body_other": "{{count}} approved reimbursements missing a reference period."
       },
       "missingSalary": {
         "title": "Collaborators without salary snapshot",
-        "body": "{{count}} active collaborator(s) missing salary data."
+        "body_one": "{{count}} active collaborator missing salary data.",
+        "body_other": "{{count}} active collaborators missing salary data."
       },
       "allClear": "Nothing requiring attention right now."
     },
@@ -1232,8 +1240,7 @@
       "willCreateTitle": "New team members to create",
       "willCreateDisabled": "Disabled — toggle “Create missing team members” to include these.",
       "skippedTitle": "Rows that will be skipped",
-      "confirmHint": "Will insert {{insert}} snapshot(s); skip {{skip}} row(s).",
-      "selectedHint": "{{selected}} row(s) selected for import.",
+      "confirmHint": "Snapshots to insert: {{insert}}; rows to skip: {{skip}}.",
       "selectRow": "Include row",
       "cols": {
         "row": "Row",
@@ -1247,7 +1254,9 @@
         "number": "Number",
         "reason": "Reason",
         "warnings": "Warnings"
-      }
+      },
+      "selectedHint_one": "{{selected}} row selected for import.",
+      "selectedHint_other": "{{selected}} rows selected for import."
     },
     "warnings": {
       "missing_email": "Missing email",
@@ -1259,10 +1268,11 @@
     },
     "result": {
       "completedTitle": "Import completed",
-      "summary": "Inserted {{inserted}} snapshot(s); created {{created}} team member(s); skipped {{skipped}} row(s)."
+      "summary": "Snapshots inserted: {{inserted}}; collaborators created: {{created}}; rows skipped: {{skipped}}."
     },
     "toasts": {
-      "completed": "Imported {{inserted}} snapshot(s); {{skipped}} skipped"
+      "completed_one": "Imported {{inserted}} snapshot; {{skipped}} skipped",
+      "completed_other": "Imported {{inserted}} snapshots; {{skipped}} skipped"
     }
   },
   "beneficios": {
@@ -1524,14 +1534,15 @@
       "newest": "Most recent payment",
       "run": "Run backfill ({{count}})",
       "confirmTitle": "Confirm ledger backfill",
-      "confirmBody": "This will create {{count}} synthetic payment-ledger row(s). No bank-transaction links are created. The operation is idempotent.",
       "cancel": "Cancel",
       "confirm": "Confirm",
       "toastDone": "Backfill done — created: {{created}}, skipped: {{skipped}}, failed: {{failed}}",
       "created": "Created",
       "skipped": "Skipped",
       "failed": "Failed",
-      "viewFailures": "View failures"
+      "viewFailures": "View failures",
+      "confirmBody_one": "This will create {{count}} synthetic payment-ledger row. No bank-transaction links are created. The operation is idempotent.",
+      "confirmBody_other": "This will create {{count}} synthetic payment-ledger rows. No bank-transaction links are created. The operation is idempotent."
     },
     "admin2": {
       "balanceSection": "Initial balance (one-off)",
@@ -1573,7 +1584,11 @@
       "confirmBody": "About to upload {{count}} files to Google Drive. Operation is idempotent — safe to rerun.",
       "confirmNote": "Files are copied to the Google account linked to the connector. Nothing is deleted from Supabase or Drive.",
       "confirmRun": "Yes, sync now",
-      "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed"
+      "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed",
+      "sharedDriveWarning": "Warning: files belong to the Google account linked to the connector. For resilience, set <code>{{variable}}</code> to a folder in a company Shared Drive (e.g. <code>{{example}}</code>) shared with the connector account with write access. Files already archived in My Drive stay there; only new syncs go to the Shared Drive.",
+      "rootArchivePath": "Archive: <code>Shared Drive · root folder {{id}}…</code> {{path}}",
+      "sharedArchivePath": "Archive: <code>Shared Drive {{id}}…</code> {{path}}",
+      "personalArchivePath": "Archive: <code>My Drive (connector account)</code> {{path}}"
     },
     "overview": {
       "remaining": "Remaining",
@@ -1786,9 +1801,7 @@
     "approverMissingBlocked": "No approver is configured for you, so the request cannot be submitted.",
     "overrideLabel": "Record directly, without approval",
     "sameDayBlocked": "Same-day requests are not allowed.",
-    "noticeBlocked": "Requests must be made at least {{days}} day(s) in advance.",
     "pastDateBlocked": "You cannot record remote work for a past date.",
-    "lateWarning": "Late request — policy asks for at least {{days}} day(s) notice (from {{date}}).",
     "lateWarningSub": "You can still send it: it goes to your approver by email and stays marked as a late request.",
     "lateReason": "Reason for the late request",
     "lateReasonPlaceholder": "Optional — why could this not be requested earlier?",
@@ -1834,7 +1847,11 @@
     "submitDeclaration": "Record",
     "declared": "Remote work recorded",
     "fullDaysCol": "Full days",
-    "halfDaysCol": "Half days"
+    "halfDaysCol": "Half days",
+    "noticeBlocked_one": "Requests must be made at least {{days}} day in advance.",
+    "noticeBlocked_other": "Requests must be made at least {{days}} days in advance.",
+    "lateWarning_one": "Late request — policy asks for at least {{days}} day notice (from {{date}}).",
+    "lateWarning_other": "Late request — policy asks for at least {{days}} days notice (from {{date}})."
   },
   "availability": {
     "title": "Team availability",
@@ -1910,7 +1927,8 @@
     "year": {
       "title": "Leave days {{year}}",
       "total": "Total",
-      "cellTip": "{{name}} — {{month}}: {{days}} day(s)"
+      "cellTip_one": "{{name}} — {{month}}: {{days}} day",
+      "cellTip_other": "{{name}} — {{month}}: {{days}} days"
     },
     "weekday": {
       "sun": "S",
@@ -2059,9 +2077,6 @@
     "labels": {
       "archive": "Archive:",
       "myDriveConnectorAccount": "My Drive (connector account)",
-      "warningFilesBelongToTheGoogleAccount": "Warning: files belong to the Google account linked to the connector. For resilience, configure",
-      "withAFolderInACompanyShared": "with a folder in a company Shared Drive (e.g.:",
-      "sharedWithTheConnectorAccountWithWrite": "), shared with the connector account with write access. Files already archived in My Drive stay there — only new syncs go to the Shared Drive.",
       "userOauthConnectorServiceAccountsAndDomain": "User OAuth connector. Service accounts and domain-wide delegation remain future improvements.",
       "destinationMyDriveOfTheConnectorAccount": "Destination: My Drive of the connector account. A company Shared Drive is advisable before increasing volumes.",
       "destinationSharedRootFolderInACompany": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
@@ -2103,7 +2118,7 @@
       "areDeductedFromTheAnnualBalance": "are deducted from the annual balance.",
       "selectCollaborator": "Select collaborator…",
       "absenceType": "Absence type",
-      "fullDayS": "Full day(s)",
+      "fullDayS": "Full days",
       "halfDayMorningHours": "Half day — morning (4 hours)",
       "halfDayAfternoonHours": "Half day — afternoon (4 hours)",
       "someHours": "Some hours…",
@@ -2114,9 +2129,7 @@
       "eG": "e.g. 2",
       "enterTheAuthorizedHoursUpToHours": "Enter the authorized hours (up to 8 hours per day).",
       "hours": "Hours:",
-      "workingDayS": "working day(s))",
       "workingDays": "Working days:",
-      "publicHolidaySExcluded": "public holiday(s) excluded)",
       "submitRequest": "Submit request",
       "yourGoogleAccount": "Your Google account (",
       "isNotLinkedToACollaboratorYet": ") is not linked to a collaborator yet. Ask an administrator to set your email in the collaborator profile.",
@@ -2136,8 +2149,6 @@
       "yellowFieldsManualInput": "Yellow fields: manual input.",
       "annualOperatingCostsD": "Annual operating costs (D3)",
       "workingDaysD": "Working days (D13)",
-      "definedIn": "Defined in",
-      "settingsWorkingDays": "Settings → Working days",
       "globalProfitMargin": "Global profit margin (%)",
       "appliesByDefaultToAllProjectTeam": "Applies by default to all Project team collaborators. Can be overridden in an individual sheet.",
       "saveParameters": "Save parameters",
@@ -2168,7 +2179,9 @@
       "projectTeamTotalCostTotalGrossValueWithValues": "Project team total cost — Total Gross Value ({{value1}} collaborators)",
       "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
       "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
-      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
+      "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)",
+      "workingDaysDefinedIn": "Defined in <strong>Settings → Working days</strong>.",
+      "showArchivedCount": "Show archived ({{count}})"
     }
   },
   "leave": {

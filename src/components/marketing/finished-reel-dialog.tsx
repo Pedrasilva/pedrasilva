@@ -26,7 +26,7 @@ import { languageChip, resolvePostLanguage } from '@/lib/marketing/post-language
 import type { VideoMetadata } from '@/lib/marketing/mp4-metadata';
 
 export function FinishedReelDialog() {
-  const { t } = useTranslation('marketing'); const qc=useQueryClient(); const navigate=useNavigate();
+  const { t, i18n } = useTranslation('marketing'); const qc=useQueryClient(); const navigate=useNavigate();
   const finish=useServerFn(finishReelUpload); const suggest=useServerFn(suggestReelCaption);
   const [open,setOpen]=useState(false); const [profileId,setProfile]=useState('');
   const [file,setFile]=useState<File|null>(null); const [meta,setMeta]=useState<VideoMetadata|null>(null);
@@ -81,7 +81,7 @@ export function FinishedReelDialog() {
           {profile&&<div><Badge variant="outline">{languageChip(resolvePostLanguage(profile as Parameters<typeof resolvePostLanguage>[0],'instagram'))}</Badge></div>}
           <Label htmlFor="finished-reel-video">{t('reels.video')}</Label><Input id="finished-reel-video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" disabled={busy||checking} onChange={e=>void pick(e.target.files?.[0])}/>
           {checking&&<p role="status" className="text-xs">{t('reels.checking')}</p>}
-          {meta&&<><p className="text-xs text-muted-foreground">{meta.width}×{meta.height} · {meta.duration.toFixed(1)} s · {meta.fps.toFixed(1)} fps · {meta.codec}</p>{reelPortraitWarning(meta)&&<p className="text-xs text-warning">{t('reels.ratioWarning')}</p>}</>}
+          {meta&&<><p className="text-xs text-muted-foreground">{t("reels.mediaSummary", { width: meta.width, height: meta.height, seconds: meta.duration.toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 }), fps: meta.fps.toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 }), codec: meta.codec })}</p>{reelPortraitWarning(meta)&&<p className="text-xs text-warning">{t('reels.ratioWarning')}</p>}</>}
           {url&&<><video ref={video} src={url} controls preload="auto" className="mx-auto aspect-[9/16] max-h-80 w-auto rounded bg-muted object-contain" onError={()=>setError(t('reels.errors.playback'))} onLoadedData={()=>void frame()} onSeeked={()=>void frame()}/><Label>{t('reels.coverFrame',{seconds:offset.toFixed(1)})}</Label><Slider aria-label={t('reels.scrub')} value={[offset]} min={0} max={Math.max(0,(meta?.duration??0)-0.1)} step={0.1} disabled={busy} onValueChange={v=>{setOffset(v[0]);if(video.current)video.current.currentTime=v[0];}}/></>}
           <Label htmlFor="finished-reel-cover">{t('reels.coverUpload')}</Label><Input id="finished-reel-cover" type="file" accept="image/jpeg,.jpg,.jpeg" disabled={busy} onChange={e=>void coverFile(e.target.files?.[0])}/>
           {coverUrl&&<img src={coverUrl} alt={t('reels.cover')} className="h-28 w-auto rounded"/>}

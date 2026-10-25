@@ -11,14 +11,46 @@
   "reels": {
     "videoRemoved": "Vídeo removido após 30 dias, original guardado offline",
     "newUploadRequired": "Reutilizar este reel requer um novo envio.",
-    "add": "Adicionar reel finalizado", "format": "Reel", "video": "Vídeo · MP4 / MOV · até 1 GiB", "projectRequired": "Escolha um projeto (obrigatório)",
+    "add": "Adicionar reel finalizado",
+    "format": "Reel",
+    "video": "Vídeo · MP4 / MOV · até 1 GiB",
+    "projectRequired": "Escolha um projeto (obrigatório)",
     "checklist": "Lista para editores: 9:16 · 1080×1920 · texto incorporado · texto fora dos 20% inferiores e dos 14% superiores · H.264/AAC · menos de 15 minutos.",
-    "checking": "A verificar o vídeo antes do envio…", "ratioWarning": "Este vídeo vertical não é 9:16. Pode ser enviado, mas recomendamos 9:16.",
-    "cover": "Capa do reel", "coverFrame": "Frame da capa · {{seconds}} s", "scrub": "Escolher frame da capa", "coverUpload": "Ou enviar uma capa JPEG",
-    "caption": "Legenda do reel", "shareToFeed": "Partilhar no feed", "note": "Nota breve para sugerir a legenda", "voice": "Gravar nota para a legenda", "voiceReady": "Nota de voz pronta para transcrição.",
-    "suggest": "Sugerir legenda", "aiBlocked": "A sugestão está bloqueada pelos créditos de IA ou pelo limite de gastos. Pode escrever a legenda manualmente.",
-    "save": "Enviar e adicionar à revisão", "saved": "Reel adicionado à revisão.", "uploading": "A enviar vídeo · {{progress}}%", "verifying": "A verificar o vídeo e a capa enviados…", "pause": "Pausar envio", "resume": "Retomar envio",
-    "errors": { "playback": "Este navegador não reproduz este codec. Use um navegador compatível com H.264/HEVC para escolher um frame, ou envie uma capa JPEG.", "type": "Escolha um vídeo MP4 ou MOV.", "size": "O vídeo não pode ultrapassar 1 GiB.", "codec": "Exporte o vídeo em H.264 ou HEVC.", "duration": "O reel deve durar entre 3 segundos e 15 minutos.", "fps": "Exporte o vídeo a 23–60 fps.", "width": "A largura do vídeo não pode ultrapassar 1920 píxeis.", "bitrate": "Exporte com um débito máximo de 25 Mbps.", "audio": "O áudio deve ser AAC, até 48 kHz, mono ou estéreo.", "landscape": "Não pode enviar vídeo horizontal ou quadrado como reel finalizado. Exporte um vídeo vertical, idealmente 9:16.", "metadata": "Não foi possível ler os metadados. Exporte MP4/MOV com fast start e metadados nos primeiros 32 MiB.", "cover": "Escolha uma capa JPEG legível ou um frame do vídeo." }
+    "checking": "A verificar o vídeo antes do envio…",
+    "ratioWarning": "Este vídeo vertical não é 9:16. Pode ser enviado, mas recomendamos 9:16.",
+    "cover": "Capa do reel",
+    "coverFrame": "Frame da capa · {{seconds}} s",
+    "scrub": "Escolher frame da capa",
+    "coverUpload": "Ou enviar uma capa JPEG",
+    "caption": "Legenda do reel",
+    "shareToFeed": "Partilhar no feed",
+    "note": "Nota breve para sugerir a legenda",
+    "voice": "Gravar nota para a legenda",
+    "voiceReady": "Nota de voz pronta para transcrição.",
+    "suggest": "Sugerir legenda",
+    "aiBlocked": "A sugestão está bloqueada pelos créditos de IA ou pelo limite de gastos. Pode escrever a legenda manualmente.",
+    "save": "Enviar e adicionar à revisão",
+    "saved": "Reel adicionado à revisão.",
+    "uploading": "A enviar vídeo · {{progress}}%",
+    "verifying": "A verificar o vídeo e a capa enviados…",
+    "pause": "Pausar envio",
+    "resume": "Retomar envio",
+    "errors": {
+      "playback": "Este navegador não reproduz este codec. Use um navegador compatível com H.264/HEVC para escolher um frame, ou envie uma capa JPEG.",
+      "type": "Escolha um vídeo MP4 ou MOV.",
+      "size": "O vídeo não pode ultrapassar 1 GiB.",
+      "codec": "Exporte o vídeo em H.264 ou HEVC.",
+      "duration": "O reel deve durar entre 3 segundos e 15 minutos.",
+      "fps": "Exporte o vídeo a 23–60 fps.",
+      "width": "A largura do vídeo não pode ultrapassar 1920 píxeis.",
+      "bitrate": "Exporte com um débito máximo de 25 Mbps.",
+      "audio": "O áudio deve ser AAC, até 48 kHz, mono ou estéreo.",
+      "landscape": "Não pode enviar vídeo horizontal ou quadrado como reel finalizado. Exporte um vídeo vertical, idealmente 9:16.",
+      "metadata": "Não foi possível ler os metadados. Exporte MP4/MOV com fast start e metadados nos primeiros 32 MiB.",
+      "cover": "Escolha uma capa JPEG legível ou um frame do vídeo."
+    },
+    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}",
+    "videoRemovedWithReuseNotice": "Vídeo removido após 30 dias; original guardado offline. Para reutilizar este reel, é necessário carregar um novo vídeo."
   },
   "bestTimes": {
     "title": "Melhor hora para publicar",
@@ -35,7 +67,15 @@
     "unsupported": "A atividade dos seguidores não é suportada nesta conta.",
     "noActivity": "Sem atividade recente dos seguidores disponível.",
     "loadError": "Não foi possível carregar os dados dos horários.",
-    "cell": "{{day}} {{hour}} · pontuação {{score}} · alcance médio {{reach}} · {{count}} posts · interação {{engagement}}"
+    "cell": "{{day}} {{hour}} · pontuação {{score}} · alcance médio {{reach}} · {{count}} posts · interação {{engagement}}",
+    "evidenceEnoughFollowers_one": "Com base em {{count}} publicação recente e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughFollowers_other": "Com base em {{count}} publicações recentes e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughPosts_one": "Com base em {{count}} publicação recente; últimos 90 dias, hora de Lisboa.",
+    "evidenceEnoughPosts_other": "Com base em {{count}} publicações recentes; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparseFollowers_one": "Dados recentes insuficientes: {{count}} publicação recente e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparseFollowers_other": "Dados recentes insuficientes: {{count}} publicações recentes e atividade dos seguidores; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparsePosts_one": "Dados recentes insuficientes: {{count}} publicação recente; últimos 90 dias, hora de Lisboa.",
+    "evidenceSparsePosts_other": "Dados recentes insuficientes: {{count}} publicações recentes; últimos 90 dias, hora de Lisboa."
   },
   "clearanceReview": {
     "capture": "Captura",
@@ -48,7 +88,9 @@
     "reason": "Motivo breve (obrigatório)",
     "dismissed": "Alerta dispensado; avisos de autorização atualizados.",
     "history": "Alertas dispensados",
-    "audit": "{{reason}} · {{who}} · {{when}}"
+    "audit": "{{reason}} · {{who}} · {{when}}",
+    "source": "{{kind}}: {{label}}",
+    "sourceWithStatus": "{{kind}}: {{label}} ({{status}}{{check}})"
   },
   "postLanguage": {
     "title": "Idioma dos posts",
@@ -72,7 +114,7 @@
     "omit": "Publicar sem o sticker",
     "manual": "Vou publicar esta Story manualmente",
     "blocked": "A publicação automática está bloqueada até escolher omitir todos os stickers."
-},
+  },
   "meta": {
     "title": "Ligação Meta",
     "test": "Testar ligação",
@@ -761,7 +803,6 @@
     "cancelConfirm": "Cancelar esta ação?",
     "cancelledToast": "Ação cancelada",
     "uploading": "A carregar {{done}} de {{total}}…",
-    "addFiles": "Carregar {{count}} ficheiro(s)",
     "routingHint": "Com um projeto ligado, as gravações tornam-se um briefing no perfil e as fotografias tornam-se capturas desse projeto. Os restantes ficheiros ficam na ação.",
     "routed": {
       "briefing": "{{file}} tornou-se um briefing",
@@ -770,7 +811,9 @@
     "routedBadge": {
       "briefing": "Briefing",
       "capture": "Captura"
-    }
+    },
+    "addFiles_one": "Carregar {{count}} ficheiro",
+    "addFiles_other": "Carregar {{count}} ficheiros"
   },
   "context": {
     "title": "Contexto",

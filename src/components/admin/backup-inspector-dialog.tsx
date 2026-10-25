@@ -154,7 +154,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
 
             {summaryQ.data.meta.errors && summaryQ.data.meta.errors.length > 0 && (
               <div className="rounded border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900">
-                <strong>{summaryQ.data.meta.errors.length}  {uiI18n.t("access:batchFive.labels.tableSHadAnErrorDuringThe")} </strong>
+                <strong>{uiI18n.t("access:batchFive.labels.backupErrors", { count: summaryQ.data.meta.errors.length })} </strong>
                 <ul className="mt-1 list-inside list-disc">
                   {summaryQ.data.meta.errors.slice(0, 5).map((e) => (
                     <li key={e.table}>
@@ -272,10 +272,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
             {previewQ.data && (
               <>
                 <div className="text-xs text-muted-foreground">
-                  {previewQ.data.matchCount.toLocaleString(uiI18n.language)}  {uiI18n.t("common:of")} {" "}
-                  {previewQ.data.totalRows.toLocaleString(uiI18n.language)}  {uiI18n.t("access:batchFive.labels.rows")} {previewQ.data.matchCount > previewQ.data.returned && (
-                    <>  {uiI18n.t("access:batchFive.labels.first")} {previewQ.data.returned}  {uiI18n.t("access:batchFive.labels.shown")} </>
-                  )}
+                  {uiI18n.t(previewQ.data.matchCount > previewQ.data.returned ? "access:batchFive.labels.previewRowsLimited" : "access:batchFive.labels.previewRows", { matched: previewQ.data.matchCount.toLocaleString(uiI18n.language), total: previewQ.data.totalRows.toLocaleString(uiI18n.language), shown: previewQ.data.returned.toLocaleString(uiI18n.language) })}
                 </div>
                 <div className="max-h-[55vh] overflow-auto rounded border">
                   <table className="w-full text-xs">

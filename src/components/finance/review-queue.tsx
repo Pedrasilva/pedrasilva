@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * D3 — Financial document review queue.
  *
@@ -147,7 +148,7 @@ function normalizeCurrency(cur: string | null): string {
 
 function fmtMoney(v: number | null, cur: string | null) {
   if (v == null) return "—";
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: normalizeCurrency(cur),
   }).format(v);
@@ -865,7 +866,7 @@ export function QueueItemCard({
   // Server-only findings (e.g. supplier tax number, platform issuer) until something changes.
   const blockers = Array.from(new Set([...clientBlockers, ...serverBlockers.filter((b) => ["counterparty_tax", "platform_issuer"].includes(b))]));
   const blockerText = blockers.length
-    ? `${t("finance:confirm.cannotYet")} ${blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · ")}`
+    ? t("finance:confirm.cannotYetWithReasons", { reasons: blockers.map((b) => t(`finance:confirm.blockers.${b}`, { defaultValue: b })).join(" · ") })
     : "";
   const verifyKeys = new Set(
     Object.entries(rx.field_checks ?? {}).filter(([, v]) => v?.status === "verify").map(([k]) => k),

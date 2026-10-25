@@ -14,7 +14,7 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
   const allowed = new Set(allowlist.literals ?? []);
   function add(node, kind, raw) {
     const text = normalize(raw);
-    if (!/\p{L}/u.test(text) || allowed.has(text)) return;
+    if (!/\p{L}/u.test(text) || allowed.has(text) || (allowlist.scopedLiterals ?? []).some(rule => rule.path === file && rule.kind === kind && rule.text === text)) return;
     const { line, character } = tree.getLineAndCharacterOfPosition(node.getStart(tree));
     findings.push({ file, line: line + 1, column: character + 1, kind, text });
   }
@@ -28,7 +28,13 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
     } else if (ts.isConditionalExpression(node)) {
       literals(node.whenTrue, kind); literals(node.whenFalse, kind);
     } else if (ts.isBinaryExpression(node)) {
-      literals(node.left, kind); literals(node.right, kind);
+      // Comparisons are predicates, not rendered text. In logical expressions
+      // only the RHS can be emitted (the LHS is the condition).
+      if (node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+        literals(node.left, kind); literals(node.right, kind);
+      } else if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(node.operatorToken.kind)) {
+        literals(node.right, kind);
+      }
     } else if (ts.isParenthesizedExpression(node)) literals(node.expression, kind);
     // Calls, identifiers and property access are dynamic; t() keys are not UI literals.
   }

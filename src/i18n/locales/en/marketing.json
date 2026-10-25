@@ -11,14 +11,46 @@
   "reels": {
     "videoRemoved": "Video removed after 30 days, original kept offline",
     "newUploadRequired": "Reusing this reel requires a new upload.",
-    "add": "Add finished reel", "format": "Reel", "video": "Video · MP4 / MOV · up to 1 GiB", "projectRequired": "Choose a project (required)",
+    "add": "Add finished reel",
+    "format": "Reel",
+    "video": "Video · MP4 / MOV · up to 1 GiB",
+    "projectRequired": "Choose a project (required)",
     "checklist": "Editor checklist: 9:16 · 1080×1920 · text burned in · keep text clear of the bottom 20% and top 14% · H.264/AAC · under 15 minutes.",
-    "checking": "Checking the video before upload…", "ratioWarning": "This portrait video is not 9:16. It can be uploaded, but 9:16 is recommended.",
-    "cover": "Reel cover", "coverFrame": "Cover frame · {{seconds}} s", "scrub": "Choose cover frame", "coverUpload": "Or upload a JPEG cover",
-    "caption": "Reel caption", "shareToFeed": "Share to feed", "note": "Short note for caption suggestion", "voice": "Record a caption note", "voiceReady": "Voice note ready for transcription.",
-    "suggest": "Suggest caption", "aiBlocked": "Caption assistance is blocked by AI credits or the spending limit. You can still write the caption yourself.",
-    "save": "Upload and add to review", "saved": "Reel added to review.", "uploading": "Uploading video · {{progress}}%", "verifying": "Checking uploaded video and cover…", "pause": "Pause upload", "resume": "Resume upload",
-    "errors": { "playback": "This browser cannot play this codec. Use a browser with H.264/HEVC support to pick a frame, or upload a JPEG cover.", "type": "Choose an MP4 or MOV video.", "size": "The video must be no larger than 1 GiB.", "codec": "Export the video with H.264 or HEVC.", "duration": "The reel must be between 3 seconds and 15 minutes.", "fps": "Export the video at 23–60 fps.", "width": "The video width must be at most 1920 pixels.", "bitrate": "Export at a bitrate of at most 25 Mbps.", "audio": "Audio must be AAC, up to 48 kHz, mono or stereo.", "landscape": "Landscape or square video cannot be uploaded as a finished reel. Export a portrait video, ideally 9:16.", "metadata": "Video metadata could not be read. Export a fast-start MP4/MOV with metadata within the first 32 MiB.", "cover": "Choose a readable JPEG cover or a video frame." }
+    "checking": "Checking the video before upload…",
+    "ratioWarning": "This portrait video is not 9:16. It can be uploaded, but 9:16 is recommended.",
+    "cover": "Reel cover",
+    "coverFrame": "Cover frame · {{seconds}} s",
+    "scrub": "Choose cover frame",
+    "coverUpload": "Or upload a JPEG cover",
+    "caption": "Reel caption",
+    "shareToFeed": "Share to feed",
+    "note": "Short note for caption suggestion",
+    "voice": "Record a caption note",
+    "voiceReady": "Voice note ready for transcription.",
+    "suggest": "Suggest caption",
+    "aiBlocked": "Caption assistance is blocked by AI credits or the spending limit. You can still write the caption yourself.",
+    "save": "Upload and add to review",
+    "saved": "Reel added to review.",
+    "uploading": "Uploading video · {{progress}}%",
+    "verifying": "Checking uploaded video and cover…",
+    "pause": "Pause upload",
+    "resume": "Resume upload",
+    "errors": {
+      "playback": "This browser cannot play this codec. Use a browser with H.264/HEVC support to pick a frame, or upload a JPEG cover.",
+      "type": "Choose an MP4 or MOV video.",
+      "size": "The video must be no larger than 1 GiB.",
+      "codec": "Export the video with H.264 or HEVC.",
+      "duration": "The reel must be between 3 seconds and 15 minutes.",
+      "fps": "Export the video at 23–60 fps.",
+      "width": "The video width must be at most 1920 pixels.",
+      "bitrate": "Export at a bitrate of at most 25 Mbps.",
+      "audio": "Audio must be AAC, up to 48 kHz, mono or stereo.",
+      "landscape": "Landscape or square video cannot be uploaded as a finished reel. Export a portrait video, ideally 9:16.",
+      "metadata": "Video metadata could not be read. Export a fast-start MP4/MOV with metadata within the first 32 MiB.",
+      "cover": "Choose a readable JPEG cover or a video frame."
+    },
+    "mediaSummary": "{{width}}×{{height}} · {{seconds}} s · {{fps}} fps · {{codec}}",
+    "videoRemovedWithReuseNotice": "Video removed after 30 days; original kept offline. Reusing this reel requires a new upload."
   },
   "bestTimes": {
     "title": "Best time to post",
@@ -35,7 +67,15 @@
     "unsupported": "Follower activity is not supported for this account.",
     "noActivity": "No recent follower activity available.",
     "loadError": "Posting-time data could not be loaded.",
-    "cell": "{{day}} {{hour}} · score {{score}} · avg reach {{reach}} · {{count}} posts · engagement {{engagement}}"
+    "cell": "{{day}} {{hour}} · score {{score}} · avg reach {{reach}} · {{count}} posts · engagement {{engagement}}",
+    "evidenceEnoughFollowers_one": "Based on {{count}} recent post and follower activity; last 90 days, Lisbon time.",
+    "evidenceEnoughFollowers_other": "Based on {{count}} recent posts and follower activity; last 90 days, Lisbon time.",
+    "evidenceEnoughPosts_one": "Based on {{count}} recent post; last 90 days, Lisbon time.",
+    "evidenceEnoughPosts_other": "Based on {{count}} recent posts; last 90 days, Lisbon time.",
+    "evidenceSparseFollowers_one": "Insufficient recent data: {{count}} recent post and follower activity; last 90 days, Lisbon time.",
+    "evidenceSparseFollowers_other": "Insufficient recent data: {{count}} recent posts and follower activity; last 90 days, Lisbon time.",
+    "evidenceSparsePosts_one": "Insufficient recent data: {{count}} recent post; last 90 days, Lisbon time.",
+    "evidenceSparsePosts_other": "Insufficient recent data: {{count}} recent posts; last 90 days, Lisbon time."
   },
   "clearanceReview": {
     "capture": "Capture",
@@ -48,7 +88,9 @@
     "reason": "Short reason (required)",
     "dismissed": "Flag dismissed; clearance warnings updated.",
     "history": "Dismissed flags",
-    "audit": "{{reason}} · {{who}} · {{when}}"
+    "audit": "{{reason}} · {{who}} · {{when}}",
+    "source": "{{kind}}: {{label}}",
+    "sourceWithStatus": "{{kind}}: {{label}} ({{status}}{{check}})"
   },
   "postLanguage": {
     "title": "Post language",
@@ -72,7 +114,7 @@
     "omit": "Publish without the sticker",
     "manual": "I’ll post this story manually",
     "blocked": "Automatic publishing is blocked until every sticker is explicitly omitted."
-},
+  },
   "meta": {
     "title": "Meta connection",
     "test": "Test connection",
@@ -761,7 +803,6 @@
     "cancelConfirm": "Cancel this action?",
     "cancelledToast": "Action cancelled",
     "uploading": "Uploading {{done}} of {{total}}…",
-    "addFiles": "Upload {{count}} file(s)",
     "routingHint": "With a linked project, recordings become a briefing on its profile and photos become captures for that project. Other files stay on the action.",
     "routed": {
       "briefing": "{{file}} became a briefing",
@@ -770,7 +811,9 @@
     "routedBadge": {
       "briefing": "Briefing",
       "capture": "Capture"
-    }
+    },
+    "addFiles_one": "Upload {{count}} file",
+    "addFiles_other": "Upload {{count}} files"
   },
   "context": {
     "title": "Context",

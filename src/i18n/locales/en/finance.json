@@ -144,7 +144,8 @@
       "pending": "Pending",
       "rolled_back": "Undone",
       "archived": "Archived"
-    }
+    },
+    "moveFailed": "Move failed"
   },
   "module": {
     "title": "Finance",
@@ -274,10 +275,12 @@
       "unmatchConfirm": "Unmatch this transaction? It will be unlocked and removed from the calculated balance.",
       "delete": "Delete movement",
       "deleteFiltered": "Delete {{count}} shown",
-      "deleteConfirm": "Permanently delete {{count}} bank movement(s)? This cannot be undone.",
       "deleteLocked": "Some movements are reconciled and locked. Unmatch them first, then delete.",
-      "deleted": "{{count}} movement(s) deleted",
-      "unmatched": "Transaction unmatched"
+      "unmatched": "Transaction unmatched",
+      "deleteConfirm_one": "Permanently delete {{count}} bank movement? This cannot be undone.",
+      "deleteConfirm_other": "Permanently delete {{count}} bank movements? This cannot be undone.",
+      "deleted_one": "{{count}} movement deleted",
+      "deleted_other": "{{count}} movements deleted"
     },
     "linkedTo": "Linked to {{ref}}",
     "alreadyLinked": {
@@ -301,7 +304,6 @@
       "minAmount": "Min |amount|",
       "maxAmount": "Max |amount|",
       "clearFilters": "Clear filters",
-      "resultsCount": "{{count}} results",
       "selectTx": "Select a transaction to see details and matching candidates.",
       "valueDate": "Value date",
       "classifications": "Classification splits",
@@ -321,7 +323,9 @@
         "unlinked": "Unlinked only",
         "payment": "Supplier payment",
         "receipt": "Client receipt"
-      }
+      },
+      "resultsCount_one": "{{count}} result",
+      "resultsCount_other": "{{count}} results"
     },
     "ignoreDuplicatePrompt": "Is this a DUPLICATE import line that should not count toward the balance?\n\nOK = duplicate (excluded from balance)\nCancel = real movement (bank fee, etc.) — counts toward the balance",
     "needsReview": {
@@ -358,7 +362,9 @@
     "netActualCashMovement": "Net actual cash movement",
     "simpleForecast": "Simple forecast",
     "simpleForecastSub": "Bank balance + receivables due this month − payables due this month",
-    "qaSeedNotice": "Includes QA seed records (QA-PUR-001, QA-INV-001)."
+    "qaSeedNotice": "Includes QA seed records (QA-PUR-001, QA-INV-001).",
+    "documentsOverdueSummary_one": "{{count}} document · Overdue: {{amount}} ({{overdueCount}})",
+    "documentsOverdueSummary_other": "{{count}} documents · Overdue: {{amount}} ({{overdueCount}})"
   },
   "cashFlow": {
     "title": "Monthly cash flow",
@@ -540,7 +546,6 @@
   },
   "income": {
     "title": "Income",
-    "subtitle": "{{count}} invoice(s)",
     "empty": "No income records match the selected filters.",
     "summary": {
       "total": "Total",
@@ -556,11 +561,12 @@
       "paid": "Paid",
       "amount": "Amount",
       "status": "Status"
-    }
+    },
+    "subtitle_one": "{{count}} invoice",
+    "subtitle_other": "{{count}} invoices"
   },
   "expenses": {
     "title": "Operational expenses",
-    "subtitle": "{{count}} expense(s)",
     "empty": "No expenses match the selected filters.",
     "summary": {
       "total": "Total",
@@ -580,12 +586,15 @@
     },
     "markBenefitPaid": "Mark reimbursement as paid",
     "markBenefitPaidConfirm": "Mark this benefit reimbursement as paid?",
-    "toastPaid": "Reimbursement marked as paid"
+    "toastPaid": "Reimbursement marked as paid",
+    "subtitle_one": "{{count}} expense",
+    "subtitle_other": "{{count}} expenses"
   },
   "materials": {
     "title": "Project materials",
-    "subtitle": "{{count}} material line(s)",
-    "empty": "No materials match the selected filters."
+    "empty": "No materials match the selected filters.",
+    "subtitle_one": "{{count}} material line",
+    "subtitle_other": "{{count}} material lines"
   },
   "home": {
     "noPeriod": "No finance period is set up for this month yet.",
@@ -608,9 +617,7 @@
   },
   "debts": {
     "title": "Debts",
-    "subtitle": "{{count}} debt(s)",
     "empty": "No debts recorded.",
-    "scheduledCount": "{{count}} payment(s)",
     "summary": {
       "original": "Original total",
       "outstanding": "Outstanding total"
@@ -627,7 +634,6 @@
     },
     "payments": {
       "title": "Scheduled debt payments",
-      "subtitle": "{{count}} payment(s)",
       "empty": "No scheduled debt payments yet.",
       "col": {
         "creditor": "Creditor",
@@ -637,12 +643,17 @@
         "planned": "Planned",
         "actual": "Actual",
         "status": "Status"
-      }
-    }
+      },
+      "subtitle_one": "{{count}} payment",
+      "subtitle_other": "{{count}} payments"
+    },
+    "subtitle_one": "{{count}} debt",
+    "subtitle_other": "{{count}} debts",
+    "scheduledCount_one": "{{count}} payment",
+    "scheduledCount_other": "{{count}} payments"
   },
   "importLogs": {
     "title": "Import logs",
-    "subtitle": "{{count}} import(s)",
     "empty": "No imports recorded yet.",
     "col": {
       "importedAt": "Imported at",
@@ -657,7 +668,9 @@
       "rowsDebts": "Debts",
       "rowsBankAccounts": "Bank acc.",
       "notes": "Notes"
-    }
+    },
+    "subtitle_one": "{{count}} import",
+    "subtitle_other": "{{count}} imports"
   },
   "tabsExtra": {
     "documents": "Documents"
@@ -1439,7 +1452,6 @@
     "pending": "Pending review",
     "approved": "Approved",
     "rejected": "Rejected",
-    "itemsCount": "{{count}} item(s)",
     "groupedDocs": "{{count}} linked documents",
     "recurring": "Recurring",
     "reextract": "Re-extract",
@@ -1555,7 +1567,9 @@
       "title": "Supplier already exists",
       "body": "A supplier with NIF {{nif}} already exists: {{name}}. Link it to this company instead of creating a new one? It stays shared and only PSA staff can edit it.",
       "link": "Link supplier"
-    }
+    },
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items"
   },
   "vatReport": {
     "title": "VAT report",
@@ -2364,7 +2378,8 @@
       "bank": "from the bank",
       "manual": "chosen by hand",
       "card_print": "from the receipt"
-    }
+    },
+    "cannotYetWithReasons": "Can't confirm yet: {{reasons}}"
   },
   "paidMissing": {
     "title_one": "{{count}} confirmed document without \"Paid with\" after 30 days",
@@ -2799,5 +2814,52 @@
     "continuityBreak": "Previous closing {{previous}} (difference {{difference}})",
     "review": "Review",
     "confirmOne": "Confirm"
+  },
+  "attachments": {
+    "unavailable": "File not available",
+    "openFailed": "Unable to open attachment"
+  },
+  "companyImport": {
+    "supplierTitle": "Import suppliers (Excel)",
+    "clientTitle": "Import clients (Excel)",
+    "hint": "Preview before saving. Match by tax number → code → name. Existing data is never deleted.",
+    "file": "Excel file (.xlsx)",
+    "columns": "Detected columns",
+    "match": "Match",
+    "warnings": "Warnings",
+    "matchedBy": "(matched by {{method}})",
+    "includeConflicts": "Include conflicts in the import (update the existing match even when the tax number or code differs)",
+    "overwriteCodes": "Replace existing codes with the imported code",
+    "confirm": "Confirm import",
+    "selectFile": "Select an Excel file",
+    "previewFirst": "Preview the file first",
+    "parsed_one": "{{count}} row read",
+    "parsed_other": "{{count}} rows read",
+    "storageWarning": "Storage: {{message}}",
+    "result": "Import complete: {{created}} created · {{updated}} updated · {{skipped}} skipped · {{errors}} errors",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "skip": "Skip",
+      "conflict": "Conflict",
+      "invalid": "Invalid"
+    },
+    "rowsLabel": "Rows: {{count}}",
+    "createLabel": "To create: {{count}}",
+    "updateLabel": "To update: {{count}}",
+    "conflictsLabel": "Conflicts: {{count}}",
+    "invalidLabel": "Invalid rows: {{count}}"
+  },
+  "driveIntake": {
+    "title": "Drive folder intake",
+    "hint": "Place scanned documents (PDF, JPEG, PNG) in the shared “Finance Intake” Drive folder. Every 5 minutes, they enter the document review queue and move to “Processed” (or “Failed” if they cannot be read).",
+    "open": "Open intake folder",
+    "empty": "No files picked up yet.",
+    "processed": "{{date}} · moved to {{folder}}",
+    "status": {
+      "queued": "Queued",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    }
   }
 }

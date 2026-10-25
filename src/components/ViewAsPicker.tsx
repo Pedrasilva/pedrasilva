@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -28,6 +30,7 @@ type CollabRow = { id: string; nome: string; email: string | null; numero_colabo
  * ficha desse colaborador.
  */
 export function ViewAsPicker({ variant = "desktop" }: { variant?: "desktop" | "mobile" }) {
+  useTranslation();
   const navigate = useNavigate();
   const {
     isRealAdmin,
@@ -80,9 +83,9 @@ export function ViewAsPicker({ variant = "desktop" }: { variant?: "desktop" | "m
             {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             {viewAsUser
               ? selected
-                ? `A ver como ${selected.nome}`
-                : "Sair da vista colaborador"
-              : "Ver como colaborador…"}
+                ? uiI18n.t("access:viewAs.selected", { name: selected.nome })
+                : uiI18n.t("access:viewAs.exit")
+              : uiI18n.t("access:viewAs.choose")}
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-[280px] p-0">
@@ -107,13 +110,13 @@ export function ViewAsPicker({ variant = "desktop" }: { variant?: "desktop" | "m
           className="hidden md:inline-flex gap-2"
           title={
             viewAsUser
-              ? "A ver como colaborador. Clique para escolher outro ou sair."
-              : "Pré-visualizar a app como um colaborador"
+              ? uiI18n.t("access:viewAs.activeHint")
+              : uiI18n.t("access:viewAs.previewHint")
           }
         >
           {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           <span className="max-w-[140px] truncate">
-            {viewAsUser ? (selected?.nome ?? "Modo colaborador") : "Ver como…"}
+            {viewAsUser ? (selected?.nome ?? uiI18n.t("access:viewAs.mode")) : uiI18n.t("access:viewAs.short")}
           </span>
           <ChevronsUpDown className="h-3 w-3 opacity-60" />
         </Button>
@@ -144,12 +147,13 @@ function PickerBody({
   onExit: () => void;
   viewAsUser: boolean;
 }) {
+  useTranslation();
   return (
     <Command>
-      <CommandInput placeholder="Procurar colaborador…" />
+      <CommandInput placeholder={uiI18n.t("access:viewAs.search")} />
       <CommandList>
-        <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
-        <CommandGroup heading="Ver a app como…">
+        <CommandEmpty> {uiI18n.t("access:viewAs.empty")} </CommandEmpty>
+        <CommandGroup heading={uiI18n.t("access:viewAs.group")}>
           {collaborators.map((c) => (
             <CommandItem
               key={c.id}
@@ -175,8 +179,7 @@ function PickerBody({
           <CommandGroup>
             <CommandItem onSelect={onExit} className="text-destructive">
               <EyeOff className="mr-2 h-4 w-4" />
-              Sair do modo colaborador
-            </CommandItem>
+               {uiI18n.t("access:viewAs.exit")} </CommandItem>
           </CommandGroup>
         )}
       </CommandList>

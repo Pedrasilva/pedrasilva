@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Settlement workspace — shared UI for supplier payments (outflows) and
  * client receipts (inflows). Both flows operate on the same canonical model:
@@ -70,7 +71,7 @@ type Props = {
 };
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);

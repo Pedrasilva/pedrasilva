@@ -75,6 +75,7 @@ export function AvailabilityYear({
                           : PRE_ADMISSION_BG
                         : absenceBg;
                   const tip = t("availability.year.cellTip", {
+                    count: n,
                     name: p.nome,
                     month: t(`availability.month.${MONTH_KEYS[i]}`),
                     days: n,

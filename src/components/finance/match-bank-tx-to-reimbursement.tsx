@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Bank-side "Match to HR reimbursement" dialog.
  *
@@ -53,7 +54,7 @@ type Props = {
 };
 
 const fmtEUR = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,

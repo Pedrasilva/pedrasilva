@@ -2,7 +2,7 @@ import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { CloudUpload, FolderTree, Loader2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -86,23 +86,24 @@ export function BenefitDriveSyncCard() {
               <FolderTree className="h-3 w-3" />
               {cfgQ.data.mode === "rootFolder" && (
                 <span>
-                   {uiI18n.t("hr:batchFive.labels.archive")} <span className="font-mono">Shared Drive · root folder {cfgQ.data.rootFolderId?.slice(0, 8)}…</span> / HR Benefits / {"{year}"} / {"{colab}"} / …
+                  <Trans i18nKey="hr:beneficios.driveSync.rootArchivePath" values={{ id: cfgQ.data.rootFolderId?.slice(0, 8), path: "/ HR Benefits / {year} / {colab} / …" }} components={{ code: <span className="font-mono" /> }} />
                 </span>
               )}
               {cfgQ.data.mode === "sharedDrive" && (
                 <span>
-                   {uiI18n.t("hr:batchFive.labels.archive")} <span className="font-mono">Shared Drive {cfgQ.data.sharedDriveId?.slice(0, 8)}…</span> / {cfgQ.data.rootName} / HR Benefits / {"{year}"} / …
+                  <Trans i18nKey="hr:beneficios.driveSync.sharedArchivePath" values={{ id: cfgQ.data.sharedDriveId?.slice(0, 8), path: `/ ${cfgQ.data.rootName} / HR Benefits / {year} / …` }} components={{ code: <span className="font-mono" /> }} />
                 </span>
               )}
               {cfgQ.data.mode === "myDrive" && (
                 <span>
-                   {uiI18n.t("hr:batchFive.labels.archive")} <span className="font-mono"> {uiI18n.t("hr:batchFive.labels.myDriveConnectorAccount")} </span> / PSA Hub / HR Benefits / {"{year}"} / …
+                  <Trans i18nKey="hr:beneficios.driveSync.personalArchivePath" values={{ path: "/ PSA Hub / HR Benefits / {year} / …" }} components={{ code: <span className="font-mono" /> }} />
                 </span>
               )}
             </div>
             {cfgQ.data.mode === "myDrive" ? (
               <p className="text-amber-700">
-                 {uiI18n.t("hr:batchFive.labels.warningFilesBelongToTheGoogleAccount")} <span className="font-mono"> GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID</span>  {uiI18n.t("hr:batchFive.labels.withAFolderInACompanyShared")} <span className="font-mono">PSA Hub Archive</span> {uiI18n.t("hr:batchFive.labels.sharedWithTheConnectorAccountWithWrite")} </p>
+                <Trans i18nKey="hr:beneficios.driveSync.sharedDriveWarning" values={{ variable: "GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID", example: "PSA Hub Archive" }} components={{ code: <span className="font-mono" /> }} />
+              </p>
             ) : (
               <p className="text-muted-foreground">
                  {uiI18n.t("hr:batchFive.labels.userOauthConnectorServiceAccountsAndDomain")} </p>

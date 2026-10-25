@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Entrada > Banco: every draft statement period (created automatically when a
  * statement is read) with its checks. Green rows (both AI readings agree, opening
@@ -23,7 +24,7 @@ import { REGISTRY_KEY } from "@/components/finance/bank-statement-editor";
 type Row = PeriodLite & { source_queue_item_id: string | null };
 
 const fmt = (n: number | null | undefined) =>
-  n == null ? "—" : Number(n).toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  n == null ? "—" : Number(n).toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export const PENDING_STATEMENTS_KEY = ["finance", "pending-statements"] as const;
 

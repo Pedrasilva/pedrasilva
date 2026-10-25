@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Finance intake inbox — one place for every incoming document, split by the
  * destination its type routes to. Nothing here is automatic: each tab only
@@ -129,7 +130,7 @@ function tabOf(r: InboxRow): Tab {
 
 function fmt(v: number | null | undefined) {
   if (v == null) return "—";
-  return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(Number(v));
+  return new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(v));
 }
 
 export function IntakeInbox() {

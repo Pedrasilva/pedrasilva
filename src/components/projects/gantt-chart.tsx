@@ -1897,6 +1897,7 @@ export function GanttChart({
                                   <span
                                     dangerouslySetInnerHTML={{
                                       __html: t("gantt.tooltip.overload", {
+                                        count: overload.overDays,
                                         peak: overload.peak,
                                         limit: overload.limit,
                                         days: overload.overDays,

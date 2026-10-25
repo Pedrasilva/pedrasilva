@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -21,7 +22,7 @@ import type { VatMode } from "@/lib/finance/use-cashflow-report";
 const DASH = "—";
 
 const fmt = (v: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
@@ -31,7 +32,7 @@ const fmtDate = (v: string | null) => {
   if (!v) return DASH;
   const d = new Date(v + "T00:00:00Z");
   if (Number.isNaN(d.getTime())) return DASH;
-  return d.toLocaleDateString("pt-PT", { timeZone: "UTC" });
+  return d.toLocaleDateString(uiI18n.language, { timeZone: "UTC" });
 };
 
 const BUCKET_ORDER: AgingBucketKey[] = ["d0_30", "d31_60", "d61_90", "d90p"];

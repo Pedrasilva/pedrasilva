@@ -1,5 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { supabase } from "@/integrations/supabase/client";
 import { oauthNs } from "@/lib/oauth-consent-ns";
 
@@ -9,6 +11,7 @@ import { oauthNs } from "@/lib/oauth-consent-ns";
 
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
+  head: () => ({ meta: [{"title": "Authorize connection | PSA Hub"}, {"name": "description", "content": "PSA Hub \u2014 authorize connection for Pedra Silva Architects."}, {"property": "og:title", "content": "Authorize connection | PSA Hub"}, {"property": "og:description", "content": "PSA Hub \u2014 authorize connection for Pedra Silva Architects."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
@@ -32,18 +35,18 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   component: Consent,
   errorComponent: ({ error }) => (
     <main className="mx-auto max-w-md p-8 text-sm text-foreground">
-      Could not load this authorization request:{" "}
-      {String((error as Error)?.message ?? error)}
+      {uiI18n.t("access:consent.loadFailed", { error: String((error as Error)?.message ?? error) })}
     </main>
   ),
 });
 
 function Consent() {
+  const { t } = useTranslation();
   const details = Route.useLoaderData();
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const clientName = details?.client?.name ?? "an application";
+  const clientName = details?.client?.name ?? t("access:consent.application");
 
   async function decide(approve: boolean) {
     setBusy(true);
@@ -60,7 +63,7 @@ function Consent() {
     const target = data?.redirect_url ?? data?.redirect_to;
     if (!target) {
       setBusy(false);
-      setError("No redirect returned by the authorization server.");
+      setError(t("access:consent.noRedirect"));
       return;
     }
     window.location.href = target;
@@ -68,10 +71,9 @@ function Consent() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 p-8">
-      <h1 className="text-2xl font-semibold">Connect {clientName} to Portal Pedra Silva?</h1>
+      <h1 className="text-2xl font-semibold">{t("access:consent.title", { name: clientName })}</h1>
       <p className="text-sm text-muted-foreground">
-        This will let {clientName} use Portal Pedra Silva tools as you, respecting your
-        permissions. You can revoke access later.
+        {t("access:consent.body", { name: clientName })}
       </p>
       {error && (
         <p role="alert" className="text-sm text-destructive">
@@ -84,14 +86,14 @@ function Consent() {
           onClick={() => decide(true)}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          Approve
+          {t("access:consent.approve")}
         </button>
         <button
           disabled={busy}
           onClick={() => decide(false)}
           className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
-          Deny
+          {t("access:consent.deny")}
         </button>
       </div>
     </main>

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -12,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { parseSaft } from '@/lib/finance/provisional-invoicing';
 import { useIssuedImportPreview, useIssuedRegistration } from '@/lib/finance/use-provisional-invoicing';
 
-const money = (v:number) => new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(v);
+const money = (v:number) => new Intl.NumberFormat(uiI18n.language,{style:'currency',currency:'EUR'}).format(v);
 const taxKey = (v:string|null) => (v??'').replace(/[^A-Z0-9]/gi,'').toUpperCase();
 
 export function SaftImportDialog() {

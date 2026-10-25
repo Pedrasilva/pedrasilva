@@ -267,7 +267,6 @@
     "convertExisting": "Project already exists — opening it",
     "convertCreated": "Project created",
     "convertSummary": "Project created — copied {{stages}} stages, {{dependencies}} dependencies, {{allocations}} allocations, {{external}} external services.",
-    "convertSkipped": "{{count}} allocation(s) skipped (missing stage mapping). See console for details.",
     "backToOpportunity": "Back to opportunity",
     "backToOpportunities": "Back to opportunities",
     "openProject": "Open project",
@@ -375,7 +374,9 @@
       "converted": "Project",
       "lost": "Lost"
     },
-    "exclVAT": "Amount excluding VAT"
+    "exclVAT": "Amount excluding VAT",
+    "convertSkipped_one": "{{count}} allocation skipped (missing stage mapping). See console for details.",
+    "convertSkipped_other": "{{count}} allocations skipped (missing stage mapping). See console for details."
   },
   "stage": {
     "lead": "Lead",
@@ -558,13 +559,13 @@
         "button": "Reflow",
         "running": "Reflowing…",
         "tooltip": "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
-        "done": "Reflowed {{count}} stage(s) to honour dependencies.",
-        "alreadyAligned": "Schedule already satisfies all dependencies."
+        "alreadyAligned": "Schedule already satisfies all dependencies.",
+        "done_one": "Reflowed {{count}} stage to honour dependencies.",
+        "done_other": "Reflowed {{count}} stages to honour dependencies."
       },
       "projectSummary": "Project",
       "projectStart": "Project start",
       "projectStartHint": "Changing this shifts every stage and allocation by the same number of days.",
-      "projectStartShifted": "Schedule shifted by {{days}} day(s).",
       "supplierIsSelf": "This is us (architecture credit, no outflow)",
       "supplierPlaceholderLabel": "Or, if supplier not yet known, describe the role",
       "supplierPlaceholderHint": "e.g. MEP consultant, Structural engineer",
@@ -743,15 +744,19 @@
       "weeks": "Weeks",
       "months": "Months",
       "savedBillAtChildrenParent": "Saved: children of this stage are billed independently.",
-      "savedBillAtParentParent": "Saved: billing is aggregated at this parent stage."
+      "savedBillAtParentParent": "Saved: billing is aggregated at this parent stage.",
+      "projectStartShifted_one": "Schedule shifted by {{days}} day.",
+      "projectStartShifted_other": "Schedule shifted by {{days}} days."
     },
     "warnings": {
       "noStages": "No stages yet — add at least one stage to plan the work.",
       "noTeam": "No team assigned to this quote yet.",
-      "stageWithoutAllocation": "{{count}} stage(s) without any allocation: {{names}}",
       "negativeProfit": "This quote currently has a negative profit. Review fees, costs, or scope.",
       "zeroProfit": "Profit is zero — the quote covers cost but generates no margin.",
-      "externalNoSupplier": "{{count}} external service(s) without a supplier."
+      "stageWithoutAllocation_one": "{{count}} stage without any allocation: {{names}}",
+      "stageWithoutAllocation_other": "{{count}} stages without any allocation: {{names}}",
+      "externalNoSupplier_one": "{{count}} external service without a supplier.",
+      "externalNoSupplier_other": "{{count}} external services without a supplier."
     },
     "external": {
       "title": "External services",
@@ -1093,7 +1098,6 @@
       "supplierPlaceholder": "Pick a company",
       "phases": "Architecture phases to shadow",
       "noArch": "Create architecture stages first.",
-      "phaseCount": "phase(s)",
       "remove": "Remove",
       "deleteConfirm": "Remove this consultant and all its phases?",
       "added": "Consultant added",
@@ -1241,7 +1245,8 @@
       "createDraft": "Create draft contract",
       "creating": "Creating…",
       "openDraft": "Open draft contract",
-      "totalCount": "{{count}} contract(s) for this quote"
+      "totalCount_one": "{{count}} contract for this quote",
+      "totalCount_other": "{{count}} contracts for this quote"
     },
     "toast": {
       "draftCreated": "Draft contract created",
@@ -1522,9 +1527,10 @@
     "appendix.VI": "VI — Consultant Interfaces",
     "insert": "Insert into proposal",
     "inserted": "Inserted {{count}} blocks",
-    "unresolved": "{{count}} placeholder(s) could not be resolved: {{list}}",
     "warning.existingBlocks": "This document already has blocks. New sections will be appended at the end.",
-    "presetLocked": "Only Workplace / Large Corporate Fitout / PSA-led is available in this version."
+    "presetLocked": "Only Workplace / Large Corporate Fitout / PSA-led is available in this version.",
+    "unresolved_one": "{{count}} placeholder could not be resolved: {{list}}",
+    "unresolved_other": "{{count}} placeholders could not be resolved: {{list}}"
   },
   "emailLeads": {
     "title": "New email leads",
@@ -1827,17 +1833,11 @@
     "remainPrefix": "Remain in proposal (",
     "contractComposerPending": "Contract composer in development",
     "convertSoon": "Convert (coming soon)",
-    "blocksImported": "{{value1}} block(s) imported from template.",
     "importFailed": "Could not import template",
     "replaceBlocks": "Replace all blocks with a template library",
     "replaceBlocksHint": "Choose a saved template. Confirming replaces all current proposal blocks with the selected template’s blocks.",
     "noBlockTemplates": "No templates with saved blocks. Use “Save as template” on a proposal to create one.",
-    "blockCountSuffix": "block(s) ·",
     "confirmReplace": "Confirm replacement",
-    "actionWillPrefix": "This action will",
-    "deleteAllBlocks": "delete all blocks",
-    "replaceTemplateSuffix": "in this proposal and replace them with the template blocks",
-    "irreversibleSuffix": ". This operation cannot be undone.",
     "importing": "Importing…",
     "replaceImport": "Replace and import",
     "autosaveRecoveryHint": "Autosave recovery (advanced) — not revision history",
@@ -2048,7 +2048,8 @@
     "pdfLoadFailed": "Could not load PDF",
     "invoiceNumber": "Invoice {{number}}",
     "architectureContract": "Architecture — contract total",
-    "supplierContract": "Suppliers — contract total"
+    "supplierContract": "Suppliers — contract total",
+    "replaceConfirmation": "This action will <strong>delete all blocks</strong> in this proposal and replace them with the blocks from template <strong>“{{name}}”</strong>. This operation cannot be undone."
   },
   "composer": {
     "blocks": {

@@ -138,9 +138,9 @@
       "logHoursHint": "Aparece na folha de horas. Propostas ganhas sem projeto ativo aparecem automaticamente."
     },
     "activity": {
-      "title": "Actividade",
-      "add": "Registar actividade",
-      "empty": "Ainda sem actividade. Registe a primeira interação.",
+      "title": "Atividade",
+      "add": "Registar atividade",
+      "empty": "Ainda sem atividade. Registe a primeira interação.",
       "placeholder": "O que aconteceu? (Cmd/Ctrl+Enter para gravar)",
       "shortcut": "Cmd/Ctrl + Enter para gravar",
       "errorEmpty": "Conteúdo obrigatório",
@@ -240,18 +240,18 @@
   "accounts": {
     "count": "{{count}} contas",
     "newAccount": "Nova conta",
-    "emptyTitle": "Ainda sem contas de facturação",
-    "emptyHint": "As contas representam a entidade a que se factura (uma empresa pode ter várias).",
+    "emptyTitle": "Ainda sem contas de faturação",
+    "emptyHint": "As contas representam a entidade a que se fatura (uma empresa pode ter várias).",
     "tableAccount": "Conta",
     "tableCompany": "Empresa",
-    "tableBilling": "Dados de facturação",
+    "tableBilling": "Dados de faturação",
     "dialog": {
       "title": "Nova conta",
-      "description": "Entidade de facturação ligada a uma empresa. As propostas são aprovadas contra uma conta.",
-      "namePlaceholder": "ex: ACME SA — Facturação Lisboa",
+      "description": "Entidade de faturação ligada a uma empresa. As propostas são aprovadas contra uma conta.",
+      "namePlaceholder": "ex: ACME SA — Faturação Lisboa",
       "companyPlaceholder": "Selecionar ou criar empresa",
-      "billingPlaceholder": "NIF, morada de facturação, IBAN, etc.",
-      "billingDetails": "Dados de facturação",
+      "billingPlaceholder": "NIF, morada de faturação, IBAN, etc.",
+      "billingDetails": "Dados de faturação",
       "createdToast": "Conta criada",
       "errorName": "Nome é obrigatório",
       "errorCompany": "Empresa é obrigatória"
@@ -264,26 +264,25 @@
     "deletedToast": "Proposta apagada",
     "deleteConfirm": "Apagar esta proposta?",
     "convertOnlyApproved": "Só propostas aprovadas podem ser convertidas",
-    "convertExisting": "Projecto já existe — a abrir",
-    "convertCreated": "Projecto criado",
-    "convertSummary": "Projecto criado — copiadas {{stages}} fases, {{dependencies}} dependências, {{allocations}} alocações, {{external}} serviços externos.",
-    "convertSkipped": "{{count}} alocação(ões) ignorada(s) (sem fase correspondente). Ver consola para detalhes.",
+    "convertExisting": "Projeto já existe — a abrir",
+    "convertCreated": "Projeto criado",
+    "convertSummary": "Projeto criado — copiadas {{stages}} fases, {{dependencies}} dependências, {{allocations}} alocações, {{external}} serviços externos.",
     "backToOpportunity": "Voltar à oportunidade",
     "backToOpportunities": "Voltar a oportunidades",
-    "openProject": "Abrir projecto",
+    "openProject": "Abrir projeto",
     "feeDetails": "Detalhes de fee",
-    "convertSection": "Converter em projecto",
-    "convertHint": "Quando a proposta estiver aprovada, pode criar o projecto operacional. O projecto herda empresa, conta, oportunidade e proposta.",
+    "convertSection": "Converter em projeto",
+    "convertHint": "Quando a proposta estiver aprovada, pode criar o projeto operacional. O projeto herda empresa, conta, oportunidade e proposta.",
     "accountValue": "Conta: ",
     "feeValue": "Fee: ",
     "statusValue": "Estado: ",
-    "projectAlreadyCreated": "✓ Projecto já criado",
-    "convertButton": "Converter em projecto",
-    "openProjectButton": "Abrir projecto",
+    "projectAlreadyCreated": "✓ Projeto já criado",
+    "convertButton": "Converter em projeto",
+    "openProjectButton": "Abrir projeto",
     "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
     "convertNoAccountWarning": "Sem conta atribuída",
     "setAccountFirst": " (definir conta primeiro)",
-    "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
+    "convertConfirm": "Criar o projeto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
     "newQuoteDialog": {
       "title": "Nova proposta",
       "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
@@ -291,12 +290,12 @@
       "quoteTypeLabel": "Tipo de proposta",
       "category": {
         "project": {
-          "title": "Proposta de Projecto",
-          "hint": "Projecto de arquitectura padrão com fases, cronograma Gantt, honorários por fase e calculadora de honorários."
+          "title": "Proposta de Projeto",
+          "hint": "Projeto de arquitectura padrão com fases, cronograma Gantt, honorários por fase e calculadora de honorários."
         },
         "time_based": {
           "title": "Proposta Time-based",
-          "hint": "Bloco de horas de consultoria — defina valor/hora, horas por bloco e compromisso mínimo. Facturação mensal sobre horas reais."
+          "hint": "Bloco de horas de consultoria — defina valor/hora, horas por bloco e compromisso mínimo. Faturação mensal sobre horas reais."
         },
         "retainer": {
           "title": "Avença",
@@ -314,8 +313,8 @@
       "send": "Enviar proposta",
       "approve": "Marcar como aprovada",
       "markLost": "Marcar como perdida",
-      "convert": "Converter em projecto",
-      "openProject": "Abrir projecto",
+      "convert": "Converter em projeto",
+      "openProject": "Abrir projeto",
       "lostState": "Perdida",
       "confirm": {
         "send": "Marcar esta proposta como enviada ao cliente?",
@@ -330,7 +329,7 @@
         "rejected": "Proposta marcada como perdida"
       },
       "approvedState": "Aprovada",
-      "convertCta": "Converter em projecto",
+      "convertCta": "Converter em projeto",
       "converting": "A converter…",
       "dialog": {
         "sendTitle": "Enviar proposta",
@@ -344,16 +343,16 @@
         "lostDesc": "Marcar esta proposta como perdida? A oportunidade será movida para Perdido.",
         "lostConfirmCta": "Marcar como perdida",
         "approverLabel": "Contacto que tomou a decisão",
-        "approverPlaceholder": "Seleccionar contacto"
+        "approverPlaceholder": "Selecionar contacto"
       },
       "goToSignature": "Assinar e converter",
       "convertWithoutSignature": "Converter sem assinatura",
-      "convertWithoutSignatureHint": "Excepção de administrador — cria o projecto mesmo sem assinatura registada."
+      "convertWithoutSignatureHint": "Excepção de administrador — cria o projeto mesmo sem assinatura registada."
     },
     "convertDialog": {
-      "title": "Converter em projecto",
-      "description": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
-      "confirm": "Criar projecto"
+      "title": "Converter em projeto",
+      "description": "Criar o projeto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta ação não pode ser desfeita.",
+      "confirm": "Criar projeto"
     },
     "deleteDialog": {
       "title": "Eliminar proposta",
@@ -362,20 +361,22 @@
     },
     "accountField": {
       "suggestedBadge": "Sugerida",
-      "suggestedHint": "Seleccionámos a única conta de facturação deste cliente. Altere ou limpe se esta proposta facturar noutra conta.",
-      "pickHint_one": "Este cliente tem 1 conta de facturação.",
-      "pickHint_other": "Este cliente tem {{count}} contas de facturação — escolha a conta a facturar.",
-      "addAccount": "Adicionar conta de facturação"
+      "suggestedHint": "Selecionámos a única conta de faturação deste cliente. Altere ou limpe se esta proposta faturar noutra conta.",
+      "pickHint_one": "Este cliente tem 1 conta de faturação.",
+      "pickHint_other": "Este cliente tem {{count}} contas de faturação — escolha a conta a faturar.",
+      "addAccount": "Adicionar conta de faturação"
     },
     "lifecycle": {
       "draft": "Rascunho",
       "sent": "Enviada",
       "approved": "Aprovada",
       "signed": "Assinada",
-      "converted": "Projecto",
+      "converted": "Projeto",
       "lost": "Perdida"
     },
-    "exclVAT": "Valor sem IVA"
+    "exclVAT": "Valor sem IVA",
+    "convertSkipped_one": "{{count}} alocação ignorada (sem fase correspondente). Consulte a consola para mais informações.",
+    "convertSkipped_other": "{{count}} alocações ignoradas (sem fase correspondente). Consulte a consola para mais informações."
   },
   "stage": {
     "lead": "Lead",
@@ -460,12 +461,12 @@
       },
       "publish": {
         "title": "3 · Assinar e Converter",
-        "hint": "Registar a assinatura e criar o projecto"
+        "hint": "Registar a assinatura e criar o projeto"
       }
     },
     "publish": {
       "title": "Pré-visualizar e Publicar",
-      "description": "Reveja a proposta e utilize as ações de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projecto operacional.",
+      "description": "Reveja a proposta e utilize as ações de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projeto operacional.",
       "placeholderNote": "A pré-visualização e publicação inline serão adicionadas numa fase posterior. Por enquanto, use o documento de proposta gerado no Passo 2 e as ações do cabeçalho para fazer avançar a proposta.",
       "headerActionsHint": "As ações do cabeçalho (Enviar / Aprovar / Converter) continuam a ser a fonte de verdade para mudanças de estado.",
       "editEstimate": "Editar estimativa",
@@ -490,15 +491,15 @@
         }
       },
       "convert": {
-        "title": "Converter em projecto",
-        "directHint": "A proposta está aprovada. Converta-a num projecto operacional para começar a planear e a alocar recursos.",
-        "directCta": "Converter em projecto",
+        "title": "Converter em projeto",
+        "directHint": "A proposta está aprovada. Converta-a num projeto operacional para começar a planear e a alocar recursos.",
+        "directCta": "Converter em projeto",
         "converting": "A converter…",
-        "alreadyConverted": "Esta proposta já foi convertida num projecto.",
-        "viaContractHint": "Existe um contrato assinado para esta proposta. A criação do projecto deve ser feita a partir do contrato para manter a rastreabilidade.",
+        "alreadyConverted": "Esta proposta já foi convertida num projeto.",
+        "viaContractHint": "Existe um contrato assinado para esta proposta. A criação do projeto deve ser feita a partir do contrato para manter a rastreabilidade.",
         "openContractCta": "Abrir contrato assinado",
-        "directFallbackHint": "Em alternativa, pode criar o projecto directamente a partir desta proposta.",
-        "needsSignatureHint": "Registe a assinatura acima antes de converter esta proposta em projecto."
+        "directFallbackHint": "Em alternativa, pode criar o projeto directamente a partir desta proposta.",
+        "needsSignatureHint": "Registe a assinatura acima antes de converter esta proposta em projeto."
       }
     },
     "tabs": {
@@ -521,7 +522,7 @@
     "timeBased": {
       "savedToast": "Definições baseadas em tempo guardadas",
       "kindPickerTitle": "Modelo de honorários baseado em tempo",
-      "kindPickerHint": "Esta proposta é um projecto standard. Utilize o painel abaixo se também pretender apresentar valores mensais de retainer ou valores horários de consultoria na proposta gerada.",
+      "kindPickerHint": "Esta proposta é um projeto standard. Utilize o painel abaixo se também pretender apresentar valores mensais de retainer ou valores horários de consultoria na proposta gerada.",
       "retainer": {
         "basicsTitle": "Dados do retainer",
         "startDate": "Data de início da obra",
@@ -543,7 +544,7 @@
         "hourlyRate": "Tarifa horária (€)",
         "hoursBlock": "Bloco de horas",
         "minimumPercent": "Compromisso mínimo (%)",
-        "billingModeNote": "Sinal facturado no início; horas restantes facturadas mensalmente conforme as horas reais.",
+        "billingModeNote": "Sinal faturado no início; horas restantes faturadas mensalmente conforme as horas reais.",
         "calculatedTitle": "Calculado",
         "minimumHours": "Horas mínimas",
         "downpayment": "Sinal",
@@ -558,13 +559,13 @@
         "button": "Realinhar",
         "running": "A realinhar…",
         "tooltip": "Avança cada etapa para respeitar todas as dependências FS/SS/FF/SF.",
-        "done": "Realinhadas {{count}} etapa(s) para respeitar as dependências.",
-        "alreadyAligned": "O cronograma já respeita todas as dependências."
+        "alreadyAligned": "O cronograma já respeita todas as dependências.",
+        "done_one": "Realinhada {{count}} fase para respeitar as dependências.",
+        "done_other": "Realinhadas {{count}} fases para respeitar as dependências."
       },
       "projectSummary": "Projeto",
       "projectStart": "Início do projeto",
       "projectStartHint": "Alterar esta data desloca todas as fases e alocações pelo mesmo número de dias.",
-      "projectStartShifted": "Cronograma deslocado em {{days}} dia(s).",
       "supplierIsSelf": "Somos nós (honorário de arquitetura, sem saída)",
       "supplierPlaceholderLabel": "Ou, se o fornecedor ainda não é conhecido, descreva o papel",
       "supplierPlaceholderHint": "ex. Consultor MEP, Engenheiro de estruturas",
@@ -743,15 +744,19 @@
       "weeks": "Semanas",
       "months": "Meses",
       "savedBillAtChildrenParent": "Guardado: as subetapas desta etapa são faturadas de forma independente.",
-      "savedBillAtParentParent": "Guardado: a faturação é agregada nesta etapa pai."
+      "savedBillAtParentParent": "Guardado: a faturação é agregada nesta etapa pai.",
+      "projectStartShifted_one": "Cronograma deslocado em {{days}} dia.",
+      "projectStartShifted_other": "Cronograma deslocado em {{days}} dias."
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
       "noTeam": "Ainda não há equipa atribuída a esta proposta.",
-      "stageWithoutAllocation": "{{count}} fase(s) sem alocação: {{names}}",
       "negativeProfit": "Esta proposta tem atualmente lucro negativo. Reveja honorários, custos ou âmbito.",
       "zeroProfit": "Lucro zero — a proposta cobre o custo mas não gera margem.",
-      "externalNoSupplier": "{{count}} serviço(s) externo(s) sem fornecedor."
+      "stageWithoutAllocation_one": "{{count}} fase sem alocação: {{names}}",
+      "stageWithoutAllocation_other": "{{count}} fases sem alocação: {{names}}",
+      "externalNoSupplier_one": "{{count}} serviço externo sem fornecedor.",
+      "externalNoSupplier_other": "{{count}} serviços externos sem fornecedor."
     },
     "external": {
       "title": "Serviços externos",
@@ -782,11 +787,11 @@
       "addTitle": "Adicionar serviço externo"
     },
     "payment": {
-      "title": "Plano de facturação ao cliente",
+      "title": "Plano de faturação ao cliente",
       "label": "Etiqueta",
       "trigger": "Gatilho",
       "amount": "Montante",
-      "invoiceDate": "Data de factura",
+      "invoiceDate": "Data de fatura",
       "paymentDate": "Data de pagamento",
       "amountType": "Tipo de montante",
       "empty": "Ainda sem pagamentos planeados.",
@@ -809,9 +814,9 @@
       "generatorEmpty": "Sem fases para gerar",
       "generatorApplied": "Plano gerado",
       "generatorAppliedKeep": "Plano gerado — mantidos {{count}} registos manuais",
-      "synced": "Plano de facturação atualizado a partir do Gantt",
+      "synced": "Plano de faturação atualizado a partir do Gantt",
       "headerUpdate": "Atualizar plano",
-      "headerUpdateHint": "Regenerar o plano de facturação a partir do Gantt atual. As linhas manuais são preservadas.",
+      "headerUpdateHint": "Regenerar o plano de faturação a partir do Gantt atual. As linhas manuais são preservadas.",
       "syncFromGantt": "Atualizar a partir do Gantt",
       "syncFromGanttHint": "Puxar fornecedores em falta do Gantt de planeamento para o plano",
       "manualBadge": "manual",
@@ -846,7 +851,7 @@
       "totalCost": "Custo total",
       "totalFee": "Fee total",
       "totalProfit": "Lucro total",
-      "effectiveMargin": "Margem efectiva",
+      "effectiveMargin": "Margem efetiva",
       "pricingMultiplier": "Multiplicador de preço",
       "pricingMultiplierHint": "Aplicado apenas ao valor de venda. O custo mantém-se nas rates do snapshot.",
       "markupOnCost": "Markup sobre o custo",
@@ -875,10 +880,10 @@
       "editMode": "Editar",
       "previewMode": "Pré-visualizar",
       "modeToggleLabel": "Modo de visualização do documento",
-      "descriptionTitle": "Descrição do projecto",
+      "descriptionTitle": "Descrição do projeto",
       "stagesTitle": "Fases",
       "scopeTitle": "Âmbito do trabalho",
-      "teamTitle": "Equipa do projecto",
+      "teamTitle": "Equipa do projeto",
       "externalTitle": "Serviços externos",
       "includedServicesTitle": "Serviços incluídos",
       "totalFee": "Honorários totais",
@@ -895,7 +900,7 @@
       "acceptanceDate": "Data",
       "acceptanceOnBehalf": "Aceite em nome de",
       "attachments": {
-        "noProgramme": "Programa a confirmar após validação das fases do projecto.",
+        "noProgramme": "Programa a confirmar após validação das fases do projeto.",
         "phaseCol": "Fase",
         "startCol": "Início",
         "endCol": "Fim",
@@ -905,10 +910,10 @@
         "programmeFootnote": "Programa de trabalho — durações sujeitas a aprovações do cliente e disponibilidade de informação.",
         "rolesHoursTitle": "Horas estimadas por função",
         "phaseFeesTitle": "Honorários por fase",
-        "designStageTitle": "Calendário de pagamentos — Fases de Projecto",
+        "designStageTitle": "Calendário de pagamentos — Fases de Projeto",
         "constructionStageTitle": "Calendário de pagamentos — Fase de Obra (retainer mensal)",
         "externalServicesTitle": "Serviços externos",
-        "externalServicesNote": "Os serviços externos podem ser facturados em conjunto com os honorários de arquitectura ou em separado, conforme o modo de facturação do orçamento.",
+        "externalServicesNote": "Os serviços externos podem ser faturados em conjunto com os honorários de arquitectura ou em separado, conforme o modo de faturação do orçamento.",
         "roleCol": "Função",
         "hoursCol": "Horas estimadas",
         "feeCol": "Honorários",
@@ -1059,7 +1064,7 @@
         "assistive": "assistente",
         "subtitle": "Secções, narrativas de fase e cláusulas sugeridas a partir da ontologia. Insira o que precisar — tudo permanece editável.",
         "legacyHint": "Esta proposta está em modo de documento manual.",
-        "noDocumentHint": "Gere primeiro um rascunho de proposta para activar as inserções.",
+        "noDocumentHint": "Gere primeiro um rascunho de proposta para ativar as inserções.",
         "insert": "Inserir",
         "alreadyIn": "Já no documento",
         "insertAllMissing": "Inserir tudo o que falta",
@@ -1093,7 +1098,6 @@
       "supplierPlaceholder": "Escolher empresa",
       "phases": "Fases de arquitetura a acompanhar",
       "noArch": "Crie primeiro as fases de arquitetura.",
-      "phaseCount": "fase(s)",
       "remove": "Remover",
       "deleteConfirm": "Remover este consultor e todas as suas fases?",
       "added": "Consultor adicionado",
@@ -1241,7 +1245,8 @@
       "createDraft": "Criar rascunho de contrato",
       "creating": "A criar…",
       "openDraft": "Abrir rascunho",
-      "totalCount": "{{count}} contrato(s) para esta proposta"
+      "totalCount_one": "{{count}} contrato para esta proposta",
+      "totalCount_other": "{{count}} contratos para esta proposta"
     },
     "toast": {
       "draftCreated": "Rascunho de contrato criado",
@@ -1391,9 +1396,9 @@
       "title": "Cockpit operacional",
       "subtitle": "Planeie equipa, monitorize cobertura, identifique conflitos",
       "openLink": "Abrir cockpit operacional",
-      "backToProject": "Voltar ao projecto",
+      "backToProject": "Voltar ao projeto",
       "emptyTitle": "Sem dados operacionais",
-      "emptyBody": "Adicione fases, alocações ou um baseline comercial para activar o cockpit.",
+      "emptyBody": "Adicione fases, alocações ou um baseline comercial para ativar o cockpit.",
       "tabs": {
         "coverage": "Cobertura",
         "board": "Mapa de alocação",
@@ -1421,7 +1426,7 @@
         "collaborator": "Colaborador",
         "total": "Total",
         "utilization": "Util.",
-        "noAllocations": "Sem alocações — atribua colaboradores no planeador do projecto.",
+        "noAllocations": "Sem alocações — atribua colaboradores no planeador do projeto.",
         "openPlanner": "Editar no planeador"
       },
       "conflicts": {
@@ -1437,7 +1442,7 @@
       "suggestions": {
         "title": "Sugestões de equipa",
         "intro": "Ranking determinístico — apenas sugestões, nunca atribuição automática.",
-        "noPlaceholder": "Sem envelope de placeholder — adicione um baseline para activar correspondência.",
+        "noPlaceholder": "Sem envelope de placeholder — adicione um baseline para ativar correspondência.",
         "match": "Disciplina correspondente",
         "available": "Disponível {{hours}}h",
         "loaded": "Atualmente a {{pct}}% de utilização",
@@ -1522,9 +1527,10 @@
     "appendix.VI": "VI — Interfaces com Consultores",
     "insert": "Inserir na proposta",
     "inserted": "Inseridos {{count}} blocos",
-    "unresolved": "{{count}} marcador(es) não resolvido(s): {{list}}",
     "warning.existingBlocks": "Este documento já tem blocos. As novas secções serão acrescentadas no fim.",
-    "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão."
+    "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão.",
+    "unresolved_one": "{{count}} marcador não resolvido: {{list}}",
+    "unresolved_other": "{{count}} marcadores não resolvidos: {{list}}"
   },
   "emailLeads": {
     "title": "Novos leads de email",
@@ -1540,7 +1546,7 @@
       "phone": "Telefone",
       "company": "Empresa",
       "role": "Cargo",
-      "project_type": "Tipo de projecto",
+      "project_type": "Tipo de projeto",
       "location": "Localização",
       "size": "Dimensão",
       "budget": "Orçamento",
@@ -1549,7 +1555,7 @@
     },
     "matchedContact": "Contacto encontrado",
     "matchedCompany": "Empresa encontrada",
-    "matchedOpportunity": "Oportunidade aberta (só actividade)",
+    "matchedOpportunity": "Oportunidade aberta (só atividade)",
     "noMatch": "Nenhum — será criado",
     "nextAction": "Próxima ação",
     "nextActionDate": "Data de seguimento",
@@ -1827,17 +1833,11 @@
     "remainPrefix": "Permanecem na proposta (",
     "contractComposerPending": "Editor de contratos em desenvolvimento",
     "convertSoon": "Converter (em breve)",
-    "blocksImported": "{{value1}} bloco(s) importado(s) do modelo.",
     "importFailed": "Erro ao importar modelo",
     "replaceBlocks": "Substituir todos os blocos pela biblioteca de um modelo",
     "replaceBlocksHint": "Escolha um modelo guardado. A confirmação substitui todos os blocos atuais da proposta pelos blocos do modelo selecionado.",
     "noBlockTemplates": "Não há modelos com blocos guardados. Use «Guardar como modelo» numa proposta para criar um.",
-    "blockCountSuffix": "bloco(s) ·",
     "confirmReplace": "Confirmar substituição",
-    "actionWillPrefix": "Esta ação vai",
-    "deleteAllBlocks": "apagar todos os blocos",
-    "replaceTemplateSuffix": "atuais desta proposta e substituí-los pelos blocos do modelo",
-    "irreversibleSuffix": ". Esta operação não pode ser anulada.",
     "importing": "A importar…",
     "replaceImport": "Substituir e importar",
     "autosaveRecoveryHint": "Recuperação de gravações automáticas (avançado) — não é o histórico de revisões",
@@ -2048,7 +2048,8 @@
     "pdfLoadFailed": "Não foi possível carregar o PDF",
     "invoiceNumber": "Fatura {{number}}",
     "architectureContract": "Arquitetura — total do contrato",
-    "supplierContract": "Fornecedores — total do contrato"
+    "supplierContract": "Fornecedores — total do contrato",
+    "replaceConfirmation": "Esta ação vai <strong>eliminar todos os blocos</strong> desta proposta e substituí-los pelos blocos do modelo <strong>«{{name}}»</strong>. Esta operação não pode ser anulada."
   },
   "composer": {
     "blocks": {

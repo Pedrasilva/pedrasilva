@@ -4,7 +4,7 @@
   "previousWeek": "Semana anterior",
   "nextWeek": "Semana seguinte",
   "byPerson": "Por pessoa",
-  "byProject": "Por projecto",
+  "byProject": "Por projeto",
   "morning": "Manhã",
   "afternoon": "Tarde",
   "morningShort": "M",
@@ -214,7 +214,10 @@
         "gantt": {
           "title": "Pré-visualização do Gantt (apenas leitura)",
           "hint": "Pré-visualização de como as fases aparecerão no Gantt do projeto após confirmar.",
-          "people": "pessoas"
+          "people": "pessoas",
+          "stageHint": "{{name}} • {{start}} → {{end}} • {{people}} • {{hours}} h",
+          "peopleCount_one": "{{count}} pessoa",
+          "peopleCount_other": "{{count}} pessoas"
         },
         "source": {
           "explicit": "Explícito",
@@ -603,7 +606,12 @@
     "hoursPerDayShort": "h/dia",
     "perHour": "/h",
     "hoursPerDayEnd": "h/dia.",
-    "hoursTimes": "h ×"
+    "hoursTimes": "h ×",
+    "hourValue": "{{value}} h",
+    "approxHourValue": "{{approx}}{{value}} h",
+    "percentagePointValue": "{{sign}}{{value}} p.p.",
+    "versus": "{{actual}} face a {{target}}",
+    "percentagePointsSuffix": " p.p."
   },
   "imported": "Importado",
   "accessDenied": "Acesso negado.",
@@ -738,5 +746,28 @@
   "workingDaysCount_other": "{{count}} dias úteis",
   "labelForPerson": "{{label}} para {{person}}",
   "start": "Início",
-  "end": "Fim"
+  "end": "Fim",
+  "information": "Informação",
+  "navigationUi": {
+    "primary": "Navegação principal",
+    "modules": "Módulos",
+    "breadcrumb": "Caminho de navegação",
+    "pagination": "Paginação",
+    "morePages": "Mais páginas",
+    "previousSlide": "Diapositivo anterior",
+    "nextSlide": "Diapositivo seguinte",
+    "sidebar": "Menu lateral",
+    "sidebarHint": "Menu de navegação em dispositivos móveis.",
+    "toggleSidebar": "Abrir ou fechar o menu lateral"
+  },
+  "collaboratorPhoto": {
+    "updated": "Foto atualizada",
+    "removed": "Foto removida",
+    "change": "Alterar foto",
+    "upload": "Carregar foto",
+    "hint": "JPG, PNG ou WEBP · máximo de 5 MB. A foto aparece em toda a aplicação (por exemplo, nos recursos do Gantt).",
+    "invalidFormat": "Formato inválido. Utilize JPG, PNG ou WEBP.",
+    "tooLarge": "Ficheiro demasiado grande (máximo de 5 MB)."
+  },
+  "taxNumberSuffix": " · NIF {{value}}"
 }

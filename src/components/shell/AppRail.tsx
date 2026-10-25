@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,7 +75,7 @@ export function AppRail() {
 
   return (
     <nav
-      aria-label="Primary"
+      aria-label={uiI18n.t("common:navigationUi.primary")}
       className="hidden md:flex sticky top-0 z-30 h-screen w-14 shrink-0 flex-col items-center justify-between border-r bg-card/80 backdrop-blur"
     >
       <TooltipProvider delayDuration={200}>

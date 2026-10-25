@@ -211,6 +211,7 @@ export function SalaryImporter() {
       if (r.status === "completed") {
         toast.success(
           t("salaryImport.toasts.completed", {
+            count: r.inserted,
             inserted: r.inserted,
             skipped: r.skipped.length,
           }),
@@ -650,7 +651,7 @@ function PreviewSection({
         {/* Confirm */}
         <div className="flex items-center justify-between gap-3 border-t pt-4">
           <p className="text-xs text-muted-foreground">
-            {t("salaryImport.preview.selectedHint", { selected: totalSelected })}
+            {t("salaryImport.preview.selectedHint", { count: totalSelected, selected: totalSelected })}
           </p>
           <Button
             onClick={onConfirm}

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Documents list with filters. Used by:
  *  - the Finance dashboard "Documents" tab (compact)
@@ -47,7 +48,7 @@ const DASH = "—";
 import { FiscalReviewBadges } from './fiscal-review-badges';
 
 const fmtEUR2 = (v: number | null | undefined) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -58,7 +59,7 @@ const fmtDate = (s: string | null | undefined) => {
   if (!s) return DASH;
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return DASH;
-  return new Intl.DateTimeFormat("pt-PT", {
+  return new Intl.DateTimeFormat(uiI18n.language, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -69,7 +70,7 @@ const fmtPeriod = (s: string | null | undefined) => {
   if (!s) return DASH;
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return DASH;
-  return new Intl.DateTimeFormat("pt-PT", {
+  return new Intl.DateTimeFormat(uiI18n.language, {
     month: "2-digit",
     year: "numeric",
   }).format(d);

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Read-only settlement section for purchase/invoice editor dialogs.
  *
@@ -28,7 +29,7 @@ type Props = {
 };
 
 const fmt = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency }).format(n);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency }).format(n);
 
 export function DocumentSettlementSection({ payments, currency = "EUR" }: Props) {
   const { t, i18n } = useTranslation(["finance"]);

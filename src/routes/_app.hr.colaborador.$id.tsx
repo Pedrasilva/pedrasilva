@@ -974,7 +974,7 @@ function CollaboratorPage() {
                       checked={showArchived}
                       onCheckedChange={setShowArchived}
                     />
-                     {uiI18n.t("hr:batchFive.labels.showArchived")} {archivedCount})
+                     {uiI18n.t("hr:batchFive.labels.showArchivedCount", { count: archivedCount })}
                   </label>
                 )}
               </div>

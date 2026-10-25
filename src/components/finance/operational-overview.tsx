@@ -248,14 +248,14 @@ export function OperationalOverview() {
         <KpiCard
           icon={<ArrowDownToLine className="h-4 w-4" />}
           label={t("finance:overview.outstandingReceivables")}
-          sub={`${t("finance:overview.countDocuments", { count: summary.receivablesCount })} · ${t("finance:overview.overdueAmount")}: ${fmtEUR(summary.receivablesOverdueAmount)} (${summary.receivablesOverdueCount})`}
+          sub={t("finance:overview.documentsOverdueSummary", { count: summary.receivablesCount, amount: fmtEUR(summary.receivablesOverdueAmount), overdueCount: summary.receivablesOverdueCount })}
           value={fmtEUR(summary.receivablesAmount)}
           tone={summary.receivablesOverdueCount > 0 ? "negative" : "positive"}
         />
         <KpiCard
           icon={<ArrowUpFromLine className="h-4 w-4" />}
           label={t("finance:overview.outstandingPayables")}
-          sub={`${t("finance:overview.countDocuments", { count: summary.payablesCount })} · ${t("finance:overview.overdueAmount")}: ${fmtEUR(summary.payablesOverdueAmount)} (${summary.payablesOverdueCount})`}
+          sub={t("finance:overview.documentsOverdueSummary", { count: summary.payablesCount, amount: fmtEUR(summary.payablesOverdueAmount), overdueCount: summary.payablesOverdueCount })}
           value={fmtEUR(summary.payablesAmount)}
           tone={summary.payablesOverdueCount > 0 ? "negative" : "neutral"}
         />

@@ -9,10 +9,14 @@
     "viewTeam": "Ver plano da equipa",
     "notPlanned": "Semana ainda não planeada",
     "planNext": "Planear próxima semana",
-    "status": { "noDraft": "Sem rascunho", "draft": "Rascunho", "approved": "Aprovado" }
+    "status": {
+      "noDraft": "Sem rascunho",
+      "draft": "Rascunho",
+      "approved": "Aprovado"
+    }
   },
   "tagline": "We make room for creativity.",
-  "intro": "Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as ferramentas, os projectos e os pequenos momentos que constroem o atelier — todos os dias.",
+  "intro": "Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as ferramentas, os projetos e os pequenos momentos que constroem o atelier — todos os dias.",
   "studioHub": "Portal Pedra Silva",
   "todayCelebrate": "Hoje celebramos {{names}}",
   "celebrate": {
@@ -29,15 +33,33 @@
   "products": {
     "moduleTitle": "Biblioteca de Produtos",
     "moduleSubtitle": "Especificações",
-    "moduleDescription": "Especifica mobiliário e produtos de interiores nos projectos, reutiliza a biblioteca do atelier, emite fichas técnicas e mapas."
+    "moduleDescription": "Especifica mobiliário e produtos de interiores nos projetos, reutiliza a biblioteca do atelier, emite fichas técnicas e mapas."
   },
   "signature": {
-    "moduleTitle": "Projectos de Referência",
+    "moduleTitle": "Projetos de Referência",
     "moduleSubtitle": "Portfólio do atelier",
-    "moduleDescription": "Imagens seleccionadas do atelier — a mesma biblioteca usada no construtor de propostas.",
+    "moduleDescription": "Imagens selecionadas do atelier — a mesma biblioteca usada no construtor de propostas.",
     "kicker": "Portfólio do atelier",
-    "title": "Projectos de Referência",
-    "subtitle": "Imagens seleccionadas usadas em todo o atelier — a mesma biblioteca que o construtor de propostas utiliza nas páginas da proposta."
+    "title": "Projetos de Referência",
+    "subtitle": "Imagens selecionadas usadas em todo o atelier — a mesma biblioteca que o construtor de propostas utiliza nas páginas da proposta.",
+    "cat": {
+      "general": "Geral",
+      "residential": "Residencial",
+      "workplace": "Espaços de trabalho",
+      "hospitality": "Hotelaria e restauração",
+      "team": "Equipa"
+    },
+    "uploading": "A carregar…",
+    "upload": "Adicionar a esta categoria",
+    "empty": {
+      "title": "Ainda não existem imagens nesta categoria",
+      "adminBody": "Carregue fotografias para esta categoria. Ficam imediatamente disponíveis no bloco de imagens do construtor de propostas.",
+      "body": "Peça a um administrador para carregar imagens de referência para esta categoria.",
+      "cta": "Carregar a primeira imagem"
+    },
+    "moved": "Categoria atualizada",
+    "uploaded_one": "{{count}} imagem adicionada à biblioteca",
+    "uploaded_other": "{{count}} imagens adicionadas à biblioteca"
   },
   "celebrations": {
     "title": "Celebrações próximas",
@@ -50,7 +72,8 @@
     "empty": "Toda a equipa está cá hoje.",
     "until": "até {{date}}",
     "more_one": "+{{count}} outro",
-    "more_other": "+{{count}} outros"
+    "more_other": "+{{count}} outros",
+    "typeUntil": "{{type}} · Até {{date}}"
   },
   "holidays": {
     "title": "Próximos feriados",
@@ -131,5 +154,10 @@
     "title": "Perguntas para si",
     "answer": "Responder",
     "record": "Gravar briefing"
+  },
+  "portfolio": {
+    "moveCategory": "Mover para categoria",
+    "removeImage": "Remover «{{name}}»?",
+    "imageRemoved": "Imagem removida"
   }
 }

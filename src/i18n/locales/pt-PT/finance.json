@@ -113,7 +113,7 @@
     "moveTitle": "Mover importação para outra conta",
     "moveHint": "Todas as transações de \"{{file}}\" serão reatribuídas à conta selecionada. Os duplicados serão verificados antes.",
     "targetAccount": "Conta de destino",
-    "selectTarget": "Seleccionar conta de destino",
+    "selectTarget": "Selecionar conta de destino",
     "confirmMove": "Mover importação",
     "moveSuccess": "Importação movida",
     "errorDupFile": "A conta de destino já importou o mesmo ficheiro. Mudança cancelada.",
@@ -144,7 +144,8 @@
       "pending": "Pendente",
       "rolled_back": "Anulada",
       "archived": "Arquivada"
-    }
+    },
+    "moveFailed": "Não foi possível mover a importação"
   },
   "module": {
     "title": "Finanças",
@@ -274,10 +275,12 @@
       "unmatchConfirm": "Desassociar esta transação? Ficará desbloqueada e sai do saldo calculado.",
       "delete": "Eliminar movimento",
       "deleteFiltered": "Eliminar os {{count}} listados",
-      "deleteConfirm": "Eliminar definitivamente {{count}} movimento(s) bancário(s)? Esta ação não pode ser revertida.",
       "deleteLocked": "Alguns movimentos estão reconciliados e bloqueados. Desassocie-os primeiro e volte a eliminar.",
-      "deleted": "{{count}} movimento(s) eliminado(s)",
-      "unmatched": "Transação desassociada"
+      "unmatched": "Transação desassociada",
+      "deleteConfirm_one": "Eliminar definitivamente {{count}} movimento bancário? Esta ação não pode ser revertida.",
+      "deleteConfirm_other": "Eliminar definitivamente {{count}} movimentos bancários? Esta ação não pode ser revertida.",
+      "deleted_one": "{{count}} movimento eliminado",
+      "deleted_other": "{{count}} movimentos eliminados"
     },
     "linkedTo": "Associada a {{ref}}",
     "alreadyLinked": {
@@ -301,7 +304,6 @@
       "minAmount": "Mín |valor|",
       "maxAmount": "Máx |valor|",
       "clearFilters": "Limpar filtros",
-      "resultsCount": "{{count}} resultados",
       "selectTx": "Seleciona uma transação para ver detalhes e candidatos.",
       "valueDate": "Data valor",
       "classifications": "Repartições por categoria",
@@ -321,7 +323,9 @@
         "unlinked": "Apenas não ligadas",
         "payment": "Pagamento a fornecedor",
         "receipt": "Recebimento de cliente"
-      }
+      },
+      "resultsCount_one": "{{count}} resultado",
+      "resultsCount_other": "{{count}} resultados"
     },
     "ignoreDuplicatePrompt": "Este movimento é uma LINHA DUPLICADA da importação que não deve contar para o saldo?\n\nOK = duplicado (excluído do saldo)\nCancelar = movimento real (comissão bancária, etc.) — conta para o saldo",
     "needsReview": {
@@ -332,13 +336,13 @@
     }
   },
   "overview": {
-    "currentBankBalance": "Saldo bancário actual",
-    "currentBankBalanceSub": "Soma do último snapshot por conta activa",
+    "currentBankBalance": "Saldo bancário atual",
+    "currentBankBalanceSub": "Soma do último snapshot por conta ativa",
     "expectedIncome": "Receitas previstas este mês",
     "expectedExpenses": "Despesas previstas este mês",
     "projectedClosing": "Saldo previsto fim do mês",
-    "outstandingInvoices": "Facturas em aberto",
-    "overdueInvoices": "Facturas vencidas",
+    "outstandingInvoices": "Faturas em aberto",
+    "overdueInvoices": "Faturas vencidas",
     "netCashFlow": "Cash flow líquido este mês",
     "vatNote": "Valores mostrados {{mode}}. Os valores importados são brutos (com IVA).",
     "noPeriod": "Não existe período definido para este mês.",
@@ -358,7 +362,9 @@
     "netActualCashMovement": "Movimento líquido real",
     "simpleForecast": "Previsão simples",
     "simpleForecastSub": "Saldo bancário + recebimentos com vencimento este mês − pagamentos com vencimento este mês",
-    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001)."
+    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001).",
+    "documentsOverdueSummary_one": "{{count}} documento · Em atraso: {{amount}} ({{overdueCount}})",
+    "documentsOverdueSummary_other": "{{count}} documentos · Em atraso: {{amount}} ({{overdueCount}})"
   },
   "cashFlow": {
     "title": "Cash flow mensal",
@@ -442,7 +448,7 @@
     },
     "empty": "Não foram encontradas contas bancárias.",
     "noSnapshot": "Sem snapshot",
-    "totalCurrent": "Saldo bancário total actual",
+    "totalCurrent": "Saldo bancário total atual",
     "totalCurrentHint": "Apenas contas bancárias — cartões de crédito e contas de benefícios têm subtotais próprios.",
     "groups": {
       "bank": {
@@ -485,12 +491,12 @@
       "openingBalanceDate": "Data do saldo inicial",
       "openingHint": "O saldo inicial é o ponto de partida usado até ser registado o primeiro snapshot de saldo.",
       "openingTag": "(inicial)",
-      "active": "Conta activa",
+      "active": "Conta ativa",
       "snapshotHistory": "Histórico de snapshots",
       "recentTransactions": "Movimentos recentes",
       "viewAllTransactions": "Ver todos os movimentos",
       "noTransactions": "Sem movimentos para esta conta.",
-      "saved": "Conta actualizada",
+      "saved": "Conta atualizada",
       "saveDenied": "Não tem permissão para editar contas bancárias."
     },
     "openingTag": "abertura {{amount}}",
@@ -540,8 +546,7 @@
   },
   "income": {
     "title": "Receitas",
-    "subtitle": "{{count}} factura(s)",
-    "empty": "Sem receitas para os filtros seleccionados.",
+    "empty": "Sem receitas para os filtros selecionados.",
     "summary": {
       "total": "Total",
       "paid": "Pago",
@@ -550,18 +555,19 @@
     "col": {
       "month": "Mês",
       "client": "Cliente",
-      "project": "Projecto",
-      "invoice": "Factura",
+      "project": "Projeto",
+      "invoice": "Fatura",
       "expected": "Prevista",
       "paid": "Paga",
       "amount": "Valor",
       "status": "Estado"
-    }
+    },
+    "subtitle_one": "{{count}} fatura",
+    "subtitle_other": "{{count}} faturas"
   },
   "expenses": {
     "title": "Despesas operacionais",
-    "subtitle": "{{count}} despesa(s)",
-    "empty": "Sem despesas para os filtros seleccionados.",
+    "empty": "Sem despesas para os filtros selecionados.",
     "summary": {
       "total": "Total",
       "paid": "Pago",
@@ -580,18 +586,21 @@
     },
     "markBenefitPaid": "Marcar reembolso como pago",
     "markBenefitPaidConfirm": "Marcar este reembolso de benefícios como pago?",
-    "toastPaid": "Reembolso marcado como pago"
+    "toastPaid": "Reembolso marcado como pago",
+    "subtitle_one": "{{count}} despesa",
+    "subtitle_other": "{{count}} despesas"
   },
   "materials": {
-    "title": "Materiais de projecto",
-    "subtitle": "{{count}} linha(s) de materiais",
-    "empty": "Sem materiais para os filtros seleccionados."
+    "title": "Materiais de projeto",
+    "empty": "Sem materiais para os filtros selecionados.",
+    "subtitle_one": "{{count}} linha de materiais",
+    "subtitle_other": "{{count}} linhas de materiais"
   },
   "home": {
     "noPeriod": "Ainda não existe um período financeiro para este mês.",
     "kicker": "Finanças do atelier",
     "title": "Finanças",
-    "currentBalance": "Saldo actual",
+    "currentBalance": "Saldo atual",
     "expectedIncome": "Receitas previstas",
     "expectedExpenses": "Despesas previstas",
     "projectedClosing": "Saldo previsto fim do mês",
@@ -608,9 +617,7 @@
   },
   "debts": {
     "title": "Dívidas",
-    "subtitle": "{{count}} dívida(s)",
     "empty": "Sem dívidas registadas.",
-    "scheduledCount": "{{count}} pagamento(s)",
     "summary": {
       "original": "Total original",
       "outstanding": "Total em aberto"
@@ -627,7 +634,6 @@
     },
     "payments": {
       "title": "Pagamentos de dívida agendados",
-      "subtitle": "{{count}} pagamento(s)",
       "empty": "Ainda não há pagamentos de dívida agendados.",
       "col": {
         "creditor": "Credor",
@@ -637,12 +643,17 @@
         "planned": "Previsto",
         "actual": "Real",
         "status": "Estado"
-      }
-    }
+      },
+      "subtitle_one": "{{count}} pagamento",
+      "subtitle_other": "{{count}} pagamentos"
+    },
+    "subtitle_one": "{{count}} dívida",
+    "subtitle_other": "{{count}} dívidas",
+    "scheduledCount_one": "{{count}} pagamento",
+    "scheduledCount_other": "{{count}} pagamentos"
   },
   "importLogs": {
     "title": "Logs de importação",
-    "subtitle": "{{count}} importação(ões)",
     "empty": "Ainda não há importações registadas.",
     "col": {
       "importedAt": "Importado em",
@@ -657,7 +668,9 @@
       "rowsDebts": "Dívidas",
       "rowsBankAccounts": "Contas banc.",
       "notes": "Notas"
-    }
+    },
+    "subtitle_one": "{{count}} importação",
+    "subtitle_other": "{{count}} importações"
   },
   "tabsExtra": {
     "documents": "Documentos"
@@ -677,7 +690,7 @@
       "status": "Estado",
       "supplier": "Fornecedor",
       "client": "Cliente",
-      "project": "Projecto",
+      "project": "Projeto",
       "vatPeriod": "Período de IVA"
     },
     "direction": {
@@ -701,7 +714,7 @@
     },
     "source": {
       "manual": "Manual",
-      "project": "Gerado de projecto",
+      "project": "Gerado de projeto",
       "import": "Importado",
       "ocr": "OCR"
     },
@@ -718,7 +731,7 @@
       "paid": "Pago",
       "outstanding": "Em dívida",
       "status": "Estado",
-      "project": "Projecto",
+      "project": "Projeto",
       "actions": "Acções"
     },
     "form": {
@@ -737,7 +750,7 @@
       "currency": "Moeda",
       "supplier": "Fornecedor",
       "client": "Cliente",
-      "project": "Projecto (opcional)",
+      "project": "Projeto (opcional)",
       "classification": "Classificação por defeito",
       "notes": "Notas",
       "file": "Anexo",
@@ -750,7 +763,7 @@
       "lineVatRate": "IVA %",
       "lineVatCode": "Código IVA",
       "lineClassification": "Classificação",
-      "lineProject": "Projecto",
+      "lineProject": "Projeto",
       "lineReimbursable": "Reemb.",
       "lineNet": "Líquido",
       "lineVat": "IVA",
@@ -761,13 +774,13 @@
       "saveDraft": "Guardar como rascunho",
       "issue": "Marcar como emitido",
       "cancelDoc": "Cancelar documento",
-      "selectType": "Seleccionar tipo de documento",
+      "selectType": "Selecionar tipo de documento",
       "noLines": "Adicione pelo menos uma linha.",
       "missingDescription": "Cada linha precisa de uma descrição.",
       "missingCounterparty": "Indique um {{role}} para este documento.",
       "confirmCancel": "Cancelar este documento? Não poderá ser editado.",
       "savedDraft": "Documento guardado como rascunho.",
-      "saved": "Documento actualizado.",
+      "saved": "Documento atualizado.",
       "issued": "Documento marcado como emitido.",
       "cancelled": "Documento cancelado.",
       "notProjectRelated": "Sem projeto associado",
@@ -830,35 +843,35 @@
       "searchPlaceholder": "Pesquisar por fornecedor/cliente, número do documento ou valor…"
     },
     "projectFinancials": {
-      "title": "Financeiro por projecto",
-      "subtitle": "Custo, facturado, recebido e reembolsáveis a partir de documentos financeiros. A posição de caixa usa apenas pagamentos registados — os movimentos bancários nunca são lidos directamente.",
-      "empty": "Ainda não há documentos financeiros associados a projectos.",
-      "project": "Projecto",
+      "title": "Financeiro por projeto",
+      "subtitle": "Custo, faturado, recebido e reembolsáveis a partir de documentos financeiros. A posição de caixa usa apenas pagamentos registados — os movimentos bancários nunca são lidos directamente.",
+      "empty": "Ainda não há documentos financeiros associados a projetos.",
+      "project": "Projeto",
       "cost": "Custo",
-      "billed": "Facturado",
+      "billed": "Faturado",
       "received": "Recebido",
       "paid": "Pago",
       "margin": "Margem",
       "cash": "Caixa",
       "reimbursable": "Reembolsável",
       "reimbCost": "Custo reemb.",
-      "reimbBilled": "Facturado reemb.",
+      "reimbBilled": "Faturado reemb.",
       "reimbReceived": "Recebido reemb.",
-      "reimbUnbilled": "Por facturar",
+      "reimbUnbilled": "Por faturar",
       "reimbUnpaid": "Por receber",
-      "noProject": "(sem projecto)",
+      "noProject": "(sem projeto)",
       "reimbEstimateNote": "Os pagamentos não são alocados por linha. O recebido reembolsável é estimado proporcionalmente com base na quota das linhas reembolsáveis em cada documento. Considere os valores de caixa reembolsável como aproximados enquanto a alocação por linha não estiver implementada.",
       "reimbReceivedTooltip": "Estimado a partir de pagamentos ao nível do documento",
       "howCalculated": {
         "title": "Como estes valores são calculados",
         "cost": "Custo — soma dos documentos recebidos, linhas filtradas pelas classificações PRO.*, DES.*, MOV.REIM (e os antigos PRD.*, OPS.REP.*, REIM.*). Exclui documentos em rascunho ou cancelados.",
-        "billed": "Facturado — soma dos documentos emitidos (subtotais de linha, sem IVA).",
+        "billed": "Faturado — soma dos documentos emitidos (subtotais de linha, sem IVA).",
         "received": "Recebido — soma dos pagamentos registados em documentos emitidos.",
         "paid": "Pago — soma dos pagamentos registados em documentos recebidos.",
-        "margin": "Margem — Facturado menos Custo.",
+        "margin": "Margem — Faturado menos Custo.",
         "cash": "Caixa — Recebido menos Pago. Derivado apenas de pagamentos registados; os movimentos bancários nunca são lidos directamente.",
         "reimbReceived": "Recebido reembolsável — os pagamentos não são repartidos por linha. Cada pagamento é alocado proporcionalmente com base na quota das linhas reembolsáveis no subtotal do documento.",
-        "attribution": "Atribuição ao projecto — o project_id ao nível da linha tem precedência; recorre ao project_id do cabeçalho do documento."
+        "attribution": "Atribuição ao projeto — o projet_id ao nível da linha tem precedência; recorre ao projet_id do cabeçalho do documento."
       }
     }
   },
@@ -896,7 +909,7 @@
   "clientsMaster": {
     "tab": "Clientes",
     "title": "Clientes (dados mestre)",
-    "subtitle": "Fonte única partilhada com CRM e Projectos. O mesmo registo alimenta facturas a clientes, facturação de projecto e reconciliação bancária.",
+    "subtitle": "Fonte única partilhada com CRM e Projetos. O mesmo registo alimenta faturas a clientes, faturação de projeto e reconciliação bancária.",
     "new": "Novo cliente",
     "edit": "Editar cliente",
     "searchPlaceholder": "Procurar por nome, NIF ou email…",
@@ -916,8 +929,8 @@
     "paymentTermsPlaceholder": "ex. 30 dias",
     "notes": "Notas",
     "status": "Estado",
-    "active": "Activo",
-    "inactive": "Inactivo",
+    "active": "Ativo",
+    "inactive": "Inativo",
     "alsoSupplier": "Também fornecedor",
     "empty": "Sem clientes.",
     "openingBalance": "Saldo inicial transitado",
@@ -928,7 +941,7 @@
   "suppliersMaster": {
     "tab": "Fornecedores",
     "title": "Fornecedores (dados mestre)",
-    "subtitle": "Fornecedores usados em despesas, reconciliação bancária e custos de projecto. Guardados no registo unificado de empresas.",
+    "subtitle": "Fornecedores usados em despesas, reconciliação bancária e custos de projeto. Guardados no registo unificado de empresas.",
     "new": "Novo fornecedor",
     "edit": "Editar fornecedor",
     "searchPlaceholder": "Procurar por nome, NIF ou email…",
@@ -948,8 +961,8 @@
     "paymentTermsPlaceholder": "ex. 30 dias",
     "notes": "Notas",
     "status": "Estado",
-    "active": "Activo",
-    "inactive": "Inactivo",
+    "active": "Ativo",
+    "inactive": "Inativo",
     "alsoClient": "Também cliente",
     "empty": "Sem fornecedores."
   },
@@ -960,7 +973,7 @@
     "table": "Tabela",
     "rows": "Linhas",
     "total": "Total de linhas",
-    "kept": "Mantém: empresas (clientes + fornecedores), contas bancárias, classificações, projectos, RH, esquema e permissões.",
+    "kept": "Mantém: empresas (clientes + fornecedores), contas bancárias, classificações, projetos, RH, esquema e permissões.",
     "action": "Repor dados financeiros de teste",
     "confirmTitle": "Isto apaga permanentemente os dados financeiros de teste",
     "confirmDescription": "Todos os movimentos bancários, importações, documentos, classificações, despesas e receitas serão apagados. Empresas (clientes + fornecedores), contas bancárias e o plano de classificações são preservados.",
@@ -970,7 +983,7 @@
   },
   "resetSuppliers": {
     "title": "Apagar empresas-fornecedor não usadas",
-    "subtitle": "Remove empresas marcadas apenas como fornecedor que não estão referenciadas em nenhum registo. Clientes reais do CRM e qualquer empresa ligada a documentos, classificações bancárias, despesas, projectos, oportunidades ou contactos são preservados.",
+    "subtitle": "Remove empresas marcadas apenas como fornecedor que não estão referenciadas em nenhum registo. Clientes reais do CRM e qualquer empresa ligada a documentos, classificações bancárias, despesas, projetos, oportunidades ou contactos são preservados.",
     "action": "Apagar fornecedores não usados",
     "confirmTitle": "Apagar empresas-fornecedor não usadas",
     "confirmDescription": "Remove empresas onde is_supplier=true e is_client=false sem ligações a qualquer registo transaccional ou de CRM. Não pode ser desfeito.",
@@ -987,7 +1000,7 @@
     },
     "classifiedOrphan": {
       "title": "Classificado órfão",
-      "description": "Movimento bancário marcado como classificado mas sem split e sem pagamento de documento associado. Provavelmente estado desactualizado — reclassificar ou repor para não classificado."
+      "description": "Movimento bancário marcado como classificado mas sem split e sem pagamento de documento associado. Provavelmente estado desatualizado — reclassificar ou repor para não classificado."
     },
     "paymentMissingTx": {
       "title": "Pagamento sem movimento bancário",
@@ -1439,7 +1452,6 @@
     "pending": "Por rever",
     "approved": "Aprovados",
     "rejected": "Rejeitados",
-    "itemsCount": "{{count}} item(s)",
     "groupedDocs": "{{count}} documentos associados",
     "recurring": "Recorrente",
     "reextract": "Reextrair",
@@ -1555,7 +1567,9 @@
       "title": "Fornecedor já existe",
       "body": "Já existe um fornecedor com o NIF {{nif}}: {{name}}. Ligar este fornecedor a esta empresa em vez de criar um novo? Continua partilhado e só a equipa PSA o pode editar.",
       "link": "Ligar fornecedor"
-    }
+    },
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} itens"
   },
   "vatReport": {
     "title": "Relatório de IVA",
@@ -1777,7 +1791,7 @@
       "removed": "Eliminados"
     },
     "empty": "Nada aqui.",
-    "selectItem": "Seleccione um documento.",
+    "selectItem": "Selecione um documento.",
     "notClassified": "Sem tipo",
     "types": {
       "fatura_compra": "Fatura de compra",
@@ -1985,8 +1999,8 @@
         "document": "Só este documento"
       },
       "add": "Adicionar instrução",
-      "active": "Activa",
-      "inactive": "Inactiva",
+      "active": "Ativa",
+      "inactive": "Inativa",
       "createdBy": "Adicionada {{date}}",
       "empty": "Ainda não há instruções.",
       "edit": "Editar",
@@ -2364,7 +2378,8 @@
       "bank": "do banco",
       "manual": "escolhido à mão",
       "card_print": "do recibo"
-    }
+    },
+    "cannotYetWithReasons": "Ainda não é possível confirmar: {{reasons}}"
   },
   "paidMissing": {
     "title_one": "{{count}} documento confirmado sem \"Pago com\" há mais de 30 dias",
@@ -2799,5 +2814,52 @@
     "continuityBreak": "Saldo final anterior {{previous}} (diferença {{difference}})",
     "review": "Rever",
     "confirmOne": "Confirmar"
+  },
+  "attachments": {
+    "unavailable": "Ficheiro indisponível",
+    "openFailed": "Não foi possível abrir o anexo"
+  },
+  "companyImport": {
+    "supplierTitle": "Importar fornecedores (Excel)",
+    "clientTitle": "Importar clientes (Excel)",
+    "hint": "Pré-visualize antes de guardar. Correspondência por NIF → código → nome. Os dados existentes nunca são eliminados.",
+    "file": "Ficheiro Excel (.xlsx)",
+    "columns": "Colunas detetadas",
+    "match": "Correspondência",
+    "warnings": "Avisos",
+    "matchedBy": "(correspondência por {{method}})",
+    "includeConflicts": "Incluir conflitos na importação (atualizar a correspondência existente mesmo com NIF ou código divergente)",
+    "overwriteCodes": "Substituir os códigos existentes pelo código importado",
+    "confirm": "Confirmar importação",
+    "selectFile": "Selecione um ficheiro Excel",
+    "previewFirst": "Pré-visualize primeiro o ficheiro",
+    "parsed_one": "{{count}} linha lida",
+    "parsed_other": "{{count}} linhas lidas",
+    "storageWarning": "Armazenamento: {{message}}",
+    "result": "Importação concluída: {{created}} criados · {{updated}} atualizados · {{skipped}} ignorados · {{errors}} erros",
+    "actions": {
+      "create": "Criar",
+      "update": "Atualizar",
+      "skip": "Ignorar",
+      "conflict": "Conflito",
+      "invalid": "Inválido"
+    },
+    "rowsLabel": "Linhas: {{count}}",
+    "createLabel": "A criar: {{count}}",
+    "updateLabel": "A atualizar: {{count}}",
+    "conflictsLabel": "Conflitos: {{count}}",
+    "invalidLabel": "Linhas inválidas: {{count}}"
+  },
+  "driveIntake": {
+    "title": "Entrada por pasta do Google Drive",
+    "hint": "Coloque documentos digitalizados (PDF, JPEG, PNG) na pasta partilhada «Finance Intake» do Google Drive. A cada 5 minutos, entram na fila de revisão de documentos e são movidos para «Processed» (ou «Failed» se não puderem ser lidos).",
+    "open": "Abrir pasta de entrada",
+    "empty": "Ainda não foram recolhidos ficheiros.",
+    "processed": "{{date}} · movido para {{folder}}",
+    "status": {
+      "queued": "Na fila",
+      "skipped": "Ignorado",
+      "failed": "Falhou"
+    }
   }
 }

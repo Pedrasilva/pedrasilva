@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
@@ -1195,7 +1196,7 @@ function BucketCard({
         <CardTitle className="text-2xl tabular-nums">{hours(hrs)}</CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-muted-foreground">
-        {pct(pctVal)} of total time
+        {uiI18n.t("projects:financials.timeShare", { percent: pct(pctVal) })}
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className={cn("h-full", barClass)} style={{ width: `${Math.min(100, pctVal)}%` }} />
         </div>

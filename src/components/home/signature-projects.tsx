@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Signature Projects — home page gallery backed by the shared PSA image
  * library (public.psa_image_library / bucket 'proposal-images'). The exact
@@ -265,7 +266,7 @@ function GalleryTile({
             onChange={(e) => onMove(e.target.value as PsaImageCategory)}
             onClick={(e) => e.stopPropagation()}
             className="absolute left-2 top-2 rounded-md border bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
-            title="Move to category"
+            title={uiI18n.t("home:portfolio.moveCategory")}
           >
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
@@ -276,12 +277,12 @@ function GalleryTile({
           <button
             type="button"
             className="absolute right-2 top-2 rounded-full bg-background/90 p-1.5 text-zinc-500 opacity-0 shadow-sm transition-opacity hover:text-red-600 group-hover:opacity-100"
-            title="Remove"
+            title={uiI18n.t("common:remove")}
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Remove "${entry.name}"?`)) {
+              if (confirm(uiI18n.t("home:portfolio.removeImage", { name: entry.name }))) {
                 del.mutate(entry, {
-                  onSuccess: () => toast.success("Image removed"),
+                  onSuccess: () => toast.success(uiI18n.t("home:portfolio.imageRemoved")),
                   onError: (err) => toast.error((err as Error).message),
                 });
               }
@@ -320,7 +321,7 @@ function Lightbox({
         type="button"
         className="absolute right-4 top-4 rounded-full bg-white/90 p-2 text-zinc-700 hover:bg-white"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={uiI18n.t("common:close")}
       >
         <X className="h-5 w-5" />
       </button>

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Banking → Transactions.
  *
@@ -47,7 +48,7 @@ type Tx = {
 };
 
 const fmtAmount = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency }).format(n);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency }).format(n);
 
 const statusVariant = (s: string) =>
   s === "classified"

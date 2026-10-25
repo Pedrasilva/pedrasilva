@@ -1,5 +1,5 @@
 # Agent rules
-- UI translation auditing uses the TypeScript AST checker in scripts/check-i18n.mjs with explicit document/brand exclusions and a signature-count baseline ratchet; never refresh the baseline to admit new UI literals. Why: existing debt remains visible while tests/CI block new untranslated UI without touching document languages.
+- UI translation auditing uses the TypeScript AST checker in scripts/check-i18n.mjs with explicit document/brand exclusions, exact path/kind/text technical-token exceptions and a signature-count baseline ratchet; never refresh the baseline to admit new UI literals. Why: existing debt remains visible while tests/CI block new untranslated UI without touching document languages.
 - Projects route and component UI uses namespace keys for constant maps, interpolated plural counts and locale-aware display formatting; document prose remains outside UI translation. Why: language changes must update route labels without changing stored enums, document language or financial calculations.
 - Marketing portfolio uses immutable profile-owned identity and optional live linkage; read src/lib/marketing/AGENTS.md before identity changes. Why: no operational pseudo-projects or lost editorial history.
 - Marketing timing computations stay in the Marketing module's shared pure scorer and RLS-scoped data RPC. Why: Calendar and Insights need identical recommendations without accessing unrelated financial records.
@@ -41,3 +41,5 @@
 - CRM and Product UI translates display labels at render and uses separate locale-aware money wrappers; client datasheet/schedule output keeps its original formatters and stored values. Why: UI language must not change documents, enums or prices.
 
 - HR/payroll UI uses display-only locale formatters and render-time glossary terms with explicit first-appearance PT legal glosses; the candidate compensation print sheet keeps its own fixed Portuguese labels/date locale and salary formatter. Why: switching UI language must preserve calculations, stored enums and document hashes.
+
+- Application UI uses whole-sentence translation messages with interpolation or Trans markup and i18next plural counts; display-only locale formatters never alter input serialization or document output. Why: word order, plurality and formatting must follow the UI locale without changing data or client documents.

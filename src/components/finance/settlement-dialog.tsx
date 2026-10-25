@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Settlement dialog — multi-document payment/receipt entry.
  *
@@ -51,7 +52,7 @@ const METHODS: PaymentMethod[] = [
 ];
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);

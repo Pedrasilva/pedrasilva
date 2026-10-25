@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Banking → Reconciliation: numbered statement periods.
  *
@@ -42,7 +43,7 @@ import {
 import { currentEntityId } from "@/lib/finance/current-entity";
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,

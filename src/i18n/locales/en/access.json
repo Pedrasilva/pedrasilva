@@ -167,11 +167,9 @@
       "downloadingAndDecompressingFromDrive": "Downloading and decompressing from Drive…",
       "generatedOn": "Generated on",
       "totalRows": "Total rows",
-      "tableSHadAnErrorDuringThe": "table(s) had an error during the backup:",
       "searchAllTables": "Search all tables",
       "eGMastercardCollaboratorNameInvoiceNumber": "e.g. Mastercard, collaborator name, invoice number…",
       "noMatches": "No matches.",
-      "matchEs": "match(es)",
       "tablesInThisBackup": "Tables in this backup",
       "filterThisTable": "Filter this table…",
       "filtering": "Filtering…",
@@ -310,14 +308,10 @@
       "searchAccounts": "Search accounts…",
       "discard": "Discard",
       "save": "Save ({{value1}})",
-      "accountS": "account(s)",
       "noAccessYet": "· no access yet",
       "viewTheAppAs": "View the app as {{value1}}",
       "viewTheAppAsThisAccount": "View the app as this account",
       "noAccountsMatchYourSearch": "No accounts match your search.",
-      "change": "change",
-      "s": "s",
-      "unsaved": "unsaved.",
       "chooseAtLeastOneRole": "Choose at least one role",
       "visibleTo": "Visible to",
       "costCentreCreated": "Cost centre created",
@@ -347,7 +341,11 @@
       "viewTheAppAsWithValues": "View the app as {{value1}}",
       "visibleToWithValues": "Visible to {{value1}}",
       "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
-      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name."
+      "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
+      "previewRows": "Matching rows: {{matched}} of {{total}}.",
+      "previewRowsLimited": "Matching rows: {{matched}} of {{total}} (first {{shown}} shown).",
+      "backupErrors_one": "{{count}} table had an error during the backup:",
+      "backupErrors_other": "{{count}} tables had an error during the backup:"
     }
   },
   "permissions": {
@@ -527,5 +525,40 @@
       "viewReports": "View reports",
       "openTheReportsModuleHoursLoggedAndOtherStudioReports": "Open the Reports module (hours logged and other studio reports)."
     }
+  },
+  "restricted": {
+    "title": "Restricted access",
+    "confidentialHint": "This page contains confidential information and is reserved for the Backoffice team. To view your salary details, visit <sheet>My profile</sheet>.",
+    "permissionHint": "You do not have permission to view this page. Contact an administrator if you need access. You can always view <sheet>your personal profile</sheet>."
+  },
+  "viewAs": {
+    "selected": "Viewing as {{name}}",
+    "exit": "Exit collaborator view",
+    "choose": "View as collaborator…",
+    "activeHint": "Viewing as a collaborator. Choose another collaborator or exit.",
+    "previewHint": "Preview the app as a collaborator",
+    "mode": "Collaborator view",
+    "short": "View as…",
+    "search": "Search collaborators…",
+    "empty": "No collaborators found.",
+    "group": "View the app as…",
+    "exitBanner": "Collaborator view · Exit"
+  },
+  "login": {
+    "title": "PSA Human Resources",
+    "subtitle": "Sign in with your company Google account",
+    "redirecting": "Redirecting…",
+    "google": "Sign in with Google",
+    "hint": "Access is granted when your Google email is linked to a collaborator.",
+    "failed": "Could not sign in"
+  },
+  "consent": {
+    "loadFailed": "Could not load this authorization request: {{error}}",
+    "title": "Connect {{name}} to Portal Pedra Silva?",
+    "body": "This lets {{name}} use Portal Pedra Silva tools on your behalf, respecting your permissions. You can revoke access later.",
+    "application": "an application",
+    "approve": "Approve",
+    "deny": "Deny",
+    "noRedirect": "The authorization server did not return a redirect."
   }
 }

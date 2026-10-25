@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * "A reembolsar": PSA expenses paid with a personal card, owed to the card
  * holder until someone marks them repaid. Rows are created by the database
@@ -14,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const KEY = ["finance", "holder-reimbursements"] as const;
-const eur = (n: number) => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+const eur = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 
 type Row = { id: string; document_id: string; holder_name: string | null; amount: number; status: string; repaid_at: string | null; created_at: string };
 

@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -263,7 +264,7 @@ function BillablePage() {
                         <TableCell className="text-right tabular-nums">{fmtH(r.split.internal)}</TableCell>
                         <TableCell className="text-right tabular-nums">{r.backOffice ? t("billable.byPerson.backOffice") : fmtP(r.targetPct)}</TableCell>
                         <TableCell className={cn("text-right tabular-nums", r.diff != null && r.diff < 0 && "font-medium text-destructive")}>
-                          {r.diff == null ? "—" : `${r.diff >= 0 ? "+" : ""}${Math.round(r.diff)} p.p.`}
+                          {r.diff == null ? "—" : uiI18n.t("common:units.percentagePointValue", { sign: r.diff >= 0 ? "+" : "", value: Math.round(r.diff).toLocaleString(uiI18n.language) })}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -323,7 +324,7 @@ function PersonDetail({ row, entries, taskToStage, start, end, label }: { row: P
       <SheetHeader>
         <SheetTitle>{row.person.name}</SheetTitle>
         <p className="text-xs text-muted-foreground">
-          {t("hours.rangeLabel", { start, end })} · {fmtP(row.billPct)} {t("billable.kinds.billable").toLowerCase()} · {t("billable.byPerson.target")} {fmtP(row.targetPct)}
+          {t("billable.detail.periodSummary", { range: t("hours.rangeLabel", { start, end }), percentage: fmtP(row.billPct), target: fmtP(row.targetPct) })}
         </p>
       </SheetHeader>
 
@@ -425,7 +426,7 @@ function StackBar({ split, target, height = "h-3" }: { split: Split; target?: nu
   const { t } = useTranslation("reports");
   const tot = split.logged || 1;
   const seg = (v: number, color: string, name: string, op = 1) =>
-    v > 0 ? <div style={{ width: `${(v / tot) * 100}%`, background: color, opacity: op }} title={`${name}: ${fmtH(v)} h (${Math.round((v / tot) * 100)}%)`} /> : null;
+    v > 0 ? <div style={{ width: `${(v / tot) * 100}%`, background: color, opacity: op }} title={uiI18n.t("reports:billable.segmentHint", { name, hours: fmtH(v), percent: Math.round((v / tot) * 100).toLocaleString(uiI18n.language) })} /> : null;
   return (
     <div className={cn("relative flex w-full overflow-visible rounded bg-muted", height)}>
       <div className="flex w-full overflow-hidden rounded">

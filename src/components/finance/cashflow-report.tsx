@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { Fragment, useMemo, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ import { currentEntityId } from "@/lib/finance/current-entity";
 const DASH = "—";
 
 const fmt = (v: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,

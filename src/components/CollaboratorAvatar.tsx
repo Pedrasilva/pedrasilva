@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import uiI18n from "@/i18n/index";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +32,7 @@ export function CollaboratorAvatar({
   className,
   size = 28,
 }: Props) {
+  useTranslation();
   const { data: lookup } = useQuery({
     queryKey: ["collaborator-photo", collaboratorId],
     enabled: !!collaboratorId && fotoPath === undefined,
@@ -71,7 +74,7 @@ export function CollaboratorAvatar({
         boxShadow: color ? `0 0 0 2px ${color}` : undefined,
       }}
     >
-      {url && <AvatarImage src={url} alt={displayName ?? "colaborador"} />}
+      {url && <AvatarImage src={url} alt={displayName ?? uiI18n.t("glossary:hr.employee")} />}
       <AvatarFallback
         className="text-[10px] font-semibold"
         style={

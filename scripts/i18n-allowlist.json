@@ -119,5 +119,445 @@
       ],
       "reason": "Document language choices keep their own names: Português (Portugal) / English."
     }
+  ],
+  "scopedLiterals": [
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Sr.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Sra.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Dr.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Dra.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Eng.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "jsxText",
+      "text": "Arq.",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/QuickCreateMenu.tsx",
+      "kind": "prop:placeholder",
+      "text": "P-2026-001",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/bank-reconciliation.tsx",
+      "kind": "jsxText",
+      "text": "IBAN",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/bank-reconciliation.tsx",
+      "kind": "jsxText",
+      "text": "KB",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/companies-import-card.tsx",
+      "kind": "jsxText",
+      "text": "NIF",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/create-doc-from-tx.tsx",
+      "kind": "jsxText",
+      "text": "KB",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/drive-settings-card.tsx",
+      "kind": "jsxText",
+      "text": "ms",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/intake-inbox.tsx",
+      "kind": "jsxText",
+      "text": "Drive",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/intake-inbox.tsx",
+      "kind": "jsxText",
+      "text": "Claude:",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/intake-inbox.tsx",
+      "kind": "jsxText",
+      "text": "Gemini:",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/intake-inbox.tsx",
+      "kind": "jsxText",
+      "text": "Drive:",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/invoice-editor-dialog.tsx",
+      "kind": "jsxText",
+      "text": "AT",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/invoice-editor-dialog.tsx",
+      "kind": "prop:placeholder",
+      "text": "FT 2026/001",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/payment-cards-list.tsx",
+      "kind": "prop:placeholder",
+      "text": "MDB8022",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/payment-cards-list.tsx",
+      "kind": "prop:placeholder",
+      "text": "1742:iPhone",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/purchase-editor-dialog.tsx",
+      "kind": "prop:placeholder",
+      "text": "FT 2026/123",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/finance/supplier-duplicates-review.tsx",
+      "kind": "jsxText",
+      "text": "NIF",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/hr/BenefitDriveSyncCard.tsx",
+      "kind": "jsxText",
+      "text": "x",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/marketing/planner-grid.tsx",
+      "kind": "jsxText",
+      "text": "@pedrasilva_arquitectos",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/planner/gantt-print-button.tsx",
+      "kind": "jsxText",
+      "text": "PDF",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/planner/gantt-print-button.tsx",
+      "kind": "jsxText",
+      "text": "A4",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/planner/gantt-print-button.tsx",
+      "kind": "jsxText",
+      "text": "A3",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/planner/gantt-print-button.tsx",
+      "kind": "jsxText",
+      "text": "px",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/planner/gantt-print-button.tsx",
+      "kind": "jsxText",
+      "text": "px",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/projects/gantt-chart.tsx",
+      "kind": "jsxText",
+      "text": "R",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/projects/gantt-chart.tsx",
+      "kind": "jsxText",
+      "text": "· F",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/projects/project-expense-dialog.tsx",
+      "kind": "prop:placeholder",
+      "text": "FT 2026/12345",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/projects/project-pursuit-card.tsx",
+      "kind": "jsxExpression",
+      "text": "0h00",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/block-settings-panel.tsx",
+      "kind": "jsxExpression",
+      "text": "{{token}}",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/block-settings-panel.tsx",
+      "kind": "jsxExpression",
+      "text": "{{token}}",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/block-settings-panel.tsx",
+      "kind": "prop:placeholder",
+      "text": "A",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/composer-top-bar.tsx",
+      "kind": "jsxText",
+      "text": "PDF",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/rich-text-editor.tsx",
+      "kind": "jsxText",
+      "text": "A",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/psa-composer/send-proposal-dialog.tsx",
+      "kind": "jsxText",
+      "text": ".pdf",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "km",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "€/km",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "€/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-construction-assistance-tab.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-financial-summary-tab.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-financial-summary-tab.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/quote-planner-inspector.tsx",
+      "kind": "jsxText",
+      "text": "h/d",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/retainer-monthly-readings.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/retainer-stage-editor.tsx",
+      "kind": "jsxText",
+      "text": "m",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/retainer-stage-editor.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/components/quotes/retainer-stage-editor.tsx",
+      "kind": "jsxText",
+      "text": "/h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.backups.tsx",
+      "kind": "jsxText",
+      "text": "BACKUP_DRIVE_FOLDER_ID",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.company-settings.tsx",
+      "kind": "prop:placeholder",
+      "text": "Pedra Silva Atelier",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.imports.tsx",
+      "kind": "jsxText",
+      "text": "&lt;",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.imports.tsx",
+      "kind": "jsxText",
+      "text": "&gt;",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.imports.tsx",
+      "kind": "jsxText",
+      "text": "&lt;",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.imports.tsx",
+      "kind": "jsxText",
+      "text": "&gt;",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.admin.imports.tsx",
+      "kind": "prop:placeholder",
+      "text": "eaad9e59-1866-4ded-8037-fbbb0b05079d",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.hr.resumo.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.hr.resumo.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.marketing.bible.tsx",
+      "kind": "jsxText",
+      "text": "v",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.marketing.carousels.$id.tsx",
+      "kind": "jsxText",
+      "text": "+T",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.marketing.posts.tsx",
+      "kind": "prop:placeholder",
+      "text": "https://",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.marketing.published.insights.tsx",
+      "kind": "jsxText",
+      "text": "&nbsp;",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.marketing.settings.tsx",
+      "kind": "jsxText",
+      "text": "· fbtrace_id",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.projects.timesheet.tsx",
+      "kind": "jsxExpression",
+      "text": "0h00",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.billable.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.business.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.capacity.tsx",
+      "kind": "jsxText",
+      "text": "h ·",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.capacity.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.health.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    },
+    {
+      "path": "src/routes/_app.reports.health.tsx",
+      "kind": "jsxText",
+      "text": "h",
+      "reason": "Exact technical unit, identifier, file-format/code example, stored honorific or brand; no UI prose excluded."
+    }
   ]
 }

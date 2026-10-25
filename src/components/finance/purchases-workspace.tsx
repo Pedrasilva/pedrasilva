@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Purchases workspace — list of supplier invoices / credit notes (received docs).
  *
@@ -50,7 +51,7 @@ const STATUS_LIST: FinDocStatus[] = [
 ];
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("pt-PT", {
+  new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);

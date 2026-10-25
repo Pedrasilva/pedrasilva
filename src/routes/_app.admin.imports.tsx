@@ -1236,7 +1236,7 @@ function GanttPreview({ stages }: { stages: GanttStage[] }) {
                         backgroundColor: projectColor.get(label),
                         opacity: 0.85,
                       }}
-                      title={`${s.stage_name} • ${s.start_date} → ${s.end_date} • ${s.people} ${t("admin.imports.stages.gantt.people")} • ${s.hours.toFixed(1)}h`}
+                      title={uiI18n.t("common:admin.imports.stages.gantt.stageHint", { name: s.stage_name, start: s.start_date, end: s.end_date, people: t("admin.imports.stages.gantt.peopleCount", { count: s.people }), hours: s.hours.toLocaleString(uiI18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })}
                     >
                       <span className="text-[10px] text-white truncate font-medium">
                         {s.stage_name}

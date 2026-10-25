@@ -9,7 +9,11 @@
     "viewTeam": "View team plan",
     "notPlanned": "Week not planned yet",
     "planNext": "Plan next week",
-    "status": { "noDraft": "No draft", "draft": "Draft", "approved": "Approved" }
+    "status": {
+      "noDraft": "No draft",
+      "draft": "Draft",
+      "approved": "Approved"
+    }
   },
   "tagline": "We make room for creativity.",
   "intro": "Welcome to the PSA team space. Here we share the tools, projects and small moments that build the studio — every day.",
@@ -37,7 +41,25 @@
     "moduleDescription": "Curated studio imagery — the same library the Quote Builder pulls from.",
     "kicker": "Studio Portfolio",
     "title": "Signature Projects",
-    "subtitle": "Curated imagery used across the studio — the same library the Quote Builder pulls from when filling proposal pages."
+    "subtitle": "Curated imagery used across the studio — the same library the Quote Builder pulls from when filling proposal pages.",
+    "cat": {
+      "general": "General",
+      "residential": "Residential",
+      "workplace": "Workplace",
+      "hospitality": "Hospitality",
+      "team": "Team"
+    },
+    "uploading": "Uploading…",
+    "upload": "Add to this category",
+    "empty": {
+      "title": "No images in this category yet",
+      "adminBody": "Upload photos for this category. They become instantly available inside the Quote Builder image block.",
+      "body": "Ask an admin to upload signature imagery to this category.",
+      "cta": "Upload first image"
+    },
+    "moved": "Category updated",
+    "uploaded_one": "{{count}} image added to the library",
+    "uploaded_other": "{{count}} images added to the library"
   },
   "celebrations": {
     "title": "Upcoming celebrations",
@@ -50,7 +72,8 @@
     "empty": "The whole team is in today.",
     "until": "until {{date}}",
     "more_one": "+{{count}} more",
-    "more_other": "+{{count}} more"
+    "more_other": "+{{count}} more",
+    "typeUntil": "{{type}} · Until {{date}}"
   },
   "holidays": {
     "title": "Upcoming holidays",
@@ -131,5 +154,10 @@
     "title": "Questions for you",
     "answer": "Answer",
     "record": "Record briefing"
+  },
+  "portfolio": {
+    "moveCategory": "Move to category",
+    "removeImage": "Remove “{{name}}”?",
+    "imageRemoved": "Image removed"
   }
 }

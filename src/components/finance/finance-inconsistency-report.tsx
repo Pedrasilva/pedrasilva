@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Admin-only read-only inconsistency report.
  *
@@ -61,7 +62,7 @@ type Report = {
 
 function fmtAmount(n: number | null | undefined) {
   if (n === null || n === undefined) return "—";
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
   }).format(n);

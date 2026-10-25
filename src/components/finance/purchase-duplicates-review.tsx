@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 /**
  * Suspected duplicate purchases: read-only side-by-side review. The only
  * actions are a person's decision per group (void B linked to A, or "not a duplicate").
@@ -20,11 +21,11 @@ import { cn } from "@/lib/utils";
 import { listPurchaseDuplicates, resolvePurchaseDuplicate, type DupDoc, type DupGroup } from "@/lib/finance/purchase-duplicates.functions";
 
 const BUCKET = "financial-documents";
-const eur = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "EUR" });
+const eur = (n: number) => n.toLocaleString(uiI18n.language, { style: "currency", currency: "EUR" });
 
 async function openFile(path: string) {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 120);
-  if (error || !data) return toast.error(error?.message ?? "File not available");
+  if (error || !data) return toast.error(error?.message ?? uiI18n.t("finance:attachments.unavailable"));
   window.open(data.signedUrl, "_blank", "noopener");
 }
 
