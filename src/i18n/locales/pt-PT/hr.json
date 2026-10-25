@@ -88,19 +88,23 @@
       "empty": "Sem alertas pendentes. Está tudo em ordem.",
       "benefitsPending": {
         "title": "Despesas de benefícios por aprovar",
-        "body": "{{count}} reembolso(s) pendente(s) para revisão."
+        "body_one": "{{count}} reembolso pendente para revisão.",
+        "body_other": "{{count}} reembolsos pendentes para revisão."
       },
       "benefitsStale": {
         "title": "Reembolsos pendentes há muito tempo",
-        "body": "{{count}} reembolso(s) pendente(s) há mais de 14 dias."
+        "body_one": "{{count}} reembolso pendente há mais de 14 dias.",
+        "body_other": "{{count}} reembolsos pendentes há mais de 14 dias."
       },
       "vacationPending": {
         "title": "Pedidos de férias por decidir",
-        "body": "{{count}} pedido(s) à espera de aprovação."
+        "body_one": "{{count}} pedido à espera de aprovação.",
+        "body_other": "{{count}} pedidos à espera de aprovação."
       },
       "approvedNoFei": {
         "title": "Reembolsos aprovados sem passivo",
-        "body": "{{count}} reembolso(s) aprovado(s) sem passivo financeiro."
+        "body_one": "{{count}} reembolso aprovado sem passivo financeiro.",
+        "body_other": "{{count}} reembolsos aprovados sem passivo financeiro."
       },
       "feiPaidHrDrift": {
         "title": "Divergência de pagamento Finanças/RH",
@@ -108,15 +112,18 @@
       },
       "syncFailed": {
         "title": "Falhas de sincronização Finanças → RH",
-        "body": "{{count}} evento(s) de liquidação não sincronizou(aram) para o RH."
+        "body_one": "{{count}} evento de liquidação não sincronizado com os RH.",
+        "body_other": "{{count}} eventos de liquidação não sincronizados com os RH."
       },
       "reimbNoPeriod": {
         "title": "Reembolsos sem período",
-        "body": "{{count}} reembolso(s) aprovado(s) sem período de referência."
+        "body_one": "{{count}} reembolso aprovado sem período de referência.",
+        "body_other": "{{count}} reembolsos aprovados sem período de referência."
       },
       "missingSalary": {
         "title": "Colaboradores sem dados salariais",
-        "body": "{{count}} colaborador(es) ativo(s) sem snapshot salarial."
+        "body_one": "{{count}} colaborador ativo sem dados salariais.",
+        "body_other": "{{count}} colaboradores ativos sem dados salariais."
       },
       "allClear": "Nada a requerer atenção neste momento."
     },
@@ -1232,8 +1239,7 @@
       "willCreateTitle": "Novos colaboradores a criar",
       "willCreateDisabled": "Desactivado — active “Criar colaboradores em falta” para os incluir.",
       "skippedTitle": "Linhas que vão ser ignoradas",
-      "confirmHint": "Vai inserir {{insert}} ficha(s); ignorar {{skip}} linha(s).",
-      "selectedHint": "{{selected}} linha(s) seleccionada(s) para importação.",
+      "confirmHint": "Fichas a inserir: {{insert}}; linhas a ignorar: {{skip}}.",
       "selectRow": "Incluir linha",
       "cols": {
         "row": "Linha",
@@ -1247,7 +1253,9 @@
         "number": "Nº",
         "reason": "Motivo",
         "warnings": "Avisos"
-      }
+      },
+      "selectedHint_one": "{{selected}} linha selecionada para importação.",
+      "selectedHint_other": "{{selected}} linhas selecionadas para importação."
     },
     "warnings": {
       "missing_email": "Sem email",
@@ -1259,10 +1267,11 @@
     },
     "result": {
       "completedTitle": "Importação concluída",
-      "summary": "Inseridas {{inserted}} ficha(s); criados {{created}} colaborador(es); ignoradas {{skipped}} linha(s)."
+      "summary": "Fichas inseridas: {{inserted}}; colaboradores criados: {{created}}; linhas ignoradas: {{skipped}}."
     },
     "toasts": {
-      "completed": "Importadas {{inserted}} ficha(s); {{skipped}} ignoradas"
+      "completed_one": "Importada {{inserted}} ficha; {{skipped}} ignoradas",
+      "completed_other": "Importadas {{inserted}} fichas; {{skipped}} ignoradas"
     }
   },
   "beneficios": {
@@ -1524,14 +1533,15 @@
       "newest": "Pagamento mais recente",
       "run": "Executar backfill ({{count}})",
       "confirmTitle": "Confirmar backfill do ledger",
-      "confirmBody": "Vai criar {{count}} linha(s) sintética(s) no ledger de pagamentos. Sem ligação a movimentos bancários. Operação idempotente.",
       "cancel": "Cancelar",
       "confirm": "Confirmar",
       "toastDone": "Backfill concluído — criados: {{created}}, ignorados: {{skipped}}, falhas: {{failed}}",
       "created": "Criados",
       "skipped": "Ignorados",
       "failed": "Falhas",
-      "viewFailures": "Ver falhas"
+      "viewFailures": "Ver falhas",
+      "confirmBody_one": "Vai criar {{count}} linha sintética no registo de pagamentos. Não serão criadas ligações a movimentos bancários. A operação é idempotente.",
+      "confirmBody_other": "Vai criar {{count}} linhas sintéticas no registo de pagamentos. Não serão criadas ligações a movimentos bancários. A operação é idempotente."
     },
     "admin2": {
       "balanceSection": "Saldo inicial (uma vez)",
@@ -1790,9 +1800,7 @@
     "approverMissingBlocked": "Não existe aprovador definido para si, por isso o pedido não pode ser submetido.",
     "overrideLabel": "Registar diretamente, sem aprovação",
     "sameDayBlocked": "Não são permitidos pedidos para o próprio dia.",
-    "noticeBlocked": "Os pedidos devem ser feitos com pelo menos {{days}} dia(s) de antecedência.",
     "pastDateBlocked": "Não é possível registar trabalho remoto numa data passada.",
-    "lateWarning": "Pedido fora de prazo — a política pede pelo menos {{days}} dia(s) de antecedência (a partir de {{date}}).",
     "lateWarningSub": "Pode enviar: o pedido segue por email para o aprovador e fica registado como pedido fora de prazo.",
     "lateReason": "Justificação do pedido fora de prazo",
     "lateReasonPlaceholder": "Opcional — porque não foi possível pedir antes?",
@@ -1838,7 +1846,11 @@
     "submitDeclaration": "Registar",
     "declared": "Trabalho remoto registado",
     "fullDaysCol": "Dias completos",
-    "halfDaysCol": "Meios dias"
+    "halfDaysCol": "Meios dias",
+    "noticeBlocked_one": "Os pedidos devem ser feitos com pelo menos {{days}} dia de antecedência.",
+    "noticeBlocked_other": "Os pedidos devem ser feitos com pelo menos {{days}} dias de antecedência.",
+    "lateWarning_one": "Pedido fora de prazo — a política pede pelo menos {{days}} dia de antecedência (a partir de {{date}}).",
+    "lateWarning_other": "Pedido fora de prazo — a política pede pelo menos {{days}} dias de antecedência (a partir de {{date}})."
   },
   "availability": {
     "title": "Disponibilidade da equipa",
@@ -1914,7 +1926,8 @@
     "year": {
       "title": "Dias de ausência {{year}}",
       "total": "Total",
-      "cellTip": "{{name}} — {{month}}: {{days}} dia(s)"
+      "cellTip_one": "{{name}} — {{month}}: {{days}} dia",
+      "cellTip_other": "{{name}} — {{month}}: {{days}} dias"
     },
     "weekday": {
       "sun": "D",
@@ -2104,7 +2117,7 @@
       "areDeductedFromTheAnnualBalance": "descontam do saldo anual.",
       "selectCollaborator": "Selecionar colaborador…",
       "absenceType": "Tipo de ausência",
-      "fullDayS": "Dia(s) inteiro(s)",
+      "fullDayS": "Dias inteiros",
       "halfDayMorningHours": "Meio-dia — manhã (4h)",
       "halfDayAfternoonHours": "Meio-dia — tarde (4h)",
       "someHours": "Algumas horas…",

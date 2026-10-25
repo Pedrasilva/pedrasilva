@@ -793,7 +793,6 @@
     "cancelConfirm": "Cancel this action?",
     "cancelledToast": "Action cancelled",
     "uploading": "Uploading {{done}} of {{total}}…",
-    "addFiles": "Upload {{count}} file(s)",
     "routingHint": "With a linked project, recordings become a briefing on its profile and photos become captures for that project. Other files stay on the action.",
     "routed": {
       "briefing": "{{file}} became a briefing",
@@ -802,7 +801,9 @@
     "routedBadge": {
       "briefing": "Briefing",
       "capture": "Capture"
-    }
+    },
+    "addFiles_one": "Upload {{count}} file",
+    "addFiles_other": "Upload {{count}} files"
   },
   "context": {
     "title": "Context",

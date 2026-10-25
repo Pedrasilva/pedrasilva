@@ -275,10 +275,12 @@
       "unmatchConfirm": "Desassociar esta transação? Ficará desbloqueada e sai do saldo calculado.",
       "delete": "Eliminar movimento",
       "deleteFiltered": "Eliminar os {{count}} listados",
-      "deleteConfirm": "Eliminar definitivamente {{count}} movimento(s) bancário(s)? Esta ação não pode ser revertida.",
       "deleteLocked": "Alguns movimentos estão reconciliados e bloqueados. Desassocie-os primeiro e volte a eliminar.",
-      "deleted": "{{count}} movimento(s) eliminado(s)",
-      "unmatched": "Transação desassociada"
+      "unmatched": "Transação desassociada",
+      "deleteConfirm_one": "Eliminar definitivamente {{count}} movimento bancário? Esta ação não pode ser revertida.",
+      "deleteConfirm_other": "Eliminar definitivamente {{count}} movimentos bancários? Esta ação não pode ser revertida.",
+      "deleted_one": "{{count}} movimento eliminado",
+      "deleted_other": "{{count}} movimentos eliminados"
     },
     "linkedTo": "Associada a {{ref}}",
     "alreadyLinked": {
@@ -543,7 +545,6 @@
   },
   "income": {
     "title": "Receitas",
-    "subtitle": "{{count}} factura(s)",
     "empty": "Sem receitas para os filtros seleccionados.",
     "summary": {
       "total": "Total",
@@ -559,11 +560,12 @@
       "paid": "Paga",
       "amount": "Valor",
       "status": "Estado"
-    }
+    },
+    "subtitle_one": "{{count}} fatura",
+    "subtitle_other": "{{count}} faturas"
   },
   "expenses": {
     "title": "Despesas operacionais",
-    "subtitle": "{{count}} despesa(s)",
     "empty": "Sem despesas para os filtros seleccionados.",
     "summary": {
       "total": "Total",
@@ -583,12 +585,15 @@
     },
     "markBenefitPaid": "Marcar reembolso como pago",
     "markBenefitPaidConfirm": "Marcar este reembolso de benefícios como pago?",
-    "toastPaid": "Reembolso marcado como pago"
+    "toastPaid": "Reembolso marcado como pago",
+    "subtitle_one": "{{count}} despesa",
+    "subtitle_other": "{{count}} despesas"
   },
   "materials": {
     "title": "Materiais de projecto",
-    "subtitle": "{{count}} linha(s) de materiais",
-    "empty": "Sem materiais para os filtros seleccionados."
+    "empty": "Sem materiais para os filtros seleccionados.",
+    "subtitle_one": "{{count}} linha de materiais",
+    "subtitle_other": "{{count}} linhas de materiais"
   },
   "home": {
     "noPeriod": "Ainda não existe um período financeiro para este mês.",
@@ -611,9 +616,7 @@
   },
   "debts": {
     "title": "Dívidas",
-    "subtitle": "{{count}} dívida(s)",
     "empty": "Sem dívidas registadas.",
-    "scheduledCount": "{{count}} pagamento(s)",
     "summary": {
       "original": "Total original",
       "outstanding": "Total em aberto"
@@ -630,7 +633,6 @@
     },
     "payments": {
       "title": "Pagamentos de dívida agendados",
-      "subtitle": "{{count}} pagamento(s)",
       "empty": "Ainda não há pagamentos de dívida agendados.",
       "col": {
         "creditor": "Credor",
@@ -640,12 +642,17 @@
         "planned": "Previsto",
         "actual": "Real",
         "status": "Estado"
-      }
-    }
+      },
+      "subtitle_one": "{{count}} pagamento",
+      "subtitle_other": "{{count}} pagamentos"
+    },
+    "subtitle_one": "{{count}} dívida",
+    "subtitle_other": "{{count}} dívidas",
+    "scheduledCount_one": "{{count}} pagamento",
+    "scheduledCount_other": "{{count}} pagamentos"
   },
   "importLogs": {
     "title": "Logs de importação",
-    "subtitle": "{{count}} importação(ões)",
     "empty": "Ainda não há importações registadas.",
     "col": {
       "importedAt": "Importado em",
@@ -660,7 +667,9 @@
       "rowsDebts": "Dívidas",
       "rowsBankAccounts": "Contas banc.",
       "notes": "Notas"
-    }
+    },
+    "subtitle_one": "{{count}} importação",
+    "subtitle_other": "{{count}} importações"
   },
   "tabsExtra": {
     "documents": "Documentos"
@@ -1442,7 +1451,6 @@
     "pending": "Por rever",
     "approved": "Aprovados",
     "rejected": "Rejeitados",
-    "itemsCount": "{{count}} item(s)",
     "groupedDocs": "{{count}} documentos associados",
     "recurring": "Recorrente",
     "reextract": "Reextrair",
@@ -1558,7 +1566,9 @@
       "title": "Fornecedor já existe",
       "body": "Já existe um fornecedor com o NIF {{nif}}: {{name}}. Ligar este fornecedor a esta empresa em vez de criar um novo? Continua partilhado e só a equipa PSA o pode editar.",
       "link": "Ligar fornecedor"
-    }
+    },
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} itens"
   },
   "vatReport": {
     "title": "Relatório de IVA",

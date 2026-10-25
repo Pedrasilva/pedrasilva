@@ -793,7 +793,6 @@
     "cancelConfirm": "Cancelar esta ação?",
     "cancelledToast": "Ação cancelada",
     "uploading": "A carregar {{done}} de {{total}}…",
-    "addFiles": "Carregar {{count}} ficheiro(s)",
     "routingHint": "Com um projeto ligado, as gravações tornam-se um briefing no perfil e as fotografias tornam-se capturas desse projeto. Os restantes ficheiros ficam na ação.",
     "routed": {
       "briefing": "{{file}} tornou-se um briefing",
@@ -802,7 +801,9 @@
     "routedBadge": {
       "briefing": "Briefing",
       "capture": "Captura"
-    }
+    },
+    "addFiles_one": "Carregar {{count}} ficheiro",
+    "addFiles_other": "Carregar {{count}} ficheiros"
   },
   "context": {
     "title": "Contexto",

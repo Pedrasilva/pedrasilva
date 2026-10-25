@@ -711,10 +711,11 @@
       "effortValue": "{{perDay}}h/dia · {{total}}h total",
       "costPerHour": "Custo/h",
       "totalCost": "Custo total",
-      "overload": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dia(s).",
       "leaveImpact": "Capacidade reduzida: <strong>{{leave}}h</strong> de férias aprovadas dentro do período → capacidade efetiva ≈ <strong>{{effective}}h</strong> (de {{planned}}h planeadas).",
       "baselineHover": "Baseline: {{start}} → {{end}}",
-      "leaveOverlap": "{{hours}}h sobrepostas com férias aprovadas"
+      "leaveOverlap": "{{hours}}h sobrepostas com férias aprovadas",
+      "overload_one": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dia.",
+      "overload_other": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dias."
     },
     "stage": {
       "overByAmount": "excedido em {{amount}}",
@@ -822,10 +823,11 @@
       "locked": "Uma fase bloqueada não pode ser deslocada.",
       "lockedAllocation": "Uma alocação protegida não pode ser redimensionada.",
       "crossProject": "Esta ligação entre projetos requer revisão antes de editar.",
-      "lockedSkipped": "{{count}} fase(s) bloqueada(s) mantida(s) no lugar.",
       "nothingMoved": "Nada a deslocar: todas as fases estão ligadas ou bloqueadas.",
       "slack_one": "{{count}} dia de intervalo adicional",
-      "slack_other": "{{count}} dias de intervalo adicional"
+      "slack_other": "{{count}} dias de intervalo adicional",
+      "lockedSkipped_one": "{{count}} fase bloqueada mantida no lugar.",
+      "lockedSkipped_other": "{{count}} fases bloqueadas mantidas no lugar."
     },
     "relative": {
       "week": "Semana {{number}}",
@@ -1295,7 +1297,8 @@
     },
     "leaveConflict": {
       "title": "{{hours}} planeadas durante férias aprovadas",
-      "subtitle": "{{count}} dia(s) com sobreposição. Reveja as alocações abaixo marcadas com o ícone de férias."
+      "subtitle_one": "{{count}} dia com sobreposição. Reveja as alocações abaixo marcadas com o ícone de férias.",
+      "subtitle_other": "{{count}} dias com sobreposição. Reveja as alocações abaixo marcadas com o ícone de férias."
     },
     "capacityRisk": {
       "title": "Capacidade reduzida por férias",

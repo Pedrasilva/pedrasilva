@@ -154,7 +154,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
 
             {summaryQ.data.meta.errors && summaryQ.data.meta.errors.length > 0 && (
               <div className="rounded border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900">
-                <strong>{summaryQ.data.meta.errors.length}  {uiI18n.t("access:batchFive.labels.tableSHadAnErrorDuringThe")} </strong>
+                <strong>{uiI18n.t("access:batchFive.labels.backupErrors", { count: summaryQ.data.meta.errors.length })} </strong>
                 <ul className="mt-1 list-inside list-disc">
                   {summaryQ.data.meta.errors.slice(0, 5).map((e) => (
                     <li key={e.table}>

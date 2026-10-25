@@ -1377,7 +1377,7 @@ function CapacityOverviewTable({
                   >
                     {e.recoverable == null
                       ? notDefined
-                      : `${formatHoursPerWeek(e.recoverable, i18n.language)} h`}
+                      : uiI18n.t("common:units.hourValue", { value: formatHoursPerWeek(e.recoverable, i18n.language) })}
                   </TableCell>
                 </TableRow>
               );

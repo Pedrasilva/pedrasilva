@@ -275,10 +275,12 @@
       "unmatchConfirm": "Unmatch this transaction? It will be unlocked and removed from the calculated balance.",
       "delete": "Delete movement",
       "deleteFiltered": "Delete {{count}} shown",
-      "deleteConfirm": "Permanently delete {{count}} bank movement(s)? This cannot be undone.",
       "deleteLocked": "Some movements are reconciled and locked. Unmatch them first, then delete.",
-      "deleted": "{{count}} movement(s) deleted",
-      "unmatched": "Transaction unmatched"
+      "unmatched": "Transaction unmatched",
+      "deleteConfirm_one": "Permanently delete {{count}} bank movement? This cannot be undone.",
+      "deleteConfirm_other": "Permanently delete {{count}} bank movements? This cannot be undone.",
+      "deleted_one": "{{count}} movement deleted",
+      "deleted_other": "{{count}} movements deleted"
     },
     "linkedTo": "Linked to {{ref}}",
     "alreadyLinked": {
@@ -543,7 +545,6 @@
   },
   "income": {
     "title": "Income",
-    "subtitle": "{{count}} invoice(s)",
     "empty": "No income records match the selected filters.",
     "summary": {
       "total": "Total",
@@ -559,11 +560,12 @@
       "paid": "Paid",
       "amount": "Amount",
       "status": "Status"
-    }
+    },
+    "subtitle_one": "{{count}} invoice",
+    "subtitle_other": "{{count}} invoices"
   },
   "expenses": {
     "title": "Operational expenses",
-    "subtitle": "{{count}} expense(s)",
     "empty": "No expenses match the selected filters.",
     "summary": {
       "total": "Total",
@@ -583,12 +585,15 @@
     },
     "markBenefitPaid": "Mark reimbursement as paid",
     "markBenefitPaidConfirm": "Mark this benefit reimbursement as paid?",
-    "toastPaid": "Reimbursement marked as paid"
+    "toastPaid": "Reimbursement marked as paid",
+    "subtitle_one": "{{count}} expense",
+    "subtitle_other": "{{count}} expenses"
   },
   "materials": {
     "title": "Project materials",
-    "subtitle": "{{count}} material line(s)",
-    "empty": "No materials match the selected filters."
+    "empty": "No materials match the selected filters.",
+    "subtitle_one": "{{count}} material line",
+    "subtitle_other": "{{count}} material lines"
   },
   "home": {
     "noPeriod": "No finance period is set up for this month yet.",
@@ -611,9 +616,7 @@
   },
   "debts": {
     "title": "Debts",
-    "subtitle": "{{count}} debt(s)",
     "empty": "No debts recorded.",
-    "scheduledCount": "{{count}} payment(s)",
     "summary": {
       "original": "Original total",
       "outstanding": "Outstanding total"
@@ -630,7 +633,6 @@
     },
     "payments": {
       "title": "Scheduled debt payments",
-      "subtitle": "{{count}} payment(s)",
       "empty": "No scheduled debt payments yet.",
       "col": {
         "creditor": "Creditor",
@@ -640,12 +642,17 @@
         "planned": "Planned",
         "actual": "Actual",
         "status": "Status"
-      }
-    }
+      },
+      "subtitle_one": "{{count}} payment",
+      "subtitle_other": "{{count}} payments"
+    },
+    "subtitle_one": "{{count}} debt",
+    "subtitle_other": "{{count}} debts",
+    "scheduledCount_one": "{{count}} payment",
+    "scheduledCount_other": "{{count}} payments"
   },
   "importLogs": {
     "title": "Import logs",
-    "subtitle": "{{count}} import(s)",
     "empty": "No imports recorded yet.",
     "col": {
       "importedAt": "Imported at",
@@ -660,7 +667,9 @@
       "rowsDebts": "Debts",
       "rowsBankAccounts": "Bank acc.",
       "notes": "Notes"
-    }
+    },
+    "subtitle_one": "{{count}} import",
+    "subtitle_other": "{{count}} imports"
   },
   "tabsExtra": {
     "documents": "Documents"
@@ -1442,7 +1451,6 @@
     "pending": "Pending review",
     "approved": "Approved",
     "rejected": "Rejected",
-    "itemsCount": "{{count}} item(s)",
     "groupedDocs": "{{count}} linked documents",
     "recurring": "Recurring",
     "reextract": "Re-extract",
@@ -1558,7 +1566,9 @@
       "title": "Supplier already exists",
       "body": "A supplier with NIF {{nif}} already exists: {{name}}. Link it to this company instead of creating a new one? It stays shared and only PSA staff can edit it.",
       "link": "Link supplier"
-    }
+    },
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items"
   },
   "vatReport": {
     "title": "VAT report",

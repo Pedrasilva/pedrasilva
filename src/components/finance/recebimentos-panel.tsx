@@ -213,7 +213,7 @@ function RecebimentoCard({ rec, proofs, txs, company }: { rec: Rec; proofs: Proo
           </div>
         </div>
         <div className="text-[11px] text-muted-foreground">
-          {t("finance:recebimentos.payer")}: {rec.payer_name ?? "—"}{rec.payer_vat ? ` · NIF ${rec.payer_vat}` : ""}{rec.payer_iban ? ` · ${rec.payer_iban}` : ""}
+          {t("finance:recebimentos.payer")}: {rec.payer_name ?? "—"}{rec.payer_vat ? t("common:taxNumberSuffix", { value: rec.payer_vat }) : ""}{rec.payer_iban ? ` · ${rec.payer_iban}` : ""}
           {rec.description ? ` · “${rec.description}”` : ""}
         </div>
       </CardHeader>

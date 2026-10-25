@@ -267,7 +267,6 @@
     "convertExisting": "Projecto já existe — a abrir",
     "convertCreated": "Projecto criado",
     "convertSummary": "Projecto criado — copiadas {{stages}} fases, {{dependencies}} dependências, {{allocations}} alocações, {{external}} serviços externos.",
-    "convertSkipped": "{{count}} alocação(ões) ignorada(s) (sem fase correspondente). Ver consola para detalhes.",
     "backToOpportunity": "Voltar à oportunidade",
     "backToOpportunities": "Voltar a oportunidades",
     "openProject": "Abrir projecto",
@@ -375,7 +374,9 @@
       "converted": "Projecto",
       "lost": "Perdida"
     },
-    "exclVAT": "Valor sem IVA"
+    "exclVAT": "Valor sem IVA",
+    "convertSkipped_one": "{{count}} alocação ignorada (sem fase correspondente). Consulte a consola para mais informações.",
+    "convertSkipped_other": "{{count}} alocações ignoradas (sem fase correspondente). Consulte a consola para mais informações."
   },
   "stage": {
     "lead": "Lead",
@@ -558,13 +559,13 @@
         "button": "Realinhar",
         "running": "A realinhar…",
         "tooltip": "Avança cada etapa para respeitar todas as dependências FS/SS/FF/SF.",
-        "done": "Realinhadas {{count}} etapa(s) para respeitar as dependências.",
-        "alreadyAligned": "O cronograma já respeita todas as dependências."
+        "alreadyAligned": "O cronograma já respeita todas as dependências.",
+        "done_one": "Realinhada {{count}} fase para respeitar as dependências.",
+        "done_other": "Realinhadas {{count}} fases para respeitar as dependências."
       },
       "projectSummary": "Projeto",
       "projectStart": "Início do projeto",
       "projectStartHint": "Alterar esta data desloca todas as fases e alocações pelo mesmo número de dias.",
-      "projectStartShifted": "Cronograma deslocado em {{days}} dia(s).",
       "supplierIsSelf": "Somos nós (honorário de arquitetura, sem saída)",
       "supplierPlaceholderLabel": "Ou, se o fornecedor ainda não é conhecido, descreva o papel",
       "supplierPlaceholderHint": "ex. Consultor MEP, Engenheiro de estruturas",
@@ -743,15 +744,19 @@
       "weeks": "Semanas",
       "months": "Meses",
       "savedBillAtChildrenParent": "Guardado: as subetapas desta etapa são faturadas de forma independente.",
-      "savedBillAtParentParent": "Guardado: a faturação é agregada nesta etapa pai."
+      "savedBillAtParentParent": "Guardado: a faturação é agregada nesta etapa pai.",
+      "projectStartShifted_one": "Cronograma deslocado em {{days}} dia.",
+      "projectStartShifted_other": "Cronograma deslocado em {{days}} dias."
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
       "noTeam": "Ainda não há equipa atribuída a esta proposta.",
-      "stageWithoutAllocation": "{{count}} fase(s) sem alocação: {{names}}",
       "negativeProfit": "Esta proposta tem atualmente lucro negativo. Reveja honorários, custos ou âmbito.",
       "zeroProfit": "Lucro zero — a proposta cobre o custo mas não gera margem.",
-      "externalNoSupplier": "{{count}} serviço(s) externo(s) sem fornecedor."
+      "stageWithoutAllocation_one": "{{count}} fase sem alocação: {{names}}",
+      "stageWithoutAllocation_other": "{{count}} fases sem alocação: {{names}}",
+      "externalNoSupplier_one": "{{count}} serviço externo sem fornecedor.",
+      "externalNoSupplier_other": "{{count}} serviços externos sem fornecedor."
     },
     "external": {
       "title": "Serviços externos",
@@ -1240,7 +1245,8 @@
       "createDraft": "Criar rascunho de contrato",
       "creating": "A criar…",
       "openDraft": "Abrir rascunho",
-      "totalCount": "{{count}} contrato(s) para esta proposta"
+      "totalCount_one": "{{count}} contrato para esta proposta",
+      "totalCount_other": "{{count}} contratos para esta proposta"
     },
     "toast": {
       "draftCreated": "Rascunho de contrato criado",
@@ -1521,9 +1527,10 @@
     "appendix.VI": "VI — Interfaces com Consultores",
     "insert": "Inserir na proposta",
     "inserted": "Inseridos {{count}} blocos",
-    "unresolved": "{{count}} marcador(es) não resolvido(s): {{list}}",
     "warning.existingBlocks": "Este documento já tem blocos. As novas secções serão acrescentadas no fim.",
-    "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão."
+    "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão.",
+    "unresolved_one": "{{count}} marcador não resolvido: {{list}}",
+    "unresolved_other": "{{count}} marcadores não resolvidos: {{list}}"
   },
   "emailLeads": {
     "title": "Novos leads de email",
@@ -1826,7 +1833,6 @@
     "remainPrefix": "Permanecem na proposta (",
     "contractComposerPending": "Editor de contratos em desenvolvimento",
     "convertSoon": "Converter (em breve)",
-    "blocksImported": "{{value1}} bloco(s) importado(s) do modelo.",
     "importFailed": "Erro ao importar modelo",
     "replaceBlocks": "Substituir todos os blocos pela biblioteca de um modelo",
     "replaceBlocksHint": "Escolha um modelo guardado. A confirmação substitui todos os blocos atuais da proposta pelos blocos do modelo selecionado.",

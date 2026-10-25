@@ -768,5 +768,6 @@
     "hint": "JPG, PNG ou WEBP · máximo de 5 MB. A foto aparece em toda a aplicação (por exemplo, nos recursos do Gantt).",
     "invalidFormat": "Formato inválido. Utilize JPG, PNG ou WEBP.",
     "tooLarge": "Ficheiro demasiado grande (máximo de 5 MB)."
-  }
+  },
+  "taxNumberSuffix": " · NIF {{value}}"
 }

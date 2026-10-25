@@ -562,7 +562,7 @@ type LinkFilter = "all" | "linked" | "unlinked";
 type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "needs_review" | "all";
 
 const fmtAmount = (n: number, ccy = "EUR") =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
+  new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
 
 function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodId, onSelectPeriod }: { accountId: string; classifications: Classification[]; isPt: boolean; selectedPeriodId: string | null; onSelectPeriod: (id: string | null) => void }) {
   const { t } = useTranslation(["finance", "common"]);

@@ -167,11 +167,9 @@
       "downloadingAndDecompressingFromDrive": "Downloading and decompressing from Drive…",
       "generatedOn": "Generated on",
       "totalRows": "Total rows",
-      "tableSHadAnErrorDuringThe": "table(s) had an error during the backup:",
       "searchAllTables": "Search all tables",
       "eGMastercardCollaboratorNameInvoiceNumber": "e.g. Mastercard, collaborator name, invoice number…",
       "noMatches": "No matches.",
-      "matchEs": "match(es)",
       "tablesInThisBackup": "Tables in this backup",
       "filterThisTable": "Filter this table…",
       "filtering": "Filtering…",
@@ -310,7 +308,6 @@
       "searchAccounts": "Search accounts…",
       "discard": "Discard",
       "save": "Save ({{value1}})",
-      "accountS": "account(s)",
       "noAccessYet": "· no access yet",
       "viewTheAppAs": "View the app as {{value1}}",
       "viewTheAppAsThisAccount": "View the app as this account",
@@ -346,7 +343,9 @@
       "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
       "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
       "previewRows": "Matching rows: {{matched}} of {{total}}.",
-      "previewRowsLimited": "Matching rows: {{matched}} of {{total}} (first {{shown}} shown)."
+      "previewRowsLimited": "Matching rows: {{matched}} of {{total}} (first {{shown}} shown).",
+      "backupErrors_one": "{{count}} table had an error during the backup:",
+      "backupErrors_other": "{{count}} tables had an error during the backup:"
     }
   },
   "permissions": {

@@ -167,11 +167,9 @@
       "downloadingAndDecompressingFromDrive": "A descarregar e descomprimir do Drive…",
       "generatedOn": "Gerado em",
       "totalRows": "Linhas totais",
-      "tableSHadAnErrorDuringThe": "tabela(s) com erro durante o dump:",
       "searchAllTables": "Procurar em todas as tabelas",
       "eGMastercardCollaboratorNameInvoiceNumber": "ex: Mastercard, nome de colaborador, número de fatura…",
       "noMatches": "Sem correspondências.",
-      "matchEs": "correspondência(s)",
       "tablesInThisBackup": "Tabelas no backup",
       "filterThisTable": "Filtrar nesta tabela…",
       "filtering": "A filtrar…",
@@ -310,7 +308,6 @@
       "searchAccounts": "Procurar utilizador…",
       "discard": "Descartar",
       "save": "Guardar ({{value1}})",
-      "accountS": "utilizador(es)",
       "noAccessYet": "· sem acesso ainda",
       "viewTheAppAs": "Ver a app como {{value1}}",
       "viewTheAppAsThisAccount": "Ver a app como este utilizador",
@@ -346,7 +343,9 @@
       "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
       "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Apagar \"{{value1}}\" definitivamente? Esta ação é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.",
       "previewRows": "Linhas correspondentes: {{matched}} de {{total}}.",
-      "previewRowsLimited": "Linhas correspondentes: {{matched}} de {{total}} (apenas as primeiras {{shown}} apresentadas)."
+      "previewRowsLimited": "Linhas correspondentes: {{matched}} de {{total}} (apenas as primeiras {{shown}} apresentadas).",
+      "backupErrors_one": "{{count}} tabela com erro durante a cópia de segurança:",
+      "backupErrors_other": "{{count}} tabelas com erro durante a cópia de segurança:"
     }
   },
   "permissions": {

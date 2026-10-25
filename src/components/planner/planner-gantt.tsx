@@ -243,7 +243,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         ]);
         toast.success(
           t("workspace.planning.projectStartShifted", {
-            defaultValue: "Schedule shifted by {{days}} day(s).",
+            count: Math.abs(delta),
             days: delta,
           }),
         );

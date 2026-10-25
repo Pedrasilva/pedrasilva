@@ -342,6 +342,7 @@ export function RequestWfhDialog({
             >
               <p className="text-xs font-medium">
                 {t("hr:remoteWork.lateWarning", {
+                  count: settings?.minimum_notice_days ?? 1,
                   days: settings?.minimum_notice_days ?? 1,
                   date: policyDate ?? "",
                 })}

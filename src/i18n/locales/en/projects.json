@@ -711,10 +711,11 @@
       "effortValue": "{{perDay}}h/day · {{total}}h total",
       "costPerHour": "Cost/h",
       "totalCost": "Total cost",
-      "overload": "Overload: peak of <strong>{{peak}}h/day</strong> (limit {{limit}}h) on {{days}} day(s).",
       "leaveImpact": "Reduced capacity: <strong>{{leave}}h</strong> of approved leave inside the period → effective capacity ≈ <strong>{{effective}}h</strong> (of {{planned}}h planned).",
       "baselineHover": "Baseline: {{start}} → {{end}}",
-      "leaveOverlap": "{{hours}}h overlap approved leave"
+      "leaveOverlap": "{{hours}}h overlap approved leave",
+      "overload_one": "Overload: peak of <strong>{{peak}}h/day</strong> (limit {{limit}}h) on {{days}} day.",
+      "overload_other": "Overload: peak of <strong>{{peak}}h/day</strong> (limit {{limit}}h) on {{days}} days."
     },
     "stage": {
       "overByAmount": "over by {{amount}}",
@@ -822,10 +823,11 @@
       "locked": "A locked stage cannot be moved.",
       "lockedAllocation": "A protected resource allocation cannot be resized.",
       "crossProject": "This cross-project dependency needs review before editing.",
-      "lockedSkipped": "{{count}} locked stage(s) kept in place.",
       "nothingMoved": "Nothing to move: every stage is linked or locked.",
       "slack_one": "{{count}} day extra gap",
-      "slack_other": "{{count}} days extra gap"
+      "slack_other": "{{count}} days extra gap",
+      "lockedSkipped_one": "{{count}} locked stage kept in place.",
+      "lockedSkipped_other": "{{count}} locked stages kept in place."
     },
     "relative": {
       "week": "Week {{number}}",
@@ -1295,7 +1297,8 @@
     },
     "leaveConflict": {
       "title": "{{hours}} planned during approved leave",
-      "subtitle": "{{count}} day(s) with overlap. Review the allocations below marked with the leave icon."
+      "subtitle_one": "{{count}} day with overlap. Review the allocations below marked with the leave icon.",
+      "subtitle_other": "{{count}} days with overlap. Review the allocations below marked with the leave icon."
     },
     "capacityRisk": {
       "title": "Capacity reduced by leave",
