@@ -1,6 +1,7 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useTranslation } from "react-i18next";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { fmtEUR } from "@/lib/salary";
+import {  } from "@/lib/salary";
 
 export type DonutSlice = {
   name: string;

@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { CollaboratorAssetsCard } from "@/components/inventory/collaborator-assets-card";
@@ -96,7 +97,7 @@ import {
   getResourceSplit,
   splitMonthlyCompanyCostFromSnapshot,
 } from "@/lib/finance/hybrid-resource-cost";
-import { fmtEUR } from "@/lib/salary";
+import {  } from "@/lib/salary";
 import {
   computeWeeklyCapacity,
   computeRecoverableHours,

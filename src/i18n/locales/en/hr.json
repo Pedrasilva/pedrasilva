@@ -363,7 +363,10 @@
       "updatedToast": "Sheet updated",
       "saveError": "Error saving: {{message}}",
       "projectCostEffectiveFromLabel": "Reflect in projects from",
-      "projectCostEffectiveFromHint": "Optional. Salary above this date will not affect already-closed project margins. Defaults to the payroll effective date."
+      "projectCostEffectiveFromHint": "Optional. Salary above this date will not affect already-closed project margins. Defaults to the payroll effective date.",
+      "householdHint": "Editing the household on the collaborator page does not change existing sheets — only new ones.",
+      "fallbackTableHint": "No IRS withholding table is loaded for {{year}}. The nearest available table was used automatically: {{resolvedYear}}.",
+      "missingTableHint": "No IRS withholding table is loaded for {{location}} · {{table}}. Values appear as zero until tables become available."
     },
     "bruto": {
       "title": "Gross View",
@@ -582,6 +585,27 @@
       "socialSecurityWithValues": "Social Security ({{value1}}%)",
       "irsWithholdingWithValues": "IRS withholding ({{value1}}%)",
       "employerSocialSecurityContributionWithValues": "Employer Social Security contribution ({{value1}}%)"
+    },
+    "payroll": {
+      "exemptHint": "Exempt allowances and benefits paid on top of salary: {{amount}} per month.",
+      "extraHint": "Additional cost above what the collaborator receives: {{monthly}} per month ({{annual}} per year), including {{socialSecurity}} per month in employer Social Security.",
+      "socialSecurityPct": "{{term}} ({{percent}}%)",
+      "mealAnnual": "{{term}} (annual)",
+      "holidayChristmas": "{{holiday}} and {{christmas}}"
+    },
+    "allowanceModes": {
+      "tradicional": {
+        "label": "Traditional · 14 months",
+        "hint": "Both allowances paid in full (June and November)."
+      },
+      "duodecimos_50": {
+        "label": "50% in monthly instalments (Duodécimos) · 13 months",
+        "hint": "Half of each allowance spread across 12 months; the other half paid in full."
+      },
+      "duodecimos_100": {
+        "label": "100% in monthly instalments (Duodécimos) · 12 months",
+        "hint": "Both allowances spread entirely across 12 months."
+      }
     }
   },
   "enums": {
@@ -875,6 +899,10 @@
     "defaults": {
       "proposedLabel": "Proposed",
       "snapshotFallback": "Snapshot"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "invalidEmail": "Invalid email"
     }
   },
   "colaboradores": {
@@ -2122,6 +2150,31 @@
       "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destination: shared root folder {{value1}}… in a company Shared Drive.",
       "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Backoffice team total cost — Total Gross Value ({{value1}} collaborators)",
       "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Project team total cost — Total Gross Value ({{value1}} collaborators)"
+    }
+  },
+  "leave": {
+    "excludedHolidays_one": "({{count}} public holiday excluded)",
+    "excludedHolidays_other": "({{count}} public holidays excluded)",
+    "requestHint": "Choose the absence type and period. Working days (Monday–Friday) are calculated automatically. Only vacation requests are deducted from the annual balance.",
+    "accountNotLinked": "Your Google account ({{email}}) is not linked to a collaborator yet. Ask an administrator to set your email in the collaborator profile.",
+    "types": {
+      "ferias": "Vacation",
+      "casamento": "Marriage leave (15 days, paid)",
+      "falecimento_familiar": "Family bereavement leave (paid)",
+      "assistencia_filho": "Child care leave (paid up to the legal limit)",
+      "nascimento_filho": "Birth / parental leave (paid)",
+      "trabalhador_estudante": "Student-worker leave (paid up to the limit)",
+      "doacao_sangue": "Blood donation leave (paid)",
+      "autorizada_paga": "Other authorized absence — paid",
+      "autorizada_nao_paga": "Other authorized absence — unpaid",
+      "consulta_medica": "Medical appointment — unpaid",
+      "baixa_medica": "Certified sick leave — unpaid"
+    },
+    "status": {
+      "pendente": "Pending",
+      "aprovada": "Approved",
+      "rejeitada": "Rejected",
+      "cancelada": "Cancelled"
     }
   }
 }

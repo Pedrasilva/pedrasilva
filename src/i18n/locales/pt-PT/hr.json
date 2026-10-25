@@ -363,7 +363,10 @@
       "updatedToast": "Ficha atualizada",
       "saveError": "Erro a guardar: {{message}}",
       "projectCostEffectiveFromLabel": "Reflectir nos projectos a partir de",
-      "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projecto já fechadas. Por omissão usa a data de efeito do payroll."
+      "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projecto já fechadas. Por omissão usa a data de efeito do payroll.",
+      "householdHint": "Editar o agregado na página do colaborador não altera fichas existentes — só fichas novas.",
+      "fallbackTableHint": "Não existe tabela de retenção na fonte de IRS carregada para {{year}}. Foi usada automaticamente a tabela mais próxima disponível: {{resolvedYear}}.",
+      "missingTableHint": "Não há tabela de retenção na fonte de IRS carregada para {{location}} · {{table}}. Os valores aparecem a zero até existirem tabelas disponíveis."
     },
     "bruto": {
       "title": "Visão Bruto",
@@ -582,6 +585,27 @@
       "socialSecurityWithValues": "Segurança Social ({{value1}}%)",
       "irsWithholdingWithValues": "Retenção IRS ({{value1}}%)",
       "employerSocialSecurityContributionWithValues": "Contribuição patronal TSU ({{value1}}%)"
+    },
+    "payroll": {
+      "exemptHint": "Isenções e benefícios pagos além do salário: {{amount}} por mês.",
+      "extraHint": "Encargo adicional sobre o que o colaborador recebe: {{monthly}} por mês ({{annual}} por ano), dos quais {{socialSecurity}} por mês de Segurança Social patronal.",
+      "socialSecurityPct": "{{term}} ({{percent}}%)",
+      "mealAnnual": "{{term}} (anual)",
+      "holidayChristmas": "{{holiday}} e {{christmas}}"
+    },
+    "allowanceModes": {
+      "tradicional": {
+        "label": "Tradicional · 14 meses",
+        "hint": "Os dois subsídios pagos por inteiro (junho e novembro)."
+      },
+      "duodecimos_50": {
+        "label": "50% em duodécimos · 13 meses",
+        "hint": "Metade de cada subsídio diluída nos 12 meses; a outra metade paga por inteiro."
+      },
+      "duodecimos_100": {
+        "label": "100% em duodécimos · 12 meses",
+        "hint": "Os dois subsídios diluídos integralmente nos 12 meses."
+      }
     }
   },
   "enums": {
@@ -875,6 +899,10 @@
     "defaults": {
       "proposedLabel": "Proposto",
       "snapshotFallback": "Ficha"
+    },
+    "validation": {
+      "nameRequired": "O nome é obrigatório",
+      "invalidEmail": "Email inválido"
     }
   },
   "colaboradores": {
@@ -2122,6 +2150,31 @@
       "destinationSharedRootFolderInACompanyWithValuesSharedDrive": "Destino: pasta partilhada (root folder {{value1}}…) numa Shared Drive da empresa.",
       "backofficeTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Backoffice — VBG ({{value1}} colab.)",
       "projectTeamTotalCostTotalGrossValueWithValuesCollaborators": "Custo total Equipa Projeto — VBG ({{value1}} colab.)"
+    }
+  },
+  "leave": {
+    "excludedHolidays_one": "({{count}} feriado excluído)",
+    "excludedHolidays_other": "({{count}} feriados excluídos)",
+    "requestHint": "Indique o tipo de ausência e o período. O número de dias úteis (segunda a sexta-feira) é calculado automaticamente. Apenas pedidos de férias descontam do saldo anual.",
+    "accountNotLinked": "A sua conta Google ({{email}}) ainda não está associada a nenhum colaborador. Peça a um administrador para definir o seu email no perfil de colaborador.",
+    "types": {
+      "ferias": "Férias",
+      "casamento": "Casamento (15 dias, paga)",
+      "falecimento_familiar": "Falecimento de familiar (paga)",
+      "assistencia_filho": "Assistência a filho (paga até limite legal)",
+      "nascimento_filho": "Nascimento de filho / licença parental (paga)",
+      "trabalhador_estudante": "Trabalhador-estudante (paga até limite)",
+      "doacao_sangue": "Dádiva de sangue (paga)",
+      "autorizada_paga": "Outra ausência autorizada — paga",
+      "autorizada_nao_paga": "Outra ausência autorizada — não paga",
+      "consulta_medica": "Consulta médica — não paga",
+      "baixa_medica": "Baixa médica — não paga"
+    },
+    "status": {
+      "pendente": "Pendente",
+      "aprovada": "Aprovada",
+      "rejeitada": "Rejeitada",
+      "cancelada": "Cancelada"
     }
   }
 }

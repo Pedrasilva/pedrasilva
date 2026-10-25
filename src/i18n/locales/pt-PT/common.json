@@ -721,5 +721,20 @@
   "simulation": "Simulação",
   "projectTeam": "Equipa Projeto",
   "backoffice": "Backoffice",
-  "awaitingInvitation": "Por convidar"
+  "awaitingInvitation": "Por convidar",
+  "usersCount_one": "{{count}} conta",
+  "usersCount_other": "{{count}} contas",
+  "matchesCount_one": "{{count}} correspondência",
+  "matchesCount_other": "{{count}} correspondências",
+  "moreCount_one": "mais {{count}}",
+  "moreCount_other": "mais {{count}}",
+  "changesSaved_one": "{{count}} alteração guardada",
+  "changesSaved_other": "{{count}} alterações guardadas",
+  "changesUnsaved_one": "{{count}} alteração por guardar",
+  "changesUnsaved_other": "{{count}} alterações por guardar",
+  "hoursCount_one": "{{count}} hora",
+  "hoursCount_other": "{{count}} horas",
+  "workingDaysCount_one": "{{count}} dia útil",
+  "workingDaysCount_other": "{{count}} dias úteis",
+  "labelForPerson": "{{label}} para {{person}}"
 }

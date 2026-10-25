@@ -1,14 +1,9 @@
+import { allowanceLabel } from "@/lib/hr/ui-terms";
+import { fmtEUR, fmtDate } from "@/lib/hr/ui-format";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  type Collaborator,
-  type Snapshot,
-  SUBSIDIOS_MODO_OPTIONS,
-  computeSnapshot,
-  fmtEUR,
-  fmtDate,
-} from "@/lib/salary";
+import { type Collaborator, type Snapshot, SUBSIDIOS_MODO_OPTIONS, computeSnapshot } from "@/lib/salary";
 import { ResumoCompare } from "@/components/ResumoCompare";
 import {
   Card,

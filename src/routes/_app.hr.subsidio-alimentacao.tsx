@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Save, Trash2, Utensils } from "lucide-react";
 import { toast } from "sonner";
-import { fmtEUR } from "@/lib/salary";
+import {  } from "@/lib/salary";
 import { computeWorkdays, type Holiday } from "@/lib/workdays";
 
 type Rate = {

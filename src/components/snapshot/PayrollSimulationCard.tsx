@@ -1,7 +1,10 @@
+import { payrollTerm } from "@/lib/hr/ui-terms";
+import { fmtNumber } from "@/lib/hr/ui-format";
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeSnapshot, type Snapshot } from "@/lib/salary";
 
 /**
  * "Doutor Finanças"-style payroll simulation.
@@ -36,44 +39,42 @@ export function PayrollSimulationCard({ draft }: { draft: Snapshot }) {
       <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <section className="space-y-1">
           <Heading> {uiI18n.t("hr:snapshot.labels.collaboratorMonthly")} </Heading>
-          <Line label={uiI18n.t("hr:snapshot.labels.grossTaxableSalary")} value={brutoTributavelMensal} />
+          <Line label={payrollTerm("grossTaxableSalary", true)} value={brutoTributavelMensal} />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.socialSecurityWithValues", { value1: (draft.ss_colaborador_pct * 100).toFixed(2) })}
+            label={uiI18n.t("hr:snapshot.payroll.socialSecurityPct", { term: payrollTerm("socialSecurity", true), percent: fmtNumber(draft.ss_colaborador_pct * 100) })}
             value={-c.ssColaboradorMensal}
             muted
           />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.irsWithholdingWithValues", { value1: (draft.irs_pct * 100).toFixed(2) })}
+            label={uiI18n.t("hr:snapshot.payroll.socialSecurityPct", { term: payrollTerm("withholding", true), percent: fmtNumber(draft.irs_pct * 100) })}
             value={-c.irsMensal}
             muted
           />
-          <Total label={uiI18n.t("hr:snapshot.labels.netSalary")} value={liquidoMensal} />
+          <Total label={payrollTerm("netPay", true)} value={liquidoMensal} />
           <div className="pt-2" />
-          <Line label={uiI18n.t("common:shell.link.settings.mealAllowance")} value={c.alimentacaoMensal} muted />
-          <Line label={uiI18n.t("hr:compensationLiquidity.breakdown.perDiem")} value={c.ajudasMensal} muted />
+          <Line label={payrollTerm("mealAllowance", true)} value={c.alimentacaoMensal} muted />
+          <Line label={payrollTerm("expenseAllowance", true)} value={c.ajudasMensal} muted />
           <Line label={uiI18n.t("hr:snapshot.bruto.composition.slices.transitPass")} value={c.passeMensal} muted />
           <Line label={uiI18n.t("hr:snapshot.labels.guaranteedBenefits")} value={c.beneficiosMensalGarantido} muted />
           <Total label={uiI18n.t("hr:snapshot.labels.totalReceivedPerMonth")} value={recebeMensal} tone="sage" />
           <p className="pt-1 text-[11px] text-muted-foreground">
-             {uiI18n.t("hr:snapshot.labels.exemptAllowancesAndBenefitsPaidOnTop")} {fmtEUR(isencoesMensal)} {uiI18n.t("hr:snapshot.labels.month")} </p>
+             {uiI18n.t("hr:snapshot.payroll.exemptHint", { amount: fmtEUR(isencoesMensal) })} </p>
         </section>
 
         <section className="space-y-1">
           <Heading> {uiI18n.t("hr:snapshot.labels.studioCost")} </Heading>
           <Line label={uiI18n.t("hr:snapshot.labels.annualBasePayMonths")} value={c.baseAnual} />
           <Line
-            label={uiI18n.t("hr:snapshot.labels.employerSocialSecurityContributionWithValues", { value1: (draft.ss_atelier_pct * 100).toFixed(2) })}
+            label={uiI18n.t("hr:snapshot.payroll.socialSecurityPct", { term: payrollTerm("employerContribution", true), percent: fmtNumber(draft.ss_atelier_pct * 100) })}
             value={c.ssAtelierAnual}
           />
-          <Line label={uiI18n.t("hr:snapshot.labels.mealAllowanceAnnual")} value={c.alimentacaoAnual} muted />
+          <Line label={uiI18n.t("hr:snapshot.payroll.mealAnnual", { term: payrollTerm("mealAllowance") })} value={c.alimentacaoAnual} muted />
           <Line label={uiI18n.t("hr:snapshot.labels.expenseAllowancesAndTransitPassAnnual")} value={c.ajudasMensal * 12 + c.passeAnual} muted />
           <Line label={uiI18n.t("hr:snapshot.labels.benefitsAnnual")} value={c.beneficiosAnual} muted />
           <Total label={uiI18n.t("hr:snapshot.labels.totalAnnualCost")} value={c.custoVBG} tone="clay" />
           <Total label={uiI18n.t("hr:snapshot.labels.averageMonthlyCost")} value={custoMensal} tone="clay" />
           <p className="pt-1 text-[11px] text-muted-foreground">
-             {uiI18n.t("hr:snapshot.labels.additionalCostAboveWhatTheCollaboratorReceives")} {" "}
-            {fmtEUR(encargoMensal)} {uiI18n.t("hr:snapshot.labels.month")} {fmtEUR(encargoMensal * 12)}/ano), dos
-            quais {fmtEUR(c.ssAtelierAnual / 12)} {uiI18n.t("hr:snapshot.labels.monthInEmployerSocialSecurity")} </p>
+             {uiI18n.t("hr:snapshot.payroll.extraHint", { monthly: fmtEUR(encargoMensal), annual: fmtEUR(encargoMensal * 12), socialSecurity: fmtEUR(c.ssAtelierAnual / 12) })} </p>
         </section>
       </CardContent>
     </Card>

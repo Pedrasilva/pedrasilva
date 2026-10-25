@@ -1,3 +1,5 @@
+import { payrollTerm, allowanceLabel, allowanceHint } from "@/lib/hr/ui-terms";
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,14 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  computeSnapshot,
-  fmtEUR,
-  mesesFromSubsidios,
-  SUBSIDIOS_MODO_OPTIONS,
-  type Snapshot,
-  type SubsidiosModo,
-} from "@/lib/salary";
+import { computeSnapshot, mesesFromSubsidios, SUBSIDIOS_MODO_OPTIONS, type Snapshot, type SubsidiosModo } from "@/lib/salary";
 import { CalcRow, FieldRow, NumIn } from "./inputs";
 import { PayrollSimulationCard } from "./PayrollSimulationCard";
 import { SalarySimulatorHero } from "./SalarySimulatorHero";
@@ -38,7 +33,7 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <FieldRow label={uiI18n.t("hr:myProfile.details.fields.valor_base")}>
             <NumIn value={draft.valor_base} onChange={(n) => set("valor_base", n)} />
           </FieldRow>
-          <FieldRow label={uiI18n.t("hr:snapshot.labels.holidayAndChristmasAllowances")}>
+          <FieldRow label={uiI18n.t("hr:snapshot.payroll.holidayChristmas", { holiday: payrollTerm("holidayAllowance", true), christmas: payrollTerm("christmasAllowance", true) })}>
             <Select
               value={draft.subsidios_modo ?? "tradicional"}
               onValueChange={(v) => {
@@ -55,8 +50,8 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
                 {SUBSIDIOS_MODO_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     <div className="flex flex-col">
-                      <span className="text-sm">{opt.label}</span>
-                      <span className="text-[11px] text-muted-foreground">{opt.hint}</span>
+                      <span className="text-sm">{allowanceLabel(opt.value)}</span>
+                      <span className="text-[11px] text-muted-foreground">{allowanceHint(opt.value)}</span>
                     </div>
                   </SelectItem>
                 ))}

@@ -1,8 +1,9 @@
+import { fmtDate, fmtEUR } from "@/lib/hr/ui-format";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { computeSnapshot, fmtDate, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeSnapshot, type Snapshot } from "@/lib/salary";
 import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
 import type { BenefitExpense } from "@/lib/benefits";
 import {

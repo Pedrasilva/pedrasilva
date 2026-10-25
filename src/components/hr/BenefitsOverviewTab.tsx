@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 /**
  * Admin/approver overview of benefit balances per collaborator.
  *
@@ -45,7 +46,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { ChevronDown, ChevronRight, Download, FileText, Settings2, Receipt } from "lucide-react";
-import { fmtEUR } from "@/lib/salary";
+import {  } from "@/lib/salary";
 import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS,

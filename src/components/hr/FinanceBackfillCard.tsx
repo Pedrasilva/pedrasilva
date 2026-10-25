@@ -172,7 +172,7 @@ export function FinanceBackfillCard() {
                 ))}
                 {lastRun.failures.length > 5 && (
                   <li className="text-muted-foreground">
-                    +{lastRun.failures.length - 5}  {uiI18n.t("hr:batchFive.labels.more")} </li>
+                    {uiI18n.t("common:moreCount", { count: lastRun.failures.length - 5 })} </li>
                 )}
               </ul>
             )}

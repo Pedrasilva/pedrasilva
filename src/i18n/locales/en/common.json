@@ -721,5 +721,20 @@
   "simulation": "Simulation",
   "projectTeam": "Project team",
   "backoffice": "Backoffice",
-  "awaitingInvitation": "Awaiting invitation"
+  "awaitingInvitation": "Awaiting invitation",
+  "usersCount_one": "{{count}} account",
+  "usersCount_other": "{{count}} accounts",
+  "matchesCount_one": "{{count}} match",
+  "matchesCount_other": "{{count}} matches",
+  "moreCount_one": "{{count}} more",
+  "moreCount_other": "{{count}} more",
+  "changesSaved_one": "{{count}} change saved",
+  "changesSaved_other": "{{count}} changes saved",
+  "changesUnsaved_one": "{{count}} unsaved change",
+  "changesUnsaved_other": "{{count}} unsaved changes",
+  "hoursCount_one": "{{count}} hour",
+  "hoursCount_other": "{{count}} hours",
+  "workingDaysCount_one": "{{count}} working day",
+  "workingDaysCount_other": "{{count}} working days",
+  "labelForPerson": "{{label}} for {{person}}"
 }

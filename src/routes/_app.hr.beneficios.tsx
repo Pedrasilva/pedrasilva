@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -55,7 +56,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
+import { type Snapshot, type Collaborator } from "@/lib/salary";
 import {
   CATEGORY_LABELS,
   STATUS_LABELS,

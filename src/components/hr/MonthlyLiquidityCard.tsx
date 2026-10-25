@@ -1,3 +1,4 @@
+import { fmtEUR } from "@/lib/hr/ui-format";
 import { useTranslation } from "react-i18next";
 import { Info, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fmtEUR, type Snapshot } from "@/lib/salary";
+import { type Snapshot } from "@/lib/salary";
 import {
   computeMonthlyLiquidity,
   type LiquidityBreakdown,

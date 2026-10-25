@@ -37,11 +37,11 @@ type ExistingCollab = {
 };
 
 const collaboratorSchema = z.object({
-  nome: z.string().trim().min(1, "Nome obrigatório").max(200),
+  nome: z.string().trim().min(1, uiI18n.t("hr:collaborator.validation.nameRequired")).max(200),
   email: z
     .string()
     .trim()
-    .email("Email inválido")
+    .email(uiI18n.t("hr:collaborator.validation.invalidEmail"))
     .max(255)
     .optional()
     .or(z.literal("")),

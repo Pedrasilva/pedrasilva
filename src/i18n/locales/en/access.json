@@ -349,5 +349,12 @@
       "permanentlyDeleteThisActionIsIrreversibleAndWithValues": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name.",
       "permanentlyDeleteThisActionIsIrreversibleAndWithValuesMayBreakHistorical": "Permanently delete \"{{value1}}\"? This action is irreversible and may break historical reports if entries reference the name."
     }
+  },
+  "permissions": {
+    "workProfiles": {
+      "project": "Project",
+      "mixed": "Mixed",
+      "support": "Support"
+    }
   }
 }

@@ -204,7 +204,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
                           >
                             {m.table}
                           </button>
-                          <Badge variant="secondary">{m.count}  {uiI18n.t("access:batchFive.labels.matchEs")} </Badge>
+                          <Badge variant="secondary">{uiI18n.t("common:matchesCount", { count: m.count })} </Badge>
                         </li>
                       ))}
                     </ul>

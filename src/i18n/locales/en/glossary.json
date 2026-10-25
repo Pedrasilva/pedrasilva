@@ -132,8 +132,8 @@
     "winRate": "Win Rate"
   },
   "hr": {
-    "employee": "Employee",
-    "collaborator": "Team Member",
+    "employee": "Collaborator",
+    "collaborator": "Collaborator",
     "department": "Department",
     "role": "Role",
     "team": "Team",
@@ -150,7 +150,12 @@
     "socialSecurity": "Social Security",
     "grossSalary": "Gross Salary",
     "netSalary": "Net Salary",
-    "baseSalary": "Base Salary"
+    "baseSalary": "Base Salary",
+    "grossTaxableSalary": "Gross taxable salary",
+    "netPay": "Net salary",
+    "withholding": "Income tax withholding",
+    "employerContribution": "Employer Social Security contribution",
+    "expenseAllowance": "Expense allowances"
   },
   "ptCanonical": {
     "_doc": "Canonical Portuguese legal/payroll terms. EN UI renders 'EN label (PT canonical)' on first occurrence via <Term> component. Never translate these away — they are legal terms.",
@@ -162,7 +167,12 @@
     "feeProposal": "Proposta de Fee",
     "downPayment": "Sinal",
     "grossSalary": "Salário Bruto",
-    "netSalary": "Salário Líquido"
+    "netSalary": "Salário Líquido",
+    "grossTaxableSalary": "Vencimento bruto tributável",
+    "netPay": "Vencimento líquido",
+    "withholding": "Retenção na fonte de IRS",
+    "employerContribution": "Contribuição patronal para a Segurança Social",
+    "expenseAllowance": "Ajudas de custo"
   },
   "_ambiguous": {
     "_doc": "Terms flagged for product clarification — currently used inconsistently. Do NOT use these as canonical until resolved.",

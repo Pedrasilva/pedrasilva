@@ -435,11 +435,7 @@ function PermissionsMatrix({
     setSaving(true);
     try {
       await onSave(pendingChanges);
-      toast.success(
-        `${dirtyCount} alteração${dirtyCount === 1 ? "" : "ões"} guardada${
-          dirtyCount === 1 ? "" : "s"
-        }`,
-      );
+      toast.success(uiI18n.t("common:changesSaved", { count: dirtyCount }));
       setEdits({});
     } catch (e) {
       toast.error((e as Error).message);
@@ -517,7 +513,7 @@ function PermissionsMatrix({
                 </tr>
                 <tr className="border-b bg-muted/10">
                   <th className="sticky left-0 z-10 border-r bg-muted/10 px-3 py-2 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {filtered.length}  {uiI18n.t("access:batchFive.labels.accountS")} </th>
+                    {uiI18n.t("common:usersCount", { count: filtered.length })} </th>
                   {PERMISSION_GROUPS.flatMap((g) =>
                     g.items.map((item) => (
                       <th
@@ -618,7 +614,7 @@ function PermissionsMatrix({
                               onCheckedChange={(v) =>
                                 handleToggle(u.user_id, item.key, !!v)
                               }
-                              aria-label={`${item.label} para ${u.email}`}
+                              aria-label={uiI18n.t("common:labelForPerson", { label: item.label, person: u.email })}
                             />
                           </td>
                         );
@@ -700,10 +696,10 @@ function ProfileVisibilityCell({
               checked={checked}
               disabled={disabled}
               onCheckedChange={(v) => toggle(p, !!v)}
-              aria-label={uiI18n.t("access:batchFive.labels.visibleToWithValues", { value1: PROFILE_LABELS[p] })}
+              aria-label={uiI18n.t("access:batchFive.labels.visibleToWithValues", { value1: uiI18n.t(`access:permissions.workProfiles.${p}`) })}
             />
             <Badge variant={checked ? "secondary" : "outline"} className="text-[10px]">
-              {PROFILE_LABELS[p]}
+              {uiI18n.t(`access:permissions.workProfiles.${p}`)}
             </Badge>
           </label>
         );

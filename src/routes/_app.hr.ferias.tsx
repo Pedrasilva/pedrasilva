@@ -36,7 +36,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { pt } from "date-fns/locale";
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -111,7 +111,7 @@ const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descont
   { value: "baixa_medica", label: uiI18n.t("hr:availability.types.baixa_medica"), paga: false, descontaFerias: false },
 ];
 
-const absenceLabel = (t: AbsenceType) => ABSENCE_TYPES.find((x) => x.value === t)?.label ?? t;
+const absenceLabel = (tipo: AbsenceType) => uiI18n.t(`hr:leave.types.${tipo}`);
 
 type VacationRequest = {
   id: string;
@@ -135,6 +135,7 @@ async function openLeaveAttachment(path: string) {
 }
 
 function FeriasPage() {
+  const dateLocale = useDateLocale();
   const { user, isAdmin: isAdminRole } = useAuth();
   const qc = useQueryClient();
   const { t } = useTranslation("hr");
@@ -143,7 +144,7 @@ function FeriasPage() {
   const isAdmin = isAdminRole || canApprove;
   const approvalInbox = useApprovalInbox(undefined, isAdmin);
   const [changeTarget, setChangeTarget] = useState<{ row: VacationRequest; mode: "request" | "direct" } | null>(null);
-  const typeOptions = ABSENCE_TYPES.map((x) => ({ value: x.value, label: x.label }));
+  const typeOptions = ABSENCE_TYPES.map((x) => ({ value: x.value, label: absenceLabel(x.value) }));
   const currentYear = new Date().getFullYear();
 
   const { data: collaborators = [] } = useQuery({
@@ -378,8 +379,7 @@ function FeriasPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle> {uiI18n.t("hr:batchFive.labels.requestAbsence")} </DialogTitle>
-              <DialogDescription>
-                 {uiI18n.t("hr:batchFive.labels.chooseTheAbsenceTypeAndPeriodWorking")} <em> {uiI18n.t("glossary:hr.vacation")} </em>  {uiI18n.t("hr:batchFive.labels.areDeductedFromTheAnnualBalance")} </DialogDescription>
+              <DialogDescription>{uiI18n.t("hr:leave.requestHint")}</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {isAdminRole && (
@@ -414,7 +414,7 @@ function FeriasPage() {
                   <SelectContent>
                     {ABSENCE_TYPES.map((t) => (
                       <SelectItem key={t.value} value={t.value}>
-                        {t.label}
+                        {absenceLabel(t.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -460,19 +460,19 @@ function FeriasPage() {
                       <CalendarDays className="mr-2 h-4 w-4" />
                       {newReq.periodo !== "dia_inteiro" ? (
                         newReq.data_inicio ? (
-                          format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })
+                          format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: dateLocale })
                         ) : (
                           <span> {uiI18n.t("hr:batchFive.labels.selectDay")} </span>
                         )
                       ) : newReq.data_inicio && newReq.data_fim ? (
                         <>
-                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: dateLocale })}
                           {" → "}
-                          {format(new Date(newReq.data_fim + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                          {format(new Date(newReq.data_fim + "T00:00:00"), "d MMM yyyy", { locale: dateLocale })}
                         </>
                       ) : newReq.data_inicio ? (
                         <>
-                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: dateLocale })}
                           {uiI18n.t("hr:batchFive.labels.chooseEndDate")}
                         </>
                       ) : (
@@ -485,7 +485,7 @@ function FeriasPage() {
                       <Calendar
                         mode="range"
                         numberOfMonths={2}
-                        locale={pt}
+                        locale={dateLocale}
                         weekStartsOn={1}
                         defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
                         modifiers={{ holiday: holidayDateObjects }}
@@ -511,7 +511,7 @@ function FeriasPage() {
                       <Calendar
                         mode="single"
                         numberOfMonths={1}
-                        locale={pt}
+                        locale={dateLocale}
                         weekStartsOn={1}
                         defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
                         modifiers={{ holiday: holidayDateObjects }}
@@ -598,7 +598,7 @@ function FeriasPage() {
                     {feriadosNoPeriodo.map((h) => (
                       <li key={h.id} className="flex items-center gap-2">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-destructive" />
-                        {format(new Date(h.data + "T00:00:00"), "EEE, d MMM", { locale: pt })}
+                        {format(new Date(h.data + "T00:00:00"), "EEE, d MMM", { locale: dateLocale })}
                         {" — "}
                         {h.nome}
                       </li>
@@ -620,7 +620,7 @@ function FeriasPage() {
       {!myCollab && !isAdmin && (
         <Card>
           <CardContent className="py-6 text-sm text-muted-foreground">
-             {uiI18n.t("hr:batchFive.labels.yourGoogleAccount")} {user?.email} {uiI18n.t("hr:batchFive.labels.isNotLinkedToACollaboratorYet")} </CardContent>
+             {uiI18n.t("hr:leave.accountNotLinked", { email: user?.email })} </CardContent>
         </Card>
       )}
 
@@ -773,7 +773,7 @@ function FeriasPage() {
                     <TableCell>{r.data_fim}</TableCell>
                     <TableCell className="text-right tabular-nums">{r.dias_uteis}</TableCell>
                     <TableCell>
-                      <EstadoBadge estado={r.estado} />
+                      <EstadoBadge estado={uiI18n.t(`hr:leave.status.${r.estado}`)} />
                       {pendingByRequest.get(r.id) && (
                         <PendingChangeBadge
                           change={pendingByRequest.get(r.id)!}
