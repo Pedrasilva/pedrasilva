@@ -78,6 +78,10 @@ type UserRow = {
   pending?: boolean;
 };
 
+
+const legacyLabels: Record<string, string> = {"HR":"access:permissions.catalogue.4852","Minha ficha":"access:permissions.catalogue.4d696e6861206669636861","Ver a sua própria ficha salarial":"access:permissions.catalogue.566572206120737561207072c3b3707269612066696368612073616c617269616c","Dias úteis":"access:permissions.catalogue.4469617320c3ba74656973","Calendário e feriados":"access:permissions.catalogue.43616c656e64c3a172696f2065206665726961646f73","Benefícios próprios":"access:permissions.catalogue.42656e6566c3ad63696f73207072c3b37072696f73","Submeter despesas e ver saldo":"access:permissions.catalogue.5375626d657465722064657370657361732065207665722073616c646f","Aprovar benefícios":"access:permissions.catalogue.4170726f7661722062656e6566c3ad63696f73","Aprovar/rejeitar despesas de benefícios de outros colaboradores":"access:permissions.catalogue.4170726f7661722f72656a65697461722064657370657361732064652062656e6566c3ad63696f73206465206f7574726f7320636f6c61626f7261646f726573","Férias próprias":"access:permissions.catalogue.46c3a972696173207072c3b37072696173","Pedir e ver férias":"access:permissions.catalogue.50656469722065207665722066c3a972696173","Colaboradores — lista":"access:permissions.catalogue.436f6c61626f7261646f72657320e28094206c69737461","Ver a lista de colaboradores (sem abrir ficha).":"access:permissions.catalogue.5665722061206c6973746120646520636f6c61626f7261646f726573202873656d206162726972206669636861292e","Colaborador — abrir ficha":"access:permissions.catalogue.436f6c61626f7261646f7220e28094206162726972206669636861","Abrir a ficha individual de outros colaboradores (sem valores financeiros).":"access:permissions.catalogue.4162726972206120666963686120696e646976696475616c206465206f7574726f7320636f6c61626f7261646f726573202873656d2076616c6f7265732066696e616e636569726f73292e","Colaborador — ver compensação":"access:permissions.catalogue.436f6c61626f7261646f7220e280942076657220636f6d70656e7361c3a7c3a36f","Ver salário, benefícios, liquidez e custos na ficha individual.":"access:permissions.catalogue.5665722073616cc3a172696f2c2062656e6566c3ad63696f732c206c6971756964657a206520637573746f73206e6120666963686120696e646976696475616c2e","Colaborador — editar ficha":"access:permissions.catalogue.436f6c61626f7261646f7220e2809420656469746172206669636861","Editar dados de colaborador.":"access:permissions.catalogue.456469746172206461646f7320646520636f6c61626f7261646f722e","Resumo comparativo":"access:permissions.catalogue.526573756d6f20636f6d706172617469766f","Aceder ao resumo entre colaboradores (sem valores).":"access:permissions.catalogue.41636564657220616f20726573756d6f20656e74726520636f6c61626f7261646f726573202873656d2076616c6f726573292e","Resumo — ver valores":"access:permissions.catalogue.526573756d6f20e28094207665722076616c6f726573","Ver valores salariais no resumo comparativo.":"access:permissions.catalogue.5665722076616c6f7265732073616c617269616973206e6f20726573756d6f20636f6d706172617469766f2e","HR — administração":"access:permissions.catalogue.485220e280942061646d696e6973747261c3a7c3a36f","Gerir permissões e configuração avançada de HR.":"access:permissions.catalogue.4765726972207065726d697373c3b56573206520636f6e666967757261c3a7c3a36f206176616ec3a76164612064652048522e","Subsídio alimentação (config)":"access:permissions.catalogue.53756273c3ad64696f20616c696d656e7461c3a7c3a36f2028636f6e66696729","Configurar tabela do subsídio":"access:permissions.catalogue.436f6e6669677572617220746162656c6120646f2073756273c3ad64696f","Valor BO/hora":"access:permissions.catalogue.56616c6f7220424f2f686f7261","Configuração financeira do backoffice":"access:permissions.catalogue.436f6e666967757261c3a7c3a36f2066696e616e636569726120646f206261636b6f6666696365","CRM":"access:permissions.catalogue.43524d","Empresas":"access:permissions.catalogue.456d707265736173","Contactos":"access:permissions.catalogue.436f6e746163746f73","Pipeline & Propostas":"access:permissions.catalogue.506970656c696e6520262050726f706f73746173","Projects":"access:permissions.catalogue.50726f6a65637473","Todos os projectos":"access:permissions.catalogue.546f646f73206f732070726f6a6563746f73","Lista completa e detalhe de qualquer projecto":"access:permissions.catalogue.4c6973746120636f6d706c657461206520646574616c6865206465207175616c717565722070726f6a6563746f","Gantt global":"access:permissions.catalogue.47616e747420676c6f62616c","Recursos":"access:permissions.catalogue.5265637572736f73","Minhas tarefas":"access:permissions.catalogue.4d696e6861732074617265666173","Timesheet":"access:permissions.catalogue.54696d657368656574","Indicadores financeiros":"access:permissions.catalogue.496e64696361646f7265732066696e616e636569726f73","Ver receita, custo, margem e orçamento no dashboard. Sem esta permissão, são mostrados apenas indicadores de tempo (planeado/realizado).":"access:permissions.catalogue.56657220726563656974612c20637573746f2c206d617267656d2065206f72c3a7616d656e746f206e6f2064617368626f6172642e2053656d2065737461207065726d697373c3a36f2c2073c3a36f206d6f73747261646f73206170656e617320696e64696361646f7265732064652074656d706f2028706c616e6561646f2f7265616c697a61646f292e","Finance":"access:permissions.catalogue.46696e616e6365","Painel financeiro":"access:permissions.catalogue.5061696e656c2066696e616e636569726f","Aceder ao dashboard financeiro do escritório (cash flow, receitas, despesas, bancos).":"access:permissions.catalogue.41636564657220616f2064617368626f6172642066696e616e636569726f20646f20657363726974c3b372696f20286361736820666c6f772c2072656365697461732c2064657370657361732c2062616e636f73292e","Inbox":"access:permissions.catalogue.496e626f78","Triagem de email":"access:permissions.catalogue.5472696167656d20646520656d61696c","Aceder à triagem de email do atelier (mensagens captadas, classificação e acções sugeridas).":"access:permissions.catalogue.41636564657220c3a0207472696167656d20646520656d61696c20646f206174656c69657220286d656e736167656e732063617074616461732c20636c6173736966696361c3a7c3a36f2065206163c3a7c3b5657320737567657269646173292e"};
+const displayPermission = (value: string) => uiI18n.t(legacyLabels[value] ?? value);
+
 export const Route = createFileRoute("/_app/hr/admin")({
   component: () => (
     <AdminOnly>
@@ -503,11 +507,11 @@ function PermissionsMatrix({
                      {uiI18n.t("glossary:entity.user")} </th>
                   {PERMISSION_GROUPS.map((g) => (
                     <th
-                      key={g.module}
+                      key={displayPermission(g.module)}
                       colSpan={g.items.length}
                       className="border-l border-r px-3 py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
                     >
-                      {g.module}
+                      {displayPermission(g.module)}
                     </th>
                   ))}
                 </tr>
@@ -523,14 +527,14 @@ function PermissionsMatrix({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="mx-auto h-24 w-7 [writing-mode:vertical-rl] rotate-180 cursor-default text-[11px] font-medium text-muted-foreground">
-                              {item.label}
+                              {displayPermission(item.label)}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[220px]">
-                            <div className="font-medium">{item.label}</div>
+                            <div className="font-medium">{displayPermission(item.label)}</div>
                             {item.description && (
                               <div className="text-xs text-muted-foreground">
-                                {item.description}
+                                {displayPermission(item.description)}
                               </div>
                             )}
                             <div className="mt-1 text-[10px] font-mono text-muted-foreground">
@@ -614,7 +618,7 @@ function PermissionsMatrix({
                               onCheckedChange={(v) =>
                                 handleToggle(u.user_id, item.key, !!v)
                               }
-                              aria-label={uiI18n.t("common:labelForPerson", { label: item.label, person: u.email })}
+                              aria-label={uiI18n.t("common:labelForPerson", { label: displayPermission(item.label), person: u.email })}
                             />
                           </td>
                         );

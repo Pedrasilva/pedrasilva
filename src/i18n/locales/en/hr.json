@@ -920,7 +920,9 @@
     "validation": {
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email"
-    }
+    },
+    "alreadyRegistered_one": "Already registered ({{count}} collaborator)",
+    "alreadyRegistered_other": "Already registered ({{count}} collaborators)"
   },
   "colaboradores": {
     "title": "Team members",

@@ -36,21 +36,7 @@ type ExistingCollab = {
   departamento: "Projecto" | "Backoffice";
 };
 
-const collaboratorSchema = z.object({
-  nome: z.string().trim().min(1, uiI18n.t("hr:collaborator.validation.nameRequired")).max(200),
-  email: z
-    .string()
-    .trim()
-    .email(uiI18n.t("hr:collaborator.validation.invalidEmail"))
-    .max(255)
-    .optional()
-    .or(z.literal("")),
-  numero_colaborador: z.string().trim().max(50).optional().or(z.literal("")),
-  departamento: z.enum(["Projecto", "Backoffice"]),
-  situacao_contractual: z.string().trim().max(100).optional().or(z.literal("")),
-  inicio_carreira: z.string().optional().or(z.literal("")),
-  data_nascimento: z.string().optional().or(z.literal("")),
-});
+
 
 type Props = {
   /** Custom trigger; defaults to a "Novo colaborador" button. */
@@ -70,6 +56,21 @@ const EMPTY = {
 };
 
 export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
+const collaboratorSchema = z.object({
+  nome: z.string().trim().min(1, uiI18n.t("hr:collaborator.validation.nameRequired")).max(200),
+  email: z
+    .string()
+    .trim()
+    .email(uiI18n.t("hr:collaborator.validation.invalidEmail"))
+    .max(255)
+    .optional()
+    .or(z.literal("")),
+  numero_colaborador: z.string().trim().max(50).optional().or(z.literal("")),
+  departamento: z.enum(["Projecto", "Backoffice"]),
+  situacao_contractual: z.string().trim().max(100).optional().or(z.literal("")),
+  inicio_carreira: z.string().optional().or(z.literal("")),
+  data_nascimento: z.string().optional().or(z.literal("")),
+});
   useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -244,7 +245,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
           <aside className="rounded-lg border bg-muted/30 p-3">
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-               {uiI18n.t("hr:batchFive.labels.alreadyRegistered")} {existing.length})
+               {uiI18n.t("hr:collaborator.alreadyRegistered", { count: existing.length })}
             </div>
             <div className="relative mb-2">
               <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
