@@ -357,7 +357,8 @@
       "signed": "Signed",
       "converted": "Project",
       "lost": "Lost"
-    }
+    },
+    "exclVAT": "Amount excluding VAT"
   },
   "stage": {
     "lead": "Lead",
@@ -649,8 +650,16 @@
           "logged": "Hours logged",
           "recent": "Recent entries",
           "signInError": "Sign in to log hours.",
-          "hoursError": "Enter a positive hours value."
-        }
+          "hoursError": "Enter a positive hours value.",
+          "logElsewhere": "Log hours in Projects → Timesheet — select this retainer there."
+        },
+        "emptyTitle": "Monthly retainer template",
+        "emptyHint": "Create the monthly fee template for recurring retainer billing.",
+        "createTemplate": "Create monthly template",
+        "reviewCadence": "Review cadence",
+        "review3": "Every 3 months",
+        "review6": "Every 6 months",
+        "reviewHint": "Feeds the project’s retainer health panel, highlighting delivery above or below the monthly value."
       },
       "saleMargin": {
         "title": "Sale margin",
@@ -663,7 +672,61 @@
         "save": "Save",
         "saved": "Sale margin updated",
         "invalid": "Enter a valid percentage."
-      }
+      },
+      "dependencySaved": "Dependency saved.",
+      "pickResourceFirst": "Pick a resource first.",
+      "resourceUnavailable": "Selected resource is no longer available.",
+      "resourceAdded": "Resource added.",
+      "category": "Category",
+      "roleArchitecture": "Architecture (project & cash flow)",
+      "roleClient": "Client (approvals, no cost)",
+      "roleSupplier": "Supplier (billed to client)",
+      "supplierBilling": "Supplier billing",
+      "billToClient": "Bill to client (re-invoice cost)",
+      "markupPct": "Markup %",
+      "markupHint": "Client invoice = supplier cost × (1 + markup).",
+      "supplier": "Supplier",
+      "color": "Colour",
+      "milestone": "Milestone",
+      "milestoneHint": "Single-date marker",
+      "optionalInherited": "Optional (inherited from parent) — excluded from contract total.",
+      "optionalService": "Optional service",
+      "optionalHint": "Not counted in contract total",
+      "dateCalculatedHint": "Dates follow the substages.",
+      "moveHint": "Changing a date moves the stage, keeping duration. Use duration to resize.",
+      "budgetMode": "Budget mode",
+      "budgetCalculated": "Calculated (sum of children)",
+      "budgetFixed": "Fixed",
+      "budgetCalculatedHint": "Sum of children. Enter a value to switch to Fixed.",
+      "saleSource": "Sale value source",
+      "allocatedResources": "Allocated resources",
+      "saleSourceHint": "The chosen value is used throughout the proposal (payment schedule, document and totals).",
+      "billingModel": "Billing model",
+      "billingModelStage": "Per stage",
+      "billingModelMonthly": "Monthly",
+      "billingModelMonthlyHint": "Budget is split evenly across each calendar month of the stage.",
+      "billingTiming": "Billing timing",
+      "timingEnd": "End",
+      "timingStart": "Start",
+      "timingSplit": "Start + End (50/50)",
+      "paymentTrigger": "Payment trigger",
+      "savedBillAtChildren": "Saved: each child is billed independently.",
+      "savedBillAtParent": "Saved: billing rolls up to this stage.",
+      "saveFailed": "Could not save change.",
+      "triggerParent": "This stage",
+      "triggerChildren": "Children",
+      "triggerChildActive": "Billed independently (parent delegates to children).",
+      "triggerChildRolledUp": "Included in parent billing.",
+      "switchToParentTrigger": "Bill at parent instead",
+      "switchToChildTrigger": "Bill at children instead",
+      "milestoneDate": "Date",
+      "addStageBelow": "Add stage below",
+      "duration": "Duration",
+      "days": "Days",
+      "weeks": "Weeks",
+      "months": "Months",
+      "savedBillAtChildrenParent": "Saved: children of this stage are billed independently.",
+      "savedBillAtParentParent": "Saved: billing is aggregated at this parent stage."
     },
     "warnings": {
       "noStages": "No stages yet — add at least one stage to plan the work.",
@@ -698,7 +761,8 @@
       "totalMargin": "Total margin",
       "markup": "Markup",
       "markupManual": "manual",
-      "noSupplier": "No supplier"
+      "noSupplier": "No supplier",
+      "addTitle": "Add external service"
     },
     "payment": {
       "title": "Client billing schedule",
@@ -743,7 +807,12 @@
       "paymentTermsDays": "Payment terms (days)",
       "deductDownPayment": "Deduct down payment from stage payments",
       "errorDownPayment": "Down payment must be 0 or greater",
-      "errorStageSplit": "Stage start % + stage end % must equal 100"
+      "errorStageSplit": "Stage start % + stage end % must equal 100",
+      "genByStageBillingHint": "Use each stage’s billing model (stage / monthly / retainer)",
+      "genByStageBilling": "Per-stage model",
+      "genArchConsultantsHint": "Architecture invoices + supplier payments (pay when paid)",
+      "genArchConsultants": "Architecture + Consultants",
+      "saveAndApply": "Save & apply"
     },
     "financial": {
       "totalsTitle": "Totals",
@@ -767,7 +836,16 @@
       "markupHint": "Profit ÷ cost (how much you add on top of cost).",
       "marginHint": "Profit ÷ fee (share of fee that is profit).",
       "saveMultiplier": "Save",
-      "multiplierSaved": "Pricing multiplier updated"
+      "multiplierSaved": "Pricing multiplier updated",
+      "architectureStagesTitle": "Architecture — fees and estimated hours",
+      "stageColumn": "Stage",
+      "estimatedHours": "Estimated hours",
+      "fee": "Fee",
+      "impliedCost": "Cost",
+      "impliedProfit": "Profit",
+      "total": "Total",
+      "hrRateBasisHint": "Average cost and sale rates from HR › Pricing — Project Team (sale {{sale}}/h, cost {{cost}}/h). ≈ indicates implied hours in fixed-value stages.",
+      "noAvgRateHint": "Set salaries, operating costs and markup in HR to show implied hours, cost and profit."
     },
     "proposal": {
       "documentLabel": "Proposal",

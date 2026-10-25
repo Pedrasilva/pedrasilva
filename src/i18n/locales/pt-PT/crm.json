@@ -357,7 +357,8 @@
       "signed": "Assinada",
       "converted": "Projecto",
       "lost": "Perdida"
-    }
+    },
+    "exclVAT": "Valor sem IVA"
   },
   "stage": {
     "lead": "Lead",
@@ -649,8 +650,16 @@
           "logged": "Horas registadas",
           "recent": "Entradas recentes",
           "signInError": "Inicie sessão para registar horas.",
-          "hoursError": "Indique um valor de horas positivo."
-        }
+          "hoursError": "Indique um valor de horas positivo.",
+          "logElsewhere": "Registe horas em Projetos → Folha de horas — selecione esta avença."
+        },
+        "emptyTitle": "Modelo mensal de avença",
+        "emptyHint": "Crie o modelo de honorários mensais para a faturação recorrente da avença.",
+        "createTemplate": "Criar modelo mensal",
+        "reviewCadence": "Periodicidade de revisão",
+        "review3": "A cada 3 meses",
+        "review6": "A cada 6 meses",
+        "reviewHint": "Alimenta o painel de saúde da avença no projeto, assinalando prestação acima ou abaixo do valor mensal."
       },
       "saleMargin": {
         "title": "Margem de venda",
@@ -663,7 +672,61 @@
         "save": "Guardar",
         "saved": "Margem de venda atualizada",
         "invalid": "Introduza uma percentagem válida."
-      }
+      },
+      "dependencySaved": "Dependência guardada.",
+      "pickResourceFirst": "Selecione primeiro um recurso.",
+      "resourceUnavailable": "O recurso selecionado já não está disponível.",
+      "resourceAdded": "Recurso adicionado.",
+      "category": "Categoria",
+      "roleArchitecture": "Arquitetura (projeto e fluxo de caixa)",
+      "roleClient": "Cliente (aprovações, sem custo)",
+      "roleSupplier": "Fornecedor (faturado ao cliente)",
+      "supplierBilling": "Faturação do fornecedor",
+      "billToClient": "Faturar ao cliente (refaturar custo)",
+      "markupPct": "Margem sobre custo %",
+      "markupHint": "Fatura ao cliente = custo do fornecedor × (1 + margem).",
+      "supplier": "Fornecedor",
+      "color": "Cor",
+      "milestone": "Marco",
+      "milestoneHint": "Marcador de uma única data",
+      "optionalInherited": "Opcional (herdado da etapa pai) — excluído do total do contrato.",
+      "optionalService": "Serviço opcional",
+      "optionalHint": "Não incluído no total do contrato",
+      "dateCalculatedHint": "As datas seguem as subetapas.",
+      "moveHint": "Alterar uma data desloca a etapa, mantendo a duração. Use a duração para redimensionar.",
+      "budgetMode": "Modo de orçamento",
+      "budgetCalculated": "Calculado (soma das subetapas)",
+      "budgetFixed": "Fixo",
+      "budgetCalculatedHint": "Soma das subetapas. Introduza um valor para mudar para Fixo.",
+      "saleSource": "Origem do valor de venda",
+      "allocatedResources": "Recursos alocados",
+      "saleSourceHint": "O valor escolhido é usado em toda a proposta (plano de pagamentos, documento e totais).",
+      "billingModel": "Modelo de faturação",
+      "billingModelStage": "Por etapa",
+      "billingModelMonthly": "Mensal",
+      "billingModelMonthlyHint": "O orçamento é dividido igualmente pelos meses de calendário da etapa.",
+      "billingTiming": "Momento de faturação",
+      "timingEnd": "Fim",
+      "timingStart": "Início",
+      "timingSplit": "Início + Fim (50/50)",
+      "paymentTrigger": "Gatilho de pagamento",
+      "savedBillAtChildren": "Guardado: cada subetapa é faturada de forma independente.",
+      "savedBillAtParent": "Guardado: a faturação é agregada nesta etapa.",
+      "saveFailed": "Não foi possível guardar a alteração.",
+      "triggerParent": "Esta etapa",
+      "triggerChildren": "Subetapas",
+      "triggerChildActive": "Faturada de forma independente (a etapa pai delega nas subetapas).",
+      "triggerChildRolledUp": "Incluída na faturação da etapa pai.",
+      "switchToParentTrigger": "Faturar na etapa pai",
+      "switchToChildTrigger": "Faturar nas subetapas",
+      "milestoneDate": "Data",
+      "addStageBelow": "Adicionar etapa abaixo",
+      "duration": "Duração",
+      "days": "Dias",
+      "weeks": "Semanas",
+      "months": "Meses",
+      "savedBillAtChildrenParent": "Guardado: as subetapas desta etapa são faturadas de forma independente.",
+      "savedBillAtParentParent": "Guardado: a faturação é agregada nesta etapa pai."
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
@@ -698,7 +761,8 @@
       "totalMargin": "Margem total",
       "markup": "Margem",
       "markupManual": "manual",
-      "noSupplier": "Sem fornecedor"
+      "noSupplier": "Sem fornecedor",
+      "addTitle": "Adicionar serviço externo"
     },
     "payment": {
       "title": "Plano de facturação ao cliente",
@@ -743,7 +807,12 @@
       "paymentTermsDays": "Prazo de pagamento (dias)",
       "deductDownPayment": "Deduzir sinal dos pagamentos das fases",
       "errorDownPayment": "Sinal tem de ser 0 ou superior",
-      "errorStageSplit": "% Início + % Fim de fase tem de ser 100"
+      "errorStageSplit": "% Início + % Fim de fase tem de ser 100",
+      "genByStageBillingHint": "Use o modelo de faturação de cada etapa (por etapa / mensal / avença)",
+      "genByStageBilling": "Modelo por etapa",
+      "genArchConsultantsHint": "Faturas de arquitetura + pagamentos a fornecedores (pagar após receber)",
+      "genArchConsultants": "Arquitetura + Consultores",
+      "saveAndApply": "Guardar e aplicar"
     },
     "financial": {
       "totalsTitle": "Totais",
@@ -767,7 +836,16 @@
       "markupHint": "Lucro ÷ custo (quanto se acrescenta sobre o custo).",
       "marginHint": "Lucro ÷ fee (parte do fee que é lucro).",
       "saveMultiplier": "Guardar",
-      "multiplierSaved": "Multiplicador atualizado"
+      "multiplierSaved": "Multiplicador atualizado",
+      "architectureStagesTitle": "Arquitetura — honorários e horas estimadas",
+      "stageColumn": "Etapa",
+      "estimatedHours": "Horas estimadas",
+      "fee": "Honorário",
+      "impliedCost": "Custo",
+      "impliedProfit": "Lucro",
+      "total": "Total",
+      "hrRateBasisHint": "Custo e venda médios calculados a partir de RH › Valores — Equipa do projeto (venda média {{sale}}/h, custo médio {{cost}}/h). ≈ indica horas implícitas em etapas de valor fixo.",
+      "noAvgRateHint": "Defina salários, custos operacionais e margem em RH para mostrar horas, custo e lucro implícitos."
     },
     "proposal": {
       "documentLabel": "Proposta",
