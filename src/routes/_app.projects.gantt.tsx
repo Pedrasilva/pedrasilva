@@ -345,8 +345,8 @@ function GlobalGanttPage() {
                                       .then(() => toast.success(t("projects:gantt.ui.statusUpdated")))
                                       .catch((err) => toast.error((err as Error).message))
                                   }
-                                  title={label}
-                                  aria-label={label}
+                                  title={t(label)}
+                                  aria-label={t(label)}
                                   className={`rounded p-1 transition ${
                                     status === id
                                       ? "bg-foreground text-background"
