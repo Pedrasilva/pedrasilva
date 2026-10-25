@@ -331,7 +331,9 @@
       "historical_other": "Inclui {{count}} registos históricos importados",
       "unapproved_one": "{{value}} por aprovar · {{hours}} h ({{count}} registo)",
       "unapproved_other": "{{value}} por aprovar · {{hours}} h ({{count}} registos)",
-      "invoice": "Fatura"
+      "invoice": "Fatura",
+      "profitability": "Rentabilidade",
+      "review": "Rever →"
     }
   },
   "quickCreate": {
@@ -1477,7 +1479,9 @@
       "conflictDays_other": "{{count}} dias com sobreposição. Reveja as alocações abaixo assinaladas com",
       "capacitySub": "Equipa com {{leave}} de férias aprovadas neste mês → capacidade efetiva {{effective}} (de {{raw}}).",
       "overCapacity": "O planeamento excede a capacidade em {{hours}}.",
-      "probabilityHint": "Pipeline · {{value}}% de probabilidade"
+      "probabilityHint": "Pipeline · {{value}}% de probabilidade",
+      "probabilityShort": "P{{value}}%",
+      "plannedHours": "Horas planeadas"
     }
   },
   "externalServices": {

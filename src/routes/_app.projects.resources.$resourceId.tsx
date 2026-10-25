@@ -183,8 +183,7 @@ function ResourceDetailPage() {
                 {form.name || member.name}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {form.role || "—"} · {Number(form.hourly_rate)}€/h · {Number(form.weekly_capacity)} h/wk
-              </p>
+                {form.role || "—"} · {Number(form.hourly_rate)} {t("common:units.eurosPerHour")} ·  {Number(form.weekly_capacity)}  {t("common:units.hoursPerWeek")} </p>
             </div>
           </div>
 
@@ -286,8 +285,7 @@ function ResourceDetailPage() {
                         title={t("projects:resources.ui.prefillHint")}
                       >
                         <Sparkles className="h-3 w-3" />
-                         {t("projects:resources.ui.default75Label")} {formatNumber(defaultRate, 2)}€/h
-                      </button>
+                         {t("projects:resources.ui.default75Label")} {formatNumber(defaultRate, 2)} {t("common:units.eurosPerHour")} </button>
                       {(member as FullResource & { hourly_rate_is_override?: boolean })
                         .hourly_rate_is_override && (
                         <button

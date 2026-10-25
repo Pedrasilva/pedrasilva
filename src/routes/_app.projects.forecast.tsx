@@ -750,7 +750,7 @@ function ForecastPage() {
         {/* KPI strip */}
         <div className="mt-6 grid gap-3 md:grid-cols-5">
           <KpiCard
-            label="Horas planeadas"
+            label={t("glossary:time.plannedHours")}
             value={hoursFmt(planned.totalHours)}
             sub={t("projects:forecast.ui.allocatedPeople", { count: planned.byResource.size })}
             icon={<Clock className="h-4 w-4" />}
@@ -1069,7 +1069,7 @@ function ProbabilityChip({ probability }: { probability: ProjectProbability }) {
       className="h-5 border-amber-500/40 px-1.5 text-[10px] font-medium text-amber-700 dark:text-amber-300"
       title={t("projects:forecast.ui.probabilityHint", { value: probability.probability ?? 0 })}
     >
-      P{probability.probability ?? 0}%
+      {t("projects:forecast.ui.probabilityShort", { value: probability.probability ?? 0 })}
     </Badge>
   );
 }

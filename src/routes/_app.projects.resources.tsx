@@ -238,7 +238,7 @@ function ResourcesPage() {
                     <td className="px-4 py-3 text-right font-mono text-muted-foreground">
                       {hr?.sale100 ? euros(hr.sale100) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">{Number(r.weekly_capacity)} h/wk</td>
+                    <td className="px-4 py-3 text-right font-mono">{Number(r.weekly_capacity)}  {t("common:units.hoursPerWeek")} </td>
                     <td className="px-4 py-3 text-center">
                       <Switch
                         checked={isActive}

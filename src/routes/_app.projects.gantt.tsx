@@ -228,7 +228,7 @@ function GlobalGanttPage() {
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
-              <span className="px-1 font-mono text-[10px] text-muted-foreground">{dayWidth}px</span>
+              <span className="px-1 font-mono text-[10px] text-muted-foreground">{dayWidth} {t("common:units.pixels")} </span>
               <button
                 onClick={() => setDayWidth((w) => Math.min(80, w + 4))}
                 className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"

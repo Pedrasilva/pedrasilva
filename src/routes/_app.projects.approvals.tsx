@@ -85,7 +85,7 @@ function ProjectsApprovalsQueue() {
                       {e.label}{e.notes ? ` — ${e.notes}` : ""}
                     </div>
                   </div>
-                  <span className="font-mono">{formatNumber(e.hours, 2)} h</span>
+                  <span className="font-mono">{formatNumber(e.hours, 2)}  {t("common:units.hoursShort")} </span>
                   <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => void act(e.id, true)}>
                     <Check className="mr-1 h-4 w-4" /> {t("projects:approvals.approve", { defaultValue: "Approve" })}
                   </Button>
@@ -131,8 +131,7 @@ function ProjectsApprovalsQueue() {
                     <div className="font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {t("projects:approvals.pendingCount", { count: p.count })}{" "}
-                      · {formatNumber(p.hours, 1)}h
-                    </div>
+                      · {formatNumber(p.hours, 1)} {t("common:units.hoursShort")} </div>
                   </div>
                 </div>
                 <div className="text-xs font-medium text-primary">

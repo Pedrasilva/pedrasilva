@@ -215,10 +215,10 @@ function TaskCard({ task, canClock }: { task: MyTask; canClock: boolean }) {
                {t("projects:tasks.ui.suggestedHours", { hours: formatNumber(dailyH) })}
             </span>
             <span>
-               {t("projects:tasks.ui.loggedToday")} <strong className="text-foreground">{formatNumber(task.hours_logged_today, 1)}h</strong>
+               {t("projects:tasks.ui.loggedToday")} <strong className="text-foreground">{formatNumber(task.hours_logged_today, 1)} {t("common:units.hoursShort")} </strong>
             </span>
             <span>
-               {t("common:total")} <strong className="text-foreground">{formatNumber(task.hours_logged_total, 1)}h</strong>
+               {t("common:total")} <strong className="text-foreground">{formatNumber(task.hours_logged_total, 1)} {t("common:units.hoursShort")} </strong>
             </span>
           </div>
         </div>
@@ -408,7 +408,7 @@ function HistoryDialog({ task, onClose }: { task: MyTask; onClose: () => void })
                 <li key={e.id} className="flex items-start justify-between gap-3 py-2">
                   <div className="min-w-0 flex-1">
                     <div className="text-sm">
-                      <strong>{formatNumber(Number(e.hours), 2)}h</strong> ·{" "}
+                      <strong>{formatNumber(Number(e.hours), 2)} {t("common:units.hoursShort")} </strong> ·{" "}
                       <span className="text-muted-foreground">{format(new Date(e.entry_date + "T12:00:00"), "P", { locale: dateLocale })}</span>
                     </div>
                     {e.notes && (

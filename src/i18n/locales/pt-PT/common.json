@@ -589,5 +589,14 @@
   "duration": {
     "daysShort": "{{count}}d",
     "hoursMinutes": "{{hours}}h {{minutes}}m"
-  }
+  },
+  "units": {
+    "hoursShort": "h",
+    "hoursPerDay": "h/dia",
+    "hoursPerWeek": "h/semana",
+    "eurosPerHour": "€/h",
+    "pixels": "px",
+    "hoursDot": "h ·"
+  },
+  "imported": "Importado"
 }

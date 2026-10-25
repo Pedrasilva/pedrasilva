@@ -1258,8 +1258,7 @@ function ProjectDetail() {
                       )}
                       {a.logged_hours > 0 && (
                         <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                          <Clock className="h-3 w-3" /> {a.logged_hours}h
-                        </div>
+                          <Clock className="h-3 w-3" /> {a.logged_hours} {t("common:units.hoursShort")} </div>
                       )}
                     </article>
                   ))
@@ -1806,7 +1805,7 @@ function MilestonesTable({
             >
               <option value="all"> {t("common:all")} </option>
               <option value="active"> {t("common:active")} </option>
-              <option value="empty">Sem alocação</option>
+              <option value="empty">{t("projects:detail.ui.noAllocation")}</option>
             </select>
           </label>
         </div>
@@ -2098,9 +2097,8 @@ function MilestonesTable({
                                     {taskNames[a.id] ?? a.resource.name}
                                   </div>
                                   <div className="text-[10px] text-muted-foreground truncate">
-                                    {a.resource.name} · {Number(a.hours_per_day)}h/d ·{" "}
-                                    {formatNumber(aHours, 1)}h
-                                    {canSeeFinancials ? t("projects:detail.ui.costValue", { value: euros(aPlannedCost) }) : ""}
+                                    {a.resource.name} · {Number(a.hours_per_day)} {t("common:units.hoursPerDay")} ·  {" "}
+                                    {formatNumber(aHours, 1)} {t("common:units.hoursShort")} {canSeeFinancials ? t("projects:detail.ui.costValue", { value: euros(aPlannedCost) }) : ""}
                                   </div>
                                 </div>
 
@@ -2759,7 +2757,7 @@ function InsightsPanel({
 
       {(!Number.isFinite(earnedValue) || !Number.isFinite(loggedCost)) && <p role="status" className="text-sm text-destructive">{t("insightsFinance.incomplete")}</p>}
       {entryFigures.some(e=>e.estimatedValue) && <p className="text-xs text-muted-foreground">{t("insightsFinance.estimated")}</p>}
-      <InsightCard title="Profitability">
+      <InsightCard title={t("projects:detail.ui.profitability")}>
         <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
           <GaugeStat label={t("projects:detail.ui.currentMargin")} money={profitCurrent} pct={profitMarginCurrent} />
           <GaugeStat label={t("insightsFinance.conclusionMargin")} money={profitForecast} pct={profitMarginForecast} />
@@ -2772,12 +2770,12 @@ function InsightsPanel({
         {historical.rowCount > 0 && (
           <div className="mx-2 mb-3 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-              {historical.sources.join(", ") || "imported"}
+              {historical.sources.join(", ") || t("common:imported")}
             </Badge>
             <span>
               {t("projects:detail.ui.historical", { count: historical.rowCount })}
               {" · "}
-              {Math.round(histLoggedHours)}h · {euros(historical.cost)} {t("glossary:financial.cost")}
+              {Math.round(histLoggedHours)} {t("common:units.hoursDot")} {euros(historical.cost)} {t("glossary:financial.cost")}
             </span>
           </div>
         )}
@@ -2866,7 +2864,7 @@ function UnapprovedPill({ projectId }: { projectId: string }) {
         {t("projects:detail.ui.unapproved", { count: data.total, value: euros(totalValue), hours: formatNumber(totalHours, 1) })}
       </span>
       <span className="text-amber-700 hover:underline dark:text-amber-300">
-        Review →
+        {t("projects:detail.ui.review")}
       </span>
     </Link>
   );
@@ -3081,6 +3079,7 @@ function HoursPill({
   hours: number;
   tone: "ok" | "warn" | "muted";
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const toneClass =
     tone === "ok"
       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3090,7 +3089,7 @@ function HoursPill({
   return (
     <div className={cn("rounded-md px-2 py-1.5", toneClass)}>
       <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
-      <div className="font-mono text-sm font-semibold">{Math.round(hours * 10) / 10}h</div>
+      <div className="font-mono text-sm font-semibold">{Math.round(hours * 10) / 10} {t("common:units.hoursShort")} </div>
     </div>
   );
 }
@@ -3366,9 +3365,7 @@ function RevenueEarnedCell({ revenue }: { revenue: number }) {
 
 /** Formats € as "€9.554" (thousands with a dot, no decimals). */
 function fmtEur(n: number): string {
-  const r = Math.round(n);
-  const abs = Math.abs(r).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${r < 0 ? "−" : ""}€${abs}`;
+  return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
 /** Number with a faint "–" for zero. */

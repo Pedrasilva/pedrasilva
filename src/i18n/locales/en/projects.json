@@ -331,7 +331,9 @@
       "historical_other": "Includes {{count}} imported historical entries",
       "unapproved_one": "{{value}} awaiting approval · {{hours}} h ({{count}} entry)",
       "unapproved_other": "{{value}} awaiting approval · {{hours}} h ({{count}} entries)",
-      "invoice": "Invoice"
+      "invoice": "Invoice",
+      "profitability": "Profitability",
+      "review": "Review →"
     }
   },
   "quickCreate": {
@@ -1477,7 +1479,9 @@
       "conflictDays_other": "{{count}} overlapping days. Review the allocations below marked with",
       "capacitySub": "Team with {{leave}} approved leave this month → effective capacity {{effective}} (of {{raw}}).",
       "overCapacity": "Plan exceeds capacity by {{hours}}.",
-      "probabilityHint": "Pipeline · {{value}}% probability"
+      "probabilityHint": "Pipeline · {{value}}% probability",
+      "probabilityShort": "P{{value}}%",
+      "plannedHours": "Planned hours"
     }
   },
   "externalServices": {

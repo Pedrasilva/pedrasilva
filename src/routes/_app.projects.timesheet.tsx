@@ -1163,7 +1163,7 @@ function TimesheetPage() {
                     tone="nonworking"
                     icon={<Plane className="h-3.5 w-3.5" />}
                     label={t("projects:timesheet.sections.nonWorking")}
-                    sub=t("projects:timesheet.ui.nonWorkingHint")
+                    sub={t("projects:timesheet.ui.nonWorkingHint")}
                   />
                   {nonWorkingRows.length === 0 && (
                     <tr>
