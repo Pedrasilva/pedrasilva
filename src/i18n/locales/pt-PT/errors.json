@@ -182,7 +182,20 @@
     "thisCarouselWasSentToThePlannerAndIsReadOnlyDuplicateItToMakeANewVersion": "Este carrossel foi enviado para o Planner e é só de leitura. Duplique-o para criar uma nova versão.",
     "photoIsNotInThisProjectSLibrary": "A fotografia não pertence à biblioteca deste projeto.",
     "designMustBeATextSlideImageOfThisProject": "O design tem de ser uma imagem de diapositivo de texto deste projeto.",
-    "imageIsNotFromThisProjectSInbox": "A imagem não pertence à Entrada deste projeto."
+    "imageIsNotFromThisProjectSInbox": "A imagem não pertence à Entrada deste projeto.",
+    "instagramNetworkResponseUnavailable": "A resposta de rede do Instagram está indisponível.",
+    "instagramResponseUnreadable": "A resposta do Instagram não é legível.",
+    "instagramRequestFailed": "O pedido ao Instagram falhou.",
+    "videoRequiresH264OrHevcInMp4Mov": "O vídeo requer H.264 ou HEVC em MP4/MOV.",
+    "videoLengthIsOutsideTheSupportedPublishingRange": "A duração do vídeo está fora do intervalo suportado para publicação.",
+    "videoFileExceedsTheSupportedFormatSize": "O ficheiro de vídeo excede o tamanho suportado para este formato.",
+    "videoRequires2360Fps": "O vídeo requer 23–60 fps.",
+    "videoWidthMustBeAtMost1920Pixels": "A largura do vídeo tem de ser no máximo 1920 píxeis.",
+    "videoBitrateMustBeAtMost25Mbps": "O débito do vídeo tem de ser no máximo 25 Mbps.",
+    "storyVideoMustBe916": "O vídeo da story tem de ter a proporção 9:16.",
+    "reelMustBePortraitExportAt916": "O reel tem de ser vertical; exporte em 9:16.",
+    "audioRequiresAac48KhzMonoOrStereo": "O áudio requer AAC, ≤48 kHz, mono ou estéreo.",
+    "metaRedirect": "A Meta redirecionou inesperadamente (HTTP {{status}})."
   },
   "inbox": {
     "youDoNotHavePermissionToTriageTheInbox": "Não tem permissão para fazer a triagem da entrada.",

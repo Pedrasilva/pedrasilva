@@ -1679,6 +1679,66 @@ export const errorMessageMap = [
     "module": "inventory",
     "message": "Asset code is permanent and cannot be changed",
     "key": "inventory.assetCodeIsPermanentAndCannotBeChanged"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram network response unavailable",
+    "key": "marketing.instagramNetworkResponseUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram response unreadable",
+    "key": "marketing.instagramResponseUnreadable"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram request failed",
+    "key": "marketing.instagramRequestFailed"
+  },
+  {
+    "module": "marketing",
+    "message": "Video requires H.264 or HEVC in MP4/MOV",
+    "key": "marketing.videoRequiresH264OrHevcInMp4Mov"
+  },
+  {
+    "module": "marketing",
+    "message": "Video length is outside the supported publishing range",
+    "key": "marketing.videoLengthIsOutsideTheSupportedPublishingRange"
+  },
+  {
+    "module": "marketing",
+    "message": "Video file exceeds the supported format size",
+    "key": "marketing.videoFileExceedsTheSupportedFormatSize"
+  },
+  {
+    "module": "marketing",
+    "message": "Video requires 23–60 fps",
+    "key": "marketing.videoRequires2360Fps"
+  },
+  {
+    "module": "marketing",
+    "message": "Video width must be at most 1920 pixels",
+    "key": "marketing.videoWidthMustBeAtMost1920Pixels"
+  },
+  {
+    "module": "marketing",
+    "message": "Video bitrate must be at most 25 Mbps",
+    "key": "marketing.videoBitrateMustBeAtMost25Mbps"
+  },
+  {
+    "module": "marketing",
+    "message": "Story video must be 9:16",
+    "key": "marketing.storyVideoMustBe916"
+  },
+  {
+    "module": "marketing",
+    "message": "Reel must be portrait; export at 9:16",
+    "key": "marketing.reelMustBePortraitExportAt916"
+  },
+  {
+    "module": "marketing",
+    "message": "Audio requires AAC, ≤48 kHz, mono or stereo",
+    "key": "marketing.audioRequiresAac48KhzMonoOrStereo"
   }
 ] as const;
 
@@ -1811,6 +1871,14 @@ export const errorPatternMap = [
     "pattern": "^([0-9]+) text slide\\(s\\) still need a design$",
     "names": [
       "count"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.metaRedirect",
+    "pattern": "^Meta redirected unexpectedly \\(HTTP ([0-9]{3})\\)$",
+    "names": [
+      "status"
     ]
   }
 ] as const;
