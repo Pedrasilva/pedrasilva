@@ -1,7 +1,99 @@
 {
-  "files": [{"path":"src/components/products/schedule-print-view.tsx","reason":"Dedicated client-facing furniture schedule print/PDF, not editor UI."}],
-  "prefixes": [{"path":"src/lib/email-templates/","reason":"Email message content; language is separate from app UI."}],
-  "literals": ["Pedra Silva", "Pedra Silva Architects", "Portal Pedra Silva", "PSA", "PSA Hub", "Instagram", "LinkedIn", "EN", "PT"],
-  "documentLanguageBranches": [{"path":"src/components/psa-composer/block-renderer.tsx","variable":"lang","reason":"JSX child document prose selected by the proposal's language; editor props remain scanned."}, {"path":"src/components/psa-composer/canvas.tsx","variable":"lang","reason":"Proposal document labels selected by document language; editor props and controls remain scanned."}],
-  "notes": "Only independently localized document-output files may be excluded. Mixed editor/print files remain scanned; use explicit document-only scopes when needed. Brands are exact whole-string exceptions, never substrings."
+  "files": [
+    {
+      "path": "src/components/products/schedule-print-view.tsx",
+      "reason": "Dedicated client-facing furniture schedule print/PDF, not editor UI."
+    },
+    {
+      "path": "src/components/quotes/payment-contract-note.tsx",
+      "reason": "Existing client contractual acceptance note extracted unchanged from mixed payment editor; not app UI."
+    }
+  ],
+  "prefixes": [
+    {
+      "path": "src/lib/email-templates/",
+      "reason": "Email message content; language is separate from app UI."
+    }
+  ],
+  "literals": [
+    "Pedra Silva",
+    "Pedra Silva Architects",
+    "Portal Pedra Silva",
+    "PSA",
+    "PSA Hub",
+    "Instagram",
+    "LinkedIn",
+    "EN",
+    "PT"
+  ],
+  "documentLanguageBranches": [
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "variable": "lang",
+      "reason": "JSX child document prose selected by the proposal's language; editor props remain scanned."
+    },
+    {
+      "path": "src/components/psa-composer/canvas.tsx",
+      "variable": "lang",
+      "reason": "Proposal document labels selected by document language; editor props and controls remain scanned."
+    }
+  ],
+  "notes": "Only independently localized document-output files may be excluded. Mixed editor/print files remain scanned; use explicit document-only scopes when needed. Brands are exact whole-string exceptions, never substrings.",
+  "documentScopes": [
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "H",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "P",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "Empty",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "hasRichContent",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "RichContent",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "StageRows",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "PhaseSummaryCard",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "BlockBody",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    },
+    {
+      "path": "src/components/psa-composer/block-renderer.tsx",
+      "name": "GanttRotatedAppendix",
+      "reason": "Proposal print-only body selected by proposal language, including contractual prose, signature anchors, units and WBS. Editor placeholders are translation calls; toolbar lives in the separately scanned rich-text editor."
+    }
+  ],
+  "documentLanguageOptions": [
+    {
+      "path": "src/components/psa-composer/proposal-style-panel.tsx",
+      "values": [
+        "pt-PT",
+        "en"
+      ],
+      "reason": "Document language choices keep their own names: Português (Portugal) / English."
+    }
+  ]
 }

@@ -1,3 +1,4 @@
+import { PaymentContractNote } from "./payment-contract-note";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -1077,11 +1078,7 @@ export function PaymentScheduleProposalView({
                   </TableRow>
                 </TableBody>
               </Table>
-              <p className="text-xs italic text-muted-foreground mt-3">
-                NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
-                fase e a sua aceitação por parte do cliente, ou aceitação tácita
-                definida no contrato.
-              </p>
+              <PaymentContractNote />
             </CardContent>
           </Card>
         );

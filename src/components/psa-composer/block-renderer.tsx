@@ -1,3 +1,4 @@
+import { ProposalImageEditorHint } from "./document-editor-hints";
 import uiI18n from "@/i18n/index";
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
@@ -65,7 +66,7 @@ function ProposalImageBlock({ block, lang }: { block: PsaProposalBlock; lang: Pr
   if (!entry) {
     return (
       <div className={`proposal-image-block ${sizeClass} flex items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-xs italic text-zinc-400 print:hidden`}>
-        {lang === "en" ? uiI18n.t("crm:quoteEditor.selectImageHint") : uiI18n.t("crm:quoteEditor.selectImageHint")}
+        <ProposalImageEditorHint />
       </div>
     );
   }
@@ -2073,7 +2074,7 @@ export function BlockBody({
       const durLabel = (r: Row) => {
         if (r.stage.durationDays == null) return "";
         const d = Math.max(0, Math.round(r.stage.durationDays));
-        return `${d}d`;
+        return t("common:duration.days", { lng: lang, count: d });
       };
 
       const chartInner = (
