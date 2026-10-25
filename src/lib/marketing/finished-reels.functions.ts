@@ -2,7 +2,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { resolvePostLanguage, languageInstruction } from './post-language';
-import { validateVideo } from './video-validation';
 
 const input = z.object({ profileId: z.string().uuid(), note: z.string().max(4000).default(''), audioBase64: z.string().max(14000000).optional() });
 export const suggestReelCaption = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).inputValidator(d => input.parse(d)).handler(async ({ data, context }) => {

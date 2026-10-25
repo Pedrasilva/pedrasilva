@@ -17,9 +17,12 @@ export async function inspectReelFile(file: File): Promise<VideoMetadata> {
 export async function jpegCover(source: CanvasImageSource, width: number, height: number): Promise<Blob> {
   const canvas = document.createElement('canvas');
   // A reduced whole frame, never a crop; JPEG fits the publisher's image bounds.
-  canvas.width = 1080; canvas.height = Math.round(1080 * height / width);
+  canvas.width = 1080; canvas.height = 1920;
   const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas unavailable');
-  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || 'Canvas';
+  ctx.fillRect(0,0,1080,1920);
+  const scale=Math.min(1080/width,1920/height);
+  ctx.drawImage(source,(1080-width*scale)/2,(1920-height*scale)/2,width*scale,height*scale);
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Cover unavailable')), 'image/jpeg', 0.9));
 }
 

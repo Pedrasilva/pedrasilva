@@ -129,7 +129,7 @@ function CalendarPage() {
     queryFn: async () => {
       const paths = previewRow?.story_render_manifest?.paths;
       if (paths?.length) { const urls = await signPaths(supabase, paths.map(path=>({path})), 3600, PREVIEW.tile); return paths.map((path,i)=>({id:path, url:urls.get(path), file_name:`Story ${i+1}`, mime_type:"image/jpeg"})); }
-      return resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, { preview: PREVIEW.tile });
+      return resolveDraftImages(supabase, previewRow?.asset_ids ?? [], 3600, previewRow?.format==='reel' ? {} : { preview: PREVIEW.tile });
     },
   });
 

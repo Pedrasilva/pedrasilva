@@ -30,7 +30,7 @@ function useGridDrafts() {
       const { data, error } = await sb.from("marketing_post_drafts")
         .select("id, status, scheduled_at, created_at, format, asset_ids, final_copy, ai_copy")
         .eq("platform", "instagram").in("status", [...UPCOMING]).limit(200);
-      if (error) throw error;
+        if (error) throw error;
       // Stories never appear on the profile grid.
       const rows = ((data ?? []) as Draft[]).filter((d) => d.format !== "story");
       // Signed ~400px WebP previews of the cover only (reused for most of their hour); the bucket stays private.
