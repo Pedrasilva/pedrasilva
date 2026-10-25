@@ -122,7 +122,6 @@ const INTERNAL_COST_CENTERS = [
 
 // Map canonical English internal-category strings (stored in DB) to localized labels.
 function translateCategory(t: (key: string) => string, category: string): string {
-  const { t } = useTranslation(["projects", "common", "glossary"]);
   const map: Record<string, string> = {
     "Fee proposals": "projects:financials.internalCenters.centers.feeProposals",
     "Meetings": "projects:financials.internalCenters.centers.meetings",
@@ -1643,7 +1642,6 @@ function useWeeklyUtilTrend(
   filteredResourceIds: Set<string>,
   dateLocale: import("date-fns").Locale,
 ) {
-  const dateLocale = useDateLocale();
   const end = endOfMonth(monthAnchor);
   const start = startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 });
   const startISO = format(start, "yyyy-MM-dd");

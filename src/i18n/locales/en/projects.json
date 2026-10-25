@@ -143,7 +143,8 @@
       "loggedHours": "{{logged}}h logged / {{planned}}h planned",
       "editClient": "Change client",
       "manageTeam": "Manage team",
-      "pickPerson": "Pick a person"
+      "pickPerson": "Pick a person",
+      "details": "Project details"
     },
     "budgetControl": {
       "title": "Budget control",
@@ -333,7 +334,11 @@
       "unapproved_other": "{{value}} awaiting approval · {{hours}} h ({{count}} entries)",
       "invoice": "Invoice",
       "profitability": "Profitability",
-      "review": "Review →"
+      "review": "Review →",
+      "start": "Start",
+      "end": "End",
+      "overdue": "Overdue",
+      "remaining": "Remaining"
     }
   },
   "quickCreate": {

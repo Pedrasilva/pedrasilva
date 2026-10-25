@@ -598,5 +598,6 @@
     "pixels": "px",
     "hoursDot": "h ·"
   },
-  "imported": "Imported"
+  "imported": "Imported",
+  "accessDenied": "Access denied."
 }

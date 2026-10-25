@@ -502,7 +502,7 @@ function TimesheetPage() {
   }, [retainerData, extraRetainerIds, allProjectRows, entries, retainerTaskToChild]);
   const childForDate = (r: RetainerParentRow, date: string) => r.children.find((c) => c.month === date.slice(0, 7)) ?? null;
   const ensureRetainerTask = async (child: { id: string; start_date: string; end_date: string }) => {
-    if (!profile?.resource_id) throw new Error("No resource");
+    if (!profile?.resource_id) throw new Error(t("projects:timesheet.noResource"));
     const taskId = await ensureRow.mutateAsync({
       resource_id: profile.resource_id,
       stage_id: child.id,

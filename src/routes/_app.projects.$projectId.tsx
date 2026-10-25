@@ -409,7 +409,7 @@ function ProjectDetail() {
     return { origin: o, totalDays: days };
   }, [data]);
 
-  const summaryLabel = t("projects:gantt.projectSummary", { defaultValue: "Project" });
+  const summaryLabel = t("projects:gantt.projectSummary");
   const { mappedStages, hierarchy } = useMemo(
     () =>
       data
@@ -704,15 +704,15 @@ function ProjectDetail() {
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
             <TabBtn icon={Repeat} label={t("projects:detail.ui.retainer")} active={tab === "ap"} onClick={() => setTab("ap")} />
             {isAdmin && (
-              <TabBtn icon={CheckCircle2} label={t("projects:approvals.title", { defaultValue: "Approvals" })} active={tab === "approvals"} onClick={() => setTab("approvals")} />
+              <TabBtn icon={CheckCircle2} label={t("projects:approvals.title")} active={tab === "approvals"} onClick={() => setTab("approvals")} />
             )}
-            <TabBtn icon={FileText} label={t("projects:notes.tab", { defaultValue: "Notes" })} active={tab === "notes"} onClick={() => setTab("notes")} />
+            <TabBtn icon={FileText} label={t("projects:notes.tab")} active={tab === "notes"} onClick={() => setTab("notes")} />
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
             {projectFinanceAccess.hasAccess && <TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
             <TabBtn icon={Building2} label={t("projects:detail.ui.architecture")} active={tab === "architecture"} onClick={() => setTab("architecture")} />
-            <TabBtn icon={UsersIcon} label={t("common:shell.link.finance.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />
+            <TabBtn icon={UsersIcon} label={t("projects:detail.ui.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />
             <TabBtn icon={ArrowDownToLine} label={t("projects:detail.ui.incoming")} active={tab === "incoming"} onClick={() => setTab("incoming")} />
             <TabBtn icon={ArrowUpFromLine} label={t("projects:detail.ui.outgoing")} active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
             <TabBtn icon={CalendarClock} label={t("projects:detail.ui.paymentSchedule")} active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
@@ -749,7 +749,7 @@ function ProjectDetail() {
               <div className="space-y-5 p-4">
                 <div className="-mt-1 mb-1 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    {t("projects:detail.sidebar.client", { defaultValue: "Client" })}
+                    {t("glossary:relation.client")}
                   </span>
                   <button
                     onClick={() => setSidebarOpen(false)}
@@ -766,24 +766,24 @@ function ProjectDetail() {
                   client={project.client}
                 />
 
-                <SidebarSection title={t("projects:detail.sidebar.details", { defaultValue: "Project details" })}>
+                <SidebarSection title={t("projects:detail.sidebar.details")}>
                   <div className="space-y-1">
                     <DetailRow
-                      label={t("projects:detail.sidebar.status", { defaultValue: "Status" })}
-                      value={t(`projects:status.${project.status}`, { defaultValue: project.status })}
+                      label={t("common:status")}
+                      value={t(`projects:detail.status.${project.status}`, { defaultValue: project.status })}
                     />
                     <DetailRow
-                      label={t("projects:detail.sidebar.start", { defaultValue: "Start" })}
+                      label={t("projects:detail.ui.start")}
                       value={format(scheduleStart, "d MMM yyyy", { locale: dateLocale })}
                     />
                     <DetailRow
-                      label={t("projects:detail.sidebar.end", { defaultValue: "End" })}
+                      label={t("projects:detail.ui.end")}
                       value={format(scheduleEnd, "d MMM yyyy", { locale: dateLocale })}
                     />
                     <DetailRow
                       label={overdueDays > 0
-                        ? t("projects:detail.sidebar.overdue", { defaultValue: "Overdue" })
-                        : t("projects:detail.sidebar.remaining", { defaultValue: "Remaining" })}
+                        ? t("projects:detail.ui.overdue")
+                        : t("projects:detail.ui.remaining")}
                       value={t("common:duration.daysShort", { count: overdueDays > 0 ? overdueDays : remainingDays })}
                     />
                   </div>
@@ -859,7 +859,7 @@ function ProjectDetail() {
                 )}
 
                 {project.notes && (
-                  <SidebarSection title={t("projects:detail.sidebar.notes", { defaultValue: "Notes" })}>
+                  <SidebarSection title={t("common:notes")}>
                     <p className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
                       {project.notes}
                     </p>
@@ -1096,7 +1096,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label={t("common:shell.link.finance.suppliers")} projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.suppliers")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1152,7 +1152,7 @@ function ProjectDetail() {
                           onChange={(e) => setShowCancelled(e.target.checked)}
                           className="h-3.5 w-3.5"
                         />
-                        {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
+                        {t("projects:gantt.showCancelled")}
                       </label>
                     </div>
                     <ProjectGantt
@@ -3119,7 +3119,7 @@ function FinancialsTable({
         <tr className="border-b border-border text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <th className="px-2 py-2 text-left font-semibold"></th>
           <th className="px-2 py-2 font-semibold"> {t("common:services")} </th>
-          <th className="px-2 py-2 font-semibold"> {t("common:shell.link.finance.suppliers")} </th>
+          <th className="px-2 py-2 font-semibold"> {t("projects:detail.ui.suppliers")} </th>
           <th className="px-2 py-2 font-semibold"> {t("projects:detail.tabs.expenses")} </th>
           <th className="px-2 py-2 font-semibold"> {t("common:total")} </th>
         </tr>

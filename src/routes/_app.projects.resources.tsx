@@ -29,8 +29,8 @@ export const Route = createFileRoute("/_app/projects/resources")({
 type TabKey = "all" | "project" | "back_office" | "inactive";
 
 const TEAM_LABEL: Record<ResourceTeam, string> = {
-  project: "Project Team",
-  back_office: "Back Office",
+  project: "projects:resources.ui.projectTeam",
+  back_office: "projects:resources.ui.backoffice",
 };
 
 type FullResource = Resource & {

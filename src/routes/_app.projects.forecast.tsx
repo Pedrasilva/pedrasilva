@@ -600,7 +600,7 @@ function ForecastPage() {
       out.push({ label: format(ms, "MMM yy", { locale: dateLocale }), revenue: rev, cost, profit: rev - cost });
     }
     return out;
-  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode]);
+  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode, dateLocale]);
 
   const profit = planned.totalRevenue - planned.totalCost;
   const margin = planned.totalRevenue > 0 ? (profit / planned.totalRevenue) * 100 : 0;
@@ -688,7 +688,7 @@ function ForecastPage() {
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground"> {t("projects:studio")} </p>
-            <h1 className="text-4xl font-semibold tracking-tight"> {t("common:shell.link.projects.forecast")} </h1>
+            <h1 className="text-4xl font-semibold tracking-tight"> {t("projects:forecast.title")} </h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                {t("projects:forecast.ui.subtitle")} </p>
           </div>

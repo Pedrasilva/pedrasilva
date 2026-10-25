@@ -28,13 +28,13 @@ function ProjectsApprovalsQueue() {
   const { t } = useTranslation(["projects", "common", "glossary"]);
     let reason: string | undefined;
     if (!approve) {
-      const r = window.prompt(t("projects:approvals.rejectPrompt", { defaultValue: "Reason for rejection?" }) ?? "");
+      const r = window.prompt(t("projects:approvals.rejectPrompt") ?? "");
       if (!r) return;
       reason = r;
     }
     try {
       await decide.mutateAsync({ id, approve, reason });
-      toast.success(approve ? t("projects:approvals.approved", { defaultValue: "Entry approved" }) : t("projects:approvals.rejected", { defaultValue: "Entry rejected" }));
+      toast.success(approve ? t("projects:approvals.approved") : t("projects:approvals.rejected"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -44,7 +44,7 @@ function ProjectsApprovalsQueue() {
     return (
       <AppShell>
         <div className="p-8 text-sm text-muted-foreground">
-          {t("common:accessDenied", { defaultValue: "Access denied." })}
+          {t("common:accessDenied")}
         </div>
       </AppShell>
     );
@@ -55,12 +55,10 @@ function ProjectsApprovalsQueue() {
       <div className="mx-auto w-full max-w-4xl px-6 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t("projects:approvals.queueTitle", { defaultValue: "Approve work" })}
+            {t("projects:approvals.queueTitle")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t("projects:approvals.queueSubtitle", {
-              defaultValue: "Projects with hours awaiting approval.",
-            })}
+            {t("projects:approvals.queueSubtitle")}
           </p>
         </div>
 
@@ -87,10 +85,10 @@ function ProjectsApprovalsQueue() {
                   </div>
                   <span className="font-mono">{formatNumber(e.hours, 2)}  {t("common:units.hoursShort")} </span>
                   <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => void act(e.id, true)}>
-                    <Check className="mr-1 h-4 w-4" /> {t("projects:approvals.approve", { defaultValue: "Approve" })}
+                    <Check className="mr-1 h-4 w-4" /> {t("projects:approvals.approve")}
                   </Button>
                   <Button size="sm" variant="outline" className="border-destructive/40 text-destructive" disabled={decide.isPending} onClick={() => void act(e.id, false)}>
-                    <X className="mr-1 h-4 w-4" /> {t("projects:approvals.reject", { defaultValue: "Reject" })}
+                    <X className="mr-1 h-4 w-4" /> {t("projects:approvals.reject")}
                   </Button>
                 </li>
               ))}
@@ -101,15 +99,13 @@ function ProjectsApprovalsQueue() {
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />{" "}
-            {t("common:loading", { defaultValue: "Loading…" })}
+            {t("common:loading")}
           </div>
         ) : !data || data.length === 0 ? (
           <div className="rounded-lg border border-dashed p-10 text-center">
             <CheckCircle2 className="mx-auto mb-3 h-8 w-8 text-emerald-500" />
             <p className="text-sm text-muted-foreground">
-              {t("projects:approvals.queueEmpty", {
-                defaultValue: "All caught up. No pending hours.",
-              })}
+              {t("projects:approvals.queueEmpty")}
             </p>
           </div>
         ) : (
@@ -135,7 +131,7 @@ function ProjectsApprovalsQueue() {
                   </div>
                 </div>
                 <div className="text-xs font-medium text-primary">
-                  {t("projects:approvals.review", { defaultValue: "Review →" })}
+                  {t("projects:approvals.review")}
                 </div>
               </Link>
             ))}

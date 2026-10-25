@@ -143,7 +143,8 @@
       "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas",
       "editClient": "Alterar cliente",
       "manageTeam": "Gerir equipa",
-      "pickPerson": "Escolher pessoa"
+      "pickPerson": "Escolher pessoa",
+      "details": "Detalhes do projeto"
     },
     "budgetControl": {
       "title": "Controlo de orçamento",
@@ -333,7 +334,11 @@
       "unapproved_other": "{{value}} por aprovar · {{hours}} h ({{count}} registos)",
       "invoice": "Fatura",
       "profitability": "Rentabilidade",
-      "review": "Rever →"
+      "review": "Rever →",
+      "start": "Início",
+      "end": "Fim",
+      "overdue": "Em atraso",
+      "remaining": "Restante"
     }
   },
   "quickCreate": {

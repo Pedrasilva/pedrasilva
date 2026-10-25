@@ -153,7 +153,7 @@ function WeeklyApprovalPage() {
     return (
       <AppShell>
         <div className="p-8 text-sm text-muted-foreground">
-          {t("common:loading", { defaultValue: "Loading…" })}
+          {t("common:loading")}
         </div>
       </AppShell>
     );
@@ -163,7 +163,7 @@ function WeeklyApprovalPage() {
     return (
       <AppShell>
         <div className="p-8 text-sm text-muted-foreground">
-          {t("common:accessDenied", { defaultValue: "Access denied." })}
+          {t("common:accessDenied")}
         </div>
       </AppShell>
     );
@@ -305,7 +305,7 @@ function WeeklyApprovalPage() {
           {isLoading ? (
             <div className="flex items-center gap-2 px-4 py-8 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              {t("common:loading", { defaultValue: "Loading…" })}
+              {t("common:loading")}
             </div>
           ) : filtered.length === 0 ? (
             <div className="px-4 py-10 text-center text-sm text-muted-foreground">

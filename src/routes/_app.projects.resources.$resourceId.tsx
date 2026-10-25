@@ -28,8 +28,8 @@ export const Route = createFileRoute("/_app/projects/resources/$resourceId")({
 const PALETTE = ["#f97316", "#eab308", "#06b6d4", "#a855f7", "#ec4899", "#10b981", "#3b82f6", "#ef4444"];
 
 const TEAM_LABEL: Record<ResourceTeam, string> = {
-  project: "Project Team",
-  back_office: "Back Office",
+  project: "projects:resources.ui.projectTeam",
+  back_office: "projects:resources.ui.backoffice",
 };
 
 type FullResource = Resource & {
