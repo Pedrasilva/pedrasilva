@@ -1,3 +1,5 @@
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { POST_LANGUAGES, type PostLanguage } from "@/lib/marketing/post-language";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -62,6 +64,8 @@ function ProfilePage() {
   const { can } = useMyPermissionsV2();
   const canCurate = can("marketing.curate", "all");
   const qc = useQueryClient();
+  const {data:directory=[]}=useMarketingProjectDirectory();
+  const [linkId,setLinkId]=useState("");
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["marketing-project-profile", profileId],
@@ -77,7 +81,8 @@ function ProfilePage() {
     queryKey: ["marketing-profile-project", projectId],
     enabled: !!projectId,
     queryFn: async () => {
-      const { data } = await supabase.from("pm_projects").select("id, name, client").eq("id", projectId!).maybeSingle();
+      if (!projectId) return null;
+      const { data } = await supabase.from("pm_projects").select("id, name, client").eq("id", projectId).maybeSingle();
       return data as { id: string; name: string; client: string | null } | null;
     },
   });
@@ -93,18 +98,19 @@ function ProfilePage() {
     queryKey: ["marketing-profile-member", projectId, user?.id],
     enabled: !!projectId && !!user,
     queryFn: async () => {
-      const { data } = await db.rpc("marketing_is_project_team_member", { _user_id: user!.id, _project_id: projectId });
+      if (!user) return false;
+      const { data } = await db.rpc("marketing_is_project_team_member", { _user_id: user.id, _project_id: projectId });
       return data === true;
     },
   });
   const { data: captures = [] } = useQuery({
-    queryKey: ["marketing-profile-captures", projectId],
-    enabled: !!projectId,
+    queryKey: ["marketing-profile-captures", profileId],
+    enabled: !!profileId,
     queryFn: async () => {
       const { data } = await supabase
         .from("marketing_captures")
         .select("id, raw_text, marketing_capture_assets(storage_path, mime_type)")
-        .eq("project_id", projectId!)
+        .eq("profile_id", profileId)
         .order("received_at", { ascending: false });
       return (data ?? []) as unknown as Array<{ id: string; raw_text: string | null; marketing_capture_assets: { storage_path: string; mime_type: string }[] }>;
     },
@@ -149,6 +155,7 @@ function ProfilePage() {
     for (const f of STORY_FIELDS) patch[f] = v[f];
     if (canCurate) {
       Object.assign(patch, {
+        ...(!profile.project_id ? {internal_name:v.internal_name,internal_client:v.internal_client} : {}),
         post_language: v.post_language, instagram_language: v.instagram_language, linkedin_language: v.linkedin_language,
         sector: v.sector, location: v.location, stage: v.stage, year_completed: v.year_completed,
         name_rule: v.name_rule, public_description: v.public_description, clearance: v.clearance, rules_notes: v.rules_notes,
@@ -161,6 +168,7 @@ function ProfilePage() {
     setDraft({});
     qc.invalidateQueries({ queryKey: ["marketing-project-profile", profileId] });
     qc.invalidateQueries({ queryKey: PROFILES_QUERY_KEY });
+    qc.invalidateQueries({queryKey:["marketing-projects"]});
   };
 
   const remove = async () => {
@@ -182,10 +190,11 @@ function ProfilePage() {
         <h1 className="text-2xl font-semibold">
           {project ? (
             <Link to="/projects/$projectId" params={{ projectId: project.id }} className="hover:underline">{project.name}</Link>
-          ) : "—"}
+          ) : profile.internal_name ?? "—"}
         </h1>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          {project?.client && <span>{t("profile.client")}: {project.client}</span>}
+          {(project?.client??profile.internal_client) && <span>{t("profile.client")}: {project?.client??profile.internal_client}</span>}
+          {!profile.project_id&&<Badge variant="secondary">{t("portfolio.label")}</Badge>}
           {profile.sector && <span>{t(`sector.${profile.sector}`)}</span>}
           {profile.location && <span>{profile.location}</span>}
           {profile.stage && <span>{t(`stage.${profile.stage}`)}</span>}
@@ -201,6 +210,7 @@ function ProfilePage() {
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.facts")}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
+          {!profile.project_id&&<><div className="space-y-1"><Label>{t("portfolio.internalName")}</Label><Input value={v.internal_name??""} disabled={!canCurate} onChange={e=>set({internal_name:e.target.value})}/></div><div className="space-y-1"><Label>{t("portfolio.internalClient")}</Label><Input value={v.internal_client??""} disabled={!canCurate} onChange={e=>set({internal_client:e.target.value||null})}/></div></>}
           <Opt label={t("filters.sector")} value={v.sector} disabled={!canCurate} onChange={(x) => set({ sector: x as ProjectProfile["sector"] })}
             options={SECTORS.map((s) => ({ v: s, l: t(`sector.${s}`) }))} none={t("add.none")} />
           <Opt label={t("detail.stage")} value={v.stage} disabled={!canCurate} onChange={(x) => set({ stage: x as ProjectProfile["stage"] })}
@@ -224,7 +234,7 @@ function ProfilePage() {
 
       <CarouselsCard profileId={profile.id} canEdit={canEditStory} />
 
-      {canEditStory && <BriefingsCard profileId={profile.id} projectId={profile.project_id} canCurate={canCurate} />}
+      {canEditStory && <BriefingsCard profileId={profile.id} projectId={profile.project_id??""} canCurate={canCurate} />}
 
       <Card className="space-y-3 p-4">
         <h2 className="font-semibold">{t("profile.storyTitle")}</h2>
@@ -300,6 +310,7 @@ function ProfilePage() {
         </div>
       </Card>
 
+      {!profile.project_id&&canCurate&&<div className="flex flex-wrap items-end gap-2 border-t pt-4"><div className="min-w-0 flex-1"><Label>{t("portfolio.link")}</Label><MarketingProjectPicker label={t("portfolio.link")} value={linkId} onChange={setLinkId} options={directory.filter(p=>!p.portfolio&&!p.profile_id)} emptyLabel={t("profiles.pickProject")}/></div><Button variant="outline" disabled={!linkId||saving} onClick={async()=>{if(!confirm(t("portfolio.linkConfirm")))return;setSaving(true);const {error}=await supabase.rpc("marketing_link_portfolio",{_profile:profile.id,_project:linkId});setSaving(false);if(error){toast.error(t("profiles.error"));return;}await qc.invalidateQueries({predicate:q=>String(q.queryKey[0]).startsWith("marketing-")});}}>{t("portfolio.link")}</Button></div>}
       <div className="flex gap-2">
         {canEditStory && (
           <Button onClick={save} disabled={saving || Object.keys(draft).length === 0}>{t("detail.save")}</Button>

@@ -50,7 +50,7 @@ async function loadComposition(db: any, compositionId: string) {
   const { data: comp } = await db.from("marketing_compositions").select("*").eq("id", compositionId).maybeSingle();
   if (!comp) throw new Error("Carousel not found");
   const { data: slides } = await db.from("marketing_composition_slides").select("*").eq("composition_id", compositionId).order("position");
-  const { data: prof } = await db.from("marketing_project_profiles").select("id, project_id, clearance, post_language, instagram_language, linkedin_language").eq("id", comp.profile_id).single();
+  const { data: prof } = await db.from("marketing_project_profiles").select("id, project_id:marketing_key, clearance, post_language, instagram_language, linkedin_language").eq("id", comp.profile_id).single();
   return { comp, slides: (slides ?? []) as CompSlide[], prof: prof as LanguageProfile & { id: string; project_id: string; clearance: string } };
 }
 
@@ -86,7 +86,8 @@ async function describeSlides(db: any, slides: CompSlide[]) {
 export async function draftCompositionQuestion(compositionId: string): Promise<string> {
   const db = await admin();
   const { comp, slides, prof } = await loadComposition(db, compositionId);
-  const { data: proj } = await db.from("pm_projects").select("name").eq("id", prof.project_id).maybeSingle();
+  const context=(await getProjectProfilesForMatching()).find(p=>p.project_id===prof.project_id);
+  const proj={name:context?.name_rule==="name"?context.project_name:context?.public_description};
   const desc = await describeSlides(db, slides);
   const content: unknown[] = [];
   for (const d of desc.slice(0, 8)) if (d.thumb) {
