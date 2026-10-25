@@ -37,6 +37,18 @@ test('preserves document-language prose exceptions but still checks editor props
 test('does not count CSS or templates containing only variable values', () => {
   assert.equal(scanSource('const v=<><style>{`body { color: red; }`}</style><p>{`${name}`}</p></>;').length,0);
 });
+test('document scope exceptions are exact by file and function; editor siblings remain scanned', () => {
+  const source='function PrintedTerms(){return <p>Contract terms</p>} function Editor(){return <button>Save</button>}';
+  const rules={documentScopes:[{path:'mixed.tsx',name:'PrintedTerms'}]};
+  assert.deepEqual(scanSource(source,'mixed.tsx',rules).map(f=>f.text),['Save']);
+  assert.equal(scanSource(source,'other.tsx',rules).length,2);
+});
+test('document-language autonyms exclude only named SelectItem values in the exact file', () => {
+  const source='const v=<><SelectItem value="pt-PT">Português (Portugal)</SelectItem><Label>Document language</Label><SelectItem value="draft">Draft</SelectItem></>';
+  const rules={documentLanguageOptions:[{path:'style.tsx',values:['pt-PT','en']}]};
+  assert.deepEqual(scanSource(source,'style.tsx',rules).map(f=>f.text),['Document language','Draft']);
+  assert.equal(scanSource(source,'other.tsx',rules).length,3);
+});
 test('project scan excludes only integrations, locales and explicit document files', () => {
   const root=mkdtempSync(join(tmpdir(),'i18n-check-'));
   try {
