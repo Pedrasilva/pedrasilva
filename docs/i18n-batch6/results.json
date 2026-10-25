@@ -49,6 +49,8 @@
     "POST /rest/v1/rpc/fin_reconcile_suggestions_refresh",
     "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvaHIvYXBwcm92YWwtaW5ib3guZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldEFwcHJvdmFsSW5ib3hfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9",
     "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL3Bvc3QtYXBwcm92YWxzLmZ1bmN0aW9ucy50cz90c3Mtc2VydmVyZm4tc3BsaXQiLCJleHBvcnQiOiJsaXN0TXlQb3N0QXBwcm92YWxzX2NyZWF0ZVNlcnZlckZuX2hhbmRsZXIifQ",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvaHIvYXBwcm92YWwtaW5ib3guZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldEFwcHJvdmFsSW5ib3hfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9",
+    "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvbWFya2V0aW5nL3Bvc3QtYXBwcm92YWxzLmZ1bmN0aW9ucy50cz90c3Mtc2VydmVyZm4tc3BsaXQiLCJleHBvcnQiOiJsaXN0TXlQb3N0QXBwcm92YWxzX2NyZWF0ZVNlcnZlckZuX2hhbmRsZXIifQ",
     "POST /rest/v1/rpc/is_psa_staff",
     "POST /rest/v1/rpc/is_psa_staff",
     "POST /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvaHIvYXBwcm92YWwtaW5ib3guZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldEFwcHJvdmFsSW5ib3hfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9",

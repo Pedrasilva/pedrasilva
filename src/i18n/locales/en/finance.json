@@ -304,7 +304,6 @@
       "minAmount": "Min |amount|",
       "maxAmount": "Max |amount|",
       "clearFilters": "Clear filters",
-      "resultsCount": "{{count}} results",
       "selectTx": "Select a transaction to see details and matching candidates.",
       "valueDate": "Value date",
       "classifications": "Classification splits",
@@ -324,7 +323,9 @@
         "unlinked": "Unlinked only",
         "payment": "Supplier payment",
         "receipt": "Client receipt"
-      }
+      },
+      "resultsCount_one": "{{count}} result",
+      "resultsCount_other": "{{count}} results"
     },
     "ignoreDuplicatePrompt": "Is this a DUPLICATE import line that should not count toward the balance?\n\nOK = duplicate (excluded from balance)\nCancel = real movement (bank fee, etc.) — counts toward the balance",
     "needsReview": {

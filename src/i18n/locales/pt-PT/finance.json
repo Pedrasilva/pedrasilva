@@ -304,7 +304,6 @@
       "minAmount": "Mín |valor|",
       "maxAmount": "Máx |valor|",
       "clearFilters": "Limpar filtros",
-      "resultsCount": "{{count}} resultados",
       "selectTx": "Seleciona uma transação para ver detalhes e candidatos.",
       "valueDate": "Data valor",
       "classifications": "Repartições por categoria",
@@ -324,7 +323,9 @@
         "unlinked": "Apenas não ligadas",
         "payment": "Pagamento a fornecedor",
         "receipt": "Recebimento de cliente"
-      }
+      },
+      "resultsCount_one": "{{count}} resultado",
+      "resultsCount_other": "{{count}} resultados"
     },
     "ignoreDuplicatePrompt": "Este movimento é uma LINHA DUPLICADA da importação que não deve contar para o saldo?\n\nOK = duplicado (excluído do saldo)\nCancelar = movimento real (comissão bancária, etc.) — conta para o saldo",
     "needsReview": {

@@ -178,7 +178,7 @@ Os tokens mantidos são apenas unidades/símbolos, marcas, nomes técnicos, exem
 - `bun run test:i18n`: **13 testes**, paridade de 12 namespaces EN/PT e zero candidatos.
 - Home: **11 regressões locais** aprovadas.
 - Regressões Vitest: **25 testes** em títulos documentais, saúde da entrada, agrupamento de fornecedores e exportação contabilística.
-- Match panel: **7 verificações**; regressões salariais também aprovadas.
+- Match panel: **7 verificações**; **33 testes** de totais financeiros e **22 casos** de cláusulas de feriados; regressões salariais também aprovadas.
 - Pré-visualização: último resultado **build OK**, sem erros runtime nas páginas verificadas.
 - Navegação real no browser para `/finance/banking/reconciliation` com conta/movimento locais, e `/` com respostas locais. Todas as leituras de dados foram interceptadas; pedidos potencialmente mutáveis não chegaram ao serviço real. Nenhuma classificação, importação, confirmação ou eliminação foi executada.
 - Idioma alterado apenas em memória no browser, sem guardar preferências reais.
