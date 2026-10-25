@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
 import { CompanyDetail } from "@/components/crm/company-detail";
 
 export const Route = createFileRoute("/_app/finance/clients/$companyId")({

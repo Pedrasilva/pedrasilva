@@ -1,3 +1,4 @@
+import uiI18n from "@/i18n/index";
 import { loggedEntryFigures } from "@/lib/projects/financial-calculation";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";

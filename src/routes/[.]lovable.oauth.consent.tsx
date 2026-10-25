@@ -2,8 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
-import { useTranslation } from "react-i18next";
-import uiI18n from "@/i18n/index";
 import { supabase } from "@/integrations/supabase/client";
 import { oauthNs } from "@/lib/oauth-consent-ns";
 
@@ -42,7 +40,6 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 });
 
 function Consent() {
-  const { t } = useTranslation();
   const { t } = useTranslation();
   const details = Route.useLoaderData();
   const { authorization_id } = Route.useSearch();

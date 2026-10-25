@@ -515,8 +515,8 @@ function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accou
                         <TableCell><input type="checkbox" checked={preview.rowSelection[i]} onChange={(e) => { const next = [...preview.rowSelection]; next[i] = e.target.checked; setPreview({ ...preview, rowSelection: next }); }} /></TableCell>
                         <TableCell className="text-xs">{r.transaction_date}</TableCell>
                         <TableCell className="text-xs max-w-[400px] truncate" title={r.description}>{r.description}</TableCell>
-                        <TableCell className={`text-right text-xs tabular-nums ${r.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{r.amount.toFixed(2)}</TableCell>
-                        <TableCell className="text-right text-xs tabular-nums text-muted-foreground">{r.running_balance?.toFixed(2) ?? "—"}</TableCell>
+                        <TableCell className={`text-right text-xs tabular-nums ${r.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{r.amount.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="text-right text-xs tabular-nums text-muted-foreground">{r.running_balance?.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "—"}</TableCell>
                         <TableCell className="text-xs">{preview.ruleHits[i] ? <Badge variant="outline" className="text-xs">{t("finance:bankRec.autoSuggested")}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       </TableRow>
                     ))}
@@ -1381,7 +1381,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
   }
 
   async function save() {
-    if (!balanced) { toast.error(t("finance:bankRec.splitNotBalanced", { total: total.toFixed(2), expected: tx.amount.toFixed(2) })); return; }
+    if (!balanced) { toast.error(t("finance:bankRec.splitNotBalanced", { total: total.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), expected: tx.amount.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })); return; }
     if (splits.some((s) => !s.classification_id)) { toast.error(t("finance:bankRec.classificationRequired")); return; }
     setSaving(true);
     try {
@@ -1422,7 +1422,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
           <div className="rounded-md border p-3 bg-muted/30 text-sm">
             <div className="font-medium">{tx.description}</div>
             <div className="text-xs text-muted-foreground mt-1">
-              {tx.transaction_date} · <span className={`tabular-nums font-medium ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{tx.amount.toFixed(2)} {tx.currency}</span>
+              {tx.transaction_date} · <span className={`tabular-nums font-medium ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{tx.amount.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {tx.currency}</span>
             </div>
           </div>
 
@@ -1536,7 +1536,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
 
           <div className="flex items-center justify-between text-xs">
             <span className={balanced ? "text-emerald-600" : "text-destructive"}>
-              {t("finance:bankRec.splitTotal", { total: total.toFixed(2), expected: tx.amount.toFixed(2) })}
+              {t("finance:bankRec.splitTotal", { total: total.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), expected: tx.amount.toLocaleString(uiI18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })}
             </span>
           </div>
         </div>
