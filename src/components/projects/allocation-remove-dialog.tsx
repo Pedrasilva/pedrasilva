@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -18,7 +19,7 @@ export function AllocationRemoveDialog({ open, onOpenChange, allocationId, name,
     allocationLoggedHours(allocationId).then(setHours, () => setFailed(true));
   }, [open, allocationId]);
   const mode = failed ? "retire" : hours === null ? null : removalMode(hours);
-  const shown = (hours ?? 0).toLocaleString("pt-PT", { maximumFractionDigits: 2 });
+  const shown = (hours ?? 0).toLocaleString(i18n.language, { maximumFractionDigits: 2 });
   return <AlertDialog open={open} onOpenChange={onOpenChange}><AlertDialogContent onPointerDown={e => e.stopPropagation()}>
     <AlertDialogHeader>
       <AlertDialogTitle>{mode === "delete" ? t("historySafety.delete") : t("historySafety.retire")}</AlertDialogTitle>

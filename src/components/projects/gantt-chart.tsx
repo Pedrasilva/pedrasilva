@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -854,7 +855,7 @@ export function GanttChart({
       }));
       if (adapter.moveStages && real[0]) await adapter.moveStages(real[0].projectId, edits);
       else for (const e of edits) await adapter.updateStage({ ...e, projectId: real[0].projectId });
-      toast.success(`${edits.length} stage(s) shifted by ${days} day(s)`);
+      toast.success(i18n.t("projects:ganttChart.ui.stagesShifted", { count: edits.length, days }));
     } catch (err) {
       const msg = (err as Error).message;
       toast.error(t(msg, { defaultValue: msg }));
@@ -897,7 +898,7 @@ export function GanttChart({
         <div
           role="separator"
           aria-orientation="vertical"
-          title="Drag to resize WBS column"
+          title={i18n.t("projects:ganttChart.ui.resizeWbsColumn")}
           onPointerDown={(e) => {
             const startX = e.clientX;
             const startW = outlineWidth;
@@ -997,7 +998,7 @@ export function GanttChart({
                         : "text-muted-foreground"
                   } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
                   style={{ width: dayWidth, minWidth: dayWidth }}
-                  title={isHol ? `Feriado — ${iso}` : undefined}
+                  title={isHol ? i18n.t("projects:ganttChart.ui.holidayLabel", { value1: iso }) : undefined}
                 >
                   <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
                   <span
@@ -1148,7 +1149,7 @@ export function GanttChart({
                 isHol ? "bg-muted-foreground/25" : "bg-muted/40"
               }`}
               style={{ left: i * dayWidth, width: dayWidth }}
-              title={isHol ? `Feriado — ${iso}` : undefined}
+              title={isHol ? i18n.t("projects:ganttChart.ui.holidayLabelLabel", { value1: iso }) : undefined}
             />
           );
         })}
@@ -1156,8 +1157,7 @@ export function GanttChart({
         {!relative && todayInRange && (
           <div className="pointer-events-none absolute top-0 z-10 h-full w-px bg-primary" style={{ left: todayX }}>
             <div className="absolute -top-6 -translate-x-1/2 rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-              today
-            </div>
+               {i18n.t("common:today")} </div>
           </div>
         )}
 
@@ -1197,7 +1197,7 @@ export function GanttChart({
                   key={stage.id}
                   className="relative group"
                   style={{ height: rowHeightFor(stage.id) }}
-                  title={`${stage.name} · ${displayDate(sStart)} → ${displayDate(sEnd)}`}
+                  title={i18n.t("projects:ganttChart.ui.dateRangeLabel", { value1: stage.name, value2: displayDate(sStart), value3: displayDate(sEnd) })}
                   onMouseEnter={() => setHoveredStage(stage.id)}
                   onMouseLeave={() => setHoveredStage((s) => (s === stage.id ? null : s))}
                 >
@@ -1375,8 +1375,7 @@ export function GanttChart({
                     title={t("gantt.tooltip.baselineHover", { start: stageWithBaseline.baseline_start_date, end: stageWithBaseline.baseline_end_date })}
                   >
                     <div className="absolute -top-3.5 left-1 rounded-sm bg-muted px-1 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
-                      baseline
-                    </div>
+                       {i18n.t("glossary:planning.baseline")} </div>
                   </div>
                 )}
 
@@ -1389,7 +1388,7 @@ export function GanttChart({
                   <div
                     className="group absolute flex items-center"
                     style={{ left: stageX - STAGE_ROW_H / 2 - 16, width: STAGE_ROW_H + 32, top: 0, height: STAGE_ROW_H }}
-                    title={`${stage.name} — ${stage.start_date}`}
+                    title={i18n.t("projects:ganttChart.ui.labelWithDetail", { value1: stage.name, value2: stage.start_date })}
                   >
                     {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                       <div
@@ -1500,7 +1499,7 @@ export function GanttChart({
                         </div>
 
 
-                        {actuals && hoursAreImplied && displayHours>0 && <span className="text-[10px] text-muted-foreground">≈{Math.round(displayHours)}h · {t("gantt.actuals.estimate")}</span>}
+                        {actuals && hoursAreImplied && displayHours>0 && <span className="text-[10px] text-muted-foreground">≈{Math.round(displayHours)} {i18n.t("common:units.hoursDot")} {t("gantt.actuals.estimate")}</span>}
                         {!actuals && !isSupplierBar && !isClientBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
@@ -1514,10 +1513,9 @@ export function GanttChart({
                           {displayHours > 0 && (
                             <span
                               className="rounded bg-background/40 px-1.5 py-px font-mono text-[10px]"
-                              title={hoursAreImplied ? "Horas estimadas (orçamento / venda média/h)" : "Horas planeadas"}
+                              title={hoursAreImplied ? i18n.t("projects:ganttChart.ui.estimatedBudgetHours") : i18n.t("projects:kpi.plannedHours")}
                             >
-                              {hoursAreImplied ? "≈" : ""}{Math.round(displayHours)}h
-                            </span>
+                              {hoursAreImplied ? "≈" : ""}{Math.round(displayHours)} {i18n.t("common:units.hoursShort")} </span>
                           )}
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
@@ -1539,8 +1537,7 @@ export function GanttChart({
                                 </span>
                                 {bc.estimated_available_hours != null && (
                                   <span title={t("gantt.stage.budgetBadge.estHours")}>
-                                    · ≈{Math.max(0, Math.round(bc.estimated_available_hours))}h
-                                  </span>
+                                    · ≈{Math.max(0, Math.round(bc.estimated_available_hours))} {i18n.t("common:units.hoursShort")} </span>
                                 )}
                                 <span title={t("gantt.stage.budgetBadge.future")}>
                                   · F {euros(bc.planned_future_cost)}
@@ -1580,11 +1577,10 @@ export function GanttChart({
                             {displayHours > 0 && (
                               <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                  {hoursAreImplied ? "Horas (estimadas)" : "Horas"}
+                                  {hoursAreImplied ? i18n.t("projects:ganttChart.ui.estimatedHours") : i18n.t("common:units.hours")}
                                 </span>
                                 <span className="font-mono">
-                                  {hoursAreImplied ? "≈" : ""}{displayHours.toFixed(1)}h
-                                </span>
+                                  {hoursAreImplied ? "≈" : ""}{(displayHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("common:units.hoursShort")} </span>
                               </div>
                             )}
                             <div className="flex items-center justify-between">
@@ -1600,7 +1596,7 @@ export function GanttChart({
                               <span className={`font-mono ${margin < 0 ? "text-destructive" : "text-emerald-600"}`}>
                                 {euros(margin)}{" "}
                                 <span className="text-[10px] text-muted-foreground">
-                                  ({marginPct.toFixed(0)}%)
+                                  ({(marginPct).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%)
                                 </span>
                               </span>
                             </div>
@@ -1785,14 +1781,12 @@ export function GanttChart({
                                   </span>
                                   <span className="truncate font-medium">{a.resource.name}</span>
                                   <span className="shrink-0 text-[10px] text-muted-foreground">
-                                    {Number(a.hours_per_day)}h/d
-                                  </span>
+                                    {Number(a.hours_per_day)} {i18n.t("common:units.hoursPerDayShort")} </span>
                                   {Number(a.hours_per_day) === 0 && <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label={t('weekPlan.assignedNoHours')} />}
                                   {isOver && (
                                     <span className="flex shrink-0 items-center gap-0.5 rounded bg-destructive px-1 py-px text-[10px] font-semibold text-destructive-foreground">
                                       <AlertTriangle className="h-2.5 w-2.5" />
-                                      {overload.peak}h
-                                    </span>
+                                      {overload.peak} {i18n.t("common:units.hoursShort")} </span>
                                   )}
                                   {hasLeave && (
                                     <span
@@ -1814,7 +1808,7 @@ export function GanttChart({
                                             className="rounded bg-foreground/10 px-1 py-px text-foreground/80"
                                             title={t("gantt.alloc.actualBadge")}
                                           >
-                                            ✓ {Math.round(ba.actual_hours_logged)}h · {euros(ba.actual_cost_consumed)}
+                                            ✓ {Math.round(ba.actual_hours_logged)} {i18n.t("common:units.hoursDot")} {euros(ba.actual_cost_consumed)}
                                           </span>
                                         )}
                                         {ba.planned_future_hours > 0 && (
@@ -1822,7 +1816,7 @@ export function GanttChart({
                                             className="rounded bg-primary/15 px-1 py-px text-foreground/80"
                                             title={t("gantt.alloc.futureBadge")}
                                           >
-                                            → {Math.round(ba.planned_future_hours)}h · {euros(ba.planned_future_cost)}
+                                            → {Math.round(ba.planned_future_hours)} {i18n.t("common:units.hoursDot")} {euros(ba.planned_future_cost)}
                                           </span>
                                         )}
                                       </>
@@ -1893,7 +1887,7 @@ export function GanttChart({
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
                                 <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
-                                <span className="font-mono">{euros(costRate)}/h</span>
+                                <span className="font-mono">{euros(costRate)} {i18n.t("common:units.perHour")} </span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>
                                 <span className="font-mono font-semibold">{euros(cost)}</span>
                               </div>

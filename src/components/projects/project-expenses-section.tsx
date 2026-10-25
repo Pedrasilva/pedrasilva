@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -178,7 +179,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
                   : "rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
               }
             >
-              {v === "all" ? t("expenses.allExpenses") : `${t("expenses.readyToInvoice")} (${readyCount})`}
+              {v === "all" ? t("expenses.allExpenses") : i18n.t("projects:projectExpensesSection.ui.labelWithParenthesis", { value1: t("expenses.readyToInvoice"), value2: readyCount })}
             </button>
           ))}
         </div>

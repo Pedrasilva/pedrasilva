@@ -1,3 +1,5 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -45,6 +47,7 @@ function useProjectStagesFlat(projectId: string) {
 }
 
 export function ApprovalsPanel({ projectId }: Props) {
+  const dateLocale = useDateLocale();
   const { t } = useTranslation(["projects", "common"]);
   const { data, isLoading } = useProjectPendingHours(projectId);
   const { data: allStages } = useProjectStagesFlat(projectId);
@@ -109,7 +112,7 @@ export function ApprovalsPanel({ projectId }: Props) {
             {data.nonWorking.map((entry) => (
               <div key={entry.id}>
                 <div className="px-3 pt-2 text-xs font-medium text-warning">
-                  {t(`projects:nonWorkingDay.badge.${entry.non_working_day_reason}`)} · {format(parseISO(entry.entry_date), "EEE d MMM yyyy")}
+                  {t(`projects:nonWorkingDay.badge.${entry.non_working_day_reason}`)} · {format(parseISO(entry.entry_date), "EEE d MMM yyyy", { locale: dateLocale })}
                 </div>
                 <EntryRow
                   entry={entry}
@@ -144,7 +147,7 @@ export function ApprovalsPanel({ projectId }: Props) {
               <div className="flex-1">
                 <div className="font-medium">
                   {g.stage
-                    ? `${g.stage.sort_order + 1}. ${g.stage.name}`
+                    ? i18n.t("projects:approvalsPanel.ui.numberedLabel", { value1: g.stage.sort_order + 1, value2: g.stage.name })
                     : t("projects:approvals.unassigned", {
                         defaultValue: "Unassigned stage",
                       })}
@@ -159,8 +162,7 @@ export function ApprovalsPanel({ projectId }: Props) {
                   <span>
                     {t("projects:approvals.hours", { defaultValue: "Hours" })}:{" "}
                     <span className="font-medium text-foreground">
-                      {g.totalHours.toFixed(1)}h
-                    </span>
+                      {(g.totalHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("common:units.hoursShort")} </span>
                   </span>
                   <span>
                     {t("projects:approvals.billableAmount", {
@@ -268,6 +270,7 @@ function EntryRow({
   }) => Promise<void>;
   onReject: (reason: string) => Promise<void>;
 }) {
+  const dateLocale = useDateLocale();
   const { t } = useTranslation(["projects", "common"]);
   const initialRate = Number(
     entry.sale_rate_override ?? entry.sale_rate_snapshot ?? 0,
@@ -324,13 +327,13 @@ function EntryRow({
   return (
     <div className="grid grid-cols-[100px_140px_1fr_80px_90px_100px_140px_140px] items-center gap-2 border-b px-3 py-2 text-sm last:border-b-0">
       <div className="text-xs text-muted-foreground">
-        {format(parseISO(entry.entry_date), "d MMM yyyy")}
+        {format(parseISO(entry.entry_date), "d MMM yyyy", { locale: dateLocale })}
       </div>
       <div className="truncate">{entry.user_name ?? "—"}</div>
       <div className="truncate text-xs text-muted-foreground" title={entry.notes ?? ""}>
         {entry.notes ?? "—"}
       </div>
-      <div className="text-right font-medium">{entry.hours.toFixed(2)}</div>
+      <div className="text-right font-medium">{(entry.hours).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
       <div className="flex justify-center">
         <input
           type="checkbox"

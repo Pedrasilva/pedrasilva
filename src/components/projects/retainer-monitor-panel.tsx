@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * RetainerMonitorPanel — simplified retainer view.
  *
@@ -474,8 +475,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   onClick={() => setLogOpenFor(g.parentId)}
                 >
                   <Plus className="mr-1 h-3 w-3" />
-                  Log hours
-                </Button>
+                   {i18n.t("common:logHours")} </Button>
                 <LogRetainerHoursDialog
                   open={logOpenFor === g.parentId}
                   onOpenChange={(v) => setLogOpenFor(v ? g.parentId : null)}
@@ -496,7 +496,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 <span>
                   {t("detail.retainerMonitor.includedHours")}:{" "}
                   <span className="font-mono text-foreground">
-                    {g.includedHours > 0 ? `${Math.round(g.includedHours)}h` : "—"}
+                    {g.includedHours > 0 ? i18n.t("projects:retainerMonitorPanel.ui.hoursValue", { value1: Math.round(g.includedHours) }) : "—"}
                   </span>
                   {g.includedHoursSource === "blended" ? (
                     <span className="ml-1 text-[10px] text-muted-foreground">
@@ -512,7 +512,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 </span>
                 <span>
                   {t("detail.retainerMonitor.usedTotal")}:{" "}
-                  <span className="font-mono text-foreground">{Math.round(g.totals.usedHours)}h</span>
+                  <span className="font-mono text-foreground">{Math.round(g.totals.usedHours)} {i18n.t("common:units.hoursShort")} </span>
                 </span>
                 <span>
                   {t("detail.retainerMonitor.costTotal")}:{" "}
@@ -526,8 +526,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   {t("detail.retainerMonitor.cumulativeVariance")}:{" "}
                   <span className={cn("font-mono", cumulativeVarianceTone)}>
                     {g.totals.variance >= 0 ? "+" : ""}
-                    {Math.round(g.totals.variance)}h
-                  </span>
+                    {Math.round(g.totals.variance)} {i18n.t("common:units.hoursShort")} </span>
                 </span>
                 <span>
                   <span className="font-mono text-emerald-600 dark:text-emerald-400">
@@ -562,12 +561,12 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         <div
                           className="w-3 rounded-sm bg-muted-foreground/25"
                           style={{ height: `${includedH}px` }}
-                          title={`${t("detail.retainerMonitor.includedHours")}: ${Math.round(g.includedHours)}h`}
+                          title={i18n.t("projects:retainerMonitorPanel.ui.labelHours", { value1: t("detail.retainerMonitor.includedHours"), value2: Math.round(g.includedHours) })}
                         />
                         <div
                           className={cn("w-3 rounded-sm", barTone)}
                           style={{ height: `${usedH}px` }}
-                          title={`${t("detail.retainerMonitor.usedHoursCol")}: ${Math.round(r.usedHours)}h`}
+                          title={i18n.t("projects:retainerMonitorPanel.ui.labelHoursLabel", { value1: t("detail.retainerMonitor.usedHoursCol"), value2: Math.round(r.usedHours) })}
                         />
                       </div>
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -661,8 +660,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(r.fee)}</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
-                          {Math.round(r.usedHours)}h / {Math.round(r.includedHours)}h
-                        </td>
+                          {Math.round(r.usedHours)} {i18n.t("projects:retainerMonitorPanel.ui.hoursSlash")} {Math.round(r.includedHours)} {i18n.t("common:units.hoursShort")} </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                           {r.isFuture ? "—" : retainerEuros(r.cost)}
                         </td>
@@ -675,10 +673,10 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         <td className={cn("px-2 py-2 text-right font-mono tabular-nums", varTone)}>
                           {r.isFuture
                             ? "—"
-                            : `${r.variance >= 0 ? "+" : ""}${Math.round(r.variance)}h`}
+                            : i18n.t("projects:retainerMonitorPanel.ui.prefixedHoursValue", { value1: r.variance >= 0 ? "+" : "", value2: Math.round(r.variance) })}
                         </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                          {r.isFuture ? "—" : `${Math.round(r.rollingAvg)}h`}
+                          {r.isFuture ? "—" : i18n.t("projects:retainerMonitorPanel.ui.hoursValueLabel", { value1: Math.round(r.rollingAvg) })}
                         </td>
                         <td className="px-2 py-2">
                           <span
@@ -709,8 +707,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     <td className="px-2 py-2">{t("detail.retainerMonitor.totalsRow")}</td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(g.totals.fee)}</td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
-                      {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
-                    </td>
+                      {Math.round(g.totals.usedHours)} {i18n.t("projects:retainerMonitorPanel.ui.hoursSlash")} {Math.round(g.totals.includedHours)} {i18n.t("common:units.hoursShort")} </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                       {retainerEuros(g.totals.cost)}
                     </td>
@@ -722,8 +719,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     </td>
                     <td className={cn("px-2 py-2 text-right font-mono tabular-nums", cumulativeVarianceTone)}>
                       {g.totals.variance >= 0 ? "+" : ""}
-                      {Math.round(g.totals.variance)}h
-                    </td>
+                      {Math.round(g.totals.variance)} {i18n.t("common:units.hoursShort")} </td>
                     <td className="px-2 py-2" />
                     <td className="px-2 py-2" />
                   </tr>
@@ -958,8 +954,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                 <tr key={r.resourceId} className="border-b border-border/60">
                   <td className="px-2 py-2">{r.name}</td>
                   <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                    {Math.round(r.hours)}h
-                  </td>
+                    {Math.round(r.hours)} {i18n.t("common:units.hoursShort")} </td>
                   <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                     {retainerEuros(r.cost)}
                   </td>
@@ -978,8 +973,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
             <tr className="text-sm font-semibold">
               <td className="px-2 py-2">{t("detail.retainerMonitor.totalsRow")}</td>
               <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                {Math.round(totals.hours)}h
-              </td>
+                {Math.round(totals.hours)} {i18n.t("common:units.hoursShort")} </td>
               <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                 {retainerEuros(totals.cost)}
               </td>
@@ -1019,6 +1013,7 @@ interface EntryRow {
 }
 
 function MonthEntries({ childStageId }: MonthEntriesProps) {
+  useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ["retainer-month-entries", childStageId],
     queryFn: async (): Promise<EntryRow[]> => {
@@ -1122,10 +1117,10 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
   });
 
   if (isLoading) {
-    return <div className="text-xs text-muted-foreground">Loading…</div>;
+    return <div className="text-xs text-muted-foreground"> {i18n.t("common:loading")} </div>;
   }
   if (!data || data.length === 0) {
-    return <div className="text-xs text-muted-foreground">No entries this month.</div>;
+    return <div className="text-xs text-muted-foreground"> {i18n.t("projects:retainerMonitorPanel.ui.noEntriesThisMonth")} </div>;
   }
 
   const byPerson = new Map<string, number>();
@@ -1138,18 +1133,18 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
       <div className="flex flex-wrap gap-2 text-[11px]">
         {[...byPerson.entries()].map(([name, hrs]) => (
           <span key={name} className="rounded-full bg-background px-2 py-0.5 font-mono">
-            {name}: <span className="font-semibold">{Math.round(hrs)}h</span>
+            {name}: <span className="font-semibold">{Math.round(hrs)} {i18n.t("common:units.hoursShort")} </span>
           </span>
         ))}
       </div>
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border/60 text-left text-muted-foreground">
-            <th className="px-2 py-1 font-medium">Date</th>
-            <th className="px-2 py-1 font-medium">Who</th>
-            <th className="px-2 py-1 text-right font-medium">Hours</th>
-            <th className="px-2 py-1 font-medium">Billable</th>
-            <th className="px-2 py-1 font-medium">Notes</th>
+            <th className="px-2 py-1 font-medium"> {i18n.t("common:date")} </th>
+            <th className="px-2 py-1 font-medium"> {i18n.t("projects:retainerMonitorPanel.ui.who")} </th>
+            <th className="px-2 py-1 text-right font-medium"> {i18n.t("glossary:time.loggedHours")} </th>
+            <th className="px-2 py-1 font-medium"> {i18n.t("glossary:time.billable")} </th>
+            <th className="px-2 py-1 font-medium"> {i18n.t("common:notes")} </th>
           </tr>
         </thead>
         <tbody>
@@ -1158,10 +1153,10 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
               <td className="px-2 py-1 font-mono tabular-nums">{r.entry_date}</td>
               <td className="px-2 py-1">{r.resourceName}</td>
               <td className="px-2 py-1 text-right font-mono tabular-nums">
-                {r.hours.toFixed(2)}
+                {(r.hours).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                {r.billable ? "yes" : "no"}
+                {r.billable ? i18n.t("common:yes") : i18n.t("common:no")}
               </td>
               <td className="px-2 py-1 text-muted-foreground">{r.notes ?? ""}</td>
             </tr>

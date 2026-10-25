@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import type { AllocationWithResource } from "@/lib/projects/types";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
@@ -48,6 +50,7 @@ function formatDecimal(n: number): string {
 }
 
 export function AllocationEditor({ allocation, projectId, adapter, stageStart, stageEnd }: Props) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const allocWithExtras = allocation as AllocationWithStatus;
 
@@ -219,7 +222,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
         projectId,
         patch,
       });
-      toast.success("Atualizado");
+      toast.success(i18n.t("common:updated"));
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -232,7 +235,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
     try {
       await adapter.setAllocationStatus({ id: allocation.id, projectId, status: next });
       setStatus(next);
-      toast.success(next === "committed" ? "Confirmada" : "Marcada como tentativa");
+      toast.success(next === "committed" ? i18n.t("projects:allocation.status.committed") : i18n.t("projects:allocationEditor.ui.allocationTentative"));
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -241,10 +244,10 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
   const [removing, setRemoving] = useState(false);
   async function remove() {
     if (adapter.mode === "project") { setRemoving(true); return; }
-    if (!confirm(`Remover alocação de ${allocation.resource.name}?`)) return;
+    if (!confirm(i18n.t("projects:allocationEditor.ui.removeAllocationConfirm", { value1: allocation.resource.name }))) return;
     try {
       await adapter.deleteAllocation({ id: allocation.id, projectId });
-      toast.success("Removida");
+      toast.success(i18n.t("common:removed"));
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -259,7 +262,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
         <button
           type="button"
           className="absolute inset-0 rounded-md"
-          aria-label={`Editar ${allocation.resource.name}`}
+          aria-label={i18n.t("projects:allocationEditor.ui.editResource", { value1: allocation.resource.name })}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         />
@@ -278,36 +281,32 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="ml-auto inline-flex cursor-help flex-col items-end leading-tight">
-                    <span className="text-xs text-muted-foreground">{euros(effectiveSale)}/h</span>
+                    <span className="text-xs text-muted-foreground">{euros(effectiveSale)} {i18n.t("common:units.perHour")} </span>
                     <span
                       className={`text-[10px] uppercase tracking-wider ${
                         showsOverride ? "text-amber-600" : "text-muted-foreground"
                       }`}
                     >
-                      {showsOverride ? "Project override" : "HR default · 75%"}
+                      {showsOverride ? i18n.t("projects:resources.ui.override") : i18n.t("projects:resources.ui.hrDefault75")}
                     </span>
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-left">
                   {showsOverride ? (
                     <div className="space-y-1">
-                      <p className="font-medium">Project override</p>
+                      <p className="font-medium"> {i18n.t("projects:resources.ui.override")} </p>
                       <p className="text-[11px] opacity-90">
-                        Manual sale rate set on this project resource. It overrides the HR
-                        75% default.
-                      </p>
+                         {i18n.t("projects:allocationEditor.ui.saleOverrideHint")} </p>
                       {hrDefaultSale > 0 && (
                         <p className="text-[11px] opacity-75">
-                          HR default would be {euros(hrDefaultSale)} (75% band).
-                        </p>
+                           {i18n.t("projects:allocationEditor.ui.hrDefaultWouldBe")} {euros(hrDefaultSale)}  {i18n.t("projects:allocationEditor.ui.saleBandSuffix")} </p>
                       )}
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <p className="font-medium">HR default · 75%</p>
+                      <p className="font-medium"> {i18n.t("projects:resources.ui.hrDefault75")} </p>
                       <p className="text-[11px] opacity-90">
-                        Derived from the HR pricing table using the 75% sale-rate band.
-                      </p>
+                         {i18n.t("projects:allocationEditor.ui.hrSalePriceHint")} </p>
                     </div>
                   )}
                 </TooltipContent>
@@ -318,7 +317,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
           {/* Status toggle: tentative ↔ committed (project-mode only) */}
           {showStatusToggle && (
             <div>
-              <Label className="text-xs">Estado da alocação</Label>
+              <Label className="text-xs"> {i18n.t("projects:allocationEditor.ui.allocationStatus")} </Label>
               <div className="mt-1 grid grid-cols-2 gap-1 rounded-md border border-border p-0.5">
                 <button
                   type="button"
@@ -330,8 +329,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
                   }`}
                 >
                   <FileQuestion className="h-3 w-3" />
-                  Tentativa
-                </button>
+                   {i18n.t("projects:allocation.status.tentative")} </button>
                 <button
                   type="button"
                   onClick={() => setStatus("committed")}
@@ -342,20 +340,19 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
                   }`}
                 >
                   <Lock className="h-3 w-3" />
-                  Confirmada
-                </button>
+                   {i18n.t("projects:allocation.status.committed")} </button>
               </div>
               <p className="mt-1 text-[10px] text-muted-foreground">
                 {status === "tentative"
-                  ? "Soft-booking: visível mas não conta como entrega firme."
-                  : "Compromisso firme contado em capacidade e KPIs."}
+                  ? i18n.t("projects:allocationEditor.ui.tentativeHint")
+                  : i18n.t("projects:allocationEditor.ui.committedHint")}
               </p>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="a-start" className="text-xs">Início</Label>
+              <Label htmlFor="a-start" className="text-xs"> {i18n.t("projects:detail.ui.start")} </Label>
               <Input
                 id="a-start"
                 type="date"
@@ -366,7 +363,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
               />
             </div>
             <div>
-              <Label htmlFor="a-end" className="text-xs">Fim</Label>
+              <Label htmlFor="a-end" className="text-xs"> {i18n.t("projects:detail.ui.end")} </Label>
               <Input
                 id="a-end"
                 type="date"
@@ -381,22 +378,20 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
             <>
               <div className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-[11px]">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Capacidade recuperável</span>
-                  <span className="font-mono">{round1(recoverableHoursPerDay)}h/dia</span>
+                  <span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.billableCapacity")} </span>
+                  <span className="font-mono">{round1(recoverableHoursPerDay)} {i18n.t("common:units.hoursPerDayShort")} </span>
                 </div>
                 {schedule?.targetChargeabilityPct != null && (
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {round1(schedule.dailyHours)}h × {schedule.targetChargeabilityPct}% (HR)
-                  </p>
+                    {round1(schedule.dailyHours)} {i18n.t("common:units.hoursTimes")} {schedule.targetChargeabilityPct} {i18n.t("common:hrPercentSuffix")} </p>
                 )}
                 {schedule?.targetChargeabilityPct == null && (
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    Sem chargeability definido em HR — assumido {round1(recoverableHoursPerDay)}h/dia.
-                  </p>
+                     {i18n.t("projects:allocationEditor.ui.missingChargeability")} {round1(recoverableHoursPerDay)} {i18n.t("common:units.hoursPerDayEnd")} </p>
                 )}
               </div>
               <div>
-                <Label htmlFor="a-pct" className="text-xs">Alocação ao projecto (%)</Label>
+                <Label htmlFor="a-pct" className="text-xs"> {i18n.t("projects:allocationEditor.ui.projectAllocationPercent")} </Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="a-pct"
@@ -436,7 +431,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
               </div>
               <div className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">Horas/dia</span>
+                  <span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.hoursPerDay")} </span>
                   <div className="flex items-center gap-1">
                     <Input
                       type="text"
@@ -456,18 +451,17 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
                       className="h-7 w-20 text-right font-mono text-[11px]"
                     />
 
-                    <span className="text-muted-foreground">h/dia</span>
+                    <span className="text-muted-foreground"> {i18n.t("common:units.hoursPerDayShort")} </span>
                   </div>
                 </div>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  {pct}% × {round1(recoverableHoursPerDay)}h recuperável · editável
-                </p>
+                  {pct}% × {round1(recoverableHoursPerDay)} {i18n.t("projects:allocationEditor.ui.billableHoursEditable")} </p>
               </div>
             </>
 
           ) : (
             <div>
-              <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
+              <Label htmlFor="a-h" className="text-xs"> {i18n.t("projects:allocationEditor.ui.hoursPerWorkingDay")} </Label>
               <Input
                 id="a-h"
                 type="number"
@@ -480,33 +474,32 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
             </div>
           )}
           <div className="rounded-md bg-muted/60 p-3 text-xs">
-            <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Total horas</span><span className="font-mono">{totalH.toFixed(1)} h</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.diasTeis")} </span><span className="font-mono">{wd}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.totalHours")} </span><span className="font-mono">{(totalH).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}  {i18n.t("common:units.hoursShort")} </span></div>
             <div className="mt-1 flex justify-between border-t border-border pt-1">
-              <span className="text-muted-foreground">Custo <span className="opacity-70">@ {euros(effectiveCost)}/h</span></span>
+              <span className="text-muted-foreground"> {i18n.t("glossary:financial.cost")} <span className="opacity-70">@ {euros(effectiveCost)} {i18n.t("common:units.perHour")} </span></span>
               <span className="font-mono font-semibold">{euros(cost)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Venda <span className="opacity-70">@ {euros(effectiveSale)}/h</span></span>
+              <span className="text-muted-foreground"> {i18n.t("projects:detail.retainerMonitor.saleCol")} <span className="opacity-70">@ {euros(effectiveSale)} {i18n.t("common:units.perHour")} </span></span>
               <span className="font-mono font-semibold">{euros(revenue)}</span>
             </div>
             <div className="mt-1 flex justify-between border-t border-border pt-1">
-              <span className="text-muted-foreground">Margem</span>
+              <span className="text-muted-foreground"> {i18n.t("glossary:financial.margin")} </span>
               <span className={`font-mono font-semibold ${margin < 0 ? "text-destructive" : ""}`}>{euros(margin)}</span>
             </div>
           </div>
           <div className="flex items-center justify-between gap-2 pt-1">
             <Button variant="ghost" size="sm" onClick={remove} className="text-destructive hover:text-destructive">
-              <Trash2 className="mr-1 h-3.5 w-3.5" /> Remover
-            </Button>
+              <Trash2 className="mr-1 h-3.5 w-3.5" />  {i18n.t("common:remove")} </Button>
             <div className="flex items-center gap-2">
               {showStatusToggle && (
                 <Button variant="ghost" size="sm" onClick={quickToggleStatus} disabled={pending}>
-                  {status === "committed" ? "→ Tentativa" : "→ Confirmar"}
+                  {status === "committed" ? i18n.t("projects:allocationEditor.ui.markTentative") : i18n.t("projects:allocationEditor.ui.confirmAllocation")}
                 </Button>
               )}
               <Button size="sm" onClick={save} disabled={pending}>
-                {pending ? "A guardar…" : "Guardar"}
+                {pending ? i18n.t("common:saving") : i18n.t("common:save")}
               </Button>
             </div>
           </div>

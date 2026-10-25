@@ -1,3 +1,6 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { plannedAllocationFigures } from "@/lib/projects/financial-calculation";
 import { effectiveRates } from "@/lib/projects/use-default-rates";
 import { useMemo, useState } from "react";
@@ -17,6 +20,8 @@ interface Props {
 }
 
 export function ProjectValueChart({ projects, stages, loading }: Props) {
+  const dateLocale = useDateLocale();
+  useTranslation();
   const [mode, setMode] = useState<Mode>("Created");
   const [unit, setUnit] = useState<Unit>("Hours");
   const { data: defaultRates } = useDefaultResourceRates();
@@ -88,17 +93,15 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
     <section className="flex h-full flex-col rounded-lg border border-border bg-card">
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Project Value
-        </h2>
+           {i18n.t("projects:projectValueChart.ui.projectValue")} </h2>
         <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          Graph By
-          <select
+           {i18n.t("projects:projectValueChart.ui.graphBy")} <select
             value={unit}
             onChange={(e) => setUnit(e.target.value as Unit)}
             className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-none"
           >
-            <option>Hours</option>
-            <option>Value</option>
+            <option> {i18n.t("glossary:time.loggedHours")} </option>
+            <option> {i18n.t("glossary:financial.value")} </option>
           </select>
         </label>
       </header>
@@ -123,8 +126,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
       <div className="flex-1 px-5 py-4">
         {loading ? (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            Loading…
-          </div>
+             {i18n.t("common:loading")} </div>
         ) : (
           <div className="flex h-full flex-col">
             <div className="flex flex-1 items-end gap-2">
@@ -155,7 +157,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
                   key={i}
                   className="flex-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground"
                 >
-                  {format(b.date, "MMM yy")}
+                  {format(b.date, "MMM yy", { locale: dateLocale })}
                 </div>
               ))}
             </div>

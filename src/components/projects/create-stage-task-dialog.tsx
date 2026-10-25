@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * Add / edit a task inside a stage.
  *
@@ -53,10 +55,10 @@ import { useHasPermission } from "@/hooks/use-permissions";
 import { euros } from "@/lib/projects/gantt-utils";
 
 const STATUS_OPTIONS: { value: StageTaskStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "active", label: "Active" },
-  { value: "paused", label: "Paused" },
-  { value: "done", label: "Done" },
+  { value: "pending", label: "common:pending" },
+  { value: "active", label: "common:active" },
+  { value: "paused", label: "common:paused" },
+  { value: "done", label: "common:done" },
 ];
 
 function addDays(iso: string, days: number) {
@@ -88,11 +90,11 @@ function countWeekdays(startIso: string, endIso: string) {
 function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(i18n.language, { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function h(n: number) {
-  return `${(Math.round(n * 10) / 10).toFixed(1)} h`;
+  return `${((Math.round(n * 10) / 10)).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} h`;
 }
 
 function pct(n: number | null) {
@@ -131,6 +133,7 @@ export function CreateStageTaskDialog({
   stage?: StageTaskDialogStage;
   allocationId?: string;
 }) {
+  useTranslation();
   const { data: resources } = useResources();
   const createTask = useCreateStageTask();
   const updateTask = useUpdateStageTask();
@@ -221,8 +224,8 @@ export function CreateStageTaskDialog({
     envelope.after.projectedMargin != null && envelope.after.projectedMargin < targetMargin;
 
   const submit = async () => {
-    if (!name.trim()) return toast.error("Task name is required");
-    if (!resourceId) return toast.error("Choose who the task is for");
+    if (!name.trim()) return toast.error(i18n.t("projects:createStageTaskDialog.ui.taskNameRequired"));
+    if (!resourceId) return toast.error(i18n.t("projects:createStageTaskDialog.ui.taskAssigneeRequired"));
     try {
       if (isEdit && allocationId) {
         await updateTask.mutateAsync({
@@ -236,7 +239,7 @@ export function CreateStageTaskDialog({
           status,
           notes: notes.trim() || null,
         });
-        toast.success("Task updated");
+        toast.success(i18n.t("projects:createStageTaskDialog.ui.taskUpdated"));
       } else {
         await createTask.mutateAsync({
           projectId,
@@ -249,7 +252,7 @@ export function CreateStageTaskDialog({
           status,
           notes: notes.trim() || null,
         });
-        toast.success("Task created");
+        toast.success(i18n.t("projects:quickCreate.toasts.taskCreated"));
       }
       onOpenChange(false);
     } catch (e) {
@@ -264,9 +267,9 @@ export function CreateStageTaskDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit task" : "Add task"}</DialogTitle>
+          <DialogTitle>{isEdit ? i18n.t("projects:createStageTaskDialog.ui.editTask") : i18n.t("projects:detail.ui.addTask")}</DialogTitle>
           <DialogDescription>
-            {stageName ? `Stage: ${stageName}` : "Add a task to this stage"}
+            {stageName ? i18n.t("projects:createStageTaskDialog.ui.stageValue", { value1: stageName }) : i18n.t("projects:createStageTaskDialog.ui.addTaskToStage")}
           </DialogDescription>
         </DialogHeader>
 
@@ -274,28 +277,28 @@ export function CreateStageTaskDialog({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
-              Stage window: {formatDate(stageStart)} → {formatDate(stageEnd)}
+               {i18n.t("projects:createStageTaskDialog.ui.stageWindow")} {formatDate(stageStart)} → {formatDate(stageEnd)}
             </span>
             <span className="flex items-center gap-1.5">
               <UserRound className="h-3.5 w-3.5" />
-              {assignee ? assignee.name : "No assignee yet"}
-              {assignee?.role ? ` · ${assignee.role}` : ""}
+              {assignee ? assignee.name : i18n.t("projects:createStageTaskDialog.ui.noAssigneeYet")}
+              {assignee?.role ? i18n.t("projects:createStageTaskDialog.ui.valueSeparator", { value1: assignee.role }) : ""}
             </span>
           </div>
         </div>
 
         {hasEnvelope && (
           <div className="rounded-md border">
-            <div className="border-b px-3 py-2 text-xs font-medium">Stage hours</div>
+            <div className="border-b px-3 py-2 text-xs font-medium"> {i18n.t("projects:createStageTaskDialog.ui.stageEnvelope")} </div>
             <div className="grid grid-cols-3 divide-x text-center text-xs">
-              <Cell label="Capacity" value={h(envelope.capacityHours)} />
+              <Cell label={i18n.t("glossary:performance.capacity")} value={h(envelope.capacityHours)} />
               <Cell
-                label="Allocated (after)"
+                label={i18n.t("projects:createStageTaskDialog.ui.allocatedAfter")}
                 value={h(envelope.after.allocatedHours)}
-                sub={`before ${h(envelope.before.allocatedHours)}`}
+                sub={i18n.t("projects:createStageTaskDialog.ui.beforeValue", { value: h(envelope.before.allocatedHours) })}
               />
               <Cell
-                label="Remaining"
+                label={i18n.t("projects:detail.ui.remaining")}
                 value={h(envelope.after.remainingHours)}
                 tone={envelope.after.remainingHours < 0 ? "danger" : undefined}
               />
@@ -304,29 +307,29 @@ export function CreateStageTaskDialog({
             {canSeeFinancials && (
               <>
                 <div className="border-y px-3 py-2 text-xs font-medium">
-                  Stage financials · target margin {pct(targetMargin)}
+                   {i18n.t("projects:createStageTaskDialog.ui.stageFinancialsTargetMargin")} {pct(targetMargin)}
                 </div>
                 <div className="grid grid-cols-2 divide-x text-center text-xs sm:grid-cols-4">
-                  <Cell label="Sale value" value={euros(envelope.saleValue)} />
-                  <Cell label="Target planned cost" value={euros(envelope.targetCost)} />
+                  <Cell label={i18n.t("projects:createStageTaskDialog.ui.saleValue")} value={euros(envelope.saleValue)} />
+                  <Cell label={i18n.t("projects:createStageTaskDialog.ui.targetPlannedCost")} value={euros(envelope.targetCost)} />
                   <Cell
-                    label="Planned cost (after)"
+                    label={i18n.t("projects:createStageTaskDialog.ui.plannedCostAfter")}
                     value={euros(envelope.after.plannedCost)}
-                    sub={`before ${euros(envelope.before.plannedCost)}`}
+                    sub={i18n.t("projects:createStageTaskDialog.ui.beforeValue", { value: euros(envelope.before.plannedCost) })}
                   />
                   <Cell
-                    label="Remaining target cost"
+                    label={i18n.t("projects:createStageTaskDialog.ui.remainingTargetCost")}
                     value={euros(envelope.after.remainingCost)}
                     tone={envelope.after.remainingCost < 0 ? "danger" : undefined}
                   />
                 </div>
                 <div className="grid grid-cols-2 divide-x border-t text-center text-xs">
                   <Cell
-                    label="This task"
+                    label={i18n.t("projects:createStageTaskDialog.ui.thisTask")}
                     value={`${h(envelope.task.hours)} · ${euros(envelope.task.cost)}`}
                   />
                   <Cell
-                    label="Projected margin"
+                    label={i18n.t("projects:createStageTaskDialog.ui.projectedMargin")}
                     value={pct(envelope.after.projectedMargin)}
                     sub={
                       envelope.after.marginVariancePts == null
@@ -346,17 +349,16 @@ export function CreateStageTaskDialog({
                 {envelope.hoursOverBy > 0 && (
                   <div className="flex items-start gap-1.5">
                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Task allocation exceeds the remaining stage capacity by{" "}
+                     {i18n.t("projects:createStageTaskDialog.ui.taskCapacityExceeded")} {" "}
                     {h(envelope.hoursOverBy)}.
                   </div>
                 )}
                 {canSeeFinancials && marginBelowTarget && (
                   <div className="flex items-start gap-1.5">
                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Projected stage margin falls to {pct(envelope.after.projectedMargin)}, below the{" "}
-                    {pct(targetMargin)} target
-                    {envelope.costOverBy > 0
-                      ? ` (${euros(envelope.costOverBy)} over the target planned cost)`
+                     {i18n.t("projects:createStageTaskDialog.ui.projectedMarginFalls")} {pct(envelope.after.projectedMargin)} {i18n.t("projects:createStageTaskDialog.ui.belowTargetPrefix")} {" "}
+                    {pct(targetMargin)}  {i18n.t("projects:createStageTaskDialog.ui.target")} {envelope.costOverBy > 0
+                      ? i18n.t("projects:createStageTaskDialog.ui.overTargetPlannedCost", { value1: euros(envelope.costOverBy) })
                       : ""}
                     .
                   </div>
@@ -369,27 +371,27 @@ export function CreateStageTaskDialog({
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="task-name">Task name</Label>
+              <Label htmlFor="task-name"> {i18n.t("projects:createStageTaskDialog.ui.taskName")} </Label>
               <Input
                 id="task-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Floor plans"
+                placeholder={i18n.t("projects:createStageTaskDialog.ui.taskNameExample")}
                 autoFocus
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label>Assignee</Label>
+              <Label> {i18n.t("projects:createStageTaskDialog.ui.assignee")} </Label>
               <Select value={resourceId} onValueChange={setResourceId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a person" />
+                  <SelectValue placeholder={i18n.t("projects:createStageTaskDialog.ui.choosePerson")} />
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
                   {active.map((r) => (
                     <SelectItem key={r.id} value={r.id}>
                       {r.name}
-                      {r.role ? ` · ${r.role}` : ""}
+                      {r.role ? i18n.t("projects:createStageTaskDialog.ui.valueSeparatorLabel", { value1: r.role }) : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -397,7 +399,7 @@ export function CreateStageTaskDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label> {i18n.t("common:status")} </Label>
               <Select value={status} onValueChange={(v) => setStatus(v as StageTaskStatus)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -405,7 +407,7 @@ export function CreateStageTaskDialog({
                 <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
-                      {s.label}
+                      {i18n.t(s.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -413,13 +415,13 @@ export function CreateStageTaskDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="task-notes">Notes</Label>
+              <Label htmlFor="task-notes"> {i18n.t("common:notes")} </Label>
               <Textarea
                 id="task-notes"
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Optional planning note"
+                placeholder={i18n.t("projects:createStageTaskDialog.ui.planningNotePlaceholder")}
               />
             </div>
           </div>
@@ -427,7 +429,7 @@ export function CreateStageTaskDialog({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="task-start">Start</Label>
+                <Label htmlFor="task-start"> {i18n.t("projects:detail.ui.start")} </Label>
                 <Input
                   id="task-start"
                   type="date"
@@ -436,7 +438,7 @@ export function CreateStageTaskDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="task-end">Due</Label>
+                <Label htmlFor="task-end"> {i18n.t("projects:createStageTaskDialog.ui.due")} </Label>
                 <Input
                   id="task-end"
                   type="date"
@@ -453,7 +455,7 @@ export function CreateStageTaskDialog({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="task-days">Duration (days)</Label>
+                <Label htmlFor="task-days"> {i18n.t("projects:createStageTaskDialog.ui.durationDays")} </Label>
                 <Input
                   id="task-days"
                   type="number"
@@ -463,7 +465,7 @@ export function CreateStageTaskDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="task-hpd">Hours / day</Label>
+                <Label htmlFor="task-hpd"> {i18n.t("projects:createStageTaskDialog.ui.hoursPerDay")} </Label>
                 <Input
                   id="task-hpd"
                   type="number"
@@ -480,34 +482,31 @@ export function CreateStageTaskDialog({
             <div className="space-y-1.5 text-xs text-muted-foreground">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5" /> Allocated effort (Mon–Fri)
-                </span>
+                  <Clock className="h-3.5 w-3.5" />  {i18n.t("projects:createStageTaskDialog.ui.allocatedWeekdayEffort")} </span>
                 <span className="font-medium text-foreground">{h(draftHours)}</span>
               </div>
               {canSeeFinancials && (
                 <div className="flex items-center justify-between">
-                  <span>Planned cost ({euros(draftCostRate)}/h)</span>
+                  <span> {i18n.t("projects:createStageTaskDialog.ui.plannedCostPrefix")} {euros(draftCostRate)} {i18n.t("projects:createStageTaskDialog.ui.perHourClosing")} </span>
                   <span className="font-medium text-foreground">
                     {euros(draftHours * draftCostRate)}
                   </span>
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span>Calendar span</span>
+                <span> {i18n.t("projects:createStageTaskDialog.ui.calendarSpan")} </span>
                 <span>
-                  {workdays} working days · {totalCalendarHours.toFixed(1)}h calendar
-                </span>
+                  {workdays}  {i18n.t("projects:createStageTaskDialog.ui.workingDaysSeparator")} {(totalCalendarHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("projects:createStageTaskDialog.ui.calendarHours")} </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Window</span>
+                <span> {i18n.t("projects:createStageTaskDialog.ui.window")} </span>
                 <span>
                   {formatDate(startDate)} → {formatDate(endDate)}
                 </span>
               </div>
               {outsideStage && (
                 <Badge variant="outline" className="mt-1 text-[11px] font-normal">
-                  Runs outside the stage window
-                </Badge>
+                   {i18n.t("projects:createStageTaskDialog.ui.outsideStageWindow")} </Badge>
               )}
             </div>
           </div>
@@ -515,10 +514,9 @@ export function CreateStageTaskDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+             {i18n.t("common:cancel")} </Button>
           <Button onClick={submit} disabled={pending}>
-            {isEdit ? "Save changes" : "Save task"}
+            {isEdit ? i18n.t("common:saveChanges") : i18n.t("projects:createStageTaskDialog.ui.saveTask")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -537,6 +535,7 @@ function Cell({
   sub?: string;
   tone?: "danger";
 }) {
+  useTranslation();
   return (
     <div className="px-2 py-2">
       <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>

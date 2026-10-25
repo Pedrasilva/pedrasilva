@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Budget Control panel — project + per-stage actuals, remaining budget,
  * estimated available hours. Hidden behind `canSeeFinancials` by the caller.
@@ -40,6 +41,7 @@ function MetricTile({
   sub?: string;
   tone?: "ok" | "warn" | "danger" | "muted";
 }) {
+  useTranslation();
   return (
     <div className="rounded-md border border-border bg-card p-3">
       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -170,8 +172,7 @@ export function BudgetControlPanel({ project, byStage, stages, showFinancials }:
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
                       {euros(c.actual_cost_consumed)}
                       <div className="text-[10px] text-muted-foreground">
-                        {Math.round(c.actual_hours_logged)}h
-                      </div>
+                        {Math.round(c.actual_hours_logged)} {i18n.t("common:units.hoursShort")} </div>
                     </td>
                     <td
                       className={cn(
@@ -182,18 +183,17 @@ export function BudgetControlPanel({ project, byStage, stages, showFinancials }:
                       {euros(c.remaining_budget)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
-                      {c.has_team_rate ? `${euros(c.average_team_hourly_rate)}/h` : "—"}
+                      {c.has_team_rate ? i18n.t("projects:budgetControlPanel.ui.hourlyValue", { value1: euros(c.average_team_hourly_rate) }) : "—"}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
                       {c.estimated_available_hours == null
                         ? "—"
-                        : `${Math.max(0, Math.round(c.estimated_available_hours))}h`}
+                        : i18n.t("projects:budgetControlPanel.ui.hoursValue", { value1: Math.max(0, Math.round(c.estimated_available_hours)) })}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
                       {euros(c.planned_future_cost)}
                       <div className="text-[10px] text-muted-foreground">
-                        {Math.round(c.planned_future_hours)}h
-                      </div>
+                        {Math.round(c.planned_future_hours)} {i18n.t("common:units.hoursShort")} </div>
                     </td>
                     <td className={cn("px-2 py-2 text-right font-mono tabular-nums", ouTone)}>
                       {euros(c.projected_over_under)}

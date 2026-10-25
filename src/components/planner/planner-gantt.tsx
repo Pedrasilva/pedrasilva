@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * PlannerGantt — unified planner wrapper around the shared GanttChart.
  *
@@ -1118,7 +1119,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onClick={() => selectedStageId && handleIndent(selectedStageId)}
             disabled={!selectedStageId || upsertStage.isPending || isLocked}
             title={t("workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
-            aria-label="Indent"
+            aria-label={i18n.t("projects:plannerGantt.ui.indent")}
           >
             <IndentIncrease className="h-3.5 w-3.5" />
           </Button>
@@ -1130,7 +1131,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onClick={() => selectedStageId && handleOutdent(selectedStageId)}
             disabled={!selectedStageId || upsertStage.isPending || isLocked}
             title={t("workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
-            aria-label="Outdent"
+            aria-label={i18n.t("projects:plannerGantt.ui.outdent")}
           >
             <IndentDecrease className="h-3.5 w-3.5" />
           </Button>
@@ -1183,8 +1184,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               className="h-7 w-7 p-0"
               onClick={() => setZoom((z) => stepZoom(z, -1))}
               disabled={zoom === ZOOM_ORDER[0]}
-              aria-label="Zoom out"
-              title="Zoom out"
+              aria-label={i18n.t("projects:plannerGantt.ui.zoomOut")}
+              title={i18n.t("projects:plannerGantt.ui.zoomOut")}
             >
               <Minus className="h-3.5 w-3.5" />
             </Button>
@@ -1195,8 +1196,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               className="h-7 w-7 p-0"
               onClick={() => setZoom((z) => stepZoom(z, 1))}
               disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
-              aria-label="Zoom in"
-              title="Zoom in"
+              aria-label={i18n.t("projects:plannerGantt.ui.zoomIn")}
+              title={i18n.t("projects:plannerGantt.ui.zoomIn")}
             >
               <Plus className="h-3.5 w-3.5" />
             </Button>
@@ -1252,8 +1253,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               size="sm"
               className="h-7 px-2 text-xs"
               onClick={() => setPoolCollapsed((v) => !v)}
-              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
-              title={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              aria-label={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
+              title={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>
@@ -1411,7 +1412,7 @@ export function ProjectGantt({
       .filter((inv) => inv.raised_date)
       .map((inv) => ({
         id: inv.id,
-        label: inv.invoice_number || inv.title || "Invoice",
+        label: inv.invoice_number || inv.title || t("detail.ui.invoice"),
         date: inv.raised_date as string,
         amount: Number(inv.total ?? 0),
         status:
@@ -1422,7 +1423,7 @@ export function ProjectGantt({
               : ("planned" as const),
         note: inv.title ?? null,
       }));
-  }, [invoices]);
+  }, [invoices, t]);
 
   // Origin/totalDays
   const { origin, totalDays } = useMemo(() => {
@@ -1706,7 +1707,7 @@ export function ProjectGantt({
           }
         }
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed to insert stage");
+        toast.error(e instanceof Error ? e.message : i18n.t("projects:plannerGantt.ui.failedInsertStage"));
       }
     },
     [canEdit, stages, createStage, projectId, t, createProjectDep],
@@ -1720,7 +1721,7 @@ export function ProjectGantt({
         if (selectedStageId === id) setSelectedStageId(null);
         toast.success(t("projects:gantt.stageDeleted", { defaultValue: "Stage deleted" }));
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+        toast.error(e instanceof Error ? e.message : i18n.t("projects:plannerGantt.ui.failedDeleteStage"));
       }
     },
     [canEdit, deleteStageMut, projectId, selectedStageId, t],
@@ -1841,7 +1842,7 @@ export function ProjectGantt({
                 onClick={() => selectedStageId && handleIndent(selectedStageId)}
                 disabled={!selectedStageId || updateStage.isPending}
                 title={t("crm:workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
-                aria-label="Indent"
+                aria-label={i18n.t("projects:plannerGantt.ui.indent")}
               >
                 <IndentIncrease className="h-3.5 w-3.5" />
               </Button>
@@ -1853,7 +1854,7 @@ export function ProjectGantt({
                 onClick={() => selectedStageId && handleOutdent(selectedStageId)}
                 disabled={!selectedStageId || updateStage.isPending}
                 title={t("crm:workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
-                aria-label="Outdent"
+                aria-label={i18n.t("projects:plannerGantt.ui.outdent")}
               >
                 <IndentDecrease className="h-3.5 w-3.5" />
               </Button>
@@ -1880,8 +1881,8 @@ export function ProjectGantt({
               className="h-7 w-7 p-0"
               onClick={() => setZoom((z) => stepZoom(z, -1))}
               disabled={zoom === ZOOM_ORDER[0]}
-              aria-label="Zoom out"
-              title="Zoom out"
+              aria-label={i18n.t("projects:plannerGantt.ui.zoomOut")}
+              title={i18n.t("projects:plannerGantt.ui.zoomOut")}
             >
               <Minus className="h-3.5 w-3.5" />
             </Button>
@@ -1892,8 +1893,8 @@ export function ProjectGantt({
               className="h-7 w-7 p-0"
               onClick={() => setZoom((z) => stepZoom(z, 1))}
               disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
-              aria-label="Zoom in"
-              title="Zoom in"
+              aria-label={i18n.t("projects:plannerGantt.ui.zoomIn")}
+              title={i18n.t("projects:plannerGantt.ui.zoomIn")}
             >
               <Plus className="h-3.5 w-3.5" />
             </Button>
@@ -1916,8 +1917,8 @@ export function ProjectGantt({
               size="sm"
               className="h-7 px-2 text-xs"
               onClick={() => setPoolCollapsed((v) => !v)}
-              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
-              title={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              aria-label={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
+              title={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>

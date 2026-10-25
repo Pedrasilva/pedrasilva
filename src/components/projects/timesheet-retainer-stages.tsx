@@ -1,3 +1,6 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * TimesheetRetainerStages — surfaces every retainer stage the current
  * user can see (via RLS) in the timesheet, regardless of allocations.
@@ -25,6 +28,8 @@ interface RetainerParent {
 }
 
 export function TimesheetRetainerStages() {
+  const dateLocale = useDateLocale();
+  useTranslation();
   const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
 
   const { data: retainers } = useQuery({
@@ -65,7 +70,7 @@ export function TimesheetRetainerStages() {
         arr.push({
           id: k.id,
           monthDate: k.start_date,
-          month: format(parseISO(k.start_date), "MMM yyyy"),
+          month: format(parseISO(k.start_date), "MMM yyyy", { locale: dateLocale }),
         });
         byParent.set(k.parent_stage_id, arr);
       }
@@ -88,10 +93,8 @@ export function TimesheetRetainerStages() {
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
         <Repeat className="h-4 w-4 text-muted-foreground" />
-        Retainer stages
-        <span className="text-[11px] font-normal text-muted-foreground">
-          open logging — no allocation required
-        </span>
+         {i18n.t("projects:timesheetRetainerStages.ui.retainerStages")} <span className="text-[11px] font-normal text-muted-foreground">
+           {i18n.t("projects:timesheetRetainerStages.ui.openLoggingHint")} </span>
       </div>
       <ul className="divide-y divide-border">
         {list.map((r) => (
@@ -105,8 +108,7 @@ export function TimesheetRetainerStages() {
               <span>·</span>
               <span className="font-medium">{r.name}</span>
               <span className="ml-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                €{r.monthly_fee.toLocaleString()}/mo
-              </span>
+                €{r.monthly_fee.toLocaleString(i18n.language)} {i18n.t("projects:timesheetRetainerStages.ui.perMonth")} </span>
             </div>
             <Button
               size="sm"
@@ -116,8 +118,7 @@ export function TimesheetRetainerStages() {
               disabled={r.children.length === 0}
             >
               <Plus className="mr-1 h-3 w-3" />
-              Log hours
-            </Button>
+               {i18n.t("common:logHours")} </Button>
             <LogRetainerHoursDialog
               open={logOpenFor === r.id}
               onOpenChange={(v) => setLogOpenFor(v ? r.id : null)}

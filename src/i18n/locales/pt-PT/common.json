@@ -109,7 +109,7 @@
       "toastImported": "Importadas {{imported}}, ignoradas {{skipped}}, erros {{errors}}.",
       "toastStorageWarning": "O ficheiro original não pôde ser arquivado: {{error}}. A importação continua sem cópia de segurança.",
       "types": {
-        "acceloActivity": "Accelo atividade / timesheet",
+        "acceloActivity": "Accelo atividade / folha de horas",
         "companies": "Empresas, clientes e fornecedores"
       },
       "stats": {
@@ -210,7 +210,7 @@
         },
         "statusOk": "OK",
         "statusWarn": "Aviso",
-        "inferredFromActivity": "Intervalo inferido a partir das datas de actividade",
+        "inferredFromActivity": "Intervalo inferido a partir das datas de atividade",
         "gantt": {
           "title": "Pré-visualização do Gantt (apenas leitura)",
           "hint": "Pré-visualização de como as fases aparecerão no Gantt do projeto após confirmar.",
@@ -412,7 +412,7 @@
       "settings.boValue": "Valor BO/hora",
       "settings.workingDays": "Dias úteis",
       "settings.mealAllowance": "Subsídio de alimentação",
-      "settings.billableRates": "Valor/hora facturável",
+      "settings.billableRates": "Valor/hora faturável",
       "products.projects": "Projetos",
       "products.library": "Biblioteca",
       "products.categories": "Categorias",
@@ -596,8 +596,24 @@
     "hoursPerWeek": "h/semana",
     "eurosPerHour": "€/h",
     "pixels": "px",
-    "hoursDot": "h ·"
+    "hoursDot": "h ·",
+    "hours": "Horas",
+    "hoursPerDayShort": "h/dia",
+    "perHour": "/h",
+    "hoursPerDayEnd": "h/dia.",
+    "hoursTimes": "h ×"
   },
   "imported": "Importado",
-  "accessDenied": "Acesso negado."
+  "accessDenied": "Acesso negado.",
+  "updated": "Atualizado",
+  "days": "Dias",
+  "more": "Mais",
+  "planned": "Planeado",
+  "hrParenthesis": "(RH)",
+  "hrPercentSuffix": "% (RH)",
+  "cancelled": "Cancelado",
+  "remove": "Remover",
+  "add": "Adicionar",
+  "nextPage": "Página seguinte",
+  "previousPage": "Página anterior"
 }

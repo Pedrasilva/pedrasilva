@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * Read-only "Contractual baseline" card on the project page. Shows what was
  * agreed in the originating quote at conversion time. Immutable reference;
@@ -13,12 +15,13 @@ import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 const fmtEUR = (n: number | null | undefined) =>
   n == null
     ? "—"
-    : new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+    : new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(n);
 
 const fmtDate = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleDateString("pt-PT") : "—";
+  d ? new Date(d).toLocaleDateString(i18n.language) : "—";
 
 export function ContractBaselineCard({ projectId }: { projectId: string }) {
+  useTranslation();
   const { data, isLoading } = useContractBaseline(projectId);
   const [open, setOpen] = useState(false);
 
@@ -36,36 +39,32 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
           <CardTitle className="flex items-center gap-2 text-base">
             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             <FileText className="h-4 w-4" />
-            Contractual baseline
-            <Badge variant="secondary" className="ml-2 font-normal">
-              {header.quote_number ?? "Quote"} · {fmtEUR(header.total_fee)} · snapshot{" "}
+             {i18n.t("projects:contractBaselineCard.ui.contractualBaseline")} <Badge variant="secondary" className="ml-2 font-normal">
+              {header.quote_number ?? i18n.t("glossary:entity.quote")} · {fmtEUR(header.total_fee)}  {i18n.t("projects:contractBaselineCard.ui.snapshotSuffix")} {" "}
               {fmtDate(header.snapshot_at)}
             </Badge>
           </CardTitle>
-          <span className="text-xs text-muted-foreground">Read-only</span>
+          <span className="text-xs text-muted-foreground"> {i18n.t("projects:contractBaselineCard.ui.readOnly")} </span>
         </button>
       </CardHeader>
 
       {open && (
         <CardContent className="space-y-4 pt-0">
           <p className="text-xs text-muted-foreground">
-            What was agreed at the moment this quote was converted to a project.
-            For internal reference only — the live plan above is the source of truth.
-          </p>
+             {i18n.t("projects:contractBaselineCard.ui.contractBaselineHint")} </p>
 
           {stages.length > 0 && (
             <div>
               <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Agreed stages
-              </h4>
+                 {i18n.t("projects:contractBaselineCard.ui.agreedStages")} </h4>
               <div className="overflow-hidden rounded border text-sm">
                 <table className="w-full">
                   <thead className="bg-muted/40 text-xs text-muted-foreground">
                     <tr>
-                      <th className="px-2 py-1 text-left">Stage</th>
-                      <th className="px-2 py-1 text-left">Start</th>
-                      <th className="px-2 py-1 text-left">End</th>
-                      <th className="px-2 py-1 text-right">Budget</th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("glossary:entity.stage")} </th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("projects:detail.ui.start")} </th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("projects:detail.ui.end")} </th>
+                      <th className="px-2 py-1 text-right"> {i18n.t("glossary:financial.budget")} </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -86,16 +85,15 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
           {payments.length > 0 && (
             <div>
               <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Agreed payment schedule
-              </h4>
+                 {i18n.t("projects:contractBaselineCard.ui.agreedPaymentSchedule")} </h4>
               <div className="overflow-hidden rounded border text-sm">
                 <table className="w-full">
                   <thead className="bg-muted/40 text-xs text-muted-foreground">
                     <tr>
-                      <th className="px-2 py-1 text-left">Label</th>
-                      <th className="px-2 py-1 text-left">Stage</th>
-                      <th className="px-2 py-1 text-left">Expected invoice</th>
-                      <th className="px-2 py-1 text-right">Amount</th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("projects:contractBaselineCard.ui.label")} </th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("glossary:entity.stage")} </th>
+                      <th className="px-2 py-1 text-left"> {i18n.t("projects:contractBaselineCard.ui.expectedInvoice")} </th>
+                      <th className="px-2 py-1 text-right"> {i18n.t("projects:quickFinance.fields.amount")} </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -115,8 +113,7 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
 
           <div className="flex justify-end">
             <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-              Collapse
-            </Button>
+               {i18n.t("common:collapse")} </Button>
           </div>
         </CardContent>
       )}

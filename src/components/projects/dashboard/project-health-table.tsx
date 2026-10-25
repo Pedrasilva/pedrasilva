@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { Fragment, useMemo, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -175,8 +176,7 @@ export function ProjectHealthTable({
                         (r.loggedHours ?? 0) > (r.plannedHours ?? 0) && "text-destructive",
                       )}
                     >
-                      {Math.round(r.loggedHours ?? 0)}h / {Math.round(r.plannedHours ?? 0)}h
-                    </span>
+                      {Math.round(r.loggedHours ?? 0)} {i18n.t("projects:projectHealthTable.ui.hoursSlash")} {Math.round(r.plannedHours ?? 0)} {i18n.t("common:units.hoursShort")} </span>
                   ) : (
                     "—"
                   )}
@@ -185,7 +185,7 @@ export function ProjectHealthTable({
                   {r.budget > 0 ? (
                     euros(r.budget)
                   ) : r.isTM ? (
-                    <span className="text-[10px] font-sans uppercase tracking-wider">T&amp;M</span>
+                    <span className="text-[10px] font-sans uppercase tracking-wider"> {i18n.t("common:timeMaterials")} </span>
                   ) : (
                     "—"
                   )}
@@ -195,10 +195,9 @@ export function ProjectHealthTable({
                   {!!r.nonBillableHours && (
                     <span
                       className="ml-1 text-[10px] font-sans text-muted-foreground"
-                      title="Non-billable hours logged (cost without revenue)"
+                      title={i18n.t("projects:projectHealthTable.ui.nonBillableHoursHint")}
                     >
-                      +{Math.round(r.nonBillableHours)}h nb
-                    </span>
+                      +{Math.round(r.nonBillableHours)} {i18n.t("projects:projectHealthTable.ui.nonBillableHoursShort")} </span>
                   )}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
@@ -263,7 +262,7 @@ export function ProjectHealthTable({
         <span>
           {filtered.length === 0
             ? "0 / 0"
-            : `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`}
+            : i18n.t("projects:projectHealthTable.ui.paginationRange", { value1: page * PAGE_SIZE + 1, value2: Math.min((page + 1) * PAGE_SIZE, filtered.length), value3: filtered.length })}
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -289,6 +288,7 @@ export function ProjectHealthTable({
 }
 
 function StatusDot({ status }: { status: HealthStatus }) {
+  useTranslation();
   if (status === "none") {
     return (
       <span className="inline-block h-2.5 w-2.5 rounded-full border border-border bg-muted/40" />
@@ -311,6 +311,7 @@ function StatusDot({ status }: { status: HealthStatus }) {
 }
 
 function MarginBadge({ marginPct, hasRevenue }: { marginPct: number; hasRevenue: boolean }) {
+  useTranslation();
   if (!hasRevenue) {
     return <span className="text-xs text-muted-foreground">—</span>;
   }

@@ -339,7 +339,8 @@
       "end": "End",
       "overdue": "Overdue",
       "remaining": "Remaining"
-    }
+    },
+    "notFound": "Project not found"
   },
   "quickCreate": {
     "time": "Time",
@@ -807,7 +808,8 @@
       "hoursPerDay": "h/d",
       "addResource": "Add resource",
       "resourceAdded": "Resource added.",
-      "pickResource": "Pick a resource first."
+      "pickResource": "Pick a resource first.",
+      "moveHint": "Drag the stage to move it on the timeline."
     },
     "schedule": {
       "undo": "Undo Gantt change",
@@ -2414,6 +2416,473 @@
         "paused": "Paused",
         "done": "Done"
       }
+    }
+  },
+  "allocationEditor": {
+    "ui": {
+      "allocationTentative": "Marked as tentative",
+      "removeAllocationConfirm": "Remove allocation for {{value1}}?",
+      "editResource": "Edit {{value1}}",
+      "saleOverrideHint": "Manual hourly sale price set for this project resource. It overrides the HR 75% default.",
+      "hrDefaultWouldBe": "HR default would be",
+      "saleBandSuffix": "(75% band).",
+      "hrSalePriceHint": "Derived from the HR pricing table using the 75% hourly sale price band.",
+      "allocationStatus": "Allocation status",
+      "tentativeHint": "Soft booking: visible but not counted as a firm commitment.",
+      "committedHint": "Firm commitment counted in capacity and KPIs.",
+      "billableCapacity": "Billable capacity",
+      "missingChargeability": "No billable percentage set in HR — assuming",
+      "projectAllocationPercent": "Project allocation (%)",
+      "hoursPerDay": "Hours/day",
+      "billableHoursEditable": "billable h · editable",
+      "hoursPerWorkingDay": "Hours per working day",
+      "totalHours": "Total hours",
+      "markTentative": "→ Tentative",
+      "confirmAllocation": "→ Confirm",
+      "diasTeis": "Working days"
+    }
+  },
+  "approvalsPanel": {
+    "ui": {
+      "numberedLabel": "{{value1}}. {{value2}}"
+    }
+  },
+  "budgetControlPanel": {
+    "ui": {
+      "hourlyValue": "{{value1}}/h",
+      "hoursValue": "{{value1}}h"
+    }
+  },
+  "contractBaselineCard": {
+    "ui": {
+      "contractualBaseline": "Contractual baseline",
+      "snapshotSuffix": "· snapshot",
+      "readOnly": "Read-only",
+      "contractBaselineHint": "What was agreed when this quote was converted to a project. For internal reference only — the current plan above is the source of truth.",
+      "agreedStages": "Agreed stages",
+      "agreedPaymentSchedule": "Agreed payment schedule",
+      "label": "Label",
+      "expectedInvoice": "Expected invoice"
+    }
+  },
+  "contractDiffCard": {
+    "ui": {
+      "compareToContract": "Compare to contract",
+      "allStagesOnTrack": "All stages on track",
+      "derived": "Derived",
+      "contractComparisonHint": "Agreed contract (at conversion) compared against the current plan and billing. This view never changes the baseline itself.",
+      "contractStage": "Contract stage",
+      "liveStage": "Current stage",
+      "contractLiveEnd": "End (contract → current)",
+      "contractLiveBudget": "Budget (contract → current)",
+      "matchedByName": "(matched by name)",
+      "daysClosing": "d)",
+      "percentSuffix": "· {{value1}}%",
+      "noStagesToCompare": "No stages to compare.",
+      "contractPayment": "Contract payment",
+      "liveItem": "Current item",
+      "contractLiveInvoiceDate": "Invoice date (contract → current)",
+      "contractLiveAmount": "Amount (contract → current)",
+      "noBillingItemsToCompare": "No billing items to compare.",
+      "stages": "Stages",
+      "stagesDiffer_one": "{{count}} of {{total}} stages differs",
+      "stagesDiffer_other": "{{count}} of {{total}} stages differ"
+    },
+    "status": {
+      "onTrack": "On track",
+      "delayed": "Delayed",
+      "budgetChanged": "Budget changed",
+      "removed": "Removed / skipped",
+      "added": "Added",
+      "asPlanned": "Invoiced as planned",
+      "differs": "Invoiced — differs",
+      "notDue": "Not yet invoiced",
+      "overdue": "Overdue vs. contract",
+      "unplanned": "Unplanned billing"
+    }
+  },
+  "createProjectDirectDialog": {
+    "ui": {
+      "projectNameRequired": "Project name is required",
+      "createProjectDirectly": "Create project directly",
+      "directProjectHint": "For work that never went through a CRM proposal — migrated legacy projects, small retainers, ad-hoc support. No quote or contractual baseline is created.",
+      "projectName": "Project name",
+      "projectNameExample": "2610 Example Project",
+      "crmClient": "Client (CRM company)",
+      "clientLabel": "Client label (optional)",
+      "clientLabelHint": "Shown when no CRM company is linked",
+      "projectNotesPlaceholder": "Context, origin of the work, closeout status…",
+      "stageName": "Stage name",
+      "fixedFee": "Fixed fee",
+      "hourlyTimeMaterials": "Hourly (T&M)",
+      "monthly": "Monthly",
+      "feeEuros": "Fee €",
+      "removeStage": "Remove stage",
+      "noStagesDirectHint": "No stages — you can add them later on the project page.",
+      "hourlyStagesHint": "Hourly stages are billed strictly by time and materials: no fixed fee is stored.",
+      "stages": "Stages"
+    }
+  },
+  "createStageTaskDialog": {
+    "ui": {
+      "taskNameRequired": "Task name is required",
+      "taskAssigneeRequired": "Choose who the task is for",
+      "taskUpdated": "Task updated",
+      "editTask": "Edit task",
+      "stageValue": "Stage: {{value1}}",
+      "addTaskToStage": "Add a task to this stage",
+      "stageWindow": "Stage date range:",
+      "noAssigneeYet": "No assignee yet",
+      "valueSeparator": "· {{value1}}",
+      "allocatedAfter": "Allocated (after)",
+      "stageFinancialsTargetMargin": "Stage financials · target margin",
+      "saleValue": "Sale value",
+      "targetPlannedCost": "Target planned cost",
+      "plannedCostAfter": "Planned cost (after)",
+      "remainingTargetCost": "Remaining target cost",
+      "thisTask": "This task",
+      "projectedMargin": "Projected margin",
+      "taskCapacityExceeded": "Task allocation exceeds the remaining stage capacity by",
+      "projectedMarginFalls": "Projected stage margin falls to",
+      "belowTargetPrefix": ", below the",
+      "target": "target",
+      "overTargetPlannedCost": "({{value1}} over the target planned cost)",
+      "taskName": "Task name",
+      "taskNameExample": "e.g. Floor plans",
+      "assignee": "Assignee",
+      "choosePerson": "Choose a person",
+      "valueSeparatorLabel": "· {{value1}}",
+      "planningNotePlaceholder": "Optional planning note",
+      "due": "Due",
+      "durationDays": "Duration (days)",
+      "hoursPerDay": "Hours / day",
+      "allocatedWeekdayEffort": "Allocated effort (Mon–Fri)",
+      "plannedCostPrefix": "Planned cost (",
+      "perHourClosing": "/h)",
+      "calendarSpan": "Calendar span",
+      "workingDaysSeparator": "working days ·",
+      "calendarHours": "calendar h",
+      "window": "Date range",
+      "outsideStageWindow": "Runs outside the stage date range",
+      "saveTask": "Save task",
+      "stageEnvelope": "Stage capacity",
+      "beforeValue": "Before: {{value}}"
+    }
+  },
+  "ganttActualsLayer": {
+    "ui": {
+      "hoursSlash": "h /",
+      "valueSeparator": "· {{value1}}",
+      "actualsSummary": "{{value1}} · {{value2}} · {{value3}}h"
+    }
+  },
+  "ganttChart": {
+    "ui": {
+      "resizeWbsColumn": "Drag to resize WBS column",
+      "holidayLabel": "Public holiday — {{value1}}",
+      "holidayLabelLabel": "Public holiday — {{value1}}",
+      "dateRangeLabel": "{{value1}} · {{value2}} → {{value3}}",
+      "labelWithDetail": "{{value1}} — {{value2}}",
+      "estimatedBudgetHours": "Estimated hours (budget / average hourly sale rate)",
+      "estimatedHours": "Hours (estimated)",
+      "stagesShifted_one": "{{count}} stage shifted by {{days}} days",
+      "stagesShifted_other": "{{count}} stages shifted by {{days}} days",
+      "shiftDays_one": "{{count}} day",
+      "shiftDays_other": "{{count}} days"
+    }
+  },
+  "ganttOutlineColumn": {
+    "ui": {
+      "durationShort": "Dur.",
+      "due": "Due",
+      "dependenciesShort": "Dep.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "insert": "Insert",
+      "stageAbove": "Stage above",
+      "stageBelow": "Stage below",
+      "childStage": "Child stage",
+      "insertStage": "Insert stage",
+      "renumberSiblings": "Click to renumber among stages at the same level",
+      "clickToEdit": "Click to edit",
+      "childrenRollup": "Total of child stages"
+    }
+  },
+  "logRetainerHoursDialog": {
+    "ui": {
+      "dateOutsideRetainerMonth": "Selected date does not fall within any retainer month",
+      "hoursLogged": "Hours logged",
+      "logHoursFor": "Log hours —",
+      "pickMonth": "Pick a month",
+      "hoursNotesPlaceholder": "Site visit, meeting, etc.",
+      "ratesSnapshotCost": "Rates snapshot: cost €",
+      "saleRateSuffix": "/h · sale €"
+    }
+  },
+  "newProjectDialog": {
+    "ui": {
+      "projectNamePlaceholder": "Casa Verde",
+      "clientNamePlaceholder": "Verde Holdings"
+    }
+  },
+  "newRetainerStageDialog": {
+    "ui": {
+      "retainerStageCreated": "Retainer stage created",
+      "newRetainerStage": "New retainer stage",
+      "monthlyFeeEuros": "Monthly fee (€)",
+      "firstMonth": "First month",
+      "monthlyChildrenTotal": "monthly child stages will be created. Total: €",
+      "createRetainer": "Create retainer"
+    }
+  },
+  "newStageDialog": {
+    "ui": {
+      "stageAdded": "Stage added",
+      "stageNamePlaceholder": "Concept",
+      "fixedBudgetEuros": "Budget (€) — fixed",
+      "adding": "Adding…"
+    }
+  },
+  "projectExpensesSection": {
+    "ui": {
+      "labelWithParenthesis": "{{value1}} ({{value2}})"
+    }
+  },
+  "projectFinancialTab": {
+    "ui": {
+      "financial": "Financial",
+      "billingPlanDescription": "Client billing plan — inherited from the approved quote and editable here.",
+      "noBillingLines": "No lines. Click \"Add line\" below to get started.",
+      "subtotal": "Subtotal",
+      "editLines": "Lines (edit)",
+      "addLine": "Add line",
+      "direction": "Direction",
+      "inflow": "Inflow",
+      "outflow": "Outflow",
+      "newLine": "New line"
+    }
+  },
+  "projectPlannerInspector": {
+    "ui": {
+      "failedDeleteStage": "Failed to delete stage"
+    }
+  },
+  "projectPursuitCard": {
+    "ui": {
+      "valueSeparator": "· {{value1}}"
+    }
+  },
+  "projectSyncStatusBadge": {
+    "ui": {
+      "lastSync": "Last sync:",
+      "sourceQuoteAutoUpdates": "Edits to the source quote auto-update this project.",
+      "sourceQuoteDisconnected": "Edits to the source quote no longer affect this project.",
+      "live": "Live-synced from quote",
+      "paused": "Sync paused",
+      "diverged": "Diverged from quote"
+    }
+  },
+  "resourcePool": {
+    "ui": {
+      "dragOntoStage": "Drag onto a stage",
+      "teamPool": "Team pool",
+      "thisWeekSeparator": "This week ·",
+      "hoursThisWeek": "h this week",
+      "leaveHours": "h of leave",
+      "onLeaveAllWeek": "On leave all week — 0h capacity",
+      "leaveCapacityReduction": "−{{value1}}h this week (leave)",
+      "costRateMissing": "Cost rate missing",
+      "configureHrCosting": "Configure collaborator costing in HR",
+      "capacityReduced": "Capacity reduced",
+      "byLeavePercentSuffix": "% by leave",
+      "noActiveTeamMembers": "No active team members. Add or activate someone in the Team tab to start allocating."
+    }
+  },
+  "retainerMonitorPanel": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "labelHours": "{{value1}}: {{value2}}h",
+      "labelHoursLabel": "{{value1}}: {{value2}}h",
+      "hoursSlash": "h /",
+      "prefixedHoursValue": "{{value1}}{{value2}}h",
+      "hoursValueLabel": "{{value1}}h",
+      "noEntriesThisMonth": "No entries this month.",
+      "who": "Who"
+    }
+  },
+  "stageBaselineDialog": {
+    "ui": {
+      "baselineDatesRequired": "Dates are required",
+      "baselineUpdated": "Baseline updated",
+      "baselineSet": "Baseline set",
+      "removeBaselineConfirm": "Remove this stage's baseline? Variance will no longer be calculated.",
+      "baselineRemoved": "Baseline removed",
+      "resetBaseline": "Reset baseline",
+      "setBaseline": "Set baseline",
+      "stageHasBaseline": "This stage already has a baseline.",
+      "lastUpdated": "Last updated:",
+      "resetBaselineHint": ". Resetting the baseline replaces the reference values used for variance and health KPIs.",
+      "baselineStart": "Baseline start",
+      "baselineEnd": "Baseline end",
+      "baselineBudgetEuros": "Baseline budget (€)",
+      "baselineTargetHours": "Baseline target hours",
+      "baselineAllocationSuggestion": "Suggestion (current allocations):",
+      "baselineNotesExample": "e.g. reset baseline after a client scope change",
+      "currentWorkingBudget": "Current working budget",
+      "plannedAllocationHours": "Planned hours (allocations)",
+      "removeBaseline": "Remove baseline"
+    }
+  },
+  "stageDependencyEditor": {
+    "ui": {
+      "dependencyLag": "Lag"
+    }
+  },
+  "stageRowActions": {
+    "ui": {
+      "statusValue": "Status: {{value1}}",
+      "stageStatus": "Stage status",
+      "resourceAssignedToStage": "Resource assigned to stage",
+      "statusValueLabel": "Status: {{value1}}",
+      "assign": "Assign",
+      "noResources": "No resources",
+      "editTask": "Edit task"
+    }
+  },
+  "timesheetAssistantSheet": {
+    "ui": {
+      "valueSeparator": "· {{value1}}",
+      "dashValue": "— {{value1}}",
+      "valueSeparatorLabel": "· {{value1}}"
+    }
+  },
+  "timesheetRetainerStages": {
+    "ui": {
+      "retainerStages": "Retainer stages",
+      "openLoggingHint": "open logging — no allocation required",
+      "perMonth": "/mo"
+    }
+  },
+  "weekPlanningBoard": {
+    "ui": {
+      "hoursPerDayValue": "{{value1}}h/d",
+      "threePartLabel": "{{value1}} · {{value2}} · {{value3}}",
+      "valueSeparator": "· {{value1}}"
+    }
+  },
+  "weekPublicationDialog": {
+    "ui": {
+      "parenthesizedRange": "({{value1}} – {{value2}})"
+    }
+  },
+  "kpiStrip": {
+    "ui": {
+      "projectWork": "Project work",
+      "workInProgress": "Work in progress",
+      "workDoneToday": "Work done today",
+      "billableWorkThisWeek": "Billable work this week",
+      "unapprovedWork": "Unapproved work",
+      "approvedUninvoiced": "Approved uninvoiced"
+    }
+  },
+  "performanceTable": {
+    "ui": {
+      "performance": "Performance",
+      "analyzeByResource": "Analyze by Resource",
+      "staff": "Staff",
+      "activeCount": "# Active",
+      "onBudget": "On Budget",
+      "onTime": "On Time",
+      "noAllocatedResources": "No resources allocated to projects yet.",
+      "hoursValue": "{{value1}}h"
+    }
+  },
+  "projectEffortTable": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "paginationRange": "{{value1}}-{{value2}} / {{value3}}"
+    }
+  },
+  "projectHealthTable": {
+    "ui": {
+      "hoursSlash": "h /",
+      "nonBillableHoursHint": "Non-billable hours logged (cost without revenue)",
+      "nonBillableHoursShort": "h nb",
+      "paginationRange": "{{value1}}-{{value2}} / {{value3}}"
+    }
+  },
+  "projectScorecard": {
+    "ui": {
+      "projectScorecard": "Project Scorecard",
+      "projectManager": "Project Manager",
+      "due": "Due",
+      "activity": "Activity",
+      "noProjectsToScore": "No projects to score.",
+      "invoicedShort": "Inv.",
+      "emptyPagination": "0 of 0",
+      "paginationOf": "{{value1}}-{{value2}} of {{value3}}"
+    }
+  },
+  "projectValueChart": {
+    "ui": {
+      "projectValue": "Project Value",
+      "graphBy": "Graph By"
+    }
+  },
+  "stageHoursBreakdown": {
+    "ui": {
+      "hoursValue": "{{value1}}h",
+      "hoursValueLabel": "{{value1}}h"
+    }
+  },
+  "teamMemberPanel": {
+    "ui": {
+      "negativeValue": "− {{value1}}"
+    }
+  },
+  "ganttPrintButton": {
+    "ui": {
+      "printOrSavePdf": "Print / Save as PDF",
+      "printGanttChart": "Print Gantt chart",
+      "printGanttDescription": "Choose paper size, spread across pages if needed, then preview. Use your browser's print dialog to save as PDF.",
+      "paperSize": "Paper size",
+      "orientation": "Orientation",
+      "landscape": "Landscape",
+      "portrait": "Portrait",
+      "spreadAcrossPages": "Spread across pages",
+      "pageSingular": "page",
+      "pagePlural": "pages",
+      "tileTimelineHint": "Tile the timeline horizontally across multiple pages for legibility.",
+      "fitHeightToPage": "Fit height to page",
+      "scale": "Scale",
+      "zoom": "Zoom",
+      "resetZoom": "Reset zoom",
+      "reset": "Reset",
+      "extraZoomHint": "Extra zoom applied on top of the fit / scale setting.",
+      "effectiveScale": "Effective scale:",
+      "pageSize": "Page size:",
+      "content": "Content:",
+      "print": "Print",
+      "loadingPreview": "Loading preview…",
+      "previewAt": "Preview at",
+      "previewTileHint": "% — each tile prints on one",
+      "landscapeSheet": "landscape sheet."
+    }
+  },
+  "plannerGantt": {
+    "ui": {
+      "indent": "Indent",
+      "outdent": "Outdent",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "failedInsertStage": "Failed to insert stage",
+      "failedDeleteStage": "Failed to delete stage"
+    }
+  },
+  "allocation": {
+    "status": {
+      "committed": "Confirmed",
+      "tentative": "Tentative"
     }
   }
 }

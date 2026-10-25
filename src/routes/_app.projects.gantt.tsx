@@ -188,7 +188,7 @@ function GlobalGanttPage() {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  {label}
+                  {t(label)}
                   <span
                     className={`ml-0.5 rounded-sm px-1 font-mono text-[10px] ${
                       active ? "bg-background/20" : "bg-muted"
@@ -214,7 +214,7 @@ function GlobalGanttPage() {
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
-                  {p.label}
+                  {t(p.label)}
                 </button>
               ))}
             </div>
@@ -345,8 +345,8 @@ function GlobalGanttPage() {
                                       .then(() => toast.success(t("projects:gantt.ui.statusUpdated")))
                                       .catch((err) => toast.error((err as Error).message))
                                   }
-                                  title={label}
-                                  aria-label={label}
+                                  title={t(label)}
+                                  aria-label={t(label)}
                                   className={`rounded p-1 transition ${
                                     status === id
                                       ? "bg-foreground text-background"

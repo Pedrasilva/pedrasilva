@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * LogRetainerHoursDialog — quick entry for logging hours directly against a
  * retainer stage without going through allocation/task plumbing. Writes to
@@ -44,6 +46,7 @@ export function LogRetainerHoursDialog({
   monthlyChildren,
   parentStageName,
 }: Props) {
+  useTranslation();
   const { user } = useAuth();
   const { profile } = useProjectsAuth();
   const qc = useQueryClient();
@@ -92,11 +95,11 @@ export function LogRetainerHoursDialog({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!user?.id) {
-      toast.error("Not signed in");
+      toast.error(i18n.t("projects:tasks.ui.notSignedIn"));
       return;
     }
     if (!stageIdForDate) {
-      toast.error("Selected date does not fall within any retainer month");
+      toast.error(i18n.t("projects:logRetainerHoursDialog.ui.dateOutsideRetainerMonth"));
       return;
     }
     if (hours <= 0) return;
@@ -120,7 +123,7 @@ export function LogRetainerHoursDialog({
       await qc.invalidateQueries({ queryKey: ["retainer-direct-entries"] });
       await qc.invalidateQueries({ queryKey: ["stage-budget-control"] });
       await qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });
-      toast.success("Hours logged");
+      toast.success(i18n.t("projects:logRetainerHoursDialog.ui.hoursLogged"));
       onOpenChange(false);
       setHours(1);
       setNotes("");
@@ -135,12 +138,12 @@ export function LogRetainerHoursDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">Log hours — {parentStageName}</DialogTitle>
+          <DialogTitle className="text-xl"> {i18n.t("projects:logRetainerHoursDialog.ui.logHoursFor")} {parentStageName}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="l-date">Date</Label>
+              <Label htmlFor="l-date"> {i18n.t("common:date")} </Label>
               <Input
                 id="l-date"
                 type="date"
@@ -149,7 +152,7 @@ export function LogRetainerHoursDialog({
               />
             </div>
             <div>
-              <Label htmlFor="l-hours">Hours</Label>
+              <Label htmlFor="l-hours"> {i18n.t("glossary:time.loggedHours")} </Label>
               <Input
                 id="l-hours"
                 type="number"
@@ -161,7 +164,7 @@ export function LogRetainerHoursDialog({
             </div>
           </div>
           <div>
-            <Label htmlFor="l-month">Month</Label>
+            <Label htmlFor="l-month"> {i18n.t("common:month")} </Label>
             <Select
               value={stageIdForDate ?? ""}
               onValueChange={(v) => {
@@ -170,7 +173,7 @@ export function LogRetainerHoursDialog({
               }}
             >
               <SelectTrigger id="l-month">
-                <SelectValue placeholder="Pick a month" />
+                <SelectValue placeholder={i18n.t("projects:logRetainerHoursDialog.ui.pickMonth")} />
               </SelectTrigger>
               <SelectContent>
                 {monthlyChildren.map((c) => (
@@ -182,22 +185,21 @@ export function LogRetainerHoursDialog({
             </Select>
           </div>
           <div>
-            <Label htmlFor="l-notes">Notes</Label>
+            <Label htmlFor="l-notes"> {i18n.t("common:notes")} </Label>
             <Input
               id="l-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Site visit, meeting, etc."
+              placeholder={i18n.t("projects:logRetainerHoursDialog.ui.hoursNotesPlaceholder")}
             />
           </div>
           {rates.cost > 0 || rates.sale > 0 ? (
             <p className="text-[11px] text-muted-foreground">
-              Rates snapshot: cost €{rates.cost}/h · sale €{rates.sale}/h
-            </p>
+               {i18n.t("projects:logRetainerHoursDialog.ui.ratesSnapshotCost")} {rates.cost} {i18n.t("projects:logRetainerHoursDialog.ui.saleRateSuffix")} {rates.sale} {i18n.t("common:units.perHour")} </p>
           ) : null}
           <DialogFooter>
             <Button type="submit" disabled={busy || !stageIdForDate}>
-              {busy ? "Saving…" : "Log hours"}
+              {busy ? i18n.t("common:saving") : i18n.t("common:logHours")}
             </Button>
           </DialogFooter>
         </form>

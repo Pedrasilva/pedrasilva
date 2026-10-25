@@ -1,0 +1,194 @@
+{
+  "before": 537,
+  "after": 43,
+  "files": {
+    "src/components/planner/gantt-print-button.tsx": {
+      "before": 31,
+      "after": 5
+    },
+    "src/components/planner/planner-gantt.tsx": {
+      "before": 22,
+      "after": 0
+    },
+    "src/components/projects/allocation-editor.tsx": {
+      "before": 47,
+      "after": 1
+    },
+    "src/components/projects/approvals-panel.tsx": {
+      "before": 1,
+      "after": 0
+    },
+    "src/components/projects/budget-control-panel.tsx": {
+      "before": 4,
+      "after": 0
+    },
+    "src/components/projects/contract-baseline-card.tsx": {
+      "before": 16,
+      "after": 0
+    },
+    "src/components/projects/contract-diff-card.tsx": {
+      "before": 22,
+      "after": 1
+    },
+    "src/components/projects/create-project-direct-dialog.tsx": {
+      "before": 31,
+      "after": 0
+    },
+    "src/components/projects/create-stage-task-dialog.tsx": {
+      "before": 48,
+      "after": 0
+    },
+    "src/components/projects/dashboard/financial-kpi-strip.tsx": {
+      "before": 1,
+      "after": 0
+    },
+    "src/components/projects/dashboard/hours-kpi-strip.tsx": {
+      "before": 4,
+      "after": 0
+    },
+    "src/components/projects/dashboard/kpi-strip.tsx": {
+      "before": 6,
+      "after": 0
+    },
+    "src/components/projects/dashboard/performance-table.tsx": {
+      "before": 10,
+      "after": 0
+    },
+    "src/components/projects/dashboard/project-effort-table.tsx": {
+      "before": 3,
+      "after": 0
+    },
+    "src/components/projects/dashboard/project-health-table.tsx": {
+      "before": 5,
+      "after": 0
+    },
+    "src/components/projects/dashboard/project-scorecard.tsx": {
+      "before": 15,
+      "after": 0
+    },
+    "src/components/projects/dashboard/project-value-chart.tsx": {
+      "before": 5,
+      "after": 0
+    },
+    "src/components/projects/dashboard/stage-hours-breakdown.tsx": {
+      "before": 3,
+      "after": 0
+    },
+    "src/components/projects/dashboard/team-performance.tsx": {
+      "before": 2,
+      "after": 0
+    },
+    "src/components/projects/gantt-actuals-layer.tsx": {
+      "before": 6,
+      "after": 0
+    },
+    "src/components/projects/gantt-chart.tsx": {
+      "before": 24,
+      "after": 5
+    },
+    "src/components/projects/gantt-outline-column.tsx": {
+      "before": 26,
+      "after": 1
+    },
+    "src/components/projects/log-retainer-hours-dialog.tsx": {
+      "before": 15,
+      "after": 0
+    },
+    "src/components/projects/my-week-card.tsx": {
+      "before": 7,
+      "after": 7
+    },
+    "src/components/projects/new-project-dialog.tsx": {
+      "before": 10,
+      "after": 0
+    },
+    "src/components/projects/new-retainer-stage-dialog.tsx": {
+      "before": 11,
+      "after": 0
+    },
+    "src/components/projects/new-stage-dialog.tsx": {
+      "before": 11,
+      "after": 0
+    },
+    "src/components/projects/notes/notes-list.tsx": {
+      "before": 1,
+      "after": 1
+    },
+    "src/components/projects/project-expense-dialog.tsx": {
+      "before": 2,
+      "after": 2
+    },
+    "src/components/projects/project-expenses-section.tsx": {
+      "before": 5,
+      "after": 5
+    },
+    "src/components/projects/project-financial-tab.tsx": {
+      "before": 23,
+      "after": 0
+    },
+    "src/components/projects/project-planner-inspector.tsx": {
+      "before": 2,
+      "after": 0
+    },
+    "src/components/projects/project-pursuit-card.tsx": {
+      "before": 1,
+      "after": 1
+    },
+    "src/components/projects/project-sync-status-badge.tsx": {
+      "before": 5,
+      "after": 0
+    },
+    "src/components/projects/project-team-card.tsx": {
+      "before": 1,
+      "after": 0
+    },
+    "src/components/projects/resource-pool.tsx": {
+      "before": 15,
+      "after": 0
+    },
+    "src/components/projects/retainer-monitor-panel.tsx": {
+      "before": 25,
+      "after": 0
+    },
+    "src/components/projects/stage-baseline-dialog.tsx": {
+      "before": 28,
+      "after": 0
+    },
+    "src/components/projects/stage-dependency-editor.tsx": {
+      "before": 2,
+      "after": 0
+    },
+    "src/components/projects/stage-row-actions.tsx": {
+      "before": 20,
+      "after": 0
+    },
+    "src/components/projects/timesheet-activity-cell.tsx": {
+      "before": 1,
+      "after": 1
+    },
+    "src/components/projects/timesheet-assistant-sheet.tsx": {
+      "before": 4,
+      "after": 4
+    },
+    "src/components/projects/timesheet-retainer-stages.tsx": {
+      "before": 4,
+      "after": 0
+    },
+    "src/components/projects/week-draft-editor.tsx": {
+      "before": 3,
+      "after": 2
+    },
+    "src/components/projects/week-planning-board.tsx": {
+      "before": 4,
+      "after": 3
+    },
+    "src/components/projects/week-project-notes.tsx": {
+      "before": 4,
+      "after": 4
+    },
+    "src/components/projects/week-publication-dialog.tsx": {
+      "before": 1,
+      "after": 0
+    }
+  }
+}

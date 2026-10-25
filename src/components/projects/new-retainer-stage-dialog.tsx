@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * NewRetainerStageDialog — creates a retainer parent stage on a project
  * plus N monthly children (one per calendar month). Retainer stages are
@@ -31,6 +33,7 @@ interface Props {
 }
 
 export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
+  useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("Construction retainer");
@@ -88,7 +91,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
 
       await qc.invalidateQueries({ queryKey: ["pm-project", projectId] });
       await qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
-      toast.success("Retainer stage created");
+      toast.success(i18n.t("projects:newRetainerStageDialog.ui.retainerStageCreated"));
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -102,21 +105,20 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Repeat className="mr-1 h-3.5 w-3.5" />
-          New retainer stage
-        </Button>
+           {i18n.t("projects:newRetainerStageDialog.ui.newRetainerStage")} </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">New retainer stage</DialogTitle>
+          <DialogTitle className="text-xl"> {i18n.t("projects:newRetainerStageDialog.ui.newRetainerStage")} </DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <Label htmlFor="r-name">Name</Label>
+            <Label htmlFor="r-name"> {i18n.t("common:name")} </Label>
             <Input id="r-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="r-fee">Monthly fee (€)</Label>
+              <Label htmlFor="r-fee"> {i18n.t("projects:newRetainerStageDialog.ui.monthlyFeeEuros")} </Label>
               <Input
                 id="r-fee"
                 type="number"
@@ -127,7 +129,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
               />
             </div>
             <div>
-              <Label htmlFor="r-months">Months</Label>
+              <Label htmlFor="r-months"> {i18n.t("projects:gantt.inspector.months")} </Label>
               <Input
                 id="r-months"
                 type="number"
@@ -139,7 +141,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
             </div>
           </div>
           <div>
-            <Label htmlFor="r-anchor">First month</Label>
+            <Label htmlFor="r-anchor"> {i18n.t("projects:newRetainerStageDialog.ui.firstMonth")} </Label>
             <Input
               id="r-anchor"
               type="month"
@@ -148,7 +150,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
             />
           </div>
           <div>
-            <Label>Color</Label>
+            <Label> {i18n.t("common:color")} </Label>
             <div className="mt-2 flex flex-wrap gap-2">
               {COLORS.map((c) => (
                 <button
@@ -162,11 +164,11 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {months} monthly children will be created. Total: €{(monthlyFee * months).toLocaleString()}.
+            {months}  {i18n.t("projects:newRetainerStageDialog.ui.monthlyChildrenTotal")} {(monthlyFee * months).toLocaleString(i18n.language)}.
           </p>
           <DialogFooter>
             <Button type="submit" disabled={busy}>
-              {busy ? "Creating…" : "Create retainer"}
+              {busy ? i18n.t("common:creating") : i18n.t("projects:newRetainerStageDialog.ui.createRetainer")}
             </Button>
           </DialogFooter>
         </form>

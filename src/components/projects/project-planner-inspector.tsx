@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Project planner inspector — right-hand drawer that edits the selected
  * pm_stage. Mirrors the CRM QuotePlannerInspector but is wired to
@@ -493,7 +494,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                       toast.success(t("projects:gantt.inspector.deleted", { defaultValue: "Stage deleted" }));
                       onClose();
                     },
-                    (e: unknown) => toast.error(e instanceof Error ? e.message : "Failed to delete stage"),
+                    (e: unknown) => toast.error(e instanceof Error ? e.message : i18n.t("projects:projectPlannerInspector.ui.failedDeleteStage")),
                   );
                 }
               }}
@@ -666,8 +667,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 />
                 <span className="flex-1 truncate text-xs">{a.resource?.name ?? "—"}</span>
                 <span className="text-xs tabular-nums text-muted-foreground">
-                  {a.hours_per_day} h/d
-                </span>
+                  {a.hours_per_day}  {i18n.t("common:units.hoursPerDayShort")} </span>
                 <Button
                   variant="ghost"
                   size="icon"

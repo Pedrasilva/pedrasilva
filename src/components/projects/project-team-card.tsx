@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -206,7 +207,7 @@ export function ProjectTeamCard({
                             type="button"
                             onClick={() => remove.mutate({ id: m.id, project_id: projectId })}
                             className="text-muted-foreground hover:text-destructive"
-                            aria-label="remove"
+                            aria-label={i18n.t("projects:weekPlan.removeSlot")}
                           >
                             <X className="h-3 w-3" />
                           </button>

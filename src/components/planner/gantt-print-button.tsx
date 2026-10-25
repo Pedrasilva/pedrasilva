@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 /**
  * GanttPrintButton — Merlin-style print dialog with live preview.
  *
@@ -94,6 +96,7 @@ function computeLayout(opts: {
 }
 
 export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement | null }) {
+  useTranslation();
   const [open, setOpen] = useState(false);
   const [paper, setPaper] = useState<PaperSize>("A4");
   const [orientation, setOrientation] = useState<Orientation>("landscape");
@@ -213,7 +216,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-xs"
-          title="Print / Save as PDF"
+          title={i18n.t("projects:ganttPrintButton.ui.printOrSavePdf")}
         >
           <Printer className="h-3.5 w-3.5 mr-1" />
           PDF
@@ -221,18 +224,16 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
       </DialogTrigger>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Print Gantt chart</DialogTitle>
+          <DialogTitle> {i18n.t("projects:ganttPrintButton.ui.printGanttChart")} </DialogTitle>
           <DialogDescription>
-            Choose paper size, spread across pages if needed, then preview.
-            Use your browser's print dialog to save as PDF.
-          </DialogDescription>
+             {i18n.t("projects:ganttPrintButton.ui.printGanttDescription")} </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 py-2">
           {/* Controls */}
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Paper size</Label>
+              <Label className="text-sm font-medium"> {i18n.t("projects:ganttPrintButton.ui.paperSize")} </Label>
               <RadioGroup
                 value={paper}
                 onValueChange={(v) => setPaper(v as PaperSize)}
@@ -250,7 +251,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Orientation</Label>
+              <Label className="text-sm font-medium"> {i18n.t("projects:ganttPrintButton.ui.orientation")} </Label>
               <RadioGroup
                 value={orientation}
                 onValueChange={(v) => setOrientation(v as Orientation)}
@@ -258,20 +259,20 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
               >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem id="orient-landscape" value="landscape" />
-                  <Label htmlFor="orient-landscape" className="text-sm">Landscape</Label>
+                  <Label htmlFor="orient-landscape" className="text-sm"> {i18n.t("projects:ganttPrintButton.ui.landscape")} </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem id="orient-portrait" value="portrait" />
-                  <Label htmlFor="orient-portrait" className="text-sm">Portrait</Label>
+                  <Label htmlFor="orient-portrait" className="text-sm"> {i18n.t("projects:ganttPrintButton.ui.portrait")} </Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Spread across pages</Label>
+                <Label className="text-sm font-medium"> {i18n.t("projects:ganttPrintButton.ui.spreadAcrossPages")} </Label>
                 <span className="text-sm tabular-nums text-muted-foreground">
-                  {pages} {pages === 1 ? "page" : "pages"}
+                  {pages} {pages === 1 ? i18n.t("projects:ganttPrintButton.ui.pageSingular") : i18n.t("projects:ganttPrintButton.ui.pagePlural")}
                 </span>
               </div>
               <Slider
@@ -282,15 +283,13 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                 onValueChange={(v) => setPages(v[0] ?? 1)}
               />
               <p className="text-xs text-muted-foreground">
-                Tile the timeline horizontally across multiple pages for legibility.
-              </p>
+                 {i18n.t("projects:ganttPrintButton.ui.tileTimelineHint")} </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="fit-toggle" className="text-sm font-medium">
-                  Fit height to page
-                </Label>
+                   {i18n.t("projects:ganttPrintButton.ui.fitHeightToPage")} </Label>
                 <Switch id="fit-toggle" checked={fit} onCheckedChange={setFit} />
               </div>
             </div>
@@ -298,7 +297,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
             {!fit && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Scale</Label>
+                  <Label className="text-sm font-medium"> {i18n.t("projects:ganttPrintButton.ui.scale")} </Label>
                   <span className="text-sm tabular-nums text-muted-foreground">
                     {manualScale}%
                   </span>
@@ -316,7 +315,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Zoom</Label>
+                <Label className="text-sm font-medium"> {i18n.t("projects:ganttPrintButton.ui.zoom")} </Label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm tabular-nums text-muted-foreground">
                     {zoom}%
@@ -327,10 +326,9 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                     size="sm"
                     className="h-6 px-2 text-xs"
                     onClick={() => setZoom(100)}
-                    title="Reset zoom"
+                    title={i18n.t("projects:ganttPrintButton.ui.resetZoom")}
                   >
-                    Reset
-                  </Button>
+                     {i18n.t("projects:ganttPrintButton.ui.reset")} </Button>
                 </div>
               </div>
               <Slider
@@ -341,19 +339,18 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                 onValueChange={(v) => setZoom(v[0] ?? 100)}
               />
               <p className="text-xs text-muted-foreground">
-                Extra zoom applied on top of the fit / scale setting.
-              </p>
+                 {i18n.t("projects:ganttPrintButton.ui.extraZoomHint")} </p>
             </div>
 
 
             {layout && (
               <div className="text-xs text-muted-foreground border-t pt-3 space-y-0.5">
-                <div>Effective scale: {(layout.scale * 100).toFixed(0)}%</div>
+                <div> {i18n.t("projects:ganttPrintButton.ui.effectiveScale")} {((layout.scale * 100)).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%</div>
                 <div>
-                  Page size: {Math.round(layout.pagePxW)} × {Math.round(layout.pagePxH)} px
+                   {i18n.t("projects:ganttPrintButton.ui.pageSize")} {Math.round(layout.pagePxW)} × {Math.round(layout.pagePxH)} px
                 </div>
                 <div>
-                  Content: {Math.round(layout.contentW)} × {Math.round(layout.contentH)} px
+                   {i18n.t("projects:ganttPrintButton.ui.content")} {Math.round(layout.contentW)} × {Math.round(layout.contentH)} px
                 </div>
               </div>
             )}
@@ -365,12 +362,10 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+             {i18n.t("common:cancel")} </Button>
           <Button onClick={handlePrint} disabled={!layout}>
             <Printer className="h-4 w-4 mr-1" />
-            Print
-          </Button>
+             {i18n.t("projects:ganttPrintButton.ui.print")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -388,6 +383,7 @@ function PrintPreview({
   getTarget: () => HTMLElement | null;
   layout: Layout | null;
 }) {
+  useTranslation();
   // We render each tile as a fixed-size box with overflow hidden, then
   // wrap its inner clone container with a transform that mirrors the
   // print transform. The whole row is shrunk to fit the preview pane.
@@ -411,8 +407,7 @@ function PrintPreview({
   if (!layout) {
     return (
       <div className="border rounded-md bg-muted/30 h-72 flex items-center justify-center text-sm text-muted-foreground">
-        Loading preview…
-      </div>
+         {i18n.t("projects:ganttPrintButton.ui.loadingPreview")} </div>
     );
   }
 
@@ -441,9 +436,8 @@ function PrintPreview({
         </div>
       </div>
       <div className="text-xs text-muted-foreground mt-2 text-center">
-        Preview at {(previewScale * 100).toFixed(0)}% — each tile prints on one {/* */}
-        landscape sheet.
-      </div>
+         {i18n.t("projects:ganttPrintButton.ui.previewAt")} {((previewScale * 100)).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("projects:ganttPrintButton.ui.previewTileHint")} {/* */}
+         {i18n.t("projects:ganttPrintButton.ui.landscapeSheet")} </div>
     </div>
   );
 }
@@ -457,6 +451,7 @@ function PreviewTile({
   layout: Layout;
   getTarget: () => HTMLElement | null;
 }) {
+  useTranslation();
   // Use a ref callback to inject a fresh clone of the live Gantt into the
   // tile. We rebuild on every render so the preview reflects current data.
   const setRef = (node: HTMLDivElement | null) => {

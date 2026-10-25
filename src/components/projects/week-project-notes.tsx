@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -83,7 +84,7 @@ function NoteBox({ box, row, week, edit, names }: { box: Box; row?: WeekNote; we
     <footer className="mt-3 flex min-h-5 flex-wrap items-center gap-2 text-xs text-muted-foreground" role="status">
       {state==='saving' && <><Loader2 className="h-3 w-3 animate-spin" />{t('weekPlan.saving')}</>}
       {state==='saved' && <Check className="h-3 w-3" />}
-      {(saved ?? row) && <span>{t('weekNotes.edited',{name:names[(saved ?? row)?.updated_by ?? ''] ?? t('weekNotes.editor'),date:new Date((saved ?? row)?.updated_at ?? '').toLocaleString()})}</span>}
+      {(saved ?? row) && <span>{t('weekNotes.edited',{name:names[(saved ?? row)?.updated_by ?? ''] ?? t('weekNotes.editor'),date:new Date((saved ?? row)?.updated_at ?? '').toLocaleString(i18n.language)})}</span>}
       {(state==='error' || state==='conflict') && <><AlertTriangle className="h-3 w-3 text-destructive" /><span>{t(`weekNotes.${state}`)}</span><Button size="sm" variant="ghost" onClick={() => { if(state==='conflict') window.location.reload(); else { blocked.current=false; void save(); } }}>{t(state==='conflict'?'weekNotes.reload':'common:retry')}</Button></>}
     </footer>
   </article>;

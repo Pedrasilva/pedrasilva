@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 /**
  * Stage 6C — Project forecast & coverage summary card.
  *
@@ -24,7 +25,7 @@ import {
 
 function fmtEur(v: number | null | undefined) {
   if (v == null || Number.isNaN(Number(v))) return "—";
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(i18n.language, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,

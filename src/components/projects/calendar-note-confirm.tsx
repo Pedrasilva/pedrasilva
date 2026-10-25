@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export function CalendarNoteConfirm({
         <div className="space-y-3">
           {items.map((i) => (
             <div key={i.id} className="space-y-1">
-              <div className="text-xs text-muted-foreground">{t("tsCalendar.confirmHours", { hours: i.hours.toFixed(2).replace(/\.?0+$/, "") })}</div>
+              <div className="text-xs text-muted-foreground">{t("tsCalendar.confirmHours", { hours: (i.hours).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\.?0+$/, "") })}</div>
               <Input
                 value={notes[i.id] ?? ""}
                 onChange={(e) => setNotes((n) => ({ ...n, [i.id]: e.target.value }))}

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { euros } from "@/lib/projects/gantt-utils";
@@ -26,6 +28,7 @@ export function ProjectScorecard({
   loading?: boolean;
   onOpenProject?: (id: string) => void;
 }) {
+  useTranslation();
   const [page, setPage] = useState(0);
   const [manager, setManager] = useState<string>("All");
 
@@ -47,11 +50,9 @@ export function ProjectScorecard({
     <section className="rounded-lg border border-border bg-card">
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Project Scorecard
-        </h2>
+           {i18n.t("projects:projectScorecard.ui.projectScorecard")} </h2>
         <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          Project Manager
-          <select
+           {i18n.t("projects:projectScorecard.ui.projectManager")} <select
             value={manager}
             onChange={(e) => {
               setManager(e.target.value);
@@ -72,27 +73,25 @@ export function ProjectScorecard({
         <table className="w-full text-sm">
           <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-5 py-2 text-left font-medium">Project</th>
-              <th className="px-3 py-2 text-left font-medium">Project Manager</th>
-              <th className="px-3 py-2 text-right font-medium">Budget</th>
-              <th className="px-3 py-2 text-center font-medium">Usage</th>
-              <th className="px-3 py-2 text-center font-medium">Due</th>
-              <th className="px-5 py-2 text-center font-medium">Activity</th>
+              <th className="px-5 py-2 text-left font-medium"> {i18n.t("glossary:entity.project")} </th>
+              <th className="px-3 py-2 text-left font-medium"> {i18n.t("projects:projectScorecard.ui.projectManager")} </th>
+              <th className="px-3 py-2 text-right font-medium"> {i18n.t("glossary:financial.budget")} </th>
+              <th className="px-3 py-2 text-center font-medium"> {i18n.t("projects:effort.stages.usage")} </th>
+              <th className="px-3 py-2 text-center font-medium"> {i18n.t("projects:projectScorecard.ui.due")} </th>
+              <th className="px-5 py-2 text-center font-medium"> {i18n.t("projects:projectScorecard.ui.activity")} </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
                 <td colSpan={6} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  Loading projects…
-                </td>
+                   {i18n.t("projects:health.loadingProjects")} </td>
               </tr>
             )}
             {!loading && paged.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  No projects to score.
-                </td>
+                   {i18n.t("projects:projectScorecard.ui.noProjectsToScore")} </td>
               </tr>
             )}
             {paged.map((r) => (
@@ -123,7 +122,7 @@ export function ProjectScorecard({
                       <p className="font-mono text-xs text-foreground">{euros(r.budget)}</p>
                       {r.invoiced > 0 && (
                         <p className="font-mono text-[11px] text-muted-foreground">
-                          Inv. {euros(r.invoiced)}
+                           {i18n.t("projects:projectScorecard.ui.invoicedShort")} {euros(r.invoiced)}
                         </p>
                       )}
                     </>
@@ -149,15 +148,15 @@ export function ProjectScorecard({
       <footer className="flex items-center justify-end gap-3 border-t border-border px-5 py-2 text-[11px] text-muted-foreground">
         <span>
           {filtered.length === 0
-            ? "0 of 0"
-            : `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            ? i18n.t("projects:projectScorecard.ui.emptyPagination")
+            : i18n.t("projects:projectScorecard.ui.paginationOf", { value1: page * PAGE_SIZE + 1, value2: Math.min((page + 1) * PAGE_SIZE, filtered.length), value3: filtered.length })}
         </span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30"
-            aria-label="Previous page"
+            aria-label={i18n.t("projects:common.previousPage")}
           >
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
@@ -165,7 +164,7 @@ export function ProjectScorecard({
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
             disabled={page >= pageCount - 1}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30"
-            aria-label="Next page"
+            aria-label={i18n.t("projects:common.nextPage")}
           >
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
@@ -176,6 +175,7 @@ export function ProjectScorecard({
 }
 
 function UsagePill({ pct, hasBudget }: { pct: number; hasBudget: boolean }) {
+  useTranslation();
   if (!hasBudget) {
     return (
       <span className="inline-flex h-6 min-w-[2.5rem] items-center justify-center rounded-md bg-muted px-2 text-[11px] font-semibold text-muted-foreground">
@@ -205,6 +205,7 @@ function UsagePill({ pct, hasBudget }: { pct: number; hasBudget: boolean }) {
 }
 
 function Dot({ tone }: { tone: "ok" | "warn" | "bad" | "none" }) {
+  useTranslation();
   if (tone === "none") {
     return <span className="inline-block h-3 w-3 rounded-full border border-border bg-muted/40" />;
   }

@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -25,7 +26,7 @@ export function NewProjectDialog() {
     if (!name.trim()) return;
     try {
       await create.mutateAsync({ name: name.trim(), client: client.trim() || undefined, color, start_date: date });
-      toast.success("Project created");
+      toast.success(i18n.t("projects:quickCreate.toasts.projectCreated"));
       setOpen(false);
       setName("");
       setClient("");
@@ -39,28 +40,27 @@ export function NewProjectDialog() {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-1 h-4 w-4" />
-          New project
-        </Button>
+           {i18n.t("projects:quickCreate.newProject")} </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">New project</DialogTitle>
+          <DialogTitle className="text-xl"> {i18n.t("projects:quickCreate.newProject")} </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="p-name">Name</Label>
-            <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Casa Verde" autoFocus />
+            <Label htmlFor="p-name"> {i18n.t("common:name")} </Label>
+            <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={i18n.t("projects:newProjectDialog.ui.projectNamePlaceholder")} autoFocus />
           </div>
           <div>
             <Label htmlFor="p-client">{t("glossary:entity.company")}</Label>
-            <Input id="p-client" value={client} onChange={(e) => setClient(e.target.value)} placeholder="Verde Holdings" />
+            <Input id="p-client" value={client} onChange={(e) => setClient(e.target.value)} placeholder={i18n.t("projects:newProjectDialog.ui.clientNamePlaceholder")} />
           </div>
           <div>
-            <Label htmlFor="p-date">Start date</Label>
+            <Label htmlFor="p-date"> {i18n.t("projects:quickCreate.fields.startDate")} </Label>
             <Input id="p-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div>
-            <Label>Color</Label>
+            <Label> {i18n.t("common:color")} </Label>
             <div className="mt-2 flex flex-wrap gap-2">
               {PALETTE.map((c) => (
                 <button
@@ -76,7 +76,7 @@ export function NewProjectDialog() {
           </div>
           <DialogFooter>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Creating…" : "Create project"}
+              {create.isPending ? i18n.t("common:creating") : i18n.t("projects:quickCreate.actions.createProject")}
             </Button>
           </DialogFooter>
         </form>
