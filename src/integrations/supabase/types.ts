@@ -16714,6 +16714,7 @@ export type Database = {
         Row: {
           client: string | null
           id: string | null
+          live_project_id: string | null
           name: string | null
           portfolio: boolean | null
           profile_id: string | null
