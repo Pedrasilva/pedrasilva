@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 /**
  * Project planner inspector — right-hand drawer that edits the selected
@@ -168,7 +169,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
       setNewPred({ pred: "", type: "FS", lag: "0" });
       toast.success(t("projects:gantt.inspector.depSaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -185,7 +186,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
       setNewSucc({ succ: "", type: "FS", lag: "0" });
       toast.success(t("projects:gantt.inspector.depSaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -207,7 +208,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
       setNewAlloc({ resource_id: "", hpd: "8" });
       toast.success(t("projects:gantt.inspector.resourceAdded", { defaultValue: "Resource added." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -316,7 +317,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           projectId,
                           shiftAllocations: true,
                         })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                 </div>
@@ -345,7 +346,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           projectId,
                           shiftAllocations: true,
                         })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                 </div>
@@ -371,7 +372,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                       projectId,
                       shiftAllocations: false,
                     })
-                    .catch((err) => toast.error((err as Error).message));
+                    .catch((err) => toast.error(translateError((err as Error).message)));
                 }}
               />
             </>
@@ -494,7 +495,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                       toast.success(t("projects:gantt.inspector.deleted", { defaultValue: "Stage deleted" }));
                       onClose();
                     },
-                    (e: unknown) => toast.error(e instanceof Error ? e.message : i18n.t("projects:projectPlannerInspector.ui.failedDeleteStage")),
+                    (e: unknown) => toast.error(e instanceof Error ? translateError(e.message) : i18n.t("projects:projectPlannerInspector.ui.failedDeleteStage")),
                   );
                 }
               }}
@@ -521,7 +522,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                     value={d.type}
                     onValueChange={(v) =>
                       updateDep.mutateAsync({ id: d.id, patch: { type: v as DepType } })
-                        .catch((e) => toast.error((e as Error).message))
+                        .catch((e) => toast.error(translateError((e as Error).message)))
                     }
                   >
                     <SelectTrigger className="h-7 w-16 text-xs"><SelectValue /></SelectTrigger>
@@ -540,7 +541,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                       const v = Number(e.target.value) || 0;
                       if (v === d.lag_days) return;
                       updateDep.mutateAsync({ id: d.id, patch: { lag_days: v } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteDep.mutate(d.id)}>
@@ -595,7 +596,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                     value={d.type}
                     onValueChange={(v) =>
                       updateDep.mutateAsync({ id: d.id, patch: { type: v as DepType } })
-                        .catch((e) => toast.error((e as Error).message))
+                        .catch((e) => toast.error(translateError((e as Error).message)))
                     }
                   >
                     <SelectTrigger className="h-7 w-16 text-xs"><SelectValue /></SelectTrigger>
@@ -614,7 +615,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                       const v = Number(e.target.value) || 0;
                       if (v === d.lag_days) return;
                       updateDep.mutateAsync({ id: d.id, patch: { lag_days: v } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteDep.mutate(d.id)}>

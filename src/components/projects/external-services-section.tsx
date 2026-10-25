@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -75,7 +76,7 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
       toast.success(t("externalServices.toast.deleted"));
       setConfirmDelete(null);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

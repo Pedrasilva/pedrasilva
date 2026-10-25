@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -1439,7 +1440,7 @@ function EditableChargeabilityCell({
       qc.invalidateQueries({ queryKey: ["collaborator", collaboratorId] });
     },
     onError: (e: Error) => {
-      toast.error(e.message);
+      toast.error(translateError(e.message));
       setDraft(value == null ? "" : String(value));
     },
   });

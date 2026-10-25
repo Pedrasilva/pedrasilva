@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * "Eliminar" with a required reason (optionally saved as a deletion rule for
  * similar future documents) and the "Eliminados" panel with "Restaurar".
@@ -80,12 +81,12 @@ export function RemoveButton({ row, onOpenRule }: { row: Row; onOpenRule: (id: s
         setMatches(m.items as Match[]);
       } else { setOpen(false); reset(); }
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const applyM = useMutation({
     mutationFn: () => apply({ data: { instructionId: rule!.id, ids: (matches ?? []).map((m) => m.id) } }),
     onSuccess: (r) => { toast.success(k("applied", { count: r.removed })); refresh(); setOpen(false); reset(); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   if (row.status === "approved" || row.status === "removed") return null;
@@ -173,7 +174,7 @@ export function RemovedPanel({ row }: { row: Row }) {
   const m = useMutation({
     mutationFn: () => restore({ data: { id: row.id } }),
     onSuccess: () => { toast.success(k("restored")); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const at = row.removed_at ? new Date(row.removed_at) : null;
   const left = at ? Math.max(0, 30 - Math.floor((Date.now() - at.getTime()) / 86400000)) : null;

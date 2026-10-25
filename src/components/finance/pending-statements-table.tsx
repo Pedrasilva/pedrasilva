@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Entrada > Banco: every draft statement period (created automatically when a
@@ -75,7 +76,7 @@ export function PendingStatementsTable({ onOpenItem }: { onOpenItem: (queueItemI
       qc.invalidateQueries({ queryKey: ["finance", "bank-statement-periods"] });
       qc.invalidateQueries({ queryKey: REGISTRY_KEY });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   if (!q.data || drafts.length === 0) return null;

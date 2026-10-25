@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -26,7 +27,7 @@ export function DriveArchivePage() {
       qc.invalidateQueries({ queryKey: ["finance", "drive-archive"] });
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const fmt = (d: string | null | undefined) => (d ? new Date(d).toLocaleString() : k("never"));
   const d = q.data;

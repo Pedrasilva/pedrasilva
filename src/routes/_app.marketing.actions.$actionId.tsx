@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -83,7 +84,7 @@ function ActionPage() {
   };
 
   const addFilesOnly = async () => {
-    try { await uploadOutcome(); refresh(); } catch (e) { toast.error(e instanceof Error ? e.message : t("actions.error")); }
+    try { await uploadOutcome(); refresh(); } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("actions.error")); }
     finally { setBusy(null); }
   };
 
@@ -98,14 +99,14 @@ function ActionPage() {
       toast.success(t("actions.completed"));
       setCompleting(false);
       refresh();
-    } catch (e) { toast.error(e instanceof Error ? e.message : t("actions.error")); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("actions.error")); }
     finally { setBusy(null); }
   };
 
   const cancel = async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("marketing_actions").update({ status: "cancelled" }).eq("id", a.id);
-    if (error) toast.error(error.message); else { toast.success(t("actions.cancelledToast")); refresh(); }
+    if (error) toast.error(translateError(error.message)); else { toast.success(t("actions.cancelledToast")); refresh(); }
   };
 
   const FileList = ({ list }: { list: ActionFile[] }) => list.length === 0 ? (

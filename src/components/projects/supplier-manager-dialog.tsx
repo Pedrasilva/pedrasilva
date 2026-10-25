@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Lightweight management surface for the supplier directory.
  * Lists all suppliers (active + archived), allows create / edit / archive.
@@ -64,7 +65,7 @@ export function SupplierManagerDialog({ open, onOpenChange }: Props) {
           : t("suppliers.toast.restored"),
       );
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

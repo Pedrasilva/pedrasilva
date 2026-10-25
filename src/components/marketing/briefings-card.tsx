@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,7 +46,7 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
       await recordFn({ data: { profileId, audioBase64: await blobToBase64(blob), mime } });
       toast.success(t("briefings.saved"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("briefings.error"));
+      toast.error(e instanceof Error ? translateError(e.message) : t("briefings.error"));
     } finally {
       setBusy(false);
       qc.invalidateQueries({ queryKey: key });
@@ -102,7 +103,7 @@ export function BriefingsCard({ profileId, projectId, canCurate }: { profileId: 
                 {b.fromRequest && <Badge variant="secondary">{t("briefings.fromRequest")}</Badge>}
                 {canCurate && b.status === "failed" && (
                   <Button size="sm" variant="ghost" className="h-6" onClick={async () => {
-                    try { await retryFn({ data: { briefingId: b.id } }); } catch (e) { toast.error(e instanceof Error ? e.message : t("briefings.error")); }
+                    try { await retryFn({ data: { briefingId: b.id } }); } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("briefings.error")); }
                     qc.invalidateQueries({ queryKey: key });
                   }}><RefreshCw className="mr-1 h-3 w-3" />{t("briefings.retry")}</Button>
                 )}
@@ -139,7 +140,7 @@ function AskBriefingDialog({ projectId, onClose }: { projectId: string; onClose:
       toast.success(t("briefings.asked"));
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("briefings.error"));
+      toast.error(e instanceof Error ? translateError(e.message) : t("briefings.error"));
     } finally { setBusy(false); }
   };
   return (

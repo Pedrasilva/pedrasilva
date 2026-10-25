@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Clients master-data section.
  *
@@ -345,7 +346,7 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
       await onSaved();
       onOpenChange(false);
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : String(err)),
+    onError: (err) => toast.error(err instanceof Error ? translateError(err.message) : String(err)),
   });
 
   const title = isEdit

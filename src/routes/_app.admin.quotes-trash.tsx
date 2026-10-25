@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -73,7 +74,7 @@ function QuotesTrashPage() {
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const unarchive = useMutation({
@@ -89,7 +90,7 @@ function QuotesTrashPage() {
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const purge = useMutation({
@@ -106,7 +107,7 @@ function QuotesTrashPage() {
       setPurgeText("");
       qc.invalidateQueries({ queryKey: ["admin_quotes_trash"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const deleted = rows.filter((r) => r.deleted_at);

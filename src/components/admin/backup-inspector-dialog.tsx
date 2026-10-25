@@ -56,7 +56,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
 
   const searchMut = useMutation({
     mutationFn: (q: string) => searchFn({ data: { runId: runId!, search: q } }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const downloadMut = useMutation({
@@ -75,7 +75,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
       URL.revokeObjectURL(url);
       toast.success(t("admin.backups.downloadSuccess"));
     },
-    onError: (e: Error) => toast.error(t("admin.backups.downloadError", { error: e.message })),
+    onError: (e: Error) => toast.error(t("admin.backups.downloadError", { error: translateError(e.message) })),
   });
 
   const open = !!runId;

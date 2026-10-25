@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -41,7 +42,7 @@ export function BenefitPessoalMapping() {
 
   async function save(id: string, classification_id: string) {
     const { error } = await supabase.from("benefit_categories").update({ classification_id }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(t("hr:beneficios.pessoalMap.saved"));
     qc.invalidateQueries({ queryKey: ["benefit-categories"] });
   }

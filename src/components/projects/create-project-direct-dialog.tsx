@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -132,7 +133,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
       reset();
       navigate({ to: "/projects/$projectId", params: { projectId: project.id } });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     } finally {
       setSaving(false);
     }

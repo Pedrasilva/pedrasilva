@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
@@ -61,7 +62,7 @@ function BackupsPage() {
       toast.success(uiI18n.t("access:batchFive.labels.backupCreatedTablesRowsWithValues", { value1: r.tables, value2: r.rows, value3: formatBytes(r.sizeBytes) }));
       qc.invalidateQueries({ queryKey: ["backup-runs"] });
     },
-    onError: (e: Error) => toast.error(uiI18n.t("access:batchFive.labels.failedWithValues", { value1: e.message })),
+    onError: (e: Error) => toast.error(uiI18n.t("access:batchFive.labels.failedWithValues", { value1: translateError(e.message) })),
   });
 
   const cfg = configQ.data;

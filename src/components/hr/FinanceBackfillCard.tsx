@@ -66,7 +66,7 @@ export function FinanceBackfillCard() {
       qc.invalidateQueries({ queryKey: ["all-expenses"] });
     },
     onError: (e: unknown) => {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     },
   });
 

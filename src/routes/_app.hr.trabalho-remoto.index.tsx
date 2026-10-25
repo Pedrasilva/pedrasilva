@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -78,7 +79,7 @@ function RequestsTab() {
       setRejectReason("");
       toast.success(t("hr:remoteWork.decisionSaved"));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 

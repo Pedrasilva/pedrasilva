@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pencil } from "lucide-react";
@@ -32,7 +33,7 @@ export function ProjectClientField({
       .eq("id", picked)
       .maybeSingle();
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     try {
@@ -42,7 +43,7 @@ export function ProjectClientField({
       });
       setOpen(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

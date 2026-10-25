@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
@@ -48,7 +49,7 @@ function ImagesPanel() {
       try {
         await upload.mutateAsync({ file: f });
       } catch (e) {
-        toast.error(uiI18n.t("crm:quoteEditor.imageUploadFailed", { value1: f.name, value2: (e as Error).message }));
+        toast.error(uiI18n.t("crm:quoteEditor.imageUploadFailed", { value1: f.name, value2: translateError((e as Error).message) }));
       }
     }
     toast.success(uiI18n.t("crm:quoteEditor.imagesUploaded"));
@@ -110,7 +111,7 @@ function ImageCard({ entry }: { entry: PsaImageLibraryEntry }) {
             if (confirm(uiI18n.t("crm:quoteEditor.deleteNamedPrompt", { value1: entry.name }))) {
               del.mutate(entry, {
                 onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.imageRemoved")),
-                onError: (e) => toast.error((e as Error).message),
+                onError: (e) => toast.error(translateError((e as Error).message)),
               });
             }
           }}

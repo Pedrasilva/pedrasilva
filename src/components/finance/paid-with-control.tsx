@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * "Paid with": one card OR one account (never both) on a document, review item
  * or expense. Shows an unknown card number as "Cartão desconhecido …1234" so
@@ -113,7 +114,7 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
       .from("financial_documents")
       .update({ paid_from_card_id: v.cardId, paid_from_account_id: v.accountId })
       .eq("id", documentId);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(t("finance:paidWith.saved"));
     qc.invalidateQueries({ queryKey: ["finance", "doc-paid-with", documentId] });
   };
@@ -123,7 +124,7 @@ export function DocumentPaidWith({ documentId, disabled }: { documentId: string;
       .from("financial_documents")
       .update({ personal_card_decision: d, personal_card_decided_by: u.user?.id ?? null, personal_card_decided_at: new Date().toISOString() })
       .eq("id", documentId);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(t(d === "personal" ? "finance:paidWith.movedToRemoved" : "finance:paidWith.owedRecorded"));
     qc.invalidateQueries({ queryKey: ["finance", "doc-paid-with", documentId] });
     qc.invalidateQueries({ queryKey: HOLDER_REIMB_KEY });

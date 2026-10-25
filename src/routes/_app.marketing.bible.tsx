@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -85,7 +86,7 @@ function BiblePage() {
   const insert = async (payload: Pick<BibleVersion, "content_md" | "pillars" | "personas" | "change_summary">) => {
     const { error } = await supabase.from("marketing_bible_versions").insert(payload as never);
     if (error) {
-      toast.error(t("bible.saveError"), { description: error.message });
+      toast.error(t("bible.saveError"), { description: translateError(error.message) });
       return false;
     }
     toast.success(t("bible.saved"));

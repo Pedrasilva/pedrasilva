@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 import { useState } from "react";
@@ -52,7 +53,7 @@ export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
       setOpen(false);
       setName("");
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

@@ -62,7 +62,7 @@ export function BenefitDriveSyncCard() {
       }
       qc.invalidateQueries({ queryKey: ["benefit-drive-sync-preview"] });
     },
-    onError: (e: unknown) => toast.error((e as Error).message),
+    onError: (e: unknown) => toast.error(translateError((e as Error).message)),
   });
 
   const p = previewQ.data;

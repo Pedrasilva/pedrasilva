@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Quote External Services tab.
  * Reuses SupplierPicker. Inline form (lighter than the project-side dialog
@@ -93,7 +94,7 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
       });
       toast.success(t("workspace.external.created"));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
@@ -702,7 +703,7 @@ function ExpenseActions({
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.openPhoto"));
+      toast.error(e instanceof Error ? translateError(e.message) : t("hr:beneficios.toasts.errors.openPhoto"));
     } finally {
       setLoadingUrl(false);
     }
@@ -716,7 +717,7 @@ function ExpenseActions({
       _notes: notes ?? null,
     });
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       throw error;
     }
   }
@@ -761,7 +762,7 @@ function ExpenseActions({
     }
     const { error } = await supabase.from("benefit_expenses").delete().eq("id", expense.id);
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       throw error;
     }
     toast.success(t("hr:beneficios.toasts.deleted"));
@@ -1307,7 +1308,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
     const { error } = existing
       ? await sb.from("benefit_balances").update(payload).eq("id", existing.id)
       : await sb.from("benefit_balances").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(uiI18n.t("hr:beneficios.admin2.balanceSaved"));
     qc.invalidateQueries({ queryKey: ["benefit-balances", collaborator.id] });
   }
@@ -1323,7 +1324,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
     const { error } = existing
       ? await sb.from("benefit_yearly_credits").update(payload).eq("id", existing.id)
       : await sb.from("benefit_yearly_credits").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(uiI18n.t("hr:batchFive.labels.creditForSavedWithValues", { value1: ano }));
     qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
   }
@@ -1331,7 +1332,7 @@ function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborato
   async function removeCredit(id: string) {
     if (!confirm(uiI18n.t("hr:beneficios.admin2.confirmDeleteCredit"))) return;
     const { error } = await sb.from("benefit_yearly_credits").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     toast.success(uiI18n.t("hr:beneficios.admin2.creditDeleted"));
     qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
   }
@@ -1522,7 +1523,7 @@ function CreateSupplierButton({
           );
           onLinked();
         } catch (e) {
-          toast.error(e instanceof Error ? e.message : uiI18n.t("hr:batchFive.labels.couldNotCreateSupplier"));
+          toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("hr:batchFive.labels.couldNotCreateSupplier"));
         } finally {
           setBusy(false);
         }

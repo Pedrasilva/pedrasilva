@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useNonWorkingPendingCount } from "@/lib/projects/use-non-working-days";
 
 /**
@@ -480,7 +481,7 @@ function ReviewPanel({
       reset();
       onClose();
     },
-    onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
+    onError: (e: unknown) => toast.error(translateError((e as Error)?.message) ?? t("common:error")),
   });
 
   const reset = () => {
@@ -677,7 +678,7 @@ function ReviewPanel({
                           reset();
                           onClose();
                         },
-                        onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
+                        onError: (e: unknown) => toast.error(translateError((e as Error)?.message) ?? t("common:error")),
                       },
                     )
                   }
@@ -811,7 +812,7 @@ function ReviewPanel({
                             reset();
                             onClose();
                           },
-                          onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
+                          onError: (e: unknown) => toast.error(translateError((e as Error)?.message) ?? t("common:error")),
                         },
                       )
                     }
@@ -831,7 +832,7 @@ function ReviewPanel({
                             reset();
                             onClose();
                           },
-                          onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
+                          onError: (e: unknown) => toast.error(translateError((e as Error)?.message) ?? t("common:error")),
                         },
                       )
                     }

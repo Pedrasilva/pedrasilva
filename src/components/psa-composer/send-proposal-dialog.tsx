@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -140,7 +141,7 @@ export function SendProposalDialog({
           },
           onError: (err: unknown) => {
             toast.error(
-              err instanceof Error ? err.message : uiI18n.t("crm:quoteEditor.envelopeFailed"),
+              err instanceof Error ? translateError(err.message) : uiI18n.t("crm:quoteEditor.envelopeFailed"),
             );
           },
         },

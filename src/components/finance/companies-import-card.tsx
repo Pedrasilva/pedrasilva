@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Admin-only Excel import card for canonical `companies` (suppliers/clients).
@@ -55,7 +56,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
       toast.success(uiI18n.t("finance:companyImport.parsed", { count: p.totals.rows }));
       if (p.storageWarning) toast.warning(uiI18n.t("finance:companyImport.storageWarning", { message: p.storageWarning }));
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const commitMut = useMutation({
@@ -71,7 +72,7 @@ export function CompaniesImportCard({ kind }: { kind: ImportKind }) {
       qc.invalidateQueries({ queryKey: ["finance", "clients-master"] });
       qc.invalidateQueries({ queryKey: ["companies"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   if (!isAdmin) return null;

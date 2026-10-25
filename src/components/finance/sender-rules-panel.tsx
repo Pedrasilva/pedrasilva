@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -78,7 +79,7 @@ export function SenderRulesPanel() {
       if (error) throw error;
     },
     onSuccess: () => { toast.success(k("saved")); qc.invalidateQueries({ queryKey: KEY }); },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const addRule = useMutation({
@@ -89,7 +90,7 @@ export function SenderRulesPanel() {
       if (error) throw error;
     },
     onSuccess: () => { setPattern(""); qc.invalidateQueries({ queryKey: KEY }); },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const removeRule = useMutation({
@@ -98,7 +99,7 @@ export function SenderRulesPanel() {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const ruled = useMemo(() => new Set((rulesQ.data ?? []).map((r) => r.pattern)), [rulesQ.data]);

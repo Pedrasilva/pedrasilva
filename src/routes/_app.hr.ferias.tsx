@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { fmtDate, fmtNumber } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -131,7 +132,7 @@ type VacationRequest = {
 
 async function openLeaveAttachment(path: string) {
   const { data, error } = await supabase.storage.from("leave-attachments").createSignedUrl(path, 300);
-  if (error || !data) return toast.error(error?.message ?? uiI18n.t("common:error"));
+  if (error || !data) return toast.error(translateError(error?.message) ?? uiI18n.t("common:error"));
   window.open(data.signedUrl, "_blank", "noopener");
 }
 
@@ -321,7 +322,7 @@ function FeriasPage() {
         notas: "",
       });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const deleteReq = useMutation({
@@ -335,7 +336,7 @@ function FeriasPage() {
       qc.invalidateQueries({ queryKey: ["leave-balances"] });
       qc.invalidateQueries({ queryKey: ["availability"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   // Lista a mostrar:

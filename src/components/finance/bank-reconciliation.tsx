@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { ReconcileHistory } from "@/components/finance/reconcile-audit";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -189,7 +190,7 @@ function ManageAccountDialog({ onSaved }: { onSaved: () => void }) {
       is_active: true,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(t("finance:bankRec.accountCreated"));
     setForm({ account_name: "", bank_name: "", account_number: "", iban: "", currency: "EUR" });
     setOpen(false);
@@ -401,7 +402,7 @@ function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accou
       if (fileInput.current) fileInput.current.value = "";
       onImported();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("finance:bankRec.importError"));
+      toast.error(err instanceof Error ? translateError(err.message) : t("finance:bankRec.importError"));
     } finally {
       setConfirming(false);
     }
@@ -755,7 +756,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
         reconciled_by: isDuplicate ? null : (user?.id ?? null),
       })
       .eq("id", tx.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(status === "ignored" ? t("finance:bankRec.markedIgnored") : t("finance:bankRec.markedTransfer"));
     txQ.refetch();
     counts.refetch();
@@ -778,7 +779,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
           : { ignored_reason: "duplicate", reconciled_at: null, reconciled_by: null },
       )
       .eq("id", tx.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(t("finance:bankRec.needsReview.resolved"));
     setSelectedId(null);
     txQ.refetch();
@@ -797,7 +798,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
   async function unmatchTx(tx: BankTx) {
     if (!window.confirm(t("finance:bankRec.actions.unmatchConfirm"))) return;
     const { error } = await supabase.rpc("bank_tx_unreconcile", { _tx_id: tx.id });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(t("finance:bankRec.actions.unmatched"));
     txQ.refetch();
     linksQ.refetch();
@@ -823,9 +824,9 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
         .in("id", chunk);
       if (error) {
         toast.error(
-          /reconciled/i.test(error.message)
+          /reconciled/i.test(translateError(error.message))
             ? t("finance:bankRec.actions.deleteLocked")
-            : error.message,
+            : translateError(error.message),
         );
         break;
       }
@@ -1032,7 +1033,7 @@ function ReconciliationQueue({ accountId, classifications, isPt, selectedPeriodI
                     periods={periods}
                     onPeriodOverride={async (periodId) => {
                       const { error } = await supabase.from("bank_transactions").update({ statement_period_id: periodId }).eq("id", selectedTx.id);
-                      if (error) { toast.error(error.message); return; }
+                      if (error) { toast.error(translateError(error.message)); return; }
                       toast.success(t("finance:bankPeriods.overrideSaved"));
                       txQ.refetch();
                       periodStatusQ.refetch();
@@ -1369,13 +1370,13 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
 
   async function markIgnored() {
     const { error } = await supabase.from("bank_transactions").update({ status: "ignored", classified_at: new Date().toISOString(), classified_by: user?.id ?? null }).eq("id", tx.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(t("finance:bankRec.markedIgnored"));
     onSaved();
   }
   async function markInternalTransfer() {
     const { error } = await supabase.from("bank_transactions").update({ status: "internal_transfer", classified_at: new Date().toISOString(), classified_by: user?.id ?? null }).eq("id", tx.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     toast.success(t("finance:bankRec.markedTransfer"));
     onSaved();
   }
@@ -1406,7 +1407,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
       toast.success(t("finance:bankRec.classified"));
       onSaved();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : uiI18n.t("common:error"));
+      toast.error(err instanceof Error ? translateError(err.message) : uiI18n.t("common:error"));
     } finally {
       setSaving(false);
     }

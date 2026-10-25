@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Finance intake inbox — one place for every incoming document, split by the
@@ -493,7 +494,7 @@ function ItemDetail({
       else toast.success(t("finance:intakeInbox.reclassified"));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const reviewCardTabs: Tab[] = ["purchases", "issued"];
   if (String(row.status) === "removed") {
@@ -691,7 +692,7 @@ function PaymentPanel({ row }: { row: InboxRow }) {
       toast.success(t("finance:intakeInbox.payment.done"));
       qc.invalidateQueries({ queryKey: ["finance"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   return (
     <Card>
@@ -766,7 +767,7 @@ function BankPanel({ row }: { row: InboxRow }) {
       qc.invalidateQueries({ queryKey: REGISTRY_KEY });
       qc.invalidateQueries({ queryKey: PENDING_STATEMENTS_KEY });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   return (
     <Card>
@@ -813,7 +814,7 @@ function OtherPanel({ row }: { row: InboxRow }) {
   const m = useMutation({
     mutationFn: () => mark({ data: { id: row.id } }),
     onSuccess: () => { toast.success(t("finance:intakeInbox.other.done")); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   return (
     <Card>
@@ -833,7 +834,7 @@ function DriveCopyLine({ row }: { row: InboxRow }) {
   const m = useMutation({
     mutationFn: () => retry({ data: { id: row.id } }),
     onSuccess: (res) => { res.ok ? toast.success(t("finance:driveArchive.copiedToast")) : toast.error(res.driveError ?? t("finance:driveArchive.status.failed")); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const status = r.drive_copy_status ?? "pending";
   return (
@@ -881,7 +882,7 @@ function DuplicatePanel({ row, onOpenItem }: { row: InboxRow; onOpenItem: (id: s
   const resolve = useServerFn(resolvePossibleDuplicate);
   const restore = useServerFn(restoreDuplicate);
   const done = (msg: string) => { toast.success(msg); qc.invalidateQueries({ queryKey: ["finance", "review-queue"] }); };
-  const onErr = (e: unknown) => toast.error(e instanceof Error ? e.message : String(e));
+  const onErr = (e: unknown) => toast.error(e instanceof Error ? translateError(e.message) : String(e));
   const resolveM = useMutation({
     mutationFn: (v: { decision: "duplicate" | "not_duplicate"; otherId?: string }) => resolve({ data: { id: row.id, ...v } }),
     onSuccess: (_r, v) => done(v.decision === "duplicate" ? t("finance:intakeInbox.dup.marked") : t("finance:intakeInbox.dup.kept")),
@@ -994,7 +995,7 @@ function LearningPanel({ row, onOpenRule, onOpenItem }: { row: InboxRow; onOpenR
       onOpenItem(row.id);
     },
     onSuccess: () => toast.success(k("savedRule")),
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   const applyM = useMutation({
@@ -1011,7 +1012,7 @@ function LearningPanel({ row, onOpenRule, onOpenItem }: { row: InboxRow; onOpenR
       return { total: ids.length, failed };
     },
     onSuccess: (r) => { toast.success(k("appliedSimilar", { count: r.total - r.failed })); setShowPreview(false); setMatches([]); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   const predicted = scope === "recipient" || scope === "supplier" ? result?.intake_type ?? null : null;
@@ -1140,7 +1141,7 @@ function ConfirmRepeatsButton({ rows }: { rows: InboxRow[] }) {
       setOff(new Set());
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
   return (
     <>

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Admin-only management of the inventory access list.
  *
@@ -66,7 +67,7 @@ export function InventoryAccessCard() {
       setSelected("");
       void qc.invalidateQueries({ queryKey: ["inventory", "managers"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -75,7 +76,7 @@ export function InventoryAccessCard() {
       if (error) throw error;
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["inventory", "managers"] }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   if (!isAdmin) return null;

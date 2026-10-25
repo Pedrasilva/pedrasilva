@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Global "Create" workflow for finance records.
  *
@@ -200,7 +201,7 @@ export function QuickExpenseDialog({ open, onClose }: QuickExpenseProps) {
       }
       onClose();
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 
@@ -423,7 +424,7 @@ export function QuickMaterialDialog({ open, onClose }: QuickMaterialProps) {
       toast.success(t("quickFinance.toasts.materialCreated"));
       onClose();
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

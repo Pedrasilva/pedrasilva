@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { financialResult, completionForecast, plannedAllocationFigures } from "@/lib/projects/financial-calculation";
@@ -1570,7 +1571,7 @@ function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; project
       toast.success(t("projects:detail.ui.quoteCreated", { id: String(data).slice(0, 8) }));
       setTimeout(() => window.location.reload(), 600);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     } finally {
       setBusy(false);
     }

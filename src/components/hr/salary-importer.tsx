@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 // HR-owned salary Excel importer (admin-only).
 //
@@ -126,7 +127,7 @@ export function SalaryImporter() {
       setParsed({ file, workbook: wb });
       setSheetName(wb.SheetNames[0] ?? "");
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -181,7 +182,7 @@ export function SalaryImporter() {
       });
       setPreview(r);
       if (r.status === "error") {
-        toast.error(r.message);
+        toast.error(translateError(r.message));
       } else {
         // Default selection: all matched + (will-create when enabled).
         const sel = new Set<number>();
@@ -221,7 +222,7 @@ export function SalaryImporter() {
       } else if (r.status === "duplicate") {
         toast.warning(r.message);
       } else if (r.status === "error") {
-        toast.error(r.message);
+        toast.error(translateError(r.message));
       }
     } finally {
       setBusy(false);

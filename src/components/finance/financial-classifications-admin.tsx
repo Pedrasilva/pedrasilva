@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Financial Classifications admin screen.
@@ -246,7 +247,7 @@ export function FinancialClassificationsAdmin() {
         setCodeError(t("financialClassifications.codeExists"));
         return;
       }
-      toast.error(e?.message ?? uiI18n.t("common:error"));
+      toast.error(translateError(e?.message) ?? uiI18n.t("common:error"));
     },
   });
 
@@ -260,7 +261,7 @@ export function FinancialClassificationsAdmin() {
     },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["finance", "classifications"] }),
-    onError: (e: any) => toast.error(e?.message ?? uiI18n.t("common:error")),
+    onError: (e: any) => toast.error(translateError(e?.message) ?? uiI18n.t("common:error")),
   });
 
   function formFrom(r: Row): FormState {

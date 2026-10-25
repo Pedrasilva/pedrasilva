@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -147,7 +148,7 @@ function DraftCard({ draft }: { draft: Draft }) {
       toast.success(t(`emailLeads.${action === "save" ? "saved" : action === "confirm" ? "confirmed" : "discarded"}`));
       qc.invalidateQueries({ queryKey: ["crm-email-lead-drafts"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? translateError(e.message) : String(e));
     } finally {
       setBusy(false);
     }

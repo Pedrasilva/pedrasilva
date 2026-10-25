@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Financial Summary tab — read-only rollup for the quote.
@@ -164,7 +165,7 @@ export function QuoteFinancialSummaryTab({
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   // Apply the typed value optimistically to the rollup so KPIs update live,

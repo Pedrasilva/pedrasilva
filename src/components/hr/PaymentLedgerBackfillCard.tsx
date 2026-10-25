@@ -75,7 +75,7 @@ export function PaymentLedgerBackfillCard() {
       qc.invalidateQueries({ queryKey: ["fei-payment-backfill-preview"] });
       qc.invalidateQueries({ queryKey: ["all-expenses"] });
     },
-    onError: (e: unknown) => toast.error((e as Error).message),
+    onError: (e: unknown) => toast.error(translateError((e as Error).message)),
   });
 
   const preview = previewQ.data;

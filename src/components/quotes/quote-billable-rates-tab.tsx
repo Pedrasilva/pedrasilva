@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -127,7 +128,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                         onSave={(v) =>
                           upsertCost.mutate(
                             { id: role.id, hourly_rate: v },
-                            { onError: (e) => toast.error((e as Error).message) },
+                            { onError: (e) => toast.error(translateError((e as Error).message)) },
                           )
                         }
                       />
@@ -138,7 +139,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                         onSave={(v) =>
                           upsertSale.mutate(
                             { role_code: role.code, sale_rate: v },
-                            { onError: (e) => toast.error((e as Error).message) },
+                            { onError: (e) => toast.error(translateError((e as Error).message)) },
                           )
                         }
                       />

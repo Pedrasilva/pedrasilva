@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -175,7 +176,7 @@ export function RequestWfhDialog({
             : t("hr:remoteWork.declared"),
       );
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 

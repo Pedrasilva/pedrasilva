@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -82,7 +83,7 @@ function ProposalRolesAdminPage() {
       setSeniority("");
       invalidate();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const update = useMutation({
@@ -103,7 +104,7 @@ function ProposalRolesAdminPage() {
       toast.success(uiI18n.t("common:saved"));
       invalidate();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const archive = useMutation({
@@ -115,7 +116,7 @@ function ProposalRolesAdminPage() {
       if (error) throw error;
     },
     onSuccess: () => invalidate(),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -129,11 +130,11 @@ function ProposalRolesAdminPage() {
     },
     onError: (e: Error) =>
       toast.error(
-        e.message.includes("foreign key")
+        translateError(e.message).includes("foreign key")
           ? isPt
             ? uiI18n.t("crm:quoteEditor.titleInUse")
             : uiI18n.t("crm:quoteEditor.titleInUse")
-          : e.message,
+          : translateError(e.message),
       ),
   });
 

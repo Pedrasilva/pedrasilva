@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Sender rules — deterministic pre-AI classification for the inbox poller.
  * Admin-managed (RLS enforces it); the poller reads active rules and skips
@@ -64,7 +65,7 @@ export function SenderRulesCard() {
 
   const onError = (e: unknown) =>
     toast.error(t("inbox:rules.error"), {
-      description: e instanceof Error ? e.message : undefined,
+      description: e instanceof Error ? translateError(e.message) : undefined,
     });
 
   const addM = useMutation({

@@ -79,7 +79,7 @@ function AutoHandledRow({ row }: { row: AutoHandledEmailEvent }) {
     },
     onError: (e: unknown) =>
       toast.error(t("inbox:queue.undoFailed"), {
-        description: e instanceof Error ? e.message : undefined,
+        description: e instanceof Error ? translateError(e.message) : undefined,
       }),
   });
 

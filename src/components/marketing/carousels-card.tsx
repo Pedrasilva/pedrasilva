@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { MarketingProjectPicker } from "./project-picker";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -95,7 +96,7 @@ export function DeleteCarouselDialog({ compositionId, profileId, open, onOpenCha
   const run = useServerFn(deleteComposition);
   const confirm = async () => {
     try { await run({ data: { compositionId } }); }
-    catch (e) { toast.error(e instanceof Error ? e.message : String(e)); throw e; }
+    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); throw e; }
     toast.success(t("carousel.deleted"));
     qc.invalidateQueries({ queryKey: ["marketing-compositions", profileId] });
     onDeleted?.();

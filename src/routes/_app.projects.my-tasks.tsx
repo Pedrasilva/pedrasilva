@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -181,7 +182,7 @@ function TaskCard({ task, canClock }: { task: MyTask; canClock: boolean }) {
       await updateStatus.mutateAsync({ id: task.id, status });
       toast.success(msg);
     } catch (e) {
-      toast.error((e as Error)?.message ?? t("projects:myTasks.errors.updateFailed"));
+      toast.error(translateError((e as Error)?.message) ?? t("projects:myTasks.errors.updateFailed"));
     }
   }
 
@@ -323,7 +324,7 @@ function LogTimeDialog({ task, dailyH, onClose }: { task: MyTask; dailyH: number
       toast.success(t("projects:tasks.ui.logged", { hours: formatNumber(h), date: format(new Date(date + "T12:00:00"), "P", { locale: dateLocale }) }));
       onClose();
     } catch (e) {
-      toast.error((e as Error)?.message ?? t("projects:tasks.ui.logError"));
+      toast.error(translateError((e as Error)?.message) ?? t("projects:tasks.ui.logError"));
     }
   }
 

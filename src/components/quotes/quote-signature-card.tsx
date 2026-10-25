@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Signature checkpoint card — step 3 of the quote workspace.
@@ -78,7 +79,7 @@ export function QuoteSignatureCard({
               onClick={() =>
                 clear.mutate(undefined, {
                   onSuccess: () => toast.success(t("workspace.signature.clearedToast")),
-                  onError: (e: Error) => toast.error(e.message),
+                  onError: (e: Error) => toast.error(translateError(e.message)),
                 })
               }
             >
@@ -143,7 +144,7 @@ export function QuoteSignatureCard({
                       setNotes("");
                       toast.success(t("workspace.signature.markedToast"));
                     },
-                    onError: (e: Error) => toast.error(e.message),
+                    onError: (e: Error) => toast.error(translateError(e.message)),
                   },
                 )
               }

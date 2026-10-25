@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -124,7 +125,7 @@ export function NewContactDialog({ open, onClose, initial, onCreated }: {
     if (!form.name.trim()) { toast.error(t("opportunities.contactPicker.nameRequired")); return; }
     create.mutate(form, {
       onSuccess: (id) => { toast.success(t("opportunities.contactPicker.created")); onCreated(id, form.companyId); onClose(); },
-      onError: (e: Error) => toast.error(e.message),
+      onError: (e: Error) => toast.error(translateError(e.message)),
     });
   };
   return (

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Manual upload into the finance intake (same storage path, ingest call and
  * duplicate warning as before). Uploads run in the background with visible
@@ -49,7 +50,7 @@ export function IntakeUploadButton() {
       toast.success(t("finance:intakeInbox.dup.discarded", { count: r.discarded }));
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? translateError(e.message) : String(e));
     } finally { setBusyDup(false); }
   }
   async function keep(d: PendingDup) {

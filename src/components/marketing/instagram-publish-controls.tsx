@@ -22,7 +22,7 @@ export function InstagramPublishControls({ draftId, status, canCurate, error, pe
  const defaults=lisbonParts(new Date(Date.now()+3600000).toISOString());
  const [date,setDate]=useState(defaults.date);const [time,setTime]=useState(defaults.time);
  const refresh=()=>{for(const key of ['marketing-calendar','marketing-posts','instagram-feed'])void qc.invalidateQueries({queryKey:[key]});};
- const act=async(now:boolean)=>{setBusy(true);try{const r=await schedule({data:{draftId,at:now?new Date().toISOString():lisbonToUtcIso(date,time),now}});if(r.unavailable)toast.error(t('publishing.connectionUnavailable'));else toast.success(t(now?'publishing.requested':'calendar.scheduledToast'));setMode(null);refresh();}catch(e){toast.error(e instanceof Error?e.message:t('posts.error'));}finally{setBusy(false);}};
+ const act=async(now:boolean)=>{setBusy(true);try{const r=await schedule({data:{draftId,at:now?new Date().toISOString():lisbonToUtcIso(date,time),now}});if(r.unavailable)toast.error(t('publishing.connectionUnavailable'));else toast.success(t(now?'publishing.requested':'calendar.scheduledToast'));setMode(null);refresh();}catch(e){toast.error(e instanceof Error?translateError(e.message):t('posts.error'));}finally{setBusy(false);}};
  const actionable=['approved','scheduled','failed'].includes(status)&&!sentAt&&approval.data?.valid_approval===true;
  return <div className="space-y-2">
   <Badge variant={status==='failed'?'destructive':'secondary'}>{t(`posts.status.${status}`)}</Badge>

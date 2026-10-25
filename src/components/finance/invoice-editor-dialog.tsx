@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Invoice editor — multi-line client invoice / credit note workspace.
@@ -277,7 +278,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       onClose();
     } catch (e) {
       const error=e as {code?:string;message?:string};
-      toast.error(error.code==='23505' ? t('finance:provisional.duplicateInvoice') : error.message?.includes('Fiscal document already exists') ? t('finance:provisional.duplicateInvoice') : error.message??t('finance:provisional.assignmentFailed'));
+      toast.error(error.code==='23505' ? t('finance:provisional.duplicateInvoice') : translateError(error.message)?.includes('Fiscal document already exists') ? t('finance:provisional.duplicateInvoice') : translateError(error.message)??t('finance:provisional.assignmentFailed'));
     }
   }
 
@@ -301,7 +302,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       toast.success(t("finance:invoices.cancelled"));
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? translateError(e.message) : String(e));
     }
   }
 
@@ -335,7 +336,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
     } catch (e) {
       toast.error(
         `${t("finance:invoices.fiscal.issueFailed")}: ${
-          e instanceof Error ? e.message : String(e)
+          e instanceof Error ? translateError(e.message) : String(e)
         }`,
       );
     } finally {

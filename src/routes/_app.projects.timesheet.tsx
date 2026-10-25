@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
@@ -538,7 +539,7 @@ function TimesheetPage() {
         existing_entry_id: current?.id ?? null,
       });
     } catch (e) {
-      toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed"));
+      toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed"));
     }
   };
 
@@ -605,7 +606,7 @@ function TimesheetPage() {
       }
       toast.success(t("projects:tsCalendar.added", { hours: formatHM(total), name: label }));
     } catch (e) {
-      toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed"));
+      toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed"));
     }
   };
   /** Every calendar → activity path goes through this confirm; nothing is saved without it. */
@@ -625,7 +626,7 @@ function TimesheetPage() {
   const dismissEvent = async (id: string) => {
     const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user!.id, event_id: id });
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     qc.invalidateQueries({ queryKey: ["timesheet-calendar-grid"] });
@@ -742,7 +743,7 @@ function TimesheetPage() {
           await runAdd({ kind: "task", taskId }, ev.date, [ev], `${p.name} · ${s.name}`);
           done();
         } catch (err) {
-          toast.error((err as Error).message || t("projects:timesheet.search.addFailed"));
+          toast.error(translateError((err as Error).message) || t("projects:timesheet.search.addFailed"));
         }
       }}
     />
@@ -906,7 +907,7 @@ function TimesheetPage() {
                         setAddPopoverOpen(false);
                         toast.success(`${p.name} · ${s.name}`);
                       } catch (err) {
-                        toast.error((err as Error).message || t("projects:timesheet.search.addFailed"));
+                        toast.error(translateError((err as Error).message) || t("projects:timesheet.search.addFailed"));
                       }
                     }}
                   />
@@ -1042,7 +1043,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
+                              toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1109,7 +1110,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
+                              toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1144,7 +1145,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
+                              toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1206,7 +1207,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
+                              toast.error(translateError((e as Error).message) || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }

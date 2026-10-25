@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -225,7 +226,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial, p
       setOcr(newOcr());
       await readReceipt(path);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     } finally {
       setUploading(false);
     }
@@ -399,7 +400,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial, p
       );
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

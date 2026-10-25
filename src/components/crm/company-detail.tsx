@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { formatEUR } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -127,7 +128,7 @@ export function CompanyDetail({
       qc.invalidateQueries({ queryKey: ["companies"] });
       setForm(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const setBilling = useMutation({
@@ -139,7 +140,7 @@ export function CompanyDetail({
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["company-contacts", companyId] }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -153,7 +154,7 @@ export function CompanyDetail({
       qc.invalidateQueries({ queryKey: ["companies"] });
       navigate({ to: back.to } as never);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   if (isLoading || !current) {

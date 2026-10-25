@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -99,7 +100,7 @@ function SubsidioAlimentacaoPage() {
       toast.success(t("hr:mealAllowance.toasts.saved"));
     },
     onError: (e: Error) =>
-      toast.error(t("hr:mealAllowance.toasts.errorPrefix", { message: e.message })),
+      toast.error(t("hr:mealAllowance.toasts.errorPrefix", { message: translateError(e.message) })),
   });
 
   const remove = useMutation({

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -110,7 +111,7 @@ function DiasUteisPage() {
       setNewName("");
       qc.invalidateQueries({ queryKey: ["holidays"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const deleteHoliday = useMutation({
@@ -122,7 +123,7 @@ function DiasUteisPage() {
       toast.success(t("hr:diasUteis.toasts.removed"));
       qc.invalidateQueries({ queryKey: ["holidays"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const applyToAll = useMutation({
@@ -164,7 +165,7 @@ function DiasUteisPage() {
       qc.invalidateQueries({ queryKey: ["snapshots"] });
       qc.invalidateQueries({ queryKey: ["bo-settings"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   return (

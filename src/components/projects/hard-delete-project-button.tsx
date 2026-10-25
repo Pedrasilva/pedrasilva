@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -70,7 +71,7 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
         toast.error(t("admin.projectDelete.blocked"));
       }
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : String(err)),
+    onError: (err) => toast.error(err instanceof Error ? translateError(err.message) : String(err)),
   });
 
   if (!isAdmin) return null;

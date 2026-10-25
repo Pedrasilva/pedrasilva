@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Incoming payments (recebimentos): each groups the proofs of one payment,
@@ -178,7 +179,7 @@ function RecebimentoCard({ rec, proofs, txs, company }: { rec: Rec; proofs: Proo
   const clientM = useMutation({
     mutationFn: (companyId: string) => setClient({ data: { id: rec.id, companyId } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["finance", "recebimentos"] }),
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
   const m = useMutation({
     mutationFn: () => confirm({ data: { id: rec.id, companyId: rec.company_id!, date, bankTransactionIds: bankIds, targets: targets.map((x) => ({ kind: x.kind, id: x.id })) } }),
@@ -186,7 +187,7 @@ function RecebimentoCard({ rec, proofs, txs, company }: { rec: Rec; proofs: Proo
       toast.success(r.unallocated > 0.01 ? t("finance:recebimentos.doneUnallocated", { amount: fmt(r.unallocated) }) : t("finance:recebimentos.done"));
       qc.invalidateQueries({ queryKey: ["finance"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   const txOf = (id: string) => txs.find((x) => x.id === id);

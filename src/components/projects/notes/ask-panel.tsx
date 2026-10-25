@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Send, Sparkles, Loader2 } from "lucide-react";
@@ -24,7 +25,7 @@ export function AskPanel({ projectId }: Props) {
       const res = await askProjectNotes({ data: { projectId, question } });
       setAnswer(res.answer);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      toast.error(err instanceof Error ? translateError(err.message) : String(err));
     } finally {
       setLoading(false);
     }

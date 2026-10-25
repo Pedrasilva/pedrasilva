@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +44,7 @@ export function ReclassReview() {
       if (error) throw error;
     },
     onSuccess: () => { toast.success(t("reclass.done")); qc.invalidateQueries({ queryKey: ["fin-reclass-list"] }); },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
   const rows = listQ.data ?? [];
   return (

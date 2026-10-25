@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -120,7 +121,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       setDraft({});
       toast.success(i18n.t("common:saved"));
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -136,7 +137,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       qc.invalidateQueries({ queryKey: ["pm-financial", projectId] });
       toast.success(i18n.t("common:removed"));
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const insert = useMutation({
@@ -158,7 +159,7 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-financial", projectId] }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const stageName = useMemo(() => {

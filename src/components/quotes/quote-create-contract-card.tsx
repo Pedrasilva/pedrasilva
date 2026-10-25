@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Stage 5A — Contract Generator Foundation
  * "Create draft contract" card on the quote workspace Overview tab.
@@ -46,7 +47,7 @@ export function QuoteCreateContractCard({ quoteId, quoteStatus }: Props) {
             params: { contractId: res.contractId },
           });
         },
-        onError: (e: Error) => toast.error(e.message),
+        onError: (e: Error) => toast.error(translateError(e.message)),
       },
     );
   };

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Reconciliation match panel — the single place to match a bank movement.
@@ -186,7 +187,7 @@ export function MatchPanel({
       toast.success(t("finance:matchPanel.matched", { amount: fmt(amount) }));
       done();
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     } finally { setBusy(false); }
   }
 
@@ -199,7 +200,7 @@ export function MatchPanel({
       setChecked(new Set());
       done();
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
       done();
     } finally { setBusy(false); }
   }

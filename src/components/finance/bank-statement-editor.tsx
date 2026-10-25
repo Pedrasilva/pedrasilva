@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Bank statement fields: every AI-read value is editable. The AI value stays on the
  * row (bank_ai_values); corrected fields are marked with who/when. Saving goes through
@@ -149,7 +150,7 @@ export function StatementFieldsEditor({
       qc.invalidateQueries({ queryKey: REGISTRY_KEY });
       qc.invalidateQueries({ queryKey: ["finance", "review-queue"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+    onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : String(e)),
   });
 
   const lang = i18n.language?.startsWith("pt") ? "pt-PT" : "en-GB";

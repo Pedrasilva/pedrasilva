@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ConversionInvoicePreview } from "@/components/quotes/conversion-invoice-preview";
@@ -134,7 +135,7 @@ function QuoteDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
 
@@ -235,7 +236,7 @@ function QuoteDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -251,7 +252,7 @@ function QuoteDetail() {
         navigate({ to: "/crm/opportunities" });
       }
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const convert = useMutation({
@@ -307,7 +308,7 @@ function QuoteDetail() {
         navigate({ to: "/projects/$projectId/allocations", params: { projectId: res.id } });
       }
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   // Convert prompt is owned by React state (AlertDialog), not by the
@@ -321,7 +322,7 @@ function QuoteDetail() {
   const previewConversion=async()=>{
     if(!conversionStart)return;setConversionPreviewPending(true);
     try {const {data,error}=await supabase.rpc("pm_quote_conversion_preview",{_quote:quoteId,_start:conversionStart});if(error)throw error;setConversionPreview(data as unknown as NonNullable<typeof conversionPreview>);}
-    catch(e){toast.error(t((e as Error).message));}finally {setConversionPreviewPending(false);}
+    catch(e){toast.error(t(translateError((e as Error).message)));}finally {setConversionPreviewPending(false);}
   };
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Admin-only manager for `bank_statement_imports` of a single bank account.
@@ -343,7 +344,7 @@ function UndoImportDialog({
     });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     const result = data as {

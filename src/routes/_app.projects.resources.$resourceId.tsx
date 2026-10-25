@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
@@ -128,7 +129,7 @@ function ResourceDetailPage() {
       });
       toast.success(t("common:saved"));
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 
@@ -141,7 +142,7 @@ function ResourceDetailPage() {
       setForm((f) => ({ ...f, hourly_rate: Number(defaultRate ?? 0) }));
       toast.success(t("projects:resources.ui.usingDefault"));
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 
@@ -152,7 +153,7 @@ function ResourceDetailPage() {
       toast.success(t("common:removed"));
       navigate({ to: "/projects/resources" });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

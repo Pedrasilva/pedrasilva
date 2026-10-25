@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { formatMoney } from "@/lib/product-ui-format";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -119,7 +120,7 @@ export function ProjectItemSheet({
       toast.success(uiI18n.t("crm:products.itemSaved"));
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:products.itemSaveFailed"));
+      toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("crm:products.itemSaveFailed"));
     }
   };
 

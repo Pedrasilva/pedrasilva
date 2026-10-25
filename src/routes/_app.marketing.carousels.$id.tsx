@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -158,12 +159,12 @@ function CarouselPage() {
     if (!title.trim()) { setTitle(comp.title); return; }
     if (title.trim() === comp.title && (intent.trim() || null) === (comp.intent ?? null)) return;
     const { error } = await db.from("marketing_compositions").update({ title: title.trim(), intent: intent.trim() || null }).eq("id", id);
-    if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: compKey });
+    if (error) toast.error(translateError(error.message)); else qc.invalidateQueries({ queryKey: compKey });
   };
 
   const removeSlide = async (s: Slide) => {
     const { error } = await db.from("marketing_composition_slides").delete().eq("id", s.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error.message)); return; }
     if (selected === s.id) setSelected(null);
     await renumber(order.filter((x) => x.id !== s.id));
   };
@@ -174,7 +175,7 @@ function CarouselPage() {
     const { error } = await db.from("marketing_composition_slides").insert(picked.map((p, i) => ({
       composition_id: id, position: base + i, kind: "image", media_id: p.media_id ?? null, capture_asset_id: p.capture_asset_id ?? null,
     })));
-    if (error) toast.error(error.message);
+    if (error) toast.error(translateError(error.message));
     setPickerOpen(false);
     refreshSlides();
   };
@@ -183,14 +184,14 @@ function CarouselPage() {
     if (!textDialog) return;
     if (textDialog.slide) {
       const { error } = await db.from("marketing_composition_slides").update({ text_heading: heading, text_body: body || null }).eq("id", textDialog.slide.id);
-      if (error) toast.error(error.message);
+      if (error) toast.error(translateError(error.message));
       setTextDialog(null); refreshSlides(); return;
     }
     if (order.length >= MAX_SLIDES) { toast.error(t("carousel.tooMany", { max: MAX_SLIDES })); return; }
     const { data: row, error } = await db.from("marketing_composition_slides").insert({
       composition_id: id, position: order.length + 100, kind: "text", text_heading: heading, text_body: body || null,
     }).select("*").single();
-    if (error || !row) { toast.error(error?.message ?? t("carousel.saveError")); return; }
+    if (error || !row) { toast.error(translateError(error?.message) ?? t("carousel.saveError")); return; }
     const next = [...order];
     next.splice(textDialog.at, 0, row as Slide);
     setTextDialog(null);
@@ -203,14 +204,14 @@ function CarouselPage() {
     if (!file.type.startsWith("image/")) { toast.error(t("carousel.imageOnly")); return; }
     const path = `library/${comp.profile_id}/text-slides/${crypto.randomUUID()}-${safe(file.name)}`;
     const up = await supabase.storage.from(BUCKET).upload(path, file, { contentType: file.type });
-    if (up.error) { toast.error(up.error.message); return; }
+    if (up.error) { toast.error(translateError(up.error.message)); return; }
     const { data: m, error } = await db.from("marketing_project_media").insert({
       profile_id: comp.profile_id, storage_path: path, file_name: file.name, mime_type: file.type, kind: "text_slide",
       caption: s.text_heading, caption_status: "confirmed", credit: null,
     }).select("id").single();
-    if (error || !m) { await supabase.storage.from(BUCKET).remove([path]); toast.error(error?.message ?? t("carousel.saveError")); return; }
+    if (error || !m) { await supabase.storage.from(BUCKET).remove([path]); toast.error(translateError(error?.message) ?? t("carousel.saveError")); return; }
     const { error: uErr } = await db.from("marketing_composition_slides").update({ design_media_id: m.id }).eq("id", s.id);
-    if (uErr) { toast.error(uErr.message); return; }
+    if (uErr) { toast.error(translateError(uErr.message)); return; }
     toast.success(t("carousel.designSaved"));
     // Warn (don't block) when the design's shape differs from the cover.
     const first = order[0];
@@ -233,7 +234,7 @@ function CarouselPage() {
       qc.invalidateQueries({ queryKey: compKey });
       qc.invalidateQueries({ queryKey: ["marketing-posts"] });
       navigate({ to: "/marketing/posts", search: { request: r.requestId } });
-    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
     finally { setWriting(false); }
   };
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -243,7 +244,7 @@ function CarouselPage() {
       const r = await dupFn({ data: { compositionId: id, title: t("carousel.copyTitle", { title: comp.title }) } });
       toast.success(t("carousel.duplicated"));
       navigate({ to: "/marketing/carousels/$id", params: { id: r.id } });
-    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
   };
 
   if (isLoading) return <div className="p-6"><Loader2 className="h-5 w-5 animate-spin" /></div>;
@@ -507,7 +508,7 @@ function CommentsPanel({ compositionId, selected, slideNo, onClearSlide, canCura
       await addFn({ data: { compositionId, slideId: selected, ...payload } });
       setText("");
       qc.invalidateQueries({ queryKey: key });
-    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
     finally { setBusy(false); }
   };
   const stop = async () => {
@@ -526,7 +527,7 @@ function CommentsPanel({ compositionId, selected, slideNo, onClearSlide, canCura
   };
   const remove = async (id: string) => {
     try { await delFn({ data: { commentId: id } }); qc.invalidateQueries({ queryKey: key }); }
-    catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
+    catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
   };
 
   return (

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { formatEUR } from "@/lib/product-ui-format";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -212,7 +213,7 @@ function OpportunityDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm-leads-directory"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const updateLostReason = useMutation({
@@ -232,7 +233,7 @@ function OpportunityDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const [saveAsContactOpen, setSaveAsContactOpen] = useState(false);
@@ -246,7 +247,7 @@ function OpportunityDetail() {
       toast.success(t("opportunities.detail.contactUpdatedToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const updateField = useMutation({
@@ -274,7 +275,7 @@ function OpportunityDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm-leads-directory"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const remove = useMutation({
@@ -287,7 +288,7 @@ function OpportunityDetail() {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       navigate({ to: "/crm/opportunities" });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -303,7 +304,7 @@ function OpportunityDetail() {
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
@@ -895,7 +896,7 @@ function NewQuoteDialog({
         try {
           await instantiate.mutateAsync({ quoteId: data.id, templateId });
         } catch (e) {
-          toast.error((e as Error).message);
+          toast.error(translateError((e as Error).message));
         }
       }
       toast.success(t("quotes.newQuoteDialog.createdToast"));
@@ -904,7 +905,7 @@ function NewQuoteDialog({
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   // Three first-class proposal types: standard project, time-based, and

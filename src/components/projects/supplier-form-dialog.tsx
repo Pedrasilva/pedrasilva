@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Supplier create / edit form. Used both standalone (from the Manager) and
  * from inside External services as an inline-create surface.
@@ -107,7 +108,7 @@ export function SupplierFormDialog({
       onSaved?.(saved);
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

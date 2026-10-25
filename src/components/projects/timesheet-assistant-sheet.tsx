@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -69,7 +70,7 @@ function RecordButton({ onText, disabled, className }: { onText: (t: string) => 
         const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav", language: transcriptionLanguage() } });
         if (text.trim()) onText(text.trim());
       } catch (e) {
-        toast.error(t(k("transcribeFailed")), { description: (e as Error).message });
+        toast.error(t(k("transcribeFailed")), { description: translateError((e as Error).message) });
       } finally {
         setBusy(false);
       }
@@ -122,7 +123,7 @@ function MicButton({ onText, size = "lg" }: { onText: (t: string) => void; size?
         const { text } = await transcribe({ data: { audioBase64: await blobToBase64(wav), mimeType: "audio/wav", filename: "hours.wav", language: transcriptionLanguage() } });
         if (text.trim()) onText(text.trim());
       } catch (e) {
-        toast.error(t(k("transcribeFailed")), { description: (e as Error).message });
+        toast.error(t(k("transcribeFailed")), { description: translateError((e as Error).message) });
       } finally {
         setBusy(false);
       }
@@ -262,7 +263,7 @@ export function TimesheetAssistantSheet({
       setSkipped({});
       setOtherOpen({});
     } catch (e) {
-      toast.error(t(k("parseFailed")), { description: (e as Error).message });
+      toast.error(t(k("parseFailed")), { description: translateError((e as Error).message) });
     } finally {
       setLoading(false);
     }
@@ -278,7 +279,7 @@ export function TimesheetAssistantSheet({
     setDrafts((ds) => ds.filter((x) => x.key !== d.key));
     if (!d.event_id || !user) return;
     const { error } = await supabase.from("calendar_dismissed_events").upsert({ user_id: user.id, event_id: d.event_id });
-    if (error) toast.error(t(k("calendar.dismissFailed")), { description: error.message });
+    if (error) toast.error(t(k("calendar.dismissFailed")), { description: translateError(error.message) });
   }
 
   /** "Don't log": drop the question's drafts and dismiss its calendar events for good. */
@@ -292,7 +293,7 @@ export function TimesheetAssistantSheet({
     setDrafts((ds) => ds.filter((d) => d.saved || !(ids.has(d.id) || (d.event_id && evs.has(d.event_id)))));
     if (evs.size && user) {
       const { error } = await supabase.from("calendar_dismissed_events").upsert([...evs].map((event_id) => ({ user_id: user.id, event_id })));
-      if (error) toast.error(t(k("calendar.dismissFailed")), { description: error.message });
+      if (error) toast.error(t(k("calendar.dismissFailed")), { description: translateError(error.message) });
     }
   }
 
@@ -402,7 +403,7 @@ export function TimesheetAssistantSheet({
         update(d.key, { saved: true });
       }
     } catch (e) {
-      toast.error(t(k("saveFailed")), { description: (e as Error).message });
+      toast.error(t(k("saveFailed")), { description: translateError((e as Error).message) });
     } finally {
       setSaving(false);
       qc.invalidateQueries({ queryKey: ["pm-timesheet-entries"] });

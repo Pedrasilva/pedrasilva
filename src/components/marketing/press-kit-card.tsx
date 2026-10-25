@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useBlocker } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -145,7 +146,7 @@ export function PressKitCard({ profileId, canEdit, canCurate, clearance, onClear
       const r = await runKit({ data: { kitId: kit.id } });
       toast.success(t("pressKit.processed", { suggestions: r.suggestions, captions: r.captioned }));
       if (r.errors.length) toast.warning(t("pressKit.processPartial"));
-    } catch (e) { toast.error(e instanceof Error ? e.message : t("profiles.error")); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t("profiles.error")); }
     setProcessing(false);
     refresh();
   };

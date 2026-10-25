@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
@@ -66,7 +67,7 @@ export function RequestApprovalDialog({
       else toast.success(t("expenses.approval.sent", { name: nome }));
       onOpenChange(false);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   }
 
@@ -116,7 +117,7 @@ export function RejectExpenseDialog({
       setNote("");
       onOpenChange(false);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   }
   return (

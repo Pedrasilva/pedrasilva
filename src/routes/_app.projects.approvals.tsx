@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -35,7 +36,7 @@ function ProjectsApprovalsQueue() {
       await decide.mutateAsync({ id, approve, reason });
       toast.success(approve ? t("projects:approvals.approved") : t("projects:approvals.rejected"));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   }
 

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Banking → Reconciliation: numbered statement periods.
@@ -139,7 +140,7 @@ export function StatementPeriodsPanel({
       : await supabase.from("bank_statement_periods").insert({ ...payload, entity_id: await currentEntityId() });
     setSaving(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     toast.success(t("common:saved"));
@@ -154,7 +155,7 @@ export function StatementPeriodsPanel({
       .delete()
       .eq("id", p.id);
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     if (selectedPeriodId === p.id) onSelectPeriod?.(null);

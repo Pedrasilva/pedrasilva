@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 /**
  * Interactive row controls for the project Overview "Milestones & Tasks"
@@ -78,7 +79,7 @@ export function StageStatusCell({
       { id: stageId, projectId, patch: { status: next } },
       {
         onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValue", { value1: i18n.t(STAGE_STATUS_LABEL[next]) })),
-        onError: (e: unknown) => toast.error((e as Error).message),
+        onError: (e: unknown) => toast.error(translateError((e as Error).message)),
       },
     );
   };
@@ -166,7 +167,7 @@ export function StageRowActions({
       },
       {
         onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.resourceAssignedToStage")),
-        onError: (e: unknown) => toast.error((e as Error).message),
+        onError: (e: unknown) => toast.error(translateError((e as Error).message)),
       },
     );
   };
@@ -176,7 +177,7 @@ export function StageRowActions({
       { id: stageId, projectId, patch: { status: next } },
       {
         onSuccess: () => toast.success(i18n.t("projects:stageRowActions.ui.statusValueLabel", { value1: i18n.t(STAGE_STATUS_LABEL[next]) })),
-        onError: (e: unknown) => toast.error((e as Error).message),
+        onError: (e: unknown) => toast.error(translateError((e as Error).message)),
       },
     );
 

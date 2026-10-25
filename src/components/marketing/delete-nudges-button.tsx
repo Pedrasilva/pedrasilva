@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,7 +26,7 @@ export function DeleteNudgesButton({ ids, anyAnswered, label, onDone }: { ids: s
       toast.success(t("nudge.delete.done", { count: ids.length }));
       onDone?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("questions.error"));
+      toast.error(e instanceof Error ? translateError(e.message) : t("questions.error"));
     } finally {
       setBusy(false); setOpen(false);
       qc.invalidateQueries({ queryKey: ["marketing-questions"] });

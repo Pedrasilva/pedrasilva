@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -102,7 +103,7 @@ export function ProposalHistoryDialog({
                   },
                   onError: (e) =>
                     toast.error(uiI18n.t("crm:quoteEditor.versionSaveFailed"), {
-                      description: String((e as Error).message ?? e),
+                      description: String(translateError((e as Error).message) ?? e),
                     }),
                 },
               )
@@ -149,7 +150,7 @@ export function ProposalHistoryDialog({
                         onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.versionRestored")),
                         onError: (e) =>
                           toast.error(uiI18n.t("crm:quoteEditor.restoreFailed"), {
-                            description: String((e as Error).message ?? e),
+                            description: String(translateError((e as Error).message) ?? e),
                           }),
                       });
                     }}

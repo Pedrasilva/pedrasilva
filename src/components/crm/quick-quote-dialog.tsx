@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -103,7 +104,7 @@ export function QuickQuoteDialog({
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   // Three first-class proposal types: standard project, hourly time-based,

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -32,7 +33,7 @@ export function DismissCaptureFlag({ captureId, flag }: { captureId: string; fla
       if (error) throw error;
       await qc.invalidateQueries({ predicate: q => typeof q.queryKey[0] === 'string' && q.queryKey[0].startsWith('marketing-') });
       setOpen(false); setReason(''); toast.success(t('clearanceReview.dismissed'));
-    } catch (e) { toast.error(e instanceof Error ? e.message : t('posts.error')); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : t('posts.error')); }
     finally { setBusy(false); }
   };
   return <><Button size="sm" variant="ghost" onClick={() => setOpen(true)}>{t('clearanceReview.dismiss')}</Button>

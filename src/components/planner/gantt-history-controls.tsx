@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
@@ -10,7 +11,7 @@ export function GanttHistoryControls({mode,scope,disabled=false}:{mode:"quote"|"
   const apply=async(redo:boolean)=>{
     setPending(true);
     try {await undoGanttSchedule(mode,scope,redo);await qc.invalidateQueries();}
-    catch(e){toast.error(t(e instanceof Error?e.message:"gantt.schedule.stale"));}
+    catch(e){toast.error(t(e instanceof Error?translateError(e.message):"gantt.schedule.stale"));}
     finally {setPending(false);}
   };
   return <div className="flex items-center gap-1">

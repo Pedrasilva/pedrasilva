@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 // "Pre-contract (pursuit)" line on a project: hours and cost of all Pursuit
 // entries on the project's CRM lead (pm_projects.opportunity_id). Rendered
@@ -71,7 +72,7 @@ export function ProjectPursuitCard({
                     toast.success(t("pursuit.saved"));
                     setEditing(false);
                   },
-                  onError: (e) => toast.error((e as Error).message),
+                  onError: (e) => toast.error(translateError((e as Error).message)),
                 },
               );
             }}

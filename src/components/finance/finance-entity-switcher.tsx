@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Entity switcher for the finance area. The database decides which entity a
  * user sees (current_finance_entity + RLS), so switching here changes every
@@ -46,7 +47,7 @@ export function FinanceEntitySwitcher() {
   const onChange = async (id: string) => {
     const { error } = await supabase.rpc("set_finance_entity", { _entity_id: id });
     if (error) {
-      toast.error(error.message);
+      toast.error(translateError(error.message));
       return;
     }
     // Every cached row belongs to the previous entity: drop it all and refetch.

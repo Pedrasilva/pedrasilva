@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
@@ -57,7 +58,7 @@ function CategoriesPage() {
       setName("");
       toast.success(uiI18n.t("crm:products.categoryAdded"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:products.categoryFailed"));
+      toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("crm:products.categoryFailed"));
     }
   };
 

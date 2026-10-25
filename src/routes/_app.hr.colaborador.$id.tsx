@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
@@ -293,7 +294,7 @@ function CollaboratorPage() {
       qc.invalidateQueries({ queryKey: ["collaborator", id] });
       qc.invalidateQueries({ queryKey: ["collaborators"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const setField = <K extends keyof Collaborator>(k: K, v: Collaborator[K]) =>
@@ -381,7 +382,7 @@ function CollaboratorPage() {
       setActiveTab(s.id);
       setNewOpen(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   const archiveMut = useArchiveCollaborator();

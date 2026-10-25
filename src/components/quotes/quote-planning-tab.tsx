@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Quote Planning tab — unified planner.
  *
@@ -98,7 +99,7 @@ export function QuotePlanningTab({
         }),
       );
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 

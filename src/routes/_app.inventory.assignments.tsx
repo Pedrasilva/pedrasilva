@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -52,7 +53,7 @@ function AssignmentsPage() {
       await returnAsset.mutateAsync({ assignmentId: id });
       toast.success(t("inventory:assign.returned"));
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   };
 

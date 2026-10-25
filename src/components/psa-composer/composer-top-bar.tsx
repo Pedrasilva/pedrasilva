@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Composer top bar — proposal title, status, Preview / Export PDF, and
@@ -115,7 +116,7 @@ export function ComposerTopBar({
       { status: "draft" },
       {
         onSuccess: () => toast.success(uiI18n.t("crm:quoteEditor.editableRevisionStarted")),
-        onError: (e) => toast.error(e instanceof Error ? e.message : uiI18n.t("common:error")),
+        onError: (e) => toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("common:error")),
       },
     );
 

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Documents on the opportunity — every revision that was actually sent, plus
@@ -51,7 +52,7 @@ async function openStoredPdf(path: string, filename?: string | null) {
   // direct storage URLs are frequently blocked by ad-blockers (ERR_BLOCKED_BY_CLIENT).
   const { data, error } = await supabase.storage.from(PDF_BUCKET).download(path);
   if (error || !data) {
-    toast.error(error?.message ?? uiI18n.t("crm:opportunities.pdfUnavailable"));
+    toast.error(translateError(error?.message) ?? uiI18n.t("crm:opportunities.pdfUnavailable"));
     return;
   }
   const url = URL.createObjectURL(data.slice(0, data.size, "application/pdf"));

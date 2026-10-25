@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * Admin-only reset tool for transactional finance test data.
  *
@@ -106,7 +107,7 @@ export function AdminResetTool() {
       // eslint-disable-next-line no-console
       console.info("[finance reset]", data);
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : String(err)),
+    onError: (err) => toast.error(err instanceof Error ? translateError(err.message) : String(err)),
   });
 
   const deleteSuppliers = useMutation({
@@ -125,7 +126,7 @@ export function AdminResetTool() {
       setOpenSup(false);
       await qc.invalidateQueries();
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : String(err)),
+    onError: (err) => toast.error(err instanceof Error ? translateError(err.message) : String(err)),
   });
 
   const totalRows = counts.data

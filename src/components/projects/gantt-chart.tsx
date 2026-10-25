@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -668,11 +669,11 @@ export function GanttChart({
       adapter
         .createDependency({ predecessor_id, successor_id, type, lag_days: 0 })
         .then(() => toast.success(t("gantt.toasts.linkCreated")))
-        .catch((err: unknown) => toast.error((err as Error).message));
+        .catch((err: unknown) => toast.error(translateError((err as Error).message)));
     if (replaces && adapter.replaceDependency) {
       adapter
         .replaceDependency({id:replaces,predecessor_id,successor_id,type,lag_days:0})
-        .catch((err: unknown) => toast.error((err as Error).message));
+        .catch((err: unknown) => toast.error(translateError((err as Error).message)));
     } else {
       create();
     }
@@ -772,9 +773,9 @@ export function GanttChart({
             patch: { stage_id: stage.id, start_date: startDate, end_date: endDate },
           })
           .then(() => toast.success(t("gantt.toasts.allocationMoved")))
-          .catch((err: unknown) => toast.error((err as Error).message));
+          .catch((err: unknown) => toast.error(translateError((err as Error).message)));
       } catch (err) {
-        toast.error((err as Error).message);
+        toast.error(translateError((err as Error).message));
       }
       return;
     }
@@ -799,7 +800,7 @@ export function GanttChart({
         projectId: stage.projectId,
       })
       .then(() => toast.success(t("gantt.toasts.resourceAllocated")))
-      .catch((err: unknown) => toast.error((err as Error).message));
+      .catch((err: unknown) => toast.error(translateError((err as Error).message)));
   }
 
   // Header band heights — top tier (h-7 = 28) + bottom tier when present.
@@ -2202,7 +2203,7 @@ export function GanttChart({
                       if (!adapter.updateDependency) return;
                       adapter
                         .updateDependency({ id: dep.id, patch: { type: v as DepType } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   >
                     <SelectTrigger className="h-8 w-[150px] text-xs">
@@ -2228,7 +2229,7 @@ export function GanttChart({
                       if (v === dep.lag_days) return;
                       adapter
                         .updateDependency({ id: dep.id, patch: { lag_days: v } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                   <Button
@@ -2238,7 +2239,7 @@ export function GanttChart({
                       adapter
                         .deleteDependency(dep.id)
                         .then(() => setEditingDep(null))
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   >
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />

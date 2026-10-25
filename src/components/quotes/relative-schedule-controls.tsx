@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
@@ -15,11 +16,11 @@ export function RelativeScheduleControls({quoteId,disabled}:{quoteId:string;disa
     const state=await readGanttSchedule("quote",quoteId);
     const {accepted,rejected}=reviewScheduleLinks(state.stages,state.dependencies);
     setPreview({state,patch:relativeInitialization(state,accepted),rejected});
-  }catch(e){toast.error(t(e instanceof Error?e.message:"gantt.schedule.stale"));}finally{setPending(false);}};
+  }catch(e){toast.error(t(e instanceof Error?translateError(e.message):"gantt.schedule.stale"));}finally{setPending(false);}};
   const save=async()=>{
     if(!preview)return;setPending(true);
     try {await saveGanttSchedule("quote",quoteId,preview.state,preview.patch,true,false);setPreview(null);await qc.invalidateQueries();}
-    catch(e){toast.error(t(e instanceof Error?e.message:"gantt.schedule.stale"));}finally {setPending(false);}
+    catch(e){toast.error(t(e instanceof Error?translateError(e.message):"gantt.schedule.stale"));}finally {setPending(false);}
   };
   return <>
     <Button size="sm" variant="outline" disabled={disabled||pending} onClick={open}>{t("gantt.relative.initialize")}</Button>

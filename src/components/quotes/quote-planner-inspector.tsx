@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * Quote planner inspector — right-hand drawer that edits the selected stage.
@@ -194,7 +195,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
       setNewPred({ pred: "", type: "FS", lag: "0" });
       toast.success(t("workspace.planning.dependencySaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -211,7 +212,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
       setNewSucc({ succ: "", type: "FS", lag: "0" });
       toast.success(t("workspace.planning.dependencySaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -246,7 +247,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
       setNewAlloc({ resource_id: "", pct: "75", hpd: "6" });
       toast.success(t("workspace.planning.resourceAdded", { defaultValue: "Resource added." }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 
@@ -440,7 +441,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                 try {
                   if(on) await updateStageCascade.mutateAsync({id:stage.id,start_date:stage.start_date,end_date:stage.start_date});
                   await upsertStage.mutateAsync({id:stage.id,is_milestone:on} as Parameters<typeof upsertStage.mutateAsync>[0]);
-                } catch(error) { toast.error(t((error as Error).message)); }
+                } catch(error) { toast.error(t(translateError((error as Error).message))); }
               }}
               className="h-4 w-4"
             />
@@ -524,7 +525,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
             const datesDisabled = isParentStage;
             return (
             <>
-              {relative ? <RelativeStageFields start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
+              {relative ? <RelativeStageFields start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(translateError(e.message))));}}/> : <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">
                     {t("workspace.planning.startDate", { defaultValue: "Start" })}
@@ -549,7 +550,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           shiftAllocations: true,
                         })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                 </div>
@@ -577,7 +578,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           shiftAllocations: true,
                         })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                 </div>
@@ -611,7 +612,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                         end_date,
                         shiftAllocations: false,
                       })
-                      .catch((err) => toast.error((err as Error).message));
+                      .catch((err) => toast.error(translateError((err as Error).message)));
                   }}
                 />
               )}
@@ -872,7 +873,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                                 );
                               } catch (e) {
                                 toast.error(
-                                  (e as Error)?.message ||
+                                  translateError((e as Error)?.message) ||
                                     t("workspace.planning.saveFailed", { defaultValue: "Could not save change." }),
                                 );
                               }
@@ -935,7 +936,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                                     );
                                   } catch (e) {
                                     toast.error(
-                                      (e as Error)?.message ||
+                                      translateError((e as Error)?.message) ||
                                         t("workspace.planning.saveFailed", { defaultValue: "Could not save change." }),
                                     );
                                   }
@@ -962,7 +963,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                   {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
                 </Label>
                 {relative ? <RelativeStageFields disabled={false} start={stage.start_date} end={stage.start_date} onChange={(start_date)=>{
-                  updateStageCascade.mutateAsync({id:stage.id,start_date,end_date:start_date}).catch(e=>toast.error(t(e.message)));
+                  updateStageCascade.mutateAsync({id:stage.id,start_date,end_date:start_date}).catch(e=>toast.error(t(translateError(e.message))));
                 }}/> : <Input
                   type="date"
                   key={`ms-${stage.id}-${stage.start_date}`}
@@ -1035,7 +1036,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                       onClose();
                     },
                     onError: (e: unknown) => {
-                      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.deleteStageFailed"));
+                      toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("crm:quoteEditor.deleteStageFailed"));
                     },
                   });
                 }
@@ -1066,7 +1067,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                     onValueChange={(v) =>
                       updateDep
                         .mutateAsync({ id: d.id, patch: { type: v as QuoteDepType } })
-                        .catch((e) => toast.error((e as Error).message))
+                        .catch((e) => toast.error(translateError((e as Error).message)))
                     }
                   >
                     <SelectTrigger className="h-7 w-16 text-xs"><SelectValue /></SelectTrigger>
@@ -1086,7 +1087,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                       if (v === d.lag_days) return;
                       updateDep
                         .mutateAsync({ id: d.id, patch: { lag_days: v } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => delDep.mutate(d.id)}>
@@ -1143,7 +1144,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                     onValueChange={(v) =>
                       updateDep
                         .mutateAsync({ id: d.id, patch: { type: v as QuoteDepType } })
-                        .catch((e) => toast.error((e as Error).message))
+                        .catch((e) => toast.error(translateError((e as Error).message)))
                     }
                   >
                     <SelectTrigger className="h-7 w-16 text-xs"><SelectValue /></SelectTrigger>
@@ -1163,7 +1164,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                       if (v === d.lag_days) return;
                       updateDep
                         .mutateAsync({ id: d.id, patch: { lag_days: v } })
-                        .catch((err) => toast.error((err as Error).message));
+                        .catch((err) => toast.error(translateError((err as Error).message)));
                     }}
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => delDep.mutate(d.id)}>

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 /**
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
@@ -67,7 +68,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
             uiI18n.t("crm:quoteEditor.newEditableRevisionHint"),
           ),
         onError: (e) =>
-          toast.error(e instanceof Error ? e.message : uiI18n.t("common:error")),
+          toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("common:error")),
       },
     );
   };

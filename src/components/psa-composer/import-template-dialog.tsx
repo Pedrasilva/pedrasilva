@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { Trans, useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 /**
@@ -62,7 +63,7 @@ export function ImportTemplateDialog({
       toast.success(uiI18n.t("crm:quoteEditor.blocksImported", { count }));
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : uiI18n.t("crm:quoteEditor.importFailed"));
+      toast.error(e instanceof Error ? translateError(e.message) : uiI18n.t("crm:quoteEditor.importFailed"));
     }
   };
 

@@ -72,7 +72,7 @@ function ClusterCard({ c }: { c: SupplierCluster }) {
       toast.success(t("finance:supplierDups.merged", { keep: keep.name, merged: others.map((o) => o.name).join(", ") }));
       setKeep(null); setReason("");
       await done();
-    } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { toast.error(translateError((e as Error).message)); } finally { setBusy(false); }
   };
   const notDup = async () => {
     setBusy(true);
@@ -83,7 +83,7 @@ function ClusterCard({ c }: { c: SupplierCluster }) {
       }
       toast.success(t("finance:supplierDups.remembered"));
       await done();
-    } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { toast.error(translateError((e as Error).message)); } finally { setBusy(false); }
   };
 
   return (

@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -93,7 +94,7 @@ export function CommercialRoleCard({
       toast.success(t("common:saved", { defaultValue: "Saved" }));
     },
     onError: (e: Error) => {
-      toast.error(e.message);
+      toast.error(translateError(e.message));
     },
   });
 

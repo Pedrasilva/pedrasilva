@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 // Extracted from the previous monolithic /finance route so the new
 // layout can mount each tab as its own child route. Behavior unchanged.
 import { useMemo, useState } from "react";
@@ -1069,7 +1070,7 @@ export function BankBalancesSection() {
       setNotes("");
     },
     onError: (e: Error) => {
-      toast.error(e.message || t("finance:bank.form.saveError"));
+      toast.error(translateError(e.message) || t("finance:bank.form.saveError"));
     },
   });
 
@@ -1568,7 +1569,7 @@ export function ExpensesSection({
         qc.invalidateQueries({ queryKey: ["finance", "expenses", FINANCE_YEAR] }),
       ]);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? translateError(e.message) : String(e));
     } finally {
       setPayingId(null);
     }

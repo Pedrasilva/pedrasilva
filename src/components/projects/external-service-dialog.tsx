@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import i18n from "@/i18n/index";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -173,7 +174,7 @@ export function ExternalServiceDialog({
       );
       onOpenChange(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(translateError((err as Error).message));
     }
   }
 

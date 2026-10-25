@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 /**
  * SaveAsTemplateDialog — snapshots the current quote into a new
  * reusable template. Opens from the quote workspace header. The quote
@@ -60,7 +61,7 @@ export function SaveAsTemplateDialog({
       toast.success(t("templates.toasts.saved"));
       onClose();
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(translateError((e as Error).message));
     }
   };
 

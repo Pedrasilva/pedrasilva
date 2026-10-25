@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
@@ -137,7 +138,7 @@ const collaboratorSchema = z.object({
       setOpen(false);
       onCreated?.(c.id);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(translateError(e.message)),
   });
 
   return (

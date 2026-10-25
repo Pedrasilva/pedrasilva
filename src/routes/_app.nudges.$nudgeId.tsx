@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMarkNotificationRead, useNotifications } from "@/hooks/use-notifications";
@@ -72,7 +73,7 @@ function NudgeAnswerPage() {
       if (!dismiss && !r.hasProfile) toast.message(t("nudge.noProfile"));
       setText(""); setAudio(null);
       qc.invalidateQueries({ queryKey: key });
-    } catch (e) { toast.error(e instanceof Error ? e.message : String(e)); }
+    } catch (e) { toast.error(e instanceof Error ? translateError(e.message) : String(e)); }
     finally { setBusy(false); }
   };
 

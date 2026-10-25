@@ -1,3 +1,4 @@
+import { translateError } from '@/lib/translate-error';
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -41,7 +42,7 @@ export function InvoiceGroupingControl({ kind, id, disabled = false }: { kind: K
       if (error) throw error;
       await qc.invalidateQueries();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      toast.error(e instanceof Error ? translateError(e.message) : String(e));
     } finally {
       setSaving(false);
     }
@@ -52,7 +53,7 @@ export function InvoiceGroupingControl({ kind, id, disabled = false }: { kind: K
     const { data, error } = await db.from(items)
       .select("id,expected_invoice_date,original_invoice_date,payment_terms,vat_rate,billing_status,direction,amount_value")
       .eq(col, id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(translateError(error.message));
     const rows = (data ?? []) as Array<GroupableItem & { amount_value: number | null }>;
     const planned = rows.filter(isGroupable);
     const after = groupInvoices(planned, days).length;
