@@ -5,7 +5,7 @@ import { usePendingApprovalsSummary } from "@/lib/projects/use-hour-approvals";
 import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/projects/app-shell";
 import { Check, CheckCircle2, Loader2, X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { format, parseISO } from "date-fns";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { useDecideNonWorkingEntry, useNonWorkingQueue } from "@/lib/projects/use-non-working-days";

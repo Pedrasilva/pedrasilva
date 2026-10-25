@@ -10,7 +10,7 @@ import uiI18n from "@/i18n/index";
  *     revision. The working copy stays editable as Rev NN+1.
  */
 import { useState, useRef, useCallback } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { FileDown, Printer, Send, Upload, CheckCircle2 } from "lucide-react";
 import {
   Dialog,

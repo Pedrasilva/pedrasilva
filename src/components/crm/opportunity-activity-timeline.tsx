@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, Calendar, StickyNote, Trash2, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { cn } from "@/lib/utils";
 import {
   OPPORTUNITY_ACTIVITY_TYPES,

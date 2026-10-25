@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { LayoutTemplate } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

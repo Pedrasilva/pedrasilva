@@ -13,7 +13,7 @@ import i18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, Activity, AlertTriangle, Save } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

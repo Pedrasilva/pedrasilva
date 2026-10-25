@@ -18,6 +18,8 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
+import enErrors from "./locales/en/errors.json";
+import ptErrors from "./locales/pt-PT/errors.json";
 import enCommon from "./locales/en/common.json";
 import enCrm from "./locales/en/crm.json";
 import enFinance from "./locales/en/finance.json";
@@ -52,6 +54,7 @@ export const LANGUAGE_STORAGE_KEY = "psa.language";
 export const resources = {
   en: {
     common: enCommon,
+    errors: enErrors,
     glossary: enGlossary,
     projects: enProjects,
     crm: enCrm,
@@ -66,6 +69,7 @@ export const resources = {
   },
   "pt-PT": {
     common: ptCommon,
+    errors: ptErrors,
     glossary: ptGlossary,
     projects: ptProjects,
     crm: ptCrm,
@@ -95,7 +99,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory", "marketing", "reports", "access"],
+      ns: ["errors", "common", "glossary", "projects", "crm", "hr", "home", "finance", "inbox", "inventory", "marketing", "reports", "access"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {

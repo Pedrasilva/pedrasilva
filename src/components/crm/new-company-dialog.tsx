@@ -17,7 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Building2, User, Tag, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   TAX_COUNTRIES, DEFAULT_TAX_COUNTRY, findTaxCountry, checkTaxId, normalizeTaxId,
 } from "@/lib/finance/tax-id";

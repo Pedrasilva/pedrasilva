@@ -39,7 +39,7 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import type { Project } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects/gantt")({

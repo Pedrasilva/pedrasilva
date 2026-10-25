@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Mic, RefreshCw, Send, Square, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

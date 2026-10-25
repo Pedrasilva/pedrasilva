@@ -6,7 +6,7 @@ import uiI18n from "@/i18n/index";
  * Two-step: pick template → confirm destructive replacement.
  */
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { LayoutTemplate, AlertTriangle, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

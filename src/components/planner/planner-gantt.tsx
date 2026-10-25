@@ -59,7 +59,7 @@ import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { buildProjectGanttTree, PROJECT_SUMMARY_ID as PROJECT_MODE_SUMMARY_ID } from "@/lib/projects/build-project-gantt-tree";
 import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource, StageWithAllocations } from "@/lib/projects/types";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Switch } from "@/components/ui/switch";
 import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
 

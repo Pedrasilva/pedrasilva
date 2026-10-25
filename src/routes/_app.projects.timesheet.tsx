@@ -61,7 +61,7 @@ import {
 } from "lucide-react";
 import { ProjectStageLeadPicker } from "@/components/projects/project-stage-lead-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { formatHM, parseHM } from "@/lib/projects/time-format";
 import { MyWeekCard } from "@/components/projects/my-week-card";
 import { HourCell } from "@/components/projects/timesheet-activity-cell";

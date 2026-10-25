@@ -15,7 +15,7 @@ import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import { useMemo, useState } from "react";
 import { addDays, addWeeks, addMonths, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { X, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SupplierPicker } from "@/components/projects/supplier-picker";

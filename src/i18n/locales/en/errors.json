@@ -123,7 +123,38 @@
     "videoSampleTableUnavailable": "Video sample table unavailable",
     "videoTrackMissing": "Video track missing",
     "aiIsBusyTryAgainInAMinute": "AI is busy, try again in a minute",
-    "aiCreditsExhausted": "AI credits exhausted"
+    "aiCreditsExhausted": "AI credits exhausted",
+    "publicationLockIsNoLongerOwned": "Publication lock is no longer owned",
+    "attemptLogUnavailable": "Attempt log unavailable",
+    "instagramMediaProcessingFailedOrContainerExpired": "Instagram media processing failed or container expired",
+    "containerAlreadyPublishedAutomaticResubmissionBlocked": "Container already published; automatic resubmission blocked",
+    "instagramMediaProcessingTimedOut": "Instagram media processing timed out",
+    "instagramContainerIdMissing": "Instagram container ID missing",
+    "publicationApprovalCheckUnavailable": "Publication approval check unavailable",
+    "locationTagsAreNotSupportedByAutomaticPublishingRemoveTheTagAndApproveAgain": "Location tags are not supported by automatic publishing; remove the tag and approve again",
+    "storyFramesNeedReRenderingOpenThePostAndApproveAgain": "Story frames need re-rendering, open the post and approve again",
+    "someApprovedMediaAreMissingOrUnreadable": "Some approved media are missing or unreadable",
+    "singleReelRequiresOneFileCarouselRequires210Files": "Single/reel requires one file; carousel requires 2–10 files",
+    "privateMediaUrlUnavailable": "Private media URL unavailable",
+    "reelRequiresAVideoFile": "Reel requires a video file",
+    "reelCoverUnavailable": "Reel cover unavailable",
+    "reelCoverMustBeAValidPortraitJpeg": "Reel cover must be a valid portrait JPEG",
+    "captionExceeds2200Characters": "Caption exceeds 2200 characters",
+    "instagramPublishingLimitUnavailable": "Instagram publishing limit unavailable",
+    "instagramDailyPublishingLimitReached": "Instagram daily publishing limit reached",
+    "storyLockOrApprovalUnavailableNoSubmissionMade": "Story lock or approval unavailable; no submission made",
+    "storyOutcomeUnknownVerifyInstagramBeforeAnyRetry": "Story outcome unknown; verify Instagram before any retry",
+    "storyFramesMissing": "Story frames missing",
+    "instagramPublicationResultIsUnknownVerifyInstagramBeforeRetrying": "Instagram publication result is unknown; verify Instagram before retrying",
+    "publicationCouldNotBeCompleted": "Publication could not be completed",
+    "publicationCheckRejected": "Publication check rejected: {{detail}}",
+    "confirmPublicationConcern": "Confirm publication concern first: {{detail}}",
+    "draftNotReady": "This draft is not ready: {{detail}}",
+    "voiceNoteStore": "Could not store the voice note: {{detail}}",
+    "answerSave": "Could not save the answer: {{detail}}",
+    "recordingStore": "Could not store the recording: {{detail}}",
+    "textSlidesDesign_one": "{{count}} text slide still needs a design",
+    "textSlidesDesign_other": "{{count}} text slides still need a design"
   },
   "inbox": {
     "youDoNotHavePermissionToTriageTheInbox": "You do not have permission to triage the inbox",
@@ -158,7 +189,9 @@
     "propostaBloqueadaNOPossVelEditarBlocos": "Proposal locked — blocks cannot be edited.",
     "chooseSomeoneElseToApprove": "Choose someone else to approve",
     "onlyTheRequestedApproverCanDecide": "Only the requested approver can decide",
-    "expenseIsAlreadyApprovedPaidOrInvoiced": "Expense is already approved, paid or invoiced"
+    "expenseIsAlreadyApprovedPaidOrInvoiced": "Expense is already approved, paid or invoiced",
+    "projectIdNotFound": "Project {{id}} not found",
+    "quoteIdNotFound": "Quote {{id}} not found"
   },
   "finance": {
     "expenseNotFound": "Expense not found",
@@ -215,7 +248,9 @@
     "thisDocumentWasAlreadyIssuedToInvoiceXpress": "This document was already issued to InvoiceXpress",
     "documentHasNoLines": "Document has no lines",
     "invoicexpressDidNotReturnAnId": "InvoiceXpress did not return an id",
-    "documentNotIssuedOnInvoiceXpressYet": "Document not issued on InvoiceXpress yet"
+    "documentNotIssuedOnInvoiceXpressYet": "Document not issued on InvoiceXpress yet",
+    "itemAlready": "Item is already {{status}}",
+    "entityRefusal": "Refused: belongs to another entity ({{ids}})"
   },
   "admin": {
     "googleDriveConnectorNotLinked": "Google Drive connector not linked",
@@ -223,10 +258,17 @@
     "thisBackupHasNoDriveFileItFailedBeforeUpload": "This backup has no Drive file (it failed before upload).",
     "contabilidadeFolderIsNotConfigured": "Contabilidade folder is not configured",
     "cannotRemoveYourOwnAdminRole": "cannot remove your own admin role",
-    "cannotRemoveSuperAdmin": "cannot remove super admin"
+    "cannotRemoveSuperAdmin": "cannot remove super admin",
+    "driveFolderFailure": "Drive folder create failed [{{status}}]: {{detail}}",
+    "driveUploadFailure": "Drive upload failed [{{status}}]: {{detail}}"
   },
   "hr": {
     "missingApproverAccount": "Missing approver account",
-    "selectACollaborator": "Select a collaborator"
+    "selectACollaborator": "Select a collaborator",
+    "noOpTransition": "No change: already {{status}}"
+  },
+  "crm": {
+    "contractStatus": "Action not allowed for contract status “{{status}}”",
+    "contractIdNotFound": "Contract {{id}} not found"
   }
 }

@@ -1,7 +1,7 @@
 import i18n from "@/i18n/index";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Plus, Pencil, Trash2, FileCheck2, Upload, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProjectsAuth } from "@/lib/projects/use-auth";

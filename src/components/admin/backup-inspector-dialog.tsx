@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader2, Search, ArrowLeft, Download } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   inspectBackup,
   downloadBackup,

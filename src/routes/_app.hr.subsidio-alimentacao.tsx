@@ -18,7 +18,7 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Plus, Save, Trash2, Utensils } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {  } from "@/lib/salary";
 import { computeWorkdays, type Holiday } from "@/lib/workdays";
 

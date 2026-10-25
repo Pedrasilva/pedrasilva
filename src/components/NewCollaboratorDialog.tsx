@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Search, Users } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 type ExistingCollab = {
   id: string;

@@ -5,7 +5,7 @@ import uiI18n from "@/i18n/index";
  * Signature status for a proposal — shown next to the send actions.
  * Compact badge with per-signer detail and a link to the signed PDF.
  */
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { FileSignature, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

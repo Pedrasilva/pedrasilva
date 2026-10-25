@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { PermissionGate } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app/hr/valor-bo")({

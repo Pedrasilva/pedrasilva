@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  * snapshot and no mutation is ever issued.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ArrowLeft, FilePlus2, History } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";

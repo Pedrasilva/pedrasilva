@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CheckCircle2, FileSignature, PenLine } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

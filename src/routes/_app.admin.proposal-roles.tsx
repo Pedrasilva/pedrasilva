@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Plus, Archive, RotateCcw, Save, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import { AdminOnly } from "@/components/AdminOnly";
 import { useProposalRoles, proposalRoleKeys, type ProposalRole } from "@/lib/proposal-roles";

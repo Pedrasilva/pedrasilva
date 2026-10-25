@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useCreateProject } from "@/lib/projects/use-planner";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { format } from "date-fns";
 
 const PALETTE = ["#16a34a", "#2563eb", "#db2777", "#ea580c", "#9333ea", "#0d9488", "#dc2626", "#ca8a04"];

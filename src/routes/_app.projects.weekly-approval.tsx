@@ -22,7 +22,7 @@ import {
   RotateCcw,
   MessageSquareWarning,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AppShell } from "@/components/projects/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;

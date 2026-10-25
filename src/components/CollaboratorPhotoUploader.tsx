@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Camera, Trash2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { COLLABORATOR_PHOTO_BUCKET } from "@/lib/collaborator-photo";
 

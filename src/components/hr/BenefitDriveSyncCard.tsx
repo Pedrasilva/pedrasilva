@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Trans, useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CloudUpload, FolderTree, Loader2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

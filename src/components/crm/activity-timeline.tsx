@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Phone, Mail, Calendar, StickyNote, MoreHorizontal, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ACTIVITY_TYPES, type CrmActivity, type CrmActivityType } from "@/lib/crm/types";
 
 type Props = {

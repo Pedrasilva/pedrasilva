@@ -12,7 +12,7 @@ import uiI18n from "@/i18n/index";
  * (all grandparents / stages / suppliers).
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Check, X, Ban } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 
 import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";

@@ -77,7 +77,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ArrowLeft, Plus, Archive, ArchiveRestore, BarChart3, Save, Printer, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 import { ResumoCompare } from "@/components/ResumoCompare";

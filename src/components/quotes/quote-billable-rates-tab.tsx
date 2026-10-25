@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { useProposalRoles } from "@/lib/proposal-roles";
 import type { ProposalRole } from "@/lib/proposal-roles";
 import {

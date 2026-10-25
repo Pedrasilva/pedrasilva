@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format, parseISO, startOfWeek, subWeeks } from "date-fns";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Check, ChevronDown, ChevronRight, Loader2, Mic, Square, Trash2, AlertTriangle, CalendarDays, X } from "lucide-react";
 import { CalendarConnection, useCalendarStatus } from "@/components/projects/calendar-connection";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";

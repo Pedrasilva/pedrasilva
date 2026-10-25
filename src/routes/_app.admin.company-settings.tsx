@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ArrowLeft, Building2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { normalizePortugueseNif, isValidPortugueseNif, formatPortugueseNif } from "@/lib/finance/nif";
 

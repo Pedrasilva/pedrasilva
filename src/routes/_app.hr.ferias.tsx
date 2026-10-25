@@ -48,7 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CalendarDays, Plus, Check, X, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { notifyBaixaMedicaSubmitted } from "@/lib/hr/baixa-medica-notify.functions";
 import { countWeekdays } from "@/lib/dates";
 import type { Collaborator } from "@/lib/salary";

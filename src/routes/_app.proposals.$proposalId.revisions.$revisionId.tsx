@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { RotateCcw } from "lucide-react";
 import { ComposerShell } from "@/components/psa-composer/composer-shell";
 import { RevisionProvider } from "@/lib/psa-proposal/revision-context";

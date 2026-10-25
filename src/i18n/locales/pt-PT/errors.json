@@ -123,7 +123,38 @@
     "videoSampleTableUnavailable": "Tabela de amostras do vídeo indisponível.",
     "videoTrackMissing": "Faixa de vídeo em falta.",
     "aiIsBusyTryAgainInAMinute": "A IA está ocupada; tente novamente dentro de um minuto.",
-    "aiCreditsExhausted": "Os créditos de IA esgotaram-se."
+    "aiCreditsExhausted": "Os créditos de IA esgotaram-se.",
+    "publicationLockIsNoLongerOwned": "O bloqueio de publicação já não pertence a esta operação.",
+    "attemptLogUnavailable": "O registo da tentativa está indisponível.",
+    "instagramMediaProcessingFailedOrContainerExpired": "O processamento da multimédia pelo Instagram falhou ou o contentor expirou.",
+    "containerAlreadyPublishedAutomaticResubmissionBlocked": "O contentor já foi publicado; o reenvio automático está bloqueado.",
+    "instagramMediaProcessingTimedOut": "O processamento da multimédia pelo Instagram excedeu o tempo limite.",
+    "instagramContainerIdMissing": "O identificador do contentor Instagram está em falta.",
+    "publicationApprovalCheckUnavailable": "A verificação da aprovação de publicação está indisponível.",
+    "locationTagsAreNotSupportedByAutomaticPublishingRemoveTheTagAndApproveAgain": "As etiquetas de localização não são suportadas na publicação automática; remova a etiqueta e aprove novamente.",
+    "storyFramesNeedReRenderingOpenThePostAndApproveAgain": "Os frames da story precisam de nova renderização; abra o post e aprove novamente.",
+    "someApprovedMediaAreMissingOrUnreadable": "Alguns ficheiros de multimédia aprovados estão em falta ou não são legíveis.",
+    "singleReelRequiresOneFileCarouselRequires210Files": "Um post simples/reel requer um ficheiro; um carrossel requer 2–10 ficheiros.",
+    "privateMediaUrlUnavailable": "O endereço da multimédia privada está indisponível.",
+    "reelRequiresAVideoFile": "O reel requer um ficheiro de vídeo.",
+    "reelCoverUnavailable": "A capa do reel está indisponível.",
+    "reelCoverMustBeAValidPortraitJpeg": "A capa do reel tem de ser um JPEG vertical válido.",
+    "captionExceeds2200Characters": "A legenda excede 2200 caracteres.",
+    "instagramPublishingLimitUnavailable": "O limite de publicação do Instagram está indisponível.",
+    "instagramDailyPublishingLimitReached": "Foi atingido o limite diário de publicação no Instagram.",
+    "storyLockOrApprovalUnavailableNoSubmissionMade": "O bloqueio ou a aprovação da story está indisponível; não foi feito qualquer envio.",
+    "storyOutcomeUnknownVerifyInstagramBeforeAnyRetry": "O resultado da story é desconhecido; verifique o Instagram antes de qualquer nova tentativa.",
+    "storyFramesMissing": "Os frames da story estão em falta.",
+    "instagramPublicationResultIsUnknownVerifyInstagramBeforeRetrying": "O resultado da publicação no Instagram é desconhecido; verifique o Instagram antes de tentar novamente.",
+    "publicationCouldNotBeCompleted": "Não foi possível concluir a publicação.",
+    "publicationCheckRejected": "Verificação de publicação rejeitada: {{detail}}",
+    "confirmPublicationConcern": "Confirme primeiro o aviso de publicação: {{detail}}",
+    "draftNotReady": "Este rascunho não está pronto: {{detail}}",
+    "voiceNoteStore": "Não foi possível guardar a nota de voz: {{detail}}",
+    "answerSave": "Não foi possível guardar a resposta: {{detail}}",
+    "recordingStore": "Não foi possível guardar a gravação: {{detail}}",
+    "textSlidesDesign_one": "{{count}} diapositivo de texto ainda precisa de um design.",
+    "textSlidesDesign_other": "{{count}} diapositivos de texto ainda precisam de um design."
   },
   "inbox": {
     "youDoNotHavePermissionToTriageTheInbox": "Não tem permissão para fazer a triagem da entrada.",
@@ -158,7 +189,9 @@
     "propostaBloqueadaNOPossVelEditarBlocos": "Proposta bloqueada — não é possível editar blocos.",
     "chooseSomeoneElseToApprove": "Escolha outra pessoa para aprovar.",
     "onlyTheRequestedApproverCanDecide": "Só a pessoa designada para aprovar pode tomar esta decisão.",
-    "expenseIsAlreadyApprovedPaidOrInvoiced": "A despesa já foi aprovada, paga ou faturada."
+    "expenseIsAlreadyApprovedPaidOrInvoiced": "A despesa já foi aprovada, paga ou faturada.",
+    "projectIdNotFound": "Projeto {{id}} não encontrado.",
+    "quoteIdNotFound": "Proposta {{id}} não encontrada."
   },
   "finance": {
     "expenseNotFound": "Despesa não encontrada.",
@@ -215,7 +248,9 @@
     "thisDocumentWasAlreadyIssuedToInvoiceXpress": "Este documento já foi emitido no InvoiceXpress.",
     "documentHasNoLines": "O documento não contém linhas.",
     "invoicexpressDidNotReturnAnId": "O InvoiceXpress não devolveu um identificador.",
-    "documentNotIssuedOnInvoiceXpressYet": "O documento ainda não foi emitido no InvoiceXpress."
+    "documentNotIssuedOnInvoiceXpressYet": "O documento ainda não foi emitido no InvoiceXpress.",
+    "itemAlready": "O item já está {{status}}.",
+    "entityRefusal": "Recusado: pertence a outra entidade ({{ids}})."
   },
   "admin": {
     "googleDriveConnectorNotLinked": "O conector Google Drive não está ligado.",
@@ -223,10 +258,17 @@
     "thisBackupHasNoDriveFileItFailedBeforeUpload": "Esta cópia de segurança não tem um ficheiro no Drive (falhou antes do carregamento).",
     "contabilidadeFolderIsNotConfigured": "A pasta de Contabilidade não está configurada.",
     "cannotRemoveYourOwnAdminRole": "Não pode remover a sua própria função de administrador.",
-    "cannotRemoveSuperAdmin": "Não é possível remover o superadministrador."
+    "cannotRemoveSuperAdmin": "Não é possível remover o superadministrador.",
+    "driveFolderFailure": "Falha ao criar a pasta no Drive [{{status}}]: {{detail}}",
+    "driveUploadFailure": "Falha ao carregar para o Drive [{{status}}]: {{detail}}"
   },
   "hr": {
     "missingApproverAccount": "A conta da pessoa que aprova está em falta.",
-    "selectACollaborator": "Selecione um colaborador."
+    "selectACollaborator": "Selecione um colaborador.",
+    "noOpTransition": "Sem alteração: já está {{status}}."
+  },
+  "crm": {
+    "contractStatus": "A ação não é permitida para o estado do contrato «{{status}}».",
+    "contractIdNotFound": "Contrato {{id}} não encontrado."
   }
 }

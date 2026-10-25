@@ -11,7 +11,7 @@ import type { MarketingProjectOption } from '@/lib/marketing/portfolio';
 import { PortfolioDialog } from './portfolio-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 
 export function MarketingProjectPicker({value,onChange,label,emptyLabel,emptyValue='',profileValue=false,disabled=false,options,allowCreate=true}: {value:string|null;onChange:(v:string)=>void;label:string;emptyLabel?:string;emptyValue?:string;profileValue?:boolean;disabled?:boolean;options?:MarketingProjectOption[];allowCreate?:boolean}) {
   const {t}=useTranslation('marketing');const {allowed}=useCan('marketing.curate','all'); const {data=[]}=useMarketingProjectDirectory();

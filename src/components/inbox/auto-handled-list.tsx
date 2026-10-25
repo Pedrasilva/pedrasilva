@@ -7,7 +7,7 @@ import uiI18n from "@/i18n/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { Loader2, Undo2 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";

@@ -9,7 +9,7 @@ import uiI18n from "@/i18n/index";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

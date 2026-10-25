@@ -10,7 +10,7 @@ import uiI18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { History, Pencil, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sendLeaveChangeEmails } from "@/lib/hr/leave-change-email.functions";

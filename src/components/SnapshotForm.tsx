@@ -25,7 +25,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
 import { LiquidoTab } from "./snapshot/LiquidoTab";

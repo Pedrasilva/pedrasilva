@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AdminOnly } from "@/components/AdminOnly";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

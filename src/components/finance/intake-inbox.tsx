@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { AlertTriangle, Check, ChevronDown, Clock, Loader2, RefreshCw, Settings } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { IntakeUploadButton, OPEN_INTAKE_ITEM_EVENT } from "@/components/finance/intake-upload-button";

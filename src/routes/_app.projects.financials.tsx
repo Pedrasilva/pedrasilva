@@ -16,7 +16,7 @@ import {
   subWeeks,
 } from "date-fns";
 import { useDateLocale } from "@/i18n/use-date-locale";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
   ResponsiveContainer,
   Bar,

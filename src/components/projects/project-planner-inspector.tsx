@@ -15,7 +15,7 @@ import i18n from "@/i18n/index";
 import { useMemo, useState } from "react";
 import { addDays, addMonths, addWeeks, differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { X, Trash2, Plus, Ban, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

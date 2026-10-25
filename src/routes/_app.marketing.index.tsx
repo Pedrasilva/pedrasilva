@@ -19,7 +19,7 @@ import { generateCaptureThumbnails } from "@/lib/marketing/captures.functions";
 import { PREVIEW_VERSION, signPaths } from "@/lib/marketing/draft-images";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
 import { cleanEmailBody } from "@/lib/marketing/clean-email";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";

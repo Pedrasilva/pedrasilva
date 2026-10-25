@@ -42,7 +42,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CalendarDays, Plus, Trash2, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { computeWorkdays, type Holiday } from "@/lib/workdays";
 import { useDateLocale } from "@/i18n/use-date-locale";
 

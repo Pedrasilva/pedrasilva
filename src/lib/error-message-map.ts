@@ -1079,5 +1079,253 @@ export const errorMessageMap = [
     "module": "hr",
     "message": "Select a collaborator",
     "key": "hr.selectACollaborator"
+  },
+  {
+    "module": "marketing",
+    "message": "Publication lock is no longer owned",
+    "key": "marketing.publicationLockIsNoLongerOwned"
+  },
+  {
+    "module": "marketing",
+    "message": "Attempt log unavailable",
+    "key": "marketing.attemptLogUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram media processing failed or container expired",
+    "key": "marketing.instagramMediaProcessingFailedOrContainerExpired"
+  },
+  {
+    "module": "marketing",
+    "message": "Container already published; automatic resubmission blocked",
+    "key": "marketing.containerAlreadyPublishedAutomaticResubmissionBlocked"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram media processing timed out",
+    "key": "marketing.instagramMediaProcessingTimedOut"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram container ID missing",
+    "key": "marketing.instagramContainerIdMissing"
+  },
+  {
+    "module": "marketing",
+    "message": "Publication approval check unavailable",
+    "key": "marketing.publicationApprovalCheckUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Location tags are not supported by automatic publishing; remove the tag and approve again",
+    "key": "marketing.locationTagsAreNotSupportedByAutomaticPublishingRemoveTheTagAndApproveAgain"
+  },
+  {
+    "module": "marketing",
+    "message": "Story frames need re-rendering, open the post and approve again",
+    "key": "marketing.storyFramesNeedReRenderingOpenThePostAndApproveAgain"
+  },
+  {
+    "module": "marketing",
+    "message": "Some approved media are missing or unreadable",
+    "key": "marketing.someApprovedMediaAreMissingOrUnreadable"
+  },
+  {
+    "module": "marketing",
+    "message": "Single/reel requires one file; carousel requires 2–10 files",
+    "key": "marketing.singleReelRequiresOneFileCarouselRequires210Files"
+  },
+  {
+    "module": "marketing",
+    "message": "Private media URL unavailable",
+    "key": "marketing.privateMediaUrlUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Reel requires a video file",
+    "key": "marketing.reelRequiresAVideoFile"
+  },
+  {
+    "module": "marketing",
+    "message": "Reel cover unavailable",
+    "key": "marketing.reelCoverUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Reel cover must be a valid portrait JPEG",
+    "key": "marketing.reelCoverMustBeAValidPortraitJpeg"
+  },
+  {
+    "module": "marketing",
+    "message": "Caption exceeds 2200 characters",
+    "key": "marketing.captionExceeds2200Characters"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram publishing limit unavailable",
+    "key": "marketing.instagramPublishingLimitUnavailable"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram daily publishing limit reached",
+    "key": "marketing.instagramDailyPublishingLimitReached"
+  },
+  {
+    "module": "marketing",
+    "message": "Story lock or approval unavailable; no submission made",
+    "key": "marketing.storyLockOrApprovalUnavailableNoSubmissionMade"
+  },
+  {
+    "module": "marketing",
+    "message": "Story outcome unknown; verify Instagram before any retry",
+    "key": "marketing.storyOutcomeUnknownVerifyInstagramBeforeAnyRetry"
+  },
+  {
+    "module": "marketing",
+    "message": "Story frames missing",
+    "key": "marketing.storyFramesMissing"
+  },
+  {
+    "module": "marketing",
+    "message": "Instagram publication result is unknown; verify Instagram before retrying",
+    "key": "marketing.instagramPublicationResultIsUnknownVerifyInstagramBeforeRetrying"
+  },
+  {
+    "module": "marketing",
+    "message": "Publication could not be completed",
+    "key": "marketing.publicationCouldNotBeCompleted"
+  }
+] as const;
+
+export const errorPatternMap = [
+  {
+    "module": "finance",
+    "key": "finance.itemAlready",
+    "pattern": "^Item is already (.+)$",
+    "names": [
+      "status"
+    ]
+  },
+  {
+    "module": "hr",
+    "key": "hr.noOpTransition",
+    "pattern": "^no_op_transition: already (.+)$",
+    "names": [
+      "status"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.publicationCheckRejected",
+    "pattern": "^Publication check rejected: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.confirmPublicationConcern",
+    "pattern": "^Confirm publication concern first: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.draftNotReady",
+    "pattern": "^This draft is not ready: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "crm",
+    "key": "crm.contractStatus",
+    "pattern": "^Action not allowed for contract status \"([^\"]+)\"$",
+    "names": [
+      "status"
+    ]
+  },
+  {
+    "module": "projects",
+    "key": "projects.projectIdNotFound",
+    "pattern": "^Project ([0-9a-f-]{36}) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "crm",
+    "key": "crm.contractIdNotFound",
+    "pattern": "^Contract ([0-9a-f-]{36}) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "projects",
+    "key": "projects.quoteIdNotFound",
+    "pattern": "^Quote ([0-9a-f-]{36}) not found$",
+    "names": [
+      "id"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.voiceNoteStore",
+    "pattern": "^Could not store the voice note: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.answerSave",
+    "pattern": "^Could not save the answer: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.recordingStore",
+    "pattern": "^Could not store the recording: (.+)$",
+    "names": [
+      "detail"
+    ]
+  },
+  {
+    "module": "finance",
+    "key": "finance.entityRefusal",
+    "pattern": "^Refused: belongs to another entity \\((.+)\\)$",
+    "names": [
+      "ids"
+    ]
+  },
+  {
+    "module": "admin",
+    "key": "admin.driveFolderFailure",
+    "pattern": "^Drive folder create failed \\[([0-9]{3})\\]: ([\\s\\S]+)$",
+    "names": [
+      "status",
+      "detail"
+    ]
+  },
+  {
+    "module": "admin",
+    "key": "admin.driveUploadFailure",
+    "pattern": "^Drive upload failed \\[([0-9]{3})\\]: ([\\s\\S]+)$",
+    "names": [
+      "status",
+      "detail"
+    ]
+  },
+  {
+    "module": "marketing",
+    "key": "marketing.textSlidesDesign",
+    "pattern": "^([0-9]+) text slide\\(s\\) still need a design$",
+    "names": [
+      "count"
+    ]
   }
 ] as const;

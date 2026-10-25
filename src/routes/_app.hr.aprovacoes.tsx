@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { Check, X, Inbox } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { useApprovalInbox, useInboxDecision } from "@/lib/hr/use-approval-inbox";
 import type { ApprovalRow } from "@/lib/hr/approval-inbox";
 import { Button } from "@/components/ui/button";

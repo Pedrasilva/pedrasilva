@@ -32,7 +32,7 @@ import { MarkLostDialog, type MarkLostPayload } from "@/components/crm/mark-lost
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import {
    OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
   defaultQuoteTypeForCategory,

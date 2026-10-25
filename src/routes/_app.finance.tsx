@@ -14,7 +14,7 @@ import {
   FinanceShellProvider,
   useFinanceShell,
 } from "@/components/finance/finance-shell-context";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import i18n from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { financeAccessQueryOptions } from "@/hooks/use-finance-access";

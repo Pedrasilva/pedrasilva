@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CalendarDays, Loader2, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useViewAsUserId } from "@/hooks/use-view-as-user-id";

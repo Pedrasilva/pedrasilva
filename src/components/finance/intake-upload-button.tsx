@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { CheckCircle2, Loader2, Upload, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

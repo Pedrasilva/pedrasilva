@@ -23,7 +23,7 @@ import {
   CheckSquare, Receipt, CalendarDays,
   Clock, Play, Package, Wallet, Target, FileText,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from '@/lib/toast';
 import { NewCompanyDialog } from "@/components/crm/new-company-dialog";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { QuickSaleDialog } from "@/components/crm/quick-sale-dialog";
