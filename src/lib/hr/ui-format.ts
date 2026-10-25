@@ -7,7 +7,7 @@ export function fmtEUR(value: number | null | undefined): string {
 }
 
 export function fmtPct(value: number): string {
-  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value * 100) + "%";
+  return new Intl.NumberFormat(i18n.language, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(value);
 }
 
 export function fmtNumber(value: number, digits = 2): string {
