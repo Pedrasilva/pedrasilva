@@ -36,6 +36,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/projects/$projectId/allocations")({
+  head: () => ({ meta: [{ title: "Project allocations — PSA Hub" }, { name: "description", content: "Project allocations in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Project allocations — PSA Hub" }, { property: "og:description", content: "Project allocations in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AllocationsWorkspace,
 });
 

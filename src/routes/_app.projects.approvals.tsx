@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { usePendingApprovalsSummary } from "@/lib/projects/use-hour-approvals";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_app/projects/approvals")({
+  head: () => ({ meta: [{ title: "Project work approvals — PSA Hub" }, { name: "description", content: "Project work approvals in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Project work approvals — PSA Hub" }, { property: "og:description", content: "Project work approvals in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ProjectsApprovalsQueue,
 });
 
@@ -23,6 +25,7 @@ function ProjectsApprovalsQueue() {
   const decide = useDecideNonWorkingEntry();
   const locale = useDateLocale();
   async function act(id: string, approve: boolean) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
     let reason: string | undefined;
     if (!approve) {
       const r = window.prompt(t("projects:approvals.rejectPrompt", { defaultValue: "Reason for rejection?" }) ?? "");
@@ -82,7 +85,7 @@ function ProjectsApprovalsQueue() {
                       {e.label}{e.notes ? ` — ${e.notes}` : ""}
                     </div>
                   </div>
-                  <span className="font-mono">{e.hours.toFixed(2)} h</span>
+                  <span className="font-mono">{formatNumber(e.hours, 2)} h</span>
                   <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => void act(e.id, true)}>
                     <Check className="mr-1 h-4 w-4" /> {t("projects:approvals.approve", { defaultValue: "Approve" })}
                   </Button>
@@ -127,11 +130,8 @@ function ProjectsApprovalsQueue() {
                   <div>
                     <div className="font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {p.count}{" "}
-                      {t("projects:approvals.pendingEntries", {
-                        defaultValue: "pending entries",
-                      })}{" "}
-                      · {p.hours.toFixed(1)}h
+                      {t("projects:approvals.pendingCount", { count: p.count })}{" "}
+                      · {formatNumber(p.hours, 1)}h
                     </div>
                   </div>
                 </div>
@@ -145,4 +145,8 @@ function ProjectsApprovalsQueue() {
       </div>
     </AppShell>
   );
+}
+
+function formatNumber(value: number, digits?: number): string {
+  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
 }

@@ -1,3 +1,6 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
+import { useTranslation } from "react-i18next";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/projects/app-shell";
@@ -18,6 +21,7 @@ import { toast } from "sonner";
 import type { Resource } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects/resources/$resourceId")({
+  head: () => ({ meta: [{ title: "Project collaborator — PSA Hub" }, { name: "description", content: "Project collaborator in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Project collaborator — PSA Hub" }, { property: "og:description", content: "Project collaborator in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ResourceDetailPage,
 });
 
@@ -36,6 +40,7 @@ type FullResource = Resource & {
 };
 
 function ResourceDetailPage() {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const { resourceId } = Route.useParams();
   const navigate = useNavigate();
   const { data: resources } = useResources();
@@ -83,7 +88,7 @@ function ResourceDetailPage() {
   if (!resources) {
     return (
       <AppShell active="resources">
-        <div className="mx-auto max-w-3xl px-6 py-10 text-sm text-muted-foreground">Loading…</div>
+        <div className="mx-auto max-w-3xl px-6 py-10 text-sm text-muted-foreground"> {t("common:loading")} </div>
       </AppShell>
     );
   }
@@ -92,16 +97,16 @@ function ResourceDetailPage() {
     return (
       <AppShell active="resources">
         <div className="mx-auto max-w-3xl px-6 py-10">
-          <p className="text-sm text-muted-foreground">Member not found.</p>
+          <p className="text-sm text-muted-foreground"> {t("projects:resources.ui.notFound")} </p>
           <Link to="/projects/resources" className="mt-4 inline-block text-sm underline">
-            Back to Team
-          </Link>
+             {t("projects:resources.ui.backToTeam")} </Link>
         </div>
       </AppShell>
     );
   }
 
   async function handleSave() {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
     try {
       const rate = Number(form.hourly_rate);
       await update.mutateAsync({
@@ -122,30 +127,32 @@ function ResourceDetailPage() {
           active: form.active,
         },
       });
-      toast.success("Saved");
+      toast.success(t("common:saved"));
     } catch (err) {
       toast.error((err as Error).message);
     }
   }
 
   async function handleUseHrDefault() {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
     try {
       await update.mutateAsync({
         id: resourceId,
         patch: { hourly_rate: 0, hourly_rate_is_override: false },
       });
       setForm((f) => ({ ...f, hourly_rate: Number(defaultRate ?? 0) }));
-      toast.success("Using HR default");
+      toast.success(t("projects:resources.ui.usingDefault"));
     } catch (err) {
       toast.error((err as Error).message);
     }
   }
 
   async function handleDelete() {
-    if (!confirm(`Remove ${member?.name}? This cannot be undone.`)) return;
+  const { t } = useTranslation(["projects", "common", "glossary"]);
+    if (!confirm(t("projects:resources.ui.deleteConfirm", { name: member?.name ?? "" }))) return;
     try {
       await del.mutateAsync(resourceId);
-      toast.success("Removed");
+      toast.success(t("common:removed"));
       navigate({ to: "/projects/resources" });
     } catch (err) {
       toast.error((err as Error).message);
@@ -160,8 +167,7 @@ function ResourceDetailPage() {
           className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Team
-        </Link>
+           {t("glossary:entity.team")} </Link>
 
         <div className="mt-4 flex items-start justify-between gap-6 border-b border-border pb-6">
           <div className="flex items-center gap-4">
@@ -185,7 +191,7 @@ function ResourceDetailPage() {
           <div className="flex flex-col items-end gap-3">
             <label className="flex items-center gap-2 text-sm">
               <span className={form.active ? "text-foreground" : "text-muted-foreground"}>
-                {form.active ? "Active" : "Inactive"}
+                {form.active ? t("common:active") : t("common:inactive")}
               </span>
               <Switch
                 checked={form.active}
@@ -197,13 +203,12 @@ function ResourceDetailPage() {
               className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-accent hover:text-destructive"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </button>
+               {t("common:delete")} </button>
           </div>
         </div>
 
         <div className="mt-8 space-y-6">
-          <Section title="Team">
+          <Section title={t("glossary:entity.team")}>
             <div className="inline-flex w-full max-w-xs overflow-hidden rounded-md border border-border">
               {(["project", "back_office"] as ResourceTeam[]).map((t) => (
                 <button
@@ -222,34 +227,34 @@ function ResourceDetailPage() {
             </div>
           </Section>
 
-          <Section title="Profile">
+          <Section title={t("projects:resources.ui.profile")}>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Name">
+              <Field label={t("common:name")}>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </Field>
-              <Field label="Role">
+              <Field label={t("glossary:hr.role")}>
                 <Input
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  placeholder="Architect"
+                  placeholder={t("projects:resources.ui.architect")}
                 />
               </Field>
-              <Field label="Email">
+              <Field label={t("common:email")}>
                 <Input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
               </Field>
-              <Field label="Phone">
+              <Field label={t("common:phone")}>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </Field>
             </div>
           </Section>
 
-          <Section title="Capacity & Rate">
+          <Section title={t("projects:resources.ui.capacitySaleRate")}>
             <div className="grid max-w-md grid-cols-2 gap-4">
-              <Field label="Capacity (h/week)">
+              <Field label={t("projects:resources.ui.weeklyCapacity")}>
                 <Input
                   type="number"
                   min={0}
@@ -258,7 +263,7 @@ function ResourceDetailPage() {
                   onChange={(e) => setForm({ ...form, weekly_capacity: Number(e.target.value) })}
                 />
               </Field>
-              <Field label="Sale rate (€/h)">
+              <Field label={t("projects:resources.ui.salePerHour")}>
                 <Input
                   type="number"
                   min={0}
@@ -268,9 +273,9 @@ function ResourceDetailPage() {
                 <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs">
                   {(member as FullResource & { hourly_rate_is_override?: boolean })
                     .hourly_rate_is_override ? (
-                    <span className="text-amber-600">Project override active</span>
+                    <span className="text-amber-600"> {t("projects:resources.ui.overrideActive")} </span>
                   ) : (
-                    <span className="text-muted-foreground">Using HR default · 75%</span>
+                    <span className="text-muted-foreground"> {t("projects:resources.ui.usingDefault75")} </span>
                   )}
                   {defaultRate != null && defaultRate > 0 && (
                     <>
@@ -278,10 +283,10 @@ function ResourceDetailPage() {
                         type="button"
                         onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
                         className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                        title="Pre-fill input with HR default @ 75%"
+                        title={t("projects:resources.ui.prefillHint")}
                       >
                         <Sparkles className="h-3 w-3" />
-                        HR default @ 75%: {defaultRate.toFixed(2)}€/h
+                         {t("projects:resources.ui.default75Label")} {formatNumber(defaultRate, 2)}€/h
                       </button>
                       {(member as FullResource & { hourly_rate_is_override?: boolean })
                         .hourly_rate_is_override && (
@@ -290,8 +295,7 @@ function ResourceDetailPage() {
                           onClick={handleUseHrDefault}
                           className="text-muted-foreground underline hover:text-foreground"
                         >
-                          Use HR default
-                        </button>
+                           {t("projects:resources.ui.useDefault")} </button>
                       )}
                     </>
                   )}
@@ -300,7 +304,7 @@ function ResourceDetailPage() {
             </div>
           </Section>
 
-          <Section title="Color">
+          <Section title={t("common:color")}>
             <div className="flex flex-wrap gap-2">
               {PALETTE.map((c) => (
                 <button
@@ -316,22 +320,22 @@ function ResourceDetailPage() {
             </div>
           </Section>
 
-          <Section title="Notes">
+          <Section title={t("common:notes")}>
             <Textarea
               rows={5}
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              placeholder="Anything worth remembering about this person…"
+              placeholder={t("projects:resources.ui.notesPlaceholder")}
             />
           </Section>
         </div>
 
         <div className="mt-8 flex items-center justify-end gap-2 border-t border-border pt-6">
           <Link to="/projects/resources">
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline"> {t("common:cancel")} </Button>
           </Link>
           <Button onClick={handleSave} disabled={update.isPending}>
-            {update.isPending ? "Saving…" : "Save changes"}
+            {update.isPending ? t("common:saving") : t("common:saveChanges")}
           </Button>
         </div>
       </div>
@@ -355,4 +359,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <div className="mt-1">{children}</div>
     </div>
   );
+}
+
+function formatNumber(value: number, digits?: number): string {
+  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
 }

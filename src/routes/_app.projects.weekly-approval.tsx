@@ -44,6 +44,7 @@ import {
 } from "@/lib/projects/use-timesheet-weeks";
 
 export const Route = createFileRoute("/_app/projects/weekly-approval")({
+  head: () => ({ meta: [{ title: "Weekly timesheet approvals — PSA Hub" }, { name: "description", content: "Weekly timesheet approvals in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Weekly timesheet approvals — PSA Hub" }, { property: "og:description", content: "Weekly timesheet approvals in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   // ?week=YYYY-MM-DD&user=<uuid> opens that person's week (notification links).
   validateSearch: (s: Record<string, unknown>): { week?: string; user?: string } => ({
     ...(typeof s.week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.week) ? { week: s.week } : {}),
@@ -479,7 +480,7 @@ function ReviewPanel({
       reset();
       onClose();
     },
-    onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+    onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
   });
 
   const reset = () => {
@@ -676,7 +677,7 @@ function ReviewPanel({
                           reset();
                           onClose();
                         },
-                        onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+                        onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
                       },
                     )
                   }
@@ -810,7 +811,7 @@ function ReviewPanel({
                             reset();
                             onClose();
                           },
-                          onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+                          onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
                         },
                       )
                     }
@@ -830,7 +831,7 @@ function ReviewPanel({
                             reset();
                             onClose();
                           },
-                          onError: (e: unknown) => toast.error((e as Error)?.message ?? "Error"),
+                          onError: (e: unknown) => toast.error((e as Error)?.message ?? t("common:error")),
                         },
                       )
                     }

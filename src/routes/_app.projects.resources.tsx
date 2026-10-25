@@ -1,3 +1,5 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,6 +22,7 @@ import { euros } from "@/lib/projects/gantt-utils";
 import type { Resource } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects/resources")({
+  head: () => ({ meta: [{ title: "Project team — PSA Hub" }, { name: "description", content: "Project team in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Project team — PSA Hub" }, { property: "og:description", content: "Project team in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ResourcesPage,
 });
 
@@ -51,6 +54,7 @@ function useArchivedCollaboratorIds() {
 }
 
 function ResourcesPage() {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: archivedIds } = useArchivedCollaboratorIds();
@@ -104,12 +108,10 @@ function ResourcesPage() {
       <div className="w-full px-6 py-10">
         <div className="flex items-end justify-between border-b border-border pb-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">People</p>
-            <h1 className="text-4xl font-semibold tracking-tight">Team</h1>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground"> {t("projects:people")} </p>
+            <h1 className="text-4xl font-semibold tracking-tight"> {t("glossary:entity.team")} </h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Team members are managed in HR. New collaborators added there appear here
-              automatically. Click any name to edit project-specific details (rate, capacity, color).
-            </p>
+               {t("projects:resources.ui.subtitle")} </p>
           </div>
         </div>
 
@@ -117,16 +119,16 @@ function ResourcesPage() {
           <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
             <TabsList>
               <TabsTrigger value="all">
-                All <span className="ml-1.5 text-xs text-muted-foreground">{counts.all}</span>
+                 {t("common:all")} <span className="ml-1.5 text-xs text-muted-foreground">{counts.all}</span>
               </TabsTrigger>
               <TabsTrigger value="project">
-                Project Team <span className="ml-1.5 text-xs text-muted-foreground">{counts.project}</span>
+                 {t("projects:resources.tabs.project")} <span className="ml-1.5 text-xs text-muted-foreground">{counts.project}</span>
               </TabsTrigger>
               <TabsTrigger value="back_office">
-                Back Office <span className="ml-1.5 text-xs text-muted-foreground">{counts.back_office}</span>
+                 {t("projects:resources.ui.backoffice")} <span className="ml-1.5 text-xs text-muted-foreground">{counts.back_office}</span>
               </TabsTrigger>
               <TabsTrigger value="inactive">
-                Inactive <span className="ml-1.5 text-xs text-muted-foreground">{counts.inactive}</span>
+                 {t("common:inactive")} <span className="ml-1.5 text-xs text-muted-foreground">{counts.inactive}</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -136,14 +138,14 @@ function ResourcesPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 text-left">Name</th>
-                <th className="px-4 py-3 text-left">Role</th>
-                <th className="px-4 py-3 text-left">Team</th>
-                <th className="px-4 py-3 text-right">Cost €/h</th>
-                <th className="px-4 py-3 text-right">Sale €/h (75%)</th>
-                <th className="px-4 py-3 text-right">Ref. 100%</th>
-                <th className="px-4 py-3 text-right">Capacity</th>
-                <th className="px-4 py-3 text-center">Active</th>
+                <th className="px-4 py-3 text-left"> {t("common:name")} </th>
+                <th className="px-4 py-3 text-left"> {t("glossary:hr.role")} </th>
+                <th className="px-4 py-3 text-left"> {t("glossary:entity.team")} </th>
+                <th className="px-4 py-3 text-right"> {t("projects:resources.ui.costPerHour")} </th>
+                <th className="px-4 py-3 text-right"> {t("projects:resources.ui.salePerHour75")} </th>
+                <th className="px-4 py-3 text-right"> {t("projects:resources.ui.reference100")} </th>
+                <th className="px-4 py-3 text-right"> {t("glossary:performance.capacity")} </th>
+                <th className="px-4 py-3 text-center"> {t("common:active")} </th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -171,8 +173,7 @@ function ResourcesPage() {
                         <span className="font-medium group-hover:underline">{r.name}</span>
                         {hrArchived && (
                           <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                            HR archived
-                          </span>
+                             {t("projects:resources.ui.hrArchived")} </span>
                         )}
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                       </Link>
@@ -204,30 +205,27 @@ function ResourcesPage() {
                                     hasOverride ? "text-amber-600" : "text-muted-foreground"
                                   }`}
                                 >
-                                  {hasOverride ? "Project override" : "HR default · 75%"}
+                                  {hasOverride ? t("projects:resources.ui.override") : t("projects:resources.ui.hrDefault75")}
                                 </span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent side="left" className="max-w-xs text-left">
                               {hasOverride ? (
                                 <div className="space-y-1">
-                                  <p className="font-medium">Project override</p>
+                                  <p className="font-medium"> {t("projects:resources.ui.override")} </p>
                                   <p className="text-[11px] opacity-90">
-                                    Manual sale rate set on this project resource. It overrides the HR
-                                    75% default.
-                                  </p>
+                                     {t("projects:resources.ui.overrideHint")} </p>
                                   {hr?.sale ? (
                                     <p className="text-[11px] opacity-75">
-                                      HR default would be {euros(hr.sale)} (75% band).
+                                      {t("projects:resources.ui.defaultWouldBe", { value: euros(hr.sale) })}
                                     </p>
                                   ) : null}
                                 </div>
                               ) : (
                                 <div className="space-y-1">
-                                  <p className="font-medium">HR default · 75%</p>
+                                  <p className="font-medium"> {t("projects:resources.ui.hrDefault75")} </p>
                                   <p className="text-[11px] opacity-90">
-                                    Derived from the HR pricing table using the 75% sale-rate band.
-                                  </p>
+                                     {t("projects:resources.ui.defaultHint")} </p>
                                 </div>
                               )}
                             </TooltipContent>
@@ -253,10 +251,10 @@ function ResourcesPage() {
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (!confirm(`Remove ${r.name} from the project team? They will remain in HR.`)) return;
+                          if (!confirm(t("projects:resources.ui.removeConfirm", { name: r.name }))) return;
                           try {
                             await del.mutateAsync(r.id);
-                            toast.success("Removed");
+                            toast.success(t("common:removed"));
                           } catch (err) {
                             toast.error((err as Error).message);
                           }
@@ -273,8 +271,8 @@ function ResourcesPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">
                     {all.length
-                      ? `No one in this view yet.`
-                      : "No team members yet. Add collaborators in the HR section to populate this list."}
+                      ? t("projects:resources.emptyFiltered")
+                      : t("projects:resources.ui.noTeam")}
                   </td>
                 </tr>
               )}
@@ -282,10 +280,7 @@ function ResourcesPage() {
           </table>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Sale rates default to the HR pricing table at the <strong>75% margin band</strong>. The 100%
-          band is shown for reference. <span className="text-amber-600">Project override</span> only
-          appears when a manual rate is set on the resource. Inactive collaborators are hidden by
-          default — use the <em>Inactive</em> tab to view them.
+          {t("projects:resources.ui.pricingBefore")} <strong>{t("projects:resources.ui.pricingBand")}</strong>{t("projects:resources.ui.pricingMiddle")} <span className="text-amber-600"> {t("projects:resources.ui.override")} </span> {t("projects:resources.ui.pricingAfter")} <em> {t("common:inactive")} </em> {t("projects:resources.ui.pricingEnd")}
         </p>
       </div>
     </AppShell>

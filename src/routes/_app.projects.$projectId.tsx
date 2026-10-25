@@ -1,3 +1,5 @@
+import { useDateLocale } from "@/i18n/use-date-locale";
+import i18n from "@/i18n/index";
 import { financialResult, completionForecast, plannedAllocationFigures } from "@/lib/projects/financial-calculation";
 import { useProjectEntryFigures } from "@/lib/projects/use-project-entry-figures";
 import { rollupExternalServices, rollupExpenses, sumFinancialsRows } from "@/lib/projects/financial-rollups";
@@ -13,7 +15,7 @@ import {
   format,
   parseISO,
 } from "date-fns";
-import { pt } from "date-fns/locale";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { AppShell } from "@/components/projects/app-shell";
@@ -180,6 +182,7 @@ type TabKey =
 
 
 function ProjectDetail() {
+  const dateLocale = useDateLocale();
   const { t } = useTranslation();
   const projectFinanceAccess = useFinanceAccess();
   const { projectId } = Route.useParams();
@@ -423,7 +426,7 @@ function ProjectDetail() {
       .filter((inv) => inv.raised_date)
       .map((inv) => ({
         id: inv.id,
-        label: inv.invoice_number || inv.title || "Invoice",
+        label: inv.invoice_number || inv.title || t("projects:detail.ui.invoice"),
         date: inv.raised_date,
         amount: Number(inv.total ?? 0),
         status:
@@ -440,8 +443,7 @@ function ProjectDetail() {
     return (
       <AppShell active="projects">
         <div className="p-12 text-center text-sm text-muted-foreground">
-          A carregar projecto…
-        </div>
+           {t("projects:detail.ui.loading")} </div>
       </AppShell>
     );
   }
@@ -449,8 +451,7 @@ function ProjectDetail() {
     return (
       <AppShell active="projects">
         <div className="p-12 text-center text-sm text-destructive">
-          Não foi possível carregar.
-        </div>
+           {t("projects:detail.ui.loadError")} </div>
       </AppShell>
     );
   }
@@ -649,11 +650,11 @@ function ProjectDetail() {
             <span className="text-border">·</span>
             <span className="inline-flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              {format(scheduleStart, "d MMM", { locale: pt })} – {format(scheduleEnd, "d MMM yyyy", { locale: pt })}
+              {format(scheduleStart, "d MMM", { locale: dateLocale })} – {format(scheduleEnd, "d MMM yyyy", { locale: dateLocale })}
               {overdueDays > 0 ? (
-                <span className="font-medium text-destructive">· {overdueDays}d</span>
+                <span className="font-medium text-destructive">· {t("common:duration.daysShort", { count: overdueDays })}</span>
               ) : (
-                <span className="text-muted-foreground/70">· {remainingDays}d</span>
+                <span className="text-muted-foreground/70">· {t("common:duration.daysShort", { count: remainingDays })}</span>
               )}
             </span>
             {team.length > 0 && (
@@ -701,7 +702,7 @@ function ProjectDetail() {
                 Rates / Assets / Attachments / Details are dropped. */}
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
-            <TabBtn icon={Repeat} label="Retainer" active={tab === "ap"} onClick={() => setTab("ap")} />
+            <TabBtn icon={Repeat} label={t("projects:detail.ui.retainer")} active={tab === "ap"} onClick={() => setTab("ap")} />
             {isAdmin && (
               <TabBtn icon={CheckCircle2} label={t("projects:approvals.title", { defaultValue: "Approvals" })} active={tab === "approvals"} onClick={() => setTab("approvals")} />
             )}
@@ -710,12 +711,12 @@ function ProjectDetail() {
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
             {projectFinanceAccess.hasAccess && <TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
-            <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
-            <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
-            <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
-            <TabBtn icon={ArrowUpFromLine} label="Outgoing" active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
-            <TabBtn icon={CalendarClock} label="Payment schedule" active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
-            <TabBtn icon={PieChartIcon} label="Financial summary" active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
+            <TabBtn icon={Building2} label={t("projects:detail.ui.architecture")} active={tab === "architecture"} onClick={() => setTab("architecture")} />
+            <TabBtn icon={UsersIcon} label={t("common:shell.link.finance.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />
+            <TabBtn icon={ArrowDownToLine} label={t("projects:detail.ui.incoming")} active={tab === "incoming"} onClick={() => setTab("incoming")} />
+            <TabBtn icon={ArrowUpFromLine} label={t("projects:detail.ui.outgoing")} active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
+            <TabBtn icon={CalendarClock} label={t("projects:detail.ui.paymentSchedule")} active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
+            <TabBtn icon={PieChartIcon} label={t("projects:detail.ui.financialSummary")} active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -773,17 +774,17 @@ function ProjectDetail() {
                     />
                     <DetailRow
                       label={t("projects:detail.sidebar.start", { defaultValue: "Start" })}
-                      value={format(scheduleStart, "d MMM yyyy", { locale: pt })}
+                      value={format(scheduleStart, "d MMM yyyy", { locale: dateLocale })}
                     />
                     <DetailRow
                       label={t("projects:detail.sidebar.end", { defaultValue: "End" })}
-                      value={format(scheduleEnd, "d MMM yyyy", { locale: pt })}
+                      value={format(scheduleEnd, "d MMM yyyy", { locale: dateLocale })}
                     />
                     <DetailRow
                       label={overdueDays > 0
                         ? t("projects:detail.sidebar.overdue", { defaultValue: "Overdue" })
                         : t("projects:detail.sidebar.remaining", { defaultValue: "Remaining" })}
-                      value={`${overdueDays > 0 ? overdueDays : remainingDays}d`}
+                      value={t("common:duration.daysShort", { count: overdueDays > 0 ? overdueDays : remainingDays })}
                     />
                   </div>
                 </SidebarSection>
@@ -967,7 +968,7 @@ function ProjectDetail() {
             {tab === "ap" && (
               <div className="mt-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-muted-foreground">Retainers</h3>
+                  <h3 className="text-sm font-semibold text-muted-foreground"> {t("projects:detail.ui.retainers")} </h3>
                   <NewRetainerStageDialog
                     projectId={projectId}
                     nextOrder={stages.length}
@@ -1086,7 +1087,7 @@ function ProjectDetail() {
                     <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
                   </>
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Architecture" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.architecture")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1095,7 +1096,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Suppliers" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("common:shell.link.finance.suppliers")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1104,7 +1105,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Incoming" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.incoming")} projectId={projectId} />
                 )}
                 <div className="mt-4"><PaymentsReceived projectId={projectId} /></div>
               </div>
@@ -1114,7 +1115,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Outgoing" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.outgoing")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1123,7 +1124,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Payment schedule" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.paymentSchedule")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1132,7 +1133,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Financial summary" projectId={projectId} />
+                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.financialSummary")} projectId={projectId} />
                 )}
               </div>
             )}
@@ -1223,8 +1224,7 @@ function ProjectDetail() {
               <div className="mt-4 space-y-3">
                 {(activities ?? []).length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                    Sem actividade registada neste projecto.
-                  </div>
+                     {t("projects:detail.ui.noActivity")} </div>
                 ) : (
                   (activities ?? []).map((a) => (
                     <article
@@ -1240,13 +1240,13 @@ function ProjectDetail() {
                             />
                           )}
                           <span className="font-medium text-foreground">
-                            {a.author?.name ?? "Sistema"}
+                            {a.author?.name ?? t("common:system")}
                           </span>
                           {a.stage && <span>· {a.stage.name}</span>}
                         </div>
                         <time>
                           {format(parseISO(a.created_at), "d MMM, HH:mm", {
-                            locale: pt,
+                            locale: dateLocale,
                           })}
                         </time>
                       </header>
@@ -1284,6 +1284,7 @@ function EditableProjectName({
   onRename: (next: string) => Promise<unknown>;
   readOnly?: boolean;
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
   const [saving, setSaving] = useState(false);
@@ -1335,7 +1336,7 @@ function EditableProjectName({
         setValue(name);
         setEditing(true);
       }}
-      title={readOnly ? undefined : "Duplo clique para renomear"}
+      title={readOnly ? undefined : t("projects:detail.ui.renameHint")}
       className={cn(
         "truncate text-3xl font-semibold tracking-tight",
         readOnly ? "cursor-default" : "cursor-text",
@@ -1479,6 +1480,7 @@ function DateChip({
   date: Date;
   highlight?: boolean;
 }) {
+  const dateLocale = useDateLocale();
   return (
     <div className="flex items-center gap-3 py-1.5">
       <div
@@ -1491,7 +1493,7 @@ function DateChip({
           {format(date, "dd")}
         </span>
         <span className="text-[9px] uppercase text-muted-foreground">
-          {format(date, "MMM", { locale: pt })}
+          {format(date, "MMM", { locale: dateLocale })}
         </span>
       </div>
       <div className="text-xs">
@@ -1499,7 +1501,7 @@ function DateChip({
           {label}
         </div>
         <div className="font-medium">
-          {format(date, "d MMMM yyyy", { locale: pt })}
+          {format(date, "d MMMM yyyy", { locale: dateLocale })}
         </div>
       </div>
     </div>
@@ -1557,6 +1559,7 @@ function TabBtn({
 }
 
 function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; projectId?: string }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const qc = (typeof window !== "undefined") ? undefined : undefined; // placeholder to avoid hook order
   const [busy, setBusy] = useState(false);
   const handleBackfill = async () => {
@@ -1566,7 +1569,7 @@ function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; project
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any).rpc("ensure_project_has_quote", { _project_id: projectId });
       if (error) throw error;
-      toast.success(`Quote created (${String(data).slice(0, 8)}…). Reloading…`);
+      toast.success(t("projects:detail.ui.quoteCreated", { id: String(data).slice(0, 8) }));
       setTimeout(() => window.location.reload(), 600);
     } catch (e) {
       toast.error((e as Error).message);
@@ -1579,11 +1582,9 @@ function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; project
     <div className="rounded-lg border border-dashed border-border bg-card/40 p-8 text-center">
       <div className="text-sm font-medium text-foreground">{label}</div>
       <div className="mt-1 text-xs text-muted-foreground">
-        This view is sourced from the project's linked quote (Gantt). No quote is linked to this project yet.
-      </div>
+         {t("projects:detail.ui.noQuote")} </div>
       <div className="mt-2 text-[11px] text-muted-foreground">
-        Create a back-linked quote mirrored from the project Gantt to populate Architecture, Suppliers, Incoming, Outgoing, Payment schedule and Financial summary.
-      </div>
+         {t("projects:detail.ui.createQuoteHint")} </div>
       {projectId && (
         <button
           type="button"
@@ -1591,7 +1592,7 @@ function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; project
           disabled={busy}
           className="mt-3 inline-flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-50"
         >
-          {busy ? "Creating…" : "Create back-linked quote from Gantt"}
+          {busy ? t("common:creating") : t("projects:detail.ui.createQuote")}
         </button>
       )}
     </div>
@@ -1771,14 +1772,13 @@ function MilestonesTable({
   if (!stages || stages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 p-10 text-center text-sm text-muted-foreground">
-        <span>Adiciona uma fase para começar.</span>
+        <span> {t("projects:detail.ui.addStageHint")} </span>
         {onEditPlan && (
           <button
             onClick={onEditPlan}
             className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background hover:opacity-90"
           >
-            <Plus className="h-3.5 w-3.5" /> Nova fase
-          </button>
+            <Plus className="h-3.5 w-3.5" />  {t("projects:detail.actions.addStage")} </button>
         )}
       </div>
     );
@@ -1792,20 +1792,20 @@ function MilestonesTable({
           <button
             onClick={toggleAll}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label={allExpanded ? "Colapsar tudo" : "Expandir tudo"}
-            title={allExpanded ? "Colapsar tudo" : "Expandir tudo"}
+            aria-label={allExpanded ? t("common:collapseAll") : t("common:expandAll")}
+            title={allExpanded ? t("common:collapseAll") : t("common:expandAll")}
           >
             <ArrowUpDown className="h-3.5 w-3.5" />
           </button>
           <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground">
-            <span className="text-foreground/80">Status:</span>
+            <span className="text-foreground/80"> {t("common:status")} </span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "empty")}
               className="bg-transparent text-xs font-medium text-foreground outline-none"
             >
-              <option value="all">Todos</option>
-              <option value="active">Activas</option>
+              <option value="all"> {t("common:all")} </option>
+              <option value="active"> {t("common:active")} </option>
               <option value="empty">Sem alocação</option>
             </select>
           </label>
@@ -1816,17 +1816,15 @@ function MilestonesTable({
             onClick={onEditPlan}
             className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent"
           >
-            <Pencil className="h-3.5 w-3.5" /> Edit Plan
-          </button>
+            <Pencil className="h-3.5 w-3.5" />  {t("projects:detail.ui.editPlan")} </button>
           <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent">
-            <Plus className="h-3.5 w-3.5" /> Add Task
-          </button>
+            <Plus className="h-3.5 w-3.5" />  {t("projects:detail.ui.addTask")} </button>
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search"
+              placeholder={t("common:search")}
               className="h-8 w-44 rounded-md border border-border bg-background pl-7 pr-2 text-xs outline-none placeholder:text-muted-foreground focus:ring-1 focus:ring-ring"
             />
           </div>
@@ -1842,35 +1840,32 @@ function MilestonesTable({
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-20 bg-card shadow-[0_1px_0_var(--border)]">
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <th className="sticky left-0 z-30 bg-card px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
-              <th className="px-4 py-2.5 font-semibold">Status</th>
+              <th className="sticky left-0 z-30 bg-card px-4 py-2.5 font-semibold"> {t("projects:detail.ui.milestonesTasks")} </th>
+              <th className="px-4 py-2.5 font-semibold"> {t("common:status")} </th>
               {canSeeFinancials && (
                 <>
                   <th
                     className="px-4 py-2.5 text-right font-semibold"
-                    title="Actual cost = Σ logged hours × cost rate. Compared to the stage budget when defined."
+                    title={t("projects:detail.ui.actualCostHint")}
                   >
-                    Cost (actual vs budget)
-                  </th>
+                     {t("projects:detail.ui.actualCost")} </th>
                   <th
                     className="px-4 py-2.5 text-right font-semibold"
-                    title="Revenue earned = Σ billable hours × sale rate"
+                    title={t("projects:detail.ui.earnedRevenueHint")}
                   >
-                    Revenue (earned)
-                  </th>
+                     {t("projects:detail.ui.earnedRevenue")} </th>
                   {finance.hasAccess && <><th className="px-4 py-2.5 text-right font-semibold">{t('finance:provisional.billedNet')}</th><th className="px-4 py-2.5 text-right font-semibold">{t('finance:provisional.earnedDifference')}</th></>}
                   <th
                     className="px-4 py-2.5 text-right font-semibold"
-                    title="Profit = revenue − cost. Margin shown only when revenue > 0."
+                    title={t("projects:detail.ui.profitHint")}
                   >
-                    Profit / Margin
-                  </th>
+                     {t("projects:detail.ui.profitMargin")} </th>
                 </>
               )}
-              <th className="px-4 py-2.5 text-right font-semibold">Hours used / planned</th>
-              <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
-              <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
-              <th className="px-4 py-2.5 text-right font-semibold">Actions</th>
+              <th className="px-4 py-2.5 text-right font-semibold"> {t("projects:detail.ui.usedPlannedHours")} </th>
+              <th className="px-4 py-2.5 font-semibold"> {t("projects:detail.ui.scheduledStart")} </th>
+              <th className="px-4 py-2.5 font-semibold"> {t("projects:detail.ui.scheduledDue")} </th>
+              <th className="px-4 py-2.5 text-right font-semibold"> {t("common:actions")} </th>
             </tr>
           </thead>
           <tbody>
@@ -1971,7 +1966,7 @@ function MilestonesTable({
                               aria-expanded={hasChildren ? isOpen : allocsOpen}
                               aria-label={
                                 hasChildren
-                                  ? isOpen ? "Colapsar" : "Expandir"
+                                  ? isOpen ? t("common:collapse") : t("common:expand")
                                   : t(allocsOpen ? "detail.resumo.hideAllocations" : "detail.resumo.showAllocations")
                               }
                             >
@@ -1997,14 +1992,14 @@ function MilestonesTable({
                                 level === 1 && "text-[15px] font-bold",
                                 level === 2 && "font-semibold",
                               )}
-                              title="Open insights for this stage"
+                              title={t("projects:detail.ui.stageInsights")}
                             >
                               {label}. {s.name}
                             </button>
 
                             {hasChildren ? (
                               <div className="text-[11px] text-muted-foreground">
-                                {`${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`}
+                                {t("projects:detail.ui.subStages", { count: (childrenOf.get(s.id) ?? []).length })}
                               </div>
                             ) : (
                               <StageDetailLine env={env!} allocations={s.allocations.length} showFinancials={canSeeFinancials} />
@@ -2085,7 +2080,7 @@ function MilestonesTable({
                             onDoubleClick={() =>
                               setEditingTask({ allocationId: a.id, stageId: s.id })
                             }
-                            title="Double-click to edit this task"
+                            title={t("projects:detail.ui.taskEditHint")}
                           >
                             <td className="sticky left-0 z-10 bg-card px-4 py-1">
                               <div
@@ -2104,27 +2099,27 @@ function MilestonesTable({
                                   </div>
                                   <div className="text-[10px] text-muted-foreground truncate">
                                     {a.resource.name} · {Number(a.hours_per_day)}h/d ·{" "}
-                                    {aHours.toFixed(1)}h
-                                    {canSeeFinancials ? ` · ${euros(aPlannedCost)} cost` : ""}
+                                    {formatNumber(aHours, 1)}h
+                                    {canSeeFinancials ? t("projects:detail.ui.costValue", { value: euros(aPlannedCost) }) : ""}
                                   </div>
                                 </div>
 
                               </div>
                             </td>
                             <td className="px-4 py-1">
-                              <StatusDot active label="Planned" dotOnly />
+                              <StatusDot active label={t("projects:detail.resumo.plannedTip")} dotOnly />
                             </td>
                             {canSeeFinancials && (
                               <>
-                                <td className="px-4 py-1 text-right min-w-[200px]" title="Planned cost (allocation × cost rate)">
-                                  <PlannedAmountCell amount={aPlannedCost} label="planned" />
+                                <td className="px-4 py-1 text-right min-w-[200px]" title={t("projects:detail.ui.plannedCostHint")}>
+                                  <PlannedAmountCell amount={aPlannedCost} label={t("projects:detail.resumo.plannedTip")} />
                                 </td>
-                                <td className="px-4 py-1 text-right min-w-[160px]" title="Planned revenue (allocation × sale rate)">
-                                  <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
+                                <td className="px-4 py-1 text-right min-w-[160px]" title={t("projects:detail.ui.plannedRevenueHint")}>
+                                  <PlannedAmountCell amount={aPlannedRevenue} label={t("projects:detail.resumo.plannedTip")} />
                                 </td>
                                 {finance.hasAccess && <><td className="px-4 py-1 text-right">—</td><td className="px-4 py-1 text-right">—</td></>}
-                                <td className="px-4 py-1 text-right min-w-[160px]" title="Planned profit = planned revenue − planned cost">
-                                  <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
+                                <td className="px-4 py-1 text-right min-w-[160px]" title={t("projects:detail.ui.plannedProfitHint")}>
+                                  <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label={t("projects:detail.resumo.plannedTip")} />
                                 </td>
                               </>
                             )}
@@ -2204,6 +2199,7 @@ function StageEnvelopeChip({
   env: ReturnType<typeof computeStageEnvelope>;
   showFinancials: boolean;
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   if (env.capacityHours <= 0 && env.before.allocatedHours <= 0) return null;
   const usedPct =
     env.capacityHours > 0
@@ -2215,9 +2211,9 @@ function StageEnvelopeChip({
   return (
     <div className="mt-1 max-w-[260px] space-y-1">
       <div className="text-[10px] text-muted-foreground">
-        {env.before.allocatedHours.toFixed(1)} / {env.capacityHours.toFixed(1)} h allocated ·{" "}
+        {t("projects:detail.ui.allocatedCapacity", { allocated: formatNumber(env.before.allocatedHours, 1), capacity: formatNumber(env.capacityHours, 1) })}{" "}
         <span className={overHours ? "text-destructive" : ""}>
-          {env.before.remainingHours.toFixed(1)} h remaining
+          {t("projects:detail.ui.remainingHours", { hours: formatNumber(env.before.remainingHours, 1) })}
         </span>
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
@@ -2228,11 +2224,11 @@ function StageEnvelopeChip({
       </div>
       {showFinancials && env.saleValue > 0 && (
         <div className="text-[10px] text-muted-foreground">
-          {euros(env.before.plannedCost)} / {euros(env.targetCost)} planned cost ·{" "}
+          {euros(env.before.plannedCost)} / {euros(env.targetCost)} {t("projects:detail.ui.plannedCostLabel")}{" "}
           <span className={marginBelow ? "text-destructive" : ""}>
             {env.before.projectedMargin == null
               ? "—"
-              : `${Math.round(env.before.projectedMargin * 100)}% margin`}
+              : t("projects:detail.ui.marginValue", { value: formatNumber(Math.round(env.before.projectedMargin * 100)) })}
           </span>
         </div>
       )}
@@ -2342,6 +2338,7 @@ function InsightsPanel({
   historical: HistoricalProjectTotals;
   initialScopeStageId?: string | null;
 }) {
+  const dateLocale = useDateLocale();
   const { t } = useTranslation("projects");
   // ---- Scope selector: whole project vs individual stage (+ descendants) ----
   const [scopeStageId, setScopeStageId] = useState<string | null>(initialScopeStageId ?? null);
@@ -2620,7 +2617,7 @@ function InsightsPanel({
   for (const a of scopedActivities) {
     const d = parseISO(a.created_at);
     const key = format(d, "yyyy-MM");
-    const label = format(d, "MMM yyyy", { locale: pt });
+    const label = format(d, "MMM yyyy", { locale: dateLocale });
     const cur = monthMap.get(key) ?? {
       key,
       label,
@@ -2637,7 +2634,7 @@ function InsightsPanel({
     const d = parseISO(`${row.month}-01`);
     const cur = monthMap.get(row.month) ?? {
       key: row.month,
-      label: format(d, "MMM yyyy", { locale: pt }),
+      label: format(d, "MMM yyyy", { locale: dateLocale }),
       activities: 0,
       hours: 0,
     };
@@ -2716,14 +2713,13 @@ function InsightsPanel({
     <div className="mt-4 space-y-4">
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
         <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Scope
-        </label>
+           {t("projects:detail.ui.scope")} </label>
         <select
           value={scopeStageId ?? ""}
           onChange={(e) => setScopeStageId(e.target.value || null)}
           className="min-w-[240px] rounded-md border border-border bg-background px-2 py-1 text-sm"
         >
-          <option value="">Whole project</option>
+          <option value=""> {t("projects:detail.ui.wholeProject")} </option>
           {stageOptions.map((o) => (
             <option key={o.id} value={o.id}>
               {"\u00A0".repeat(o.depth * 2)}
@@ -2733,19 +2729,17 @@ function InsightsPanel({
         </select>
         {scopeStageId && (
           <span className="text-[11px] text-muted-foreground">
-            Invoiced, materials, expenses and imported hours are project-wide
-            and don't apply to a single stage.
-          </span>
+             {t("projects:detail.ui.projectWideHint")} </span>
         )}
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <InsightCard title="Activities vs. Hours">
+        <InsightCard title={t("projects:detail.ui.activitiesHours")}>
           <ActivitiesHoursChart data={months} maxAct={maxAct} maxHours={maxHours} />
         </InsightCard>
-        <InsightCard title="Revenue">
+        <InsightCard title={t("glossary:financial.revenue")}>
           <div className="space-y-4 px-1 pt-1">
             <BarRow
-              label="Actual Revenue:"
+              label={t("projects:detail.ui.actualRevenue")}
               value={earnedValue}
               pct={earnedPct}
               over={earnedValue > forecastValue && forecastValue > 0}
@@ -2759,8 +2753,7 @@ function InsightsPanel({
             />
           </div>
           <div className="mt-3 px-1 text-[10px] text-muted-foreground">
-            Actual = billable hours × sale rate. Planned = total allocated hours × sale rate.
-          </div>
+             {t("projects:detail.ui.revenueCalculationHint")} </div>
         </InsightCard>
       </div>
 
@@ -2768,13 +2761,13 @@ function InsightsPanel({
       {entryFigures.some(e=>e.estimatedValue) && <p className="text-xs text-muted-foreground">{t("insightsFinance.estimated")}</p>}
       <InsightCard title="Profitability">
         <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
-          <GaugeStat label="Current margin:" money={profitCurrent} pct={profitMarginCurrent} />
+          <GaugeStat label={t("projects:detail.ui.currentMargin")} money={profitCurrent} pct={profitMarginCurrent} />
           <GaugeStat label={t("insightsFinance.conclusionMargin")} money={profitForecast} pct={profitMarginForecast} />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
-          <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
-          <HoursPill label="Non-billable" hours={totalNonBillableHours} tone="warn" />
-          <HoursPill label="Total logged" hours={displayedLoggedHours} tone="muted" />
+          <HoursPill label={t("glossary:time.billable")} hours={totalBillableHours} tone="ok" />
+          <HoursPill label={t("projects:detail.ui.nonBillable")} hours={totalNonBillableHours} tone="warn" />
+          <HoursPill label={t("projects:detail.ui.totalLogged")} hours={displayedLoggedHours} tone="muted" />
         </div>
         {historical.rowCount > 0 && (
           <div className="mx-2 mb-3 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
@@ -2782,16 +2775,16 @@ function InsightsPanel({
               {historical.sources.join(", ") || "imported"}
             </Badge>
             <span>
-              Includes {historical.rowCount} imported historical entr{historical.rowCount === 1 ? "y" : "ies"}
+              {t("projects:detail.ui.historical", { count: historical.rowCount })}
               {" · "}
-              {Math.round(histLoggedHours)}h · {euros(historical.cost)} cost
+              {Math.round(histLoggedHours)}h · {euros(historical.cost)} {t("glossary:financial.cost")}
             </span>
           </div>
         )}
       </InsightCard>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <InsightCard title="Financials">
+        <InsightCard title={t("projects:nav.financials")}>
           <FinancialsTable
             services={services}
             materials={externalRow}
@@ -2799,7 +2792,7 @@ function InsightsPanel({
             total={totalRow}
           />
         </InsightCard>
-        <InsightCard title="Work">
+        <InsightCard title={t("common:work")}>
           <div className="grid grid-cols-2 gap-4 px-2 py-2">
             <div className="flex flex-col items-center">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -2807,8 +2800,7 @@ function InsightsPanel({
               </div>
               <Gauge value={wipHours} formatter={(v) => `${Math.round(v)}h`} pct={0} muted />
               <button className="mt-2 rounded-md border border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground">
-                View Tasks
-              </button>
+                 {t("projects:detail.ui.viewTasks")} </button>
             </div>
             <div className="flex flex-col items-center">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -2825,7 +2817,7 @@ function InsightsPanel({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <InsightCard title="Work Done">
+        <InsightCard title={t("projects:detail.ui.workDone")}>
           <ResourceBarList
             resources={resources}
             getValue={(r) =>
@@ -2835,7 +2827,7 @@ function InsightsPanel({
             tone="ok"
           />
         </InsightCard>
-        <InsightCard title="Budget">
+        <InsightCard title={t("glossary:financial.budget")}>
           <ResourceBarList
             resources={resources}
             getValue={(r) =>
@@ -2858,6 +2850,7 @@ function InsightsPanel({
 }
 
 function UnapprovedPill({ projectId }: { projectId: string }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const { data } = useProjectPendingHours(projectId);
   if (!data || data.total === 0) return null;
   const totalHours = data.groups.reduce((s, g) => s + g.totalHours, 0);
@@ -2870,7 +2863,7 @@ function UnapprovedPill({ projectId }: { projectId: string }) {
       className="flex items-center justify-between rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs dark:border-amber-500/30 dark:bg-amber-500/10"
     >
       <span className="font-medium text-amber-800 dark:text-amber-300">
-        {euros(totalValue)} unapproved · {totalHours.toFixed(1)}h ({data.total} entries)
+        {t("projects:detail.ui.unapproved", { count: data.total, value: euros(totalValue), hours: formatNumber(totalHours, 1) })}
       </span>
       <span className="text-amber-700 hover:underline dark:text-amber-300">
         Review →
@@ -2897,11 +2890,11 @@ function ActivitiesHoursChart({
   maxAct: number;
   maxHours: number;
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   if (data.length === 0) {
     return (
       <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
-        Sem actividade registada ainda.
-      </div>
+         {t("projects:detail.ui.noActivityYet")} </div>
     );
   }
   return (
@@ -2921,7 +2914,7 @@ function ActivitiesHoursChart({
             tickLine={false}
             axisLine={{ stroke: "var(--border)" }}
             label={{
-              value: "Activities",
+              value: t("common:activities"),
               angle: -90,
               position: "insideLeft",
               style: { fill: "var(--muted-foreground)", fontSize: 11 },
@@ -2935,7 +2928,7 @@ function ActivitiesHoursChart({
             tickLine={false}
             axisLine={{ stroke: "var(--border)" }}
             label={{
-              value: "Hours",
+              value: t("projects:detail.ui.hours"),
               angle: 90,
               position: "insideRight",
               style: { fill: "var(--muted-foreground)", fontSize: 11 },
@@ -2954,7 +2947,7 @@ function ActivitiesHoursChart({
           <RC.Bar
             yAxisId="left"
             dataKey="activities"
-            name="Activities"
+            name={t("common:activities")}
             fill="var(--primary)"
             barSize={18}
             radius={[2, 2, 0, 0]}
@@ -2963,7 +2956,7 @@ function ActivitiesHoursChart({
             yAxisId="right"
             type="monotone"
             dataKey="hours"
-            name="Hours"
+            name={t("projects:detail.ui.hours")}
             stroke="var(--color-budget-spent, #10b981)"
             fill="var(--color-budget-spent, #10b981)"
             fillOpacity={0.25}
@@ -3113,22 +3106,23 @@ function FinancialsTable({
   expenses: { budget: number; value: number; cost: number; profit: number; invoiced: number };
   total: { budget: number; value: number; cost: number; profit: number; invoiced: number };
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const rows: { label: string; key: keyof typeof services }[] = [
-    { label: "Budget", key: "budget" },
-    { label: "Value", key: "value" },
-    { label: "Costs", key: "cost" },
-    { label: "Profit", key: "profit" },
-    { label: "Invoiced", key: "invoiced" },
+    { label: t("glossary:financial.budget"), key: "budget" },
+    { label: t("glossary:financial.value"), key: "value" },
+    { label: t("glossary:financial.cost"), key: "cost" },
+    { label: t("glossary:financial.profit"), key: "profit" },
+    { label: t("projects:detail.ui.invoiced"), key: "invoiced" },
   ];
   return (
     <table className="w-full text-sm">
       <thead>
         <tr className="border-b border-border text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <th className="px-2 py-2 text-left font-semibold"></th>
-          <th className="px-2 py-2 font-semibold">Services</th>
-          <th className="px-2 py-2 font-semibold">Suppliers</th>
-          <th className="px-2 py-2 font-semibold">Expenses</th>
-          <th className="px-2 py-2 font-semibold">Total</th>
+          <th className="px-2 py-2 font-semibold"> {t("common:services")} </th>
+          <th className="px-2 py-2 font-semibold"> {t("common:shell.link.finance.suppliers")} </th>
+          <th className="px-2 py-2 font-semibold"> {t("projects:detail.tabs.expenses")} </th>
+          <th className="px-2 py-2 font-semibold"> {t("common:total")} </th>
         </tr>
       </thead>
       <tbody>
@@ -3192,11 +3186,11 @@ function ResourceBarList<
   getLabel: (r: R) => string;
   tone: "ok" | "auto";
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   if (resources.length === 0) {
     return (
       <div className="py-6 text-center text-sm text-muted-foreground">
-        Sem alocações.
-      </div>
+         {t("projects:detail.ui.noAllocations")} </div>
     );
   }
   return (
@@ -3293,6 +3287,7 @@ function CostVsBudgetCell({
   /** Earned revenue (billable hours × sale rate), used as the T&M reference. */
   revenue?: number;
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const hasBudget = budget > 0;
   // T&M stages have no budget by design: compare cost against earned revenue
   // instead of showing a meaningless "no budget" marker.
@@ -3315,12 +3310,11 @@ function CostVsBudgetCell({
             <span className="text-muted-foreground">
               {" "}
               / <Num value={revenue} kind="eur" />
-              <span className="ml-1 text-[10px] uppercase tracking-wider">T&amp;M</span>
+              <span className="ml-1 text-[10px] uppercase tracking-wider"> {t("common:timeMaterials")} </span>
             </span>
           ) : (
             <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-              no budget
-            </span>
+               {t("projects:detail.ui.noBudget")} </span>
           )}
         </span>
 
@@ -3391,6 +3385,7 @@ function Num({ value, kind }: { value: number; kind: "eur" | "hours" }) {
  *  - Margin shown only when revenue > 0 (otherwise denominator = 0).
  */
 function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const profit = revenue - cost;
   const hasRevenue = revenue > 0;
   const margin = hasRevenue ? (profit / revenue) * 100 : 0;
@@ -3408,12 +3403,11 @@ function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) 
       {hasRevenue ? (
         <div className={cn("mt-0.5 text-[10px] tabular-nums", tone)}>
           {margin >= 0 ? "+" : ""}
-          {margin.toFixed(1)}% margin
+          {t("projects:detail.ui.marginValue", { value: formatNumber(margin, 1) })}
         </div>
       ) : (
         <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-          no revenue yet
-        </div>
+           {t("projects:detail.ui.noRevenue")} </div>
       )}
     </div>
   );
@@ -3470,9 +3464,10 @@ function UsageBudgetCell({
 }
 
 function DateLink({ date }: { date: Date }) {
+  const dateLocale = useDateLocale();
   return (
     <span className="text-xs text-foreground underline decoration-dotted decoration-muted-foreground/60 underline-offset-4">
-      {format(date, "d MMM", { locale: pt })}
+      {format(date, "d MMM", { locale: dateLocale })}
     </span>
   );
 }
@@ -3482,9 +3477,14 @@ function dayDiffInclusive(start: string, end: string) {
 }
 
 function formatHm(hours: number) {
-  if (!Number.isFinite(hours)) return "0h 0m";
+  const { t } = useTranslation(["projects", "common", "glossary"]);
+  if (!Number.isFinite(hours)) return i18n.t("common:duration.hoursMinutes", { hours: 0, minutes: 0 });
   const totalMin = Math.round(hours * 60);
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  return `${h}h ${m}m`;
+  return i18n.t("common:duration.hoursMinutes", { hours: h, minutes: m });
+}
+
+function formatNumber(value: number, digits?: number): string {
+  return new Intl.NumberFormat(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits ?? 2 }).format(value);
 }

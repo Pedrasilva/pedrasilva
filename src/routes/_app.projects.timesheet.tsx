@@ -1,3 +1,4 @@
+import i18n from "@/i18n/index";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { useNonWorkingDays, nonWorkingLine } from "@/lib/projects/use-non-working-days";
 import { createFileRoute } from "@tanstack/react-router";
@@ -537,7 +538,7 @@ function TimesheetPage() {
         existing_entry_id: current?.id ?? null,
       });
     } catch (e) {
-      toast.error((e as Error).message || "Failed to save");
+      toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed"));
     }
   };
 
@@ -604,7 +605,7 @@ function TimesheetPage() {
       }
       toast.success(t("projects:tsCalendar.added", { hours: formatHM(total), name: label }));
     } catch (e) {
-      toast.error((e as Error).message || "Failed to save");
+      toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed"));
     }
   };
   /** Every calendar → activity path goes through this confirm; nothing is saved without it. */
@@ -741,7 +742,7 @@ function TimesheetPage() {
           await runAdd({ kind: "task", taskId }, ev.date, [ev], `${p.name} · ${s.name}`);
           done();
         } catch (err) {
-          toast.error((err as Error).message || "Failed to add stage");
+          toast.error((err as Error).message || t("projects:timesheet.search.addFailed"));
         }
       }}
     />
@@ -761,8 +762,7 @@ function TimesheetPage() {
             )}
             {viewingOther && (
               <span className="rounded-full border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                Read-only · viewing another collaborator
-              </span>
+                 {t("projects:timesheet.ui.readOnly")} </span>
             )}
 
             {!viewingOther && (
@@ -781,7 +781,7 @@ function TimesheetPage() {
                 variant="ghost"
                 className="h-7 w-7"
                 onClick={() => setWeekAnchor((d) => addWeeks(d, -1))}
-                aria-label="Previous week"
+                aria-label={t("common:previousWeek")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -790,15 +790,15 @@ function TimesheetPage() {
                 className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
               >
                 <CalendarDays className="h-3.5 w-3.5" />
-                {format(weekStartDate, "MMM d")} –{" "}
-                {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
+                {format(weekStartDate, "d MMM", { locale: dateLocale })} –{" "}
+                {format(addDays(weekStartDate, 6), "d MMM yyyy", { locale: dateLocale })}
               </button>
               <Button
                 size="icon"
                 variant="ghost"
                 className="h-7 w-7"
                 onClick={() => setWeekAnchor((d) => addWeeks(d, 1))}
-                aria-label="Next week"
+                aria-label={t("common:nextWeek")}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -828,7 +828,7 @@ function TimesheetPage() {
           collaboratorId={effectiveCollaboratorId}
           weekStart={weekStart}
           weekEnd={weekEnd}
-          weekLabel={`${format(weekStartDate, "MMM d")} – ${format(addDays(weekStartDate, 6), "MMM d, yyyy")}`}
+          weekLabel={`${format(weekStartDate, "d MMM", { locale: dateLocale })} – ${format(addDays(weekStartDate, 6), "d MMM yyyy", { locale: dateLocale })}`}
           totals={totalsFromEntries(entries)}
           viewingOther={viewingOther}
           controls={headerControls}
@@ -837,9 +837,7 @@ function TimesheetPage() {
 
         {noResource ? (
           <div className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-            A tua conta ainda não está ligada a um membro da equipa. Pede a um admin para te
-            adicionar com email correspondente.
-          </div>
+             {t("projects:timesheet.ui.noResource")} </div>
         ) : (
           <>
           <div className="mt-3 overflow-hidden rounded-lg border border-border bg-card">
@@ -908,7 +906,7 @@ function TimesheetPage() {
                         setAddPopoverOpen(false);
                         toast.success(`${p.name} · ${s.name}`);
                       } catch (err) {
-                        toast.error((err as Error).message || "Failed to add stage");
+                        toast.error((err as Error).message || t("projects:timesheet.search.addFailed"));
                       }
                     }}
                   />
@@ -922,16 +920,15 @@ function TimesheetPage() {
                   className="gap-1.5 text-xs"
                   onClick={() => setShowProjectsOverride((v) => !v)}
                 >
-                  {projectsVisible ? "Hide project time" : "Show project time"}
+                  {projectsVisible ? t("projects:timesheet.ui.hideProjects") : t("projects:timesheet.ui.showProjects")}
                 </Button>
               )}
               <span className="ml-auto text-xs text-muted-foreground">
                 {projectsVisible
-                  ? `${projectRows.length} ${projectRows.length === 1 ? "project row" : "project rows"} · `
+                  ? t("projects:timesheet.ui.projectRows", { count: projectRows.length })
                   : ""}
-                {displayedInternalCategories.length} internal · {nonWorkingPrefill.length}{" "}
-                non-working
-              </span>
+                {displayedInternalCategories.length}  {t("projects:timesheet.ui.internalCountSuffix")} {nonWorkingPrefill.length}{" "}
+                 {t("projects:common.nonWorking")} </span>
             </div>
 
             <div className="max-h-[calc(100vh-11rem)] overflow-auto">
@@ -939,18 +936,17 @@ function TimesheetPage() {
                 <thead className="sticky top-0 z-20 bg-card shadow-[0_1px_0_var(--border)]">
                   <tr className="border-b border-border bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
                     <th className="sticky left-0 z-10 bg-muted px-4 py-2 text-left font-medium">
-                      Description
-                    </th>
+                       {t("common:description")} </th>
                     {days.map((d) => (
                       <th
                         key={d.toISOString()}
                         className="px-2 py-2 text-center font-medium"
                       >
-                        <div>{format(d, "EEE")}</div>
-                        <div className="text-foreground/80">{format(d, "MMM d")}</div>
+                        <div>{format(d, "EEE", { locale: dateLocale })}</div>
+                        <div className="text-foreground/80">{format(d, "d MMM", { locale: dateLocale })}</div>
                       </th>
                     ))}
-                    <th className="px-3 py-2 text-right font-medium">Total</th>
+                    <th className="px-3 py-2 text-right font-medium"> {t("common:total")} </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1002,22 +998,19 @@ function TimesheetPage() {
                   {/* ====== PROJECTS ====== */}
                   <SectionHeaderRow
                     icon={<Briefcase className="h-3.5 w-3.5" />}
-                    label="Projects"
+                    label={t("projects:module.title")}
                     sub="Billable or non-billable. Toggle inside each cell."
                   />
                   {isLoading && (
                     <tr>
                       <td colSpan={9} className="px-4 py-6 text-center text-muted-foreground">
-                        Loading projects…
-                      </td>
+                         {t("projects:health.loadingProjects")} </td>
                     </tr>
                   )}
                   {!isLoading && projectRows.length === 0 && retainerRows.length === 0 && (
                     <tr>
                       <td colSpan={9} className="px-4 py-6 text-center text-muted-foreground">
-                        No active stages this week. Use "Add project / stage" to log time
-                        elsewhere.
-                      </td>
+                         {t("projects:timesheet.ui.noStages")} </td>
                     </tr>
                   )}
                   {projectRows.map((r) => (
@@ -1049,7 +1042,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || "Failed to save"),
+                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1080,7 +1073,7 @@ function TimesheetPage() {
                   <SectionHeaderRow
                     tone="internal"
                     icon={<Coffee className="h-3.5 w-3.5" />}
-                    label="Internal cost centers"
+                    label={t("projects:timesheet.ui.internalCenters")}
                     sub="Non-billable working time (capacity used, no revenue)."
                   />
                   {pursuitRows.map((lead) => (
@@ -1116,7 +1109,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || "Failed to save"),
+                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1125,11 +1118,11 @@ function TimesheetPage() {
                   {displayedInternalCategories.map((cat) => (
                     <FixedRow
                       key={cat.name}
-                      label={cat.isArchived ? `${cat.name} (archived)` : cat.name}
+                      label={cat.isArchived ? t("projects:timesheet.ui.archivedName", { name: cat.name }) : cat.name}
                       sub={
                         cat.isArchived
-                          ? "Internal · archived (read-only label, edits still allowed)"
-                          : "Internal · non-billable"
+                          ? t("projects:timesheet.rows.internalArchivedSub")
+                          : t("projects:timesheet.rows.internalNonBillableSub")
                       }
                       tone="internal"
                       days={days}
@@ -1151,7 +1144,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || "Failed to save"),
+                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1169,14 +1162,13 @@ function TimesheetPage() {
                   <SectionHeaderRow
                     tone="nonworking"
                     icon={<Plane className="h-3.5 w-3.5" />}
-                    label="Non-working time"
-                    sub="Auto-filled from approved leave + public holidays. Reduces capacity."
+                    label={t("projects:timesheet.sections.nonWorking")}
+                    sub=t("projects:timesheet.ui.nonWorkingHint")
                   />
                   {nonWorkingRows.length === 0 && (
                     <tr>
                       <td colSpan={9} className="px-4 py-4 text-center text-xs text-muted-foreground">
-                        No approved leave or holidays this week.
-                      </td>
+                         {t("projects:timesheet.rows.emptyNonWorking")} </td>
                     </tr>
                   )}
                   {nonWorkingRows.map((row) => (
@@ -1190,9 +1182,9 @@ function TimesheetPage() {
                       sub={
                         row.orphanDates.length > 0
                           ? `⚠ ${t("projects:timesheetWeek.noApprovedRequest")} · ${row.orphanDates
-                              .map((d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`)
+                              .map((d) => format(new Date(d + "T12:00:00"), "P", { locale: dateLocale }))
                               .join(", ")}`
-                          : "Non-working · capacity reducer"
+                          : t("projects:timesheet.rows.nonWorkingSub")
                       }
                       tone="nonworking"
                       days={days}
@@ -1214,7 +1206,7 @@ function TimesheetPage() {
                           },
                           {
                             onError: (e) =>
-                              toast.error((e as Error).message || "Failed to save"),
+                              toast.error((e as Error).message || t("projects:timesheet.rows.saveFailed")),
                           },
                         )
                       }
@@ -1224,8 +1216,7 @@ function TimesheetPage() {
                 <tfoot className="sticky bottom-0 z-20 bg-card shadow-[0_-1px_0_var(--border)]">
                   <tr className="border-t-2 border-border bg-muted/60 text-sm">
                     <td className="sticky left-0 bg-muted px-4 py-2 text-right text-xs uppercase tracking-wider text-muted-foreground">
-                      Daily total
-                    </td>
+                       {t("projects:timesheet.table.dailyTotal")} </td>
                     {days.map((d) => {
                       const dateStr = format(d, "yyyy-MM-dd");
                       const total = dayTotals.get(dateStr) ?? 0;
@@ -1406,7 +1397,7 @@ function ProjectRow({
               variant="ghost"
               className="h-6 w-6 flex-shrink-0"
               onClick={onRemove}
-              aria-label="Remove row"
+              aria-label={t("projects:timesheet.rows.removeRow")}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -1476,7 +1467,7 @@ function RetainerRow({
             <div className="truncate text-[11px] text-muted-foreground">{t("tsCalendar.retainerSub")}</div>
           </div>
           {isExtra && (
-            <Button size="icon" variant="ghost" className="h-6 w-6 flex-shrink-0" onClick={onRemove} aria-label="Remove row">
+            <Button size="icon" variant="ghost" className="h-6 w-6 flex-shrink-0" onClick={onRemove} aria-label={t("projects:timesheet.rows.removeRow")}>
               <X className="h-3.5 w-3.5" />
             </Button>
           )}
@@ -1603,6 +1594,7 @@ function CollaboratorViewPicker({
   selfCollaboratorId: string | null;
   onChange: (id: string | null) => void;
 }) {
+  const { t } = useTranslation(["projects", "common", "glossary"]);
   const [open, setOpen] = useState(false);
   const { data: collaborators = [] } = useQuery({
     queryKey: ["timesheet-collaborator-picker"],
@@ -1625,17 +1617,17 @@ function CollaboratorViewPicker({
         <Button variant="outline" size="sm" className="gap-2">
           <Eye className="h-3.5 w-3.5" />
           <span className="max-w-[180px] truncate">
-            {selected ? selected.nome : "Selecionar colaborador…"}
+            {selected ? selected.nome : t("projects:timesheet.ui.selectCollaborator")}
           </span>
           <ChevronsUpDown className="h-3 w-3 opacity-60" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[280px] p-0">
         <Command>
-          <CommandInput placeholder="Procurar colaborador…" />
+          <CommandInput placeholder={t("projects:timesheet.ui.searchCollaborator")} />
           <CommandList>
-            <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
-            <CommandGroup heading="Ver timesheet de…">
+            <CommandEmpty> {t("projects:timesheet.ui.noCollaborator")} </CommandEmpty>
+            <CommandGroup heading={t("projects:timesheet.ui.viewCollaborator")}>
               {collaborators.map((c) => (
                 <CommandItem
                   key={c.id}
@@ -1654,7 +1646,7 @@ function CollaboratorViewPicker({
                     <span className="text-sm">
                       {c.nome}
                       {c.id === selfCollaboratorId && (
-                        <span className="ml-1 text-[10px] text-muted-foreground">(eu)</span>
+                        <span className="ml-1 text-[10px] text-muted-foreground"> {t("projects:timesheet.ui.me")} </span>
                       )}
                     </span>
                     {c.email && (
