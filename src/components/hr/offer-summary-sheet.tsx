@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
-import { useDateLocale } from "@/i18n/use-date-locale";
+import { pt } from "date-fns/locale";
 import {
   computeSnapshot,
   fmtEUR,
@@ -40,8 +40,10 @@ export function OfferSummarySheet({
   collaborator: Collaborator;
   snapshot: Snapshot;
 }) {
-  const { t } = useTranslation(["hr"]);
-  const dateLocale = useDateLocale();
+  const { i18n } = useTranslation(["hr"]);
+  // Candidate document language is independent from the application chrome.
+  const t = i18n.getFixedT("pt-PT", "hr");
+  const dateLocale = pt;
   const c = computeSnapshot(snapshot);
   const meses = snapshot.subsidios_modo
     ? mesesFromSubsidios(snapshot.subsidios_modo)
