@@ -230,7 +230,7 @@ export function CreateProjectDirectDialog({ compact }: { compact?: boolean }) {
 
           <div className="rounded-lg border border-border p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold"> {i18n.t("projects:createProjectDirectDialog.ui.undefined")} </h3>
+              <h3 className="text-sm font-semibold"> {i18n.t("projects:createProjectDirectDialog.ui.stages")} </h3>
               <Button
                 type="button"
                 size="sm"

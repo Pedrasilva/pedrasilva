@@ -18,7 +18,7 @@ const fmtEUR = (n: number | null | undefined) =>
     : new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(n);
 
 const fmtDate = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleDateString("pt-PT") : "—";
+  d ? new Date(d).toLocaleDateString(i18n.language) : "—";
 
 export function ContractBaselineCard({ projectId }: { projectId: string }) {
   useTranslation();

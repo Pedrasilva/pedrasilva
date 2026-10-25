@@ -23,22 +23,22 @@ const fmtEUR = (n: number | null | undefined) =>
     : new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(n);
 
 const fmtDate = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleDateString("pt-PT") : "—";
+  d ? new Date(d).toLocaleDateString(i18n.language) : "—";
 
 const STAGE_LABEL: Record<StageDiffStatus, string> = {
-  on_track: "On track",
-  delayed: "Delayed",
-  budget_changed: "Budget changed",
-  removed: "Removed / skipped",
-  added: "Added",
+  on_track: "projects:contractDiffCard.status.onTrack",
+  delayed: "projects:contractDiffCard.status.delayed",
+  budget_changed: "projects:contractDiffCard.status.budgetChanged",
+  removed: "projects:contractDiffCard.status.removed",
+  added: "projects:contractDiffCard.status.added",
 };
 
 const PAYMENT_LABEL: Record<PaymentDiffStatus, string> = {
-  as_planned: "Invoiced as planned",
-  differs: "Invoiced — differs",
-  not_due: "Not yet invoiced",
-  overdue: "Overdue vs. contract",
-  unplanned: "Unplanned billing",
+  as_planned: "projects:contractDiffCard.status.asPlanned",
+  differs: "projects:contractDiffCard.status.differs",
+  not_due: "projects:contractDiffCard.status.notDue",
+  overdue: "projects:contractDiffCard.status.overdue",
+  unplanned: "projects:contractDiffCard.status.unplanned",
 };
 
 function StatusBadge({ label, tone }: { label: string; tone: "ok" | "warn" | "bad" | "info" }) {
@@ -100,7 +100,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
              {i18n.t("projects:contractDiffCard.ui.compareToContract")} <Badge variant="secondary" className="ml-2 font-normal">
               {offTrack === 0
                 ? i18n.t("projects:contractDiffCard.ui.allStagesOnTrack")
-                : i18n.t("projects:contractDiffCard.ui.stagesDiffer", { value1: offTrack, value2: stageRows.length })}
+                : i18n.t("projects:contractDiffCard.ui.stagesDiffer", { count: offTrack, total: stageRows.length })}
             </Badge>
           </CardTitle>
           <span className="text-xs text-muted-foreground"> {i18n.t("projects:contractDiffCard.ui.derived")} </span>
@@ -114,7 +114,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
 
           <div>
             <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-               {i18n.t("projects:contractDiffCard.ui.undefined")} </h4>
+               {i18n.t("projects:contractDiffCard.ui.stages")} </h4>
             <div className="overflow-x-auto rounded border text-sm">
               <table className="w-full">
                 <thead className="bg-muted/40 text-xs text-muted-foreground">
@@ -170,7 +170,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                       </td>
                       <td className="px-2 py-1">
                         <StatusBadge
-                          label={STAGE_LABEL[r.status]}
+                          label={i18n.t(STAGE_LABEL[r.status])}
                           tone={stageTone(r.status)}
                         />
                       </td>
@@ -215,7 +215,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                       </td>
                       <td className="px-2 py-1">
                         <StatusBadge
-                          label={PAYMENT_LABEL[r.status]}
+                          label={i18n.t(PAYMENT_LABEL[r.status])}
                           tone={paymentTone(r.status)}
                         />
                       </td>

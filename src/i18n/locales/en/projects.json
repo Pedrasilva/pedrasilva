@@ -2434,10 +2434,10 @@
       "hoursPerDay": "Hours/day",
       "billableHoursEditable": "billable h · editable",
       "hoursPerWorkingDay": "Hours per working day",
-      "undefined": "Working days",
       "totalHours": "Total hours",
       "markTentative": "→ Tentative",
-      "confirmAllocation": "→ Confirm"
+      "confirmAllocation": "→ Confirm",
+      "diasTeis": "Working days"
     }
   },
   "approvalsPanel": {
@@ -2467,10 +2467,8 @@
     "ui": {
       "compareToContract": "Compare to contract",
       "allStagesOnTrack": "All stages on track",
-      "stagesDiffer": "{{value1}} of {{value2}} stages differ",
       "derived": "Derived",
       "contractComparisonHint": "Agreed contract (at conversion) compared against the current plan and billing. This view never changes the baseline itself.",
-      "undefined": "Stages",
       "contractStage": "Contract stage",
       "liveStage": "Current stage",
       "contractLiveEnd": "End (contract → current)",
@@ -2483,7 +2481,22 @@
       "liveItem": "Current item",
       "contractLiveInvoiceDate": "Invoice date (contract → current)",
       "contractLiveAmount": "Amount (contract → current)",
-      "noBillingItemsToCompare": "No billing items to compare."
+      "noBillingItemsToCompare": "No billing items to compare.",
+      "stages": "Stages",
+      "stagesDiffer_one": "{{count}} of {{total}} stages differs",
+      "stagesDiffer_other": "{{count}} of {{total}} stages differ"
+    },
+    "status": {
+      "onTrack": "On track",
+      "delayed": "Delayed",
+      "budgetChanged": "Budget changed",
+      "removed": "Removed / skipped",
+      "added": "Added",
+      "asPlanned": "Invoiced as planned",
+      "differs": "Invoiced — differs",
+      "notDue": "Not yet invoiced",
+      "overdue": "Overdue vs. contract",
+      "unplanned": "Unplanned billing"
     }
   },
   "createProjectDirectDialog": {
@@ -2497,7 +2510,6 @@
       "clientLabel": "Client label (optional)",
       "clientLabelHint": "Shown when no CRM company is linked",
       "projectNotesPlaceholder": "Context, origin of the work, closeout status…",
-      "undefined": "Stages",
       "stageName": "Stage name",
       "fixedFee": "Fixed fee",
       "hourlyTimeMaterials": "Hourly (T&M)",
@@ -2505,7 +2517,8 @@
       "feeEuros": "Fee €",
       "removeStage": "Remove stage",
       "noStagesDirectHint": "No stages — you can add them later on the project page.",
-      "hourlyStagesHint": "Hourly stages are billed strictly by time and materials: no fixed fee is stored."
+      "hourlyStagesHint": "Hourly stages are billed strictly by time and materials: no fixed fee is stored.",
+      "stages": "Stages"
     }
   },
   "createStageTaskDialog": {
@@ -2561,14 +2574,17 @@
   },
   "ganttChart": {
     "ui": {
-      "stagesShifted": "{{value1}} stage(s) shifted by {{value2}} day(s)",
       "resizeWbsColumn": "Drag to resize WBS column",
       "holidayLabel": "Public holiday — {{value1}}",
       "holidayLabelLabel": "Public holiday — {{value1}}",
       "dateRangeLabel": "{{value1}} · {{value2}} → {{value3}}",
       "labelWithDetail": "{{value1}} — {{value2}}",
       "estimatedBudgetHours": "Estimated hours (budget / average hourly sale rate)",
-      "estimatedHours": "Hours (estimated)"
+      "estimatedHours": "Hours (estimated)",
+      "stagesShifted_one": "{{count}} stage shifted by {{days}} days",
+      "stagesShifted_other": "{{count}} stages shifted by {{days}} days",
+      "shiftDays_one": "{{count}} day",
+      "shiftDays_other": "{{count}} days"
     }
   },
   "ganttOutlineColumn": {
