@@ -1,7 +1,7 @@
 ## Current request — published reel video retention
-- [ ] Service-only logged 30-day video cleanup in existing job; preserve all other evidence, mirror migration.
-- [ ] Cover/offline-original notice and live link in reel views; new upload required for reuse.
-- [ ] Fixture-only tests and cleanup, report; no real files or Finance edits.
+- [x] Service-only persistent 30-day video cleanup in existing private job with daily gate; migrations 0187–0188 mirrored byte-identically, all other evidence preserved.
+- [x] Cover/offline-original notice and live link in Published/Planner/Calendar; shared upload lock blocks reuse without new upload.
+- [x] 40 unit/regression checks, rolled-back DB fixtures, actual disposable Storage removal/cover preservation and authenticated browser-only fixture card verified; fixtures removed, zero real claims/purges, Finance untouched. Report docs/marketing-reel-retention-report.md. Full callback intentionally not invoked because it can publish real drafts; published deployment uses cleanup after Luis publishes this version.
 
 ## Current request — finished reels
 - [x] Private resumable video upload, shared validation, cover selection and manual caption assistance.

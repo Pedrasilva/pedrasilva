@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { reelVideoPurgeDue, isReelVideoPath, type ReelRetentionDraft } from '../src/lib/marketing/reel-retention';
 import { cleanupPublishedReelVideos } from '../src/lib/marketing/reel-retention.server';
+import { resolveDraftImages } from '../src/lib/marketing/draft-images';
 
 const id = '00000000-0000-4000-8000-000000000030';
 const base: ReelRetentionDraft = { format: 'reel', status: 'published', ig_media_id: 'fixture-instagram', published_at: '2026-09-25', ig_published_at: '2026-09-25T12:00:00Z' };
@@ -55,5 +56,17 @@ describe('cleanup storage sequence with disposable mock fixtures', () => {
   });
   it('does not claim recorded success when completion fails', async () => {
     const f = fixtureDb({ completeFails: true }); expect((await cleanupPublishedReelVideos(f.db as never)).failed).toBe(1);
+  });
+  it('a daily-gate skip performs no storage deletion', async () => {
+    const f = fixtureDb(); f.rpc.mockResolvedValueOnce({ error: null, data: [] });
+    expect(await cleanupPublishedReelVideos(f.db as never)).toEqual({ candidates: 0, purged: 0, failed: 0, bytes: 0 });
+    expect(f.remove).not.toHaveBeenCalled();
+  });
+  it('resolves a purged reel to its retained cover even without a preview size', async () => {
+    const from = vi.fn((table: string) => ({ select: () => ({ in: async () => ({ data: table === 'marketing_reel_uploads' ? [{ id, video_path: `reels/${id}/video.mp4`, cover_path: `reels/${id}/cover.jpg`, file_name: 'fixture.mp4', mime_type: 'video/mp4', video_purged_at: now.toISOString() }] : [] }) }) }));
+    const rows = await resolveDraftImages({ from }, [id], 3600, { sign: false });
+    expect(rows[0]?.storage_path).toBe(`reels/${id}/cover.jpg`);
+    expect(rows[0]?.mime_type).toBe('image/jpeg');
+    expect(rows[0]?.video_purged_at).toBe(now.toISOString());
   });
 });
