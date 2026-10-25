@@ -8521,6 +8521,8 @@ export type Database = {
           rationale: string
           readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
           readiness_note: string | null
+          reel_cover_path: string | null
+          reel_share_to_feed: boolean
           request_id: string
           safety_flags: string[]
           scheduled_at: string | null
@@ -8572,6 +8574,8 @@ export type Database = {
           rationale: string
           readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
           readiness_note?: string | null
+          reel_cover_path?: string | null
+          reel_share_to_feed?: boolean
           request_id: string
           safety_flags?: string[]
           scheduled_at?: string | null
@@ -8623,6 +8627,8 @@ export type Database = {
           rationale?: string
           readiness?: Database["public"]["Enums"]["marketing_draft_readiness"]
           readiness_note?: string | null
+          reel_cover_path?: string | null
+          reel_share_to_feed?: boolean
           request_id?: string
           safety_flags?: string[]
           scheduled_at?: string | null
@@ -9120,6 +9126,50 @@ export type Database = {
             columns: ["draft_id"]
             isOneToOne: false
             referencedRelation: "marketing_post_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_reel_uploads: {
+        Row: {
+          cover_path: string
+          created_at: string
+          created_by: string
+          file_name: string
+          id: string
+          metadata: Json | null
+          mime_type: string
+          profile_id: string
+          video_path: string
+        }
+        Insert: {
+          cover_path: string
+          created_at?: string
+          created_by?: string
+          file_name: string
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          profile_id: string
+          video_path: string
+        }
+        Update: {
+          cover_path?: string
+          created_at?: string
+          created_by?: string
+          file_name?: string
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          profile_id?: string
+          video_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_reel_uploads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_project_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -17622,6 +17672,8 @@ export type Database = {
           rationale: string
           readiness: Database["public"]["Enums"]["marketing_draft_readiness"]
           readiness_note: string | null
+          reel_cover_path: string | null
+          reel_share_to_feed: boolean
           request_id: string
           safety_flags: string[]
           scheduled_at: string | null
@@ -17710,6 +17762,15 @@ export type Database = {
       marketing_enrich_secret_matches: {
         Args: { p_secret: string }
         Returns: boolean
+      }
+      marketing_finish_reel: {
+        Args: {
+          _copy: string
+          _hashtags: string[]
+          _share: boolean
+          _upload: string
+        }
+        Returns: string
       }
       marketing_fold: { Args: { _t: string }; Returns: string }
       marketing_intake_secret_matches: {
