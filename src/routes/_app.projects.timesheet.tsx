@@ -1355,6 +1355,7 @@ function ProjectRow({
 }) {
   const holCls = useHolidayCols(days);
   const { t: tBal } = useTranslation("projects");
+  const { t } = useTranslation("projects");
   return (
     <tr className="border-b border-border last:border-0">
       <td className="sticky left-0 z-10 bg-card px-4 py-2">
