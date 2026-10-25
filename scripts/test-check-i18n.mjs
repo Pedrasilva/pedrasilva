@@ -27,3 +27,10 @@ test('maps project routes and editor modules consistently', () => {
   assert.equal(moduleFor('src/routes/_app.projects.index.tsx'),'projects');
   assert.equal(moduleFor('src/components/psa-composer/editor.tsx'),'psa-composer');
 });
+test('preserves document-language prose exceptions but still checks editor props', () => {
+  const f=scanSource('const view=<><p>{lang === "en" ? "Terms" : "Condições"}</p><Input placeholder={lang === "en" ? "Write" : "Escreva"}/></>;', 'document.tsx', {documentLanguageBranches:[{path:'document.tsx',variable:'lang'}]});
+  assert.equal(f.length,2);assert.equal(f[0].kind,'prop:placeholder');
+});
+test('does not count CSS or templates containing only variable values', () => {
+  assert.equal(scanSource('const v=<><style>{`body { color: red; }`}</style><p>{`${name}`}</p></>;').length,0);
+});

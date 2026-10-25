@@ -22,6 +22,7 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
     if (!node) return;
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) add(node, kind, node.text);
     else if (ts.isTemplateExpression(node)) {
+      if (!/\p{L}/u.test([node.head.text, ...node.templateSpans.map(s => s.literal.text)].join(''))) return;
       const text = [node.head.text, ...node.templateSpans.map(s => s.literal.text)].join(' {{value}} ');
       add(node, kind, text);
     } else if (ts.isConditionalExpression(node)) {
@@ -34,7 +35,11 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
   function visit(node) {
     if (ts.isJsxElement(node) && ['style', 'script'].includes(node.openingElement.tagName.getText(tree))) return;
     if (ts.isJsxText(node)) add(node, 'jsxText', node.text);
-    if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) literals(node.expression, 'jsxExpression');
+    if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) {
+      const expression = node.expression;
+      const documentBranch = expression && ts.isConditionalExpression(expression) && (allowlist.documentLanguageBranches ?? []).some(rule => rule.path === file && new RegExp(`\\b${rule.variable}\\b`).test(expression.condition.getText(tree)));
+      if (!documentBranch) literals(expression, 'jsxExpression');
+    }
     if (ts.isJsxAttribute(node) && props.has(node.name.getText(tree))) {
       const value = node.initializer;
       literals(value && ts.isJsxExpression(value) ? value.expression : value, `prop:${node.name.getText(tree)}`);
@@ -59,6 +64,8 @@ export function scanSource(source, file = 'fixture.tsx', allowlist = { literals:
 }
 
 export function moduleFor(file) {
+  if (file === 'src/routes/__root.tsx') return 'shell/shared';
+  if (file.includes('/routes/[')) return 'other';
   const route = file.match(/^src\/routes\/(?:_app\.)?([^./]+)/);
   if (route) return route[1] === 'index' ? 'home' : route[1];
   const component = file.match(/^src\/(?:components|lib)\/([^/]+)\//);
