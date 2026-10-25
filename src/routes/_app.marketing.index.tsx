@@ -1,3 +1,6 @@
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
+import { captureProjectPatch, type MarketingProjectOption } from "@/lib/marketing/portfolio";
 import { DismissCaptureFlag } from '@/components/marketing/clearance-sources';
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
 import { CaptureContextCard } from "@/components/marketing/capture-context-card";
@@ -106,6 +109,7 @@ type Capture = {
   raw_text: string | null;
   received_at: string;
   project_id: string | null;
+  profile_id: string | null;
   sector: (typeof SECTORS)[number] | null;
   stage: (typeof STAGES)[number] | null;
   content_type: (typeof CONTENT_TYPES)[number] | null;
@@ -152,17 +156,7 @@ function cardText(c: { raw_text: string | null; ai_summary: string | null }) {
 const isAllowedType = (f: File) =>
   f.type.startsWith("image/") || f.type.startsWith("video/") || f.type === "application/pdf";
 
-function useProjects() {
-  return useQuery({
-    queryKey: ["marketing-projects"],
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("pm_projects").select("id, name").order("name");
-      if (error) throw error;
-      return (data ?? []) as { id: string; name: string }[];
-    },
-  });
-}
+function useProjects() { return useMarketingProjectDirectory(); }
 
 function useCaptures() {
   return useQuery({
@@ -291,14 +285,15 @@ function MarketingInboxPage() {
   const search = Route.useSearch();
   const [openId, setOpenId] = useState<string | null>(search.capture ?? null);
   const { data: profiles = [] } = useProjectProfiles();
-  const profileByProject = useMemo(() => new Map(profiles.map((p) => [p.project_id, p])), [profiles]);
-  const effective = (c: Capture) => strictestClearance(c.clearance, c.project_id ? profileByProject.get(c.project_id)?.clearance : null);
+  const profileByProject = useMemo(() => new Map(profiles.map((p) => [p.marketing_key, p])), [profiles]);
+  const captureKey=(c:Capture)=>profiles.find(p=>p.id===c.profile_id)?.marketing_key??c.project_id;
+  const effective = (c: Capture) => strictestClearance(c.clearance, captureKey(c) ? profileByProject.get(captureKey(c)??"")?.clearance : null);
 
   const matchesOther = (c: Capture) =>
       (sector === ALL || c.sector === sector) &&
       (clearance === ALL || c.clearance === clearance) &&
       (channel === ALL || c.channel === channel) &&
-      (project === ALL || c.project_id === project);
+      (project === ALL || captureKey(c) === project);
   const base = captures.filter(matchesOther);
   const inTab = (c: Capture, s: string) => s === "all" || stageOf(c) === s;
   const countFor = (s: string) => base.filter((c) => inTab(c, s)).length;
@@ -358,8 +353,7 @@ function MarketingInboxPage() {
           options={[{ v: ALL, l: t("filters.all") }, ...CLEARANCES.map((s) => ({ v: s, l: t(`clearance.${s}`) }))]} />
         <FilterSelect label={t("filters.channel")} value={channel} onChange={setChannel}
           options={[{ v: ALL, l: t("filters.all") }, ...CHANNELS.map((s) => ({ v: s, l: t(`channel.${s}`) }))]} />
-        <FilterSelect label={t("filters.project")} value={project} onChange={setProject}
-          options={[{ v: ALL, l: t("filters.all") }, ...projects.map((p) => ({ v: p.id, l: p.name }))]} />
+        <MarketingProjectPicker label={t("filters.project")} value={project} onChange={setProject} emptyLabel={t("filters.all")} emptyValue={ALL}/>
               <Button variant="ghost" size="sm" className="w-full" disabled={activeFilters === 0} onClick={clearFilters}>
                 {t("filters.clear")}
               </Button>
@@ -411,7 +405,7 @@ function MarketingInboxPage() {
                   <p className="text-xs text-muted-foreground">
                     {c.sender_name ?? c.sender_email ?? t("detail.unknownSender")} · {new Date(c.received_at).toLocaleDateString()}
                   </p>
-                  {c.project_id && <p className="truncate text-xs font-medium">{projectName.get(c.project_id)}</p>}
+                  {captureKey(c) && <p className="truncate text-xs font-medium">{projectName.get(captureKey(c)??"")}</p>}
                   <div className="flex flex-wrap gap-1">
                     <Badge variant="outline" className="gap-1"><ChIcon className="h-3 w-3" />{t(`channel.${c.channel}`)}</Badge>
                     <StageChip row={stageData?.stages.get(c.id)} links={stageData?.links.get(c.id) ?? []} />
@@ -445,7 +439,7 @@ function MarketingInboxPage() {
 
       <AddCaptureDialog open={addOpen} onOpenChange={setAddOpen} projects={projects} />
       <CaptureDrawer capture={selected} onClose={() => setOpenId(null)} projects={projects}
-        profile={selected?.project_id ? profileByProject.get(selected.project_id) ?? null : null} />
+        profile={selected ? profileByProject.get(captureKey(selected)??"") ?? null : null} />
     </div>
   );
 }
@@ -483,7 +477,7 @@ function OptSelect(props: { label: string; value: string | null; onChange: (v: s
   );
 }
 
-function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: { id: string; name: string }[] }) {
+function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: MarketingProjectOption[] }) {
   const { t } = useTranslation("marketing");
   const { user } = useAuth();
   const makeThumbs = useServerFn(generateCaptureThumbnails);
@@ -517,7 +511,7 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
       .insert({
         channel: "hub",
         raw_text: text.trim() || null,
-        project_id: projectId,
+        ...captureProjectPatch(projectId,projects),
         sector: sector as Capture["sector"],
         stage: stage as Capture["stage"],
       } as never)
@@ -565,8 +559,7 @@ function AddCaptureDialog({ open, onOpenChange, projects }: { open: boolean; onO
             <Label>{t("add.textLabel")}</Label>
             <Textarea rows={5} value={text} onChange={(e) => setText(e.target.value)} />
           </div>
-          <OptSelect label={t("add.project")} value={projectId} onChange={setProjectId} noneLabel={t("add.none")}
-            options={projects.map((p) => ({ v: p.id, l: p.name }))} />
+          <MarketingProjectPicker label={t("add.project")} value={projectId} onChange={v=>setProjectId(v||null)} emptyLabel={t("add.none")}/>
           <div className="grid grid-cols-2 gap-3">
             <OptSelect label={t("add.sector")} value={sector} onChange={setSector} noneLabel={t("add.none")}
               options={SECTORS.map((s) => ({ v: s, l: t(`sector.${s}`) }))} />
@@ -717,7 +710,7 @@ function SuggestPostButton({ captureId, compact }: { captureId: string; compact?
   );
 }
 
-function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Capture | null; onClose: () => void; projects: { id: string; name: string }[]; profile: ProjectProfile | null }) {
+function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Capture | null; onClose: () => void; projects: MarketingProjectOption[]; profile: ProjectProfile | null }) {
   const { t } = useTranslation("marketing");
   const { can } = useMyPermissionsV2();
   const canCurate = can("marketing.curate", "all");
@@ -748,7 +741,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
   const save = async () => {
     setSaving(true);
     const { error } = await supabase.from("marketing_captures").update({
-      project_id: v.project_id, sector: v.sector, stage: v.stage, content_type: v.content_type,
+      project_id: v.project_id, profile_id: v.profile_id, sector: v.sector, stage: v.stage, content_type: v.content_type,
       pillar: v.pillar, persona: v.persona, shelf_life: v.shelf_life, expires_at: v.expires_at, clearance: v.clearance,
       status: v.status, curator_notes: v.curator_notes,
       ...(draft.format_hint ? { format_hint: draft.format_hint } : {}),
@@ -853,8 +846,7 @@ function CaptureDrawer({ capture, onClose, projects, profile }: { capture: Captu
         {!canCurate && <p className="text-xs text-muted-foreground">{t("detail.readOnly")}</p>}
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <OptSelect label={t("detail.project")} value={v.project_id} onChange={(x) => set({ project_id: x })} disabled={!canCurate} noneLabel={none}
-              options={projects.map((p) => ({ v: p.id, l: p.name }))} />
+            <Label>{t("detail.project")}</Label><MarketingProjectPicker label={t("detail.project")} value={projects.find(p=>p.profile_id===v.profile_id)?.id??v.project_id} onChange={x=>set(captureProjectPatch(x||null,projects))} disabled={!canCurate} emptyLabel={none}/>
           </div>
           <OptSelect label={t("detail.sector")} value={v.sector} onChange={(x) => set({ sector: x as Capture["sector"] })} disabled={!canCurate} noneLabel={none}
             options={SECTORS.map((s) => ({ v: s, l: t(`sector.${s}`) }))} />

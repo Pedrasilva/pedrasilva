@@ -1,43 +1,123 @@
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { canRecheckClearance } from '@/lib/marketing/clearance';
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { approvalActions } from '@/lib/marketing/approval-state';
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useDraftApprovalState } from '@/lib/marketing/use-draft-approval-state';
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { ClearanceSources } from '@/components/marketing/clearance-sources';
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { POST_LANGUAGES, languageChip, type PostLanguage, type RunLanguage } from "@/lib/marketing/post-language";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { translatePost } from "@/lib/marketing/translate-post.functions";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { prepareStoryRender } from "@/lib/marketing/render-story-browser";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { getStoryRenderContext } from "@/lib/marketing/story-render.functions";
 import type { StoryManifest } from "@/lib/marketing/story-render";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { PipelineStrip, StepHint } from "@/components/marketing/pipeline-strip";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useTranslation } from "react-i18next";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useServerFn } from "@tanstack/react-start";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { CalendarDays, Check, Copy, Download, Loader2, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { toast } from "sonner";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { supabase } from "@/integrations/supabase/client";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { V2PermissionGate } from "@/components/PermissionGate";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useCan } from "@/hooks/use-permissions-v2";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Button } from "@/components/ui/button";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Card } from "@/components/ui/card";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Badge } from "@/components/ui/badge";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Input } from "@/components/ui/input";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Label } from "@/components/ui/label";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Textarea } from "@/components/ui/textarea";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { cn } from "@/lib/utils";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useActiveBible } from "@/lib/marketing/bible";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { generatePostSuggestions } from "@/lib/marketing/posts.functions";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { NewCarouselButton } from "@/components/marketing/carousels-card";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { FinishedReelDialog } from '@/components/marketing/finished-reel-dialog';
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { PREVIEW, PREVIEW_VERSION, resolveDraftImages, signPaths } from "@/lib/marketing/draft-images";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { InstagramPublishControls } from "@/components/marketing/instagram-publish-controls";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { PostApprovalControls } from "@/components/marketing/post-approval-controls";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { PlannerGrid } from "@/components/marketing/planner-grid";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { useDraftWarningConfirm } from "@/components/marketing/draft-warning-confirm";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
 import { asPlannerTab, inTab, PLANNER_VISIBLE_TABS, tabCounts, tabOf, type PlannerTab } from "@/lib/marketing/planner-tabs";
 
 export const Route = createFileRoute("/_app/marketing/posts")({
@@ -169,7 +249,7 @@ function usePlannerData() {
       const projectIds = [...new Set(ds.map((d) => d.project_id).filter(Boolean))] as string[];
       const [assets, { data: projects }] = await Promise.all([
         resolveDraftImages(sb, assetIds, 3600, { sign: false, preview:PREVIEW.tile }),
-        projectIds.length ? sb.from("pm_projects").select("id, name").in("id", projectIds) : { data: [] },
+        projectIds.length ? sb.from("marketing_project_directory").select("id, name").in("id", projectIds) : { data: [] },
       ]);
       const assetMap: Record<string, { storage_path: string; file_name: string; mime_type: string }> = {};
       for (const a of assets) assetMap[a.id] = a;
@@ -200,17 +280,8 @@ function PostPlannerPage() {
   const [storyCount, setStoryCount] = useState(0);
   const [runLanguage, setRunLanguage] = useState<RunLanguage>("project");
   const [focusProfile, setFocusProfile] = useState("none");
-  const { data: focusOptions = [] } = useQuery({
-    queryKey: ["marketing-focus-profiles"],
-    queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any).from("marketing_project_profiles").select("id, pm_projects(name)");
-      if (error) throw error;
-      return ((data ?? []) as { id: string; pm_projects: { name: string } | null }[])
-        .map((p) => ({ id: p.id, name: p.pm_projects?.name ?? "—" }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-    },
-  });
+  const {data: directory=[]}=useMarketingProjectDirectory();
+  const focusOptions=directory.map(p=>({id:p.profile_id,name:p.name}));
   const focusName = (id: string | null | undefined) => (id ? focusOptions.find((o) => o.id === id)?.name ?? null : null);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate({ from: "/marketing/posts" });
@@ -308,13 +379,7 @@ function PostPlannerPage() {
             <Label className="mt-2 block">{t("common:language")}</Label>
             <Select value={runLanguage} onValueChange={x => setRunLanguage(x as RunLanguage)}><SelectTrigger aria-label={t("common:language")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="project">{t("postLanguage.perProject")}</SelectItem>{POST_LANGUAGES.map(l => <SelectItem key={l} value={l}>{t(`postLanguage.options.${l}`)}</SelectItem>)}</SelectContent></Select>
             <Label className="mt-2 block">{t("posts.focusProject")}</Label>
-            <Select value={focusProfile} onValueChange={setFocusProfile}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("posts.focusNone")}</SelectItem>
-                {focusOptions.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <MarketingProjectPicker profileValue value={focusProfile} onChange={setFocusProfile} label={t("posts.focusProject")} emptyLabel={t("posts.focusNone")} emptyValue="none"/>
           </div>
           <div>
             <Label>{t("posts.periodStart")}</Label>

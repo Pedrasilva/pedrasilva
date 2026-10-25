@@ -1,3 +1,8 @@
+import { PortfolioDialog } from "@/components/marketing/portfolio-dialog";
+import { MarketingProjectPicker } from "@/components/marketing/project-picker";
+import { Input } from "@/components/ui/input";
+import { useMarketingProjectDirectory } from "@/lib/marketing/projects";
+import type { MarketingProjectOption } from "@/lib/marketing/portfolio";
 import { ModuleSubnav } from "@/components/shell/ModuleSubnav";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -45,15 +50,7 @@ const SECTORS = ["workspace", "healthcare", "residential", "hospitality", "other
 const ALL = "__all";
 
 export function useMarketingProjects() {
-  return useQuery({
-    queryKey: ["marketing-projects"],
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("pm_projects").select("id, name").order("name");
-      if (error) throw error;
-      return (data ?? []) as { id: string; name: string }[];
-    },
-  });
+  return useMarketingProjectDirectory();
 }
 
 function ProfilesPage() {
@@ -67,9 +64,13 @@ function ProfilesPage() {
   const [clearance, setClearance] = useState(ALL);
   const [incomplete, setIncomplete] = useState(ALL);
   const [addOpen, setAddOpen] = useState(false);
+  const [portfolioOpen,setPortfolioOpen]=useState(false);
+  const [search,setSearch]=useState("");
+  const navigate=useNavigate();
 
   const rows = profiles.filter(
     (p) =>
+      (name.get(p.marketing_key) ?? p.internal_name ?? "").toLowerCase().includes(search.toLowerCase()) &&
       (sector === ALL || p.sector === sector) &&
       (clearance === ALL || p.clearance === clearance) &&
       (incomplete === ALL || storyCompleteness(p) < STORY_FIELDS.length),
@@ -83,14 +84,15 @@ function ProfilesPage() {
           <p className="text-sm text-muted-foreground">{t("profiles.subtitle")}</p>
         </div>
         {canCurate && (
-          <Button onClick={() => setAddOpen(true)}>
+          <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={()=>setPortfolioOpen(true)}><Plus className="mr-1 h-4 w-4"/>{t("portfolio.create")}</Button><Button onClick={() => setAddOpen(true)}>
             <Plus className="mr-1 h-4 w-4" /> {t("profiles.add")}
-          </Button>
+          </Button></div>
         )}
       </div>
       <ModuleSubnav moduleId="marketing" />
 
       <div className="flex flex-wrap gap-2">
+        <Input className="w-64" aria-label={t("portfolio.search")} placeholder={t("portfolio.search")} value={search} onChange={e=>setSearch(e.target.value)}/>
         <Filter label={t("filters.sector")} value={sector} onChange={setSector}
           options={[{ v: ALL, l: t("filters.all") }, ...SECTORS.map((s) => ({ v: s, l: t(`sector.${s}`) }))]} />
         <Filter label={t("filters.clearance")} value={clearance} onChange={setClearance}
@@ -108,7 +110,8 @@ function ProfilesPage() {
           {rows.map((p) => (
             <Link key={p.id} to="/marketing/projects/$profileId" params={{ profileId: p.id }}
               className="flex flex-wrap items-center gap-3 p-3 hover:bg-muted/50">
-              <span className="min-w-0 flex-1 truncate font-medium">{name.get(p.project_id) ?? "—"}</span>
+              <span className="min-w-0 flex-1 truncate font-medium">{name.get(p.marketing_key) ?? p.internal_name ?? "—"}</span>
+              {!p.project_id && <Badge variant="secondary">{t("portfolio.label")}</Badge>}
               {p.sector && <span className="text-sm text-muted-foreground">{t(`sector.${p.sector}`)}</span>}
               {p.location && <span className="text-sm text-muted-foreground">{p.location}</span>}
               <Badge variant="outline" className={CLEARANCE_BADGE[p.clearance]}>{t(`clearance.${p.clearance}`)}</Badge>
@@ -123,8 +126,9 @@ function ProfilesPage() {
 
       {canCurate && (
         <AddProfileDialog open={addOpen} onOpenChange={setAddOpen}
-          projects={projects.filter((p) => !profiles.some((x) => x.project_id === p.id))} />
+          projects={projects.filter((p) => !p.portfolio && !p.profile_id)} />
       )}
+      <PortfolioDialog open={portfolioOpen} onOpenChange={setPortfolioOpen} onCreated={p=>{if(p.profile_id)void navigate({to:"/marketing/projects/$profileId",params:{profileId:p.profile_id}});}}/>
     </div>
   );
 }
@@ -143,7 +147,7 @@ function Filter(props: { label: string; value: string; onChange: (v: string) => 
   );
 }
 
-function AddProfileDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: { id: string; name: string }[] }) {
+function AddProfileDialog({ open, onOpenChange, projects }: { open: boolean; onOpenChange: (o: boolean) => void; projects: MarketingProjectOption[] }) {
   const { t } = useTranslation("marketing");
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -168,12 +172,7 @@ function AddProfileDialog({ open, onOpenChange, projects }: { open: boolean; onO
         <DialogHeader><DialogTitle>{t("profiles.add")}</DialogTitle></DialogHeader>
         <div className="space-y-1">
           <Label>{t("filters.project")}</Label>
-          <Select value={projectId} onValueChange={setProjectId}>
-            <SelectTrigger><SelectValue placeholder={t("profiles.pickProject")} /></SelectTrigger>
-            <SelectContent>
-              {projects.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <MarketingProjectPicker value={projectId} onChange={setProjectId} options={projects} label={t("filters.project")} emptyLabel={t("profiles.pickProject")}/>
         </div>
         <DialogFooter>
           <Button onClick={create} disabled={!projectId || saving}>{t("profiles.create")}</Button>

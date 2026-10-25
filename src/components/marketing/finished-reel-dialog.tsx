@@ -1,3 +1,5 @@
+import { MarketingProjectPicker } from "./project-picker";
+import { useProjectProfiles } from "@/lib/marketing/projects";
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,10 +37,7 @@ export function FinishedReelDialog() {
   const [audio,setAudio]=useState<Blob|null>(null); const voice=useVoiceRecorder('finished-reel');
   const video=useRef<HTMLVideoElement|null>(null); const control=useRef<{pause:()=>Promise<void>;resume:()=>void}|null>(null);
   const upload=useRef<{id:string;video_path:string;cover_path:string}|null>(null);
-  const profiles=useQuery({queryKey:['marketing-reel-profiles'],enabled:open,queryFn:async()=>{
-    const {data,error}=await supabase.from('marketing_project_profiles').select('id,project_id,post_language,instagram_language,pm_projects(name)').order('updated_at',{ascending:false});
-    if(error)throw error; return data??[];
-  }});
+  const profiles=useProjectProfiles();
   const profile=profiles.data?.find(p=>p.id===profileId);
   useEffect(()=>()=>{if(url)URL.revokeObjectURL(url);},[url]);
   useEffect(()=>()=>{if(coverUrl)URL.revokeObjectURL(coverUrl);},[coverUrl]);
@@ -78,7 +77,7 @@ export function FinishedReelDialog() {
       <p className="text-xs text-muted-foreground">{t('reels.checklist')}</p>
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-3">
-          <Label>{t('glossary:entity.project')}</Label><Select value={profileId} disabled={busy||!!upload.current} onValueChange={setProfile}><SelectTrigger aria-label={t('glossary:entity.project')}><SelectValue placeholder={t('reels.projectRequired')}/></SelectTrigger><SelectContent>{profiles.data?.map(p=><SelectItem key={p.id} value={p.id}>{p.pm_projects?.name??p.id}</SelectItem>)}</SelectContent></Select>
+          <Label>{t('glossary:entity.project')}</Label><MarketingProjectPicker profileValue value={profileId} disabled={busy||!!upload.current} onChange={setProfile} label={t("glossary:entity.project")} emptyLabel={t("reels.projectRequired")}/>
           {profile&&<div><Badge variant="outline">{languageChip(resolvePostLanguage(profile as Parameters<typeof resolvePostLanguage>[0],'instagram'))}</Badge></div>}
           <Label htmlFor="finished-reel-video">{t('reels.video')}</Label><Input id="finished-reel-video" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" disabled={busy||checking} onChange={e=>void pick(e.target.files?.[0])}/>
           {checking&&<p role="status" className="text-xs">{t('reels.checking')}</p>}
