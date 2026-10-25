@@ -1,0 +1,39 @@
+{
+  "pages": [
+    {
+      "page": "leave",
+      "lang": "pt-PT",
+      "fixtureVisible": true,
+      "url": "/hr/ferias"
+    },
+    {
+      "page": "leave",
+      "lang": "en",
+      "fixtureVisible": true,
+      "url": "/hr/ferias"
+    },
+    {
+      "page": "payroll",
+      "lang": "pt-PT",
+      "rawKeys": []
+    },
+    {
+      "page": "payroll",
+      "lang": "en",
+      "rawKeys": []
+    }
+  ],
+  "errors": [],
+  "blockedWrites": [
+    "POST /rest/v1/rpc/is_psa_staff",
+    "POST /rest/v1/rpc/is_psa_staff",
+    "POST /rest/v1/rpc/list_user_effective_permissions",
+    "POST /rest/v1/rpc/hr_leave_balances",
+    "POST /rest/v1/rpc/can_approve_leave"
+  ],
+  "documentHashes": [
+    "6acdfec9b6e2a26ba2f037c0016f4c83e7d55e24df470fa22cb6516ff787b143",
+    "6acdfec9b6e2a26ba2f037c0016f4c83e7d55e24df470fa22cb6516ff787b143"
+  ],
+  "documentUnchanged": true
+}

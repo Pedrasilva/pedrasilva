@@ -1,7 +1,7 @@
 ## Current request — Translation batch 5 (HR, Snapshot/payroll, Admin)
-- [ ] Translate UI and enum display labels, preserving official Portuguese terms, data and payroll calculations.
-- [ ] Prune resolved baseline signatures, run i18n checks and report before/after per file and intentional remnants.
-- [ ] Verify leave and payroll simulation in PT/EN with browser-local fixtures only; save screenshots and unchanged-input/calculation evidence.
+- [x] Translate UI and enum display labels, preserving official Portuguese terms, data and payroll calculations.
+- [x] Prune resolved baseline signatures, run i18n checks and report before/after per file and intentional remnants.
+- [x] Verify leave and payroll simulation in PT/EN with browser-local fixtures only; save screenshots and unchanged-input/calculation evidence.
 
 ## Current request — Translation batch 4 (CRM, Products, Inventory, Inbox)
 - [x] Translate UI, indirect labels and locale formatting without changing stored values, documents or Finance.
