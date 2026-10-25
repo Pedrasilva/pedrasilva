@@ -200,7 +200,7 @@
       "derivedFromBlended": "derivado de mensalidade ÷ preço médio de venda ({{rate}}/h)",
       "capacityFallback": "sem horas registadas — a mostrar capacidade por defeito da avença",
       "noRateHint": "atribua recursos para derivar as horas a partir da mensalidade",
-      "helpText": "A mensalidade é fixa. As horas incluídas = mensalidade ÷ preço médio de venda da equipa que entrega a avença. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado.",
+      "helpText": "A mensalidade é fixa. As horas incluídas = mensalidade ÷ preço médio de venda da equipa que presta a avença. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado.",
       "byResourceTitle": "Por recurso — custo vs venda",
       "resourceCol": "Recurso",
       "hoursCol": "Horas",
@@ -2483,8 +2483,8 @@
       "contractLiveAmount": "Montante (contrato → atual)",
       "noBillingItemsToCompare": "Sem itens de faturação para comparar.",
       "stages": "Fases",
-      "stagesDiffer_one": "{{count}} de {{total}} etapas apresenta diferenças",
-      "stagesDiffer_other": "{{count}} de {{total}} etapas apresentam diferenças"
+      "stagesDiffer_one": "{{count}} etapa com diferenças (total: {{total}})",
+      "stagesDiffer_other": "{{count}} etapas com diferenças (total: {{total}})"
     },
     "status": {
       "onTrack": "Em linha com o previsto",
@@ -2562,7 +2562,9 @@
       "calendarHours": "h de calendário",
       "window": "Período",
       "outsideStageWindow": "Prolonga-se para fora do período da fase",
-      "saveTask": "Guardar tarefa"
+      "saveTask": "Guardar tarefa",
+      "stageEnvelope": "Capacidade da etapa",
+      "beforeValue": "Antes: {{value}}"
     }
   },
   "ganttActualsLayer": {
@@ -2672,7 +2674,10 @@
     "ui": {
       "lastSync": "Última sincronização:",
       "sourceQuoteAutoUpdates": "As alterações ao orçamento de origem atualizam automaticamente este projeto.",
-      "sourceQuoteDisconnected": "As alterações ao orçamento de origem já não afetam este projeto."
+      "sourceQuoteDisconnected": "As alterações ao orçamento de origem já não afetam este projeto.",
+      "live": "Sincronizado com a proposta",
+      "paused": "Sincronização em pausa",
+      "diverged": "Divergiu da proposta"
     }
   },
   "resourcePool": {
@@ -2870,6 +2875,12 @@
       "zoomIn": "Ampliar",
       "failedInsertStage": "Não foi possível inserir a etapa",
       "failedDeleteStage": "Não foi possível eliminar a etapa"
+    }
+  },
+  "allocation": {
+    "status": {
+      "committed": "Confirmada",
+      "tentative": "Tentativa"
     }
   }
 }

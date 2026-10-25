@@ -60,10 +60,10 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
 
   const label =
     status === "live"
-      ? "Live-synced from quote"
+      ? i18n.t("projects:projectSyncStatusBadge.ui.live")
       : status === "paused"
-        ? "Sync paused"
-        : "Diverged from quote";
+        ? i18n.t("projects:projectSyncStatusBadge.ui.paused")
+        : i18n.t("projects:projectSyncStatusBadge.ui.diverged");
 
   const colorClasses =
     status === "live"

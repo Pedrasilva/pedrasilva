@@ -2562,7 +2562,9 @@
       "calendarHours": "calendar h",
       "window": "Date range",
       "outsideStageWindow": "Runs outside the stage date range",
-      "saveTask": "Save task"
+      "saveTask": "Save task",
+      "stageEnvelope": "Stage capacity",
+      "beforeValue": "Before: {{value}}"
     }
   },
   "ganttActualsLayer": {
@@ -2672,7 +2674,10 @@
     "ui": {
       "lastSync": "Last sync:",
       "sourceQuoteAutoUpdates": "Edits to the source quote auto-update this project.",
-      "sourceQuoteDisconnected": "Edits to the source quote no longer affect this project."
+      "sourceQuoteDisconnected": "Edits to the source quote no longer affect this project.",
+      "live": "Live-synced from quote",
+      "paused": "Sync paused",
+      "diverged": "Diverged from quote"
     }
   },
   "resourcePool": {
@@ -2870,6 +2875,12 @@
       "zoomIn": "Zoom in",
       "failedInsertStage": "Failed to insert stage",
       "failedDeleteStage": "Failed to delete stage"
+    }
+  },
+  "allocation": {
+    "status": {
+      "committed": "Confirmed",
+      "tentative": "Tentative"
     }
   }
 }

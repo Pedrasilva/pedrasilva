@@ -345,7 +345,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
 
             {layout && (
               <div className="text-xs text-muted-foreground border-t pt-3 space-y-0.5">
-                <div> {i18n.t("projects:ganttPrintButton.ui.effectiveScale")} {(layout.scale * 100).toFixed(0)}%</div>
+                <div> {i18n.t("projects:ganttPrintButton.ui.effectiveScale")} {((layout.scale * 100)).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%</div>
                 <div>
                    {i18n.t("projects:ganttPrintButton.ui.pageSize")} {Math.round(layout.pagePxW)} × {Math.round(layout.pagePxH)} px
                 </div>
@@ -436,7 +436,7 @@ function PrintPreview({
         </div>
       </div>
       <div className="text-xs text-muted-foreground mt-2 text-center">
-         {i18n.t("projects:ganttPrintButton.ui.previewAt")} {(previewScale * 100).toFixed(0)} {i18n.t("projects:ganttPrintButton.ui.previewTileHint")} {/* */}
+         {i18n.t("projects:ganttPrintButton.ui.previewAt")} {((previewScale * 100)).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("projects:ganttPrintButton.ui.previewTileHint")} {/* */}
          {i18n.t("projects:ganttPrintButton.ui.landscapeSheet")} </div>
     </div>
   );

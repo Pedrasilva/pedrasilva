@@ -162,7 +162,7 @@ export function ApprovalsPanel({ projectId }: Props) {
                   <span>
                     {t("projects:approvals.hours", { defaultValue: "Hours" })}:{" "}
                     <span className="font-medium text-foreground">
-                      {g.totalHours.toFixed(1)} {i18n.t("common:units.hoursShort")} </span>
+                      {(g.totalHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("common:units.hoursShort")} </span>
                   </span>
                   <span>
                     {t("projects:approvals.billableAmount", {
@@ -333,7 +333,7 @@ function EntryRow({
       <div className="truncate text-xs text-muted-foreground" title={entry.notes ?? ""}>
         {entry.notes ?? "—"}
       </div>
-      <div className="text-right font-medium">{entry.hours.toFixed(2)}</div>
+      <div className="text-right font-medium">{(entry.hours).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
       <div className="flex justify-center">
         <input
           type="checkbox"

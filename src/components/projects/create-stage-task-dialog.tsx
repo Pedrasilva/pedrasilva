@@ -94,7 +94,7 @@ function formatDate(iso: string) {
 }
 
 function h(n: number) {
-  return `${(Math.round(n * 10) / 10).toFixed(1)} h`;
+  return `${((Math.round(n * 10) / 10)).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} h`;
 }
 
 function pct(n: number | null) {
@@ -289,13 +289,13 @@ export function CreateStageTaskDialog({
 
         {hasEnvelope && (
           <div className="rounded-md border">
-            <div className="border-b px-3 py-2 text-xs font-medium"> {i18n.t("projects:effort.stages.title")} </div>
+            <div className="border-b px-3 py-2 text-xs font-medium"> {i18n.t("projects:createStageTaskDialog.ui.stageEnvelope")} </div>
             <div className="grid grid-cols-3 divide-x text-center text-xs">
               <Cell label={i18n.t("glossary:performance.capacity")} value={h(envelope.capacityHours)} />
               <Cell
                 label={i18n.t("projects:createStageTaskDialog.ui.allocatedAfter")}
                 value={h(envelope.after.allocatedHours)}
-                sub={`before ${h(envelope.before.allocatedHours)}`}
+                sub={i18n.t("projects:createStageTaskDialog.ui.beforeValue", { value: h(envelope.before.allocatedHours) })}
               />
               <Cell
                 label={i18n.t("projects:detail.ui.remaining")}
@@ -315,7 +315,7 @@ export function CreateStageTaskDialog({
                   <Cell
                     label={i18n.t("projects:createStageTaskDialog.ui.plannedCostAfter")}
                     value={euros(envelope.after.plannedCost)}
-                    sub={`before ${euros(envelope.before.plannedCost)}`}
+                    sub={i18n.t("projects:createStageTaskDialog.ui.beforeValue", { value: euros(envelope.before.plannedCost) })}
                   />
                   <Cell
                     label={i18n.t("projects:createStageTaskDialog.ui.remainingTargetCost")}
@@ -496,7 +496,7 @@ export function CreateStageTaskDialog({
               <div className="flex items-center justify-between">
                 <span> {i18n.t("projects:createStageTaskDialog.ui.calendarSpan")} </span>
                 <span>
-                  {workdays}  {i18n.t("projects:createStageTaskDialog.ui.workingDaysSeparator")} {totalCalendarHours.toFixed(1)} {i18n.t("projects:createStageTaskDialog.ui.calendarHours")} </span>
+                  {workdays}  {i18n.t("projects:createStageTaskDialog.ui.workingDaysSeparator")} {(totalCalendarHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("projects:createStageTaskDialog.ui.calendarHours")} </span>
               </div>
               <div className="flex items-center justify-between">
                 <span> {i18n.t("projects:createStageTaskDialog.ui.window")} </span>

@@ -214,7 +214,7 @@ function GlobalGanttPage() {
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
-                  {p.label}
+                  {t(p.label)}
                 </button>
               ))}
             </div>

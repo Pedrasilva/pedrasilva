@@ -611,5 +611,9 @@
   "planned": "Planeado",
   "hrParenthesis": "(RH)",
   "hrPercentSuffix": "% (RH)",
-  "cancelled": "Cancelado"
+  "cancelled": "Cancelado",
+  "remove": "Remover",
+  "add": "Adicionar",
+  "nextPage": "Página seguinte",
+  "previousPage": "Página anterior"
 }

@@ -197,10 +197,10 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                   <TooltipContent side="left" className="text-xs">
                     <div className="font-medium">{r.name}</div>
                     <div className="font-mono text-[10px] text-muted-foreground">
-                      {wh.toFixed(0)}/{effCap.toFixed(0)}  {i18n.t("projects:resourcePool.ui.hoursThisWeek")} </div>
+                      {(wh).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/{(effCap).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}  {i18n.t("projects:resourcePool.ui.hoursThisWeek")} </div>
                     {reducedByLeave && (
                       <div className="text-[10px] text-amber-600 dark:text-amber-400">
-                        −{cap.leaveHours.toFixed(0)} {i18n.t("projects:resourcePool.ui.leaveHours")} </div>
+                        −{(cap.leaveHours).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("projects:resourcePool.ui.leaveHours")} </div>
                     )}
                   </TooltipContent>
                 </Tooltip>
@@ -245,7 +245,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                       <TooltipContent side="left" className="text-xs">
                         {fullyOnLeave
                           ? i18n.t("projects:resourcePool.ui.onLeaveAllWeek")
-                          : i18n.t("projects:resourcePool.ui.leaveCapacityReduction", { value1: cap.leaveHours.toFixed(0) })}
+                          : i18n.t("projects:resourcePool.ui.leaveCapacityReduction", { value1: (cap.leaveHours).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) })}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -273,9 +273,9 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                   <span
                     className={`font-mono ${over ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                   >
-                    {wh.toFixed(0)}/{effCap.toFixed(0)}  {i18n.t("common:units.hoursShort")} {reducedByLeave && (
+                    {(wh).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/{(effCap).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}  {i18n.t("common:units.hoursShort")} {reducedByLeave && (
                       <span className="ml-1 text-[9px] text-muted-foreground/70 line-through">
-                        {baseCap.toFixed(0)}
+                        {(baseCap).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </span>
                     )}
                   </span>
@@ -291,7 +291,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
                 </div>
                 {reducedByLeave && (
                   <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
-                     {i18n.t("projects:resourcePool.ui.capacityReduced")} {cap.reductionPct.toFixed(0)} {i18n.t("projects:resourcePool.ui.byLeavePercentSuffix")} </p>
+                     {i18n.t("projects:resourcePool.ui.capacityReduced")} {(cap.reductionPct).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("projects:resourcePool.ui.byLeavePercentSuffix")} </p>
                 )}
               </div>
             </div>

@@ -181,7 +181,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
                 onChange={(e) => setTargetHours(Number(e.target.value))}
               />
               <p className="mt-0.5 text-[10px] text-muted-foreground">
-                 {i18n.t("projects:stageBaselineDialog.ui.baselineAllocationSuggestion")} <span className="font-mono">{livePlannedHours.toFixed(0)} {i18n.t("common:units.hoursShort")} </span>
+                 {i18n.t("projects:stageBaselineDialog.ui.baselineAllocationSuggestion")} <span className="font-mono">{(livePlannedHours).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("common:units.hoursShort")} </span>
               </p>
             </div>
           </div>
@@ -203,7 +203,7 @@ export function StageBaselineDialog({ stage, projectId, trigger }: Props) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground"> {i18n.t("projects:stageBaselineDialog.ui.plannedAllocationHours")} </span>
-              <span className="font-mono">{livePlannedHours.toFixed(0)} {i18n.t("common:units.hoursShort")} </span>
+              <span className="font-mono">{(livePlannedHours).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {i18n.t("common:units.hoursShort")} </span>
             </div>
           </div>
         </div>

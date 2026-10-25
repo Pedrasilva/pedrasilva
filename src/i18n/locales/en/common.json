@@ -611,5 +611,9 @@
   "planned": "Planned",
   "hrParenthesis": "(HR)",
   "hrPercentSuffix": "% (HR)",
-  "cancelled": "Cancelled"
+  "cancelled": "Cancelled",
+  "remove": "Remove",
+  "add": "Add",
+  "nextPage": "Next page",
+  "previousPage": "Previous page"
 }

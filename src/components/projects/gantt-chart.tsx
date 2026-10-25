@@ -1580,7 +1580,7 @@ export function GanttChart({
                                   {hoursAreImplied ? i18n.t("projects:ganttChart.ui.estimatedHours") : i18n.t("common:units.hours")}
                                 </span>
                                 <span className="font-mono">
-                                  {hoursAreImplied ? "≈" : ""}{displayHours.toFixed(1)} {i18n.t("common:units.hoursShort")} </span>
+                                  {hoursAreImplied ? "≈" : ""}{(displayHours).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {i18n.t("common:units.hoursShort")} </span>
                               </div>
                             )}
                             <div className="flex items-center justify-between">
@@ -1596,7 +1596,7 @@ export function GanttChart({
                               <span className={`font-mono ${margin < 0 ? "text-destructive" : "text-emerald-600"}`}>
                                 {euros(margin)}{" "}
                                 <span className="text-[10px] text-muted-foreground">
-                                  ({marginPct.toFixed(0)}%)
+                                  ({(marginPct).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%)
                                 </span>
                               </span>
                             </div>

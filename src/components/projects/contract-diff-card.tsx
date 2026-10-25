@@ -162,7 +162,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
                             ({r.budgetDelta > 0 ? "+" : ""}
                             {fmtEUR(r.budgetDelta)}
                             {r.budgetPct != null
-                              ? i18n.t("projects:contractDiffCard.ui.percentSuffix", { value1: (r.budgetPct * 100).toFixed(1) })
+                              ? i18n.t("projects:contractDiffCard.ui.percentSuffix", { value1: ((r.budgetPct * 100)).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })
                               : ""}
                             )
                           </span>

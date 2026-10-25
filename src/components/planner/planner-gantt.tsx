@@ -1412,7 +1412,7 @@ export function ProjectGantt({
       .filter((inv) => inv.raised_date)
       .map((inv) => ({
         id: inv.id,
-        label: inv.invoice_number || inv.title || i18n.t("projects:detail.ui.invoice"),
+        label: inv.invoice_number || inv.title || t("detail.ui.invoice"),
         date: inv.raised_date as string,
         amount: Number(inv.total ?? 0),
         status:
@@ -1423,7 +1423,7 @@ export function ProjectGantt({
               : ("planned" as const),
         note: inv.title ?? null,
       }));
-  }, [invoices]);
+  }, [invoices, t]);
 
   // Origin/totalDays
   const { origin, totalDays } = useMemo(() => {

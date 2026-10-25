@@ -475,7 +475,7 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
           )}
           <div className="rounded-md bg-muted/60 p-3 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.diasTeis")} </span><span className="font-mono">{wd}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.totalHours")} </span><span className="font-mono">{totalH.toFixed(1)}  {i18n.t("common:units.hoursShort")} </span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground"> {i18n.t("projects:allocationEditor.ui.totalHours")} </span><span className="font-mono">{(totalH).toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}  {i18n.t("common:units.hoursShort")} </span></div>
             <div className="mt-1 flex justify-between border-t border-border pt-1">
               <span className="text-muted-foreground"> {i18n.t("glossary:financial.cost")} <span className="opacity-70">@ {euros(effectiveCost)} {i18n.t("common:units.perHour")} </span></span>
               <span className="font-mono font-semibold">{euros(cost)}</span>

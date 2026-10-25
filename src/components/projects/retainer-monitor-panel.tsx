@@ -1153,7 +1153,7 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
               <td className="px-2 py-1 font-mono tabular-nums">{r.entry_date}</td>
               <td className="px-2 py-1">{r.resourceName}</td>
               <td className="px-2 py-1 text-right font-mono tabular-nums">
-                {r.hours.toFixed(2)}
+                {(r.hours).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className="px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground">
                 {r.billable ? i18n.t("common:yes") : i18n.t("common:no")}
