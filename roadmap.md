@@ -1,3 +1,9 @@
+## Current request — Translation batch 6 and sentence quality
+- [ ] Merge fragmented translated sentences and replace parenthetical plurals across prior namespaces.
+- [ ] Translate Finance UI and all remaining application UI; preserve documents, data, calculations and pending Finance proposals, with no migrations.
+- [ ] Prune resolved baseline signatures and report per-module/per-file and whole-app counts plus intentional exclusions.
+- [ ] Run i18n/regression checks and verify reconciliation/home in PT/EN with browser-local fixtures and screenshots only.
+
 ## Current request — Translation batch 5 (HR, Snapshot/payroll, Admin)
 - [x] Translate UI and enum display labels, preserving official Portuguese terms, data and payroll calculations.
 - [x] Prune resolved baseline signatures, run i18n checks and report before/after per file and intentional remnants.
