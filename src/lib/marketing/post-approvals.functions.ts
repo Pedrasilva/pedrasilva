@@ -74,7 +74,7 @@ export const listMyPostApprovals = createServerFn({ method: "POST" })
     const reqIds: string[] = [...new Set<string>(list.map((r: any) => r.requested_by as string))];
     await Promise.all(reqIds.map(async (id) => { names.set(id, (await userName(id)).name); }));
     const pids = [...new Set(list.map((r: any) => r.marketing_post_drafts.project_id).filter(Boolean))];
-    const { data: projects } = pids.length ? await db.from("pm_projects").select("id, name").in("id", pids) : { data: [] };
+    const { data: projects } = pids.length ? await db.from("marketing_project_directory").select("id, name").in("id", pids) : { data: [] };
     const pn = new Map((projects ?? []).map((p: any) => [p.id, p.name]));
     return list.map((r: any) => ({
       id: r.id, draftId: r.draft_id, requestId: r.marketing_post_drafts.request_id, platform: r.marketing_post_drafts.platform,
