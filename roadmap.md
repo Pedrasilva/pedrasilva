@@ -1,3 +1,7 @@
+## Current request — Clínica Mint II REV 01 content
+- [ ] Update only the authorized document content, cover, durations, relative schedules and block order; preserve phase prose, fees and payments.
+- [ ] Verify saved content and unchanged unrelated/financial hashes; capture cover, schedule, exclusions and additional services in PT.
+
 ## Current request — Clínica Mint II payment regeneration
 - [x] Correct proposal display to relative milestones/weeks and construction months only; migration 0215 mapped construction months from the converted stage; local PostgreSQL/calendar fixtures passed without real writes.
 - [x] Fix advance inclusion, milestone percentages and missing-date regeneration with 17 fixture regressions and both browser-local refresh paths.
