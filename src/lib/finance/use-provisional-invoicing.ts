@@ -8,7 +8,8 @@ export function useIssuedRegistration(edit = false) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ header, lines, existingId, draftQueueId }: { header: Record<string, unknown>; lines: Record<string, unknown>[]; existingId?: string; draftQueueId?: string }) => {
-      const result = draftQueueId ? await supabase.rpc('fin_save_issued_pdf_draft', {
+      const expenseLines = lines.some(l => l.expense_id || l.credit_allocation_id);
+      const result = expenseLines && !existingId ? await supabase.rpc('pe_invoice_from_expenses', { _header: header as Json, _lines: lines as Json }) : draftQueueId ? await supabase.rpc('fin_save_issued_pdf_draft', {
         _queue_id: draftQueueId, _header: header as Json, _lines: lines as Json, _document_id: existingId,
       }) : edit && existingId ? await supabase.rpc('fin_edit_issued_document',{_id:existingId,_header:header as Json,_lines:lines as Json}) : await supabase.rpc('fin_register_issued_document', {
         _header: header as Json, _lines: lines as Json, _existing_id: existingId ?? undefined,

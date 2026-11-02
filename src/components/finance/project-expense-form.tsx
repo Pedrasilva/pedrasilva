@@ -19,7 +19,7 @@ function ChoiceInput({ id, value, choices, onChange }: { id: string; value: stri
   return <Select value={value || undefined} onValueChange={onChange}><SelectTrigger id={id}><SelectValue /></SelectTrigger><SelectContent>{choices.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent></Select>;
 }
 
-export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, finance = false }: { open: boolean; onOpenChange: (o: boolean) => void; projectId?: string; initial?: FlowExpense | null; finance?: boolean }) {
+export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, finance = false, initialFile }: { open: boolean; onOpenChange: (o: boolean) => void; projectId?: string; initial?: FlowExpense | null; finance?: boolean; initialFile?: File | null }) {
   const { t, i18n } = useTranslation(['finance', 'common', 'projects']);
   const qc = useQueryClient();
   const readReceipt = useServerFn(readProjectExpenseReceipt);
@@ -28,6 +28,10 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
   const [busy, setBusy] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [queueId, setQueueId] = useState<string | null>(null);
+  const [intakeKey, setIntakeKey] = useState('');
+  const [processedFile, setProcessedFile] = useState<File | null>(null);
+  useEffect(() => { if (open) { setQueueId(null); setIntakeKey(crypto.randomUUID()); setProcessedFile(null); } }, [open]);
+  useEffect(() => { if (open && initialFile && initialFile !== processedFile && directory.data?.myCollaborator && values.projectId) { setProcessedFile(initialFile); void upload(initialFile); } }, [open, initialFile, processedFile, directory.data, values.projectId]);
   const set = (key: string, value: string) => setValues(v => ({ ...v, [key]: value }));
   useEffect(() => { if (!open) return; setSavedId(initial?.id ?? null); setValues({ projectId: initial?.project_id ?? projectId ?? '', description: initial?.description ?? '', category: initial?.category ?? 'travel', date: initial?.incurred_at ?? new Date().toISOString().slice(0, 10), supplier: initial?.vendor ?? '', documentNumber: initial?.document_number ?? '', currency: initial?.original_currency ?? 'EUR', originalAmount: initial?.original_amount?.toString() ?? '', eurAmount: initial?.eur_amount?.toString() ?? '', exchangeDate: initial?.exchange_rate_date ?? '', exchangeSource: initial?.exchange_rate_source ?? '', exchangeEvidence: initial?.exchange_evidence ? JSON.stringify(initial.exchange_evidence) : '', paidBy: initial?.payment_source_type ?? 'personal', collaboratorId: initial?.reimburse_collaborator_id ?? '', cardId: initial?.payment_card_id ?? '', accountId: initial?.paid_from_account_id ?? '', rebillMode: initial?.rebill_mode ?? 'cost', markupPct: initial?.markup_pct?.toString() ?? '0', taxTreatment: initial?.tax_treatment ?? 'pending', vatRate: String((initial?.tax_parameters as { vatRate?: number } | null)?.vatRate ?? ''), notes: initial?.notes ?? '', receiptPath: initial?.receipt_path ?? '' }); }, [open, initial, projectId]);
   useEffect(() => { if (directory.data?.myCollaborator) setValues(v => ({ ...v, collaboratorId: v.collaboratorId || directory.data?.myCollaborator || '' })); }, [directory.data]);
@@ -36,7 +40,7 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
   async function save(submit: boolean) {
     setBusy(true);
     try {
-      const data = { ...values, expenseId: savedId, originalAmount: Number(values.originalAmount), eurAmount: values.eurAmount || null, markupPct: Number(values.markupPct || 0), collaboratorId: values.paidBy === 'personal' ? values.collaboratorId : null, accountId: values.paidBy === 'company_account' ? values.accountId : null, cardId: values.paidBy === 'company_card' ? values.cardId : null, exchangeEvidence: values.exchangeEvidence ? { reference: values.exchangeEvidence } : null, taxParameters: values.vatRate ? { vatRate: Number(values.vatRate) } : null };
+      const data = { ...values, intakeKey, expenseId: savedId, originalAmount: Number(values.originalAmount), eurAmount: values.eurAmount || null, markupPct: Number(values.markupPct || 0), collaboratorId: values.paidBy === 'personal' ? values.collaboratorId : null, accountId: values.paidBy === 'company_account' ? values.accountId : null, cardId: values.paidBy === 'company_card' ? values.cardId : null, exchangeEvidence: values.exchangeEvidence ? { reference: values.exchangeEvidence } : null, taxParameters: values.vatRate ? { vatRate: Number(values.vatRate) } : null };
       const saved = await expenseAction('save', data); setSavedId(saved.id);
       if (queueId) {
         const linked = await supabase.rpc('pe_link_queue', { _id: queueId, _expense: saved.id });
@@ -56,6 +60,8 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
       const path = receiptStoragePath(collaborator, values.projectId, file.name);
       const up = await supabase.storage.from('benefit-receipts').upload(path, file, { upsert: false }); if (up.error) throw up.error;
       set('receiptPath', path);
+      const hash = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+      setIntakeKey(Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join(''));
       const result = await readReceipt({ data: { projectId: values.projectId, storagePath: path } }); if (!result.ok) throw new Error(result.error);
       setQueueId(result.queueItemId ?? null);
       if (result.extracted) {

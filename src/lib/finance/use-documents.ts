@@ -185,6 +185,9 @@ function round2(n: number): number {
 // ---------------------------------------------------------------------------
 
 export type DocumentInputLine = {
+  expense_id?: string;
+  expense_cost?: number;
+  credit_allocation_id?: string;
   payment_schedule_item_id?: string | null;
   description: string;
   quantity: number;
