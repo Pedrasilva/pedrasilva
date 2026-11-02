@@ -18366,6 +18366,7 @@ export type Database = {
         }[]
       }
       pe_finance_access: { Args: { _entity: string }; Returns: boolean }
+      pe_link_queue: { Args: { _expense: string; _id: string }; Returns: Json }
       pe_match_purchase: {
         Args: { _amount: number; _expense: string; _tx: string }
         Returns: Json
