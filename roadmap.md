@@ -1,3 +1,8 @@
+## Current request — Project expenses and reimbursements (plan only)
+- [x] Inspect existing intake, expense ownership, project costs, billing and statement matching through read-only source/schema analysis.
+- [x] Prepare proposed schema, shared intake, screens, permissions and staged migration/fixture-verification plan for review; no implementation or data writes.
+- [x] Keep pending Bernardo duplicates and card settlement proposals untouched, awaiting separate confirmation.
+
 ## Current request — Translation batch 7 (server/database errors)
 - [x] Inventory user-visible messages and separate internal diagnostics.
 - [x] Add one display-only error translator, paired EN/PT keys, toast integration and stored-error displays.
