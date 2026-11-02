@@ -215,9 +215,12 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
     setLines((prev) => [...prev, newLine()]);
   }
 
+  function nextExpenseInvalid() { return lines.some(l => (l.expense_id || l.credit_allocation_id) && (!(Number(l.expense_cost) > 0))); }
+
   function validate(): string | null {
     if (!clientId) return t("finance:invoices.errors.clientRequired");
     if (!issueDate) return t("finance:invoices.errors.issueDateRequired");
+    if (nextExpenseInvalid()) return t('finance:expenseFlow.pending');
     if (lines.length === 0)
       return t("finance:invoices.errors.linesRequired");
     for (const l of lines) {
@@ -783,7 +786,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                 </Button>
                 {!isReadOnly && (
                   <>
-                    {status === "draft" && (
+                    {status === "draft" && !lines.some(l => l.expense_id || l.credit_allocation_id) && (
                       <Button
                         variant="outline"
                         size="sm"

@@ -107,7 +107,7 @@ Zero despesas v2 persistentes depois da limpeza. Eliminados o projeto, cliente, 
 ## Ainda não concluído/verificado — lista atual substitui a anterior
 - Matriz de permissões com contas de colaborador, responsável e Finance distintas; concorrência simultânea; teste com período fechado; ordem recibo-primeiro end-to-end.
 - Crédito parcial: RPC verificado, mas falta controlo no editor para escolher o montante parcial da parcela (o seletor atual preenche o montante completo).
-- Guardar/editar posteriormente rascunhos de faturas com linhas afetadas ainda precisa de integração: as linhas protegidas não podem ser apagadas/recriadas pelo editor legado. O caminho novo cria diretamente documentos emitidos; o botão Guardar rascunho não deve ser considerado validado para estas linhas.
+- Guardar/editar posteriormente rascunhos de faturas com linhas afetadas ainda precisa de integração: as linhas protegidas não podem ser apagadas/recriadas pelo editor legado. O caminho novo cria diretamente documentos emitidos; Guardar rascunho está oculto para estas linhas até existir integração segura de edição.
 - Revisão completa de todos os relatórios, avisos cambiais e captura do documento efetivamente emitido.
 - O recibo fixture encontrou o fornecedor pelo mecanismo explícito de ligação; a recusa de visibilidade PSA do mecanismo genérico foi diagnosticada, mas não alterada por estar fora do âmbito. A experiência de confirmação pela Entrada requer verificar essa escolha no ecrã.
 
