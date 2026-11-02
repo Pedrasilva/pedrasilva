@@ -435,5 +435,5 @@
 - [x] Stage D: two-way reconciliation audit + searchable register, supplier duplicates with confirmed merge/aliases (purchases tab reused), intake source alerts (bell + email). 10 rolled-back DB checks + 7 alert-rule checks pass.
 
 ## Priority — expense submission and intake visibility blockers
-- [ ] Replace ambiguous expense-function locals and scope intake counterparty checks to the queue entity; no record changes.
-- [ ] Reproduce both errors, run all expense branches and entity-isolation regressions on an isolated schema copy; preserve real expense hashes.
+- [x] Replace ambiguous expense-function locals and scope intake counterparty checks to the queue entity; no record changes.
+- [x] Both old errors reproduced; applied 0213/0214, all ten branches/card/6 entity checks passed on isolated schema copy; live expense and queue hashes unchanged. Current matching live expense is already submitted and EUR is null; no submit/edit performed.
