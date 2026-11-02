@@ -3785,14 +3785,17 @@ export type Database = {
       finance_holder_reimbursements: {
         Row: {
           amount: number
+          approved_at: string | null
+          approved_by: string | null
           card_id: string | null
           collaborator_id: string | null
           created_at: string
           created_by: string | null
-          document_id: string
+          document_id: string | null
           entity_id: string
           holder_name: string | null
           id: string
+          project_expense_id: string | null
           repaid_at: string | null
           repaid_by: string | null
           status: string
@@ -3800,14 +3803,17 @@ export type Database = {
         }
         Insert: {
           amount: number
+          approved_at?: string | null
+          approved_by?: string | null
           card_id?: string | null
           collaborator_id?: string | null
           created_at?: string
           created_by?: string | null
-          document_id: string
+          document_id?: string | null
           entity_id: string
           holder_name?: string | null
           id?: string
+          project_expense_id?: string | null
           repaid_at?: string | null
           repaid_by?: string | null
           status?: string
@@ -3815,14 +3821,17 @@ export type Database = {
         }
         Update: {
           amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
           card_id?: string | null
           collaborator_id?: string | null
           created_at?: string
           created_by?: string | null
-          document_id?: string
+          document_id?: string | null
           entity_id?: string
           holder_name?: string | null
           id?: string
+          project_expense_id?: string | null
           repaid_at?: string | null
           repaid_by?: string | null
           status?: string
@@ -3848,6 +3857,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_holder_reimbursements_project_expense_id_fkey"
+            columns: ["project_expense_id"]
+            isOneToOne: false
+            referencedRelation: "pm_expenses"
             referencedColumns: ["id"]
           },
         ]
@@ -4765,6 +4781,7 @@ export type Database = {
           payment_status: string
           possible_duplicate_resolved: boolean
           possible_duplicates: Json | null
+          project_expense_context: Json | null
           purge_exempt: boolean
           raw_extraction: Json | null
           recebimento_id: string | null
@@ -4927,6 +4944,7 @@ export type Database = {
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
+          project_expense_context?: Json | null
           purge_exempt?: boolean
           raw_extraction?: Json | null
           recebimento_id?: string | null
@@ -5089,6 +5107,7 @@ export type Database = {
           payment_status?: string
           possible_duplicate_resolved?: boolean
           possible_duplicates?: Json | null
+          project_expense_context?: Json | null
           purge_exempt?: boolean
           raw_extraction?: Json | null
           recebimento_id?: string | null
@@ -5357,6 +5376,7 @@ export type Database = {
           personal_card_decided_by: string | null
           personal_card_decision: string | null
           personal_card_prev_status: string | null
+          project_expense_id: string | null
           project_id: string | null
           receipt_invoice_candidates: string[]
           registration_origin: string | null
@@ -5440,6 +5460,7 @@ export type Database = {
           personal_card_decided_by?: string | null
           personal_card_decision?: string | null
           personal_card_prev_status?: string | null
+          project_expense_id?: string | null
           project_id?: string | null
           receipt_invoice_candidates?: string[]
           registration_origin?: string | null
@@ -5523,6 +5544,7 @@ export type Database = {
           personal_card_decided_by?: string | null
           personal_card_decision?: string | null
           personal_card_prev_status?: string | null
+          project_expense_id?: string | null
           project_id?: string | null
           receipt_invoice_candidates?: string[]
           registration_origin?: string | null
@@ -5603,6 +5625,13 @@ export type Database = {
             columns: ["paid_from_card_id"]
             isOneToOne: false
             referencedRelation: "payment_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_project_expense_id_fkey"
+            columns: ["project_expense_id"]
+            isOneToOne: false
+            referencedRelation: "pm_expenses"
             referencedColumns: ["id"]
           },
           {
@@ -9922,19 +9951,32 @@ export type Database = {
           created_at: string
           description: string
           document_number: string | null
+          entity_id: string | null
+          eur_amount: number | null
+          exchange_evidence: Json | null
+          exchange_rate: number | null
+          exchange_rate_date: string | null
+          exchange_rate_source: string | null
           expense_date: string | null
+          expense_revision: number
           id: string
           incurred_at: string | null
           invoice_reference: string | null
           invoiced_at: string | null
           invoiced_in_invoice_id: string | null
+          markup_pct: number | null
           notes: string | null
+          original_amount: number | null
+          original_currency: string | null
           paid_at: string | null
+          paid_from_account_id: string | null
           payment_card_id: string | null
           payment_source_label: string | null
           payment_source_type: string
           project_id: string
+          purchase_document_id: string | null
           purchase_price: number
+          rebill_mode: string | null
           rebillable: boolean
           receipt_path: string | null
           reimbursable: boolean
@@ -9946,10 +9988,15 @@ export type Database = {
           supplier_company_id: string | null
           supplier_id: string | null
           supplier_nif: string | null
+          tax_confirmed_at: string | null
+          tax_confirmed_by: string | null
+          tax_parameters: Json | null
+          tax_treatment: string | null
           updated_at: string
           vat_amount: number | null
           vat_rate: number | null
           vendor: string | null
+          workflow_version: number
         }
         Insert: {
           amount_ex_vat?: number | null
@@ -9963,19 +10010,32 @@ export type Database = {
           created_at?: string
           description: string
           document_number?: string | null
+          entity_id?: string | null
+          eur_amount?: number | null
+          exchange_evidence?: Json | null
+          exchange_rate?: number | null
+          exchange_rate_date?: string | null
+          exchange_rate_source?: string | null
           expense_date?: string | null
+          expense_revision?: number
           id?: string
           incurred_at?: string | null
           invoice_reference?: string | null
           invoiced_at?: string | null
           invoiced_in_invoice_id?: string | null
+          markup_pct?: number | null
           notes?: string | null
+          original_amount?: number | null
+          original_currency?: string | null
           paid_at?: string | null
+          paid_from_account_id?: string | null
           payment_card_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string
           project_id: string
+          purchase_document_id?: string | null
           purchase_price?: number
+          rebill_mode?: string | null
           rebillable?: boolean
           receipt_path?: string | null
           reimbursable?: boolean
@@ -9987,10 +10047,15 @@ export type Database = {
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_nif?: string | null
+          tax_confirmed_at?: string | null
+          tax_confirmed_by?: string | null
+          tax_parameters?: Json | null
+          tax_treatment?: string | null
           updated_at?: string
           vat_amount?: number | null
           vat_rate?: number | null
           vendor?: string | null
+          workflow_version?: number
         }
         Update: {
           amount_ex_vat?: number | null
@@ -10004,19 +10069,32 @@ export type Database = {
           created_at?: string
           description?: string
           document_number?: string | null
+          entity_id?: string | null
+          eur_amount?: number | null
+          exchange_evidence?: Json | null
+          exchange_rate?: number | null
+          exchange_rate_date?: string | null
+          exchange_rate_source?: string | null
           expense_date?: string | null
+          expense_revision?: number
           id?: string
           incurred_at?: string | null
           invoice_reference?: string | null
           invoiced_at?: string | null
           invoiced_in_invoice_id?: string | null
+          markup_pct?: number | null
           notes?: string | null
+          original_amount?: number | null
+          original_currency?: string | null
           paid_at?: string | null
+          paid_from_account_id?: string | null
           payment_card_id?: string | null
           payment_source_label?: string | null
           payment_source_type?: string
           project_id?: string
+          purchase_document_id?: string | null
           purchase_price?: number
+          rebill_mode?: string | null
           rebillable?: boolean
           receipt_path?: string | null
           reimbursable?: boolean
@@ -10028,10 +10106,15 @@ export type Database = {
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_nif?: string | null
+          tax_confirmed_at?: string | null
+          tax_confirmed_by?: string | null
+          tax_parameters?: Json | null
+          tax_treatment?: string | null
           updated_at?: string
           vat_amount?: number | null
           vat_rate?: number | null
           vendor?: string | null
+          workflow_version?: number
         }
         Relationships: [
           {
@@ -10049,10 +10132,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pm_expenses_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pm_expenses_invoiced_in_invoice_id_fkey"
             columns: ["invoiced_in_invoice_id"]
             isOneToOne: false
             referencedRelation: "pm_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_paid_from_account_id_fkey"
+            columns: ["paid_from_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
             referencedColumns: ["id"]
           },
           {
@@ -10067,6 +10164,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_purchase_document_id_fkey"
+            columns: ["purchase_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
             referencedColumns: ["id"]
           },
           {
@@ -12998,6 +13102,168 @@ export type Database = {
           },
         ]
       }
+      project_expense_events: {
+        Row: {
+          action: string
+          actor: string
+          after_value: Json | null
+          before_value: Json | null
+          created_at: string
+          evidence: Json | null
+          expense_id: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          after_value?: Json | null
+          before_value?: Json | null
+          created_at?: string
+          evidence?: Json | null
+          expense_id: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          after_value?: Json | null
+          before_value?: Json | null
+          created_at?: string
+          evidence?: Json | null
+          expense_id?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expense_events_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "pm_expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_expense_invoice_allocations: {
+        Row: {
+          actor: string
+          billed_amount: number
+          cost_amount: number
+          created_at: string
+          expense_id: string
+          id: string
+          line_id: string
+          reversal_reason: string | null
+          reversed_at: string | null
+          reversed_by: string | null
+          tax_treatment: string
+          vat_amount: number
+        }
+        Insert: {
+          actor: string
+          billed_amount: number
+          cost_amount: number
+          created_at?: string
+          expense_id: string
+          id?: string
+          line_id: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          tax_treatment: string
+          vat_amount: number
+        }
+        Update: {
+          actor?: string
+          billed_amount?: number
+          cost_amount?: number
+          created_at?: string
+          expense_id?: string
+          id?: string
+          line_id?: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          tax_treatment?: string
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expense_invoice_allocations_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "pm_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expense_invoice_allocations_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expense_invoice_allocations_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_line_processing"
+            referencedColumns: ["line_id"]
+          },
+        ]
+      }
+      project_expense_receipt_allocations: {
+        Row: {
+          actor: string
+          amount: number
+          created_at: string
+          id: string
+          invoice_allocation_id: string
+          payment_id: string
+          reversal_reason: string | null
+          reversed_at: string | null
+          reversed_by: string | null
+        }
+        Insert: {
+          actor: string
+          amount: number
+          created_at?: string
+          id?: string
+          invoice_allocation_id: string
+          payment_id: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+        }
+        Update: {
+          actor?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_allocation_id?: string
+          payment_id?: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expense_receipt_allocations_invoice_allocation_id_fkey"
+            columns: ["invoice_allocation_id"]
+            isOneToOne: false
+            referencedRelation: "project_expense_invoice_allocations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expense_receipt_allocations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_items: {
         Row: {
           approval_status: string
@@ -13109,6 +13375,119 @@ export type Database = {
             columns: ["source_library_product_id"]
             isOneToOne: false
             referencedRelation: "library_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_reimbursement_allocations: {
+        Row: {
+          actor: string
+          bank_transaction_id: string | null
+          batch_id: string
+          created_at: string
+          id: string
+          obligation_id: string
+          reserved_amount: number
+          reversal_reason: string | null
+          reversed_at: string | null
+          reversed_by: string | null
+          settled_amount: number
+        }
+        Insert: {
+          actor: string
+          bank_transaction_id?: string | null
+          batch_id: string
+          created_at?: string
+          id?: string
+          obligation_id: string
+          reserved_amount: number
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          settled_amount?: number
+        }
+        Update: {
+          actor?: string
+          bank_transaction_id?: string | null
+          batch_id?: string
+          created_at?: string
+          id?: string
+          obligation_id?: string
+          reserved_amount?: number
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          settled_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reimbursement_allocations_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reimbursement_allocations_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "project_reimbursement_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reimbursement_allocations_obligation_id_fkey"
+            columns: ["obligation_id"]
+            isOneToOne: false
+            referencedRelation: "finance_holder_reimbursements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_reimbursement_batches: {
+        Row: {
+          collaborator_id: string
+          created_at: string
+          created_by: string
+          entity_id: string
+          id: string
+          reference: string
+        }
+        Insert: {
+          collaborator_id: string
+          created_at?: string
+          created_by: string
+          entity_id: string
+          id?: string
+          reference: string
+        }
+        Update: {
+          collaborator_id?: string
+          created_at?: string
+          created_by?: string
+          entity_id?: string
+          id?: string
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reimbursement_batches_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reimbursement_batches_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reimbursement_batches_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entities"
             referencedColumns: ["id"]
           },
         ]
