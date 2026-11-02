@@ -66,6 +66,7 @@ import { InvoiceGroupingControl } from "./invoice-grouping-control";
 import { PaymentScheduleReconciliation } from "./payment-schedule-reconciliation";
 import { DesignMilestoneEditor } from "./design-milestone-editor";
 import { parseDesignMilestones } from "@/lib/quotes/payment-generators";
+import { proposalPaymentTiming } from "@/lib/quotes/proposal-payment-timing";
 
 function AutoTextarea({
   value,
@@ -1014,7 +1015,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
                   <TableCell className="text-right tabular-nums text-xs">
                     {formatEUR(gross)}
                   </TableCell>
-                  <TableCell>{it.expected_invoice_date ?? "—"}</TableCell>
+                  <TableCell>{proposalPaymentTiming(it, stages, items, uiI18n.language)}</TableCell>
                   <TableCell>
                     <Input
                       className="h-7 text-xs"
@@ -1161,7 +1162,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
                                 />
                               </TableCell>
                               <TableCell className="text-right tabular-nums text-xs">{formatEUR(gross)}</TableCell>
-                              <TableCell className="text-xs">{it.expected_payment_date ?? it.expected_invoice_date ?? "—"}</TableCell>
+                              <TableCell className="text-xs">{proposalPaymentTiming(it, stages, items, uiI18n.language)}</TableCell>
                               <TableCell>
                                 <Input
                                   className="h-7 text-xs"

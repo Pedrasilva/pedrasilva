@@ -1,0 +1,8 @@
+import { expect, it } from "vitest";
+import { proposalPaymentTiming, decodeProposalTiming, proposalTimingToken } from "../src/lib/quotes/proposal-payment-timing";
+const stages=[{id:"pb",name:"Programa Base",start_date:"2000-01-03",end_date:"2000-01-14"},{id:"ep",name:"[2] Estudo Prévio",start_date:"2000-01-24",end_date:"2000-02-11"},{id:"at",name:"Assistência",start_date:"2000-06-01",end_date:"2000-06-30",stage_kind:"retainer_monthly"}];
+const months=[0,1,2,3].map(i=>({id:`m${i}`,stage_id:"at",trigger_type:"monthly",sort_order:i+4,expected_invoice_date:`2027-0${i+4}-01`}));
+it("shows construction months 1 through 4 regardless of stored 2027 anchors",()=>{expect(months.map(item=>proposalPaymentTiming(item,stages,months,"pt-PT"))).toEqual(["Mês 1 de obra","Mês 2 de obra","Mês 3 de obra","Mês 4 de obra"]);});
+it("uses relative completion weeks with no start-date fallback",()=>{expect(proposalPaymentTiming({stage_id:"ep",trigger_type:"stage_end"},stages,[],"pt-PT")).toBe("Semana 6");expect(proposalPaymentTiming({stage_id:"pb",trigger_type:"stage_end"},stages,[],"en")).toBe("Week 2");});
+it("adjudication has no calendar date",()=>{expect(proposalPaymentTiming({trigger_type:"project_start",expected_invoice_date:"2026-11-02"},stages,[],"pt-PT")).toBe("Adjudicação");});
+it("relative rendering tokens roundtrip without becoming dates",()=>{expect(decodeProposalTiming(proposalTimingToken("Mês 4 de obra"))).toBe("Mês 4 de obra");});

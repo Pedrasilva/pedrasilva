@@ -146,6 +146,7 @@ function PaymentSubTable({
   defaultVatRate,
   labelFor,
   showTotalRow = false,
+  stages = [],
 }: {
   rows: QuotePaymentScheduleItem[];
   totalFee: number;
@@ -153,6 +154,7 @@ function PaymentSubTable({
   defaultVatRate: number;
   labelFor?: (it: QuotePaymentScheduleItem) => string;
   showTotalRow?: boolean;
+  stages?: QuoteStage[];
 }) {
   useTranslation();
   const groupTotal = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
@@ -187,7 +189,7 @@ function PaymentSubTable({
             <TableRow key={it.id}>
               <TableCell>
                 <div className="font-medium tabular-nums">
-                  {formatShortDate(it.expected_invoice_date)}
+                  {proposalPaymentTiming(it, stages, rows, uiI18n.language)}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {labelFor ? labelFor(it) : it.label}
@@ -1109,6 +1111,7 @@ export function PaymentScheduleProposalView({
                     totalFee={totalFee}
                     stageFees={stageFees}
                     defaultVatRate={defaultVatRate}
+                    stages={stages}
                   />
                 </CardContent>
               </Card>
