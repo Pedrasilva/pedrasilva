@@ -714,7 +714,7 @@ export function generateByStageBilling(
       const series = monthsFrom(anchor, months);
       series.forEach((m, i) => {
         items.push({
-          label: `${s.name} — ${formatYearMonth(m)} (retainer)`,
+          label: `${s.name} — Mês ${i + 1} de obra`,
           trigger_type: "monthly",
           amount_type: "fixed",
           amount_value: monthly,

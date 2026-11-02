@@ -15,14 +15,14 @@ Authorized quote: `37ebfc12-6717-474f-a5f4-5887706f7250`; composer: `20c4c8b3-c8
 
 Corrected plan: FT01 adjudication 10% of design subtotal (€2,570); FT02 Programa Base completion, FT03 Estudo Prévio completion and FT04 Projeto de Execução completion each 30% (€7,710); FT05–08 assistance €1,320 each. Existing VAT 23% retained: net €30,980, VAT €7,125.40, gross €38,105.40.
 
-No calendar start exists: the first four invoice/payment dates are undefined rather than fabricated. The expressly configured assistance anchor remains April–July 2027. Gantt phase dates, durations, budgets, allocations and fees were not changed.
+Proposals intentionally have no calendar start. Entrada, the payment plan and the live document now show Adjudicação, Semana 2/6/12 and Mês 1–4 de obra, never 2000 or April–July 2027. Stored anchors remain internal, not promised calendar dates. Gantt phase dates, durations, budgets, allocations and fees were not changed.
 
 ## Cause and correction
 
 - The stored `deductDownPaymentFromStages:false` made the generator add the advance to all full stage fees. New generation always treats advances as inclusive instalments, proportional to design fees; monthly retainers remain intact.
 - Both refresh entry points now resolve `quote_build_settings.designMilestones`: percentage, label, trigger and stage anchor. Enabled percentages must total exactly 100. Fixed generated amounts resolve against the current design subtotal, not the individual phase fee or assistance total.
 - A milestone editor in **Plano de pagamentos** supports adding/removing milestones, choosing adjudication/start/completion, and changing the percentage of design fees. Saving terms is separate from applying them through Update from Gantt.
-- Relative planning anchors before 2010 are never generated as actual invoice dates. Both Entrada and the live composer preserve separate undefined-date milestones and their saved order instead of merging them or moving adjudication after assistance. Entrada displays an undefined-date warning and the reconciliation card.
+- Payment timing uses the shared display-only `proposal-payment-timing.ts` helper; both Entrada and the live composer preserve relative milestone order. The previous undefined-date warning is removed because no calendar start is intentional. The reconciliation card remains.
 - Removed the sole quote-specific Sustentável.pt 5% markup row and the empty live consultants block. There were already zero external services and zero supplier payment lines. The live document reads the corrected plan; issued/frozen historical snapshots were not rewritten.
 
 ## Authorized data operation
@@ -40,6 +40,9 @@ Full-row MD5 equality before/after:
 
 ## Validation
 
+- Date clarification: four new relative-timing tests passed. The applied additive migration `0215_quote_relative_construction_month_payment_dates.sql` is byte-identically mirrored in both migration folders. Monthly construction invoices now derive their ordinal from siblings and the converted live retainer stage, not the 2027 anchor minus a 2000 origin. Invoice dates skip non-working days through the existing calendar function; payment offsets remain applied once.
+- Isolated local PostgreSQL ran the exact applied function against disposable minimal fixtures: construction months mapped to December 2026–March 2027; holidays/closure fixtures on 1 December and 1 January plus weekends shifted invoices to 2 December and 4 January; four payment offsets matched exactly. No real conversion was performed. Full project-conversion transaction was not rerun; the existing conversion already consumes this shared function and its live Gantt calendar.
+
 - 17 focused tests passed: nine new milestone/date/inclusive-advance/supplier regressions, three existing proportional-advance checks and five leaf-fee tests.
 - i18n tests: 13 checker tests and nine error-translator tests passed; EN/PT parity across 13 namespaces; zero UI candidates.
 - Authenticated UI readback of the real authorized correction: Entrada shows FT01 €2,570, FT02–04 €7,710, four €1,320 monthly rows, total €30,980 and difference €0. No test writes to real records.
@@ -53,7 +56,9 @@ Full-row MD5 equality before/after:
 
 ## Portuguese screenshots
 
-![Corrected Entrada and reconciliation](mint-payment-plan/entrada-pt.png)
+![Corrected relative Entrada and reconciliation](mint-payment-plan/entrada-relative-pt.png)
+
+![Relative document readback](mint-payment-plan/document-relative-pt.png)
 
 ![Reconciliation detail](mint-payment-plan/reconciliation-pt.png)
 
