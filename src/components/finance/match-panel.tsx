@@ -26,6 +26,7 @@ import {
   confidenceTone, fetchSuggestions, fetchTxOpenBalance, learnFromMatch, reasonLine, refreshSuggestions, suggestionsKey, type Suggestion,
 } from "@/lib/finance/reconcile-suggestions";
 import { allocateSplit, dedupeSuggestions, type MatchOrigin } from "@/lib/finance/match-panel";
+import { expenseAction } from '@/lib/finance/project-expense-flow';
 
 const fmt = (n: number | null | undefined) =>
   n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
@@ -33,7 +34,7 @@ const fmt = (n: number | null | undefined) =>
 export type MatchTx = { id: string; transaction_date: string; description: string; amount: number };
 
 type Candidate = {
-  kind: "purchase" | "sale" | "entrada" | "reimbursement" | "transfer";
+  kind: "purchase" | "sale" | "entrada" | "reimbursement" | "reimbursement_batch" | "transfer";
   ref_id: string; label: string; counterparty: string | null; doc_date: string | null;
   amount: number | null; outstanding: number | null; detail: string | null; origin: MatchOrigin;
 };
@@ -177,6 +178,11 @@ export function MatchPanel({
     if (busy) return;
     if (r.kind === "entrada") { onConfirmEntrada(r.ref_id); return; }
     if (r.kind === "reimbursement") { onMatchReimb(); return; }
+    if (r.kind === 'reimbursement_batch') {
+      setBusy(true);
+      try { await expenseAction('settleBatch', { batchId: r.ref_id, transactionId: tx.id, amount: Math.round(Math.min(Number(r.outstanding ?? 0), txOpen) * 100) / 100 }); toast.success(t('finance:expenseFlow.saved')); done(); await qc.invalidateQueries({ queryKey: ['expense-flow'] }); } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+      return;
+    }
     if (r.kind === "transfer") { onMarkTransfer(); return; }
     const amount = Math.round(Math.min(Number(r.outstanding ?? 0), txOpen) * 100) / 100;
     if (amount <= 0) { toast.error(t("finance:reconSuggest.nothingOpen")); return; }

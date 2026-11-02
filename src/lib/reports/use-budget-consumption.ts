@@ -24,8 +24,8 @@ export function useBudgetConsumptionData(upTo: string) {
         fetchAll<{ project_id: string | null; purchase_price: number | null; quantity: number | null }>((a, b) =>
           supabase.from("pm_materials").select("project_id, purchase_price, quantity").order("id").range(a, b) as never,
         ),
-        fetchAll<{ project_id: string | null; purchase_price: number | null }>((a, b) =>
-          supabase.from("pm_expenses").select("project_id, purchase_price").order("id").range(a, b) as never,
+        fetchAll<{ project_id: string | null; purchase_price: number | null; workflow_version: number; eur_amount: number | null }>((a, b) =>
+          supabase.from("pm_expenses").select("project_id, purchase_price, workflow_version, eur_amount").order("id").range(a, b) as never,
         ),
         fetchAll<{ project_id: string; resource_id: string }>((a, b) =>
           supabase.from("pm_project_team").select("project_id, resource_id").order("id").range(a, b) as never,
@@ -45,7 +45,7 @@ export function useBudgetConsumptionData(upTo: string) {
       }
       for (const x of exps) {
         if (!x.project_id) continue;
-        otherCost.set(x.project_id, (otherCost.get(x.project_id) ?? 0) + Number(x.purchase_price ?? 0));
+        otherCost.set(x.project_id, (otherCost.get(x.project_id) ?? 0) + (x.workflow_version === 2 ? x.eur_amount ?? NaN : Number(x.purchase_price ?? 0)));
       }
       const teamByProject = new Map<string, string[]>();
       for (const t of team) teamByProject.set(t.project_id, [...(teamByProject.get(t.project_id) ?? []), t.resource_id]);

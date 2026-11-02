@@ -51,6 +51,7 @@ import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quot
 import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
 import { Route as AppFinanceEntradaRouteImport } from './routes/_app.finance.entrada'
 import { Route as AppFinanceInboxRouteImport } from './routes/_app.finance.inbox'
+import { Route as AppFinanceProjectExpensesRouteImport } from './routes/_app.finance.project-expenses'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
 import { Route as AppHrAprovacoesRouteImport } from './routes/_app.hr.aprovacoes'
@@ -397,6 +398,12 @@ const AppFinanceInboxRoute = AppFinanceInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => AppFinanceRoute,
 } as any)
+const AppFinanceProjectExpensesRoute =
+  AppFinanceProjectExpensesRouteImport.update({
+    id: '/project-expenses',
+    path: '/project-expenses',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppHrIndexRoute = AppHrIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1166,6 +1173,7 @@ export interface FileRoutesByFullPath {
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
+  '/finance/project-expenses': typeof AppFinanceProjectExpensesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1334,6 +1342,7 @@ export interface FileRoutesByTo {
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/finance/entrada': typeof AppFinanceEntradaRoute
   '/finance/inbox': typeof AppFinanceInboxRoute
+  '/finance/project-expenses': typeof AppFinanceProjectExpensesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1510,6 +1519,7 @@ export interface FileRoutesById {
   '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/_app/finance/entrada': typeof AppFinanceEntradaRoute
   '/_app/finance/inbox': typeof AppFinanceInboxRoute
+  '/_app/finance/project-expenses': typeof AppFinanceProjectExpensesRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/aprovacoes': typeof AppHrAprovacoesRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -1688,6 +1698,7 @@ export interface FileRouteTypes {
     | '/crm/quote-templates'
     | '/finance/entrada'
     | '/finance/inbox'
+    | '/finance/project-expenses'
     | '/hr/admin'
     | '/hr/aprovacoes'
     | '/hr/beneficios'
@@ -1856,6 +1867,7 @@ export interface FileRouteTypes {
     | '/crm/quote-templates'
     | '/finance/entrada'
     | '/finance/inbox'
+    | '/finance/project-expenses'
     | '/hr/admin'
     | '/hr/aprovacoes'
     | '/hr/beneficios'
@@ -2031,6 +2043,7 @@ export interface FileRouteTypes {
     | '/_app/crm/quote-templates'
     | '/_app/finance/entrada'
     | '/_app/finance/inbox'
+    | '/_app/finance/project-expenses'
     | '/_app/hr/admin'
     | '/_app/hr/aprovacoes'
     | '/_app/hr/beneficios'
@@ -2492,6 +2505,13 @@ declare module '@tanstack/react-router' {
       path: '/inbox'
       fullPath: '/finance/inbox'
       preLoaderRoute: typeof AppFinanceInboxRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/project-expenses': {
+      id: '/_app/finance/project-expenses'
+      path: '/project-expenses'
+      fullPath: '/finance/project-expenses'
+      preLoaderRoute: typeof AppFinanceProjectExpensesRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/hr/': {
@@ -3486,6 +3506,7 @@ const AppCrmRouteWithChildren =
 interface AppFinanceRouteChildren {
   AppFinanceEntradaRoute: typeof AppFinanceEntradaRoute
   AppFinanceInboxRoute: typeof AppFinanceInboxRoute
+  AppFinanceProjectExpensesRoute: typeof AppFinanceProjectExpensesRoute
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceAdminAuditRoute: typeof AppFinanceAdminAuditRoute
   AppFinanceAdminDriveArchiveRoute: typeof AppFinanceAdminDriveArchiveRoute
@@ -3529,6 +3550,7 @@ interface AppFinanceRouteChildren {
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceEntradaRoute: AppFinanceEntradaRoute,
   AppFinanceInboxRoute: AppFinanceInboxRoute,
+  AppFinanceProjectExpensesRoute: AppFinanceProjectExpensesRoute,
   AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceAdminAuditRoute: AppFinanceAdminAuditRoute,
   AppFinanceAdminDriveArchiveRoute: AppFinanceAdminDriveArchiveRoute,

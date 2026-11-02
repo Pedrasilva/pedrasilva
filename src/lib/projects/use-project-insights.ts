@@ -196,20 +196,22 @@ export function useProjectInsights(projectId: string) {
         a.monthKey < b.monthKey ? -1 : 1,
       );
 
-      const [{ data: mats }, { data: exps }, { data: histRows }] = await Promise.all([
+      const [{ data: mats }, { data: exps }, { data: histRows }, figures] = await Promise.all([
         supabase
           .from("pm_materials")
           .select("purchase_price, sale_price, quantity")
           .eq("project_id", projectId),
         supabase
           .from("pm_expenses")
-          .select("purchase_price, rebillable, invoiced_at")
+          .select("id, purchase_price, rebillable, invoiced_at, workflow_version, eur_amount")
           .eq("project_id", projectId),
         supabase
           .from("historical_time_entries")
           .select("source_system, billable_hours, non_billable_hours, cost, amount")
           .eq("project_id", projectId),
+        supabase.rpc('pe_expense_figures', { _project: projectId }),
       ]);
+      if (figures.error) throw figures.error;
 
       // Fold imported historical time entries into project actuals. Live
       // pm_time_entries are never mirrored here, so this cannot double-count
@@ -247,7 +249,7 @@ export function useProjectInsights(projectId: string) {
         invoiced: 0,
       };
       const materials = rollupExternalServices(mats ?? []);
-      const expensesRow = rollupExpenses(exps ?? []);
+      const expensesRow = rollupExpenses((exps ?? []).map(e => ({ ...e, billed_amount: figures.data?.find(f => f.expense_id === e.id)?.billed_amount ?? 0 })));
       const total = sumFinancialsRows(services, materials, expensesRow);
 
       const earnedPct = budgetTotal > 0 ? Math.round((earnedValue / budgetTotal) * 100) : 0;

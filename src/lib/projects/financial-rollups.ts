@@ -40,6 +40,9 @@ export interface ExternalServiceLike {
 
 /** Minimal shape of a row in pm_expenses needed for rollups. */
 export interface ProjectExpenseLike {
+  workflow_version?: number | null;
+  eur_amount?: number | string | null;
+  billed_amount?: number | string | null;
   purchase_price?: number | string | null;
   rebillable?: boolean | null;
   invoiced_at?: string | null;
@@ -75,11 +78,11 @@ export function projectExpenseLine(row: ProjectExpenseLike): {
   revenue: number;
   profit: number;
 } {
-  const cost = toNum(row.purchase_price);
+  const cost = row.workflow_version === 2 ? row.eur_amount == null ? NaN : toNum(row.eur_amount) : toNum(row.purchase_price);
   const invoiced = Boolean(row.rebillable) && row.invoiced_at != null;
-  const revenue = invoiced ? cost : 0;
+  const revenue = row.workflow_version === 2 ? toNum(row.billed_amount) : invoiced ? cost : 0;
   // Avoid producing -0 (strict-equal asserts treat -0 ≠ 0).
-  const profit = revenue - cost || 0;
+  const profit = Number.isNaN(cost) ? NaN : revenue - cost || 0;
   return { cost, revenue, profit };
 }
 
@@ -116,7 +119,7 @@ export function rollupExpenses(rows: ProjectExpenseLike[]): FinancialsRow {
     budget: revenue,
     value: revenue,
     cost,
-    profit: revenue - cost || 0,
+    profit: Number.isNaN(cost) ? NaN : revenue - cost || 0,
     invoiced: revenue,
   };
 }

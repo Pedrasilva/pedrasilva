@@ -318,7 +318,6 @@ export const approveQueueClassification = createServerFn({ method: "POST" })
       })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
-
     return { ok: true };
   });
 
@@ -341,6 +340,14 @@ export const finalizeQueueItem = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .single();
     if (error) throw new Error(error.message);
+    if (row.source_project_expense_id) {
+      const { data: flow } = await supabase.from('pm_expenses').select('workflow_version').eq('id', row.source_project_expense_id).maybeSingle();
+      if (flow?.workflow_version === 2) {
+        const r = await supabase.rpc('pe_confirm_intake', { _id: row.id, _expense: row.source_project_expense_id, _edits: {} });
+        if (r.error) throw new Error(r.error.message);
+        return { ok: true, documentId: (r.data as { document_id: string }).document_id };
+      }
+    }
     if (!row.supplier_approved_at || !row.classification_approved_at) {
       throw new Error("Both supplier and classification must be approved first");
     }
@@ -791,6 +798,13 @@ export const confirmQueueItem = createServerFn({ method: "POST" })
       const { error: pe } = await supabase.rpc("fin_queue_set_paid_unknown", { _id: data.id, _value: paid_method_unknown });
       if (pe) return confirmFailure(pe.message);
     }
+    const { data: queue } = await supabase.from('financial_document_review_queue').select('source_project_expense_id').eq('id', data.id).single();
+    const { data: flow } = queue?.source_project_expense_id ? await supabase.from('pm_expenses').select('workflow_version').eq('id', queue.source_project_expense_id).maybeSingle() : { data: null };
+    if (flow?.workflow_version === 2 && queue?.source_project_expense_id) {
+      const result = await supabase.rpc('pe_confirm_intake', { _id: data.id, _expense: queue.source_project_expense_id, _edits: edits as never });
+      if (result.error) return confirmFailure(result.error.message);
+      return { ok: true, documentId: (result.data as { document_id: string }).document_id };
+    }
     const { data: res, error } = await supabase.rpc("fin_confirm_queue_item", {
       _id: data.id,
       _edits: edits as never,
@@ -810,6 +824,13 @@ export const confirmQueueItems = createServerFn({ method: "POST" })
     await assertFinanceAccess(supabase, userId);
     const results: Array<{ id: string } & ConfirmResult> = [];
     for (const id of data.ids) {
+      const { data: queue } = await supabase.from('financial_document_review_queue').select('source_project_expense_id').eq('id', id).single();
+      const { data: flow } = queue?.source_project_expense_id ? await supabase.from('pm_expenses').select('workflow_version').eq('id', queue.source_project_expense_id).maybeSingle() : { data: null };
+      if (flow?.workflow_version === 2 && queue?.source_project_expense_id) {
+        const r = await supabase.rpc('pe_confirm_intake', { _id: id, _expense: queue.source_project_expense_id, _edits: {} });
+        results.push(r.error ? { id, ...confirmFailure(r.error.message) } : { id, ok: true, documentId: (r.data as { document_id: string }).document_id });
+        continue;
+      }
       const { data: res, error } = await supabase.rpc("fin_confirm_queue_item", { _id: id, _edits: {} as never });
       results.push(
         error

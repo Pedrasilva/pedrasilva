@@ -28,6 +28,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ProjectExpenseDialog } from "./project-expense-dialog";
+import { ProjectExpenseForm } from '@/components/finance/project-expense-form';
+import { ProjectExpenseLists } from '@/components/finance/project-expense-lists';
 import { MarkExpenseInvoicedDialog } from "./mark-expense-invoiced-dialog";
 import { RequestApprovalDialog, RejectExpenseDialog } from "./expense-approval-dialogs";
 import { useCollaboratorsList } from "@/lib/hr/use-collaborators";
@@ -53,10 +55,12 @@ interface Props {
 
 export function ProjectExpensesSection({ projectId, canEdit, privileged = false }: Props) {
   const { t } = useTranslation("projects");
-  const { data: items = [], isLoading } = useProjectExpenses(projectId);
+  const { data: allItems = [], isLoading } = useProjectExpenses(projectId);
+  const items = allItems.filter(e => e.workflow_version !== 2);
   const del = useDeleteProjectExpense(projectId);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [flowOpen, setFlowOpen] = useState(false);
   const [editing, setEditing] = useState<ProjectExpenseWithSupplier | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ProjectExpenseWithSupplier | null>(null);
   const [markInvoiced, setMarkInvoiced] = useState<ProjectExpenseWithSupplier | null>(null);
@@ -86,6 +90,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
 
   // Files run one at a time (rate limits); a failed read still leaves a draft.
   async function handleFiles(files: File[]) {
+    if (files.length) { setFlowOpen(true); return; }
     if (!canEdit || busy || files.length === 0) return;
     const folder = profile?.collaborator_id;
     if (!folder) { toast.error(t("expenses.fields.receiptNoProfile")); return; }
@@ -138,8 +143,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
     setDialogOpen(true);
   }
   function handleAdd() {
-    setEditing(null);
-    setDialogOpen(true);
+    setFlowOpen(true);
   }
   async function handleDelete() {
     if (!confirmDelete) return;
@@ -153,7 +157,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
   }
 
   return (
-    <div {...dropHandlers} className={`relative rounded-xl border bg-card shadow-sm transition-colors ${dragOver ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
+    <div className="space-y-6"><ProjectExpenseLists mode="project" projectId={projectId} /><ProjectExpenseForm open={flowOpen} onOpenChange={setFlowOpen} projectId={projectId} /><div {...dropHandlers} className={`relative rounded-xl border bg-card shadow-sm transition-colors ${dragOver ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
       {(dragOver || busy) && items.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary">
           {busy ? t("expenses.drop.processing", { done: busy.done, total: busy.total }) : t("expenses.drop.release")}
@@ -387,6 +391,6 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </div></div>
   );
 }
