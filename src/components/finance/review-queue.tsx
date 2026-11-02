@@ -1320,6 +1320,7 @@ export function QueueItemCard({
         {row.status === "rejected" && row.rejection_reason && (
           <Textarea readOnly value={row.rejection_reason} className="text-xs" />
         )}
+        <ProjectExpenseForm open={expenseFormOpen} onOpenChange={setExpenseFormOpen} projectId={projectId ?? undefined} finance intake={expenseIntake} />
       </CardContent>
     </Card>
   );
