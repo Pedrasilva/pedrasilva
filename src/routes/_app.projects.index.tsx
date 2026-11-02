@@ -366,7 +366,7 @@ function DashboardPage() {
       };
       const [mat, exp] = await Promise.all([
         supabase.from("pm_materials").select("project_id, purchase_price, sale_price, quantity"),
-        supabase.from("pm_expenses").select("project_id, purchase_price"),
+        supabase.from("pm_expenses").select("project_id, purchase_price, workflow_version, eur_amount"),
       ]);
       if (mat.error) throw mat.error;
       if (exp.error) throw exp.error;
@@ -377,9 +377,9 @@ function DashboardPage() {
         cur.materialsCost += Number(r.purchase_price ?? 0) * qty;
         cur.materialsSale += Number(r.sale_price ?? 0) * qty;
       }
-      for (const r of (exp.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null }>) {
+      for (const r of (exp.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null; workflow_version: number; eur_amount: number | null }>) {
         if (!r.project_id) continue;
-        ensure(r.project_id).expensesCost += Number(r.purchase_price ?? 0);
+        ensure(r.project_id).expensesCost += r.workflow_version === 2 ? r.eur_amount ?? NaN : Number(r.purchase_price ?? 0);
       }
       return m;
     },
