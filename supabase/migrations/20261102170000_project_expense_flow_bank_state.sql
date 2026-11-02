@@ -1,0 +1,3 @@
+DO $$ DECLARE d text; BEGIN SELECT pg_get_functiondef('public.pe_action(text,jsonb)'::regprocedure) INTO d; d:=pe_replace_once(d,'SET status=''reconciled'',reconciled_at','SET status=''classified'',reconciled_at'); EXECUTE d; END $$;
+-- Sandbox-only fixture execution, revoked immediately after the test run.
+GRANT EXECUTE ON FUNCTION public.pe_directory(uuid),public.pe_action(text,jsonb),public.pe_expense_figures(uuid),public.fin_reconcile_candidates(uuid,text),public.fin_tx_open_balance(uuid),public.fin_bank_tx_in_locked_period(uuid,date,uuid),public.pe_reconciled_amount(uuid) TO sandbox_exec;
