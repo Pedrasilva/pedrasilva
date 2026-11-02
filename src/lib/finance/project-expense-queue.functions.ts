@@ -74,6 +74,6 @@ export const routeProjectExpenseReceiptToQueue = createServerFn({ method: "POST"
       },
     });
 
-    const { data: queue } = res.queueItemId ? await supabaseAdmin.from('financial_document_review_queue').select('extracted_supplier_name,extracted_document_number,extracted_issue_date,extracted_currency,extracted_total_amount').eq('id', res.queueItemId).eq('entity_id', expense.entity_id ?? PSA_ENTITY_ID).maybeSingle() : { data: null };
-    return { ok: res.ok, queueItemId: res.queueItemId, error: res.error, extracted: queue ? { supplier: queue.extracted_supplier_name, documentNumber: queue.extracted_document_number, date: queue.extracted_issue_date, currency: queue.extracted_currency, amount: queue.extracted_total_amount } : undefined };
+    const { data: queue } = res.queueItemId ? await supabaseAdmin.from('financial_document_review_queue').select('extracted_supplier_name,extracted_document_number,extracted_date,extracted_currency,extracted_amount').eq('id', res.queueItemId).eq('entity_id', expense.entity_id ?? PSA_ENTITY_ID).maybeSingle() : { data: null };
+    return { ok: res.ok, queueItemId: res.queueItemId, error: res.error, extracted: queue ? { supplier: queue.extracted_supplier_name, documentNumber: queue.extracted_document_number, date: queue.extracted_date, currency: queue.extracted_currency, amount: queue.extracted_amount } : undefined };
   });

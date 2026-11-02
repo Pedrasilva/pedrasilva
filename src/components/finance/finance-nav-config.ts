@@ -55,6 +55,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
     labelKey: "finance:sidebar.groups.intake",
     items: [
       { to: "/finance/entrada", labelKey: "finance:sidebar.items.intakeInbox", icon: Inbox },
+      { to: "/finance/project-expenses", labelKey: "finance:expenseFlow.project", icon: Receipt },
     ],
   },
   {
