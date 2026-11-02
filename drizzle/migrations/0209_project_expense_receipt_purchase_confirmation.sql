@@ -1,0 +1,1 @@
+DO $$ DECLARE d text; BEGIN SELECT pg_get_functiondef('public.pe_confirm_intake(uuid,uuid,jsonb)'::regprocedure) INTO d; d:=pe_replace_once(d,'UPDATE financial_document_review_queue SET source_project_expense_id=e.id,','UPDATE financial_document_review_queue SET intake_route=''purchases'',source_project_expense_id=e.id,'); EXECUTE d; END $$;
