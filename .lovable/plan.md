@@ -1,33 +1,76 @@
-# Faturação provisória — reutilizar Finance
+# Despesas de projeto e reembolsos — plano para revisão
 
-## O que já existe
-- `financial_documents` é o registo central: 39 documentos de venda, dos quais 9 anulados; 24 com projeto no cabeçalho e 15 com ficheiro associado. Guarda cliente, datas, base/IVA/total, série, estado e campos InvoiceXpress. Todos estão marcados como origem manual; não há evidência que permita atribuí-los ao PHC.
-- Linhas em `financial_document_lines`, pagamentos em `financial_document_payments` e recebimentos confirmados em `finance_recebimentos`. Não criar outro livro de faturas nem duplicar recebimentos.
-- O projeto já tem Faturação, hoje de consulta e com ligação para criar em Finance. `pm_invoices` é um modelo legado separado; não o usar como novo registo de vendas.
-- docs@ e uploads usam a mesma extração: NIF do atelier como emitente → venda; como destinatário → compra; dúvida → triagem. PDFs ficam no armazenamento privado `financial-documents`, com caminho guardado no documento/fila.
-- Há código e campos para emissão InvoiceXpress, mas isto não confirma uma integração configurada ou operacional. SAF-T PT ainda não tem importador.
+## Limites
+Inspeção apenas por leitura do código, estrutura, políticas e funções atuais. Nenhuma implementação, migração ou escrita de dados. Bernardo, contas de liquidação e saldos iniciais ficam fora deste plano e aguardam confirmação separada. Aprovar este plano não autoriza essas propostas.
 
-## Implementação
-1. **Completar o registo existente**, sem criar tabela paralela de faturas. Série/número, data, cliente, projeto opcional enquanto aguarda associação, valores, PDF, origem e estado; notas de crédito ligadas ao original. Manter pagamentos parciais existentes. «Nota de crédito ligada» aparece como relação, sem apagar o estado de pagamento da fatura original.
-2. **Um único registo por documento fiscal não anulado**, identificado pela entidade emitente + tipo fiscal + série + número normalizados; índice parcial exclui anulados e identidades incompletas. Preservar os 7+2 anulados repetidos. Mostrar a normalização de todos os 39 antes de gravar, mantendo o texto original e sem inventar séries ou tipos fiscais de recibos. FT Nº12/2026 → FT 2026/12 é normalização proposta; a divergência Banco CTT fica assinalada, sem junção/correção de valores. Todos os caminhos manual/upload/SAF-T/futura API usam a mesma verificação; valores diferentes mostram comparação, nunca sobrescrevem automaticamente.
-3. **Adaptar Faturação existente no projeto**: lista de vendas, PDF, estado, crédito associado; «Registar fatura» com introdução manual ou PDF. Reutilizar formulário, armazenamento e motor do docs@; confirmação obrigatória de dados e milestone antes do registo final. Um PDF de compra ou de outra entidade não vira venda por força do botão. Listar em Finance os documentos atuais sem projeto para Luis os associar, sem associações automáticas presumidas; verificar também ligações nas linhas antes de os considerar sem projeto. Preservar as restantes vistas existentes.
-4. **Totais coerentes**: faturado líquido = faturas emitidas válidas menos notas de crédito válidas; rascunhos/anuladas e recibos excluídos. Os 13 recibos já classificados mantêm essa classificação; ligações a faturas exigem identificação verificável, coincidências de cliente/valor são sugestões e não confirmação de pagamento. Recebido deriva apenas dos pagamentos/recebimentos confirmados, respeitando pagamentos parciais e sem dupla contagem. Comparação com orçamento/earned/milestones usa valores sem IVA; recebido e saldo de cobrança mostram explicitamente a base com IVA. «Por faturar» é orçamento menos faturado, distinto de «por receber»; não ocultar sobrefaturação.
-5. **Milestones**: conservar Revenue (earned); adicionar Faturado e diferença (earned − faturado), a partir das ligações das linhas aos marcos. Permitir várias linhas/marcos numa fatura sem contar a fatura inteira em cada marco. Sem alterar datas, horas, honorários ou estado das milestones planeadas só por registar uma fatura.
-6. **Finance → Importar SAF-T**: carregar XML SAF-T PT mensal, validar entidade e estrutura; ler faturas, notas de crédito, estados e valores sem AI. Pré-visualização de novas/existentes/divergentes, sugestões de projeto por cliente/NIF, seleção manual quando ambíguo. Associar notas de crédito pela referência ao original; referências não resolvidas ficam explícitas. Não marcar como paga só porque foi importada. Preservar ficheiro de origem e rastreabilidade; SAF-T não contém os PDFs individuais.
-7. **Acesso**: Faturação e registo apenas para quem está autorizado em Finance na entidade respetiva, com verificação no servidor e nas políticas de leitura/escrita. Reutilizar permissões Finance existentes; acesso geral a Projetos não concede faturação. Não alargar acesso a outras entidades.
-8. **Futura InvoiceXpress**: guardar/sincronizar identificador externo no mesmo documento, reconciliado pela identidade fiscal; não emitir de novo uma fatura já emitida noutro software. Não ativar ou chamar a API neste trabalho.
+## O que existe — e as lacunas
+- **`pm_expenses`** já é o registo de custo de projeto: projeto obrigatório, custo/preço de venda, categoria, recibo, fornecedor, pago por, colaborador a reembolsar, refaturável e aprovação com autor/data. Reutilizar pelas duas entradas.
+- **Entrada Finance:** `ingestStoredDocument` → `financial_document_review_queue`, com OCR, moeda, fornecedor, duplicados e confirmação transacional `fin_confirm_queue_item`. A captura no projeto ainda lê primeiro pelo OCR de benefícios e depois encaminha para Finance: atualmente há duas leituras.
+- **Ligações:** `source_project_expense_id` liga fila e despesa; `created_expense_id` na fila identifica o documento financeiro criado, apesar do nome. Não o usar como identificador de `pm_expenses`.
+- **Reembolsos atuais:** `pm_expense_link_reimbursement` cria `financial_expense_items` para despesas pessoais aprovadas, mas salta as que têm recibo na fila. Outro mecanismo, `finance_holder_reimbursements`, cria dívida de compras pagas com cartão pessoal; exige documento, não tem aprovação de projeto e permite marcar repago sem transferência. Nenhum satisfaz sozinho o fluxo pedido.
+- **Reconciliação:** painel único com `fin_reconcile_candidates`, sugestões em cache e pagamentos ligados a movimentos; importação protege linhas/checksums. O diálogo antigo de reembolso consultado procura benefícios HR, não despesas de projeto; não criar outra superfície de correspondência.
+- **Faturação:** `financial_documents`, linhas e pagamentos são o livro atual. A FK de `pm_expenses.invoiced_in_invoice_id` ainda aponta para `pm_invoices` legado; não criar novas faturas nesse modelo.
+- **Totais:** `financial-rollups.ts` soma o custo de todas as despesas e reconhece refaturação ao custo quando há `invoiced_at`; ignora markup. Adaptar a receita do novo fluxo, preservando histórico e snapshots de horas.
 
-## Detalhes técnicos
-- Alterações aditivas em `financial_documents` e `financial_document_lines` para metadados de origem, referência ao documento original e ligação à milestone (`pm_payment_schedule_items`); reutilizar registos de importação existentes para auditoria de ficheiros/lotes.
-- Manter `source` legado e acrescentar proveniência específica manual/upload/saft/invoicexpress sem reclassificar documentos históricos automaticamente.
-- Operação transacional, verificação de permissões e chave única no banco protegem importações repetidas e criações simultâneas. Pré-análise de duplicados não substitui a proteção no banco.
-- Reutilizar `ingestStoredDocument`, fila de revisão e Storage API para PDFs; extração não cria uma venda definitiva antes da confirmação. Parser XML compatível com o ambiente publicado, sem execução de entidades externas.
-- Todas as alterações de banco com migrações idênticas nos diretórios de migrações do projeto; regras atuais de entidades/RLS mantidas. EN/PT-PT em todos os novos textos.
+## Fluxo proposto
+### Uma entrada, duas portas
+«Adicionar despesa» no projeto abre o mesmo formulário da Entrada Finance, com projeto predefinido; em Finance, projeto selecionável. Um upload, um ficheiro privado e uma extração pelo motor Finance. Reutilizar fornecedor, duplicados, classificação PRJ.EXP e confirmação.
 
-## Verificação
-- Apenas pessoas/projetos/documentos descartáveis; limpar no fim. Nenhum documento real alterado na implementação.
-- Testar: manual e PDF confirmados, compra recusada no registo de venda, nota de crédito, pagamento parcial, totais sem/com IVA, várias milestones, série/número repetidos e criação concorrente, SAF-T repetido e divergente, projeto ambíguo, entidades diferentes e acesso sem Finance recusado.
-- Verificar no ecrã registo → lista → leitura após recarregar; importação → associação → milestone/totais. Confirmar integridade dos dados existentes antes/depois.
+Ambas as portas criam/atualizam **a mesma linha em `pm_expenses`**, com documento/evidência ligados — nunca outro custo. Rascunho manual pode existir sem recibo; anexar depois completa a mesma linha. Sem projeto, manter em triagem; custo efetivamente da empresa segue o destino existente, sem permitir projeto nulo em `pm_expenses`.
 
-## Limite desta fase
-Plano aprovado, com auditoria antes de unicidade e associação dos documentos sem projeto em Finance. Auditoria apresentada: 39 documentos de direção emitida incluem recibos; 7 cópias anuladas de FT Nº12/2026; 3 FT 2026/23 (1 pago, 2 anulados); possível correspondência divergente FT 2026/12 vs FT Nº12/2026; 7 números em falta, 39 séries separadas vazias; 15 sem projeto no cabeçalho e nas linhas. Não contar recibos como faturação adicional. A unicidade aguarda confirmação explícita; não foram criadas faturas, alteradas permissões, importados ficheiros ou ativada a API InvoiceXpress.
+Campos independentes:
+- **Pago por:** conta/cartão da empresa ou colaborador escolhido por pessoa, sem exigir registo do seu cartão pessoal. Quem submeteu não é necessariamente quem pagou; submissão do colaborador predefine «pago por mim».
+- **Refaturável:** não / ao custo / markup %. Projeto obrigatório; viagens de projeto predefinidas refaturáveis, editável.
+- **Moeda:** valor original, moeda, data da operação e EUR, câmbio/origem/data/evidência. EUR em falta fica «por confirmar», nunca zero. Correspondência confirmada com cartão substitui conversão provisória pelo EUR realmente debitado, conservando os valores anteriores. Taxas separadas do cartão não são incorporadas por suposição.
+- **Fiscalidade:** por confirmar / disbursement («despesa reembolsável») / custo refaturado, com IVA configurável por despesa. Não inferir dedutibilidade, taxa zero ou regras para despesas do Reino Unido. Tratamento confirmado pelo contabilista antes da inclusão em fatura.
+
+### Aprovação, reembolso e faturação separados
+**Pessoais: submetida → aprovada pelo responsável do projeto ou Luis → paga.** OCR, aprovação de fornecedor e pagamento ao comerciante não aprovam reembolso. Rejeição conserva motivo/histórico; reenvio exige nova decisão. Alterações materiais após aprovação invalidam autorização ainda não liquidada; pagamentos existentes nunca são desfeitos silenciosamente.
+
+**«A reembolsar à equipa»:** apenas pessoais aprovadas, agrupadas pelo ID do colaborador. Selecionar despesas prepara um lote por pessoa, podendo abranger vários projetos. Não executar transferências bancárias: Finance associa a transferência real ao lote no painel existente. Só essa reconciliação marca pago. Pagamento parcial conserva saldo; desfazer exige motivo e reabre apenas montantes afetados.
+
+**«A faturar aos clientes»:** refaturáveis agrupadas por projeto/cliente, pendente → incluída numa fatura ligada → paga pelo cliente. Independe de quem pagou ou de o colaborador já ter sido reembolsado. Mostrar custo EUR e valor a faturar separados; cliente em falta aguarda associação, sem adivinhar. Pagamentos parciais da fatura exigem alocação explícita às despesas; não marcar tudo pago com qualquer recebimento.
+
+## Sem dupla contagem
+1. Recibo de cartão da empresa liga-se à linha existente do extrato; não cria movimento nem segunda despesa. Funciona também se o extrato chegou primeiro. Correspondência confirmada por pessoa com valor/moeda, data, fornecedor e conta/cartão; last4 sozinho não prova pagamento.
+2. Compra pessoal é custo do projeto, paga ao fornecedor pela pessoa. Não surge como compra por pagar ao fornecedor no banco da empresa; só a obrigação ao colaborador é candidata à transferência.
+3. Reembolso, liquidação de cartão e recebimento do cliente são movimentos de liquidação, nunca novas despesas. Classificação de movimento já ligado não cria custo adicional.
+4. Projeto soma `pm_expenses` uma vez; documento/dívida/lote são evidência ou obrigação. Finance identifica a origem para não agregar novamente esse custo.
+5. Preservar o critério histórico de custo incorrido, distinguindo submetido/aprovado/pago. Aprovação define o que se deve reembolsar, não o momento bancário. Receita do novo fluxo vem da alocação efetivamente faturada, incluindo markup, sem duplicar a receita da fatura; tratamento económico de disbursements fica configurável com o contabilista.
+
+## Detalhes técnicos — esquema proposto
+Nomes novos indicativos, a alinhar com convenções na implementação.
+
+| Estrutura | Alterações propostas |
+|---|---|
+| `pm_expenses` | Reutilizar pago por, cartão, `reimburse_collaborator_id`, `rebillable`, aprovação e custo. Acrescentar conta pagadora, moeda/valor original, EUR/câmbio/data/origem/evidência, modo/percentagem de markup, tratamento/parâmetros fiscais confirmados, documento de compra ligado e versão do novo fluxo. Projeto continua obrigatório. |
+| Fila Finance | Reutilizar as ligações/extrações existentes; acrescentar contexto estruturado de pessoa pagadora/refaturação. Confirmar documento e despesa juntos, idempotentemente. |
+| `finance_holder_reimbursements` | Reutilizar como obrigação única; acrescentar ligação única à despesa de projeto e metadados de aprovação. Documento pode faltar apenas havendo despesa ligada. Novas obrigações só ficam devidas após aprovação; cartão pessoal não é requisito deste fluxo. Preservar estados/documentos antigos. |
+| Lotes e alocações de reembolso | Duas pequenas tabelas: cabeçalho por entidade/pessoa e alocações obrigação → movimento com montante. São relações de liquidação, não outro livro de custos; saldo derivado, autor/data/motivo auditados. |
+| Alocações de faturação | Relação despesa → linha de `financial_document_lines`, com custo/valor faturado e IVA confirmado. Cobrança deriva dos pagamentos reais com alocação explícita. Crédito/anulação reabre a parcela afetada. Preservar FK legado de `pm_invoices`, sem repontar/migrar por suposição. |
+| Auditoria | Eventos de submissão, decisão, câmbio, faturação e liquidação/desfazer com antes/depois, pessoa, data e comprovativo. Reutilizar `fin_reconcile_audit` para pagamentos/movimentos; acrescentar cobertura dos novos eventos. |
+
+Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de gerar `financial_expense_items` extra e o trigger de cartão de criar segunda dívida pelo documento ligado. Nenhuma obrigação antiga apagada ou reconvertida automaticamente.
+
+### Permissões e integridade
+- Submissor vê as próprias despesas; responsável vê/aprova as dos seus projetos; Luis validado pela identidade/autoridade existente no servidor, nunca por nome no cliente.
+- Submissão no projeto usa acesso estreito ao mesmo motor, sem conceder acesso ao Hub, despesas de outros, contas ou outras entidades. Finance controla faturas/reconciliação.
+- Preservar política **restritiva** `psa_staff_only` em `pm_expenses`; adaptar regras de aprovador sem alargar acesso geral a dados financeiros.
+- Transações e bloqueios/verificações de saldo impedem pagamento sem aprovação, dupla alocação, pessoa/entidade incompatível, movimento consumido e alteração em período fechado. Índices únicos protegem despesa/documento e repetição. Sugestões continuam read-only.
+
+## Ecrãs afetados
+1. Projeto → Despesas: formulário partilhado, pago por, original/EUR, refaturação, aprovação e estados de reembolso/fatura separados.
+2. Finance → Entrada/detalhe de documento: mesmo formulário/contexto e ligações; sem segunda fila.
+3. Finance → «A faturar aos clientes» e «A reembolsar à equipa»: aproveitar vistas existentes e substituir ações inadequadas para o novo fluxo, sem painéis concorrentes.
+4. Projeto → Faturação/editor de fatura: selecionar despesas e ligá-las às linhas.
+5. Bancos → Reconciliação: compras ligadas e lotes por pessoa no painel único; não alterar importador, saldos iniciais ou contas.
+6. Totais/Insights de projeto e relatórios: fonte única de custos, markup e receita coerentes; sem alterações a horas, salários ou planeamento. Textos EN/PT-PT.
+
+## Migração e verificação — depois de aprovação
+1. Auditoria read-only de referências/obrigações antigas; pré-visualizar ambiguidades antes de qualquer backfill. Não usar Mastercard real nos testes.
+2. Migração aditiva de campos, relações, índices e auditoria. Novas tabelas públicas com GRANT explícito, revogação de TRUNCATE a anon/authenticated e RLS por pessoa/entidade. SQL idêntico em `supabase/migrations` e `drizzle/migrations`.
+3. Operações transacionais de confirmação, aprovação, obrigação única, faturação e lote/reconciliação. Versão do fluxo mantém histórico inalterado; adaptação histórica só após pré-visualização e autorização separadas.
+4. Substituir OCR do projeto pelo motor Finance e ligar ecrãs. Não migrar faturas, documentos ou contas por suposição.
+5. Fixtures descartáveis: ambas as portas/concorrrência → uma despesa; GBP/data/câmbio real; empresa/pessoa; aprovação obrigatória; markup/projeto obrigatório; dívida única; lote de várias despesas/pessoa; pagamentos parciais/desfazer; recibo/extrato em ambas as ordens; fatura/crédito/cobrança; isolamento e períodos fechados. Comparar totais, preservar snapshots e limpar fixtures.
+
+**Entrega atual: apenas plano.** Nenhuma despesa, conta, fatura, transferência, fixture ou migração criada; propostas financeiras pendentes intactas.
