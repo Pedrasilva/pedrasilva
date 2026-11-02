@@ -18338,6 +18338,11 @@ export type Database = {
         Returns: string
       }
       pe_action: { Args: { _action: string; _data: Json }; Returns: Json }
+      pe_confirm_intake: {
+        Args: { _edits?: Json; _expense: string; _id: string }
+        Returns: Json
+      }
+      pe_directory: { Args: { _project?: string }; Returns: Json }
       pe_event: {
         Args: {
           _action: string
@@ -18349,7 +18354,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      pe_expense_figures: {
+        Args: { _project?: string }
+        Returns: {
+          billed_amount: number
+          cost_amount: number
+          expense_id: string
+          received_amount: number
+          reimbursed_amount: number
+          reserved_amount: number
+        }[]
+      }
       pe_finance_access: { Args: { _entity: string }; Returns: boolean }
+      pe_match_purchase: {
+        Args: { _amount: number; _expense: string; _tx: string }
+        Returns: Json
+      }
       pe_obligation_sync: { Args: { _expense: string }; Returns: undefined }
       pe_project_lead: { Args: { _project: string }; Returns: boolean }
       pe_reconciled_amount: { Args: { _tx: string }; Returns: number }
