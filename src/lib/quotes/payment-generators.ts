@@ -102,7 +102,11 @@ export function applyPaymentDefaults(
   items: GeneratorItem[],
   defaults: PaymentDefaults = DEFAULT_PAYMENT_DEFAULTS,
 ): GeneratorItem[] {
-  return items.map((row, i) => stampDefaults(row, defaults, i));
+  return items.map((row, i) => stampDefaults({
+    ...row,
+    expected_invoice_date: actualPaymentDate(row.expected_invoice_date),
+    expected_payment_date: actualPaymentDate(row.expected_payment_date),
+  }, defaults, i));
 }
 
 export interface StageMilestonesOptions {
@@ -137,7 +141,7 @@ export const DEFAULT_STAGE_MILESTONE_OPTIONS: StageMilestonesOptions = {
   downPaymentPercent: 10,
   stageStartPercent: 50,
   stageEndPercent: 50,
-  deductDownPaymentFromStages: false,
+  deductDownPaymentFromStages: true,
   paymentTermsDays: null,
 };
 
@@ -274,20 +278,17 @@ export function generateStageMilestones(
   }
 
   // ── Stage rows ──────────────────────────────────────────────────
-  const totalStageRows = sorted.length * 2;
-  const perRowDeduction =
-    options.deductDownPaymentFromStages && downPaymentAmount > 0 && totalStageRows > 0
-      ? downPaymentAmount / totalStageRows
-      : 0;
+  const remainingFactor = options.downPaymentEnabled
+    ? 1 - Math.min(100, Math.max(0, options.downPaymentPercent)) / 100 : 1;
 
   for (const s of sorted) {
     const stageFee = useFixed ? options.stageFees?.[s.id] ?? 0 : 0;
     const startAmount = useFixed
-      ? round2((stageFee * options.stageStartPercent) / 100 - perRowDeduction)
-      : round2(options.stageStartPercent);
+      ? round2((stageFee * options.stageStartPercent * remainingFactor) / 100)
+      : round2(options.stageStartPercent * remainingFactor);
     const endAmount = useFixed
-      ? round2((stageFee * options.stageEndPercent) / 100 - perRowDeduction)
-      : round2(options.stageEndPercent);
+      ? round2(stageFee * remainingFactor - startAmount)
+      : round2(options.stageEndPercent * remainingFactor);
 
     items.push({
       label: `Start of ${s.name}`,
@@ -313,12 +314,42 @@ export function generateStageMilestones(
     });
   }
 
-  return items;
+  return normalizePaymentDates(items);
 }
 
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+/** Relative planning anchors are not actual invoice dates. */
+export function actualPaymentDate(iso: string | null | undefined): string | null {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso) || Number(iso.slice(0, 4)) < 2010 || !Number.isFinite(Date.parse(iso))) return null;
+  return iso;
+}
+
+function normalizePaymentDates(items: GeneratorItem[]): GeneratorItem[] {
+  return items.map(item => ({ ...item, expected_invoice_date: actualPaymentDate(item.expected_invoice_date), expected_payment_date: actualPaymentDate(item.expected_payment_date) }));
+}
+
+export interface DesignMilestone {
+  label: string;
+  stageId: string | null;
+  trigger: "project_start" | "stage_start" | "stage_end";
+  percent: number;
+}
+export interface DesignMilestonePlan { enabled: boolean; rows: DesignMilestone[] }
+
+export function parseDesignMilestones(raw: Record<string, unknown> | null | undefined): DesignMilestonePlan {
+  const plan = raw?.designMilestones as DesignMilestonePlan | undefined;
+  return plan && Array.isArray(plan.rows) ? { enabled: plan.enabled === true, rows: plan.rows } : { enabled: false, rows: [] };
+}
+
+export function validateDesignMilestones(plan: DesignMilestonePlan, stages: QuoteStage[]): boolean {
+  const ids = new Set(stages.filter(s => s.stage_kind !== "retainer_monthly").map(s => s.id));
+  return plan.rows.length > 0 && plan.rows.every(r => r.label.trim() && Number.isFinite(r.percent) && r.percent >= 0 && r.percent <= 100 &&
+    (r.trigger === "project_start" || ((r.trigger === "stage_start" || r.trigger === "stage_end") && r.stageId && ids.has(r.stageId)))) &&
+    Math.abs(plan.rows.reduce((sum, r) => sum + r.percent, 0) - 100) < 0.000001;
 }
 
 function addDaysISO(iso: string | null, days: number | null | undefined): string | null {
@@ -468,6 +499,8 @@ export const DEFAULT_PROJECT_BILLING: ProjectBillingOption = {
 };
 
 export interface ByStageBillingOptions {
+  /** Percentages of the entire design subtotal, independent of stage fees. */
+  designMilestones?: DesignMilestonePlan;
   /** When > 0, prepend an "Adjudicação" inflow row at project_start. */
   downPaymentPercent?: number;
   /** Deduct the down payment proportionally from subsequent stage rows. */
@@ -533,10 +566,16 @@ export function generateByStageBilling(
   const billableFee = (s: QuoteStage): number =>
     Math.round(effectiveBillingAmount(s, stages, stageFees) * 100) / 100;
   const totalContract = sorted.reduce((acc, s) => acc + billableFee(s), 0);
-  const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
-  const dpAmount = dpPct > 0 ? round2((totalContract * dpPct) / 100) : 0;
-  const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
-  const remainingFactor = deduct && totalContract > 0 ? 1 - dpAmount / totalContract : 1;
+  const designStages = sorted.filter(s => s.stage_kind !== "retainer_monthly" && s.billing_model !== "retainer");
+  const designTotal = designStages.reduce((sum, s) => sum + billableFee(s), 0);
+  const milestonePlan = options.designMilestones;
+  const customMilestones = milestonePlan?.enabled === true;
+  if (customMilestones && !validateDesignMilestones(milestonePlan, stages)) throw new Error("Design milestone percentages must total 100 and reference existing design stages");
+  const dpPct = Math.min(100, Math.max(0, Number(options.downPaymentPercent ?? 0)));
+  const dpAmount = !customMilestones && dpPct > 0 ? round2((designTotal * dpPct) / 100) : 0;
+  // Advances are contract instalments, never additional fees. Legacy false
+  // settings remain readable but cannot create an over-billed new schedule.
+  const remainingFactor = designTotal > 0 ? 1 - dpAmount / designTotal : 1;
   const scaleFee = (fee: number) => round2(fee * remainingFactor);
   const items: GeneratorItem[] = [];
   let order = 0;
@@ -545,7 +584,19 @@ export function generateByStageBilling(
   const earliestStart = sorted.length > 0
     ? sorted.reduce((m, s) => (s.start_date < m ? s.start_date : m), sorted[0].start_date)
     : null;
-  if (dpAmount > 0 && earliestStart) {
+  if (customMilestones && milestonePlan) {
+    let allocated = 0;
+    milestonePlan.rows.forEach((row, index) => {
+      const stage = row.stageId ? stageById.get(row.stageId) : undefined;
+      const span = stage ? effectiveSpan(stage) : null;
+      const amount = index === milestonePlan.rows.length - 1 ? round2(designTotal - allocated) : round2(designTotal * row.percent / 100);
+      allocated = round2(allocated + amount);
+      items.push({ label: row.label, trigger_type: row.trigger, amount_type: "fixed", amount_value: amount, stage_id: row.stageId,
+        expected_invoice_date: row.trigger === "project_start" ? earliestStart : row.trigger === "stage_start" ? span?.start ?? null : span?.end ?? null,
+        expected_payment_date: null, sort_order: order++, generator_source: "by_stage_billing", direction: "inflow" });
+    });
+  }
+  if (dpAmount > 0) {
     items.push({
       label: "Adjudicação",
       trigger_type: "project_start",
@@ -564,7 +615,7 @@ export function generateByStageBilling(
   // When enabled, all non-retainer stages roll into a single client billing
   // line spanning the whole project, using the same parameters as a stage.
   const projectBilling = options.projectBilling;
-  const projectLevel = !!projectBilling?.enabled;
+  const projectLevel = !customMilestones && !!projectBilling?.enabled;
   if (projectLevel) {
     const regular = sorted.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -641,6 +692,7 @@ export function generateByStageBilling(
   }
 
   for (const s of sorted) {
+    if (customMilestones && designStages.some(stage => stage.id === s.id)) continue;
     // Project-level billing already covered every non-retainer stage.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (projectLevel && (((s as any).stage_kind ?? "regular") !== "retainer_monthly")) continue;
@@ -801,7 +853,7 @@ export function generateByStageBilling(
         ? `c:${companyId}`
         : supplierId
           ? `s:${supplierId}`
-          : `p:${placeholder!.toLowerCase()}`;
+          : `p:${placeholder?.toLowerCase() ?? ""}`;
       const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
       const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
       if (cost <= 0) continue;
@@ -896,7 +948,12 @@ export function generateByStageBilling(
   }
 
 
-  return items;
+  const inflows = items.filter(item => (item.direction ?? "inflow") === "inflow");
+  const residual = round2(totalContract - inflows.reduce((sum, item) => sum + item.amount_value, 0));
+  const last = inflows[inflows.length - 1];
+  // Only cent rounding is corrected; never hide a missing fee or model error.
+  if (last && Math.abs(residual) <= Math.max(0.02, inflows.length * 0.01)) last.amount_value = round2(last.amount_value + residual);
+  return normalizePaymentDates(items);
 }
 
 /**
@@ -953,7 +1010,7 @@ export function generateArchitectureWithConsultants(
     });
   }
   for (const s of sorted) {
-    const fee = round2(stageFees[s.id] ?? 0);
+    const fee = round2((stageFees[s.id] ?? 0) * (1 - Math.min(100, Math.max(0, dp)) / 100));
     if (fee <= 0) continue;
     items.push({
       label: describeLabel("stage_end", s.name),
@@ -991,7 +1048,7 @@ export function generateArchitectureWithConsultants(
       ? `c:${companyId}`
       : supplierId
         ? `s:${supplierId}`
-        : `p:${placeholder!.toLowerCase()}`;
+        : `p:${placeholder?.toLowerCase() ?? ""}`;
     const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
     const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
     const cur = buckets.get(key) ?? {
@@ -1077,7 +1134,7 @@ export function generateArchitectureWithConsultants(
   }
 
 
-  return items;
+  return normalizePaymentDates(items);
 }
 
 function midpointISO(startISO: string, endISO: string): string {
