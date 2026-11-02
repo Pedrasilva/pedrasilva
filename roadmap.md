@@ -1,5 +1,6 @@
 ## Current request — Project expenses and reimbursements (approved implementation)
-- [ ] Complete Luis's follow-up: card-rate matching both arrival orders, expense-created invoice lines, explicit receipts/partial credits, one creation/OCR path, report completeness, fixture scenario matrix and filled PT screenshots.
+- [x] Add card-rate dispatch, expense-created issued invoice lines, explicit net receipts/partial credit RPC, retire legacy creation/OCR, validate transactional fixtures and capture filled PT screens.
+- [ ] Complete remaining verification: distinct-account permission matrix, actual concurrent requests, closed-period fixture, receipt-first ordering, full report warnings; finish partial-credit amount UI and safe affected-invoice draft/edit integration (no external blocker; unfinished in this delivery).
 - [ ] Add versioned schema and transactional approval, reimbursement, invoicing and matching safeguards; mirror migrations.
 - [ ] Connect shared intake at both entry points, expense form, client/team queues, batches and existing matching/invoice editor.
 - [x] Preserve historical rows/totals; verify active project approvers read-only (nine projects without eligible lead; report).
