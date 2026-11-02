@@ -292,18 +292,6 @@ export function PaymentScheduleProposalView({
     .slice()
     .sort((a, b) => {
       return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-      const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
-      const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
-      const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";
-      const db = b.expected_invoice_date ?? sb?.end ?? "9999-12-31";
-      if (da !== db) return da < db ? -1 : 1;
-      if ((sa?.start ?? "9999-12-31") !== (sb?.start ?? "9999-12-31")) {
-        return (sa?.start ?? "9999-12-31") < (sb?.start ?? "9999-12-31") ? -1 : 1;
-      }
-      if ((sa?.sortOrder ?? 1e9) !== (sb?.sortOrder ?? 1e9)) {
-        return (sa?.sortOrder ?? 1e9) - (sb?.sortOrder ?? 1e9);
-      }
-      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
     });
 
   const inflowTotal = inflows.reduce(
@@ -930,11 +918,6 @@ export function PaymentScheduleProposalView({
           inv.items.push(it);
           if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
         }
-        if (false) orderKeys.sort((a, b) => {
-          const da = invoiceMap.get(a)?.plannedDate ?? "";
-          const db = invoiceMap.get(b)?.plannedDate ?? "";
-          return da < db ? -1 : da > db ? 1 : 0;
-        });
 
         type Line = { description: string; net: number; vat: number };
         const buildLines = (inv: Invoice): Line[] => {

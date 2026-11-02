@@ -789,11 +789,6 @@ export async function fetchLiveQuoteSnapshot(
         if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
       }
 
-      if (false) orderKeys.sort((a, b) => {
-        const da = invoiceMap.get(a)?.plannedDate ?? "";
-        const db = invoiceMap.get(b)?.plannedDate ?? "";
-        return da < db ? -1 : da > db ? 1 : 0;
-      });
 
       const paymentInvoices = orderKeys.map((k, gi) => {
         const inv = invoiceMap.get(k)!;
