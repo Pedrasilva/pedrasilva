@@ -1,7 +1,7 @@
 # Despesas de projeto e reembolsos — plano para revisão
 
 ## Limites
-Inspeção apenas por leitura do código, estrutura, políticas e funções atuais. Nenhuma implementação, migração ou escrita de dados. Bernardo, contas de liquidação e saldos iniciais ficam fora deste plano e aguardam confirmação separada. Aprovar este plano não autoriza essas propostas.
+Inspeção read-only. Sem implementação, migrações ou dados escritos. Bernardo, contas de liquidação e saldos iniciais ficam fora do plano; exigem confirmação separada.
 
 ## O que existe — e as lacunas
 - **`pm_expenses`** já é o registo de custo de projeto: projeto obrigatório, custo/preço de venda, categoria, recibo, fornecedor, pago por, colaborador a reembolsar, refaturável e aprovação com autor/data. Reutilizar pelas duas entradas.
@@ -14,7 +14,7 @@ Inspeção apenas por leitura do código, estrutura, políticas e funções atua
 
 ## Fluxo proposto
 ### Uma entrada, duas portas
-«Adicionar despesa» no projeto abre o mesmo formulário da Entrada Finance, com projeto predefinido; em Finance, projeto selecionável. Um upload, um ficheiro privado e uma extração pelo motor Finance. Reutilizar fornecedor, duplicados, classificação PRJ.EXP e confirmação.
+«Adicionar despesa» no projeto abre o mesmo formulário da Entrada Finance, com projeto predefinido; em Finance, projeto selecionável. Um upload privado e uma extração Finance; reutilizar fornecedor, duplicados, PRJ.EXP e confirmação.
 
 Ambas as portas criam/atualizam **a mesma linha em `pm_expenses`**, com documento/evidência ligados — nunca outro custo. Rascunho manual pode existir sem recibo; anexar depois completa a mesma linha. Sem projeto, manter em triagem; custo efetivamente da empresa segue o destino existente, sem permitir projeto nulo em `pm_expenses`.
 
@@ -50,7 +50,7 @@ Nomes novos indicativos.
 | Alocações de faturação | Relação despesa → linha de `financial_document_lines`, com custo/valor faturado e IVA confirmado. Cobrança deriva dos pagamentos reais com alocação explícita. Crédito/anulação reabre a parcela afetada. Preservar FK legado de `pm_invoices`, sem repontar/migrar por suposição. |
 | Auditoria | Eventos de submissão, decisão, câmbio, faturação e liquidação/desfazer com antes/depois, pessoa, data e comprovativo. Reutilizar `fin_reconcile_audit` para pagamentos/movimentos; acrescentar cobertura dos novos eventos. |
 
-Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de gerar `financial_expense_items` extra e o trigger de cartão de criar segunda dívida pelo documento ligado. Nenhuma obrigação antiga apagada ou reconvertida automaticamente.
+Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de gerar `financial_expense_items` extra e o trigger de cartão de criar segunda dívida pelo documento ligado. Histórico sem reconversão automática.
 
 ### Permissões e integridade
 - Submissor vê as próprias despesas; responsável vê/aprova as dos seus projetos; Luis validado pela identidade/autoridade existente no servidor, nunca por nome no cliente.
@@ -70,7 +70,7 @@ Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de
 1. Auditoria read-only de referências/obrigações antigas; pré-visualizar ambiguidades antes de qualquer backfill. Não usar Mastercard real nos testes.
 2. Migração aditiva de campos, relações, índices e auditoria. Novas tabelas públicas com GRANT explícito, revogação de TRUNCATE a anon/authenticated e RLS por pessoa/entidade. SQL idêntico em `supabase/migrations` e `drizzle/migrations`.
 3. Operações transacionais de confirmação, aprovação, obrigação única, faturação e lote/reconciliação. Versão do fluxo mantém histórico inalterado; adaptação histórica só após pré-visualização e autorização separadas.
-4. Substituir OCR do projeto pelo motor Finance e ligar ecrãs. Não migrar faturas, documentos ou contas por suposição.
+4. Ligar motor Finance e ecrãs; sem associações históricas presumidas.
 5. Fixtures descartáveis: portas/concorrência → uma despesa; GBP/câmbio; empresa/pessoa; aprovação; markup/projeto obrigatório; dívida única; lote/pessoa; parciais/desfazer; recibo/extrato em ambas as ordens; fatura/crédito/cobrança; isolamento/período fechado. Comparar totais/snapshots e limpar.
 
-**Entrega atual: apenas plano.** Nenhuma despesa, conta, fatura, transferência, fixture ou migração criada; propostas financeiras pendentes intactas.
+**Só plano:** dados e propostas pendentes intactos.
