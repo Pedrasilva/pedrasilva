@@ -37,7 +37,7 @@ Ambas as portas criam/atualizam **a mesma linha em `pm_expenses`**, com document
 4. Projeto soma `pm_expenses` uma vez; Finance distingue documento/dívida/lote para não somar novamente.
 5. Preservar o critério histórico de custo incorrido, distinguindo submetido/aprovado/pago. Aprovação define o que se deve reembolsar, não o momento bancário. Receita do novo fluxo vem da alocação efetivamente faturada, incluindo markup, sem duplicar a receita da fatura; tratamento económico de disbursements fica configurável com o contabilista.
 
-## Detalhes técnicos — esquema proposto
+## Esquema proposto
 | Estrutura | Alterações propostas |
 |---|---|
 | `pm_expenses` | Reutilizar pago por, cartão, `reimburse_collaborator_id`, `rebillable`, aprovação e custo. Acrescentar conta pagadora, moeda/valor original, EUR/câmbio/data/origem/evidência, modo/percentagem de markup, tratamento/parâmetros fiscais confirmados, documento de compra ligado e versão do novo fluxo. Projeto obrigatório. |
@@ -49,7 +49,7 @@ Ambas as portas criam/atualizam **a mesma linha em `pm_expenses`**, com document
 
 Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de gerar `financial_expense_items` extra e o trigger de cartão de criar segunda dívida pelo documento ligado. Histórico sem reconversão automática.
 
-### Permissões e integridade
+### Permissões
 - Submissor vê as próprias despesas; responsável vê/aprova as dos seus projetos; Luis validado pela identidade/autoridade existente no servidor, nunca por nome no cliente.
 - Submissão no projeto usa acesso estreito ao mesmo motor, sem conceder acesso ao Hub, despesas de outros, contas ou outras entidades. Finance controla faturas/reconciliação.
 - Preservar política restritiva `psa_staff_only`; acesso de aprovador sem acesso financeiro geral.
@@ -63,7 +63,7 @@ Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de
 5. Bancos → Reconciliação: compras ligadas e lotes por pessoa no painel único; não alterar importador, saldos iniciais ou contas.
 6. Totais/Insights/relatórios coerentes; horas, salários e planeamento intactos. EN/PT-PT.
 
-## Migração e verificação — depois de aprovação
+## Migração — após aprovação
 1. Auditoria read-only de referências/obrigações antigas; pré-visualizar ambiguidades antes de qualquer backfill. Sem testes em Mastercard real.
 2. Migração aditiva de campos, relações, índices e auditoria. Novas tabelas públicas com GRANT explícito, revogação de TRUNCATE a anon/authenticated e RLS por pessoa/entidade. SQL idêntico em `supabase/migrations` e `drizzle/migrations`.
 3. Operações transacionais de confirmação, aprovação, obrigação única, faturação e lote/reconciliação. Versão do fluxo mantém histórico inalterado; adaptação histórica só após pré-visualização e autorização separadas.
