@@ -18373,6 +18373,10 @@ export type Database = {
       pe_obligation_sync: { Args: { _expense: string }; Returns: undefined }
       pe_project_lead: { Args: { _project: string }; Returns: boolean }
       pe_reconciled_amount: { Args: { _tx: string }; Returns: number }
+      pe_replace_once: {
+        Args: { _definition: string; _new: string; _old: string }
+        Returns: string
+      }
       pm_allocation_logged_hours: {
         Args: { _allocation_id: string }
         Returns: number
