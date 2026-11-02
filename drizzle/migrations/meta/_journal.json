@@ -1422,6 +1422,13 @@
       "when": 1793637609919,
       "tag": "0202_project_expense_fixture_final_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 203,
+      "version": "7",
+      "when": 1793637971409,
+      "tag": "0203_project_expense_completion",
+      "breakpoints": true
     }
   ]
 }

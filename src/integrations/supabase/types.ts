@@ -9961,6 +9961,7 @@ export type Database = {
           expense_revision: number
           id: string
           incurred_at: string | null
+          intake_key: string | null
           invoice_reference: string | null
           invoiced_at: string | null
           invoiced_in_invoice_id: string | null
@@ -10020,6 +10021,7 @@ export type Database = {
           expense_revision?: number
           id?: string
           incurred_at?: string | null
+          intake_key?: string | null
           invoice_reference?: string | null
           invoiced_at?: string | null
           invoiced_in_invoice_id?: string | null
@@ -10079,6 +10081,7 @@ export type Database = {
           expense_revision?: number
           id?: string
           incurred_at?: string | null
+          intake_key?: string | null
           invoice_reference?: string | null
           invoiced_at?: string | null
           invoiced_in_invoice_id?: string | null
@@ -13098,6 +13101,61 @@ export type Database = {
             columns: ["target_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_expense_credit_allocations: {
+        Row: {
+          actor: string
+          billed_amount: number
+          cost_amount: number
+          created_at: string
+          credit_line_id: string
+          id: string
+          invoice_allocation_id: string
+          vat_amount: number
+        }
+        Insert: {
+          actor: string
+          billed_amount: number
+          cost_amount: number
+          created_at?: string
+          credit_line_id: string
+          id?: string
+          invoice_allocation_id: string
+          vat_amount: number
+        }
+        Update: {
+          actor?: string
+          billed_amount?: number
+          cost_amount?: number
+          created_at?: string
+          credit_line_id?: string
+          id?: string
+          invoice_allocation_id?: string
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expense_credit_allocations_credit_line_id_fkey"
+            columns: ["credit_line_id"]
+            isOneToOne: false
+            referencedRelation: "financial_document_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expense_credit_allocations_credit_line_id_fkey"
+            columns: ["credit_line_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_line_processing"
+            referencedColumns: ["line_id"]
+          },
+          {
+            foreignKeyName: "project_expense_credit_allocations_invoice_allocation_id_fkey"
+            columns: ["invoice_allocation_id"]
+            isOneToOne: false
+            referencedRelation: "project_expense_invoice_allocations"
             referencedColumns: ["id"]
           },
         ]
@@ -18365,7 +18423,23 @@ export type Database = {
           reserved_amount: number
         }[]
       }
+      pe_expense_settlement_figures: {
+        Args: { _project?: string }
+        Returns: {
+          allocated_net: number
+          allocated_vat: number
+          credited_cost: number
+          credited_net: number
+          credited_vat: number
+          expense_id: string
+          received_net_amount: number
+        }[]
+      }
       pe_finance_access: { Args: { _entity: string }; Returns: boolean }
+      pe_invoice_from_expenses: {
+        Args: { _header: Json; _lines: Json }
+        Returns: string
+      }
       pe_link_queue: { Args: { _expense: string; _id: string }; Returns: Json }
       pe_match_purchase: {
         Args: { _amount: number; _expense: string; _tx: string }
