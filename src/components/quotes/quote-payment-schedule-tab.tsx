@@ -683,7 +683,6 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     return (
       <div className="space-y-4">
       {incomingOnly && <>
-        {visibleItems.some(item => !item.expected_invoice_date) && <p role="status" className="text-sm text-muted-foreground">{t("workspace.payment.datesUndefined")}</p>}
         <PaymentScheduleReconciliation stages={stages} items={visibleItems} stageFees={stageFees} contractTotal={contractTotal} />
       </>}
       <PaymentScheduleProposalView
@@ -770,7 +769,6 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
 
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
-      {visibleItems.some(item => !item.expected_invoice_date) && <p role="status" className="text-sm text-muted-foreground">{t("workspace.payment.datesUndefined")}</p>}
       <div className="flex items-center justify-end">
         <Button
           size="sm"
