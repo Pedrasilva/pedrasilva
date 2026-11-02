@@ -18436,6 +18436,7 @@ export type Database = {
         }[]
       }
       pe_finance_access: { Args: { _entity: string }; Returns: boolean }
+      pe_fixture_validate_completion: { Args: never; Returns: undefined }
       pe_invoice_from_expenses: {
         Args: { _header: Json; _lines: Json }
         Returns: string

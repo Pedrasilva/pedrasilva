@@ -1450,6 +1450,13 @@
       "when": 1793638363573,
       "tag": "0206_project_expense_fixture_validation_table_access",
       "breakpoints": true
+    },
+    {
+      "idx": 207,
+      "version": "7",
+      "when": 1793638431487,
+      "tag": "0207_project_expense_disposable_validation",
+      "breakpoints": true
     }
   ]
 }
