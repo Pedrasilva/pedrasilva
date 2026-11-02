@@ -2920,6 +2920,7 @@
     "settled": "Liquidado",
     "reverse": "Anular afetação",
     "matchBankHint": "A liquidação é registada na conciliação bancária, ligada à transferência de saída efetiva.",
-    "chooseProject": "Escolha um projeto antes de carregar o comprovativo."
+    "chooseProject": "Escolha um projeto antes de carregar o comprovativo.",
+    "projectLabel": "Projeto"
   }
 }
