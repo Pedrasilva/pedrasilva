@@ -433,3 +433,7 @@
 - [x] End-to-end match-panel checks (scripts/e2e/match-panel-e2e.py): 12/12, all saves intercepted, 381 payments unchanged.
 - [x] Read-only diagnosis of MBCP 006/2026 reported; no fixes applied (awaiting Luis).
 - [x] Stage D: two-way reconciliation audit + searchable register, supplier duplicates with confirmed merge/aliases (purchases tab reused), intake source alerts (bell + email). 10 rolled-back DB checks + 7 alert-rule checks pass.
+
+## Priority — expense submission and intake visibility blockers
+- [ ] Replace ambiguous expense-function locals and scope intake counterparty checks to the queue entity; no record changes.
+- [ ] Reproduce both errors, run all expense branches and entity-isolation regressions on an isolated schema copy; preserve real expense hashes.
