@@ -30,7 +30,7 @@ import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 const formatEUR = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
-import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { actualPaymentDate, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
 import { isOptionalStage } from "@/lib/quotes/optional-stages";
 
 type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
@@ -290,6 +290,7 @@ export function PaymentScheduleProposalView({
     .filter((it) => (it.direction ?? "inflow") === "inflow")
     .slice()
     .sort((a, b) => {
+      if (items.some(item => !actualPaymentDate(item.expected_invoice_date))) return (a.sort_order ?? 0) - (b.sort_order ?? 0);
       const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
       const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
       const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";
@@ -803,7 +804,7 @@ export function PaymentScheduleProposalView({
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
       {(!compositionOnly && !consultantsOnly && !outgoingOnly || incomingOnly) && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
-          if (!iso) return "";
+          if (!iso || !actualPaymentDate(iso)) return uiI18n.t("crm:workspace.payment.placeholderTag");
           const [y, m, d] = iso.split("-");
           return y && m && d ? `${d}/${m}/${y}` : iso;
         };
@@ -813,7 +814,8 @@ export function PaymentScheduleProposalView({
           let cur = stageById.get(stageId) ?? null;
           const seen = new Set<string>();
           while (cur && (cur as { parent_stage_id?: string | null }).parent_stage_id) {
-            const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id!;
+            const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id;
+            if (!pid) break;
             if (seen.has(pid)) break;
             seen.add(pid);
             const p = stageById.get(pid);
@@ -825,10 +827,11 @@ export function PaymentScheduleProposalView({
         const isSupplierRole = (role?: string | null) =>
           role === "supplier_group" || role === "supplier_phase";
         const dateFor = (it: QuotePaymentScheduleItem) => {
-          if (it.expected_invoice_date) return it.expected_invoice_date;
+          if (actualPaymentDate(it.expected_invoice_date)) return it.expected_invoice_date ?? "";
           const s = it.stage_id ? stageById.get(it.stage_id) : null;
-          if (it.trigger_type === "stage_start") return s?.start_date ?? "9999-12-31";
-          return s?.end_date ?? "9999-12-31";
+          if (it.trigger_type === "stage_start") return actualPaymentDate(s?.start_date) ?? "";
+          if (it.trigger_type === "stage_end") return actualPaymentDate(s?.end_date) ?? "";
+          return "";
         };
         const triggerSentence = (it: QuotePaymentScheduleItem): string => {
           const s = it.stage_id ? stageById.get(it.stage_id) : null;
@@ -837,7 +840,7 @@ export function PaymentScheduleProposalView({
           const ds = fmtDate(d);
           switch (it.trigger_type) {
             case "project_start":
-              return `Adiantamento recebido${ds ? ` (${ds})` : ""}`;
+              return `${it.label || "Adjudicação"}${ds ? ` (${ds})` : ""}`;
             case "stage_start":
               return stageName
                 ? `No início de ${stageName}${ds ? ` (${ds})` : ""}`
@@ -918,7 +921,7 @@ export function PaymentScheduleProposalView({
             ? `g:${groupId}`
             : isDownpayment
               ? `dp:${d}`
-              : `t:${it.trigger_type}:${d}`;
+              : d ? `t:${it.trigger_type}:${d}` : `undefined:${it.id}`;
           let inv = invoiceMap.get(key);
           if (!inv) {
             inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
@@ -928,9 +931,9 @@ export function PaymentScheduleProposalView({
           inv.items.push(it);
           if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
         }
-        orderKeys.sort((a, b) => {
-          const da = invoiceMap.get(a)!.plannedDate;
-          const db = invoiceMap.get(b)!.plannedDate;
+        if (orderKeys.every(key => invoiceMap.get(key)?.plannedDate)) orderKeys.sort((a, b) => {
+          const da = invoiceMap.get(a)?.plannedDate ?? "";
+          const db = invoiceMap.get(b)?.plannedDate ?? "";
           return da < db ? -1 : da > db ? 1 : 0;
         });
 

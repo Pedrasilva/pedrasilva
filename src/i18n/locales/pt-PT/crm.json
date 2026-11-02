@@ -787,6 +787,16 @@
       "addTitle": "Adicionar serviço externo"
     },
     "payment": {
+      "designMilestones": "Marcos em percentagem dos honorários de projeto",
+      "designBasisHint": "As percentagens incluem o adiantamento e devem perfazer 100% das fases de projeto. A assistência mensal é separada.",
+      "designPercent": "Percentagem dos honorários de projeto",
+      "designStart": "Início de {{stage}}",
+      "designEnd": "Conclusão de {{stage}}",
+      "designAdd": "Adicionar marco",
+      "designTotal": "Prestações de projeto: {{percent}}% / 100%",
+      "designInvalid": "Os marcos devem referir fases de projeto e perfazer exatamente 100%.",
+      "designSaved": "Condições guardadas. Atualize a partir do Gantt para as aplicar.",
+      "datesUndefined": "Algumas datas de faturação estão por definir porque o Gantt não tem início de calendário. Os marcos mantêm a ordem acordada.",
       "title": "Plano de faturação ao cliente",
       "label": "Etiqueta",
       "trigger": "Gatilho",

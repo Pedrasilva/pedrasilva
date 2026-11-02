@@ -18,7 +18,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useFrozenQuoteSnapshot } from "./revision-context";
 import { supabase } from "@/integrations/supabase/client";
-import { computeStageFees, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { actualPaymentDate, computeStageFees, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
 import { effectiveBillingAmount, rolledUpBillableFees } from "@/lib/quotes/stage-billing";
 import type { QuoteStage } from "@/lib/quotes/types";
 import type { QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
@@ -686,21 +686,20 @@ export async function fetchLiveQuoteSnapshot(
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dateFor = (p: any): string => {
-        if (p.expected_invoice_date) return p.expected_invoice_date;
+        if (actualPaymentDate(p.expected_invoice_date)) return p.expected_invoice_date;
         const s = p.stage_id ? stageById.get(p.stage_id) : null;
-        if (p.trigger_type === "stage_start") return s?.start_date ?? "9999-12-31";
-        return s?.end_date ?? "9999-12-31";
+        if (p.trigger_type === "stage_start") return actualPaymentDate(s?.start_date) ?? "";
+        if (p.trigger_type === "stage_end") return actualPaymentDate(s?.end_date) ?? "";
+        return "";
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const triggerSentence = (p: any): string => {
         const s = p.stage_id ? stageById.get(p.stage_id) : null;
         const stageName = s?.name ?? "";
-        const ds = fmtDate(dateFor(p));
+        const ds = fmtDate(dateFor(p)) || L.dateTBD;
         switch (p.trigger_type) {
           case "project_start":
-            return String(p.label ?? "").toLowerCase().startsWith("adjudicação")
-              ? `${L.downpaymentReceived}${ds ? ` (${ds})` : ""}`
-              : `${p.label || L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
+            return `${p.label || L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
 
           case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
           case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
@@ -778,7 +777,7 @@ export async function fetchLiveQuoteSnapshot(
           ? `g:${it.invoice_group_id}`
           : isDownpayment
             ? `dp:${d}`
-            : `t:${it.trigger_type ?? "x"}:${d}`;
+            : d ? `t:${it.trigger_type ?? "x"}:${d}` : `undefined:${it.id}`;
         let inv = invoiceMap.get(key);
         if (!inv) {
           inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
@@ -791,9 +790,9 @@ export async function fetchLiveQuoteSnapshot(
         if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
       }
 
-      orderKeys.sort((a, b) => {
-        const da = invoiceMap.get(a)!.plannedDate;
-        const db = invoiceMap.get(b)!.plannedDate;
+      if (orderKeys.every(key => invoiceMap.get(key)?.plannedDate)) orderKeys.sort((a, b) => {
+        const da = invoiceMap.get(a)?.plannedDate ?? "";
+        const db = invoiceMap.get(b)?.plannedDate ?? "";
         return da < db ? -1 : da > db ? 1 : 0;
       });
 
@@ -832,7 +831,7 @@ export async function fetchLiveQuoteSnapshot(
         return {
           key: inv.key,
           label: `${L.invoiceAbbr} ${String(gi + 1).padStart(2, "0")}`,
-          plannedDate: inv.plannedDate,
+          plannedDate: inv.plannedDate || null,
           lines,
           net,
           vat,
