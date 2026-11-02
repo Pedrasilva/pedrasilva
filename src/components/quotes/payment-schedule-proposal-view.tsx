@@ -290,6 +290,7 @@ export function PaymentScheduleProposalView({
     .filter((it) => (it.direction ?? "inflow") === "inflow")
     .slice()
     .sort((a, b) => {
+      if (items.some(item => !actualPaymentDate(item.expected_invoice_date))) return (a.sort_order ?? 0) - (b.sort_order ?? 0);
       const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
       const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
       const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";

@@ -681,6 +681,11 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
   if (compositionOnly || consultantsOnly || incomingOnly || outgoingOnly) {
     return (
+      <div className="space-y-4">
+      {incomingOnly && <>
+        {visibleItems.some(item => !item.expected_invoice_date) && <p role="status" className="text-sm text-muted-foreground">{t("workspace.payment.datesUndefined")}</p>}
+        <PaymentScheduleReconciliation stages={stages} items={visibleItems} stageFees={stageFees} contractTotal={contractTotal} />
+      </>}
       <PaymentScheduleProposalView
         items={visibleItems}
         stages={stages}
@@ -693,6 +698,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         incomingOnly={incomingOnly}
         outgoingOnly={outgoingOnly}
       />
+      </div>
     );
   }
 
