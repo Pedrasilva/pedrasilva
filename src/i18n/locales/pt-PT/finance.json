@@ -2863,6 +2863,11 @@
     }
   },
   "expenseFlow": {
+    "createInvoice": "Criar fatura a partir de despesas",
+    "addInvoiceExpenses": "Adicionar linhas de despesas",
+    "creditShare": "Creditar parcela da despesa original",
+    "missingCost": "{{count}} despesas não têm montante em EUR confirmado; os totais de custo e margem estão indisponíveis.",
+    "explicitReceipts": "Os recebimentos de despesas usam afetações explícitas de pagamentos; os recebimentos históricos mantêm a atribuição existente.",
     "clients": "A faturar aos clientes",
     "team": "A reembolsar à equipa",
     "project": "Despesas de projeto",

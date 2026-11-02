@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+export { expenseClientAmount as expenseSale } from './expense-amounts';
 
 export type FlowExpense = Database['public']['Tables']['pm_expenses']['Row'];
 export type ExpenseFigure = Database['public']['Functions']['pe_expense_figures']['Returns'][number];
@@ -16,7 +17,12 @@ export async function expenseDirectory(projectId?: string) {
   if (result.error) throw result.error;
   return result.data as unknown as ExpenseDirectory;
 }
-export function expenseSale(cost: number | null, mode: string | null, markup: number | null): number | null {
-  if (cost === null) return null;
-  return mode === 'none' ? 0 : Math.round(cost * (mode === 'markup' ? 1 + (markup ?? 0) / 100 : 1) * 100) / 100;
+/** Called by every reconciliation surface before the ordinary payment path. */
+export async function matchExpensePurchase(documentId: string, transactionId: string, eurDebit: number): Promise<boolean> {
+  const doc = await supabase.from('financial_documents').select('project_expense_id').eq('id', documentId).single();
+  if (doc.error) throw doc.error;
+  if (!doc.data.project_expense_id) return false;
+  const result = await supabase.rpc('pe_match_purchase', { _expense: doc.data.project_expense_id, _tx: transactionId, _amount: eurDebit });
+  if (result.error) throw result.error;
+  return true;
 }

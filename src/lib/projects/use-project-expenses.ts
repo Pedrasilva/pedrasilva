@@ -54,10 +54,11 @@ export function useProjectExpenses(projectId: string | undefined) {
     queryKey: ["project-expenses", projectId],
     enabled: !!projectId,
     queryFn: async (): Promise<ProjectExpenseWithSupplier[]> => {
+      if (!projectId) return [];
       const { data, error } = await db
         .from("pm_expenses")
         .select("*, supplier:pm_suppliers(id,name,active)")
-        .eq("project_id", projectId!)
+        .eq("project_id", projectId)
         .order("incurred_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -84,13 +85,7 @@ export function useUpsertProjectExpense(projectId: string) {
         if (error) throw error;
         return data;
       }
-      const { data, error } = await db
-        .from("pm_expenses")
-        .insert({ ...(input as ProjectExpenseInsert), project_id: projectId })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      throw new Error('Use expense workflow actions');
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["project-expenses", projectId] });
