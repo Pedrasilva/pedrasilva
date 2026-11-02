@@ -1478,6 +1478,13 @@
       "when": 1793638853724,
       "tag": "0210_project_expense_card_eur_valuation",
       "breakpoints": true
+    },
+    {
+      "idx": 211,
+      "version": "7",
+      "when": 1793638908673,
+      "tag": "0211_project_expense_fixture_cleanup",
+      "breakpoints": true
     }
   ]
 }

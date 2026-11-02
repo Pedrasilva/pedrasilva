@@ -18396,6 +18396,7 @@ export type Database = {
         Returns: string
       }
       pe_action: { Args: { _action: string; _data: Json }; Returns: Json }
+      pe_cleanup_completion_fixtures: { Args: never; Returns: undefined }
       pe_confirm_intake: {
         Args: { _edits?: Json; _expense: string; _id: string }
         Returns: Json
