@@ -18452,6 +18452,10 @@ export type Database = {
         Args: { _definition: string; _new: string; _old: string }
         Returns: string
       }
+      pe_save_intake: {
+        Args: { _data: Json; _queue: string; _submit?: boolean }
+        Returns: Json
+      }
       pm_allocation_logged_hours: {
         Args: { _allocation_id: string }
         Returns: number
