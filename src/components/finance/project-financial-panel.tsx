@@ -34,13 +34,13 @@ import {
 } from "@/components/ui/tooltip";
 import { ChevronDown, Info } from "lucide-react";
 
-const fmtEUR = (v: number) =>
+const fmtEUR = (v: number) => !Number.isFinite(v) ? '—' :
   new Intl.NumberFormat(uiI18n.language, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(v || 0);
+  }).format(v);
 
 export function ProjectFinancialPanel() {
   const { t } = useTranslation("finance");
@@ -54,7 +54,7 @@ export function ProjectFinancialPanel() {
           {t("projectFinancials.subtitle")}
         </p>
         <p className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          {t("projectFinancials.reimbEstimateNote")}
+          {t("expenseFlow.explicitReceipts")}
         </p>
         <Collapsible className="mt-3">
           <CollapsibleTrigger className="group flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
@@ -138,6 +138,7 @@ export function ProjectFinancialPanel() {
                     <TableRow key={r.project_id}>
                       <TableCell className="font-medium">
                         {r.project_name ?? t("projectFinancials.noProject")}
+                        {r.missingExpenseCostCount > 0 && <p className="text-xs text-destructive">{t('expenseFlow.missingCost', { count: r.missingExpenseCostCount })}</p>}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {fmtEUR(r.total_cost)}

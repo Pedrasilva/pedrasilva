@@ -26,7 +26,7 @@ import {
   confidenceTone, fetchSuggestions, fetchTxOpenBalance, learnFromMatch, reasonLine, refreshSuggestions, suggestionsKey, type Suggestion,
 } from "@/lib/finance/reconcile-suggestions";
 import { allocateSplit, dedupeSuggestions, type MatchOrigin } from "@/lib/finance/match-panel";
-import { expenseAction } from '@/lib/finance/project-expense-flow';
+import { expenseAction, matchExpensePurchase } from '@/lib/finance/project-expense-flow';
 
 const fmt = (n: number | null | undefined) =>
   n == null ? "—" : new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(Number(n));
@@ -167,6 +167,7 @@ export function MatchPanel({
   }
 
   async function pay(docId: string, amount: number) {
+    if (tx.amount < 0 && await matchExpensePurchase(docId, tx.id, Math.abs(tx.amount))) return;
     await addPayment.mutateAsync({
       document_id: docId, bank_transaction_id: tx.id, amount, payment_date: tx.transaction_date,
       method: "bank_transfer", created_by: user?.id ?? null,

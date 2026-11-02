@@ -1422,6 +1422,76 @@
       "when": 1793637609919,
       "tag": "0202_project_expense_fixture_final_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 203,
+      "version": "7",
+      "when": 1793637971409,
+      "tag": "0203_project_expense_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 204,
+      "version": "7",
+      "when": 1793638243495,
+      "tag": "0204_project_expense_intake_atomic_claim",
+      "breakpoints": true
+    },
+    {
+      "idx": 205,
+      "version": "7",
+      "when": 1793638324360,
+      "tag": "0205_project_expense_fixture_validation_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 206,
+      "version": "7",
+      "when": 1793638363573,
+      "tag": "0206_project_expense_fixture_validation_table_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 207,
+      "version": "7",
+      "when": 1793638431487,
+      "tag": "0207_project_expense_disposable_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 208,
+      "version": "7",
+      "when": 1793638471765,
+      "tag": "0208_project_expense_credit_alias_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 209,
+      "version": "7",
+      "when": 1793638729679,
+      "tag": "0209_project_expense_receipt_purchase_confirmation",
+      "breakpoints": true
+    },
+    {
+      "idx": 210,
+      "version": "7",
+      "when": 1793638853724,
+      "tag": "0210_project_expense_card_eur_valuation",
+      "breakpoints": true
+    },
+    {
+      "idx": 211,
+      "version": "7",
+      "when": 1793638908673,
+      "tag": "0211_project_expense_fixture_cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 212,
+      "version": "7",
+      "when": 1793638943893,
+      "tag": "0212_project_expense_validation_privileges_revoked",
+      "breakpoints": true
     }
   ]
 }

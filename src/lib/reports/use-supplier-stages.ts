@@ -37,8 +37,8 @@ export function useSupplierStages() {
         fetchAll<{ project_id: string | null; purchase_price: number | null; quantity: number | null; supplier_id: string | null; supplier_company_id: string | null; supplier_name: string | null }>((a, b) =>
           supabase.from("pm_materials").select("project_id, purchase_price, quantity, supplier_id, supplier_company_id, supplier_name").order("id").range(a, b) as never,
         ),
-        fetchAll<{ project_id: string | null; purchase_price: number | null; supplier_id: string | null; supplier_company_id: string | null; vendor: string | null }>((a, b) =>
-          supabase.from("pm_expenses").select("project_id, purchase_price, supplier_id, supplier_company_id, vendor").order("id").range(a, b) as never,
+        fetchAll<{ project_id: string | null; purchase_price: number | null; workflow_version: number; eur_amount: number | null; supplier_id: string | null; supplier_company_id: string | null; vendor: string | null }>((a, b) =>
+          supabase.from("pm_expenses").select("project_id, purchase_price, workflow_version, eur_amount, supplier_id, supplier_company_id, vendor").order("id").range(a, b) as never,
         ),
       ]);
       const qsIds = [...new Set(stages.map((s) => s.source_quote_stage_id))];
@@ -76,7 +76,7 @@ export function useSupplierStages() {
         })),
         ...exps.map((x) => ({
           project_id: x.project_id,
-          amount: Number(x.purchase_price ?? 0),
+          amount: x.workflow_version === 2 ? x.eur_amount ?? NaN : Number(x.purchase_price ?? 0),
           supplierKey: supplierIdentityKey({ supplier_company_id: x.supplier_company_id, supplier_id: x.supplier_id, supplier_label: x.vendor }),
         })),
       ];

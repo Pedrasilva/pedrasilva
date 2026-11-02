@@ -20,7 +20,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from '@/lib/toast';
 import { Loader2, Plus, Trash2, FileText, X, CheckCircle2, BadgeCheck, ExternalLink } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Checkbox } from '@/components/ui/checkbox';
+import { expenseSale, type FlowExpense } from '@/lib/finance/project-expense-flow';
 import { issueFiscalInvoice } from "@/lib/integrations/invoicexpress.functions";
 import {
   Dialog,
@@ -70,6 +72,7 @@ import { supabase } from '@/integrations/supabase/client';
 type Props = {
   initialPdfDraft?: IssuedPdfDraft;
   initialProjectId?: string;
+  initialExpenses?: FlowExpense[];
   open: boolean;
   documentId: string | null;
   onClose: () => void;
@@ -96,7 +99,7 @@ const fmt = (n: number) =>
     currency: "EUR",
   }).format(n);
 
-export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectId,initialPdfDraft }: Props) {
+export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectId,initialPdfDraft, initialExpenses }: Props) {
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = i18n.language?.startsWith("pt");
 
@@ -132,6 +135,16 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<EditorLine[]>([newLine()]);
   const [createClient, setCreateClient] = useState(false);
+  const expenseChoices = useQuery({ queryKey: ['expense-flow-invoice-picker', projectId, originalId, docType], enabled: open && !documentId && !!projectId, queryFn: async () => {
+    const e = await supabase.from('pm_expenses').select('*').eq('workflow_version', 2).eq('project_id', projectId ?? '').neq('rebill_mode', 'none').neq('tax_treatment', 'pending').neq('status', 'draft');
+    if (e.error) throw e.error;
+    const a = await supabase.from('project_expense_invoice_allocations').select('*,financial_document_lines!inner(document_id)').is('reversed_at', null);
+    if (a.error) throw a.error;
+    return (e.data ?? []).filter(e => e.payment_source_type !== 'personal' || e.approval_state === 'approved').map(e => ({ expense: e, allocation: docType === 'client_credit_note' ? a.data.find(a => a.expense_id === e.id && a.financial_document_lines.document_id === originalId) : undefined }));
+  } });
+  function expenseLine(e: FlowExpense, allocationId?: string): EditorLine {
+    return { ...newLine(), description: e.description, project_id: e.project_id, expense_cost: e.eur_amount ?? 0, expense_id: allocationId ? undefined : e.id, credit_allocation_id: allocationId, unit_price_ex_vat: expenseSale(e.eur_amount, e.rebill_mode, e.markup_pct) ?? 0, vat_rate: (e.tax_parameters as { vatRate?: number } | null)?.vatRate ?? 0, reimbursable: false };
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -147,6 +160,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
       setClassificationId(null);
       setNotes("");
       setLines([newLine()]);
+      if (initialExpenses?.length) { setLines(initialExpenses.map(e => expenseLine(e))); setProjectId(initialExpenses[0]?.project_id ?? null); }
       if(initialPdfDraft){setDocType(initialPdfDraft.docType);setClientId(initialPdfDraft.clientId);setDocumentNumber(initialPdfDraft.number);setIssueDate(initialPdfDraft.date);setDueDate(initialPdfDraft.dueDate);setLines(initialPdfDraft.lines.map(l=>({...l,_key:crypto.randomUUID()})));}
       return;
     }
@@ -179,7 +193,8 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
           }))
         : [newLine()],
     );
-  }, [open, documentId, existing.data, initialProjectId,initialPdfDraft]);
+  }, [open, documentId, existing.data, initialProjectId,initialPdfDraft, initialExpenses]);
+  useEffect(() => { if (open && !documentId && initialExpenses?.length && !clientId) setClientId(projectsQ.data?.find(p => p.id === initialExpenses[0]?.project_id)?.company_id ?? null); }, [open, documentId, initialExpenses, projectsQ.data, clientId]);
 
   const totals = useMemo(() => computeDocTotals(lines), [lines]);
   const status = existing.data?.document.status ?? "draft";
@@ -200,9 +215,12 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
     setLines((prev) => [...prev, newLine()]);
   }
 
+  function nextExpenseInvalid() { return lines.some(l => (l.expense_id || l.credit_allocation_id) && (!(Number(l.expense_cost) > 0))); }
+
   function validate(): string | null {
     if (!clientId) return t("finance:invoices.errors.clientRequired");
     if (!issueDate) return t("finance:invoices.errors.issueDateRequired");
+    if (nextExpenseInvalid()) return t('finance:expenseFlow.pending');
     if (lines.length === 0)
       return t("finance:invoices.errors.linesRequired");
     for (const l of lines) {
@@ -249,6 +267,9 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
+      expense_id: l.expense_id,
+      expense_cost: l.expense_cost,
+      credit_allocation_id: l.credit_allocation_id,
       description: l.description.trim(),
       quantity: Number(l.quantity),
       unit_price_ex_vat: Number(l.unit_price_ex_vat),
@@ -267,7 +288,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
         await atomicEdit.mutateAsync({existingId:documentId,header,lines:payloadLines.map(l=>({...l})),draftQueueId:existing.data?.issuedPdfQueueId});
         toast.success(t("finance:invoices.saved"));
       } else {
-        if (nextStatus==='issued' && ['client_invoice','client_credit_note','receipt'].includes(docType)) {
+        if ((payloadLines.some(l => l.expense_id || l.credit_allocation_id) || nextStatus==='issued') && ['client_invoice','client_credit_note','receipt'].includes(docType)) {
           await registration.mutateAsync({header:{...header,queue_item_id:initialPdfDraft?.queueId},lines:payloadLines.map(l=>({...l}))});
         } else if (initialPdfDraft) {
           await registration.mutateAsync({header,lines:payloadLines.map(l=>({...l})),draftQueueId:initialPdfDraft.queueId});
@@ -589,6 +610,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                     {t("finance:invoices.addLine")}
                   </Button>
                 </div>
+                {!isExisting && expenseChoices.data && <div className="space-y-2"><Label>{t(docType === 'client_credit_note' ? 'finance:expenseFlow.creditShare' : 'finance:expenseFlow.addInvoiceExpenses')}</Label>{expenseChoices.data.filter(c => docType !== 'client_credit_note' || c.allocation).map(({ expense: e, allocation }) => <label key={e.id} className="flex items-center gap-2 text-sm"><Checkbox checked={lines.some(l => l.expense_id === e.id || allocation && l.credit_allocation_id === allocation.id)} onCheckedChange={checked => setLines(prev => checked ? [...prev.filter(l => l.description.trim()), expenseLine(e, allocation?.id)] : prev.filter(l => l.expense_id !== e.id && l.credit_allocation_id !== allocation?.id))} />{e.description} · {fmt(expenseSale(e.eur_amount, e.rebill_mode, e.markup_pct) ?? 0)}</label>)}</div>}
 
                 <div className="space-y-2">
                   {lines.map((line, idx) => {
@@ -630,7 +652,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                               placeholder={
                                 t("finance:invoices.lineDescription") as string
                               }
-                              disabled={isReadOnly}
+                              disabled={isReadOnly || !!line.expense_id || !!line.credit_allocation_id}
                             />
                           </div>
                           <div className="col-span-3 md:col-span-1">
@@ -644,7 +666,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                                 })
                               }
                               className="text-right tabular-nums"
-                              disabled={isReadOnly}
+                              disabled={isReadOnly || !!line.expense_id || !!line.credit_allocation_id}
                             />
                           </div>
                           <div className="col-span-5 md:col-span-2">
@@ -662,7 +684,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                               placeholder={
                                 t("finance:invoices.unitPrice") as string
                               }
-                              disabled={isReadOnly}
+                              disabled={isReadOnly || !!line.expense_id || !!line.credit_allocation_id}
                             />
                           </div>
                           <div className="col-span-4 md:col-span-1">
@@ -676,7 +698,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                                 })
                               }
                               className="text-right tabular-nums"
-                              disabled={isReadOnly}
+                              disabled={isReadOnly || !!line.expense_id || !!line.credit_allocation_id}
                             />
                           </div>
                           <div className="col-span-12 md:col-span-2">
@@ -764,7 +786,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose, initialProjectI
                 </Button>
                 {!isReadOnly && (
                   <>
-                    {status === "draft" && (
+                    {status === "draft" && !lines.some(l => l.expense_id || l.credit_allocation_id) && (
                       <Button
                         variant="outline"
                         size="sm"

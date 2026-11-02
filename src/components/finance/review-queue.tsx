@@ -11,6 +11,7 @@ import uiI18n from "@/i18n/index";
  * one transaction) and reviewed as a single unit.
  */
 import { GuidedPaidWith, type PayMethod } from "@/components/finance/paid-with-control";
+import { ProjectExpenseForm } from './project-expense-form';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -589,6 +590,8 @@ export function QueueItemCard({
     row.suggested_classification_id,
   );
   const [projectId, setProjectId] = useState<string | null>(row.created_project_id);
+  const [expenseFormOpen, setExpenseFormOpen] = useState(false);
+  const expenseIntake = useMemo(() => ({ id: row.id, supplier: row.extracted_supplier_name, documentNumber: row.extracted_document_number, date: row.extracted_date, currency: row.extracted_currency, amount: row.extracted_amount, path: row.source_file_url }), [row]);
   const [assignedCollaboratorId, setAssignedCollaboratorId] = useState<string | null>(
     (row as { assigned_collaborator_id?: string | null }).assigned_collaborator_id ?? null,
   );
@@ -799,6 +802,7 @@ export function QueueItemCard({
         counterparty_id: counterpartyId,
       };
       if (beforeConfirm) await beforeConfirm();
+      if (!isIssued && projectId && !(row as QueueRow & { source_project_expense_id?: string }).source_project_expense_id) { setExpenseFormOpen(true); return { ok: false as const, error: t('finance:expenseFlow.formTitle'), blockers: [] }; }
       return confirmFn({ data: { id: row.id, edits } });
     },
     onSuccess: (res) => {
@@ -1316,6 +1320,7 @@ export function QueueItemCard({
         {row.status === "rejected" && row.rejection_reason && (
           <Textarea readOnly value={row.rejection_reason} className="text-xs" />
         )}
+        <ProjectExpenseForm open={expenseFormOpen} onOpenChange={setExpenseFormOpen} projectId={projectId ?? undefined} finance intake={expenseIntake} />
       </CardContent>
     </Card>
   );

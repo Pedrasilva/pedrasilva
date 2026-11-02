@@ -2863,6 +2863,11 @@
     }
   },
   "expenseFlow": {
+    "createInvoice": "Create invoice from expenses",
+    "addInvoiceExpenses": "Add expense lines",
+    "creditShare": "Credit original expense share",
+    "missingCost": "{{count}} expenses have no confirmed EUR amount; cost and margin totals are unavailable.",
+    "explicitReceipts": "Client expense receipts use explicit payment allocations; historical receipts retain their existing attribution.",
     "clients": "To invoice to clients",
     "team": "To reimburse team",
     "project": "Project expenses",

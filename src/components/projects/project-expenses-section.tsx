@@ -5,8 +5,6 @@ import { toast } from '@/lib/toast';
 import { Plus, Pencil, Trash2, FileCheck2, Upload, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
-import { usePaymentCards } from "@/lib/finance/use-payment-cards";
-import { createProjectExpenseFromReceipt } from "@/lib/projects/expense-from-receipt";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -69,7 +67,6 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
   const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
   const qc = useQueryClient();
   const { profile, user } = useProjectsAuth();
-  const cardsQ = usePaymentCards();
   const collabQ = useCollaboratorsList({ status: "all" });
   const nameOf = (id: string | null | undefined) =>
     id ? (collabQ.data ?? []).find((c) => c.id === id)?.nome ?? null : null;
@@ -88,28 +85,10 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
     catch (err) { toast.error((err as Error).message); }
   }
 
-  // Files run one at a time (rate limits); a failed read still leaves a draft.
+  const [droppedFile, setDroppedFile] = useState<File | null>(null);
   async function handleFiles(files: File[]) {
-    if (files.length) { setFlowOpen(true); return; }
-    if (!canEdit || busy || files.length === 0) return;
-    const folder = profile?.collaborator_id;
-    if (!folder) { toast.error(t("expenses.fields.receiptNoProfile")); return; }
-    let ok = 0, unread = 0;
-    const failed: string[] = [];
-    setBusy({ done: 0, total: files.length });
-    for (let i = 0; i < files.length; i++) {
-      try {
-        const r = await createProjectExpenseFromReceipt({ file: files[i], projectId, collaboratorId: folder, cards: cardsQ.data ?? [] });
-        ok++; if (!r.read) unread++;
-      } catch { failed.push(files[i].name); }
-      setBusy({ done: i + 1, total: files.length });
-      qc.invalidateQueries({ queryKey: ["project-expenses", projectId] });
-    }
-    setBusy(null);
-    qc.invalidateQueries({ queryKey: ["project-insights", projectId] });
-    if (ok) toast.success(t("expenses.drop.added", { count: ok }));
-    if (unread) toast.warning(t("expenses.drop.unread", { count: unread }));
-    if (failed.length) toast.error(t("expenses.drop.failed", { names: failed.join(", ") }));
+    if (!canEdit || !files[0]) return;
+    setDroppedFile(files[0]); setFlowOpen(true);
   }
   const dropHandlers = canEdit ? {
     onDragOver: (e: React.DragEvent) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } },
@@ -157,7 +136,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
   }
 
   return (
-    <div className="space-y-6"><ProjectExpenseLists mode="project" projectId={projectId} /><ProjectExpenseForm open={flowOpen} onOpenChange={setFlowOpen} projectId={projectId} /><div {...dropHandlers} className={`relative rounded-xl border bg-card shadow-sm transition-colors ${dragOver ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
+    <div className="space-y-6"><ProjectExpenseLists mode="project" projectId={projectId} /><ProjectExpenseForm open={flowOpen} onOpenChange={setFlowOpen} projectId={projectId} initialFile={droppedFile} /><div {...dropHandlers} className={`relative rounded-xl border bg-card shadow-sm transition-colors ${dragOver ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
       {(dragOver || busy) && items.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary">
           {busy ? t("expenses.drop.processing", { done: busy.done, total: busy.total }) : t("expenses.drop.release")}

@@ -12,7 +12,8 @@
  *     revenue = sale_price * quantity
  *     profit  = revenue - cost
  *
- *   Expenses (pm_expenses): pass-through, no markup.
+ *   Historical expenses: pass-through. Version 2 uses evidenced EUR cost
+ *   and actual invoice allocations (including configured markup).
  *     cost    = purchase_price
  *     revenue = (rebillable AND invoiced_at set) ? purchase_price : 0
  *     profit  = revenue - cost

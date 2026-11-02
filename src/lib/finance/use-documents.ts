@@ -185,6 +185,9 @@ function round2(n: number): number {
 // ---------------------------------------------------------------------------
 
 export type DocumentInputLine = {
+  expense_id?: string;
+  expense_cost?: number;
+  credit_allocation_id?: string;
   payment_schedule_item_id?: string | null;
   description: string;
   quantity: number;
@@ -556,10 +559,10 @@ export function useFinProjects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pm_projects")
-        .select("id, name")
+        .select("id, name, company_id")
         .order("name");
       if (error) throw error;
-      return (data ?? []) as Array<{ id: string; name: string }>;
+      return (data ?? []) as Array<{ id: string; name: string; company_id: string | null }>;
     },
   });
 }

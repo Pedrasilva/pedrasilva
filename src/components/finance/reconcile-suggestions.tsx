@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QueueItemCard, type QueueRow } from "@/components/finance/review-queue";
 import { useAddFinDocPayment } from "@/lib/finance/use-documents";
+import { matchExpensePurchase } from '@/lib/finance/project-expense-flow';
 import {
   confidenceTone, fetchSuggestions, fetchTxOpenBalance, learnFromMatch, reasonLine, suggestionsKey, type Suggestion,
 } from "@/lib/finance/reconcile-suggestions";
@@ -185,7 +186,7 @@ export function EntradaConfirmMatchSheet({
       if (error) throw error;
       const amount = Math.round(Math.min(Number(doc.outstanding_amount ?? 0), open) * 100) / 100;
       if (amount <= 0) throw new Error(t("finance:reconSuggest.nothingOpen"));
-      await addPayment.mutateAsync({
+      if (!(tx.amount < 0 && await matchExpensePurchase(documentId, tx.id, Math.abs(tx.amount)))) await addPayment.mutateAsync({
         document_id: documentId, bank_transaction_id: tx.id, amount, payment_date: tx.transaction_date,
         method: "bank_transfer", created_by: user?.id ?? null,
       });
@@ -298,7 +299,7 @@ export function ReviewSuggestionsDialog({ periodId, onClose }: { periodId: strin
       return;
     }
     try {
-      await addPayment.mutateAsync({
+      if (!(tx.amount < 0 && await matchExpensePurchase(picked.ref_id, tx.id, Math.abs(tx.amount)))) await addPayment.mutateAsync({
         document_id: picked.ref_id, bank_transaction_id: tx.id, amount: amt, payment_date: tx.transaction_date,
         method: "bank_transfer", created_by: user?.id ?? null,
       });

@@ -1,8 +1,10 @@
 ## Current request — Project expenses and reimbursements (approved implementation)
-- [ ] Add versioned schema and transactional approval, reimbursement, invoicing and matching safeguards; mirror migrations.
+- [x] Add card-rate dispatch, expense-created issued invoice lines, explicit net receipts/partial credit RPC, retire legacy creation/OCR, validate transactional fixtures and capture filled PT screens.
+- [ ] Complete remaining verification: distinct-account permission matrix, actual concurrent requests, closed-period fixture, receipt-first ordering, full report warnings; finish partial-credit amount UI and safe affected-invoice draft/edit integration (no external blocker; unfinished in this delivery).
+- [x] Add versioned schema and transactional approval, reimbursement, invoicing and matching safeguards; mirror migrations.
 - [ ] Connect shared intake at both entry points, expense form, client/team queues, batches and existing matching/invoice editor.
 - [x] Preserve historical rows/totals; verify active project approvers read-only (nine projects without eligible lead; report).
-- [ ] Run disposable fixture tests and clean up; capture PT form/lists/batch and report migrations, totals and results.
+- [x] Run completed disposable fixture scenarios and clean up; capture PT form/lists/batch and report migrations, totals and verification limits.
 - [ ] Finish purchase-match dispatch, invoice-editor creation integration, remaining legacy creation paths and full OCR/invoice/permissions concurrency verification before using real expenses; exact gaps in docs/project-expense-flow-report.md.
 - [x] Inspect existing intake, expense ownership, project costs, billing and statement matching through read-only source/schema analysis.
 - [x] Prepare proposed schema, shared intake, screens, permissions and staged migration/fixture-verification plan for review; no implementation or data writes.
