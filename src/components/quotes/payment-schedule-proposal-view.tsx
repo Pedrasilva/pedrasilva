@@ -803,7 +803,7 @@ export function PaymentScheduleProposalView({
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
       {(!compositionOnly && !consultantsOnly && !outgoingOnly || incomingOnly) && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
-          if (!actualPaymentDate(iso)) return uiI18n.t("crm:workspace.payment.placeholderTag");
+          if (!iso || !actualPaymentDate(iso)) return uiI18n.t("crm:workspace.payment.placeholderTag");
           const [y, m, d] = iso.split("-");
           return y && m && d ? `${d}/${m}/${y}` : iso;
         };
