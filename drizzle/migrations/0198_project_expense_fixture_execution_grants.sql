@@ -1,0 +1,3 @@
+-- Temporary, sandbox-only execution grants for rolled-back fixture verification.
+-- Does not grant privileges to application users. Revoked in the immediately following verification-cleanup migration.
+GRANT EXECUTE ON FUNCTION public.pe_directory(uuid),public.pe_action(text,jsonb),public.pe_expense_figures(uuid),public.fin_reconcile_candidates(uuid,text),public.fin_tx_open_balance(uuid),public.pe_match_purchase(uuid,uuid,numeric),public.pe_confirm_intake(uuid,uuid,jsonb),public.pe_link_queue(uuid,uuid) TO sandbox_exec;
