@@ -68,6 +68,7 @@ type LineRow = {
 };
 
 type DocRow = {
+  project_expense_id: string | null;
   id: string;
   direction: "issued" | "received";
   doc_type: string;
@@ -93,7 +94,14 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       // 1. Documents (header-level project link, billed totals, status filter)
       // RLS retains entity/permission boundaries. Load lines before filtering
       // projects: multi-project documents may have an unrelated header.
-      const docs = await fetchAll<DocRow>((a,b) => supabase.from("financial_documents").select("id,direction,doc_type,sales_excluded,status,project_id,subtotal_ex_vat").not("status","in","(draft,cancelled)").order("id").range(a,b) as never);
+      const docs = await fetchAll<DocRow>((a,b) => supabase.from("financial_documents").select("id,direction,doc_type,sales_excluded,status,project_id,subtotal_ex_vat,project_expense_id").not("status","in","(draft,cancelled)").order("id").range(a,b) as never);
+      let expenseRead = supabase.from('pm_expenses').select('id,project_id,eur_amount,rebill_mode,payment_source_type').eq('workflow_version', 2);
+      if (projectId) expenseRead = expenseRead.eq('project_id', projectId);
+      const [flowRead, flowFigures] = await Promise.all([expenseRead, supabase.rpc('pe_expense_figures', { _project: projectId ?? undefined })]);
+      if (flowRead.error) throw flowRead.error;
+      if (flowFigures.error) throw flowFigures.error;
+      const flowExpenses = flowRead.data;
+      const flowIds = new Set(flowExpenses.map(e => e.id));
       const docIds = docs.map(d=>d.id);
       const lines: LineRow[] = [];
       const payments: PaymentRow[] = [];
@@ -110,6 +118,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       const projectIdSet = new Set<string>();
       docs.forEach((d) => d.project_id && projectIdSet.add(d.project_id));
       lines.forEach((l) => l.project_id && projectIdSet.add(l.project_id));
+      flowExpenses.forEach(e => projectIdSet.add(e.project_id));
       let projectNames = new Map<string, string>();
       if (projectIdSet.size > 0) {
         const { data, error } = await supabase
@@ -155,6 +164,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         const doc = docsById.get(l.document_id);
         if (!doc) continue;
         if (doc.direction !== "received") continue;
+        if (doc.project_expense_id && flowIds.has(doc.project_expense_id)) continue;
         if (!isProjectCostCode(l.classification?.code)) continue;
         const pid = l.project_id ?? doc.project_id;
         if (!pid) continue;
@@ -212,6 +222,20 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         }
       }
 
+      // Workflow purchases are evidence, not a second cost. Issued invoice
+      // totals remain canonical; allocations identify their expense share only.
+      for (const e of flowExpenses) {
+        const row = ensure(e.project_id);
+        const f = flowFigures.data.find(f => f.expense_id === e.id);
+        const cost = e.eur_amount ?? NaN;
+        row.total_cost += cost;
+        if (e.rebill_mode !== 'none') {
+          row.reimbursable_cost += cost;
+          row.reimbursable_billed += f?.billed_amount ?? 0;
+          row.reimbursable_received += f?.received_amount ?? 0;
+        }
+        if (e.payment_source_type === 'personal') row.total_paid += f?.reimbursed_amount ?? 0;
+      }
       // 9. Derived totals
       for (const row of acc.values()) {
         row.margin = financialResult(row.total_billed,row.total_cost).profit;

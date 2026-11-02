@@ -14,6 +14,7 @@ import { toast } from '@/lib/toast';
 import { AlertTriangle, Check, ChevronDown, Clock, Loader2, RefreshCw, Settings } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { IntakeUploadButton, OPEN_INTAKE_ITEM_EVENT } from "@/components/finance/intake-upload-button";
+import { ProjectExpenseForm } from './project-expense-form';
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -134,6 +135,7 @@ function fmt(v: number | null | undefined) {
 }
 
 export function IntakeInbox() {
+  const [expenseOpen, setExpenseOpen] = useState(false);
   const { t, i18n } = useTranslation(["finance", "common"]);
   const isPt = !!i18n.language?.startsWith("pt");
   const [tab, setTab] = useState<Tab | "rules" | "instructions">("triage");
@@ -254,12 +256,14 @@ export function IntakeInbox() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <ProjectExpenseForm open={expenseOpen} onOpenChange={setExpenseOpen} finance />
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">{t("finance:intakeInbox.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("finance:intakeInbox.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setExpenseOpen(true)}>{t('finance:expenseFlow.add')}</Button>
           <Button variant="outline" size="sm" onClick={() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })}>
             <RefreshCw className="h-4 w-4 mr-1.5" />
             {t("common:actions.refresh", { defaultValue: "Refresh" })}
