@@ -18337,6 +18337,22 @@ export type Database = {
         }
         Returns: string
       }
+      pe_action: { Args: { _action: string; _data: Json }; Returns: Json }
+      pe_event: {
+        Args: {
+          _action: string
+          _after: Json
+          _before: Json
+          _evidence?: Json
+          _expense: string
+          _reason?: string
+        }
+        Returns: undefined
+      }
+      pe_finance_access: { Args: { _entity: string }; Returns: boolean }
+      pe_obligation_sync: { Args: { _expense: string }; Returns: undefined }
+      pe_project_lead: { Args: { _project: string }; Returns: boolean }
+      pe_reconciled_amount: { Args: { _tx: string }; Returns: number }
       pm_allocation_logged_hours: {
         Args: { _allocation_id: string }
         Returns: number

@@ -1359,6 +1359,13 @@
       "when": 1793636469690,
       "tag": "0193_project_expense_flow_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 194,
+      "version": "7",
+      "when": 1793636610677,
+      "tag": "0194_project_expense_flow_operations",
+      "breakpoints": true
     }
   ]
 }
