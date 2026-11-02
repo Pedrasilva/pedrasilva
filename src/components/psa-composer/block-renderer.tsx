@@ -1,5 +1,6 @@
 import { ProposalImageEditorHint } from "./document-editor-hints";
 import uiI18n from "@/i18n/index";
+import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-proposal/relative-programme";
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
  * renders the block body inside the A4 print container.
@@ -252,9 +253,9 @@ function PhaseSummaryCard({
   const showBim = bool(cr.show_bim_lod_by_phase, false);
 
   const durationLabel =
-    stage.durationDays != null
+    str(cr.duration_label) ?? (stage.durationDays != null
       ? formatDurationHuman(stage.durationDays, lang)
-      : L.toBeDefined;
+      : L.toBeDefined);
 
   const feeLabel =
     stage.fee != null && Number.isFinite(Number(stage.fee))
@@ -387,6 +388,45 @@ export function BlockBody({
     return t ? <P>{t}</P> : <Empty>{L.emptyEditRight}</Empty>;
   }
 
+  // Explicit, proposal-owned programme: opt-in only, never a Gantt/date write.
+  const relativeRows = relativeProgrammeRows(block.content_rich?.relative_programme);
+  if (relativeRows.length && ["timeline", "gantt_design", "gantt_construction"].includes(block.block_type)) {
+    const chart = block.block_type !== "timeline";
+    const span = Math.max(...relativeRows.map((row) => row.end));
+    return (
+      <div>
+        <H>{num}{block.title}</H>
+        <table className="proposal-print-table w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-zinc-300 text-left text-xs text-zinc-500">
+              <th className="py-1 font-semibold">{L.phase}</th>
+              <th className="py-1 font-semibold">{L.start} / {L.end}</th>
+              <th className="py-1 font-semibold text-right">{L.duration}</th>
+              {chart && <th className="w-1/3 py-1 text-right font-semibold">{relativeProgrammeTiming({ ...relativeRows[0], start: 1, end: span }, lang)}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {relativeRows.map((row) => (
+              <tr key={row.stageId} className="border-b border-zinc-100">
+                <td className="py-2 pr-2">{row.label}</td>
+                <td className="py-2 pr-2 whitespace-nowrap">{relativeProgrammeTiming(row, lang)}</td>
+                <td className="py-2 text-right whitespace-nowrap">{row.durationLabel}</td>
+                {chart && <td className="py-2 pl-3"><div className="grid h-3 gap-px" style={{ gridTemplateColumns: `repeat(${span}, minmax(0, 1fr))` }}>
+                  {Array.from({ length: span }, (_, index) => <span key={index} className={index + 1 >= row.start && index + 1 <= row.end ? "bg-foreground" : "bg-muted"} />)}
+                </div></td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  const coverTitle = typeof block.content_rich?.cover_title === "string" ? block.content_rich.cover_title : live?.projectName;
+  const coverSubtitle = typeof block.content_rich?.cover_subtitle === "string" ? block.content_rich.cover_subtitle : live?.location;
+  const coverReference = typeof block.content_rich?.cover_reference === "string" ? block.content_rich.cover_reference : null;
+  const coverClient = block.content_rich?.hide_empty_client === true && live?.client?.trim() === "—" ? null : live?.client;
+
 
   switch (block.block_type) {
     case "cover":
@@ -396,14 +436,15 @@ export function BlockBody({
             {L.proposalCover}
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
-            {live?.projectName ?? L.project}
+            {coverTitle ?? L.project}
           </div>
-          {live?.client && (
-            <div className="mt-2 text-base text-zinc-700">{live.client}</div>
+          {coverClient && (
+            <div className="mt-2 text-base text-zinc-700">{coverClient}</div>
           )}
-          {live?.location && (
-            <div className="mt-1 text-sm text-zinc-500">{live.location}</div>
+          {coverSubtitle && (
+            <div className="mt-1 text-sm text-zinc-500">{coverSubtitle}</div>
           )}
+          {coverReference && <div className="mt-2 text-sm text-zinc-500">{coverReference}</div>}
           <div className="mt-10 text-xs text-zinc-500">
             {live?.projectNumber ? `${t(
               (live.proposalRevision ?? 0) > 0 ? "proposalComposer.revisionReference" : "proposalComposer.reference",
@@ -474,7 +515,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {live?.projectDescription && <P>{live.projectDescription}</P>}
+          {live?.projectDescription && block.content_rich?.replace_project_description !== true && <P>{live.projectDescription}</P>}
           {richHas ? rich : !live?.projectDescription && fallback("scope")}
         </div>
       );
