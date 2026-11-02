@@ -10,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/lib/toast';
 import { expenseAction, expenseDirectory, expenseSale, type FlowExpense, type Choice } from '@/lib/finance/project-expense-flow';
-import { routeProjectExpenseReceiptToQueue } from '@/lib/finance/project-expense-queue.functions';
+import { readProjectExpenseReceipt } from '@/lib/finance/project-expense-queue.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { receiptStoragePath } from '@/lib/projects/expense-from-receipt';
 import { Upload } from 'lucide-react';
@@ -20,23 +20,28 @@ function ChoiceInput({ id, value, choices, onChange }: { id: string; value: stri
 }
 
 export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, finance = false }: { open: boolean; onOpenChange: (o: boolean) => void; projectId?: string; initial?: FlowExpense | null; finance?: boolean }) {
-  const { t } = useTranslation(['finance', 'common', 'projects']);
+  const { t, i18n } = useTranslation(['finance', 'common', 'projects']);
   const qc = useQueryClient();
-  const routeReceipt = useServerFn(routeProjectExpenseReceiptToQueue);
+  const readReceipt = useServerFn(readProjectExpenseReceipt);
   const directory = useQuery({ queryKey: ['project-expense-directory', projectId], queryFn: () => expenseDirectory(projectId), enabled: open });
   const [values, setValues] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [queueId, setQueueId] = useState<string | null>(null);
   const set = (key: string, value: string) => setValues(v => ({ ...v, [key]: value }));
   useEffect(() => { if (!open) return; setSavedId(initial?.id ?? null); setValues({ projectId: initial?.project_id ?? projectId ?? '', description: initial?.description ?? '', category: initial?.category ?? 'travel', date: initial?.incurred_at ?? new Date().toISOString().slice(0, 10), supplier: initial?.vendor ?? '', documentNumber: initial?.document_number ?? '', currency: initial?.original_currency ?? 'EUR', originalAmount: initial?.original_amount?.toString() ?? '', eurAmount: initial?.eur_amount?.toString() ?? '', exchangeDate: initial?.exchange_rate_date ?? '', exchangeSource: initial?.exchange_rate_source ?? '', exchangeEvidence: initial?.exchange_evidence ? JSON.stringify(initial.exchange_evidence) : '', paidBy: initial?.payment_source_type ?? 'personal', collaboratorId: initial?.reimburse_collaborator_id ?? '', cardId: initial?.payment_card_id ?? '', accountId: initial?.paid_from_account_id ?? '', rebillMode: initial?.rebill_mode ?? 'cost', markupPct: initial?.markup_pct?.toString() ?? '0', taxTreatment: initial?.tax_treatment ?? 'pending', vatRate: String((initial?.tax_parameters as { vatRate?: number } | null)?.vatRate ?? ''), notes: initial?.notes ?? '', receiptPath: initial?.receipt_path ?? '' }); }, [open, initial, projectId]);
   useEffect(() => { if (directory.data?.myCollaborator) setValues(v => ({ ...v, collaboratorId: v.collaboratorId || directory.data?.myCollaborator || '' })); }, [directory.data]);
-  const money = (n: number | null) => n === null ? t('finance:expenseFlow.pending') : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR' }).format(n);
+  const money = (n: number | null) => n === null ? t('finance:expenseFlow.pending') : new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'EUR' }).format(n);
   const cost = values.currency === 'EUR' ? Number(values.originalAmount) || null : Number(values.eurAmount) || null;
   async function save(submit: boolean) {
     setBusy(true);
     try {
       const data = { ...values, expenseId: savedId, originalAmount: Number(values.originalAmount), eurAmount: values.eurAmount || null, markupPct: Number(values.markupPct || 0), collaboratorId: values.paidBy === 'personal' ? values.collaboratorId : null, accountId: values.paidBy === 'company_account' ? values.accountId : null, cardId: values.paidBy === 'company_card' ? values.cardId : null, exchangeEvidence: values.exchangeEvidence ? { reference: values.exchangeEvidence } : null, taxParameters: values.vatRate ? { vatRate: Number(values.vatRate) } : null };
       const saved = await expenseAction('save', data); setSavedId(saved.id);
+      if (queueId) {
+        const linked = await supabase.rpc('pe_link_queue', { _id: queueId, _expense: saved.id });
+        if (linked.error) throw linked.error;
+      }
       if (submit) await expenseAction('submit', { expenseId: saved.id });
       await qc.invalidateQueries({ queryKey: ['project-expenses'] }); await qc.invalidateQueries({ queryKey: ['expense-flow'] });
       toast.success(t('finance:expenseFlow.saved')); if (submit) onOpenChange(false);
@@ -44,16 +49,15 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
     } catch (e) { toast.error((e as Error).message); return null; } finally { setBusy(false); }
   }
   async function upload(file: File) {
-    const id = savedId ?? await save(false);
     const collaborator = directory.data?.myCollaborator;
-    if (!id || !collaborator) return;
+    if (!values.projectId || !collaborator) { toast.error(t('finance:expenseFlow.chooseProject')); return; }
     setBusy(true);
     try {
       const path = receiptStoragePath(collaborator, values.projectId, file.name);
       const up = await supabase.storage.from('benefit-receipts').upload(path, file, { upsert: false }); if (up.error) throw up.error;
-      const saved = await expenseAction('save', { ...values, expenseId: id, originalAmount: Number(values.originalAmount), receiptPath: path, exchangeEvidence: values.exchangeEvidence ? { reference: values.exchangeEvidence } : null, taxParameters: values.vatRate ? { vatRate: Number(values.vatRate) } : null });
       set('receiptPath', path);
-      const result = await routeReceipt({ data: { expenseId: saved.id } }); if (!result.ok) throw new Error(result.error);
+      const result = await readReceipt({ data: { projectId: values.projectId, storagePath: path } }); if (!result.ok) throw new Error(result.error);
+      setQueueId(result.queueItemId ?? null);
       if (result.extracted) {
         const ex = result.extracted;
         setValues(v => ({ ...v, supplier: ex.supplier ?? v.supplier, documentNumber: ex.documentNumber ?? v.documentNumber, date: ex.date ?? v.date, currency: ex.currency ?? v.currency, originalAmount: ex.amount?.toString() ?? v.originalAmount }));
