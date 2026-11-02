@@ -1,3 +1,8 @@
+## Current request — Clínica Mint II payment regeneration
+- [ ] Fix advance inclusion, milestone percentages and missing-date regeneration with fixture regressions.
+- [ ] Correct only the authorized quote plan to 2,570 + 3 × 7,710 + 4 × 1,320 EUR; remove supplier/admin remnants and empty consultant block.
+- [ ] Verify saved Entrada/document/reconciliation, unchanged unrelated data, and capture PT screenshots/report.
+
 ## Current request — Project expenses and reimbursements (approved implementation)
 - [x] Add card-rate dispatch, expense-created issued invoice lines, explicit net receipts/partial credit RPC, retire legacy creation/OCR, validate transactional fixtures and capture filled PT screens.
 - [ ] Complete remaining verification: distinct-account permission matrix, actual concurrent requests, closed-period fixture, receipt-first ordering, full report warnings; finish partial-credit amount UI and safe affected-invoice draft/edit integration (no external blocker; unfinished in this delivery).
