@@ -18,7 +18,6 @@ Inspeção read-only. Sem implementação, migrações ou dados escritos. Bernar
 
 Ambas as portas criam/atualizam **a mesma linha em `pm_expenses`**, com documento/evidência ligados — nunca outro custo. Rascunho manual pode existir sem recibo; anexar depois completa a mesma linha. Sem projeto, manter em triagem; custo efetivamente da empresa segue o destino existente, sem permitir projeto nulo em `pm_expenses`.
 
-Campos:
 - **Pago por:** conta/cartão da empresa ou colaborador escolhido por pessoa, sem exigir registo do seu cartão pessoal. Quem submeteu não é necessariamente quem pagou; submissão do colaborador predefine «pago por mim».
 - **Refaturável:** não / ao custo / markup %. Projeto obrigatório; viagens de projeto predefinidas refaturáveis, editável.
 - **Moeda:** original, data e EUR, câmbio/origem/data/evidência. EUR ausente fica «por confirmar», nunca zero. Match confirmado usa EUR debitado no cartão, conservando conversão anterior; taxas separadas não entram por suposição.
@@ -39,11 +38,9 @@ Campos:
 5. Preservar o critério histórico de custo incorrido, distinguindo submetido/aprovado/pago. Aprovação define o que se deve reembolsar, não o momento bancário. Receita do novo fluxo vem da alocação efetivamente faturada, incluindo markup, sem duplicar a receita da fatura; tratamento económico de disbursements fica configurável com o contabilista.
 
 ## Detalhes técnicos — esquema proposto
-Nomes novos indicativos.
-
 | Estrutura | Alterações propostas |
 |---|---|
-| `pm_expenses` | Reutilizar pago por, cartão, `reimburse_collaborator_id`, `rebillable`, aprovação e custo. Acrescentar conta pagadora, moeda/valor original, EUR/câmbio/data/origem/evidência, modo/percentagem de markup, tratamento/parâmetros fiscais confirmados, documento de compra ligado e versão do novo fluxo. Projeto continua obrigatório. |
+| `pm_expenses` | Reutilizar pago por, cartão, `reimburse_collaborator_id`, `rebillable`, aprovação e custo. Acrescentar conta pagadora, moeda/valor original, EUR/câmbio/data/origem/evidência, modo/percentagem de markup, tratamento/parâmetros fiscais confirmados, documento de compra ligado e versão do novo fluxo. Projeto obrigatório. |
 | Fila Finance | Reutilizar as ligações/extrações existentes; acrescentar contexto estruturado de pessoa pagadora/refaturação. Confirmar documento e despesa juntos, idempotentemente. |
 | `finance_holder_reimbursements` | Reutilizar como obrigação única; acrescentar ligação única à despesa de projeto e metadados de aprovação. Documento pode faltar apenas havendo despesa ligada. Novas obrigações só ficam devidas após aprovação; cartão pessoal não é requisito deste fluxo. Preservar estados/documentos antigos. |
 | Lotes e alocações de reembolso | Duas pequenas tabelas: cabeçalho por entidade/pessoa e alocações obrigação → movimento com montante. São relações de liquidação, não outro livro de custos; saldo derivado, autor/data/motivo auditados. |
@@ -67,7 +64,7 @@ Para despesas novas, unificar os caminhos de dívida: impedir o bridge antigo de
 6. Totais/Insights/relatórios coerentes; horas, salários e planeamento intactos. EN/PT-PT.
 
 ## Migração e verificação — depois de aprovação
-1. Auditoria read-only de referências/obrigações antigas; pré-visualizar ambiguidades antes de qualquer backfill. Não usar Mastercard real nos testes.
+1. Auditoria read-only de referências/obrigações antigas; pré-visualizar ambiguidades antes de qualquer backfill. Sem testes em Mastercard real.
 2. Migração aditiva de campos, relações, índices e auditoria. Novas tabelas públicas com GRANT explícito, revogação de TRUNCATE a anon/authenticated e RLS por pessoa/entidade. SQL idêntico em `supabase/migrations` e `drizzle/migrations`.
 3. Operações transacionais de confirmação, aprovação, obrigação única, faturação e lote/reconciliação. Versão do fluxo mantém histórico inalterado; adaptação histórica só após pré-visualização e autorização separadas.
 4. Ligar motor Finance e ecrãs; sem associações históricas presumidas.
