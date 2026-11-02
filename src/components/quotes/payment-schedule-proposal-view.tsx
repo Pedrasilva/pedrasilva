@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 const formatEUR = (n: number) => new Intl.NumberFormat(uiI18n.language, { style: "currency", currency: "EUR" }).format(n);
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { actualPaymentDate, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { proposalPaymentTiming, proposalTimingToken, decodeProposalTiming } from "@/lib/quotes/proposal-payment-timing";
 import { isOptionalStage } from "@/lib/quotes/optional-stages";
 
 type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
@@ -145,6 +146,7 @@ function PaymentSubTable({
   defaultVatRate,
   labelFor,
   showTotalRow = false,
+  stages = [],
 }: {
   rows: QuotePaymentScheduleItem[];
   totalFee: number;
@@ -152,6 +154,7 @@ function PaymentSubTable({
   defaultVatRate: number;
   labelFor?: (it: QuotePaymentScheduleItem) => string;
   showTotalRow?: boolean;
+  stages?: QuoteStage[];
 }) {
   useTranslation();
   const groupTotal = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
@@ -186,7 +189,7 @@ function PaymentSubTable({
             <TableRow key={it.id}>
               <TableCell>
                 <div className="font-medium tabular-nums">
-                  {formatShortDate(it.expected_invoice_date)}
+                  {proposalPaymentTiming(it, stages, rows, uiI18n.language)}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {labelFor ? labelFor(it) : it.label}
@@ -290,18 +293,6 @@ export function PaymentScheduleProposalView({
     .filter((it) => (it.direction ?? "inflow") === "inflow")
     .slice()
     .sort((a, b) => {
-      if (items.some(item => !actualPaymentDate(item.expected_invoice_date))) return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-      const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
-      const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
-      const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";
-      const db = b.expected_invoice_date ?? sb?.end ?? "9999-12-31";
-      if (da !== db) return da < db ? -1 : 1;
-      if ((sa?.start ?? "9999-12-31") !== (sb?.start ?? "9999-12-31")) {
-        return (sa?.start ?? "9999-12-31") < (sb?.start ?? "9999-12-31") ? -1 : 1;
-      }
-      if ((sa?.sortOrder ?? 1e9) !== (sb?.sortOrder ?? 1e9)) {
-        return (sa?.sortOrder ?? 1e9) - (sb?.sortOrder ?? 1e9);
-      }
       return (a.sort_order ?? 0) - (b.sort_order ?? 0);
     });
 
@@ -804,6 +795,8 @@ export function PaymentScheduleProposalView({
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
       {(!compositionOnly && !consultantsOnly && !outgoingOnly || incomingOnly) && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
+          const relative = decodeProposalTiming(iso);
+          if (relative) return relative;
           if (!iso || !actualPaymentDate(iso)) return uiI18n.t("crm:workspace.payment.placeholderTag");
           const [y, m, d] = iso.split("-");
           return y && m && d ? `${d}/${m}/${y}` : iso;
@@ -827,11 +820,7 @@ export function PaymentScheduleProposalView({
         const isSupplierRole = (role?: string | null) =>
           role === "supplier_group" || role === "supplier_phase";
         const dateFor = (it: QuotePaymentScheduleItem) => {
-          if (actualPaymentDate(it.expected_invoice_date)) return it.expected_invoice_date ?? "";
-          const s = it.stage_id ? stageById.get(it.stage_id) : null;
-          if (it.trigger_type === "stage_start") return actualPaymentDate(s?.start_date) ?? "";
-          if (it.trigger_type === "stage_end") return actualPaymentDate(s?.end_date) ?? "";
-          return "";
+          return proposalTimingToken(proposalPaymentTiming(it, stages, items, uiI18n.language));
         };
         const triggerSentence = (it: QuotePaymentScheduleItem): string => {
           const s = it.stage_id ? stageById.get(it.stage_id) : null;
@@ -931,11 +920,6 @@ export function PaymentScheduleProposalView({
           inv.items.push(it);
           if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
         }
-        if (orderKeys.every(key => invoiceMap.get(key)?.plannedDate)) orderKeys.sort((a, b) => {
-          const da = invoiceMap.get(a)?.plannedDate ?? "";
-          const db = invoiceMap.get(b)?.plannedDate ?? "";
-          return da < db ? -1 : da > db ? 1 : 0;
-        });
 
         type Line = { description: string; net: number; vat: number };
         const buildLines = (inv: Invoice): Line[] => {
@@ -1127,6 +1111,7 @@ export function PaymentScheduleProposalView({
                     totalFee={totalFee}
                     stageFees={stageFees}
                     defaultVatRate={defaultVatRate}
+                    stages={stages}
                   />
                 </CardContent>
               </Card>

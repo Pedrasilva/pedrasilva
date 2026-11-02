@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useFrozenQuoteSnapshot } from "./revision-context";
 import { supabase } from "@/integrations/supabase/client";
 import { actualPaymentDate, computeStageFees, resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { proposalPaymentTiming, proposalTimingToken, decodeProposalTiming } from "@/lib/quotes/proposal-payment-timing";
 import { effectiveBillingAmount, rolledUpBillableFees } from "@/lib/quotes/stage-billing";
 import type { QuoteStage } from "@/lib/quotes/types";
 import type { QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
@@ -678,6 +679,8 @@ export async function fetchLiveQuoteSnapshot(
       };
 
       const fmtDate = (iso?: string | null) => {
+        const relativeTiming = decodeProposalTiming(iso);
+        if (relativeTiming) return relativeTiming;
         if (!iso) return "";
         const relative = relativeWeekLabel(iso, lang);
         if (relative) return relative;
@@ -686,11 +689,7 @@ export async function fetchLiveQuoteSnapshot(
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dateFor = (p: any): string => {
-        if (actualPaymentDate(p.expected_invoice_date)) return p.expected_invoice_date;
-        const s = p.stage_id ? stageById.get(p.stage_id) : null;
-        if (p.trigger_type === "stage_start") return actualPaymentDate(s?.start_date) ?? "";
-        if (p.trigger_type === "stage_end") return actualPaymentDate(s?.end_date) ?? "";
-        return "";
+        return proposalTimingToken(proposalPaymentTiming(p, stageArr, pay ?? [], lang));
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const triggerSentence = (p: any): string => {
@@ -790,11 +789,6 @@ export async function fetchLiveQuoteSnapshot(
         if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
       }
 
-      if (orderKeys.every(key => invoiceMap.get(key)?.plannedDate)) orderKeys.sort((a, b) => {
-        const da = invoiceMap.get(a)?.plannedDate ?? "";
-        const db = invoiceMap.get(b)?.plannedDate ?? "";
-        return da < db ? -1 : da > db ? 1 : 0;
-      });
 
       const paymentInvoices = orderKeys.map((k, gi) => {
         const inv = invoiceMap.get(k)!;
@@ -1304,6 +1298,8 @@ export function formatPaymentDescription(description: string, plannedDate: strin
 }
 
 export function formatDatePT(d: string | null | undefined, lang: ProposalLang = "pt-PT"): string {
+  const relativeTiming = decodeProposalTiming(d);
+  if (relativeTiming) return relativeTiming;
   if (!d) return "—";
   const rel = relativeWeekLabel(d, lang);
   if (rel) return rel;

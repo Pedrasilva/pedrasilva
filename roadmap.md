@@ -1,4 +1,5 @@
 ## Current request — Clínica Mint II payment regeneration
+- [x] Correct proposal display to relative milestones/weeks and construction months only; migration 0215 mapped construction months from the converted stage; local PostgreSQL/calendar fixtures passed without real writes.
 - [x] Fix advance inclusion, milestone percentages and missing-date regeneration with 17 fixture regressions and both browser-local refresh paths.
 - [x] Correct only the authorized quote plan to 2,570 + 3 × 7,710 + 4 × 1,320 EUR; remove supplier/admin remnants and empty consultant block.
 - [x] Verify saved Entrada/document/reconciliation, unchanged unrelated hashes, and capture PT screenshots/report in docs/mint-payment-plan-report.md.
