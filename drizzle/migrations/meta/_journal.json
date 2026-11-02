@@ -1485,6 +1485,13 @@
       "when": 1793638908673,
       "tag": "0211_project_expense_fixture_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 212,
+      "version": "7",
+      "when": 1793638943893,
+      "tag": "0212_project_expense_validation_privileges_revoked",
+      "breakpoints": true
     }
   ]
 }
