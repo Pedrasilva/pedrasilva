@@ -787,6 +787,16 @@
       "addTitle": "Add external service"
     },
     "payment": {
+      "designMilestones": "Milestones as percentages of the design fee",
+      "designBasisHint": "Percentages include the advance and must total 100% of the design phases. Monthly assistance is separate.",
+      "designPercent": "Percentage of design fees",
+      "designStart": "Start of {{stage}}",
+      "designEnd": "Completion of {{stage}}",
+      "designAdd": "Add milestone",
+      "designTotal": "Design instalments: {{percent}}% / 100%",
+      "designInvalid": "Milestones must reference design phases and total exactly 100%.",
+      "designSaved": "Milestone terms saved. Update from Gantt to apply them.",
+      "datesUndefined": "Some invoice dates are not defined because the Gantt has no calendar start. Milestones remain in their agreed order.",
       "title": "Client billing schedule",
       "label": "Label",
       "trigger": "Trigger",

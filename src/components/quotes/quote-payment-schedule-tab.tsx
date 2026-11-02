@@ -64,6 +64,8 @@ import { formatEUR } from "@/lib/crm/types";
 import { PaymentScheduleProposalView } from "./payment-schedule-proposal-view";
 import { InvoiceGroupingControl } from "./invoice-grouping-control";
 import { PaymentScheduleReconciliation } from "./payment-schedule-reconciliation";
+import { DesignMilestoneEditor } from "./design-milestone-editor";
+import { parseDesignMilestones } from "@/lib/quotes/payment-generators";
 
 function AutoTextarea({
   value,
@@ -550,6 +552,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
         projectBilling: parseProjectBilling(quoteQ.data?.quote_build_settings ?? null),
+        designMilestones: parseDesignMilestones(quoteQ.data?.quote_build_settings),
       }),
       paymentDefaults,
     );
@@ -646,6 +649,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         externalServices: effectiveExternals,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
         projectBilling: parseProjectBilling(quoteQ.data?.quote_build_settings ?? null),
+        designMilestones: parseDesignMilestones(quoteQ.data?.quote_build_settings),
       });
     } else if (kind === "architecture_with_consultants") {
       generated = generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
@@ -754,11 +758,13 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           <div className="border-t pt-4">
             <QuoteSupplierMarkupEditor quoteId={quoteId} />
           </div>
+          <DesignMilestoneEditor quoteId={quoteId} settings={quoteQ.data?.quote_build_settings ?? null} stages={stages} />
         </CardContent>
       </Card>
 
 
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
+      {visibleItems.some(item => !item.expected_invoice_date) && <p role="status" className="text-sm text-muted-foreground">{t("workspace.payment.datesUndefined")}</p>}
       <div className="flex items-center justify-end">
         <Button
           size="sm"

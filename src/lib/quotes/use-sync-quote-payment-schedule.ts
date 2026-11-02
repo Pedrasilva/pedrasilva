@@ -8,6 +8,7 @@ import {
   computeStageFees,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
   generateByStageBilling,
+  parseDesignMilestones,
   type PaymentDefaults,
 } from "./payment-generators";
 import { rolledUpBillableFees } from "./stage-billing";
@@ -210,6 +211,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
           externalServices: effectiveExternals,
           paymentOffsetDays: 30,
           projectBilling,
+          designMilestones: parseDesignMilestones(quoteQ.data?.quote_build_settings),
         }),
         paymentDefaults,
       );
