@@ -1,4 +1,8 @@
-## Current request — Project expenses and reimbursements (plan only)
+## Current request — Project expenses and reimbursements (approved implementation)
+- [ ] Add versioned schema and transactional approval, reimbursement, invoicing and matching safeguards; mirror migrations.
+- [ ] Connect shared intake at both entry points, expense form, client/team queues, batches and existing matching/invoice editor.
+- [ ] Preserve historical rows/totals; verify active project approvers read-only.
+- [ ] Run disposable fixture tests and clean up; capture PT form/lists/batch and report migrations, totals and results.
 - [x] Inspect existing intake, expense ownership, project costs, billing and statement matching through read-only source/schema analysis.
 - [x] Prepare proposed schema, shared intake, screens, permissions and staged migration/fixture-verification plan for review; no implementation or data writes.
 - [x] Keep pending Bernardo duplicates and card settlement proposals untouched, awaiting separate confirmation.
