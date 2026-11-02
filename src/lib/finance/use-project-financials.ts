@@ -2,6 +2,7 @@ import { billedProjectAmounts, documentProjectAmounts } from "./project-document
 import { isBilledDocument, billedSign } from "./provisional-invoicing";
 import { fetchAll } from "@/lib/reports/use-hours-logged";
 import { financialResult } from "@/lib/projects/financial-calculation";
+import { expenseClientAmount } from './expense-amounts';
 /**
  * Project ↔ Finance integration (read-only aggregation).
  *
@@ -27,6 +28,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ProjectFinancialSummary = {
+  missingExpenseCostCount: number;
+  reimbursable_sale: number;
   project_id: string;
   project_name: string | null;
   /** Sum of cost lines (ex VAT) attributed to this project. */
@@ -60,6 +63,7 @@ function isProjectCostCode(code: string | null | undefined): boolean {
 }
 
 type LineRow = {
+  id: string;
   document_id: string;
   project_id: string | null;
   amount_ex_vat: number | null;
@@ -95,11 +99,14 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       // RLS retains entity/permission boundaries. Load lines before filtering
       // projects: multi-project documents may have an unrelated header.
       const docs = await fetchAll<DocRow>((a,b) => supabase.from("financial_documents").select("id,direction,doc_type,sales_excluded,status,project_id,subtotal_ex_vat,project_expense_id").not("status","in","(draft,cancelled)").order("id").range(a,b) as never);
-      let expenseRead = supabase.from('pm_expenses').select('id,project_id,eur_amount,rebill_mode,payment_source_type').eq('workflow_version', 2);
+      let expenseRead = supabase.from('pm_expenses').select('id,project_id,eur_amount,rebill_mode,markup_pct,payment_source_type').eq('workflow_version', 2);
       if (projectId) expenseRead = expenseRead.eq('project_id', projectId);
-      const [flowRead, flowFigures] = await Promise.all([expenseRead, supabase.rpc('pe_expense_figures', { _project: projectId ?? undefined })]);
+      const [flowRead, flowFigures, settlements, invoiceAllocations] = await Promise.all([expenseRead, supabase.rpc('pe_expense_figures', { _project: projectId ?? undefined }), supabase.rpc('pe_expense_settlement_figures', { _project: projectId ?? undefined }), supabase.from('project_expense_invoice_allocations').select('line_id').is('reversed_at', null)]);
       if (flowRead.error) throw flowRead.error;
       if (flowFigures.error) throw flowFigures.error;
+      if (settlements.error) throw settlements.error;
+      if (invoiceAllocations.error) throw invoiceAllocations.error;
+      const expenseLineIds = new Set(invoiceAllocations.data.map(a => a.line_id));
       const flowExpenses = flowRead.data;
       const flowIds = new Set(flowExpenses.map(e => e.id));
       const docIds = docs.map(d=>d.id);
@@ -108,7 +115,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       for(let i=0;i<docIds.length;i+=200) {
         const ids=docIds.slice(i,i+200);
         const [ls,ps]=await Promise.all([
-          fetchAll<LineRow>((a,b)=>supabase.from("financial_document_lines").select("document_id,project_id,amount_ex_vat,reimbursable,classification:financial_classifications(code)").in("document_id",ids).order("id").range(a,b) as never),
+          fetchAll<LineRow>((a,b)=>supabase.from("financial_document_lines").select("id,document_id,project_id,amount_ex_vat,reimbursable,classification:financial_classifications(code)").in("document_id",ids).order("id").range(a,b) as never),
           fetchAll<PaymentRow>((a,b)=>supabase.from("financial_document_payments").select("document_id,amount").in("document_id",ids).order("id").range(a,b) as never),
         ]);
         lines.push(...ls); payments.push(...ps);
@@ -140,6 +147,8 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         let row = acc.get(pid);
         if (!row) {
           row = {
+            missingExpenseCostCount: 0,
+            reimbursable_sale: 0,
             project_id: pid,
             project_name: projectNames.get(pid) ?? null,
             total_cost: 0,
@@ -182,7 +191,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
 
       // 7b. Reimbursable billed: sum issued lines flagged reimbursable
       for (const l of lines) {
-        if (!l.reimbursable) continue;
+        if (!l.reimbursable || expenseLineIds.has(l.id)) continue;
         const doc = docsById.get(l.document_id);
         if (!doc) continue;
         if (!isBilledDocument(doc)) continue;
@@ -198,7 +207,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       // reimbursable share of subtotal.
       const reimbShareByDoc = new Map<string, number>();
       for (const l of lines) {
-        if (!l.reimbursable) continue;
+        if (!l.reimbursable || expenseLineIds.has(l.id)) continue;
         const cur = reimbShareByDoc.get(l.document_id) ?? 0;
         reimbShareByDoc.set(l.document_id, cur + Number(l.amount_ex_vat ?? 0));
       }
@@ -216,7 +225,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
           const row = ensure(pid);
           if (doc.direction === "issued") {
             row.total_received += amt;
-            const reimb = lines.filter(l=>l.document_id===doc.id && l.reimbursable && (l.project_id ?? doc.project_id)===pid).reduce((n,l)=>n+Number(l.amount_ex_vat ?? 0),0);
+            const reimb = lines.filter(l=>l.document_id===doc.id && l.reimbursable && !expenseLineIds.has(l.id) && (l.project_id ?? doc.project_id)===pid).reduce((n,l)=>n+Number(l.amount_ex_vat ?? 0),0);
             if(net>0) row.reimbursable_received += amt*reimb/net;
           } else row.total_paid += amt;
         }
@@ -227,12 +236,15 @@ export function useProjectFinancialSummary(projectId?: string | null) {
       for (const e of flowExpenses) {
         const row = ensure(e.project_id);
         const f = flowFigures.data.find(f => f.expense_id === e.id);
+        const settlement = settlements.data.find(s => s.expense_id === e.id);
         const cost = e.eur_amount ?? NaN;
         row.total_cost += cost;
+        if (e.eur_amount === null) row.missingExpenseCostCount++;
         if (e.rebill_mode !== 'none') {
           row.reimbursable_cost += cost;
-          row.reimbursable_billed += f?.billed_amount ?? 0;
-          row.reimbursable_received += f?.received_amount ?? 0;
+          row.reimbursable_sale += expenseClientAmount(e.eur_amount, e.rebill_mode, e.markup_pct) ?? NaN;
+          row.reimbursable_billed += (f?.billed_amount ?? 0) - (settlement?.credited_net ?? 0);
+          row.reimbursable_received += settlement?.received_net_amount ?? 0;
         }
         if (e.payment_source_type === 'personal') row.total_paid += f?.reimbursed_amount ?? 0;
       }
@@ -241,7 +253,7 @@ export function useProjectFinancialSummary(projectId?: string | null) {
         row.margin = financialResult(row.total_billed,row.total_cost).profit;
         row.cash_position = row.total_received - row.total_paid;
         row.reimbursable_unbilled =
-          row.reimbursable_cost - row.reimbursable_billed;
+          row.reimbursable_cost + row.reimbursable_sale - flowExpenses.filter(e => e.project_id === row.project_id && e.rebill_mode !== 'none').reduce((n,e) => n + (e.eur_amount ?? NaN), 0) - row.reimbursable_billed;
         row.reimbursable_unpaid =
           row.reimbursable_billed - row.reimbursable_received;
       }
