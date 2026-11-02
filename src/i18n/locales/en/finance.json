@@ -2919,6 +2919,7 @@
     "batchTitle": "Reimbursement batch",
     "settled": "Settled",
     "reverse": "Reverse allocation",
-    "matchBankHint": "Settlement is recorded in Bank reconciliation against the actual outgoing transfer."
+    "matchBankHint": "Settlement is recorded in Bank reconciliation against the actual outgoing transfer.",
+    "chooseProject": "Choose a project before uploading the receipt."
   }
 }
