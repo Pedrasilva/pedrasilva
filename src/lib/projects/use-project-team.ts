@@ -23,10 +23,11 @@ export function useProjectTeam(projectId: string | undefined) {
     queryKey: ["pm-project-team", projectId],
     enabled: !!projectId,
     queryFn: async (): Promise<ProjectTeamMember[]> => {
+      if (!projectId) return [];
       const { data, error } = await supabase
         .from("pm_project_team")
         .select("id, project_id, resource_id, role")
-        .eq("project_id", projectId!);
+        .eq("project_id", projectId);
       if (error) throw error;
       return (data ?? []) as ProjectTeamMember[];
     },
@@ -36,12 +37,13 @@ export function useProjectTeam(projectId: string | undefined) {
 export function useAddProjectTeamMember() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { project_id: string; resource_id: string; role: ProjectTeamRole }) => {
-      const { error } = await supabase.from("pm_project_team").insert(input as never);
+    mutationFn: async (input: { project_id: string; resource_id: string; role: ProjectTeamRole; reason: string }) => {
+      const { error } = await supabase.rpc("pm_change_project_team", {_project:input.project_id,_resource:input.resource_id,_role:input.role,_remove:false,_reason:input.reason});
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["pm-project-team", vars.project_id] });
+      qc.invalidateQueries({ queryKey: ["pm-project-access-preview", vars.project_id] });
     },
   });
 }
@@ -49,12 +51,13 @@ export function useAddProjectTeamMember() {
 export function useRemoveProjectTeamMember() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { id: string; project_id: string }) => {
-      const { error } = await supabase.from("pm_project_team").delete().eq("id", input.id);
+    mutationFn: async (input: { id: string; project_id: string; resource_id: string; role: ProjectTeamRole; reason: string }) => {
+      const { error } = await supabase.rpc("pm_change_project_team", {_project:input.project_id,_resource:input.resource_id,_role:input.role,_remove:true,_reason:input.reason});
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["pm-project-team", vars.project_id] });
+      qc.invalidateQueries({ queryKey: ["pm-project-access-preview", vars.project_id] });
     },
   });
 }

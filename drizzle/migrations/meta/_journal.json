@@ -1555,6 +1555,55 @@
       "when": 1793724987733,
       "tag": "0221_project_schedule_role_and_conversion_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 222,
+      "version": "7",
+      "when": 1793737792999,
+      "tag": "0222_project_incoming_live_timing",
+      "breakpoints": true
+    },
+    {
+      "idx": 223,
+      "version": "7",
+      "when": 1793737834812,
+      "tag": "0223_project_incoming_date_freeze",
+      "breakpoints": true
+    },
+    {
+      "idx": 224,
+      "version": "7",
+      "when": 1793737953299,
+      "tag": "0224_project_incoming_freeze_privileged_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 225,
+      "version": "7",
+      "when": 1793738040438,
+      "tag": "0225_project_area_access_staging",
+      "breakpoints": true
+    },
+    {
+      "idx": 226,
+      "version": "7",
+      "when": 1793738079322,
+      "tag": "0226_project_access_matrix_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 227,
+      "version": "7",
+      "when": 1793738183886,
+      "tag": "0227_project_area_financial_cutover_gate",
+      "breakpoints": true
+    },
+    {
+      "idx": 228,
+      "version": "7",
+      "when": 1793738366705,
+      "tag": "0228_project_payment_date_audit_boundary",
+      "breakpoints": true
     }
   ]
 }

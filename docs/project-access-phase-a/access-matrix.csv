@@ -1,0 +1,1177 @@
+person,project,area,current_invoice_access,legacy_financial_access,proposed_access,loss
+Irene Cunha,Clinica Mint II,financials,True,True,False,True
+Irene Cunha,0410B Telheiras Obra,financials,True,True,False,True
+Irene Cunha,2608 Alcanena,financials,True,True,False,True
+Irene Cunha,Consultoria Greg Freeman,financials,True,True,False,True
+Irene Cunha,Projeto histórico N10GLED,financials,True,True,False,True
+Irene Cunha,2663 Alteração de loteamento - Ericeira,financials,True,True,False,True
+Irene Cunha,2101 Colares,financials,True,True,False,True
+Irene Cunha,0434 Sérgio Varanda,financials,True,True,False,True
+Irene Cunha,2025 Clinica Mulher,financials,True,True,False,True
+Irene Cunha,Bolshaya,financials,True,True,False,True
+Irene Cunha,2128 Sandycove Road Dental Clinic,financials,True,True,False,True
+Irene Cunha,2502 Uralchem IV,financials,True,True,False,True
+Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,financials,True,True,False,True
+Irene Cunha,2521 Escritórios BCG,financials,True,True,False,True
+Irene Cunha,DLMC Oral Surgery,financials,True,True,False,True
+Irene Cunha,2609 Mastercard,financials,True,True,False,True
+Irene Cunha,Escritório Sakur Dubai,financials,True,True,False,True
+Irene Cunha,Projeto histórico Museu Zer0 / ILC,financials,True,True,False,True
+Irene Cunha,2600 Quelhas,financials,True,True,False,True
+Irene Cunha,2028 CTR Capital Towers Restaurant,financials,True,True,False,True
+Irene Cunha,2506 Apartamento Tiago Carreiras,financials,True,True,False,True
+Irene Cunha,Clinica Mint II,budget_cost,True,True,False,True
+Irene Cunha,0410B Telheiras Obra,budget_cost,True,True,False,True
+Irene Cunha,2608 Alcanena,budget_cost,True,True,False,True
+Irene Cunha,Consultoria Greg Freeman,budget_cost,True,True,False,True
+Irene Cunha,Projeto histórico N10GLED,budget_cost,True,True,False,True
+Irene Cunha,2663 Alteração de loteamento - Ericeira,budget_cost,True,True,False,True
+Irene Cunha,2101 Colares,budget_cost,True,True,False,True
+Irene Cunha,0434 Sérgio Varanda,budget_cost,True,True,False,True
+Irene Cunha,2025 Clinica Mulher,budget_cost,True,True,False,True
+Irene Cunha,Bolshaya,budget_cost,True,True,False,True
+Irene Cunha,2128 Sandycove Road Dental Clinic,budget_cost,True,True,False,True
+Irene Cunha,2502 Uralchem IV,budget_cost,True,True,False,True
+Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,budget_cost,True,True,False,True
+Irene Cunha,2521 Escritórios BCG,budget_cost,True,True,False,True
+Irene Cunha,DLMC Oral Surgery,budget_cost,True,True,False,True
+Irene Cunha,2609 Mastercard,budget_cost,True,True,False,True
+Irene Cunha,Escritório Sakur Dubai,budget_cost,True,True,False,True
+Irene Cunha,Projeto histórico Museu Zer0 / ILC,budget_cost,True,True,False,True
+Irene Cunha,2600 Quelhas,budget_cost,True,True,False,True
+Irene Cunha,2028 CTR Capital Towers Restaurant,budget_cost,True,True,False,True
+Irene Cunha,2506 Apartamento Tiago Carreiras,budget_cost,True,True,False,True
+Irene Cunha,Clinica Mint II,expenses,True,True,False,True
+Irene Cunha,0410B Telheiras Obra,expenses,True,True,False,True
+Irene Cunha,2608 Alcanena,expenses,True,True,False,True
+Irene Cunha,Consultoria Greg Freeman,expenses,True,True,False,True
+Irene Cunha,Projeto histórico N10GLED,expenses,True,True,False,True
+Irene Cunha,2663 Alteração de loteamento - Ericeira,expenses,True,True,False,True
+Irene Cunha,2101 Colares,expenses,True,True,False,True
+Irene Cunha,0434 Sérgio Varanda,expenses,True,True,False,True
+Irene Cunha,2025 Clinica Mulher,expenses,True,True,False,True
+Irene Cunha,Bolshaya,expenses,True,True,False,True
+Irene Cunha,2128 Sandycove Road Dental Clinic,expenses,True,True,False,True
+Irene Cunha,2502 Uralchem IV,expenses,True,True,False,True
+Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,expenses,True,True,False,True
+Irene Cunha,2521 Escritórios BCG,expenses,True,True,False,True
+Irene Cunha,DLMC Oral Surgery,expenses,True,True,False,True
+Irene Cunha,2609 Mastercard,expenses,True,True,False,True
+Irene Cunha,Escritório Sakur Dubai,expenses,True,True,False,True
+Irene Cunha,Projeto histórico Museu Zer0 / ILC,expenses,True,True,False,True
+Irene Cunha,2600 Quelhas,expenses,True,True,False,True
+Irene Cunha,2028 CTR Capital Towers Restaurant,expenses,True,True,False,True
+Irene Cunha,2506 Apartamento Tiago Carreiras,expenses,True,True,False,True
+Irene Cunha,Clinica Mint II,supplier_fees,True,True,False,True
+Irene Cunha,0410B Telheiras Obra,supplier_fees,True,True,False,True
+Irene Cunha,2608 Alcanena,supplier_fees,True,True,False,True
+Irene Cunha,Consultoria Greg Freeman,supplier_fees,True,True,False,True
+Irene Cunha,Projeto histórico N10GLED,supplier_fees,True,True,False,True
+Irene Cunha,2663 Alteração de loteamento - Ericeira,supplier_fees,True,True,False,True
+Irene Cunha,2101 Colares,supplier_fees,True,True,False,True
+Irene Cunha,0434 Sérgio Varanda,supplier_fees,True,True,False,True
+Irene Cunha,2025 Clinica Mulher,supplier_fees,True,True,False,True
+Irene Cunha,Bolshaya,supplier_fees,True,True,False,True
+Irene Cunha,2128 Sandycove Road Dental Clinic,supplier_fees,True,True,False,True
+Irene Cunha,2502 Uralchem IV,supplier_fees,True,True,False,True
+Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,True,True,False,True
+Irene Cunha,2521 Escritórios BCG,supplier_fees,True,True,False,True
+Irene Cunha,DLMC Oral Surgery,supplier_fees,True,True,False,True
+Irene Cunha,2609 Mastercard,supplier_fees,True,True,False,True
+Irene Cunha,Escritório Sakur Dubai,supplier_fees,True,True,False,True
+Irene Cunha,Projeto histórico Museu Zer0 / ILC,supplier_fees,True,True,False,True
+Irene Cunha,2600 Quelhas,supplier_fees,True,True,False,True
+Irene Cunha,2028 CTR Capital Towers Restaurant,supplier_fees,True,True,False,True
+Irene Cunha,2506 Apartamento Tiago Carreiras,supplier_fees,True,True,False,True
+Adalberto Duarte,Clinica Mint II,financials,False,False,False,False
+Adalberto Duarte,0410B Telheiras Obra,financials,False,False,False,False
+Adalberto Duarte,2608 Alcanena,financials,False,False,False,False
+Adalberto Duarte,Consultoria Greg Freeman,financials,False,False,False,False
+Adalberto Duarte,Projeto histórico N10GLED,financials,False,False,False,False
+Adalberto Duarte,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Adalberto Duarte,2101 Colares,financials,False,False,False,False
+Adalberto Duarte,0434 Sérgio Varanda,financials,False,False,False,False
+Adalberto Duarte,2025 Clinica Mulher,financials,False,False,False,False
+Adalberto Duarte,Bolshaya,financials,False,False,False,False
+Adalberto Duarte,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Adalberto Duarte,2502 Uralchem IV,financials,False,False,False,False
+Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Adalberto Duarte,2521 Escritórios BCG,financials,False,False,False,False
+Adalberto Duarte,DLMC Oral Surgery,financials,False,False,False,False
+Adalberto Duarte,2609 Mastercard,financials,False,False,False,False
+Adalberto Duarte,Escritório Sakur Dubai,financials,False,False,False,False
+Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Adalberto Duarte,2600 Quelhas,financials,False,False,False,False
+Adalberto Duarte,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Adalberto Duarte,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Adalberto Duarte,Clinica Mint II,budget_cost,False,False,False,False
+Adalberto Duarte,0410B Telheiras Obra,budget_cost,False,False,False,False
+Adalberto Duarte,2608 Alcanena,budget_cost,False,False,False,False
+Adalberto Duarte,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Adalberto Duarte,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Adalberto Duarte,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Adalberto Duarte,2101 Colares,budget_cost,False,False,False,False
+Adalberto Duarte,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Adalberto Duarte,2025 Clinica Mulher,budget_cost,False,False,False,False
+Adalberto Duarte,Bolshaya,budget_cost,False,False,False,False
+Adalberto Duarte,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Adalberto Duarte,2502 Uralchem IV,budget_cost,False,False,False,False
+Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Adalberto Duarte,2521 Escritórios BCG,budget_cost,False,False,False,False
+Adalberto Duarte,DLMC Oral Surgery,budget_cost,False,False,False,False
+Adalberto Duarte,2609 Mastercard,budget_cost,False,False,False,False
+Adalberto Duarte,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Adalberto Duarte,2600 Quelhas,budget_cost,False,False,False,False
+Adalberto Duarte,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Adalberto Duarte,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Adalberto Duarte,Clinica Mint II,expenses,False,False,False,False
+Adalberto Duarte,0410B Telheiras Obra,expenses,False,False,False,False
+Adalberto Duarte,2608 Alcanena,expenses,False,False,False,False
+Adalberto Duarte,Consultoria Greg Freeman,expenses,False,False,False,False
+Adalberto Duarte,Projeto histórico N10GLED,expenses,False,False,False,False
+Adalberto Duarte,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Adalberto Duarte,2101 Colares,expenses,False,False,False,False
+Adalberto Duarte,0434 Sérgio Varanda,expenses,False,False,False,False
+Adalberto Duarte,2025 Clinica Mulher,expenses,False,False,False,False
+Adalberto Duarte,Bolshaya,expenses,False,False,False,False
+Adalberto Duarte,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Adalberto Duarte,2502 Uralchem IV,expenses,False,False,False,False
+Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Adalberto Duarte,2521 Escritórios BCG,expenses,False,False,False,False
+Adalberto Duarte,DLMC Oral Surgery,expenses,False,False,False,False
+Adalberto Duarte,2609 Mastercard,expenses,False,False,False,False
+Adalberto Duarte,Escritório Sakur Dubai,expenses,False,False,False,False
+Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Adalberto Duarte,2600 Quelhas,expenses,False,False,False,False
+Adalberto Duarte,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Adalberto Duarte,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Adalberto Duarte,Clinica Mint II,supplier_fees,False,False,False,False
+Adalberto Duarte,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Adalberto Duarte,2608 Alcanena,supplier_fees,False,False,False,False
+Adalberto Duarte,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Adalberto Duarte,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Adalberto Duarte,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Adalberto Duarte,2101 Colares,supplier_fees,False,False,False,False
+Adalberto Duarte,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Adalberto Duarte,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Adalberto Duarte,Bolshaya,supplier_fees,False,False,False,False
+Adalberto Duarte,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Adalberto Duarte,2502 Uralchem IV,supplier_fees,False,False,False,False
+Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Adalberto Duarte,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Adalberto Duarte,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Adalberto Duarte,2609 Mastercard,supplier_fees,False,False,False,False
+Adalberto Duarte,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Adalberto Duarte,2600 Quelhas,supplier_fees,False,False,False,False
+Adalberto Duarte,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Adalberto Duarte,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Bernardo Nadais,Clinica Mint II,financials,False,False,False,False
+Bernardo Nadais,0410B Telheiras Obra,financials,True,False,False,True
+Bernardo Nadais,2608 Alcanena,financials,False,False,False,False
+Bernardo Nadais,Consultoria Greg Freeman,financials,False,False,False,False
+Bernardo Nadais,Projeto histórico N10GLED,financials,False,False,False,False
+Bernardo Nadais,2663 Alteração de loteamento - Ericeira,financials,True,False,True,False
+Bernardo Nadais,2101 Colares,financials,False,False,False,False
+Bernardo Nadais,0434 Sérgio Varanda,financials,False,False,False,False
+Bernardo Nadais,2025 Clinica Mulher,financials,False,False,False,False
+Bernardo Nadais,Bolshaya,financials,False,False,False,False
+Bernardo Nadais,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Bernardo Nadais,2502 Uralchem IV,financials,True,False,False,True
+Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Bernardo Nadais,2521 Escritórios BCG,financials,False,False,False,False
+Bernardo Nadais,DLMC Oral Surgery,financials,False,False,False,False
+Bernardo Nadais,2609 Mastercard,financials,False,False,False,False
+Bernardo Nadais,Escritório Sakur Dubai,financials,False,False,False,False
+Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Bernardo Nadais,2600 Quelhas,financials,False,False,False,False
+Bernardo Nadais,2028 CTR Capital Towers Restaurant,financials,True,False,False,True
+Bernardo Nadais,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Bernardo Nadais,Clinica Mint II,budget_cost,False,False,False,False
+Bernardo Nadais,0410B Telheiras Obra,budget_cost,True,False,False,False
+Bernardo Nadais,2608 Alcanena,budget_cost,False,False,False,False
+Bernardo Nadais,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Bernardo Nadais,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Bernardo Nadais,2663 Alteração de loteamento - Ericeira,budget_cost,True,False,False,False
+Bernardo Nadais,2101 Colares,budget_cost,False,False,False,False
+Bernardo Nadais,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Bernardo Nadais,2025 Clinica Mulher,budget_cost,False,False,False,False
+Bernardo Nadais,Bolshaya,budget_cost,False,False,False,False
+Bernardo Nadais,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Bernardo Nadais,2502 Uralchem IV,budget_cost,True,False,False,False
+Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Bernardo Nadais,2521 Escritórios BCG,budget_cost,False,False,False,False
+Bernardo Nadais,DLMC Oral Surgery,budget_cost,False,False,False,False
+Bernardo Nadais,2609 Mastercard,budget_cost,False,False,False,False
+Bernardo Nadais,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Bernardo Nadais,2600 Quelhas,budget_cost,False,False,False,False
+Bernardo Nadais,2028 CTR Capital Towers Restaurant,budget_cost,True,False,False,False
+Bernardo Nadais,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Bernardo Nadais,Clinica Mint II,expenses,False,False,False,False
+Bernardo Nadais,0410B Telheiras Obra,expenses,True,False,False,False
+Bernardo Nadais,2608 Alcanena,expenses,False,False,False,False
+Bernardo Nadais,Consultoria Greg Freeman,expenses,False,False,False,False
+Bernardo Nadais,Projeto histórico N10GLED,expenses,False,False,False,False
+Bernardo Nadais,2663 Alteração de loteamento - Ericeira,expenses,True,False,False,False
+Bernardo Nadais,2101 Colares,expenses,False,False,False,False
+Bernardo Nadais,0434 Sérgio Varanda,expenses,False,False,False,False
+Bernardo Nadais,2025 Clinica Mulher,expenses,False,False,False,False
+Bernardo Nadais,Bolshaya,expenses,False,False,False,False
+Bernardo Nadais,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Bernardo Nadais,2502 Uralchem IV,expenses,True,False,False,False
+Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Bernardo Nadais,2521 Escritórios BCG,expenses,False,False,False,False
+Bernardo Nadais,DLMC Oral Surgery,expenses,False,False,False,False
+Bernardo Nadais,2609 Mastercard,expenses,False,False,False,False
+Bernardo Nadais,Escritório Sakur Dubai,expenses,False,False,False,False
+Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Bernardo Nadais,2600 Quelhas,expenses,False,False,False,False
+Bernardo Nadais,2028 CTR Capital Towers Restaurant,expenses,True,False,False,False
+Bernardo Nadais,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Bernardo Nadais,Clinica Mint II,supplier_fees,False,False,False,False
+Bernardo Nadais,0410B Telheiras Obra,supplier_fees,True,False,False,False
+Bernardo Nadais,2608 Alcanena,supplier_fees,False,False,False,False
+Bernardo Nadais,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Bernardo Nadais,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Bernardo Nadais,2663 Alteração de loteamento - Ericeira,supplier_fees,True,False,False,False
+Bernardo Nadais,2101 Colares,supplier_fees,False,False,False,False
+Bernardo Nadais,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Bernardo Nadais,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Bernardo Nadais,Bolshaya,supplier_fees,False,False,False,False
+Bernardo Nadais,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Bernardo Nadais,2502 Uralchem IV,supplier_fees,True,False,False,False
+Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Bernardo Nadais,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Bernardo Nadais,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Bernardo Nadais,2609 Mastercard,supplier_fees,False,False,False,False
+Bernardo Nadais,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Bernardo Nadais,2600 Quelhas,supplier_fees,False,False,False,False
+Bernardo Nadais,2028 CTR Capital Towers Restaurant,supplier_fees,True,False,False,False
+Bernardo Nadais,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+teresa@pedrarioja.com,Clinica Mint II,financials,False,True,False,False
+teresa@pedrarioja.com,0410B Telheiras Obra,financials,False,True,False,False
+teresa@pedrarioja.com,2608 Alcanena,financials,False,True,False,False
+teresa@pedrarioja.com,Consultoria Greg Freeman,financials,False,True,False,False
+teresa@pedrarioja.com,Projeto histórico N10GLED,financials,False,True,False,False
+teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,financials,False,True,False,False
+teresa@pedrarioja.com,2101 Colares,financials,False,True,False,False
+teresa@pedrarioja.com,0434 Sérgio Varanda,financials,False,True,False,False
+teresa@pedrarioja.com,2025 Clinica Mulher,financials,False,True,False,False
+teresa@pedrarioja.com,Bolshaya,financials,False,True,False,False
+teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,financials,False,True,False,False
+teresa@pedrarioja.com,2502 Uralchem IV,financials,False,True,False,False
+teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,financials,False,True,False,False
+teresa@pedrarioja.com,2521 Escritórios BCG,financials,False,True,False,False
+teresa@pedrarioja.com,DLMC Oral Surgery,financials,False,True,False,False
+teresa@pedrarioja.com,2609 Mastercard,financials,False,True,False,False
+teresa@pedrarioja.com,Escritório Sakur Dubai,financials,False,True,False,False
+teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,financials,False,True,False,False
+teresa@pedrarioja.com,2600 Quelhas,financials,False,True,False,False
+teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,financials,False,True,False,False
+teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,financials,False,True,False,False
+teresa@pedrarioja.com,Clinica Mint II,budget_cost,False,True,False,True
+teresa@pedrarioja.com,0410B Telheiras Obra,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2608 Alcanena,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Consultoria Greg Freeman,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico N10GLED,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2101 Colares,budget_cost,False,True,False,True
+teresa@pedrarioja.com,0434 Sérgio Varanda,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2025 Clinica Mulher,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Bolshaya,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2502 Uralchem IV,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2521 Escritórios BCG,budget_cost,False,True,False,True
+teresa@pedrarioja.com,DLMC Oral Surgery,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2609 Mastercard,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Escritório Sakur Dubai,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2600 Quelhas,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,budget_cost,False,True,False,True
+teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,budget_cost,False,True,False,True
+teresa@pedrarioja.com,Clinica Mint II,expenses,False,True,False,True
+teresa@pedrarioja.com,0410B Telheiras Obra,expenses,False,True,False,True
+teresa@pedrarioja.com,2608 Alcanena,expenses,False,True,False,True
+teresa@pedrarioja.com,Consultoria Greg Freeman,expenses,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico N10GLED,expenses,False,True,False,True
+teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,expenses,False,True,False,True
+teresa@pedrarioja.com,2101 Colares,expenses,False,True,False,True
+teresa@pedrarioja.com,0434 Sérgio Varanda,expenses,False,True,False,True
+teresa@pedrarioja.com,2025 Clinica Mulher,expenses,False,True,False,True
+teresa@pedrarioja.com,Bolshaya,expenses,False,True,False,True
+teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,expenses,False,True,False,True
+teresa@pedrarioja.com,2502 Uralchem IV,expenses,False,True,False,True
+teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,expenses,False,True,False,True
+teresa@pedrarioja.com,2521 Escritórios BCG,expenses,False,True,False,True
+teresa@pedrarioja.com,DLMC Oral Surgery,expenses,False,True,False,True
+teresa@pedrarioja.com,2609 Mastercard,expenses,False,True,False,True
+teresa@pedrarioja.com,Escritório Sakur Dubai,expenses,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,expenses,False,True,False,True
+teresa@pedrarioja.com,2600 Quelhas,expenses,False,True,False,True
+teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,expenses,False,True,False,True
+teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,expenses,False,True,False,True
+teresa@pedrarioja.com,Clinica Mint II,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,0410B Telheiras Obra,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2608 Alcanena,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,Consultoria Greg Freeman,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico N10GLED,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2101 Colares,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,0434 Sérgio Varanda,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2025 Clinica Mulher,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,Bolshaya,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2502 Uralchem IV,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2521 Escritórios BCG,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,DLMC Oral Surgery,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2609 Mastercard,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,Escritório Sakur Dubai,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2600 Quelhas,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,supplier_fees,False,True,False,True
+teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,supplier_fees,False,True,False,True
+luispedrasilva@gmail.com,Clinica Mint II,financials,False,False,False,False
+luispedrasilva@gmail.com,0410B Telheiras Obra,financials,False,False,False,False
+luispedrasilva@gmail.com,2608 Alcanena,financials,False,False,False,False
+luispedrasilva@gmail.com,Consultoria Greg Freeman,financials,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico N10GLED,financials,False,False,False,False
+luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+luispedrasilva@gmail.com,2101 Colares,financials,False,False,False,False
+luispedrasilva@gmail.com,0434 Sérgio Varanda,financials,False,False,False,False
+luispedrasilva@gmail.com,2025 Clinica Mulher,financials,False,False,False,False
+luispedrasilva@gmail.com,Bolshaya,financials,False,False,False,False
+luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+luispedrasilva@gmail.com,2502 Uralchem IV,financials,False,False,False,False
+luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+luispedrasilva@gmail.com,2521 Escritórios BCG,financials,False,False,False,False
+luispedrasilva@gmail.com,DLMC Oral Surgery,financials,False,False,False,False
+luispedrasilva@gmail.com,2609 Mastercard,financials,False,False,False,False
+luispedrasilva@gmail.com,Escritório Sakur Dubai,financials,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+luispedrasilva@gmail.com,2600 Quelhas,financials,False,False,False,False
+luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+luispedrasilva@gmail.com,Clinica Mint II,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,0410B Telheiras Obra,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2608 Alcanena,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Consultoria Greg Freeman,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico N10GLED,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2101 Colares,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,0434 Sérgio Varanda,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2025 Clinica Mulher,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Bolshaya,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2502 Uralchem IV,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2521 Escritórios BCG,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,DLMC Oral Surgery,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2609 Mastercard,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Escritório Sakur Dubai,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2600 Quelhas,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+luispedrasilva@gmail.com,Clinica Mint II,expenses,False,False,False,False
+luispedrasilva@gmail.com,0410B Telheiras Obra,expenses,False,False,False,False
+luispedrasilva@gmail.com,2608 Alcanena,expenses,False,False,False,False
+luispedrasilva@gmail.com,Consultoria Greg Freeman,expenses,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico N10GLED,expenses,False,False,False,False
+luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+luispedrasilva@gmail.com,2101 Colares,expenses,False,False,False,False
+luispedrasilva@gmail.com,0434 Sérgio Varanda,expenses,False,False,False,False
+luispedrasilva@gmail.com,2025 Clinica Mulher,expenses,False,False,False,False
+luispedrasilva@gmail.com,Bolshaya,expenses,False,False,False,False
+luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+luispedrasilva@gmail.com,2502 Uralchem IV,expenses,False,False,False,False
+luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+luispedrasilva@gmail.com,2521 Escritórios BCG,expenses,False,False,False,False
+luispedrasilva@gmail.com,DLMC Oral Surgery,expenses,False,False,False,False
+luispedrasilva@gmail.com,2609 Mastercard,expenses,False,False,False,False
+luispedrasilva@gmail.com,Escritório Sakur Dubai,expenses,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+luispedrasilva@gmail.com,2600 Quelhas,expenses,False,False,False,False
+luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+luispedrasilva@gmail.com,Clinica Mint II,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,0410B Telheiras Obra,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2608 Alcanena,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2101 Colares,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2025 Clinica Mulher,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,Bolshaya,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2502 Uralchem IV,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2521 Escritórios BCG,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,DLMC Oral Surgery,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2609 Mastercard,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2600 Quelhas,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Tatiana Shchenina,Clinica Mint II,financials,True,True,True,False
+Tatiana Shchenina,0410B Telheiras Obra,financials,True,True,True,False
+Tatiana Shchenina,2608 Alcanena,financials,True,True,True,False
+Tatiana Shchenina,Consultoria Greg Freeman,financials,True,True,True,False
+Tatiana Shchenina,Projeto histórico N10GLED,financials,True,True,True,False
+Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,financials,True,True,True,False
+Tatiana Shchenina,2101 Colares,financials,True,True,True,False
+Tatiana Shchenina,0434 Sérgio Varanda,financials,True,True,True,False
+Tatiana Shchenina,2025 Clinica Mulher,financials,True,True,True,False
+Tatiana Shchenina,Bolshaya,financials,True,True,True,False
+Tatiana Shchenina,2128 Sandycove Road Dental Clinic,financials,True,True,True,False
+Tatiana Shchenina,2502 Uralchem IV,financials,True,True,True,False
+Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,financials,True,True,True,False
+Tatiana Shchenina,2521 Escritórios BCG,financials,True,True,True,False
+Tatiana Shchenina,DLMC Oral Surgery,financials,True,True,True,False
+Tatiana Shchenina,2609 Mastercard,financials,True,True,True,False
+Tatiana Shchenina,Escritório Sakur Dubai,financials,True,True,True,False
+Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,financials,True,True,True,False
+Tatiana Shchenina,2600 Quelhas,financials,True,True,True,False
+Tatiana Shchenina,2028 CTR Capital Towers Restaurant,financials,True,True,True,False
+Tatiana Shchenina,2506 Apartamento Tiago Carreiras,financials,True,True,True,False
+Tatiana Shchenina,Clinica Mint II,budget_cost,True,True,True,False
+Tatiana Shchenina,0410B Telheiras Obra,budget_cost,True,True,True,False
+Tatiana Shchenina,2608 Alcanena,budget_cost,True,True,True,False
+Tatiana Shchenina,Consultoria Greg Freeman,budget_cost,True,True,True,False
+Tatiana Shchenina,Projeto histórico N10GLED,budget_cost,True,True,True,False
+Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,budget_cost,True,True,True,False
+Tatiana Shchenina,2101 Colares,budget_cost,True,True,True,False
+Tatiana Shchenina,0434 Sérgio Varanda,budget_cost,True,True,True,False
+Tatiana Shchenina,2025 Clinica Mulher,budget_cost,True,True,True,False
+Tatiana Shchenina,Bolshaya,budget_cost,True,True,True,False
+Tatiana Shchenina,2128 Sandycove Road Dental Clinic,budget_cost,True,True,True,False
+Tatiana Shchenina,2502 Uralchem IV,budget_cost,True,True,True,False
+Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,budget_cost,True,True,True,False
+Tatiana Shchenina,2521 Escritórios BCG,budget_cost,True,True,True,False
+Tatiana Shchenina,DLMC Oral Surgery,budget_cost,True,True,True,False
+Tatiana Shchenina,2609 Mastercard,budget_cost,True,True,True,False
+Tatiana Shchenina,Escritório Sakur Dubai,budget_cost,True,True,True,False
+Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,budget_cost,True,True,True,False
+Tatiana Shchenina,2600 Quelhas,budget_cost,True,True,True,False
+Tatiana Shchenina,2028 CTR Capital Towers Restaurant,budget_cost,True,True,True,False
+Tatiana Shchenina,2506 Apartamento Tiago Carreiras,budget_cost,True,True,True,False
+Tatiana Shchenina,Clinica Mint II,expenses,True,True,True,False
+Tatiana Shchenina,0410B Telheiras Obra,expenses,True,True,True,False
+Tatiana Shchenina,2608 Alcanena,expenses,True,True,True,False
+Tatiana Shchenina,Consultoria Greg Freeman,expenses,True,True,True,False
+Tatiana Shchenina,Projeto histórico N10GLED,expenses,True,True,True,False
+Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,expenses,True,True,True,False
+Tatiana Shchenina,2101 Colares,expenses,True,True,True,False
+Tatiana Shchenina,0434 Sérgio Varanda,expenses,True,True,True,False
+Tatiana Shchenina,2025 Clinica Mulher,expenses,True,True,True,False
+Tatiana Shchenina,Bolshaya,expenses,True,True,True,False
+Tatiana Shchenina,2128 Sandycove Road Dental Clinic,expenses,True,True,True,False
+Tatiana Shchenina,2502 Uralchem IV,expenses,True,True,True,False
+Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,expenses,True,True,True,False
+Tatiana Shchenina,2521 Escritórios BCG,expenses,True,True,True,False
+Tatiana Shchenina,DLMC Oral Surgery,expenses,True,True,True,False
+Tatiana Shchenina,2609 Mastercard,expenses,True,True,True,False
+Tatiana Shchenina,Escritório Sakur Dubai,expenses,True,True,True,False
+Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,expenses,True,True,True,False
+Tatiana Shchenina,2600 Quelhas,expenses,True,True,True,False
+Tatiana Shchenina,2028 CTR Capital Towers Restaurant,expenses,True,True,True,False
+Tatiana Shchenina,2506 Apartamento Tiago Carreiras,expenses,True,True,True,False
+Tatiana Shchenina,Clinica Mint II,supplier_fees,True,True,True,False
+Tatiana Shchenina,0410B Telheiras Obra,supplier_fees,True,True,True,False
+Tatiana Shchenina,2608 Alcanena,supplier_fees,True,True,True,False
+Tatiana Shchenina,Consultoria Greg Freeman,supplier_fees,True,True,True,False
+Tatiana Shchenina,Projeto histórico N10GLED,supplier_fees,True,True,True,False
+Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,supplier_fees,True,True,True,False
+Tatiana Shchenina,2101 Colares,supplier_fees,True,True,True,False
+Tatiana Shchenina,0434 Sérgio Varanda,supplier_fees,True,True,True,False
+Tatiana Shchenina,2025 Clinica Mulher,supplier_fees,True,True,True,False
+Tatiana Shchenina,Bolshaya,supplier_fees,True,True,True,False
+Tatiana Shchenina,2128 Sandycove Road Dental Clinic,supplier_fees,True,True,True,False
+Tatiana Shchenina,2502 Uralchem IV,supplier_fees,True,True,True,False
+Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,True,True,True,False
+Tatiana Shchenina,2521 Escritórios BCG,supplier_fees,True,True,True,False
+Tatiana Shchenina,DLMC Oral Surgery,supplier_fees,True,True,True,False
+Tatiana Shchenina,2609 Mastercard,supplier_fees,True,True,True,False
+Tatiana Shchenina,Escritório Sakur Dubai,supplier_fees,True,True,True,False
+Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,supplier_fees,True,True,True,False
+Tatiana Shchenina,2600 Quelhas,supplier_fees,True,True,True,False
+Tatiana Shchenina,2028 CTR Capital Towers Restaurant,supplier_fees,True,True,True,False
+Tatiana Shchenina,2506 Apartamento Tiago Carreiras,supplier_fees,True,True,True,False
+Luis Pedra Silva,Clinica Mint II,financials,True,True,True,False
+Luis Pedra Silva,0410B Telheiras Obra,financials,True,True,True,False
+Luis Pedra Silva,2608 Alcanena,financials,True,True,True,False
+Luis Pedra Silva,Consultoria Greg Freeman,financials,True,True,True,False
+Luis Pedra Silva,Projeto histórico N10GLED,financials,True,True,True,False
+Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,financials,True,True,True,False
+Luis Pedra Silva,2101 Colares,financials,True,True,True,False
+Luis Pedra Silva,0434 Sérgio Varanda,financials,True,True,True,False
+Luis Pedra Silva,2025 Clinica Mulher,financials,True,True,True,False
+Luis Pedra Silva,Bolshaya,financials,True,True,True,False
+Luis Pedra Silva,2128 Sandycove Road Dental Clinic,financials,True,True,True,False
+Luis Pedra Silva,2502 Uralchem IV,financials,True,True,True,False
+Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,financials,True,True,True,False
+Luis Pedra Silva,2521 Escritórios BCG,financials,True,True,True,False
+Luis Pedra Silva,DLMC Oral Surgery,financials,True,True,True,False
+Luis Pedra Silva,2609 Mastercard,financials,True,True,True,False
+Luis Pedra Silva,Escritório Sakur Dubai,financials,True,True,True,False
+Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,financials,True,True,True,False
+Luis Pedra Silva,2600 Quelhas,financials,True,True,True,False
+Luis Pedra Silva,2028 CTR Capital Towers Restaurant,financials,True,True,True,False
+Luis Pedra Silva,2506 Apartamento Tiago Carreiras,financials,True,True,True,False
+Luis Pedra Silva,Clinica Mint II,budget_cost,True,True,True,False
+Luis Pedra Silva,0410B Telheiras Obra,budget_cost,True,True,True,False
+Luis Pedra Silva,2608 Alcanena,budget_cost,True,True,True,False
+Luis Pedra Silva,Consultoria Greg Freeman,budget_cost,True,True,True,False
+Luis Pedra Silva,Projeto histórico N10GLED,budget_cost,True,True,True,False
+Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,budget_cost,True,True,True,False
+Luis Pedra Silva,2101 Colares,budget_cost,True,True,True,False
+Luis Pedra Silva,0434 Sérgio Varanda,budget_cost,True,True,True,False
+Luis Pedra Silva,2025 Clinica Mulher,budget_cost,True,True,True,False
+Luis Pedra Silva,Bolshaya,budget_cost,True,True,True,False
+Luis Pedra Silva,2128 Sandycove Road Dental Clinic,budget_cost,True,True,True,False
+Luis Pedra Silva,2502 Uralchem IV,budget_cost,True,True,True,False
+Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,budget_cost,True,True,True,False
+Luis Pedra Silva,2521 Escritórios BCG,budget_cost,True,True,True,False
+Luis Pedra Silva,DLMC Oral Surgery,budget_cost,True,True,True,False
+Luis Pedra Silva,2609 Mastercard,budget_cost,True,True,True,False
+Luis Pedra Silva,Escritório Sakur Dubai,budget_cost,True,True,True,False
+Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,budget_cost,True,True,True,False
+Luis Pedra Silva,2600 Quelhas,budget_cost,True,True,True,False
+Luis Pedra Silva,2028 CTR Capital Towers Restaurant,budget_cost,True,True,True,False
+Luis Pedra Silva,2506 Apartamento Tiago Carreiras,budget_cost,True,True,True,False
+Luis Pedra Silva,Clinica Mint II,expenses,True,True,True,False
+Luis Pedra Silva,0410B Telheiras Obra,expenses,True,True,True,False
+Luis Pedra Silva,2608 Alcanena,expenses,True,True,True,False
+Luis Pedra Silva,Consultoria Greg Freeman,expenses,True,True,True,False
+Luis Pedra Silva,Projeto histórico N10GLED,expenses,True,True,True,False
+Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,expenses,True,True,True,False
+Luis Pedra Silva,2101 Colares,expenses,True,True,True,False
+Luis Pedra Silva,0434 Sérgio Varanda,expenses,True,True,True,False
+Luis Pedra Silva,2025 Clinica Mulher,expenses,True,True,True,False
+Luis Pedra Silva,Bolshaya,expenses,True,True,True,False
+Luis Pedra Silva,2128 Sandycove Road Dental Clinic,expenses,True,True,True,False
+Luis Pedra Silva,2502 Uralchem IV,expenses,True,True,True,False
+Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,expenses,True,True,True,False
+Luis Pedra Silva,2521 Escritórios BCG,expenses,True,True,True,False
+Luis Pedra Silva,DLMC Oral Surgery,expenses,True,True,True,False
+Luis Pedra Silva,2609 Mastercard,expenses,True,True,True,False
+Luis Pedra Silva,Escritório Sakur Dubai,expenses,True,True,True,False
+Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,expenses,True,True,True,False
+Luis Pedra Silva,2600 Quelhas,expenses,True,True,True,False
+Luis Pedra Silva,2028 CTR Capital Towers Restaurant,expenses,True,True,True,False
+Luis Pedra Silva,2506 Apartamento Tiago Carreiras,expenses,True,True,True,False
+Luis Pedra Silva,Clinica Mint II,supplier_fees,True,True,True,False
+Luis Pedra Silva,0410B Telheiras Obra,supplier_fees,True,True,True,False
+Luis Pedra Silva,2608 Alcanena,supplier_fees,True,True,True,False
+Luis Pedra Silva,Consultoria Greg Freeman,supplier_fees,True,True,True,False
+Luis Pedra Silva,Projeto histórico N10GLED,supplier_fees,True,True,True,False
+Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,supplier_fees,True,True,True,False
+Luis Pedra Silva,2101 Colares,supplier_fees,True,True,True,False
+Luis Pedra Silva,0434 Sérgio Varanda,supplier_fees,True,True,True,False
+Luis Pedra Silva,2025 Clinica Mulher,supplier_fees,True,True,True,False
+Luis Pedra Silva,Bolshaya,supplier_fees,True,True,True,False
+Luis Pedra Silva,2128 Sandycove Road Dental Clinic,supplier_fees,True,True,True,False
+Luis Pedra Silva,2502 Uralchem IV,supplier_fees,True,True,True,False
+Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,True,True,True,False
+Luis Pedra Silva,2521 Escritórios BCG,supplier_fees,True,True,True,False
+Luis Pedra Silva,DLMC Oral Surgery,supplier_fees,True,True,True,False
+Luis Pedra Silva,2609 Mastercard,supplier_fees,True,True,True,False
+Luis Pedra Silva,Escritório Sakur Dubai,supplier_fees,True,True,True,False
+Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,supplier_fees,True,True,True,False
+Luis Pedra Silva,2600 Quelhas,supplier_fees,True,True,True,False
+Luis Pedra Silva,2028 CTR Capital Towers Restaurant,supplier_fees,True,True,True,False
+Luis Pedra Silva,2506 Apartamento Tiago Carreiras,supplier_fees,True,True,True,False
+Ricardo Conceição,Clinica Mint II,financials,True,False,False,True
+Ricardo Conceição,0410B Telheiras Obra,financials,True,False,False,True
+Ricardo Conceição,2608 Alcanena,financials,True,False,False,True
+Ricardo Conceição,Consultoria Greg Freeman,financials,True,False,False,True
+Ricardo Conceição,Projeto histórico N10GLED,financials,True,False,False,True
+Ricardo Conceição,2663 Alteração de loteamento - Ericeira,financials,True,False,False,True
+Ricardo Conceição,2101 Colares,financials,True,False,False,True
+Ricardo Conceição,0434 Sérgio Varanda,financials,True,False,False,True
+Ricardo Conceição,2025 Clinica Mulher,financials,True,False,False,True
+Ricardo Conceição,Bolshaya,financials,True,False,False,True
+Ricardo Conceição,2128 Sandycove Road Dental Clinic,financials,True,False,False,True
+Ricardo Conceição,2502 Uralchem IV,financials,True,False,False,True
+Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,financials,True,False,False,True
+Ricardo Conceição,2521 Escritórios BCG,financials,True,False,False,True
+Ricardo Conceição,DLMC Oral Surgery,financials,True,False,False,True
+Ricardo Conceição,2609 Mastercard,financials,True,False,True,False
+Ricardo Conceição,Escritório Sakur Dubai,financials,True,False,False,True
+Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,financials,True,False,False,True
+Ricardo Conceição,2600 Quelhas,financials,True,False,False,True
+Ricardo Conceição,2028 CTR Capital Towers Restaurant,financials,True,False,False,True
+Ricardo Conceição,2506 Apartamento Tiago Carreiras,financials,True,False,False,True
+Ricardo Conceição,Clinica Mint II,budget_cost,True,False,False,False
+Ricardo Conceição,0410B Telheiras Obra,budget_cost,True,False,False,False
+Ricardo Conceição,2608 Alcanena,budget_cost,True,False,False,False
+Ricardo Conceição,Consultoria Greg Freeman,budget_cost,True,False,False,False
+Ricardo Conceição,Projeto histórico N10GLED,budget_cost,True,False,False,False
+Ricardo Conceição,2663 Alteração de loteamento - Ericeira,budget_cost,True,False,False,False
+Ricardo Conceição,2101 Colares,budget_cost,True,False,False,False
+Ricardo Conceição,0434 Sérgio Varanda,budget_cost,True,False,False,False
+Ricardo Conceição,2025 Clinica Mulher,budget_cost,True,False,False,False
+Ricardo Conceição,Bolshaya,budget_cost,True,False,False,False
+Ricardo Conceição,2128 Sandycove Road Dental Clinic,budget_cost,True,False,False,False
+Ricardo Conceição,2502 Uralchem IV,budget_cost,True,False,False,False
+Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,budget_cost,True,False,False,False
+Ricardo Conceição,2521 Escritórios BCG,budget_cost,True,False,False,False
+Ricardo Conceição,DLMC Oral Surgery,budget_cost,True,False,False,False
+Ricardo Conceição,2609 Mastercard,budget_cost,True,False,False,False
+Ricardo Conceição,Escritório Sakur Dubai,budget_cost,True,False,False,False
+Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,budget_cost,True,False,False,False
+Ricardo Conceição,2600 Quelhas,budget_cost,True,False,False,False
+Ricardo Conceição,2028 CTR Capital Towers Restaurant,budget_cost,True,False,False,False
+Ricardo Conceição,2506 Apartamento Tiago Carreiras,budget_cost,True,False,False,False
+Ricardo Conceição,Clinica Mint II,expenses,True,False,False,False
+Ricardo Conceição,0410B Telheiras Obra,expenses,True,False,False,False
+Ricardo Conceição,2608 Alcanena,expenses,True,False,False,False
+Ricardo Conceição,Consultoria Greg Freeman,expenses,True,False,False,False
+Ricardo Conceição,Projeto histórico N10GLED,expenses,True,False,False,False
+Ricardo Conceição,2663 Alteração de loteamento - Ericeira,expenses,True,False,False,False
+Ricardo Conceição,2101 Colares,expenses,True,False,False,False
+Ricardo Conceição,0434 Sérgio Varanda,expenses,True,False,False,False
+Ricardo Conceição,2025 Clinica Mulher,expenses,True,False,False,False
+Ricardo Conceição,Bolshaya,expenses,True,False,False,False
+Ricardo Conceição,2128 Sandycove Road Dental Clinic,expenses,True,False,False,False
+Ricardo Conceição,2502 Uralchem IV,expenses,True,False,False,False
+Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,expenses,True,False,False,False
+Ricardo Conceição,2521 Escritórios BCG,expenses,True,False,False,False
+Ricardo Conceição,DLMC Oral Surgery,expenses,True,False,False,False
+Ricardo Conceição,2609 Mastercard,expenses,True,False,False,False
+Ricardo Conceição,Escritório Sakur Dubai,expenses,True,False,False,False
+Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,expenses,True,False,False,False
+Ricardo Conceição,2600 Quelhas,expenses,True,False,False,False
+Ricardo Conceição,2028 CTR Capital Towers Restaurant,expenses,True,False,False,False
+Ricardo Conceição,2506 Apartamento Tiago Carreiras,expenses,True,False,False,False
+Ricardo Conceição,Clinica Mint II,supplier_fees,True,False,False,False
+Ricardo Conceição,0410B Telheiras Obra,supplier_fees,True,False,False,False
+Ricardo Conceição,2608 Alcanena,supplier_fees,True,False,False,False
+Ricardo Conceição,Consultoria Greg Freeman,supplier_fees,True,False,False,False
+Ricardo Conceição,Projeto histórico N10GLED,supplier_fees,True,False,False,False
+Ricardo Conceição,2663 Alteração de loteamento - Ericeira,supplier_fees,True,False,False,False
+Ricardo Conceição,2101 Colares,supplier_fees,True,False,False,False
+Ricardo Conceição,0434 Sérgio Varanda,supplier_fees,True,False,False,False
+Ricardo Conceição,2025 Clinica Mulher,supplier_fees,True,False,False,False
+Ricardo Conceição,Bolshaya,supplier_fees,True,False,False,False
+Ricardo Conceição,2128 Sandycove Road Dental Clinic,supplier_fees,True,False,False,False
+Ricardo Conceição,2502 Uralchem IV,supplier_fees,True,False,False,False
+Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,True,False,False,False
+Ricardo Conceição,2521 Escritórios BCG,supplier_fees,True,False,False,False
+Ricardo Conceição,DLMC Oral Surgery,supplier_fees,True,False,False,False
+Ricardo Conceição,2609 Mastercard,supplier_fees,True,False,False,False
+Ricardo Conceição,Escritório Sakur Dubai,supplier_fees,True,False,False,False
+Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,supplier_fees,True,False,False,False
+Ricardo Conceição,2600 Quelhas,supplier_fees,True,False,False,False
+Ricardo Conceição,2028 CTR Capital Towers Restaurant,supplier_fees,True,False,False,False
+Ricardo Conceição,2506 Apartamento Tiago Carreiras,supplier_fees,True,False,False,False
+Francisco Oliveira,Clinica Mint II,financials,False,False,False,False
+Francisco Oliveira,0410B Telheiras Obra,financials,False,False,False,False
+Francisco Oliveira,2608 Alcanena,financials,False,False,False,False
+Francisco Oliveira,Consultoria Greg Freeman,financials,False,False,False,False
+Francisco Oliveira,Projeto histórico N10GLED,financials,False,False,False,False
+Francisco Oliveira,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Francisco Oliveira,2101 Colares,financials,False,False,False,False
+Francisco Oliveira,0434 Sérgio Varanda,financials,False,False,False,False
+Francisco Oliveira,2025 Clinica Mulher,financials,False,False,False,False
+Francisco Oliveira,Bolshaya,financials,False,False,False,False
+Francisco Oliveira,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Francisco Oliveira,2502 Uralchem IV,financials,False,False,False,False
+Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Francisco Oliveira,2521 Escritórios BCG,financials,False,False,False,False
+Francisco Oliveira,DLMC Oral Surgery,financials,False,False,False,False
+Francisco Oliveira,2609 Mastercard,financials,False,False,False,False
+Francisco Oliveira,Escritório Sakur Dubai,financials,False,False,False,False
+Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Francisco Oliveira,2600 Quelhas,financials,False,False,False,False
+Francisco Oliveira,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Francisco Oliveira,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Francisco Oliveira,Clinica Mint II,budget_cost,False,False,False,False
+Francisco Oliveira,0410B Telheiras Obra,budget_cost,False,False,False,False
+Francisco Oliveira,2608 Alcanena,budget_cost,False,False,False,False
+Francisco Oliveira,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Francisco Oliveira,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Francisco Oliveira,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Francisco Oliveira,2101 Colares,budget_cost,False,False,False,False
+Francisco Oliveira,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Francisco Oliveira,2025 Clinica Mulher,budget_cost,False,False,False,False
+Francisco Oliveira,Bolshaya,budget_cost,False,False,False,False
+Francisco Oliveira,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Francisco Oliveira,2502 Uralchem IV,budget_cost,False,False,False,False
+Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Francisco Oliveira,2521 Escritórios BCG,budget_cost,False,False,False,False
+Francisco Oliveira,DLMC Oral Surgery,budget_cost,False,False,False,False
+Francisco Oliveira,2609 Mastercard,budget_cost,False,False,False,False
+Francisco Oliveira,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Francisco Oliveira,2600 Quelhas,budget_cost,False,False,False,False
+Francisco Oliveira,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Francisco Oliveira,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Francisco Oliveira,Clinica Mint II,expenses,False,False,False,False
+Francisco Oliveira,0410B Telheiras Obra,expenses,False,False,False,False
+Francisco Oliveira,2608 Alcanena,expenses,False,False,False,False
+Francisco Oliveira,Consultoria Greg Freeman,expenses,False,False,False,False
+Francisco Oliveira,Projeto histórico N10GLED,expenses,False,False,False,False
+Francisco Oliveira,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Francisco Oliveira,2101 Colares,expenses,False,False,False,False
+Francisco Oliveira,0434 Sérgio Varanda,expenses,False,False,False,False
+Francisco Oliveira,2025 Clinica Mulher,expenses,False,False,False,False
+Francisco Oliveira,Bolshaya,expenses,False,False,False,False
+Francisco Oliveira,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Francisco Oliveira,2502 Uralchem IV,expenses,False,False,False,False
+Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Francisco Oliveira,2521 Escritórios BCG,expenses,False,False,False,False
+Francisco Oliveira,DLMC Oral Surgery,expenses,False,False,False,False
+Francisco Oliveira,2609 Mastercard,expenses,False,False,False,False
+Francisco Oliveira,Escritório Sakur Dubai,expenses,False,False,False,False
+Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Francisco Oliveira,2600 Quelhas,expenses,False,False,False,False
+Francisco Oliveira,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Francisco Oliveira,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Francisco Oliveira,Clinica Mint II,supplier_fees,False,False,False,False
+Francisco Oliveira,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Francisco Oliveira,2608 Alcanena,supplier_fees,False,False,False,False
+Francisco Oliveira,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Francisco Oliveira,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Francisco Oliveira,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Francisco Oliveira,2101 Colares,supplier_fees,False,False,False,False
+Francisco Oliveira,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Francisco Oliveira,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Francisco Oliveira,Bolshaya,supplier_fees,False,False,False,False
+Francisco Oliveira,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Francisco Oliveira,2502 Uralchem IV,supplier_fees,False,False,False,False
+Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Francisco Oliveira,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Francisco Oliveira,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Francisco Oliveira,2609 Mastercard,supplier_fees,False,False,False,False
+Francisco Oliveira,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Francisco Oliveira,2600 Quelhas,supplier_fees,False,False,False,False
+Francisco Oliveira,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Francisco Oliveira,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Ricardo Cabrita,Clinica Mint II,financials,False,False,False,False
+Ricardo Cabrita,0410B Telheiras Obra,financials,False,False,False,False
+Ricardo Cabrita,2608 Alcanena,financials,False,False,False,False
+Ricardo Cabrita,Consultoria Greg Freeman,financials,False,False,False,False
+Ricardo Cabrita,Projeto histórico N10GLED,financials,False,False,False,False
+Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Ricardo Cabrita,2101 Colares,financials,False,False,False,False
+Ricardo Cabrita,0434 Sérgio Varanda,financials,False,False,False,False
+Ricardo Cabrita,2025 Clinica Mulher,financials,False,False,False,False
+Ricardo Cabrita,Bolshaya,financials,False,False,False,False
+Ricardo Cabrita,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Ricardo Cabrita,2502 Uralchem IV,financials,False,False,False,False
+Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Ricardo Cabrita,2521 Escritórios BCG,financials,False,False,False,False
+Ricardo Cabrita,DLMC Oral Surgery,financials,False,False,False,False
+Ricardo Cabrita,2609 Mastercard,financials,False,False,False,False
+Ricardo Cabrita,Escritório Sakur Dubai,financials,False,False,False,False
+Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Ricardo Cabrita,2600 Quelhas,financials,False,False,False,False
+Ricardo Cabrita,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Ricardo Cabrita,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Ricardo Cabrita,Clinica Mint II,budget_cost,False,False,False,False
+Ricardo Cabrita,0410B Telheiras Obra,budget_cost,False,False,False,False
+Ricardo Cabrita,2608 Alcanena,budget_cost,False,False,False,False
+Ricardo Cabrita,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Ricardo Cabrita,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Ricardo Cabrita,2101 Colares,budget_cost,False,False,False,False
+Ricardo Cabrita,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Ricardo Cabrita,2025 Clinica Mulher,budget_cost,False,False,False,False
+Ricardo Cabrita,Bolshaya,budget_cost,False,False,False,False
+Ricardo Cabrita,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Ricardo Cabrita,2502 Uralchem IV,budget_cost,False,False,False,False
+Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Ricardo Cabrita,2521 Escritórios BCG,budget_cost,False,False,False,False
+Ricardo Cabrita,DLMC Oral Surgery,budget_cost,False,False,False,False
+Ricardo Cabrita,2609 Mastercard,budget_cost,False,False,False,False
+Ricardo Cabrita,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Ricardo Cabrita,2600 Quelhas,budget_cost,False,False,False,False
+Ricardo Cabrita,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Ricardo Cabrita,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Ricardo Cabrita,Clinica Mint II,expenses,False,False,False,False
+Ricardo Cabrita,0410B Telheiras Obra,expenses,False,False,False,False
+Ricardo Cabrita,2608 Alcanena,expenses,False,False,False,False
+Ricardo Cabrita,Consultoria Greg Freeman,expenses,False,False,False,False
+Ricardo Cabrita,Projeto histórico N10GLED,expenses,False,False,False,False
+Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Ricardo Cabrita,2101 Colares,expenses,False,False,False,False
+Ricardo Cabrita,0434 Sérgio Varanda,expenses,False,False,False,False
+Ricardo Cabrita,2025 Clinica Mulher,expenses,False,False,False,False
+Ricardo Cabrita,Bolshaya,expenses,False,False,False,False
+Ricardo Cabrita,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Ricardo Cabrita,2502 Uralchem IV,expenses,False,False,False,False
+Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Ricardo Cabrita,2521 Escritórios BCG,expenses,False,False,False,False
+Ricardo Cabrita,DLMC Oral Surgery,expenses,False,False,False,False
+Ricardo Cabrita,2609 Mastercard,expenses,False,False,False,False
+Ricardo Cabrita,Escritório Sakur Dubai,expenses,False,False,False,False
+Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Ricardo Cabrita,2600 Quelhas,expenses,False,False,False,False
+Ricardo Cabrita,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Ricardo Cabrita,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Ricardo Cabrita,Clinica Mint II,supplier_fees,False,False,False,False
+Ricardo Cabrita,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Ricardo Cabrita,2608 Alcanena,supplier_fees,False,False,False,False
+Ricardo Cabrita,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Ricardo Cabrita,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Ricardo Cabrita,2101 Colares,supplier_fees,False,False,False,False
+Ricardo Cabrita,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Ricardo Cabrita,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Ricardo Cabrita,Bolshaya,supplier_fees,False,False,False,False
+Ricardo Cabrita,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Ricardo Cabrita,2502 Uralchem IV,supplier_fees,False,False,False,False
+Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Ricardo Cabrita,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Ricardo Cabrita,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Ricardo Cabrita,2609 Mastercard,supplier_fees,False,False,False,False
+Ricardo Cabrita,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Ricardo Cabrita,2600 Quelhas,supplier_fees,False,False,False,False
+Ricardo Cabrita,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Ricardo Cabrita,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+João Almeida,Clinica Mint II,financials,False,False,False,False
+João Almeida,0410B Telheiras Obra,financials,False,False,False,False
+João Almeida,2608 Alcanena,financials,False,False,False,False
+João Almeida,Consultoria Greg Freeman,financials,False,False,False,False
+João Almeida,Projeto histórico N10GLED,financials,False,False,False,False
+João Almeida,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+João Almeida,2101 Colares,financials,False,False,False,False
+João Almeida,0434 Sérgio Varanda,financials,False,False,False,False
+João Almeida,2025 Clinica Mulher,financials,False,False,False,False
+João Almeida,Bolshaya,financials,False,False,False,False
+João Almeida,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+João Almeida,2502 Uralchem IV,financials,False,False,False,False
+João Almeida,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+João Almeida,2521 Escritórios BCG,financials,False,False,False,False
+João Almeida,DLMC Oral Surgery,financials,False,False,False,False
+João Almeida,2609 Mastercard,financials,False,False,False,False
+João Almeida,Escritório Sakur Dubai,financials,False,False,False,False
+João Almeida,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+João Almeida,2600 Quelhas,financials,False,False,True,False
+João Almeida,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+João Almeida,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+João Almeida,Clinica Mint II,budget_cost,False,False,False,False
+João Almeida,0410B Telheiras Obra,budget_cost,False,False,False,False
+João Almeida,2608 Alcanena,budget_cost,False,False,False,False
+João Almeida,Consultoria Greg Freeman,budget_cost,False,False,False,False
+João Almeida,Projeto histórico N10GLED,budget_cost,False,False,False,False
+João Almeida,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+João Almeida,2101 Colares,budget_cost,False,False,False,False
+João Almeida,0434 Sérgio Varanda,budget_cost,False,False,False,False
+João Almeida,2025 Clinica Mulher,budget_cost,False,False,False,False
+João Almeida,Bolshaya,budget_cost,False,False,False,False
+João Almeida,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+João Almeida,2502 Uralchem IV,budget_cost,False,False,False,False
+João Almeida,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+João Almeida,2521 Escritórios BCG,budget_cost,False,False,False,False
+João Almeida,DLMC Oral Surgery,budget_cost,False,False,False,False
+João Almeida,2609 Mastercard,budget_cost,False,False,False,False
+João Almeida,Escritório Sakur Dubai,budget_cost,False,False,False,False
+João Almeida,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+João Almeida,2600 Quelhas,budget_cost,False,False,False,False
+João Almeida,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+João Almeida,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+João Almeida,Clinica Mint II,expenses,False,False,False,False
+João Almeida,0410B Telheiras Obra,expenses,False,False,False,False
+João Almeida,2608 Alcanena,expenses,False,False,False,False
+João Almeida,Consultoria Greg Freeman,expenses,False,False,False,False
+João Almeida,Projeto histórico N10GLED,expenses,False,False,False,False
+João Almeida,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+João Almeida,2101 Colares,expenses,False,False,False,False
+João Almeida,0434 Sérgio Varanda,expenses,False,False,False,False
+João Almeida,2025 Clinica Mulher,expenses,False,False,False,False
+João Almeida,Bolshaya,expenses,False,False,False,False
+João Almeida,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+João Almeida,2502 Uralchem IV,expenses,False,False,False,False
+João Almeida,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+João Almeida,2521 Escritórios BCG,expenses,False,False,False,False
+João Almeida,DLMC Oral Surgery,expenses,False,False,False,False
+João Almeida,2609 Mastercard,expenses,False,False,False,False
+João Almeida,Escritório Sakur Dubai,expenses,False,False,False,False
+João Almeida,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+João Almeida,2600 Quelhas,expenses,False,False,False,False
+João Almeida,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+João Almeida,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+João Almeida,Clinica Mint II,supplier_fees,False,False,False,False
+João Almeida,0410B Telheiras Obra,supplier_fees,False,False,False,False
+João Almeida,2608 Alcanena,supplier_fees,False,False,False,False
+João Almeida,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+João Almeida,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+João Almeida,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+João Almeida,2101 Colares,supplier_fees,False,False,False,False
+João Almeida,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+João Almeida,2025 Clinica Mulher,supplier_fees,False,False,False,False
+João Almeida,Bolshaya,supplier_fees,False,False,False,False
+João Almeida,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+João Almeida,2502 Uralchem IV,supplier_fees,False,False,False,False
+João Almeida,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+João Almeida,2521 Escritórios BCG,supplier_fees,False,False,False,False
+João Almeida,DLMC Oral Surgery,supplier_fees,False,False,False,False
+João Almeida,2609 Mastercard,supplier_fees,False,False,False,False
+João Almeida,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+João Almeida,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+João Almeida,2600 Quelhas,supplier_fees,False,False,False,False
+João Almeida,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+João Almeida,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Patricia Reis,Clinica Mint II,financials,False,False,False,False
+Patricia Reis,0410B Telheiras Obra,financials,False,False,False,False
+Patricia Reis,2608 Alcanena,financials,False,False,False,False
+Patricia Reis,Consultoria Greg Freeman,financials,False,False,False,False
+Patricia Reis,Projeto histórico N10GLED,financials,False,False,False,False
+Patricia Reis,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Patricia Reis,2101 Colares,financials,False,False,False,False
+Patricia Reis,0434 Sérgio Varanda,financials,False,False,False,False
+Patricia Reis,2025 Clinica Mulher,financials,False,False,False,False
+Patricia Reis,Bolshaya,financials,False,False,False,False
+Patricia Reis,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Patricia Reis,2502 Uralchem IV,financials,True,False,False,True
+Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Patricia Reis,2521 Escritórios BCG,financials,True,False,False,True
+Patricia Reis,DLMC Oral Surgery,financials,False,False,False,False
+Patricia Reis,2609 Mastercard,financials,True,False,False,True
+Patricia Reis,Escritório Sakur Dubai,financials,False,False,False,False
+Patricia Reis,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Patricia Reis,2600 Quelhas,financials,False,False,False,False
+Patricia Reis,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Patricia Reis,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Patricia Reis,Clinica Mint II,budget_cost,False,False,False,False
+Patricia Reis,0410B Telheiras Obra,budget_cost,False,False,False,False
+Patricia Reis,2608 Alcanena,budget_cost,False,False,False,False
+Patricia Reis,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Patricia Reis,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Patricia Reis,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Patricia Reis,2101 Colares,budget_cost,False,False,False,False
+Patricia Reis,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Patricia Reis,2025 Clinica Mulher,budget_cost,False,False,False,False
+Patricia Reis,Bolshaya,budget_cost,False,False,False,False
+Patricia Reis,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Patricia Reis,2502 Uralchem IV,budget_cost,True,False,False,False
+Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Patricia Reis,2521 Escritórios BCG,budget_cost,True,False,False,False
+Patricia Reis,DLMC Oral Surgery,budget_cost,False,False,False,False
+Patricia Reis,2609 Mastercard,budget_cost,True,False,False,False
+Patricia Reis,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Patricia Reis,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Patricia Reis,2600 Quelhas,budget_cost,False,False,False,False
+Patricia Reis,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Patricia Reis,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Patricia Reis,Clinica Mint II,expenses,False,False,False,False
+Patricia Reis,0410B Telheiras Obra,expenses,False,False,False,False
+Patricia Reis,2608 Alcanena,expenses,False,False,False,False
+Patricia Reis,Consultoria Greg Freeman,expenses,False,False,False,False
+Patricia Reis,Projeto histórico N10GLED,expenses,False,False,False,False
+Patricia Reis,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Patricia Reis,2101 Colares,expenses,False,False,False,False
+Patricia Reis,0434 Sérgio Varanda,expenses,False,False,False,False
+Patricia Reis,2025 Clinica Mulher,expenses,False,False,False,False
+Patricia Reis,Bolshaya,expenses,False,False,False,False
+Patricia Reis,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Patricia Reis,2502 Uralchem IV,expenses,True,False,False,False
+Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Patricia Reis,2521 Escritórios BCG,expenses,True,False,False,False
+Patricia Reis,DLMC Oral Surgery,expenses,False,False,False,False
+Patricia Reis,2609 Mastercard,expenses,True,False,False,False
+Patricia Reis,Escritório Sakur Dubai,expenses,False,False,False,False
+Patricia Reis,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Patricia Reis,2600 Quelhas,expenses,False,False,False,False
+Patricia Reis,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Patricia Reis,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Patricia Reis,Clinica Mint II,supplier_fees,False,False,False,False
+Patricia Reis,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Patricia Reis,2608 Alcanena,supplier_fees,False,False,False,False
+Patricia Reis,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Patricia Reis,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Patricia Reis,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Patricia Reis,2101 Colares,supplier_fees,False,False,False,False
+Patricia Reis,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Patricia Reis,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Patricia Reis,Bolshaya,supplier_fees,False,False,False,False
+Patricia Reis,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Patricia Reis,2502 Uralchem IV,supplier_fees,True,False,False,False
+Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Patricia Reis,2521 Escritórios BCG,supplier_fees,True,False,False,False
+Patricia Reis,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Patricia Reis,2609 Mastercard,supplier_fees,True,False,False,False
+Patricia Reis,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Patricia Reis,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Patricia Reis,2600 Quelhas,supplier_fees,False,False,False,False
+Patricia Reis,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Patricia Reis,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Rita Saragoça,Clinica Mint II,financials,False,False,False,False
+Rita Saragoça,0410B Telheiras Obra,financials,False,False,False,False
+Rita Saragoça,2608 Alcanena,financials,False,False,False,False
+Rita Saragoça,Consultoria Greg Freeman,financials,False,False,False,False
+Rita Saragoça,Projeto histórico N10GLED,financials,False,False,False,False
+Rita Saragoça,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Rita Saragoça,2101 Colares,financials,False,False,False,False
+Rita Saragoça,0434 Sérgio Varanda,financials,False,False,False,False
+Rita Saragoça,2025 Clinica Mulher,financials,False,False,False,False
+Rita Saragoça,Bolshaya,financials,False,False,False,False
+Rita Saragoça,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Rita Saragoça,2502 Uralchem IV,financials,False,False,False,False
+Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Rita Saragoça,2521 Escritórios BCG,financials,False,False,False,False
+Rita Saragoça,DLMC Oral Surgery,financials,False,False,False,False
+Rita Saragoça,2609 Mastercard,financials,False,False,False,False
+Rita Saragoça,Escritório Sakur Dubai,financials,False,False,False,False
+Rita Saragoça,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Rita Saragoça,2600 Quelhas,financials,False,False,False,False
+Rita Saragoça,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Rita Saragoça,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Rita Saragoça,Clinica Mint II,budget_cost,False,False,False,False
+Rita Saragoça,0410B Telheiras Obra,budget_cost,False,False,False,False
+Rita Saragoça,2608 Alcanena,budget_cost,False,False,False,False
+Rita Saragoça,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Rita Saragoça,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Rita Saragoça,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Rita Saragoça,2101 Colares,budget_cost,False,False,False,False
+Rita Saragoça,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Rita Saragoça,2025 Clinica Mulher,budget_cost,False,False,False,False
+Rita Saragoça,Bolshaya,budget_cost,False,False,False,False
+Rita Saragoça,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Rita Saragoça,2502 Uralchem IV,budget_cost,False,False,False,False
+Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Rita Saragoça,2521 Escritórios BCG,budget_cost,False,False,False,False
+Rita Saragoça,DLMC Oral Surgery,budget_cost,False,False,False,False
+Rita Saragoça,2609 Mastercard,budget_cost,False,False,False,False
+Rita Saragoça,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Rita Saragoça,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Rita Saragoça,2600 Quelhas,budget_cost,False,False,False,False
+Rita Saragoça,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Rita Saragoça,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Rita Saragoça,Clinica Mint II,expenses,False,False,False,False
+Rita Saragoça,0410B Telheiras Obra,expenses,False,False,False,False
+Rita Saragoça,2608 Alcanena,expenses,False,False,False,False
+Rita Saragoça,Consultoria Greg Freeman,expenses,False,False,False,False
+Rita Saragoça,Projeto histórico N10GLED,expenses,False,False,False,False
+Rita Saragoça,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Rita Saragoça,2101 Colares,expenses,False,False,False,False
+Rita Saragoça,0434 Sérgio Varanda,expenses,False,False,False,False
+Rita Saragoça,2025 Clinica Mulher,expenses,False,False,False,False
+Rita Saragoça,Bolshaya,expenses,False,False,False,False
+Rita Saragoça,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Rita Saragoça,2502 Uralchem IV,expenses,False,False,False,False
+Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Rita Saragoça,2521 Escritórios BCG,expenses,False,False,False,False
+Rita Saragoça,DLMC Oral Surgery,expenses,False,False,False,False
+Rita Saragoça,2609 Mastercard,expenses,False,False,False,False
+Rita Saragoça,Escritório Sakur Dubai,expenses,False,False,False,False
+Rita Saragoça,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Rita Saragoça,2600 Quelhas,expenses,False,False,False,False
+Rita Saragoça,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Rita Saragoça,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Rita Saragoça,Clinica Mint II,supplier_fees,False,False,False,False
+Rita Saragoça,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Rita Saragoça,2608 Alcanena,supplier_fees,False,False,False,False
+Rita Saragoça,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Rita Saragoça,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Rita Saragoça,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Rita Saragoça,2101 Colares,supplier_fees,False,False,False,False
+Rita Saragoça,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Rita Saragoça,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Rita Saragoça,Bolshaya,supplier_fees,False,False,False,False
+Rita Saragoça,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Rita Saragoça,2502 Uralchem IV,supplier_fees,False,False,False,False
+Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Rita Saragoça,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Rita Saragoça,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Rita Saragoça,2609 Mastercard,supplier_fees,False,False,False,False
+Rita Saragoça,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Rita Saragoça,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Rita Saragoça,2600 Quelhas,supplier_fees,False,False,False,False
+Rita Saragoça,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Rita Saragoça,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
+Mariana Oliveira,Clinica Mint II,financials,False,False,False,False
+Mariana Oliveira,0410B Telheiras Obra,financials,False,False,False,False
+Mariana Oliveira,2608 Alcanena,financials,False,False,False,False
+Mariana Oliveira,Consultoria Greg Freeman,financials,False,False,False,False
+Mariana Oliveira,Projeto histórico N10GLED,financials,False,False,False,False
+Mariana Oliveira,2663 Alteração de loteamento - Ericeira,financials,False,False,False,False
+Mariana Oliveira,2101 Colares,financials,False,False,False,False
+Mariana Oliveira,0434 Sérgio Varanda,financials,False,False,False,False
+Mariana Oliveira,2025 Clinica Mulher,financials,False,False,False,False
+Mariana Oliveira,Bolshaya,financials,False,False,False,False
+Mariana Oliveira,2128 Sandycove Road Dental Clinic,financials,False,False,False,False
+Mariana Oliveira,2502 Uralchem IV,financials,False,False,False,False
+Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,financials,False,False,False,False
+Mariana Oliveira,2521 Escritórios BCG,financials,False,False,False,False
+Mariana Oliveira,DLMC Oral Surgery,financials,False,False,False,False
+Mariana Oliveira,2609 Mastercard,financials,False,False,False,False
+Mariana Oliveira,Escritório Sakur Dubai,financials,False,False,False,False
+Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,financials,False,False,False,False
+Mariana Oliveira,2600 Quelhas,financials,False,False,False,False
+Mariana Oliveira,2028 CTR Capital Towers Restaurant,financials,False,False,False,False
+Mariana Oliveira,2506 Apartamento Tiago Carreiras,financials,False,False,False,False
+Mariana Oliveira,Clinica Mint II,budget_cost,False,False,False,False
+Mariana Oliveira,0410B Telheiras Obra,budget_cost,False,False,False,False
+Mariana Oliveira,2608 Alcanena,budget_cost,False,False,False,False
+Mariana Oliveira,Consultoria Greg Freeman,budget_cost,False,False,False,False
+Mariana Oliveira,Projeto histórico N10GLED,budget_cost,False,False,False,False
+Mariana Oliveira,2663 Alteração de loteamento - Ericeira,budget_cost,False,False,False,False
+Mariana Oliveira,2101 Colares,budget_cost,False,False,False,False
+Mariana Oliveira,0434 Sérgio Varanda,budget_cost,False,False,False,False
+Mariana Oliveira,2025 Clinica Mulher,budget_cost,False,False,False,False
+Mariana Oliveira,Bolshaya,budget_cost,False,False,False,False
+Mariana Oliveira,2128 Sandycove Road Dental Clinic,budget_cost,False,False,False,False
+Mariana Oliveira,2502 Uralchem IV,budget_cost,False,False,False,False
+Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,budget_cost,False,False,False,False
+Mariana Oliveira,2521 Escritórios BCG,budget_cost,False,False,False,False
+Mariana Oliveira,DLMC Oral Surgery,budget_cost,False,False,False,False
+Mariana Oliveira,2609 Mastercard,budget_cost,False,False,False,False
+Mariana Oliveira,Escritório Sakur Dubai,budget_cost,False,False,False,False
+Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,budget_cost,False,False,False,False
+Mariana Oliveira,2600 Quelhas,budget_cost,False,False,False,False
+Mariana Oliveira,2028 CTR Capital Towers Restaurant,budget_cost,False,False,False,False
+Mariana Oliveira,2506 Apartamento Tiago Carreiras,budget_cost,False,False,False,False
+Mariana Oliveira,Clinica Mint II,expenses,False,False,False,False
+Mariana Oliveira,0410B Telheiras Obra,expenses,False,False,False,False
+Mariana Oliveira,2608 Alcanena,expenses,False,False,False,False
+Mariana Oliveira,Consultoria Greg Freeman,expenses,False,False,False,False
+Mariana Oliveira,Projeto histórico N10GLED,expenses,False,False,False,False
+Mariana Oliveira,2663 Alteração de loteamento - Ericeira,expenses,False,False,False,False
+Mariana Oliveira,2101 Colares,expenses,False,False,False,False
+Mariana Oliveira,0434 Sérgio Varanda,expenses,False,False,False,False
+Mariana Oliveira,2025 Clinica Mulher,expenses,False,False,False,False
+Mariana Oliveira,Bolshaya,expenses,False,False,False,False
+Mariana Oliveira,2128 Sandycove Road Dental Clinic,expenses,False,False,False,False
+Mariana Oliveira,2502 Uralchem IV,expenses,False,False,False,False
+Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,expenses,False,False,False,False
+Mariana Oliveira,2521 Escritórios BCG,expenses,False,False,False,False
+Mariana Oliveira,DLMC Oral Surgery,expenses,False,False,False,False
+Mariana Oliveira,2609 Mastercard,expenses,False,False,False,False
+Mariana Oliveira,Escritório Sakur Dubai,expenses,False,False,False,False
+Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,expenses,False,False,False,False
+Mariana Oliveira,2600 Quelhas,expenses,False,False,False,False
+Mariana Oliveira,2028 CTR Capital Towers Restaurant,expenses,False,False,False,False
+Mariana Oliveira,2506 Apartamento Tiago Carreiras,expenses,False,False,False,False
+Mariana Oliveira,Clinica Mint II,supplier_fees,False,False,False,False
+Mariana Oliveira,0410B Telheiras Obra,supplier_fees,False,False,False,False
+Mariana Oliveira,2608 Alcanena,supplier_fees,False,False,False,False
+Mariana Oliveira,Consultoria Greg Freeman,supplier_fees,False,False,False,False
+Mariana Oliveira,Projeto histórico N10GLED,supplier_fees,False,False,False,False
+Mariana Oliveira,2663 Alteração de loteamento - Ericeira,supplier_fees,False,False,False,False
+Mariana Oliveira,2101 Colares,supplier_fees,False,False,False,False
+Mariana Oliveira,0434 Sérgio Varanda,supplier_fees,False,False,False,False
+Mariana Oliveira,2025 Clinica Mulher,supplier_fees,False,False,False,False
+Mariana Oliveira,Bolshaya,supplier_fees,False,False,False,False
+Mariana Oliveira,2128 Sandycove Road Dental Clinic,supplier_fees,False,False,False,False
+Mariana Oliveira,2502 Uralchem IV,supplier_fees,False,False,False,False
+Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,supplier_fees,False,False,False,False
+Mariana Oliveira,2521 Escritórios BCG,supplier_fees,False,False,False,False
+Mariana Oliveira,DLMC Oral Surgery,supplier_fees,False,False,False,False
+Mariana Oliveira,2609 Mastercard,supplier_fees,False,False,False,False
+Mariana Oliveira,Escritório Sakur Dubai,supplier_fees,False,False,False,False
+Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,supplier_fees,False,False,False,False
+Mariana Oliveira,2600 Quelhas,supplier_fees,False,False,False,False
+Mariana Oliveira,2028 CTR Capital Towers Restaurant,supplier_fees,False,False,False,False
+Mariana Oliveira,2506 Apartamento Tiago Carreiras,supplier_fees,False,False,False,False
