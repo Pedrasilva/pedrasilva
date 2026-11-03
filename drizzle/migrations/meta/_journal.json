@@ -1562,6 +1562,13 @@
       "when": 1793737792999,
       "tag": "0222_project_incoming_live_timing",
       "breakpoints": true
+    },
+    {
+      "idx": 223,
+      "version": "7",
+      "when": 1793737834812,
+      "tag": "0223_project_incoming_date_freeze",
+      "breakpoints": true
     }
   ]
 }
