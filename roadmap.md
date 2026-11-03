@@ -1,7 +1,7 @@
 ## Current request — CRM won opportunities visibility
-- [ ] Restore won-unconverted column and closed Converted projection; align board/list totals and active project links.
-- [ ] Gate card conversion by quote lifecycle and reuse the guarded quote dialog, with explicit multiple-quote selection.
-- [ ] Read-only hidden-opportunity inventory, tests/screenshots and preservation report; no conversions or data changes.
+- [x] Restore won-unconverted column and closed Converted projection; align board/list totals and active project links.
+- [x] Gate card conversion by quote lifecycle and reuse the guarded quote dialog, with explicit multiple-quote selection.
+- [x] Read-only inventory of 10 hidden wins, 35 tests/PT screenshots and identical full-row hashes; no conversions or data changes. Report: docs/crm-won-visibility-report.md.
 
 ## Current request — Quote client-company conversion
 - [x] Resolve/inherit the opportunity company, exclude linkage/bookkeeping from content guards, and backfill 2 NULL quote companies.
