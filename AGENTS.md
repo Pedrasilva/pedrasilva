@@ -49,4 +49,4 @@
 
 - Server/RPC errors are translated only at presentation through the shared error translator and toast wrapper; exact/anchored known messages use paired errors-namespace keys, unknown details stay verbatim and stored errors are never rewritten. Why: localize user feedback without changing server semantics or publication evidence.
 
-- CRM quote workflow displays use crm_quote_lifecycle and guarded acceptance/signature actions; conversion pins accepted content and its sent snapshot, while existing calendar preview remains authoritative. Why: document status, opportunity stage and header actions must agree without rewriting commercial data.
+- CRM quote workflow displays use crm_quote_lifecycle including sent/current snapshot matching and guarded transitions; only the quote creates projects, approved primary converts, and manual opportunity loss atomically rejects open quotes. Proposal retainer dates display relative months until conversion; existing calendar preview and accepted-snapshot guards remain authoritative. Why: state, evidence and conversion must agree without rewriting commercial data.

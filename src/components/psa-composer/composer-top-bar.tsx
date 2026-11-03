@@ -2,8 +2,7 @@ import { useQuoteLifecycle } from "@/lib/quotes/use-quote-lifecycle";
 import uiI18n from "@/i18n/index";
 /**
  * Composer top bar — proposal title, status, Preview / Export PDF, and
- * a disabled "Converter para Contrato" stub that previews which blocks
- * would migrate to the future Contract Composer.
+ * immutable sent revisions and signature records.
  */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -52,7 +51,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import type { PsaProposal, PsaProposalBlock, PsaProposalStatus } from "@/lib/psa-proposal/types";
-import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import { SendProposalDialog } from "./send-proposal-dialog";
@@ -89,7 +87,6 @@ export function ComposerTopBar({
   const update = useUpdateProposal(proposal.id);
   const lifecycleQ = useQuoteLifecycle(proposal.quote_id ?? undefined);
   const lifecycle = lifecycleQ.data;
-  const [convertOpen, setConvertOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const [signOpen, setSignOpen] = useState(false);
   const [signExistingOpen, setSignExistingOpen] = useState(false);
@@ -230,8 +227,6 @@ export function ComposerTopBar({
             )}
             <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
               <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("common:settings")} </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setConvertOpen(true)}>
-              <FileSignature className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.convertContract")} </DropdownMenuItem>
             {!historical && (
               <DropdownMenuItem onSelect={() => setHistoryOpen(true)}>
                 <History className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.autosaves")} </DropdownMenuItem>
@@ -266,7 +261,6 @@ export function ComposerTopBar({
           </div>
         </SheetContent>
       </Sheet>
-      <ConvertToContractDialog open={convertOpen} onOpenChange={setConvertOpen} blocks={blocks} />
       <SendProposalDialog
         open={signOpen}
         onOpenChange={setSignOpen}

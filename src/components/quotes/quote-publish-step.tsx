@@ -3,8 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, FolderPlus, FileSignature } from "lucide-react";
-import { useContractsByQuote } from "@/lib/contracts";
+import { ExternalLink, FolderPlus } from "lucide-react";
 import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
 import { QuoteSignatureCard } from "@/components/quotes/quote-signature-card";
 import { QuoteCreateContractCard } from "@/components/quotes/quote-create-contract-card";
@@ -13,7 +12,7 @@ import type { QuoteStatus } from "@/lib/crm/types";
 /**
  * Step 3 — Convert to project.
  * Surfaces the convert-to-project action once the quote is approved,
- * or links to a signed contract's bootstrap flow when one exists.
+ * Contracts record signatures; project creation always stays on the quote.
  */
 export function QuotePublishStep({
   quoteId,
@@ -55,9 +54,6 @@ export function QuotePublishStep({
 }) {
   const { t } = useTranslation("crm");
 
-  const { data: contracts = [] } = useContractsByQuote(quoteId);
-  const signedContract = contracts.find((c) => c.status === "signed") ?? null;
-
   const isApproved = quoteStatus === "approved";
   const showConvertCard = isApproved || hasProject;
   // Signature is the gate: an approved quote becomes a project only once it
@@ -98,34 +94,6 @@ export function QuotePublishStep({
                   <ExternalLink className="h-3 w-3" />
                   {t("quotes.openProject")}
                 </Link>
-              </>
-            ) : signedContract ? (
-              <>
-                <p className="text-muted-foreground">
-                  {t("workspace.publish.convert.viaContractHint")}
-                </p>
-                <Link
-                  to="/crm/contracts/$contractId"
-                  params={{ contractId: signedContract.id }}
-                  className="inline-flex items-center gap-1 rounded-md border bg-primary text-primary-foreground px-3 py-1.5 text-xs hover:opacity-90"
-                >
-                  <FileSignature className="h-3 w-3" />
-                  {t("workspace.publish.convert.openContractCta")}
-                </Link>
-                <p className="text-xs text-muted-foreground">
-                  {t("workspace.publish.convert.directFallbackHint")}
-                </p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={onConvert}
-                  disabled={isConverting || convertBlocked}
-                >
-                  <FolderPlus className="mr-1 h-4 w-4" />
-                  {isConverting
-                    ? t("workspace.publish.convert.converting")
-                    : t("workspace.publish.convert.directCta")}
-                </Button>
               </>
             ) : (
               <>
