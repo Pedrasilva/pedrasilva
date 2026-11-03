@@ -11065,6 +11065,50 @@ export type Database = {
         }
         Relationships: []
       }
+      pm_project_access_audit: {
+        Row: {
+          action: string
+          actor: string
+          after_values: Json | null
+          before_values: Json | null
+          changed_at: string
+          id: string
+          project_id: string
+          reason: string
+          resource_id: string
+        }
+        Insert: {
+          action: string
+          actor: string
+          after_values?: Json | null
+          before_values?: Json | null
+          changed_at?: string
+          id?: string
+          project_id: string
+          reason: string
+          resource_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          after_values?: Json | null
+          before_values?: Json | null
+          changed_at?: string
+          id?: string
+          project_id?: string
+          reason?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_access_audit_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_commercial_baselines: {
         Row: {
           baseline_json: Json
@@ -11457,6 +11501,79 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_project_person_access: {
+        Row: {
+          budget_cost: boolean
+          created_at: string
+          created_by: string
+          expenses: boolean
+          financials: boolean
+          id: string
+          project_id: string
+          provenance: string
+          reason: string
+          resource_id: string
+          revision: number
+          supplier_fees: boolean
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          budget_cost?: boolean
+          created_at?: string
+          created_by: string
+          expenses?: boolean
+          financials?: boolean
+          id?: string
+          project_id: string
+          provenance: string
+          reason: string
+          resource_id: string
+          revision?: number
+          supplier_fees?: boolean
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          budget_cost?: boolean
+          created_at?: string
+          created_by?: string
+          expenses?: boolean
+          financials?: boolean
+          id?: string
+          project_id?: string
+          provenance?: string
+          reason?: string
+          resource_id?: string
+          revision?: number
+          supplier_fees?: boolean
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_person_access_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_person_access_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_person_access_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
         ]
@@ -17570,6 +17687,10 @@ export type Database = {
         Returns: boolean
       }
       can_manage_inventory: { Args: { _user_id: string }; Returns: boolean }
+      can_view_project_area: {
+        Args: { _area: string; _project: string }
+        Returns: boolean
+      }
       clone_fee_proposal_as_revision: {
         Args: { p_source: string }
         Returns: string
@@ -18668,6 +18789,26 @@ export type Database = {
         Args: { _item: string; _patch: Json; _reason: string }
         Returns: Json
       }
+      pm_change_project_access: {
+        Args: {
+          _flags: Json
+          _project: string
+          _reason: string
+          _resource: string
+          _revision: number
+        }
+        Returns: Json
+      }
+      pm_change_project_team: {
+        Args: {
+          _project: string
+          _reason: string
+          _remove: boolean
+          _resource: string
+          _role: Database["public"]["Enums"]["pm_project_team_role"]
+        }
+        Returns: undefined
+      }
       pm_convert_relative_quote: {
         Args: { _quote: string; _revision: string; _start: string }
         Returns: Json
@@ -18793,9 +18934,16 @@ export type Database = {
         Args: { _project_ids?: string[]; _revision: string }
         Returns: string
       }
+      pm_preview_project_access: { Args: { _project: string }; Returns: Json }
       pm_preview_week_plan: {
         Args: { _extensions?: Json; _plan_id: string }
         Returns: Json
+      }
+      pm_project_access_cutover_active: { Args: never; Returns: boolean }
+      pm_project_access_matrix: { Args: never; Returns: Json }
+      pm_project_area_proposed: {
+        Args: { _area: string; _project: string; _user: string }
+        Returns: boolean
       }
       pm_project_has_retainer: {
         Args: { _project_id: string }
