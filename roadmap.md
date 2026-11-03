@@ -1,8 +1,8 @@
 ## Current request — One proposal/project Gantt and Mint read-only checks
-- [ ] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
-- [ ] Unify project scheduling with QuoteGantt/QuotePlanningTab and live-only approval-bar edits.
-- [ ] Fix client presentation and stop post-conversion sync; propose backfill separately, preserving Mint, conversion, baseline and payments.
-- [ ] Verify resizing on disposable converted copy, delete fixtures and report paths/screenshots.
+- [x] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
+- [x] All project entries use QuoteGantt; shared chart/zoom/outline controls and live approval edits implemented. Context-specific inspector forms remain separate (report).
+- [x] Fix client presentation and stop post-conversion sync; backfill proposed but not applied, preserving Mint, conversion, baseline and payments.
+- [x] Verify resizing/reload/session Undo on disposable converted copy, delete fixtures, 52 tests and report paths/screenshots in docs/one-project-gantt-report.md.
 
 ## Current request — Converted project schedule
 - [x] Review mapping/edit-routing plan before implementation.

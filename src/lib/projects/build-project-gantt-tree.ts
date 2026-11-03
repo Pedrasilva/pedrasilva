@@ -54,7 +54,7 @@ export function buildProjectGanttTree(
       wbs,
       hasChildren: kids.length > 0,
       isSummary: kids.length > 0,
-      role: "architecture",
+      role: node.stage_role === "client" ? "client" : node.stage_role === "supplier_group" || node.stage_role === "supplier_phase" ? node.stage_role : "architecture",
       parentId,
     });
     ordered.push(node);

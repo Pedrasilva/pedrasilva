@@ -2682,6 +2682,8 @@
   "projectSyncStatusBadge": {
     "ui": {
       "lastSync": "Last sync:",
+      "convertedOrigin": "Origin: converted proposal",
+      "convertedOriginHint": "Operational planning is independent. The accepted contract baseline stays fixed.",
       "sourceQuoteAutoUpdates": "Edits to the source quote auto-update this project.",
       "sourceQuoteDisconnected": "Edits to the source quote no longer affect this project.",
       "live": "Live-synced from quote",

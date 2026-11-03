@@ -2682,6 +2682,8 @@
   "projectSyncStatusBadge": {
     "ui": {
       "lastSync": "Última sincronização:",
+      "convertedOrigin": "Origem: proposta convertida",
+      "convertedOriginHint": "O planeamento operacional é independente. O contrato de referência aceite mantém-se fixo.",
       "sourceQuoteAutoUpdates": "As alterações ao orçamento de origem atualizam automaticamente este projeto.",
       "sourceQuoteDisconnected": "As alterações ao orçamento de origem já não afetam este projeto.",
       "live": "Sincronizado com a proposta",
