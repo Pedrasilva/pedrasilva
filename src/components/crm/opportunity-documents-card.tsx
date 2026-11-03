@@ -129,7 +129,7 @@ function useProposalDocuments(scope: { opportunityId?: string; quoteId?: string 
           proposalId: s.proposal_id,
           quoteId: proposal?.quote_id ?? "",
           quoteTitle: quote?.titulo ?? "",
-          revNumber: Math.max(s.rev_number ?? 0, (quote?.revision_number ?? 1) - 1),
+          revNumber: s.rev_number ?? 0,
           createdAt: s.created_at,
           pdfPath: s.pdf_storage_path,
           pdfFilename: s.pdf_filename,
