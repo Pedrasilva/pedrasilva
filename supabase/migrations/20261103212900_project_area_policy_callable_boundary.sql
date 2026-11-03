@@ -1,0 +1,12 @@
+CREATE FUNCTION public.pm_phase_a_area_grant(_project uuid,_area text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT public.pm_project_access_cutover_active() AND public.pm_project_area_proposed(_project,_area,auth.uid()) $$;
+REVOKE ALL ON FUNCTION public.pm_phase_a_area_grant(uuid,text) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.pm_phase_a_area_grant(uuid,text) TO authenticated,service_role;
+ALTER POLICY phase_a_area_grant ON public.pm_invoices USING(public.pm_phase_a_area_grant(project_id,'financials'));
+ALTER POLICY phase_a_area_grant ON public.pm_payment_schedule_items USING(public.pm_phase_a_area_grant(project_id,CASE WHEN direction='inflow' THEN 'financials' ELSE 'supplier_fees' END));
+ALTER POLICY phase_a_area_grant ON public.pm_project_contract_baseline USING(public.pm_phase_a_area_grant(project_id,'financials'));
+ALTER POLICY phase_a_area_grant ON public.pm_stage_supplier_costs USING(public.pm_phase_a_area_grant(project_id,'supplier_fees'));
+ALTER POLICY phase_a_area_grant ON public.pm_expenses USING(public.pm_phase_a_area_grant(project_id,'expenses'));
+ALTER POLICY pe_flow_read_boundary ON public.pm_expenses USING(CASE WHEN public.pm_project_access_cutover_active() THEN public.pm_phase_a_area_grant(project_id,'expenses') ELSE ((workflow_version <> 2) OR (public.is_psa_staff() AND ((submitted_by=auth.uid()) OR public.pe_project_lead(project_id) OR public.pe_finance_access(entity_id)))) END);
+ALTER POLICY phase_a_area_grant ON public.pm_materials USING(public.pm_phase_a_area_grant(project_id,'supplier_fees'));
+ALTER POLICY phase_a_area_grant ON public.pm_project_commercial_baselines USING(public.pm_phase_a_area_grant(project_id,'financials'));
+ALTER POLICY phase_a_area_grant ON public.pm_stage_commercial_baselines USING(public.pm_phase_a_area_grant(project_id,'budget_cost'));
