@@ -1548,6 +1548,13 @@
       "when": 1793711801400,
       "tag": "0220_crm_quote_snapshot_bookkeeping_parity",
       "breakpoints": true
+    },
+    {
+      "idx": 221,
+      "version": "7",
+      "when": 1793724987733,
+      "tag": "0221_project_schedule_role_and_conversion_isolation",
+      "breakpoints": true
     }
   ]
 }

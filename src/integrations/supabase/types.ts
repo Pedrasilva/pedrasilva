@@ -12252,6 +12252,7 @@ export type Database = {
           source_contract_phase_key: string | null
           source_quote_stage_id: string | null
           stage_kind: string
+          stage_role: string | null
           start_date: string
           status: string
           updated_at: string
@@ -12294,6 +12295,7 @@ export type Database = {
           source_contract_phase_key?: string | null
           source_quote_stage_id?: string | null
           stage_kind?: string
+          stage_role?: string | null
           start_date: string
           status?: string
           updated_at?: string
@@ -12336,6 +12338,7 @@ export type Database = {
           source_contract_phase_key?: string | null
           source_quote_stage_id?: string | null
           stage_kind?: string
+          stage_role?: string | null
           start_date?: string
           status?: string
           updated_at?: string
@@ -18717,6 +18720,13 @@ export type Database = {
           snap_cost: number
           stage_id: string
           unsnap_hours: number
+        }[]
+      }
+      pm_project_stage_roles: {
+        Args: { _project_id: string }
+        Returns: {
+          stage_id: string
+          stage_role: string
         }[]
       }
       pm_quote_calendar_allocations: {
