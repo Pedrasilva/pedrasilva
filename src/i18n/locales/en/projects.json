@@ -2932,6 +2932,23 @@
       "placeholderDate": "Placeholder date cannot be used",
       "dateUndefined": "Date has not been defined",
       "nonWorkingDate": "The selected date is not a working day"
+    },
+    "status": {
+      "planned": "Planned",
+      "issued": "Issued",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    }
+  },
+  "projectAccess": {
+    "pending": "Proposed access — awaiting cutover approval; existing financial access remains active.",
+    "reason": "Reason for the team or access change",
+    "person": "Person",
+    "areas": {
+      "financials": "Financials",
+      "budget_cost": "Budget and hours cost",
+      "expenses": "Expenses",
+      "supplier_fees": "Supplier fees"
     }
   }
 }

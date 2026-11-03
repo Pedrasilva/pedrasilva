@@ -2932,6 +2932,23 @@
       "placeholderDate": "Não é possível usar uma data provisória",
       "dateUndefined": "Data ainda não definida",
       "nonWorkingDate": "A data escolhida não é um dia útil"
+    },
+    "status": {
+      "planned": "Previsto",
+      "issued": "Emitido",
+      "paid": "Pago",
+      "cancelled": "Anulado"
+    }
+  },
+  "projectAccess": {
+    "pending": "Acesso proposto — aguarda aprovação do corte; os acessos financeiros atuais mantêm-se ativos.",
+    "reason": "Motivo da alteração da equipa ou acesso",
+    "person": "Pessoa",
+    "areas": {
+      "financials": "Financeiro",
+      "budget_cost": "Orçamento e custo das horas",
+      "expenses": "Despesas",
+      "supplier_fees": "Honorários de fornecedores"
     }
   }
 }
