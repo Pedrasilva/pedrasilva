@@ -1,3 +1,10 @@
+## Current request — Quote lifecycle follow-up
+- [ ] Explain unsent content/revision mismatch before acceptance and offer sending the current revision.
+- [ ] Make quote conversion the only path; approved primary converts and signing is secondary.
+- [ ] Manually losing an opportunity rejects its open quotes through guarded transitions.
+- [ ] Show relative construction months for proposal assistance without data changes.
+- [ ] Test disposable Mint mismatch/acceptance/loss/conversion, clean up, and report files/migrations/screenshots.
+
 ## Current request — CRM proposal → project lifecycle
 - [x] Unify lifecycle, next-action header, acceptance record, conversion checklist and actual latest-sent documents.
 - [x] Add guarded lifecycle/opportunity synchronization without modifying existing proposal content or commercial data.
