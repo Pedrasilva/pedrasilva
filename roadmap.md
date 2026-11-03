@@ -1,3 +1,11 @@
+## Current request — 3 November 20:52 decisions (cutover OFF)
+- [ ] Explicit audited global capability for Luis, Tatiana, Irene and the 21-project Ricardo Conceição; Patricia/Bernardo per-project; multiple team grants supported.
+- [ ] Only approved real change: Rita Saragoça manager of Mint with four switches, exact approval reason; verify all other Mint data unchanged.
+- [ ] Read-only effective Teresa PSA financial access/policies; any fix requires separate approval.
+- [ ] All-project terms/offset discrepancy list, proposed offsets only.
+- [ ] Finish pre-cutover projection/financial children/RPC/policy coverage; updated matrix/checklist; light single-fixture tests and final zero.
+- [ ] WAIT for final cutover go; Phase B remains deferred.
+
 ## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)
 - [x] 3 November 20:26 UTC after Tiny→Small: pooler/read/write/auth succeeded; old fixtures cleaned atomically, zero read 20:28 and 20:40 UTC. Item 2 implemented and Phase A staged; no cutover. One fixture at a time, all removed. Reports: docs/project-incoming-dates-report.md and docs/project-access-phase-a-report.md.
 - [x] Inventory team/roles, all 19 tab keys, source financial RLS and cross-app consumers; prepare plan without real-data changes. Live policies unavailable; exhaustive search/export trace required before implementation cutoff.
