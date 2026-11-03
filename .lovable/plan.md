@@ -1,9 +1,9 @@
 # Item 2 — Datas reais dos recebimentos nos projetos convertidos
 
 ## Âmbito e condição de execução
-**Apenas plano.** Nenhuma migração, alteração de aplicação ou escrita de dados neste passo. A leitura do esquema falhou por indisponibilidade da ligação em 3 novembro 2026; este plano baseia-se no código, tipos gerados, migrações e relatórios. As linhas atuais da Mint, respetivos IDs e datas ainda não foram confirmados.
+**Só plano, sem código/migrações/dados alterados.** Ligação indisponível em 3 novembro 2026: esquema e mapeamento abaixo vêm de código/migrações/relatórios; IDs e datas atuais da Mint não confirmados.
 
-O item 1 permanece pendente: limpar primeiro as fixtures anteriores e demonstrar contagens zero quando a ligação recuperar. Só depois da aprovação deste plano, ligação disponível e limpeza comprovada serão criadas novas cópias descartáveis.
+Item 1 pendente: limpar fixtures anteriores e provar zero quando a ligação voltar, antes de novos testes aprovados.
 
 Não alterar valores, IVA, condições de pagamento, conteúdo de propostas, contrato de referência nem `pm_convert_relative_quote`. Não converter nem editar a Mint real. Sem backfill de clientes.
 
@@ -28,20 +28,20 @@ Os nomes FT01–08 abaixo identificam prestações do plano, **não comprovam em
 
 «Semana 2» é apresentação, não uma regra +10 dias: ligar pelo ID do snapshot aceite e `source_quote_stage_id`, nunca pelo nome.
 
-**Por confirmar antes da implementação:** IDs das oito linhas, ligações às fases, adjudicação, datas do contrato, overrides e evidência de emissão/pagamento. Sem acesso à base, nenhuma linha pode ser declarada definitivamente mapeada ou impossível de mapear.
+Confirmar IDs/ligações das oito linhas, adjudicação, contrato, overrides e emissão/pagamento; nenhuma é definitivamente mapeada sem leitura atual.
 
-As quatro mensalidades não são pagamentos de fim de fase: preservar a regra mensal existente (primeiro dia útil do mês da avença + ordinal), não converter as quatro para o fim da mesma fase ou datas fixas. Preservar também linhas legadas `stage_start`. O seletor principal oferece Adjudicação, Conclusão de fase e Data fixa; mensalidade/início de fase existentes mantêm regra explícita sem alteração comercial.
+Mensalidades mantêm primeiro dia útil do mês da avença + ordinal, nunca quatro pagamentos no mesmo fim de fase. Preservar `stage_start` legado. Seletor: Adjudicação/Conclusão de fase/Data fixa, com regras mensais/início existentes explícitas.
 
 Listar ligações ausentes/duplicadas, fase de outro projeto, datas/ordinais/evidência ausentes. Mostrar «Por definir» e causa, nunca hoje ou datas 2000.
 
 ## Regras das datas
-1. **Adjudicação:** evidência aceite imutável; não confundir adjudicação com data de início operacional. Guardar associação à evidência, não acompanhar futuras alterações da oportunidade/proposta. Comparar separadamente com a data contratual existente, ainda que a conversão antiga a tenha associado ao início do projeto.
-2. **Conclusão de fase:** usar exatamente `pm_stages.end_date` atual, já calculada pelo Gantt/calendário operacional. Não somar a duração uma segunda vez. Alterações no Gantt mudam a previsão na leitura seguinte.
+1. **Adjudicação:** evidência aceite imutável, não início operacional; não acompanhar alterações posteriores da proposta/oportunidade. Comparar com o contrato original mesmo se a conversão antiga usou início do projeto.
+2. **Conclusão:** `pm_stages.end_date` atual, já calculada pelo Gantt; não somar duração novamente. Movimento muda previsão na leitura seguinte.
 3. **Data fixa/override:** manter o dia escolhido, mesmo se não útil, com aviso; nunca deslocar silenciosamente uma data manual. Limpar override restaura o cálculo pelo marco.
 4. **Mensalidades:** conservar ordinal por linha e direção, proveniente do plano aceite; resolver mês pela avença operacional e ajustar ao primeiro dia útil com `pm_calendar_shift(...,0)`.
 5. Feriados e fechos usam o calendário comum `holidays`. Não alterar/recalcular fases em leituras. Um fim de fase legado não útil é sinalizado para corrigir no Gantt, não substituído por outro dia sem aviso.
-6. **Desvio:** número assinado de dias úteis entre data contratual e data prevista (0 no mesmo dia; positivo = atraso), excluindo fins de semana, feriados e fechos. Devolver também diferença de dias de calendário, com nome distinto, para reutilização futura sem ambiguidade.
-7. **Recebimento:** manter o `payment_offset_days` existente, aplicado uma vez em dias de calendário, como atualmente. Não reinterpretar condições comerciais como dias úteis. Override de faturação repercute-se na previsão de recebimento através do mesmo offset, salvo override independente de recebimento.
+6. **Desvio:** dias úteis assinados contrato → previsão (positivo = atraso); também devolver dias de calendário, separadamente.
+7. **Recebimento:** `payment_offset_days` uma vez em dias de calendário, preservando termos. Override de faturação altera recebimento pelo mesmo offset, salvo override independente.
 
 ## Contrato original — fonte independente e só de leitura
 Usar `pm_project_contract_baseline_payments.expected_invoice_date/expected_payment_date` com correspondência comprovada. Migrações 0088 → 0092 → 0095 → 0215 resolvem datas na conversão; confirmar instalação/dados.
@@ -86,7 +86,7 @@ Guardar datas/ligações apenas por ações autorizadas PM/admin com âmbito fin
 - Alterar `src/routes/_app.projects.$projectId.tsx`: Entrada convertida usa o adaptador operacional, não a superfície da proposta.
 - Alterar invalidação em `src/lib/projects/use-project-planner-adapter.ts`/`use-planner.ts` após saves/Undo, conforme fluxo existente.
 - Reutilizar `src/lib/projects/use-contract-baseline.ts` sem escritas. Traduções EN/PT `projects.json`, common/glossary.
-- Rever consumidores PM/agrupamento em `project-financial-tab.tsx` e `invoice-grouping-control.tsx` para não apresentar duas previsões divergentes; não alterar valores/grupos históricos. Páginas futuras de Finance não são construídas agora.
+- Rever `project-financial-tab.tsx`/`invoice-grouping-control.tsx` para previsões consistentes; valores/grupos históricos intactos. Sem construir futuras páginas Finance.
 - Testes `scripts/test-project-payment-timing.test.ts` e SQL descartável; regressões relativo/conversão. Regras Projects e relatório após execução.
 
 ## Verificação após aprovação
