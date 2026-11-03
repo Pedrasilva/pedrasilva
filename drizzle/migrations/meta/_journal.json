@@ -1604,6 +1604,55 @@
       "when": 1793738366705,
       "tag": "0228_project_payment_date_audit_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 229,
+      "version": "7",
+      "when": 1793741058556,
+      "tag": "0229_project_global_financial_capability",
+      "breakpoints": true
+    },
+    {
+      "idx": 230,
+      "version": "7",
+      "when": 1793741129700,
+      "tag": "0230_project_area_pre_cutover_reads",
+      "breakpoints": true
+    },
+    {
+      "idx": 231,
+      "version": "7",
+      "when": 1793741159870,
+      "tag": "0231_project_area_policy_callable_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 232,
+      "version": "7",
+      "when": 1793741197934,
+      "tag": "0232_project_area_viewer_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 233,
+      "version": "7",
+      "when": 1793741412303,
+      "tag": "0233_project_expense_area_rpc_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 234,
+      "version": "7",
+      "when": 1793741494281,
+      "tag": "0234_project_expense_attachment_area_gate",
+      "breakpoints": true
+    },
+    {
+      "idx": 235,
+      "version": "7",
+      "when": 1793741578002,
+      "tag": "0235_project_reimbursement_batch_area_boundary",
+      "breakpoints": true
     }
   ]
 }

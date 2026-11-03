@@ -1,5 +1,12 @@
 import {useQuery,useMutation,useQueryClient} from '@tanstack/react-query';
 import {supabase} from '@/integrations/supabase/client';
+import type {ProjectViewerAreas} from './project-area-tabs';
+export function useProjectViewerAreas(projectId:string){
+  return useQuery({queryKey:['pm-project-viewer-areas',projectId],queryFn:async()=>{
+    const {data,error}=await supabase.rpc('pm_project_viewer_areas',{_project:projectId});if(error)throw error;
+    return data as unknown as ProjectViewerAreas;
+  }});
+}
 export const PROJECT_ACCESS_AREAS=['financials','budget_cost','expenses','supplier_fees'] as const;
 export type ProjectAccessArea=typeof PROJECT_ACCESS_AREAS[number];
 export type ProjectAccessRow={resource_id:string;name:string;roles:string[];revision:number;provenance:string}&Record<ProjectAccessArea,boolean>;

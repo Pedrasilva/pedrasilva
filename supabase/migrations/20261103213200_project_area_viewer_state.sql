@@ -1,0 +1,3 @@
+CREATE FUNCTION public.pm_project_viewer_areas(_project uuid) RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT jsonb_build_object('active',public.pm_project_access_cutover_active(),'financials',public.pm_project_area_proposed(_project,'financials',auth.uid()),'budget_cost',public.pm_project_area_proposed(_project,'budget_cost',auth.uid()),'expenses',public.pm_project_area_proposed(_project,'expenses',auth.uid()),'supplier_fees',public.pm_project_area_proposed(_project,'supplier_fees',auth.uid())) $$;
+REVOKE ALL ON FUNCTION public.pm_project_viewer_areas(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.pm_project_viewer_areas(uuid) TO authenticated,service_role;

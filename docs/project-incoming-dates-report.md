@@ -41,3 +41,6 @@ Migrações 0222/0223/0224/0228 e mirrors `supabase/migrations/2026110320{31,32,
 ![Entrada EN](project-incoming-dates/mint-incoming-en.png)
 
 Leitura final 20:40:42 UTC: projetos/propostas/oportunidades/alocações descartáveis **0/0/0/0**; date audit=0 e access assignments/audit=0 (só fixtures foram criadas e apagadas).
+
+## Decisões 20:52 UTC — follow-up
+Projeção item 2 preparada para usar Financials após corte, mantendo autorização antiga enquanto OFF. [Revisão completa de termos/offsets](project-access-phase-a/payment-terms-offset-review.csv): **96 linhas em quatro projetos**, todas 0→30 propostas, nenhuma aplicada; Mint tem **sete** divergências (FT02–08), não só três. Somente a equipa/acesso Rita na Mint foi alterada por aprovação explícita, com motivo auditado; pagamentos, fases e baseline continuam iguais. [Checklist e limites do corte](project-access-phase-a-report.md) mantém aprovação final e verificação ON isolada pendentes.

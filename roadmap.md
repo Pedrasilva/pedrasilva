@@ -1,9 +1,10 @@
 ## Current request — 3 November 20:52 decisions (cutover OFF)
-- [ ] Explicit audited global capability for Luis, Tatiana, Irene and the 21-project Ricardo Conceição; Patricia/Bernardo per-project; multiple team grants supported.
-- [ ] Only approved real change: Rita Saragoça manager of Mint with four switches, exact approval reason; verify all other Mint data unchanged.
-- [ ] Read-only effective Teresa PSA financial access/policies; any fix requires separate approval.
-- [ ] All-project terms/offset discrepancy list, proposed offsets only.
-- [ ] Finish pre-cutover projection/financial children/RPC/policy coverage; updated matrix/checklist; light single-fixture tests and final zero.
+- [x] Explicit audited global capability for Luis, Tatiana, Irene and the 21-project Ricardo Conceição; Patricia/Bernardo per-project; two non-manager grants tested.
+- [x] Rita manager of Mint with four switches via audited actions/exact reason; other Mint financial/planning rows unchanged.
+- [x] Teresa reads zero financial rows in ten tables, Mint RPC Forbidden; eight authorized files confirmed Pedra Rioja. No Teresa fix applied.
+- [x] 96 all-project terms/offset disagreements in CSV, proposed 30 only; nothing applied.
+- [x] Gated projection/primary financial children/RPC/read-attachment coverage prepared; updated matrix/checklist, single fixture deleted, final zero 21:34:34 UTC.
+- [ ] Remaining pre-go: ON-mode isolated permission/child/batch/attachment/RPC validation, completed PT/EN UI, mixed Finance issued/queue privileged paths and baseline multi-area scope. Report names limitations; not ready for go yet.
 - [ ] WAIT for final cutover go; Phase B remains deferred.
 
 ## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)
@@ -12,7 +13,7 @@
 - [x] Database/auth recovered after resize at 20:26 UTC; cleanup completed first. Earlier pooler failures no longer reproduced in this run.
 - [x] Phase A staged access storage/four switches/provenance/append-only audit; admin-only manager/access actions and team_write closed; defaults/helpers; no multiple-manager conflicts or real assignments.
 - [ ] Phase A: protect purely financial tables/children and item 2 projection; team switches UI and area-gated financial tabs. Preserve all real financial data.
-- [ ] WAIT for Luis's matrix review/preservation choices before cutover: 1,176 combinations in docs/project-access-phase-a/access-matrix.csv. No Rita/Mint assignment. Remaining protected-RPC/child coverage and area-grant replacement must be completed before activation; gate remains false.
+- [ ] WAIT for final go only after remaining verification: revised 1,176 combinations in docs/project-access-phase-a/access-matrix-decisions.csv; Rita/Mint and four global exceptions explicitly approved and assigned. Gate remains false.
 - [x] Phase A staging tests/report/PT-EN screenshots on disposable fixtures; cleanup/zero and residual exposures documented. Full active-cutover permission matrix not tested and must precede activation.
 - [ ] Phase B is deferred: separate future plan, no implementation now for mixed-table SELECTs, home/global Gantt/insights/forecast/reports/search/exports/PDFs.
 

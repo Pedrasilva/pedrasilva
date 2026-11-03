@@ -49,4 +49,65 @@ Nove testes permanentes + parity/AST sem novos literais + build OK. Não houve t
 ![Equipa PT](project-access-phase-a/team-access-pt-PT.png)
 ![Equipa EN](project-access-phase-a/team-access-en.png)
 
-**Aguardar Luis:** rever perdas e indicar preservações; não foi aplicado corte nem concedido acesso a Rita/Mint.
+## Decisões de Luis — 3 novembro, 20:52 UTC
+
+Esta secção substitui as preservações e a proibição Rita/Mint acima. **Corte continua OFF.** Não autoriza ainda o corte, nem a Fase B.
+
+- Quatro capacidades globais explícitas guardadas pela ação admin `pm_change_global_financial_capability`: Luis Pedra Silva, Tatiana Shchenina, Irene Cunha e Ricardo Conceição (`ricardo@pedrasilva.com`, não Ricardo Cabrita). Quatro auditorias com autor e razão. Nenhum nome/ID na lógica de autorização; a atribuição é um registo protegido. Não concede administração nem escrita Finance.
+- Patricia Reis e Bernardo Nadais seguem as regras por projeto; retirado do predicado proposto o fallback automático `finance.dashboard/all`.
+- Rita Saragoça adicionada como manager de **Clinica Mint II**, quatro flags ON, pelas duas ações auditadas, motivo exato **Approved by Luis 2026-11-03**. Projeto/fases/prestações/faturas/despesas/custos de fornecedores/baseline comparados antes/depois: iguais. Não alterámos outro dado comercial ou de planeamento da Mint.
+- **Sim, vários membros da equipa podem ter switches ON**, sem serem PM. Teste numa única fixture: dois membros `support`, defaults OFF, ambos Financials/Expenses ON por admin, auditoria e limpeza verificadas.
+
+### Matriz atualizada
+[CSV completo — 1 176 combinações](project-access-phase-a/access-matrix-decisions.csv). Financials usa o predicado atual de faturas; outras áreas usam o helper legado, explicitamente como risco de exposição e não como prova de autorização.
+
+| Pessoa | Financeiro antes | Financeiro proposto | Perdas potenciais de predicado |
+|---|---:|---:|---:|
+| Adalberto Duarte | 0 | 0 | 0 |
+| Bernardo Nadais | 4 | 1 | 3 |
+| Francisco Oliveira | 0 | 0 | 0 |
+| Irene Cunha | 21 | 21 | 0 |
+| João Almeida | 0 | 1 | 0 |
+| Luis Pedra Silva | 21 | 21 | 0 |
+| Mariana Oliveira | 0 | 0 | 0 |
+| Patricia Reis | 3 | 0 | 3 |
+| Ricardo Cabrita | 0 | 0 | 0 |
+| Ricardo Conceição | 21 | 21 | 0 |
+| Rita Saragoça | 0 | 1 | 0 |
+| Tatiana Shchenina | 21 | 21 | 0 |
+| luispedrasilva@gmail.com | 0 | 0 | 0 |
+| teresa@pedrarioja.com | 0 | 0 | 63 |
+
+### Teresa — verificação efetiva, só leitura
+Sessão autenticada própria da conta Teresa: **zero linhas, sem erros** em `financial_documents`, `financial_document_lines`, `pm_invoices`, `pm_invoice_items`, `pm_payment_schedule_items`, baseline/filhos, `pm_expenses`, `pm_stage_supplier_costs`. `is_psa_staff=false`; projeção Mint `pm_project_incoming_timing` rejeitou com **Forbidden**.
+
+Políticas: `Authorized read pm_invoices` e `Authorized read pm_payment_schedule_items` exigem PSA + entidade/permissão financeira (ou admin); baseline/filhos e fornecedores têm restrição `psa_staff_only`; despesas também `psa_staff_only`. O helper legado verdadeiro não ultrapassa essas restrições. Portanto **não ficou demonstrada leitura de linhas financeiras PSA hoje e não foi aplicada correção Teresa**.
+
+Listagem limitada de oito ficheiros autorizados em `financial-documents`: cruzamento administrativo confirmou todos como **Pedra Rioja**, via `psa_staff_or_own_finance_files`/`fin_storage_visible`, não PSA. Não é uma auditoria exaustiva de cada URL, ficheiro órfão ou servidor privilegiado.
+
+### Condições versus offset — nenhuma correção aplicada
+[Todas as 96 divergências, com ID/termos/offset atual/proposto](project-access-phase-a/payment-terms-offset-review.csv): Alcanena **6**, Mastercard **80**, Ericeira **3**, Mint **7**. Todas propõem **0 → 30 dias de calendário**; sete Mint incluem FT02–08, não apenas FT02–04 da observação anterior. [Termos não interpretáveis](project-access-phase-a/payment-terms-uninterpreted.csv): **0** entre linhas com termos não vazios. Linhas sem termos não permitem inferir offset. Ambas as direções foram incluídas. A lista preserva estado fiscal; qualquer futura correção necessita aprovação e deve respeitar congelamentos.
+
+### Proteção preparada nesta entrega (inativa até ao corte)
+- Projeção item 2 corta o helper legado **apenas quando ON**. Finance/PM date-only permanece separado de montantes/IVA/termos/emitir/pagar.
+- Grants SELECT por área e barreiras restritivas para invoices/itens, prestações, baseline/filhos, despesas, fornecedores, materiais, baselines comerciais e de fase. Os antigos SELECT permissivos ainda existem, mas a barreira ativa impede que ultrapassem as flags; não retirar políticas ALL que também protegem escrita.
+- Filhos despesas: eventos, invoice/receipt/credit allocations; obrigações/reimbursement allocations e lotes exigem Expenses em todos os projetos incluídos para impedir totais indiretos.
+- Ações `pe_action`, `pe_link_queue`, `pe_confirm_intake`, `pe_save_intake` recebem guarda gated sem substituir validação fiscal, claims, ownership ou autorização de escrita existente. Internos `pm_incoming_resolve`, `pe_event`, `pe_obligation_sync`, `pm_invoice_regroup`, `pm_invoice_apply_group` mantêm EXECUTE cliente revogado.
+- Comprovativos já ligados a despesas herdam Expenses na leitura de Storage, incluindo ficheiros partilhados. Uploads sem vínculo e outros documentos mantêm as regras anteriores; não foi aplicado bloqueio global ao bucket.
+- Navegação/deep links usam mapa partilhado e projeção viewer; conteúdo financeiro aguarda autorização e flags entram apenas quando ON. Overview/Gantt mistos continuam Fase B.
+
+### Checklist final — NÃO dar go ainda
+- [x] Quatro exceções auditadas, Rita/Mint autorizada, matriz revista e vários membros ON comprovados.
+- [x] Teresa: contagens efetivas e políticas verificadas; zero PSA nas tabelas testadas; nenhuma correção aplicada.
+- [x] 96 divergências listadas sem escrita de offsets/termos.
+- [x] Item 2 read boundary, filhos principais, grants/barreiras, ações de despesas e leitura de comprovativos preparados.
+- [x] Nove testes Vitest passaram; defaults/auditoria e dois grants não-PM verificados na fixture única; migrations mirrors idênticos; build OK.
+- [ ] **Antes do go:** testar regras ON em ambiente isolado/transaction rollback (sem ativar gate real): matriz de utilizadores, parent/child/lotes, anexos e RPCs, PM com Financial ON e montante bloqueado. O gate real nunca foi ativado nem simulado sobre dados reais nesta entrega.
+- [ ] **Antes do go:** verificar páginas completas PT/EN com carregamento terminado e fixtures, Finance issued-document/queue/attachment server paths e eventuais leitores privilegiados. A captura desta sessão ainda mostra pedidos em carregamento; não constitui prova visual final.
+- [ ] **Antes do go:** revisão completa dos contextos de baseline (snapshot contém várias áreas), grants por Budget e Suppliers, e compatibilidade Finance invoice editor para leitores sem Finance global. Restrições de página por flags não concedem automaticamente acesso ao módulo Finance.
+- [ ] Aprovação final explícita de Luis; só depois preparar ação de corte com comparações/rollback.
+
+Fase B permanece: tabelas mistas/propostas/snapshots/horas/recursos, Overview/Gantt/home/insights/forecast/reports/search/exports/PDFs, documentos/notas/URLs e servidores privilegiados não inventariados integralmente. **Não afirmar isolamento completo nem prontidão final**; as verificações abertas não dependem de autorização de corte e ainda precisam ser concluídas.
+
+### Ficheiros adicionais/evidência
+Migrações **0229–0235**, mirrors `supabase/migrations/2026110321*.sql`; `project-area-tabs.ts`, `use-project-access.ts`, detalhe projeto, testes `test-project-area-tabs.test.ts` e `test-project-access-decisions-e2e.py`. Capacidades/auditoria global protegidas; cutover OFF. Teste repetido após última migração; nove testes e sete mirrors byte-identical passaram. Leitura final **21:34:34 UTC**: projects/quotes/opportunities/allocations/access descartáveis **0/0/0/0/0**; quatro capacidades e auditorias reais aprovadas preservadas, duas auditorias Mint preservadas. Build OK 21:34:26 UTC.
