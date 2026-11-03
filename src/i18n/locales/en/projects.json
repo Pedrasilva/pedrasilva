@@ -653,6 +653,7 @@
     }
   },
   "gantt": {
+    "convertedMappingBlocked": "Editing blocked: no unique live record could be found for {{names}}. The proposal has not been changed.",
     "actuals": {
       "difference": "Difference",
       "estimate": "Estimated effort",

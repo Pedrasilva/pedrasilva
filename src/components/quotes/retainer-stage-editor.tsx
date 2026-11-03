@@ -79,12 +79,14 @@ interface Props {
   quoteId: string;
   stage: QuoteStage;
   allocations: QuoteAllocationWithResource[];
+  readOnly?: boolean;
 }
 
-export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
+export function RetainerStageEditor({ quoteId, stage, allocations, readOnly = false }: Props) {
   const { t, i18n } = useTranslation("crm");
   const lifecycleQ = useQuoteLifecycle(quoteId);
   const proposalTiming = lifecycleQ.data?.state !== "converted";
+  const disabled = readOnly || !lifecycleQ.isSuccess || !proposalTiming;
 
   const upsertStage = useUpsertQuoteStage(quoteId);
   const delStage = useDeleteQuoteStage(quoteId);
@@ -144,22 +146,25 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   // summaries reflect the retainer's contractual value. Only write when it
   // actually differs.
   useEffect(() => {
+    if (disabled) return;
     const target = Math.round(totalBudget * 100) / 100;
     const current = Math.round(Number(stage.budget || 0) * 100) / 100;
     if (target !== current) {
       upsertStage.mutate({ id: stage.id, budget: target });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalBudget, stage.id]);
+  }, [totalBudget, stage.id, disabled]);
 
   // ---- handlers ----
 
   const setMonths = (n: number) => {
+    if (disabled) return;
     if (n < 1 || n > 120) return;
     upsertStage.mutate({ id: stage.id, retainer_months: n });
   };
 
   const setAnchorMonth = (firstOfMonth: string) => {
+    if (disabled) return;
     // Snap to first-of-month and update both anchor + the stage start/end so
     // the Gantt-style date range stays in sync.
     const start = anchorMonthStart(firstOfMonth);
@@ -179,11 +184,13 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   };
 
   const setCapacity = (hpm: number) => {
+    if (disabled) return;
     if (hpm < 1) return;
     upsertStage.mutate({ id: stage.id, retainer_capacity_hours_per_month: hpm });
   };
 
   const updateAllocPct = (a: QuoteAllocationWithResource, pctNext: number) => {
+    if (disabled) return;
     const pct = Math.max(0, Math.min(100, pctNext));
     const hpm = pctToHoursPerMonth(pct, capacity);
     const hpd = hoursPerMonthToHpd(hpm, anchor);
@@ -195,6 +202,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   };
 
   const updateAllocHpm = (a: QuoteAllocationWithResource, hpmNext: number) => {
+    if (disabled) return;
     const hpm = Math.max(0, hpmNext);
     const pct = hoursPerMonthToPct(hpm, capacity);
     const hpd = hoursPerMonthToHpd(hpm, anchor);
@@ -206,6 +214,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   };
 
   const handleAddResource = async () => {
+    if (disabled) return;
     if (!picker.resource_id) {
       toast.error(t("workspace.planning.errorAllocResStage"));
       return;
@@ -235,12 +244,14 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   };
 
   return (
+    <fieldset disabled={disabled} className="min-w-0" data-retainer-stage={stage.id}>
     <Card className="border-primary/40">
       <CardHeader className="space-y-3 pb-3">
         {/* Title row + remove */}
         <div className="flex items-center gap-2">
           <Repeat2 className="h-4 w-4 text-primary" />
           <Input
+            disabled={disabled}
             key={`name-${stage.id}-${stage.updated_at}`}
             defaultValue={stage.name}
             className="h-8 max-w-xs font-semibold"
@@ -256,6 +267,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
           <div className="flex-1" />
           <div className="flex items-center gap-2 mr-1">
             <Switch
+              disabled={disabled}
               id={`feeonly-${stage.id}`}
               checked={isFeeOnly}
               onCheckedChange={(v) =>
@@ -272,7 +284,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
               })}
             </Label>
           </div>
-          <Popover>
+          {!disabled && <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8">
                 <Settings2 className="h-3.5 w-3.5" />
@@ -344,7 +356,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 </p>
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover>}
           <Button
             variant="ghost"
             size="sm"
@@ -362,7 +374,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
         {/* Anchor month + months selector */}
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            {proposalTiming ? <p className="h-9 text-sm font-medium">{t("quotes.flow.constructionMonths", constructionMonthRange(months))}</p> : <>
+            {proposalTiming || disabled ? <p className="h-9 text-sm font-medium">{t("quotes.flow.constructionMonths", constructionMonthRange(months))}</p> : <>
             <Label className="text-xs">
               {t("workspace.planning.retainerMonthly.anchor", {
                 defaultValue: "Anchor month",
@@ -419,7 +431,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
           {/* Live totals badge */}
           <div className="ml-auto flex flex-col items-end text-right">
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {proposalTiming ? t("quotes.flow.constructionMonths", constructionMonthRange(months)) : t("workspace.planning.retainerMonthly.summary", {
+              {proposalTiming || disabled ? t("quotes.flow.constructionMonths", constructionMonthRange(months)) : t("workspace.planning.retainerMonthly.summary", {
                 defaultValue: "{{anchor}} · {{months}} months",
                 anchor: formatAnchorMonth(anchor, isPt ? "pt-PT" : "en"),
                 months,
@@ -486,7 +498,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
               </p>
             </div>
 
-            {!proposalTiming && <RetainerMonthlyReadings
+            {!proposalTiming && !disabled && <RetainerMonthlyReadings
               quoteId={quoteId}
               stageId={stage.id}
               anchorMonth={anchor}
@@ -602,7 +614,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
             </Table>
 
             {/* Add resource */}
-            {resources.length > 0 && (
+            {!disabled && resources.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-t pt-3">
                 <div className="md:col-span-3">
                   <Label className="text-xs">{t("workspace.planning.resource")}</Label>
@@ -650,5 +662,6 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
         )}
       </CardContent>
     </Card>
+    </fieldset>
   );
 }

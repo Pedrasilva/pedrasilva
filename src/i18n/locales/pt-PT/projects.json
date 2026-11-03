@@ -653,6 +653,7 @@
     }
   },
   "gantt": {
+    "convertedMappingBlocked": "Edição bloqueada: não foi encontrado um registo operacional único para {{names}}. A proposta não foi alterada.",
     "actuals": {
       "difference": "Diferença",
       "estimate": "Esforço estimado",
