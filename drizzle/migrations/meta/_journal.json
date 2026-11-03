@@ -1625,6 +1625,13 @@
       "when": 1793741159870,
       "tag": "0231_project_area_policy_callable_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 232,
+      "version": "7",
+      "when": 1793741197934,
+      "tag": "0232_project_area_viewer_state",
+      "breakpoints": true
     }
   ]
 }

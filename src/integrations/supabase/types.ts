@@ -19061,6 +19061,7 @@ export type Database = {
           stage_role: string
         }[]
       }
+      pm_project_viewer_areas: { Args: { _project: string }; Returns: Json }
       pm_quote_calendar_allocations: {
         Args: { _quote: string; _start: string }
         Returns: Json
