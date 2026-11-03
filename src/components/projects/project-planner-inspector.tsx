@@ -39,7 +39,7 @@ import {
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { DepType } from "@/lib/projects/dependencies";
 import { scheduleCalendar } from "@/lib/projects/schedule-engine";
-import { getWorkingCalendar } from "@/lib/projects/working-calendar";
+import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 
 const DEP_TYPES: DepType[] = ["FS", "SS", "FF", "SF"];
 
@@ -275,10 +275,12 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             <input
               type="checkbox"
               checked={isMilestone}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const on = e.target.checked;
+                if (on && planningOnly) await updateStageCascade.mutateAsync({ id: stage.id, projectId,
+                  start_date: stage.start_date, end_date: stage.start_date });
                 patch(on
-                  ? ({ end_date: stage.start_date, is_milestone: true })
+                  ? (planningOnly ? { is_milestone: true } : { end_date: stage.start_date, is_milestone: true })
                   : ({ is_milestone: false }));
               }}
               className="h-4 w-4"
@@ -310,7 +312,10 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                         parseISO(stage.end_date).getTime() -
                         parseISO(stage.start_date).getTime();
                       const newStart = parseISO(v);
-                      const newEnd = new Date(newStart.getTime() + durMs);
+                      const calendar = scheduleCalendar(getWorkingCalendarHolidays());
+                      const newEnd = planningOnly
+                        ? parseISO(calendar.shift(calendar.snap(v), calendar.duration(stage.start_date, stage.end_date) - 1))
+                        : new Date(newStart.getTime() + durMs);
                       updateStageCascade
                         .mutateAsync({
                           id: stage.id,
@@ -318,6 +323,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           projectId,
                           shiftAllocations: true,
+                          move: planningOnly,
                         })
                         .catch((err) => toast.error((err as Error).message));
                     }}
@@ -339,7 +345,10 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                         parseISO(stage.end_date).getTime() -
                         parseISO(stage.start_date).getTime();
                       const newEnd = parseISO(v);
-                      const newStart = new Date(newEnd.getTime() - durMs);
+                      const calendar = scheduleCalendar(getWorkingCalendarHolidays());
+                      const newStart = planningOnly
+                        ? parseISO(calendar.shift(calendar.snap(v, -1), -(calendar.duration(stage.start_date, stage.end_date) - 1)))
+                        : new Date(newEnd.getTime() - durMs);
                       updateStageCascade
                         .mutateAsync({
                           id: stage.id,
@@ -347,6 +356,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           projectId,
                           shiftAllocations: true,
+                          move: planningOnly,
                         })
                         .catch((err) => toast.error((err as Error).message));
                     }}

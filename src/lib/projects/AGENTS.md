@@ -1,5 +1,7 @@
 # Projects module rules
 
+- Converted quote schedules retain QuoteGantt's shared chart with source-ID-validated operational records and project-only editing; proposal commercial/retainer fields are read-only, missing mappings fail closed, and relative rows never override conversion. Why: operational scheduling must not rewrite accepted proposal, contract or payment evidence.
+
 - Allocation removal retires via planning_removed_at; database guards reject task/allocation/stage/project deletion with logged or imported history, including descendant stages. Why: planning edits must never cascade-delete timesheet history.
 - Timesheet preparation uses pm_ensure_timesheet_task for deterministic own-task reuse across multiple allocations; missing technical links are retired zero-hour rows and never planning. Why: manual, assistant and calendar logging must not depend on or recreate future bookings.
 - Planning cutoffs use pm_planning_cutoff_preview/pm_prepare_planning_cutoff and explicit atomic apply/undo with durable before/after allocation snapshots and revision conflicts. Why: final approval must be separate from preparation and undo must not overwrite later planning or timesheets.
