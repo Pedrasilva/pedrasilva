@@ -1,3 +1,8 @@
+## Current request — Quote client-company conversion
+- [ ] Resolve/inherit the opportunity company, exclude linkage/bookkeeping from content guards, and backfill NULL quote companies.
+- [ ] Add inline conversion company picker and always-visible pre-approval conversion card.
+- [ ] Convert only a signed disposable Mint copy, verify preservation, delete fixtures and report counts/screenshots.
+
 ## Current request — Quote lifecycle follow-up
 - [x] Explain unsent content/revision mismatch before acceptance and offer sending the current revision.
 - [x] Make quote conversion the only path; approved primary converts and signing is secondary.
