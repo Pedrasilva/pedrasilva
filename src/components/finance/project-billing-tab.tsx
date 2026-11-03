@@ -42,6 +42,8 @@ import { IssuedPdfUpload } from './issued-pdf-upload';
 import { useCan } from '@/hooks/use-permissions-v2';
 import { useHasPermission } from '@/hooks/use-permissions';
 import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
+import { useFinanceAccess } from '@/hooks/use-finance-access';
+import { canMutateProjectBilling } from '@/lib/finance/project-billing-access';
 
 const DASH = "—";
 
@@ -221,6 +223,8 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
   const [editorOpen,setEditorOpen] = useState(false);
   const edit = useCan('finance.documents.edit','all');
   const legacy = useHasPermission('finance.dashboard');
+  const finance = useFinanceAccess();
+  const canMutate = canMutateProjectBilling(finance.hasAccess,edit.allowed,legacy.allowed);
   const milestones = useInvoiceMilestones(projectId);
 
   const issued = useMemo(
@@ -308,7 +312,7 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 
   // TODO: when /finance/documents/$documentId supports a `project_id` search param
   // for prefill, switch this CTA to pass `search={{ project_id: projectId }}`.
-  const newDocLink = <div className="flex flex-wrap gap-2">{(edit.allowed || legacy.allowed) && <><IssuedPdfUpload projectId={projectId}/><Button size="sm" onClick={()=>setEditorOpen(true)}><Plus className="mr-1.5 size-4"/>{t('finance:projectBilling.cta.createInFinance')}</Button></>}<InvoiceEditorDialog open={editorOpen} documentId={null} initialProjectId={projectId} onClose={()=>setEditorOpen(false)}/></div>;
+  const newDocLink = <div className="flex flex-wrap gap-2">{canMutate && <><IssuedPdfUpload projectId={projectId}/><Button size="sm" onClick={()=>setEditorOpen(true)}><Plus className="mr-1.5 size-4"/>{t('finance:projectBilling.cta.createInFinance')}</Button><InvoiceEditorDialog open={editorOpen} documentId={null} initialProjectId={projectId} onClose={()=>setEditorOpen(false)}/></>}</div>;
 
   if (isLoading) {
     return (
