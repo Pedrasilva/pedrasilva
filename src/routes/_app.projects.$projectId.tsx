@@ -186,7 +186,6 @@ type TabKey =
 function ProjectDetail() {
   const dateLocale = useDateLocale();
   const { t } = useTranslation();
-  const projectFinanceAccess = useFinanceAccess();
   const { projectId } = Route.useParams();
   const viewerAreas = useProjectViewerAreas(projectId);
   const clientProjectQ = useProjectDetail(projectId);
@@ -719,7 +718,7 @@ function ProjectDetail() {
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             {canOpenProjectTab('expenses',viewerAreas.data)&&<TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />}
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
-            {projectFinanceAccess.hasAccess && canOpenProjectTab('billing',viewerAreas.data)&&<TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
+            {canOpenProjectTab('billing',viewerAreas.data)&&<TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
             {canOpenProjectTab('architecture',viewerAreas.data)&&<TabBtn icon={Building2} label={t("projects:detail.ui.architecture")} active={tab === "architecture"} onClick={() => setTab("architecture")} />}
             {canOpenProjectTab('consultants',viewerAreas.data)&&<TabBtn icon={UsersIcon} label={t("projects:detail.ui.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />}
             {canOpenProjectTab('incoming',viewerAreas.data)&&<TabBtn icon={ArrowDownToLine} label={t("projects:detail.ui.incoming")} active={tab === "incoming"} onClick={() => setTab("incoming")} />}
@@ -1075,7 +1074,7 @@ function ProjectDetail() {
               </div>
             )}
 
-            {tab === "billing" && projectFinanceAccess.hasAccess && canOpenProjectTab(tab,viewerAreas.data) && (
+            {tab === "billing" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 <ProjectBillingTab projectId={projectId} />
               </div>
