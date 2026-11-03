@@ -1,7 +1,7 @@
 ## Current request — CRM proposal → project lifecycle
-- [ ] Unify lifecycle, next-action header, acceptance record, conversion checklist and latest-sent documents.
-- [ ] Add guarded lifecycle/opportunity synchronization without modifying existing proposal content or commercial data.
-- [ ] Validate draft → project on a disposable Mint copy, calendar/payment dates, missing-checklist cases and cleanup; capture every state and report migrations/files.
+- [x] Unify lifecycle, next-action header, acceptance record, conversion checklist and actual latest-sent documents.
+- [x] Add guarded lifecycle/opportunity synchronization without modifying existing proposal content or commercial data.
+- [x] Validate draft → project on disposable Mint copies, calendar/payment dates and cleanup; capture states and report migrations/files in docs/quote-lifecycle-report.md. External signature delivery and all missing-checklist permutations remain unverified, as documented.
 
 ## Current request — Clínica Mint II REV 01 content
 - [x] Update only the authorized document content, cover, durations, relative schedules and block order; preserve phase prose, fees and payments.
