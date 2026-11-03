@@ -48,3 +48,5 @@
 - Application UI uses whole-sentence translation messages with interpolation or Trans markup and i18next plural counts; display-only locale formatters never alter input serialization or document output. Why: word order, plurality and formatting must follow the UI locale without changing data or client documents.
 
 - Server/RPC errors are translated only at presentation through the shared error translator and toast wrapper; exact/anchored known messages use paired errors-namespace keys, unknown details stay verbatim and stored errors are never rewritten. Why: localize user feedback without changing server semantics or publication evidence.
+
+- CRM quote workflow displays use crm_quote_lifecycle and guarded acceptance/signature actions; conversion pins accepted content and its sent snapshot, while existing calendar preview remains authoritative. Why: document status, opportunity stage and header actions must agree without rewriting commercial data.

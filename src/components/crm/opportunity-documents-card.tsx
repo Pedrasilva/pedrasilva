@@ -72,14 +72,14 @@ function useProposalDocuments(scope: { opportunityId?: string; quoteId?: string 
 
       const quoteQuery = sb
         .from("fee_proposals")
-        .select("id, titulo, archived_at, deleted_at");
+        .select("id, titulo, revision_number, archived_at, deleted_at");
       const { data: quotes, error: qErr } = await (scope.quoteId
         ? quoteQuery.eq("id", scope.quoteId)
-        : quoteQuery.eq("opportunity_id", scope.opportunityId!));
+        : quoteQuery.eq("opportunity_id", scope.opportunityId ?? ""));
 
       if (qErr) throw new Error(qErr.message);
       const activeQuotes = ((quotes ?? []) as {
-        id: string; titulo: string | null; archived_at: string | null; deleted_at: string | null;
+        id: string; titulo: string | null; revision_number: number; archived_at: string | null; deleted_at: string | null;
       }[]).filter((q) => !q.archived_at && !q.deleted_at);
       if (activeQuotes.length === 0) return [];
 
@@ -129,7 +129,7 @@ function useProposalDocuments(scope: { opportunityId?: string; quoteId?: string 
           proposalId: s.proposal_id,
           quoteId: proposal?.quote_id ?? "",
           quoteTitle: quote?.titulo ?? "",
-          revNumber: s.rev_number ?? 0,
+          revNumber: Math.max(s.rev_number ?? 0, (quote?.revision_number ?? 1) - 1),
           createdAt: s.created_at,
           pdfPath: s.pdf_storage_path,
           pdfFilename: s.pdf_filename,
@@ -241,7 +241,7 @@ function DocumentsCard({ scope }: { scope: { opportunityId?: string; quoteId?: s
                         size="sm"
                         variant="outline"
                         className="h-7 text-[11px]"
-                        onClick={() => void openStoredPdf(sig.signed_pdf_storage_path!)}
+                        onClick={() => { if (sig.signed_pdf_storage_path) void openStoredPdf(sig.signed_pdf_storage_path); }}
                       >
                         <FileSignature className="mr-1 h-3 w-3" />
                         {t("opportunities.documents.downloadSigned")}
