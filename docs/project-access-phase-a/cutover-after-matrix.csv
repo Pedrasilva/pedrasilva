@@ -1,0 +1,1177 @@
+area,person,project,user_id,project_id,proposed_access,current_invoice_access,legacy_financial_access
+financials,Irene Cunha,Clinica Mint II,d1c1d349-2d32-42f6-b01b-89e51144a426,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+financials,Irene Cunha,0410B Telheiras Obra,d1c1d349-2d32-42f6-b01b-89e51144a426,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+financials,Irene Cunha,2608 Alcanena,d1c1d349-2d32-42f6-b01b-89e51144a426,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+financials,Irene Cunha,Consultoria Greg Freeman,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000001,True,True,True
+financials,Irene Cunha,Projeto histórico N10GLED,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000002,True,True,True
+financials,Irene Cunha,2663 Alteração de loteamento - Ericeira,d1c1d349-2d32-42f6-b01b-89e51144a426,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+financials,Irene Cunha,2101 Colares,d1c1d349-2d32-42f6-b01b-89e51144a426,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+financials,Irene Cunha,0434 Sérgio Varanda,d1c1d349-2d32-42f6-b01b-89e51144a426,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+financials,Irene Cunha,2025 Clinica Mulher,d1c1d349-2d32-42f6-b01b-89e51144a426,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+financials,Irene Cunha,Bolshaya,d1c1d349-2d32-42f6-b01b-89e51144a426,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+financials,Irene Cunha,2128 Sandycove Road Dental Clinic,d1c1d349-2d32-42f6-b01b-89e51144a426,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+financials,Irene Cunha,2502 Uralchem IV,d1c1d349-2d32-42f6-b01b-89e51144a426,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+financials,Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,d1c1d349-2d32-42f6-b01b-89e51144a426,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+financials,Irene Cunha,2521 Escritórios BCG,d1c1d349-2d32-42f6-b01b-89e51144a426,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+financials,Irene Cunha,DLMC Oral Surgery,d1c1d349-2d32-42f6-b01b-89e51144a426,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+financials,Irene Cunha,2609 Mastercard,d1c1d349-2d32-42f6-b01b-89e51144a426,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+financials,Irene Cunha,Escritório Sakur Dubai,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000003,True,True,True
+financials,Irene Cunha,Projeto histórico Museu Zer0 / ILC,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000004,True,True,True
+financials,Irene Cunha,2600 Quelhas,d1c1d349-2d32-42f6-b01b-89e51144a426,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+financials,Irene Cunha,2028 CTR Capital Towers Restaurant,d1c1d349-2d32-42f6-b01b-89e51144a426,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+financials,Irene Cunha,2506 Apartamento Tiago Carreiras,d1c1d349-2d32-42f6-b01b-89e51144a426,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+budget_cost,Irene Cunha,Clinica Mint II,d1c1d349-2d32-42f6-b01b-89e51144a426,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+budget_cost,Irene Cunha,0410B Telheiras Obra,d1c1d349-2d32-42f6-b01b-89e51144a426,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+budget_cost,Irene Cunha,2608 Alcanena,d1c1d349-2d32-42f6-b01b-89e51144a426,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+budget_cost,Irene Cunha,Consultoria Greg Freeman,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000001,True,True,True
+budget_cost,Irene Cunha,Projeto histórico N10GLED,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000002,True,True,True
+budget_cost,Irene Cunha,2663 Alteração de loteamento - Ericeira,d1c1d349-2d32-42f6-b01b-89e51144a426,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+budget_cost,Irene Cunha,2101 Colares,d1c1d349-2d32-42f6-b01b-89e51144a426,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+budget_cost,Irene Cunha,0434 Sérgio Varanda,d1c1d349-2d32-42f6-b01b-89e51144a426,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+budget_cost,Irene Cunha,2025 Clinica Mulher,d1c1d349-2d32-42f6-b01b-89e51144a426,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+budget_cost,Irene Cunha,Bolshaya,d1c1d349-2d32-42f6-b01b-89e51144a426,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+budget_cost,Irene Cunha,2128 Sandycove Road Dental Clinic,d1c1d349-2d32-42f6-b01b-89e51144a426,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+budget_cost,Irene Cunha,2502 Uralchem IV,d1c1d349-2d32-42f6-b01b-89e51144a426,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+budget_cost,Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,d1c1d349-2d32-42f6-b01b-89e51144a426,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+budget_cost,Irene Cunha,2521 Escritórios BCG,d1c1d349-2d32-42f6-b01b-89e51144a426,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+budget_cost,Irene Cunha,DLMC Oral Surgery,d1c1d349-2d32-42f6-b01b-89e51144a426,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+budget_cost,Irene Cunha,2609 Mastercard,d1c1d349-2d32-42f6-b01b-89e51144a426,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+budget_cost,Irene Cunha,Escritório Sakur Dubai,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000003,True,True,True
+budget_cost,Irene Cunha,Projeto histórico Museu Zer0 / ILC,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000004,True,True,True
+budget_cost,Irene Cunha,2600 Quelhas,d1c1d349-2d32-42f6-b01b-89e51144a426,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+budget_cost,Irene Cunha,2028 CTR Capital Towers Restaurant,d1c1d349-2d32-42f6-b01b-89e51144a426,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+budget_cost,Irene Cunha,2506 Apartamento Tiago Carreiras,d1c1d349-2d32-42f6-b01b-89e51144a426,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+expenses,Irene Cunha,Clinica Mint II,d1c1d349-2d32-42f6-b01b-89e51144a426,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+expenses,Irene Cunha,0410B Telheiras Obra,d1c1d349-2d32-42f6-b01b-89e51144a426,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+expenses,Irene Cunha,2608 Alcanena,d1c1d349-2d32-42f6-b01b-89e51144a426,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+expenses,Irene Cunha,Consultoria Greg Freeman,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000001,True,True,True
+expenses,Irene Cunha,Projeto histórico N10GLED,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000002,True,True,True
+expenses,Irene Cunha,2663 Alteração de loteamento - Ericeira,d1c1d349-2d32-42f6-b01b-89e51144a426,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+expenses,Irene Cunha,2101 Colares,d1c1d349-2d32-42f6-b01b-89e51144a426,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+expenses,Irene Cunha,0434 Sérgio Varanda,d1c1d349-2d32-42f6-b01b-89e51144a426,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+expenses,Irene Cunha,2025 Clinica Mulher,d1c1d349-2d32-42f6-b01b-89e51144a426,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+expenses,Irene Cunha,Bolshaya,d1c1d349-2d32-42f6-b01b-89e51144a426,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+expenses,Irene Cunha,2128 Sandycove Road Dental Clinic,d1c1d349-2d32-42f6-b01b-89e51144a426,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+expenses,Irene Cunha,2502 Uralchem IV,d1c1d349-2d32-42f6-b01b-89e51144a426,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+expenses,Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,d1c1d349-2d32-42f6-b01b-89e51144a426,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+expenses,Irene Cunha,2521 Escritórios BCG,d1c1d349-2d32-42f6-b01b-89e51144a426,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+expenses,Irene Cunha,DLMC Oral Surgery,d1c1d349-2d32-42f6-b01b-89e51144a426,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+expenses,Irene Cunha,2609 Mastercard,d1c1d349-2d32-42f6-b01b-89e51144a426,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+expenses,Irene Cunha,Escritório Sakur Dubai,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000003,True,True,True
+expenses,Irene Cunha,Projeto histórico Museu Zer0 / ILC,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000004,True,True,True
+expenses,Irene Cunha,2600 Quelhas,d1c1d349-2d32-42f6-b01b-89e51144a426,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+expenses,Irene Cunha,2028 CTR Capital Towers Restaurant,d1c1d349-2d32-42f6-b01b-89e51144a426,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+expenses,Irene Cunha,2506 Apartamento Tiago Carreiras,d1c1d349-2d32-42f6-b01b-89e51144a426,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+supplier_fees,Irene Cunha,Clinica Mint II,d1c1d349-2d32-42f6-b01b-89e51144a426,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+supplier_fees,Irene Cunha,0410B Telheiras Obra,d1c1d349-2d32-42f6-b01b-89e51144a426,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+supplier_fees,Irene Cunha,2608 Alcanena,d1c1d349-2d32-42f6-b01b-89e51144a426,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+supplier_fees,Irene Cunha,Consultoria Greg Freeman,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000001,True,True,True
+supplier_fees,Irene Cunha,Projeto histórico N10GLED,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000002,True,True,True
+supplier_fees,Irene Cunha,2663 Alteração de loteamento - Ericeira,d1c1d349-2d32-42f6-b01b-89e51144a426,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+supplier_fees,Irene Cunha,2101 Colares,d1c1d349-2d32-42f6-b01b-89e51144a426,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+supplier_fees,Irene Cunha,0434 Sérgio Varanda,d1c1d349-2d32-42f6-b01b-89e51144a426,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+supplier_fees,Irene Cunha,2025 Clinica Mulher,d1c1d349-2d32-42f6-b01b-89e51144a426,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+supplier_fees,Irene Cunha,Bolshaya,d1c1d349-2d32-42f6-b01b-89e51144a426,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+supplier_fees,Irene Cunha,2128 Sandycove Road Dental Clinic,d1c1d349-2d32-42f6-b01b-89e51144a426,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+supplier_fees,Irene Cunha,2502 Uralchem IV,d1c1d349-2d32-42f6-b01b-89e51144a426,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+supplier_fees,Irene Cunha,2522 Escritórios Banco CTT - Atrium 2,d1c1d349-2d32-42f6-b01b-89e51144a426,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+supplier_fees,Irene Cunha,2521 Escritórios BCG,d1c1d349-2d32-42f6-b01b-89e51144a426,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+supplier_fees,Irene Cunha,DLMC Oral Surgery,d1c1d349-2d32-42f6-b01b-89e51144a426,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+supplier_fees,Irene Cunha,2609 Mastercard,d1c1d349-2d32-42f6-b01b-89e51144a426,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+supplier_fees,Irene Cunha,Escritório Sakur Dubai,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000003,True,True,True
+supplier_fees,Irene Cunha,Projeto histórico Museu Zer0 / ILC,d1c1d349-2d32-42f6-b01b-89e51144a426,a7190001-0000-4000-a000-000000000004,True,True,True
+supplier_fees,Irene Cunha,2600 Quelhas,d1c1d349-2d32-42f6-b01b-89e51144a426,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+supplier_fees,Irene Cunha,2028 CTR Capital Towers Restaurant,d1c1d349-2d32-42f6-b01b-89e51144a426,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+supplier_fees,Irene Cunha,2506 Apartamento Tiago Carreiras,d1c1d349-2d32-42f6-b01b-89e51144a426,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+financials,Adalberto Duarte,Clinica Mint II,1b97dade-9a9e-4fba-b397-b8346d18d864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Adalberto Duarte,0410B Telheiras Obra,1b97dade-9a9e-4fba-b397-b8346d18d864,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Adalberto Duarte,2608 Alcanena,1b97dade-9a9e-4fba-b397-b8346d18d864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Adalberto Duarte,Consultoria Greg Freeman,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Adalberto Duarte,Projeto histórico N10GLED,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Adalberto Duarte,2663 Alteração de loteamento - Ericeira,1b97dade-9a9e-4fba-b397-b8346d18d864,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Adalberto Duarte,2101 Colares,1b97dade-9a9e-4fba-b397-b8346d18d864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Adalberto Duarte,0434 Sérgio Varanda,1b97dade-9a9e-4fba-b397-b8346d18d864,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Adalberto Duarte,2025 Clinica Mulher,1b97dade-9a9e-4fba-b397-b8346d18d864,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Adalberto Duarte,Bolshaya,1b97dade-9a9e-4fba-b397-b8346d18d864,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Adalberto Duarte,2128 Sandycove Road Dental Clinic,1b97dade-9a9e-4fba-b397-b8346d18d864,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Adalberto Duarte,2502 Uralchem IV,1b97dade-9a9e-4fba-b397-b8346d18d864,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,1b97dade-9a9e-4fba-b397-b8346d18d864,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Adalberto Duarte,2521 Escritórios BCG,1b97dade-9a9e-4fba-b397-b8346d18d864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Adalberto Duarte,DLMC Oral Surgery,1b97dade-9a9e-4fba-b397-b8346d18d864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Adalberto Duarte,2609 Mastercard,1b97dade-9a9e-4fba-b397-b8346d18d864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Adalberto Duarte,Escritório Sakur Dubai,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Adalberto Duarte,2600 Quelhas,1b97dade-9a9e-4fba-b397-b8346d18d864,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Adalberto Duarte,2028 CTR Capital Towers Restaurant,1b97dade-9a9e-4fba-b397-b8346d18d864,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Adalberto Duarte,2506 Apartamento Tiago Carreiras,1b97dade-9a9e-4fba-b397-b8346d18d864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Adalberto Duarte,Clinica Mint II,1b97dade-9a9e-4fba-b397-b8346d18d864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Adalberto Duarte,0410B Telheiras Obra,1b97dade-9a9e-4fba-b397-b8346d18d864,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Adalberto Duarte,2608 Alcanena,1b97dade-9a9e-4fba-b397-b8346d18d864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Adalberto Duarte,Consultoria Greg Freeman,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Adalberto Duarte,Projeto histórico N10GLED,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Adalberto Duarte,2663 Alteração de loteamento - Ericeira,1b97dade-9a9e-4fba-b397-b8346d18d864,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Adalberto Duarte,2101 Colares,1b97dade-9a9e-4fba-b397-b8346d18d864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Adalberto Duarte,0434 Sérgio Varanda,1b97dade-9a9e-4fba-b397-b8346d18d864,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Adalberto Duarte,2025 Clinica Mulher,1b97dade-9a9e-4fba-b397-b8346d18d864,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Adalberto Duarte,Bolshaya,1b97dade-9a9e-4fba-b397-b8346d18d864,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Adalberto Duarte,2128 Sandycove Road Dental Clinic,1b97dade-9a9e-4fba-b397-b8346d18d864,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Adalberto Duarte,2502 Uralchem IV,1b97dade-9a9e-4fba-b397-b8346d18d864,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,1b97dade-9a9e-4fba-b397-b8346d18d864,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Adalberto Duarte,2521 Escritórios BCG,1b97dade-9a9e-4fba-b397-b8346d18d864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Adalberto Duarte,DLMC Oral Surgery,1b97dade-9a9e-4fba-b397-b8346d18d864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Adalberto Duarte,2609 Mastercard,1b97dade-9a9e-4fba-b397-b8346d18d864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Adalberto Duarte,Escritório Sakur Dubai,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Adalberto Duarte,2600 Quelhas,1b97dade-9a9e-4fba-b397-b8346d18d864,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Adalberto Duarte,2028 CTR Capital Towers Restaurant,1b97dade-9a9e-4fba-b397-b8346d18d864,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Adalberto Duarte,2506 Apartamento Tiago Carreiras,1b97dade-9a9e-4fba-b397-b8346d18d864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Adalberto Duarte,Clinica Mint II,1b97dade-9a9e-4fba-b397-b8346d18d864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Adalberto Duarte,0410B Telheiras Obra,1b97dade-9a9e-4fba-b397-b8346d18d864,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Adalberto Duarte,2608 Alcanena,1b97dade-9a9e-4fba-b397-b8346d18d864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Adalberto Duarte,Consultoria Greg Freeman,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Adalberto Duarte,Projeto histórico N10GLED,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Adalberto Duarte,2663 Alteração de loteamento - Ericeira,1b97dade-9a9e-4fba-b397-b8346d18d864,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Adalberto Duarte,2101 Colares,1b97dade-9a9e-4fba-b397-b8346d18d864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Adalberto Duarte,0434 Sérgio Varanda,1b97dade-9a9e-4fba-b397-b8346d18d864,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Adalberto Duarte,2025 Clinica Mulher,1b97dade-9a9e-4fba-b397-b8346d18d864,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Adalberto Duarte,Bolshaya,1b97dade-9a9e-4fba-b397-b8346d18d864,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Adalberto Duarte,2128 Sandycove Road Dental Clinic,1b97dade-9a9e-4fba-b397-b8346d18d864,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Adalberto Duarte,2502 Uralchem IV,1b97dade-9a9e-4fba-b397-b8346d18d864,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,1b97dade-9a9e-4fba-b397-b8346d18d864,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Adalberto Duarte,2521 Escritórios BCG,1b97dade-9a9e-4fba-b397-b8346d18d864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Adalberto Duarte,DLMC Oral Surgery,1b97dade-9a9e-4fba-b397-b8346d18d864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Adalberto Duarte,2609 Mastercard,1b97dade-9a9e-4fba-b397-b8346d18d864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Adalberto Duarte,Escritório Sakur Dubai,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Adalberto Duarte,2600 Quelhas,1b97dade-9a9e-4fba-b397-b8346d18d864,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Adalberto Duarte,2028 CTR Capital Towers Restaurant,1b97dade-9a9e-4fba-b397-b8346d18d864,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Adalberto Duarte,2506 Apartamento Tiago Carreiras,1b97dade-9a9e-4fba-b397-b8346d18d864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Adalberto Duarte,Clinica Mint II,1b97dade-9a9e-4fba-b397-b8346d18d864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Adalberto Duarte,0410B Telheiras Obra,1b97dade-9a9e-4fba-b397-b8346d18d864,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Adalberto Duarte,2608 Alcanena,1b97dade-9a9e-4fba-b397-b8346d18d864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Adalberto Duarte,Consultoria Greg Freeman,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Adalberto Duarte,Projeto histórico N10GLED,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Adalberto Duarte,2663 Alteração de loteamento - Ericeira,1b97dade-9a9e-4fba-b397-b8346d18d864,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Adalberto Duarte,2101 Colares,1b97dade-9a9e-4fba-b397-b8346d18d864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Adalberto Duarte,0434 Sérgio Varanda,1b97dade-9a9e-4fba-b397-b8346d18d864,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Adalberto Duarte,2025 Clinica Mulher,1b97dade-9a9e-4fba-b397-b8346d18d864,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Adalberto Duarte,Bolshaya,1b97dade-9a9e-4fba-b397-b8346d18d864,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Adalberto Duarte,2128 Sandycove Road Dental Clinic,1b97dade-9a9e-4fba-b397-b8346d18d864,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Adalberto Duarte,2502 Uralchem IV,1b97dade-9a9e-4fba-b397-b8346d18d864,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,Adalberto Duarte,2522 Escritórios Banco CTT - Atrium 2,1b97dade-9a9e-4fba-b397-b8346d18d864,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Adalberto Duarte,2521 Escritórios BCG,1b97dade-9a9e-4fba-b397-b8346d18d864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Adalberto Duarte,DLMC Oral Surgery,1b97dade-9a9e-4fba-b397-b8346d18d864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Adalberto Duarte,2609 Mastercard,1b97dade-9a9e-4fba-b397-b8346d18d864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Adalberto Duarte,Escritório Sakur Dubai,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Adalberto Duarte,Projeto histórico Museu Zer0 / ILC,1b97dade-9a9e-4fba-b397-b8346d18d864,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Adalberto Duarte,2600 Quelhas,1b97dade-9a9e-4fba-b397-b8346d18d864,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Adalberto Duarte,2028 CTR Capital Towers Restaurant,1b97dade-9a9e-4fba-b397-b8346d18d864,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Adalberto Duarte,2506 Apartamento Tiago Carreiras,1b97dade-9a9e-4fba-b397-b8346d18d864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Bernardo Nadais,Clinica Mint II,08c2a749-abfb-487a-833d-d337bc4304ea,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Bernardo Nadais,0410B Telheiras Obra,08c2a749-abfb-487a-833d-d337bc4304ea,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,True,False
+financials,Bernardo Nadais,2608 Alcanena,08c2a749-abfb-487a-833d-d337bc4304ea,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Bernardo Nadais,Consultoria Greg Freeman,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Bernardo Nadais,Projeto histórico N10GLED,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Bernardo Nadais,2663 Alteração de loteamento - Ericeira,08c2a749-abfb-487a-833d-d337bc4304ea,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,False
+financials,Bernardo Nadais,2101 Colares,08c2a749-abfb-487a-833d-d337bc4304ea,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Bernardo Nadais,0434 Sérgio Varanda,08c2a749-abfb-487a-833d-d337bc4304ea,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Bernardo Nadais,2025 Clinica Mulher,08c2a749-abfb-487a-833d-d337bc4304ea,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Bernardo Nadais,Bolshaya,08c2a749-abfb-487a-833d-d337bc4304ea,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Bernardo Nadais,2128 Sandycove Road Dental Clinic,08c2a749-abfb-487a-833d-d337bc4304ea,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Bernardo Nadais,2502 Uralchem IV,08c2a749-abfb-487a-833d-d337bc4304ea,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+financials,Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,08c2a749-abfb-487a-833d-d337bc4304ea,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Bernardo Nadais,2521 Escritórios BCG,08c2a749-abfb-487a-833d-d337bc4304ea,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Bernardo Nadais,DLMC Oral Surgery,08c2a749-abfb-487a-833d-d337bc4304ea,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Bernardo Nadais,2609 Mastercard,08c2a749-abfb-487a-833d-d337bc4304ea,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Bernardo Nadais,Escritório Sakur Dubai,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Bernardo Nadais,2600 Quelhas,08c2a749-abfb-487a-833d-d337bc4304ea,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Bernardo Nadais,2028 CTR Capital Towers Restaurant,08c2a749-abfb-487a-833d-d337bc4304ea,c3f3026e-f41a-4fac-894b-d243af8d3142,False,True,False
+financials,Bernardo Nadais,2506 Apartamento Tiago Carreiras,08c2a749-abfb-487a-833d-d337bc4304ea,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Bernardo Nadais,Clinica Mint II,08c2a749-abfb-487a-833d-d337bc4304ea,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Bernardo Nadais,0410B Telheiras Obra,08c2a749-abfb-487a-833d-d337bc4304ea,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,True,False
+budget_cost,Bernardo Nadais,2608 Alcanena,08c2a749-abfb-487a-833d-d337bc4304ea,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Bernardo Nadais,Consultoria Greg Freeman,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Bernardo Nadais,Projeto histórico N10GLED,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Bernardo Nadais,2663 Alteração de loteamento - Ericeira,08c2a749-abfb-487a-833d-d337bc4304ea,3f820f1a-c78e-470e-92de-8d83127c2d87,False,True,False
+budget_cost,Bernardo Nadais,2101 Colares,08c2a749-abfb-487a-833d-d337bc4304ea,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Bernardo Nadais,0434 Sérgio Varanda,08c2a749-abfb-487a-833d-d337bc4304ea,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Bernardo Nadais,2025 Clinica Mulher,08c2a749-abfb-487a-833d-d337bc4304ea,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Bernardo Nadais,Bolshaya,08c2a749-abfb-487a-833d-d337bc4304ea,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Bernardo Nadais,2128 Sandycove Road Dental Clinic,08c2a749-abfb-487a-833d-d337bc4304ea,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Bernardo Nadais,2502 Uralchem IV,08c2a749-abfb-487a-833d-d337bc4304ea,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+budget_cost,Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,08c2a749-abfb-487a-833d-d337bc4304ea,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Bernardo Nadais,2521 Escritórios BCG,08c2a749-abfb-487a-833d-d337bc4304ea,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Bernardo Nadais,DLMC Oral Surgery,08c2a749-abfb-487a-833d-d337bc4304ea,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Bernardo Nadais,2609 Mastercard,08c2a749-abfb-487a-833d-d337bc4304ea,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Bernardo Nadais,Escritório Sakur Dubai,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Bernardo Nadais,2600 Quelhas,08c2a749-abfb-487a-833d-d337bc4304ea,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Bernardo Nadais,2028 CTR Capital Towers Restaurant,08c2a749-abfb-487a-833d-d337bc4304ea,c3f3026e-f41a-4fac-894b-d243af8d3142,False,True,False
+budget_cost,Bernardo Nadais,2506 Apartamento Tiago Carreiras,08c2a749-abfb-487a-833d-d337bc4304ea,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Bernardo Nadais,Clinica Mint II,08c2a749-abfb-487a-833d-d337bc4304ea,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Bernardo Nadais,0410B Telheiras Obra,08c2a749-abfb-487a-833d-d337bc4304ea,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,True,False
+expenses,Bernardo Nadais,2608 Alcanena,08c2a749-abfb-487a-833d-d337bc4304ea,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Bernardo Nadais,Consultoria Greg Freeman,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Bernardo Nadais,Projeto histórico N10GLED,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Bernardo Nadais,2663 Alteração de loteamento - Ericeira,08c2a749-abfb-487a-833d-d337bc4304ea,3f820f1a-c78e-470e-92de-8d83127c2d87,False,True,False
+expenses,Bernardo Nadais,2101 Colares,08c2a749-abfb-487a-833d-d337bc4304ea,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Bernardo Nadais,0434 Sérgio Varanda,08c2a749-abfb-487a-833d-d337bc4304ea,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Bernardo Nadais,2025 Clinica Mulher,08c2a749-abfb-487a-833d-d337bc4304ea,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Bernardo Nadais,Bolshaya,08c2a749-abfb-487a-833d-d337bc4304ea,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Bernardo Nadais,2128 Sandycove Road Dental Clinic,08c2a749-abfb-487a-833d-d337bc4304ea,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Bernardo Nadais,2502 Uralchem IV,08c2a749-abfb-487a-833d-d337bc4304ea,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+expenses,Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,08c2a749-abfb-487a-833d-d337bc4304ea,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Bernardo Nadais,2521 Escritórios BCG,08c2a749-abfb-487a-833d-d337bc4304ea,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Bernardo Nadais,DLMC Oral Surgery,08c2a749-abfb-487a-833d-d337bc4304ea,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Bernardo Nadais,2609 Mastercard,08c2a749-abfb-487a-833d-d337bc4304ea,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Bernardo Nadais,Escritório Sakur Dubai,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Bernardo Nadais,2600 Quelhas,08c2a749-abfb-487a-833d-d337bc4304ea,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Bernardo Nadais,2028 CTR Capital Towers Restaurant,08c2a749-abfb-487a-833d-d337bc4304ea,c3f3026e-f41a-4fac-894b-d243af8d3142,False,True,False
+expenses,Bernardo Nadais,2506 Apartamento Tiago Carreiras,08c2a749-abfb-487a-833d-d337bc4304ea,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Bernardo Nadais,Clinica Mint II,08c2a749-abfb-487a-833d-d337bc4304ea,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Bernardo Nadais,0410B Telheiras Obra,08c2a749-abfb-487a-833d-d337bc4304ea,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,True,False
+supplier_fees,Bernardo Nadais,2608 Alcanena,08c2a749-abfb-487a-833d-d337bc4304ea,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Bernardo Nadais,Consultoria Greg Freeman,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Bernardo Nadais,Projeto histórico N10GLED,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Bernardo Nadais,2663 Alteração de loteamento - Ericeira,08c2a749-abfb-487a-833d-d337bc4304ea,3f820f1a-c78e-470e-92de-8d83127c2d87,False,True,False
+supplier_fees,Bernardo Nadais,2101 Colares,08c2a749-abfb-487a-833d-d337bc4304ea,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Bernardo Nadais,0434 Sérgio Varanda,08c2a749-abfb-487a-833d-d337bc4304ea,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Bernardo Nadais,2025 Clinica Mulher,08c2a749-abfb-487a-833d-d337bc4304ea,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Bernardo Nadais,Bolshaya,08c2a749-abfb-487a-833d-d337bc4304ea,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Bernardo Nadais,2128 Sandycove Road Dental Clinic,08c2a749-abfb-487a-833d-d337bc4304ea,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Bernardo Nadais,2502 Uralchem IV,08c2a749-abfb-487a-833d-d337bc4304ea,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+supplier_fees,Bernardo Nadais,2522 Escritórios Banco CTT - Atrium 2,08c2a749-abfb-487a-833d-d337bc4304ea,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Bernardo Nadais,2521 Escritórios BCG,08c2a749-abfb-487a-833d-d337bc4304ea,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Bernardo Nadais,DLMC Oral Surgery,08c2a749-abfb-487a-833d-d337bc4304ea,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Bernardo Nadais,2609 Mastercard,08c2a749-abfb-487a-833d-d337bc4304ea,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Bernardo Nadais,Escritório Sakur Dubai,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Bernardo Nadais,Projeto histórico Museu Zer0 / ILC,08c2a749-abfb-487a-833d-d337bc4304ea,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Bernardo Nadais,2600 Quelhas,08c2a749-abfb-487a-833d-d337bc4304ea,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Bernardo Nadais,2028 CTR Capital Towers Restaurant,08c2a749-abfb-487a-833d-d337bc4304ea,c3f3026e-f41a-4fac-894b-d243af8d3142,False,True,False
+supplier_fees,Bernardo Nadais,2506 Apartamento Tiago Carreiras,08c2a749-abfb-487a-833d-d337bc4304ea,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,teresa@pedrarioja.com,Clinica Mint II,295053d7-400b-4251-9690-a0b2dbb83606,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,True
+financials,teresa@pedrarioja.com,0410B Telheiras Obra,295053d7-400b-4251-9690-a0b2dbb83606,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,True
+financials,teresa@pedrarioja.com,2608 Alcanena,295053d7-400b-4251-9690-a0b2dbb83606,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,True
+financials,teresa@pedrarioja.com,Consultoria Greg Freeman,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000001,False,False,True
+financials,teresa@pedrarioja.com,Projeto histórico N10GLED,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000002,False,False,True
+financials,teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,295053d7-400b-4251-9690-a0b2dbb83606,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,True
+financials,teresa@pedrarioja.com,2101 Colares,295053d7-400b-4251-9690-a0b2dbb83606,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,True
+financials,teresa@pedrarioja.com,0434 Sérgio Varanda,295053d7-400b-4251-9690-a0b2dbb83606,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,True
+financials,teresa@pedrarioja.com,2025 Clinica Mulher,295053d7-400b-4251-9690-a0b2dbb83606,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,True
+financials,teresa@pedrarioja.com,Bolshaya,295053d7-400b-4251-9690-a0b2dbb83606,91851d36-1689-4241-af4c-d47a6455481e,False,False,True
+financials,teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,295053d7-400b-4251-9690-a0b2dbb83606,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,True
+financials,teresa@pedrarioja.com,2502 Uralchem IV,295053d7-400b-4251-9690-a0b2dbb83606,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,True
+financials,teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,295053d7-400b-4251-9690-a0b2dbb83606,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,True
+financials,teresa@pedrarioja.com,2521 Escritórios BCG,295053d7-400b-4251-9690-a0b2dbb83606,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,True
+financials,teresa@pedrarioja.com,DLMC Oral Surgery,295053d7-400b-4251-9690-a0b2dbb83606,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,True
+financials,teresa@pedrarioja.com,2609 Mastercard,295053d7-400b-4251-9690-a0b2dbb83606,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,True
+financials,teresa@pedrarioja.com,Escritório Sakur Dubai,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000003,False,False,True
+financials,teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000004,False,False,True
+financials,teresa@pedrarioja.com,2600 Quelhas,295053d7-400b-4251-9690-a0b2dbb83606,59f3a882-a593-42b1-a658-56bd9741f373,False,False,True
+financials,teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,295053d7-400b-4251-9690-a0b2dbb83606,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,True
+financials,teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,295053d7-400b-4251-9690-a0b2dbb83606,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,True
+budget_cost,teresa@pedrarioja.com,Clinica Mint II,295053d7-400b-4251-9690-a0b2dbb83606,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,True
+budget_cost,teresa@pedrarioja.com,0410B Telheiras Obra,295053d7-400b-4251-9690-a0b2dbb83606,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,True
+budget_cost,teresa@pedrarioja.com,2608 Alcanena,295053d7-400b-4251-9690-a0b2dbb83606,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,True
+budget_cost,teresa@pedrarioja.com,Consultoria Greg Freeman,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000001,False,False,True
+budget_cost,teresa@pedrarioja.com,Projeto histórico N10GLED,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000002,False,False,True
+budget_cost,teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,295053d7-400b-4251-9690-a0b2dbb83606,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,True
+budget_cost,teresa@pedrarioja.com,2101 Colares,295053d7-400b-4251-9690-a0b2dbb83606,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,True
+budget_cost,teresa@pedrarioja.com,0434 Sérgio Varanda,295053d7-400b-4251-9690-a0b2dbb83606,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,True
+budget_cost,teresa@pedrarioja.com,2025 Clinica Mulher,295053d7-400b-4251-9690-a0b2dbb83606,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,True
+budget_cost,teresa@pedrarioja.com,Bolshaya,295053d7-400b-4251-9690-a0b2dbb83606,91851d36-1689-4241-af4c-d47a6455481e,False,False,True
+budget_cost,teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,295053d7-400b-4251-9690-a0b2dbb83606,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,True
+budget_cost,teresa@pedrarioja.com,2502 Uralchem IV,295053d7-400b-4251-9690-a0b2dbb83606,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,True
+budget_cost,teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,295053d7-400b-4251-9690-a0b2dbb83606,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,True
+budget_cost,teresa@pedrarioja.com,2521 Escritórios BCG,295053d7-400b-4251-9690-a0b2dbb83606,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,True
+budget_cost,teresa@pedrarioja.com,DLMC Oral Surgery,295053d7-400b-4251-9690-a0b2dbb83606,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,True
+budget_cost,teresa@pedrarioja.com,2609 Mastercard,295053d7-400b-4251-9690-a0b2dbb83606,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,True
+budget_cost,teresa@pedrarioja.com,Escritório Sakur Dubai,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000003,False,False,True
+budget_cost,teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000004,False,False,True
+budget_cost,teresa@pedrarioja.com,2600 Quelhas,295053d7-400b-4251-9690-a0b2dbb83606,59f3a882-a593-42b1-a658-56bd9741f373,False,False,True
+budget_cost,teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,295053d7-400b-4251-9690-a0b2dbb83606,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,True
+budget_cost,teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,295053d7-400b-4251-9690-a0b2dbb83606,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,True
+expenses,teresa@pedrarioja.com,Clinica Mint II,295053d7-400b-4251-9690-a0b2dbb83606,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,True
+expenses,teresa@pedrarioja.com,0410B Telheiras Obra,295053d7-400b-4251-9690-a0b2dbb83606,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,True
+expenses,teresa@pedrarioja.com,2608 Alcanena,295053d7-400b-4251-9690-a0b2dbb83606,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,True
+expenses,teresa@pedrarioja.com,Consultoria Greg Freeman,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000001,False,False,True
+expenses,teresa@pedrarioja.com,Projeto histórico N10GLED,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000002,False,False,True
+expenses,teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,295053d7-400b-4251-9690-a0b2dbb83606,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,True
+expenses,teresa@pedrarioja.com,2101 Colares,295053d7-400b-4251-9690-a0b2dbb83606,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,True
+expenses,teresa@pedrarioja.com,0434 Sérgio Varanda,295053d7-400b-4251-9690-a0b2dbb83606,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,True
+expenses,teresa@pedrarioja.com,2025 Clinica Mulher,295053d7-400b-4251-9690-a0b2dbb83606,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,True
+expenses,teresa@pedrarioja.com,Bolshaya,295053d7-400b-4251-9690-a0b2dbb83606,91851d36-1689-4241-af4c-d47a6455481e,False,False,True
+expenses,teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,295053d7-400b-4251-9690-a0b2dbb83606,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,True
+expenses,teresa@pedrarioja.com,2502 Uralchem IV,295053d7-400b-4251-9690-a0b2dbb83606,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,True
+expenses,teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,295053d7-400b-4251-9690-a0b2dbb83606,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,True
+expenses,teresa@pedrarioja.com,2521 Escritórios BCG,295053d7-400b-4251-9690-a0b2dbb83606,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,True
+expenses,teresa@pedrarioja.com,DLMC Oral Surgery,295053d7-400b-4251-9690-a0b2dbb83606,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,True
+expenses,teresa@pedrarioja.com,2609 Mastercard,295053d7-400b-4251-9690-a0b2dbb83606,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,True
+expenses,teresa@pedrarioja.com,Escritório Sakur Dubai,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000003,False,False,True
+expenses,teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000004,False,False,True
+expenses,teresa@pedrarioja.com,2600 Quelhas,295053d7-400b-4251-9690-a0b2dbb83606,59f3a882-a593-42b1-a658-56bd9741f373,False,False,True
+expenses,teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,295053d7-400b-4251-9690-a0b2dbb83606,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,True
+expenses,teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,295053d7-400b-4251-9690-a0b2dbb83606,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,True
+supplier_fees,teresa@pedrarioja.com,Clinica Mint II,295053d7-400b-4251-9690-a0b2dbb83606,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,True
+supplier_fees,teresa@pedrarioja.com,0410B Telheiras Obra,295053d7-400b-4251-9690-a0b2dbb83606,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,True
+supplier_fees,teresa@pedrarioja.com,2608 Alcanena,295053d7-400b-4251-9690-a0b2dbb83606,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,True
+supplier_fees,teresa@pedrarioja.com,Consultoria Greg Freeman,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000001,False,False,True
+supplier_fees,teresa@pedrarioja.com,Projeto histórico N10GLED,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000002,False,False,True
+supplier_fees,teresa@pedrarioja.com,2663 Alteração de loteamento - Ericeira,295053d7-400b-4251-9690-a0b2dbb83606,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,True
+supplier_fees,teresa@pedrarioja.com,2101 Colares,295053d7-400b-4251-9690-a0b2dbb83606,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,True
+supplier_fees,teresa@pedrarioja.com,0434 Sérgio Varanda,295053d7-400b-4251-9690-a0b2dbb83606,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,True
+supplier_fees,teresa@pedrarioja.com,2025 Clinica Mulher,295053d7-400b-4251-9690-a0b2dbb83606,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,True
+supplier_fees,teresa@pedrarioja.com,Bolshaya,295053d7-400b-4251-9690-a0b2dbb83606,91851d36-1689-4241-af4c-d47a6455481e,False,False,True
+supplier_fees,teresa@pedrarioja.com,2128 Sandycove Road Dental Clinic,295053d7-400b-4251-9690-a0b2dbb83606,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,True
+supplier_fees,teresa@pedrarioja.com,2502 Uralchem IV,295053d7-400b-4251-9690-a0b2dbb83606,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,True
+supplier_fees,teresa@pedrarioja.com,2522 Escritórios Banco CTT - Atrium 2,295053d7-400b-4251-9690-a0b2dbb83606,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,True
+supplier_fees,teresa@pedrarioja.com,2521 Escritórios BCG,295053d7-400b-4251-9690-a0b2dbb83606,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,True
+supplier_fees,teresa@pedrarioja.com,DLMC Oral Surgery,295053d7-400b-4251-9690-a0b2dbb83606,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,True
+supplier_fees,teresa@pedrarioja.com,2609 Mastercard,295053d7-400b-4251-9690-a0b2dbb83606,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,True
+supplier_fees,teresa@pedrarioja.com,Escritório Sakur Dubai,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000003,False,False,True
+supplier_fees,teresa@pedrarioja.com,Projeto histórico Museu Zer0 / ILC,295053d7-400b-4251-9690-a0b2dbb83606,a7190001-0000-4000-a000-000000000004,False,False,True
+supplier_fees,teresa@pedrarioja.com,2600 Quelhas,295053d7-400b-4251-9690-a0b2dbb83606,59f3a882-a593-42b1-a658-56bd9741f373,False,False,True
+supplier_fees,teresa@pedrarioja.com,2028 CTR Capital Towers Restaurant,295053d7-400b-4251-9690-a0b2dbb83606,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,True
+supplier_fees,teresa@pedrarioja.com,2506 Apartamento Tiago Carreiras,295053d7-400b-4251-9690-a0b2dbb83606,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,True
+financials,luispedrasilva@gmail.com,Clinica Mint II,30c4e264-d4bc-4046-81bb-252ddb552cfa,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,luispedrasilva@gmail.com,0410B Telheiras Obra,30c4e264-d4bc-4046-81bb-252ddb552cfa,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,luispedrasilva@gmail.com,2608 Alcanena,30c4e264-d4bc-4046-81bb-252ddb552cfa,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,luispedrasilva@gmail.com,Consultoria Greg Freeman,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,luispedrasilva@gmail.com,Projeto histórico N10GLED,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,30c4e264-d4bc-4046-81bb-252ddb552cfa,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,luispedrasilva@gmail.com,2101 Colares,30c4e264-d4bc-4046-81bb-252ddb552cfa,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,luispedrasilva@gmail.com,0434 Sérgio Varanda,30c4e264-d4bc-4046-81bb-252ddb552cfa,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,luispedrasilva@gmail.com,2025 Clinica Mulher,30c4e264-d4bc-4046-81bb-252ddb552cfa,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,luispedrasilva@gmail.com,Bolshaya,30c4e264-d4bc-4046-81bb-252ddb552cfa,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,30c4e264-d4bc-4046-81bb-252ddb552cfa,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,luispedrasilva@gmail.com,2502 Uralchem IV,30c4e264-d4bc-4046-81bb-252ddb552cfa,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,30c4e264-d4bc-4046-81bb-252ddb552cfa,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,luispedrasilva@gmail.com,2521 Escritórios BCG,30c4e264-d4bc-4046-81bb-252ddb552cfa,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,luispedrasilva@gmail.com,DLMC Oral Surgery,30c4e264-d4bc-4046-81bb-252ddb552cfa,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,luispedrasilva@gmail.com,2609 Mastercard,30c4e264-d4bc-4046-81bb-252ddb552cfa,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,luispedrasilva@gmail.com,Escritório Sakur Dubai,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,luispedrasilva@gmail.com,2600 Quelhas,30c4e264-d4bc-4046-81bb-252ddb552cfa,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,30c4e264-d4bc-4046-81bb-252ddb552cfa,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,30c4e264-d4bc-4046-81bb-252ddb552cfa,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,luispedrasilva@gmail.com,Clinica Mint II,30c4e264-d4bc-4046-81bb-252ddb552cfa,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,luispedrasilva@gmail.com,0410B Telheiras Obra,30c4e264-d4bc-4046-81bb-252ddb552cfa,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,luispedrasilva@gmail.com,2608 Alcanena,30c4e264-d4bc-4046-81bb-252ddb552cfa,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,luispedrasilva@gmail.com,Consultoria Greg Freeman,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,luispedrasilva@gmail.com,Projeto histórico N10GLED,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,30c4e264-d4bc-4046-81bb-252ddb552cfa,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,luispedrasilva@gmail.com,2101 Colares,30c4e264-d4bc-4046-81bb-252ddb552cfa,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,luispedrasilva@gmail.com,0434 Sérgio Varanda,30c4e264-d4bc-4046-81bb-252ddb552cfa,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,luispedrasilva@gmail.com,2025 Clinica Mulher,30c4e264-d4bc-4046-81bb-252ddb552cfa,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,luispedrasilva@gmail.com,Bolshaya,30c4e264-d4bc-4046-81bb-252ddb552cfa,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,30c4e264-d4bc-4046-81bb-252ddb552cfa,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,luispedrasilva@gmail.com,2502 Uralchem IV,30c4e264-d4bc-4046-81bb-252ddb552cfa,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,30c4e264-d4bc-4046-81bb-252ddb552cfa,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,luispedrasilva@gmail.com,2521 Escritórios BCG,30c4e264-d4bc-4046-81bb-252ddb552cfa,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,luispedrasilva@gmail.com,DLMC Oral Surgery,30c4e264-d4bc-4046-81bb-252ddb552cfa,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,luispedrasilva@gmail.com,2609 Mastercard,30c4e264-d4bc-4046-81bb-252ddb552cfa,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,luispedrasilva@gmail.com,Escritório Sakur Dubai,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,luispedrasilva@gmail.com,2600 Quelhas,30c4e264-d4bc-4046-81bb-252ddb552cfa,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,30c4e264-d4bc-4046-81bb-252ddb552cfa,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,30c4e264-d4bc-4046-81bb-252ddb552cfa,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,luispedrasilva@gmail.com,Clinica Mint II,30c4e264-d4bc-4046-81bb-252ddb552cfa,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,luispedrasilva@gmail.com,0410B Telheiras Obra,30c4e264-d4bc-4046-81bb-252ddb552cfa,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,luispedrasilva@gmail.com,2608 Alcanena,30c4e264-d4bc-4046-81bb-252ddb552cfa,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,luispedrasilva@gmail.com,Consultoria Greg Freeman,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,luispedrasilva@gmail.com,Projeto histórico N10GLED,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,30c4e264-d4bc-4046-81bb-252ddb552cfa,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,luispedrasilva@gmail.com,2101 Colares,30c4e264-d4bc-4046-81bb-252ddb552cfa,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,luispedrasilva@gmail.com,0434 Sérgio Varanda,30c4e264-d4bc-4046-81bb-252ddb552cfa,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,luispedrasilva@gmail.com,2025 Clinica Mulher,30c4e264-d4bc-4046-81bb-252ddb552cfa,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,luispedrasilva@gmail.com,Bolshaya,30c4e264-d4bc-4046-81bb-252ddb552cfa,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,30c4e264-d4bc-4046-81bb-252ddb552cfa,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,luispedrasilva@gmail.com,2502 Uralchem IV,30c4e264-d4bc-4046-81bb-252ddb552cfa,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,30c4e264-d4bc-4046-81bb-252ddb552cfa,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,luispedrasilva@gmail.com,2521 Escritórios BCG,30c4e264-d4bc-4046-81bb-252ddb552cfa,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,luispedrasilva@gmail.com,DLMC Oral Surgery,30c4e264-d4bc-4046-81bb-252ddb552cfa,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,luispedrasilva@gmail.com,2609 Mastercard,30c4e264-d4bc-4046-81bb-252ddb552cfa,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,luispedrasilva@gmail.com,Escritório Sakur Dubai,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,luispedrasilva@gmail.com,2600 Quelhas,30c4e264-d4bc-4046-81bb-252ddb552cfa,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,30c4e264-d4bc-4046-81bb-252ddb552cfa,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,30c4e264-d4bc-4046-81bb-252ddb552cfa,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Clinica Mint II,30c4e264-d4bc-4046-81bb-252ddb552cfa,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,luispedrasilva@gmail.com,0410B Telheiras Obra,30c4e264-d4bc-4046-81bb-252ddb552cfa,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2608 Alcanena,30c4e264-d4bc-4046-81bb-252ddb552cfa,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Consultoria Greg Freeman,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Projeto histórico N10GLED,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2663 Alteração de loteamento - Ericeira,30c4e264-d4bc-4046-81bb-252ddb552cfa,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2101 Colares,30c4e264-d4bc-4046-81bb-252ddb552cfa,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,luispedrasilva@gmail.com,0434 Sérgio Varanda,30c4e264-d4bc-4046-81bb-252ddb552cfa,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2025 Clinica Mulher,30c4e264-d4bc-4046-81bb-252ddb552cfa,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Bolshaya,30c4e264-d4bc-4046-81bb-252ddb552cfa,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2128 Sandycove Road Dental Clinic,30c4e264-d4bc-4046-81bb-252ddb552cfa,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2502 Uralchem IV,30c4e264-d4bc-4046-81bb-252ddb552cfa,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2522 Escritórios Banco CTT - Atrium 2,30c4e264-d4bc-4046-81bb-252ddb552cfa,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2521 Escritórios BCG,30c4e264-d4bc-4046-81bb-252ddb552cfa,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,luispedrasilva@gmail.com,DLMC Oral Surgery,30c4e264-d4bc-4046-81bb-252ddb552cfa,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2609 Mastercard,30c4e264-d4bc-4046-81bb-252ddb552cfa,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Escritório Sakur Dubai,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,luispedrasilva@gmail.com,Projeto histórico Museu Zer0 / ILC,30c4e264-d4bc-4046-81bb-252ddb552cfa,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2600 Quelhas,30c4e264-d4bc-4046-81bb-252ddb552cfa,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2028 CTR Capital Towers Restaurant,30c4e264-d4bc-4046-81bb-252ddb552cfa,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,luispedrasilva@gmail.com,2506 Apartamento Tiago Carreiras,30c4e264-d4bc-4046-81bb-252ddb552cfa,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Luis Pedra Silva,Clinica Mint II,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+financials,Luis Pedra Silva,0410B Telheiras Obra,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+financials,Luis Pedra Silva,2608 Alcanena,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+financials,Luis Pedra Silva,Consultoria Greg Freeman,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000001,True,True,True
+financials,Luis Pedra Silva,Projeto histórico N10GLED,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000002,True,True,True
+financials,Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+financials,Luis Pedra Silva,2101 Colares,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+financials,Luis Pedra Silva,0434 Sérgio Varanda,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+financials,Luis Pedra Silva,2025 Clinica Mulher,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+financials,Luis Pedra Silva,Bolshaya,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+financials,Luis Pedra Silva,2128 Sandycove Road Dental Clinic,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+financials,Luis Pedra Silva,2502 Uralchem IV,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+financials,Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+financials,Luis Pedra Silva,2521 Escritórios BCG,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+financials,Luis Pedra Silva,DLMC Oral Surgery,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+financials,Luis Pedra Silva,2609 Mastercard,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+financials,Luis Pedra Silva,Escritório Sakur Dubai,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000003,True,True,True
+financials,Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000004,True,True,True
+financials,Luis Pedra Silva,2600 Quelhas,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+financials,Luis Pedra Silva,2028 CTR Capital Towers Restaurant,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+financials,Luis Pedra Silva,2506 Apartamento Tiago Carreiras,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+budget_cost,Luis Pedra Silva,Clinica Mint II,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+budget_cost,Luis Pedra Silva,0410B Telheiras Obra,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+budget_cost,Luis Pedra Silva,2608 Alcanena,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+budget_cost,Luis Pedra Silva,Consultoria Greg Freeman,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000001,True,True,True
+budget_cost,Luis Pedra Silva,Projeto histórico N10GLED,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000002,True,True,True
+budget_cost,Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+budget_cost,Luis Pedra Silva,2101 Colares,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+budget_cost,Luis Pedra Silva,0434 Sérgio Varanda,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+budget_cost,Luis Pedra Silva,2025 Clinica Mulher,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+budget_cost,Luis Pedra Silva,Bolshaya,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+budget_cost,Luis Pedra Silva,2128 Sandycove Road Dental Clinic,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+budget_cost,Luis Pedra Silva,2502 Uralchem IV,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+budget_cost,Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+budget_cost,Luis Pedra Silva,2521 Escritórios BCG,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+budget_cost,Luis Pedra Silva,DLMC Oral Surgery,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+budget_cost,Luis Pedra Silva,2609 Mastercard,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+budget_cost,Luis Pedra Silva,Escritório Sakur Dubai,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000003,True,True,True
+budget_cost,Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000004,True,True,True
+budget_cost,Luis Pedra Silva,2600 Quelhas,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+budget_cost,Luis Pedra Silva,2028 CTR Capital Towers Restaurant,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+budget_cost,Luis Pedra Silva,2506 Apartamento Tiago Carreiras,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+expenses,Luis Pedra Silva,Clinica Mint II,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+expenses,Luis Pedra Silva,0410B Telheiras Obra,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+expenses,Luis Pedra Silva,2608 Alcanena,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+expenses,Luis Pedra Silva,Consultoria Greg Freeman,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000001,True,True,True
+expenses,Luis Pedra Silva,Projeto histórico N10GLED,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000002,True,True,True
+expenses,Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+expenses,Luis Pedra Silva,2101 Colares,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+expenses,Luis Pedra Silva,0434 Sérgio Varanda,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+expenses,Luis Pedra Silva,2025 Clinica Mulher,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+expenses,Luis Pedra Silva,Bolshaya,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+expenses,Luis Pedra Silva,2128 Sandycove Road Dental Clinic,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+expenses,Luis Pedra Silva,2502 Uralchem IV,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+expenses,Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+expenses,Luis Pedra Silva,2521 Escritórios BCG,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+expenses,Luis Pedra Silva,DLMC Oral Surgery,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+expenses,Luis Pedra Silva,2609 Mastercard,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+expenses,Luis Pedra Silva,Escritório Sakur Dubai,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000003,True,True,True
+expenses,Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000004,True,True,True
+expenses,Luis Pedra Silva,2600 Quelhas,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+expenses,Luis Pedra Silva,2028 CTR Capital Towers Restaurant,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+expenses,Luis Pedra Silva,2506 Apartamento Tiago Carreiras,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+supplier_fees,Luis Pedra Silva,Clinica Mint II,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+supplier_fees,Luis Pedra Silva,0410B Telheiras Obra,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+supplier_fees,Luis Pedra Silva,2608 Alcanena,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+supplier_fees,Luis Pedra Silva,Consultoria Greg Freeman,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000001,True,True,True
+supplier_fees,Luis Pedra Silva,Projeto histórico N10GLED,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000002,True,True,True
+supplier_fees,Luis Pedra Silva,2663 Alteração de loteamento - Ericeira,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+supplier_fees,Luis Pedra Silva,2101 Colares,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+supplier_fees,Luis Pedra Silva,0434 Sérgio Varanda,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+supplier_fees,Luis Pedra Silva,2025 Clinica Mulher,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+supplier_fees,Luis Pedra Silva,Bolshaya,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+supplier_fees,Luis Pedra Silva,2128 Sandycove Road Dental Clinic,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+supplier_fees,Luis Pedra Silva,2502 Uralchem IV,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+supplier_fees,Luis Pedra Silva,2522 Escritórios Banco CTT - Atrium 2,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+supplier_fees,Luis Pedra Silva,2521 Escritórios BCG,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+supplier_fees,Luis Pedra Silva,DLMC Oral Surgery,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+supplier_fees,Luis Pedra Silva,2609 Mastercard,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+supplier_fees,Luis Pedra Silva,Escritório Sakur Dubai,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000003,True,True,True
+supplier_fees,Luis Pedra Silva,Projeto histórico Museu Zer0 / ILC,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,a7190001-0000-4000-a000-000000000004,True,True,True
+supplier_fees,Luis Pedra Silva,2600 Quelhas,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+supplier_fees,Luis Pedra Silva,2028 CTR Capital Towers Restaurant,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+supplier_fees,Luis Pedra Silva,2506 Apartamento Tiago Carreiras,ab5a48c0-939b-4502-bd3b-db7801f0f8b8,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+financials,Tatiana Shchenina,Clinica Mint II,a5053861-594d-47fc-b955-2b0ad0b87e84,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+financials,Tatiana Shchenina,0410B Telheiras Obra,a5053861-594d-47fc-b955-2b0ad0b87e84,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+financials,Tatiana Shchenina,2608 Alcanena,a5053861-594d-47fc-b955-2b0ad0b87e84,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+financials,Tatiana Shchenina,Consultoria Greg Freeman,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000001,True,True,True
+financials,Tatiana Shchenina,Projeto histórico N10GLED,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000002,True,True,True
+financials,Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,a5053861-594d-47fc-b955-2b0ad0b87e84,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+financials,Tatiana Shchenina,2101 Colares,a5053861-594d-47fc-b955-2b0ad0b87e84,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+financials,Tatiana Shchenina,0434 Sérgio Varanda,a5053861-594d-47fc-b955-2b0ad0b87e84,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+financials,Tatiana Shchenina,2025 Clinica Mulher,a5053861-594d-47fc-b955-2b0ad0b87e84,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+financials,Tatiana Shchenina,Bolshaya,a5053861-594d-47fc-b955-2b0ad0b87e84,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+financials,Tatiana Shchenina,2128 Sandycove Road Dental Clinic,a5053861-594d-47fc-b955-2b0ad0b87e84,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+financials,Tatiana Shchenina,2502 Uralchem IV,a5053861-594d-47fc-b955-2b0ad0b87e84,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+financials,Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,a5053861-594d-47fc-b955-2b0ad0b87e84,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+financials,Tatiana Shchenina,2521 Escritórios BCG,a5053861-594d-47fc-b955-2b0ad0b87e84,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+financials,Tatiana Shchenina,DLMC Oral Surgery,a5053861-594d-47fc-b955-2b0ad0b87e84,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+financials,Tatiana Shchenina,2609 Mastercard,a5053861-594d-47fc-b955-2b0ad0b87e84,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+financials,Tatiana Shchenina,Escritório Sakur Dubai,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000003,True,True,True
+financials,Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000004,True,True,True
+financials,Tatiana Shchenina,2600 Quelhas,a5053861-594d-47fc-b955-2b0ad0b87e84,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+financials,Tatiana Shchenina,2028 CTR Capital Towers Restaurant,a5053861-594d-47fc-b955-2b0ad0b87e84,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+financials,Tatiana Shchenina,2506 Apartamento Tiago Carreiras,a5053861-594d-47fc-b955-2b0ad0b87e84,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+budget_cost,Tatiana Shchenina,Clinica Mint II,a5053861-594d-47fc-b955-2b0ad0b87e84,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+budget_cost,Tatiana Shchenina,0410B Telheiras Obra,a5053861-594d-47fc-b955-2b0ad0b87e84,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+budget_cost,Tatiana Shchenina,2608 Alcanena,a5053861-594d-47fc-b955-2b0ad0b87e84,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+budget_cost,Tatiana Shchenina,Consultoria Greg Freeman,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000001,True,True,True
+budget_cost,Tatiana Shchenina,Projeto histórico N10GLED,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000002,True,True,True
+budget_cost,Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,a5053861-594d-47fc-b955-2b0ad0b87e84,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+budget_cost,Tatiana Shchenina,2101 Colares,a5053861-594d-47fc-b955-2b0ad0b87e84,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+budget_cost,Tatiana Shchenina,0434 Sérgio Varanda,a5053861-594d-47fc-b955-2b0ad0b87e84,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+budget_cost,Tatiana Shchenina,2025 Clinica Mulher,a5053861-594d-47fc-b955-2b0ad0b87e84,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+budget_cost,Tatiana Shchenina,Bolshaya,a5053861-594d-47fc-b955-2b0ad0b87e84,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+budget_cost,Tatiana Shchenina,2128 Sandycove Road Dental Clinic,a5053861-594d-47fc-b955-2b0ad0b87e84,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+budget_cost,Tatiana Shchenina,2502 Uralchem IV,a5053861-594d-47fc-b955-2b0ad0b87e84,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+budget_cost,Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,a5053861-594d-47fc-b955-2b0ad0b87e84,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+budget_cost,Tatiana Shchenina,2521 Escritórios BCG,a5053861-594d-47fc-b955-2b0ad0b87e84,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+budget_cost,Tatiana Shchenina,DLMC Oral Surgery,a5053861-594d-47fc-b955-2b0ad0b87e84,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+budget_cost,Tatiana Shchenina,2609 Mastercard,a5053861-594d-47fc-b955-2b0ad0b87e84,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+budget_cost,Tatiana Shchenina,Escritório Sakur Dubai,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000003,True,True,True
+budget_cost,Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000004,True,True,True
+budget_cost,Tatiana Shchenina,2600 Quelhas,a5053861-594d-47fc-b955-2b0ad0b87e84,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+budget_cost,Tatiana Shchenina,2028 CTR Capital Towers Restaurant,a5053861-594d-47fc-b955-2b0ad0b87e84,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+budget_cost,Tatiana Shchenina,2506 Apartamento Tiago Carreiras,a5053861-594d-47fc-b955-2b0ad0b87e84,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+expenses,Tatiana Shchenina,Clinica Mint II,a5053861-594d-47fc-b955-2b0ad0b87e84,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+expenses,Tatiana Shchenina,0410B Telheiras Obra,a5053861-594d-47fc-b955-2b0ad0b87e84,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+expenses,Tatiana Shchenina,2608 Alcanena,a5053861-594d-47fc-b955-2b0ad0b87e84,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+expenses,Tatiana Shchenina,Consultoria Greg Freeman,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000001,True,True,True
+expenses,Tatiana Shchenina,Projeto histórico N10GLED,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000002,True,True,True
+expenses,Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,a5053861-594d-47fc-b955-2b0ad0b87e84,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+expenses,Tatiana Shchenina,2101 Colares,a5053861-594d-47fc-b955-2b0ad0b87e84,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+expenses,Tatiana Shchenina,0434 Sérgio Varanda,a5053861-594d-47fc-b955-2b0ad0b87e84,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+expenses,Tatiana Shchenina,2025 Clinica Mulher,a5053861-594d-47fc-b955-2b0ad0b87e84,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+expenses,Tatiana Shchenina,Bolshaya,a5053861-594d-47fc-b955-2b0ad0b87e84,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+expenses,Tatiana Shchenina,2128 Sandycove Road Dental Clinic,a5053861-594d-47fc-b955-2b0ad0b87e84,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+expenses,Tatiana Shchenina,2502 Uralchem IV,a5053861-594d-47fc-b955-2b0ad0b87e84,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+expenses,Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,a5053861-594d-47fc-b955-2b0ad0b87e84,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+expenses,Tatiana Shchenina,2521 Escritórios BCG,a5053861-594d-47fc-b955-2b0ad0b87e84,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+expenses,Tatiana Shchenina,DLMC Oral Surgery,a5053861-594d-47fc-b955-2b0ad0b87e84,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+expenses,Tatiana Shchenina,2609 Mastercard,a5053861-594d-47fc-b955-2b0ad0b87e84,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+expenses,Tatiana Shchenina,Escritório Sakur Dubai,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000003,True,True,True
+expenses,Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000004,True,True,True
+expenses,Tatiana Shchenina,2600 Quelhas,a5053861-594d-47fc-b955-2b0ad0b87e84,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+expenses,Tatiana Shchenina,2028 CTR Capital Towers Restaurant,a5053861-594d-47fc-b955-2b0ad0b87e84,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+expenses,Tatiana Shchenina,2506 Apartamento Tiago Carreiras,a5053861-594d-47fc-b955-2b0ad0b87e84,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+supplier_fees,Tatiana Shchenina,Clinica Mint II,a5053861-594d-47fc-b955-2b0ad0b87e84,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,True
+supplier_fees,Tatiana Shchenina,0410B Telheiras Obra,a5053861-594d-47fc-b955-2b0ad0b87e84,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,True
+supplier_fees,Tatiana Shchenina,2608 Alcanena,a5053861-594d-47fc-b955-2b0ad0b87e84,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,True
+supplier_fees,Tatiana Shchenina,Consultoria Greg Freeman,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000001,True,True,True
+supplier_fees,Tatiana Shchenina,Projeto histórico N10GLED,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000002,True,True,True
+supplier_fees,Tatiana Shchenina,2663 Alteração de loteamento - Ericeira,a5053861-594d-47fc-b955-2b0ad0b87e84,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,True
+supplier_fees,Tatiana Shchenina,2101 Colares,a5053861-594d-47fc-b955-2b0ad0b87e84,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,True
+supplier_fees,Tatiana Shchenina,0434 Sérgio Varanda,a5053861-594d-47fc-b955-2b0ad0b87e84,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,True
+supplier_fees,Tatiana Shchenina,2025 Clinica Mulher,a5053861-594d-47fc-b955-2b0ad0b87e84,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,True
+supplier_fees,Tatiana Shchenina,Bolshaya,a5053861-594d-47fc-b955-2b0ad0b87e84,91851d36-1689-4241-af4c-d47a6455481e,True,True,True
+supplier_fees,Tatiana Shchenina,2128 Sandycove Road Dental Clinic,a5053861-594d-47fc-b955-2b0ad0b87e84,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,True
+supplier_fees,Tatiana Shchenina,2502 Uralchem IV,a5053861-594d-47fc-b955-2b0ad0b87e84,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,True
+supplier_fees,Tatiana Shchenina,2522 Escritórios Banco CTT - Atrium 2,a5053861-594d-47fc-b955-2b0ad0b87e84,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,True
+supplier_fees,Tatiana Shchenina,2521 Escritórios BCG,a5053861-594d-47fc-b955-2b0ad0b87e84,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,True
+supplier_fees,Tatiana Shchenina,DLMC Oral Surgery,a5053861-594d-47fc-b955-2b0ad0b87e84,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,True
+supplier_fees,Tatiana Shchenina,2609 Mastercard,a5053861-594d-47fc-b955-2b0ad0b87e84,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,True
+supplier_fees,Tatiana Shchenina,Escritório Sakur Dubai,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000003,True,True,True
+supplier_fees,Tatiana Shchenina,Projeto histórico Museu Zer0 / ILC,a5053861-594d-47fc-b955-2b0ad0b87e84,a7190001-0000-4000-a000-000000000004,True,True,True
+supplier_fees,Tatiana Shchenina,2600 Quelhas,a5053861-594d-47fc-b955-2b0ad0b87e84,59f3a882-a593-42b1-a658-56bd9741f373,True,True,True
+supplier_fees,Tatiana Shchenina,2028 CTR Capital Towers Restaurant,a5053861-594d-47fc-b955-2b0ad0b87e84,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,True
+supplier_fees,Tatiana Shchenina,2506 Apartamento Tiago Carreiras,a5053861-594d-47fc-b955-2b0ad0b87e84,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,True
+financials,Ricardo Conceição,Clinica Mint II,a8c10bd8-856b-405d-8957-2f7cdf476864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,False
+financials,Ricardo Conceição,0410B Telheiras Obra,a8c10bd8-856b-405d-8957-2f7cdf476864,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,False
+financials,Ricardo Conceição,2608 Alcanena,a8c10bd8-856b-405d-8957-2f7cdf476864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,False
+financials,Ricardo Conceição,Consultoria Greg Freeman,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000001,True,True,False
+financials,Ricardo Conceição,Projeto histórico N10GLED,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000002,True,True,False
+financials,Ricardo Conceição,2663 Alteração de loteamento - Ericeira,a8c10bd8-856b-405d-8957-2f7cdf476864,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,False
+financials,Ricardo Conceição,2101 Colares,a8c10bd8-856b-405d-8957-2f7cdf476864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,False
+financials,Ricardo Conceição,0434 Sérgio Varanda,a8c10bd8-856b-405d-8957-2f7cdf476864,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,False
+financials,Ricardo Conceição,2025 Clinica Mulher,a8c10bd8-856b-405d-8957-2f7cdf476864,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,False
+financials,Ricardo Conceição,Bolshaya,a8c10bd8-856b-405d-8957-2f7cdf476864,91851d36-1689-4241-af4c-d47a6455481e,True,True,False
+financials,Ricardo Conceição,2128 Sandycove Road Dental Clinic,a8c10bd8-856b-405d-8957-2f7cdf476864,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,False
+financials,Ricardo Conceição,2502 Uralchem IV,a8c10bd8-856b-405d-8957-2f7cdf476864,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,False
+financials,Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,a8c10bd8-856b-405d-8957-2f7cdf476864,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,False
+financials,Ricardo Conceição,2521 Escritórios BCG,a8c10bd8-856b-405d-8957-2f7cdf476864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,False
+financials,Ricardo Conceição,DLMC Oral Surgery,a8c10bd8-856b-405d-8957-2f7cdf476864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,False
+financials,Ricardo Conceição,2609 Mastercard,a8c10bd8-856b-405d-8957-2f7cdf476864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,False
+financials,Ricardo Conceição,Escritório Sakur Dubai,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000003,True,True,False
+financials,Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000004,True,True,False
+financials,Ricardo Conceição,2600 Quelhas,a8c10bd8-856b-405d-8957-2f7cdf476864,59f3a882-a593-42b1-a658-56bd9741f373,True,True,False
+financials,Ricardo Conceição,2028 CTR Capital Towers Restaurant,a8c10bd8-856b-405d-8957-2f7cdf476864,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,False
+financials,Ricardo Conceição,2506 Apartamento Tiago Carreiras,a8c10bd8-856b-405d-8957-2f7cdf476864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,False
+budget_cost,Ricardo Conceição,Clinica Mint II,a8c10bd8-856b-405d-8957-2f7cdf476864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,False
+budget_cost,Ricardo Conceição,0410B Telheiras Obra,a8c10bd8-856b-405d-8957-2f7cdf476864,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,False
+budget_cost,Ricardo Conceição,2608 Alcanena,a8c10bd8-856b-405d-8957-2f7cdf476864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,False
+budget_cost,Ricardo Conceição,Consultoria Greg Freeman,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000001,True,True,False
+budget_cost,Ricardo Conceição,Projeto histórico N10GLED,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000002,True,True,False
+budget_cost,Ricardo Conceição,2663 Alteração de loteamento - Ericeira,a8c10bd8-856b-405d-8957-2f7cdf476864,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,False
+budget_cost,Ricardo Conceição,2101 Colares,a8c10bd8-856b-405d-8957-2f7cdf476864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,False
+budget_cost,Ricardo Conceição,0434 Sérgio Varanda,a8c10bd8-856b-405d-8957-2f7cdf476864,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,False
+budget_cost,Ricardo Conceição,2025 Clinica Mulher,a8c10bd8-856b-405d-8957-2f7cdf476864,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,False
+budget_cost,Ricardo Conceição,Bolshaya,a8c10bd8-856b-405d-8957-2f7cdf476864,91851d36-1689-4241-af4c-d47a6455481e,True,True,False
+budget_cost,Ricardo Conceição,2128 Sandycove Road Dental Clinic,a8c10bd8-856b-405d-8957-2f7cdf476864,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,False
+budget_cost,Ricardo Conceição,2502 Uralchem IV,a8c10bd8-856b-405d-8957-2f7cdf476864,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,False
+budget_cost,Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,a8c10bd8-856b-405d-8957-2f7cdf476864,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,False
+budget_cost,Ricardo Conceição,2521 Escritórios BCG,a8c10bd8-856b-405d-8957-2f7cdf476864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,False
+budget_cost,Ricardo Conceição,DLMC Oral Surgery,a8c10bd8-856b-405d-8957-2f7cdf476864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,False
+budget_cost,Ricardo Conceição,2609 Mastercard,a8c10bd8-856b-405d-8957-2f7cdf476864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,False
+budget_cost,Ricardo Conceição,Escritório Sakur Dubai,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000003,True,True,False
+budget_cost,Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000004,True,True,False
+budget_cost,Ricardo Conceição,2600 Quelhas,a8c10bd8-856b-405d-8957-2f7cdf476864,59f3a882-a593-42b1-a658-56bd9741f373,True,True,False
+budget_cost,Ricardo Conceição,2028 CTR Capital Towers Restaurant,a8c10bd8-856b-405d-8957-2f7cdf476864,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,False
+budget_cost,Ricardo Conceição,2506 Apartamento Tiago Carreiras,a8c10bd8-856b-405d-8957-2f7cdf476864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,False
+expenses,Ricardo Conceição,Clinica Mint II,a8c10bd8-856b-405d-8957-2f7cdf476864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,False
+expenses,Ricardo Conceição,0410B Telheiras Obra,a8c10bd8-856b-405d-8957-2f7cdf476864,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,False
+expenses,Ricardo Conceição,2608 Alcanena,a8c10bd8-856b-405d-8957-2f7cdf476864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,False
+expenses,Ricardo Conceição,Consultoria Greg Freeman,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000001,True,True,False
+expenses,Ricardo Conceição,Projeto histórico N10GLED,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000002,True,True,False
+expenses,Ricardo Conceição,2663 Alteração de loteamento - Ericeira,a8c10bd8-856b-405d-8957-2f7cdf476864,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,False
+expenses,Ricardo Conceição,2101 Colares,a8c10bd8-856b-405d-8957-2f7cdf476864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,False
+expenses,Ricardo Conceição,0434 Sérgio Varanda,a8c10bd8-856b-405d-8957-2f7cdf476864,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,False
+expenses,Ricardo Conceição,2025 Clinica Mulher,a8c10bd8-856b-405d-8957-2f7cdf476864,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,False
+expenses,Ricardo Conceição,Bolshaya,a8c10bd8-856b-405d-8957-2f7cdf476864,91851d36-1689-4241-af4c-d47a6455481e,True,True,False
+expenses,Ricardo Conceição,2128 Sandycove Road Dental Clinic,a8c10bd8-856b-405d-8957-2f7cdf476864,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,False
+expenses,Ricardo Conceição,2502 Uralchem IV,a8c10bd8-856b-405d-8957-2f7cdf476864,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,False
+expenses,Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,a8c10bd8-856b-405d-8957-2f7cdf476864,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,False
+expenses,Ricardo Conceição,2521 Escritórios BCG,a8c10bd8-856b-405d-8957-2f7cdf476864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,False
+expenses,Ricardo Conceição,DLMC Oral Surgery,a8c10bd8-856b-405d-8957-2f7cdf476864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,False
+expenses,Ricardo Conceição,2609 Mastercard,a8c10bd8-856b-405d-8957-2f7cdf476864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,False
+expenses,Ricardo Conceição,Escritório Sakur Dubai,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000003,True,True,False
+expenses,Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000004,True,True,False
+expenses,Ricardo Conceição,2600 Quelhas,a8c10bd8-856b-405d-8957-2f7cdf476864,59f3a882-a593-42b1-a658-56bd9741f373,True,True,False
+expenses,Ricardo Conceição,2028 CTR Capital Towers Restaurant,a8c10bd8-856b-405d-8957-2f7cdf476864,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,False
+expenses,Ricardo Conceição,2506 Apartamento Tiago Carreiras,a8c10bd8-856b-405d-8957-2f7cdf476864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,False
+supplier_fees,Ricardo Conceição,Clinica Mint II,a8c10bd8-856b-405d-8957-2f7cdf476864,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,True,False
+supplier_fees,Ricardo Conceição,0410B Telheiras Obra,a8c10bd8-856b-405d-8957-2f7cdf476864,3775332d-48e7-4042-8ec2-8bde1d475d8e,True,True,False
+supplier_fees,Ricardo Conceição,2608 Alcanena,a8c10bd8-856b-405d-8957-2f7cdf476864,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,True,True,False
+supplier_fees,Ricardo Conceição,Consultoria Greg Freeman,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000001,True,True,False
+supplier_fees,Ricardo Conceição,Projeto histórico N10GLED,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000002,True,True,False
+supplier_fees,Ricardo Conceição,2663 Alteração de loteamento - Ericeira,a8c10bd8-856b-405d-8957-2f7cdf476864,3f820f1a-c78e-470e-92de-8d83127c2d87,True,True,False
+supplier_fees,Ricardo Conceição,2101 Colares,a8c10bd8-856b-405d-8957-2f7cdf476864,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,True,True,False
+supplier_fees,Ricardo Conceição,0434 Sérgio Varanda,a8c10bd8-856b-405d-8957-2f7cdf476864,5d02e289-d6e0-4265-bcbc-82d547376fe7,True,True,False
+supplier_fees,Ricardo Conceição,2025 Clinica Mulher,a8c10bd8-856b-405d-8957-2f7cdf476864,ff0dcfe7-b4df-4d42-a680-00878952b16d,True,True,False
+supplier_fees,Ricardo Conceição,Bolshaya,a8c10bd8-856b-405d-8957-2f7cdf476864,91851d36-1689-4241-af4c-d47a6455481e,True,True,False
+supplier_fees,Ricardo Conceição,2128 Sandycove Road Dental Clinic,a8c10bd8-856b-405d-8957-2f7cdf476864,520ad4a4-c5f1-405e-82be-8180e17d68e2,True,True,False
+supplier_fees,Ricardo Conceição,2502 Uralchem IV,a8c10bd8-856b-405d-8957-2f7cdf476864,32810ca9-3c97-4eee-a6b7-a8385a19c972,True,True,False
+supplier_fees,Ricardo Conceição,2522 Escritórios Banco CTT - Atrium 2,a8c10bd8-856b-405d-8957-2f7cdf476864,936b3ca5-6736-40ef-90f3-5381375beb7d,True,True,False
+supplier_fees,Ricardo Conceição,2521 Escritórios BCG,a8c10bd8-856b-405d-8957-2f7cdf476864,30f1e184-27c2-4866-bc48-aec1c6ad2e00,True,True,False
+supplier_fees,Ricardo Conceição,DLMC Oral Surgery,a8c10bd8-856b-405d-8957-2f7cdf476864,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,True,True,False
+supplier_fees,Ricardo Conceição,2609 Mastercard,a8c10bd8-856b-405d-8957-2f7cdf476864,a07f12ad-5033-4c38-b26b-2077d6ffd55b,True,True,False
+supplier_fees,Ricardo Conceição,Escritório Sakur Dubai,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000003,True,True,False
+supplier_fees,Ricardo Conceição,Projeto histórico Museu Zer0 / ILC,a8c10bd8-856b-405d-8957-2f7cdf476864,a7190001-0000-4000-a000-000000000004,True,True,False
+supplier_fees,Ricardo Conceição,2600 Quelhas,a8c10bd8-856b-405d-8957-2f7cdf476864,59f3a882-a593-42b1-a658-56bd9741f373,True,True,False
+supplier_fees,Ricardo Conceição,2028 CTR Capital Towers Restaurant,a8c10bd8-856b-405d-8957-2f7cdf476864,c3f3026e-f41a-4fac-894b-d243af8d3142,True,True,False
+supplier_fees,Ricardo Conceição,2506 Apartamento Tiago Carreiras,a8c10bd8-856b-405d-8957-2f7cdf476864,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,True,True,False
+financials,Francisco Oliveira,Clinica Mint II,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Francisco Oliveira,0410B Telheiras Obra,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Francisco Oliveira,2608 Alcanena,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Francisco Oliveira,Consultoria Greg Freeman,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Francisco Oliveira,Projeto histórico N10GLED,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Francisco Oliveira,2663 Alteração de loteamento - Ericeira,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Francisco Oliveira,2101 Colares,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Francisco Oliveira,0434 Sérgio Varanda,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Francisco Oliveira,2025 Clinica Mulher,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Francisco Oliveira,Bolshaya,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Francisco Oliveira,2128 Sandycove Road Dental Clinic,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Francisco Oliveira,2502 Uralchem IV,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Francisco Oliveira,2521 Escritórios BCG,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Francisco Oliveira,DLMC Oral Surgery,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Francisco Oliveira,2609 Mastercard,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Francisco Oliveira,Escritório Sakur Dubai,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Francisco Oliveira,2600 Quelhas,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Francisco Oliveira,2028 CTR Capital Towers Restaurant,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Francisco Oliveira,2506 Apartamento Tiago Carreiras,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Francisco Oliveira,Clinica Mint II,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Francisco Oliveira,0410B Telheiras Obra,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Francisco Oliveira,2608 Alcanena,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Francisco Oliveira,Consultoria Greg Freeman,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Francisco Oliveira,Projeto histórico N10GLED,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Francisco Oliveira,2663 Alteração de loteamento - Ericeira,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Francisco Oliveira,2101 Colares,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Francisco Oliveira,0434 Sérgio Varanda,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Francisco Oliveira,2025 Clinica Mulher,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Francisco Oliveira,Bolshaya,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Francisco Oliveira,2128 Sandycove Road Dental Clinic,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Francisco Oliveira,2502 Uralchem IV,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Francisco Oliveira,2521 Escritórios BCG,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Francisco Oliveira,DLMC Oral Surgery,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Francisco Oliveira,2609 Mastercard,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Francisco Oliveira,Escritório Sakur Dubai,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Francisco Oliveira,2600 Quelhas,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Francisco Oliveira,2028 CTR Capital Towers Restaurant,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Francisco Oliveira,2506 Apartamento Tiago Carreiras,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Francisco Oliveira,Clinica Mint II,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Francisco Oliveira,0410B Telheiras Obra,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Francisco Oliveira,2608 Alcanena,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Francisco Oliveira,Consultoria Greg Freeman,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Francisco Oliveira,Projeto histórico N10GLED,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Francisco Oliveira,2663 Alteração de loteamento - Ericeira,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Francisco Oliveira,2101 Colares,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Francisco Oliveira,0434 Sérgio Varanda,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Francisco Oliveira,2025 Clinica Mulher,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Francisco Oliveira,Bolshaya,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Francisco Oliveira,2128 Sandycove Road Dental Clinic,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Francisco Oliveira,2502 Uralchem IV,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Francisco Oliveira,2521 Escritórios BCG,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Francisco Oliveira,DLMC Oral Surgery,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Francisco Oliveira,2609 Mastercard,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Francisco Oliveira,Escritório Sakur Dubai,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Francisco Oliveira,2600 Quelhas,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Francisco Oliveira,2028 CTR Capital Towers Restaurant,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Francisco Oliveira,2506 Apartamento Tiago Carreiras,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Francisco Oliveira,Clinica Mint II,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Francisco Oliveira,0410B Telheiras Obra,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Francisco Oliveira,2608 Alcanena,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Francisco Oliveira,Consultoria Greg Freeman,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Francisco Oliveira,Projeto histórico N10GLED,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Francisco Oliveira,2663 Alteração de loteamento - Ericeira,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Francisco Oliveira,2101 Colares,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Francisco Oliveira,0434 Sérgio Varanda,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Francisco Oliveira,2025 Clinica Mulher,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Francisco Oliveira,Bolshaya,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Francisco Oliveira,2128 Sandycove Road Dental Clinic,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Francisco Oliveira,2502 Uralchem IV,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,Francisco Oliveira,2522 Escritórios Banco CTT - Atrium 2,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Francisco Oliveira,2521 Escritórios BCG,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Francisco Oliveira,DLMC Oral Surgery,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Francisco Oliveira,2609 Mastercard,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Francisco Oliveira,Escritório Sakur Dubai,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Francisco Oliveira,Projeto histórico Museu Zer0 / ILC,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Francisco Oliveira,2600 Quelhas,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Francisco Oliveira,2028 CTR Capital Towers Restaurant,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Francisco Oliveira,2506 Apartamento Tiago Carreiras,7479e4b2-8391-4a1e-9a01-2b5b3ce4ed42,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Ricardo Cabrita,Clinica Mint II,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Ricardo Cabrita,0410B Telheiras Obra,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Ricardo Cabrita,2608 Alcanena,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Ricardo Cabrita,Consultoria Greg Freeman,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Ricardo Cabrita,Projeto histórico N10GLED,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Ricardo Cabrita,2101 Colares,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Ricardo Cabrita,0434 Sérgio Varanda,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Ricardo Cabrita,2025 Clinica Mulher,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Ricardo Cabrita,Bolshaya,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Ricardo Cabrita,2128 Sandycove Road Dental Clinic,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Ricardo Cabrita,2502 Uralchem IV,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Ricardo Cabrita,2521 Escritórios BCG,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Ricardo Cabrita,DLMC Oral Surgery,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Ricardo Cabrita,2609 Mastercard,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Ricardo Cabrita,Escritório Sakur Dubai,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Ricardo Cabrita,2600 Quelhas,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Ricardo Cabrita,2028 CTR Capital Towers Restaurant,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Ricardo Cabrita,2506 Apartamento Tiago Carreiras,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Ricardo Cabrita,Clinica Mint II,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Ricardo Cabrita,0410B Telheiras Obra,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Ricardo Cabrita,2608 Alcanena,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Ricardo Cabrita,Consultoria Greg Freeman,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Ricardo Cabrita,Projeto histórico N10GLED,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Ricardo Cabrita,2101 Colares,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Ricardo Cabrita,0434 Sérgio Varanda,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Ricardo Cabrita,2025 Clinica Mulher,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Ricardo Cabrita,Bolshaya,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Ricardo Cabrita,2128 Sandycove Road Dental Clinic,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Ricardo Cabrita,2502 Uralchem IV,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Ricardo Cabrita,2521 Escritórios BCG,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Ricardo Cabrita,DLMC Oral Surgery,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Ricardo Cabrita,2609 Mastercard,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Ricardo Cabrita,Escritório Sakur Dubai,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Ricardo Cabrita,2600 Quelhas,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Ricardo Cabrita,2028 CTR Capital Towers Restaurant,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Ricardo Cabrita,2506 Apartamento Tiago Carreiras,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Ricardo Cabrita,Clinica Mint II,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Ricardo Cabrita,0410B Telheiras Obra,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Ricardo Cabrita,2608 Alcanena,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Ricardo Cabrita,Consultoria Greg Freeman,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Ricardo Cabrita,Projeto histórico N10GLED,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Ricardo Cabrita,2101 Colares,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Ricardo Cabrita,0434 Sérgio Varanda,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Ricardo Cabrita,2025 Clinica Mulher,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Ricardo Cabrita,Bolshaya,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Ricardo Cabrita,2128 Sandycove Road Dental Clinic,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Ricardo Cabrita,2502 Uralchem IV,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Ricardo Cabrita,2521 Escritórios BCG,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Ricardo Cabrita,DLMC Oral Surgery,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Ricardo Cabrita,2609 Mastercard,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Ricardo Cabrita,Escritório Sakur Dubai,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Ricardo Cabrita,2600 Quelhas,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Ricardo Cabrita,2028 CTR Capital Towers Restaurant,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Ricardo Cabrita,2506 Apartamento Tiago Carreiras,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Ricardo Cabrita,Clinica Mint II,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Ricardo Cabrita,0410B Telheiras Obra,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Ricardo Cabrita,2608 Alcanena,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Ricardo Cabrita,Consultoria Greg Freeman,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Ricardo Cabrita,Projeto histórico N10GLED,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Ricardo Cabrita,2663 Alteração de loteamento - Ericeira,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Ricardo Cabrita,2101 Colares,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Ricardo Cabrita,0434 Sérgio Varanda,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Ricardo Cabrita,2025 Clinica Mulher,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Ricardo Cabrita,Bolshaya,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Ricardo Cabrita,2128 Sandycove Road Dental Clinic,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Ricardo Cabrita,2502 Uralchem IV,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,Ricardo Cabrita,2522 Escritórios Banco CTT - Atrium 2,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Ricardo Cabrita,2521 Escritórios BCG,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Ricardo Cabrita,DLMC Oral Surgery,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Ricardo Cabrita,2609 Mastercard,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Ricardo Cabrita,Escritório Sakur Dubai,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Ricardo Cabrita,Projeto histórico Museu Zer0 / ILC,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Ricardo Cabrita,2600 Quelhas,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Ricardo Cabrita,2028 CTR Capital Towers Restaurant,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Ricardo Cabrita,2506 Apartamento Tiago Carreiras,0c3f231e-ac31-4cc3-89e7-e98d920eacc6,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,João Almeida,Clinica Mint II,51e65600-fbce-4e62-9f48-bb5b0e730367,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,João Almeida,0410B Telheiras Obra,51e65600-fbce-4e62-9f48-bb5b0e730367,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,João Almeida,2608 Alcanena,51e65600-fbce-4e62-9f48-bb5b0e730367,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,João Almeida,Consultoria Greg Freeman,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,João Almeida,Projeto histórico N10GLED,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,João Almeida,2663 Alteração de loteamento - Ericeira,51e65600-fbce-4e62-9f48-bb5b0e730367,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,João Almeida,2101 Colares,51e65600-fbce-4e62-9f48-bb5b0e730367,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,João Almeida,0434 Sérgio Varanda,51e65600-fbce-4e62-9f48-bb5b0e730367,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,João Almeida,2025 Clinica Mulher,51e65600-fbce-4e62-9f48-bb5b0e730367,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,João Almeida,Bolshaya,51e65600-fbce-4e62-9f48-bb5b0e730367,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,João Almeida,2128 Sandycove Road Dental Clinic,51e65600-fbce-4e62-9f48-bb5b0e730367,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,João Almeida,2502 Uralchem IV,51e65600-fbce-4e62-9f48-bb5b0e730367,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,João Almeida,2522 Escritórios Banco CTT - Atrium 2,51e65600-fbce-4e62-9f48-bb5b0e730367,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,João Almeida,2521 Escritórios BCG,51e65600-fbce-4e62-9f48-bb5b0e730367,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,João Almeida,DLMC Oral Surgery,51e65600-fbce-4e62-9f48-bb5b0e730367,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,João Almeida,2609 Mastercard,51e65600-fbce-4e62-9f48-bb5b0e730367,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,João Almeida,Escritório Sakur Dubai,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,João Almeida,Projeto histórico Museu Zer0 / ILC,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,João Almeida,2600 Quelhas,51e65600-fbce-4e62-9f48-bb5b0e730367,59f3a882-a593-42b1-a658-56bd9741f373,True,False,False
+financials,João Almeida,2028 CTR Capital Towers Restaurant,51e65600-fbce-4e62-9f48-bb5b0e730367,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,João Almeida,2506 Apartamento Tiago Carreiras,51e65600-fbce-4e62-9f48-bb5b0e730367,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,João Almeida,Clinica Mint II,51e65600-fbce-4e62-9f48-bb5b0e730367,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,João Almeida,0410B Telheiras Obra,51e65600-fbce-4e62-9f48-bb5b0e730367,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,João Almeida,2608 Alcanena,51e65600-fbce-4e62-9f48-bb5b0e730367,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,João Almeida,Consultoria Greg Freeman,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,João Almeida,Projeto histórico N10GLED,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,João Almeida,2663 Alteração de loteamento - Ericeira,51e65600-fbce-4e62-9f48-bb5b0e730367,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,João Almeida,2101 Colares,51e65600-fbce-4e62-9f48-bb5b0e730367,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,João Almeida,0434 Sérgio Varanda,51e65600-fbce-4e62-9f48-bb5b0e730367,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,João Almeida,2025 Clinica Mulher,51e65600-fbce-4e62-9f48-bb5b0e730367,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,João Almeida,Bolshaya,51e65600-fbce-4e62-9f48-bb5b0e730367,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,João Almeida,2128 Sandycove Road Dental Clinic,51e65600-fbce-4e62-9f48-bb5b0e730367,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,João Almeida,2502 Uralchem IV,51e65600-fbce-4e62-9f48-bb5b0e730367,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,João Almeida,2522 Escritórios Banco CTT - Atrium 2,51e65600-fbce-4e62-9f48-bb5b0e730367,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,João Almeida,2521 Escritórios BCG,51e65600-fbce-4e62-9f48-bb5b0e730367,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,João Almeida,DLMC Oral Surgery,51e65600-fbce-4e62-9f48-bb5b0e730367,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,João Almeida,2609 Mastercard,51e65600-fbce-4e62-9f48-bb5b0e730367,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,João Almeida,Escritório Sakur Dubai,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,João Almeida,Projeto histórico Museu Zer0 / ILC,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,João Almeida,2600 Quelhas,51e65600-fbce-4e62-9f48-bb5b0e730367,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,João Almeida,2028 CTR Capital Towers Restaurant,51e65600-fbce-4e62-9f48-bb5b0e730367,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,João Almeida,2506 Apartamento Tiago Carreiras,51e65600-fbce-4e62-9f48-bb5b0e730367,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,João Almeida,Clinica Mint II,51e65600-fbce-4e62-9f48-bb5b0e730367,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,João Almeida,0410B Telheiras Obra,51e65600-fbce-4e62-9f48-bb5b0e730367,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,João Almeida,2608 Alcanena,51e65600-fbce-4e62-9f48-bb5b0e730367,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,João Almeida,Consultoria Greg Freeman,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,João Almeida,Projeto histórico N10GLED,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,João Almeida,2663 Alteração de loteamento - Ericeira,51e65600-fbce-4e62-9f48-bb5b0e730367,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,João Almeida,2101 Colares,51e65600-fbce-4e62-9f48-bb5b0e730367,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,João Almeida,0434 Sérgio Varanda,51e65600-fbce-4e62-9f48-bb5b0e730367,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,João Almeida,2025 Clinica Mulher,51e65600-fbce-4e62-9f48-bb5b0e730367,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,João Almeida,Bolshaya,51e65600-fbce-4e62-9f48-bb5b0e730367,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,João Almeida,2128 Sandycove Road Dental Clinic,51e65600-fbce-4e62-9f48-bb5b0e730367,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,João Almeida,2502 Uralchem IV,51e65600-fbce-4e62-9f48-bb5b0e730367,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,João Almeida,2522 Escritórios Banco CTT - Atrium 2,51e65600-fbce-4e62-9f48-bb5b0e730367,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,João Almeida,2521 Escritórios BCG,51e65600-fbce-4e62-9f48-bb5b0e730367,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,João Almeida,DLMC Oral Surgery,51e65600-fbce-4e62-9f48-bb5b0e730367,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,João Almeida,2609 Mastercard,51e65600-fbce-4e62-9f48-bb5b0e730367,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,João Almeida,Escritório Sakur Dubai,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,João Almeida,Projeto histórico Museu Zer0 / ILC,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,João Almeida,2600 Quelhas,51e65600-fbce-4e62-9f48-bb5b0e730367,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,João Almeida,2028 CTR Capital Towers Restaurant,51e65600-fbce-4e62-9f48-bb5b0e730367,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,João Almeida,2506 Apartamento Tiago Carreiras,51e65600-fbce-4e62-9f48-bb5b0e730367,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,João Almeida,Clinica Mint II,51e65600-fbce-4e62-9f48-bb5b0e730367,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,João Almeida,0410B Telheiras Obra,51e65600-fbce-4e62-9f48-bb5b0e730367,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,João Almeida,2608 Alcanena,51e65600-fbce-4e62-9f48-bb5b0e730367,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,João Almeida,Consultoria Greg Freeman,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,João Almeida,Projeto histórico N10GLED,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,João Almeida,2663 Alteração de loteamento - Ericeira,51e65600-fbce-4e62-9f48-bb5b0e730367,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,João Almeida,2101 Colares,51e65600-fbce-4e62-9f48-bb5b0e730367,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,João Almeida,0434 Sérgio Varanda,51e65600-fbce-4e62-9f48-bb5b0e730367,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,João Almeida,2025 Clinica Mulher,51e65600-fbce-4e62-9f48-bb5b0e730367,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,João Almeida,Bolshaya,51e65600-fbce-4e62-9f48-bb5b0e730367,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,João Almeida,2128 Sandycove Road Dental Clinic,51e65600-fbce-4e62-9f48-bb5b0e730367,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,João Almeida,2502 Uralchem IV,51e65600-fbce-4e62-9f48-bb5b0e730367,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,João Almeida,2522 Escritórios Banco CTT - Atrium 2,51e65600-fbce-4e62-9f48-bb5b0e730367,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,João Almeida,2521 Escritórios BCG,51e65600-fbce-4e62-9f48-bb5b0e730367,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,João Almeida,DLMC Oral Surgery,51e65600-fbce-4e62-9f48-bb5b0e730367,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,João Almeida,2609 Mastercard,51e65600-fbce-4e62-9f48-bb5b0e730367,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,João Almeida,Escritório Sakur Dubai,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,João Almeida,Projeto histórico Museu Zer0 / ILC,51e65600-fbce-4e62-9f48-bb5b0e730367,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,João Almeida,2600 Quelhas,51e65600-fbce-4e62-9f48-bb5b0e730367,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,João Almeida,2028 CTR Capital Towers Restaurant,51e65600-fbce-4e62-9f48-bb5b0e730367,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,João Almeida,2506 Apartamento Tiago Carreiras,51e65600-fbce-4e62-9f48-bb5b0e730367,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Patricia Reis,Clinica Mint II,4d2a2d60-fab6-42a5-b08c-03b7008c2170,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Patricia Reis,0410B Telheiras Obra,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Patricia Reis,2608 Alcanena,4d2a2d60-fab6-42a5-b08c-03b7008c2170,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Patricia Reis,Consultoria Greg Freeman,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Patricia Reis,Projeto histórico N10GLED,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Patricia Reis,2663 Alteração de loteamento - Ericeira,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Patricia Reis,2101 Colares,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Patricia Reis,0434 Sérgio Varanda,4d2a2d60-fab6-42a5-b08c-03b7008c2170,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Patricia Reis,2025 Clinica Mulher,4d2a2d60-fab6-42a5-b08c-03b7008c2170,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Patricia Reis,Bolshaya,4d2a2d60-fab6-42a5-b08c-03b7008c2170,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Patricia Reis,2128 Sandycove Road Dental Clinic,4d2a2d60-fab6-42a5-b08c-03b7008c2170,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Patricia Reis,2502 Uralchem IV,4d2a2d60-fab6-42a5-b08c-03b7008c2170,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+financials,Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,4d2a2d60-fab6-42a5-b08c-03b7008c2170,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Patricia Reis,2521 Escritórios BCG,4d2a2d60-fab6-42a5-b08c-03b7008c2170,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,True,False
+financials,Patricia Reis,DLMC Oral Surgery,4d2a2d60-fab6-42a5-b08c-03b7008c2170,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Patricia Reis,2609 Mastercard,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,True,False
+financials,Patricia Reis,Escritório Sakur Dubai,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Patricia Reis,Projeto histórico Museu Zer0 / ILC,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Patricia Reis,2600 Quelhas,4d2a2d60-fab6-42a5-b08c-03b7008c2170,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Patricia Reis,2028 CTR Capital Towers Restaurant,4d2a2d60-fab6-42a5-b08c-03b7008c2170,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Patricia Reis,2506 Apartamento Tiago Carreiras,4d2a2d60-fab6-42a5-b08c-03b7008c2170,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Patricia Reis,Clinica Mint II,4d2a2d60-fab6-42a5-b08c-03b7008c2170,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Patricia Reis,0410B Telheiras Obra,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Patricia Reis,2608 Alcanena,4d2a2d60-fab6-42a5-b08c-03b7008c2170,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Patricia Reis,Consultoria Greg Freeman,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Patricia Reis,Projeto histórico N10GLED,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Patricia Reis,2663 Alteração de loteamento - Ericeira,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Patricia Reis,2101 Colares,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Patricia Reis,0434 Sérgio Varanda,4d2a2d60-fab6-42a5-b08c-03b7008c2170,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Patricia Reis,2025 Clinica Mulher,4d2a2d60-fab6-42a5-b08c-03b7008c2170,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Patricia Reis,Bolshaya,4d2a2d60-fab6-42a5-b08c-03b7008c2170,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Patricia Reis,2128 Sandycove Road Dental Clinic,4d2a2d60-fab6-42a5-b08c-03b7008c2170,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Patricia Reis,2502 Uralchem IV,4d2a2d60-fab6-42a5-b08c-03b7008c2170,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+budget_cost,Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,4d2a2d60-fab6-42a5-b08c-03b7008c2170,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Patricia Reis,2521 Escritórios BCG,4d2a2d60-fab6-42a5-b08c-03b7008c2170,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,True,False
+budget_cost,Patricia Reis,DLMC Oral Surgery,4d2a2d60-fab6-42a5-b08c-03b7008c2170,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Patricia Reis,2609 Mastercard,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,True,False
+budget_cost,Patricia Reis,Escritório Sakur Dubai,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Patricia Reis,Projeto histórico Museu Zer0 / ILC,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Patricia Reis,2600 Quelhas,4d2a2d60-fab6-42a5-b08c-03b7008c2170,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Patricia Reis,2028 CTR Capital Towers Restaurant,4d2a2d60-fab6-42a5-b08c-03b7008c2170,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Patricia Reis,2506 Apartamento Tiago Carreiras,4d2a2d60-fab6-42a5-b08c-03b7008c2170,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Patricia Reis,Clinica Mint II,4d2a2d60-fab6-42a5-b08c-03b7008c2170,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Patricia Reis,0410B Telheiras Obra,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Patricia Reis,2608 Alcanena,4d2a2d60-fab6-42a5-b08c-03b7008c2170,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Patricia Reis,Consultoria Greg Freeman,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Patricia Reis,Projeto histórico N10GLED,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Patricia Reis,2663 Alteração de loteamento - Ericeira,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Patricia Reis,2101 Colares,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Patricia Reis,0434 Sérgio Varanda,4d2a2d60-fab6-42a5-b08c-03b7008c2170,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Patricia Reis,2025 Clinica Mulher,4d2a2d60-fab6-42a5-b08c-03b7008c2170,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Patricia Reis,Bolshaya,4d2a2d60-fab6-42a5-b08c-03b7008c2170,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Patricia Reis,2128 Sandycove Road Dental Clinic,4d2a2d60-fab6-42a5-b08c-03b7008c2170,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Patricia Reis,2502 Uralchem IV,4d2a2d60-fab6-42a5-b08c-03b7008c2170,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+expenses,Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,4d2a2d60-fab6-42a5-b08c-03b7008c2170,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Patricia Reis,2521 Escritórios BCG,4d2a2d60-fab6-42a5-b08c-03b7008c2170,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,True,False
+expenses,Patricia Reis,DLMC Oral Surgery,4d2a2d60-fab6-42a5-b08c-03b7008c2170,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Patricia Reis,2609 Mastercard,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,True,False
+expenses,Patricia Reis,Escritório Sakur Dubai,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Patricia Reis,Projeto histórico Museu Zer0 / ILC,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Patricia Reis,2600 Quelhas,4d2a2d60-fab6-42a5-b08c-03b7008c2170,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Patricia Reis,2028 CTR Capital Towers Restaurant,4d2a2d60-fab6-42a5-b08c-03b7008c2170,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Patricia Reis,2506 Apartamento Tiago Carreiras,4d2a2d60-fab6-42a5-b08c-03b7008c2170,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Patricia Reis,Clinica Mint II,4d2a2d60-fab6-42a5-b08c-03b7008c2170,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Patricia Reis,0410B Telheiras Obra,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Patricia Reis,2608 Alcanena,4d2a2d60-fab6-42a5-b08c-03b7008c2170,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Patricia Reis,Consultoria Greg Freeman,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Patricia Reis,Projeto histórico N10GLED,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Patricia Reis,2663 Alteração de loteamento - Ericeira,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Patricia Reis,2101 Colares,4d2a2d60-fab6-42a5-b08c-03b7008c2170,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Patricia Reis,0434 Sérgio Varanda,4d2a2d60-fab6-42a5-b08c-03b7008c2170,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Patricia Reis,2025 Clinica Mulher,4d2a2d60-fab6-42a5-b08c-03b7008c2170,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Patricia Reis,Bolshaya,4d2a2d60-fab6-42a5-b08c-03b7008c2170,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Patricia Reis,2128 Sandycove Road Dental Clinic,4d2a2d60-fab6-42a5-b08c-03b7008c2170,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Patricia Reis,2502 Uralchem IV,4d2a2d60-fab6-42a5-b08c-03b7008c2170,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,True,False
+supplier_fees,Patricia Reis,2522 Escritórios Banco CTT - Atrium 2,4d2a2d60-fab6-42a5-b08c-03b7008c2170,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Patricia Reis,2521 Escritórios BCG,4d2a2d60-fab6-42a5-b08c-03b7008c2170,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,True,False
+supplier_fees,Patricia Reis,DLMC Oral Surgery,4d2a2d60-fab6-42a5-b08c-03b7008c2170,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Patricia Reis,2609 Mastercard,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,True,False
+supplier_fees,Patricia Reis,Escritório Sakur Dubai,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Patricia Reis,Projeto histórico Museu Zer0 / ILC,4d2a2d60-fab6-42a5-b08c-03b7008c2170,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Patricia Reis,2600 Quelhas,4d2a2d60-fab6-42a5-b08c-03b7008c2170,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Patricia Reis,2028 CTR Capital Towers Restaurant,4d2a2d60-fab6-42a5-b08c-03b7008c2170,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Patricia Reis,2506 Apartamento Tiago Carreiras,4d2a2d60-fab6-42a5-b08c-03b7008c2170,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Rita Saragoça,Clinica Mint II,8e8fa5d7-e287-4d0a-94f6-587fce848200,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,False,False
+financials,Rita Saragoça,0410B Telheiras Obra,8e8fa5d7-e287-4d0a-94f6-587fce848200,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Rita Saragoça,2608 Alcanena,8e8fa5d7-e287-4d0a-94f6-587fce848200,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Rita Saragoça,Consultoria Greg Freeman,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Rita Saragoça,Projeto histórico N10GLED,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Rita Saragoça,2663 Alteração de loteamento - Ericeira,8e8fa5d7-e287-4d0a-94f6-587fce848200,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Rita Saragoça,2101 Colares,8e8fa5d7-e287-4d0a-94f6-587fce848200,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Rita Saragoça,0434 Sérgio Varanda,8e8fa5d7-e287-4d0a-94f6-587fce848200,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Rita Saragoça,2025 Clinica Mulher,8e8fa5d7-e287-4d0a-94f6-587fce848200,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Rita Saragoça,Bolshaya,8e8fa5d7-e287-4d0a-94f6-587fce848200,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Rita Saragoça,2128 Sandycove Road Dental Clinic,8e8fa5d7-e287-4d0a-94f6-587fce848200,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Rita Saragoça,2502 Uralchem IV,8e8fa5d7-e287-4d0a-94f6-587fce848200,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,8e8fa5d7-e287-4d0a-94f6-587fce848200,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Rita Saragoça,2521 Escritórios BCG,8e8fa5d7-e287-4d0a-94f6-587fce848200,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Rita Saragoça,DLMC Oral Surgery,8e8fa5d7-e287-4d0a-94f6-587fce848200,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Rita Saragoça,2609 Mastercard,8e8fa5d7-e287-4d0a-94f6-587fce848200,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Rita Saragoça,Escritório Sakur Dubai,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Rita Saragoça,Projeto histórico Museu Zer0 / ILC,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Rita Saragoça,2600 Quelhas,8e8fa5d7-e287-4d0a-94f6-587fce848200,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Rita Saragoça,2028 CTR Capital Towers Restaurant,8e8fa5d7-e287-4d0a-94f6-587fce848200,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Rita Saragoça,2506 Apartamento Tiago Carreiras,8e8fa5d7-e287-4d0a-94f6-587fce848200,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Rita Saragoça,Clinica Mint II,8e8fa5d7-e287-4d0a-94f6-587fce848200,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,False,False
+budget_cost,Rita Saragoça,0410B Telheiras Obra,8e8fa5d7-e287-4d0a-94f6-587fce848200,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Rita Saragoça,2608 Alcanena,8e8fa5d7-e287-4d0a-94f6-587fce848200,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Rita Saragoça,Consultoria Greg Freeman,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Rita Saragoça,Projeto histórico N10GLED,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Rita Saragoça,2663 Alteração de loteamento - Ericeira,8e8fa5d7-e287-4d0a-94f6-587fce848200,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Rita Saragoça,2101 Colares,8e8fa5d7-e287-4d0a-94f6-587fce848200,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Rita Saragoça,0434 Sérgio Varanda,8e8fa5d7-e287-4d0a-94f6-587fce848200,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Rita Saragoça,2025 Clinica Mulher,8e8fa5d7-e287-4d0a-94f6-587fce848200,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Rita Saragoça,Bolshaya,8e8fa5d7-e287-4d0a-94f6-587fce848200,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Rita Saragoça,2128 Sandycove Road Dental Clinic,8e8fa5d7-e287-4d0a-94f6-587fce848200,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Rita Saragoça,2502 Uralchem IV,8e8fa5d7-e287-4d0a-94f6-587fce848200,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,8e8fa5d7-e287-4d0a-94f6-587fce848200,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Rita Saragoça,2521 Escritórios BCG,8e8fa5d7-e287-4d0a-94f6-587fce848200,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Rita Saragoça,DLMC Oral Surgery,8e8fa5d7-e287-4d0a-94f6-587fce848200,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Rita Saragoça,2609 Mastercard,8e8fa5d7-e287-4d0a-94f6-587fce848200,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Rita Saragoça,Escritório Sakur Dubai,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Rita Saragoça,Projeto histórico Museu Zer0 / ILC,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Rita Saragoça,2600 Quelhas,8e8fa5d7-e287-4d0a-94f6-587fce848200,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Rita Saragoça,2028 CTR Capital Towers Restaurant,8e8fa5d7-e287-4d0a-94f6-587fce848200,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Rita Saragoça,2506 Apartamento Tiago Carreiras,8e8fa5d7-e287-4d0a-94f6-587fce848200,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Rita Saragoça,Clinica Mint II,8e8fa5d7-e287-4d0a-94f6-587fce848200,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,False,False
+expenses,Rita Saragoça,0410B Telheiras Obra,8e8fa5d7-e287-4d0a-94f6-587fce848200,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Rita Saragoça,2608 Alcanena,8e8fa5d7-e287-4d0a-94f6-587fce848200,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Rita Saragoça,Consultoria Greg Freeman,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Rita Saragoça,Projeto histórico N10GLED,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Rita Saragoça,2663 Alteração de loteamento - Ericeira,8e8fa5d7-e287-4d0a-94f6-587fce848200,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Rita Saragoça,2101 Colares,8e8fa5d7-e287-4d0a-94f6-587fce848200,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Rita Saragoça,0434 Sérgio Varanda,8e8fa5d7-e287-4d0a-94f6-587fce848200,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Rita Saragoça,2025 Clinica Mulher,8e8fa5d7-e287-4d0a-94f6-587fce848200,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Rita Saragoça,Bolshaya,8e8fa5d7-e287-4d0a-94f6-587fce848200,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Rita Saragoça,2128 Sandycove Road Dental Clinic,8e8fa5d7-e287-4d0a-94f6-587fce848200,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Rita Saragoça,2502 Uralchem IV,8e8fa5d7-e287-4d0a-94f6-587fce848200,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,8e8fa5d7-e287-4d0a-94f6-587fce848200,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Rita Saragoça,2521 Escritórios BCG,8e8fa5d7-e287-4d0a-94f6-587fce848200,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Rita Saragoça,DLMC Oral Surgery,8e8fa5d7-e287-4d0a-94f6-587fce848200,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Rita Saragoça,2609 Mastercard,8e8fa5d7-e287-4d0a-94f6-587fce848200,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Rita Saragoça,Escritório Sakur Dubai,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Rita Saragoça,Projeto histórico Museu Zer0 / ILC,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Rita Saragoça,2600 Quelhas,8e8fa5d7-e287-4d0a-94f6-587fce848200,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Rita Saragoça,2028 CTR Capital Towers Restaurant,8e8fa5d7-e287-4d0a-94f6-587fce848200,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Rita Saragoça,2506 Apartamento Tiago Carreiras,8e8fa5d7-e287-4d0a-94f6-587fce848200,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Rita Saragoça,Clinica Mint II,8e8fa5d7-e287-4d0a-94f6-587fce848200,da46fd5d-309f-4f9f-b0d6-107cd61dc907,True,False,False
+supplier_fees,Rita Saragoça,0410B Telheiras Obra,8e8fa5d7-e287-4d0a-94f6-587fce848200,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Rita Saragoça,2608 Alcanena,8e8fa5d7-e287-4d0a-94f6-587fce848200,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Rita Saragoça,Consultoria Greg Freeman,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Rita Saragoça,Projeto histórico N10GLED,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Rita Saragoça,2663 Alteração de loteamento - Ericeira,8e8fa5d7-e287-4d0a-94f6-587fce848200,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Rita Saragoça,2101 Colares,8e8fa5d7-e287-4d0a-94f6-587fce848200,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Rita Saragoça,0434 Sérgio Varanda,8e8fa5d7-e287-4d0a-94f6-587fce848200,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Rita Saragoça,2025 Clinica Mulher,8e8fa5d7-e287-4d0a-94f6-587fce848200,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Rita Saragoça,Bolshaya,8e8fa5d7-e287-4d0a-94f6-587fce848200,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Rita Saragoça,2128 Sandycove Road Dental Clinic,8e8fa5d7-e287-4d0a-94f6-587fce848200,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Rita Saragoça,2502 Uralchem IV,8e8fa5d7-e287-4d0a-94f6-587fce848200,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,Rita Saragoça,2522 Escritórios Banco CTT - Atrium 2,8e8fa5d7-e287-4d0a-94f6-587fce848200,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Rita Saragoça,2521 Escritórios BCG,8e8fa5d7-e287-4d0a-94f6-587fce848200,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Rita Saragoça,DLMC Oral Surgery,8e8fa5d7-e287-4d0a-94f6-587fce848200,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Rita Saragoça,2609 Mastercard,8e8fa5d7-e287-4d0a-94f6-587fce848200,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Rita Saragoça,Escritório Sakur Dubai,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Rita Saragoça,Projeto histórico Museu Zer0 / ILC,8e8fa5d7-e287-4d0a-94f6-587fce848200,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Rita Saragoça,2600 Quelhas,8e8fa5d7-e287-4d0a-94f6-587fce848200,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Rita Saragoça,2028 CTR Capital Towers Restaurant,8e8fa5d7-e287-4d0a-94f6-587fce848200,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Rita Saragoça,2506 Apartamento Tiago Carreiras,8e8fa5d7-e287-4d0a-94f6-587fce848200,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+financials,Mariana Oliveira,Clinica Mint II,873b77a9-16c9-4584-9430-b3e73f83a810,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+financials,Mariana Oliveira,0410B Telheiras Obra,873b77a9-16c9-4584-9430-b3e73f83a810,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+financials,Mariana Oliveira,2608 Alcanena,873b77a9-16c9-4584-9430-b3e73f83a810,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+financials,Mariana Oliveira,Consultoria Greg Freeman,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000001,False,False,False
+financials,Mariana Oliveira,Projeto histórico N10GLED,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000002,False,False,False
+financials,Mariana Oliveira,2663 Alteração de loteamento - Ericeira,873b77a9-16c9-4584-9430-b3e73f83a810,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+financials,Mariana Oliveira,2101 Colares,873b77a9-16c9-4584-9430-b3e73f83a810,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+financials,Mariana Oliveira,0434 Sérgio Varanda,873b77a9-16c9-4584-9430-b3e73f83a810,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+financials,Mariana Oliveira,2025 Clinica Mulher,873b77a9-16c9-4584-9430-b3e73f83a810,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+financials,Mariana Oliveira,Bolshaya,873b77a9-16c9-4584-9430-b3e73f83a810,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+financials,Mariana Oliveira,2128 Sandycove Road Dental Clinic,873b77a9-16c9-4584-9430-b3e73f83a810,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+financials,Mariana Oliveira,2502 Uralchem IV,873b77a9-16c9-4584-9430-b3e73f83a810,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+financials,Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,873b77a9-16c9-4584-9430-b3e73f83a810,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+financials,Mariana Oliveira,2521 Escritórios BCG,873b77a9-16c9-4584-9430-b3e73f83a810,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+financials,Mariana Oliveira,DLMC Oral Surgery,873b77a9-16c9-4584-9430-b3e73f83a810,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+financials,Mariana Oliveira,2609 Mastercard,873b77a9-16c9-4584-9430-b3e73f83a810,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+financials,Mariana Oliveira,Escritório Sakur Dubai,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000003,False,False,False
+financials,Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000004,False,False,False
+financials,Mariana Oliveira,2600 Quelhas,873b77a9-16c9-4584-9430-b3e73f83a810,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+financials,Mariana Oliveira,2028 CTR Capital Towers Restaurant,873b77a9-16c9-4584-9430-b3e73f83a810,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+financials,Mariana Oliveira,2506 Apartamento Tiago Carreiras,873b77a9-16c9-4584-9430-b3e73f83a810,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+budget_cost,Mariana Oliveira,Clinica Mint II,873b77a9-16c9-4584-9430-b3e73f83a810,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+budget_cost,Mariana Oliveira,0410B Telheiras Obra,873b77a9-16c9-4584-9430-b3e73f83a810,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+budget_cost,Mariana Oliveira,2608 Alcanena,873b77a9-16c9-4584-9430-b3e73f83a810,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+budget_cost,Mariana Oliveira,Consultoria Greg Freeman,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000001,False,False,False
+budget_cost,Mariana Oliveira,Projeto histórico N10GLED,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000002,False,False,False
+budget_cost,Mariana Oliveira,2663 Alteração de loteamento - Ericeira,873b77a9-16c9-4584-9430-b3e73f83a810,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+budget_cost,Mariana Oliveira,2101 Colares,873b77a9-16c9-4584-9430-b3e73f83a810,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+budget_cost,Mariana Oliveira,0434 Sérgio Varanda,873b77a9-16c9-4584-9430-b3e73f83a810,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+budget_cost,Mariana Oliveira,2025 Clinica Mulher,873b77a9-16c9-4584-9430-b3e73f83a810,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+budget_cost,Mariana Oliveira,Bolshaya,873b77a9-16c9-4584-9430-b3e73f83a810,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+budget_cost,Mariana Oliveira,2128 Sandycove Road Dental Clinic,873b77a9-16c9-4584-9430-b3e73f83a810,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+budget_cost,Mariana Oliveira,2502 Uralchem IV,873b77a9-16c9-4584-9430-b3e73f83a810,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+budget_cost,Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,873b77a9-16c9-4584-9430-b3e73f83a810,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+budget_cost,Mariana Oliveira,2521 Escritórios BCG,873b77a9-16c9-4584-9430-b3e73f83a810,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+budget_cost,Mariana Oliveira,DLMC Oral Surgery,873b77a9-16c9-4584-9430-b3e73f83a810,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+budget_cost,Mariana Oliveira,2609 Mastercard,873b77a9-16c9-4584-9430-b3e73f83a810,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+budget_cost,Mariana Oliveira,Escritório Sakur Dubai,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000003,False,False,False
+budget_cost,Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000004,False,False,False
+budget_cost,Mariana Oliveira,2600 Quelhas,873b77a9-16c9-4584-9430-b3e73f83a810,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+budget_cost,Mariana Oliveira,2028 CTR Capital Towers Restaurant,873b77a9-16c9-4584-9430-b3e73f83a810,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+budget_cost,Mariana Oliveira,2506 Apartamento Tiago Carreiras,873b77a9-16c9-4584-9430-b3e73f83a810,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+expenses,Mariana Oliveira,Clinica Mint II,873b77a9-16c9-4584-9430-b3e73f83a810,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+expenses,Mariana Oliveira,0410B Telheiras Obra,873b77a9-16c9-4584-9430-b3e73f83a810,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+expenses,Mariana Oliveira,2608 Alcanena,873b77a9-16c9-4584-9430-b3e73f83a810,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+expenses,Mariana Oliveira,Consultoria Greg Freeman,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000001,False,False,False
+expenses,Mariana Oliveira,Projeto histórico N10GLED,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000002,False,False,False
+expenses,Mariana Oliveira,2663 Alteração de loteamento - Ericeira,873b77a9-16c9-4584-9430-b3e73f83a810,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+expenses,Mariana Oliveira,2101 Colares,873b77a9-16c9-4584-9430-b3e73f83a810,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+expenses,Mariana Oliveira,0434 Sérgio Varanda,873b77a9-16c9-4584-9430-b3e73f83a810,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+expenses,Mariana Oliveira,2025 Clinica Mulher,873b77a9-16c9-4584-9430-b3e73f83a810,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+expenses,Mariana Oliveira,Bolshaya,873b77a9-16c9-4584-9430-b3e73f83a810,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+expenses,Mariana Oliveira,2128 Sandycove Road Dental Clinic,873b77a9-16c9-4584-9430-b3e73f83a810,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+expenses,Mariana Oliveira,2502 Uralchem IV,873b77a9-16c9-4584-9430-b3e73f83a810,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+expenses,Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,873b77a9-16c9-4584-9430-b3e73f83a810,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+expenses,Mariana Oliveira,2521 Escritórios BCG,873b77a9-16c9-4584-9430-b3e73f83a810,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+expenses,Mariana Oliveira,DLMC Oral Surgery,873b77a9-16c9-4584-9430-b3e73f83a810,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+expenses,Mariana Oliveira,2609 Mastercard,873b77a9-16c9-4584-9430-b3e73f83a810,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+expenses,Mariana Oliveira,Escritório Sakur Dubai,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000003,False,False,False
+expenses,Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000004,False,False,False
+expenses,Mariana Oliveira,2600 Quelhas,873b77a9-16c9-4584-9430-b3e73f83a810,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+expenses,Mariana Oliveira,2028 CTR Capital Towers Restaurant,873b77a9-16c9-4584-9430-b3e73f83a810,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+expenses,Mariana Oliveira,2506 Apartamento Tiago Carreiras,873b77a9-16c9-4584-9430-b3e73f83a810,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
+supplier_fees,Mariana Oliveira,Clinica Mint II,873b77a9-16c9-4584-9430-b3e73f83a810,da46fd5d-309f-4f9f-b0d6-107cd61dc907,False,False,False
+supplier_fees,Mariana Oliveira,0410B Telheiras Obra,873b77a9-16c9-4584-9430-b3e73f83a810,3775332d-48e7-4042-8ec2-8bde1d475d8e,False,False,False
+supplier_fees,Mariana Oliveira,2608 Alcanena,873b77a9-16c9-4584-9430-b3e73f83a810,d1cb9b14-2361-4a1b-82c2-1d3097dec8ce,False,False,False
+supplier_fees,Mariana Oliveira,Consultoria Greg Freeman,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000001,False,False,False
+supplier_fees,Mariana Oliveira,Projeto histórico N10GLED,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000002,False,False,False
+supplier_fees,Mariana Oliveira,2663 Alteração de loteamento - Ericeira,873b77a9-16c9-4584-9430-b3e73f83a810,3f820f1a-c78e-470e-92de-8d83127c2d87,False,False,False
+supplier_fees,Mariana Oliveira,2101 Colares,873b77a9-16c9-4584-9430-b3e73f83a810,3501237f-cdcf-4878-ad5b-e2ca2cb02a95,False,False,False
+supplier_fees,Mariana Oliveira,0434 Sérgio Varanda,873b77a9-16c9-4584-9430-b3e73f83a810,5d02e289-d6e0-4265-bcbc-82d547376fe7,False,False,False
+supplier_fees,Mariana Oliveira,2025 Clinica Mulher,873b77a9-16c9-4584-9430-b3e73f83a810,ff0dcfe7-b4df-4d42-a680-00878952b16d,False,False,False
+supplier_fees,Mariana Oliveira,Bolshaya,873b77a9-16c9-4584-9430-b3e73f83a810,91851d36-1689-4241-af4c-d47a6455481e,False,False,False
+supplier_fees,Mariana Oliveira,2128 Sandycove Road Dental Clinic,873b77a9-16c9-4584-9430-b3e73f83a810,520ad4a4-c5f1-405e-82be-8180e17d68e2,False,False,False
+supplier_fees,Mariana Oliveira,2502 Uralchem IV,873b77a9-16c9-4584-9430-b3e73f83a810,32810ca9-3c97-4eee-a6b7-a8385a19c972,False,False,False
+supplier_fees,Mariana Oliveira,2522 Escritórios Banco CTT - Atrium 2,873b77a9-16c9-4584-9430-b3e73f83a810,936b3ca5-6736-40ef-90f3-5381375beb7d,False,False,False
+supplier_fees,Mariana Oliveira,2521 Escritórios BCG,873b77a9-16c9-4584-9430-b3e73f83a810,30f1e184-27c2-4866-bc48-aec1c6ad2e00,False,False,False
+supplier_fees,Mariana Oliveira,DLMC Oral Surgery,873b77a9-16c9-4584-9430-b3e73f83a810,9071aa48-2c99-44f7-87ab-ace1c3eec6ba,False,False,False
+supplier_fees,Mariana Oliveira,2609 Mastercard,873b77a9-16c9-4584-9430-b3e73f83a810,a07f12ad-5033-4c38-b26b-2077d6ffd55b,False,False,False
+supplier_fees,Mariana Oliveira,Escritório Sakur Dubai,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000003,False,False,False
+supplier_fees,Mariana Oliveira,Projeto histórico Museu Zer0 / ILC,873b77a9-16c9-4584-9430-b3e73f83a810,a7190001-0000-4000-a000-000000000004,False,False,False
+supplier_fees,Mariana Oliveira,2600 Quelhas,873b77a9-16c9-4584-9430-b3e73f83a810,59f3a882-a593-42b1-a658-56bd9741f373,False,False,False
+supplier_fees,Mariana Oliveira,2028 CTR Capital Towers Restaurant,873b77a9-16c9-4584-9430-b3e73f83a810,c3f3026e-f41a-4fac-894b-d243af8d3142,False,False,False
+supplier_fees,Mariana Oliveira,2506 Apartamento Tiago Carreiras,873b77a9-16c9-4584-9430-b3e73f83a810,f2dce13f-cbe0-4b0a-8f6a-57641b504fbd,False,False,False
