@@ -1,0 +1,3 @@
+CREATE FUNCTION public.pm_preview_project_access_cutover() RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE v_matrix jsonb; BEGIN IF NOT public.has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Forbidden' USING ERRCODE='42501'; END IF; v_matrix:=jsonb_set(public.pm_project_access_matrix(),'{active}',to_jsonb(public.pm_project_access_cutover_active())); RETURN jsonb_build_object('matrix',v_matrix,'matrix_hash',md5((v_matrix->'rows')::text)); END $$;
+REVOKE ALL ON FUNCTION public.pm_preview_project_access_cutover() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.pm_preview_project_access_cutover() TO authenticated;
