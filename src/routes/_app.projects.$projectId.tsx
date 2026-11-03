@@ -1140,7 +1140,8 @@ function ProjectDetail() {
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
                 {sourceQuoteId ? (
-                  <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                  <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier}
+                    canEditPlanning={canEditPlanning} canSeeFinancials={canSeeFinancials} />
                 ) : (
                   <>
                     <div className="flex flex-wrap items-center justify-end gap-2">

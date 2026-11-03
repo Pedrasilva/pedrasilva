@@ -38,6 +38,8 @@ import {
 } from "@/lib/projects/use-planner";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { DepType } from "@/lib/projects/dependencies";
+import { scheduleCalendar } from "@/lib/projects/schedule-engine";
+import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 
 const DEP_TYPES: DepType[] = ["FS", "SS", "FF", "SF"];
 
@@ -55,9 +57,10 @@ interface Props {
   onClose: () => void;
   /** When true, all editing controls are disabled / hidden. */
   readOnly?: boolean;
+  planningOnly?: boolean;
 }
 
-export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false }: Props) {
+export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false, planningOnly = false }: Props) {
   const { t } = useTranslation(["projects"]);
 
   const depsQ = useStageDependencies();
@@ -272,10 +275,12 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             <input
               type="checkbox"
               checked={isMilestone}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const on = e.target.checked;
+                if (on && planningOnly) await updateStageCascade.mutateAsync({ id: stage.id, projectId,
+                  start_date: stage.start_date, end_date: stage.start_date });
                 patch(on
-                  ? ({ end_date: stage.start_date, is_milestone: true })
+                  ? (planningOnly ? { is_milestone: true } : { end_date: stage.start_date, is_milestone: true })
                   : ({ is_milestone: false }));
               }}
               className="h-4 w-4"
@@ -307,7 +312,10 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                         parseISO(stage.end_date).getTime() -
                         parseISO(stage.start_date).getTime();
                       const newStart = parseISO(v);
-                      const newEnd = new Date(newStart.getTime() + durMs);
+                      const calendar = scheduleCalendar(getWorkingCalendarHolidays());
+                      const newEnd = planningOnly
+                        ? parseISO(calendar.shift(calendar.snap(v), calendar.duration(stage.start_date, stage.end_date) - 1))
+                        : new Date(newStart.getTime() + durMs);
                       updateStageCascade
                         .mutateAsync({
                           id: stage.id,
@@ -315,6 +323,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           projectId,
                           shiftAllocations: true,
+                          move: planningOnly,
                         })
                         .catch((err) => toast.error((err as Error).message));
                     }}
@@ -336,7 +345,10 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                         parseISO(stage.end_date).getTime() -
                         parseISO(stage.start_date).getTime();
                       const newEnd = parseISO(v);
-                      const newStart = new Date(newEnd.getTime() - durMs);
+                      const calendar = scheduleCalendar(getWorkingCalendarHolidays());
+                      const newStart = planningOnly
+                        ? parseISO(calendar.shift(calendar.snap(v, -1), -(calendar.duration(stage.start_date, stage.end_date) - 1)))
+                        : new Date(newEnd.getTime() - durMs);
                       updateStageCascade
                         .mutateAsync({
                           id: stage.id,
@@ -344,6 +356,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                           end_date: format(newEnd, "yyyy-MM-dd"),
                           projectId,
                           shiftAllocations: true,
+                          move: planningOnly,
                         })
                         .catch((err) => toast.error((err as Error).message));
                     }}
@@ -357,6 +370,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 })}
               </p>
               <DurationField
+                workingDuration={planningOnly}
                 stageId={stage.id}
                 startDate={stage.start_date}
                 endDate={stage.end_date}
@@ -377,6 +391,17 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             </>
           )}
 
+          {isMilestone && planningOnly && <div className="space-y-1">
+            <Label className="text-xs">{t("gantt.inspector.start")}</Label>
+            <Input type="date" key={`milestone-${stage.id}-${stage.start_date}`} defaultValue={stage.start_date}
+              onBlur={(e) => {
+                const date = e.target.value;
+                if (!date || date === stage.start_date || readOnly) return;
+                updateStageCascade.mutateAsync({ id: stage.id, projectId, start_date: date, end_date: date, move: true })
+                  .catch(error => toast.error((error as Error).message));
+              }} />
+          </div>}
+
           <div className="space-y-1">
             <Label className="text-xs">
               {t("projects:gantt.inspector.budget", { defaultValue: "Budget" })}
@@ -386,6 +411,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 €
               </span>
               <Input
+                disabled={planningOnly}
                 type="number"
                 min={0}
                 step="0.01"
@@ -728,11 +754,13 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
 type DurationUnit = "days" | "weeks" | "months";
 
 function DurationField({
+  workingDuration = false,
   stageId,
   startDate,
   endDate,
   onChange,
 }: {
+  workingDuration?: boolean;
   stageId: string;
   startDate: string;
   endDate: string;
@@ -743,21 +771,28 @@ function DurationField({
 
   const totalDays = useMemo(() => {
     try {
+      if (workingDuration) return scheduleCalendar(getWorkingCalendarHolidays()).duration(startDate, endDate);
       return Math.max(1, differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1);
     } catch {
       return 1;
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, workingDuration]);
 
   const value = useMemo(() => {
     if (unit === "days") return totalDays;
-    if (unit === "weeks") return Math.round((totalDays / 7) * 10) / 10;
-    return Math.round((totalDays / 30) * 10) / 10;
-  }, [totalDays, unit]);
+    if (unit === "weeks") return Math.round((totalDays / (workingDuration ? 5 : 7)) * 10) / 10;
+    return Math.round((totalDays / (workingDuration ? 22 : 30)) * 10) / 10;
+  }, [totalDays, unit, workingDuration]);
 
   const commit = (raw: string) => {
     const n = Number(raw);
     if (!Number.isFinite(n) || n <= 0) return;
+    if (workingDuration) {
+      const days = Math.max(1, Math.round(n * (unit === "weeks" ? 5 : unit === "months" ? 22 : 1)));
+      const iso = scheduleCalendar(getWorkingCalendarHolidays()).shift(startDate, days - 1);
+      if (iso !== endDate) onChange(iso);
+      return;
+    }
     const start = parseISO(startDate);
     let newEnd: Date;
     if (unit === "days") newEnd = addDays(start, Math.max(1, Math.round(n)) - 1);

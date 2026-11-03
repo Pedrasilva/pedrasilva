@@ -1,8 +1,8 @@
 ## Current request — Converted project schedule
-- [ ] Review mapping/edit-routing plan before implementation.
-- [ ] Show mapped live dates and route edits exclusively to operational records, blocking missing mappings.
-- [ ] Move retainer below Gantt in both contexts and protect converted proposal/contract/payment records.
-- [ ] Verify on disposable copies, clean up, and report changed files with PT screenshots.
+- [x] Review mapping/edit-routing plan before implementation.
+- [x] Show mapped live dates and route edits exclusively to operational records, blocking missing mappings.
+- [x] Move retainer below Gantt in both contexts and protect converted proposal/contract/payment records.
+- [x] Verify stage/allocation edits on disposable copies, preserve proposal/baseline/payments, delete all fixtures and report 50 tests/PT screenshots in docs/converted-project-schedule-report.md.
 
 ## Current request — CRM won opportunities visibility
 - [x] Restore won-unconverted column and closed Converted projection; align board/list totals and active project links.

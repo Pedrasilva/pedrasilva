@@ -3,7 +3,7 @@
  *
  * Single screen: Gantt with WBS outline + click-to-open inspector for editing
  * stage details, dependencies, and resources. Retainer-monthly stages get
- * their own dedicated editor above. The old consultants panel and the
+ * their own dedicated editor below. The old consultants panel and the
  * Stages / Dependencies / Allocations in-tab tables have been folded into
  * the Gantt + Inspector.
  */
@@ -28,15 +28,20 @@ import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-servic
 import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
+import { useQuoteLock } from "@/lib/quotes/use-quote-lock";
 
 export function QuotePlanningTab({
   quoteId,
   pricingMultiplier = 1,
   isRetainer = false,
+  canEditPlanning,
+  canSeeFinancials = false,
 }: {
   quoteId: string;
   pricingMultiplier?: number;
   isRetainer?: boolean;
+  canEditPlanning?: boolean;
+  canSeeFinancials?: boolean;
 }) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
@@ -44,6 +49,9 @@ export function QuotePlanningTab({
   const externalQ = useQuoteExternalServices(quoteId);
   const markupsQ = useQuoteSupplierMarkups(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
+  const lockQ = useQuoteLock(quoteId);
+  const converted = !!lockQ.data?.projectId;
+  const quoteReadOnly = !lockQ.isSuccess || !!lockQ.data?.isLocked || converted;
 
   const allStages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
@@ -75,6 +83,7 @@ export function QuotePlanningTab({
   }, [stages, allocations, externalServices, pricingMultiplier, supplierMarkups]);
 
   const handleAddRetainerStage = async () => {
+    if (quoteReadOnly) return;
     const anchor = defaultAnchorMonth();
     try {
       await upsertStage.mutateAsync({
@@ -105,18 +114,23 @@ export function QuotePlanningTab({
   // Auto-seed a retainer stage for retainer-type quotes.
   const seededRetainerRef = useRef(false);
   useEffect(() => {
-    if (!isRetainer) return;
+    if (!isRetainer || quoteReadOnly) return;
     if (!stagesQ.isSuccess) return;
     if (seededRetainerRef.current) return;
     if (retainerStages.length > 0) return;
     seededRetainerRef.current = true;
     handleAddRetainerStage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRetainer, stagesQ.isSuccess, retainerStages.length]);
+  }, [isRetainer, stagesQ.isSuccess, retainerStages.length, quoteReadOnly]);
 
   return (
     <div className="space-y-2">
       {!isRetainer && <QuoteWarningsBanner warnings={warnings} />}
+
+      {(!isRetainer || converted) && (
+        <QuoteGantt quoteId={quoteId} onAddRetainerPhase={handleAddRetainerStage}
+          canEditPlanning={canEditPlanning} canSeeFinancials={canSeeFinancials} />
+      )}
 
       {retainerStages.length > 0 && (
         <div className="space-y-2">
@@ -126,12 +140,13 @@ export function QuotePlanningTab({
               quoteId={quoteId}
               stage={s}
               allocations={allocations}
+              readOnly={quoteReadOnly}
             />
           ))}
         </div>
       )}
 
-      {isRetainer && retainerStages.length === 0 && (
+      {isRetainer && !converted && retainerStages.length === 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
@@ -151,7 +166,7 @@ export function QuotePlanningTab({
               variant="outline"
               size="sm"
               onClick={handleAddRetainerStage}
-              disabled={upsertStage.isPending || stagesQ.isLoading}
+              disabled={quoteReadOnly || upsertStage.isPending || stagesQ.isLoading}
             >
               <Plus className="h-4 w-4 mr-1" />
               {t("workspace.planning.retainerMonthly.createTemplate", {
@@ -162,13 +177,6 @@ export function QuotePlanningTab({
         </Card>
       )}
 
-      {!isRetainer && (
-        /* Single planning surface: Gantt outline + inspector drawer. */
-        <QuoteGantt
-          quoteId={quoteId}
-          onAddRetainerPhase={handleAddRetainerStage}
-        />
-      )}
     </div>
   );
 }
