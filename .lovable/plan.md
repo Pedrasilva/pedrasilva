@@ -5,7 +5,7 @@
 
 Item 1 pendente: limpar fixtures anteriores e provar zero quando a ligação voltar, antes de novos testes aprovados.
 
-Não alterar valores, IVA, condições de pagamento, conteúdo de propostas, contrato de referência nem `pm_convert_relative_quote`. Não converter nem editar a Mint real. Sem backfill de clientes.
+Preservar valores, IVA, termos, propostas, baseline e `pm_convert_relative_quote`; Mint só leitura, sem backfill de clientes.
 
 ## Causa e resultado
 Entrada chama `QuotePaymentScheduleTab`/`PaymentScheduleProposalView`, que leem a proposta e forçam `proposalPaymentTiming`. Substituir essa leitura no projeto convertido por `pm_payment_schedule_items` e uma projeção comum. Propostas/documentos continuam relativos; sem sincronização proposta → projeto.
