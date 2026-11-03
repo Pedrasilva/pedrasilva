@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { QuoteStatus } from '@/lib/crm/types';
 import type { QuoteLifecycle } from '@/lib/quotes/quote-lifecycle';
 import { SendProposalDialog } from '@/components/psa-composer/send-proposal-dialog';
+import type { PsaProposal } from '@/lib/psa-proposal/types';
 export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignature}: {
  quoteId:string; lifecycle:QuoteLifecycle; onConvert:()=>void; onGoToSignature?:()=>void;
  status?:QuoteStatus; hasAccount?:boolean; hasProject?:boolean; companyId?:string|null; defaultContactId?:string|null;
@@ -22,7 +23,7 @@ export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignatur
  const [date,setDate]=useState(''); const [note,setNote]=useState(''); const [attachment,setAttachment]=useState<File|null>(null);
  const [selected,setSelected]=useState('');
  const [sendOpen,setSendOpen]=useState(false);
- const proposal=useQuery({queryKey:['quote-workflow-proposal',quoteId],queryFn:async()=>{const {data,error}=await supabase.from('psa_proposals').select('*').eq('quote_id',quoteId).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data;}});
+ const proposal=useQuery({queryKey:['quote-workflow-proposal',quoteId],queryFn:async()=>{const {data,error}=await supabase.from('psa_proposals').select('*').eq('quote_id',quoteId).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data as unknown as PsaProposal|null;}});
  const revisions=useQuery({queryKey:['quote-acceptance-revisions',quoteId],enabled:open,queryFn:async()=>{
   const {data:proposals,error:pError}=await supabase.from('psa_proposals').select('id').eq('quote_id',quoteId);if(pError)throw pError;
   const {data,error}=await supabase.from('psa_proposal_snapshots').select('id,rev_number,pdf_filename').in('proposal_id',(proposals??[]).map(p=>p.id)).eq('kind','sent').order('created_at',{ascending:false});if(error)throw error;return data??[];
