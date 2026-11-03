@@ -208,6 +208,9 @@ function OpportunityDetail() {
     onSuccess: () => {
       toast.success(t("opportunities.detail.stageUpdatedToast"));
       setLostDialogOpen(false);
+      qc.invalidateQueries({ queryKey: ["quote-lifecycle"] });
+      qc.invalidateQueries({ queryKey: ["fee_proposal"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity_quotes"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm-leads-directory"] });
