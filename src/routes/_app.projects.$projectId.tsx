@@ -1441,8 +1441,8 @@ function SidebarSection({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1 text-sm">
-      <span className="text-muted-foreground text-xs">{label}</span>
-      <span className="text-right font-medium truncate">{value}</span>
+      <span className="min-w-0 text-muted-foreground text-xs">{label}</span>
+      <span className="shrink-0 text-right font-medium">{value}</span>
     </div>
   );
 }

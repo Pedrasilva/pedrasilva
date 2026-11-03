@@ -54,3 +54,58 @@ O badge agora indica **Origem: proposta convertida**, sem botão de reativação
 - `docs/one-project-gantt/05-undo.png` — após Undo na mesma sessão.
 
 Limite estrutural: há uma entrada/desenho/controlos partilhados, mas os adaptadores e formulários de inspetor específicos de proposta/projeto permanecem separados; não se declara uma fusão integral de todos os formulários nem de todas as opções comerciais.
+
+## Follow-up — 3 novembro 2026, 18:27 UTC
+
+### 1. Overview e consumo do orçamento
+Na sessão nova autenticada, a Mint apresentou **Active, 1 Jun 2026, 23 Jul 2027 e 262d**, tanto no cabeçalho como no painel (captura `followup-mint-overview.png`). Não reproduzi campos realmente vazios; os quatro valores estavam presentes também no DOM. Não atribuo a causa a dados ou traduções sem reprodução.
+
+Proteção de apresentação aplicada ao `DetailRow`: retirado `truncate` e impedida a compressão do valor com `shrink-0`. O texto não pode ser reduzido a largura zero por um rótulo mais longo. A validação visual desta proteção em PT/EN continua pendente: a ligação aos dados ficou indisponível antes da repetição. Nenhuma alteração de datas/estado foi feita.
+
+**48 € → 1 812 € está reconciliado com os registos atuais, não resulta do Gantt:**
+- Adjudicação/Pursuit: **1 h × 47,99 € = 47,99 €**, arredondada na UI para 48 €.
+- Horas operacionais: **58,5 h × snapshot bloqueado 30,15 € = 1 763,775 €**, em 12 atividades da fase Programa Base / Conceito, com datas de trabalho entre 6 julho e 2 novembro.
+- As 12 atividades têm `created_at` em **3 novembro, 17:50:17–17:56:17 UTC**, antes deste follow-up. Não foram criadas por estes testes. Sem auditoria adicional não atribuo quem as criou.
+- Total: **1 811,765 €**, arredondado para **1 812 €**; **5,84818%** de 30 980 €, apresentado como 6%. Fórmula em `_app.projects.$projectId.tsx`: `actuals.cost + hist.cost + pursuit.cost`. Não alterada.
+- O cálculo é correto para os registos existentes; não é uma confirmação da legitimidade das horas. Nenhuma hora/snapshot foi alterada ou recalculada.
+
+### 2. Teste efetivo dos três triggers
+Cópia identificada `[QA DISPOSABLE] Gantt follow-up`, convertida pelo diálogo normal: projeto `7285f0ca-778b-4c7f-af69-c3f9c52b5941`, proposta `a31c8078-6624-4dd8-8cae-247a8a574f63`.
+
+A Mint não tinha alocações de proposta para copiar. Acrescentada exclusivamente à fixture uma alocação de 0,5 h/dia com ligação `source_quote_allocation_id` à sua cópia operacional. O bloqueio da proposta foi temporariamente retirado **só na fixture**, mantendo a ligação ao projeto; restaurado após as edições.
+
+Edições confirmadas sem erro: nome de fase de aprovação; horas/dia da alocação **0,5 → 0,75**; rótulo/notas de pagamento. Os UPDATEs acionaram os triggers instalados. Comparação integral de todas as linhas, incluindo timestamps, antes/depois:
+
+| Tabela operacional | Resultado |
+|---|---|
+| pm_projects | Idêntica |
+| pm_stages | Idênticas |
+| pm_allocations | Idênticas |
+| pm_payment_schedule_items | Idênticas |
+
+Logo, os três caminhos de UPDATE não propagaram estas alterações apesar do estado legado `live`. O teste de fases alterou o nome, não o prazo; não se declara uma matriz de todas as colunas/INSERT/DELETE.
+
+### Gantt global e dependências — incompleto
+Gantt global abriu autenticado sem erros de execução, desenhando a cópia convertida e a Mint pela entrada única (`followup-global.png`). A captura revela calendários por projeto com origem própria; não declara alinhamento temporal global entre todos os projetos.
+
+A tentativa seguinte, de criar um projeto sem proposta para a captura e verificar os gestos de dependência em ambos os contextos, bloqueou quando a ligação aos dados ficou indisponível. Leitura de diagnóstico devolveu **connection pooler unavailable**; leitura pelo navegador também excedeu o tempo limite. O processo foi parado. **Não há confirmação visual de projeto sem proposta nem criação/edição de dependências neste follow-up.** Os 52 testes existentes passaram, mas não substituem estes ensaios visuais.
+
+**Limpeza ainda pendente por indisponibilidade da ligação:** a cópia convertida acima, proposta/documento/oportunidade de teste e alocações. A tentativa de criação `[QA DISPOSABLE] No proposal Gantt` não devolveu ID; a sua existência deverá ser consultada antes de qualquer repetição. Não fica nenhum processo de testes a correr. Não se declara zero fixtures nem preservação integral final sem a leitura de limpeza.
+
+### 3. Cinco clientes por atribuir — nenhum backfill
+As oportunidades abaixo são as ligadas às **propostas**; quatro projetos têm `opportunity_id=NULL`, embora a proposta conserve a ligação. Projeto, proposta e oportunidade não têm empresa preenchida.
+
+| Projeto | Oportunidade da proposta | Proposta | Candidato para revisão manual, não comprovado |
+|---|---|---|---|
+| 2502 Uralchem IV | 2502 Uralchem IV | 2502 Uralchem IV | Há OJSC UCC URALCHEM, URALCHEM, JSC e Uralchem Trans LLC; ambíguo, não escolher automaticamente |
+| 2521 Escritórios BCG | 2521 BCG | 2521 BCG | BCGCC LISBON, UNIPESSOAL LDA — correspondência nominal, por confirmar |
+| 2609 Mastercard | 2609 Mastercard | 2609 Mastercard | Nenhuma empresa Mastercard encontrada na pesquisa nominal; sem candidato demonstrável |
+| 2028 CTR Capital Towers Restaurant | 2028 CTR Capital Towers Restaurant | 2028 CTR Capital Towers Restaurant | Sem candidato demonstrável; “Capital” sozinho não prova Limestone/Mercan |
+| 2506 Apartamento Tiago Carreiras | 2506 Apartamento Tiago Carreiras | 2506 Apartamento Tiago Carreiras | Sem candidato demonstrável; TIAGO ALVES não corresponde a Tiago Carreiras |
+
+### Ficheiros e verificações deste follow-up
+- Código: `src/routes/_app.projects.$projectId.tsx` — apenas proteção de largura dos valores no painel.
+- Documentação: este relatório e `roadmap.md`; capturas `docs/one-project-gantt/followup-{mint-overview,global}.png`.
+- Sem novas migrações, backfill, alteração de funções, conversão da Mint ou alterações a dados reais de propostas/projetos/horas/pagamentos.
+- 52 testes passaram; último sinal automático: **build OK, 18:30:46 UTC**.
+- **Não aceitar ainda como verificação completa:** dependências, projeto sem proposta e limpeza aguardam recuperação da ligação aos dados.
