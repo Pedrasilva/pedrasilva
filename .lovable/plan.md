@@ -10,8 +10,8 @@ Só plano, sem código/migrações/dados reais. Ligação indisponível em 3 nov
 - Permissões separam módulos, planeamento, financeiro/margens/taxas e escrita Finance. Migração 20261018093500_financial_read_boundaries protege pm_invoices/pm_payment_schedule_items: admin ou PSA com financeiro global/atribuído; ramo Finance limitado à entidade. Leitura do projeto não exige módulo Finance.
 - Sem quatro áreas hoje; propostas/baselines/fornecedores têm fallbacks legados e tabelas mistas entregam campos monetários. Políticas instaladas aguardam leitura.
 
-## Equipa e acessos
-Expandir «Gerir equipa»: pessoa, papel, quatro switches, origem e última alteração. Um acesso por pessoa/projeto mesmo com vários papéis; «Membro da equipa» para novas pessoas comuns sem renomear enums históricos.
+## Equipa
+«Gerir equipa»: pessoa, papel, quatro switches e auditoria. Um acesso por pessoa/projeto; «Membro da equipa» para novos membros, sem renomear enums.
 
 | Switch | Conteúdo |
 |---|---|
