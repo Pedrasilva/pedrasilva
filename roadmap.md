@@ -1,3 +1,8 @@
+## Current request — 3 November 22:15 Phase A GO
+- [ ] Prepare audited cutover action, before/after matrix and immediately callable rollback; preserve project data.
+- [ ] Activate and verify Rita/Mint versus Uralchem, Patricia and an all-OFF team collaborator, four global capabilities and invoice attachment allow/deny; revert immediately on any failure.
+- [ ] Record screenshots and unchanged data/zero fixtures; deliver Phase B plan only.
+
 ## Current request — 3 November 21:41 approval (cutover OFF)
 - [x] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; every other field including updated_at unchanged; 96 audits.
 - [x] Future conversion parses payment terms into offsets; unrecognized text explicitly flagged without receipt date; authenticated disposable conversion/source preservation/cleanup verified.
