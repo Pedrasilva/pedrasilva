@@ -19075,6 +19075,7 @@ export type Database = {
         Returns: string
       }
       pm_preview_project_access: { Args: { _project: string }; Returns: Json }
+      pm_preview_project_access_cutover: { Args: never; Returns: Json }
       pm_preview_week_plan: {
         Args: { _extensions?: Json; _plan_id: string }
         Returns: Json
