@@ -44,7 +44,7 @@ O badge agora indica **Origem: proposta convertida**, sem botão de reativação
 - Navegador autenticado, cópia convertida descartável: aprovação **8–14 janeiro 2027 (5 dias úteis)** redimensionada para **8–19 janeiro (8 dias úteis)**. Leitura operacional e recarregamento confirmaram 19 janeiro e papel `client`.
 - Undo validado na mesma sessão após um segundo redimensionamento: restaurou 19 janeiro. Tentativa de Undo numa sessão nova não restaurou a edição anterior; não se declara Undo entre sessões verificado.
 - Comparação integral após os gestos: fee_proposals, quote_stages, quote_allocations, quote_relative_schedules, três tabelas de contrato de referência e pm_payment_schedule_items ficaram idênticos ao início do teste. Projeto e fases reais da Mint também ficaram idênticos.
-- Cópia final `fa3385f3-4d6a-4667-b25d-da207114e48b` e proposta `a9c` (identificação completa temporária removida com a cópia) eliminadas; a tentativa inicial de preparação também foi eliminada. Leituras finais: **zero projetos e zero propostas** com o nome `[QA DISPOSABLE] One Gantt Mint`.
+- Cópia final `fa3385f3-4d6a-4667-b25d-da207114e48b` e respetiva proposta eliminadas; a tentativa inicial de preparação também foi eliminada. Leituras finais: **zero projetos e zero propostas** com o nome `[QA DISPOSABLE] One Gantt Mint`.
 - Nenhum erro de execução no teste final. Não foi repetida a matriz completa de permissões nem o ensaio de alteração de proposta bloqueada para acionar os três triggers; a exclusão foi aplicada às definições existentes sem mexer em registos reais. O Gantt global usa a entrada única, mas a comparação global não teve um ensaio visual completo após a mudança.
 
 ## Capturas PT
