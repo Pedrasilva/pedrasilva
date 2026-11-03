@@ -1,9 +1,7 @@
 # Item 5 — Equipa e acesso financeiro por projeto
 
-## Âmbito e limites
-**Só plano; implementação dependente de aprovação.** Sem migrações, alterações à aplicação ou dados reais. A leitura das políticas atuais falhou em 3 novembro 2026: o inventário abaixo é confirmado pelo código, tipos e migrações, não pela base de dados instalada. A limpeza do item 1 e a implementação do item 2 continuam bloqueadas pela ligação; não criar fixtures antes da limpeza e leitura zero.
-
-Objetivo: Rita Saragossa pode ver todos os detalhes financeiros da Mint se autorizada nesse projeto, sem obter visibilidade financeira em Uralchem IV. Isto é um exemplo de configuração, **não uma atribuição a aplicar agora**. Preservar valores, documentos, horas, snapshots, proposta, baseline e conversão.
+## Âmbito
+Só plano, sem código/migrações/dados reais. Ligação indisponível em 3 novembro: inventário de código/migrações, políticas instaladas não confirmadas. Item 1 limpeza e item 2 implementação continuam pendentes. Rita/Mint versus Uralchem é exemplo, não atribuição. Preservar finanças, horas, documentos e baseline.
 
 ## O que existe hoje
 - `pm_project_team`: `project_id`, `resource_id`, `role`; papéis `manager`, `coordinator`, `co_author`, `support` (gestor, coordenador, coautor, apoio). **Não há campo de gestor em `pm_projects`**: é uma linha `role=manager`. Unicidade pessoa/projeto/papel permite vários gestores/papéis; alocação ou horas históricas não provam gestão.
@@ -12,17 +10,15 @@ Objetivo: Rita Saragossa pode ver todos os detalhes financeiros da Mint se autor
 - Permissões distinguem módulos, planeamento, `projects.view_financials`, margens/taxas e edição Finance; leitura não concede edição.
 - `20261018093500_financial_read_boundaries.sql`: SELECT de `pm_invoices`/`pm_payment_schedule_items` para admin ou PSA com financeiro global/atribuído; ramo Finance limitado à entidade. Leitura de projeto já pode existir sem acesso ao módulo Finance. Não há quatro áreas; propostas/baselines/fornecedores conservam fallbacks legados. Tabelas mistas entregam campos monetários junto dos operacionais.
 
-## Tabela pequena dentro do projeto
-Expandir «Gerir equipa» para **Equipa e acessos**: pessoa, papel, quatro switches, origem do acesso e última alteração. Um registo de acesso por pessoa/projeto, independentemente de papéis duplicados. Papéis existentes preservados; novos colaboradores comuns aparecem como «Membro da equipa» sem renomear os enums históricos.
+## Equipa e acessos
+Expandir «Gerir equipa»: pessoa, papel, quatro switches, origem e última alteração. Um acesso por pessoa/projeto mesmo com vários papéis; «Membro da equipa» para novas pessoas comuns sem renomear enums históricos.
 
-| Switch | Inclui | Não concede |
-|---|---|---|
-| **Financeiro** | Valor contratual, honorários e venda, Entrada/plano de recebimentos, faturas/recibos desse projeto e estado financeiro | Custos de horas, taxas/custos de fornecedores, módulo Finance, edição de valores ou emissão |
-| **Orçamento e custo das horas** | Orçamento, consumo, custo planeado/real, snapshots de custo de horas, desvios e margens quando todos os seus componentes estão autorizados | Salários/HR, taxas globais da equipa, valores de outro projeto |
-| **Despesas** | Lista financeira de despesas do projeto, montantes, reembolso/refaturação e comprovativos próprios desse projeto | Despesas da empresa, contas/cartões e extratos, aprovação/pagamento automático |
-| **Honorários de fornecedores** | Honorários/custos/margens de fornecedores, serviços externos, pagamentos de fornecedores desse projeto | Histórico global do fornecedor ou de outras entidades/projetos |
-
-Os switches são independentes. Um resumo que combina áreas só mostra as parcelas autorizadas; lucro/margem/total integrado não são calculados com dados ocultos nem apresentados como total completo. Despesas pessoais mantêm a exceção mínima existente para submissão/acompanhamento próprio, fora da lista financeira geral; não dá visibilidade das despesas alheias.
+| Switch | Conteúdo |
+|---|---|
+| Financeiro | Contrato, honorários/venda, Entrada, faturas/recibos e estado; não custos, fornecedores ou edição/emissão |
+| Orçamento e custo das horas | Orçamento/consumo, custos planeados/reais/snapshots, desvios; não salários/HR ou taxas globais |
+| Despesas | Despesas gerais do projeto, reembolso/refaturação e comprovativos; não despesas de empresa/extratos/pagamento |
+| Honorários de fornecedores | Custos/honorários/margens e saídas de fornecedores; não histórico global ou outras entidades |
 
 ### Todos os separadores da página
 | Separador / chave | Área necessária |
@@ -72,13 +68,13 @@ Inclui todos os 19 valores de TabKey, visíveis/retidos. Schedule/financial/rate
 - Migrar leitores antes do corte atómico. Após aprovação da matriz, regras novas são autoritativas: não manter OR legado que torne OFF ineficaz. Até corte, regras anteriores mantêm-se; rollback de autorização não altera valores/história.
 
 ## Ficheiros e migrações previstos
-- Migrações novas: equipa/acessos/auditoria/helpers; projeções/RLS/guardas; corte revisto de compatibilidade. Mirrors idênticos `drizzle/migrations`/`supabase/migrations`, tipos regenerados; não alterar migrações antigas ou conversão.
-- Equipa: `src/lib/projects/use-project-team.ts`, `src/components/projects/project-team-card.tsx`; novos `project-access.ts`, `use-project-access.ts` e tabela/ações protegidas.
-- Projeto: `src/routes/_app.projects.$projectId.tsx`; hooks Projects `use-planner`, `use-project-planner-adapter`, `use-contract-baseline`, `use-stage-budget-control`, `use-project-entry-figures`, `use-pursuit`, `use-invoices`, `use-project-expenses`, `use-external-services`, `use-suppliers`.
-- QuoteGantt/QuotePlanningTab/inspetores e componentes financeiros de faturação, despesas, fornecedores, resumo; adaptador Incoming e helper do item 2.
-- `src/routes/_app.index.tsx`, `_app.projects.{index,gantt,financials,forecast,insights,resources}.tsx`, `_app.projects.$projectId.allocations.tsx`; pesquisa e exports associados.
-- `src/lib/reports/use-{business-performance,budget-consumption,estimate-vs-actual,supplier-stages,capacity-forecast}.ts`; leitores Finance/CRM de projetos, PDFs/`use-download-invoice-pdf.ts`. Cálculos puros preservados.
-- EN/PT `projects.json`/common/glossary, AGENTS e relatório. Inventário final de chamadas fecha a lista antes do corte.
+- Novas migrações: equipa/acessos/auditoria/helpers; projeções/RLS/guardas; corte de compatibilidade aprovado. Mirrors idênticos drizzle/migrations e supabase/migrations; tipos regenerados. Não alterar conversão.
+- Equipa: src/lib/projects/use-project-team.ts, src/components/projects/project-team-card.tsx; novos project-access.ts/use-project-access.ts e tabela/ações protegidas.
+- src/routes/_app.projects.$projectId.tsx; hooks Projects use-planner, use-project-planner-adapter, use-contract-baseline, use-stage-budget-control, use-project-entry-figures, use-pursuit, use-invoices, use-project-expenses, use-external-services, use-suppliers.
+- QuoteGantt/QuotePlanningTab/inspetores e componentes Finance/Projects; Incoming/helper item 2. Projetos usam projeções operacionais/baseline autorizado, não acesso à proposta inteira.
+- src/routes/_app.index.tsx e _app.projects.{index,gantt,financials,forecast,insights,resources}.tsx, allocations; dashboard financial-kpi-strip/project-scorecard/project-health-table/project-value-chart.
+- src/lib/reports/use-{business-performance,budget-consumption,estimate-vs-actual,supplier-stages,capacity-forecast}.ts; leitores Finance/CRM/PDF e use-download-invoice-pdf.ts. Cálculos puros intactos.
+- EN/PT projects.json/common/glossary, AGENTS, relatório. Pesquisa e exports não foram localizados exaustivamente: rastrear antes de declarar cobertura completa.
 
 ## Testes após aprovação
 Só fixtures após limpeza item 1/leitura zero. Gestor Mint-cópia quatro ON versus Uralchem-cópia OFF; novo gestor Financeiro ON; membro OFF; Finance global sem admin; admin. Testar API direta/RPC/downloads, todos os separadores/deep links, homepage/Gantt/pesquisa/reports/exports, entidades, agregados e revogação. Gestor pode alterar data, não montante/IVA/termos/status/switches/próprio papel; freeze bloqueia datas. Comparar acessos e hashes antes/depois; capturas PT/EN, limpar/provar zero. Nada executado neste passo.
