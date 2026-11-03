@@ -1,0 +1,159 @@
+{
+  "checks": [
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    }
+  ],
+  "activation": {
+    "revision": 1,
+    "active": true,
+    "rows": 1176
+  },
+  "ritaRows": {
+    "pm_invoices": {
+      "count": 0,
+      "error": null
+    },
+    "pm_payment_schedule_items": {
+      "count": 8,
+      "error": null
+    },
+    "pm_expenses": {
+      "count": 0,
+      "error": null
+    },
+    "pm_stage_supplier_costs": {
+      "count": 0,
+      "error": null
+    }
+  },
+  "failure": "Rita Mint financial tabs missing: Fatura\u00e7\u00e3o, Entrada, Plano pagamentos",
+  "rollback": {
+    "revision": 2,
+    "active": false
+  },
+  "dataComparison": {
+    "before": {
+      "pm_projects": {
+        "count": 21,
+        "hash": "3ce205ebb81d7c5d963136a30992923091e5b66cf33230a3e8bbf4112aa3509f"
+      },
+      "pm_stages": {
+        "count": 118,
+        "hash": "9712af3d5e12790b4d66e83af95e041ee0ddd54a91c0059c74848574f34f7ae8"
+      },
+      "pm_allocations": {
+        "count": 108,
+        "hash": "0e2fd2421bdd0ce9ffa99410650fc9f23d6725cc0fd1d1d4dfa59d28bdcc1532"
+      },
+      "pm_time_entries": {
+        "count": 1000,
+        "hash": "22ae6c45f78e0d5e7e8d32dcbf3a08eba5d76c9de114cfd506c43e5f2fcbf4fa"
+      },
+      "pm_payment_schedule_items": {
+        "count": 118,
+        "hash": "b7ef815a687107cc2b1803be05f312ea35ca663cff976b2890f77a3ebdb89a41"
+      },
+      "pm_invoices": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_invoice_items": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_expenses": {
+        "count": 13,
+        "hash": "aeb32427fe59250217396ac5277e8d92a4a008e4dd6239d86ee45b886839fcfc"
+      },
+      "pm_stage_supplier_costs": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_project_person_access": {
+        "count": 1,
+        "hash": "bf433d10f9198539596357535df2270c120e3fa24df85e58ebeffc1bac1ebcfd"
+      },
+      "pm_project_team": {
+        "count": 8,
+        "hash": "c2f0d236c8dc80d6661485e6f43fe0c8ce37ac164203fbd49f051923f4f43ad0"
+      },
+      "pm_global_financial_capabilities": {
+        "count": 4,
+        "hash": "086a9ec48bccc250427ea854780ea33632c1924847256c184034a2bf711a278f"
+      }
+    },
+    "after": {
+      "pm_projects": {
+        "count": 21,
+        "hash": "3ce205ebb81d7c5d963136a30992923091e5b66cf33230a3e8bbf4112aa3509f"
+      },
+      "pm_stages": {
+        "count": 118,
+        "hash": "9712af3d5e12790b4d66e83af95e041ee0ddd54a91c0059c74848574f34f7ae8"
+      },
+      "pm_allocations": {
+        "count": 108,
+        "hash": "0e2fd2421bdd0ce9ffa99410650fc9f23d6725cc0fd1d1d4dfa59d28bdcc1532"
+      },
+      "pm_time_entries": {
+        "count": 1000,
+        "hash": "22ae6c45f78e0d5e7e8d32dcbf3a08eba5d76c9de114cfd506c43e5f2fcbf4fa"
+      },
+      "pm_payment_schedule_items": {
+        "count": 118,
+        "hash": "b7ef815a687107cc2b1803be05f312ea35ca663cff976b2890f77a3ebdb89a41"
+      },
+      "pm_invoices": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_invoice_items": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_expenses": {
+        "count": 13,
+        "hash": "aeb32427fe59250217396ac5277e8d92a4a008e4dd6239d86ee45b886839fcfc"
+      },
+      "pm_stage_supplier_costs": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "pm_project_person_access": {
+        "count": 1,
+        "hash": "bf433d10f9198539596357535df2270c120e3fa24df85e58ebeffc1bac1ebcfd"
+      },
+      "pm_project_team": {
+        "count": 8,
+        "hash": "c2f0d236c8dc80d6661485e6f43fe0c8ce37ac164203fbd49f051923f4f43ad0"
+      },
+      "pm_global_financial_capabilities": {
+        "count": 4,
+        "hash": "086a9ec48bccc250427ea854780ea33632c1924847256c184034a2bf711a278f"
+      }
+    },
+    "unchanged": true
+  },
+  "finalActive": false,
+  "selectorClarification": "Entrada and Plano pagamentos are translated as Recebimentos and Calend\u00e1rio de pagamentos; these tabs are present. Fatura\u00e7\u00e3o is genuinely absent."
+}
