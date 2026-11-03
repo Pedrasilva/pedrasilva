@@ -1,3 +1,8 @@
+## Current request — Gantt follow-up verification
+- [ ] Fix empty Overview details and reconcile Mint budget usage read-only.
+- [ ] Verify three source-proposal sync exclusions on a disposable converted copy; visually verify global Gantt including an unlinked project.
+- [ ] List five unproven client assignments without backfill; verify dependency creation/editing in both contexts, delete fixtures and append evidence to the same report.
+
 ## Current request — One proposal/project Gantt and Mint read-only checks
 - [x] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
 - [x] All project entries use QuoteGantt; shared chart/zoom/outline controls and live approval edits implemented. Context-specific inspector forms remain separate (report).
