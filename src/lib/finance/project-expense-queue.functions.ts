@@ -85,10 +85,12 @@ export const readProjectExpenseReceipt = createServerFn({ method: 'POST' })
   .handler(async ({ data, context }): Promise<RouteProjectExpenseReceiptResult> => {
     const { data: dir, error } = await context.supabase.rpc('pe_directory', { _project: data.projectId });
     if (error) return { ok: false, error: error.message };
+    const area = await context.supabase.rpc('pm_phase_a_area_gate', { _project: data.projectId, _area: 'expenses' });
+    if (area.error || !area.data) return { ok: false, error: 'Forbidden' };
     const my = (dir as { myCollaborator?: string }).myCollaborator;
     if (!my || !data.storagePath.startsWith(`${my}/project-expenses/`) || data.storagePath.includes('..')) return { ok: false, error: 'Forbidden' };
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-    const previous = await supabaseAdmin.from('financial_document_review_queue').select('id,extracted_supplier_name,extracted_document_number,extracted_date,extracted_currency,extracted_amount').eq('entity_id', PSA_ENTITY_ID).eq('source_file_url', data.storagePath).eq('created_by', context.userId).limit(1).maybeSingle();
+    const previous = await context.supabase.from('financial_document_review_queue').select('id,extracted_supplier_name,extracted_document_number,extracted_date,extracted_currency,extracted_amount').eq('entity_id', PSA_ENTITY_ID).eq('source_file_url', data.storagePath).eq('created_by', context.userId).limit(1).maybeSingle();
     if (previous.data) { const q = previous.data; return { ok: true, queueItemId: q.id, skipped: 'already_queued', extracted: { supplier: q.extracted_supplier_name, documentNumber: q.extracted_document_number, date: q.extracted_date, currency: q.extracted_currency, amount: q.extracted_amount } }; }
     const { data: cls } = await supabaseAdmin.from('financial_classifications').select('id').eq('entity_id', PSA_ENTITY_ID).eq('code', 'PRJ.EXP').maybeSingle();
     if (!cls) return { ok: false, error: 'PRJ.EXP category missing' };

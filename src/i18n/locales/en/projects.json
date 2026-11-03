@@ -2925,6 +2925,8 @@
       "monthly": "Construction month"
     },
     "problems": {
+      "paymentTermsUnreadable": "Payment terms could not be interpreted; receipt date requires review",
+      "paymentTermsMissing": "Payment terms are missing; receipt date requires review",
       "contractUnproven": "Original contract match not proven",
       "appointmentUnproven": "Appointment date not proven",
       "stageUnmapped": "Live stage link not proven",
