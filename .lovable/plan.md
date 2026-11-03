@@ -25,40 +25,36 @@ Expandir «Gerir equipa» para **Equipa e acessos**: pessoa, papel, quatro switc
 Os switches são independentes. Um resumo que combina áreas só mostra as parcelas autorizadas; lucro/margem/total integrado não são calculados com dados ocultos nem apresentados como total completo. Despesas pessoais mantêm a exceção mínima existente para submissão/acompanhamento próprio, fora da lista financeira geral; não dá visibilidade das despesas alheias.
 
 ### Todos os separadores da página
-Inclui entradas visíveis e caminhos antigos por `?tab=`; nenhum caminho oculto fica sem verificação.
-
-| Separador / chave atual | Regra proposta |
+| Separador / chave | Área necessária |
 |---|---|
-| Visão geral / `overview` | Datas, estado, cliente e equipa operacionais; valor contratual/faturado requer Financeiro; consumo/custo exige Orçamento; despesas e fornecedores só com os switches respetivos |
-| Insights / `insights` | Horas/progresso sem dinheiro seguem permissões operacionais; receita requer Financeiro; custos/pursuit/orçamento requerem Orçamento; margens combinadas exigem todas as áreas usadas |
-| Avença / `ap` | Datas, meses e horas operacionais; mensalidade de venda requer Financeiro; custo e consumo requerem Orçamento |
-| Aprovações / `approvals` | Mantém controlo admin atual; uma permissão de visibilidade não concede poder de aprovação |
-| Notas / `notes` | Permissões operacionais existentes; não adicionar nem procurar automaticamente conteúdo financeiro oculto |
-| Despesas / `expenses` | Lista geral só com Despesas; acompanhamento próprio mínimo separado conforme regras existentes |
-| Faturação / `billing` | Financeiro permite leitura dos documentos só do projeto dentro de Projects; emissão/edição continuam Finance. Não exigir acesso ao módulo Finance para esta leitura |
-| Arquitetura / `architecture` | Atual superfície é composição financeira/honorários: Financeiro; custos/orçamento interiores com Orçamento; não confundir com o Gantt operacional |
-| Fornecedores / `consultants` | Honorários de fornecedores; identidade operacional só em seletores onde necessária e autorizada |
-| Entrada / `incoming` | Financeiro; integra a projeção operacional do item 2 |
-| Saída / `outgoing` | Filtrar por natureza: fornecedores exigem Honorários de fornecedores; despesas exigem Despesas; não entregar toda a saída com um único switch |
-| Plano de pagamentos / `paymentSchedule` | Entrada com Financeiro; saídas com switches próprios; ocultar totalmente se não há parcelas autorizadas |
-| Resumo financeiro / `financialSummary` | Parcelas autorizadas, sem totais/margens que revelem áreas negadas |
-| Calendário / `schedule` | QuoteGantt/QuotePlanningTab operacionais; retirar honorários, custos e valores do inspetor conforme área; datas e dependências conservam regras de edição próprias |
-| Financeiro antigo / `financial` | Mesma proteção por parcelas que Resumo financeiro, inclusive por ligação direta |
-| Materiais antigo / `materials` | Conteúdo atualmente comentado; serviços externos com Honorários de fornecedores e despesas com Despesas; manter registos históricos |
-| Taxas antigo / `rates` | Atualmente placeholder; se reativado, apenas taxas específicas autorizadas por Orçamento, sem acesso implícito às taxas globais |
-| Atividade antiga / `stream` | Operacional; eventos estruturados financeiros filtrados antes da entrega |
-| `planning` | Chave declarada sem painel renderizado: rejeitar/normalizar para o calendário permitido, sem criar outro Gantt |
+| Visão geral / overview | Operacional livre dentro do acesso Projects; contrato/faturado: Financeiro; consumo/custo: Orçamento |
+| Insights / insights | Horas/progresso operacionais; receita: Financeiro; custo/pursuit: Orçamento; margens exigem componentes autorizados |
+| Avença / ap | Meses/horas operacionais; mensalidade venda: Financeiro; custo/consumo: Orçamento |
+| Aprovações / approvals | Admin atual; switches não concedem aprovação |
+| Notas / notes | Regras operacionais atuais; rever anexos/prosa com valores, sem reescrever documentos |
+| Despesas / expenses | Despesas para lista geral; acompanhamento próprio mínimo separado |
+| Faturação / billing | Financeiro dá leitura só do projeto sem módulo Finance; edição/emissão continuam Finance |
+| Arquitetura / architecture | Atual painel de composição/honorários: Financeiro; custos internos: Orçamento |
+| Fornecedores / consultants | Honorários de fornecedores; revenda ao cliente também Financeiro |
+| Entrada / incoming | Financeiro; projeção item 2 |
+| Saída / outgoing | Fornecedores: Honorários de fornecedores; despesas: Despesas; filtrar linhas |
+| Plano pagamentos / paymentSchedule | Entrada: Financeiro; saídas por natureza; sem parcelas autorizadas, ocultar |
+| Resumo financeiro / financialSummary | Por parcelas; totais/margens só com todos os componentes autorizados |
+| Calendário / schedule | Datas/dependências operacionais; valores por área, incluindo inspetor |
+| Financeiro antigo / financial | Mesma proteção do Resumo, também por ligação direta |
+| Materiais antigo / materials | Corpo comentado; se reativado, fornecedores/despesas conforme natureza |
+| Taxas antigo / rates | Placeholder; futuras taxas específicas por Orçamento, não catálogo global |
+| Atividade antiga / stream | Operacional, eventos financeiros filtrados no servidor |
+| planning | Chave sem painel: normalizar para calendário permitido |
 
-Cabeçalho, painel lateral e atalhos usam a mesma resposta de acesso. Uma ligação direta a área negada não monta o painel nem carrega seus dados.
+Inclui todos os 19 valores de TabKey, visíveis/retidos. Schedule/financial/rates/stream não têm botão, mas têm corpos acessíveis por ligação; materials comentado; planning sem corpo. Proteger navegação **e dados**, cabeçalho/painel/atalhos. Insights atualmente recebe invoices/budget/revenue/cost/profit sem guarda integral; global Gantt calcula/mostra custo/orçamento. Leitores atuais `useProjects/useProjectDetail/useAllStages` usam SELECT amplo e recursos aninhados.
 
-## Regras, defaults e administração
-- Acesso ao módulo continua nas permissões existentes. Uma concessão neste projeto não abre Finance, CRM ou Reports; quem já entra num módulo só recebe os valores de projetos autorizados.
-- Luis mantém acesso por autoridade admin; Tatiana por permissão global financeira protegida, sem admin. Confirmar as atribuições atuais quando a ligação voltar: nenhum nome, email ou UUID hardcoded, nenhum privilégio em armazenamento do navegador.
-- Acesso global completo é uma capacidade explícita auditável; não presumir que qualquer permissão de leitura Finance dá acesso irrestrito às quatro áreas.
-- Novo gestor: Financeiro ON; outros switches OFF salvo decisão admin. Novo membro/coordenador/coautor/apoio: os quatro OFF. Para o exemplo Rita/Mint com todos os detalhes, admin liga as quatro áreas; Uralchem mantém OFF se não houver autorização existente revista.
-- Só autoridade admin altera switches e atribui/substitui gestor, evitando autoelevação por «Gerir equipa». Finance não ganha poder de administrar. Confirmar que a autoridade admin destinada a Luis não foi atribuída a terceiros antes da ativação; não criar uma exceção por identidade hardcoded.
-- Um gestor principal nomeado por projeto para novos/registos revistos. Não escolher nem remover gestores históricos automaticamente; projetos sem gestor ou com vários surgem na pré-visualização para decisão admin, sem bloquear o calendário existente.
-- Desligar Financeiro revoga imediatamente leitura correspondente e edição de datas pelo gestor. Registar antes/depois, motivo, autor e hora de acessos/papéis e datas; atualizar caches e impedir reutilização de downloads já autorizados por links duradouros.
+## Defaults e administração
+- Luis: autoridade admin protegida; Tatiana: capacidade global financeira explícita, sem admin. Confirmar atribuições atuais; nunca nomes/emails/IDs hardcoded. Só admin muda switches ou nomeia gestor, evitando autoelevação pelas atuais escritas de equipa.
+- Novo gestor: Financeiro ON; restantes OFF salvo decisão admin. Novo membro/coordenador/coautor/apoio: quatro OFF. Rita/Mint com todos os detalhes exige quatro ON; este exemplo não será aplicado sem autorização.
+- Módulos seguem permissões existentes: grants do projeto não abrem Finance/CRM/Reports. Desligar Financeiro também retira edição de datas ao gestor. Revogar caches e links de documentos; auditar acessos/papéis com autor/hora/motivo.
+- Usar um gestor principal comprovado em projetos novos/revistos. Não eliminar ou escolher gestores históricos múltiplos; apresentar conflitos ao admin.
+- Switches independentes: lucro/margem/total integrado só com todas as parcelas autorizadas, sem zeros para custos ocultos. Despesas próprias mantêm exceção mínima de submissão/acompanhamento, não lista geral.
 
 ## Desenho técnico e proteção real
 - Tabela aditiva `pm_project_person_access`: projeto/pessoa, quatro booleanos, proveniência e revisão; auditoria append-only de autor/hora/motivo/antes/depois. Só ação admin escreve acessos ou atribui gestor. Grants/RLS/revoke TRUNCATE; roles globais continuam separados dos perfis.
@@ -71,9 +67,9 @@ Cabeçalho, painel lateral e atalhos usam a mesma resposta de acesso. Uma ligaç
 - Documentos autorizados só do projeto, sem abrir fila OCR/extratos/outras entidades. Downloads com autorização renovada e URLs curtas. Prosa livre não será reescrita: rever notas/anexos com valores antes de expor a leitores sem Financeiro.
 
 ## Migração sem perder acesso autorizado
-Com ligação disponível: inventário read-only de utilizadores/permissões/equipas/políticas atuais e matriz antes→depois por pessoa/projeto/área. Preservar acessos legítimos com concessões explícitas de origem `legacy`; não inferir direitos por alocação histórica nem por uma API anteriormente demasiado aberta.
-
-Pré-visualizar conflitos: novos defaults OFF versus permissões antigas globais, gestores múltiplos, identidade ambígua e acessos que seriam removidos. Admin aprova matriz antes do corte; **não manter OR global legado em produção**, porque um switch OFF deixaria de negar. Até ativação atómica, permissões anteriores permanecem; depois as novas regras são autoritativas com exceções globais explícitas. Rollback repõe versão de autorização, não valores financeiros. Não atribuir Rita/Mint nem outras equipas neste passo.
+- Com ligação disponível, inventariar permissões/políticas/equipas e apresentar matriz pessoa/projeto/área antes→depois. Preservar acessos legítimos com grants explícitos de origem legacy; APIs demasiado abertas não são autorização legítima.
+- Defaults OFF podem conflituar com permissões globais antigas: listar perdas/exceções, identidades ambíguas e gestores múltiplos para aprovação admin. Não atribuir Rita/Mint agora.
+- Migrar leitores antes do corte atómico. Após aprovação da matriz, regras novas são autoritativas: não manter OR legado que torne OFF ineficaz. Até corte, regras anteriores mantêm-se; rollback de autorização não altera valores/história.
 
 ## Ficheiros e migrações previstos
 - Migrações novas: equipa/acessos/auditoria/helpers; projeções/RLS/guardas; corte revisto de compatibilidade. Mirrors idênticos `drizzle/migrations`/`supabase/migrations`, tipos regenerados; não alterar migrações antigas ou conversão.
@@ -85,4 +81,4 @@ Pré-visualizar conflitos: novos defaults OFF versus permissões antigas globais
 - EN/PT `projects.json`/common/glossary, AGENTS e relatório. Inventário final de chamadas fecha a lista antes do corte.
 
 ## Testes após aprovação
-Só fixtures após limpeza item 1 e leitura zero. Gestor Mint-cópia com quatro ON versus Uralchem-cópia OFF; gestor novo Financeiro ON; membro quatro OFF; Tatiana-like global sem admin; Luis-like admin. Testar APIs diretas/RPCs/downloads, todos os separadores e `?tab=`, homepage/Gantt/pesquisa/reports/exports, isolamento de entidades, agregados sem fugas e revogação/caches. Gestor autorizado altera data, não montante/IVA/termos/status, nem próprios switches/papel. Datas congeladas não editáveis. Comparar permissões antes/depois e hashes financeiros/contratuais, capturas PT/EN, apagar fixtures e comprovar zero. Nenhum destes testes foi executado neste passo.
+Só fixtures após limpeza item 1/leitura zero. Gestor Mint-cópia quatro ON versus Uralchem-cópia OFF; novo gestor Financeiro ON; membro OFF; Finance global sem admin; admin. Testar API direta/RPC/downloads, todos os separadores/deep links, homepage/Gantt/pesquisa/reports/exports, entidades, agregados e revogação. Gestor pode alterar data, não montante/IVA/termos/status/switches/próprio papel; freeze bloqueia datas. Comparar acessos e hashes antes/depois; capturas PT/EN, limpar/provar zero. Nada executado neste passo.
