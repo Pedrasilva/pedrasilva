@@ -328,7 +328,8 @@ function OpportunitiesPage() {
           </CardContent>
         </Card>
       ) : view === "pipeline" ? (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="overflow-x-auto">
+        <div className="grid grid-flow-col auto-cols-[minmax(240px,1fr)] items-start gap-3 pb-2">
           {byStage.map((col) => {
             const totalCol = col.total;
             return (
@@ -494,6 +495,7 @@ function OpportunitiesPage() {
               </div>
             );
           })}
+        </div>
         </div>
       ) : view === "projects" ? (
         <div className="divide-y border-y">
