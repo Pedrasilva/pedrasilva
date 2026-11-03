@@ -141,3 +141,24 @@ Fase B mantém todas as exposições mistas já listadas (home/Gantt/overview/ho
 Ficheiros novos: `project-incoming-reader.ts`, testes do leitor, manifesto e conversão; alterações `recebimentos.server/functions`, `purchase-ocr.functions`, `issued-pdf.functions`, `project-expense-queue.functions`, `use-provisional-invoicing`, leitores de entradas Finance; traduções EN/PT e regras locais. Migrações **0236–0244**, mirrors idênticos. Capturas [PT](project-access-phase-a/final-incoming-pt-PT.png)/[EN](project-access-phase-a/final-incoming-en.png).
 
 Leitura final **21:58:51 UTC**: projetos/propostas/oportunidades/fases/prestações/despesas/queue descartáveis **0/0/0/0/0/0/0**; **96 auditorias** confirmam igualdade integral antes/depois removendo somente `payment_offset_days`. Último teste isolado: 121 verificações, rollback e gate OFF. **16 testes Vitest**, parity EN/PT e AST sem novos literais passaram; nove mirrors byte-identical; build OK **21:58:40 UTC**.
+
+## GO 22:15 UTC — ativado e imediatamente revertido
+
+**Estado final: OFF.** A ação admin auditada ativou a Fase A às **22:20:51 UTC** (revisão 1, autor Luis); após a primeira falha foi revertida às **22:21:06 UTC** (revisão 2). Não foi tentada nova ativação.
+
+Ação `pm_change_project_access_cutover` exige admin protegido, estado esperado, hash da matriz e motivo; guarda a comparação completa antes/depois. Rollback usa a mesma ação, com estado esperado ON e destino OFF. Migrações **0245–0246**, mirrors byte-identical. O gate agora lê o último estado auditado; a instalação não o ativou. As únicas novas linhas persistentes são as duas auditorias do corte; não houve fixtures nem alterações de projetos/equipas/permissões existentes.
+
+### Verificação real como Rita
+- Sessão autenticada de Rita Saragoça, sem View As. Mint: quatro áreas **true** com gate ON; Uralchem IV: quatro áreas **false**.
+- Mint Recebimentos terminou de carregar e mostrou as **8 prestações**, total **30 980,00 €** e datas/valores. API de prestações: 8 linhas sem erro. APIs pm_invoices/despesas/fornecedores: zero linhas; não atribuir este zero a negação sem provar existência de linhas.
+- **FALHA confirmada: Faturação não aparece.** A página exige `useFinanceAccess().hasAccess` além de Financials, em `src/routes/_app.projects.$projectId.tsx:722,1078`. Rita tem acesso por projeto mas não acesso geral Finance; contraria a leitura de Faturação do próprio projeto aprovada.
+- A automação também assinalou nomes “Entrada” e “Plano pagamentos”; revisão da captura confirmou que estão presentes com traduções **Recebimentos** e **Calendário de pagamentos**. Estes dois não são falhas. Faturação continua realmente ausente.
+
+![Rita Mint com corte ON, Faturação ausente](project-access-phase-a/cutover-rita-mint.png)
+
+### Interrupção após a falha
+Conforme instrução de Luis, rollback imediato; **não executados nem considerados PASS**: página/API Uralchem, sessões Patricia e segundo membro all-OFF, quatro sessões globais, download de anexo permitido/negado. A consulta administrativa não encontrou `financial_documents.project_id` diretamente ligado à Mint; não prova ausência de anexos por outras relações. Selecionar um comprovativo real já existente e inequivocamente ligado antes do novo teste, sem criar dados reais.
+
+Comparação via sessão admin: hashes integrais antes/depois e contagens de projetos, fases, alocações, horas, prestações, faturas/itens, despesas, fornecedores, acessos, equipa e capacidades globais **iguais**. Sem mutações dessas linhas; auditorias do corte separadas. Zero projetos `[QA DISPOSABLE]` após reversão. [Resultados e hashes](project-access-phase-a/cutover-live-results.json); [matriz antes](project-access-phase-a/cutover-before-matrix.csv) e [matriz após rollback](project-access-phase-a/cutover-after-matrix.csv), **1 176 combinações** cada. O JSON bruto da matriz tem `active=false` hardcoded no RPC antigo; a prévia de corte e as auditorias corrigem esse campo pelo gate efetivo, que é a fonte de estado usada nesta verificação.
+
+**Antes de nova ativação:** corrigir leitura Faturação limitada ao projeto sem conceder módulo Finance nem emissão/edição; corrigir seletores por chaves/autonyms reais; repetir todos os checks pedidos com rollback preparado. A correção não foi implementada nesta tentativa após a instrução de parar/reverter. Fase B entregue apenas como plano, com nenhuma alteração de leitores mistos.

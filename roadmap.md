@@ -1,7 +1,7 @@
 ## Current request — 3 November 22:15 Phase A GO
-- [ ] Prepare audited cutover action, before/after matrix and immediately callable rollback; preserve project data.
-- [ ] Activate and verify Rita/Mint versus Uralchem, Patricia and an all-OFF team collaborator, four global capabilities and invoice attachment allow/deny; revert immediately on any failure.
-- [ ] Record screenshots and unchanged data/zero fixtures; deliver Phase B plan only.
+- [x] Prepared admin-only audited matrix-hash cutover/rollback; activated 22:20:51, immediate rollback 22:21:06 after Rita Billing missing; gate OFF. No project data changed.
+- [ ] Re-activation blocked: Rita project Billing incorrectly requires general Finance access; after correction, rerun all requested users/API/attachment checks. Stopped after first failure as requested.
+- [x] Rita ON screenshot, exact data hashes unchanged, 1,176 before/rollback matrix and zero QA projects recorded; Phase B plan only prepared.
 
 ## Current request — 3 November 21:41 approval (cutover OFF)
 - [x] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; every other field including updated_at unchanged; 96 audits.
