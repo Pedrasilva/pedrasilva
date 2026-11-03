@@ -3,6 +3,7 @@ import { canConvertQuote } from "@/lib/quotes/quote-lifecycle";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ConversionInvoicePreview } from "@/components/quotes/conversion-invoice-preview";
+import { CompanyPicker } from "@/components/crm/company-picker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -317,6 +318,23 @@ function QuoteDetail() {
   // when the user clicks the dedicated Convert button — never as a
   // side-effect of approving or any other status transition.
   const [convertOpen, setConvertOpen] = useState(false);
+  const [showConversionCompany, setShowConversionCompany] = useState(false);
+  const setConversionCompany = useMutation({
+    mutationFn: async (companyId: string) => {
+      const { error } = await supabase.from("fee_proposals").update({ company_id: companyId }).eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      setConversionPreview(null);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["crm_quote_lifecycle", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] }),
+      ]);
+      setShowConversionCompany(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const [conversionStart,setConversionStart]=useState("");
   const [conversionPreview,setConversionPreview]=useState<{revision:string;start_date:string;commercial:{total_fee:number};stages:Array<{id:string;name:string;parent_stage_id:string|null;sort_order:number;start_date:string;end_date:string;baseline_start_date?:string;baseline_end_date?:string;working_days?:number;hours?:number;fee?:number}>;allocations:Array<{id:string;resource_name:string;hours_per_day:number;start_date:string;end_date:string}>;payments:Array<{id:string;label:string;amount:number;expected_invoice_date:string|null;expected_payment_date:string|null}>}|null>(null);
   const [conversionPreviewPending,setConversionPreviewPending]=useState(false);
@@ -872,10 +890,11 @@ function QuoteDetail() {
           </AlertDialogHeader>
           <div className="space-y-2">
             <p className="font-medium">{t("quotes.flow.checklistTitle")}</p>
-            {lifecycle.missing.map(item => <Button key={item} variant="link" onClick={() => {setConvertOpen(false); if(item === "client" && quote.opportunity_id) navigate({to:"/crm/opportunities/$opportunityId",params:{opportunityId:quote.opportunity_id}}); else setStep(item === "gantt" ? "estimate" : "publish");}}>{t(`quotes.flow.${item}`)}</Button>)}
+            {lifecycle.missing.map(item => <Button key={item} variant="link" onClick={() => {if(item === "client") {setShowConversionCompany(true);return;} setConvertOpen(false);setStep(item === "gantt" ? "estimate" : "publish");}}>{t(`quotes.flow.${item}`)}</Button>)}
+            {showConversionCompany && <CompanyPicker value={quote.company_id ?? quote.opportunity?.company_id ?? null} onChange={id => setConversionCompany.mutate(id)} disabled={setConversionCompany.isPending} />}
             <Label htmlFor="conversion-start">{t("projects:gantt.relative.convertStart")}</Label>
             <Input id="conversion-start" type="date" value={conversionStart} onChange={e=>{setConversionStart(e.target.value);setConversionPreview(null);}}/>
-            <Button variant="outline" onClick={previewConversion} disabled={!conversionStart||conversionPreviewPending||lifecycle.missing.length>0}>{t("projects:gantt.relative.convertPreview")}</Button>
+            <Button variant="outline" onClick={previewConversion} disabled={!conversionStart||conversionPreviewPending||setConversionCompany.isPending||lifecycle.missing.length>0}>{t("projects:gantt.relative.convertPreview")}</Button>
             {conversionPreview && <div className="max-h-72 overflow-auto text-xs"><div className="flex flex-wrap justify-between gap-2 font-medium"><span>{conversionPreview.start_date}</span><span>{t("glossary:financial.fee")} · {new Intl.NumberFormat(uiI18n.language,{style:"currency",currency:"EUR"}).format(conversionPreview.commercial.total_fee)}</span></div>{numberStages(conversionPreview.stages).map(({stage:s,number})=><div key={s.id} className="border-b border-border py-2"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{formatStageLabel(s,number)}</span><span>{s.working_days ?? "—"} {t("projects:gantt.wdShort")} · {new Intl.NumberFormat(uiI18n.language,{maximumFractionDigits:1}).format(s.hours ?? 0)} {t("common:hours")} · {new Intl.NumberFormat(uiI18n.language,{style:"currency",currency:"EUR"}).format(s.fee ?? 0)}</span></div><div className="flex flex-wrap justify-between gap-2 text-muted-foreground"><span>{t("projects:gantt.relative.previewBaseline")}: {s.baseline_start_date} → {s.baseline_end_date}</span><span>{t("projects:gantt.relative.previewLive")}: {s.start_date} → {s.end_date}</span></div>{s.baseline_end_date && s.baseline_end_date!==s.end_date && <div className="font-medium text-amber-700 dark:text-amber-400">{t("projects:gantt.relative.previewShift",{count:Math.round((Date.parse(s.end_date)-Date.parse(s.baseline_end_date))/86400000)})}</div>}</div>)}{conversionPreview.allocations.map((a,i)=><div key={`${a.id}:${i}`} className="flex flex-wrap justify-between gap-2 py-1"><span>{a.resource_name} · {new Intl.NumberFormat(uiI18n.language,{maximumFractionDigits:2}).format(a.hours_per_day)} {t("common:hours")}</span><span>{a.start_date} → {a.end_date}</span></div>)}{conversionPreview.payments && <ConversionInvoicePreview quoteId={quoteId} payments={conversionPreview.payments}/>}</div>}
           </div>
           <AlertDialogFooter>

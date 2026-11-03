@@ -1,4 +1,5 @@
 import type { QuoteLifecycle } from "@/lib/quotes/quote-lifecycle";
+import { canConvertQuote } from "@/lib/quotes/quote-lifecycle";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,10 +56,7 @@ export function QuotePublishStep({
   const { t } = useTranslation("crm");
 
   const isApproved = quoteStatus === "approved";
-  const showConvertCard = isApproved || hasProject;
-  // Signature is the gate: an approved quote becomes a project only once it
-  // has been signed (DocuSign or manually recorded). Admins can override.
-  const convertBlocked = false;
+  const convertBlocked = !canConvertQuote(lifecycle?.state ?? (isApproved ? "approved" : "draft"));
 
   return (
     <div className="space-y-4">
@@ -72,7 +70,7 @@ export function QuotePublishStep({
       )}
       {isApproved && !isSigned && <p className="text-sm text-amber-700">{t("quotes.flow.unsignedWarning")}</p>}
       {isApproved && !isSigned && <QuoteCreateContractCard quoteId={quoteId} quoteStatus={quoteStatus} />}
-      {showConvertCard && (
+      {(
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -99,7 +97,7 @@ export function QuotePublishStep({
               <>
                 <p className="text-muted-foreground">
                   {convertBlocked
-                    ? t("workspace.publish.convert.needsSignatureHint")
+                    ? t("workspace.publish.convert.acceptanceFirst")
                     : t("workspace.publish.convert.directHint")}
                 </p>
                 <Button size="sm" onClick={onConvert} disabled={isConverting || convertBlocked}>
@@ -110,24 +108,6 @@ export function QuotePublishStep({
                 </Button>
               </>
             )}
-          </CardContent>
-        </Card>
-      )}
-      {!showConvertCard && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("workspace.publish.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>{t("workspace.publish.description")}</p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Button size="sm" variant="outline" onClick={onEditContent}>
-                {t("workspace.publish.editContent")}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={onEditEstimate}>
-                {t("workspace.publish.editEstimate")}
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}

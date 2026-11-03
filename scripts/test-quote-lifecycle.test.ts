@@ -9,6 +9,7 @@ describe('quote next action',()=>{
  it('approved may convert without signature',()=>expect(canConvertQuote('approved')).toBe(true));
  it('signed may convert',()=>expect(canConvertQuote('signed')).toBe(true));
  it('sent may not convert',()=>expect(canConvertQuote('sent')).toBe(false));
+ it('draft may not convert before acceptance',()=>expect(canConvertQuote('draft')).toBe(false));
  it('lost may not convert',()=>expect(canConvertQuote('lost')).toBe(false));
  it('sent Rev 00 with changed current content needs sending',()=>expect(needsRevisionSend({state:'sent',latestSentSnapshotId:'rev00',latestSentMatchesCurrent:false})).toBe(true));
  it('matching sent revision does not need sending',()=>expect(needsRevisionSend({state:'sent',latestSentSnapshotId:'rev01',latestSentMatchesCurrent:true})).toBe(false));
