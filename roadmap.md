@@ -1,3 +1,8 @@
+## Current request — 3 November 23:28 Phase A repair and renewed GO
+- [ ] Fix Billing project Financials read access without Finance module; retain Finance-only edit/issue and review sibling tabs.
+- [ ] Rerun isolated ON including Billing, then live cutover/user/attachment checks; immediate rollback on any failure, no project-data changes.
+- [ ] Report screenshots/data comparison/zero; Phase B plan only after Phase A outcome.
+
 ## Current request — 3 November 22:15 Phase A GO
 - [x] Prepared admin-only audited matrix-hash cutover/rollback; activated 22:20:51, immediate rollback 22:21:06 after Rita Billing missing; gate OFF. No project data changed.
 - [ ] Re-activation blocked: Rita project Billing incorrectly requires general Finance access; after correction, rerun all requested users/API/attachment checks. Stopped after first failure as requested.
