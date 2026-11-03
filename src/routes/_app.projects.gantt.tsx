@@ -7,6 +7,7 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import { AppShell } from "@/components/projects/app-shell";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { QuoteGantt } from "@/components/planner/planner-gantt";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
@@ -385,15 +386,11 @@ function GlobalGanttPage() {
                                {t("projects:gantt.ui.addStages")} </button>
                           </div>
                         ) : (
-                          <GanttChart
+                          <QuoteGantt
                             projectId={p.id}
-                            stages={stages}
-                            origin={origin}
-                            totalDays={totalDays}
                             dayWidth={dayWidth}
-                            resources={resources ?? []}
-                            adapter={ganttAdapter}
-                            embedded
+                            sourceQuoteId={p.quote_id ?? undefined}
+                            canEdit={canEditPlanning}
                           />
                         )}
                       </div>

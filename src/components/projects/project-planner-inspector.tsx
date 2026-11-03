@@ -193,7 +193,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
   };
 
   const handleAddAlloc = async () => {
-    if (readOnly) return;
+    if (readOnly || stage?.stage_role === "client") return;
     if (!newAlloc.resource_id) {
       toast.error(t("projects:gantt.inspector.pickResource", { defaultValue: "Pick a resource first." }));
       return;
@@ -711,7 +711,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             )}
           </ul>
 
-          {resources.length > 0 && (stage as { is_self?: boolean | null } | undefined)?.is_self !== false && (
+          {resources.length > 0 && stage.stage_role !== "client" && (stage as { is_self?: boolean | null } | undefined)?.is_self !== false && (
             <div className="space-y-2 border-t border-border pt-3">
               <div>
                 <Label className="text-xs">{t("projects:gantt.inspector.resource", { defaultValue: "Resource" })}</Label>

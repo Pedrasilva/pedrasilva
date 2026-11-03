@@ -9,6 +9,7 @@ import {
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { useUpdateProject } from "@/lib/projects/use-planner";
 import { toast } from '@/lib/toast';
+import { useQuery } from "@tanstack/react-query";
 
 export function ProjectClientField({
   projectId,
@@ -23,6 +24,17 @@ export function ProjectClientField({
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<string | null>(companyId);
   const update = useUpdateProject();
+  const companyQ = useQuery({
+    queryKey: ["pm-project-client-name", companyId],
+    enabled: !!companyId,
+    queryFn: async () => {
+      if (!companyId) return null;
+      const { data, error } = await supabase.from("companies").select("nome").eq("id", companyId).maybeSingle();
+      if (error) throw error;
+      return data?.nome ?? null;
+    },
+  });
+  const displayClient = companyQ.data || client;
 
   async function save() {
     if (!picked) return;
@@ -54,8 +66,8 @@ export function ProjectClientField({
         className="group flex w-full items-center justify-between gap-2 text-left text-sm font-medium text-foreground hover:text-primary"
         title={t("projects:detail.sidebar.editClient", { defaultValue: "Change client" })}
       >
-        <span className={client ? "" : "text-muted-foreground"}>
-          {client ?? t("projects:detail.header.noClient")}
+        <span className={displayClient ? "" : "text-muted-foreground"}>
+          {displayClient ?? t("projects:detail.header.noClient")}
         </span>
         <Pencil className="h-3 w-3 shrink-0 opacity-0 transition group-hover:opacity-70" />
       </button>

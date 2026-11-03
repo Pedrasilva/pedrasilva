@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { AppShell } from "@/components/projects/app-shell";
 import { GanttChart } from "@/components/projects/gantt-chart";
-import { ProjectGantt } from "@/components/planner/planner-gantt";
+import { QuoteGantt } from "@/components/planner/planner-gantt";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
@@ -1155,7 +1155,7 @@ function ProjectDetail() {
                         {t("projects:gantt.showCancelled")}
                       </label>
                     </div>
-                    <ProjectGantt
+                    <QuoteGantt
                       projectId={project.id}
                       showCancelled={showCancelled}
                       canEdit={canEditPlanning}

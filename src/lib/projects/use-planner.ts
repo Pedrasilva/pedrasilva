@@ -159,6 +159,7 @@ export function useCreateStage() {
       sort_order?: number;
       parent_stage_id?: string | null;
       is_milestone?: boolean;
+      stage_role?: string;
     }): Promise<Stage> => {
       const { data, error } = await supabase.from("pm_stages").insert(input).select().single();
       if (error) throw error;
