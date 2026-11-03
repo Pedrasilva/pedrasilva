@@ -10913,6 +10913,7 @@ export type Database = {
           original_invoice_date: string | null
           payment_offset_days: number
           payment_terms: string | null
+          payment_terms_review_reason: string | null
           planned_invoice_date_override: string | null
           planned_payment_date_override: string | null
           project_id: string
@@ -10956,6 +10957,7 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          payment_terms_review_reason?: string | null
           planned_invoice_date_override?: string | null
           planned_payment_date_override?: string | null
           project_id: string
@@ -10999,6 +11001,7 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          payment_terms_review_reason?: string | null
           planned_invoice_date_override?: string | null
           planned_payment_date_override?: string | null
           project_id?: string
@@ -18879,6 +18882,10 @@ export type Database = {
         Args: { _quote: string; _revision: string; _start: string }
         Returns: Json
       }
+      pm_correct_payment_offsets: {
+        Args: { _reason: string; _rows: Json }
+        Returns: Json
+      }
       pm_cost_period_revision: { Args: never; Returns: string }
       pm_cost_rate_at: {
         Args: { _date: string; _resource_id: string }
@@ -18988,6 +18995,7 @@ export type Database = {
           name: string
         }[]
       }
+      pm_parse_payment_terms: { Args: { _terms: string }; Returns: number }
       pm_payment_finance_access: {
         Args: { _project: string }
         Returns: boolean
