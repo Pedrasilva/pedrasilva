@@ -213,7 +213,13 @@ export function ComposerTopBar({
           <>
             <Button size="sm" onClick={() => setSendOpen(true)}>
               <Send className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.sendProposal")} </Button>
-
+          </>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" title={uiI18n.t("common:moreActions")}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {isSentLocked && !proposal.quote_id && <DropdownMenuItem onSelect={startNewRevision}>{uiI18n.t("crm:quoteEditor.newRevision")}</DropdownMenuItem>}
