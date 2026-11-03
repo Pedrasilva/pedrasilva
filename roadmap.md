@@ -1,7 +1,7 @@
 ## Current request — Quote client-company conversion
-- [ ] Resolve/inherit the opportunity company, exclude linkage/bookkeeping from content guards, and backfill NULL quote companies.
-- [ ] Add inline conversion company picker and always-visible pre-approval conversion card.
-- [ ] Convert only a signed disposable Mint copy, verify preservation, delete fixtures and report counts/screenshots.
+- [x] Resolve/inherit the opportunity company, exclude linkage/bookkeeping from content guards, and backfill 2 NULL quote companies.
+- [x] Add inline conversion company picker and always-visible pre-approval conversion card.
+- [x] Convert only a signed disposable Mint copy (EUR 30,980), verify exact post-backfill real-row preservation, delete all fixtures; report migrations 0219/0220 and screenshots in docs/quote-company-conversion-report.md.
 
 ## Current request — Quote lifecycle follow-up
 - [x] Explain unsent content/revision mismatch before acceptance and offer sending the current revision.
