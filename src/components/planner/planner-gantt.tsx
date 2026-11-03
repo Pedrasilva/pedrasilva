@@ -21,6 +21,8 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
+import { PlannerChart, PlannerFrame, PlannerZoom } from "./planner-surface";
+import { useProjectStageRoles } from "@/lib/projects/use-project-stage-roles";
 import { GanttPrintButton } from "@/components/planner/gantt-print-button";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { ResourcePool } from "@/components/projects/resource-pool";
@@ -112,12 +114,17 @@ function fittedDayWidth(chartWidth: number, outlineWidth: number, totalDays: num
   return Math.max(0.35, Math.min(32, fitWidth));
 }
 
-export function QuoteGantt(props: Props) {
+export function QuoteGantt(props: Props | ProjectGanttProps) {
+  if ("projectId" in props) return <OperationalScheduleAdapter {...props} />;
+  return <QuoteScheduleEntry {...props} />;
+}
+
+function QuoteScheduleEntry(props: Props) {
   const { t } = useTranslation("common");
   const lockQ = useQuoteLock(props.quoteId);
   if (!lockQ.isSuccess) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (lockQ.data.projectId) return <ConvertedQuoteGantt {...props} projectId={lockQ.data.projectId} />;
-  return <ProposalGantt {...props} />;
+  return <ProposalScheduleAdapter {...props} />;
 }
 
 function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, canSeeFinancials }: Props & { projectId: string }) {
@@ -135,11 +142,11 @@ function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, ca
   });
   const allowed = !permissions.loading && (permissions.can("projects.edit_planning", "all") ||
     (permissions.can("projects.edit_planning", "assigned") && !!assignedQ.data));
-  return <ProjectGantt projectId={projectId} sourceQuoteId={quoteId} dayWidth={dayWidth}
+  return <OperationalScheduleAdapter projectId={projectId} sourceQuoteId={quoteId} dayWidth={dayWidth}
     canEdit={canEditPlanning ?? allowed} canSeeFinancials={canSeeFinancials ?? false} />;
 }
 
-function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
+function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
@@ -465,7 +472,7 @@ function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: 
     const roleOf = (s: S): "architecture" | "client" | "supplier_group" | "supplier_phase" => {
       // "This is us" overrides supplier role — render as architecture
       // (solid bar, no dashed supplier hatching, no outflow).
-      if ((s as { is_self?: boolean | null }).is_self === true) return "architecture";
+      if (s.stage_role !== "client" && (s as { is_self?: boolean | null }).is_self === true) return "architecture";
       const r = (s.stage_role ?? "architecture") as string;
       if (r === "supplier_group" || r === "supplier_phase" || r === "client") return r;
       return "architecture";
@@ -578,6 +585,7 @@ function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: 
       markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
       is_self: (s as { is_self?: boolean }).is_self ?? true,
       source_quote_stage_id: null,
+      stage_role: s.stage_role ?? "architecture",
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
@@ -1204,98 +1212,10 @@ function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: 
           {!relative && <RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}
         </div>
 
-        {dayWidthProp === undefined && (
-          <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
-            <span className="px-2 text-xs text-muted-foreground">
-              {t("workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => setZoom((z) => stepZoom(z, -1))}
-              disabled={zoom === ZOOM_ORDER[0]}
-              aria-label={i18n.t("projects:plannerGantt.ui.zoomOut")}
-              title={i18n.t("projects:plannerGantt.ui.zoomOut")}
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => setZoom((z) => stepZoom(z, 1))}
-              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
-              aria-label={i18n.t("projects:plannerGantt.ui.zoomIn")}
-              title={i18n.t("projects:plannerGantt.ui.zoomIn")}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-            <div className="mx-1 h-4 w-px bg-border" />
-            <Button
-              type="button"
-              variant={zoom === "week" ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setZoom("week")}
-            >
-              {t("workspace.planning.zoomWeek", { defaultValue: "Week" })}
-            </Button>
-            <Button
-              type="button"
-              variant={zoom === "month" ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setZoom("month")}
-            >
-              {t("workspace.planning.zoomMonth", { defaultValue: "Month" })}
-            </Button>
-            <Button
-              type="button"
-              variant={zoom === "quarter" ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setZoom("quarter")}
-            >
-              {t("workspace.planning.zoomQuarter", { defaultValue: "Quarter" })}
-            </Button>
-            <Button
-              type="button"
-              variant={zoom === "year" ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setZoom("year")}
-            >
-              {t("workspace.planning.zoomYear", { defaultValue: "Year" })}
-            </Button>
-            <Button
-              type="button"
-              variant={zoom === "fit" ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setZoom("fit")}
-            >
-              {t("workspace.planning.zoomFit", { defaultValue: "Fit" })}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setPoolCollapsed((v) => !v)}
-              aria-label={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
-              title={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
-            >
-              {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
-            </Button>
-            <div className="mx-1 h-4 w-px bg-border" />
-            <GanttPrintButton getTarget={() => chartRef.current} />
-          </div>
-        )}
+        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
+          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
       </div>
-      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
+      <PlannerFrame>
         <div
           ref={chartRef}
           className="flex-1 overflow-auto resize-y"
@@ -1316,7 +1236,7 @@ function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: 
             </div>
           ) : (
 
-          <GanttChart
+          <PlannerChart
             projectId={quoteId}
             relative={relative}
             stages={mappedStages}
@@ -1367,7 +1287,7 @@ function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: 
         {!poolCollapsed && !selectedStageId && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
         )}
-      </div>
+      </PlannerFrame>
     </div>
   );
 }
@@ -1398,7 +1318,7 @@ interface ProjectGanttProps {
   sourceQuoteId?: string;
 }
 
-export function ProjectGantt({
+function OperationalScheduleAdapter({
   projectId,
   showCancelled = false,
   dayWidth: dayWidthProp,
@@ -1411,12 +1331,12 @@ export function ProjectGantt({
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
-  const quoteStagesQ = useQuoteStages(sourceQuoteId);
-  const quoteAllocationsQ = useQuoteAllocations(sourceQuoteId);
-  const projection = useMemo(() => sourceQuoteId && detailQ.data && quoteStagesQ.isSuccess && quoteAllocationsQ.isSuccess
-    ? convertedQuoteSchedule(projectId, quoteStagesQ.data, quoteAllocationsQ.data, detailQ.data.stages)
-    : null, [sourceQuoteId, projectId, detailQ.data, quoteStagesQ.data, quoteStagesQ.isSuccess, quoteAllocationsQ.data, quoteAllocationsQ.isSuccess]);
-  const mappingReady = !sourceQuoteId || (!!projection && projection.issues.length === 0);
+  const rolesQ = useProjectStageRoles(projectId);
+  const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
+    stages: detailQ.data.stages.map(s => ({ ...s, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
+    issues: detailQ.data.stages.filter(s => s.source_quote_stage_id && !s.stage_role && !rolesQ.data.find(r => r.stage_id === s.id)?.stage_role).map(s => s.name),
+  } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess]);
+  const mappingReady = !!projection && projection.issues.length === 0;
   const canEdit = requestedCanEdit && mappingReady;
   const { data: allResourcesData } = useProjectResources();
   const allResources = useMemo(
@@ -1672,6 +1592,7 @@ export function ProjectGantt({
       const fmtDate = (d: Date) => format(d, "yyyy-MM-dd");
       const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
       let parent_stage_id: string | null = null;
+      let stage_role = "architecture";
       let start = new Date();
       let end = addDays(start, 5);
       let sort_order = 10;
@@ -1680,6 +1601,7 @@ export function ProjectGantt({
       if (anchorId && anchorId !== PROJECT_MODE_SUMMARY_ID) {
         const anchor = all.find((s) => s.id === anchorId);
         if (!anchor) return;
+        stage_role = anchor.stage_role ?? "architecture";
         const anchorParent = anchor.parent_stage_id ?? null;
         const anchorHasChildren = all.some((s) => (s.parent_stage_id ?? null) === anchor.id);
 
@@ -1733,6 +1655,7 @@ export function ProjectGantt({
           end_date: fmtDate(end),
           sort_order,
           parent_stage_id,
+          stage_role,
           is_milestone: isMilestone,
         });
         if (created?.id) {
@@ -1919,63 +1842,8 @@ export function ProjectGantt({
           )}
         </div>
 
-        {dayWidthProp === undefined && (
-          <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
-            <span className="px-2 text-xs text-muted-foreground">
-              {t("crm:workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => setZoom((z) => stepZoom(z, -1))}
-              disabled={zoom === ZOOM_ORDER[0]}
-              aria-label={i18n.t("projects:plannerGantt.ui.zoomOut")}
-              title={i18n.t("projects:plannerGantt.ui.zoomOut")}
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => setZoom((z) => stepZoom(z, 1))}
-              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
-              aria-label={i18n.t("projects:plannerGantt.ui.zoomIn")}
-              title={i18n.t("projects:plannerGantt.ui.zoomIn")}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-            <div className="mx-1 h-4 w-px bg-border" />
-            {(["week", "month", "quarter", "year", "fit"] as ZoomMode[]).map((z) => (
-              <Button
-                key={z}
-                type="button"
-                variant={zoom === z ? "default" : "ghost"}
-                size="sm"
-                className="h-7 px-2 text-xs capitalize"
-                onClick={() => setZoom(z)}
-              >
-                {t(`crm:workspace.planning.zoom${z[0].toUpperCase()}${z.slice(1)}`, { defaultValue: z })}
-              </Button>
-            ))}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setPoolCollapsed((v) => !v)}
-              aria-label={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
-              title={poolCollapsed ? i18n.t("common:expandTeam") : i18n.t("common:collapseTeam")}
-            >
-              {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
-            </Button>
-            <div className="mx-1 h-4 w-px bg-border" />
-            <GanttPrintButton getTarget={() => chartRef.current} />
-          </div>
-        )}
+        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
+          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
       </div>
       {sourceQuoteId && !mappingReady && <p role="alert" className="text-sm text-destructive">
         {projection ? t("gantt.convertedMappingBlocked", { names: projection.issues.join(", ") }) : t("common:loading")}
@@ -1984,13 +1852,13 @@ export function ProjectGantt({
       {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
       {actuals && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.authorizedDetail")}</p>}
       {actuals?.limited && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.limited")}</p>}
-      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
+      <PlannerFrame>
         <div
           ref={chartRef}
           className="min-w-0 flex-1 overflow-auto resize-y"
           style={{ height: "70vh", minHeight: 320, maxHeight: "85vh" }}
         >
-          <GanttChart
+          <PlannerChart
             projectId={projectId}
             stages={mappedStages}
             origin={origin}
@@ -2029,13 +1897,13 @@ export function ProjectGantt({
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
             readOnly={!canEdit}
-            planningOnly={!!sourceQuoteId}
+            planningOnly
           />
         )}
         {!poolCollapsed && !selectedStageId && (
           <ResourcePool resources={allResources} collapsed={false} />
         )}
-      </div>
+      </PlannerFrame>
     </div>
   );
 }
