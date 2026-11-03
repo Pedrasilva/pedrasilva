@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Minus, Plus, PanelRightOpen, PanelRightClose } from "lucide-react";
+import { Minus, Plus, PanelRightOpen, PanelRightClose, IndentIncrease, IndentDecrease } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GanttChart } from "@/components/projects/gantt-chart";
 import { GanttPrintButton } from "./gantt-print-button";
@@ -12,6 +12,17 @@ export function PlannerFrame({ children }: { children: ReactNode }) {
 /** The only chart renderer used by quote and operational scheduling adapters. */
 export function PlannerChart(props: ComponentProps<typeof GanttChart>) {
   return <GanttChart {...props} />;
+}
+
+export function PlannerOutlineTools({ disabled, selected, add, indent, outdent }: {
+  disabled: boolean; selected: boolean; add: () => void; indent: () => void; outdent: () => void;
+}) {
+  const { t } = useTranslation();
+  return <>
+    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={disabled} onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />{t("crm:workspace.planning.addStage")}</Button>
+    <Button size="icon" variant="outline" className="h-7 w-7" disabled={disabled || !selected} onClick={indent} aria-label={t("projects:plannerGantt.ui.indent")}><IndentIncrease className="h-3.5 w-3.5" /></Button>
+    <Button size="icon" variant="outline" className="h-7 w-7" disabled={disabled || !selected} onClick={outdent} aria-label={t("projects:plannerGantt.ui.outdent")}><IndentDecrease className="h-3.5 w-3.5" /></Button>
+  </>;
 }
 
 type Zoom = "fit" | "year" | "quarter" | "month" | "week";
