@@ -1,3 +1,9 @@
+## Current request — One proposal/project Gantt and Mint read-only checks
+- [ ] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
+- [ ] Unify project scheduling with QuoteGantt/QuotePlanningTab and live-only approval-bar edits.
+- [ ] Fix client presentation and stop post-conversion sync; propose backfill separately, preserving Mint, conversion, baseline and payments.
+- [ ] Verify resizing on disposable converted copy, delete fixtures and report paths/screenshots.
+
 ## Current request — Converted project schedule
 - [x] Review mapping/edit-routing plan before implementation.
 - [x] Show mapped live dates and route edits exclusively to operational records, blocking missing mappings.
