@@ -1,7 +1,10 @@
-## Current request — Incoming payment dates (item 2, plan only)
+## Current request — Incoming payment dates (item 2, approved with amendments)
 - [x] Inspect source schema, milestone mapping and protected finance projection; prepare plan for approval, with database-unavailable limitations explicit (live Mint IDs/dates remain unverified).
-- [ ] Implement only after Luis approves; preserve real data, amounts, VAT, terms, conversion function and contract baseline.
-- Item 1 fixture cleanup and verification remain pending until the database connection recovers; no cleanup or new fixtures in this planning step.
+- [ ] Cleanup item 1 fixtures atomically and prove zero before implementation; blocked by unavailable database connection on 3 November 2026 after approval.
+- [ ] Implement approved read-computed timing, proven contract matching, first-issue/payment freeze and first-working-day retainer ordinals; preserve Mint and all commercial values, conversion function and baseline.
+- [ ] Centralize date-only authorization for scoped finance users and own-project managers (existing pm_project_team.role = manager, via resource_id/collaborator); audit overrides/clears/trigger/stage-link changes without granting commercial or issuance access.
+- [ ] Report live Mint eight-row mapping, PT/EN Incoming screenshots and disposable allowed-date/denied-amount test; blocked until connection and cleanup succeed.
+- No cleanup, new fixtures, schema changes or application implementation while the database is unavailable.
 
 ## Current request — Gantt follow-up verification
 - [x] Reconcile Mint 47.99 pursuit + 1763.775 logged cost read-only; fields populated in fresh session, protect values from flex compression (visual rerun pending).
