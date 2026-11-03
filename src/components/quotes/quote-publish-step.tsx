@@ -1,3 +1,4 @@
+import type { QuoteLifecycle } from "@/lib/quotes/quote-lifecycle";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { ExternalLink, FolderPlus, FileSignature } from "lucide-react";
 import { useContractsByQuote } from "@/lib/contracts";
 import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
 import { QuoteSignatureCard } from "@/components/quotes/quote-signature-card";
+import { QuoteCreateContractCard } from "@/components/quotes/quote-create-contract-card";
 import type { QuoteStatus } from "@/lib/crm/types";
 
 /**
@@ -15,6 +17,7 @@ import type { QuoteStatus } from "@/lib/crm/types";
  */
 export function QuotePublishStep({
   quoteId,
+  lifecycle,
   hasProject,
   projectId,
   quoteStatus,
@@ -26,6 +29,7 @@ export function QuotePublishStep({
   onEditContent,
 }: {
   quoteId: string;
+  lifecycle?: QuoteLifecycle;
   estimateReady?: boolean;
   contentReady?: boolean;
   paymentReady?: boolean;
@@ -58,10 +62,11 @@ export function QuotePublishStep({
   const showConvertCard = isApproved || hasProject;
   // Signature is the gate: an approved quote becomes a project only once it
   // has been signed (DocuSign or manually recorded). Admins can override.
-  const convertBlocked = !hasProject && !isSigned && !canOverrideSignature;
+  const convertBlocked = false;
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">{t("quotes.flow.currentState",{state:t(`quotes.lifecycle.${lifecycle?.state ?? "draft"}`)})}</p>
       {!hasProject && (
         <QuoteSignatureCard
           quoteId={quoteId}
@@ -69,6 +74,8 @@ export function QuotePublishStep({
           onEditContent={onEditContent}
         />
       )}
+      {isApproved && !isSigned && <p className="text-sm text-amber-700">{t("quotes.flow.unsignedWarning")}</p>}
+      {isApproved && !isSigned && <QuoteCreateContractCard quoteId={quoteId} quoteStatus={quoteStatus} />}
       {showConvertCard && (
         <Card>
           <CardHeader>

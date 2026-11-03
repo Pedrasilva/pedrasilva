@@ -208,7 +208,7 @@ export function useSendProposal(proposalId: string | undefined) {
         proposal.status === "draft" || proposal.status === "review"
           ? "sent"
           : proposal.status;
-      await sb
+      const {error:sentError} = await sb
         .from("psa_proposals")
         .update({
           status: nextStatus,
@@ -217,6 +217,7 @@ export function useSendProposal(proposalId: string | undefined) {
           restored_from_snapshot_id: null,
         })
         .eq("id", proposalId);
+      if(sentError) throw sentError;
 
       return {
         snapshotId: snapRow?.id as string,
@@ -230,6 +231,8 @@ export function useSendProposal(proposalId: string | undefined) {
       qc.invalidateQueries({ queryKey: ["psa-proposals"] });
       // Sending stamps fee_proposals.locked_at via DB trigger — keep every
       // lock-aware surface (Gantt toolbar, guards) in lockstep.
+      qc.invalidateQueries({ queryKey: ["quote-lifecycle"] });
+      qc.invalidateQueries({ queryKey: ["crm-opportunity-documents"] });
       qc.invalidateQueries({ queryKey: ["quote-lock"] });
       qc.invalidateQueries({ queryKey: ["fee_proposal"] });
     },
@@ -261,6 +264,8 @@ export function useSetProposalOutcome(proposalId: string | undefined) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["psa-proposal", proposalId] });
       qc.invalidateQueries({ queryKey: ["psa-proposals"] });
+      qc.invalidateQueries({ queryKey: ["quote-lifecycle"] });
+      qc.invalidateQueries({ queryKey: ["crm-opportunity-documents"] });
       qc.invalidateQueries({ queryKey: ["quote-lock"] });
       qc.invalidateQueries({ queryKey: ["fee_proposal"] });
     },

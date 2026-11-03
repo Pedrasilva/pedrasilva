@@ -1,3 +1,4 @@
+import { useQuoteLifecycle } from "@/lib/quotes/use-quote-lifecycle";
 import uiI18n from "@/i18n/index";
 /**
  * 3-pane shell: library (L) · canvas (C) · settings (R) + top bar.
@@ -32,6 +33,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
+  const lifecycleQ = useQuoteLifecycle(proposal.data?.quote_id ?? undefined);
   const reorder = useReorderBlocks(proposalId);
   const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -53,8 +55,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     );
   }
 
-  const isFinalLocked = !!proposal.data.locked_at; // won / lost
-  const isSentLocked = !isFinalLocked && proposal.data.status === "sent";
+  const isFinalLocked = !!proposal.data.locked_at || ["approved","signed","converted"].includes(lifecycleQ.data?.state ?? ""); // won / lost
+  const isSentLocked = !isFinalLocked && (proposal.data.status === "sent" || lifecycleQ.data?.state === "sent");
   const isReadOnly = isFinalLocked || isSentLocked || !!historical;
 
 
@@ -153,13 +155,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         <div className="flex items-center justify-between gap-3 border-b border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 print:hidden">
           <span>
              {uiI18n.t("crm:quoteEditor.sentRevisionHint")} </span>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-sky-400 bg-white text-sky-900 hover:bg-sky-100"
-            onClick={startNewRevision}
-          >
-            <FilePlus2 className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.newRevision")} </Button>
+
         </div>
       )}
       <div className="flex min-h-0 flex-1 overflow-hidden print:block">

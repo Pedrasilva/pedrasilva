@@ -1,3 +1,5 @@
+import { useQuoteLifecycle } from "@/lib/quotes/use-quote-lifecycle";
+import { canConvertQuote } from "@/lib/quotes/quote-lifecycle";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ConversionInvoicePreview } from "@/components/quotes/conversion-invoice-preview";
@@ -118,6 +120,7 @@ function QuoteDetail() {
   const qc = useQueryClient();
   const { isAdmin } = useAuth();
   const signatureQ = useQuoteSignature(quoteId);
+  const lifecycleQ = useQuoteLifecycle(quoteId);
 
   // Fork this quote into a new editable revision (base quote stays untouched).
   const reviseQuote = useMutation({
@@ -218,7 +221,6 @@ function QuoteDetail() {
         valor: form.valor ? Number(form.valor) : 0,
         fee_structure_type: form.fee_structure_type,
         account_id: form.account_id || null,
-        quote_status: form.quote_status,
         notas: form.notas || null,
         proposal_description: form.proposal_description || null,
         construction_cost: form.construction_cost ? Number(form.construction_cost) : null,
@@ -257,7 +259,7 @@ function QuoteDetail() {
   const convert = useMutation({
     mutationFn: async () => {
       if (!quote) throw new Error(t("quotes.loadError"));
-      if (quote.quote_status !== "approved") throw new Error(t("quotes.convertOnlyApproved"));
+      if (!lifecycleQ.data || !canConvertQuote(lifecycleQ.data.state)) throw new Error(t("quotes.convertOnlyApproved"));
       if (quote.pm_project_id) {
         return {
           id: quote.pm_project_id,
@@ -384,7 +386,7 @@ function QuoteDetail() {
 
 
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
+  if (isLoading || lifecycleQ.isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
@@ -392,11 +394,9 @@ function QuoteDetail() {
   // canConvert lives on QuoteWorkflowActions in the header now.
   // Signature is the checkpoint between "approved" and "project".
   const isSigned = !!signatureQ.data?.isSigned;
-  const lifecycle = resolveQuoteLifecycle({
-    status: quote.quote_status,
-    signedAt: signatureQ.data?.signedAt ?? null,
-    hasProject: !!quote.pm_project_id,
-  });
+  const lifecycle = lifecycleQ.data;
+  if (!lifecycle) return <p>{t("quotes.loadError")}</p>;
+  const effectiveStatus = lifecycle.state === "sent" ? "sent" : lifecycle.state === "lost" ? "rejected" : ["approved", "signed", "converted"].includes(lifecycle.state) ? "approved" : "draft";
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
@@ -486,10 +486,11 @@ function QuoteDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <QuoteStatusRail state={lifecycle} />
+          <QuoteStatusRail state={lifecycle.state} />
           <QuoteWorkflowActions
             quoteId={quoteId}
-            status={quote.quote_status}
+            lifecycle={lifecycle}
+            status={effectiveStatus}
             hasAccount={!!quote.account_id}
             hasProject={!!quote.pm_project_id}
             companyId={quote.company_id ?? null}
@@ -497,7 +498,7 @@ function QuoteDetail() {
             onConvert={handleConvert}
             isConverting={convert.isPending}
             isSigned={isSigned}
-            onGoToSignature={() => setStep("publish")}
+            onGoToSignature={() => setStep(lifecycle.state === "draft" ? "content" : "publish")}
             canOverrideSignature={isAdmin}
           />
 
@@ -508,6 +509,7 @@ function QuoteDetail() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {canConvertQuote(lifecycle.state) && <DropdownMenuItem onSelect={handleConvert}>{t("quotes.workflow.convertCta")}</DropdownMenuItem>}
               {(isProject || isRetainer) && (
                 <DropdownMenuItem
                   onSelect={scheduleSync.syncFromGantt}
@@ -562,15 +564,16 @@ function QuoteDetail() {
         </div>
       </div>
 
-      <QuoteLockGuard quoteId={quoteId} />
+      <QuoteLockGuard quoteId={quoteId} hideRevisionAction />
 
 
-      <fieldset disabled={isLocked && !isAdmin} className="contents">
+      <fieldset disabled={false} className="contents">
 
       <QuoteWorkflowStepper
         step={step}
         onChange={setStep}
         completion={completion}
+        lifecycle={lifecycle.state}
       />
 
       {step === "publish" && (
@@ -589,7 +592,8 @@ function QuoteDetail() {
           quoteType={quote.quote_type ?? "standard_project"}
           quoteCategory={quote.quote_category}
           ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
-          quoteStatus={quote.quote_status}
+          quoteStatus={effectiveStatus}
+          lifecycle={lifecycle}
           isSigned={isSigned}
           canOverrideSignature={isAdmin}
           onConvert={handleConvert}
@@ -727,17 +731,7 @@ function QuoteDetail() {
                   </div>
                   <div>
                     <Label>{t("common.status")}</Label>
-                    <Select value={form.quote_status}
-                      onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {QUOTE_STATUSES.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>
-                            {t(`quoteStatus.${s.value}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <p className="text-sm">{t(`quotes.lifecycle.${lifecycle.state}`)}</p>
                   </div>
                   <div className="sm:col-span-2">
                     <Label>{t("workspace.overview.proposalDescription")}</Label>
@@ -869,22 +863,24 @@ function QuoteDetail() {
             <AlertDialogTitle>{t("quotes.convertDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("quotes.convertDialog.description")}
-              {!quote.account_id && (
+              {lifecycle.state === "approved" && (
                 <span className="block mt-2 text-amber-600 dark:text-amber-400">
-                  {t("quotes.convertNoAccountWarning")}
+                  {t("quotes.flow.unsignedWarning")}
                 </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-2">
+            <p className="font-medium">{t("quotes.flow.checklistTitle")}</p>
+            {lifecycle.missing.map(item => <Button key={item} variant="link" onClick={() => {setConvertOpen(false); if(item === "client" && quote.opportunity_id) navigate({to:"/crm/opportunities/$opportunityId",params:{opportunityId:quote.opportunity_id}}); else setStep(item === "gantt" ? "estimate" : "publish");}}>{t(`quotes.flow.${item}`)}</Button>)}
             <Label htmlFor="conversion-start">{t("projects:gantt.relative.convertStart")}</Label>
             <Input id="conversion-start" type="date" value={conversionStart} onChange={e=>{setConversionStart(e.target.value);setConversionPreview(null);}}/>
-            <Button variant="outline" onClick={previewConversion} disabled={!conversionStart||conversionPreviewPending}>{t("projects:gantt.relative.convertPreview")}</Button>
+            <Button variant="outline" onClick={previewConversion} disabled={!conversionStart||conversionPreviewPending||lifecycle.missing.length>0}>{t("projects:gantt.relative.convertPreview")}</Button>
             {conversionPreview && <div className="max-h-72 overflow-auto text-xs"><div className="flex flex-wrap justify-between gap-2 font-medium"><span>{conversionPreview.start_date}</span><span>{t("glossary:financial.fee")} · {new Intl.NumberFormat(uiI18n.language,{style:"currency",currency:"EUR"}).format(conversionPreview.commercial.total_fee)}</span></div>{numberStages(conversionPreview.stages).map(({stage:s,number})=><div key={s.id} className="border-b border-border py-2"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{formatStageLabel(s,number)}</span><span>{s.working_days ?? "—"} {t("projects:gantt.wdShort")} · {new Intl.NumberFormat(uiI18n.language,{maximumFractionDigits:1}).format(s.hours ?? 0)} {t("common:hours")} · {new Intl.NumberFormat(uiI18n.language,{style:"currency",currency:"EUR"}).format(s.fee ?? 0)}</span></div><div className="flex flex-wrap justify-between gap-2 text-muted-foreground"><span>{t("projects:gantt.relative.previewBaseline")}: {s.baseline_start_date} → {s.baseline_end_date}</span><span>{t("projects:gantt.relative.previewLive")}: {s.start_date} → {s.end_date}</span></div>{s.baseline_end_date && s.baseline_end_date!==s.end_date && <div className="font-medium text-amber-700 dark:text-amber-400">{t("projects:gantt.relative.previewShift",{count:Math.round((Date.parse(s.end_date)-Date.parse(s.baseline_end_date))/86400000)})}</div>}</div>)}{conversionPreview.allocations.map((a,i)=><div key={`${a.id}:${i}`} className="flex flex-wrap justify-between gap-2 py-1"><span>{a.resource_name} · {new Intl.NumberFormat(uiI18n.language,{maximumFractionDigits:2}).format(a.hours_per_day)} {t("common:hours")}</span><span>{a.start_date} → {a.end_date}</span></div>)}{conversionPreview.payments && <ConversionInvoicePreview quoteId={quoteId} payments={conversionPreview.payments}/>}</div>}
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction disabled={!conversionPreview||convert.isPending}
+            <AlertDialogAction disabled={!conversionPreview||convert.isPending||lifecycle.missing.length>0}
               onClick={() => {
                 setConvertOpen(false);
                 convert.mutate();

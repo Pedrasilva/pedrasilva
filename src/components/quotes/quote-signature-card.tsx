@@ -97,10 +97,7 @@ export function QuoteSignatureCard({
                 <PenLine className="mr-1 h-4 w-4" />
                 {t("workspace.signature.markSigned")}
               </Button>
-              <Button size="sm" variant="outline" onClick={onEditContent}>
-                <FileSignature className="mr-1 h-4 w-4" />
-                {t("workspace.signature.sendForSignature")}
-              </Button>
+
             </div>
             <p className="text-xs text-muted-foreground">{t("workspace.signature.docusignHint")}</p>
           </>

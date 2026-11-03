@@ -3123,6 +3123,12 @@ export type Database = {
       }
       fee_proposals: {
         Row: {
+          acceptance_actor: string | null
+          acceptance_attachment_path: string | null
+          acceptance_date: string | null
+          acceptance_note: string | null
+          accepted_content_hash: string | null
+          accepted_snapshot_id: string | null
           account_id: string | null
           approved_at: string | null
           approved_by_collaborator_id: string | null
@@ -3184,6 +3190,12 @@ export type Database = {
           valor: number
         }
         Insert: {
+          acceptance_actor?: string | null
+          acceptance_attachment_path?: string | null
+          acceptance_date?: string | null
+          acceptance_note?: string | null
+          accepted_content_hash?: string | null
+          accepted_snapshot_id?: string | null
           account_id?: string | null
           approved_at?: string | null
           approved_by_collaborator_id?: string | null
@@ -3245,6 +3257,12 @@ export type Database = {
           valor?: number
         }
         Update: {
+          acceptance_actor?: string | null
+          acceptance_attachment_path?: string | null
+          acceptance_date?: string | null
+          acceptance_note?: string | null
+          accepted_content_hash?: string | null
+          accepted_snapshot_id?: string | null
           account_id?: string | null
           approved_at?: string | null
           approved_by_collaborator_id?: string | null
@@ -3306,6 +3324,13 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "fee_proposals_accepted_snapshot_id_fkey"
+            columns: ["accepted_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposal_snapshots"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fee_proposals_account_id_fkey"
             columns: ["account_id"]
@@ -17472,6 +17497,27 @@ export type Database = {
       crm_opportunity_pursuit_hours: {
         Args: { _opportunity_id: string }
         Returns: number
+      }
+      crm_quote_content_hash: { Args: { _quote: string }; Returns: string }
+      crm_quote_lifecycle: { Args: { _quote: string }; Returns: Json }
+      crm_quote_opportunity_stage: {
+        Args: { _opportunity: string }
+        Returns: Database["public"]["Enums"]["crm_opportunity_stage"]
+      }
+      crm_quote_snapshot_matches: {
+        Args: { _quote: string; _snapshot: string }
+        Returns: boolean
+      }
+      crm_quote_transition: {
+        Args: {
+          _action: string
+          _attachment?: string
+          _date?: string
+          _note?: string
+          _quote: string
+          _snapshot?: string
+        }
+        Returns: Json
       }
       current_finance_entity: { Args: never; Returns: string }
       delete_project_hard:

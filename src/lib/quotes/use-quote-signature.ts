@@ -34,14 +34,15 @@ export function useQuoteSignature(quoteId: string | undefined) {
     staleTime: 0,
     refetchOnMount: "always",
     queryFn: async (): Promise<QuoteSignatureState> => {
+      if (!quoteId) throw new Error("No quote id");
       const { data, error } = await db
         .from("fee_proposals")
         .select("id, signed_at, signed_method, signed_notes")
-        .eq("id", quoteId!)
+        .eq("id", quoteId)
         .maybeSingle();
       if (error) throw new Error(error.message);
       return {
-        quoteId: quoteId!,
+        quoteId: quoteId,
         isSigned: !!data?.signed_at,
         signedAt: data?.signed_at ?? null,
         signedMethod: (data?.signed_method ?? null) as QuoteSignatureMethod | null,
@@ -57,17 +58,11 @@ export function useMarkQuoteSigned(quoteId: string | undefined) {
   return useMutation({
     mutationFn: async (input: { signedAt: string; notes?: string | null }) => {
       if (!quoteId) throw new Error("No quote id");
-      const { error } = await db
-        .from("fee_proposals")
-        .update({
-          signed_at: new Date(`${input.signedAt}T12:00:00`).toISOString(),
-          signed_method: "manual",
-          signed_notes: input.notes?.trim() || null,
-        })
-        .eq("id", quoteId);
+      const { error } = await supabase.rpc("crm_quote_transition", {_quote:quoteId,_action:"sign",_date:input.signedAt,_note:input.notes ?? undefined});
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["quote-lifecycle", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-signature", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
     },
@@ -87,6 +82,7 @@ export function useClearQuoteSignature(quoteId: string | undefined) {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["quote-lifecycle", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-signature", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
     },
