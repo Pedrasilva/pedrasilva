@@ -11,7 +11,7 @@
 - [x] Teresa reads zero financial rows in ten tables, Mint RPC Forbidden; eight authorized files confirmed Pedra Rioja. No Teresa fix applied.
 - [x] 96 all-project terms/offset disagreements in CSV, proposed 30 only; nothing applied.
 - [x] Gated projection/primary financial children/RPC/read-attachment coverage prepared; updated matrix/checklist, single fixture deleted, final zero 21:34:34 UTC.
-- [ ] Remaining pre-go: ON-mode isolated permission/child/batch/attachment/RPC validation, completed PT/EN UI, mixed Finance issued/queue privileged paths and baseline multi-area scope. Report names limitations; not ready for go yet.
+- [x] Superseded by 21:41 completion: 121 isolated ON checks, final PT/EN, scoped Finance paths and multi-area baseline; remaining certification explicitly listed above.
 - [ ] WAIT for final cutover go; Phase B remains deferred.
 
 ## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)
