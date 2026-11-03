@@ -1,6 +1,11 @@
-## Current request — Per-project team and access (item 5, plan only)
+## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)
 - [x] Inventory team/roles, all 19 tab keys, source financial RLS and cross-app consumers; prepare plan without real-data changes. Live policies unavailable; exhaustive search/export trace required before implementation cutoff.
-- [ ] Implement only after approval: per-project area visibility, protected admin controls, payment-date helper integration and regression/security checks.
+- [ ] Wait for stable database/auth recovery; complete item 1 cleanup/zero read, then item 2, then item 5 Phase A. At 19:51 UTC reads responded and fixtures were inventoried, but two Cloud health checks still timed out; no deletion or implementation performed.
+- [ ] Phase A: access storage/four switches/provenance/append-only audit; admin-only manager/access actions, close self-manager team_write escalation, defaults and helpers; report multiple-manager conflicts without choosing or assigning Rita/Mint.
+- [ ] Phase A: protect purely financial tables/children and item 2 projection; team switches UI and area-gated financial tabs. Preserve all real financial data.
+- [ ] Before production cutover, present person × project × area before/after matrix including losses and WAIT for Luis's separate approval.
+- [ ] Phase A tests/report/PT-EN screenshots on disposable fixtures; cleanup and zero read; enumerate all known residual mixed-table/global financial exposures.
+- [ ] Phase B is deferred: separate future plan, no implementation now for mixed-table SELECTs, home/global Gantt/insights/forecast/reports/search/exports/PDFs.
 
 ## Current request — Incoming payment dates (item 2, approved with amendments)
 - [x] Inspect source schema, milestone mapping and protected finance projection; prepare plan for approval, with database-unavailable limitations explicit (live Mint IDs/dates remain unverified).

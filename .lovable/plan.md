@@ -1,7 +1,9 @@
-# Item 5 — Equipa e acesso financeiro por projeto
+# Item 5 — Fase A aprovada; corte sujeito a aprovação separada
 
 ## Âmbito
-Só plano, sem alterar aplicação ou dados. Ligação indisponível: inventário do código, políticas instaladas por confirmar. Item 1 limpeza e item 2 implementação continuam pendentes. Rita/Mint versus Uralchem é exemplo, não atribuição. Preservar finanças, horas, documentos e baseline.
+Fase A aprovada em 3 novembro 2026. Construir apenas com ligação recuperada, na ordem: item 1 limpeza/leitura zero → item 2 → item 5 Fase A. Antes do corte, apresentar matriz pessoa × projeto × área com perdas e esperar aprovação separada de Luis. Não atribuir Rita/Mint nem escolher entre gestores existentes. Preservar dados financeiros/horas/documentos/baseline.
+
+Fase A: tabela/switches/auditoria, ações admin/defaults/helpers, proteção exclusivamente de tabelas financeiras e filhos, equipa UI e separadores financeiros. Fase B só com plano futuro: tabelas mistas e superfícies globais. A matriz de separadores abaixo é o inventário completo; as áreas globais/mistas não serão corrigidas na Fase A.
 
 ## O que existe hoje
 - pm_project_team(project_id, resource_id, role): manager/coordinator/co_author/support. Gestor é role=manager; pm_projects não tem campo de gestor. Unicidade pessoa/projeto/papel permite vários gestores; alocação/histórico não provam gestão.
@@ -57,9 +59,9 @@ Só plano, sem alterar aplicação ou dados. Ligação indisponível: inventári
 - Helper único `can_view_project_area(project_id, area)`: identidade autenticada única, PSA/entidade, projeto e exceção global explícita. Nunca confundir alocação histórica com gestor. Predicados sem recursão RLS.
 - Item 2: `can_edit_project_payment_dates(project_id)` aceita Finance autorizado OU gestor desse projeto com Financeiro ON. Somente overrides/limpeza/marco/ligação; nunca amount/VAT/terms/billing_status. Auditoria e freeze mantidos.
 - RLS/RPCs por projeto/área em tabelas financeiras, filhos, baselines e anexos; fechar fallbacks permissivos antigos. Nova política OR não restringe a anterior.
-- **RLS não oculta colunas:** retirar SELECT amplo de tabelas mistas (`pm_projects`, `pm_stages`, propostas, horas) e migrar para projeções operacionais explícitas e projeções monetárias autorizadas. Nada de `SELECT *`, whole-row JSON ou snapshots financeiros para leitores operacionais. Ações aceitam apenas campos permitidos; funções privilegiadas verificam chamador/área dentro do handler.
+- **Fase B, não agora:** retirar SELECT amplo de tabelas mistas (`pm_projects`, `pm_stages`, propostas, horas). RLS não oculta colunas; estas exposições permanecem explicitamente pendentes na Fase A.
 - Taxas/custos históricos mantêm snapshots bloqueados; não entregar salários ou taxas globais que permitam reconstruir custos negados.
-- Homepage, global Gantt, pesquisa, reports, forecasts, exports/PDFs e funções privilegiadas filtram **antes de agregar/entregar**, não depois no browser. Não mostrar total completo baseado em parcelas ocultas nem diferenças dedutíveis.
+- **Fase B, não agora:** homepage/global Gantt/Insights/forecast/reports/search/exports/PDFs e agregados. Inventariar exposições, sem afirmar isolamento completo na Fase A.
 - Documentos só do projeto, sem OCR/extratos/outras entidades; downloads reautorizados. Rever notas/anexos com valores; não reescrever prosa.
 
 ## Migração sem perder acesso autorizado
@@ -68,6 +70,7 @@ Só plano, sem alterar aplicação ou dados. Ligação indisponível: inventári
 - Migrar leitores antes do corte atómico. Após aprovação da matriz, regras novas são autoritativas: não manter OR legado que torne OFF ineficaz. Até corte, regras anteriores mantêm-se; rollback de autorização não altera valores/história.
 
 ## Ficheiros e migrações
+- Lista abaixo distingue alvos: Fase A equipa/acessos, helpers/item 2, políticas exclusivamente financeiras/filhos e navegação financeira. Hooks de tabelas mistas, páginas globais/reports/PDFs são inventário para Fase B, sem alterações agora.
 - Novas migrações: equipa/acessos/auditoria/helpers; projeções/RLS/guardas; corte de compatibilidade aprovado. Mirrors idênticos drizzle/migrations e supabase/migrations; tipos regenerados. Não alterar conversão.
 - Equipa: src/lib/projects/use-project-team.ts, src/components/projects/project-team-card.tsx; novos project-access.ts/use-project-access.ts e tabela/ações protegidas.
 - src/routes/_app.projects.$projectId.tsx; hooks Projects use-planner, use-project-planner-adapter, use-contract-baseline, use-stage-budget-control, use-project-entry-figures, use-pursuit, use-invoices, use-project-expenses, use-external-services, use-suppliers.
@@ -77,4 +80,12 @@ Só plano, sem alterar aplicação ou dados. Ligação indisponível: inventári
 - EN/PT projects.json/common/glossary, AGENTS, relatório. Pesquisa e exports não foram localizados exaustivamente: rastrear antes de declarar cobertura completa.
 
 ## Testes após aprovação
-Fixtures só após limpeza/leitura zero: gestor com ON num projeto/OFF noutro, defaults gestor/membro, Finance global sem admin, admin. APIs/RPCs/downloads, tabs/deep links, Gantt/home/pesquisa/reports/exports, entidades/agregados/revogação. Data autorizada versus montante/IVA/termos/status/switches negados; freeze. Comparar acessos/hashes, capturas PT/EN, limpar/provar zero. Não executados agora.
+Fase A: fixtures só após limpeza/leitura zero; gestor ON/OFF por projeto, defaults, Finance sem admin, admin, APIs/RPCs financeiros/filhos e tabs/deep links. Data autorizada versus montante/IVA/termos/status/switches negados; freeze e auditoria append-only. Matriz antes/depois com perdas aguarda aprovação antes do corte. Reportar ficheiros/migrações/testes/PT-EN, limpar/provar zero.
+
+## Exposições conhecidas que permanecem para Fase B
+- SELECT amplo em useProjects/useProjectDetail/useAllStages/useResources: sold fees em pm_projects, budget/baseline/retainer/markup em pm_stages, taxas em recursos e snapshots monetários em horas.
+- Propostas mistas/QuotePaymentScheduleTab e composição/ArchitectureFinancialBreakdown podem revelar preços por caminhos de proposta; ocultar tabs não fecha essas APIs.
+- InsightsPanel recebe receita/custo/lucro sem guarda integral; avença/orçamento/cabeçalho/overview/inspetor mantêm fontes mistas.
+- Global Gantt calcula/mostra custos/orçamentos/cores; dashboards financial-kpi-strip/project-scorecard/project-health-table/project-value-chart.
+- Reports business-performance/budget-consumption/estimate-vs-actual/supplier-stages e forecasts/custos reconstruídos por taxas. Homepage/pesquisa/exports/PDFs ainda exigem rastreio completo: não declarados seguros.
+- Baselines e fornecedores em tabelas exclusivamente financeiras ficam na Fase A, mas prosa/snapshots embutidos em propostas/notes/documentos mistos e URLs/PDFs não ficam integralmente isolados até Fase B.
