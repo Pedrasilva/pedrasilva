@@ -1,7 +1,7 @@
 # Item 5 — Equipa e acesso financeiro por projeto
 
 ## Âmbito
-Só plano, sem código/migrações/dados reais. Ligação indisponível em 3 novembro: inventário de código/migrações, políticas instaladas não confirmadas. Item 1 limpeza e item 2 implementação continuam pendentes. Rita/Mint versus Uralchem é exemplo, não atribuição. Preservar finanças, horas, documentos e baseline.
+Só plano, sem alterar aplicação ou dados. Ligação indisponível: inventário do código, políticas instaladas por confirmar. Item 1 limpeza e item 2 implementação continuam pendentes. Rita/Mint versus Uralchem é exemplo, não atribuição. Preservar finanças, horas, documentos e baseline.
 
 ## O que existe hoje
 - pm_project_team(project_id, resource_id, role): manager/coordinator/co_author/support. Gestor é role=manager; pm_projects não tem campo de gestor. Unicidade pessoa/projeto/papel permite vários gestores; alocação/histórico não provam gestão.
@@ -67,7 +67,7 @@ Só plano, sem código/migrações/dados reais. Ligação indisponível em 3 nov
 - Defaults OFF podem conflituar com permissões globais antigas: listar perdas/exceções, identidades ambíguas e gestores múltiplos para aprovação admin. Não atribuir Rita/Mint agora.
 - Migrar leitores antes do corte atómico. Após aprovação da matriz, regras novas são autoritativas: não manter OR legado que torne OFF ineficaz. Até corte, regras anteriores mantêm-se; rollback de autorização não altera valores/história.
 
-## Ficheiros e migrações previstos
+## Ficheiros e migrações
 - Novas migrações: equipa/acessos/auditoria/helpers; projeções/RLS/guardas; corte de compatibilidade aprovado. Mirrors idênticos drizzle/migrations e supabase/migrations; tipos regenerados. Não alterar conversão.
 - Equipa: src/lib/projects/use-project-team.ts, src/components/projects/project-team-card.tsx; novos project-access.ts/use-project-access.ts e tabela/ações protegidas.
 - src/routes/_app.projects.$projectId.tsx; hooks Projects use-planner, use-project-planner-adapter, use-contract-baseline, use-stage-budget-control, use-project-entry-figures, use-pursuit, use-invoices, use-project-expenses, use-external-services, use-suppliers.
