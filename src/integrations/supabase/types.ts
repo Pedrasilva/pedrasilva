@@ -10780,16 +10780,72 @@ export type Database = {
           },
         ]
       }
+      pm_payment_date_audit: {
+        Row: {
+          actor: string
+          after_values: Json
+          before_values: Json
+          changed_at: string
+          id: string
+          payment_item_id: string
+          project_id: string
+          reason: string
+        }
+        Insert: {
+          actor: string
+          after_values: Json
+          before_values: Json
+          changed_at?: string
+          id?: string
+          payment_item_id: string
+          project_id: string
+          reason: string
+        }
+        Update: {
+          actor?: string
+          after_values?: Json
+          before_values?: Json
+          changed_at?: string
+          id?: string
+          payment_item_id?: string
+          project_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_payment_date_audit_payment_item_id_fkey"
+            columns: ["payment_item_id"]
+            isOneToOne: false
+            referencedRelation: "pm_payment_schedule_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_date_audit_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_payment_schedule_items: {
         Row: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value: number
+          appointment_date: string | null
           billing_status: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          contract_baseline_payment_id: string | null
           created_at: string
+          date_override_at: string | null
+          date_override_by: string | null
+          dates_frozen_at: string | null
+          dates_frozen_document_id: string | null
           direction: string
           entity_id: string
           expected_invoice_date: string | null
           expected_payment_date: string | null
+          frozen_invoice_date: string | null
+          frozen_payment_date: string | null
           generator_source: string | null
           id: string
           invoice_group_id: string | null
@@ -10800,6 +10856,8 @@ export type Database = {
           original_invoice_date: string | null
           payment_offset_days: number
           payment_terms: string | null
+          planned_invoice_date_override: string | null
+          planned_payment_date_override: string | null
           project_id: string
           sort_order: number
           source_quote_payment_item_id: string | null
@@ -10807,6 +10865,8 @@ export type Database = {
           supplier_company_id: string | null
           supplier_id: string | null
           supplier_label: string | null
+          timing_evidence: Json | null
+          timing_month_index: number | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at: string
           vat_rate: number
@@ -10815,12 +10875,20 @@ export type Database = {
         Insert: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
+          appointment_date?: string | null
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          contract_baseline_payment_id?: string | null
           created_at?: string
+          date_override_at?: string | null
+          date_override_by?: string | null
+          dates_frozen_at?: string | null
+          dates_frozen_document_id?: string | null
           direction?: string
           entity_id: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
+          frozen_invoice_date?: string | null
+          frozen_payment_date?: string | null
           generator_source?: string | null
           id?: string
           invoice_group_id?: string | null
@@ -10831,6 +10899,8 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          planned_invoice_date_override?: string | null
+          planned_payment_date_override?: string | null
           project_id: string
           sort_order?: number
           source_quote_payment_item_id?: string | null
@@ -10838,6 +10908,8 @@ export type Database = {
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_label?: string | null
+          timing_evidence?: Json | null
+          timing_month_index?: number | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
           vat_rate?: number
@@ -10846,12 +10918,20 @@ export type Database = {
         Update: {
           amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
+          appointment_date?: string | null
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          contract_baseline_payment_id?: string | null
           created_at?: string
+          date_override_at?: string | null
+          date_override_by?: string | null
+          dates_frozen_at?: string | null
+          dates_frozen_document_id?: string | null
           direction?: string
           entity_id?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
+          frozen_invoice_date?: string | null
+          frozen_payment_date?: string | null
           generator_source?: string | null
           id?: string
           invoice_group_id?: string | null
@@ -10862,6 +10942,8 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          planned_invoice_date_override?: string | null
+          planned_payment_date_override?: string | null
           project_id?: string
           sort_order?: number
           source_quote_payment_item_id?: string | null
@@ -10869,12 +10951,21 @@ export type Database = {
           supplier_company_id?: string | null
           supplier_id?: string | null
           supplier_label?: string | null
+          timing_evidence?: Json | null
+          timing_month_index?: number | null
           trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
           vat_rate?: number
           vat_rate_override?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_payment_schedule_items_contract_baseline_payment_id_fkey"
+            columns: ["contract_baseline_payment_id"]
+            isOneToOne: false
+            referencedRelation: "pm_project_contract_baseline_payments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_payment_schedule_items_entity_id_fkey"
             columns: ["entity_id"]
@@ -17474,6 +17565,10 @@ export type Database = {
       }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
       can_approve_leave: { Args: { _uid: string }; Returns: boolean }
+      can_edit_project_payment_dates: {
+        Args: { _project: string }
+        Returns: boolean
+      }
       can_manage_inventory: { Args: { _user_id: string }; Returns: boolean }
       clone_fee_proposal_as_revision: {
         Args: { p_source: string }
@@ -18560,11 +18655,19 @@ export type Database = {
             Returns: boolean
           }
       pm_can_edit_week_notes: { Args: never; Returns: boolean }
+      pm_can_read_incoming_dates: {
+        Args: { _project: string }
+        Returns: boolean
+      }
       pm_can_see_project_financials: {
         Args: { _uid: string }
         Returns: boolean
       }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_change_payment_dates: {
+        Args: { _item: string; _patch: Json; _reason: string }
+        Returns: Json
+      }
       pm_convert_relative_quote: {
         Args: { _quote: string; _revision: string; _start: string }
         Returns: Json
@@ -18623,6 +18726,7 @@ export type Database = {
         Args: { _target_user_id: string; _user_id: string }
         Returns: boolean
       }
+      pm_incoming_resolve: { Args: { _item: string }; Returns: Json }
       pm_invoice_apply_group: {
         Args: {
           _bases: string[]
@@ -18677,6 +18781,10 @@ export type Database = {
           name: string
         }[]
       }
+      pm_payment_finance_access: {
+        Args: { _project: string }
+        Returns: boolean
+      }
       pm_planning_cutoff_preview: {
         Args: { _cutoff?: string; _project_ids?: string[]; _trim_end?: string }
         Returns: Json
@@ -18693,6 +18801,7 @@ export type Database = {
         Args: { _project_id: string }
         Returns: boolean
       }
+      pm_project_incoming_timing: { Args: { _project: string }; Returns: Json }
       pm_project_pursuit_totals: {
         Args: { _project_ids?: string[] }
         Returns: {
@@ -18829,6 +18938,7 @@ export type Database = {
         Args: { _confirm?: boolean; _snapshot_id: string }
         Returns: Json
       }
+      pm_unique_viewer_resource: { Args: never; Returns: string }
       pm_verify_tatiana_backfill: { Args: never; Returns: Json }
       pm_verify_week_publication: { Args: never; Returns: Json }
       pm_week_approver_ids: {
