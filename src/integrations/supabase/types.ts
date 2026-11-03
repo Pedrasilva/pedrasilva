@@ -19000,6 +19000,7 @@ export type Database = {
         Args: { _area: string; _project: string }
         Returns: boolean
       }
+      pm_phase_a_batch_gate: { Args: { _batch: string }; Returns: boolean }
       pm_phase_a_expense_read: { Args: { _expense: string }; Returns: boolean }
       pm_phase_a_file_gate: {
         Args: { _bucket: string; _name: string }
