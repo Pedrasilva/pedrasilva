@@ -44,3 +44,16 @@ Leitura final 20:40:42 UTC: projetos/propostas/oportunidades/alocações descart
 
 ## Decisões 20:52 UTC — follow-up
 Projeção item 2 preparada para usar Financials após corte, mantendo autorização antiga enquanto OFF. [Revisão completa de termos/offsets](project-access-phase-a/payment-terms-offset-review.csv): **96 linhas em quatro projetos**, todas 0→30 propostas, nenhuma aplicada; Mint tem **sete** divergências (FT02–08), não só três. Somente a equipa/acesso Rita na Mint foi alterada por aprovação explícita, com motivo auditado; pagamentos, fases e baseline continuam iguais. [Checklist e limites do corte](project-access-phase-a-report.md) mantém aprovação final e verificação ON isolada pendentes.
+
+## Aprovação 21:41 UTC — offsets corrigidos
+Esta secção substitui o estado anterior de «nenhuma correção aplicada». Exatamente os **96 IDs do CSV**, em ambas as direções, passaram de **0 para 30**, pela ação admin `pm_correct_payment_offsets`, razão **Approved by Luis 2026-11-03**. Comparação integral de todas as prestações antes/depois: nas 96, apenas `payment_offset_days` mudou, incluindo preservação exata de `updated_at`; todas as outras prestações permaneceram iguais. **96 auditorias**, com autor, momento e linhas completas antes/depois: [CSV da auditoria](project-access-phase-a/payment-offset-correction-audit.csv). Não alterou termos, montantes, IVA, estados, datas gravadas, fases, baseline ou proposta.
+
+Na Mint: FT02–08 passam a recebimentos previstos **30/12/2026, 06/02/2027, 20/03/2027, 01/05/2027, 02/06/2027, 01/07/2027, 31/07/2027**. FT01 continua 01/06/2026. Os 30 dias são de calendário, podendo o recebimento cair num fim de semana; faturação mensal mantém primeiro dia útil. Datas contratuais não foram recalculadas.
+
+Conversão futura interpreta apenas sintaxes explícitas PT/EN de dias de calendário e pronto pagamento. Texto desconhecido/ausente produz `payment_terms_review_reason`, aviso PT/EN e recebimento **Por definir**, não uma estimativa. O campo numérico obrigatório mantém o offset explícito de origem quando ilegível, mas este não calcula qualquer recebimento. Palavras entre parênteses têm de confirmar o número. Proposta/baseline permanecem intactos.
+
+Teste autenticado: uma proposta descartável aceite foi convertida; termo de 30 dias/offset de origem 0 gerou **08/06 → 08/07**, termo ilegível com offset explícito 17 manteve o 17 sem data de recebimento e com aviso. Fonte preservada; projeto/proposta/snapshot apagados. [Resultado](project-access-phase-a/payment-terms-conversion-results.json). Teste permanente: `scripts/test-project-payment-terms-conversion-e2e.py`.
+
+Leitores de faturação/marcos e previsão de entradas Finance usam agora `project-incoming-reader`/projeção operacional; sugestões interativas usam cliente com permissões, e confirmação verifica todos os destinos antes das escritas privilegiadas. Intake agendado usa resolver interno. Previsão antiga de **saídas de fornecedores** e projeções mistas/avenças permanecem Fase B, não constituem cobertura total.
+
+Migrações 0236–0244 e mirrors; ação/auditoria de offsets, parsing/conversão, barreiras finais e testes isolados. Capturas finais com carregamento concluído: [PT](project-access-phase-a/final-incoming-pt-PT.png), [EN](project-access-phase-a/final-incoming-en.png). Corte permanece OFF.

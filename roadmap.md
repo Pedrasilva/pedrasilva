@@ -1,7 +1,8 @@
 ## Current request — 3 November 21:41 approval (cutover OFF)
-- [ ] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; prove every other field unchanged.
-- [ ] Future conversion parses payment terms into offsets; unrecognized text explicitly flagged, never guessed; tests.
-- [ ] Complete Phase A pre-cutover boundaries/checks and isolated ON rollback test on one fixture; cleanup/zero and final checklist.
+- [x] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; every other field including updated_at unchanged; 96 audits.
+- [x] Future conversion parses payment terms into offsets; unrecognized text explicitly flagged without receipt date; authenticated disposable conversion/source preservation/cleanup verified.
+- [x] Phase A identified financial child/queue/attachment/baseline/RPC boundaries and isolated ON rollback test (121 assertions); final matrix/checklist, PT/EN, zero read in reports.
+- [ ] Remaining certification: actual Storage ON download, multi-project batch, PM UI ON/fiscal compatibility, concurrency; not passed, not a final-go claim.
 - [ ] WAIT for Luis final go; real gate stays OFF.
 
 ## Current request — 3 November 20:52 decisions (cutover OFF)
