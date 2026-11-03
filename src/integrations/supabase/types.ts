@@ -10238,6 +10238,63 @@ export type Database = {
           },
         ]
       }
+      pm_global_financial_capabilities: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          enabled: boolean
+          reason: string
+          revision: number
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          enabled?: boolean
+          reason: string
+          revision?: number
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          enabled?: boolean
+          reason?: string
+          revision?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pm_global_financial_capability_audit: {
+        Row: {
+          actor: string
+          after_values: Json
+          before_values: Json | null
+          changed_at: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          actor: string
+          after_values: Json
+          before_values?: Json | null
+          changed_at?: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          actor?: string
+          after_values?: Json
+          before_values?: Json | null
+          changed_at?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pm_hours_bank_audit: {
         Row: {
           changed_at: string
@@ -18785,6 +18842,15 @@ export type Database = {
         Returns: boolean
       }
       pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
+      pm_change_global_financial_capability: {
+        Args: {
+          _enabled: boolean
+          _reason: string
+          _revision: number
+          _user: string
+        }
+        Returns: Json
+      }
       pm_change_payment_dates: {
         Args: { _item: string; _patch: Json; _reason: string }
         Returns: Json
