@@ -42,7 +42,7 @@ export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignatur
   {state==='sent'&&<Button size="sm" onClick={()=>setOpen(true)}><CheckCircle2 className="mr-1 h-4 w-4"/>{t('quotes.flow.registerAcceptance')}</Button>}
   {state==='approved'&&<Button size="sm" onClick={onGoToSignature}><FileSignature className="mr-1 h-4 w-4"/>{t('quotes.flow.signatureAction')}</Button>}
   {(state==='signed'||state==='converted')&&<Button size="sm" onClick={onConvert}><ExternalLink className="mr-1 h-4 w-4"/>{t(state==='converted'?'quotes.workflow.openProject':'quotes.workflow.convertCta')}</Button>}
-  {proposal.data && <SendProposalDialog proposal={proposal.data} nextRev={nextRev.data??0} open={sendOpen} onOpenChange={setSendOpen} />}
+  {proposal.data && <SendProposalDialog proposal={proposal.data} nextRev={nextRev.nextRev} open={sendOpen} onOpenChange={setSendOpen} />}
   <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>{t('quotes.flow.registerAcceptance')}</DialogTitle><DialogDescription>{t('quotes.flow.acceptanceDescription')}</DialogDescription></DialogHeader>
    <Label htmlFor="acceptance-date">{t('quotes.flow.acceptanceDate')}</Label><Input id="acceptance-date" type="date" value={date} onChange={e=>setDate(e.target.value)}/>
    <Label>{t('quotes.flow.acceptedRevision')}</Label><Select value={selected||lifecycle.latestSentSnapshotId||''} onValueChange={setSelected}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{revisions.data?.map(r=><SelectItem key={r.id} value={r.id}>{t('opportunities.documents.revision',{n:String(r.rev_number??0).padStart(2,'0')})} · {r.pdf_filename}</SelectItem>)}</SelectContent></Select>
