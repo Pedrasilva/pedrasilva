@@ -1,19 +1,19 @@
 ## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)
-- [ ] 3 November 20:26 UTC after Tiny→Small: verify pooler/read/write/auth, clean old fixtures atomically and prove zero; proceed item 2 then Phase A up to matrix approval. Keep one fixture/connection at a time; stop on pooler failure and request restart authorization, no repeated retries.
+- [x] 3 November 20:26 UTC after Tiny→Small: pooler/read/write/auth succeeded; old fixtures cleaned atomically, zero read 20:28 and 20:40 UTC. Item 2 implemented and Phase A staged; no cutover. One fixture at a time, all removed. Reports: docs/project-incoming-dates-report.md and docs/project-access-phase-a-report.md.
 - [x] Inventory team/roles, all 19 tab keys, source financial RLS and cross-app consumers; prepare plan without real-data changes. Live policies unavailable; exhaustive search/export trace required before implementation cutoff.
 - [ ] Wait for stable database/auth recovery; complete item 1 cleanup/zero read, then item 2, then item 5 Phase A. Retry at 20:07–20:09 UTC on 3 November failed: read_query reported connection pooler unavailable; cloud_status returned backend_unreachable_db on auth→database probe, GET /auth/v1/admin/users?per_page=1: context deadline exceeded. No writes attempted, no deletion or implementation performed. Exact outage onset remains unconfirmed; health checks already failed at 19:51 UTC despite some successful reads.
 - [ ] Phase A: access storage/four switches/provenance/append-only audit; admin-only manager/access actions, close self-manager team_write escalation, defaults and helpers; report multiple-manager conflicts without choosing or assigning Rita/Mint.
 - [ ] Phase A: protect purely financial tables/children and item 2 projection; team switches UI and area-gated financial tabs. Preserve all real financial data.
-- [ ] Before production cutover, present person × project × area before/after matrix including losses and WAIT for Luis's separate approval.
+- [ ] WAIT for Luis's matrix review/preservation choices before cutover: 1,176 combinations in docs/project-access-phase-a/access-matrix.csv. No Rita/Mint assignment. Remaining protected-RPC/child coverage and area-grant replacement must be completed before activation; gate remains false.
 - [ ] Phase A tests/report/PT-EN screenshots on disposable fixtures; cleanup and zero read; enumerate all known residual mixed-table/global financial exposures.
 - [ ] Phase B is deferred: separate future plan, no implementation now for mixed-table SELECTs, home/global Gantt/insights/forecast/reports/search/exports/PDFs.
 
 ## Current request — Incoming payment dates (item 2, approved with amendments)
 - [x] Inspect source schema, milestone mapping and protected finance projection; prepare plan for approval, with database-unavailable limitations explicit (live Mint IDs/dates remain unverified).
-- [ ] Cleanup item 1 fixtures atomically and prove zero before implementation; blocked by unavailable database connection on 3 November 2026 after approval.
+- [x] Cleanup item 1 fixtures atomically and prove zero before implementation, 3 November 20:28 UTC; final zero at 20:40 UTC.
 - [ ] Implement approved read-computed timing, proven contract matching, first-issue/payment freeze and first-working-day retainer ordinals; preserve Mint and all commercial values, conversion function and baseline.
-- [ ] Centralize date-only authorization for scoped finance users and own-project managers (existing pm_project_team.role = manager, via resource_id/collaborator); audit overrides/clears/trigger/stage-link changes without granting commercial or issuance access.
-- [ ] Report live Mint eight-row mapping, PT/EN Incoming screenshots and disposable allowed-date/denied-amount test; blocked until connection and cleanup succeed.
+- [x] Centralized date-only helper and audited actions; Finance or uniquely resolved own-project manager; Bernardo fixture test permitted date and denied amount/team mutation/other project. Phase A cutover is separately gated.
+- [x] Reported Mint eight-row mapping/PT-EN screenshots and allowed-date/denied-amount fixture in docs/project-incoming-dates-report.md. Fiscal partial/concurrent paths, converted-copy/UI override/Undo and older forecast integration remain unverified, not claimed complete.
 - No cleanup, new fixtures, schema changes or application implementation while the database is unavailable.
 
 ## Current request — Gantt follow-up verification
@@ -21,7 +21,7 @@
 - [x] Verify three source-proposal UPDATE sync exclusions on disposable converted copy; global Gantt opened without runtime errors, evidence appended to the same report.
 - [x] List five unproven client assignments without backfill.
 - [ ] Verify global Gantt with an unlinked project and dependency creation/editing in both contexts; blocked by unavailable database connection during fixture preparation.
-- [ ] Delete converted project 7285f0ca-778b-4c7f-af69-c3f9c52b5941 and quote a31c8078-6624-4dd8-8cae-247a8a574f63 with fixture dependents; check possible No proposal Gantt fixture before retry. Blocked by unavailable database connection; no running tests.
+- [x] Deleted converted project 7285f0ca-778b-4c7f-af69-c3f9c52b5941 and quote a31c8078-6624-4dd8-8cae-247a8a574f63 with dependents; No proposal Gantt did not exist; zero read verified. Old dependency gestures/source DATE test remains unverified.
 
 ## Current request — One proposal/project Gantt and Mint read-only checks
 - [x] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
