@@ -1667,6 +1667,13 @@
       "when": 1793742345946,
       "tag": "0237_project_area_final_read_boundaries",
       "breakpoints": true
+    },
+    {
+      "idx": 238,
+      "version": "7",
+      "when": 1793742432432,
+      "tag": "0238_project_area_child_capabilities",
+      "breakpoints": true
     }
   ]
 }
