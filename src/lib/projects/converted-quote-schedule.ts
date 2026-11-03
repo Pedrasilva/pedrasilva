@@ -28,7 +28,7 @@ export function convertedQuoteSchedule(
       x.stage.project_id === projectId && x.allocation.stage_id === x.stage.id &&
       (x.stage.id === stage.id || (stage.stage_kind === "retainer_monthly" && x.stage.parent_stage_id === stage.id))) &&
       new Set(matches.map(x => x.stage.id)).size === matches.length;
-    if (!valid) issues.push(stage?.name ?? quote.stage_id);
+    if (!valid) issues.push(stage?.name ?? quoteStages.find(s => s.id === quote.stage_id)?.name ?? "—");
   }
   for (const stage of liveStages) for (const a of stage.allocations) {
     if (a.source_quote_allocation_id && !allocationIds.has(a.source_quote_allocation_id)) issues.push(stage.name);

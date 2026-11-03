@@ -3,7 +3,7 @@
  *
  * Single screen: Gantt with WBS outline + click-to-open inspector for editing
  * stage details, dependencies, and resources. Retainer-monthly stages get
- * their own dedicated editor above. The old consultants panel and the
+ * their own dedicated editor below. The old consultants panel and the
  * Stages / Dependencies / Allocations in-tab tables have been folded into
  * the Gantt + Inspector.
  */
