@@ -4,11 +4,11 @@
 Só plano, sem código/migrações/dados reais. Ligação indisponível em 3 novembro: inventário de código/migrações, políticas instaladas não confirmadas. Item 1 limpeza e item 2 implementação continuam pendentes. Rita/Mint versus Uralchem é exemplo, não atribuição. Preservar finanças, horas, documentos e baseline.
 
 ## O que existe hoje
-- `pm_project_team`: `project_id`, `resource_id`, `role`; papéis `manager`, `coordinator`, `co_author`, `support` (gestor, coordenador, coautor, apoio). **Não há campo de gestor em `pm_projects`**: é uma linha `role=manager`. Unicidade pessoa/projeto/papel permite vários gestores/papéis; alocação ou horas históricas não provam gestão.
-- «Gerir equipa» em `project-team-card.tsx` adiciona/remove pessoa/papel; `use-project-team.ts` escreve diretamente, sem switches. A política histórica `team_write` é mais ampla que admin: tem de impedir autoatribuição de gestor e privilégios.
-- Identidade passa por recursos/colaboradores, por vezes email: confirmar ligação autenticada única, falhar fechado em ambiguidades.
-- Permissões distinguem módulos, planeamento, `projects.view_financials`, margens/taxas e edição Finance; leitura não concede edição.
-- `20261018093500_financial_read_boundaries.sql`: SELECT de `pm_invoices`/`pm_payment_schedule_items` para admin ou PSA com financeiro global/atribuído; ramo Finance limitado à entidade. Leitura de projeto já pode existir sem acesso ao módulo Finance. Não há quatro áreas; propostas/baselines/fornecedores conservam fallbacks legados. Tabelas mistas entregam campos monetários junto dos operacionais.
+- pm_project_team(project_id, resource_id, role): manager/coordinator/co_author/support. Gestor é role=manager; pm_projects não tem campo de gestor. Unicidade pessoa/projeto/papel permite vários gestores; alocação/histórico não provam gestão.
+- ProjectTeamCard/«Gerir equipa» adiciona/remove diretamente via use-project-team; sem switches. team_write histórico é mais amplo que admin: evitar autoatribuição de manager.
+- Identidade recursos/colaboradores inclui helpers por email: confirmar associação autenticada única, falhar fechado em ambiguidades.
+- Permissões separam módulos, planeamento, financeiro/margens/taxas e escrita Finance. Migração 20261018093500_financial_read_boundaries protege pm_invoices/pm_payment_schedule_items: admin ou PSA com financeiro global/atribuído; ramo Finance limitado à entidade. Leitura do projeto não exige módulo Finance.
+- Sem quatro áreas hoje; propostas/baselines/fornecedores têm fallbacks legados e tabelas mistas entregam campos monetários. Políticas instaladas aguardam leitura.
 
 ## Equipa e acessos
 Expandir «Gerir equipa»: pessoa, papel, quatro switches, origem e última alteração. Um acesso por pessoa/projeto mesmo com vários papéis; «Membro da equipa» para novas pessoas comuns sem renomear enums históricos.
@@ -43,7 +43,7 @@ Expandir «Gerir equipa»: pessoa, papel, quatro switches, origem e última alte
 | Atividade antiga / stream | Operacional, eventos financeiros filtrados no servidor |
 | planning | Chave sem painel: normalizar para calendário permitido |
 
-Inclui todos os 19 valores de TabKey, visíveis/retidos. Schedule/financial/rates/stream não têm botão, mas têm corpos acessíveis por ligação; materials comentado; planning sem corpo. Proteger navegação **e dados**, cabeçalho/painel/atalhos. Insights atualmente recebe invoices/budget/revenue/cost/profit sem guarda integral; global Gantt calcula/mostra custo/orçamento. Leitores atuais `useProjects/useProjectDetail/useAllStages` usam SELECT amplo e recursos aninhados.
+19 chaves completas. Inclui corpos antigos acessíveis por ligação, não só navegação. Proteger também cabeçalho/painel/atalhos. Insights recebe valores sem guarda integral; global Gantt mostra custo/orçamento; useProjects/useProjectDetail/useAllStages fazem SELECT amplo.
 
 ## Defaults e administração
 - Luis: autoridade admin protegida; Tatiana: capacidade global financeira explícita, sem admin. Confirmar atribuições atuais; nunca nomes/emails/IDs hardcoded. Só admin muda switches ou nomeia gestor, evitando autoelevação pelas atuais escritas de equipa.
