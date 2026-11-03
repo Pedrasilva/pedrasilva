@@ -7,6 +7,7 @@ import { ExternalLink, FolderPlus, FileSignature } from "lucide-react";
 import { useContractsByQuote } from "@/lib/contracts";
 import { QuoteDocumentsCard } from "@/components/crm/opportunity-documents-card";
 import { QuoteSignatureCard } from "@/components/quotes/quote-signature-card";
+import { QuoteCreateContractCard } from "@/components/quotes/quote-create-contract-card";
 import type { QuoteStatus } from "@/lib/crm/types";
 
 /**
@@ -74,6 +75,7 @@ export function QuotePublishStep({
         />
       )}
       {isApproved && !isSigned && <p className="text-sm text-amber-700">{t("quotes.flow.unsignedWarning")}</p>}
+      {isApproved && !isSigned && <QuoteCreateContractCard quoteId={quoteId} quoteStatus={quoteStatus} />}
       {showConvertCard && (
         <Card>
           <CardHeader>
