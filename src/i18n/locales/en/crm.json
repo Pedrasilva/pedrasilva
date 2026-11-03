@@ -204,7 +204,8 @@
     "valueEstimated": "Estimated",
     "convertToProject": "Convert to project",
     "openProject": "Open project",
-    "converted": "Project",
+    "converted": "Converted",
+    "wonToConvert": "Won — to convert",
     "contactPicker": {
       "search": "Search contact…",
       "empty": "No contacts found",

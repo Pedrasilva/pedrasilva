@@ -1,5 +1,5 @@
 # CRM rules
 
-- CRM views share opportunityProjects for deduplicated direct and quote project links; board, closed List and active-project projection remain presentation-only, and conversion shortcuts enter the existing quote workflow. Why: legacy linkage must not offer duplicate conversion or count one opportunity twice.
+- CRM views share opportunityProjects for deduplicated direct and quote project links; unconverted wins stay visible by default, Converted is presentation-only under Show closed, and board/List share the same projection and totals. Card conversion eligibility reads crm_quote_lifecycle and both cards and quotes share QuoteConversionDialog calling pm_convert_relative_quote; multiple quotes require explicit selection. Why: linkage must not hide opportunities, bypass acceptance or count an opportunity twice.
 
 - CRM email leads: Gmail threads labelled "CRM" (luis@, GOOGLE_MAIL_API_KEY) become crm_email_lead_drafts via src/routes/api/public/hooks/crm-email-intake.ts (hourly cron on the hour; past email dates kept in mentioned_date and replaced by +2 working days, gate token in service-role-only crm_email_intake_gate); only crm_email_lead_confirm (admin) writes contacts/companies/opportunities/activities, and imported threads get "CRM/Importado". Why: nothing enters the CRM without a person confirming.

@@ -22,12 +22,22 @@ describe("CRM pipeline board", () => {
     const shown = boardColumns(STAGES, opps, converted, true);
     expect(shown.flatMap((c) => c.items.filter((o) => o.id === "costa").map(() => c.stage))).toEqual(["lost"]);
   });
-  it("all Won leave the board; Show closed List retains converted and unconverted wins", () => {
-    expect(boardColumns(STAGES, opps, converted, true).find((c) => c.stage === "won")).toBeUndefined();
+  it("unconverted wins stay visible by default in Won — to convert", () => {
+    expect(boardColumns(STAGES, opps, converted, false).find((c) => c.stage === "won")?.items.map(o => o.id)).toEqual(["wonOpen"]);
+    expect(visibleOpportunities(opps, converted, false).map(o => o.id)).toEqual(["neg", "wonOpen"]);
+  });
+  it("converted wins appear only under Show closed in Converted", () => {
+    expect(boardColumns(STAGES, opps, converted, false).find(c => c.stage === "converted")).toBeUndefined();
+    expect(boardColumns(STAGES, opps, converted, true).find(c => c.stage === "converted")?.items.map(o => o.id)).toEqual(["wonConv"]);
     expect(visibleOpportunities(opps, converted, true).map((o) => o.id)).toContain("wonConv");
   });
+  for (const showClosed of [false, true]) it(`board and List totals agree with Show closed ${showClosed}`, () => {
+    const cols = boardColumns(STAGES, opps, converted, showClosed);
+    expect(cols.flatMap(c => c.items).map(o => o.id).sort()).toEqual(visibleOpportunities(opps, converted, showClosed).map(o => o.id).sort());
+    expect(cols.reduce((sum, c) => sum + c.total, 0)).toBe(shownTotal(visibleOpportunities(opps, converted, showClosed)));
+  });
   it("totals count only what is shown", () => {
-    expect(shownTotal(visibleOpportunities(opps, converted, false))).toBe(5000);
+    expect(shownTotal(visibleOpportunities(opps, converted, false))).toBe(7000);
   });
   it("value uses quoted total when a quote exists, else estimated fee", () => {
     expect(resolveOpportunityValueWithSource(opps[0])).toEqual({ value: 12000, source: "quoted" });
@@ -65,11 +75,20 @@ describe("CRM pipeline board", () => {
     expect(activeProjectOpportunities(opps, links).map(o => o.id)).toEqual(["neg", "wonOpen"]);
     expect(visibleOpportunities(opps, new Set(links.keys()), true).map(o => o.id)).toContain("wonConv");
   });
-  for (const stage of ["proposal", "negotiation", "won"]) it(`allows quote conversion for ${stage} but not already converted`, () => {
+  for (const stage of ["proposal", "negotiation", "won"]) it(`uses accepted quote lifecycle in ${stage} and blocks already converted`, () => {
     const o = { id: "mint", stage, quotes: [{ id: "q1" }, { id: "q2" }] };
-    expect(canConvertOpportunity(o, new Set())).toBe(true);
-    expect(canConvertOpportunity(o, new Set(["mint"]))).toBe(false);
-    expect(canConvertOpportunity({ ...o, quotes: [] }, new Set())).toBe(false);
+    const states = new Map([["q1", "signed"], ["q2", "draft"]]);
+    expect(canConvertOpportunity(o, new Set(), states)).toBe(true);
+    expect(canConvertOpportunity(o, new Set(["mint"]), states)).toBe(false);
+    expect(canConvertOpportunity({ ...o, quotes: [] }, new Set(), states)).toBe(false);
+  });
+  for (const state of ["draft", "sent", "lost", "converted"]) it(`never offers conversion for quote lifecycle ${state}`, () => {
+    expect(canConvertOpportunity({ id: "mint", stage: "won", quotes: [{ id: "q1" }] }, new Set(), new Map([["q1", state]]))).toBe(false);
+  });
+  it("allows approved quote conversion without a signature and fails closed before lifecycle loads", () => {
+    const o = { id: "mint", stage: "won", quotes: [{ id: "q1" }] };
+    expect(canConvertOpportunity(o, new Set(), new Map([["q1", "approved"]]))).toBe(true);
+    expect(canConvertOpportunity(o, new Set(), new Map())).toBe(false);
   });
   it("Overview counts a won opportunity once and excludes wins from open/weighted pipeline", () => {
     const rows = opps.map(o => ({ ...o, probability: 50 }));
