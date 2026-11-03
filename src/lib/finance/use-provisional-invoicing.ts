@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { currentEntityId } from './current-entity';
 import { numberStages } from '@/lib/quotes/stage-numbering';
+import {readProjectIncomingRows} from './project-incoming-reader';
 
 export function useIssuedRegistration(edit = false) {
   const qc = useQueryClient();
@@ -52,13 +53,12 @@ export function useInvoiceMilestones(projectId: string | null) {
     queryFn: async () => {
       if (!projectId) return [];
       const [milestones, stages] = await Promise.all([
-        supabase.from('pm_payment_schedule_items').select('id,label,stage_id,amount_value,expected_invoice_date').eq('project_id',projectId).eq('direction','inflow').order('sort_order'),
+        readProjectIncomingRows(projectId),
         supabase.from('pm_stages').select('id,name,parent_stage_id,sort_order').eq('project_id',projectId),
       ]);
-      if (milestones.error) throw milestones.error;
       if (stages.error) throw stages.error;
       const ordered = numberStages(stages.data ?? []);
-      return (milestones.data ?? []).map(m => ({ ...m, stageLabel: ordered.find(s=>s.stage.id===m.stage_id) })).map(m=>({ ...m,
+      return milestones.map(m => ({ ...m, expected_invoice_date:m.planned_invoice_date, stageLabel: ordered.find(s=>s.stage.id===m.stage_id) })).map(m=>({ ...m,
         stageLabel: m.stageLabel ? `${m.stageLabel.number} ${m.stageLabel.stage.name}` : null,
       }));
     },
