@@ -2,14 +2,13 @@ import i18n from "@/i18n/index";
 /**
  * PlannerGantt — unified planner wrapper around the shared GanttChart.
  *
- * Currently wired in quote mode (fetches quote_stages / quote_allocations /
+ * Proposal storage adapter fetches quote_stages / quote_allocations /
  * quote_stage_dependencies + active pm_resources, maps rows to the
  * StageWithProject / AllocationWithResource shape GanttChart expects, and
  * builds a quote-mode PlannerAdapter via QUOTE_FEATURES).
  *
- * The quote-side export name `QuoteGantt` is preserved so existing call
- * sites keep working. Project mode will plug into this same component once
- * the project-mode inspector is in place; see .lovable/plan.md.
+ * QuoteGantt selects proposal or operational data adapters. Shared controls
+ * and the chart renderer live in planner-surface; projects never write quotes.
  *
  * Note: resource.hourly_rate is set to the allocation's sale_rate_snapshot,
  * and resource.cost_rate to cost_rate_snapshot, so the Gantt cost overlays
@@ -20,7 +19,7 @@ import { PanelRightClose, PanelRightOpen, Plus, Minus, IndentIncrease, IndentDec
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
-import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
+import { type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { PlannerChart, PlannerFrame, PlannerZoom, PlannerOutlineTools } from "./planner-surface";
 import { useProjectStageRoles } from "@/lib/projects/use-project-stage-roles";
 import { GanttPrintButton } from "@/components/planner/gantt-print-button";
@@ -64,7 +63,7 @@ import type { Resource, AllocationWithResource, StageWithAllocations } from "@/l
 import { toast } from '@/lib/toast';
 import { Switch } from "@/components/ui/switch";
 import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
-import { convertedQuoteSchedule, proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
+import { proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
@@ -1259,23 +1258,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
   );
 }
 
-// ============================================================================
-// ProjectGantt — same shell as QuoteGantt, wired to pm_* tables.
-//
-// This intentionally mirrors QuoteGantt's toolbar + chart + inspector layout
-// so the project module and the CRM module share one Gantt experience. The
-// shared leaf is still <GanttChart>; this wrapper provides the surrounding
-// chrome (zoom modes, indent/outdent, inspector drawer, resource pool, WBS
-// outline collapse).
-//
-// Key differences from QuoteGantt:
-//  - Reads pm_stages via useProjectDetail (stages already include allocations).
-//  - Milestones come from issued invoices, not the quote payment schedule.
-//  - No reflow / project-start shifter / retainer phase button.
-//  - Editability is supplied by the project route after resolving the user's
-//    effective v2 planning permission for this project.
-// ============================================================================
-
+// Operational data/editing adapter for the same QuoteGantt surface.
 interface ProjectGanttProps {
   projectId: string;
   showCancelled?: boolean;
