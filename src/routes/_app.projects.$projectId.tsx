@@ -236,10 +236,11 @@ function ProjectDetail() {
   });
 
   const search = Route.useSearch();
-  const [tab, setTab] = useState<TabKey>((search?.tab as TabKey) || "overview");
+  const [requestedTab, setTab] = useState<TabKey>((search?.tab as TabKey) || "overview");
+  const tab = canOpenProjectTab(requestedTab, viewerAreas.data) ? requestedTab : 'overview';
   useEffect(() => {
-    if (viewerAreas.data && !canOpenProjectTab(tab, viewerAreas.data)) setTab('overview');
-  }, [tab, viewerAreas.data]);
+    if (viewerAreas.data && !canOpenProjectTab(requestedTab, viewerAreas.data)) setTab('overview');
+  }, [requestedTab, viewerAreas.data]);
   const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
