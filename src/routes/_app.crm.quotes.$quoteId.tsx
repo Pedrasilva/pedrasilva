@@ -328,7 +328,7 @@ function QuoteDetail() {
       setConversionPreview(null);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] }),
-        qc.invalidateQueries({ queryKey: ["crm_quote_lifecycle", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-lifecycle", quoteId] }),
         qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] }),
       ]);
       setShowConversionCompany(false);
