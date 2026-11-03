@@ -35,6 +35,6 @@ export function activeProjectOpportunities<T extends { id: string; stage: string
   });
 }
 
-export function canConvertOpportunity(o: { id: string; stage: string; quotes?: unknown[] | null }, converted: ReadonlySet<string>) {
-  return !converted.has(o.id) && ["proposal", "negotiation", "won"].includes(o.stage) && (o.quotes?.length ?? 0) > 0;
+export function canConvertOpportunity(o: { id: string; stage: string; quotes?: Array<{ id: string }> | null }, converted: ReadonlySet<string>, lifecycleStates: ReadonlyMap<string, string>) {
+  return !converted.has(o.id) && o.stage !== "lost" && (o.quotes ?? []).some(q => ["approved", "signed"].includes(lifecycleStates.get(q.id) ?? ""));
 }

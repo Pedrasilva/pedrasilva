@@ -1,7 +1,7 @@
 /**
  * Pure rules for the CRM opportunities board / list.
  * - One opportunity = one card, in the column of its own stage (never mirrored).
- * - All Won opportunities leave the board (unconverted ones live in Active projects).
+ * - Won unconverted opportunities stay on the board by default.
  * - Lost and converted opportunities only show with "Show closed".
  * - Totals only count what is shown.
  */
@@ -17,23 +17,28 @@ export type BoardOpp = {
 /** True when the opportunity is closed (lost, or won and converted to a project). */
 export function isClosedOpportunity(o: BoardOpp, convertedIds: ReadonlySet<string>): boolean {
   if (o.stage === "lost") return true;
-  return o.stage === "won" && convertedIds.has(o.id);
+  return convertedIds.has(o.id);
+}
+
+/** Display-only state: never writes the stored opportunity stage. */
+export function opportunityDisplayStage(o: BoardOpp, convertedIds: ReadonlySet<string>): string {
+  return convertedIds.has(o.id) ? "converted" : o.stage;
 }
 
 export function visibleOpportunities<T extends BoardOpp>(
   opps: T[], convertedIds: ReadonlySet<string>, showClosed: boolean,
 ): T[] {
-  return showClosed ? opps : opps.filter((o) => o.stage !== "won" && !isClosedOpportunity(o, convertedIds));
+  return showClosed ? opps : opps.filter((o) => !isClosedOpportunity(o, convertedIds));
 }
 
 export function boardColumns<T extends BoardOpp>(
   stages: ReadonlyArray<string>, opps: T[], convertedIds: ReadonlySet<string>, showClosed: boolean,
 ) {
   const shown = visibleOpportunities(opps, convertedIds, showClosed);
-  return stages
-    .filter((s) => s !== "won" && (showClosed || s !== "lost"))
+  return [...stages, "converted"]
+    .filter((s) => showClosed || (s !== "lost" && s !== "converted"))
     .map((stage) => {
-      const items = shown.filter((o) => o.stage === stage);
+      const items = shown.filter((o) => opportunityDisplayStage(o, convertedIds) === stage);
       return { stage, items, total: items.reduce((s, o) => s + resolveOpportunityValueWithSource(o).value, 0) };
     });
 }
