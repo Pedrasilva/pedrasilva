@@ -33,6 +33,7 @@ export function convertedQuoteSchedule(
   for (const stage of liveStages) for (const a of stage.allocations) {
     if (a.source_quote_allocation_id && !allocationIds.has(a.source_quote_allocation_id)) issues.push(stage.name);
   }
+  const lastOrder = Math.max(0, ...quoteStages.map(s => s.sort_order));
   const stages = liveStages.map(live => {
     const quote = quoteStages.find(s => stageMap.get(s.id)?.id === live.id);
     if (!quote) return live;
@@ -40,7 +41,7 @@ export function convertedQuoteSchedule(
       ...live,
       // Presentation-only quote WBS; all identifiers and dates remain operational.
       parent_stage_id: quote.parent_stage_id ? stageMap.get(quote.parent_stage_id)?.id ?? live.parent_stage_id : null,
-      sort_order: quote.sort_order,
+      sort_order: live.stage_kind === "retainer_monthly" ? lastOrder + 1 : quote.sort_order,
     };
   });
   return { stages, issues: [...new Set(issues)] };

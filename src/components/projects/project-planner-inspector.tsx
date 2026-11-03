@@ -370,6 +370,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 })}
               </p>
               <DurationField
+                workingDuration={planningOnly}
                 stageId={stage.id}
                 startDate={stage.start_date}
                 endDate={stage.end_date}
@@ -742,11 +743,13 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
 type DurationUnit = "days" | "weeks" | "months";
 
 function DurationField({
+  workingDuration = false,
   stageId,
   startDate,
   endDate,
   onChange,
 }: {
+  workingDuration?: boolean;
   stageId: string;
   startDate: string;
   endDate: string;
@@ -757,21 +760,28 @@ function DurationField({
 
   const totalDays = useMemo(() => {
     try {
+      if (workingDuration) return scheduleCalendar(getWorkingCalendarHolidays()).duration(startDate, endDate);
       return Math.max(1, differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1);
     } catch {
       return 1;
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, workingDuration]);
 
   const value = useMemo(() => {
     if (unit === "days") return totalDays;
-    if (unit === "weeks") return Math.round((totalDays / 7) * 10) / 10;
-    return Math.round((totalDays / 30) * 10) / 10;
-  }, [totalDays, unit]);
+    if (unit === "weeks") return Math.round((totalDays / (workingDuration ? 5 : 7)) * 10) / 10;
+    return Math.round((totalDays / (workingDuration ? 22 : 30)) * 10) / 10;
+  }, [totalDays, unit, workingDuration]);
 
   const commit = (raw: string) => {
     const n = Number(raw);
     if (!Number.isFinite(n) || n <= 0) return;
+    if (workingDuration) {
+      const days = Math.max(1, Math.round(n * (unit === "weeks" ? 5 : unit === "months" ? 22 : 1)));
+      const iso = scheduleCalendar(getWorkingCalendarHolidays()).shift(startDate, days - 1);
+      if (iso !== endDate) onChange(iso);
+      return;
+    }
     const start = parseISO(startDate);
     let newEnd: Date;
     if (unit === "days") newEnd = addDays(start, Math.max(1, Math.round(n)) - 1);
