@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
-import { PlannerChart, PlannerFrame, PlannerZoom } from "./planner-surface";
+import { PlannerChart, PlannerFrame, PlannerZoom, PlannerOutlineTools } from "./planner-surface";
 import { useProjectStageRoles } from "@/lib/projects/use-project-stage-roles";
 import { GanttPrintButton } from "@/components/planner/gantt-print-button";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
@@ -1140,41 +1140,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-7 px-2 text-xs"
-            onClick={() => handleInsert(null, "below")}
-            disabled={upsertStage.isPending || isLocked}
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-7 w-7 p-0"
-            onClick={() => selectedStageId && handleIndent(selectedStageId)}
-            disabled={!selectedStageId || upsertStage.isPending || isLocked}
-            title={t("workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
-            aria-label={i18n.t("projects:plannerGantt.ui.indent")}
-          >
-            <IndentIncrease className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-7 w-7 p-0"
-            onClick={() => selectedStageId && handleOutdent(selectedStageId)}
-            disabled={!selectedStageId || upsertStage.isPending || isLocked}
-            title={t("workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
-            aria-label={i18n.t("projects:plannerGantt.ui.outdent")}
-          >
-            <IndentDecrease className="h-3.5 w-3.5" />
-          </Button>
+          <PlannerOutlineTools disabled={upsertStage.isPending || isLocked} selected={!!selectedStageId}
+            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
           <Button
             type="button"
             size="sm"
@@ -1333,7 +1300,7 @@ function OperationalScheduleAdapter({
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
+    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
     issues: detailQ.data.stages.filter(s => s.source_quote_stage_id && !s.stage_role && !rolesQ.data.find(r => r.stage_id === s.id)?.stage_role).map(s => s.name),
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess]);
   const mappingReady = !!projection && projection.issues.length === 0;
@@ -1794,45 +1761,8 @@ function OperationalScheduleAdapter({
     <div className="min-w-0 max-w-full space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          {canEdit && (
-            <>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs"
-                onClick={() => handleInsert(null, "below")}
-                disabled={createStage.isPending}
-              >
-                <Plus className="mr-1 h-3.5 w-3.5" />
-                {t("crm:workspace.planning.addStage", { defaultValue: "Add stage" })}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 w-7 p-0"
-                onClick={() => selectedStageId && handleIndent(selectedStageId)}
-                disabled={!selectedStageId || updateStage.isPending}
-                title={t("crm:workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
-                aria-label={i18n.t("projects:plannerGantt.ui.indent")}
-              >
-                <IndentIncrease className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 w-7 p-0"
-                onClick={() => selectedStageId && handleOutdent(selectedStageId)}
-                disabled={!selectedStageId || updateStage.isPending}
-                title={t("crm:workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
-                aria-label={i18n.t("projects:plannerGantt.ui.outdent")}
-              >
-                <IndentDecrease className="h-3.5 w-3.5" />
-              </Button>
-            </>
-          )}
+          <PlannerOutlineTools disabled={!canEdit || createStage.isPending || updateStage.isPending} selected={!!selectedStageId}
+            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
           <GanttHistoryControls mode="project" scope={projectId} disabled={!canEdit}/>
           <label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")} />{t("projects:gantt.actuals.show")}</label>
           {!canEdit && (
