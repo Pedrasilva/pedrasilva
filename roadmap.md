@@ -1,3 +1,9 @@
+## Current request — 3 November 21:41 approval (cutover OFF)
+- [ ] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; prove every other field unchanged.
+- [ ] Future conversion parses payment terms into offsets; unrecognized text explicitly flagged, never guessed; tests.
+- [ ] Complete Phase A pre-cutover boundaries/checks and isolated ON rollback test on one fixture; cleanup/zero and final checklist.
+- [ ] WAIT for Luis final go; real gate stays OFF.
+
 ## Current request — 3 November 20:52 decisions (cutover OFF)
 - [x] Explicit audited global capability for Luis, Tatiana, Irene and the 21-project Ricardo Conceição; Patricia/Bernardo per-project; two non-manager grants tested.
 - [x] Rita manager of Mint with four switches via audited actions/exact reason; other Mint financial/planning rows unchanged.
