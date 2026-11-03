@@ -60,7 +60,7 @@ Expandir «Gerir equipa»: pessoa, papel, quatro switches, origem e última alte
 - **RLS não oculta colunas:** retirar SELECT amplo de tabelas mistas (`pm_projects`, `pm_stages`, propostas, horas) e migrar para projeções operacionais explícitas e projeções monetárias autorizadas. Nada de `SELECT *`, whole-row JSON ou snapshots financeiros para leitores operacionais. Ações aceitam apenas campos permitidos; funções privilegiadas verificam chamador/área dentro do handler.
 - Taxas/custos históricos mantêm snapshots bloqueados; não entregar salários ou taxas globais que permitam reconstruir custos negados.
 - Homepage, global Gantt, pesquisa, reports, forecasts, exports/PDFs e funções privilegiadas filtram **antes de agregar/entregar**, não depois no browser. Não mostrar total completo baseado em parcelas ocultas nem diferenças dedutíveis.
-- Documentos autorizados só do projeto, sem abrir fila OCR/extratos/outras entidades. Downloads com autorização renovada e URLs curtas. Prosa livre não será reescrita: rever notas/anexos com valores antes de expor a leitores sem Financeiro.
+- Documentos só do projeto, sem OCR/extratos/outras entidades; downloads reautorizados. Rever notas/anexos com valores; não reescrever prosa.
 
 ## Migração sem perder acesso autorizado
 - Com ligação disponível, inventariar permissões/políticas/equipas e apresentar matriz pessoa/projeto/área antes→depois. Preservar acessos legítimos com grants explícitos de origem legacy; APIs demasiado abertas não são autorização legítima.
