@@ -17504,6 +17504,10 @@ export type Database = {
         Args: { _opportunity: string }
         Returns: Database["public"]["Enums"]["crm_opportunity_stage"]
       }
+      crm_quote_snapshot_matches: {
+        Args: { _quote: string; _snapshot: string }
+        Returns: boolean
+      }
       crm_quote_transition: {
         Args: {
           _action: string

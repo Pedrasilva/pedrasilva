@@ -1520,6 +1520,13 @@
       "when": 1793703573412,
       "tag": "0216_crm_quote_lifecycle_acceptance",
       "breakpoints": true
+    },
+    {
+      "idx": 217,
+      "version": "7",
+      "when": 1793704041058,
+      "tag": "0217_crm_quote_accepted_snapshot_guard",
+      "breakpoints": true
     }
   ]
 }
