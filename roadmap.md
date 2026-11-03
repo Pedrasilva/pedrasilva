@@ -1,7 +1,9 @@
 ## Current request — Gantt follow-up verification
-- [ ] Fix empty Overview details and reconcile Mint budget usage read-only.
-- [ ] Verify three source-proposal sync exclusions on a disposable converted copy; visually verify global Gantt including an unlinked project.
-- [ ] List five unproven client assignments without backfill; verify dependency creation/editing in both contexts, delete fixtures and append evidence to the same report.
+- [x] Reconcile Mint 47.99 pursuit + 1763.775 logged cost read-only; fields populated in fresh session, protect values from flex compression (visual rerun pending).
+- [x] Verify three source-proposal UPDATE sync exclusions on disposable converted copy; global Gantt opened without runtime errors, evidence appended to the same report.
+- [x] List five unproven client assignments without backfill.
+- [ ] Verify global Gantt with an unlinked project and dependency creation/editing in both contexts; blocked by unavailable database connection during fixture preparation.
+- [ ] Delete converted project 7285f0ca-778b-4c7f-af69-c3f9c52b5941 and quote a31c8078-6624-4dd8-8cae-247a8a574f63 with fixture dependents; check possible No proposal Gantt fixture before retry. Blocked by unavailable database connection; no running tests.
 
 ## Current request — One proposal/project Gantt and Mint read-only checks
 - [x] Inventory Gantt surfaces and explain waiting-stage mapping, client diagnosis and post-conversion sync before approval.
