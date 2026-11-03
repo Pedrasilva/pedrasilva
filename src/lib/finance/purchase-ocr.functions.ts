@@ -224,7 +224,7 @@ export const extractPurchaseDocument = createServerFn({ method: "POST" })
         extracted.supplier_nif &&
         isValidPortugueseNif(extracted.supplier_nif)
       ) {
-        const { data: company } = await supabaseAdmin
+        const { data: company } = await supabase
           .from("companies")
           .select("id, nome, is_supplier")
           .eq("nif", extracted.supplier_nif)

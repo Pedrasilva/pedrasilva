@@ -1681,6 +1681,13 @@
       "when": 1793742678342,
       "tag": "0239_project_cutover_fixture_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 240,
+      "version": "7",
+      "when": 1793742722604,
+      "tag": "0240_project_cutover_fixture_expense_context",
+      "breakpoints": true
     }
   ]
 }

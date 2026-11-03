@@ -38,7 +38,8 @@ BEGIN
   INSERT INTO public.pm_project_contract_baseline_payments(baseline_id,label,amount) VALUES(baseline,'[QA DISPOSABLE] Baseline payment',100);
   INSERT INTO public.pm_stage_supplier_costs(id,project_id,stage_id,description,amount) VALUES(stage_supplier,p,st,'[QA DISPOSABLE] Supplier',50);
   INSERT INTO public.pm_materials(project_id,description,purchase_price) VALUES(p,'[QA DISPOSABLE] Material',50);
-  INSERT INTO public.pm_expenses(id,project_id,description,purchase_price,receipt_path,entity_id) VALUES(expense,p,'[QA DISPOSABLE] Expense',100,path,'00000000-0000-4000-a000-000000000001');
+  PERFORM set_config('app.pe_action','1',true);
+  INSERT INTO public.pm_expenses(id,project_id,description,purchase_price,receipt_path,entity_id,workflow_version,original_currency,original_amount,eur_amount,rebill_mode,tax_treatment) VALUES(expense,p,'[QA DISPOSABLE] Expense',100,path,'00000000-0000-4000-a000-000000000001',2,'EUR',100,100,'none','pending');
   INSERT INTO public.project_expense_events(expense_id,action,actor) VALUES(expense,'QA fixture',admin_id);
   INSERT INTO public.financial_documents(id,doc_type,direction,issue_date,project_id,entity_id,file_path) VALUES(doc,'other','issued','2026-06-01',p,'00000000-0000-4000-a000-000000000001',path);
   INSERT INTO public.financial_document_lines(id,document_id,description,project_id) VALUES(line,doc,'[QA DISPOSABLE] Fiscal line',p);
