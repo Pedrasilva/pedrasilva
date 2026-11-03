@@ -33,9 +33,11 @@ import {
 export function QuoteLockGuard({
   quoteId,
   showBanner = true,
+  hideRevisionAction = false,
 }: {
   quoteId: string | undefined;
   showBanner?: boolean;
+  hideRevisionAction?: boolean;
 }) {
   useTranslation();
   const lock = useQuoteLock(quoteId);
@@ -72,7 +74,7 @@ export function QuoteLockGuard({
               >
                 <ExternalLink className="h-3 w-3" />  {uiI18n.t("crm:quotes.openProject")} </Link>
             )}
-            {!converted && (
+            {!converted && !hideRevisionAction && (
               <div className="pt-1">
                 <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
                    {uiI18n.t("crm:quoteEditor.createRevision")} </Button>
@@ -96,7 +98,7 @@ export function QuoteLockGuard({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel> {uiI18n.t("common:close")} </AlertDialogCancel>
-            {!converted && (
+            {!converted && !hideRevisionAction && (
               <AlertDialogAction
                 disabled={unlock.isPending}
                 onClick={(e) => {

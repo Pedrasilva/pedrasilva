@@ -1,3 +1,5 @@
+import type { QuoteLifecycleState } from "@/lib/quotes/quote-lifecycle";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,8 +22,10 @@ export function QuoteWorkflowStepper({
   step,
   onChange,
   completion,
+  lifecycle,
 }: {
   step: QuoteStep;
+  lifecycle: QuoteLifecycleState;
   onChange: (next: QuoteStep) => void;
   completion: QuoteStepCompletion;
 }) {
@@ -38,7 +42,7 @@ export function QuoteWorkflowStepper({
           const isDone = completion[s];
           return (
             <li key={s} className="flex-1 min-w-[180px]">
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => onChange(s)}
                 aria-current={isActive ? "step" : undefined}
@@ -78,10 +82,10 @@ export function QuoteWorkflowStepper({
                         : "text-muted-foreground",
                     )}
                   >
-                    {t(`workspace.stepper.${s}.hint`)}
+                    {t("quotes.flow.currentState", {state:t(`quotes.lifecycle.${lifecycle}`)})}
                   </span>
                 </span>
-              </button>
+              </Button>
             </li>
           );
         })}

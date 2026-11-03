@@ -376,7 +376,21 @@
     },
     "exclVAT": "Amount excluding VAT",
     "convertSkipped_one": "{{count}} allocation skipped (missing stage mapping). See console for details.",
-    "convertSkipped_other": "{{count}} allocations skipped (missing stage mapping). See console for details."
+    "convertSkipped_other": "{{count}} allocations skipped (missing stage mapping). See console for details.",
+    "flow": {
+      "registerAcceptance": "Register acceptance",
+      "acceptanceDescription": "Record the client’s acceptance of the selected sent revision. Fees and document content remain unchanged.",
+      "acceptanceDate": "Acceptance date",
+      "acceptedRevision": "Accepted revision",
+      "acceptanceAttachment": "Acceptance evidence (optional)",
+      "signatureAction": "Send contract for signature / Mark signed",
+      "unsignedWarning": "Contract not yet signed",
+      "checklistTitle": "Before converting",
+      "client": "Set the client company on the opportunity",
+      "revision": "Identify the accepted sent revision",
+      "gantt": "Add the Gantt stages",
+      "currentState": "Current state: {{state}}"
+    }
   },
   "stage": {
     "lead": "Lead",

@@ -376,7 +376,21 @@
     },
     "exclVAT": "Valor sem IVA",
     "convertSkipped_one": "{{count}} alocação ignorada (sem fase correspondente). Consulte a consola para mais informações.",
-    "convertSkipped_other": "{{count}} alocações ignoradas (sem fase correspondente). Consulte a consola para mais informações."
+    "convertSkipped_other": "{{count}} alocações ignoradas (sem fase correspondente). Consulte a consola para mais informações.",
+    "flow": {
+      "registerAcceptance": "Registar adjudicação",
+      "acceptanceDescription": "Registe a aceitação do cliente da revisão enviada selecionada. Os honorários e o conteúdo do documento mantêm-se.",
+      "acceptanceDate": "Data da adjudicação",
+      "acceptedRevision": "Revisão aceite",
+      "acceptanceAttachment": "Comprovativo de aceitação (opcional)",
+      "signatureAction": "Enviar contrato para assinatura / Marcar assinado",
+      "unsignedWarning": "Contrato ainda não assinado",
+      "checklistTitle": "Antes de converter",
+      "client": "Definir a empresa cliente na oportunidade",
+      "revision": "Identificar a revisão enviada aceite",
+      "gantt": "Adicionar as fases do Gantt",
+      "currentState": "Estado atual: {{state}}"
+    }
   },
   "stage": {
     "lead": "Lead",
