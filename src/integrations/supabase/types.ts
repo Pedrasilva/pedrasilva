@@ -18996,6 +18996,7 @@ export type Database = {
         Args: { _area: string; _project: string }
         Returns: boolean
       }
+      pm_phase_a_expense_read: { Args: { _expense: string }; Returns: boolean }
       pm_planning_cutoff_preview: {
         Args: { _cutoff?: string; _project_ids?: string[]; _trim_end?: string }
         Returns: Json
