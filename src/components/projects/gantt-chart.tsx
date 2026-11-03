@@ -1623,7 +1623,7 @@ export function GanttChart({
 
                     <div
                       data-stage-resize-start={stage.id}
-                      className="absolute left-0 top-0 z-10 h-full w-2.5 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                      className="absolute left-0 top-0 z-40 h-full w-2.5 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
                       onPointerDown={(e) =>
                         startDrag(e, {
                           type: "stage-resize-l",
@@ -1637,7 +1637,7 @@ export function GanttChart({
                     />
                     <div
                       data-stage-resize-end={stage.id}
-                      className="absolute right-0 top-0 z-10 h-full w-2.5 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                      className="absolute right-0 top-0 z-40 h-full w-2.5 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
                       onPointerDown={(e) =>
                         startDrag(e, {
                           type: "stage-resize-r",
