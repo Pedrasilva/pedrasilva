@@ -1541,6 +1541,13 @@
       "when": 1793711725839,
       "tag": "0219_crm_quote_company_conversion",
       "breakpoints": true
+    },
+    {
+      "idx": 220,
+      "version": "7",
+      "when": 1793711801400,
+      "tag": "0220_crm_quote_snapshot_bookkeeping_parity",
+      "breakpoints": true
     }
   ]
 }
