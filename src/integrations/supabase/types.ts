@@ -19008,10 +19008,19 @@ export type Database = {
         Args: { _area: string; _project: string }
         Returns: boolean
       }
+      pm_phase_a_baseline_gate: { Args: { _project: string }; Returns: boolean }
       pm_phase_a_batch_gate: { Args: { _batch: string }; Returns: boolean }
       pm_phase_a_expense_read: { Args: { _expense: string }; Returns: boolean }
       pm_phase_a_file_gate: {
         Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
+      pm_phase_a_financial_file_gate: {
+        Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
+      pm_phase_a_queue_gate: {
+        Args: { _direction: string; _expense: string; _project: string }
         Returns: boolean
       }
       pm_planning_cutoff_preview: {
