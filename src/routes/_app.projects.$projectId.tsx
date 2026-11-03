@@ -58,6 +58,8 @@ import {
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { ProjectClientField, useProjectClientName } from "@/components/projects/project-client-field";
 import { ProjectTeamCard } from "@/components/projects/project-team-card";
+import { useProjectViewerAreas } from '@/lib/projects/use-project-access';
+import { canOpenProjectTab } from '@/lib/projects/project-area-tabs';
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
@@ -186,6 +188,7 @@ function ProjectDetail() {
   const { t } = useTranslation();
   const projectFinanceAccess = useFinanceAccess();
   const { projectId } = Route.useParams();
+  const viewerAreas = useProjectViewerAreas(projectId);
   const clientProjectQ = useProjectDetail(projectId);
   const resolvedClientName = useProjectClientName(clientProjectQ.data?.project.company_id, clientProjectQ.data?.project.client ?? null);
   const [showCancelled, setShowCancelled] = useState(false);
@@ -234,6 +237,9 @@ function ProjectDetail() {
 
   const search = Route.useSearch();
   const [tab, setTab] = useState<TabKey>((search?.tab as TabKey) || "overview");
+  useEffect(() => {
+    if (viewerAreas.data && !canOpenProjectTab(tab, viewerAreas.data)) setTab('overview');
+  }, [tab, viewerAreas.data]);
   const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
@@ -703,22 +709,22 @@ function ProjectDetail() {
                 Schedule and Stream are deferred (code retained, hidden from nav).
                 Rates / Assets / Attachments / Details are dropped. */}
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
-            <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
-            <TabBtn icon={Repeat} label={t("projects:detail.ui.retainer")} active={tab === "ap"} onClick={() => setTab("ap")} />
+            {canOpenProjectTab('insights',viewerAreas.data)&&<TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />}
+            {canOpenProjectTab('ap',viewerAreas.data)&&<TabBtn icon={Repeat} label={t("projects:detail.ui.retainer")} active={tab === "ap"} onClick={() => setTab("ap")} />}
             {isAdmin && (
               <TabBtn icon={CheckCircle2} label={t("projects:approvals.title")} active={tab === "approvals"} onClick={() => setTab("approvals")} />
             )}
             <TabBtn icon={FileText} label={t("projects:notes.tab")} active={tab === "notes"} onClick={() => setTab("notes")} />
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
-            <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+            {canOpenProjectTab('expenses',viewerAreas.data)&&<TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />}
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
-            {projectFinanceAccess.hasAccess && <TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
-            <TabBtn icon={Building2} label={t("projects:detail.ui.architecture")} active={tab === "architecture"} onClick={() => setTab("architecture")} />
-            <TabBtn icon={UsersIcon} label={t("projects:detail.ui.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />
-            <TabBtn icon={ArrowDownToLine} label={t("projects:detail.ui.incoming")} active={tab === "incoming"} onClick={() => setTab("incoming")} />
-            <TabBtn icon={ArrowUpFromLine} label={t("projects:detail.ui.outgoing")} active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
-            <TabBtn icon={CalendarClock} label={t("projects:detail.ui.paymentSchedule")} active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
-            <TabBtn icon={PieChartIcon} label={t("projects:detail.ui.financialSummary")} active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
+            {projectFinanceAccess.hasAccess && canOpenProjectTab('billing',viewerAreas.data)&&<TabBtn icon={FileText} label={t('finance:projectBilling.title')} active={tab==='billing'} onClick={()=>setTab('billing')}/>}
+            {canOpenProjectTab('architecture',viewerAreas.data)&&<TabBtn icon={Building2} label={t("projects:detail.ui.architecture")} active={tab === "architecture"} onClick={() => setTab("architecture")} />}
+            {canOpenProjectTab('consultants',viewerAreas.data)&&<TabBtn icon={UsersIcon} label={t("projects:detail.ui.suppliers")} active={tab === "consultants"} onClick={() => setTab("consultants")} />}
+            {canOpenProjectTab('incoming',viewerAreas.data)&&<TabBtn icon={ArrowDownToLine} label={t("projects:detail.ui.incoming")} active={tab === "incoming"} onClick={() => setTab("incoming")} />}
+            {canOpenProjectTab('outgoing',viewerAreas.data)&&<TabBtn icon={ArrowUpFromLine} label={t("projects:detail.ui.outgoing")} active={tab === "outgoing"} onClick={() => setTab("outgoing")} />}
+            {canOpenProjectTab('paymentSchedule',viewerAreas.data)&&<TabBtn icon={CalendarClock} label={t("projects:detail.ui.paymentSchedule")} active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />}
+            {canOpenProjectTab('financialSummary',viewerAreas.data)&&<TabBtn icon={PieChartIcon} label={t("projects:detail.ui.financialSummary")} active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />}
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -1047,7 +1053,7 @@ function ProjectDetail() {
             )} */}
 
 
-            {tab === "expenses" && (
+            {tab === "expenses" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 <ProjectExpensesSection
                   projectId={projectId}
@@ -1068,20 +1074,20 @@ function ProjectDetail() {
               </div>
             )}
 
-            {tab === "billing" && projectFinanceAccess.hasAccess && (
+            {tab === "billing" && projectFinanceAccess.hasAccess && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 <ProjectBillingTab projectId={projectId} />
               </div>
             )}
 
-            {tab === "financial" && (
+            {tab === "financial" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 <ProjectFinancialTab projectId={projectId} />
               </div>
             )}
 
 
-            {tab === "architecture" && (
+            {tab === "architecture" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4 space-y-4">
                 {sourceQuoteId ? (
                   <>
@@ -1093,7 +1099,7 @@ function ProjectDetail() {
                 )}
               </div>
             )}
-            {tab === "consultants" && (
+            {tab === "consultants" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
@@ -1102,13 +1108,13 @@ function ProjectDetail() {
                 )}
               </div>
             )}
-            {tab === "incoming" && (
+            {tab === "incoming" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 <ProjectIncomingPayments projectId={projectId} />
                 <div className="mt-4"><PaymentsReceived projectId={projectId} /></div>
               </div>
             )}
-            {tab === "outgoing" && (
+            {tab === "outgoing" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
@@ -1117,7 +1123,7 @@ function ProjectDetail() {
                 )}
               </div>
             )}
-            {tab === "paymentSchedule" && (
+            {tab === "paymentSchedule" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
@@ -1126,7 +1132,7 @@ function ProjectDetail() {
                 )}
               </div>
             )}
-            {tab === "financialSummary" && (
+            {tab === "financialSummary" && canOpenProjectTab(tab,viewerAreas.data) && (
               <div className="mt-4">
                 {sourceQuoteId ? (
                   <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
