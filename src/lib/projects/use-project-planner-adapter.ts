@@ -58,7 +58,7 @@ export function useProjectPlannerAdapter(
 
   const readOnly = !!opts.readOnly;
   const invalidateSchedule = async () => {
-    for (const key of ["pm-project","pm-stages-all","pm-stage-dependencies","pm-allocations-all"]) await qc.invalidateQueries({queryKey:[key]});
+    for (const key of ["pm-project","pm-stages-all","pm-stage-dependencies","pm-allocations-all","pm-incoming-timing"]) await qc.invalidateQueries({queryKey:[key]});
   };
 
   // Single shared denial path — toast once, return a resolved no-op so the

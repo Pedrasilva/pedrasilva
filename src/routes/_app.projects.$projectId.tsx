@@ -88,6 +88,7 @@ import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
+import { ProjectIncomingPayments } from "@/components/projects/project-incoming-payments";
 import {
   QuoteFinancialSummaryTab,
   ArchitectureFinancialBreakdown,
@@ -1103,11 +1104,7 @@ function ProjectDetail() {
             )}
             {tab === "incoming" && (
               <div className="mt-4">
-                {sourceQuoteId ? (
-                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
-                ) : (
-                  <NoQuoteLinkedPlaceholder label={t("projects:detail.ui.incoming")} projectId={projectId} />
-                )}
+                <ProjectIncomingPayments projectId={projectId} />
                 <div className="mt-4"><PaymentsReceived projectId={projectId} /></div>
               </div>
             )}
