@@ -19001,6 +19001,10 @@ export type Database = {
         Returns: boolean
       }
       pm_phase_a_expense_read: { Args: { _expense: string }; Returns: boolean }
+      pm_phase_a_file_gate: {
+        Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
       pm_planning_cutoff_preview: {
         Args: { _cutoff?: string; _project_ids?: string[]; _trim_end?: string }
         Returns: Json
