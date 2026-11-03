@@ -109,3 +109,9 @@ As oportunidades abaixo são as ligadas às **propostas**; quatro projetos têm 
 - Sem novas migrações, backfill, alteração de funções, conversão da Mint ou alterações a dados reais de propostas/projetos/horas/pagamentos.
 - 52 testes passaram; último sinal automático: **build OK, 18:30:46 UTC**.
 - **Não aceitar ainda como verificação completa:** dependências, projeto sem proposta e limpeza aguardam recuperação da ligação aos dados.
+
+### Recuperação e limpeza — 3 novembro, 20:26–20:28 UTC
+Após Tiny → Small, Auth, base de dados e Auth→DB responderam; PgBouncer ativo, memória 26%, 6/90 ligações e 1/400 clientes. Escrita no projeto descartável executada e anulada.
+Limpeza integral confirmada às 20:28:01 UTC: projeto `7285f0ca-778b-4c7f-af69-c3f9c52b5941`, proposta `a31c8078-6624-4dd8-8cae-247a8a574f63`, oportunidade `36e71f1e-6b3b-42b5-abab-8d3063df94b2` e documento `a340b50f-fc23-4078-af4b-2ed128509508` eliminados com dependências, numa transação. Primeira tentativa falhou por FK de snapshot e foi anulada; segunda respeitou a ordem projeto → quote → documento → oportunidade.
+`[QA DISPOSABLE] No proposal Gantt` não existia. Leitura posterior: **projects=0, proposals=0, opportunities=0, allocations=0, old_document=0**. Nenhum dado Mint alterado.
+Esta execução seguiu a ordem expressa limpeza → item 2 → item 5 Fase A. Os ensaios antigos de gestos de dependências e DATE na proposta convertida não foram repetidos nesta execução e continuam não verificados.

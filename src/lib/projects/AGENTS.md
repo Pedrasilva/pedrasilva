@@ -1,5 +1,8 @@
 # Projects module rules
 
+- Incoming dates use the guarded read-only operational timing resolver and audited date-only actions; frozen invoice/payment dates outrank manual overrides and live milestones, while contract comparison requires unique accepted-snapshot evidence. Why: Gantt edits must move forecasts without rewriting contractual or fiscal history.
+- Project area access is staged behind a separate matrix-approved cutover gate; team mutations are administrator-only audited actions and proposed switches must not activate financial restrictions before approval. Why: prevent self-manager escalation without silently removing existing financial access.
+
 - QuoteGantt is the only scheduling entry, with shared planner-surface rendering/zoom/outline controls and separate storage adapters; operational roles resolve from pm_stages or ID-matched accepted snapshots, never mutable quote hierarchy. Converted quote triggers cannot propagate into quote-linked projects, client names resolve through project company_id, and relative mode never overrides conversion. Why: one experience must preserve operational independence and immutable proposal/contract/payment evidence.
 
 - Allocation removal retires via planning_removed_at; database guards reject task/allocation/stage/project deletion with logged or imported history, including descendant stages. Why: planning edits must never cascade-delete timesheet history.
