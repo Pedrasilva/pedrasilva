@@ -62,6 +62,9 @@ import type { Resource, AllocationWithResource, StageWithAllocations } from "@/l
 import { toast } from '@/lib/toast';
 import { Switch } from "@/components/ui/switch";
 import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
+import { convertedQuoteSchedule, proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
+import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
 import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
@@ -76,6 +79,8 @@ interface Props {
   quoteId: string;
   dayWidth?: number;
   onAddRetainerPhase?: () => void;
+  canEditPlanning?: boolean;
+  canSeeFinancials?: boolean;
 }
 
 type ZoomMode = "week" | "month" | "quarter" | "year" | "fit";
@@ -107,7 +112,34 @@ function fittedDayWidth(chartWidth: number, outlineWidth: number, totalDays: num
   return Math.max(0.35, Math.min(32, fitWidth));
 }
 
-export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
+export function QuoteGantt(props: Props) {
+  const { t } = useTranslation("common");
+  const lockQ = useQuoteLock(props.quoteId);
+  if (!lockQ.isSuccess) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
+  if (lockQ.data.projectId) return <ConvertedQuoteGantt {...props} projectId={lockQ.data.projectId} />;
+  return <ProposalGantt {...props} />;
+}
+
+function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, canSeeFinancials }: Props & { projectId: string }) {
+  const { user } = useAuth();
+  const permissions = useMyPermissionsV2();
+  const assignedQ = useQuery({
+    queryKey: ["pm-assigned-access", user?.id, projectId],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      if (!user) return false;
+      const { data, error } = await supabase.rpc("pm_has_assigned_access", { _user_id: user.id, _project_id: projectId });
+      if (error) throw error;
+      return !!data;
+    },
+  });
+  const allowed = !permissions.loading && (permissions.can("projects.edit_planning", "all") ||
+    (permissions.can("projects.edit_planning", "assigned") && !!assignedQ.data));
+  return <ProjectGantt projectId={projectId} sourceQuoteId={quoteId} dayWidth={dayWidth}
+    canEdit={canEditPlanning ?? allowed} canSeeFinancials={canSeeFinancials ?? false} />;
+}
+
+function ProposalGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
@@ -186,7 +218,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   }});
   // Dates before 2010 are relative-scale placeholders (origin 2000-01-03); never show them as calendar dates.
   const relativeDates=stages.length>0&&stages.every(s=>!s.start_date||s.start_date<"2010-01-01");
-  const relative=(relativeQ.data ?? false)||relativeDates;
+  const relative=proposalUsesRelativeDates(lockQ.data?.projectId ?? null, relativeQ.data ?? false, relativeDates);
   const pricingQ=useQuery({queryKey:["quote-gantt-pricing",quoteId],queryFn:async()=>{
     const {data,error}=await supabase.from("fee_proposals").select("fee_source_mode,pricing_multiplier").eq("id",quoteId).single();
     if(error)throw error;return data;
@@ -1363,26 +1395,43 @@ interface ProjectGanttProps {
   dayWidth?: number;
   canEdit?: boolean;
   canSeeFinancials?: boolean;
+  sourceQuoteId?: string;
 }
 
 export function ProjectGantt({
   projectId,
   showCancelled = false,
   dayWidth: dayWidthProp,
-  canEdit = false,
+  canEdit: requestedCanEdit = false,
   canSeeFinancials = false,
+  sourceQuoteId,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
   const [showActuals,setShowActuals] = useState(false);
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
+  const quoteStagesQ = useQuoteStages(sourceQuoteId);
+  const quoteAllocationsQ = useQuoteAllocations(sourceQuoteId);
+  const projection = useMemo(() => sourceQuoteId && detailQ.data && quoteStagesQ.isSuccess && quoteAllocationsQ.isSuccess
+    ? convertedQuoteSchedule(projectId, quoteStagesQ.data, quoteAllocationsQ.data, detailQ.data.stages)
+    : null, [sourceQuoteId, projectId, detailQ.data, quoteStagesQ.data, quoteStagesQ.isSuccess, quoteAllocationsQ.data, quoteAllocationsQ.isSuccess]);
+  const mappingReady = !sourceQuoteId || (!!projection && projection.issues.length === 0);
+  const canEdit = requestedCanEdit && mappingReady;
   const { data: allResourcesData } = useProjectResources();
   const allResources = useMemo(
     () => (allResourcesData ?? []).filter((r) => r.active !== false),
     [allResourcesData],
   );
-  const adapter = useProjectPlannerAdapter(allResources, { readOnly: !canEdit });
+  const liveAdapter = useProjectPlannerAdapter(allResources, { readOnly: !canEdit });
+  const adapter = useMemo(() => sourceQuoteId ? {
+    ...liveAdapter,
+    features: { ...liveAdapter.features, baseline: false, crossProjectMove: false },
+    createAllocation: canEdit ? liveAdapter.createAllocation : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
+    updateAllocation: canEdit ? liveAdapter.updateAllocation : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
+    deleteAllocation: canEdit ? liveAdapter.deleteAllocation : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
+    setAllocationStatus: canEdit ? liveAdapter.setAllocationStatus : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
+  } : liveAdapter, [sourceQuoteId, liveAdapter, canEdit, t]);
   const { data: teamAvg } = useTeamPricingAverages();
   const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
   const projectImpliedCostRate = teamAvg?.avgCostPerHour ?? 0;
@@ -1393,7 +1442,7 @@ export function ProjectGantt({
   const createProjectDep = useCreateProjectDependency();
 
   const project = detailQ.data?.project;
-  const stages = useMemo(() => detailQ.data?.stages ?? [], [detailQ.data]);
+  const stages = useMemo(() => projection?.stages ?? detailQ.data?.stages ?? [], [detailQ.data, projection]);
 
   const summaryLabel = t("projects:gantt.projectSummary", { defaultValue: "Project" });
   const { mappedStages, hierarchy } = useMemo(
@@ -1440,10 +1489,11 @@ export function ProjectGantt({
     }
     if(actuals?.firstDate && parseISO(actuals.firstDate)<minD) minD=parseISO(actuals.firstDate);
     if(actuals?.lastDate && parseISO(actuals.lastDate)>maxD) maxD=parseISO(actuals.lastDate);
+    if (project?.start_date && parseISO(project.start_date) < minD) minD = parseISO(project.start_date);
     const o = addDays(minD, -7);
     const days = Math.max(60, differenceInCalendarDays(maxD, o) + 21);
     return { origin: o, totalDays: days };
-  }, [mappedStages,actuals]);
+  }, [mappedStages,actuals,project?.start_date]);
 
   const collapseKey = `project-gantt-collapsed:${projectId}`;
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
@@ -1927,6 +1977,9 @@ export function ProjectGantt({
           </div>
         )}
       </div>
+      {sourceQuoteId && !mappingReady && <p role="alert" className="text-sm text-destructive">
+        {projection ? t("gantt.convertedMappingBlocked", { names: projection.issues.join(", ") }) : t("common:loading")}
+      </p>}
       {showActuals && actualsQ.isPending && <p className="text-xs text-muted-foreground">{t("common:loading")}</p>}
       {showActuals && actualsQ.isError && <p className="text-xs text-destructive">{t("projects:gantt.actuals.loadFailed")}</p>}
       {actuals && <p className="text-xs text-muted-foreground">{t("projects:gantt.actuals.authorizedDetail")}</p>}
@@ -1961,7 +2014,7 @@ export function ProjectGantt({
             onInsertStage={canEdit ? handleInsert : undefined}
             onDeleteStage={canEdit ? handleDelete : undefined}
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
-            onUpdateStageBudget={canEdit ? handleUpdateBudget : undefined}
+            onUpdateStageBudget={canEdit && !sourceQuoteId ? handleUpdateBudget : undefined}
             onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
             actuals={actuals}
             showFinancials={canSeeFinancials}
@@ -1976,6 +2029,7 @@ export function ProjectGantt({
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
             readOnly={!canEdit}
+            planningOnly={!!sourceQuoteId}
           />
         )}
         {!poolCollapsed && !selectedStageId && (

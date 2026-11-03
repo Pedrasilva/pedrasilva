@@ -38,6 +38,8 @@ import {
 } from "@/lib/projects/use-planner";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { DepType } from "@/lib/projects/dependencies";
+import { scheduleCalendar } from "@/lib/projects/schedule-engine";
+import { getWorkingCalendar } from "@/lib/projects/working-calendar";
 
 const DEP_TYPES: DepType[] = ["FS", "SS", "FF", "SF"];
 
@@ -55,9 +57,10 @@ interface Props {
   onClose: () => void;
   /** When true, all editing controls are disabled / hidden. */
   readOnly?: boolean;
+  planningOnly?: boolean;
 }
 
-export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false }: Props) {
+export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false, planningOnly = false }: Props) {
   const { t } = useTranslation(["projects"]);
 
   const depsQ = useStageDependencies();
@@ -386,6 +389,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 €
               </span>
               <Input
+                disabled={planningOnly}
                 type="number"
                 min={0}
                 step="0.01"
