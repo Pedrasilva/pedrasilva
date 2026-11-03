@@ -1,10 +1,17 @@
+## Current request — 3 November 21:41 approval (cutover OFF)
+- [x] Apply precisely the 96 reviewed offsets to 30 with audited admin action/exact reason; every other field including updated_at unchanged; 96 audits.
+- [x] Future conversion parses payment terms into offsets; unrecognized text explicitly flagged without receipt date; authenticated disposable conversion/source preservation/cleanup verified.
+- [x] Phase A identified financial child/queue/attachment/baseline/RPC boundaries and isolated ON rollback test (121 assertions); final matrix/checklist, PT/EN, zero read in reports.
+- [ ] Remaining certification: actual Storage ON download, multi-project batch, PM UI ON/fiscal compatibility, concurrency; not passed, not a final-go claim.
+- [ ] WAIT for Luis final go; real gate stays OFF.
+
 ## Current request — 3 November 20:52 decisions (cutover OFF)
 - [x] Explicit audited global capability for Luis, Tatiana, Irene and the 21-project Ricardo Conceição; Patricia/Bernardo per-project; two non-manager grants tested.
 - [x] Rita manager of Mint with four switches via audited actions/exact reason; other Mint financial/planning rows unchanged.
 - [x] Teresa reads zero financial rows in ten tables, Mint RPC Forbidden; eight authorized files confirmed Pedra Rioja. No Teresa fix applied.
 - [x] 96 all-project terms/offset disagreements in CSV, proposed 30 only; nothing applied.
 - [x] Gated projection/primary financial children/RPC/read-attachment coverage prepared; updated matrix/checklist, single fixture deleted, final zero 21:34:34 UTC.
-- [ ] Remaining pre-go: ON-mode isolated permission/child/batch/attachment/RPC validation, completed PT/EN UI, mixed Finance issued/queue privileged paths and baseline multi-area scope. Report names limitations; not ready for go yet.
+- [x] Superseded by 21:41 completion: 121 isolated ON checks, final PT/EN, scoped Finance paths and multi-area baseline; remaining certification explicitly listed above.
 - [ ] WAIT for final cutover go; Phase B remains deferred.
 
 ## Current request — Per-project team and access (item 5 Phase A approved, cutover separately gated)

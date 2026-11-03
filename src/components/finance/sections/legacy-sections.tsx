@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {readProjectIncomingRows} from '@/lib/finance/project-incoming-reader';
 import { toast } from '@/lib/toast';
 import {
   Wallet,
@@ -673,30 +674,11 @@ function useScheduledBillingForecast() {
   return useQuery({
     queryKey: ["finance", "scheduled-billing-forecast"],
     queryFn: async (): Promise<ScheduledBillingRow[]> => {
-      // Source: payment schedule items from approved quotes that have been
-      // converted into a project. Exclude retainer-stage items (those are
-      // already covered by the retainer forecast column to avoid double-count).
-      const { data, error } = await supabase
-        .from("quote_payment_schedule_items")
-        .select(
-          "expected_invoice_date, amount_value, direction, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
-        )
-        .not("expected_invoice_date", "is", null)
-        .or("direction.is.null,direction.eq.inflow");
-      if (error) throw error;
+      const data=await readProjectIncomingRows();
       const rows: ScheduledBillingRow[] = [];
-      for (const r of (data ?? []) as Array<{
-        expected_invoice_date: string | null;
-        amount_value: number | null;
-        quote: { quote_status: string | null; pm_project_id: string | null } | null;
-        stage: { stage_kind: string | null } | null;
-      }>) {
-        if (!r.expected_invoice_date) continue;
-        if (!r.quote || r.quote.quote_status !== "approved") continue;
-        if (!r.quote.pm_project_id) continue;
-        const kind = r.stage?.stage_kind ?? null;
-        if (kind === "retainer_month" || kind === "retainer_monthly") continue;
-        const d = new Date(r.expected_invoice_date);
+      for (const r of data) {
+        if (!r.planned_invoice_date || r.billing_status!=='planned' || r.trigger_type==='monthly') continue;
+        const d = new Date(r.planned_invoice_date);
         rows.push({
           year: d.getUTCFullYear(),
           month: d.getUTCMonth() + 1,

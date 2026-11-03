@@ -2925,6 +2925,8 @@
       "monthly": "Mês de obra"
     },
     "problems": {
+      "paymentTermsUnreadable": "Não foi possível interpretar as condições de pagamento; a data de recebimento requer revisão",
+      "paymentTermsMissing": "Faltam as condições de pagamento; a data de recebimento requer revisão",
       "contractUnproven": "Correspondência com o contrato original não comprovada",
       "appointmentUnproven": "Data de adjudicação não comprovada",
       "stageUnmapped": "Ligação à fase operacional não comprovada",

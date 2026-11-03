@@ -1653,6 +1653,69 @@
       "when": 1793741578002,
       "tag": "0235_project_reimbursement_batch_area_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 236,
+      "version": "7",
+      "when": 1793742189443,
+      "tag": "0236_project_payment_terms_audited_offsets",
+      "breakpoints": true
+    },
+    {
+      "idx": 237,
+      "version": "7",
+      "when": 1793742345946,
+      "tag": "0237_project_area_final_read_boundaries",
+      "breakpoints": true
+    },
+    {
+      "idx": 238,
+      "version": "7",
+      "when": 1793742432432,
+      "tag": "0238_project_area_child_capabilities",
+      "breakpoints": true
+    },
+    {
+      "idx": 239,
+      "version": "7",
+      "when": 1793742678342,
+      "tag": "0239_project_cutover_fixture_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 240,
+      "version": "7",
+      "when": 1793742722604,
+      "tag": "0240_project_cutover_fixture_expense_context",
+      "breakpoints": true
+    },
+    {
+      "idx": 241,
+      "version": "7",
+      "when": 1793742751018,
+      "tag": "0241_project_financial_file_path_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 242,
+      "version": "7",
+      "when": 1793742772546,
+      "tag": "0242_project_unreadable_terms_preserve_explicit_offset",
+      "breakpoints": true
+    },
+    {
+      "idx": 243,
+      "version": "7",
+      "when": 1793742960835,
+      "tag": "0243_project_payment_date_finance_area_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 244,
+      "version": "7",
+      "when": 1793743050858,
+      "tag": "0244_project_terms_parser_word_evidence",
+      "breakpoints": true
     }
   ]
 }

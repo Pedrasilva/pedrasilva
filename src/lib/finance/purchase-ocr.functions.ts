@@ -11,7 +11,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
 
 type ExtractedFields = {
@@ -150,7 +149,7 @@ export const extractPurchaseDocument = createServerFn({ method: "POST" })
     });
 
     try {
-      const { data: file, error: dlErr } = await supabaseAdmin.storage
+      const { data: file, error: dlErr } = await supabase.storage
         .from("financial-documents")
         .download(storagePath);
       if (dlErr || !file) return fail(`download: ${dlErr?.message ?? "no file"}`);
@@ -225,7 +224,7 @@ export const extractPurchaseDocument = createServerFn({ method: "POST" })
         extracted.supplier_nif &&
         isValidPortugueseNif(extracted.supplier_nif)
       ) {
-        const { data: company } = await supabaseAdmin
+        const { data: company } = await supabase
           .from("companies")
           .select("id, nome, is_supplier")
           .eq("nif", extracted.supplier_nif)

@@ -26,7 +26,7 @@ export const listClientOpenTargets = createServerFn({ method: "POST" })
     await assertFinanceAccess(context.supabase, context.userId);
     const { openTargetsForClient } = await import("@/lib/finance/recebimentos.server");
     const { currentEntityId } = await import("@/lib/finance/current-entity");
-    return openTargetsForClient(data.companyId, await currentEntityId(context.supabase));
+    return openTargetsForClient(data.companyId, await currentEntityId(context.supabase), context.supabase);
   });
 
 /** "Alterar": change the client (manual match) and recompute suggestions. */
@@ -75,6 +75,13 @@ export const confirmRecebimento = createServerFn({ method: "POST" })
     const pmInv = data.targets.filter((t) => t.kind === "pm_invoice").map((t) => t.id);
     const sched = data.targets.filter((t) => t.kind === "schedule_item").map((t) => t.id);
     const docs = data.targets.filter((t) => t.kind === "issued_document").map((t) => t.id);
+
+    // Authorize every selected target as the caller before any privileged write.
+    for (const [table, ids] of [["pm_invoices", pmInv], ["pm_payment_schedule_items", sched], ["financial_documents", docs]] as const) {
+      if (!ids.length) continue;
+      const visibleTargets = await supabase.from(table).select('id').in('id', ids);
+      if (visibleTargets.error || visibleTargets.data?.length !== ids.length) throw new Error('Forbidden');
+    }
 
     // Refuse before writing anything if any linked item belongs to another entity (or doesn't exist).
     const foreign: string[] = [];

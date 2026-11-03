@@ -10913,6 +10913,7 @@ export type Database = {
           original_invoice_date: string | null
           payment_offset_days: number
           payment_terms: string | null
+          payment_terms_review_reason: string | null
           planned_invoice_date_override: string | null
           planned_payment_date_override: string | null
           project_id: string
@@ -10956,6 +10957,7 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          payment_terms_review_reason?: string | null
           planned_invoice_date_override?: string | null
           planned_payment_date_override?: string | null
           project_id: string
@@ -10999,6 +11001,7 @@ export type Database = {
           original_invoice_date?: string | null
           payment_offset_days?: number
           payment_terms?: string | null
+          payment_terms_review_reason?: string | null
           planned_invoice_date_override?: string | null
           planned_payment_date_override?: string | null
           project_id?: string
@@ -18879,6 +18882,10 @@ export type Database = {
         Args: { _quote: string; _revision: string; _start: string }
         Returns: Json
       }
+      pm_correct_payment_offsets: {
+        Args: { _reason: string; _rows: Json }
+        Returns: Json
+      }
       pm_cost_period_revision: { Args: never; Returns: string }
       pm_cost_rate_at: {
         Args: { _date: string; _resource_id: string }
@@ -18988,6 +18995,7 @@ export type Database = {
           name: string
         }[]
       }
+      pm_parse_payment_terms: { Args: { _terms: string }; Returns: number }
       pm_payment_finance_access: {
         Args: { _project: string }
         Returns: boolean
@@ -19000,10 +19008,20 @@ export type Database = {
         Args: { _area: string; _project: string }
         Returns: boolean
       }
+      pm_phase_a_baseline_gate: { Args: { _project: string }; Returns: boolean }
       pm_phase_a_batch_gate: { Args: { _batch: string }; Returns: boolean }
+      pm_phase_a_batch_grant: { Args: { _batch: string }; Returns: boolean }
       pm_phase_a_expense_read: { Args: { _expense: string }; Returns: boolean }
       pm_phase_a_file_gate: {
         Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
+      pm_phase_a_financial_file_gate: {
+        Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
+      pm_phase_a_queue_gate: {
+        Args: { _direction: string; _expense: string; _project: string }
         Returns: boolean
       }
       pm_planning_cutoff_preview: {
@@ -19176,6 +19194,7 @@ export type Database = {
         Returns: Json
       }
       pm_unique_viewer_resource: { Args: never; Returns: string }
+      pm_validate_cutover_fixture: { Args: never; Returns: Json }
       pm_verify_tatiana_backfill: { Args: never; Returns: Json }
       pm_verify_week_publication: { Args: never; Returns: Json }
       pm_week_approver_ids: {

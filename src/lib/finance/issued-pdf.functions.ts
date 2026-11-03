@@ -18,8 +18,10 @@ export const extractIssuedPdf = createServerFn({method:'POST'})
     const entityId=await currentEntityId(supabase);
     const project=await supabase.from('pm_projects').select('id').eq('id',data.projectId).single();
     if(project.error)throw new Error('Project access required');
+    const area=await supabase.rpc('pm_phase_a_area_gate',{_project:data.projectId,_area:'financials'});
+    if(area.error || !area.data)throw new Error('Forbidden');
     const {ingestStoredDocument}=await import('./doc-intake.server');
-    const result=await ingestStoredDocument({bucket:'financial-documents',storagePath:data.storagePath,originalFilename:data.fileName,source:'manual_upload',createdBy:userId,entityId});
+    const result=await ingestStoredDocument({bucket:'financial-documents',storagePath:data.storagePath,originalFilename:data.fileName,source:'manual_upload',createdBy:userId,entityId,extraFields:{created_project_id:data.projectId}});
     if(!result.ok || !result.queueItemId)return {ok:false as const,error:'extractionFailed'};
     const q=await supabase.from('financial_document_review_queue').select('id,direction,doc_type,intake_type,status,entity_id,extracted_document_number,extracted_date,extracted_due_date,extracted_amount,extracted_vat_amount,extracted_buyer_name,extracted_buyer_vat,matched_client_id,raw_extraction,source_file_url').eq('id',result.queueItemId).eq('entity_id',entityId).single();
     if(q.error || !q.data)return {ok:false as const,error:'extractionFailed'};

@@ -12,6 +12,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {readProjectIncomingRows} from './project-incoming-reader';
 
 export const CASHFLOW_YEAR = 2026;
 
@@ -239,6 +240,7 @@ function useCashFlowRaw(year: number) {
       }
 
       const sched = (schedule.data ?? []) as any[];
+      const liveIncoming=await readProjectIncomingRows();
       return {
         categories: (cats.data ?? []) as CostCategory[],
         issuedDocs: issued.data ?? [],
@@ -248,9 +250,7 @@ function useCashFlowRaw(year: number) {
         projects: (projects.data ?? []) as any[],
         companies,
         retainers: retainers.data ?? [],
-        inflowSchedule: sched.filter(
-          (r) => r.direction == null || r.direction === "inflow",
-        ),
+        inflowSchedule: liveIncoming.filter(r=>r.billing_status==='planned').map(r=>({...r,expected_invoice_date:r.planned_invoice_date,expected_payment_date:r.planned_payment_date,quote:{quote_status:'approved',pm_project_id:r.project_id},stage:{stage_kind:r.trigger_type==='monthly'?'retainer_monthly':null}})),
         outflowSchedule: sched.filter((r) => r.direction === "outflow"),
         periods: (periods.data ?? []) as any[],
         companyExpenses: companyExpenses.data ?? [],

@@ -111,3 +111,33 @@ Fase B permanece: tabelas mistas/propostas/snapshots/horas/recursos, Overview/Ga
 
 ### Ficheiros adicionais/evidência
 Migrações **0229–0235**, mirrors `supabase/migrations/2026110321*.sql`; `project-area-tabs.ts`, `use-project-access.ts`, detalhe projeto, testes `test-project-area-tabs.test.ts` e `test-project-access-decisions-e2e.py`. Capacidades/auditoria global protegidas; cutover OFF. Teste repetido após última migração; nove testes e sete mirrors byte-identical passaram. Leitura final **21:34:34 UTC**: projects/quotes/opportunities/allocations/access descartáveis **0/0/0/0/0**; quatro capacidades e auditorias reais aprovadas preservadas, duas auditorias Mint preservadas. Build OK 21:34:26 UTC.
+
+## Fecho da aprovação 21:41 UTC — corte real OFF
+- **96 correções aprovadas aplicadas e auditadas**, só offset, sem outros campos/linhas alterados: [auditoria](project-access-phase-a/payment-offset-correction-audit.csv). Proposta convertida descartável verificou interpretação e aviso sem data quando ilegível; eliminada.
+- [Matriz final — 1 176 combinações](project-access-phase-a/access-matrix-final.csv). As atribuições globais, Rita/Mint e perdas de Patricia/Bernardo não mudaram nesta entrega. A matriz continua prévia de predicados, não certificação das superfícies mistas da Fase B.
+- Barreira para baseline bruto exige **Financials + Budget/custo + Suppliers**, pois a mesma linha contém as três áreas; filhos herdam a restrição do pai. A projeção de datas contratuais mantém acesso Financials separado, sem revelar custos de baseline.
+- Completadas barreiras gated para documentos/linhas/queue ligados a projetos, respetivos anexos, settings de projeto, obrigações/lotes/filhos. Grants por área passam a permitir membros autorizados sem Finance global. Políticas permissivas antigas continuam para comportamento OFF/escritas; as restritivas ON impedem ultrapassar flags. Não foram removidas políticas ALL de escrita.
+- Guardas dentro de `pe_match_purchase`, directory, aprovações legadas e confirmação queue; OCR de compras usa download autorizado, não serviço privilegiado; PDF de projeto/recibo exige área antes de OCR; destinos de confirmação de recebimento são lidos como o chamador antes de escrever. Financeiro legado também precisa Financials para editar datas quando ON.
+
+### Teste isolado ON — passou 121 verificações
+Uma única fixture de projeto de cada vez, em subtransação privilegiada. A definição ON só existiu dentro da transação e nunca ficou visível às outras sessões; exceção controlada reverteu **definição da função, projeto e todos os filhos/auditorias**. Sem alterar contas, roles, capacidades ou dados de projetos reais.
+
+Seis modos (tudo OFF, cada área isolada, tudo ON), identidade de PM sem Finance global, exceção global e identidade não-PSA: parent/child de invoices, inflow/outflow, fornecedor, baseline multi-área, despesas/eventos, obrigações/lotes/alocações, documento/linha/queue, guards de ficheiros partilhados, projeção de datas, override permitido/montante negado, ações de despesa/matching negadas e parser. **121 verificações**, `rolledBack=true`, `gateOff=true`. Fonte permanente `scripts/test-project-cutover-on.sql`; instalador 0239 com adaptação 0240. Falhas iniciais de contexto de despesa/caminho de ficheiro foram integralmente revertidas e corrigidas antes do PASS.
+
+**Limites que não são PASS:** guardas de anexos foram exercidas com caminho de teste, não download de bytes em Storage ON; nenhum lote com dois projetos foi criado (restrição uma fixture); capturas finais PT/EN são Mint só leitura/OFF, não uma sessão de PM com corte ON; concorrência fiscal/financeira e exportações/PDFs não foram exercidas integralmente. Compatibilidade completa do editor fiscal para todos os utilizadores sem Finance global e restantes leitores mistos continuam por comprovar. Não afirmar isolamento total nem dar go automático.
+
+### Checklist para a decisão final
+- [x] 96 offsets =30, auditoria/exata igualdade dos restantes campos.
+- [x] Conversão com termos reconhecidos/ilegíveis, sem guesses; fixture apagada.
+- [x] Quatro capacidades globais e Rita/Mint preservadas; vários membros ON; matriz final disponível.
+- [x] Fronteiras puramente financeiras, filhos, baseline multi-área, RPCs identificados, queue/anexos/settings preparados e teste isolado ON de 121 regras passado.
+- [x] Corte real OFF após rollback; zero lido em **21:55:08 UTC**: projetos/propostas/oportunidades/fases/prestações/despesas/queue **0/0/0/0/0/0/0**.
+- [x] Páginas completas PT/EN de Recebimentos, sem loading; testes de regras/editor fiscal e traduções.
+- [ ] Antes de certificar cobertura integral: download Storage ON, lote multi-projeto, PM UI ON/compatibilidade fiscal e concorrência; sem PASS inventado.
+- [ ] **Go explícito de Luis ainda não recebido.** Não ativar gate. A ação de corte e rollback deve preservar estas comparações.
+
+Fase B mantém todas as exposições mistas já listadas (home/Gantt/overview/horas/recursos/snapshots/forecast/report/search/export/PDF), incluindo antiga previsão de saídas baseada em propostas; não autorizada nesta entrega. O alcance validado é Fase A descrito acima, não privacidade financeira total da aplicação.
+
+Ficheiros novos: `project-incoming-reader.ts`, testes do leitor, manifesto e conversão; alterações `recebimentos.server/functions`, `purchase-ocr.functions`, `issued-pdf.functions`, `project-expense-queue.functions`, `use-provisional-invoicing`, leitores de entradas Finance; traduções EN/PT e regras locais. Migrações **0236–0244**, mirrors idênticos. Capturas [PT](project-access-phase-a/final-incoming-pt-PT.png)/[EN](project-access-phase-a/final-incoming-en.png).
+
+Leitura final **21:58:51 UTC**: projetos/propostas/oportunidades/fases/prestações/despesas/queue descartáveis **0/0/0/0/0/0/0**; **96 auditorias** confirmam igualdade integral antes/depois removendo somente `payment_offset_days`. Último teste isolado: 121 verificações, rollback e gate OFF. **16 testes Vitest**, parity EN/PT e AST sem novos literais passaram; nove mirrors byte-identical; build OK **21:58:40 UTC**.
