@@ -14,6 +14,7 @@ import type { QuoteStatus } from '@/lib/crm/types';
 import type { QuoteLifecycle } from '@/lib/quotes/quote-lifecycle';
 import { SendProposalDialog } from '@/components/psa-composer/send-proposal-dialog';
 import type { PsaProposal } from '@/lib/psa-proposal/types';
+import { useNextRevNumber } from '@/lib/psa-proposal/use-proposal-revisions';
 export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignature}: {
  quoteId:string; lifecycle:QuoteLifecycle; onConvert:()=>void; onGoToSignature?:()=>void;
  status?:QuoteStatus; hasAccount?:boolean; hasProject?:boolean; companyId?:string|null; defaultContactId?:string|null;
@@ -24,6 +25,7 @@ export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignatur
  const [selected,setSelected]=useState('');
  const [sendOpen,setSendOpen]=useState(false);
  const proposal=useQuery({queryKey:['quote-workflow-proposal',quoteId],queryFn:async()=>{const {data,error}=await supabase.from('psa_proposals').select('*').eq('quote_id',quoteId).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data as unknown as PsaProposal|null;}});
+ const nextRev=useNextRevNumber(proposal.data?.id);
  const revisions=useQuery({queryKey:['quote-acceptance-revisions',quoteId],enabled:open,queryFn:async()=>{
   const {data:proposals,error:pError}=await supabase.from('psa_proposals').select('id').eq('quote_id',quoteId);if(pError)throw pError;
   const {data,error}=await supabase.from('psa_proposal_snapshots').select('id,rev_number,pdf_filename').in('proposal_id',(proposals??[]).map(p=>p.id)).eq('kind','sent').order('created_at',{ascending:false});if(error)throw error;return data??[];
@@ -40,7 +42,7 @@ export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignatur
   {state==='sent'&&<Button size="sm" onClick={()=>setOpen(true)}><CheckCircle2 className="mr-1 h-4 w-4"/>{t('quotes.flow.registerAcceptance')}</Button>}
   {state==='approved'&&<Button size="sm" onClick={onGoToSignature}><FileSignature className="mr-1 h-4 w-4"/>{t('quotes.flow.signatureAction')}</Button>}
   {(state==='signed'||state==='converted')&&<Button size="sm" onClick={onConvert}><ExternalLink className="mr-1 h-4 w-4"/>{t(state==='converted'?'quotes.workflow.openProject':'quotes.workflow.convertCta')}</Button>}
-  {proposal.data && <SendProposalDialog proposal={proposal.data} open={sendOpen} onOpenChange={setSendOpen} />}
+  {proposal.data && <SendProposalDialog proposal={proposal.data} nextRev={nextRev.data??0} open={sendOpen} onOpenChange={setSendOpen} />}
   <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>{t('quotes.flow.registerAcceptance')}</DialogTitle><DialogDescription>{t('quotes.flow.acceptanceDescription')}</DialogDescription></DialogHeader>
    <Label htmlFor="acceptance-date">{t('quotes.flow.acceptanceDate')}</Label><Input id="acceptance-date" type="date" value={date} onChange={e=>setDate(e.target.value)}/>
    <Label>{t('quotes.flow.acceptedRevision')}</Label><Select value={selected||lifecycle.latestSentSnapshotId||''} onValueChange={setSelected}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{revisions.data?.map(r=><SelectItem key={r.id} value={r.id}>{t('opportunities.documents.revision',{n:String(r.rev_number??0).padStart(2,'0')})} · {r.pdf_filename}</SelectItem>)}</SelectContent></Select>
