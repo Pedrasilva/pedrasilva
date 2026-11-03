@@ -34,7 +34,7 @@ export function ProjectIncomingPayments({projectId}:{projectId:string}) {
       <TableCell className="whitespace-nowrap tabular-nums">{money(Number(row.amount_value))}</TableCell><TableCell className="whitespace-nowrap">{date(row.planned_invoice_date)}{row.planned_invoice_date_override&&<Badge variant="outline">{t('projects:incomingTiming.override')}</Badge>}</TableCell>
       <TableCell className="whitespace-nowrap">{date(row.planned_payment_date)}</TableCell><TableCell className="whitespace-nowrap">{date(row.contract_invoice_date)}</TableCell>
       <TableCell>{row.slippage_working_days===null?'—':t('projects:incomingTiming.workingDays',{count:row.slippage_working_days})}</TableCell>
-      <TableCell><Badge variant="outline">{t(`projects:projectFinancialTab.ui.${row.billing_status}`,{defaultValue:row.billing_status})}</Badge>{row.frozen&&<div className="text-xs text-muted-foreground">{t('projects:incomingTiming.frozen')}</div>}</TableCell>
+      <TableCell><Badge variant="outline">{t(`projects:incomingTiming.status.${row.billing_status}`)}</Badge>{row.frozen&&<div className="text-xs text-muted-foreground">{t('projects:incomingTiming.frozen')}</div>}</TableCell>
       <TableCell>{query.data?.can_edit_dates&&!row.frozen&&<Button variant="ghost" size="icon" title={t('projects:incomingTiming.editDates')} aria-label={t('projects:incomingTiming.editDates')} onClick={()=>{setEditing(row);setInvoice(row.planned_invoice_date_override??'');setPayment(row.planned_payment_date_override??'');setTrigger(row.trigger_type);setStage(row.stage_id??'');setReason('');}}><Pencil className="size-4"/></Button>}</TableCell>
     </TableRow>)}</TableBody></Table></div>
     {editing&&<div className="border-t border-border pt-4 space-y-3">
