@@ -19131,6 +19131,14 @@ export type Database = {
         }
         Returns: number
       }
+      pm_require_expense_action_area: {
+        Args: { _action: string; _data: Json }
+        Returns: undefined
+      }
+      pm_require_expense_area: {
+        Args: { _expense: string }
+        Returns: undefined
+      }
       pm_resource_id_for_user: { Args: { _user_id: string }; Returns: string }
       pm_resource_map_for_users: {
         Args: { _user_ids: string[] }
