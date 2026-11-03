@@ -1,5 +1,5 @@
 ## Current request — Per-project team and access (item 5, plan only)
-- [ ] Inventory team/roles, every project tab, current financial RLS and cross-app consumers; show implementation plan for approval without real-data changes.
+- [x] Inventory team/roles, all 19 tab keys, source financial RLS and cross-app consumers; prepare plan without real-data changes. Live policies unavailable; exhaustive search/export trace required before implementation cutoff.
 - [ ] Implement only after approval: per-project area visibility, protected admin controls, payment-date helper integration and regression/security checks.
 
 ## Current request — Incoming payment dates (item 2, approved with amendments)
