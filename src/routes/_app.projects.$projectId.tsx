@@ -56,7 +56,7 @@ import {
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
-import { ProjectClientField } from "@/components/projects/project-client-field";
+import { ProjectClientField, useProjectClientName } from "@/components/projects/project-client-field";
 import { ProjectTeamCard } from "@/components/projects/project-team-card";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
@@ -185,6 +185,8 @@ function ProjectDetail() {
   const { t } = useTranslation();
   const projectFinanceAccess = useFinanceAccess();
   const { projectId } = Route.useParams();
+  const clientProjectQ = useProjectDetail(projectId);
+  const resolvedClientName = useProjectClientName(clientProjectQ.data?.project.company_id, clientProjectQ.data?.project.client ?? null);
   const [showCancelled, setShowCancelled] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const { data, isLoading, error } = useProjectDetail(projectId, { includeCancelled: showCancelled });
@@ -644,7 +646,7 @@ function ProjectDetail() {
           {/* MIDDLE: contextual meta — client · dates · team */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
             <span className="truncate">
-              {project.client ?? t("projects:detail.header.noClient")}
+              {resolvedClientName ?? t("projects:detail.header.noClient")}
             </span>
             <span className="text-border">·</span>
             <span className="inline-flex items-center gap-1">

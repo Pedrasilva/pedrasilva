@@ -10,6 +10,17 @@ import { CompanyPicker } from "@/components/crm/company-picker";
 import { useUpdateProject } from "@/lib/projects/use-planner";
 import { toast } from '@/lib/toast';
 import { useQuery } from "@tanstack/react-query";
+import { projectClientName } from "@/lib/projects/project-client-name";
+
+export function useProjectClientName(companyId: string | null | undefined, client: string | null) {
+  const q = useQuery({ queryKey: ["pm-project-client-name", companyId], enabled: !!companyId, queryFn: async () => {
+    if (!companyId) return null;
+    const { data, error } = await supabase.from("companies").select("nome").eq("id", companyId).maybeSingle();
+    if (error) throw error;
+    return data?.nome ?? null;
+  } });
+  return projectClientName(q.data, client);
+}
 
 export function ProjectClientField({
   projectId,
@@ -24,17 +35,7 @@ export function ProjectClientField({
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<string | null>(companyId);
   const update = useUpdateProject();
-  const companyQ = useQuery({
-    queryKey: ["pm-project-client-name", companyId],
-    enabled: !!companyId,
-    queryFn: async () => {
-      if (!companyId) return null;
-      const { data, error } = await supabase.from("companies").select("nome").eq("id", companyId).maybeSingle();
-      if (error) throw error;
-      return data?.nome ?? null;
-    },
-  });
-  const displayClient = companyQ.data || client;
+  const displayClient = useProjectClientName(companyId, client);
 
   async function save() {
     if (!picked) return;
