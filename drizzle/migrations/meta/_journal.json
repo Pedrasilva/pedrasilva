@@ -1618,6 +1618,13 @@
       "when": 1793741129700,
       "tag": "0230_project_area_pre_cutover_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 231,
+      "version": "7",
+      "when": 1793741159870,
+      "tag": "0231_project_area_policy_callable_boundary",
+      "breakpoints": true
     }
   ]
 }
