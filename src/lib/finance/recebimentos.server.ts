@@ -192,14 +192,15 @@ export async function refreshSuggestions(recId: string) {
 }
 
 /** Open things the client could be paying, gross (VAT included). */
-export async function openTargetsForClient(companyId: string, entityId: string): Promise<TargetItem[]> {
-  const { data: company } = await supabaseAdmin.from("companies").select("id, nif").eq("id", companyId).maybeSingle();
-  const { data: projects } = await supabaseAdmin.from("pm_projects").select("id, name").eq("company_id", companyId);
+export async function openTargetsForClient(companyId: string, entityId: string, caller?: typeof supabaseAdmin): Promise<TargetItem[]> {
+  const reader = caller ?? supabaseAdmin;
+  const { data: company } = await reader.from("companies").select("id, nif").eq("id", companyId).maybeSingle();
+  const { data: projects } = await reader.from("pm_projects").select("id, name").eq("company_id", companyId);
   const pIds = (projects ?? []).map((p) => p.id);
   const pName = new Map((projects ?? []).map((p) => [p.id, p.name]));
   const out: TargetItem[] = [];
 
-  let invQ = supabaseAdmin.from("pm_invoices").select("id, invoice_number, title, total, raised_date, due_date, project_id, status, client_nif")
+  let invQ = reader.from("pm_invoices").select("id, invoice_number, title, total, raised_date, due_date, project_id, status, client_nif")
     .eq("entity_id", entityId).in("status", ["draft", "sent", "overdue"]);
   if (pIds.length) invQ = invQ.or(`project_id.in.(${pIds.join(",")})${company?.nif ? `,client_nif.eq.${company.nif}` : ""}`);
   else if (company?.nif) invQ = invQ.eq("client_nif", company.nif);
@@ -209,16 +210,31 @@ export async function openTargetsForClient(companyId: string, entityId: string):
     out.push({ kind: "pm_invoice", id: i.id, label: i.invoice_number ?? i.title ?? "—", amount: money(i.total), date: i.due_date ?? i.raised_date, projectId: i.project_id, projectName: pName.get(i.project_id) ?? null });
   }
   if (pIds.length) {
-    const { data: sch } = await supabaseAdmin.from("pm_payment_schedule_items")
+    const { data: sch } = await reader.from("pm_payment_schedule_items")
       .select("id, label, amount_type, amount_value, vat_rate, expected_payment_date, expected_invoice_date, project_id, billing_status, direction")
       .eq("entity_id", entityId).in("project_id", pIds).eq("direction", "inflow").in("billing_status", ["planned", "issued"]).eq("amount_type", "fixed");
+    const liveDates = new Map<string, string | null>();
+    for (const projectId of new Set((sch ?? []).map(s => s.project_id))) {
+      if (caller) {
+        const timing = await caller.rpc('pm_project_incoming_timing', {_project: projectId});
+        if (timing.error) throw new Error(timing.error.message);
+        for (const row of (timing.data as unknown as {rows: {id:string;planned_payment_date:string|null}[]}).rows) liveDates.set(row.id,row.planned_payment_date);
+      } else {
+        // Scheduled intake has no viewer; the internal resolver is service-only.
+        for (const row of (sch ?? []).filter(s => s.project_id === projectId)) {
+          const timing = await supabaseAdmin.rpc('pm_incoming_resolve', {_item: row.id});
+          if (timing.error) throw new Error(timing.error.message);
+          liveDates.set(row.id,(timing.data as unknown as {planned_payment_date:string|null}).planned_payment_date);
+        }
+      }
+    }
     for (const s of sch ?? []) {
       const rate = Number(s.vat_rate ?? 0);
       const gross = money(Number(s.amount_value ?? 0) * (1 + (rate > 1 ? rate / 100 : rate)));
-      out.push({ kind: "schedule_item", id: s.id, label: s.label ?? "—", amount: gross, date: s.expected_payment_date ?? s.expected_invoice_date, projectId: s.project_id, projectName: pName.get(s.project_id) ?? null });
+      out.push({ kind: "schedule_item", id: s.id, label: s.label ?? "—", amount: gross, date: liveDates.get(s.id) ?? null, projectId: s.project_id, projectName: pName.get(s.project_id) ?? null });
     }
   }
-  const { data: docs } = await supabaseAdmin.from("financial_documents")
+  const { data: docs } = await reader.from("financial_documents")
     .select("id, document_number, total_inc_vat, outstanding_amount, issue_date, due_date, project_id, status, doc_type")
     .eq("entity_id", entityId).eq("direction", "issued").eq("counterparty_client_id", companyId).neq("status", "cancelled")
     .in("doc_type", ["client_invoice"]).gt("outstanding_amount", 0);
