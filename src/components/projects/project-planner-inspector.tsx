@@ -391,6 +391,17 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
             </>
           )}
 
+          {isMilestone && planningOnly && <div className="space-y-1">
+            <Label className="text-xs">{t("gantt.inspector.start")}</Label>
+            <Input type="date" key={`milestone-${stage.id}-${stage.start_date}`} defaultValue={stage.start_date}
+              onBlur={(e) => {
+                const date = e.target.value;
+                if (!date || date === stage.start_date || readOnly) return;
+                updateStageCascade.mutateAsync({ id: stage.id, projectId, start_date: date, end_date: date, move: true })
+                  .catch(error => toast.error((error as Error).message));
+              }} />
+          </div>}
+
           <div className="space-y-1">
             <Label className="text-xs">
               {t("projects:gantt.inspector.budget", { defaultValue: "Budget" })}

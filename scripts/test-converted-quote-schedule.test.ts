@@ -40,7 +40,9 @@ describe("converted quote schedule", () => {
     child1.allocations[0].stage_id = "month1";
     const child2 = live({ id: "month2", source_quote_stage_id: null, parent_stage_id: "p1", stage_kind: "retainer_month" });
     child2.allocations[0].stage_id = "month2"; child2.allocations[0].id = "a2";
-    expect(convertedQuoteSchedule("project", quote, [{ id: "qa1", stage_id: "q1" }], [parent, child1, child2]).issues).toEqual([]);
+    const result = convertedQuoteSchedule("project", quote, [{ id: "qa1", stage_id: "q1" }], [parent, child1, child2]);
+    expect(result.issues).toEqual([]);
+    expect(result.stages[0].allocations.map(a => [a.id, a.stage_id])).toEqual([["a1", "month1"], ["a2", "month2"]]);
   });
   it("places the live retainer band after ordinary phases without changing live data", () => {
     const stages = [live({ stage_kind: "retainer_monthly", allocations: [] }), live({ id: "p2", source_quote_stage_id: "q2", allocations: [] })];

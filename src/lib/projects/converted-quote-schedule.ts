@@ -39,6 +39,9 @@ export function convertedQuoteSchedule(
     if (!quote) return live;
     return {
       ...live,
+      allocations: live.stage_kind === "retainer_monthly"
+        ? [...live.allocations, ...liveStages.filter(s => s.parent_stage_id === live.id && s.stage_kind === "retainer_month").flatMap(s => s.allocations)]
+        : live.allocations,
       // Presentation-only quote WBS; all identifiers and dates remain operational.
       parent_stage_id: quote.parent_stage_id ? stageMap.get(quote.parent_stage_id)?.id ?? live.parent_stage_id : null,
       sort_order: live.stage_kind === "retainer_monthly" ? lastOrder + 1 : quote.sort_order,
