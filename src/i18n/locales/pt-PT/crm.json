@@ -390,7 +390,7 @@
       "signatureAction": "Enviar contrato para assinatura / Marcar assinado",
       "unsignedWarning": "Contrato ainda não assinado",
       "checklistTitle": "Antes de converter",
-      "client": "Definir a empresa cliente na oportunidade",
+      "client": "Selecionar a empresa cliente",
       "revision": "Identificar a revisão enviada aceite",
       "gantt": "Adicionar as fases do Gantt",
       "currentState": "Estado atual: {{state}}"
@@ -509,6 +509,7 @@
         }
       },
       "convert": {
+        "acceptanceFirst": "Registe a adjudicação primeiro",
         "title": "Converter em projeto",
         "directHint": "A proposta está aprovada. Converta-a num projeto operacional para começar a planear e a alocar recursos.",
         "directCta": "Converter em projeto",

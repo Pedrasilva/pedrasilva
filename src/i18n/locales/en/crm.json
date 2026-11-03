@@ -390,7 +390,7 @@
       "signatureAction": "Send contract for signature / Mark signed",
       "unsignedWarning": "Contract not yet signed",
       "checklistTitle": "Before converting",
-      "client": "Set the client company on the opportunity",
+      "client": "Select the client company",
       "revision": "Identify the accepted sent revision",
       "gantt": "Add the Gantt stages",
       "currentState": "Current state: {{state}}"
@@ -509,6 +509,7 @@
         }
       },
       "convert": {
+        "acceptanceFirst": "Register acceptance first",
         "title": "Convert to project",
         "directHint": "This quote is approved. Convert it into an operational project to start planning and allocating resources.",
         "directCta": "Convert to project",
