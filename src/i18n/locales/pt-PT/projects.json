@@ -2898,5 +2898,40 @@
     "averageSaleRate": "Preço de venda médio",
     "averageCostRate": "Custo médio por hora"
   },
-  "stageSummaryLabel": "Resumo da etapa"
+  "stageSummaryLabel": "Resumo da etapa",
+  "incomingTiming": {
+    "title": "Recebimentos previstos",
+    "undefined": "Por definir",
+    "invoiceDate": "Data prevista de faturação",
+    "paymentDate": "Data prevista de recebimento",
+    "contractDate": "Data contratual de faturação",
+    "slippage": "Desvio",
+    "override": "Alteração manual",
+    "frozen": "Datas congeladas",
+    "editDates": "Editar datas do pagamento",
+    "invoiceOverride": "Alteração da data de faturação",
+    "paymentOverride": "Alteração da data de recebimento",
+    "trigger": "Marco",
+    "reason": "Motivo da alteração de datas",
+    "clearOverride": "Limpar alterações manuais",
+    "constructionMonth": "Mês {{number}} de obra",
+    "workingDays_one": "{{count}} dia útil",
+    "workingDays_other": "{{count}} dias úteis",
+    "triggers": {
+      "project_start": "Adjudicação",
+      "stage_start": "Início da fase",
+      "stage_end": "Conclusão da fase",
+      "manual_date": "Data fixa",
+      "monthly": "Mês de obra"
+    },
+    "problems": {
+      "contractUnproven": "Correspondência com o contrato original não comprovada",
+      "appointmentUnproven": "Data de adjudicação não comprovada",
+      "stageUnmapped": "Ligação à fase operacional não comprovada",
+      "monthUnproven": "Número do mês de obra não comprovado",
+      "placeholderDate": "Não é possível usar uma data provisória",
+      "dateUndefined": "Data ainda não definida",
+      "nonWorkingDate": "A data escolhida não é um dia útil"
+    }
+  }
 }

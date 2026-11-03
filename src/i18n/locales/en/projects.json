@@ -2898,5 +2898,40 @@
     "averageSaleRate": "Average sale rate",
     "averageCostRate": "Average cost rate"
   },
-  "stageSummaryLabel": "Stage summary"
+  "stageSummaryLabel": "Stage summary",
+  "incomingTiming": {
+    "title": "Incoming payments",
+    "undefined": "To be defined",
+    "invoiceDate": "Planned invoice date",
+    "paymentDate": "Planned payment date",
+    "contractDate": "Contract invoice date",
+    "slippage": "Slippage",
+    "override": "Override",
+    "frozen": "Dates frozen",
+    "editDates": "Edit payment dates",
+    "invoiceOverride": "Invoice date override",
+    "paymentOverride": "Payment date override",
+    "trigger": "Trigger",
+    "reason": "Reason for the date change",
+    "clearOverride": "Clear date overrides",
+    "constructionMonth": "Construction month {{number}}",
+    "workingDays_one": "{{count}} working day",
+    "workingDays_other": "{{count}} working days",
+    "triggers": {
+      "project_start": "Appointment",
+      "stage_start": "Stage start",
+      "stage_end": "Stage completion",
+      "manual_date": "Fixed date",
+      "monthly": "Construction month"
+    },
+    "problems": {
+      "contractUnproven": "Original contract match not proven",
+      "appointmentUnproven": "Appointment date not proven",
+      "stageUnmapped": "Live stage link not proven",
+      "monthUnproven": "Construction month ordinal not proven",
+      "placeholderDate": "Placeholder date cannot be used",
+      "dateUndefined": "Date has not been defined",
+      "nonWorkingDate": "The selected date is not a working day"
+    }
+  }
 }
