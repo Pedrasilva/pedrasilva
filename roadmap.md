@@ -1,5 +1,5 @@
 ## Current request — Incoming payment dates (item 2, plan only)
-- [ ] Inspect current schema, milestone mapping and protected finance projection; prepare plan for approval, with database-unavailable limitations explicit.
+- [x] Inspect source schema, milestone mapping and protected finance projection; prepare plan for approval, with database-unavailable limitations explicit (live Mint IDs/dates remain unverified).
 - [ ] Implement only after Luis approves; preserve real data, amounts, VAT, terms, conversion function and contract baseline.
 - Item 1 fixture cleanup and verification remain pending until the database connection recovers; no cleanup or new fixtures in this planning step.
 
