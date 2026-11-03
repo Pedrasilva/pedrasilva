@@ -11169,6 +11169,39 @@ export type Database = {
           },
         ]
       }
+      pm_project_access_cutover_audit: {
+        Row: {
+          actor: string
+          after_active: boolean
+          after_matrix: Json
+          before_active: boolean
+          before_matrix: Json
+          changed_at: string
+          reason: string
+          revision: number
+        }
+        Insert: {
+          actor: string
+          after_active: boolean
+          after_matrix: Json
+          before_active: boolean
+          before_matrix: Json
+          changed_at?: string
+          reason: string
+          revision?: never
+        }
+        Update: {
+          actor?: string
+          after_active?: boolean
+          after_matrix?: Json
+          before_active?: boolean
+          before_matrix?: Json
+          changed_at?: string
+          reason?: string
+          revision?: never
+        }
+        Relationships: []
+      }
       pm_project_commercial_baselines: {
         Row: {
           baseline_json: Json
@@ -18865,6 +18898,15 @@ export type Database = {
           _reason: string
           _resource: string
           _revision: number
+        }
+        Returns: Json
+      }
+      pm_change_project_access_cutover: {
+        Args: {
+          _enabled: boolean
+          _expected: boolean
+          _matrix_hash: string
+          _reason: string
         }
         Returns: Json
       }
