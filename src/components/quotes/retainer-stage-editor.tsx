@@ -55,6 +55,8 @@ import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
 import { useProposalRoles } from "@/lib/proposal-roles";
 import type { QuoteStage } from "@/lib/quotes/types";
+import { useQuoteLifecycle } from "@/lib/quotes/use-quote-lifecycle";
+import { constructionMonthRange } from "@/lib/quotes/quote-lifecycle";
 
 import {
   DEFAULT_RETAINER_CAPACITY_HPM,
@@ -81,6 +83,8 @@ interface Props {
 
 export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   const { t, i18n } = useTranslation("crm");
+  const lifecycleQ = useQuoteLifecycle(quoteId);
+  const proposalTiming = lifecycleQ.data?.state !== "converted";
 
   const upsertStage = useUpsertQuoteStage(quoteId);
   const delStage = useDeleteQuoteStage(quoteId);
@@ -358,6 +362,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
         {/* Anchor month + months selector */}
         <div className="flex flex-wrap items-end gap-3">
           <div>
+            {proposalTiming ? <p className="h-9 text-sm font-medium">{t("quotes.flow.constructionMonths", constructionMonthRange(months))}</p> : <>
             <Label className="text-xs">
               {t("workspace.planning.retainerMonthly.anchor", {
                 defaultValue: "Anchor month",
@@ -372,6 +377,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 if (v) setAnchorMonth(`${v}-01`);
               }}
             />
+            </>}
           </div>
           <div>
             <Label className="text-xs">
@@ -413,7 +419,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
           {/* Live totals badge */}
           <div className="ml-auto flex flex-col items-end text-right">
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {t("workspace.planning.retainerMonthly.summary", {
+              {proposalTiming ? t("quotes.flow.constructionMonths", constructionMonthRange(months)) : t("workspace.planning.retainerMonthly.summary", {
                 defaultValue: "{{anchor}} · {{months}} months",
                 anchor: formatAnchorMonth(anchor, isPt ? "pt-PT" : "en"),
                 months,
@@ -480,13 +486,13 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
               </p>
             </div>
 
-            <RetainerMonthlyReadings
+            {!proposalTiming && <RetainerMonthlyReadings
               quoteId={quoteId}
               stageId={stage.id}
               anchorMonth={anchor}
               months={months}
               monthlyFee={monthlyFee}
-            />
+            />}
           </>
         ) : (
           <>

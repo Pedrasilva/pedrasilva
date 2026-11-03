@@ -378,6 +378,10 @@
     "convertSkipped_one": "{{count}} allocation skipped (missing stage mapping). See console for details.",
     "convertSkipped_other": "{{count}} allocations skipped (missing stage mapping). See console for details.",
     "flow": {
+      "unsentRevision": "Rev {{current}} not sent — the client received Rev {{sent}}",
+      "sendCurrentRevision": "Send Rev {{current}}",
+      "acceptanceMismatch": "The selected sent revision differs from the current content. Send the current revision before registering acceptance.",
+      "constructionMonths": "Construction months {{start}}–{{end}}",
       "registerAcceptance": "Register acceptance",
       "acceptanceDescription": "Record the client’s acceptance of the selected sent revision. Fees and document content remain unchanged.",
       "acceptanceDate": "Acceptance date",

@@ -378,6 +378,10 @@
     "convertSkipped_one": "{{count}} alocação ignorada (sem fase correspondente). Consulte a consola para mais informações.",
     "convertSkipped_other": "{{count}} alocações ignoradas (sem fase correspondente). Consulte a consola para mais informações.",
     "flow": {
+      "unsentRevision": "Rev {{current}} por enviar — o cliente recebeu a Rev {{sent}}",
+      "sendCurrentRevision": "Enviar Rev {{current}}",
+      "acceptanceMismatch": "A revisão enviada selecionada difere do conteúdo atual. Envie a revisão atual antes de registar a adjudicação.",
+      "constructionMonths": "Mês {{start}}–{{end}} de obra",
       "registerAcceptance": "Registar adjudicação",
       "acceptanceDescription": "Registe a aceitação do cliente da revisão enviada selecionada. Os honorários e o conteúdo do documento mantêm-se.",
       "acceptanceDate": "Data da adjudicação",
