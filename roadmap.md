@@ -1,3 +1,8 @@
+## Current request — 4 November 01:11 Item 1 tests only
+- [ ] Disposable project without proposal and converted copy: create/move/delete dependencies in project Gantt and proposal builder; approval-bar resize with persisted readback.
+- [ ] Change a source proposal-stage DATE only on converted fixture; prove pm_stages dates unchanged.
+- [ ] Mint Overview Project details at 1050px PT/EN, read only; fixture cleanup/independent zero and append one-project-gantt report. Phase A stays ON; no real data edits.
+
 ## Current request — 4 November 00:55 attachment-first renewed GO
 - [x] Project Billing direct download added; invoice/receipt download + signed URL 39 bytes for PM Financial-only, zero for Patricia/Teresa. No privileged fallback or policy widening.
 - [x] Disposable project/two documents/files removed after snapshot; independent project/document/team/access/stage/Storage zero at 01:10:09. No new identity/resource/collaborator; scoped real-data equality confirmed.
