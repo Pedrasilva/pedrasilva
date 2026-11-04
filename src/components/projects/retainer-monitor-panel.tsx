@@ -65,7 +65,7 @@ function useDirectRetainerEntries(childIds: string[],projectId?:string) {
     enabled: childIds.length > 0,
     queryFn: async (): Promise<Map<string, DirectStageAgg>> => {
       if(projectId){
-        const stages=await readB1Rows<StageWithAllocations>('stages',projectId);
+        const stages=await readB1Rows<{id:string;allocations:{tasks?:{id:string}[]}[]}>('stages',projectId);
         const taskStage=new Map(stages.flatMap(s=>s.allocations.flatMap(a=>(a.tasks??[]).map(task=>[task.id,s.id] as const))));
         const entries=await readB1Rows<{pm_stage_id:string|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null;sale_rate_snapshot:number|null}>('entries',projectId);
         const out=new Map<string,DirectStageAgg>();
