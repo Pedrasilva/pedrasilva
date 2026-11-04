@@ -66,9 +66,9 @@ const ZOOM_PRESETS: { id: "day" | "week" | "month" | "quarter" | "year"; label: 
 
 function GlobalGanttPage() {
   const { t } = useTranslation(["projects", "common", "glossary"]);
-  const { data: projects, isLoading } = useProjects();
-  const { data: allStages } = useAllStages();
-  const { data: resources } = useResources();
+  const { data: projects, isLoading } = useProjects(true);
+  const { data: allStages } = useAllStages({b1Projection:true});
+  const { data: resources } = useResources(undefined,true);
   const { isAdmin } = useAuth();
   const { can: canV2 } = useMyPermissionsV2();
   // Same model as the project detail page: admins, all-scope planners, and

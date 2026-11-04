@@ -15,11 +15,13 @@ import { readB1Rows } from './b1-projection';
 
 // ---------- PROJECTS ----------
 
-export function useProjects() {
+export function useProjects(b1Projection=false) {
   return useQuery({
-    queryKey: ["pm-projects"],
+    queryKey: ["pm-projects",b1Projection],
     queryFn: async (): Promise<Project[]> => {
-      return readB1Rows<Project>('projects');
+      if(b1Projection)return readB1Rows<Project>('projects');
+      const {data,error}=await supabase.from('pm_projects').select('*').eq('finance_only',false).order('created_at',{ascending:false});
+      if(error)throw error;return data??[];
     },
   });
 }
@@ -111,12 +113,14 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
   });
 }
 
-export function useAllStages(opts?: { includeCancelled?: boolean }) {
+export function useAllStages(opts?: { includeCancelled?: boolean;b1Projection?:boolean }) {
   const includeCancelled = opts?.includeCancelled ?? false;
   return useQuery({
-    queryKey: ["pm-stages-all", includeCancelled],
+    queryKey: ["pm-stages-all", includeCancelled,opts?.b1Projection??false],
     queryFn: async (): Promise<StageWithAllocations[]> => {
-      const data = await readB1Rows<StageWithAllocations>('stages');
+      const legacy=opts?.b1Projection ? null : await supabase.from('pm_stages').select('*, allocations:pm_allocations(*, resource:pm_resources(*))').order('sort_order',{ascending:true});
+      if(legacy?.error)throw legacy.error;
+      const data = legacy?.data ?? await readB1Rows<StageWithAllocations>('stages');
       const rows = (data ?? []) as unknown as StageWithAllocations[];
       const sanitized = rows.map((s) => ({
         ...s,
@@ -383,11 +387,13 @@ export function useDeleteDependency() {
 
 // ---------- RESOURCES ----------
 
-export function useResources(projectId?:string) {
+export function useResources(projectId?:string,b1Projection=false) {
   return useQuery({
-    queryKey: ["pm-resources",projectId],
+    queryKey: ["pm-resources",projectId,b1Projection],
     queryFn: async (): Promise<Resource[]> => {
-      return readB1Rows<Resource>('resources',projectId);
+      if(projectId||b1Projection)return readB1Rows<Resource>('resources',projectId);
+      const {data,error}=await supabase.from('pm_resources').select('*').order('name',{ascending:true});
+      if(error)throw error;return data??[];
     },
   });
 }
