@@ -1,0 +1,32 @@
+{
+  "en": {
+    "finance:bank.col.snapshotCheck": "Snapshot check",
+    "projects:expenses.drop.emptyTitle": "No expenses yet — drag receipts here or click to add",
+    "projects:gantt.stage.financialsAction": "Show financials",
+    "projects:gantt.stage.fin.cost": "Cost",
+    "projects:gantt.stage.fin.sale": "Sale value",
+    "projects:gantt.stage.fin.margin": "Margin",
+    "projects:gantt.stage.fin.budget": "Defined budget",
+    "projects:gantt.stage.fin.resources": "Allocated resources",
+    "projects:gantt.stage.fin.vsBudget": "Budget versus resources",
+    "projects:gantt.milestones.laneLabel": "Payments",
+    "finance:documents.payments.matched": "Matched",
+    "finance:documents.projectFinancials.title": "Project financials",
+    "common:refresh": "Refresh"
+  },
+  "pt-PT": {
+    "finance:bank.col.snapshotCheck": "Verificação do snapshot",
+    "projects:expenses.drop.emptyTitle": "Sem despesas — arraste recibos para aqui ou clique para adicionar",
+    "projects:gantt.stage.financialsAction": "Mostrar valores financeiros",
+    "projects:gantt.stage.fin.cost": "Custo",
+    "projects:gantt.stage.fin.sale": "Valor de venda",
+    "projects:gantt.stage.fin.margin": "Margem",
+    "projects:gantt.stage.fin.budget": "Orçamento definido",
+    "projects:gantt.stage.fin.resources": "Recursos alocados",
+    "projects:gantt.stage.fin.vsBudget": "Orçamento face aos recursos",
+    "projects:gantt.milestones.laneLabel": "Pagamentos",
+    "finance:documents.payments.matched": "Associado",
+    "finance:documents.projectFinancials.title": "Financeiro por projeto",
+    "common:refresh": "Atualizar"
+  }
+}
