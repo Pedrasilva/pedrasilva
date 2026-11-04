@@ -1,7 +1,7 @@
 ## Current request — 4 November 01:38 invoices to issue
-- [ ] Write plan in report before code; implement guarded confirmation/emission and Finance-only timing projection page.
-- [ ] Add warnings, groups, monthly forecast and EN/PT; no emails or real changes.
-- [ ] Test on one disposable project, clean exact fixtures and independently prove zero; screenshots/files in report.
+- [x] Plan written before code; guarded confirmation/emission and Finance-only timing page implemented.
+- [x] Warnings, groups, monthly forecast and EN/PT verified; no emails or real changes.
+- [x] Final disposable project test passed; exact cleanup, independent zero 01:50:10 UTC, real rows equal, Phase A ON; report/screenshots saved.
 
 ## Current request — 4 November 01:21 scan issues
 - [x] Queue prefill reset fixed; disposable form save/readback and reopen passed; card-to-form click not automated.
