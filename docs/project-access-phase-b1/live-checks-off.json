@@ -1,0 +1,107 @@
+[
+  {
+    "person": "luis",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": true,
+      "financials": true,
+      "budget_cost": true,
+      "supplier_fees": true
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": false,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  },
+  {
+    "person": "rita",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": true,
+      "financials": true,
+      "budget_cost": true,
+      "supplier_fees": true
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": false,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  },
+  {
+    "person": "rita",
+    "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+    "areas": {
+      "active": true,
+      "expenses": false,
+      "financials": false,
+      "budget_cost": false,
+      "supplier_fees": false
+    },
+    "proposedStages": 3,
+    "proposedBudgetRedacted": true,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/32810ca9-3c97-4eee-a6b7-a8385a19c972"
+  },
+  {
+    "person": "patricia",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": false,
+      "financials": false,
+      "budget_cost": false,
+      "supplier_fees": false
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": true,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  },
+  {
+    "person": "tatiana",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": true,
+      "financials": true,
+      "budget_cost": true,
+      "supplier_fees": true
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": false,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  },
+  {
+    "person": "irene",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": true,
+      "financials": true,
+      "budget_cost": true,
+      "supplier_fees": true
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": false,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  },
+  {
+    "person": "ricardo",
+    "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "areas": {
+      "active": true,
+      "expenses": true,
+      "financials": true,
+      "budget_cost": true,
+      "supplier_fees": true
+    },
+    "proposedStages": 10,
+    "proposedBudgetRedacted": false,
+    "gateOff": false,
+    "uiUrl": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907"
+  }
+]

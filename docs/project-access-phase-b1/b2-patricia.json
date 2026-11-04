@@ -1,0 +1,27 @@
+[
+  {
+    "path": "/projects/forecast",
+    "url": "http://localhost:8080/projects/forecast",
+    "textPrefix": "CRM / Vendas\nProjetos\nEquipa / RH\nTempo\nTarefas\nAgenda\n9+\nP\n\nATELIER\n\nPrevis\u00e3o\n\nReceita, custo e lucro previstos a partir das aloca\u00e7\u00f5es do Gantt. Compare com os valores reais, identifique sobreposi\u00e7\u00f5es com f\u00e9rias aprovadas e estime margens futuras.\n\nProbabil\u00edstico\n100%\nConfirmado\nnovembro 2026\nHoje\nHORAS PLANEADAS\n0 h\n0 colaboradores alocados\nCAPACIDADE EFETIVA\n0 h\n0 h brutas \u00b7 sem f\u00e9rias\nRECEITA PREVISTA\n0\u00a0\u20ac\nface ao real \u2014\nCUSTO PREVISTO\n0\u00a0\u20ac\nface ao real 1024\u00a0\u20ac\nLUCRO PREVISTO\n0\u00a0\u20ac\nMargem 0,0% \u00b7 real \u2014\nTend\u00eancia de previs\u00e3o (6 meses)\nReceita e c"
+  },
+  {
+    "path": "/projects/insights",
+    "url": "http://localhost:8080/projects/insights",
+    "textPrefix": "CRM / Vendas\nProjetos\nEquipa / RH\nTempo\nTarefas\nAgenda\n9+\nP\n\nATELIER\n\nAn\u00e1lises de Projetos\n\nVistas anal\u00edticas: valor da pipeline ao longo do tempo e desempenho por recurso.\n\nAtivos\nEm pausa\nArquivados\nTodos\nVALOR DO PROJETO\nAgrupar gr\u00e1fico por\nHoras Registadas\nValor\nCreated\nCommenced\nDue\nCompleted\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\nAGO 26\nSET 26\nOUT 26\nNOV 26\nDEZ 26\nJAN 27\nFEV 27\nMAR 27\nABR 27\nMAI 27\nJUN 27\nJUL 27\nDESEMPENHO\nAnalisar por recurso\nValue\nBudget (hrs)\nNumber of Projects\nPESSOAL\tN.\u00ba DE ATIVOS\tVALOR\tDENTRO DO OR\u00c7AMENTO\tDENTRO DO PRAZO\nAinda n\u00e3o"
+  },
+  {
+    "path": "/projects/financials",
+    "url": "http://localhost:8080/projects/financials",
+    "textPrefix": "CRM / Vendas\nProjetos\nEquipa / RH\nTempo\nTarefas\nAgenda\n9+\nP\n\nFINANCEIRO DA EMPRESA\n\nDesempenho mensal\n\nReceita, custo e divis\u00e3o de tempo para novembro 2026\n\nnov 2026\nTodas as equipas\nTodas as pessoas\n75\u201385%\n\nRECEITA\n\n0\u00a0\u20ac\n\n0 h fatur\u00e1veis\n\nCUSTO TOTAL\n\n0\u00a0\u20ac\n\n0 h de tempo pago\n\nLUCRO\n\n0\u00a0\u20ac\n\n0% de margem\n\nFatur\u00e1vel\n0 h\n0% do tempo total\nInterno n\u00e3o fatur\u00e1vel\n0 h\n0% do tempo total\nN\u00e3o trabalhado\n0 h\n0% do tempo total\n\nSem f\u00e9rias aprovadas ou feriados registados neste per\u00edodo.\n\nUtiliza\u00e7\u00e3o\nALVO 75\u201385%\n0%\n75% abaixo do alvo\nCapacidade dispon\u00edvel\n0 h\nDias"
+  },
+  {
+    "path": "/reports/business",
+    "url": "http://localhost:8080/reports/business",
+    "textPrefix": "CRM / Vendas\nProjetos\nEquipa / RH\n9+\nP\nAcesso restrito\nN\u00e3o tem permiss\u00e3o para consultar esta p\u00e1gina. Se precisar de acesso, contacte um administrador. Pode sempre consultar a sua ficha pessoal."
+  },
+  {
+    "path": "/reports/budget",
+    "url": "http://localhost:8080/reports/budget",
+    "textPrefix": "CRM / Vendas\nProjetos\nEquipa / RH\n9+\nP\nAcesso restrito\nN\u00e3o tem permiss\u00e3o para consultar esta p\u00e1gina. Se precisar de acesso, contacte um administrador. Pode sempre consultar a sua ficha pessoal."
+  }
+]
