@@ -1,7 +1,7 @@
 ## Current request — 4 November 00:55 attachment-first renewed GO
-- [ ] Verify invoice/receipt Storage and signed-URL paths; PM Financial ON allowed, Patricia/all-OFF denied, Teresa/entities isolated.
-- [ ] Disposable fixture only, snapshots and exact-reference cleanup, independent zero read; no new QA identity or real-data mutations.
-- [ ] Repeat live Rita/Patricia/all-OFF/four globals; leave ON if all pass, rollback on failure and fix/retry once. Phase B remains plan only; declined Finance checks excluded.
+- [x] Project Billing direct download added; invoice/receipt download + signed URL 39 bytes for PM Financial-only, zero for Patricia/Teresa. No privileged fallback or policy widening.
+- [x] Disposable project/two documents/files removed after snapshot; independent project/document/team/access/stage/Storage zero at 01:10:09. No new identity/resource/collaborator; scoped real-data equality confirmed.
+- [x] Revision 27 ON; Rita Mint/Uralchem/support-all-OFF, Patricia and four globals passed. Automation errors reverted and repaired; no real permission failure. Phase B plan only; refused Finance tests untouched. General line-only/expense-linked attachment coverage remains outside this narrow verification.
 
 ## Current request — 4 November 00:27 Phase A final GO
 - [x] Single disposable project/invoice/attachment/PM Financial ON; Storage 124 bytes allowed and Patricia denied; independent zero auth/collaborator/resource/project/document/file 00:54:47 UTC.
