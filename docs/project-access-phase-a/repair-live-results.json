@@ -10,15 +10,102 @@
         "budget_cost": true,
         "supplier_fees": true
       }
+    },
+    {
+      "person": "Rita",
+      "tab": "billing",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=billing"
+    },
+    {
+      "person": "Rita",
+      "tab": "incoming",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=incoming"
+    },
+    {
+      "person": "Rita",
+      "tab": "paymentSchedule",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=paymentSchedule"
+    },
+    {
+      "person": "Rita",
+      "tab": "financialSummary",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=financialSummary"
+    },
+    {
+      "person": "Rita",
+      "tab": "consultants",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=consultants"
+    },
+    {
+      "person": "Rita",
+      "tab": "expenses",
+      "allowed": true,
+      "url": "http://localhost:8080/projects/da46fd5d-309f-4f9f-b0d6-107cd61dc907?tab=expenses"
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    },
+    {
+      "person": "Rita",
+      "tab": "incoming",
+      "allowed": false,
+      "url": "http://localhost:8080/projects/32810ca9-3c97-4eee-a6b7-a8385a19c972?tab=incoming"
+    },
+    {
+      "person": "Patricia",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
+    },
+    {
+      "person": "Rita all-OFF support",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
     }
   ],
   "activation": {
-    "revision": 3,
+    "revision": 5,
     "active": true
   },
-  "failure": "Billing still hidden",
+  "failure": "Attachment allow check unavailable: no existing invoice attachment linked to Mint; Rita has no grant on projects with invoice files. No real data may be added or relinked.",
   "rollback": {
-    "revision": 4,
+    "revision": 6,
     "active": false
   },
   "unchanged": true,
