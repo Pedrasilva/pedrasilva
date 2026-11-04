@@ -11,6 +11,7 @@ import type {
 import { type StageDependency, type DepType } from "@/lib/projects/dependencies";
 import { changeGanttStage, changeGanttDependency, projectScopeForDependency } from "./gantt-schedule";
 import i18n from '@/i18n';
+import { readB1Rows } from './b1-projection';
 
 // ---------- PROJECTS ----------
 
@@ -18,13 +19,7 @@ export function useProjects() {
   return useQuery({
     queryKey: ["pm-projects"],
     queryFn: async (): Promise<Project[]> => {
-      const { data, error } = await supabase
-        .from("pm_projects")
-        .select("*")
-        .eq("finance_only", false)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
+      return readB1Rows<Project>('projects');
     },
   });
 }
@@ -94,16 +89,10 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
   return useQuery({
     queryKey: ["pm-project", projectId, includeCancelled],
     queryFn: async (): Promise<{ project: Project; stages: StageWithAllocations[] }> => {
-      const [{ data: project, error: pErr }, { data: stages, error: sErr }] = await Promise.all([
-        supabase.from("pm_projects").select("*").eq("finance_only", false).eq("id", projectId).single(),
-        supabase
-          .from("pm_stages")
-          .select("*, allocations:pm_allocations(*, resource:pm_resources(*))")
-          .eq("project_id", projectId)
-          .order("sort_order", { ascending: true }),
+      const [projects, stages] = await Promise.all([
+        readB1Rows<Project>('projects',projectId),readB1Rows<StageWithAllocations>('stages',projectId),
       ]);
-      if (pErr) throw pErr;
-      if (sErr) throw sErr;
+      const project=projects[0];
       const rows = (stages ?? []) as unknown as StageWithAllocations[];
       // RLS on pm_resources may hide rows from non-finance users; the embed
       // comes back as `null` in that case. Drop those allocations so the
@@ -127,11 +116,7 @@ export function useAllStages(opts?: { includeCancelled?: boolean }) {
   return useQuery({
     queryKey: ["pm-stages-all", includeCancelled],
     queryFn: async (): Promise<StageWithAllocations[]> => {
-      const { data, error } = await supabase
-        .from("pm_stages")
-        .select("*, allocations:pm_allocations(*, resource:pm_resources(*))")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
+      const data = await readB1Rows<StageWithAllocations>('stages');
       const rows = (data ?? []) as unknown as StageWithAllocations[];
       const sanitized = rows.map((s) => ({
         ...s,
@@ -398,16 +383,11 @@ export function useDeleteDependency() {
 
 // ---------- RESOURCES ----------
 
-export function useResources() {
+export function useResources(projectId?:string) {
   return useQuery({
-    queryKey: ["pm-resources"],
+    queryKey: ["pm-resources",projectId],
     queryFn: async (): Promise<Resource[]> => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("*")
-        .order("name", { ascending: true });
-      if (error) throw error;
-      return data ?? [];
+      return readB1Rows<Resource>('resources',projectId);
     },
   });
 }
