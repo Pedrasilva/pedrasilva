@@ -1,0 +1,10 @@
+{
+  "hours": 8,
+  "billableHours": 8,
+  "value": 422,
+  "cost": 241.2,
+  "profit": 180.8,
+  "marginPct": 42.8436018957346,
+  "estimatedCost": false,
+  "estimatedValue": true
+}
