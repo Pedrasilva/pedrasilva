@@ -1,0 +1,117 @@
+{
+  "checks": [
+    {
+      "person": "Disposable PM",
+      "attachment": {
+        "bytes": 124,
+        "error": null
+      },
+      "expectedAllowed": true
+    },
+    {
+      "person": "Patricia",
+      "attachment": {
+        "bytes": 0,
+        "error": "Object not found"
+      },
+      "expectedAllowed": false
+    },
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 8,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 1
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "a07f12ad-5033-4c38-b26b-2077d6ffd55b",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
+    },
+    {
+      "person": "Patricia",
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      },
+      "tabsHidden": true
+    },
+    {
+      "person": "admin",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "tatiana",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "irene",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "ricardo",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    }
+  ],
+  "activation": {
+    "revision": 19,
+    "active": true
+  },
+  "fixtureRemoved": true,
+  "allPassed": true,
+  "realDataUnchanged": true,
+  "finalActive": true
+}

@@ -1730,6 +1730,13 @@
       "when": 1793744398759,
       "tag": "0246_project_access_cutover_preview",
       "breakpoints": true
+    },
+    {
+      "idx": 247,
+      "version": "7",
+      "when": 1793753217026,
+      "tag": "0247_project_financial_attachment_read_grant",
+      "breakpoints": true
     }
   ]
 }

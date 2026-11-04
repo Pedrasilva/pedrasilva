@@ -1,7 +1,7 @@
 ## Current request — 4 November 00:27 Phase A final GO
-- [ ] Single disposable project/invoice/attachment/PM Financial ON; real Storage allow and Patricia deny, cleanup and zero.
-- [ ] Re-activate; Rita Mint and Uralchem, Patricia/all-OFF, four global read-only sessions; leave ON on PASS, rollback only permission failure.
-- [ ] Preserve all real data, append report/screenshots/matrix; Phase B plan only for morning review.
+- [x] Single disposable project/invoice/attachment/PM Financial ON; Storage 124 bytes allowed and Patricia denied; independent zero auth/collaborator/resource/project/document/file 00:54:47 UTC.
+- [x] Final revision 19 ON; Rita Mint/Uralchem/all-OFF, Patricia and four global sessions PASS. Earlier loading/locale selector attempts reverted conservatively.
+- [x] Scoped real-data hashes unchanged; report/screenshots/audited 1,320-row matrix retained. No declined Finance checks; Phase B plan only, residual mixed/global exposures remain.
 
 ## Current request — 3 November 23:28 Phase A repair and renewed GO
 - [x] Billing follows project Financials; Finance + fiscal permission still gate creation/upload/editor. Sibling tabs reviewed; legacy mixed Overview billed columns remain Phase B.
