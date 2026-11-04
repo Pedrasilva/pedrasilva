@@ -1,0 +1,15 @@
+person,project,beforeOperationalRows,beforeReadableBudgets,afterOperationalRows,afterReadableBudgets,financials,budget_cost,expenses,supplier_fees
+luis,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,10,True,True,True,True
+luis,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,3,True,True,True,True
+rita,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,10,True,True,True,True
+rita,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,0,False,False,False,False
+patricia,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,0,False,False,False,False
+patricia,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,0,False,False,False,False
+bernardo,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,0,False,False,False,False
+bernardo,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,0,False,False,False,False
+tatiana,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,10,True,True,True,True
+tatiana,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,3,True,True,True,True
+irene,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,10,True,True,True,True
+irene,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,3,True,True,True,True
+ricardo,da46fd5d-309f-4f9f-b0d6-107cd61dc907,10,10,10,10,True,True,True,True
+ricardo,32810ca9-3c97-4eee-a6b7-a8385a19c972,3,3,3,3,True,True,True,True
