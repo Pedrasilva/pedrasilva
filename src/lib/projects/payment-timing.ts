@@ -6,8 +6,9 @@ export type IncomingTimingRow = {
   slippage_working_days: number | null; slippage_calendar_days: number | null;
   planned_invoice_date_override: string | null; planned_payment_date_override: string | null;
   resolved_month_index: number | null; frozen: boolean; problems: string[];
+  workflow?: {confirmed_at:string|null;confirmed_by:string|null;note:string|null;confirmation_current:boolean;invoice_number:string|null;issue_date:string|null};
 };
-export type IncomingTiming = { rows: IncomingTimingRow[]; can_edit_dates: boolean; stages: {id:string;name:string}[] };
+export type IncomingTiming = { rows: IncomingTimingRow[]; today?:string;can_edit_dates: boolean; stages: {id:string;name:string;parent_stage_id?:string|null;sort_order?:number}[] };
 export function displayPaymentDate(value: string | null, locale: string) {
   if (!value) return null;
   const [year, month, day] = value.split('-').map(Number);

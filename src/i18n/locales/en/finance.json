@@ -1,4 +1,29 @@
 {
+  "issueQueue": {
+    "title": "Invoices to issue",
+    "confirmation": "PM confirmation",
+    "ready": "Ready to invoice",
+    "markIssued": "Mark issued",
+    "optionalNote": "Optional note",
+    "invoiceNumber": "Invoice number",
+    "issueDate": "Issue date",
+    "recordedIssue": "{{number}} · issued {{date}}",
+    "dateMoved": "PM changed dates this week",
+    "empty": "No incoming rows match.",
+    "forecast": "Monthly incoming cash-flow forecast",
+    "month": "Month",
+    "expectedIncoming": "Expected receipts (excluding VAT)",
+    "undatedForecast_one": "{{count}} row has no expected payment date and is excluded from the forecast.",
+    "undatedForecast_other": "{{count}} rows have no expected payment date and are excluded from the forecast.",
+    "confirmationStates": {"confirmed": "Confirmed by PM", "pending": "Not confirmed", "stale": "Confirmation needs review"},
+    "status": {"planned": "Planned", "due": "Due", "confirmed": "Confirmed by PM", "issued": "Issued", "paid": "Paid", "cancelled": "Cancelled"},
+    "groups": {"overdue": "Overdue", "thisWeek": "This week", "next14Days": "Next 14 days", "laterThisMonth": "Later this month", "later": "Later", "undefined": "Date to define", "issued": "Issued", "paid": "Paid", "cancelled": "Cancelled"},
+    "warnings": {
+      "overdue_one": "{{count}} overdue row not issued", "overdue_other": "{{count}} overdue rows not issued",
+      "unconfirmed_one": "{{count}} row due within 14 days without PM confirmation", "unconfirmed_other": "{{count}} rows due within 14 days without PM confirmation",
+      "moved_one": "{{count}} row with PM date changes since Monday", "moved_other": "{{count}} rows with PM date changes since Monday"
+    }
+  },
   "knownBank": {
     "partnerTransfer": "Suggested partner transfer",
     "reviewTransfer": "Review classification"

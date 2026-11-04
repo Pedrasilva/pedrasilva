@@ -1,0 +1,4 @@
+DO $patch$ DECLARE s text; BEGIN
+ s:=pg_get_functiondef('public.pm_project_incoming_timing(uuid)'::regprocedure);s:=replace(s,'''rows'',v_rows,''can_edit_dates''','''today'',(now() AT TIME ZONE ''Europe/Lisbon'')::date,''rows'',v_rows,''can_edit_dates''');s:=replace(s,'''source_quote_stage_id'',source_quote_stage_id)','''source_quote_stage_id'',source_quote_stage_id,''parent_stage_id'',parent_stage_id,''sort_order'',sort_order)');EXECUTE s;
+ s:=pg_get_functiondef('public.fin_invoices_to_issue()'::regprocedure);s:=replace(s,'''pm_date_moves'',moves)','''pm_date_moves'',moves,''project_stages'',v->''stages'')');EXECUTE s;
+END $patch$;

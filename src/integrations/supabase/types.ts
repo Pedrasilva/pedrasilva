@@ -10513,6 +10513,66 @@ export type Database = {
           },
         ]
       }
+      pm_invoice_readiness: {
+        Row: {
+          confirmed_amount: number | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          confirmed_invoice_date: string | null
+          confirmed_payment_date: string | null
+          invoice_number: string | null
+          issue_date: string | null
+          issued_at: string | null
+          issued_by: string | null
+          note: string | null
+          payment_item_id: string
+          project_id: string
+        }
+        Insert: {
+          confirmed_amount?: number | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          confirmed_invoice_date?: string | null
+          confirmed_payment_date?: string | null
+          invoice_number?: string | null
+          issue_date?: string | null
+          issued_at?: string | null
+          issued_by?: string | null
+          note?: string | null
+          payment_item_id: string
+          project_id: string
+        }
+        Update: {
+          confirmed_amount?: number | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          confirmed_invoice_date?: string | null
+          confirmed_payment_date?: string | null
+          invoice_number?: string | null
+          issue_date?: string | null
+          issued_at?: string | null
+          issued_by?: string | null
+          note?: string | null
+          payment_item_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_invoice_readiness_payment_item_id_fkey"
+            columns: ["payment_item_id"]
+            isOneToOne: true
+            referencedRelation: "pm_payment_schedule_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_invoice_readiness_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_invoice_settings: {
         Row: {
           bank_name: string | null
@@ -10617,6 +10677,54 @@ export type Database = {
           },
           {
             foreignKeyName: "pm_invoice_settings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_invoice_workflow_audit: {
+        Row: {
+          action: string
+          actor: string
+          after_values: Json
+          before_values: Json
+          changed_at: string
+          id: string
+          payment_item_id: string
+          project_id: string
+        }
+        Insert: {
+          action: string
+          actor: string
+          after_values: Json
+          before_values: Json
+          changed_at?: string
+          id?: string
+          payment_item_id: string
+          project_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          after_values?: Json
+          before_values?: Json
+          changed_at?: string
+          id?: string
+          payment_item_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_invoice_workflow_audit_payment_item_id_fkey"
+            columns: ["payment_item_id"]
+            isOneToOne: false
+            referencedRelation: "pm_payment_schedule_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_invoice_workflow_audit_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
@@ -10840,6 +10948,7 @@ export type Database = {
       pm_payment_date_audit: {
         Row: {
           actor: string
+          actor_was_project_manager: boolean | null
           after_values: Json
           before_values: Json
           changed_at: string
@@ -10850,6 +10959,7 @@ export type Database = {
         }
         Insert: {
           actor: string
+          actor_was_project_manager?: boolean | null
           after_values: Json
           before_values: Json
           changed_at?: string
@@ -10860,6 +10970,7 @@ export type Database = {
         }
         Update: {
           actor?: string
+          actor_was_project_manager?: boolean | null
           after_values?: Json
           before_values?: Json
           changed_at?: string
@@ -17917,6 +18028,8 @@ export type Database = {
         Args: { _number: string; _series?: string; _type: string }
         Returns: Json
       }
+      fin_invoice_queue_access: { Args: never; Returns: boolean }
+      fin_invoices_to_issue: { Args: never; Returns: Json }
       fin_is_pessoal_category: { Args: { _id: string }; Returns: boolean }
       fin_known_bank_identity: {
         Args: { _account: string; _iban: string }
@@ -17929,6 +18042,10 @@ export type Database = {
       fin_link_company_to_entity: {
         Args: { _company_id: string }
         Returns: string
+      }
+      fin_mark_incoming_issued: {
+        Args: { _date: string; _item: string; _number: string }
+        Returns: Json
       }
       fin_merge_companies: {
         Args: { _keep: string; _merge: string; _reason: string }
@@ -18919,6 +19036,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["pm_project_team_role"]
         }
         Returns: undefined
+      }
+      pm_confirm_ready_to_invoice: {
+        Args: { _item: string; _note?: string }
+        Returns: Json
       }
       pm_convert_relative_quote: {
         Args: { _quote: string; _revision: string; _start: string }

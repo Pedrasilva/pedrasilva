@@ -1737,6 +1737,34 @@
       "when": 1793753217026,
       "tag": "0247_project_financial_attachment_read_grant",
       "breakpoints": true
+    },
+    {
+      "idx": 248,
+      "version": "7",
+      "when": 1793756467377,
+      "tag": "0248_incoming_invoice_readiness_and_issue",
+      "breakpoints": true
+    },
+    {
+      "idx": 249,
+      "version": "7",
+      "when": 1793756625252,
+      "tag": "0249_invoice_workflow_direct_write_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 250,
+      "version": "7",
+      "when": 1793756715818,
+      "tag": "0250_invoice_queue_client_name_column",
+      "breakpoints": true
+    },
+    {
+      "idx": 251,
+      "version": "7",
+      "when": 1793756910184,
+      "tag": "0251_invoice_timing_today_and_stage_tree",
+      "breakpoints": true
     }
   ]
 }
