@@ -1,6 +1,6 @@
 import type {FlowExpense} from './project-expense-flow';
 export type PendingExpense=FlowExpense&{project_name:string;client_name:string|null;person_name:string|null;invoice_pending:number|null;reimbursement_pending:number|null;reserved_amount:number;receipt_bucket:string};
-export function pendingClientExpenses(rows:PendingExpense[]){return rows.filter(e=>(e.workflow_version===2?e.rebill_mode!=='none':e.rebillable)&&e.invoiced_at===null&&(e.invoice_pending===null||e.invoice_pending>0));}
+export function pendingClientExpenses(rows:PendingExpense[]){return rows.filter(e=>(e.workflow_version===2?e.rebill_mode!==null&&e.rebill_mode!=='none':e.rebillable)&&e.invoiced_at===null&&(e.invoice_pending===null||e.invoice_pending>0));}
 export function pendingStaffExpenses(rows:PendingExpense[]){return rows.filter(e=>e.payment_source_type==='personal'&&e.reimburse_collaborator_id!==null&&(e.reimbursement_pending===null||e.reimbursement_pending>0));}
 export function expenseGroupTotals(rows:PendingExpense[],kind:'clients'|'staff'){
  const groups=new Map<string,{id:string;name:string;client:string|null;rows:PendingExpense[];total:number;unknown:number}>();
