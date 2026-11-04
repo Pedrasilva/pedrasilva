@@ -1,0 +1,92 @@
+{
+  "standalone": {
+    "create": {
+      "id": "2bf70353-1f3a-4fb6-b7dc-fbdd4519a8da",
+      "predecessor_id": "0b31d817-d582-49b5-b93f-440e230d9786",
+      "successor_id": "e81a02fb-1dc8-4281-8a15-1428d8fd680d",
+      "type": "FS",
+      "lag_days": 0
+    },
+    "move": true,
+    "delete": true,
+    "approvalGestureChanged": false,
+    "approvalBefore": {
+      "id": "e81a02fb-1dc8-4281-8a15-1428d8fd680d",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    },
+    "approvalAfter": {
+      "id": "e81a02fb-1dc8-4281-8a15-1428d8fd680d",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    }
+  },
+  "converted-project": {
+    "create": {
+      "id": "a7413717-c17c-4b17-a130-a43c1a585b33",
+      "predecessor_id": "b6ce459d-cfd5-45c7-a822-75d0b9c7b6f0",
+      "successor_id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "type": "FS",
+      "lag_days": 0
+    },
+    "move": true,
+    "delete": true,
+    "approvalGestureChanged": false,
+    "approvalBefore": {
+      "id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    },
+    "approvalAfter": {
+      "id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    }
+  },
+  "converted-builder": {
+    "create": {
+      "id": "1ed80403-5252-4a6c-8699-d1657fc09939",
+      "predecessor_id": "b6ce459d-cfd5-45c7-a822-75d0b9c7b6f0",
+      "successor_id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "type": "FS",
+      "lag_days": 0
+    },
+    "move": true,
+    "delete": true,
+    "approvalGestureChanged": false,
+    "approvalBefore": {
+      "id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    },
+    "approvalAfter": {
+      "id": "b84891a7-c484-4765-8858-c58bb302455c",
+      "name": "QA Client approval",
+      "end_date": "2026-11-20",
+      "is_locked": false,
+      "stage_kind": "regular",
+      "start_date": "2026-11-16",
+      "parent_stage_id": null
+    }
+  }
+}
