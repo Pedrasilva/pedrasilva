@@ -2,12 +2,27 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('../src/lib/projects/use-default-rates', () => ({
   lockedCostRate: (snapshot: unknown, fallback: number) => snapshot == null ? fallback : Number(snapshot),
 }));
-import { plannedAllocationFigures, loggedEntryFigures, financialResult, completionForecast } from '../src/lib/projects/financial-calculation';
+import { plannedAllocationFigures, loggedEntryFigures, financialResult, completionForecast, marginPercentage } from '../src/lib/projects/financial-calculation';
 import { stageActuals } from '../src/lib/reports/budget-consumption';
 import { billedProjectAmounts, documentProjectAmounts } from '../src/lib/finance/project-document-figures';
 import { sumFinancialsRows } from '../src/lib/projects/financial-rollups';
 
 describe('common project financial calculation', () => {
+  it('all four allowed areas calculate normal margin', () => {
+    expect(marginPercentage(100,40,[true,true,true,true])).toBe(40);
+  });
+  it('each partially hidden component suppresses margin', () => {
+    for(let i=0;i<4;i++) expect(marginPercentage(100,40,[0,1,2,3].map(j=>j!==i))).toBeNull();
+  });
+  it('all-OFF suppresses margin', () => {
+    expect(marginPercentage(100,40,[false,false,false,false])).toBeNull();
+  });
+  it('zero or missing revenue and missing profit have no margin', () => {
+    expect(marginPercentage(0,-60)).toBeNull();
+    expect(marginPercentage(null,40)).toBeNull();
+    expect(marginPercentage(100,NaN)).toBeNull();
+    expect(marginPercentage(Infinity,40)).toBeNull();
+  });
   const allocation = {start_date:'2026-06-01',end_date:'2026-08-31',hours_per_day:0.8};
   const holidays = new Set(['2026-06-04','2026-06-10','2026-06-13','2026-08-15']);
   it('2506 has 51.2 hours, not 73.6 calendar hours', () => {

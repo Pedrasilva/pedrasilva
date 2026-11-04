@@ -33,7 +33,14 @@ export function useProjectEntryFigures(projectId: string, stages: StageWithAlloc
         const resource = resourceId ? byResource.get(resourceId) : undefined;
         const rates = resource ? effectiveRates(resource, defaults) : { cost: NaN, sale: NaN };
         const retainer = (stages ?? []).find(s => s.id === stageId)?.stage_kind?.startsWith('retainer') ?? false;
-        return { id: e.id, stageId, resourceId, resource, month: e.entry_date.slice(0,7), ...loggedEntryFigures(e, rates, retainer) };
+        // This query is enabled only with Financials + Budget. Projection nulls
+        // on absent snapshots must retain the normal allowed-rate fallback;
+        // they are not denied components in this authorized calculation.
+        const authorizedEntry = { ...e,
+          cost_rate_snapshot: Number.isNaN(Number(e.cost_rate_snapshot)) ? null : e.cost_rate_snapshot,
+          sale_rate_snapshot: Number.isNaN(Number(e.sale_rate_snapshot)) ? null : e.sale_rate_snapshot,
+        };
+        return { id: e.id, stageId, resourceId, resource, month: e.entry_date.slice(0,7), ...loggedEntryFigures(authorizedEntry, rates, retainer) };
       });
     },
   });
