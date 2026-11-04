@@ -1,4 +1,5 @@
 import i18n from "@/i18n/index";
+import { marginPercentage } from '@/lib/projects/financial-calculation';
 /**
  * RetainerMonitorPanel — simplified retainer view.
  *
@@ -945,7 +946,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
     { hours: 0, cost: 0, sale: 0 },
   );
   const totalMargin = totals.sale - totals.cost;
-  const totalPct = totals.sale > 0 ? (totalMargin / totals.sale) * 100 : 0;
+  const totalPct = marginPercentage(totals.sale, totalMargin);
 
   return (
     <div className="mt-4 rounded-md border border-border/70 bg-muted/20 p-3">
@@ -967,7 +968,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
           <tbody>
             {data.map((r) => {
               const margin = r.sale - r.cost;
-              const pct = r.sale > 0 ? (margin / r.sale) * 100 : 0;
+              const pct = marginPercentage(r.sale, margin);
               const tone =
                 margin > 0
                   ? "text-emerald-600 dark:text-emerald-400"
@@ -987,7 +988,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                   </td>
                   <td className={cn("px-2 py-2 text-right font-mono tabular-nums", tone)}>
                     {retainerEuros(margin)}{" "}
-                    {Number.isFinite(margin) && Number.isFinite(pct) && <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>}
+                    {pct != null && <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>}
                   </td>
                 </tr>
               );
@@ -1013,7 +1014,7 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
                 )}
               >
                 {retainerEuros(totalMargin)}{" "}
-                {Number.isFinite(totalMargin) && Number.isFinite(totalPct) && <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>}
+                {totalPct != null && <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>}
               </td>
             </tr>
           </tfoot>

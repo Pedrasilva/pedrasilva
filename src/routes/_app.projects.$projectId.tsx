@@ -1,6 +1,6 @@
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
-import { financialResult, completionForecast, plannedAllocationFigures } from "@/lib/projects/financial-calculation";
+import { financialResult, completionForecast, plannedAllocationFigures, marginPercentage, marginLabel } from "@/lib/projects/financial-calculation";
 import { useProjectEntryFigures } from "@/lib/projects/use-project-entry-figures";
 import { rollupExternalServices, rollupExpenses, sumFinancialsRows } from "@/lib/projects/financial-rollups";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -288,7 +288,7 @@ function ProjectDetail() {
   // Real time entries for this project. Keep the entry month so Insights can
   // chart hours even when no separate activity/feed item was created.
   const { data: timeRows } = useQuery({
-    queryKey: ["pm-project-time", projectId],
+    queryKey: ["pm-project-time", projectId, user?.id, b1.data],
     enabled: !!projectId && !!data,
     queryFn: async () => {
       if (!data)
@@ -297,12 +297,11 @@ function ProjectDetail() {
       // member with project visibility see how the project is performing
       // time-wise, not only their own logged hours (RLS on pm_time_entries
       // restricts non-admins to their own rows).
-      const summary = await supabase.rpc("pm_project_stage_hours", {
-        p_project_id: projectId,
-      });
+      const summary = b1.data ? await supabase.rpc("pm_b1_stage_hours", { _project: projectId }) : await supabase.rpc("pm_project_stage_hours", { p_project_id: projectId });
       if (!summary.error && summary.data) {
         // Locked cost per stage/month (only returned to project-financials viewers).
-        const locked = await supabase.rpc("pm_project_stage_locked_cost", { p_project_id: projectId });
+        const locked = b1.data ? await supabase.rpc("pm_b1_stage_locked_cost", { _project: projectId }) : await supabase.rpc("pm_project_stage_locked_cost", { p_project_id: projectId });
+        if (locked.error) throw locked.error;
         const lockedBy = new Map<string, { snap: number; unsnap: number }>();
         for (const l of (locked.data ?? []) as Array<{ stage_id: string; month: string; snap_cost: number | string; unsnap_hours: number | string }>) {
           lockedBy.set(`${l.stage_id}:${l.month}`, { snap: Number(l.snap_cost) || 0, unsnap: Number(l.unsnap_hours) || 0 });
@@ -834,14 +833,14 @@ function ProjectDetail() {
                         >
                           {euros(actualProfit)}
                         </span>
-                        {totalBudget > 0 && (
+                        {(
                           <span
                             className={cn(
                               "text-[10px] font-medium",
                               actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
                             )}
                           >
-                            {Math.round((actualProfit / totalBudget) * 100)}%
+                            {marginLabel(marginPercentage(actualRevenue, actualProfit, [canSeeIntegrated]))}
                           </span>
                         )}
                       </div>
@@ -908,7 +907,7 @@ function ProjectDetail() {
                           actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
                         )}
                       >
-                        {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
+                        {marginLabel(marginPercentage(actualRevenue, actualProfit, [canSeeIntegrated]))}
                       </span>
                       <span className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("projects:detail.rail.profit")}</span>
                     </button>
@@ -2584,9 +2583,9 @@ function InsightsPanel({
   },{value:historical.amount,cost:historical.cost,remaining:0});
   const profitForecast = financialResult(conclusion.value, conclusion.cost + (actualCost - scopedStages.reduce((n,s)=>n+stageActuals(s.id).cost,0) - historical.cost)).profit;
   const profitMarginCurrent =
-    Number.isFinite(profitCurrent) && earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : NaN;
+    marginPercentage(earnedValue, profitCurrent) ?? NaN;
   const profitMarginForecast =
-    Number.isFinite(profitForecast) && conclusion.value > 0 ? Math.round((profitForecast / conclusion.value) * 100) : NaN;
+    marginPercentage(conclusion.value, profitForecast) ?? NaN;
 
   const wipHours = conclusion.remaining;
   const workDonePct =
@@ -3121,12 +3120,12 @@ function FinancialsTable({
           // hypothetical sale value of resources and is intentionally ignored
           // when computing profit/margin.
           const profitPct =
-            isProfit && services.budget > 0
-              ? Math.round((services.profit / services.budget) * 100)
+            isProfit
+              ? marginPercentage(services.value, services.profit)
               : null;
           const totalPct =
-            isProfit && total.budget > 0
-              ? Math.round((total.profit / total.budget) * 100)
+            isProfit
+              ? marginPercentage(total.value, total.profit)
               : null;
           return (
             <tr key={r.key} className="border-b border-border/60 last:border-b-0">
@@ -3134,7 +3133,7 @@ function FinancialsTable({
               <td className="px-2 py-2 text-right font-mono tabular-nums">
                 {euros(services[r.key])}
                 {profitPct !== null && (
-                  <div className="text-[10px] text-muted-foreground">{profitPct}%</div>
+                  <div className="text-[10px] text-muted-foreground">{marginLabel(profitPct)}</div>
                 )}
               </td>
               <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
@@ -3146,7 +3145,7 @@ function FinancialsTable({
               <td className="px-2 py-2 text-right font-mono tabular-nums">
                 {euros(total[r.key])}
                 {totalPct !== null && (
-                  <div className="text-[10px] text-muted-foreground">{totalPct}%</div>
+                  <div className="text-[10px] text-muted-foreground">{marginLabel(totalPct)}</div>
                 )}
               </td>
             </tr>

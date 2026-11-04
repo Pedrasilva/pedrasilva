@@ -1,4 +1,5 @@
 import i18n from "@/i18n/index";
+import { marginPercentage, marginLabel } from '@/lib/projects/financial-calculation';
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -1335,7 +1336,7 @@ export function GanttChart({
               if (impliedHourRate && impliedHourRate > 0) totalSale = impliedHours * impliedHourRate;
             }
             const margin = totalSale - totalCost;
-            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
+            const marginPct = marginPercentage(totalSale, margin);
             // Planning mode: compare cost against sale value (what the fee
             // calculator is producing). Project mode: compare against the
             // approved budget ceiling.
@@ -1595,7 +1596,7 @@ export function GanttChart({
                               <span className={`font-mono ${margin < 0 ? "text-destructive" : "text-emerald-600"}`}>
                                 {euros(margin)}{" "}
                                 <span className="text-[10px] text-muted-foreground">
-                                  ({(marginPct).toLocaleString(i18n.language, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}%)
+                                  ({marginLabel(marginPct)})
                                 </span>
                               </span>
                             </div>

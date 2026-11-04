@@ -5,7 +5,17 @@ import { retainerCostRate } from './retainer-cost';
 
 export function financialResult(value: number, cost: number) {
   const profit = value - cost;
-  return { value, cost, profit, marginPct: Number.isFinite(profit) && value > 0 ? profit / value * 100 : null };
+  return { value, cost, profit, marginPct: marginPercentage(value, profit) };
+}
+
+/** A missing component or non-positive revenue never represents a zero margin. */
+export function marginPercentage(revenue: number | null | undefined, profit: number | null | undefined, allowedParts: boolean[] = [true]): number | null {
+  if (!allowedParts.every(Boolean) || revenue == null || profit == null || !Number.isFinite(revenue) || !Number.isFinite(profit) || revenue <= 0) return null;
+  return profit / revenue * 100;
+}
+
+export function marginLabel(value: number | null | undefined): string {
+  return value != null && Number.isFinite(value) ? `${Math.round(value)}%` : '—';
 }
 
 export function plannedAllocationFigures(a: {

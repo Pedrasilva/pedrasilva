@@ -1,0 +1,14 @@
+{
+  "checks": [],
+  "activation": {
+    "active": true,
+    "revision": 3
+  },
+  "failure": "Rita Mint profit missing: LUCRO\n\u2014",
+  "rollback": {
+    "active": false,
+    "revision": 4
+  },
+  "finalB1": false,
+  "phaseA": true
+}
