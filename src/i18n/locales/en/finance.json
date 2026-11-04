@@ -1,4 +1,19 @@
 {
+  "expenseLists": {
+    "clientsTitle": "Expenses to invoice to clients",
+    "staffTitle": "Reimbursements owed to staff",
+    "clientsAction": "Mark added to invoice",
+    "staffAction": "Mark reimbursed",
+    "reimbursedDate": "Reimbursement date",
+    "outstanding": "Outstanding amount",
+    "receipt": "Download receipt",
+    "history": "Historical record — read only",
+    "empty": "No outstanding project expenses.",
+    "detailedWorkflow": "Invoice allocations and reimbursement batches",
+    "projectHint": "Rebillable expenses to invoice: {{amount}}",
+    "unknownTotal_one": "{{count}} amount awaiting EUR evidence",
+    "unknownTotal_other": "{{count}} amounts awaiting EUR evidence"
+  },
   "issueQueue": {
     "title": "Invoices to issue",
     "confirmation": "PM confirmation",

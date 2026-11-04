@@ -1,4 +1,19 @@
 {
+  "expenseLists": {
+    "clientsTitle": "Despesas por faturar aos clientes",
+    "staffTitle": "Reembolsos em dívida aos colaboradores",
+    "clientsAction": "Marcar como adicionada à fatura",
+    "staffAction": "Marcar como reembolsada",
+    "reimbursedDate": "Data do reembolso",
+    "outstanding": "Valor em dívida",
+    "receipt": "Descarregar recibo",
+    "history": "Registo histórico — só de leitura",
+    "empty": "Sem despesas de projeto pendentes.",
+    "detailedWorkflow": "Alocações a faturas e lotes de reembolso",
+    "projectHint": "Despesas refaturáveis por faturar: {{amount}}",
+    "unknownTotal_one": "{{count}} valor à espera de evidência em EUR",
+    "unknownTotal_other": "{{count}} valores à espera de evidência em EUR"
+  },
   "issueQueue": {
     "title": "Faturas a emitir",
     "confirmation": "Confirmação do gestor",
