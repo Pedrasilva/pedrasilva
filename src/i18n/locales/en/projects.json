@@ -1628,15 +1628,15 @@
   },
   "expenses": {
     "drop": {
-      "emptyTitle": "$t(projects:forecast.expenses.drop.emptyTitle)",
-      "emptyHint": "$t(projects:forecast.expenses.drop.emptyHint)",
-      "release": "$t(projects:forecast.expenses.drop.release)",
-      "processing": "$t(projects:forecast.expenses.drop.processing)",
-      "added_one": "$t(projects:forecast.expenses.drop.added_one)",
-      "added_other": "$t(projects:forecast.expenses.drop.added_other)",
-      "unread_one": "$t(projects:forecast.expenses.drop.unread_one)",
-      "unread_other": "$t(projects:forecast.expenses.drop.unread_other)",
-      "failed": "$t(projects:forecast.expenses.drop.failed)"
+      "emptyTitle": "No expenses yet — drag receipts here or click to add",
+      "emptyHint": "Each receipt becomes a draft expense filled in from the receipt.",
+      "release": "Drop receipts to add them as drafts",
+      "processing": "Reading receipt {{done}} of {{total}}…",
+      "added_one": "{{count}} receipt added as a draft",
+      "added_other": "{{count}} receipts added as drafts",
+      "unread_one": "{{count}} receipt couldn't be read — draft created with the receipt attached",
+      "unread_other": "{{count}} receipts couldn't be read — drafts created with the receipt attached",
+      "failed": "Couldn't add: {{names}}"
     },
     "title": "Expenses",
     "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
