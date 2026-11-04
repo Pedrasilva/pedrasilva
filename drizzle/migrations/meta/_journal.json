@@ -1758,6 +1758,13 @@
       "when": 1793756715818,
       "tag": "0250_invoice_queue_client_name_column",
       "breakpoints": true
+    },
+    {
+      "idx": 251,
+      "version": "7",
+      "when": 1793756910184,
+      "tag": "0251_invoice_timing_today_and_stage_tree",
+      "breakpoints": true
     }
   ]
 }
