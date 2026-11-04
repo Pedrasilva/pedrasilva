@@ -66,6 +66,7 @@ import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
 import { proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
+import {useProjectB1State,useProjectViewerAreas} from '@/lib/projects/use-project-access';
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
 import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
@@ -1273,10 +1274,13 @@ function OperationalScheduleAdapter({
   showCancelled = false,
   dayWidth: dayWidthProp,
   canEdit: requestedCanEdit = false,
-  canSeeFinancials = false,
+  canSeeFinancials: requestedFinancials = false,
   sourceQuoteId,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
+  const b1=useProjectB1State();
+  const areas=useProjectViewerAreas(projectId);
+  const canSeeFinancials=b1.data ? !!areas.data?.financials && !!areas.data?.budget_cost : requestedFinancials;
   const [showActuals,setShowActuals] = useState(false);
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
@@ -1288,12 +1292,12 @@ function OperationalScheduleAdapter({
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess]);
   const mappingReady = !!projection && projection.issues.length === 0;
   const canEdit = requestedCanEdit && mappingReady;
-  const { data: allResourcesData } = useProjectResources();
+  const { data: allResourcesData } = useProjectResources(projectId);
   const allResources = useMemo(
     () => (allResourcesData ?? []).filter((r) => r.active !== false),
     [allResourcesData],
   );
-  const liveAdapter = useProjectPlannerAdapter(allResources, { readOnly: !canEdit });
+  const liveAdapter = useProjectPlannerAdapter(allResources, { readOnly: !canEdit,projectId });
   const adapter = useMemo(() => sourceQuoteId ? {
     ...liveAdapter,
     features: { ...liveAdapter.features, baseline: false, crossProjectMove: false },
@@ -1795,7 +1799,7 @@ function OperationalScheduleAdapter({
             onInsertStage={canEdit ? handleInsert : undefined}
             onDeleteStage={canEdit ? handleDelete : undefined}
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
-            onUpdateStageBudget={canEdit && !sourceQuoteId ? handleUpdateBudget : undefined}
+            onUpdateStageBudget={canEdit && !sourceQuoteId && (!b1.data || !!areas.data?.financials) ? handleUpdateBudget : undefined}
             onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
             actuals={actuals}
             showFinancials={canSeeFinancials}
@@ -1811,6 +1815,7 @@ function OperationalScheduleAdapter({
             onClose={() => setSelectedStageId(null)}
             readOnly={!canEdit}
             planningOnly
+            financialVisible={!b1.data || !!areas.data?.financials}
           />
         )}
         {!poolCollapsed && !selectedStageId && (

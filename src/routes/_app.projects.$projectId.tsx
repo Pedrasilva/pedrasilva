@@ -58,7 +58,8 @@ import {
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { ProjectClientField, useProjectClientName } from "@/components/projects/project-client-field";
 import { ProjectTeamCard } from "@/components/projects/project-team-card";
-import { useProjectViewerAreas } from '@/lib/projects/use-project-access';
+import { useProjectViewerAreas,useProjectB1State } from '@/lib/projects/use-project-access';
+import {readB1Rows} from '@/lib/projects/b1-projection';
 import { canOpenProjectTab } from '@/lib/projects/project-area-tabs';
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
@@ -188,12 +189,13 @@ function ProjectDetail() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const viewerAreas = useProjectViewerAreas(projectId);
+  const b1=useProjectB1State();
   const clientProjectQ = useProjectDetail(projectId);
   const resolvedClientName = useProjectClientName(clientProjectQ.data?.project.company_id, clientProjectQ.data?.project.client ?? null);
   const [showCancelled, setShowCancelled] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const { data, isLoading, error } = useProjectDetail(projectId, { includeCancelled: showCancelled });
-  const { data: resources } = useResources();
+  const { data: resources } = useResources(projectId);
   const { isAdmin, user } = useAuth();
   // Planning edit rights: admin, or v2 permission (all scope), or assigned
   // scope on a project this user is actually assigned to. Mirrors the RLS
@@ -205,7 +207,7 @@ function ProjectDetail() {
     staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("pm_has_assigned_access", {
-        _user_id: user!.id,
+        _user_id: user?.id ?? '',
         _project_id: projectId,
       });
       if (error) throw error;
@@ -216,13 +218,15 @@ function ProjectDetail() {
     isAdmin ||
     canV2("projects.edit_planning", "all") ||
     (canV2("projects.edit_planning", "assigned") && !!isAssignedToProject);
-  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning });
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning,projectId });
 
-  const { data: defaultRates } = useDefaultResourceRates();
+  const { data: defaultRates } = useDefaultResourceRates(projectId);
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
   const updateProject = useUpdateProject();
-  const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
+  const { allowed: legacyFinancials } = useHasPermission("projects.financials");
+  const canSeeFinancials=b1.data ? !!viewerAreas.data?.financials && !!viewerAreas.data?.budget_cost : legacyFinancials;
+  const canSeeIntegrated=b1.data ? canSeeFinancials && !!viewerAreas.data?.expenses && !!viewerAreas.data?.supplier_fees : canSeeFinancials;
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
   const { data: teamAvg } = useTeamPricingAverages();
   const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
@@ -242,7 +246,7 @@ function ProjectDetail() {
   }, [requestedTab, viewerAreas.data]);
   const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
-  const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
+  const sourceQuoteId = data?.project.quote_id ?? baselineQ.data?.header.quote_id ?? null;
   const baselineMultiplier = Number(baselineQ.data?.header.pricing_multiplier ?? 1) || 1;
 
   const [dayWidth, setDayWidth] = useState(36);
@@ -337,30 +341,7 @@ function ProjectDetail() {
       for (const t of tasks ?? []) taskToAlloc.set(t.id, t.allocation_id);
       const taskIds = (tasks ?? []).map((t) => t.id);
       const stageIds = data.stages.map((s) => s.id);
-      const selectEntries = "id, task_id, pm_stage_id, entry_date, hours, billable, cost_rate_snapshot";
-      const [taskEntryResult, directEntryResult] = await Promise.all([
-        taskIds.length
-          ? supabase
-              .from("pm_time_entries")
-              .select(selectEntries)
-              .in("task_id", taskIds)
-              .eq("entry_type", "project")
-          : Promise.resolve({ data: [], error: null }),
-        stageIds.length
-          ? supabase
-              .from("pm_time_entries")
-              .select(selectEntries)
-              .in("pm_stage_id", stageIds)
-              .eq("entry_type", "project")
-          : Promise.resolve({ data: [], error: null }),
-      ]);
-      if (taskEntryResult.error) throw taskEntryResult.error;
-      if (directEntryResult.error) throw directEntryResult.error;
-      const entries = Array.from(
-        new Map(
-          [...(taskEntryResult.data ?? []), ...(directEntryResult.data ?? [])].map((entry) => [entry.id, entry]),
-        ).values(),
-      );
+      const entries = await readB1Rows<{id:string;task_id:string|null;pm_stage_id:string|null;entry_date:string;hours:number;billable:boolean;cost_rate_snapshot:number|null}>('entries',projectId);
       const byStage = new Map<
         string,
         { hours: number; billableHours: number; nonBillableHours: number; snapCost: number; unsnapHours: number }
@@ -815,7 +796,7 @@ function ProjectDetail() {
                   />
                 </SidebarSection>
 
-                {canSeeFinancials && (
+                {canSeeIntegrated && (
                   <>
                     <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
                       <div className="flex items-baseline justify-between">
@@ -895,7 +876,7 @@ function ProjectDetail() {
                   </span>
                   <span className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("projects:detail.rail.team")}</span>
                 </button>
-                {canSeeFinancials && (
+                {canSeeIntegrated && (
                   <>
                     <button
                       onClick={() => setSidebarOpen(true)}
@@ -1145,8 +1126,8 @@ function ProjectDetail() {
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
                 {sourceQuoteId ? (
-                  <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier}
-                    canEditPlanning={canEditPlanning} canSeeFinancials={canSeeFinancials} />
+                  <QuoteGantt projectId={projectId} sourceQuoteId={sourceQuoteId}
+                    canEdit={canEditPlanning} canSeeFinancials={canSeeFinancials} />
                 ) : (
                   <>
                     <div className="flex flex-wrap items-center justify-end gap-2">
@@ -1196,7 +1177,7 @@ function ProjectDetail() {
                 />
               </div>
             )}
-            {tab === "insights" && (
+            {tab === "insights" && (!b1.data || canSeeIntegrated) && (
               <InsightsPanel
                 projectId={projectId}
                 canEdit={isAdmin && canSeeFinancials}
@@ -3370,12 +3351,14 @@ function RevenueEarnedCell({ revenue }: { revenue: number }) {
 
 /** Formats € as "€9.554" (thousands with a dot, no decimals). */
 function fmtEur(n: number): string {
+  if(!Number.isFinite(n))return '—';
   return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
 /** Number with a faint "–" for zero. */
 function Num({ value, kind }: { value: number; kind: "eur" | "hours" }) {
-  if (!Number.isFinite(value) || Math.abs(value) < (kind === "eur" ? 0.5 : 1 / 120)) {
+  if (!Number.isFinite(value)) return <span className="text-muted-foreground">—</span>;
+  if (Math.abs(value) < (kind === "eur" ? 0.5 : 1 / 120)) {
     return <span className="text-muted-foreground/50" aria-label="0">–</span>;
   }
   return <>{kind === "eur" ? fmtEur(value) : formatHm(value)}</>;
