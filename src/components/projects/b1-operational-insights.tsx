@@ -11,7 +11,7 @@ export function B1OperationalInsights({projectId,stages,areas,retainer=false}:{p
   const {t,i18n}=useTranslation('projects');
   const scope=useB1CacheScope();
   const summary=useQuery({queryKey:['pm-b1-operational-summary',projectId,...scope],queryFn:async()=>{
-    const {data,error}=await supabase.rpc('pm_project_stage_hours',{p_project_id:projectId});if(error)throw error;return data??[];
+    const {data,error}=await supabase.rpc('pm_b1_stage_hours',{_project:projectId});if(error)throw error;return data??[];
   }});
   const entries=useQuery({queryKey:['pm-b1-operational-cost',projectId,...scope],queryFn:()=>readB1Rows<{pm_stage_id:string|null;quote_stage_id:string|null;task_id:string|null;hours:number;cost_rate_snapshot:number|null}>('entries',projectId)});
   const number=new Intl.NumberFormat(i18n.language,{maximumFractionDigits:1});

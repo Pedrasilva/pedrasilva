@@ -28,8 +28,8 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
         fetchAll<{id:string;stage_id:string;resource_id:string;start_date:string;end_date:string;hours_per_day:number;allocation_percentage:number|null;planning_removed_at:string|null;tasks:{id:string}[]|{id:string}|null}>(
           (a,b)=>supabase.from("pm_allocations").select("id,stage_id,resource_id,start_date,end_date,hours_per_day,allocation_percentage,planning_removed_at,tasks:pm_tasks(id)").in("stage_id",stageIds).order("id").range(a,b) as never),
         readB1Rows<{id:string;entry_date:string;stage_id:string|null;resource_id:string|null;collaborator_id:string|null;billable_hours:number|null;non_billable_hours:number|null;cost?:number|null}>('history',projectId),
-        supabase.rpc("pm_project_stage_hours",{p_project_id:projectId}),
-        financials ? supabase.rpc("pm_project_stage_locked_cost",{p_project_id:projectId}) : Promise.resolve({data:[],error:null}),
+        supabase.rpc("pm_b1_stage_hours",{_project:projectId}),
+        financials ? supabase.rpc("pm_b1_stage_locked_cost",{_project:projectId}) : Promise.resolve({data:[],error:null}),
       ]);
       if (summary.error) throw summary.error;
       if (locked.error) throw locked.error;

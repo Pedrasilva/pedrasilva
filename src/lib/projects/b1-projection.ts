@@ -20,7 +20,7 @@ export async function readB1Rows<T>(kind: 'projects' | 'stages' | 'resources' | 
 export function unavailableNumbers<T>(row:T):T {
   if(!row||typeof row!=='object')return row;
   if(Array.isArray(row))return row.map(unavailableNumbers) as T;
-  const numericFields=new Set(['budget','cost_rate','hourly_rate','sale_rate','cost_rate_snapshot','sale_rate_snapshot','cost','amount','retainer_monthly_amount','markup_pct','baseline_budget']);
+  const numericFields=new Set(['budget','cost_rate','hourly_rate','sale_rate','cost_rate_snapshot','sale_rate_snapshot','cost','amount','rate','profit','sold_fee','sold_internal_fee','sold_external_fee','sold_pricing_multiplier','retainer_monthly_amount','markup_pct','baseline_budget']);
   return Object.fromEntries(Object.entries(row).map(([key,value])=>[key,value===null&&numericFields.has(key)?NaN:unavailableNumbers(value)])) as T;
 }
 
