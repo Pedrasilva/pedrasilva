@@ -1,0 +1,520 @@
+{
+  "project": {
+    "before": {
+      "stages": [
+        {
+          "id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "name": "QA Client approval",
+          "end_date": "2026-12-11",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-30",
+          "parent_stage_id": null
+        },
+        {
+          "id": "3e2181d2-ac6a-44fb-95d7-4e5cc84301b1",
+          "name": "QA Design B",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        },
+        {
+          "id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba",
+          "name": "QA Design A",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [
+        "2025-01-01",
+        "2025-04-18",
+        "2025-04-20",
+        "2025-04-25",
+        "2025-05-01",
+        "2025-06-10",
+        "2025-06-13",
+        "2025-06-19",
+        "2025-08-15",
+        "2025-10-05",
+        "2025-11-01",
+        "2025-12-01",
+        "2025-12-08",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-04-03",
+        "2026-04-05",
+        "2026-04-25",
+        "2026-05-01",
+        "2026-06-04",
+        "2026-06-10",
+        "2026-06-13",
+        "2026-08-15",
+        "2026-10-05",
+        "2026-11-01",
+        "2026-12-01",
+        "2026-12-08",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-03-26",
+        "2027-03-28",
+        "2027-04-25",
+        "2027-05-01",
+        "2027-05-27",
+        "2027-06-10",
+        "2027-06-13",
+        "2027-08-15",
+        "2027-10-05",
+        "2027-11-01",
+        "2027-12-01",
+        "2027-12-08",
+        "2027-12-25"
+      ],
+      "relative": false,
+      "revision": "5582c4c32eaccac7c5c8b09b0cde9250",
+      "allocations": [],
+      "dependencies": []
+    },
+    "created": {
+      "stages": [
+        {
+          "id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "name": "QA Client approval",
+          "end_date": "2026-12-11",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-30",
+          "parent_stage_id": null
+        },
+        {
+          "id": "3e2181d2-ac6a-44fb-95d7-4e5cc84301b1",
+          "name": "QA Design B",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        },
+        {
+          "id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba",
+          "name": "QA Design A",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [
+        "2025-01-01",
+        "2025-04-18",
+        "2025-04-20",
+        "2025-04-25",
+        "2025-05-01",
+        "2025-06-10",
+        "2025-06-13",
+        "2025-06-19",
+        "2025-08-15",
+        "2025-10-05",
+        "2025-11-01",
+        "2025-12-01",
+        "2025-12-08",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-04-03",
+        "2026-04-05",
+        "2026-04-25",
+        "2026-05-01",
+        "2026-06-04",
+        "2026-06-10",
+        "2026-06-13",
+        "2026-08-15",
+        "2026-10-05",
+        "2026-11-01",
+        "2026-12-01",
+        "2026-12-08",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-03-26",
+        "2027-03-28",
+        "2027-04-25",
+        "2027-05-01",
+        "2027-05-27",
+        "2027-06-10",
+        "2027-06-13",
+        "2027-08-15",
+        "2027-10-05",
+        "2027-11-01",
+        "2027-12-01",
+        "2027-12-08",
+        "2027-12-25"
+      ],
+      "relative": false,
+      "revision": "0cd44b1b250ec9d0a8c266b55f5f1ae0",
+      "allocations": [],
+      "dependencies": [
+        {
+          "id": "501df2fb-c35c-41c9-a3aa-dac04e494164",
+          "type": "FS",
+          "lag_days": 0,
+          "successor_id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "predecessor_id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba"
+        }
+      ]
+    },
+    "moved": {
+      "stages": [
+        {
+          "id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "name": "QA Client approval",
+          "end_date": "2026-12-18",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-12-09",
+          "parent_stage_id": null
+        },
+        {
+          "id": "3e2181d2-ac6a-44fb-95d7-4e5cc84301b1",
+          "name": "QA Design B",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        },
+        {
+          "id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba",
+          "name": "QA Design A",
+          "end_date": "2026-12-07",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-30",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [
+        "2025-01-01",
+        "2025-04-18",
+        "2025-04-20",
+        "2025-04-25",
+        "2025-05-01",
+        "2025-06-10",
+        "2025-06-13",
+        "2025-06-19",
+        "2025-08-15",
+        "2025-10-05",
+        "2025-11-01",
+        "2025-12-01",
+        "2025-12-08",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-04-03",
+        "2026-04-05",
+        "2026-04-25",
+        "2026-05-01",
+        "2026-06-04",
+        "2026-06-10",
+        "2026-06-13",
+        "2026-08-15",
+        "2026-10-05",
+        "2026-11-01",
+        "2026-12-01",
+        "2026-12-08",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-03-26",
+        "2027-03-28",
+        "2027-04-25",
+        "2027-05-01",
+        "2027-05-27",
+        "2027-06-10",
+        "2027-06-13",
+        "2027-08-15",
+        "2027-10-05",
+        "2027-11-01",
+        "2027-12-01",
+        "2027-12-08",
+        "2027-12-25"
+      ],
+      "relative": false,
+      "revision": "e9ce6133032f6011661cff7ec272eb36",
+      "allocations": [],
+      "dependencies": [
+        {
+          "id": "501df2fb-c35c-41c9-a3aa-dac04e494164",
+          "type": "FS",
+          "lag_days": 0,
+          "successor_id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "predecessor_id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba"
+        }
+      ]
+    },
+    "deleted": {
+      "stages": [
+        {
+          "id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "name": "QA Client approval",
+          "end_date": "2026-12-18",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-12-09",
+          "parent_stage_id": null
+        },
+        {
+          "id": "3e2181d2-ac6a-44fb-95d7-4e5cc84301b1",
+          "name": "QA Design B",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        },
+        {
+          "id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba",
+          "name": "QA Design A",
+          "end_date": "2026-12-07",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-30",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [
+        "2025-01-01",
+        "2025-04-18",
+        "2025-04-20",
+        "2025-04-25",
+        "2025-05-01",
+        "2025-06-10",
+        "2025-06-13",
+        "2025-06-19",
+        "2025-08-15",
+        "2025-10-05",
+        "2025-11-01",
+        "2025-12-01",
+        "2025-12-08",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-04-03",
+        "2026-04-05",
+        "2026-04-25",
+        "2026-05-01",
+        "2026-06-04",
+        "2026-06-10",
+        "2026-06-13",
+        "2026-08-15",
+        "2026-10-05",
+        "2026-11-01",
+        "2026-12-01",
+        "2026-12-08",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-03-26",
+        "2027-03-28",
+        "2027-04-25",
+        "2027-05-01",
+        "2027-05-27",
+        "2027-06-10",
+        "2027-06-13",
+        "2027-08-15",
+        "2027-10-05",
+        "2027-11-01",
+        "2027-12-01",
+        "2027-12-08",
+        "2027-12-25"
+      ],
+      "relative": false,
+      "revision": "e3e537ec0d3e23095fc6421ed3fa0906",
+      "allocations": [],
+      "dependencies": []
+    },
+    "resized": {
+      "stages": [
+        {
+          "id": "3990f002-2f1c-45cb-89dd-62d2113c8abb",
+          "name": "QA Client approval",
+          "end_date": "2026-12-22",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-12-09",
+          "parent_stage_id": null
+        },
+        {
+          "id": "3e2181d2-ac6a-44fb-95d7-4e5cc84301b1",
+          "name": "QA Design B",
+          "end_date": "2026-11-27",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-23",
+          "parent_stage_id": null
+        },
+        {
+          "id": "4748489c-279e-4d4c-8cd0-e24ab7cfd8ba",
+          "name": "QA Design A",
+          "end_date": "2026-12-07",
+          "is_locked": false,
+          "stage_kind": "regular",
+          "start_date": "2026-11-30",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [
+        "2025-01-01",
+        "2025-04-18",
+        "2025-04-20",
+        "2025-04-25",
+        "2025-05-01",
+        "2025-06-10",
+        "2025-06-13",
+        "2025-06-19",
+        "2025-08-15",
+        "2025-10-05",
+        "2025-11-01",
+        "2025-12-01",
+        "2025-12-08",
+        "2025-12-25",
+        "2026-01-01",
+        "2026-04-03",
+        "2026-04-05",
+        "2026-04-25",
+        "2026-05-01",
+        "2026-06-04",
+        "2026-06-10",
+        "2026-06-13",
+        "2026-08-15",
+        "2026-10-05",
+        "2026-11-01",
+        "2026-12-01",
+        "2026-12-08",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-03-26",
+        "2027-03-28",
+        "2027-04-25",
+        "2027-05-01",
+        "2027-05-27",
+        "2027-06-10",
+        "2027-06-13",
+        "2027-08-15",
+        "2027-10-05",
+        "2027-11-01",
+        "2027-12-01",
+        "2027-12-08",
+        "2027-12-25"
+      ],
+      "relative": false,
+      "revision": "577c7f8c435ed49f47fc1d634b350d25",
+      "allocations": [],
+      "dependencies": []
+    }
+  },
+  "quote": {
+    "before": {
+      "stages": [
+        {
+          "id": "542d8543-688c-40fd-bf1b-15bfe1854d04",
+          "name": "QA Design A",
+          "end_date": "2000-01-07",
+          "stage_kind": "regular",
+          "start_date": "2000-01-03",
+          "parent_stage_id": null
+        },
+        {
+          "id": "c4b25194-6a81-4ab7-bcd3-c52fa46a8a74",
+          "name": "QA Design B",
+          "end_date": "2000-01-14",
+          "stage_kind": "regular",
+          "start_date": "2000-01-10",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [],
+      "relative": true,
+      "revision": "5e23a3f35a7dcabd7111f09ab11392a6",
+      "allocations": [],
+      "dependencies": []
+    },
+    "created": {
+      "stages": [
+        {
+          "id": "542d8543-688c-40fd-bf1b-15bfe1854d04",
+          "name": "QA Design A",
+          "end_date": "2000-01-07",
+          "stage_kind": "regular",
+          "start_date": "2000-01-03",
+          "parent_stage_id": null
+        },
+        {
+          "id": "c4b25194-6a81-4ab7-bcd3-c52fa46a8a74",
+          "name": "QA Design B",
+          "end_date": "2000-01-14",
+          "stage_kind": "regular",
+          "start_date": "2000-01-10",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [],
+      "relative": true,
+      "revision": "143279aae8e1c18bfb46ff8e6d108551",
+      "allocations": [],
+      "dependencies": [
+        {
+          "id": "20e7475a-2afe-4e55-a616-71223debacc4",
+          "type": "FS",
+          "lag_days": 0,
+          "successor_id": "c4b25194-6a81-4ab7-bcd3-c52fa46a8a74",
+          "predecessor_id": "542d8543-688c-40fd-bf1b-15bfe1854d04"
+        }
+      ]
+    },
+    "deleted": {
+      "stages": [
+        {
+          "id": "542d8543-688c-40fd-bf1b-15bfe1854d04",
+          "name": "QA Design A",
+          "end_date": "2000-01-07",
+          "stage_kind": "regular",
+          "start_date": "2000-01-03",
+          "parent_stage_id": null
+        },
+        {
+          "id": "c4b25194-6a81-4ab7-bcd3-c52fa46a8a74",
+          "name": "QA Design B",
+          "end_date": "2000-01-14",
+          "stage_kind": "regular",
+          "start_date": "2000-01-10",
+          "parent_stage_id": null
+        }
+      ],
+      "holidays": [],
+      "relative": true,
+      "revision": "5e23a3f35a7dcabd7111f09ab11392a6",
+      "allocations": [],
+      "dependencies": []
+    }
+  }
+}

@@ -138,3 +138,40 @@ Capturas reais só de leitura: **Estado/Status Ativo/Active**, **Início/Start 1
 Snapshot dos registos QA antes de apagar; zero alocações e fases criadas sem tarefas/horas. Eliminados os dois projetos, a proposta, documento e snapshots por IDs exatos. Leitura independente **01:20:04 UTC**: projetos=0, proposta=0, fases operacionais=0, quote_stages=0, quote_dependencies=0, documento=0, snapshots=0; gate=true. Não foram criados ficheiros Storage.
 
 **23 testes existentes passaram**, mas não tornam os gestos falhados em PASS. Evidência: `docs/one-project-gantt/item1-20261104/` (capturas PT/EN, três contextos, ações, DATE e snapshot de limpeza). **Item 1 fica parcialmente verificado:** falta confirmar os gestos de dependência e redimensionamento de aprovação; não foi alterado código para os corrigir.
+
+## Verificação final com o rato — 4 novembro 2026, 02:03–02:11 UTC
+
+**Os gestos pendentes passaram após uma correção de geometria.** Um projeto convertido descartável e uma segunda proposta draft descartável, ambos sintéticos, sem recursos, horas ou prestações, foram usados no navegador autenticado. A conversão utilizou snapshot aceite e os RPCs normais; numeração QA explícita, sem consumir números comerciais. Empresa existente apenas como ligação, sem a editar. Nenhum gesto de edição na Mint ou noutras linhas reais.
+
+### Falha reproduzida e correção
+
+O arrasto de um ponto de dependência visível para o ponto de início da aprovação desenhava a pré-visualização, mas não guardava a ligação. `canvasRef` referia o elemento exterior, que inclui cabeçalho e faixa de marcos. As coordenadas `stageLayouts` e o SVG partiam, contudo, do elemento `data-gantt-content`. O desvio vertical impedia reconhecer o destino. Em `src/components/projects/gantt-chart.tsx`, a referência passou para a área real de fases. A correção serve criação e redirecionamento de pontas, ambos com o mesmo referencial; o redirecionamento não foi novamente exercitado neste pedido.
+
+As tentativas anteriores em zoom Week também tinham pontos fora da largura visível. No ensaio final foi usado Month, com origem e destino visíveis. A primeira tentativa de mover tocava o botão de informação dentro da barra pequena; escolheu-se uma área livre da barra. A eliminação foi feita no botão de lixo do próprio editor da ligação, não no botão «Delete project». Não houve alteração de código de resize: a pega passou no ensaio corretamente enquadrado.
+
+### Uma execução final completa, sem invocar ações para simular gestos
+
+Todas as mutações abaixo vieram de `page.mouse.move/down/up` ou clique num controlo visual. As chamadas de leitura `pm_gantt_state` apenas confirmaram persistência. A mesma fixture recebeu tentativas e repetições anteriores, pelo que as datas iniciais desta execução não são as datas originais da conversão.
+
+| Passo | Design A | Aprovação cliente | Dependências |
+|---|---|---|---|
+| Antes | 23–27 novembro 2026 | 30 novembro–11 dezembro | 0 |
+| Arrasto do ponto de fim A para início da aprovação | 23–27 novembro | 30 novembro–11 dezembro | 1 FS, lag 0 |
+| Arrasto da barra A, 48 px | 30 novembro–7 dezembro | **9–18 dezembro**, cascata automática | 1 |
+| Clique FS → lixo | 30 novembro–7 dezembro | 9–18 dezembro, posição mantida | **0** |
+| Arrasto da pega direita da aprovação, 36 px | 30 novembro–7 dezembro | **9–22 dezembro**, 8→10 dias úteis | 0 |
+
+Feriados de 1 e 8 dezembro respeitados. Design B independente manteve **23–27 novembro** durante toda a sequência. Leitura nova e recarregamento confirmaram os fins persistidos, incluindo **22 dezembro** na aprovação.
+
+Na proposta draft, arrasto do ponto de fim A para início B criou **1 FS lag 0**; clique FS → lixo devolveu **0**. Datas permaneceram **3–7 janeiro 2000** e **10–14 janeiro 2000**, apresentadas em semanas relativas no builder. Não houve bypass do bloqueio da proposta convertida nesta sessão.
+
+### Evidência, regressões e limpeza
+
+- `docs/one-project-gantt/mouse-20261104/dates.json`: estados antes/criada/movida/apagada/redimensionada e IDs exatos QA.
+- Capturas: `project-before.png`, `project-created.png`, `project-moved.png`, `project-deleted.png`, `project-resized.png`, `project-reloaded.png`, `quote-before.png`, `quote-created.png`, `quote-deleted.png`. Capturas criadas/resize/builder inspecionadas visualmente.
+- **40 testes existentes passaram**: `test-gantt-schedule`, `test-project-schedule-isolation`, `test-converted-quote-schedule`. Último sinal de compilação OK. O teste de rato e snapshot integral ficam na sessão `/tmp/browser/gantt-mouse/`; sem sessões/tokens publicados.
+- Snapshot integral das duas propostas, documento/snapshot aceite, projeto/fases/baseline antes da eliminação. Zero alocações e tarefas ligadas; sem horas ou pagamentos criados. Eliminação por IDs exatos pelo navegador autenticado; apenas a fixture convertida foi desbloqueada após eliminar o seu projeto para permitir apagar a proposta/documento.
+- Leitura independente **02:11:44.846358 UTC**: projeto=0, propostas=0, fases=0, quote_stages=0, project_deps=0, quote_deps=0, documento=0, snapshots=0, baseline=0. Nenhum ficheiro Storage criado. **Fase A ON**.
+- Nenhum UPDATE/DELETE em dados reais. Nenhuma alteração de esquema. Durante preparação, permissão de INSERT direto em `quote_relative_schedules` foi recusada; retirado o INSERT redundante do harness, sem alargar permissões. Dois checks de referência usaram nomes de colunas errados e foram corrigidos antes da limpeza; não apresentados como prova de zero.
+
+**Item 1: os gestos pedidos estão agora confirmados. Parar e aguardar Luis; Fase B não iniciada.**
