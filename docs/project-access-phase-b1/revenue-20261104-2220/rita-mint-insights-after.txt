@@ -43,8 +43,8 @@ USO DO ORÇAMENTO
 1764 € / 30 980 €
 6%
 LUCRO
-—
-—
+1322 €
+43%
 NOTAS
 
 Created from approved proposal
@@ -90,19 +90,19 @@ AtividadesHoras
 jul 2026
 
 RECEITA
-Receita real: — (0%)
-Valor de venda planeado: — (0%)
+Receita real: 3086 € (100%)
+Valor de venda planeado: 3086 € (100%)
 Real = horas faturáveis × preço de venda horário. Planeado = total de horas alocadas × preço de venda horário.
 
-Valorização incompleta — faltam custos ou preços de venda
+O valor ganho inclui preços de venda atuais quando não existe preço guardado
 
 RENTABILIDADE
 MARGEM ATUAL:
-—
-—
+1322 €
+43%
 MARGEM ESTIMADA NA CONCLUSÃO:
-—
-—
+1322 €
+43%
 FATURÁVEL
 58.5 h
 NÃO FATURÁVEL
@@ -112,16 +112,20 @@ TOTAL DE HORAS REGISTADAS
 FINANCEIRO
 	SERVIÇOS	FORNECEDORES	DESPESAS	TOTAL
 Orçamento	30 980 €	0 €	0 €	30 980 €
-Valor	—	0 €	0 €	—
+Valor	3086 €	0 €	0 €	3086 €
 Custo	1764 €	0 €	0 €	1764 €
-Lucro	—	0 €	0 €	—
+Lucro	1322 €
+43%
+	0 €	0 €	1322 €
+43%
+
 Faturado	0 €	0 €	0 €	0 €
 TRABALHO
 SALDO DO PLANO
 0h
 Ver tarefas
 HORAS CONSUMIDAS
-0%
+10%
 TRABALHO CONCLUÍDO
 RC
 58h 30m
