@@ -1638,6 +1638,17 @@
     }
   },
   "expenses": {
+    "drop": {
+      "emptyTitle": "Sem despesas — arraste recibos para aqui ou clique para adicionar",
+      "emptyHint": "Cada recibo passa a uma despesa em rascunho, preenchida a partir do recibo.",
+      "release": "Largue os recibos para os adicionar como rascunho",
+      "processing": "A ler recibo {{done}} de {{total}}…",
+      "added_one": "{{count}} recibo adicionado como rascunho",
+      "added_other": "{{count}} recibos adicionados como rascunho",
+      "unread_one": "{{count}} recibo não foi lido — rascunho criado com o recibo anexado",
+      "unread_other": "{{count}} recibos não foram lidos — rascunhos criados com o recibo anexado",
+      "failed": "Não foi possível adicionar: {{names}}"
+    },
     "title": "Despesas",
     "subtitle": "Despesas reembolsáveis do projeto (deslocações, alojamento, refeições). Sem markup.",
     "addButton": "Adicionar despesa",
