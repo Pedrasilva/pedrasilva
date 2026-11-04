@@ -1,12 +1,48 @@
 {
-  "checks": [],
+  "checks": [
+    {
+      "person": "Disposable PM",
+      "attachment": {
+        "bytes": 124,
+        "error": null
+      },
+      "expectedAllowed": true
+    },
+    {
+      "person": "Patricia",
+      "attachment": {
+        "bytes": 0,
+        "error": "Object not found"
+      },
+      "expectedAllowed": false
+    },
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 8,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 1
+      }
+    }
+  ],
   "activation": {
-    "revision": 11,
+    "revision": 13,
     "active": true
   },
-  "failure": "AssertionError: ",
+  "fixtureRemoved": true,
+  "failure": "AssertionError: Rita tabs permission failed",
   "rollback": {
-    "revision": 12,
+    "revision": 14,
     "active": false
   },
   "realDataUnchanged": true,
