@@ -1751,6 +1751,13 @@
       "when": 1793756625252,
       "tag": "0249_invoice_workflow_direct_write_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 250,
+      "version": "7",
+      "when": 1793756715818,
+      "tag": "0250_invoice_queue_client_name_column",
+      "breakpoints": true
     }
   ]
 }

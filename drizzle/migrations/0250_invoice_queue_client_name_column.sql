@@ -1,0 +1,1 @@
+DO $patch$ DECLARE s text; BEGIN s:=pg_get_functiondef('public.fin_invoices_to_issue()'::regprocedure);s:=replace(s,'c.name AS client_name','c.nome AS client_name');EXECUTE s;END $patch$;
