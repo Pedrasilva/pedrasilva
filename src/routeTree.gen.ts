@@ -136,6 +136,7 @@ import { Route as AppFinanceInvoicingInflowsRouteImport } from './routes/_app.fi
 import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
 import { Route as AppFinanceInvoicingReceiptsRouteImport } from './routes/_app.finance.invoicing.receipts'
 import { Route as AppFinanceInvoicingReviewQueueRouteImport } from './routes/_app.finance.invoicing.review-queue'
+import { Route as AppFinanceInvoicingToIssueRouteImport } from './routes/_app.finance.invoicing.to-issue'
 import { Route as AppFinancePaymentsCardsRouteImport } from './routes/_app.finance.payments.cards'
 import { Route as AppFinancePaymentsDuplicatesRouteImport } from './routes/_app.finance.payments.duplicates'
 import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
@@ -848,6 +849,12 @@ const AppFinanceInvoicingReviewQueueRoute =
     path: '/invoicing/review-queue',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceInvoicingToIssueRoute =
+  AppFinanceInvoicingToIssueRouteImport.update({
+    id: '/invoicing/to-issue',
+    path: '/invoicing/to-issue',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinancePaymentsCardsRoute = AppFinancePaymentsCardsRouteImport.update({
   id: '/payments/cards',
   path: '/payments/cards',
@@ -1258,6 +1265,7 @@ export interface FileRoutesByFullPath {
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
   '/finance/invoicing/review-queue': typeof AppFinanceInvoicingReviewQueueRoute
+  '/finance/invoicing/to-issue': typeof AppFinanceInvoicingToIssueRoute
   '/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/finance/payments/duplicates': typeof AppFinancePaymentsDuplicatesRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
@@ -1425,6 +1433,7 @@ export interface FileRoutesByTo {
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
   '/finance/invoicing/review-queue': typeof AppFinanceInvoicingReviewQueueRoute
+  '/finance/invoicing/to-issue': typeof AppFinanceInvoicingToIssueRoute
   '/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/finance/payments/duplicates': typeof AppFinancePaymentsDuplicatesRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
@@ -1604,6 +1613,7 @@ export interface FileRoutesById {
   '/_app/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/_app/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
   '/_app/finance/invoicing/review-queue': typeof AppFinanceInvoicingReviewQueueRoute
+  '/_app/finance/invoicing/to-issue': typeof AppFinanceInvoicingToIssueRoute
   '/_app/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/_app/finance/payments/duplicates': typeof AppFinancePaymentsDuplicatesRoute
   '/_app/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
@@ -1783,6 +1793,7 @@ export interface FileRouteTypes {
     | '/finance/invoicing/invoices'
     | '/finance/invoicing/receipts'
     | '/finance/invoicing/review-queue'
+    | '/finance/invoicing/to-issue'
     | '/finance/payments/cards'
     | '/finance/payments/duplicates'
     | '/finance/payments/expenses'
@@ -1950,6 +1961,7 @@ export interface FileRouteTypes {
     | '/finance/invoicing/invoices'
     | '/finance/invoicing/receipts'
     | '/finance/invoicing/review-queue'
+    | '/finance/invoicing/to-issue'
     | '/finance/payments/cards'
     | '/finance/payments/duplicates'
     | '/finance/payments/expenses'
@@ -2128,6 +2140,7 @@ export interface FileRouteTypes {
     | '/_app/finance/invoicing/invoices'
     | '/_app/finance/invoicing/receipts'
     | '/_app/finance/invoicing/review-queue'
+    | '/_app/finance/invoicing/to-issue'
     | '/_app/finance/payments/cards'
     | '/_app/finance/payments/duplicates'
     | '/_app/finance/payments/expenses'
@@ -3102,6 +3115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceInvoicingReviewQueueRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/invoicing/to-issue': {
+      id: '/_app/finance/invoicing/to-issue'
+      path: '/invoicing/to-issue'
+      fullPath: '/finance/invoicing/to-issue'
+      preLoaderRoute: typeof AppFinanceInvoicingToIssueRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/payments/cards': {
       id: '/_app/finance/payments/cards'
       path: '/payments/cards'
@@ -3531,6 +3551,7 @@ interface AppFinanceRouteChildren {
   AppFinanceInvoicingInvoicesRoute: typeof AppFinanceInvoicingInvoicesRoute
   AppFinanceInvoicingReceiptsRoute: typeof AppFinanceInvoicingReceiptsRoute
   AppFinanceInvoicingReviewQueueRoute: typeof AppFinanceInvoicingReviewQueueRoute
+  AppFinanceInvoicingToIssueRoute: typeof AppFinanceInvoicingToIssueRoute
   AppFinancePaymentsCardsRoute: typeof AppFinancePaymentsCardsRoute
   AppFinancePaymentsDuplicatesRoute: typeof AppFinancePaymentsDuplicatesRoute
   AppFinancePaymentsExpensesRoute: typeof AppFinancePaymentsExpensesRoute
@@ -3576,6 +3597,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceInvoicingInvoicesRoute: AppFinanceInvoicingInvoicesRoute,
   AppFinanceInvoicingReceiptsRoute: AppFinanceInvoicingReceiptsRoute,
   AppFinanceInvoicingReviewQueueRoute: AppFinanceInvoicingReviewQueueRoute,
+  AppFinanceInvoicingToIssueRoute: AppFinanceInvoicingToIssueRoute,
   AppFinancePaymentsCardsRoute: AppFinancePaymentsCardsRoute,
   AppFinancePaymentsDuplicatesRoute: AppFinancePaymentsDuplicatesRoute,
   AppFinancePaymentsExpensesRoute: AppFinancePaymentsExpensesRoute,
