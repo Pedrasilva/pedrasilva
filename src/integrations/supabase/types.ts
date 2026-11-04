@@ -19011,8 +19011,13 @@ export type Database = {
       }
       pm_b1_entries: { Args: { _project: string }; Returns: Json[] }
       pm_b1_history: { Args: { _project?: string }; Returns: Json[] }
+      pm_b1_preview_own: { Args: { _project: string }; Returns: Json }
       pm_b1_projects: { Args: { _project?: string }; Returns: Json[] }
       pm_b1_redact: {
+        Args: { _kind: string; _project: string; _row: Json }
+        Returns: Json
+      }
+      pm_b1_redact_proposed: {
         Args: { _kind: string; _project: string; _row: Json }
         Returns: Json
       }

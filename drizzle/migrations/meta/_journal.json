@@ -1800,6 +1800,13 @@
       "when": 1793785019986,
       "tag": "0256_project_b1_projection_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 257,
+      "version": "7",
+      "when": 1793786169872,
+      "tag": "0257_project_b1_readonly_preview",
+      "breakpoints": true
     }
   ]
 }
